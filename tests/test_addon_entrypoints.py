@@ -1,9 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
-
-import yaml
-
 from sciona.runtime import addons as addon_runtime
 
 
@@ -39,43 +35,28 @@ def test_discover_installed_addons_uses_entry_points(monkeypatch):
     assert list(installed.keys()) == ["documentation"]
 
 
-def test_load_respects_enabled_list(tmp_path, monkeypatch):
-    repo_root = tmp_path / "repo"
-    repo_root.mkdir()
-    config_path = addon_runtime.runtime_paths.get_config_path(repo_root)
-    config_path.parent.mkdir(parents=True, exist_ok=True)
-    config_path.write_text(
-        yaml.safe_dump({"addons": ["alpha"]}, sort_keys=False),
-        encoding="utf-8",
-    )
-
-    def _register(registry):
+def test_load_registers_all_installed(monkeypatch):
+    def _register_alpha(registry):
         registry.register_cli("alpha", object())
 
+    def _register_beta(registry):
+        registry.register_cli("beta", object())
+
     installed = {
-        "alpha": _Entry("alpha", _register),
-        "beta": _Entry("beta", lambda _registry: None),
+        "alpha": _Entry("alpha", _register_alpha),
+        "beta": _Entry("beta", _register_beta),
     }
     monkeypatch.setattr(addon_runtime, "_discover_installed_addons", lambda: installed)
     monkeypatch.setattr(addon_runtime, "_addons_disabled", lambda: False)
 
-    registry = addon_runtime.load(repo_root)
+    registry = addon_runtime.load(Path("."))
 
     assert "alpha" in registry.cli_apps
-    assert "beta" not in registry.cli_apps
+    assert "beta" in registry.cli_apps
 
 
-def test_load_enabled_addon_list_wildcard(tmp_path):
-    repo_root = tmp_path / "repo"
-    repo_root.mkdir()
-    config_path = addon_runtime.runtime_paths.get_config_path(repo_root)
-    config_path.parent.mkdir(parents=True, exist_ok=True)
-    config_path.write_text(
-        yaml.safe_dump({"addons": ["*"]}, sort_keys=False),
-        encoding="utf-8",
-    )
-
-    enabled = addon_runtime._load_enabled_addon_list(repo_root, ["b", "a"])
+def test_load_enabled_addon_list_returns_sorted():
+    enabled = addon_runtime._load_enabled_addon_list(["b", "a"])
 
     assert enabled == ["a", "b"]
 

@@ -5,11 +5,8 @@ import os
 from pathlib import Path
 
 from importlib import metadata
-import yaml
-
 from .addon_api import Registry
 from .logging import get_logger, debug_enabled
-from . import paths as runtime_paths
 
 _LOGGER = get_logger("runtime.addons")
 
@@ -18,7 +15,7 @@ def load(repo_root: Path) -> Registry:
     if _addons_disabled():
         return registry
     installed = _discover_installed_addons()
-    enabled = _load_enabled_addon_list(repo_root, list(installed.keys()))
+    enabled = _load_enabled_addon_list(list(installed.keys()))
     if not enabled:
         return registry
     for name in enabled:
@@ -136,28 +133,8 @@ def run_build_hooks(*, repo_root: Path, snapshot_id: str) -> None:
     apply_build_hooks(registry, repo_root=repo_root, snapshot_id=snapshot_id)
 
 
-def _load_enabled_addon_list(repo_root: Path, installed: list[str]) -> list[str]:
-    if repo_root is None:
-        return []
-    config_path = runtime_paths.get_config_path(repo_root)
-    if not config_path.exists():
-        return []
-    try:
-        raw_text = config_path.read_text(encoding="utf-8")
-        if len(raw_text.encode("utf-8")) > 1_000_000:
-            _LOGGER.warning("Config file too large; addons disabled.")
-            return []
-        raw = yaml.safe_load(raw_text) or {}
-    except yaml.YAMLError as exc:
-        _LOGGER.warning("Failed to parse .sciona/config.yaml for addons: %s", exc)
-        return []
-    addons = raw.get("addons") if isinstance(raw, dict) else None
-    if isinstance(addons, list):
-        values = [str(name) for name in addons if name]
-        if "*" in values:
-            return sorted(installed)
-        return values
-    return []
+def _load_enabled_addon_list(installed: list[str]) -> list[str]:
+    return sorted(installed)
 
 
 def _discover_installed_addons() -> dict[str, metadata.EntryPoint]:
@@ -181,5 +158,7 @@ def _env_flag(name: str) -> bool:
 
 
 def is_enabled(repo_root: Path, name: str) -> bool:
+    if _addons_disabled():
+        return False
     installed = _discover_installed_addons()
-    return name in _load_enabled_addon_list(repo_root, list(installed.keys()))
+    return name in installed
