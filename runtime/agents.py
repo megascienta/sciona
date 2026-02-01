@@ -94,7 +94,7 @@ def _filter_hidden_reducers(reducers):
 
 
 def _load_template() -> str:
-    path = Path(__file__).with_name(TEMPLATE_FILENAME)
+    path = Path(__file__).parent / "templates" / TEMPLATE_FILENAME
     return path.read_text(encoding="utf-8")
 
 

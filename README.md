@@ -12,7 +12,6 @@ For system invariants and contracts, see:
 - `CONTRACTS.md`
 - `REDUCERS.md`
 - `ADDONS.md`
-- `USAGE-ADDONS.md`
 
 ---
 
@@ -24,7 +23,15 @@ SCIONA requires Python 3.11 and Tree-sitter runtimes.
 pip install -e .
 ```
 
-Addons are optional; see `USAGE-ADDONS.md` for user guidance.
+Addons are optional and live in the separate sciona-addons repo.
+
+
+---
+
+## Addons
+
+Addons are packaged separately and are not required for core.
+See the sciona-addons repository for addon user and developer docs.
 
 ---
 

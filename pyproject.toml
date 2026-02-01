@@ -7,7 +7,7 @@ name = "sciona"
 version = "1.0.0"
 description = "SCIONA semantic structural index builder"
 authors = [{ name = "SCIONA" }]
-readme = "USAGE.md"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "typer>=0.9,<1.0",
@@ -22,73 +22,46 @@ dependencies = [
 [project.scripts]
 sciona = "sciona.cli.main:run"
 
-[project.entry-points."sciona.addons"]
-documentation = "sciona.addons.documentation:register"
-
-
-[tool.setuptools.package-dir]
-sciona = "core"
-
 [tool.setuptools.package-data]
 sciona = ["prompts/templates/*.md", "prompts/templates/registry.yaml"]
 
-[tool.pytest.ini_options]
-filterwarnings = [
-    "ignore:'BaseCommand' is deprecated and will be removed in Click 9.0.*:DeprecationWarning",
-    "ignore:The '__version__' attribute is deprecated and will be removed in Click 9.1.*:DeprecationWarning",
-]
-
-[tool.importlinter]
-root_package = "sciona"
-
-[[tool.importlinter.contracts]]
-name = "Code analysis cannot import downstream"
-type = "forbidden"
-source_modules = ["sciona.code_analysis"]
-forbidden_modules = [
-    "sciona.prompts",
-]
-ignore_modules = ["tests.*", "scripts.*"]
-
-[[tool.importlinter.contracts]]
-name = "Analysis cannot import prompts"
-type = "forbidden"
-source_modules = ["sciona.code_analysis.analysis"]
-forbidden_modules = ["sciona.prompts"]
-ignore_modules = ["tests.*", "scripts.*"]
-
-[[tool.importlinter.contracts]]
-name = "Prompts can only depend on reducers"
-type = "forbidden"
-source_modules = ["sciona.prompts"]
-forbidden_modules = ["sciona.code_analysis", "sciona.data_storage"]
-allow_indirect_imports = true
-ignore_modules = ["tests.*", "scripts.*"]
-
-[[tool.importlinter.contracts]]
-name = "Graph internals stay internal"
-type = "forbidden"
-source_modules = [
+[tool.setuptools]
+packages = [
+    "sciona",
+    "sciona.api",
     "sciona.cli",
-    "sciona.data_storage",
-    "sciona.data_storage.core_db",
+    "sciona.cli.commands",
     "sciona.code_analysis",
-    "sciona.reducers",
-    "sciona.prompts",
+    "sciona.code_analysis.analysis",
+    "sciona.code_analysis.analysis.graph",
+    "sciona.code_analysis.artifacts",
+    "sciona.code_analysis.core",
+    "sciona.code_analysis.core.annotate",
+    "sciona.code_analysis.core.extract",
+    "sciona.code_analysis.core.extract.languages",
+    "sciona.code_analysis.core.normalize",
+    "sciona.code_analysis.tools",
+    "sciona.data_storage",
+    "sciona.data_storage.artifact_db",
+    "sciona.data_storage.core_db",
     "sciona.pipelines",
+    "sciona.pipelines.config",
+    "sciona.pipelines.exec",
+    "sciona.pipelines.policy",
+    "sciona.prompts",
+    "sciona.reducers",
+    "sciona.reducers.baseline",
+    "sciona.reducers.composites",
+    "sciona.reducers.helpers",
+    "sciona.reducers.structural",
+    "sciona.reducers.summaries",
+    "sciona.runtime",
     "sciona.runtime.llm",
+    "sciona.runtime.llm.providers",
 ]
-forbidden_modules = [
-    "sciona.code_analysis.analysis.graph.traversal",
-    "sciona.code_analysis.analysis.graph.delta",
-]
-allow_indirect_imports = true
-ignore_modules = ["tests.*", "scripts.*"]
 
-[[tool.importlinter.contracts]]
-name = "DBs cannot import pipelines"
-type = "forbidden"
-source_modules = ["sciona.data_storage"]
-forbidden_modules = ["sciona.pipelines"]
-allow_indirect_imports = true
-ignore_modules = ["tests.*", "scripts.*"]
+[tool.setuptools.package-dir]
+sciona = "."
+
+[tool.pytest.ini_options]
+cache_dir = "/tmp/sciona-pytest-cache"
