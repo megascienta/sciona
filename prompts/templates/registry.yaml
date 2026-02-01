@@ -1,0 +1,29 @@
+preflight_v1:
+  kind: core
+  spec: preflight_v1.md
+  reducers:
+    - codebase_orientation
+    - dependency_summary
+    - hotspot_summary
+  required_args: []
+  summary: Pre-flight structural assessment of the codebase.
+
+architecture_overview_v1:
+  kind: core
+  spec: architecture_overview_v1.md
+  reducers:
+    - codebase_structure_summary
+    - surface_index
+    - public_surface_index
+  required_args: []
+  summary: Architecture overview from structural summaries and public surfaces.
+
+risk_radar_v1:
+  kind: core
+  spec: risk_radar_v1.md
+  reducers:
+    - fan_summary
+    - dependency_summary
+    - hotspot_summary
+  required_args: []
+  summary: Structural risk radar focused on fan-in/out and hotspots.

@@ -1,0 +1,149 @@
+"""Class overview reducer."""
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Dict, List
+
+from ...code_analysis.analysis.orderings import order_nodes
+from ..helpers.artifact_graph_edges import load_artifact_edges
+from ..helpers.profile_utils import (
+    extract_confidence,
+    fetch_node_instance,
+    python_class_extras,
+    typescript_class_extras,
+)
+from ..helpers import queries
+from ..helpers.render import render_json_payload, require_connection
+from ..metadata import ReducerMeta
+from ..helpers.types import ClassOverviewPayload
+from ..helpers.utils import require_latest_committed_snapshot
+
+REDUCER_META = ReducerMeta(
+    reducer_id="class_overview",
+    scope="class",
+    placeholders=("CLASS_OVERVIEW",),
+    determinism="strict",
+    payload_size_stats=None,
+    semantic_tag="evidence",
+    summary="Structural overview payload for a class.",
+)
+
+def render(
+    snapshot_id: str,
+    conn,
+    repo_root,
+    class_id: str | None = None,
+    method_id: str | None = None,
+    **_: object,
+) -> str:
+    conn = require_connection(conn)
+    resolved_class_id = class_id
+    if not resolved_class_id and method_id:
+        method_structural_id = queries.resolve_method_id(conn, snapshot_id, method_id)
+        edges = load_artifact_edges(
+            Path(repo_root),
+            snapshot_id=snapshot_id,
+            edge_kinds=["DEFINES_METHOD"],
+            dst_ids=[method_structural_id],
+        )
+        if edges:
+            resolved_class_id = edges[0][0]
+    payload = run(snapshot_id, conn=conn, repo_root=repo_root, class_id=resolved_class_id)
+    return render_json_payload(payload)
+
+
+def run(snapshot_id: str, **params) -> ClassOverviewPayload:
+    conn = params.get("conn")
+    if conn is None:
+        raise ValueError("class_overview reducer requires an active database connection.")
+    row = conn.execute(
+        "SELECT is_committed FROM snapshots WHERE snapshot_id = ?",
+        (snapshot_id,),
+    ).fetchone()
+    if not row or not row["is_committed"]:
+        raise ValueError("class_overview reducer requires a committed snapshot.")
+    require_latest_committed_snapshot(conn, snapshot_id, reducer_name="class_overview reducer")
+    class_id = params.get("class_id")
+    if not class_id:
+        raise ValueError("class_overview requires 'class_id'.")
+
+    row = fetch_node_instance(conn, snapshot_id, class_id)
+    if row["node_type"] != "class":
+        raise ValueError(f"Node '{class_id}' is not a class.")
+
+    repo_root = params.get("repo_root")
+    repo_path = Path(repo_root) if repo_root else None
+    module_id = queries.module_id_for_structural(conn, snapshot_id, class_id)
+    decorators: List[str] = []
+    bases: List[str] = []
+    has_docstring = False
+    docstring_span: List[int] | None = None
+    if row["language"] == "python":
+        decorators, bases, has_docstring, doc_span = python_class_extras(
+            row["language"],
+            repo_path,
+            row["file_path"],
+            row["start_line"],
+            row["end_line"],
+        )
+        if doc_span:
+            docstring_span = [doc_span[0], doc_span[1]]
+    elif row["language"] == "typescript":
+        decorators, bases = typescript_class_extras(
+            row["language"],
+            repo_path,
+            row["file_path"],
+            row["start_line"],
+            row["end_line"],
+        )
+
+    methods = _load_methods(conn, snapshot_id, class_id, repo_path)
+    return {
+        "projection": "class_overview",
+        "projection_version": "1.0",
+        "class_id": class_id,
+        "language": row["language"],
+        "module_id": module_id,
+        "file_path": row["file_path"],
+        "line_span": [row["start_line"], row["end_line"]],
+        "content_hash": row["content_hash"],
+        "decorators": decorators,
+        "bases": bases,
+        "has_docstring": has_docstring,
+        "docstring_span": docstring_span,
+        "methods": methods,
+        "confidence": extract_confidence(row, repo_path),
+    }
+
+
+def _load_methods(conn, snapshot_id: str, class_id: str, repo_root: Path | None) -> List[Dict[str, str]]:
+    if repo_root is None:
+        return []
+    edges = load_artifact_edges(
+        repo_root,
+        snapshot_id=snapshot_id,
+        edge_kinds=["DEFINES_METHOD"],
+        src_ids=[class_id],
+    )
+    method_ids = [dst for _, dst, _ in edges]
+    if not method_ids:
+        return []
+    placeholders = ",".join("?" for _ in method_ids)
+    rows = conn.execute(
+        f"""
+        SELECT ni.structural_id, ni.qualified_name
+        FROM node_instances ni
+        JOIN structural_nodes sn ON sn.structural_id = ni.structural_id
+        WHERE ni.snapshot_id = ?
+          AND ni.structural_id IN ({placeholders})
+          AND sn.node_type = 'method'
+        """,
+        (snapshot_id, *method_ids),
+    ).fetchall()
+    entries = [
+        {"function_id": row["structural_id"], "qualified_name": row["qualified_name"]}
+        for row in rows
+        if row["qualified_name"]
+    ]
+    order_nodes(entries, key="qualified_name")
+    return entries

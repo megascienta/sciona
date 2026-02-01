@@ -1,0 +1,83 @@
+"""CLI helpers for error handling and argument parsing."""
+from __future__ import annotations
+
+import re
+import traceback
+
+import typer
+
+from ..runtime.logging import debug_enabled
+from ..pipelines.policy import repo as policy_repo
+from . import render as cli_render
+from .errors import handle_cli_error
+
+
+def cli_call(func, *args, **kwargs):
+    """Invoke CLI helpers and translate errors into CLI exits."""
+    try:
+        return func(*args, **kwargs)
+    except Exception as exc:
+        try:
+            handle_cli_error(exc)
+        except typer.Exit:
+            raise
+        except Exception:
+            typer.secho(f"Internal error: {exc}", fg=typer.colors.RED)
+            if debug_enabled():
+                typer.secho(traceback.format_exc(), fg=typer.colors.YELLOW, err=True)
+            raise typer.Exit(code=1) from exc
+        raise
+
+
+runtime_call = cli_call
+setup_call = cli_call
+
+def parse_extra_args(args: list[str]) -> dict[str, str]:
+    """Parse --key value or --key=value args into a string-only key/value map; no positional args or coercion. This function is part of the CLI ABI; do not change without a version bump."""
+    parsed: dict[str, str] = {}
+    index = 0
+    while index < len(args):
+        token = args[index]
+        if token.startswith("--") and "=" in token:
+            key, value = token[2:].split("=", 1)
+            normalized = key.replace("-", "_")
+            _validate_extra_arg(normalized, value)
+            parsed[normalized] = value
+            index += 1
+            continue
+        if token.startswith("--"):
+            key = token[2:].replace("-", "_")
+            if index + 1 >= len(args):
+                raise typer.BadParameter(f"Missing value for '{token}'.")
+            value = args[index + 1]
+            _validate_extra_arg(key, value)
+            parsed[key] = value
+            index += 2
+            continue
+        raise typer.BadParameter(f"Unexpected argument '{token}'.")
+    return parsed
+
+
+def emit_dirty_worktree_warning(repo_root=None) -> None:
+    warning = get_dirty_worktree_warning(repo_root)
+    if warning:
+        cli_render.emit_warning([warning])
+
+
+def get_dirty_worktree_warning(repo_root=None) -> str | None:
+    try:
+        repo_state = policy_repo.resolve_repo_state(repo_root, allow_missing_config=True)
+        return policy_repo.dirty_worktree_warning(repo_state)
+    except Exception:
+        return None
+
+
+def _validate_extra_arg(key: str, value: str) -> None:
+    if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", key or ""):
+        raise typer.BadParameter(f"Invalid parameter name '{key}'.")
+    if key.startswith("__"):
+        raise typer.BadParameter(f"Invalid parameter name '{key}'.")
+    if any(ch in value for ch in ("\x00", "\n", "\r")):
+        raise typer.BadParameter(f"Invalid value for '{key}'.")
+    if any(ch in value for ch in (";", "|", "&", "`")):
+        raise typer.BadParameter(f"Invalid value for '{key}'.")
