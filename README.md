@@ -11,7 +11,6 @@ For system invariants and contracts, see:
 - `ARCHITECTURE.md`
 - `CONTRACTS.md`
 - `REDUCERS.md`
-- `ADDONS.md`
 
 ---
 
@@ -22,16 +21,6 @@ SCIONA requires Python 3.11 and Tree-sitter runtimes.
 ```bash
 pip install -e .
 ```
-
-Addons are optional and live in the separate sciona-addons repo.
-
-
----
-
-## Addons
-
-Addons are packaged separately and are not required for core.
-See the sciona-addons repository for addon user and developer docs.
 
 ---
 
@@ -228,11 +217,3 @@ Reducers emit machine-readable JSON by default; use `--json` on prompts for the 
 - `sciona.log` — logs (if logging is enabled and repo is initialized)
 
 If you see schema mismatch errors in 1.0, remove `.sciona/` and re-init.
-
----
-
-## CLI extra args
-
-`sciona prompt run` accepts extra args as `--key value` or `--key=value`.
-Keys must match `[A-Za-z][A-Za-z0-9_]*` and cannot start with `__`.
-Values cannot contain nulls, newlines, or shell metacharacters like `;`, `|`, `&`, or `` ` ``.

@@ -2,7 +2,7 @@
 
 This document defines binding contracts for contributors, addons, prompts, and tooling.
 This document defines the external contracts for ingestion, edges, reducers,
-prompts, and CLI usage in SCIONA 1.0. Addon contracts are in `ADDONS.md`.
+prompts, and CLI usage in SCIONA 1.0.
 
 ---
 
@@ -18,8 +18,6 @@ Applies to core, reducers, prompts, addons, and CLI.
 - Build/rebuild require a **clean worktree** for tracked language sources.
 - Read-only commands may proceed on a dirty worktree but must warn that outputs
   reflect the last committed snapshot.
-- Addons consume latest-snapshot data via core services and do not accept
-  arbitrary snapshot ids.
 
 ---
 

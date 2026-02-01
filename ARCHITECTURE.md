@@ -14,7 +14,7 @@ code (nodes), how entities relate (edges), and which snapshot the facts came
 from. It does not interpret intent or behavior.
 
 Derived tooling (prompts) may consume the index but must not feed data back into
-it. Addon boundaries and behavior are documented in `ADDONS.md`.
+it.
 
 ---
 
@@ -50,10 +50,6 @@ it. Addon boundaries and behavior are documented in `ADDONS.md`.
 - Rollups: `module_call_edges`, `class_call_edges`, `node_fan_stats`
 
 Artifacts are rebuilt for the **latest committed snapshot** and are not part of SCI.
-
-### Addon DBs
-
-Addon-specific data stores live outside SCI. See `ADDONS.md`.
 
 ---
 
@@ -147,8 +143,7 @@ for continuity calculations; all outputs still target the latest committed snaps
 ## Determinism
 
 SCIONA must not use network calls during analysis or reducers. Reducers must
-produce stable ordering and deterministic text/JSON output. Addon pipeline
-constraints are documented in `ADDONS.md`.
+produce stable ordering and deterministic text/JSON output.
 
 ---
 
