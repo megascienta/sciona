@@ -7,7 +7,6 @@ from typing import Dict, List
 from ...code_analysis.analysis.orderings import order_nodes
 from ..helpers.artifact_graph_edges import load_artifact_edges
 from ..helpers.profile_utils import (
-    extract_confidence,
     fetch_node_instance,
     python_class_extras,
     typescript_class_extras,
@@ -112,7 +111,6 @@ def run(snapshot_id: str, **params) -> ClassOverviewPayload:
         "has_docstring": has_docstring,
         "docstring_span": docstring_span,
         "methods": methods,
-        "confidence": extract_confidence(row, repo_path),
     }
 
 

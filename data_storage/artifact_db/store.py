@@ -2,11 +2,10 @@
 from __future__ import annotations
 
 import sqlite3
-from dataclasses import dataclass
 from typing import Iterable, Mapping, Sequence
 from ...runtime.time import utc_now
 
-from ..encoding import bool_to_int, int_to_bool
+from ..encoding import bool_to_int
 from ..sql_utils import SQLITE_MAX_VARS, chunked, temp_id_table
 
 NODE_STATUS_PRODUCER = "node_status_v1"
@@ -157,110 +156,3 @@ def insert_graph_edges(conn: sqlite3.Connection, *, rows: Iterable[tuple[str, st
         """,
         list(rows),
     )
-
-
-@dataclass(frozen=True)
-class NodeContinuityRecord:
-    node_id: str
-    window_size: int
-    survived_count: int
-    renamed: bool
-    moved: bool
-    split_from: str | None
-    volatility_score: float
-    confidence: float
-    computed_at: str
-
-def upsert_node_continuity(
-    conn: sqlite3.Connection,
-    *,
-    node_id: str,
-    window_size: int,
-    survived_count: int,
-    renamed: bool,
-    moved: bool,
-    split_from: str | None,
-    volatility_score: float,
-    confidence: float,
-    computed_at: str | None = None,
-) -> None:
-    _validate_continuity(window_size, survived_count, volatility_score, confidence)
-    ts = computed_at or utc_now()
-    conn.execute(
-        """
-        INSERT INTO node_continuity(
-            node_id, window_size, survived_count, renamed, moved, split_from,
-            volatility_score, confidence, computed_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(node_id) DO UPDATE SET
-            window_size=excluded.window_size,
-            survived_count=excluded.survived_count,
-            renamed=excluded.renamed,
-            moved=excluded.moved,
-            split_from=excluded.split_from,
-            volatility_score=excluded.volatility_score,
-            confidence=excluded.confidence,
-            computed_at=excluded.computed_at
-        """,
-        (
-            node_id,
-            window_size,
-            survived_count,
-            bool_to_int(renamed),
-            bool_to_int(moved),
-            split_from,
-            float(volatility_score),
-            float(confidence),
-            ts,
-        ),
-    )
-
-
-def _validate_continuity(
-    window_size: int,
-    survived_count: int,
-    volatility_score: float,
-    confidence: float,
-) -> None:
-    max_int = 2**31 - 1
-    if window_size < 0 or window_size > max_int:
-        raise ValueError(f"window_size out of range: {window_size}")
-    if survived_count < 0 or survived_count > window_size:
-        raise ValueError(f"survived_count invalid: {survived_count}/{window_size}")
-    if not (0.0 <= float(volatility_score) <= 1.0):
-        raise ValueError(f"volatility_score out of range: {volatility_score}")
-    if not (0.0 <= float(confidence) <= 1.0):
-        raise ValueError(f"confidence out of range: {confidence}")
-
-def get_node_continuity_for_nodes(
-    conn: sqlite3.Connection,
-    *,
-    node_ids: Sequence[str],
-) -> dict[str, NodeContinuityRecord]:
-    if not node_ids:
-        return {}
-    out: dict[str, NodeContinuityRecord] = {}
-    for batch in chunked(list(node_ids), SQLITE_MAX_VARS):
-        placeholders = ",".join(["?"] * len(batch))
-        query = """
-            SELECT node_id, window_size, survived_count, renamed, moved, split_from,
-                   volatility_score, confidence, computed_at
-            FROM node_continuity
-            WHERE node_id IN ({placeholders})
-            """
-        query = query.format(placeholders=placeholders)
-        rows = conn.execute(query, tuple(batch)).fetchall()
-        for r in rows:
-            rec = NodeContinuityRecord(
-                node_id=r["node_id"],
-                window_size=int(r["window_size"]),
-                survived_count=int(r["survived_count"]),
-                renamed=int_to_bool(r["renamed"]),
-                moved=int_to_bool(r["moved"]),
-                split_from=r["split_from"],
-                volatility_score=float(r["volatility_score"]),
-                confidence=float(r["confidence"]),
-                computed_at=r["computed_at"],
-            )
-            out[rec.node_id] = rec
-    return out

@@ -7,7 +7,7 @@ from typing import Dict, List, Optional, Tuple
 from ...code_analysis.analysis.orderings import order_nodes, order_strings
 from ..helpers import queries
 from ..helpers.artifact_graph_edges import load_artifact_edges
-from ..helpers.profile_utils import extract_confidence, fetch_node_instance
+from ..helpers.profile_utils import fetch_node_instance
 from ..helpers.render import render_json_payload, require_connection
 from ..helpers.types import ModuleOverviewPayload
 from ..helpers.utils import require_latest_committed_snapshot
@@ -108,7 +108,6 @@ def run(snapshot_id: str, **params) -> ModuleOverviewPayload:
         },
         "language_breakdown": language_breakdown,
         "imports": imports,
-        "confidence": extract_confidence(row, repo_path),
     }
 
 

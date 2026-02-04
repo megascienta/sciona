@@ -26,7 +26,6 @@ it.
 - Derived artifacts live outside SCI and never modify it.
 - Public pipelines and CLI surfaces read the **latest committed snapshot only**.
 - ArtifactDB always reflects the **latest committed snapshot**.
-- Continuity is computed from history but stored only for latest snapshot nodes.
 - Best-effort parsing is allowed; ambiguity is omitted, not guessed.
 
 ---
@@ -45,8 +44,6 @@ it.
 - `node_status`: per-snapshot node state (added/modified/unchanged)
 - `node_calls`: derived call edges with `call_hash`
 - `graph_nodes` / `graph_edges`: combined graph index (structural + calls)
-- `node_continuity`: continuity metrics computed from all committed snapshots,
-  stored for latest snapshot nodes only
 - Rollups: `module_call_edges`, `class_call_edges`, `node_fan_stats`
 
 Artifacts are rebuilt for the **latest committed snapshot** and are not part of SCI.
@@ -118,7 +115,7 @@ Artifacts are rebuilt for the **latest committed snapshot** and are not part of 
 2. Ingest snapshot and compute structural hash.
 3. Reuse latest snapshot if identical; otherwise commit a new snapshot.
 4. Rotate committed snapshots per retention policy.
-5. Rebuild artifacts for the latest committed snapshot (node status, call artifacts, graph index, continuity).
+5. Rebuild artifacts for the latest committed snapshot (node status, call artifacts, graph index).
 
 No ephemeral snapshots are exposed. Uncommitted snapshots are internal only.
 
@@ -131,14 +128,6 @@ No ephemeral snapshots are exposed. Uncommitted snapshots are internal only.
 - Import edges are syntax-based hints, not full symbol resolution.
 - Call graphs are derived artifacts and may be incomplete.
 - Module names are derived from repo-relative paths only; packaging metadata is ignored.
-
-### Historical bootstrap
-
-When no committed snapshots exist, SCIONA can seed history by replaying a
-bounded window of past commits (controlled by config). This history is used only
-for continuity calculations; all outputs still target the latest committed snapshot.
-
----
 
 ## Determinism
 

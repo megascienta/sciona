@@ -10,7 +10,6 @@ from ..code_analysis.core.annotate import diff as annotate_diff
 from ..data_storage.connections import artifact
 from ..data_storage.transactions import transaction_pair
 from ..data_storage.artifact_db import store as artifact_store
-from ..data_storage.artifact_db.maintenance_continuity import rebuild_node_continuity
 from ..data_storage.artifact_db.maintenance_graph import (
     rebuild_graph_index,
     rebuild_graph_rollups,
@@ -82,7 +81,6 @@ def refresh_artifact_state(
             )
             rebuild_graph_index(artifact_conn, core_conn=conn, snapshot_id=snapshot_id)
             rebuild_graph_rollups(artifact_conn, core_conn=conn, snapshot_id=snapshot_id)
-            rebuild_node_continuity(artifact_conn, core_conn=conn, snapshot_id=snapshot_id)
     if run_addon_hooks:
         addon_runtime.run_build_hooks(repo_root=repo_root, snapshot_id=snapshot_id)
 

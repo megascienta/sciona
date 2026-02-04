@@ -250,7 +250,7 @@ class Diagnostics:
         dangling_edges = self._count_dangling_edges(snapshot_id)
         missing_instances = self._count_missing_instances(snapshot_id)
         containment_conflicts = self._find_containment_conflicts(snapshot_id)
-        low_conf_ratio, low_conf_count = self._low_confidence_continuity(snapshot_id)
+        low_conf_ratio, low_conf_count = self._low_confidence_nodes(snapshot_id)
 
         metrics: Dict[str, object] = {
             "orphan_nodes": {
@@ -263,7 +263,7 @@ class Diagnostics:
                 "count": len(containment_conflicts),
                 "structural_ids": containment_conflicts,
             },
-            "low_confidence_continuity": {
+            "low_confidence_nodes": {
                 "count": low_conf_count,
                 "ratio": low_conf_ratio,
                 "threshold": 0.35,
@@ -355,7 +355,7 @@ class Diagnostics:
         structural_ids.sort()
         return structural_ids
 
-    def _low_confidence_continuity(self, snapshot_id: str) -> Tuple[float, int]:
+    def _low_confidence_nodes(self, snapshot_id: str) -> Tuple[float, int]:
         return 0.0, 0
 
     def _module_breakdown(

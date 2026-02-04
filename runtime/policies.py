@@ -4,14 +4,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Mapping
 
-from .config import BootstrapPolicy, LanguageSettings, SnapshotPolicy
+from .config import LanguageSettings, SnapshotPolicy
 
 
 @dataclass(frozen=True)
 class AnalysisPolicy:
     languages: Mapping[str, LanguageSettings]
     snapshot_policy: SnapshotPolicy
-    bootstrap_policy: BootstrapPolicy
 
 
 @dataclass(frozen=True)

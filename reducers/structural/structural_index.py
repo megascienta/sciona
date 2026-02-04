@@ -20,7 +20,6 @@ from ..helpers.utils import require_latest_committed_snapshot
 from ...code_analysis.analysis.orderings import order_edges, order_nodes
 from ..helpers.artifact_graph_edges import load_artifact_edges
 from ..helpers.types import StructuralIndexPayload
-from ...data_storage.artifact_db import connect as artifact_connect
 
 REDUCER_META = ReducerMeta(
     reducer_id="structural_index",
@@ -36,8 +35,6 @@ def render(snapshot_id: str, conn, repo_root, **_: object) -> str:
     conn = require_connection(conn)
     payload = run(snapshot_id, conn=conn, repo_root=repo_root)
     return render_json_payload(payload)
-from ...data_storage.artifact_db import store as artifact_store
-from ...pipelines.config import public as config
 
 CLASS_NODE_TYPES = {"class", "interface"}
 CALLABLE_NODE_TYPES = {"function", "method"}
@@ -81,7 +78,6 @@ def run(snapshot_id: str, **params) -> StructuralIndexPayload:
     method_stats = _callable_stats(method_counts, method_languages)
     import_edges = _import_edges(module_graph)
     import_cycles = _import_cycles(import_edges)
-    confidence_summary = _confidence_summary(conn, snapshot_id, params.get("repo_root"))
 
     return {
         "projection": "structural_index",
@@ -106,7 +102,6 @@ def run(snapshot_id: str, **params) -> StructuralIndexPayload:
             "edges": import_edges,
         },
         "import_cycles": import_cycles,
-        "confidence_summary": confidence_summary,
     }
 
 
@@ -351,37 +346,3 @@ def _count_to_entries(counts: Dict[str, int], key_name: str) -> List[Dict[str, o
     order_nodes(entries, key=lambda item: (-item["count"], item[key_name]))
     return entries
 
-
-def _confidence_summary(conn, snapshot_id: str, repo_root: Optional[str]) -> Optional[Dict[str, object]]:
-    if not repo_root:
-        return None
-    artifact_path = config.get_artifact_db_path(Path(repo_root))
-    if not artifact_path.exists():
-        return None
-    node_rows = conn.execute(
-        "SELECT structural_id FROM node_instances WHERE snapshot_id = ?",
-        (snapshot_id,),
-    ).fetchall()
-    node_ids = [row["structural_id"] for row in node_rows]
-    if not node_ids:
-        return None
-    artifact_conn = artifact_connect(artifact_path)
-    try:
-        records = artifact_store.get_node_continuity_for_nodes(
-            artifact_conn,
-            node_ids=node_ids,
-        )
-    finally:
-        artifact_conn.close()
-    if not records:
-        return None
-    confidences = [record.confidence for record in records.values()]
-    window_size = next(iter(records.values())).window_size if records else None
-    total = len(node_ids)
-    return {
-        "total": total,
-        "window_size": window_size,
-        "average_confidence": sum(confidences) / len(confidences) if confidences else None,
-        "min_confidence": min(confidences) if confidences else None,
-        "max_confidence": max(confidences) if confidences else None,
-    }

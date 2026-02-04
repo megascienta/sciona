@@ -6,7 +6,6 @@ from typing import Dict, List, Optional
 
 from ..helpers.artifact_graph_edges import load_artifact_edges
 from ..helpers.profile_utils import (
-    extract_confidence,
     fetch_node_instance,
     python_function_extras,
     typescript_function_extras,
@@ -122,7 +121,6 @@ def run(snapshot_id: str, **params) -> FunctionOverviewPayload:
         "parent_structural_id": parent.get("structural_id"),
         "parent_type": parent.get("node_type"),
         "parent_qualified_name": parent.get("qualified_name"),
-        "confidence": extract_confidence(row, repo_path),
     }
 
 

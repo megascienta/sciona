@@ -13,8 +13,6 @@ Applies to core, reducers, prompts, addons, and CLI.
 - All public pipelines/CLI operate on the **latest committed snapshot only**.
 - ArtifactDB always reflects the **latest committed snapshot** (see Artifact DB
   definition in `ARCHITECTURE.md`).
-- History is used only to compute continuity metrics stored for latest snapshot nodes
-  (see continuity rules in `ARCHITECTURE.md`).
 - Build/rebuild require a **clean worktree** for tracked language sources.
 - Read-only commands may proceed on a dirty worktree but must warn that outputs
   reflect the last committed snapshot.
@@ -129,8 +127,6 @@ Artifact rebuild helpers live under `data_storage/artifact_db/`.
 - `node_status` is rebuilt for the latest committed snapshot.
 - `node_calls.call_hash` is the node content hash from the core snapshot.
 - `graph_nodes`/`graph_edges` are rebuilt from core edges and node_calls.
-- `node_continuity` is recomputed using all committed snapshots but stored only
-  for nodes in the latest committed snapshot.
 
 Artifacts are not authoritative structural truth.
 ArtifactDB is always scoped to the latest committed snapshot.
@@ -197,8 +193,6 @@ Derived / optional (public, non-core):
 - hotspot_summary
 - class_call_graph
 - module_call_graph
-- confidence_summary
-- continuity_summary
 - callsite_index
 
 Structural optional (public, non-core):

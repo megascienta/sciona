@@ -84,7 +84,7 @@ sciona build     # create or reuse latest committed snapshot (clean worktree req
 sciona status    # show latest snapshot and DB state (warns if dirty)
 ```
 
-Snapshot and continuity semantics are defined in `ARCHITECTURE.md` and `CONTRACTS.md`.
+Snapshot semantics are defined in `ARCHITECTURE.md` and `CONTRACTS.md`.
 Read-only commands warn when the worktree is dirty because outputs reflect the
 last committed snapshot.
 

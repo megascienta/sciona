@@ -161,7 +161,7 @@ def test_callable_overview_reducer_returns_python_metadata(tmp_path):
     assert payload["docstring_span"] == [14, 14]
     assert payload["parent_structural_id"] == repo["ids"]["module_alpha"]
     assert payload["decorators"] == []
-    assert payload["confidence"]["presence"] is None
+    assert "confidence" not in payload
 
 
 def test_callable_overview_reducer_returns_typescript_metadata(tmp_path):
@@ -180,7 +180,7 @@ def test_callable_overview_reducer_returns_typescript_metadata(tmp_path):
     assert payload["parameters"] == ["name"]
     assert payload["decorators"] == []
     assert payload["signature"].startswith("createWidget(name")
-    assert payload["confidence"]["continuity"] is None
+    assert "confidence" not in payload
 
 
 def test_class_overview_reducer_exposes_methods_and_metadata(tmp_path):
@@ -206,7 +206,7 @@ def test_class_overview_reducer_exposes_methods_and_metadata(tmp_path):
             "qualified_name": "pkg.alpha.service.OrderService.method_one",
         }
     ]
-    assert payload["confidence"]["presence"] is None
+    assert "confidence" not in payload
 
 
 def test_module_overview_reducer_lists_children_and_imports(tmp_path):
@@ -235,7 +235,7 @@ def test_module_overview_reducer_lists_children_and_imports(tmp_path):
             "module_id": "pkg.beta.worker",
         }
     ]
-    assert payload["confidence"]["exists_now"] is None
+    assert "confidence" not in payload
 
 
 def test_module_overview_reducer_expands_package_modules(tmp_path):

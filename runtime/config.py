@@ -19,8 +19,6 @@ from .config_defaults import (
     DEFAULT_LOG_STRUCTURED,
     DEFAULT_LLM_MAX_RETRIES,
     DEFAULT_LLM_TIMEOUT,
-    DEFAULT_MAX_COMMITS,
-    DEFAULT_MAX_DAYS,
     DEFAULT_RETENTION_K,
     DEFAULT_TEMPERATURE,
     LANGUAGE_DEFAULTS,
@@ -47,17 +45,10 @@ class SnapshotPolicy:
 
 
 @dataclass(frozen=True)
-class BootstrapPolicy:
-    max_commits: int
-    max_days: int
-
-
-@dataclass(frozen=True)
 class RuntimeConfig:
     languages: Dict[str, LanguageSettings]
     discovery: DiscoverySettings
     snapshot_policy: SnapshotPolicy
-    bootstrap_policy: BootstrapPolicy
     database: "DatabaseSettings"
     git: "GitSettings"
 
@@ -192,30 +183,18 @@ def _snapshot_policy(data: Dict[str, Any]) -> SnapshotPolicy:
     return SnapshotPolicy(retention_committed=retention_value)
 
 
-def _bootstrap_policy(data: Dict[str, Any]) -> BootstrapPolicy:
-    max_commits = _coerce_int(data, "max_commits", DEFAULT_MAX_COMMITS)
-    if max_commits < 1:
-        max_commits = DEFAULT_MAX_COMMITS
-    max_days = _coerce_int(data, "max_days", DEFAULT_MAX_DAYS)
-    if max_days < 1:
-        max_days = DEFAULT_MAX_DAYS
-    return BootstrapPolicy(max_commits=max_commits, max_days=max_days)
-
-
 def _load_runtime_config(repo_root: Path) -> RuntimeConfig:
     raw = _load_raw_config(repo_root)
     languages = _load_language_settings(repo_root)
     discovery = _load_discovery_settings(raw)
     policies_block = raw.get("policies", {}) if isinstance(raw, dict) else {}
     snapshot_policy = _snapshot_policy(policies_block.get("snapshots", {}))
-    bootstrap_policy = _bootstrap_policy(policies_block.get("bootstrap", {}))
     database = _load_database_settings(raw)
     git = _load_git_settings(raw)
     return RuntimeConfig(
         languages=languages,
         discovery=discovery,
         snapshot_policy=snapshot_policy,
-        bootstrap_policy=bootstrap_policy,
         database=database,
         git=git,
     )
@@ -345,7 +324,6 @@ __all__ = [
     "LanguageSettings",
     "DiscoverySettings",
     "SnapshotPolicy",
-    "BootstrapPolicy",
     "RuntimeConfig",
     "LoggingSettings",
     "LLMSettings",

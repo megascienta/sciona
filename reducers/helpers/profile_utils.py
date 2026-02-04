@@ -10,11 +10,6 @@ from typing import Dict, List, Optional, Tuple
 from tree_sitter import Parser
 from tree_sitter_languages import get_language
 
-from ...data_storage.artifact_db import connect as artifact_connect
-from ...data_storage.artifact_db import store as artifact_store
-from ...pipelines.config import public as config
-
-
 def fetch_node_instance(conn, snapshot_id: str, structural_id: str) -> dict:
     """Return structural + instance metadata for the requested node."""
     row = conn.execute(
@@ -38,39 +33,6 @@ def fetch_node_instance(conn, snapshot_id: str, structural_id: str) -> dict:
     if not row:
         raise ValueError(f"Node '{structural_id}' not found in snapshot '{snapshot_id}'.")
     return row
-
-
-def extract_confidence(row, repo_root: Optional[Path]) -> Dict[str, object]:
-    """Extract continuity metadata from the artifact store."""
-    fallback = {
-        "exists_now": None,
-        "presence": None,
-        "continuity": None,
-        "reducer_version": None,
-    }
-    if repo_root is None:
-        return fallback
-    artifact_db_path = config.get_artifact_db_path(repo_root)
-    if not artifact_db_path.exists():
-        return fallback
-    conn = artifact_connect(artifact_db_path)
-    try:
-        records = artifact_store.get_node_continuity_for_nodes(
-            conn,
-            node_ids=[row["structural_id"]],
-        )
-        record = records.get(row["structural_id"])
-        if not record:
-            return fallback
-        presence = (record.survived_count / record.window_size) if record.window_size else None
-        return {
-            "exists_now": 1,
-            "presence": presence,
-            "continuity": record.confidence,
-            "reducer_version": "continuity_v1",
-        }
-    finally:
-        conn.close()
 
 
 def python_function_extras(

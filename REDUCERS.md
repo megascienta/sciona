@@ -8,7 +8,6 @@ suitability for any specific prompt.
 
 Snapshot policy:
 - Reducers operate on the **latest committed snapshot only**.
-- History is used only for continuity calculations (results stored for latest snapshot nodes).
 
 ---
 
@@ -41,8 +40,6 @@ Derived / optional (public, non-core):
 - hotspot_summary
 - class_call_graph
 - module_call_graph
-- confidence_summary
-- continuity_summary
 - callsite_index
 - importers_index
 
@@ -99,13 +96,9 @@ Notes:
 | hotspot_summary | codebase | HOTSPOT_SUMMARY | strict | true | false | false | Compressed codebase hotspot summary. |
 | module_call_graph | module | MODULE_CALL_GRAPH | strict | true | false | false | Module-level call graph summary. |
 | class_method_list | class | CLASS_METHOD_LIST | strict | true | false | false | List of methods for a class with basic visibility. |
-| confidence_summary | codebase | CONFIDENCE_SUMMARY | conditional | true | false | false | Confidence summary for classes, functions, methods, or codebase. |
-| continuity_summary | codebase | CONTINUITY_SUMMARY | conditional | true | false | false | Continuity summary for codebase or node. |
 | importers_index | codebase | IMPORTERS_INDEX | strict | true | false | false | Index of modules that import target module(s). |
 
 Notes:
-- `confidence_summary` accepts `callable_id`, `function_id`, `method_id`, `class_id`, or `scope=codebase`.
-- `continuity_summary` accepts `callable_id`, `function_id`, `method_id`, or `class_id`.
 - `callsite_index` accepts `callable_id`, `function_id`, or `method_id` and returns CALLS edges from ArtifactDB when available.
   Each edge includes `edge_source`, optional `call_hash`, caller/callee language and node type metadata; `line_span`
   is null unless a callsite store is added in ArtifactDB.

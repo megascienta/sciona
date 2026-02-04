@@ -110,19 +110,6 @@ SCHEMA_STATEMENTS: list[str] = [
     CREATE INDEX IF NOT EXISTS idx_node_fan_stats_node
     ON node_fan_stats(node_id)
     """,
-    """
-    CREATE TABLE IF NOT EXISTS node_continuity (
-        node_id TEXT PRIMARY KEY,
-        window_size INTEGER NOT NULL,
-        survived_count INTEGER NOT NULL,
-        renamed INTEGER NOT NULL,
-        moved INTEGER NOT NULL,
-        split_from TEXT,
-        volatility_score REAL NOT NULL,
-        confidence REAL NOT NULL,
-        computed_at TEXT NOT NULL
-    )
-    """,
 ]
 
 def ensure_schema(conn: sqlite3.Connection) -> None:

@@ -17,9 +17,8 @@ from ...prompts.bootstrap import ensure_prompts_initialized
 from .. import setup as versioning
 from ..config import public as config
 from ..errors import ConfigError
-from .build import BuildResult, build_repo, seed_initial_snapshots
+from .build import BuildResult, build_repo
 from ..policy.build import resolve_build_policy
-from ..policy import repo as policy_repo
 
 
 @dataclass(frozen=True)
@@ -77,10 +76,6 @@ def rebuild_repo(repo_state: RepoState) -> RebuildResult:
     addon_runtime.run_inits(addon_registry, repo_root=repo_state.repo_root)
     refreshed_state = RepoState.from_repo_root(repo_state.repo_root, git=repo_state.git)
     policy = resolve_build_policy(refreshed_state)
-    dirty_tree = policy_repo.is_worktree_dirty_for_languages(
-        refreshed_state, policy.analysis.languages
-    )
-    seed_initial_snapshots(refreshed_state, policy, dirty_tree)
     result = build_repo(refreshed_state, policy)
     return RebuildResult(
         sciona_dir=sciona_dir,

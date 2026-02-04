@@ -17,7 +17,6 @@ def resolve_build_policy(
     analysis = AnalysisPolicy(
         languages=runtime_cfg.languages,
         snapshot_policy=runtime_cfg.snapshot_policy,
-        bootstrap_policy=runtime_cfg.bootstrap_policy,
     )
     artifacts = ArtifactPolicy(
         refresh_artifacts=refresh_artifacts,

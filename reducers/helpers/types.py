@@ -21,7 +21,6 @@ class ModuleOverviewPayload(TypedDict, total=False):
     node_counts: Dict[str, int]
     language_breakdown: Dict[str, int]
     imports: List[Dict[str, str]]
-    confidence: Dict[str, object]
 
 
 class ClassOverviewPayload(TypedDict, total=False):
@@ -35,7 +34,6 @@ class ClassOverviewPayload(TypedDict, total=False):
     line_span: Sequence[int]
     content_hash: str
     methods: List[Dict[str, str]]
-    confidence: Dict[str, object]
 
 
 class FunctionOverviewPayload(TypedDict, total=False):
@@ -51,7 +49,6 @@ class FunctionOverviewPayload(TypedDict, total=False):
     parameters: List[str]
     decorators: List[str]
     docstring: bool
-    confidence: Dict[str, object]
 
 
 class StructuralIndexPayload(TypedDict, total=False):
@@ -64,4 +61,3 @@ class StructuralIndexPayload(TypedDict, total=False):
     methods: Dict[str, object]
     imports: Dict[str, object]
     import_cycles: List[Dict[str, object]]
-    confidence_summary: Dict[str, object]

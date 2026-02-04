@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 from ..runtime.repo_state import RepoState
 from ..runtime.policies import BuildPolicy
@@ -12,9 +12,6 @@ from ..runtime import agents as agents_runtime
 from .exec.build import (
     BuildResult,
     build_repo as exec_build,
-    list_bootstrap_commits as exec_list_bootstrap_commits,
-    run_bootstrap_builds as exec_run_bootstrap_builds,
-    seed_initial_snapshots,
 )
 from .exec.init_dialog import (
     InitDialogDefaults,
@@ -76,8 +73,6 @@ def build(repo_root: Optional[Path] = None) -> BuildResult:
     policy_repo.ensure_repo_has_commits(repo_state)
     policy = policy_build.resolve_build_policy(repo_state)
     policy_repo.ensure_clean_worktree_for_languages(repo_state, policy.analysis.languages)
-    dirty_tree = False
-    seed_initial_snapshots(repo_state, policy, dirty_tree)
     return _run_build(repo_state, policy)
 
 
@@ -105,16 +100,6 @@ def clean(repo_root: Optional[Path] = None) -> bool:
 def clean_agents(repo_root: Optional[Path] = None) -> bool:
     repo_state = policy_repo.resolve_repo_state(repo_root, allow_missing_config=True)
     return agents_runtime.remove_agents_block(repo_state.repo_root)
-
-
-def run_bootstrap_builds(repo_root: Path, commits: List[str], verbose: bool = False) -> None:
-    repo_state = policy_repo.resolve_repo_state(repo_root)
-    policy = policy_build.resolve_build_policy(repo_state, refresh_artifacts=False)
-    exec_run_bootstrap_builds(repo_state, policy, commits, verbose=verbose)
-
-
-def list_bootstrap_commits(repo_root: Path, commit_limit: int, day_limit: int) -> List[str]:
-    return exec_list_bootstrap_commits(repo_root, commit_limit, day_limit)
 
 
 def _run_build(repo_state: RepoState, policy: BuildPolicy) -> BuildResult:

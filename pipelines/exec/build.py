@@ -3,15 +3,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-import shutil
-from typing import List, Optional, Sequence
+from typing import Optional, Sequence
 
 from ...runtime.logging import get_logger
 from ...code_analysis.analysis.structural_hash import compute_structural_hash
 from ...code_analysis.tools.call_extraction import CallExtractionRecord
 from ...code_analysis.core import snapshot as snapshot_ingest
 from ...code_analysis.core.engine import BuildEngine
-from ...runtime import git as git_ops
 from ...runtime.policies import BuildPolicy
 from ...runtime.repo_state import RepoState
 from ...runtime.snapshots import SnapshotDecision, SnapshotLifecycle
@@ -153,101 +151,6 @@ def build_repo(
             raise
 
 
-def seed_initial_snapshots(repo_state: RepoState, policy: BuildPolicy, dirty_tree: bool) -> None:
-    sciona_dir = repo_state.sciona_dir
-    if not sciona_dir.exists():
-        return
-    with core(repo_state.db_path, repo_root=repo_state.repo_root) as conn:
-        has_committed = conn.execute(
-            "SELECT 1 FROM snapshots WHERE is_committed = 1 LIMIT 1"
-        ).fetchone()
-        if has_committed:
-            return
-    window = max(policy.analysis.snapshot_policy.retention_committed, 1)
-    commits_needed = window if dirty_tree else max(window - 1, 0)
-    commits_needed = min(commits_needed, policy.analysis.bootstrap_policy.max_commits)
-    if commits_needed <= 0:
-        return
-    limit = max(1, min(policy.analysis.bootstrap_policy.max_commits + 1, commits_needed + 1))
-    commits = list_bootstrap_commits(
-        repo_state.repo_root,
-        limit,
-        policy.analysis.bootstrap_policy.max_days,
-    )
-    if not commits:
-        return
-    head_sha = commits[-1]
-    historical = [sha for sha in commits if sha != head_sha]
-    if not historical:
-        return
-    commits_to_run = historical[-commits_needed:]
-    if not commits_to_run:
-        return
-    _LOGGER.info("Seeding %s snapshot(s) from git history...", len(commits_to_run))
-    run_bootstrap_builds(repo_state, policy, commits_to_run, verbose=False)
-
-
-def run_bootstrap_builds(
-    repo_state: RepoState,
-    policy: BuildPolicy,
-    commits: List[str],
-    verbose: bool = False,
-) -> None:
-    if not commits:
-        return
-    worktree_path = _prepare_bootstrap_worktree(repo_state.repo_root, repo_state.sciona_dir)
-    try:
-        for commit in commits:
-            git_ops.checkout_detached(worktree_path, commit)
-            result = build_repo(
-                repo_state,
-                policy,
-                workspace_root=worktree_path,
-                source="git_bootstrap",
-                run_addon_hooks=False,
-            )
-            if verbose:
-                _LOGGER.info(
-                    "[bootstrap] %s -> %s (%s)",
-                    commit[:12],
-                    result.snapshot_id,
-                    result.status,
-                )
-    finally:
-        _cleanup_bootstrap_worktree(repo_state.repo_root, worktree_path)
-
-
-def list_bootstrap_commits(repo_root: Path, commit_limit: int, day_limit: int) -> List[str]:
-    return git_ops.list_commits(repo_root, commit_limit, day_limit)
-
-
-def _prepare_bootstrap_worktree(repo_root: Path, sciona_dir: Path) -> Path:
-    worktree_path = sciona_dir / "bootstrap-worktree"
-    if worktree_path.exists():
-        shutil.rmtree(worktree_path)
-    git_ops.worktree_add(repo_root, worktree_path)
-    return worktree_path
-
-
-def _cleanup_bootstrap_worktree(repo_root: Path, worktree_path: Path) -> None:
-    try:
-        git_ops.worktree_remove(repo_root, worktree_path)
-    except git_ops.GitError:
-        pass
-    if worktree_path.exists():
-        sciona_dir = repo_root / ".sciona"
-        try:
-            resolved = worktree_path.resolve()
-            sciona_root = sciona_dir.resolve()
-            if resolved.name != "bootstrap-worktree":
-                raise ValueError(f"Invalid worktree name: {resolved.name}")
-            if sciona_root not in resolved.parents:
-                raise ValueError(f"Worktree outside .sciona: {worktree_path}")
-        except OSError:
-            raise ValueError(f"Failed to resolve worktree path: {worktree_path}") from None
-        shutil.rmtree(worktree_path)
-
-
 def _decide_snapshot(
     *,
     snapshot_id: str,
@@ -272,7 +175,4 @@ def _decide_snapshot(
 __all__ = [
     "BuildResult",
     "build_repo",
-    "list_bootstrap_commits",
-    "run_bootstrap_builds",
-    "seed_initial_snapshots",
 ]
