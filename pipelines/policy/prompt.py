@@ -17,10 +17,15 @@ def ensure_prompt_preconditions(repo_root: Optional[Path] = None) -> Path:
 
 
 def resolve_latest_snapshot(conn) -> str:
-    latest_snapshot_id = core_store.latest_committed_snapshot_id(conn)
-    if not latest_snapshot_id:
+    committed_ids = core_store.list_committed_snapshots(conn)
+    if not committed_ids:
         raise WorkflowError(
             "No committed snapshots available. Run 'sciona build' first.",
             code="missing_snapshot",
         )
-    return latest_snapshot_id
+    if len(committed_ids) != 1:
+        raise WorkflowError(
+            "Invalid snapshot state: expected exactly one committed snapshot. Run `sciona build`.",
+            code="invalid_snapshot_state",
+        )
+    return committed_ids[0]

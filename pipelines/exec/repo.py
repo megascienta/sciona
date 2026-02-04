@@ -17,16 +17,6 @@ from ...prompts.bootstrap import ensure_prompts_initialized
 from .. import setup as versioning
 from ..config import public as config
 from ..errors import ConfigError
-from .build import BuildResult, build_repo
-from ..policy.build import resolve_build_policy
-
-
-@dataclass(frozen=True)
-class RebuildResult:
-    sciona_dir: Path
-    removed_existing: bool
-    restored_config: bool
-    build_result: BuildResult
 
 
 @dataclass(frozen=True)
@@ -55,34 +45,6 @@ def init_repo(repo_state: RepoState) -> Path:
     addon_registry = addon_runtime.load(repo_state.repo_root)
     addon_runtime.run_inits(addon_registry, repo_root=repo_state.repo_root)
     return sciona_dir
-
-
-def rebuild_repo(repo_state: RepoState) -> RebuildResult:
-    sciona_dir = repo_state.sciona_dir
-    existing_config = config.load_config_text(repo_state.repo_root)
-    removed_existing = False
-    if sciona_dir.exists():
-        shutil.rmtree(sciona_dir)
-        removed_existing = True
-    versioning.write_version_file(sciona_dir)
-    restored_config = False
-    if existing_config is not None:
-        config.write_config_text(repo_state.repo_root, existing_config)
-        restored_config = True
-    else:
-        config.write_default_config(repo_state.repo_root)
-    ensure_prompts_initialized(repo_state.repo_root)
-    addon_registry = addon_runtime.load(repo_state.repo_root)
-    addon_runtime.run_inits(addon_registry, repo_root=repo_state.repo_root)
-    refreshed_state = RepoState.from_repo_root(repo_state.repo_root, git=repo_state.git)
-    policy = resolve_build_policy(refreshed_state)
-    result = build_repo(refreshed_state, policy)
-    return RebuildResult(
-        sciona_dir=sciona_dir,
-        removed_existing=removed_existing,
-        restored_config=restored_config,
-        build_result=result,
-    )
 
 
 def status_repo(repo_state: RepoState) -> StatusResult:
@@ -134,11 +96,8 @@ def clean_repo(repo_state: RepoState) -> bool:
 
 
 __all__ = [
-    "BuildResult",
-    "RebuildResult",
     "StatusResult",
     "clean_repo",
     "init_repo",
-    "rebuild_repo",
     "status_repo",
 ]

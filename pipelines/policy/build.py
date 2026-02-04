@@ -16,7 +16,6 @@ def resolve_build_policy(
     runtime_cfg = repo_state.config.runtime
     analysis = AnalysisPolicy(
         languages=runtime_cfg.languages,
-        snapshot_policy=runtime_cfg.snapshot_policy,
     )
     artifacts = ArtifactPolicy(
         refresh_artifacts=refresh_artifacts,

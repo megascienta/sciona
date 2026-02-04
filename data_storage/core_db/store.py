@@ -269,3 +269,36 @@ def list_committed_snapshots(conn: sqlite3.Connection) -> list[str]:
         """
     ).fetchall()
     return [row["snapshot_id"] for row in rows]
+
+
+def delete_committed_snapshots_except(conn: sqlite3.Connection, keep_snapshot_id: str) -> list[str]:
+    """Delete committed snapshots except the provided snapshot id."""
+    rows = conn.execute(
+        """
+        SELECT snapshot_id
+        FROM snapshots
+        WHERE is_committed = 1
+          AND snapshot_id != ?
+        """,
+        (keep_snapshot_id,),
+    ).fetchall()
+    removed: list[str] = []
+    for row in rows:
+        snapshot_id = row["snapshot_id"]
+        delete_snapshot_tree(conn, snapshot_id)
+        removed.append(snapshot_id)
+    return removed
+
+
+def prune_orphan_structural_nodes(conn: sqlite3.Connection) -> int:
+    """Drop structural nodes that have no node_instances in the database."""
+    cursor = conn.execute(
+        """
+        DELETE FROM structural_nodes
+        WHERE structural_id NOT IN (
+            SELECT DISTINCT structural_id
+            FROM node_instances
+        )
+        """
+    )
+    return int(cursor.rowcount or 0)

@@ -20,11 +20,9 @@ from .exec.init_dialog import (
     supported_languages as exec_supported_languages,
 )
 from .exec.repo import (
-    RebuildResult,
     StatusResult,
     clean_repo as exec_clean,
     init_repo as exec_init,
-    rebuild_repo as exec_rebuild,
     status_repo as exec_status,
 )
 from .policy import build as policy_build
@@ -72,16 +70,8 @@ def build(repo_root: Optional[Path] = None) -> BuildResult:
     repo_state = policy_repo.resolve_repo_state(repo_root)
     policy_repo.ensure_repo_has_commits(repo_state)
     policy = policy_build.resolve_build_policy(repo_state)
-    policy_repo.ensure_clean_worktree_for_languages(repo_state, policy.analysis.languages)
+    policy_repo.ensure_clean_worktree(repo_state)
     return _run_build(repo_state, policy)
-
-
-def rebuild(repo_root: Optional[Path] = None) -> RebuildResult:
-    logger.info("Rebuilding SCIONA repository.")
-    repo_state = policy_repo.resolve_repo_state(repo_root, allow_missing_config=True)
-    policy_repo.ensure_repo_has_commits(repo_state)
-    policy_repo.ensure_clean_worktree_for_enabled_languages(repo_state)
-    return exec_rebuild(repo_state)
 
 
 def status(repo_root: Optional[Path] = None) -> StatusResult:

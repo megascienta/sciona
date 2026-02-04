@@ -15,7 +15,6 @@ from ...runtime.repo_state import RepoState
 from ...runtime.snapshots import SnapshotDecision, SnapshotLifecycle
 from ...data_storage.connections import core
 from ...data_storage.core_db import store as core_store
-from .. import snapshot_policy
 from ..build_artifacts import build_artifacts_for_snapshot
 from ..progress import make_progress_factory
 
@@ -84,6 +83,8 @@ def build_repo(
 
             if decision.lifecycle == SnapshotLifecycle.REUSED and baseline_meta:
                 core_store.delete_snapshot_tree(conn, snapshot.snapshot_id)
+                core_store.delete_committed_snapshots_except(conn, baseline_meta["snapshot_id"])
+                core_store.prune_orphan_structural_nodes(conn)
                 call_artifacts: Sequence[CallExtractionRecord] = []
                 if policy.artifacts.refresh_artifacts:
                     call_artifacts = build_artifacts_for_snapshot(
@@ -117,7 +118,8 @@ def build_repo(
                 is_committed=True,
                 store=core_store,
             )
-            snapshot_policy.rotate_committed_snapshots(conn, policy.analysis.snapshot_policy.retention_committed)
+            core_store.delete_committed_snapshots_except(conn, snapshot.snapshot_id)
+            core_store.prune_orphan_structural_nodes(conn)
             call_artifacts: Sequence[CallExtractionRecord] = []
             if policy.artifacts.refresh_artifacts:
                 call_artifacts = build_artifacts_for_snapshot(

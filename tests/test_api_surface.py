@@ -9,7 +9,6 @@ def test_public_api_surface_is_explicit_and_stable():
         "register_cli_commands",
         "init",
         "build",
-        "rebuild",
         "status",
         "init_dialog_defaults",
         "init_supported_languages",

@@ -23,6 +23,7 @@ it.
 - Structural truth only. SCI contains syntactic structure, not intent.
 - Deterministic output for the same repo state, config, and version.
 - Snapshots are committed-only and immutable at the logical layer.
+- CoreDB keeps exactly one committed snapshot (the latest clean-HEAD build).
 - Derived artifacts live outside SCI and never modify it.
 - Public pipelines and CLI surfaces read the **latest committed snapshot only**.
 - ArtifactDB always reflects the **latest committed snapshot**.
@@ -113,9 +114,9 @@ Artifacts are rebuilt for the **latest committed snapshot** and are not part of 
 
 1. Validate repo and config against policy requirements.
 2. Ingest snapshot and compute structural hash.
-3. Reuse latest snapshot if identical; otherwise commit a new snapshot.
-4. Rotate committed snapshots per retention policy.
-5. Rebuild artifacts for the latest committed snapshot (node status, call artifacts, graph index).
+3. Reuse the existing committed snapshot if identical; otherwise commit a new snapshot.
+4. Enforce a single committed snapshot in CoreDB.
+5. Rebuild artifacts for the committed snapshot (node status, call artifacts, graph index).
 
 No ephemeral snapshots are exposed. Uncommitted snapshots are internal only.
 

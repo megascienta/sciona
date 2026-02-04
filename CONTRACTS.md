@@ -11,9 +11,10 @@ prompts, and CLI usage in SCIONA 1.0.
 Applies to core, reducers, prompts, addons, and CLI.
 
 - All public pipelines/CLI operate on the **latest committed snapshot only**.
+- CoreDB must contain exactly one committed snapshot after a successful build.
 - ArtifactDB always reflects the **latest committed snapshot** (see Artifact DB
   definition in `ARCHITECTURE.md`).
-- Build/rebuild require a **clean worktree** for tracked language sources.
+- Build requires a **clean worktree** for tracked language sources.
 - Read-only commands may proceed on a dirty worktree but must warn that outputs
   reflect the last committed snapshot.
 

@@ -17,6 +17,10 @@ def require_latest_snapshot(repo_root: Path, snapshot_id: Optional[str]) -> None
     if not db_path.exists():
         raise ValueError("Core database missing; cannot validate snapshot.")
     with core(db_path, repo_root=repo_root) as core_conn:
-        latest_snapshot_id = core_store.latest_committed_snapshot_id(core_conn)
-    if not latest_snapshot_id or snapshot_id != latest_snapshot_id:
-        raise ValueError("Artifact data is available only for the latest committed snapshot.")
+        committed_ids = core_store.list_committed_snapshots(core_conn)
+    if not committed_ids:
+        raise ValueError("Artifact data requires a committed snapshot.")
+    if len(committed_ids) != 1:
+        raise ValueError("Artifact data requires exactly one committed snapshot state.")
+    if snapshot_id != committed_ids[0]:
+        raise ValueError("Artifact data is available only for the committed snapshot selected by build.")

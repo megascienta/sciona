@@ -19,7 +19,6 @@ from .config_defaults import (
     DEFAULT_LOG_STRUCTURED,
     DEFAULT_LLM_MAX_RETRIES,
     DEFAULT_LLM_TIMEOUT,
-    DEFAULT_RETENTION_K,
     DEFAULT_TEMPERATURE,
     LANGUAGE_DEFAULTS,
 )
@@ -40,15 +39,9 @@ class DiscoverySettings:
 
 
 @dataclass(frozen=True)
-class SnapshotPolicy:
-    retention_committed: int
-
-
-@dataclass(frozen=True)
 class RuntimeConfig:
     languages: Dict[str, LanguageSettings]
     discovery: DiscoverySettings
-    snapshot_policy: SnapshotPolicy
     database: "DatabaseSettings"
     git: "GitSettings"
 
@@ -172,29 +165,15 @@ def _load_discovery_settings(raw: Dict[str, Any]) -> DiscoverySettings:
     return DiscoverySettings(exclude_globs=cleaned)
 
 
-def _snapshot_policy(data: Dict[str, Any]) -> SnapshotPolicy:
-    retention = data.get("retention_committed", DEFAULT_RETENTION_K)
-    try:
-        retention_value = int(retention)
-    except (TypeError, ValueError):
-        retention_value = DEFAULT_RETENTION_K
-    if retention_value < 1:
-        retention_value = DEFAULT_RETENTION_K
-    return SnapshotPolicy(retention_committed=retention_value)
-
-
 def _load_runtime_config(repo_root: Path) -> RuntimeConfig:
     raw = _load_raw_config(repo_root)
     languages = _load_language_settings(repo_root)
     discovery = _load_discovery_settings(raw)
-    policies_block = raw.get("policies", {}) if isinstance(raw, dict) else {}
-    snapshot_policy = _snapshot_policy(policies_block.get("snapshots", {}))
     database = _load_database_settings(raw)
     git = _load_git_settings(raw)
     return RuntimeConfig(
         languages=languages,
         discovery=discovery,
-        snapshot_policy=snapshot_policy,
         database=database,
         git=git,
     )
@@ -323,7 +302,6 @@ def load_discovery_settings(repo_root: Path) -> DiscoverySettings:
 __all__ = [
     "LanguageSettings",
     "DiscoverySettings",
-    "SnapshotPolicy",
     "RuntimeConfig",
     "LoggingSettings",
     "LLMSettings",

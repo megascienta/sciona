@@ -92,3 +92,22 @@ def test_delete_snapshot_tree_removes_rows(tmp_path):
     assert conn.execute("SELECT 1 FROM node_instances").fetchone() is None
     assert conn.execute("SELECT 1 FROM edges").fetchone() is None
     conn.close()
+
+
+def test_delete_committed_snapshots_except_keeps_only_target(tmp_path):
+    db_path = tmp_path / "single.db"
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    ensure_schema(conn)
+    insert_snapshot(conn, "snap_old", is_committed=True)
+    insert_snapshot(conn, "snap_keep", is_committed=True)
+    conn.commit()
+
+    removed = snapshot_storage.delete_committed_snapshots_except(conn, "snap_keep")
+    remaining = conn.execute(
+        "SELECT snapshot_id FROM snapshots WHERE is_committed = 1 ORDER BY snapshot_id"
+    ).fetchall()
+
+    assert removed == ["snap_old"]
+    assert [row["snapshot_id"] for row in remaining] == ["snap_keep"]
+    conn.close()

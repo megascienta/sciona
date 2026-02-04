@@ -6,7 +6,6 @@ LANGUAGE_DEFAULTS = {
     "typescript": {"enabled": False},
     "java": {"enabled": False},
 }
-DEFAULT_RETENTION_K = 5
 DEFAULT_TEMPERATURE = 0.0
 DEFAULT_LOG_LEVEL = "INFO"
 DEFAULT_LOG_DEBUG = False
@@ -22,7 +21,6 @@ DEFAULT_LLM_MODEL = "gpt-4.1"
 
 __all__ = [
     "LANGUAGE_DEFAULTS",
-    "DEFAULT_RETENTION_K",
     "DEFAULT_TEMPERATURE",
     "DEFAULT_LOG_LEVEL",
     "DEFAULT_LOG_DEBUG",

@@ -110,7 +110,7 @@ def _render_help(addon_registry: addon_runtime.Registry | None) -> str:
     addon_commands = _addon_commands(addon_registry)
     core_commands = _core_commands(app, root_group)
     reducer_commands = _group_commands(app, "reducer", root_group, include_root_options=False)
-    core_core = [entry for entry in core_commands if entry.split()[0] in {"init", "build", "rebuild", "status", "clean"}]
+    core_core = [entry for entry in core_commands if entry.split()[0] in {"init", "build", "status", "clean"}]
     core_reducers = ["reducer --help"]
     core_reducers.extend(reducer_commands)
     advanced_core = [entry for entry in core_commands if entry.split()[0] in {"resolve", "search"}]

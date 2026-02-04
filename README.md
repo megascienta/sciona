@@ -41,7 +41,7 @@ sciona clean --agents
 ```
 
 Important rules:
-- Build/rebuild require a **clean worktree** for tracked language files.
+- Build requires a **clean worktree** for tracked language files.
 - Read-only commands may proceed on a dirty worktree but warn that outputs reflect
   the last committed snapshot.
 - All read operations use the **latest committed snapshot** only (conceptual
@@ -85,6 +85,7 @@ sciona status    # show latest snapshot and DB state (warns if dirty)
 ```
 
 Snapshot semantics are defined in `ARCHITECTURE.md` and `CONTRACTS.md`.
+SCIONA keeps exactly one committed snapshot after a successful build.
 Read-only commands warn when the worktree is dirty because outputs reflect the
 last committed snapshot.
 

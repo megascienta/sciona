@@ -14,7 +14,6 @@ from ..reducers import api as reducers
 
 init = repo_pipeline.init
 build = repo_pipeline.build
-rebuild = repo_pipeline.rebuild
 status = repo_pipeline.status
 init_dialog_defaults = repo_pipeline.init_dialog_defaults
 init_supported_languages = repo_pipeline.init_supported_languages
@@ -47,7 +46,6 @@ __all__ = [
     "register_cli_commands",
     "init",
     "build",
-    "rebuild",
     "status",
     "init_dialog_defaults",
     "init_supported_languages",

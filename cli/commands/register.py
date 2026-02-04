@@ -68,19 +68,6 @@ def register(app: typer.Typer) -> None:
         _record_last_build(result)
 
     @app.command()
-    def rebuild() -> None:
-        """Clean existing SCIONA state and rebuild from scratch (clean worktree required)."""
-        sciona_dir = config.get_sciona_dir(config.get_repo_root())
-        if sciona_dir.exists():
-            typer.echo(f"Removing existing {sciona_dir}")
-        rebuild_result = cli_call(pipeline_commands.rebuild)
-        result = rebuild_result.build_result
-        payload = result.__dict__ | {"sciona_dir": sciona_dir}
-        cli_render.emit(cli_render.render_rebuild(payload))
-        _exit_if_no_discovery(result)
-        _record_last_build(result)
-
-    @app.command()
     def status() -> None:
         """Show SCIONA status for the current repository (warns if dirty)."""
         status_result = cli_call(pipeline_commands.status)

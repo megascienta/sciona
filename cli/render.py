@@ -63,14 +63,6 @@ def render_build(payload: dict) -> list[str]:
     return lines
 
 
-def render_rebuild(payload: dict) -> list[str]:
-    lines = []
-    lines.append(f"Rebuilding SCIONA in {payload['sciona_dir']}")
-    lines.extend(render_build(payload))
-    lines.append(f"Snapshot {payload['snapshot_id']} recorded.")
-    return lines
-
-
 def render_status(payload: dict) -> list[str]:
     lines = [
         f"Repository: {payload['repo_root']}",
