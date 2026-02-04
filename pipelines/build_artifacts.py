@@ -18,7 +18,6 @@ from ..data_storage.artifact_db.maintenance_graph import (
 from ..data_storage.artifact_db.store import NODE_STATUS_PRODUCER, rewrite_node_status
 from .config import public as config
 from .progress import make_progress_factory
-from ..runtime import addons as addon_runtime
 
 
 def build_artifacts_for_snapshot(
@@ -28,7 +27,6 @@ def build_artifacts_for_snapshot(
     conn,
     snapshot_id: str,
     languages,
-    run_addon_hooks: bool = True,
 ) -> Sequence[CallExtractionRecord]:
     artifacts_engine = ArtifactEngine(
         workspace_root,
@@ -43,7 +41,6 @@ def build_artifacts_for_snapshot(
         conn=conn,
         snapshot_id=snapshot_id,
         call_artifacts=call_artifacts,
-        run_addon_hooks=run_addon_hooks,
     )
     return call_artifacts
 
@@ -54,7 +51,6 @@ def refresh_artifact_state(
     conn,
     snapshot_id: str,
     call_artifacts: Sequence[CallExtractionRecord],
-    run_addon_hooks: bool = True,
 ) -> None:
     statuses, current_node_ids = _snapshot_nodes_status(conn, snapshot_id)
     eligible_callers: Set[str] = {
@@ -81,8 +77,6 @@ def refresh_artifact_state(
             )
             rebuild_graph_index(artifact_conn, core_conn=conn, snapshot_id=snapshot_id)
             rebuild_graph_rollups(artifact_conn, core_conn=conn, snapshot_id=snapshot_id)
-    if run_addon_hooks:
-        addon_runtime.run_build_hooks(repo_root=repo_root, snapshot_id=snapshot_id)
 
 
 def _snapshot_nodes_status(conn, snapshot_id: str) -> Tuple[List[Tuple[str, str]], Set[str]]:

@@ -12,7 +12,6 @@ from ...runtime.repo_state import RepoState
 
 _LOGGER = get_logger("pipelines.exec.repo")
 from ...data_storage.connections import core
-from ...runtime import addons as addon_runtime
 from ...prompts.bootstrap import ensure_prompts_initialized
 from .. import setup as versioning
 from ..config import public as config
@@ -42,8 +41,6 @@ def init_repo(repo_state: RepoState) -> Path:
     versioning.write_version_file(sciona_dir)
     config.write_default_config(repo_state.repo_root)
     ensure_prompts_initialized(repo_state.repo_root)
-    addon_registry = addon_runtime.load(repo_state.repo_root)
-    addon_runtime.run_inits(addon_registry, repo_root=repo_state.repo_root)
     return sciona_dir
 
 

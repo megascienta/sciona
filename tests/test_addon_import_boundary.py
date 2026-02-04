@@ -5,9 +5,7 @@ from pathlib import Path
 
 
 ALLOWED_MODULES = {
-    "sciona.api",
-    "sciona.runtime.api",
-    "sciona.reducers.api",
+    "sciona.api.plugins",
 }
 ALLOWED_PREFIXES = ("sciona.addons",)
 

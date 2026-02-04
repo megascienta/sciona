@@ -3,7 +3,13 @@ from __future__ import annotations
 from sciona import api
 
 
-def test_public_api_surface_is_explicit_and_stable():
+def test_public_api_root_exposes_namespaces_only():
+    assert api.__all__ == ["user", "plugins"]
+    assert hasattr(api, "user")
+    assert hasattr(api, "plugins")
+
+
+def test_public_user_api_surface_is_explicit_and_stable():
     expected = [
         "run",
         "register_cli_commands",
@@ -21,21 +27,21 @@ def test_public_api_surface_is_explicit_and_stable():
         "identifier_for_repo",
         "identifier",
         "require_identifier",
-        "Registry",
-        "load",
-        "load_for_cli",
-        "run_build_hooks",
-        "run_inits",
-        "apply_app_hooks",
-        "apply_prompts_and_reducers",
-        "is_enabled",
-        "core",
-        "artifact",
-        "runtime",
-        "reducers",
     ]
 
-    assert api.__all__ == expected
-    assert len(api.__all__) == len(set(api.__all__))
+    assert api.user.__all__ == expected
+    assert len(api.user.__all__) == len(set(api.user.__all__))
     for name in expected:
-        assert hasattr(api, name), f"Missing public API symbol: {name}"
+        assert hasattr(api.user, name), f"Missing user API symbol: {name}"
+
+
+def test_public_plugin_api_surface_is_explicit_and_stable():
+    expected = [
+        "Registry",
+        "compile_prompt_payload",
+        "emit",
+    ]
+    assert api.plugins.__all__ == expected
+    assert len(api.plugins.__all__) == len(set(api.plugins.__all__))
+    for name in expected:
+        assert hasattr(api.plugins, name), f"Missing plugin API symbol: {name}"

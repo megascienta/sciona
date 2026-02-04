@@ -42,7 +42,6 @@ def build_repo(
     *,
     workspace_root: Optional[Path] = None,
     source: str = "scan",
-    run_addon_hooks: bool = True,
 ) -> BuildResult:
     workspace = workspace_root or repo_state.repo_root
     languages = policy.analysis.languages
@@ -93,7 +92,6 @@ def build_repo(
                         conn=conn,
                         snapshot_id=baseline_meta["snapshot_id"],
                         languages=languages,
-                        run_addon_hooks=run_addon_hooks,
                     )
                 conn.commit()
                 return BuildResult(
@@ -128,7 +126,6 @@ def build_repo(
                     conn=conn,
                     snapshot_id=snapshot.snapshot_id,
                     languages=languages,
-                    run_addon_hooks=run_addon_hooks,
                 )
             conn.commit()
             return BuildResult(

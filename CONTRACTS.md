@@ -23,20 +23,14 @@ Applies to core, reducers, prompts, addons, and CLI.
 ## Public API contract
 
 SCIONA exposes a **stable public API** via `sciona.api` (and re-exports in
-`sciona.__init__`). Facade modules `sciona.runtime.api` and `sciona.reducers.api`
-are also part of the public API surface. Only symbols exported from these
-modules are considered stable and supported. All other modules and symbols are
-**internal** and may change without notice.
+`sciona.__init__`) with two namespaces:
+- `sciona.api.user` for user-facing library operations
+- `sciona.api.plugins` for addon/plugin operations
 
-The public API surface includes:
-- CLI entrypoints and command registration
-- Repo lifecycle pipeline helpers
-- Reducer access helpers
-- Identifier resolution helpers
-- Addon registry integration points
-- Read-only DB connection helpers
+Only symbols exported from these namespaces are considered stable and supported.
+All other modules and symbols are **internal** and may change without notice.
 
-See `sciona.api` for the canonical list.
+See `sciona.api.user.__all__` and `sciona.api.plugins.__all__` for the canonical list.
 
 ---
 
@@ -225,7 +219,6 @@ Reducers must return stable ordering. Current guarantees:
 
 - Prompts are derived tooling and never feed back into SCI.
 - Prompt registry is YAML under `.sciona/prompts/registry.yaml`; core seeds bundled prompts at init.
-- Addons may provide prompt entries and templates via addon registries.
 - Templates must use only registered placeholders.
 - Compiler enforces placeholder bijection.
 - Reducer placeholders are declared in `REDUCER_META.placeholders` (see `REDUCERS.md`).
@@ -241,12 +234,20 @@ Reducers must return stable ordering. Current guarantees:
   `prompt_body`, `instructions`, `evidence`, and `resolved_arg_map` fields (when present)
   for machine parsing and identifier validation.
 - CLI prompt output is human-readable by default; `--json` emits the JSON payload.
-- Core CLI exposes prompts from the repo registry only; addon prompts are not available via CLI.
 - CLI reducer output is machine-readable JSON by default.
-- Addon registration uses `runtime/addon_api.py` and must not import `sciona.api` at module import time.
 
 Prompt answering (CLI `--answer`) compiles the prompt and sends it to the
 configured LLM; no artifact is persisted.
+
+---
+
+## Addon plugin contract
+
+- Addons are discovered from Python entry points in group `sciona.addons`.
+- Addons may only register CLI commands through `runtime/addon_api.Registry.register_cli`.
+- Core auto-attaches installed addon CLI commands to the `sciona` CLI.
+- Addons may call reducer emission and prompt compiler services through `sciona.api.plugins`.
+- Addons must not register reducers or prompts into core registries.
 
 ---
 

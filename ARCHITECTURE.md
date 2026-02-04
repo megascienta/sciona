@@ -92,11 +92,10 @@ Artifacts are rebuilt for the **latest committed snapshot** and are not part of 
 
 ### addons
 - Addon architecture and contracts live in `ADDONS.md`
-- Addons may read core databases via core data_storage helpers; they must not write.
-- Addons may consume core reducers or prompt compilation services when helpful.
-- Addons do not define reducers; reducers are core-owned.
-- Addon registration uses the minimal registry interface in `runtime/addon_api.py`
-  to avoid import cycles.
+- Addons are plugins discovered by the `sciona.addons` entry-point group.
+- Core only auto-attaches addon CLI subcommands via `runtime/addon_api.py`.
+- Addons may consume core reducer emission and prompt compilation through the
+  addon-facing runtime API.
 
 ### Interfaces
 - Thin adapters over pipelines

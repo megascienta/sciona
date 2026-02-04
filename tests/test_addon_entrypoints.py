@@ -57,22 +57,14 @@ def test_load_registers_all_installed(monkeypatch):
     assert "beta" in registry.cli_apps
 
 
-def test_load_enabled_addon_list_returns_sorted():
-    enabled = addon_runtime._load_enabled_addon_list(["b", "a"])
+def test_load_for_cli_matches_load(monkeypatch):
+    def _register(registry):
+        registry.register_cli("alpha", object())
 
-    assert enabled == ["a", "b"]
+    installed = {"alpha": _Entry("alpha", _register)}
+    monkeypatch.setattr(addon_runtime, "_discover_installed_addons", lambda: installed)
+    monkeypatch.setattr(addon_runtime, "_addons_disabled", lambda: False)
 
+    registry = addon_runtime.load_for_cli(Path("."))
 
-def test_apply_app_hooks_calls_hooks():
-    registry = addon_runtime.Registry()
-    calls = []
-
-    def _hook(app):
-        calls.append(app)
-
-    registry.register_app_hook(_hook)
-
-    app = object()
-    addon_runtime.apply_app_hooks(registry, app)
-
-    assert calls == [app]
+    assert "alpha" in registry.cli_apps

@@ -94,8 +94,6 @@ def _main(
             structured=logging_settings.structured,
             repo_root=repo_root,
         )
-        enabled_registry = addon_runtime.load(repo_root)
-        addon_runtime.apply_prompts_and_reducers(enabled_registry, repo_root=repo_root)
     except ScionaError:
         configure_logging()
     freeze_prompt_registry(repo_root)
