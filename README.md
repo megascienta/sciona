@@ -86,6 +86,7 @@ sciona status    # show latest snapshot and DB state (warns if dirty)
 
 Snapshot semantics are defined in `ARCHITECTURE.md` and `CONTRACTS.md`.
 SCIONA keeps exactly one committed snapshot after a successful build.
+ArtifactDB is refreshed after the core snapshot commit and tracked with internal rebuild status markers.
 Read-only commands warn when the worktree is dirty because outputs reflect the
 last committed snapshot.
 

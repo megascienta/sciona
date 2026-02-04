@@ -8,8 +8,8 @@ from typing import Iterable, List, Set
 from ...code_analysis.tools import git_support
 from ...code_analysis.core.extract.registry import extensions_for_language
 from ...code_analysis.config import LANGUAGE_CONFIG
+from ...runtime.config import load_language_settings
 from ..helpers import queries
-from ...pipelines.config import public as config
 from ...runtime.errors import ConfigError
 from ..metadata import ReducerMeta
 from ..helpers.base import require_connection
@@ -154,7 +154,7 @@ def _is_language_file(path: Path, language_exts: Set[str]) -> bool:
 
 def _allowed_language_extensions(repo_root: Path) -> Set[str]:
     try:
-        settings = config.load_language_settings(repo_root)
+        settings = load_language_settings(repo_root)
     except ConfigError:
         return _all_language_extensions()
     extensions: Set[str] = set()

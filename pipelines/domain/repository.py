@@ -5,9 +5,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-from .config import ScionaConfig, load_sciona_config
-from .git_adapter import GitAdapter, RealGitAdapter
-from . import paths as runtime
+from ...runtime import paths as runtime
+from ...runtime.config import ScionaConfig, load_sciona_config
+from ...runtime.git_adapter import GitAdapter, RealGitAdapter
 
 
 @dataclass(frozen=True)

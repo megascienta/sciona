@@ -5,10 +5,11 @@ from contextlib import nullcontext
 from pathlib import Path
 from typing import Optional
 
-from .config import public as config
 from ..prompts import compile_prompt, get_prompts
 from .errors import WorkflowError
 from ..data_storage.connections import core
+from ..runtime.paths import get_db_path
+from ..runtime.config import load_llm_settings
 from ..runtime.llm import Adapter
 from .policy import prompt as prompt_policy
 from .resolve import require_identifier
@@ -77,7 +78,7 @@ def _compile_prompt_with_resolution(
         raise WorkflowError(f"Unknown prompt '{prompt_name}'.", code="unknown_prompt")
     required = entry.get("required_args") or []
     arg_map = dict(arg_map or {})
-    db_path = config.get_db_path(repo_root)
+    db_path = get_db_path(repo_root)
     conn_ctx = (
         core(db_path, repo_root=repo_root)
         if db_path.exists()
@@ -131,7 +132,7 @@ def answer_prompt_text_by_name(
         arg_map=arg_map,
         node_id=node_id,
     )
-    llm_cfg = config.load_llm_settings(repo_root)
+    llm_cfg = load_llm_settings(repo_root)
     adapter = Adapter(
         llm_cfg.provider,
         api_key=llm_cfg.api_key,

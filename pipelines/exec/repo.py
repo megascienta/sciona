@@ -8,13 +8,13 @@ from typing import Optional
 
 from ...runtime import constants as setup_config
 from ...runtime.logging import get_logger
-from ...runtime.repo_state import RepoState
+from ..domain.repository import RepoState
 
 _LOGGER = get_logger("pipelines.exec.repo")
 from ...data_storage.connections import core
 from ...prompts.bootstrap import ensure_prompts_initialized
 from .. import setup as versioning
-from ..config import public as config
+from ..config.io import write_default_config
 from ..errors import ConfigError
 
 
@@ -39,7 +39,7 @@ def init_repo(repo_state: RepoState) -> Path:
             hint="Remove the .sciona directory if you want to reinitialize.",
         )
     versioning.write_version_file(sciona_dir)
-    config.write_default_config(repo_state.repo_root)
+    write_default_config(repo_state.repo_root)
     ensure_prompts_initialized(repo_state.repo_root)
     return sciona_dir
 

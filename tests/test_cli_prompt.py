@@ -3,7 +3,7 @@ import json
 
 from typer.testing import CliRunner
 
-from sciona.pipelines.config import public as config
+from sciona.runtime import paths as runtime_paths
 from sciona.prompts.bootstrap import ensure_prompts_initialized
 
 from tests.helpers import seed_repo_with_snapshot
@@ -12,7 +12,7 @@ from tests.helpers import seed_repo_with_snapshot
 def test_cli_prompt_json_includes_sections(tmp_path, monkeypatch):
     repo_root, _ = seed_repo_with_snapshot(tmp_path)
     ensure_prompts_initialized(repo_root)
-    monkeypatch.setattr(config, "get_repo_root", lambda: repo_root)
+    monkeypatch.setattr(runtime_paths, "get_repo_root", lambda: repo_root)
     import sciona.cli.main as cli_module
 
     importlib.reload(cli_module)

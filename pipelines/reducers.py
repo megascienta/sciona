@@ -10,9 +10,9 @@ from ..reducers.registry import get_reducers, load_reducer
 from .resolve import require_identifier
 from .policy import repo as policy_repo
 from .policy import prompt as prompt_policy
-from .config import public as config
 from ..data_storage.connections import core
 from .errors import WorkflowError
+from ..runtime.paths import get_db_path
 
 
 def _ensure_clean_repo(repo_root: Optional[Path] = None) -> None:
@@ -67,7 +67,7 @@ def emit(
 ) -> Tuple[str, str, dict[str, object]]:
     repo_state = policy_repo.resolve_repo_state(repo_root, allow_missing_config=True)
     policy_repo.ensure_initialized(repo_state)
-    db_path = config.get_db_path(repo_state.repo_root)
+    db_path = get_db_path(repo_state.repo_root)
     if not db_path.exists():
         raise WorkflowError(
             "No committed snapshots available. Run 'sciona build' first.",

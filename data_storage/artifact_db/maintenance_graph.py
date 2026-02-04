@@ -7,6 +7,7 @@ from typing import Iterable, Sequence
 from ...code_analysis.analysis.graph import module_id_for
 from ...code_analysis.config import CALLABLE_NODE_TYPES
 from ...code_analysis.tools.call_extraction import CallExtractionRecord
+from ..core_db import store as core_store
 from ..sql_utils import SQLITE_MAX_VARS, chunked
 from . import store as artifact_store
 from . import store_rollups as artifact_rollups
@@ -20,6 +21,7 @@ def rebuild_graph_index(
     core_conn,
     snapshot_id: str,
 ) -> None:
+    core_store.validate_snapshot_for_read(core_conn, snapshot_id, require_committed=True)
     artifact_store.reset_graph_index(artifact_conn)
     nodes = core_conn.execute(
         """
@@ -65,6 +67,7 @@ def rebuild_graph_rollups(
     core_conn,
     snapshot_id: str,
 ) -> None:
+    core_store.validate_snapshot_for_read(core_conn, snapshot_id, require_committed=True)
     artifact_rollups.reset_graph_rollups(artifact_conn)
     node_rows = core_conn.execute(
         """
@@ -172,6 +175,7 @@ def write_call_artifacts(
     eligible_callers: Iterable[str] | None = None,
 ) -> None:
     """Write call artifacts for eligible callers."""
+    core_store.validate_snapshot_for_read(core_conn, snapshot_id, require_committed=True)
     if not call_records:
         return
     caller_set = (

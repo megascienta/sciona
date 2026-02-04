@@ -1,8 +1,8 @@
 """Build policy resolution."""
 from __future__ import annotations
 
-from ...runtime.policies import AnalysisPolicy, ArtifactPolicy, BuildPolicy
-from ...runtime.repo_state import RepoState
+from ..domain.policies import AnalysisPolicy, ArtifactPolicy, BuildPolicy
+from ..domain.repository import RepoState
 
 
 def resolve_build_policy(

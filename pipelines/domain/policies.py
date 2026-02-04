@@ -4,7 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Mapping
 
-from .config import LanguageSettings
+from ...runtime.config import LanguageSettings
 
 
 @dataclass(frozen=True)

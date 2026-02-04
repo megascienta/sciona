@@ -6,13 +6,14 @@ from typing import Mapping, Optional, Set
 
 from ...code_analysis.core.extract.registry import extensions_for_language
 from ...runtime import git as git_ops
+from ...runtime import paths as runtime_paths
+from ...runtime import config as runtime_config
 from ...runtime.git_adapter import GitAdapter, RealGitAdapter
-from ...runtime.repo_state import RepoState
+from ..domain.repository import RepoState
 from ...runtime.config import LanguageSettings
 from ...runtime.config_defaults import LANGUAGE_DEFAULTS
 from .. import setup as versioning
 from ..errors import ConfigError, GitError
-from ..config import public as config
 
 
 def resolve_repo_state(
@@ -22,7 +23,7 @@ def resolve_repo_state(
     allow_missing_config: bool = False,
 ) -> RepoState:
     git_adapter = git or RealGitAdapter()
-    root = repo_root or config.get_repo_root()
+    root = repo_root or runtime_paths.get_repo_root()
     return RepoState.from_repo_root(
         root,
         git=git_adapter,
@@ -72,7 +73,7 @@ def ensure_clean_worktree_for_languages(
 
 def ensure_clean_worktree_for_enabled_languages(repo_state: RepoState) -> None:
     try:
-        runtime_cfg = config.load_runtime_config(repo_state.repo_root)
+        runtime_cfg = runtime_config.load_runtime_config(repo_state.repo_root)
     except ConfigError:
         language_exts = _all_language_extensions()
         dirty_paths = _dirty_language_paths(repo_state.repo_root, language_exts)
@@ -91,7 +92,7 @@ def dirty_worktree_warning(repo_state: RepoState) -> str | None:
         "not current files."
     )
     try:
-        runtime_cfg = config.load_runtime_config(repo_state.repo_root)
+        runtime_cfg = runtime_config.load_runtime_config(repo_state.repo_root)
     except ConfigError:
         language_exts = _all_language_extensions()
         dirty_paths = _dirty_language_paths(repo_state.repo_root, language_exts)

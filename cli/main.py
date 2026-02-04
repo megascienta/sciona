@@ -9,7 +9,8 @@ import inspect
 from ..runtime.logging import configure_logging
 from ..runtime.errors import ScionaError
 from ..runtime import addons as addon_runtime
-from ..pipelines.config import public as config
+from ..runtime.config import load_logging_settings
+from ..runtime.paths import get_repo_root
 from ..prompts.registry import freeze_registry as freeze_prompt_registry
 from ..reducers.registry import freeze_registry as freeze_reducer_registry
 from .commands import register as register_commands
@@ -82,8 +83,8 @@ def _main(
     addon_registry: addon_runtime.Registry | None = _ADDON_REGISTRY
     repo_root = None
     try:
-        repo_root = config.get_repo_root()
-        logging_settings = config.load_logging_settings(
+        repo_root = get_repo_root()
+        logging_settings = load_logging_settings(
             repo_root,
             allow_missing=True,
         )

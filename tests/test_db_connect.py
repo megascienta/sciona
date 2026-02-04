@@ -1,6 +1,6 @@
 from sciona.data_storage.core_db import connect as db_connect
 from sciona.runtime import constants as setup_config
-from sciona.pipelines.config import public as config
+from sciona.runtime.paths import get_db_path
 
 
 def test_connect_enables_wal(tmp_path):
@@ -8,7 +8,7 @@ def test_connect_enables_wal(tmp_path):
     sciona_dir = repo_root / setup_config.SCIONA_DIR_NAME
     sciona_dir.mkdir()
 
-    conn = db_connect(config.get_db_path(repo_root), repo_root=repo_root)
+    conn = db_connect(get_db_path(repo_root), repo_root=repo_root)
     try:
         row = conn.execute("PRAGMA journal_mode").fetchone()
     finally:

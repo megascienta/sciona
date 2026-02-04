@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Dict, List, Optional
 
 from ...data_storage.artifact_db import connect as artifact_connect
-from ...pipelines.config import public as config
+from ...runtime.paths import get_artifact_db_path
 from ..helpers import queries
 from ..helpers.artifact_graph_edges import load_artifact_edges
 from ..helpers.render import render_json_payload, require_connection
@@ -94,7 +94,7 @@ def _normalize_direction(direction: Optional[str]) -> str:
 def _artifact_db_available(repo_root: Optional[object]) -> bool:
     if repo_root is None:
         return False
-    return config.get_artifact_db_path(repo_root).exists()
+    return get_artifact_db_path(repo_root).exists()
 
 
 def _load_edges(
@@ -105,7 +105,7 @@ def _load_edges(
 ) -> List[Dict[str, str]]:
     if repo_root is None:
         return []
-    artifact_path = config.get_artifact_db_path(repo_root)
+    artifact_path = get_artifact_db_path(repo_root)
     if not artifact_path.exists():
         return []
     conn = artifact_connect(artifact_path)

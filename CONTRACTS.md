@@ -122,9 +122,11 @@ Artifact rebuild helpers live under `data_storage/artifact_db/`.
 - `node_status` is rebuilt for the latest committed snapshot.
 - `node_calls.call_hash` is the node content hash from the core snapshot.
 - `graph_nodes`/`graph_edges` are rebuilt from core edges and node_calls.
+- Artifact rebuild lifecycle is tracked in `rebuild_status` (`start` / `complete` / `failed`).
 
 Artifacts are not authoritative structural truth.
 ArtifactDB is always scoped to the latest committed snapshot.
+CoreDB and ArtifactDB are not cross-DB atomic; artifacts are rebuilt after core commit.
 
 ### Graph rollups (ArtifactDB)
 
@@ -271,12 +273,12 @@ never for module identifiers.
 
 ## Config contract
 
-Public config interface (`pipelines.config.public`):
-- `load_sciona_config`
-- `load_runtime_config`
-- `load_language_settings`
-- `load_llm_settings`
-- `load_logging_settings`
+Public config/runtime surfaces:
+- `runtime.config`: typed config loading (`load_sciona_config`, `load_runtime_config`,
+  `load_language_settings`, `load_llm_settings`, `load_logging_settings`)
+- `runtime.paths`: repository and state paths (`get_repo_root`, `get_sciona_dir`,
+  `get_db_path`, `get_artifact_db_path`, `get_config_path`, ...)
+- `pipelines.config.io`: config file read/write helpers used by init workflows
 
 All user-configurable core settings live in `.sciona/config.yaml`. LLM settings are
 top-level (`llm:`).

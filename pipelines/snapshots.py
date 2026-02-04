@@ -4,17 +4,17 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional
 
-from .config import public as config
 from .errors import WorkflowError
 from .policy import repo as repo_policy
 from ..data_storage.connections import core
 from ..data_storage.core_db import store as core_store
+from ..runtime.paths import get_db_path
 
 
 def latest_committed_snapshot_id(repo_root: Optional[Path] = None) -> str:
     repo_state = repo_policy.resolve_repo_state(repo_root, allow_missing_config=True)
     repo_policy.ensure_initialized(repo_state)
-    db_path = config.get_db_path(repo_state.repo_root)
+    db_path = get_db_path(repo_state.repo_root)
     if not db_path.exists():
         raise WorkflowError(
             "No committed snapshots available. Run 'sciona build' first.",

@@ -8,9 +8,9 @@ from typing import Iterable, Optional, Sequence
 from .errors import WorkflowError
 from .policy import repo as repo_policy
 from .policy import prompt as prompt_policy
-from .config import public as config
 from ..data_storage.connections import core
 from ..data_storage.core_db import store as core_store
+from ..runtime.paths import get_db_path
 
 
 @dataclass(frozen=True)
@@ -95,7 +95,7 @@ def identifier_for_repo(
     """Resolve an identifier using repo preconditions and latest snapshot."""
     repo_state = repo_policy.resolve_repo_state(repo_root, allow_missing_config=True)
     repo_policy.ensure_initialized(repo_state)
-    db_path = config.get_db_path(repo_state.repo_root)
+    db_path = get_db_path(repo_state.repo_root)
     if not db_path.exists():
         raise WorkflowError(
             "No committed snapshots available. Run 'sciona build' first.",

@@ -6,7 +6,7 @@ from typing import Dict, List
 
 from ...data_storage.artifact_db import connect as artifact_connect
 from ...data_storage.artifact_db import store as artifact_store
-from ...pipelines.config import public as config
+from ...runtime.paths import get_artifact_db_path
 from .utils import require_latest_committed_snapshot
 
 
@@ -22,7 +22,7 @@ def build_node_status_payload(snapshot_id: str, *, conn, repo_root: Path) -> Dic
     if not row or not row["is_committed"]:
         raise ValueError("node_status payload requires a committed snapshot.")
     require_latest_committed_snapshot(conn, snapshot_id, reducer_name="node_status payload")
-    artifact_path = config.get_artifact_db_path(Path(repo_root))
+    artifact_path = get_artifact_db_path(Path(repo_root))
     if not artifact_path.exists():
         raise ValueError("node_status payload requires the artifact database.")
 

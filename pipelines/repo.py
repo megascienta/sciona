@@ -4,8 +4,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional
 
-from ..runtime.repo_state import RepoState
-from ..runtime.policies import BuildPolicy
+from .domain.repository import RepoState
+from .domain.policies import BuildPolicy
 from ..runtime.logging import get_logger
 from ..prompts.bootstrap import ensure_prompts_initialized
 from ..runtime import agents as agents_runtime

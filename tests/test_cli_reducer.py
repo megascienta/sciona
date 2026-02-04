@@ -3,14 +3,14 @@ import json
 
 from typer.testing import CliRunner
 
-from sciona.pipelines.config import public as config
+from sciona.runtime import paths as runtime_paths
 
 from tests.helpers import seed_repo_with_snapshot
 
 
 def test_cli_reducer_renders_payload(tmp_path, monkeypatch):
     repo_root, _ = seed_repo_with_snapshot(tmp_path)
-    monkeypatch.setattr(config, "get_repo_root", lambda: repo_root)
+    monkeypatch.setattr(runtime_paths, "get_repo_root", lambda: repo_root)
     import sciona.cli.main as cli_module
 
     importlib.reload(cli_module)
@@ -25,7 +25,7 @@ def test_cli_reducer_renders_payload(tmp_path, monkeypatch):
 
 def test_cli_reducer_callable_id_resolves_method(tmp_path, monkeypatch):
     repo_root, _ = seed_repo_with_snapshot(tmp_path)
-    monkeypatch.setattr(config, "get_repo_root", lambda: repo_root)
+    monkeypatch.setattr(runtime_paths, "get_repo_root", lambda: repo_root)
     import sciona.cli.main as cli_module
 
     importlib.reload(cli_module)
@@ -44,7 +44,7 @@ def test_cli_reducer_callable_id_resolves_method(tmp_path, monkeypatch):
 
 def test_cli_reducer_list_outputs_calls(tmp_path, monkeypatch):
     repo_root, _ = seed_repo_with_snapshot(tmp_path)
-    monkeypatch.setattr(config, "get_repo_root", lambda: repo_root)
+    monkeypatch.setattr(runtime_paths, "get_repo_root", lambda: repo_root)
     import sciona.cli.main as cli_module
 
     importlib.reload(cli_module)

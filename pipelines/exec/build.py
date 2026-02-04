@@ -10,9 +10,9 @@ from ...code_analysis.analysis.structural_hash import compute_structural_hash
 from ...code_analysis.tools.call_extraction import CallExtractionRecord
 from ...code_analysis.core import snapshot as snapshot_ingest
 from ...code_analysis.core.engine import BuildEngine
-from ...runtime.policies import BuildPolicy
-from ...runtime.repo_state import RepoState
-from ...runtime.snapshots import SnapshotDecision, SnapshotLifecycle
+from ..domain.policies import BuildPolicy
+from ..domain.repository import RepoState
+from ..domain.snapshots import SnapshotDecision, SnapshotLifecycle
 from ...data_storage.connections import core
 from ...data_storage.core_db import store as core_store
 from ..build_artifacts import build_artifacts_for_snapshot
@@ -46,8 +46,8 @@ def build_repo(
     workspace = workspace_root or repo_state.repo_root
     languages = policy.analysis.languages
     with core(repo_state.db_path, repo_root=repo_state.repo_root) as conn:
-        conn.execute("BEGIN IMMEDIATE")
         try:
+            conn.execute("BEGIN IMMEDIATE")
             core_store.purge_uncommitted_snapshots(conn)
             baseline_meta = core_store.latest_committed_snapshot(conn)
 
@@ -80,59 +80,39 @@ def build_repo(
                         reason="baseline_missing",
                     )
 
+            committed_snapshot_id = snapshot.snapshot_id
+            status = SnapshotLifecycle.COMMITTED.value
             if decision.lifecycle == SnapshotLifecycle.REUSED and baseline_meta:
                 core_store.delete_snapshot_tree(conn, snapshot.snapshot_id)
                 core_store.delete_committed_snapshots_except(conn, baseline_meta["snapshot_id"])
                 core_store.prune_orphan_structural_nodes(conn)
-                call_artifacts: Sequence[CallExtractionRecord] = []
-                if policy.artifacts.refresh_artifacts:
-                    call_artifacts = build_artifacts_for_snapshot(
-                        repo_root=repo_state.repo_root,
-                        workspace_root=workspace,
-                        conn=conn,
-                        snapshot_id=baseline_meta["snapshot_id"],
-                        languages=languages,
-                    )
-                conn.commit()
-                return BuildResult(
-                    files_processed,
-                    node_count,
-                    baseline_meta["snapshot_id"],
-                    decision.lifecycle.value,
-                    call_artifacts=call_artifacts,
-                    enabled_languages=enabled_languages,
-                    discovery_counts=dict(engine.discovery_counts),
-                    discovery_candidates=dict(engine.discovery_candidates),
-                    discovery_excluded_by_glob=dict(engine.discovery_excluded_by_glob),
-                    discovery_excluded_total=engine.discovery_excluded_total,
-                    exclude_globs=list(engine.exclude_globs),
-                    parse_failures=engine.parse_failures,
+                committed_snapshot_id = baseline_meta["snapshot_id"]
+                status = decision.lifecycle.value
+            else:
+                snapshot_ingest.persist_snapshot(
+                    conn,
+                    snapshot,
+                    structural_hash,
+                    is_committed=True,
+                    store=core_store,
                 )
-
-            snapshot_ingest.persist_snapshot(
-                conn,
-                snapshot,
-                structural_hash,
-                is_committed=True,
-                store=core_store,
-            )
-            core_store.delete_committed_snapshots_except(conn, snapshot.snapshot_id)
-            core_store.prune_orphan_structural_nodes(conn)
+                core_store.delete_committed_snapshots_except(conn, snapshot.snapshot_id)
+                core_store.prune_orphan_structural_nodes(conn)
+            conn.commit()
             call_artifacts: Sequence[CallExtractionRecord] = []
             if policy.artifacts.refresh_artifacts:
                 call_artifacts = build_artifacts_for_snapshot(
                     repo_root=repo_state.repo_root,
                     workspace_root=workspace,
                     conn=conn,
-                    snapshot_id=snapshot.snapshot_id,
+                    snapshot_id=committed_snapshot_id,
                     languages=languages,
                 )
-            conn.commit()
             return BuildResult(
                 files_processed,
                 node_count,
-                snapshot.snapshot_id,
-                SnapshotLifecycle.COMMITTED.value,
+                committed_snapshot_id,
+                status,
                 call_artifacts=call_artifacts,
                 enabled_languages=enabled_languages,
                 discovery_counts=dict(engine.discovery_counts),
@@ -143,10 +123,12 @@ def build_repo(
                 parse_failures=engine.parse_failures,
             )
         except Exception:
-            conn.rollback()
+            if conn.in_transaction:
+                conn.rollback()
             raise
         except BaseException:
-            conn.rollback()
+            if conn.in_transaction:
+                conn.rollback()
             raise
 
 

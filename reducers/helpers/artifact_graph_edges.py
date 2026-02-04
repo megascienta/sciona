@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import List, Optional, Sequence, Tuple
 
 from ...data_storage.artifact_db import connect as artifact_connect
-from ...pipelines.config import public as config
+from ...runtime.paths import get_artifact_db_path
 from .artifact_snapshot import require_latest_snapshot
 
 
@@ -20,7 +20,7 @@ def load_artifact_edges(
 ) -> List[Tuple[str, str, str]]:
     repo_root = repo_root.resolve()
     require_latest_snapshot(repo_root, snapshot_id)
-    artifact_path = config.get_artifact_db_path(repo_root)
+    artifact_path = get_artifact_db_path(repo_root)
     try:
         artifact_path.resolve().relative_to(repo_root)
     except ValueError:

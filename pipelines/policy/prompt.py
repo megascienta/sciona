@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Optional
 
 from ..errors import WorkflowError
-from ..config import public as config
 from ..policy import repo as repo_policy
 from ...data_storage.core_db import store as core_store
 

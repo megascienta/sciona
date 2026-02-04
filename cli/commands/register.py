@@ -8,8 +8,9 @@ import sys
 import typer
 
 from ...pipelines import repo as pipeline_commands
-from ...pipelines.config import public as config
 from ...pipelines.errors import ConfigError
+from ...runtime.config import load_runtime_config
+from ...runtime.paths import get_repo_root, get_sciona_dir
 from ..utils import cli_call
 from .. import utils as cli_utils
 from .. import render as cli_render
@@ -72,7 +73,7 @@ def register(app: typer.Typer) -> None:
         """Show SCIONA status for the current repository (warns if dirty)."""
         status_result = cli_call(pipeline_commands.status)
         try:
-            runtime_cfg = cli_call(config.load_runtime_config, status_result.repo_root)
+            runtime_cfg = cli_call(load_runtime_config, status_result.repo_root)
         except Exception:
             return
         enabled = [name for name, settings in runtime_cfg.languages.items() if settings.enabled]
@@ -80,7 +81,7 @@ def register(app: typer.Typer) -> None:
         last_build = None
         try:
             repo_root = status_result.repo_root
-            sciona_dir = config.get_sciona_dir(repo_root)
+            sciona_dir = get_sciona_dir(repo_root)
             path = sciona_dir / ".last_build.json"
             if path.exists():
                 last_build = json.loads(path.read_text(encoding="utf-8"))
@@ -111,8 +112,8 @@ def register(app: typer.Typer) -> None:
         ),
     ) -> None:
         """Remove the SCIONA state directory for the current repository."""
-        repo_root = cli_call(config.get_repo_root)
-        sciona_dir = config.get_sciona_dir(repo_root)
+        repo_root = cli_call(get_repo_root)
+        sciona_dir = get_sciona_dir(repo_root)
         removed = cli_call(pipeline_commands.clean, repo_root)
         if not removed:
             typer.secho(".sciona directory not found; nothing to clean.", fg=typer.colors.YELLOW)
@@ -142,8 +143,8 @@ def _exit_if_no_discovery(result) -> None:
 
 def _record_last_build(result) -> None:
     try:
-        repo_root = config.get_repo_root()
-        sciona_dir = config.get_sciona_dir(repo_root)
+        repo_root = get_repo_root()
+        sciona_dir = get_sciona_dir(repo_root)
         payload = {
             "snapshot_id": result.snapshot_id,
             "status": result.status,
@@ -225,7 +226,7 @@ def _maybe_init_agents(
             typer.secho("Ignoring --agents flags in interactive mode.", fg=typer.colors.YELLOW)
         if not typer.confirm("Generate a managed SCIONA block in AGENTS.md?", default=False):
             return
-        repo_root = cli_call(config.get_repo_root)
+        repo_root = cli_call(get_repo_root)
         agents_path = repo_root / "AGENTS.md"
         mode = "append"
         if agents_path.exists():
@@ -247,5 +248,5 @@ def _maybe_init_agents(
         if agents_append and agents_overwrite:
             raise typer.BadParameter("Choose only one of --agents-append or --agents-overwrite.")
         mode = "overwrite" if agents_overwrite else "append"
-        path = cli_call(pipeline_commands.init_agents, config.get_repo_root(), mode=mode)
+        path = cli_call(pipeline_commands.init_agents, get_repo_root(), mode=mode)
         typer.echo(f"Updated {path}")

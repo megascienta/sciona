@@ -9,7 +9,7 @@ import yaml
 
 from ...code_analysis import config as analysis_config
 from ...code_analysis.tools import git_support
-from ...pipelines.config import public as config
+from ...runtime.paths import get_config_path
 
 
 @dataclass(frozen=True)
@@ -31,7 +31,7 @@ def detect_languages(repo_root: Path) -> InitDialogDefaults:
 
 
 def apply_language_selection(repo_root: Path, selected: Sequence[str]) -> None:
-    cfg_path = config.get_config_path(repo_root)
+    cfg_path = get_config_path(repo_root)
     raw_text = cfg_path.read_text(encoding="utf-8")
     data = yaml.safe_load(raw_text) or {}
     if not isinstance(data, dict):

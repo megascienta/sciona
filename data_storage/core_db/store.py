@@ -5,6 +5,19 @@ import sqlite3
 
 from ..encoding import bool_to_int
 
+
+class SnapshotValidationError(ValueError):
+    """Raised when snapshot preconditions for read operations fail."""
+
+
+class SnapshotNotFoundError(SnapshotValidationError):
+    """Raised when snapshot id is unknown."""
+
+
+class UncommittedSnapshotError(SnapshotValidationError):
+    """Raised when committed snapshot is required but id is uncommitted."""
+
+
 def insert_snapshot(
     conn: sqlite3.Connection,
     *,
@@ -246,7 +259,10 @@ def snapshot_is_committed(conn: sqlite3.Connection, snapshot_id: str) -> bool:
     ).fetchone()
     if not row:
         return False
-    return bool(row["is_committed"])
+    try:
+        return bool(row["is_committed"])
+    except (TypeError, KeyError, IndexError):
+        return bool(row[0])
 
 
 def snapshot_exists(conn: sqlite3.Connection, snapshot_id: str) -> bool:
@@ -256,6 +272,22 @@ def snapshot_exists(conn: sqlite3.Connection, snapshot_id: str) -> bool:
         (snapshot_id,),
     ).fetchone()
     return bool(row)
+
+
+def validate_snapshot_for_read(
+    conn: sqlite3.Connection,
+    snapshot_id: str,
+    *,
+    require_committed: bool = True,
+) -> str:
+    """Validate a snapshot id before read operations."""
+    if not snapshot_exists(conn, snapshot_id):
+        raise SnapshotNotFoundError(f"Snapshot '{snapshot_id}' was not found.")
+    if require_committed and not snapshot_is_committed(conn, snapshot_id):
+        raise UncommittedSnapshotError(
+            f"Snapshot '{snapshot_id}' is not committed; latest committed snapshot is required."
+        )
+    return snapshot_id
 
 
 def list_committed_snapshots(conn: sqlite3.Connection) -> list[str]:

@@ -8,6 +8,7 @@ import typer
 
 from ...runtime import config as runtime_config
 from ...runtime.logging import get_logger
+from ...data_storage.core_db import store as core_store
 from ..core import routing
 from ..tools import git_support, snapshots, walker
 from ..tools.call_extraction import CallExtractionRecord
@@ -37,6 +38,7 @@ class ArtifactEngine:
         self._progress_factory = progress_factory
 
     def run(self, snapshot_id: str) -> List[CallExtractionRecord]:
+        core_store.validate_snapshot_for_read(self.conn, snapshot_id, require_committed=True)
         tracked = git_support.tracked_paths(self.workspace_root)
         if self.discovery is None:
             self.discovery = runtime_config.load_discovery_settings(self.config_root)

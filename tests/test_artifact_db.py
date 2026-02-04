@@ -3,7 +3,7 @@ from pathlib import Path
 from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.data_storage.artifact_db import store as artifact_store
 from sciona.data_storage.transactions import transaction
-from sciona.pipelines.config import public as config
+from sciona.runtime.paths import get_artifact_db_path
 
 
 def _artifact_db_conn(tmp_path: Path):
@@ -11,7 +11,7 @@ def _artifact_db_conn(tmp_path: Path):
     repo_root.mkdir()
     sciona_dir = repo_root / ".sciona"
     sciona_dir.mkdir()
-    conn = artifact_connect(config.get_artifact_db_path(repo_root), repo_root=repo_root)
+    conn = artifact_connect(get_artifact_db_path(repo_root), repo_root=repo_root)
     return conn, repo_root
 
 

@@ -54,10 +54,10 @@ Artifacts are rebuilt for the **latest committed snapshot** and are not part of 
 ## Layer boundaries
 
 ### runtime
-- Paths, config, logging, and errors (`runtime/*`)
+- Paths, config parsing, logging, and errors (`runtime/*`)
 - LLM adapter + providers (`runtime/llm/*`)
 - Git backend (`runtime/git.py`)
-- No persistence logic
+- Infrastructure only (no pipeline policy/domain models, no persistence logic)
 
 ### data_storage
 - Connection helpers, schema, and DB operations (`data_storage/*`)
@@ -72,6 +72,7 @@ Artifacts are rebuilt for the **latest committed snapshot** and are not part of 
 
 ### pipelines
 - Policy and validation (`pipelines.policy`)
+- Domain models (`pipelines.domain`)
 - Orchestration (`pipelines.exec`)
 - Build + artifact refresh
 - Prompt compilation + prompt answering (LLM optional)
@@ -91,11 +92,11 @@ Artifacts are rebuilt for the **latest committed snapshot** and are not part of 
 - Identifier resolution for prompts/reducers is centralized in `core/pipelines/resolve.py` and returns best-fit candidates on ambiguity/missing matches.
 
 ### addons
-- Addon architecture and contracts live in `ADDONS.md`
+- Addon/plugin contracts live in `CONTRACTS.md` ("Addon plugin contract")
 - Addons are plugins discovered by the `sciona.addons` entry-point group.
 - Core only auto-attaches addon CLI subcommands via `runtime/addon_api.py`.
 - Addons may consume core reducer emission and prompt compilation through the
-  addon-facing runtime API.
+  addon-facing public API (`sciona.api.plugins`).
 
 ### Interfaces
 - Thin adapters over pipelines
@@ -115,7 +116,9 @@ Artifacts are rebuilt for the **latest committed snapshot** and are not part of 
 2. Ingest snapshot and compute structural hash.
 3. Reuse the existing committed snapshot if identical; otherwise commit a new snapshot.
 4. Enforce a single committed snapshot in CoreDB.
-5. Rebuild artifacts for the committed snapshot (node status, call artifacts, graph index).
+5. Commit CoreDB transaction.
+6. Rebuild artifacts for the committed snapshot (node status, call artifacts, graph index).
+7. Record artifact rebuild status (`start`/`complete`/`failed`) in ArtifactDB.
 
 No ephemeral snapshots are exposed. Uncommitted snapshots are internal only.
 

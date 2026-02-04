@@ -156,3 +156,49 @@ def insert_graph_edges(conn: sqlite3.Connection, *, rows: Iterable[tuple[str, st
         """,
         list(rows),
     )
+
+
+def mark_rebuild_started(conn: sqlite3.Connection, *, snapshot_id: str) -> None:
+    _set_rebuild_status(conn, key="last_rebuild_start", value=snapshot_id)
+
+
+def mark_rebuild_completed(conn: sqlite3.Connection, *, snapshot_id: str) -> None:
+    _set_rebuild_status(conn, key="last_rebuild_complete", value=snapshot_id)
+
+
+def mark_rebuild_failed(conn: sqlite3.Connection, *, snapshot_id: str) -> None:
+    _set_rebuild_status(conn, key="last_rebuild_failed", value=snapshot_id)
+
+
+def rebuild_consistent_for_snapshot(conn: sqlite3.Connection, *, snapshot_id: str) -> bool:
+    rows = conn.execute(
+        """
+        SELECT key, value
+        FROM rebuild_status
+        WHERE key IN ('last_rebuild_start', 'last_rebuild_complete', 'last_rebuild_failed')
+        """
+    ).fetchall()
+    state = {row["key"]: row["value"] for row in rows}
+    last_start = state.get("last_rebuild_start")
+    last_complete = state.get("last_rebuild_complete")
+    last_failed = state.get("last_rebuild_failed")
+    if last_complete == snapshot_id and last_failed != snapshot_id:
+        return True
+    if last_start == snapshot_id and last_complete != snapshot_id:
+        return False
+    if last_failed == snapshot_id:
+        return False
+    return last_complete == snapshot_id
+
+
+def _set_rebuild_status(conn: sqlite3.Connection, *, key: str, value: str) -> None:
+    conn.execute(
+        """
+        INSERT INTO rebuild_status(key, value, updated_at)
+        VALUES (?, ?, ?)
+        ON CONFLICT(key) DO UPDATE SET
+            value=excluded.value,
+            updated_at=excluded.updated_at
+        """,
+        (key, value, utc_now()),
+    )

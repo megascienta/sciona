@@ -1,10 +1,12 @@
-from sciona.pipelines.config import public as config
+from sciona.pipelines.config.io import write_default_config
+from sciona.runtime.config import load_logging_settings
+from sciona.runtime.paths import get_config_path
 
 
 def test_logging_config_parsing(tmp_path):
     repo_root = tmp_path
-    config.write_default_config(repo_root)
-    config_path = config.get_config_path(repo_root)
+    write_default_config(repo_root)
+    config_path = get_config_path(repo_root)
     config_path.write_text(
         """logging:
   level: "WARNING"
@@ -15,7 +17,7 @@ def test_logging_config_parsing(tmp_path):
         encoding="utf-8",
     )
 
-    settings = config.load_logging_settings(repo_root)
+    settings = load_logging_settings(repo_root)
     assert settings.level == "WARNING"
     assert settings.module_levels["sciona.code_analysis"] == "DEBUG"
     assert settings.module_levels["sciona.code_analysis.core.engine"] == "ERROR"
