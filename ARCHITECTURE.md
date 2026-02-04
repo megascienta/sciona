@@ -106,7 +106,7 @@ Artifacts are rebuilt for the **latest committed snapshot** and are not part of 
 - Prompt/reducer registries are frozen during startup
 - Resolver/search surfaces provide identifier resolution and ranked symbol lookup (read-only).
 - CLI exposes `resolve` (exact/ambiguous) and `search` (ranked candidates) as separate read-only surfaces.
-- `surface_index` provides a namespace-based index of CLI, pipeline, reducer, prompt, and addon surfaces.
+
 
 ---
 

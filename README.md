@@ -147,7 +147,6 @@ Assemble deterministic code payloads using the baseline reducer:
 sciona reducer --id concatenated_source --scope codebase
 sciona reducer --id concatenated_source --scope module --module-id=<id> --extras
 sciona reducer --id concatenated_source --scope class --class-id=<id> --extras
-sciona reducer --id source_snippet --callable-id=<id>
 ```
 
 Use `--extras` to include additional tracked files (e.g., `.md`, `.yaml`, `.json`, `.toml`) under the target scope.
@@ -199,12 +198,8 @@ sciona reducer --id importers_index --module-id pkg.alpha
 sciona reducer --id symbol_references --query pkg.alpha --kind module --limit 10
 sciona reducer --id file_outline --module-id pkg.alpha
 sciona reducer --id module_file_map --module-id pkg.alpha
-sciona reducer --id surface_index --category cli --limit 50
 sciona reducer --id callsite_index --callable-id pkg.alpha.service.helper --direction both
 sciona reducer --id callable_source --callable-id pkg.alpha.service.helper
-sciona reducer --id callable_context_bundle --callable-id pkg.alpha.service.helper
-sciona reducer --id public_surface_index --module-id pkg.alpha
-sciona reducer --id public_surface_index --kind class --limit 20
 ```
 Reducers emit machine-readable JSON by default; use `--json` on prompts for the same.
 

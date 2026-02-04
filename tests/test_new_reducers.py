@@ -2,7 +2,6 @@ import json
 import sqlite3
 
 from sciona.reducers.baseline import callable_source, concatenated_source
-from sciona.reducers.composites import callable_context_bundle
 from sciona.reducers.structural import (
     dependency_edges,
     file_outline,
@@ -11,7 +10,7 @@ from sciona.reducers.structural import (
     symbol_lookup,
     symbol_references,
 )
-from sciona.reducers.summaries import callsite_index, importers_index, public_surface_index, surface_index
+from sciona.reducers.summaries import callsite_index, importers_index
 
 from tests.helpers import seed_repo_with_snapshot
 
@@ -231,50 +230,6 @@ def test_concatenated_source_class_scope(tmp_path):
     assert "pkg/alpha/service.py" in payload_text
 
 
-def test_surface_index_category_filters(tmp_path):
-    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
-    conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
-    conn.row_factory = sqlite3.Row
-    try:
-        conn.execute(
-            """
-            INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id, retired_snapshot_id)
-            VALUES (?, ?, ?, ?, ?)
-            """,
-            ("mod_cli", "module", "python", snapshot_id, "ACTIVE"),
-        )
-        conn.execute(
-            """
-            INSERT INTO node_instances(
-                instance_id, structural_id, snapshot_id, qualified_name, file_path, start_line, end_line, content_hash
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                f"{snapshot_id}:mod_cli",
-                "mod_cli",
-                snapshot_id,
-                "sciona.cli",
-                "core/cli/__init__.py",
-                1,
-                5,
-                "hash-mod-cli",
-            ),
-        )
-        conn.commit()
-        payload_text = surface_index.render(
-            snapshot_id,
-            conn,
-            repo_root,
-            category="cli",
-            limit=10,
-        )
-    finally:
-        conn.close()
-    payload = json.loads(_strip_json_fence(payload_text))
-    entries = payload["surfaces"]["cli"]
-    assert any(item["qualified_name"] == "sciona.cli" for item in entries)
-
-
 def test_callsite_index_reducer_returns_payload(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
@@ -315,59 +270,3 @@ def test_callable_source_payload(tmp_path):
     payload = json.loads(_strip_json_fence(payload_text))
     assert payload["file_path"]
     assert payload["source"]
-
-
-def test_callable_context_bundle_payload(tmp_path):
-    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
-    conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
-    conn.row_factory = sqlite3.Row
-    try:
-        payload_text = callable_context_bundle.render(
-            snapshot_id,
-            conn,
-            repo_root,
-            callable_id="pkg.alpha.service.helper",
-        )
-    finally:
-        conn.close()
-    payload = json.loads(_strip_json_fence(payload_text))
-    assert payload["callable_summary"]
-    assert payload["callable_source"]
-    assert payload["callsite_index"]
-
-
-def test_public_surface_index_includes_public_symbols(tmp_path):
-    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
-    conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
-    conn.row_factory = sqlite3.Row
-    try:
-        payload_text = public_surface_index.render(
-            snapshot_id,
-            conn,
-            repo_root,
-        )
-    finally:
-        conn.close()
-    payload = json.loads(_strip_json_fence(payload_text))
-    names = {entry["qualified_name"] for entry in payload["symbols"]}
-    assert any(name.endswith("Service") for name in names)
-    assert any(name.endswith("helper") for name in names)
-
-
-def test_public_surface_index_kind_and_limit(tmp_path):
-    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
-    conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
-    conn.row_factory = sqlite3.Row
-    try:
-        payload_text = public_surface_index.render(
-            snapshot_id,
-            conn,
-            repo_root,
-            kind="class",
-            limit=1,
-        )
-    finally:
-        conn.close()
-    payload = json.loads(_strip_json_fence(payload_text))
-    assert payload["limit"] == 1
-    assert all(entry["kind"] == "class" for entry in payload["symbols"])

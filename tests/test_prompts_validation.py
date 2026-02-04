@@ -19,13 +19,13 @@ def test_prompt_rejects_duplicate_placeholders(tmp_path):
     registry_text = """bad_duplicate_v1:
   spec: bad_duplicate_v1.md
   reducers:
-    - callable_summary
+    - fan_summary
   required_args:
     - function_id
 """
     spec_text = """Duplicate placeholder test.
-{CALLABLE_SUMMARY}
-{CALLABLE_SUMMARY}
+{FAN_SUMMARY}
+{FAN_SUMMARY}
 """
     _write_prompt(repo_root, registry_text, "bad_duplicate_v1.md", spec_text)
 
@@ -38,13 +38,12 @@ def test_prompt_requires_bijection(tmp_path):
     registry_text = """bad_missing_v1:
   spec: bad_missing_v1.md
   reducers:
-    - callable_summary
-    - module_summary
+    - hotspot_summary
   required_args:
-    - function_id
+    - limit
 """
     spec_text = """Missing placeholder test.
-{CALLABLE_SUMMARY}
+{STRUCTURAL_INDEX}
 """
     _write_prompt(repo_root, registry_text, "bad_missing_v1.md", spec_text)
 
@@ -57,14 +56,14 @@ def test_prompt_warns_unused_args(tmp_path, caplog):
     registry_text = """unused_args_v1:
   spec: unused_args_v1.md
   reducers:
-    - callable_summary
+    - fan_summary
   required_args:
-    - function_id
+    - unused_required_arg
   optional_args:
-    - module_id
+    - unused_optional_arg
 """
     spec_text = """Unused args test.
-{CALLABLE_SUMMARY}
+{FAN_SUMMARY}
 """
     _write_prompt(repo_root, registry_text, "unused_args_v1.md", spec_text)
 
@@ -72,4 +71,4 @@ def test_prompt_warns_unused_args(tmp_path, caplog):
         get_prompts(repo_root)
 
     assert "unused by reducers" in caplog.text
-    assert "module_id" in caplog.text
+    assert "unused_optional_arg" in caplog.text

@@ -65,3 +65,4 @@ sciona = "."
 
 [tool.pytest.ini_options]
 cache_dir = "/tmp/sciona-pytest-cache"
+pythonpath = ["."]

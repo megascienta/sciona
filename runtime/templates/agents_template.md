@@ -21,7 +21,6 @@ Note: if the worktree is dirty, outputs reflect the latest committed snapshot on
 
 4) Common tasks (copy/paste templates)
 {COMMON_TASKS}
-Note: `public_surface_index` reports syntactic visibility, not API stability.
 
 5) Reducer discovery
 - `sciona reducer list`

@@ -182,21 +182,14 @@ Reducer categories are semantic only and live under:
 
 Structural spine (core, required by tooling):
 - structural_index
-- codebase_structure_summary
-- dependency_summary
-- codebase_orientation
 - module_overview
-- module_summary
 - callable_overview
-- callable_summary
 - call_graph
 - class_overview
-- class_summary
 - class_method_list
 - class_inheritance
 
 Baseline / control (public, non-core):
-- source_snippet
 - concatenated_source
 
 Derived / optional (public, non-core):
@@ -207,8 +200,6 @@ Derived / optional (public, non-core):
 - confidence_summary
 - continuity_summary
 - callsite_index
-- public_surface_index
-- surface_index
 
 Structural optional (public, non-core):
 - symbol_lookup

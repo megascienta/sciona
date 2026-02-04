@@ -12,6 +12,4 @@ and obvious risks or fragile areas.
 - Risks: 3-6 bullets
 
 ## Evidence
-{CODEBASE_ORIENTATION}
-{DEPENDENCY_SUMMARY}
 {HOTSPOT_SUMMARY}

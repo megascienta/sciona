@@ -10,6 +10,4 @@ maps to internal structure. Call out major subsystems and how they fit together.
 - Core vs extensions: 2-5 bullets
 
 ## Evidence
-{CODEBASE_STRUCTURE_SUMMARY}
-{SURFACE_INDEX}
-{PUBLIC_SURFACE_INDEX}
+{STRUCTURAL_INDEX}

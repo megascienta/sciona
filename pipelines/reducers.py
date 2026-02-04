@@ -20,9 +20,6 @@ def _ensure_clean_repo(repo_root: Optional[Path] = None) -> None:
     policy_repo.ensure_initialized(repo_state)
 
 
-_HIDDEN_REDUCERS = {"source_snippet"}
-
-
 def list_entries(
     repo_root: Optional[Path] = None,
     *,
@@ -32,8 +29,6 @@ def list_entries(
     reducers = get_reducers()
     entries = []
     for reducer_id, entry in reducers.items():
-        if not include_hidden and reducer_id in _HIDDEN_REDUCERS:
-            continue
         entries.append(
             {
                 "reducer_id": reducer_id,
@@ -78,8 +73,6 @@ def emit(
             "No committed snapshots available. Run 'sciona build' first.",
             code="missing_snapshot",
         )
-    if reducer_id in _HIDDEN_REDUCERS:
-        raise WorkflowError(f"Reducer '{reducer_id}' is not available via CLI.", code="unknown_reducer")
     try:
         reducer = load_reducer(reducer_id)
     except ValueError as exc:

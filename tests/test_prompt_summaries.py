@@ -2,7 +2,7 @@ import json
 import sqlite3
 
 from tests.helpers import seed_repo_with_snapshot
-from sciona.reducers.summaries import codebase_structure_summary, hotspot_summary
+from sciona.reducers.summaries import hotspot_summary
 
 
 def _parse_json_block(payload: str) -> dict:
@@ -27,17 +27,3 @@ def test_hotspot_summary_includes_counts(tmp_path):
         for entry in entries:
             assert isinstance(entry.get("module_id"), str)
             assert isinstance(entry.get("count"), int)
-
-
-def test_codebase_structure_summary_uses_node_counts(tmp_path):
-    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
-    conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
-    conn.row_factory = sqlite3.Row
-    try:
-        payload = codebase_structure_summary.render(snapshot_id, conn, repo_root)
-    finally:
-        conn.close()
-    data = _parse_json_block(payload)
-    summary = data.get("module_size_distribution") or {}
-    assert summary.get("max", 0) >= 1
-    assert summary.get("min") == 0

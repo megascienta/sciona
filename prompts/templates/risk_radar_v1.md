@@ -11,5 +11,4 @@ shape, fan-in/fan-out, and hotspot concentrations.
 
 ## Evidence
 {FAN_SUMMARY}
-{DEPENDENCY_SUMMARY}
 {HOTSPOT_SUMMARY}

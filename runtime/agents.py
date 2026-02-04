@@ -16,7 +16,6 @@ TEMPLATE_FILENAME = "agents_template.md"
 
 def build_agents_block() -> str:
     reducers = get_reducers()
-    reducers = _filter_hidden_reducers(reducers)
     template = _load_template()
     content = template.format(
         COMMON_TASKS=_render_common_tasks(reducers),
@@ -88,11 +87,6 @@ def _remove_block(text: str) -> str:
     return ""
 
 
-def _filter_hidden_reducers(reducers):
-    hidden = {"source_snippet"}
-    return {key: value for key, value in reducers.items() if key not in hidden}
-
-
 def _load_template() -> str:
     path = Path(__file__).parent / "templates" / TEMPLATE_FILENAME
     return path.read_text(encoding="utf-8")
@@ -148,15 +142,13 @@ def _format_reducer_command(reducer_id: str, reducer_module) -> str:
 
 
 _COMMON_TASK_SECTIONS = [
-    ("Orientation", ["codebase_orientation", "structural_index"]),
-    ("Structure (module/class/callable)", ["module_summary", "class_summary", "callable_summary"]),
-    ("Dependencies / imports", ["dependency_summary", "dependency_edges", "importers_index"]),
+    ("Orientation", ["structural_index"]),
+    ("Structure (module/class/callable)", ["module_overview", "class_overview", "callable_overview"]),
+    ("Dependencies / imports", ["dependency_edges", "importers_index"]),
     ("Calls / call graph", ["call_graph", "callsite_index"]),
     ("References / usages", ["symbol_references"]),
     ("File navigation (codebase-scoped; filters supported)", ["module_file_map", "file_outline"]),
-    ("Context bundle", ["callable_context_bundle"]),
     ("Code text (last resort)", ["callable_source", "concatenated_source"]),
-    ("Public surface", ["public_surface_index"]),
 ]
 
 
