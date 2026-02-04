@@ -8,7 +8,7 @@ from .domain.repository import RepoState
 from .domain.policies import BuildPolicy
 from ..runtime.logging import get_logger
 from ..prompts.bootstrap import ensure_prompts_initialized
-from ..runtime import agents as agents_runtime
+from . import agents as agents_runtime
 from .exec.build import (
     BuildResult,
     build_repo as exec_build,

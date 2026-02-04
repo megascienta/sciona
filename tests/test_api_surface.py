@@ -11,8 +11,6 @@ def test_public_api_root_exposes_namespaces_only():
 
 def test_public_user_api_surface_is_explicit_and_stable():
     expected = [
-        "run",
-        "register_cli_commands",
         "init",
         "build",
         "status",

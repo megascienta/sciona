@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import builtins
+from contextlib import nullcontext
 from typing import List, Optional, Tuple
 
 from pathlib import Path
@@ -11,8 +12,10 @@ from .resolve import require_identifier
 from .policy import repo as policy_repo
 from .policy import prompt as prompt_policy
 from ..data_storage.connections import core
+from ..data_storage.connections import artifact as artifact_db
 from .errors import WorkflowError
-from ..runtime.paths import get_db_path
+from ..runtime.paths import get_artifact_db_path, get_db_path
+from ..reducers.helpers.context import use_artifact_connection
 
 
 def _ensure_clean_repo(repo_root: Optional[Path] = None) -> None:
@@ -82,10 +85,18 @@ def emit(
     with core(db_path, repo_root=repo_state.repo_root) as conn:
         snapshot_id = prompt_policy.resolve_latest_snapshot(conn)
         resolved_kwargs = _resolve_reducer_identifiers(conn, snapshot_id, kwargs)
-        try:
-            text = reducer.render(snapshot_id, conn, repo_state.repo_root, **resolved_kwargs)
-        except ValueError as exc:
-            raise WorkflowError(str(exc), code="reducer_error") from exc
+        artifact_path = get_artifact_db_path(repo_state.repo_root)
+        artifact_scope = (
+            artifact_db(artifact_path, repo_root=repo_state.repo_root)
+            if artifact_path.exists()
+            else nullcontext(None)
+        )
+        with artifact_scope as artifact_conn:
+            with use_artifact_connection(artifact_conn):
+                try:
+                    text = reducer.render(snapshot_id, conn, repo_state.repo_root, **resolved_kwargs)
+                except ValueError as exc:
+                    raise WorkflowError(str(exc), code="reducer_error") from exc
     return text, snapshot_id, resolved_kwargs
 
 

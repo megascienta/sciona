@@ -1,8 +1,6 @@
 """User-facing SCIONA API (stable)."""
 from __future__ import annotations
 
-from ..cli.main import run
-from ..cli.commands import register as register_cli_commands
 from ..pipelines import repo as repo_pipeline
 from ..pipelines import reducers as reducers_pipeline
 from ..pipelines import resolve as resolve_pipeline
@@ -25,8 +23,6 @@ identifier = resolve_pipeline.identifier
 require_identifier = resolve_pipeline.require_identifier
 
 __all__ = [
-    "run",
-    "register_cli_commands",
     "init",
     "build",
     "status",

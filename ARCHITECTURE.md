@@ -57,7 +57,7 @@ Artifacts are rebuilt for the **latest committed snapshot** and are not part of 
 - Paths, config parsing, logging, and errors (`runtime/*`)
 - LLM adapter + providers (`runtime/llm/*`)
 - Git backend (`runtime/git.py`)
-- Infrastructure only (no pipeline policy/domain models, no persistence logic)
+- Infrastructure only (no pipeline policy/domain models, no reducer assembly, no persistence/domain logic)
 
 ### data_storage
 - Connection helpers, schema, and DB operations (`data_storage/*`)
@@ -68,7 +68,7 @@ Artifacts are rebuilt for the **latest committed snapshot** and are not part of 
 - File discovery and parsing
 - Node/edge extraction and normalization
 - Snapshot ingest mechanics (no DB ownership)
-- Shared AST and snapshot utilities live under `core/code_analysis/tools/`
+- Shared AST and snapshot utilities live under `code_analysis/tools/`
 
 ### pipelines
 - Policy and validation (`pipelines.policy`)
@@ -76,20 +76,22 @@ Artifacts are rebuilt for the **latest committed snapshot** and are not part of 
 - Orchestration (`pipelines.exec`)
 - Build + artifact refresh
 - Prompt compilation + prompt answering (LLM optional)
+- Owns reducer execution context (opens DB connections and passes read handles to reducers)
 
 ### reducers / prompts
 - Deterministic payload formatting over SCI/Artifact data
 - Prompt compilation using reducer outputs
 - No mutation or persistence
+- No path discovery or connection ownership (read handles are supplied by pipelines)
 - Reducer payload emission is centralized in `pipelines.reducers.emit`.
-- Reducers live under `core/reducers/` with semantic folders:
+- Reducers live under `reducers/` with semantic folders:
   - `structural/` (DB-derived, non-inferential structure)
   - `summaries/` (lossy compression for LLM use)
   - `composites/` (curated multi-surface orientation)
   - `baseline/` (control/baseline reducers)
   - `helpers/` (shared utilities; not reducers)
 - Reducer catalog lives in `REDUCERS.md`
-- Identifier resolution for prompts/reducers is centralized in `core/pipelines/resolve.py` and returns best-fit candidates on ambiguity/missing matches.
+- Identifier resolution for prompts/reducers is centralized in `pipelines/resolve.py` and returns best-fit candidates on ambiguity/missing matches.
 
 ### addons
 - Addon/plugin contracts live in `CONTRACTS.md` ("Addon plugin contract")

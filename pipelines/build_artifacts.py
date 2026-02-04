@@ -10,13 +10,13 @@ from ..code_analysis.core.annotate import diff as annotate_diff
 from ..data_storage.connections import artifact
 from ..data_storage.transactions import transaction
 from ..data_storage.artifact_db import store as artifact_store
+from ..data_storage.core_db import store as core_store
 from ..data_storage.artifact_db.maintenance_graph import (
     rebuild_graph_index,
-    rebuild_graph_rollups,
-    write_call_artifacts,
 )
 from ..data_storage.artifact_db.store import NODE_STATUS_PRODUCER, rewrite_node_status
 from ..runtime.paths import get_artifact_db_path
+from .domain import artifacts as artifact_domain
 from .progress import make_progress_factory
 
 
@@ -27,7 +27,8 @@ def build_artifacts_for_snapshot(
     conn,
     snapshot_id: str,
     languages,
-) -> Sequence[CallExtractionRecord]:
+) -> tuple[Sequence[CallExtractionRecord], list[str]]:
+    core_store.validate_snapshot_for_read(conn, snapshot_id, require_committed=True)
     artifacts_engine = ArtifactEngine(
         workspace_root,
         conn,
@@ -36,13 +37,14 @@ def build_artifacts_for_snapshot(
         progress_factory=make_progress_factory(),
     )
     call_artifacts = artifacts_engine.run(snapshot_id)
+    warnings = list(artifacts_engine.warnings)
     refresh_artifact_state(
         repo_root=repo_root,
         conn=conn,
         snapshot_id=snapshot_id,
         call_artifacts=call_artifacts,
     )
-    return call_artifacts
+    return call_artifacts, warnings
 
 
 def refresh_artifact_state(
@@ -68,7 +70,7 @@ def refresh_artifact_state(
                     statuses=statuses,
                     producer_id=NODE_STATUS_PRODUCER,
                 )
-                write_call_artifacts(
+                artifact_domain.write_call_artifacts(
                     artifact_conn=artifact_conn,
                     core_conn=conn,
                     snapshot_id=snapshot_id,
@@ -76,7 +78,11 @@ def refresh_artifact_state(
                     eligible_callers=eligible_callers,
                 )
                 rebuild_graph_index(artifact_conn, core_conn=conn, snapshot_id=snapshot_id)
-                rebuild_graph_rollups(artifact_conn, core_conn=conn, snapshot_id=snapshot_id)
+                artifact_domain.rebuild_graph_rollups(
+                    artifact_conn,
+                    core_conn=conn,
+                    snapshot_id=snapshot_id,
+                )
             artifact_store.mark_rebuild_completed(artifact_conn, snapshot_id=snapshot_id)
             if not artifact_store.rebuild_consistent_for_snapshot(
                 artifact_conn,

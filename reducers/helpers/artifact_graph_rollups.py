@@ -4,9 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import List, Optional, Sequence, Tuple
 
-from ...data_storage.artifact_db import connect as artifact_connect
-from ...runtime.paths import get_artifact_db_path
-from .artifact_snapshot import require_latest_snapshot
+from .context import current_artifact_connection, fallback_artifact_connection
 
 
 def load_module_call_edges(
@@ -16,12 +14,14 @@ def load_module_call_edges(
     src_module_ids: Optional[Sequence[str]] = None,
     dst_module_ids: Optional[Sequence[str]] = None,
 ) -> List[Tuple[str, str, int]]:
-    repo_root = repo_root.resolve()
-    require_latest_snapshot(repo_root, snapshot_id)
-    artifact_path = get_artifact_db_path(repo_root)
-    if not artifact_path.exists():
+    del snapshot_id
+    conn = current_artifact_connection()
+    owns_connection = False
+    if conn is None:
+        conn = fallback_artifact_connection(repo_root)
+        owns_connection = conn is not None
+    if conn is None:
         return []
-    conn = artifact_connect(artifact_path)
     try:
         clauses: list[str] = []
         params: list[str] = []
@@ -44,7 +44,8 @@ def load_module_call_edges(
         ).fetchall()
         return [(row["src_module_id"], row["dst_module_id"], int(row["call_count"])) for row in rows]
     finally:
-        conn.close()
+        if owns_connection:
+            conn.close()
 
 
 def load_class_call_edges(
@@ -54,12 +55,14 @@ def load_class_call_edges(
     src_class_ids: Optional[Sequence[str]] = None,
     dst_class_ids: Optional[Sequence[str]] = None,
 ) -> List[Tuple[str, str, int]]:
-    repo_root = repo_root.resolve()
-    require_latest_snapshot(repo_root, snapshot_id)
-    artifact_path = get_artifact_db_path(repo_root)
-    if not artifact_path.exists():
+    del snapshot_id
+    conn = current_artifact_connection()
+    owns_connection = False
+    if conn is None:
+        conn = fallback_artifact_connection(repo_root)
+        owns_connection = conn is not None
+    if conn is None:
         return []
-    conn = artifact_connect(artifact_path)
     try:
         clauses: list[str] = []
         params: list[str] = []
@@ -82,7 +85,8 @@ def load_class_call_edges(
         ).fetchall()
         return [(row["src_class_id"], row["dst_class_id"], int(row["call_count"])) for row in rows]
     finally:
-        conn.close()
+        if owns_connection:
+            conn.close()
 
 
 def load_node_fan_stats(
@@ -93,12 +97,14 @@ def load_node_fan_stats(
     edge_kinds: Optional[Sequence[str]] = None,
     node_kinds: Optional[Sequence[str]] = None,
 ) -> List[Tuple[str, str, str, int, int]]:
-    repo_root = repo_root.resolve()
-    require_latest_snapshot(repo_root, snapshot_id)
-    artifact_path = get_artifact_db_path(repo_root)
-    if not artifact_path.exists():
+    del snapshot_id
+    conn = current_artifact_connection()
+    owns_connection = False
+    if conn is None:
+        conn = fallback_artifact_connection(repo_root)
+        owns_connection = conn is not None
+    if conn is None:
         return []
-    conn = artifact_connect(artifact_path)
     try:
         clauses: list[str] = []
         params: list[str] = []
@@ -134,4 +140,5 @@ def load_node_fan_stats(
             for row in rows
         ]
     finally:
-        conn.close()
+        if owns_connection:
+            conn.close()

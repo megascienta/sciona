@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from sciona.runtime import agents
+from sciona.pipelines import agents
 
 
 def test_agents_block_has_markers():

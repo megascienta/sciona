@@ -9,6 +9,8 @@ def load_provider(
     *,
     api_key: Optional[str],
     api_endpoint: Optional[str],
+    endpoint_allowlist: tuple[str, ...] | None = None,
+    allow_api_key_for_custom_endpoint: bool = False,
     timeout: Optional[float] = None,
     max_retries: Optional[int] = None,
 ):
@@ -19,6 +21,8 @@ def load_provider(
         return OpenAIProvider(
             api_key=api_key,
             api_endpoint=api_endpoint,
+            endpoint_allowlist=endpoint_allowlist or ("api.openai.com",),
+            allow_api_key_for_custom_endpoint=allow_api_key_for_custom_endpoint,
             timeout=timeout,
             max_retries=max_retries,
         )

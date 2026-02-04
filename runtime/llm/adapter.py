@@ -30,6 +30,8 @@ class Adapter:
         *,
         api_key: Optional[str] = None,
         api_endpoint: Optional[str] = None,
+        endpoint_allowlist: tuple[str, ...] | None = None,
+        allow_api_key_for_custom_endpoint: bool = False,
         timeout: Optional[float] = None,
         max_retries: Optional[int] = None,
     ) -> None:
@@ -37,6 +39,8 @@ class Adapter:
             provider_name,
             api_key=api_key,
             api_endpoint=api_endpoint,
+            endpoint_allowlist=endpoint_allowlist,
+            allow_api_key_for_custom_endpoint=allow_api_key_for_custom_endpoint,
             timeout=timeout,
             max_retries=max_retries,
         )

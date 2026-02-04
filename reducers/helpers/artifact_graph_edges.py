@@ -4,9 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import List, Optional, Sequence, Tuple
 
-from ...data_storage.artifact_db import connect as artifact_connect
-from ...runtime.paths import get_artifact_db_path
-from .artifact_snapshot import require_latest_snapshot
+from .context import current_artifact_connection, fallback_artifact_connection
 
 
 def load_artifact_edges(
@@ -18,16 +16,14 @@ def load_artifact_edges(
     src_ids: Optional[Sequence[str]] = None,
     dst_ids: Optional[Sequence[str]] = None,
 ) -> List[Tuple[str, str, str]]:
-    repo_root = repo_root.resolve()
-    require_latest_snapshot(repo_root, snapshot_id)
-    artifact_path = get_artifact_db_path(repo_root)
-    try:
-        artifact_path.resolve().relative_to(repo_root)
-    except ValueError:
-        raise ValueError("Artifact path outside repo root.")
-    if not artifact_path.exists():
+    del snapshot_id
+    conn = current_artifact_connection()
+    owns_connection = False
+    if conn is None:
+        conn = fallback_artifact_connection(repo_root)
+        owns_connection = conn is not None
+    if conn is None:
         return []
-    conn = artifact_connect(artifact_path)
     try:
         clauses: list[str] = []
         params: list[str] = []
@@ -58,4 +54,5 @@ def load_artifact_edges(
         ).fetchall()
         return [(row["src_node_id"], row["dst_node_id"], row["edge_kind"]) for row in rows]
     finally:
-        conn.close()
+        if owns_connection:
+            conn.close()

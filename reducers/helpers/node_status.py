@@ -4,9 +4,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Dict, List
 
-from ...data_storage.artifact_db import connect as artifact_connect
 from ...data_storage.artifact_db import store as artifact_store
-from ...runtime.paths import get_artifact_db_path
+from .context import current_artifact_connection, fallback_artifact_connection
 from .utils import require_latest_committed_snapshot
 
 
@@ -22,15 +21,18 @@ def build_node_status_payload(snapshot_id: str, *, conn, repo_root: Path) -> Dic
     if not row or not row["is_committed"]:
         raise ValueError("node_status payload requires a committed snapshot.")
     require_latest_committed_snapshot(conn, snapshot_id, reducer_name="node_status payload")
-    artifact_path = get_artifact_db_path(Path(repo_root))
-    if not artifact_path.exists():
+    artifact_conn = current_artifact_connection()
+    owns_connection = False
+    if artifact_conn is None:
+        artifact_conn = fallback_artifact_connection(repo_root)
+        owns_connection = artifact_conn is not None
+    if artifact_conn is None:
         raise ValueError("node_status payload requires the artifact database.")
-
-    artifact_conn = artifact_connect(artifact_path)
     try:
         statuses = artifact_store.get_node_status(artifact_conn)
     finally:
-        artifact_conn.close()
+        if owns_connection:
+            artifact_conn.close()
 
     rows = conn.execute(
         """

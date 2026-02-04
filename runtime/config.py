@@ -18,6 +18,8 @@ from .config_defaults import (
     DEFAULT_LOG_MODULE_LEVELS,
     DEFAULT_LOG_STRUCTURED,
     DEFAULT_LLM_MAX_RETRIES,
+    DEFAULT_LLM_ENDPOINT_ALLOWLIST,
+    DEFAULT_LLM_ALLOW_API_KEY_FOR_CUSTOM_ENDPOINT,
     DEFAULT_LLM_TIMEOUT,
     DEFAULT_TEMPERATURE,
     LANGUAGE_DEFAULTS,
@@ -60,6 +62,8 @@ class LLMSettings:
     model: str
     api_endpoint: Optional[str]
     api_key: Optional[str]
+    endpoint_allowlist: Sequence[str]
+    allow_api_key_for_custom_endpoint: bool
     temperature: float
     supported_models: Sequence[str]
     timeout: float
@@ -242,6 +246,12 @@ def _load_llm_settings(repo_root: Path) -> LLMSettings:
         model=str(llm_block.get("model", DEFAULT_LLM_MODEL) or DEFAULT_LLM_MODEL),
         api_endpoint=llm_block.get("api_endpoint"),
         api_key=llm_block.get("api_key"),
+        endpoint_allowlist=_load_endpoint_allowlist(llm_block),
+        allow_api_key_for_custom_endpoint=_coerce_bool(
+            llm_block,
+            "allow_api_key_for_custom_endpoint",
+            DEFAULT_LLM_ALLOW_API_KEY_FOR_CUSTOM_ENDPOINT,
+        ),
         temperature=_coerce_float(llm_block, "temperature", DEFAULT_TEMPERATURE),
         supported_models=supported_models,
         timeout=timeout,
@@ -253,6 +263,25 @@ def _load_llm_settings(repo_root: Path) -> LLMSettings:
             code="invalid_llm_model",
         )
     return llm
+
+
+def _load_endpoint_allowlist(llm_block: Dict[str, Any]) -> Sequence[str]:
+    raw = llm_block.get("endpoint_allowlist", list(DEFAULT_LLM_ENDPOINT_ALLOWLIST))
+    if isinstance(raw, str):
+        raw = [raw]
+    if not isinstance(raw, list):
+        return tuple(DEFAULT_LLM_ENDPOINT_ALLOWLIST)
+    hosts = []
+    for entry in raw:
+        text = str(entry or "").strip().lower()
+        if not text:
+            continue
+        if "://" in text:
+            continue
+        hosts.append(text)
+    if not hosts:
+        return tuple(DEFAULT_LLM_ENDPOINT_ALLOWLIST)
+    return tuple(dict.fromkeys(hosts))
 
 
 @lru_cache(maxsize=4)

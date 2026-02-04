@@ -83,7 +83,7 @@ def test_engine_records_nodes_for_failed_parse(tmp_path, monkeypatch):
     assert row is not None
 
 
-def test_engine_warns_on_empty_language_matches(tmp_path, monkeypatch, capsys):
+def test_engine_warns_on_empty_language_matches(tmp_path, monkeypatch):
     repo_root = tmp_path
     (repo_root / "src").mkdir()
     file_path = repo_root / "src" / "mod.py"
@@ -138,7 +138,6 @@ def test_engine_warns_on_empty_language_matches(tmp_path, monkeypatch, capsys):
     )
     conn.commit()
 
-    captured = capsys.readouterr()
-    combined = captured.out + captured.err
-    assert "Discovery warning:" in combined
-    assert "python: 1 tracked by extension, 0 discovered" in combined
+    warning_text = "\n".join(engine.warnings)
+    assert "Discovery warning:" in warning_text
+    assert "python: 1 tracked by extension, 0 discovered" in warning_text

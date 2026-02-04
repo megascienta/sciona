@@ -8,7 +8,6 @@ from ..helpers.artifact_graph_edges import load_artifact_edges
 from ..helpers.render import render_json_payload, require_connection
 from ..helpers.utils import require_latest_committed_snapshot
 from ..metadata import ReducerMeta
-from ...runtime.paths import get_artifact_db_path
 
 _NODE_TYPES = {"module", "class", "function", "method"}
 
@@ -176,9 +175,6 @@ def _call_references(
     lookup: Dict[str, Dict[str, str]],
 ) -> List[Dict[str, object]]:
     if repo_root is None:
-        return []
-    artifact_path = get_artifact_db_path(repo_root)
-    if not artifact_path.exists():
         return []
     outgoing = load_artifact_edges(
         repo_root,

@@ -61,6 +61,7 @@ def register(app: typer.Typer) -> None:
         """Create a new snapshot and ingest enabled languages (clean worktree required)."""
         result = cli_call(pipeline_commands.build)
         cli_render.emit(cli_render.render_build(result.__dict__))
+        _emit_build_warnings(result)
         _exit_if_no_discovery(result)
         if result.status == "reused":
             typer.echo(f"No structural diffs detected; snapshot {result.snapshot_id} reused.")
@@ -139,6 +140,13 @@ def _exit_if_no_discovery(result) -> None:
         typer.echo("  - repository contains supported source files")
         typer.echo("")
         raise typer.Exit(code=1)
+
+
+def _emit_build_warnings(result) -> None:
+    for message in list(getattr(result, "analysis_warnings", [])):
+        typer.secho(f"Warning: {message}", fg=typer.colors.YELLOW)
+    for message in list(getattr(result, "artifact_warnings", [])):
+        typer.secho(f"Warning: {message}", fg=typer.colors.YELLOW)
 
 
 def _record_last_build(result) -> None:

@@ -151,6 +151,7 @@ Rules:
 - Reducers must not call external services.
 - Output must be deterministic and ordered.
 - Reducers operate on the **latest committed snapshot only**.
+- Reducers must not own DB path resolution or connection lifecycle; pipelines provide read context.
 - The reducer registry is frozen by default.
 - Reducers share a single unified namespace; there is no internal-only reducer class.
 - The reducer registry is a capability surface; reducer existence does not imply endorsement.
@@ -165,11 +166,11 @@ Graph traversal surfaces must use the artifact graph (`graph_nodes`/`graph_edges
 Core structural edges are not used for traversal in public surfaces.
 
 Reducer categories are semantic only and live under:
-- `core/reducers/structural` (DB-derived, non-inferential structure)
-- `core/reducers/summaries` (lossy compression)
-- `core/reducers/composites` (curated orientation)
-- `core/reducers/baseline` (control/baseline surfaces)
-- `core/reducers/helpers` (shared utilities, not reducers)
+- `reducers/structural` (DB-derived, non-inferential structure)
+- `reducers/summaries` (lossy compression)
+- `reducers/composites` (curated orientation)
+- `reducers/baseline` (control/baseline surfaces)
+- `reducers/helpers` (shared utilities, not reducers)
 
 ### Public reducer tiers (frozen)
 

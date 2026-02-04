@@ -23,7 +23,11 @@ dependencies = [
 sciona = "sciona.cli.main:run"
 
 [tool.setuptools.package-data]
-sciona = ["prompts/templates/*.md", "prompts/templates/registry.yaml"]
+sciona = [
+    "prompts/templates/*.md",
+    "prompts/templates/registry.yaml",
+    "pipelines/templates/*.md",
+]
 
 [tool.setuptools]
 packages = [
@@ -46,6 +50,7 @@ packages = [
     "sciona.data_storage.core_db",
     "sciona.pipelines",
     "sciona.pipelines.config",
+    "sciona.pipelines.domain",
     "sciona.pipelines.exec",
     "sciona.pipelines.policy",
     "sciona.prompts",

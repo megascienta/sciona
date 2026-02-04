@@ -1,4 +1,4 @@
-"""Managed AGENTS.md generation helpers."""
+"""Managed AGENTS.md generation helpers (application layer)."""
 from __future__ import annotations
 
 from pathlib import Path

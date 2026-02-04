@@ -2,13 +2,10 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
-
-import typer
+from typing import Callable, Dict, List, Optional, Tuple
 
 from ...runtime import config as runtime_config
 from ...runtime.logging import get_logger
-from ...data_storage.core_db import store as core_store
 from ..core import routing
 from ..tools import git_support, snapshots, walker
 from ..tools.call_extraction import CallExtractionRecord
@@ -27,6 +24,7 @@ class ArtifactEngine:
         discovery: Optional[runtime_config.DiscoverySettings] = None,
         config_root: Optional[Path] = None,
         progress_factory=None,
+        warning_sink: Optional[Callable[[str], None]] = None,
     ) -> None:
         self.workspace_root = workspace_root
         self.repo_root = workspace_root
@@ -36,9 +34,10 @@ class ArtifactEngine:
         self.discovery = discovery
         self.analyzers = routing.select_analyzers(self.languages)
         self._progress_factory = progress_factory
+        self._warning_sink = warning_sink
+        self.warnings: list[str] = []
 
     def run(self, snapshot_id: str) -> List[CallExtractionRecord]:
-        core_store.validate_snapshot_for_read(self.conn, snapshot_id, require_committed=True)
         tracked = git_support.tracked_paths(self.workspace_root)
         if self.discovery is None:
             self.discovery = runtime_config.load_discovery_settings(self.config_root)
@@ -51,8 +50,7 @@ class ArtifactEngine:
         if not records:
             return []
         def _warn_line_count(path: Path, exc: Exception) -> None:
-            logger.warning("Could not count lines in %s: %s", path, exc)
-            typer.secho(f"Warning: Could not count lines in {path}: {exc}", fg=typer.colors.YELLOW)
+            self._warn(f"Could not count lines in {path}: {exc}")
 
         file_snapshots = snapshots.prepare_file_snapshots(
             self.repo_root,
@@ -79,12 +77,7 @@ class ArtifactEngine:
                     warning = (
                         f"Failed to analyze {file_snapshot.record.relative_path}: {exc}"
                     )
-                    logger.warning(
-                        "Failed to analyze %s: %s",
-                        file_snapshot.record.relative_path,
-                        exc,
-                    )
-                    typer.secho(warning, fg=typer.colors.YELLOW)
+                    self._warn(warning)
                     if progress:
                         progress.advance(1)
                     continue
@@ -109,6 +102,12 @@ class ArtifactEngine:
                 )
             )
         return call_artifacts
+
+    def _warn(self, message: str) -> None:
+        self.warnings.append(message)
+        logger.warning(message)
+        if self._warning_sink:
+            self._warning_sink(message)
 
 
 def _load_node_map(conn, snapshot_id: str) -> Dict[Tuple[str, str], str]:

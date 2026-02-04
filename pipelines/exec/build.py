@@ -34,6 +34,8 @@ class BuildResult:
     discovery_excluded_total: int = 0
     exclude_globs: Sequence[str] = field(default_factory=list)
     parse_failures: int = 0
+    analysis_warnings: Sequence[str] = field(default_factory=list)
+    artifact_warnings: Sequence[str] = field(default_factory=list)
 
 
 def build_repo(
@@ -100,8 +102,9 @@ def build_repo(
                 core_store.prune_orphan_structural_nodes(conn)
             conn.commit()
             call_artifacts: Sequence[CallExtractionRecord] = []
+            artifact_warnings: Sequence[str] = []
             if policy.artifacts.refresh_artifacts:
-                call_artifacts = build_artifacts_for_snapshot(
+                call_artifacts, artifact_warnings = build_artifacts_for_snapshot(
                     repo_root=repo_state.repo_root,
                     workspace_root=workspace,
                     conn=conn,
@@ -121,6 +124,8 @@ def build_repo(
                 discovery_excluded_total=engine.discovery_excluded_total,
                 exclude_globs=list(engine.exclude_globs),
                 parse_failures=engine.parse_failures,
+                analysis_warnings=list(engine.warnings),
+                artifact_warnings=list(artifact_warnings),
             )
         except Exception:
             if conn.in_transaction:

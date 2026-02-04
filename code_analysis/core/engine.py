@@ -2,9 +2,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
-
-import typer
+from typing import Callable, Dict, List, Optional, Tuple
 
 from ...runtime import config as runtime_config
 from ...runtime.errors import IngestionError
@@ -31,6 +29,7 @@ class BuildEngine:
         discovery: Optional[runtime_config.DiscoverySettings] = None,
         config_root: Optional[Path] = None,
         progress_factory=None,
+        warning_sink: Optional[Callable[[str], None]] = None,
     ) -> None:
         self.workspace_root = workspace_root
         # Keep legacy attribute name for helpers that still reference repo_root.
@@ -45,9 +44,11 @@ class BuildEngine:
         self.discovery_excluded_total = 0
         self.exclude_globs: list[str] = []
         self.parse_failures = 0
+        self.warnings: list[str] = []
         self.analyzers = select_analyzers(self.languages)
         self.assembler = StructuralAssembler(conn, store)
         self._progress_factory = progress_factory
+        self._warning_sink = warning_sink
 
     def run(self, snapshot: Snapshot) -> Tuple[int, int]:
         if not self.conn.in_transaction:
@@ -88,8 +89,7 @@ class BuildEngine:
             snapshot_id = snapshot.snapshot_id
             self.assembler.prime_structural_cache(None)
             def _warn_line_count(path: Path, exc: Exception) -> None:
-                logger.warning("Could not count lines in %s: %s", path, exc)
-                typer.secho(f"Warning: Could not count lines in {path}: {exc}", fg=typer.colors.YELLOW)
+                self._warn(f"Could not count lines in {path}: {exc}")
 
             changed_snapshots = snapshots.prepare_file_snapshots(
                 self.repo_root,
@@ -118,12 +118,7 @@ class BuildEngine:
                         warning = (
                             f"Failed to analyze {file_snapshot.record.relative_path}: {exc}"
                         )
-                        logger.warning(
-                            "Failed to analyze %s: %s",
-                            file_snapshot.record.relative_path,
-                            exc,
-                        )
-                        typer.secho(warning, fg=typer.colors.YELLOW)
+                        self._warn(warning)
                         self.parse_failures += 1
                         self.assembler.register_module_node(
                             snapshot_id,
@@ -164,16 +159,20 @@ class BuildEngine:
         ]
         if not missing:
             return
-        typer.secho(
-            "Discovery warning: enabled languages with tracked files but zero discovered:",
-            fg=typer.colors.YELLOW,
+        self._warn(
+            "Discovery warning: enabled languages with tracked files but zero discovered:"
         )
         for language, candidate_count in missing:
-            typer.secho(
-                f"  - {language}: {candidate_count} tracked by extension, 0 discovered "
-                "(check discovery.exclude_globs)",
-                fg=typer.colors.YELLOW,
+            self._warn(
+                f"{language}: {candidate_count} tracked by extension, 0 discovered "
+                "(check discovery.exclude_globs)"
             )
+
+    def _warn(self, message: str) -> None:
+        self.warnings.append(message)
+        logger.warning(message)
+        if self._warning_sink:
+            self._warning_sink(message)
 
     def _register_modules(self, snapshot_id: str, snapshots: List[FileSnapshot]) -> int:
         inserted = 0

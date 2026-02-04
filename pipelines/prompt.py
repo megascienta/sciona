@@ -137,6 +137,8 @@ def answer_prompt_text_by_name(
         llm_cfg.provider,
         api_key=llm_cfg.api_key,
         api_endpoint=llm_cfg.api_endpoint,
+        endpoint_allowlist=tuple(llm_cfg.endpoint_allowlist),
+        allow_api_key_for_custom_endpoint=llm_cfg.allow_api_key_for_custom_endpoint,
         timeout=llm_cfg.timeout,
         max_retries=llm_cfg.max_retries,
     )
