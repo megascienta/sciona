@@ -37,6 +37,9 @@ def test_public_user_api_surface_is_explicit_and_stable():
 
 def test_public_plugin_api_surface_is_explicit_and_stable():
     expected = [
+        "PLUGIN_API_VERSION",
+        "PLUGIN_API_MAJOR",
+        "PLUGIN_API_MINOR",
         "Registry",
         "compile_prompt_payload",
         "emit",

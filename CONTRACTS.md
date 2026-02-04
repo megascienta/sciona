@@ -247,6 +247,10 @@ configured LLM; no artifact is persisted.
 - Addons may only register CLI commands through `runtime/addon_api.Registry.register_cli`.
 - Core auto-attaches installed addon CLI commands to the `sciona` CLI.
 - Addons may call reducer emission and prompt compiler services through `sciona.api.plugins`.
+- `sciona.api.plugins` exports plugin API version constants (`PLUGIN_API_VERSION`,
+  `PLUGIN_API_MAJOR`, `PLUGIN_API_MINOR`).
+- Addons may declare `REQUIRES_SCIONA_PLUGIN_API` (e.g., `">=1,<2"`); incompatible
+  addons are skipped during load.
 - Addons must not register reducers or prompts into core registries.
 
 ---

@@ -68,3 +68,17 @@ def test_load_for_cli_matches_load(monkeypatch):
     registry = addon_runtime.load_for_cli(Path("."))
 
     assert "alpha" in registry.cli_apps
+
+
+def test_load_skips_incompatible_plugin_api_requirement(monkeypatch):
+    def _register(registry):
+        registry.register_cli("alpha", object())
+
+    _register.REQUIRES_SCIONA_PLUGIN_API = ">=2,<3"
+    installed = {"alpha": _Entry("alpha", _register)}
+    monkeypatch.setattr(addon_runtime, "_discover_installed_addons", lambda: installed)
+    monkeypatch.setattr(addon_runtime, "_addons_disabled", lambda: False)
+
+    registry = addon_runtime.load(Path("."))
+
+    assert "alpha" not in registry.cli_apps
