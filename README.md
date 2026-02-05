@@ -147,11 +147,9 @@ Assemble deterministic code payloads using the baseline reducer:
 
 ```bash
 sciona reducer --id concatenated_source --scope codebase
-sciona reducer --id concatenated_source --scope module --module-id=<id> --extras
-sciona reducer --id concatenated_source --scope class --class-id=<id> --extras
+sciona reducer --id concatenated_source --scope module --module-id=<id>
+sciona reducer --id concatenated_source --scope class --class-id=<id>
 ```
-
-Use `--extras` to include additional tracked files (e.g., `.md`, `.yaml`, `.json`, `.toml`) under the target scope.
 
 ---
 

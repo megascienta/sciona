@@ -216,6 +216,9 @@ Structural optional (public, non-core):
 Prompts should prefer structural spine reducers. Baseline and derived reducers
 are allowed for experiments or addon-specific prompts.
 
+Note:
+- `concatenated_source` includes only snapshot-tracked files (from `node_instances`); it does not scan the filesystem.
+
 ### Ordering rules
 
 Reducers must return stable ordering. Current guarantees:
