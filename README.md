@@ -19,7 +19,7 @@ For system invariants and contracts, see:
 SCIONA requires Python 3.11 and Tree-sitter runtimes.
 
 ```bash
-pip install -e .
+pip install -e . --no-build-isolation
 ```
 
 ---

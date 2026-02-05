@@ -70,19 +70,23 @@ def ensure_prompts_initialized(repo_root: Path) -> Path:
     if not registry_path.exists():
         _write_registry(registry_path, seed_registry)
     else:
-        missing = [name for name in seed_registry if name not in existing_registry]
-        if missing:
-            merged = dict(existing_registry)
-            for name in missing:
-                merged[name] = seed_registry[name]
+        # Keep user/addon entries, but always refresh core prompt entries from bundled seed.
+        merged = dict(existing_registry)
+        changed = False
+        for name, seed_entry in seed_registry.items():
+            existing_entry = existing_registry.get(name)
+            if existing_entry != seed_entry:
+                merged[name] = seed_entry
+                changed = True
+        if changed:
             _write_registry(registry_path, merged)
 
     for template_path in _TEMPLATES_DIR.iterdir():
         if template_path.name == _REGISTRY_FILENAME:
             continue
         target = prompts_dir / template_path.name
-        if not target.exists():
-            shutil.copy2(template_path, target)
+        # Keep bundled core specs synchronized to avoid stale placeholder/reducer mismatches.
+        shutil.copy2(template_path, target)
 
     return prompts_dir
 

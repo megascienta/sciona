@@ -56,7 +56,6 @@ packages = [
     "sciona.prompts",
     "sciona.reducers",
     "sciona.reducers.baseline",
-    "sciona.reducers.composites",
     "sciona.reducers.helpers",
     "sciona.reducers.structural",
     "sciona.reducers.summaries",
