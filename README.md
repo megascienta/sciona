@@ -44,8 +44,7 @@ Important rules:
 - Build requires a **clean worktree** for tracked language files.
 - Read-only commands may proceed on a dirty worktree but warn that outputs reflect
   the last committed snapshot.
-- All read operations use the **latest committed snapshot** only (conceptual
-  details in `ARCHITECTURE.md`).
+- All read operations use the **latest committed snapshot** only.
 
 ---
 
@@ -97,7 +96,7 @@ last committed snapshot.
 SCIONA ships core prompt templates and a registry in `.sciona/prompts`
 (seeded during `sciona init`). Users may add their own templates and extend
 `registry.yaml` at their own risk, using core reducers and placeholders.
-Addon prompts may exist but are not exposed through the core CLI.
+Addon prompts are not exposed through the core CLI.
 Bundled prompt ids:
 - preflight_v1
 - architecture_overview_v1

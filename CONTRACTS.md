@@ -1,8 +1,7 @@
 # SCIONA Contracts (1.0)
 
-This document defines binding contracts for contributors, addons, prompts, and tooling.
-This document defines the external contracts for ingestion, edges, reducers,
-prompts, and CLI usage in SCIONA 1.0.
+This document defines binding contracts for contributors, addons, prompts, and tooling,
+including ingestion, edges, reducers, prompts, and CLI usage in SCIONA 1.0.
 
 ---
 
@@ -46,6 +45,7 @@ Notes:
 - `sciona.api.prompts.validate_prompt_entry` provides reducer wiring validation for prompt entries.
 - Registry mutation helpers (`freeze_registry`, `mutable_registry`) are intentionally
   not part of the public API surface.
+- Addons can enumerate core reducers via `sciona.api.addons.list_entries` (see `REDUCERS.md` for the canonical list).
 
 ---
 
@@ -195,7 +195,6 @@ Structural spine (core, required by tooling):
 - callable_overview
 - call_graph
 - class_overview
-- class_method_list
 - class_inheritance
 
 Baseline / control (public, non-core):
@@ -207,9 +206,13 @@ Derived / optional (public, non-core):
 - class_call_graph
 - module_call_graph
 - callsite_index
+- importers_index
 
 Structural optional (public, non-core):
 - symbol_lookup
+- symbol_references
+- file_outline
+- module_file_map
 - dependency_edges
 - import_references
 
@@ -245,9 +248,9 @@ Reducers must return stable ordering. Current guarantees:
 - Reducer placeholders are declared in `REDUCER_META.placeholders` (see `REDUCERS.md`).
 - Prompt registries must declare every reducer-required argument in
   `required_args`/`optional_args`/`default_args`; missing reducer-required args
-  are rejected during registry validation.
+  are rejected during prompt compilation/validation.
 - Prompt registries may declare optional/default args not required by reducers;
-  these emit a warning to help keep prompt interfaces tight.
+  these emit a warning to help keep prompt interfaces tight during compilation.
 - Compiled prompt header includes PROMPT and SNAPSHOT.
 - Prompt usefulness/certification is evaluated at the prompt level, not the reducer level.
 - Prompt compilation/answering uses the latest committed snapshot only; any other snapshot id is rejected.

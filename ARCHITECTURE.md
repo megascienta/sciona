@@ -109,7 +109,8 @@ Artifacts are rebuilt for the **latest committed snapshot** and are not part of 
 - Addons are plugins discovered by the `sciona.addons` entry-point group.
 - Core only auto-attaches addon CLI subcommands via `runtime/addon_api.py`.
 - Addons may consume core reducer emission and prompt compilation through the
-  addon-facing public API (`sciona.api.plugins`).
+  addon-facing public API (`sciona.api.addons`).
+- Addons must not register reducers or prompts into core.
 
 ### Interfaces
 - Thin adapters over pipelines

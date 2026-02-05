@@ -51,6 +51,7 @@ def test_public_addon_api_surface_is_explicit_and_stable():
         "load_for_cli",
         "compile_prompt_payload",
         "emit",
+        "list_entries",
     ]
     assert api.addons.__all__ == expected
     assert len(api.addons.__all__) == len(set(api.addons.__all__))
