@@ -48,16 +48,3 @@ class Adapter:
     def complete(self, prompt: str, *, model: str, temperature: float = 0.0) -> LLMResponse:
         request = LLMRequest(prompt=prompt, model=model, temperature=temperature)
         return self._provider.complete(request)
-
-    def probe(self, *, model: str, temperature: float = 0.0) -> None:
-        """Check provider connectivity by issuing a minimal request."""
-        request = LLMRequest(
-            prompt="SCIONA connectivity check.",
-            model=model,
-            temperature=temperature,
-        )
-        probe = getattr(self._provider, "probe", None)
-        if callable(probe):
-            probe(request)
-            return
-        self._provider.complete(request)

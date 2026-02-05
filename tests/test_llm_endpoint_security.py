@@ -60,7 +60,7 @@ def test_openai_provider_custom_endpoint_without_api_key(monkeypatch) -> None:
         captured["auth"] = req.headers.get("Authorization")
         return _Response()
 
-    monkeypatch.setattr("sciona.runtime.llm.providers.openai.urlopen", _fake_urlopen)
+    monkeypatch.setattr("sciona.runtime.llm.providers.openai_transport.urlopen", _fake_urlopen)
     provider = OpenAIProvider(
         api_endpoint="https://gateway.example/v1",
         endpoint_allowlist=("api.openai.com", "gateway.example"),
@@ -77,7 +77,7 @@ def test_openai_provider_custom_endpoint_with_explicit_api_key_forward(monkeypat
         captured["auth"] = req.headers.get("Authorization")
         return _Response()
 
-    monkeypatch.setattr("sciona.runtime.llm.providers.openai.urlopen", _fake_urlopen)
+    monkeypatch.setattr("sciona.runtime.llm.providers.openai_transport.urlopen", _fake_urlopen)
     provider = OpenAIProvider(
         api_endpoint="https://gateway.example/v1",
         endpoint_allowlist=("api.openai.com", "gateway.example"),

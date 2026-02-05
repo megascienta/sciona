@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from pathlib import Path
 import re
-from typing import Optional
 
 from . import constants
 from . import git as git_ops
@@ -45,10 +44,6 @@ def get_sciona_dir(repo_root: Path) -> Path:
     return repo_root / constants.SCIONA_DIR_NAME
 
 
-def get_version_file(repo_root: Path) -> Path:
-    return get_sciona_dir(repo_root) / constants.VERSION_FILENAME
-
-
 def get_db_path(repo_root: Path) -> Path:
     return get_sciona_dir(repo_root) / constants.DB_FILENAME
 
@@ -67,12 +62,6 @@ def get_prompts_dir(repo_root: Path) -> Path:
 
 def get_prompts_registry_path(repo_root: Path) -> Path:
     return get_prompts_dir(repo_root) / constants.PROMPTS_REGISTRY_FILENAME
-
-
-def get_log_dir(repo_root: Path) -> Path:
-    if constants.LOG_DIRNAME:
-        return get_sciona_dir(repo_root) / constants.LOG_DIRNAME
-    return get_sciona_dir(repo_root)
 
 
 def validate_repo_root(repo_root: Path) -> Path:

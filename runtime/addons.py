@@ -7,7 +7,7 @@ import os
 from importlib import metadata
 from .addon_api import Registry
 from .logging import get_logger, debug_enabled
-from .plugin_api import PLUGIN_API_VERSION, requirement_compatible
+from .addon_contract import PLUGIN_API_VERSION, requirement_compatible
 
 _LOGGER = get_logger("runtime.addons")
 

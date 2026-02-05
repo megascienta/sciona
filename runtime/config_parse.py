@@ -1,0 +1,206 @@
+"""Runtime config parsing/coercion helpers."""
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Any, Dict, Sequence
+
+from .config_defaults import (
+    DEFAULT_DB_TIMEOUT,
+    DEFAULT_GIT_TIMEOUT,
+    DEFAULT_LLM_ALLOW_API_KEY_FOR_CUSTOM_ENDPOINT,
+    DEFAULT_LLM_ENDPOINT_ALLOWLIST,
+    DEFAULT_LLM_MAX_RETRIES,
+    DEFAULT_LLM_MODEL,
+    DEFAULT_LLM_PROVIDER,
+    DEFAULT_LLM_TIMEOUT,
+    DEFAULT_LOG_DEBUG,
+    DEFAULT_LOG_LEVEL,
+    DEFAULT_LOG_MODULE_LEVELS,
+    DEFAULT_LOG_STRUCTURED,
+    DEFAULT_TEMPERATURE,
+    LANGUAGE_DEFAULTS,
+)
+from .config_io import load_raw_config
+from .config_models import (
+    DatabaseSettings,
+    DiscoverySettings,
+    GitSettings,
+    LLMSettings,
+    LanguageSettings,
+    LoggingSettings,
+    RuntimeConfig,
+)
+from .errors import ConfigError
+
+
+def _coerce_int(block: Dict[str, Any], key: str, default: int) -> int:
+    try:
+        return int(block.get(key, default))
+    except (TypeError, ValueError):
+        return default
+
+
+def _coerce_float(block: Dict[str, Any], key: str, default: float) -> float:
+    try:
+        return float(block.get(key, default))
+    except (TypeError, ValueError):
+        return default
+
+
+def _coerce_bool(block: Dict[str, Any], key: str, default: bool) -> bool:
+    value = block.get(key, default)
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        lowered = value.strip().lower()
+        if lowered in {"1", "true", "yes"}:
+            return True
+        if lowered in {"0", "false", "no"}:
+            return False
+    if isinstance(value, (int, float)):
+        return bool(value)
+    return default
+
+
+def load_language_settings(repo_root: Path) -> Dict[str, LanguageSettings]:
+    raw_config = load_raw_config(repo_root)
+    lang_block = raw_config.get("languages", {}) if isinstance(raw_config, dict) else {}
+    resolved: Dict[str, LanguageSettings] = {}
+    for name, lang_defaults in LANGUAGE_DEFAULTS.items():
+        user_cfg = lang_block.get(name, {}) if isinstance(lang_block, dict) else {}
+        enabled = bool(user_cfg.get("enabled", lang_defaults["enabled"]))
+        resolved[name] = LanguageSettings(name=name, enabled=enabled)
+    if not any(settings.enabled for settings in resolved.values()):
+        raise ConfigError(
+            "No languages enabled in .sciona/config.yaml. Edit the config to enable at least one language.",
+            code="missing_languages",
+        )
+    return resolved
+
+
+def _load_discovery_settings(raw: Dict[str, Any]) -> DiscoverySettings:
+    discovery_block = raw.get("discovery", {}) if isinstance(raw, dict) else {}
+    exclude_globs = discovery_block.get("exclude_globs", [])
+    if not isinstance(exclude_globs, list):
+        exclude_globs = []
+    cleaned = [str(entry) for entry in exclude_globs if entry]
+    return DiscoverySettings(exclude_globs=cleaned)
+
+
+def _load_database_settings(raw: Dict[str, Any]) -> DatabaseSettings:
+    database_block = raw.get("database", {}) if isinstance(raw, dict) else {}
+    timeout = _coerce_float(database_block, "timeout", DEFAULT_DB_TIMEOUT)
+    if timeout <= 0:
+        timeout = DEFAULT_DB_TIMEOUT
+    return DatabaseSettings(timeout=timeout)
+
+
+def _load_git_settings(raw: Dict[str, Any]) -> GitSettings:
+    git_block = raw.get("git", {}) if isinstance(raw, dict) else {}
+    timeout = _coerce_float(git_block, "timeout", DEFAULT_GIT_TIMEOUT)
+    if timeout <= 0:
+        timeout = DEFAULT_GIT_TIMEOUT
+    return GitSettings(timeout=timeout)
+
+
+def load_runtime_config(repo_root: Path) -> RuntimeConfig:
+    raw = load_raw_config(repo_root)
+    return RuntimeConfig(
+        languages=load_language_settings(repo_root),
+        discovery=_load_discovery_settings(raw),
+        database=_load_database_settings(raw),
+        git=_load_git_settings(raw),
+    )
+
+
+def load_logging_settings(repo_root: Path, *, allow_missing: bool = False) -> LoggingSettings:
+    try:
+        raw = load_raw_config(repo_root)
+    except ConfigError:
+        if not allow_missing:
+            raise
+        raw = {}
+    logging_block = raw.get("logging", {}) if isinstance(raw, dict) else {}
+    level = logging_block.get("level", DEFAULT_LOG_LEVEL) or DEFAULT_LOG_LEVEL
+    debug = _coerce_bool(logging_block, "debug", DEFAULT_LOG_DEBUG)
+    structured = _coerce_bool(logging_block, "structured", DEFAULT_LOG_STRUCTURED)
+    module_levels_raw = logging_block.get("module_levels", DEFAULT_LOG_MODULE_LEVELS)
+    module_levels: Dict[str, str] = {}
+    if isinstance(module_levels_raw, dict):
+        for key, value in module_levels_raw.items():
+            if not key:
+                continue
+            module_levels[str(key)] = str(value)
+    return LoggingSettings(
+        level=str(level),
+        module_levels=module_levels,
+        debug=debug,
+        structured=structured,
+    )
+
+
+def load_llm_settings(repo_root: Path) -> LLMSettings:
+    raw = load_raw_config(repo_root)
+    llm_block = raw.get("llm", {}) if isinstance(raw, dict) else {}
+    if not isinstance(llm_block, dict):
+        llm_block = {}
+
+    supported_models_raw = llm_block.get("supported_models", [])
+    if not isinstance(supported_models_raw, list):
+        supported_models_raw = []
+    supported_models = tuple(str(entry) for entry in supported_models_raw if entry)
+    timeout = _coerce_float(llm_block, "timeout", DEFAULT_LLM_TIMEOUT)
+    if timeout <= 0:
+        timeout = DEFAULT_LLM_TIMEOUT
+    max_retries = _coerce_int(llm_block, "max_retries", DEFAULT_LLM_MAX_RETRIES)
+    if max_retries < 0:
+        max_retries = DEFAULT_LLM_MAX_RETRIES
+    llm = LLMSettings(
+        provider=str(llm_block.get("provider", DEFAULT_LLM_PROVIDER) or DEFAULT_LLM_PROVIDER),
+        model=str(llm_block.get("model", DEFAULT_LLM_MODEL) or DEFAULT_LLM_MODEL),
+        api_endpoint=llm_block.get("api_endpoint"),
+        api_key=llm_block.get("api_key"),
+        endpoint_allowlist=_load_endpoint_allowlist(llm_block),
+        allow_api_key_for_custom_endpoint=_coerce_bool(
+            llm_block,
+            "allow_api_key_for_custom_endpoint",
+            DEFAULT_LLM_ALLOW_API_KEY_FOR_CUSTOM_ENDPOINT,
+        ),
+        temperature=_coerce_float(llm_block, "temperature", DEFAULT_TEMPERATURE),
+        supported_models=supported_models,
+        timeout=timeout,
+        max_retries=max_retries,
+    )
+    if llm.supported_models and llm.model not in llm.supported_models:
+        raise ConfigError(
+            f"Configured LLM model '{llm.model}' is not in supported_models.",
+            code="invalid_llm_model",
+        )
+    return llm
+
+
+def _load_endpoint_allowlist(llm_block: Dict[str, Any]) -> Sequence[str]:
+    raw = llm_block.get("endpoint_allowlist", list(DEFAULT_LLM_ENDPOINT_ALLOWLIST))
+    if isinstance(raw, str):
+        raw = [raw]
+    if not isinstance(raw, list):
+        return tuple(DEFAULT_LLM_ENDPOINT_ALLOWLIST)
+    hosts = []
+    for entry in raw:
+        text = str(entry or "").strip().lower()
+        if not text:
+            continue
+        if "://" in text:
+            continue
+        hosts.append(text)
+    if not hosts:
+        return tuple(DEFAULT_LLM_ENDPOINT_ALLOWLIST)
+    return tuple(dict.fromkeys(hosts))
+
+
+__all__ = [
+    "load_language_settings",
+    "load_llm_settings",
+    "load_logging_settings",
+    "load_runtime_config",
+]

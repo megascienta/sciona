@@ -4,9 +4,9 @@ from sciona import api
 
 
 def test_public_api_root_exposes_namespaces_only():
-    assert api.__all__ == ["user", "plugins"]
+    assert api.__all__ == ["user", "addons"]
     assert hasattr(api, "user")
-    assert hasattr(api, "plugins")
+    assert hasattr(api, "addons")
 
 
 def test_public_user_api_surface_is_explicit_and_stable():
@@ -33,7 +33,7 @@ def test_public_user_api_surface_is_explicit_and_stable():
         assert hasattr(api.user, name), f"Missing user API symbol: {name}"
 
 
-def test_public_plugin_api_surface_is_explicit_and_stable():
+def test_public_addon_api_surface_is_explicit_and_stable():
     expected = [
         "PLUGIN_API_VERSION",
         "PLUGIN_API_MAJOR",
@@ -42,7 +42,7 @@ def test_public_plugin_api_surface_is_explicit_and_stable():
         "compile_prompt_payload",
         "emit",
     ]
-    assert api.plugins.__all__ == expected
-    assert len(api.plugins.__all__) == len(set(api.plugins.__all__))
+    assert api.addons.__all__ == expected
+    assert len(api.addons.__all__) == len(set(api.addons.__all__))
     for name in expected:
-        assert hasattr(api.plugins, name), f"Missing plugin API symbol: {name}"
+        assert hasattr(api.addons, name), f"Missing addon API symbol: {name}"

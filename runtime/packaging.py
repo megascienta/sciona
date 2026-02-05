@@ -4,7 +4,7 @@ from __future__ import annotations
 import tomllib
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict
 
 
 @lru_cache(maxsize=4)
@@ -36,40 +36,6 @@ def _package_dir_map(repo_root: str) -> Dict[Path, str]:
     return mapping
 
 
-def python_package_target(
-    repo_root: Path,
-    file_relative_path: Path,
-) -> tuple[Optional[str], Optional[Path]]:
-    """Return (package_name, package_path) owning the file based on pyproject.toml."""
-    try:
-        relative_path = file_relative_path.relative_to(repo_root)
-    except ValueError:
-        relative_path = file_relative_path
-    mapping = _package_dir_map(str(repo_root.resolve()))
-    if not mapping:
-        return None, None
-    best_name: Optional[str] = None
-    best_path: Optional[Path] = None
-    best_depth = -1
-    for package_path, package_name in mapping.items():
-        try:
-            relative_path.relative_to(package_path)
-        except ValueError:
-            continue
-        depth = len(package_path.parts)
-        if depth > best_depth:
-            best_name = package_name
-            best_path = package_path
-            best_depth = depth
-    return best_name, best_path
-
-
-def python_package_prefix(repo_root: Path, file_relative_path: Path) -> Optional[str]:
-    """Return the package name that owns the given file, if specified in pyproject.toml."""
-    package_name, _package_path = python_package_target(repo_root, file_relative_path)
-    return package_name
-
-
 def local_package_names(repo_root: Path) -> tuple[str, ...]:
     """Return declared local package names from pyproject.toml."""
     mapping = _package_dir_map(str(repo_root.resolve()))
@@ -79,7 +45,5 @@ def local_package_names(repo_root: Path) -> tuple[str, ...]:
 
 
 __all__ = [
-    "python_package_target",
-    "python_package_prefix",
     "local_package_names",
 ]
