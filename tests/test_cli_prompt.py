@@ -4,7 +4,7 @@ import json
 from typer.testing import CliRunner
 
 from sciona.runtime import paths as runtime_paths
-from sciona.prompts.bootstrap import ensure_prompts_initialized
+from sciona.pipelines.prompts import ensure_prompts_initialized
 
 from tests.helpers import seed_repo_with_snapshot
 

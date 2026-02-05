@@ -14,7 +14,7 @@ from ..domain.repository import RepoState
 _LOGGER = get_logger("pipelines.exec.repo")
 from ...data_storage.connections import core
 from ...data_storage.core_db import read_ops as core_read
-from ...prompts.bootstrap import ensure_prompts_initialized
+from ..prompts import ensure_prompts_initialized
 from .. import setup as versioning
 from ..errors import ConfigError
 

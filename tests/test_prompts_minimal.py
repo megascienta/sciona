@@ -1,7 +1,7 @@
 import sqlite3
 
 from sciona.prompts import compile_prompt
-from sciona.prompts.bootstrap import ensure_prompts_initialized
+from sciona.pipelines.prompts import ensure_prompts_initialized
 
 from .helpers import seed_repo_with_snapshot
 

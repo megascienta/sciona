@@ -11,7 +11,7 @@ from ..runtime.errors import ScionaError
 from ..runtime import addons as addon_runtime
 from ..runtime.config import load_logging_settings
 from ..runtime.paths import get_repo_root
-from ..prompts.registry import freeze_registry as freeze_prompt_registry
+from ..api.prompts import freeze_registry as freeze_prompt_registry
 from ..reducers.registry import freeze_registry as freeze_reducer_registry
 from .commands import register as register_commands
 

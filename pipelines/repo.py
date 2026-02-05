@@ -7,7 +7,7 @@ from typing import Optional
 from .domain.repository import RepoState
 from .domain.policies import BuildPolicy
 from ..runtime.logging import get_logger
-from ..prompts.bootstrap import ensure_prompts_initialized
+from .prompts import ensure_prompts_initialized
 from ..runtime.templates import agents as agents_runtime
 from ..reducers.registry import get_reducers
 from .exec.build import (

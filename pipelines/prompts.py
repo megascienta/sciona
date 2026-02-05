@@ -1,4 +1,4 @@
-"""Prompt initialization helpers."""
+"""Prompt initialization helpers (pipeline-owned)."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -7,9 +7,7 @@ from typing import Dict
 
 import yaml
 
-from ..runtime import paths as runtime_paths
-
-_TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
+_TEMPLATES_DIR = Path(__file__).resolve().parents[1] / "prompts" / "templates"
 _REGISTRY_FILENAME = "registry.yaml"
 
 
@@ -60,6 +58,7 @@ def _write_registry(path: Path, entries: Dict[str, dict]) -> None:
 
 
 def ensure_prompts_initialized(repo_root: Path) -> Path:
+    from ..runtime import paths as runtime_paths
     prompts_dir = runtime_paths.get_prompts_dir(repo_root)
     prompts_dir.mkdir(parents=True, exist_ok=True)
     registry_path = runtime_paths.get_prompts_registry_path(repo_root)
