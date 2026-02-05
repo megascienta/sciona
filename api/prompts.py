@@ -1,4 +1,4 @@
-"""Prompt registry API (stable)."""
+"""Prompt API (stable)."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -25,8 +25,6 @@ def register_addon_prompts(
 
 
 __all__ = [
-    "freeze_registry",
-    "mutable_registry",
     "register_addon_prompts",
     "ensure_prompt_preconditions",
     "prompt_allows_answer",

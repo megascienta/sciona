@@ -24,10 +24,12 @@ Applies to core, reducers, prompts, addons, and CLI.
 
 SCIONA exposes a **stable public API** via `sciona.api` (and re-exports in
 `sciona.__init__`). The public surface is the set of modules under `sciona.api`
-and their `__all__` exports:
-- `sciona.api.user` for user-facing library operations
+and their `__all__` exports. The **preferred entrypoint** for user-facing code
+is `sciona.api.user`; other namespaces are advanced surfaces used by tooling.
+
+- `sciona.api.user` for user-facing library operations (preferred)
 - `sciona.api.addons` for addon/plugin operations
-- `sciona.api.prompts` for prompt registry and compilation helpers
+- `sciona.api.prompts` for prompt compilation and validation helpers
 - `sciona.api.reducers` for reducer registry and rendering helpers
 - `sciona.api.repo` for repo lifecycle (init/build/status/clean) helpers
 - `sciona.api.resolve` for identifier resolution helpers
@@ -42,6 +44,8 @@ See each module’s `__all__` for the canonical list.
 
 Notes:
 - `sciona.api.prompts.validate_prompt_entry` provides reducer wiring validation for prompt entries.
+- Registry mutation helpers (`freeze_registry`, `mutable_registry`) are intentionally
+  not part of the public API surface.
 
 ---
 
