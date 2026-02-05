@@ -141,7 +141,8 @@ No ephemeral snapshots are exposed. Uncommitted snapshots are internal only.
 
 When the worktree is dirty, pipelines may compute a best-effort `diff_overlay`
 in ArtifactDB and apply it to reducer payloads. The overlay never modifies
-CoreDB or ArtifactDB structural truth; it only augments payloads at render time.
+CoreDB or ArtifactDB structural truth; it only augments payloads at render time
+and may patch structural fields in reducer payloads.
 
 ### Parsing scope
 

@@ -44,6 +44,8 @@ Important rules:
 - Build requires a **clean worktree** for tracked language files.
 - Read-only commands may proceed on a dirty worktree but warn that outputs reflect
   the last committed snapshot.
+- When the worktree is dirty, reducer and prompt payloads may include a best-effort
+  `_diff` overlay and patched structural fields to reflect local changes.
 - All read operations use the **latest committed snapshot** only.
 
 ---

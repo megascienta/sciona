@@ -9,7 +9,8 @@ suitability for any specific prompt.
 Snapshot policy:
 - Reducers operate on the **latest committed snapshot only**.
 - Pipelines may append a `_diff` overlay to reducer payloads when the worktree
-  is dirty; overlays are best-effort and non-authoritative.
+  is dirty; overlays are best-effort and non-authoritative, and may patch
+  structural fields in reducer payloads.
 
 ---
 

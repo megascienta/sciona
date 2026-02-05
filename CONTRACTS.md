@@ -16,7 +16,8 @@ Applies to core, reducers, prompts, addons, and CLI.
 - Build requires a **clean worktree** for tracked language sources.
 - Read-only commands may proceed on a dirty worktree but must warn that outputs
   reflect the last committed snapshot. Pipelines may append a best-effort
-  `diff_overlay` to reducer payloads when the worktree is dirty.
+  `diff_overlay` to reducer payloads when the worktree is dirty. The overlay may
+  also patch structural fields in payloads but is non-authoritative.
 
 ---
 
@@ -168,7 +169,8 @@ Rules:
 - Output must be deterministic and ordered.
 - Reducers operate on the **latest committed snapshot only**.
 - Pipelines may append a `_diff` overlay to reducer payloads when the worktree
-  is dirty; this overlay is best-effort and non-authoritative.
+  is dirty; this overlay is best-effort and non-authoritative, and may patch
+  structural fields in reducer payloads.
 - Reducers must not own DB path resolution or connection lifecycle; pipelines provide read context.
 - The reducer registry is frozen by default.
 - Reducers share a single unified namespace; there is no internal-only reducer class.
