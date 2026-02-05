@@ -98,8 +98,8 @@ def test_dependency_edges_reducer_returns_edges(tmp_path):
     payload = json.loads(_strip_json_fence(payload_text))
     assert payload["edge_count"] >= 1
     edge = payload["edges"][0]
-    assert "from_module_id" in edge
-    assert "to_module_id" in edge
+    assert "from_module_structural_id" in edge
+    assert "to_module_structural_id" in edge
     assert edge["edge_source"] == "sci"
 
 
@@ -138,7 +138,7 @@ def test_dependency_edges_query_filters_sources(tmp_path):
         conn.close()
     payload = json.loads(_strip_json_fence(payload_text))
     assert payload["edges"]
-    assert all(edge["from_qualified_name"].startswith("pkg.alpha") for edge in payload["edges"])
+    assert all(edge["from_module_qualified_name"].startswith("pkg.alpha") for edge in payload["edges"])
 
 
 def test_import_references_returns_importers(tmp_path):
@@ -156,7 +156,7 @@ def test_import_references_returns_importers(tmp_path):
         conn.close()
     payload = json.loads(_strip_json_fence(payload_text))
     assert payload["edges"]
-    assert any(edge["from_qualified_name"] == "pkg.beta" for edge in payload["edges"])
+    assert any(edge["from_module_qualified_name"] == "pkg.beta" for edge in payload["edges"])
 
 
 def test_importers_index_returns_importers(tmp_path):
@@ -174,7 +174,7 @@ def test_importers_index_returns_importers(tmp_path):
         conn.close()
     payload = json.loads(_strip_json_fence(payload_text))
     assert payload["importers"]
-    assert any(entry["qualified_name"] == "pkg.beta" for entry in payload["importers"])
+    assert any(entry["module_qualified_name"] == "pkg.beta" for entry in payload["importers"])
 
 
 def test_module_file_map_returns_modules(tmp_path):
@@ -192,7 +192,7 @@ def test_module_file_map_returns_modules(tmp_path):
         conn.close()
     payload = json.loads(_strip_json_fence(payload_text))
     assert payload["modules"]
-    assert payload["modules"][0]["module_id"].startswith("pkg.alpha")
+    assert payload["modules"][0]["module_qualified_name"].startswith("pkg.alpha")
 
 
 def test_file_outline_returns_nodes(tmp_path):

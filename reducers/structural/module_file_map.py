@@ -56,15 +56,15 @@ def render(
             continue
         entries.append(
             {
-                "module_id": qualified_name,
-                "structural_id": row["structural_id"],
+                "module_qualified_name": qualified_name,
+                "module_structural_id": row["structural_id"],
                 "language": row["language"],
                 "file_path": row["file_path"],
                 "line_span": [row["start_line"], row["end_line"]],
             }
         )
     body = {
-        "module_id": module_id,
+        "module_filter": module_id,
         "count": len(entries),
         "modules": entries,
     }

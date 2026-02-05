@@ -5,7 +5,7 @@ from typing import Dict, List
 
 from ...code_analysis.analysis.orderings import order_nodes
 from ..helpers import queries
-from ..helpers.artifact_graph_edges import load_artifact_edges
+from ..helpers.artifact_graph_edges import artifact_db_available, load_artifact_edges
 from ..helpers.render import render_json_payload, require_connection
 from ..helpers.utils import require_latest_committed_snapshot
 from ..metadata import ReducerMeta
@@ -39,15 +39,14 @@ def render(
         resolved_id = queries.resolve_method_id(conn, snapshot_id, method_id)
     else:
         resolved_id = queries.resolve_function_id(conn, snapshot_id, function_id)
+    artifact_available = artifact_db_available(repo_root) if repo_root else False
     outgoing_edges = load_artifact_edges(
         repo_root,
-        snapshot_id=snapshot_id,
         edge_kinds=["CALLS"],
         src_ids=[resolved_id],
     )
     incoming_edges = load_artifact_edges(
         repo_root,
-        snapshot_id=snapshot_id,
         edge_kinds=["CALLS"],
         dst_ids=[resolved_id],
     )
@@ -63,6 +62,8 @@ def render(
         "callee_count": len(callees),
         "callers": callers,
         "callees": callees,
+        "artifact_available": artifact_available,
+        "edge_source": "artifact_db" if artifact_available else "none",
     }
     return render_json_payload(body)
 

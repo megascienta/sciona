@@ -95,8 +95,8 @@ def register(app: typer.Typer) -> None:
         for edge in edges:
             lines.append(
                 "  "
-                f"{edge.get('from_module_id')} "
-                f"{edge.get('from_qualified_name')} "
+                f"{edge.get('from_module_structural_id')} "
+                f"{edge.get('from_module_qualified_name')} "
                 f"(file: {edge.get('from_file_path')}) "
                 f"[edge: {edge.get('edge_type')}]"
             )
@@ -107,7 +107,7 @@ def _first_target_name(payload: dict) -> Optional[str]:
     targets = payload.get("targets") or []
     if targets:
         first = targets[0]
-        name = first.get("qualified_name") if isinstance(first, dict) else None
+        name = first.get("module_qualified_name") if isinstance(first, dict) else None
         if name:
             return str(name)
     return None

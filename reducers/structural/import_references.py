@@ -40,26 +40,28 @@ def render(
     lookup = _node_lookup(
         conn,
         snapshot_id,
-        {edge["from_module_id"] for edge in edges} | {edge["to_module_id"] for edge in edges} | set(target_ids),
+        {edge["from_module_structural_id"] for edge in edges}
+        | {edge["to_module_structural_id"] for edge in edges}
+        | set(target_ids),
     )
     targets = [
         {
-            "module_id": module_id,
-            "qualified_name": lookup.get(module_id, {}).get("qualified_name"),
+            "module_structural_id": module_id,
+            "module_qualified_name": lookup.get(module_id, {}).get("qualified_name"),
             "file_path": lookup.get(module_id, {}).get("file_path"),
         }
         for module_id in target_ids
     ]
     enriched = []
     for edge in edges:
-        src = lookup.get(edge["from_module_id"], {})
-        dst = lookup.get(edge["to_module_id"], {})
+        src = lookup.get(edge["from_module_structural_id"], {})
+        dst = lookup.get(edge["to_module_structural_id"], {})
         enriched.append(
             {
-                "from_module_id": edge["from_module_id"],
-                "to_module_id": edge["to_module_id"],
-                "from_qualified_name": src.get("qualified_name"),
-                "to_qualified_name": dst.get("qualified_name"),
+                "from_module_structural_id": edge["from_module_structural_id"],
+                "to_module_structural_id": edge["to_module_structural_id"],
+                "from_module_qualified_name": src.get("qualified_name"),
+                "to_module_qualified_name": dst.get("qualified_name"),
                 "from_file_path": src.get("file_path"),
                 "to_file_path": dst.get("file_path"),
                 "edge_type": edge["edge_type"],
@@ -67,7 +69,7 @@ def render(
             }
         )
     body = {
-        "module_id": module_id,
+        "module_filter": module_id,
         "query": query,
         "edge_type": edge_type_value or "any",
         "limit": limit_value,
@@ -186,8 +188,8 @@ def _fetch_importers(
     ).fetchall()
     return [
         {
-            "from_module_id": row["src_structural_id"],
-            "to_module_id": row["dst_structural_id"],
+            "from_module_structural_id": row["src_structural_id"],
+            "to_module_structural_id": row["dst_structural_id"],
             "edge_type": row["edge_type"],
         }
         for row in rows

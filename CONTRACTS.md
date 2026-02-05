@@ -206,11 +206,11 @@ are allowed for experiments or addon-specific prompts.
 Reducers must return stable ordering. Current guarantees:
 
 - `structural_index`:
-  - modules.entries sorted by module_id
+  - modules.entries sorted by module_qualified_name
   - files.entries sorted by path
   - classes.entries sorted by qualified_name
   - classes.by_module/functions.by_module/methods.by_module sorted by (-count, key)
-  - imports.edges sorted by (from_module_id, to_module_id)
+  - imports.edges sorted by (from_module_qualified_name, to_module_qualified_name)
   - import_cycles sorted lexicographically
 - `module_overview`:
   - files sorted by path

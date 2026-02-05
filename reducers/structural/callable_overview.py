@@ -8,7 +8,7 @@ from ...code_analysis.tools.profile_introspection import (
     python_function_extras,
     typescript_function_extras,
 )
-from ..helpers.artifact_graph_edges import load_artifact_edges
+from ..helpers.artifact_graph_edges import artifact_db_available, load_artifact_edges
 from ..helpers.profile_utils import fetch_node_instance
 from ..helpers import queries
 from ..helpers.render import render_json_payload, require_connection
@@ -76,7 +76,8 @@ def run(snapshot_id: str, **params) -> FunctionOverviewPayload:
     if row["node_type"] not in {"function", "method"}:
         raise ValueError(f"Node '{requested_id}' is not a function or method.")
 
-    module_id = queries.module_id_for_structural(conn, snapshot_id, row["structural_id"])
+    module_name = queries.module_id_for_structural(conn, snapshot_id, row["structural_id"])
+    artifact_available = artifact_db_available(repo_path) if repo_path else False
     params_list: List[str] = []
     decorators: List[str] = []
     has_docstring = False
@@ -109,7 +110,7 @@ def run(snapshot_id: str, **params) -> FunctionOverviewPayload:
         "callable_id": row["structural_id"],
         "requested_identifier": requested_id,
         "language": row["language"],
-        "module_id": module_id,
+        "module_qualified_name": module_name,
         "file_path": row["file_path"],
         "line_span": [row["start_line"], row["end_line"]],
         "content_hash": row["content_hash"],
@@ -121,6 +122,8 @@ def run(snapshot_id: str, **params) -> FunctionOverviewPayload:
         "parent_structural_id": parent.get("structural_id"),
         "parent_type": parent.get("node_type"),
         "parent_qualified_name": parent.get("qualified_name"),
+        "artifact_available": artifact_available,
+        "edge_source": "artifact_db" if artifact_available else "none",
     }
 
 
@@ -134,7 +137,6 @@ def _resolve_parent(
         return {"structural_id": None, "node_type": None, "qualified_name": None}
     edges = load_artifact_edges(
         repo_root,
-        snapshot_id=snapshot_id,
         edge_kinds=["CONTAINS", "DEFINES_METHOD"],
         dst_ids=[structural_id],
     )

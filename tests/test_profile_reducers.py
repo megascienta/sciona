@@ -153,7 +153,7 @@ def test_callable_overview_reducer_returns_python_metadata(tmp_path):
     )
     conn.close()
 
-    assert payload["module_id"] == "pkg.alpha.service"
+    assert payload["module_qualified_name"] == "pkg.alpha.service"
     assert payload["file_path"] == "pkg/alpha/service.py"
     assert payload["parameters"] == ["user_id", "*args", "**kwargs"]
     assert payload["signature"].startswith("helper(")
@@ -195,7 +195,7 @@ def test_class_overview_reducer_exposes_methods_and_metadata(tmp_path):
     )
     conn.close()
 
-    assert payload["module_id"] == "pkg.alpha.service"
+    assert payload["module_qualified_name"] == "pkg.alpha.service"
     assert payload["decorators"] == ["decorator('value')"]
     assert payload["bases"] == ["BaseService", "Mixin"]
     assert payload["has_docstring"] is True
@@ -222,7 +222,7 @@ def test_module_overview_reducer_lists_children_and_imports(tmp_path):
     conn.close()
 
     assert payload["module_structural_id"] == repo["ids"]["module_alpha"]
-    assert payload["module_id"] == "pkg.alpha.service"
+    assert payload["module_qualified_name"] == "pkg.alpha.service"
     assert payload["files"] == ["pkg/alpha/service.py"]
     assert payload["file_count"] == 1
     assert payload["classes"][0]["qualified_name"] == "pkg.alpha.service.OrderService"
@@ -232,7 +232,7 @@ def test_module_overview_reducer_lists_children_and_imports(tmp_path):
     assert payload["imports"] == [
         {
             "module_structural_id": repo["ids"]["module_beta"],
-            "module_id": "pkg.beta.worker",
+            "module_qualified_name": "pkg.beta.worker",
         }
     ]
     assert "confidence" not in payload
@@ -250,7 +250,7 @@ def test_module_overview_reducer_expands_package_modules(tmp_path):
     )
     conn.close()
 
-    assert payload["module_id"] == "pkg.alpha"
+    assert payload["module_qualified_name"] == "pkg.alpha"
     assert payload["files"] == ["pkg/alpha/__init__.py", "pkg/alpha/service.py"]
     assert payload["file_count"] == 2
     assert payload["classes"][0]["qualified_name"] == "pkg.alpha.service.OrderService"
@@ -259,6 +259,6 @@ def test_module_overview_reducer_expands_package_modules(tmp_path):
     assert payload["imports"] == [
         {
             "module_structural_id": repo["ids"]["module_beta"],
-            "module_id": "pkg.beta.worker",
+            "module_qualified_name": "pkg.beta.worker",
         }
     ]

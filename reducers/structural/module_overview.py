@@ -6,7 +6,7 @@ from typing import Dict, List, Optional, Tuple
 
 from ...code_analysis.analysis.orderings import order_nodes, order_strings
 from ..helpers import queries
-from ..helpers.artifact_graph_edges import load_artifact_edges
+from ..helpers.artifact_graph_edges import artifact_db_available, load_artifact_edges
 from ..helpers.profile_utils import fetch_node_instance
 from ..helpers.render import render_json_payload, require_connection
 from ..helpers.types import ModuleOverviewPayload
@@ -71,6 +71,7 @@ def run(snapshot_id: str, **params) -> ModuleOverviewPayload:
     repo_path = Path(repo_root) if repo_root else None
     if repo_path is None:
         raise ValueError("module_overview requires repo_root for artifact graph traversal.")
+    artifact_available = artifact_db_available(repo_path)
 
     row = _resolve_module(conn, snapshot_id, module_identifier)
     if row["node_type"] != "module":
@@ -91,7 +92,7 @@ def run(snapshot_id: str, **params) -> ModuleOverviewPayload:
         "projection": "module_overview",
         "projection_version": "1.0",
         "module_structural_id": module_structural_id,
-        "module_id": module_name,
+        "module_qualified_name": module_name,
         "language": row["language"],
         "file_path": row["file_path"],
         "line_span": [row["start_line"], row["end_line"]],
@@ -108,6 +109,8 @@ def run(snapshot_id: str, **params) -> ModuleOverviewPayload:
         },
         "language_breakdown": language_breakdown,
         "imports": imports,
+        "artifact_available": artifact_available,
+        "edge_source": "artifact_db" if artifact_available else "none",
     }
 
 
@@ -182,7 +185,6 @@ def _list_children(
 ) -> List[Dict[str, str]]:
     edges = load_artifact_edges(
         repo_root,
-        snapshot_id=snapshot_id,
         edge_kinds=["CONTAINS"],
         src_ids=module_ids,
     )
@@ -214,7 +216,6 @@ def _list_children(
 def _list_imports(conn, snapshot_id: str, module_ids: List[str], repo_root: Path) -> List[Dict[str, str]]:
     edges = load_artifact_edges(
         repo_root,
-        snapshot_id=snapshot_id,
         edge_kinds=["IMPORTS_DECLARED"],
         src_ids=module_ids,
     )
@@ -232,18 +233,17 @@ def _list_imports(conn, snapshot_id: str, module_ids: List[str], repo_root: Path
         (snapshot_id, *module_ids_out),
     ).fetchall()
     entries = [
-        {"module_structural_id": row["structural_id"], "module_id": row["qualified_name"]}
+        {"module_structural_id": row["structural_id"], "module_qualified_name": row["qualified_name"]}
         for row in rows
         if row["qualified_name"]
     ]
-    order_nodes(entries, key="module_id")
+    order_nodes(entries, key="module_qualified_name")
     return entries
 
 
 def _language_breakdown(conn, snapshot_id: str, module_ids: List[str], repo_root: Path) -> Dict[str, int]:
     edges = load_artifact_edges(
         repo_root,
-        snapshot_id=snapshot_id,
         edge_kinds=["CONTAINS"],
         src_ids=module_ids,
     )
@@ -270,7 +270,6 @@ def _language_breakdown(conn, snapshot_id: str, module_ids: List[str], repo_root
     if class_ids:
         method_edges = load_artifact_edges(
             repo_root,
-            snapshot_id=snapshot_id,
             edge_kinds=["DEFINES_METHOD"],
             src_ids=class_ids,
         )
@@ -295,7 +294,6 @@ def _language_breakdown(conn, snapshot_id: str, module_ids: List[str], repo_root
 def _list_methods(conn, snapshot_id: str, module_ids: List[str], repo_root: Path) -> List[Dict[str, str]]:
     container_edges = load_artifact_edges(
         repo_root,
-        snapshot_id=snapshot_id,
         edge_kinds=["CONTAINS"],
         src_ids=module_ids,
     )
@@ -304,7 +302,6 @@ def _list_methods(conn, snapshot_id: str, module_ids: List[str], repo_root: Path
         return []
     method_edges = load_artifact_edges(
         repo_root,
-        snapshot_id=snapshot_id,
         edge_kinds=["DEFINES_METHOD"],
         src_ids=class_ids,
     )

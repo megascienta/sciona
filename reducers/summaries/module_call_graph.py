@@ -4,6 +4,7 @@ from __future__ import annotations
 from typing import Dict, List
 
 from ..helpers import queries
+from ..helpers.artifact_graph_edges import artifact_db_available
 from ..helpers.artifact_graph_rollups import load_module_call_edges
 from ..helpers.render import render_json_payload, require_connection
 from ..helpers.utils import require_latest_committed_snapshot
@@ -48,6 +49,7 @@ def render(
         resolved_module_id = queries.module_id_for_structural(conn, snapshot_id, function_structural_id)
     if not resolved_module_id:
         raise ValueError("MODULE_CALL_GRAPH requires a resolvable module_id.")
+    artifact_available = artifact_db_available(repo_root) if repo_root else False
 
     outgoing_edges = load_module_call_edges(
         repo_root,
@@ -64,11 +66,13 @@ def render(
     incoming = _edges_to_entries(incoming_edges, direction="incoming")
 
     body = {
-        "module_id": resolved_module_id,
+        "module_qualified_name": resolved_module_id,
         "outgoing_count": len(outgoing),
         "incoming_count": len(incoming),
         "outgoing": outgoing,
         "incoming": incoming,
+        "artifact_available": artifact_available,
+        "edge_source": "artifact_db" if artifact_available else "none",
     }
     return render_json_payload(body)
 
@@ -76,7 +80,7 @@ def render(
 def _edges_to_entries(edges: List[tuple[str, str, int]], *, direction: str) -> List[Dict[str, int | str]]:
     entries: List[Dict[str, int | str]] = []
     for src_id, dst_id, count in edges:
-        module_id = dst_id if direction == "outgoing" else src_id
-        entries.append({"module_id": module_id, "call_count": count})
-    entries.sort(key=lambda item: (-int(item["call_count"]), str(item["module_id"])))
+        module_name = dst_id if direction == "outgoing" else src_id
+        entries.append({"module_qualified_name": module_name, "call_count": count})
+    entries.sort(key=lambda item: (-int(item["call_count"]), str(item["module_qualified_name"])))
     return entries

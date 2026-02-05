@@ -9,7 +9,7 @@ from ...code_analysis.tools.profile_introspection import (
     python_class_extras,
     typescript_class_extras,
 )
-from ..helpers.artifact_graph_edges import load_artifact_edges
+from ..helpers.artifact_graph_edges import artifact_db_available, load_artifact_edges
 from ..helpers.profile_utils import fetch_node_instance
 from ..helpers import queries
 from ..helpers.render import render_json_payload, require_connection
@@ -41,7 +41,6 @@ def render(
         method_structural_id = queries.resolve_method_id(conn, snapshot_id, method_id)
         edges = load_artifact_edges(
             Path(repo_root),
-            snapshot_id=snapshot_id,
             edge_kinds=["DEFINES_METHOD"],
             dst_ids=[method_structural_id],
         )
@@ -72,7 +71,8 @@ def run(snapshot_id: str, **params) -> ClassOverviewPayload:
 
     repo_root = params.get("repo_root")
     repo_path = Path(repo_root) if repo_root else None
-    module_id = queries.module_id_for_structural(conn, snapshot_id, class_id)
+    module_name = queries.module_id_for_structural(conn, snapshot_id, class_id)
+    artifact_available = artifact_db_available(repo_path) if repo_path else False
     decorators: List[str] = []
     bases: List[str] = []
     has_docstring = False
@@ -102,7 +102,7 @@ def run(snapshot_id: str, **params) -> ClassOverviewPayload:
         "projection_version": "1.0",
         "class_id": class_id,
         "language": row["language"],
-        "module_id": module_id,
+        "module_qualified_name": module_name,
         "file_path": row["file_path"],
         "line_span": [row["start_line"], row["end_line"]],
         "content_hash": row["content_hash"],
@@ -111,6 +111,8 @@ def run(snapshot_id: str, **params) -> ClassOverviewPayload:
         "has_docstring": has_docstring,
         "docstring_span": docstring_span,
         "methods": methods,
+        "artifact_available": artifact_available,
+        "edge_source": "artifact_db" if artifact_available else "none",
     }
 
 
@@ -119,7 +121,6 @@ def _load_methods(conn, snapshot_id: str, class_id: str, repo_root: Path | None)
         return []
     edges = load_artifact_edges(
         repo_root,
-        snapshot_id=snapshot_id,
         edge_kinds=["DEFINES_METHOD"],
         src_ids=[class_id],
     )

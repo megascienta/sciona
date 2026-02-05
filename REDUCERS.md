@@ -65,7 +65,7 @@ Structural optional (public, non-core):
 | symbol_lookup | codebase | SYMBOL_LOOKUP | strict | false | false | false | Ranked symbol matches for a query. |
 | symbol_references | codebase | SYMBOL_REFERENCES | strict | true | false | false | Relationship references (calls/imports) for symbols matching a query. |
 | file_outline | codebase | FILE_OUTLINE | strict | false | false | false | File-level outline of modules, classes, and callables. |
-| module_file_map | codebase | MODULE_FILE_MAP | strict | false | false | false | Module-to-file map with module ids and file paths. |
+| module_file_map | codebase | MODULE_FILE_MAP | strict | false | false | false | Module-to-file map with module qualified names and file paths. |
 | dependency_edges | codebase | DEPENDENCY_EDGES | strict | true | false | false | Explicit module import edges for the snapshot. |
 | import_references | codebase | IMPORT_REFERENCES | strict | true | false | false | Modules that import the target module(s). |
 
@@ -82,6 +82,9 @@ Notes:
 - `dependency_edges` accepts optional `module_id`/`from_module_id`, `to_module_id`, `query` (source-module match when no ids provided), `edge_type`, and `limit`.
 - `dependency_edges` includes `edge_source: sci` on each edge and at the top level.
 - `import_references` accepts `module_id` or `query`, plus optional `edge_type` and `limit`.
+Payload field naming:
+- Reducers use `module_qualified_name` for qualified names and `module_structural_id` for structural IDs.
+- Import edges use `from_module_qualified_name`/`to_module_qualified_name` and `from_module_structural_id`/`to_module_structural_id`.
 
 ---
 

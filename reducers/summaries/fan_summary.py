@@ -5,6 +5,7 @@ from typing import Dict, List, Optional
 
 from ...code_analysis.analysis.orderings import order_nodes
 from ..helpers import queries
+from ..helpers.artifact_graph_edges import artifact_db_available
 from ..helpers.artifact_graph_rollups import load_node_fan_stats
 from ..helpers.render import render_json_payload, require_connection
 from ..helpers.utils import require_latest_committed_snapshot
@@ -37,6 +38,7 @@ def render(
     require_latest_committed_snapshot(conn, snapshot_id, reducer_name="fan_summary reducer")
     if callable_id and not (function_id or method_id):
         function_id = callable_id
+    artifact_available = artifact_db_available(repo_root) if repo_root else False
     resolved_id = None
     if method_id:
         resolved_id = queries.resolve_method_id(conn, snapshot_id, method_id)
@@ -58,6 +60,8 @@ def render(
         body = {
             "node_id": resolved_id,
             "edge_kinds": edge_map,
+            "artifact_available": artifact_available,
+            "edge_source": "artifact_db" if artifact_available else "none",
         }
         return render_json_payload(body)
 
@@ -76,6 +80,8 @@ def render(
     body = {
         "calls": _fan_tables(conn, snapshot_id, call_stats),
         "imports": _fan_tables(conn, snapshot_id, import_stats),
+        "artifact_available": artifact_available,
+        "edge_source": "artifact_db" if artifact_available else "none",
     }
     return render_json_payload(body)
 

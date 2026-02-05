@@ -70,7 +70,7 @@ def render(
             "structural_id": row["structural_id"],
             "qualified_name": row["qualified_name"],
             "node_type": row["node_type"],
-            "module_id": module_name,
+            "module_qualified_name": module_name,
             "line_span": [row["start_line"], row["end_line"]],
         }
         if file_entry not in grouped:
@@ -89,7 +89,7 @@ def render(
         )
         files.append(entry)
     body = {
-        "module_id": module_id,
+        "module_filter": module_id,
         "file_path": file_path,
         "count": len(files),
         "files": files,

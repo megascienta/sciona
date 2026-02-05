@@ -25,5 +25,5 @@ def test_hotspot_summary_includes_counts(tmp_path):
         entries = data.get(key) or []
         assert entries, f"{key} should not be empty"
         for entry in entries:
-            assert isinstance(entry.get("module_id"), str)
+            assert isinstance(entry.get("module_qualified_name"), str)
             assert isinstance(entry.get("count"), int)

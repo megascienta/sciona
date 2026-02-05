@@ -17,15 +17,15 @@ def test_structural_index_reducer_reports_modules_and_cycles(tmp_path):
 
     assert payload["projection"] == "structural_index"
     modules = payload["modules"]["entries"]
-    assert modules[0]["module_id"] == "pkg.alpha"
+    assert modules[0]["module_qualified_name"] == "pkg.alpha"
     assert modules[0]["file_count"] == 2
     assert modules[0]["function_count"] == 1
     assert modules[0]["method_count"] == 1
     assert payload["files"]["count"] >= 2
     assert payload["classes"]["entries"][0]["qualified_name"].startswith("pkg.alpha")
-    assert payload["functions"]["by_module"][0]["module_id"] == "pkg.alpha"
+    assert payload["functions"]["by_module"][0]["module_qualified_name"] == "pkg.alpha"
     edges = payload["imports"]["edges"]
-    assert edges[0]["from_module_id"] <= edges[0]["to_module_id"]
-    assert payload["import_cycles"][0]["modules"] == ["pkg.alpha", "pkg.beta"]
+    assert edges[0]["from_module_qualified_name"] <= edges[0]["to_module_qualified_name"]
+    assert payload["import_cycles"][0]["module_qualified_names"] == ["pkg.alpha", "pkg.beta"]
     file_entry = payload["files"]["entries"][0]
-    assert set(file_entry.keys()) <= {"path", "module_id"}
+    assert set(file_entry.keys()) <= {"path", "module_qualified_name"}

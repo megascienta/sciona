@@ -18,7 +18,7 @@ from ..helpers import queries
 from ..helpers.render import render_json_payload, require_connection
 from ..helpers.utils import require_latest_committed_snapshot
 from ...code_analysis.analysis.orderings import order_edges, order_nodes
-from ..helpers.artifact_graph_edges import load_artifact_edges
+from ..helpers.artifact_graph_edges import artifact_db_available, load_artifact_edges
 from ..helpers.types import StructuralIndexPayload
 
 REDUCER_META = ReducerMeta(
@@ -57,6 +57,7 @@ def run(snapshot_id: str, **params) -> StructuralIndexPayload:
         raise ValueError("structural_index reducer requires a committed snapshot.")
     require_latest_committed_snapshot(conn, snapshot_id, reducer_name="structural_index reducer")
 
+    artifact_available = artifact_db_available(Path(repo_root))
     module_graph = _build_module_graph(conn, snapshot_id, repo_root)
     (
         module_entries,
@@ -93,13 +94,15 @@ def run(snapshot_id: str, **params) -> StructuralIndexPayload:
         "classes": {
             "count": len(class_entries),
             "entries": class_entries,
-            "by_module": _count_to_entries(class_counts, key_name="module_id"),
+            "by_module": _count_to_entries(class_counts, key_name="module_qualified_name"),
         },
         "functions": function_stats,
         "methods": method_stats,
         "imports": {
             "edge_count": len(import_edges),
             "edges": import_edges,
+            "artifact_available": artifact_available,
+            "edge_source": "artifact_db" if artifact_available else "none",
         },
         "import_cycles": import_cycles,
     }
@@ -138,28 +141,28 @@ def _module_summaries(conn, snapshot_id: str, module_graph) -> Tuple[
     ).fetchall()
     for row in rows:
         structural_id = row["structural_id"]
-        module_id = module_graph.structural_lookup.get(structural_id)
-        if not module_id:
+        module_name = module_graph.structural_lookup.get(structural_id)
+        if not module_name:
             continue
         file_path = row["file_path"]
         if file_path:
-            module_files.setdefault(module_id, set()).add(file_path)
-            file_path_votes[file_path][module_id] += 1
+            module_files.setdefault(module_name, set()).add(file_path)
+            file_path_votes[file_path][module_name] += 1
         node_type = row["node_type"]
         if node_type in FUNCTION_NODE_TYPES:
-            function_counts[module_id] = function_counts.get(module_id, 0) + 1
+            function_counts[module_name] = function_counts.get(module_name, 0) + 1
             function_languages[row["language"]] += 1
         if node_type in METHOD_NODE_TYPES:
-            method_counts[module_id] = method_counts.get(module_id, 0) + 1
+            method_counts[module_name] = method_counts.get(module_name, 0) + 1
             method_languages[row["language"]] += 1
         if node_type in CLASS_NODE_TYPES:
-            class_counts[module_id] = class_counts.get(module_id, 0) + 1
+            class_counts[module_name] = class_counts.get(module_name, 0) + 1
     module_entries: List[Dict[str, object]] = []
     for module in sorted(module_graph.nodes):
         files = module_files.get(module, set())
         module_entries.append(
             {
-                "module_id": module,
+                "module_qualified_name": module,
                 "language": module_graph.languages.get(module, ""),
                 "file_count": len(files),
                 "class_count": class_counts.get(module, 0),
@@ -169,7 +172,7 @@ def _module_summaries(conn, snapshot_id: str, module_graph) -> Tuple[
         )
         for file_path in files:
             file_assignments[file_path] = module
-    order_nodes(module_entries, key="module_id")
+    order_nodes(module_entries, key="module_qualified_name")
     return (
         module_entries,
         file_assignments,
@@ -199,13 +202,13 @@ def _file_entries(
     entries: List[Dict[str, object]] = []
     for row in rows:
         path = row["path"]
-        module_id = module_assignments.get(path)
-        if not module_id and path in votes:
-            module_id = votes[path].most_common(1)[0][0]
+        module_name = module_assignments.get(path)
+        if not module_name and path in votes:
+            module_name = votes[path].most_common(1)[0][0]
         entries.append(
             {
                 "path": path,
-                "module_id": module_id,
+                "module_qualified_name": module_name,
             }
         )
     order_nodes(entries, key="path")
@@ -230,12 +233,12 @@ def _class_entries(conn, snapshot_id: str, structural_lookup: Dict[str, str]) ->
     ).fetchall()
     entries: List[Dict[str, object]] = []
     for row in rows:
-        module_id = structural_lookup.get(row["structural_id"])
+        module_name = structural_lookup.get(row["structural_id"])
         entries.append(
             {
                 "structural_id": row["structural_id"],
                 "qualified_name": row["qualified_name"],
-                "module_id": module_id,
+                "module_qualified_name": module_name,
                 "language": row["language"],
                 "file_path": row["file_path"],
                 "line_span": [row["start_line"], row["end_line"]],
@@ -247,7 +250,7 @@ def _class_entries(conn, snapshot_id: str, structural_lookup: Dict[str, str]) ->
 
 def _callable_stats(counts: Dict[str, int], language_counts: Counter[str]) -> Dict[str, object]:
     total = sum(counts.values())
-    per_module = _count_to_entries(counts, key_name="module_id")
+    per_module = _count_to_entries(counts, key_name="module_qualified_name")
     language_entries = [
         {"language": language or "unknown", "count": count}
         for language, count in language_counts.items()
@@ -292,7 +295,6 @@ def _build_module_graph(conn, snapshot_id: str, repo_root: str | Path) -> _Modul
     module_names: Set[str] = set(module_languages)
     edges = load_artifact_edges(
         Path(repo_root),
-        snapshot_id=snapshot_id,
         edge_kinds=["IMPORTS_DECLARED"],
     )
     outgoing: Dict[str, Set[str]] = {module: set() for module in module_names}
@@ -318,22 +320,22 @@ def _import_edges(module_graph) -> List[Dict[str, str]]:
     edges: List[Dict[str, str]] = []
     for src, neighbors in module_graph.outgoing.items():
         for dst in neighbors:
-            edges.append({"from_module_id": src, "to_module_id": dst})
-    order_edges(edges, fields=("from_module_id", "to_module_id"))
+            edges.append({"from_module_qualified_name": src, "to_module_qualified_name": dst})
+    order_edges(edges, fields=("from_module_qualified_name", "to_module_qualified_name"))
     return edges
 
 
 def _import_cycles(import_edges: List[Dict[str, str]]) -> List[Dict[str, List[str]]]:
     graph = nx.DiGraph()
     for edge in import_edges:
-        graph.add_edge(edge["from_module_id"], edge["to_module_id"])
+        graph.add_edge(edge["from_module_qualified_name"], edge["to_module_qualified_name"])
     cycles: List[Dict[str, List[str]]] = []
     for component in nx.strongly_connected_components(graph):
         if len(component) <= 1:
             continue
         members = sorted(component)
-        cycles.append({"modules": members})
-    order_nodes(cycles, key=lambda entry: tuple(entry.get("modules", ())))
+        cycles.append({"module_qualified_names": members})
+    order_nodes(cycles, key=lambda entry: tuple(entry.get("module_qualified_names", ())))
     return cycles
 
 
@@ -345,4 +347,3 @@ def _count_to_entries(counts: Dict[str, int], key_name: str) -> List[Dict[str, o
     ]
     order_nodes(entries, key=lambda item: (-item["count"], item[key_name]))
     return entries
-

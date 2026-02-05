@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from . import (
-    artifact_graph,
     artifact_graph_edges,
     artifact_graph_rollups,
     base,
@@ -15,7 +14,6 @@ from . import (
 )
 
 __all__ = [
-    "artifact_graph",
     "artifact_graph_edges",
     "artifact_graph_rollups",
     "base",

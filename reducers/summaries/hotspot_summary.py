@@ -33,30 +33,30 @@ def render(snapshot_id: str, conn, repo_root, **_: object) -> str:
         )
 
     by_size = [
-        {"module_id": entry.get("module_id"), "count": _size_metric(entry)}
+        {"module_qualified_name": entry.get("module_qualified_name"), "count": _size_metric(entry)}
         for entry in sorted(
             module_entries,
-            key=lambda item: (-_size_metric(item), item.get("module_id") or ""),
+            key=lambda item: (-_size_metric(item), item.get("module_qualified_name") or ""),
         )[:5]
-        if entry.get("module_id")
+        if entry.get("module_qualified_name")
     ]
 
     fan_in = Counter()
     fan_out = Counter()
     for edge in edges:
-        src = edge.get("from_module_id")
-        dst = edge.get("to_module_id")
+        src = edge.get("from_module_qualified_name")
+        dst = edge.get("to_module_qualified_name")
         if src:
             fan_out[src] += 1
         if dst:
             fan_in[dst] += 1
 
     by_fan_in = [
-        {"module_id": name, "count": count}
+        {"module_qualified_name": name, "count": count}
         for name, count in top_modules(fan_in, limit=5)
     ]
     by_fan_out = [
-        {"module_id": name, "count": count}
+        {"module_qualified_name": name, "count": count}
         for name, count in top_modules(fan_out, limit=5)
     ]
 
@@ -64,5 +64,7 @@ def render(snapshot_id: str, conn, repo_root, **_: object) -> str:
         "by_size": by_size,
         "by_fan_in": by_fan_in,
         "by_fan_out": by_fan_out,
+        "artifact_available": (payload.get("imports") or {}).get("artifact_available"),
+        "edge_source": (payload.get("imports") or {}).get("edge_source"),
     }
     return render_json_payload(body)

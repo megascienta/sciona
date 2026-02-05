@@ -37,7 +37,7 @@ def render(
     edge_type_value = _normalize_edge_type(edge_type)
     limit_value = _normalize_limit(limit)
     edges = _fetch_importers(conn, snapshot_id, target_ids, edge_type_value, limit_value)
-    importer_ids = sorted({edge["from_module_id"] for edge in edges})
+    importer_ids = sorted({edge["from_module_structural_id"] for edge in edges})
     lookup = _node_lookup(
         conn,
         snapshot_id,
@@ -45,22 +45,22 @@ def render(
     )
     targets = [
         {
-            "module_id": module_id,
-            "qualified_name": lookup.get(module_id, {}).get("qualified_name"),
+            "module_structural_id": module_id,
+            "module_qualified_name": lookup.get(module_id, {}).get("qualified_name"),
             "file_path": lookup.get(module_id, {}).get("file_path"),
         }
         for module_id in target_ids
     ]
     importers = [
         {
-            "module_id": module_id,
-            "qualified_name": lookup.get(module_id, {}).get("qualified_name"),
+            "module_structural_id": module_id,
+            "module_qualified_name": lookup.get(module_id, {}).get("qualified_name"),
             "file_path": lookup.get(module_id, {}).get("file_path"),
         }
         for module_id in importer_ids
     ]
     body = {
-        "module_id": module_id,
+        "module_filter": module_id,
         "query": query,
         "edge_type": edge_type_value or "IMPORTS_DECLARED",
         "limit": limit_value,
@@ -179,8 +179,8 @@ def _fetch_importers(
     ).fetchall()
     return [
         {
-            "from_module_id": row["src_structural_id"],
-            "to_module_id": row["dst_structural_id"],
+            "from_module_structural_id": row["src_structural_id"],
+            "to_module_structural_id": row["dst_structural_id"],
             "edge_type": row["edge_type"],
         }
         for row in rows

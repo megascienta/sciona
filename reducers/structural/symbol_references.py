@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Dict, List, Optional, Sequence
 
 from ..helpers import queries
-from ..helpers.artifact_graph_edges import load_artifact_edges
+from ..helpers.artifact_graph_edges import artifact_db_available, load_artifact_edges
 from ..helpers.render import render_json_payload, require_connection
 from ..helpers.utils import require_latest_committed_snapshot
 from ..metadata import ReducerMeta
@@ -44,6 +44,7 @@ def render(
     node_ids = [match["structural_id"] for match in ranked]
     lookup = _node_lookup(conn, snapshot_id, set(node_ids))
     references = _build_references(conn, repo_root, snapshot_id, ranked, lookup)
+    artifact_available = artifact_db_available(repo_root) if repo_root else False
     body = {
         "query": normalized_query,
         "kind": kind,
@@ -51,6 +52,9 @@ def render(
         "matches": ranked,
         "reference_count": len(references),
         "references": references,
+        "artifact_available": artifact_available,
+        "call_edge_source": "artifact_db" if artifact_available else "none",
+        "import_edge_source": "sci",
     }
     return render_json_payload(body)
 
@@ -178,13 +182,11 @@ def _call_references(
         return []
     outgoing = load_artifact_edges(
         repo_root,
-        snapshot_id=snapshot_id,
         edge_kinds=["CALLS"],
         src_ids=callable_ids,
     )
     incoming = load_artifact_edges(
         repo_root,
-        snapshot_id=snapshot_id,
         edge_kinds=["CALLS"],
         dst_ids=callable_ids,
     )

@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Dict, List
 
 from ..helpers import queries
-from ..helpers.artifact_graph_edges import load_artifact_edges
+from ..helpers.artifact_graph_edges import artifact_db_available, load_artifact_edges
 from ..helpers.artifact_graph_rollups import load_class_call_edges
 from ..helpers.render import render_json_payload, require_connection
 from ..helpers.utils import require_latest_committed_snapshot
@@ -37,7 +37,6 @@ def render(
         method_structural_id = queries.resolve_method_id(conn, snapshot_id, method_id)
         edges = load_artifact_edges(
             repo_root,
-            snapshot_id=snapshot_id,
             edge_kinds=["DEFINES_METHOD"],
             dst_ids=[method_structural_id],
         )
@@ -45,6 +44,7 @@ def render(
             resolved_class_id = edges[0][0]
     if not resolved_class_id:
         raise ValueError("CLASS_CALL_GRAPH requires class_id.")
+    artifact_available = artifact_db_available(repo_root) if repo_root else False
 
     outgoing_edges = load_class_call_edges(
         repo_root,
@@ -66,6 +66,8 @@ def render(
         "incoming_count": len(incoming),
         "outgoing": outgoing,
         "incoming": incoming,
+        "artifact_available": artifact_available,
+        "edge_source": "artifact_db" if artifact_available else "none",
     }
     return render_json_payload(body)
 

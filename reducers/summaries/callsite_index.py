@@ -71,8 +71,8 @@ def render(
                 "callee_language": callee.get("language"),
                 "caller_node_type": caller.get("node_type"),
                 "callee_node_type": callee.get("node_type"),
-                "caller_module_id": module_lookup.get(edge["caller_id"]),
-                "callee_module_id": module_lookup.get(edge["callee_id"]),
+                "caller_module_qualified_name": module_lookup.get(edge["caller_id"]),
+                "callee_module_qualified_name": module_lookup.get(edge["callee_id"]),
                 "edge_kind": edge["edge_kind"],
                 "edge_source": edge.get("edge_source"),
                 "call_hash": edge.get("call_hash"),
@@ -161,7 +161,6 @@ def _load_edges(
     if direction in {"out", "both"}:
         outgoing = load_artifact_edges(
             repo_root,
-            snapshot_id=snapshot_id,
             edge_kinds=["CALLS"],
             src_ids=[resolved_id],
         )
@@ -170,7 +169,6 @@ def _load_edges(
     if direction in {"in", "both"}:
         incoming = load_artifact_edges(
             repo_root,
-            snapshot_id=snapshot_id,
             edge_kinds=["CALLS"],
             dst_ids=[resolved_id],
         )

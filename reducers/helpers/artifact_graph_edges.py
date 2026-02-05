@@ -10,13 +10,11 @@ from .context import current_artifact_connection, fallback_artifact_connection
 def load_artifact_edges(
     repo_root: Path,
     *,
-    snapshot_id: Optional[str] = None,
     edge_kinds: Optional[Sequence[str]] = None,
     exclude_kinds: Optional[Sequence[str]] = None,
     src_ids: Optional[Sequence[str]] = None,
     dst_ids: Optional[Sequence[str]] = None,
 ) -> List[Tuple[str, str, str]]:
-    del snapshot_id
     conn = current_artifact_connection()
     owns_connection = False
     if conn is None:
@@ -53,6 +51,21 @@ def load_artifact_edges(
             tuple(params),
         ).fetchall()
         return [(row["src_node_id"], row["dst_node_id"], row["edge_kind"]) for row in rows]
+    finally:
+        if owns_connection:
+            conn.close()
+
+
+def artifact_db_available(repo_root: Path) -> bool:
+    conn = current_artifact_connection()
+    owns_connection = False
+    if conn is None:
+        conn = fallback_artifact_connection(repo_root)
+        owns_connection = conn is not None
+    if conn is None:
+        return False
+    try:
+        return True
     finally:
         if owns_connection:
             conn.close()

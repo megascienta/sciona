@@ -8,7 +8,7 @@ class ModuleOverviewPayload(TypedDict, total=False):
     projection: str
     projection_version: str
     module_structural_id: str
-    module_id: str
+    module_qualified_name: str
     language: str
     file_path: str
     line_span: Sequence[int]
@@ -28,7 +28,7 @@ class ClassOverviewPayload(TypedDict, total=False):
     projection_version: str
     class_structural_id: str
     class_id: str
-    module_id: str
+    module_qualified_name: str
     language: str
     file_path: str
     line_span: Sequence[int]
@@ -41,7 +41,7 @@ class FunctionOverviewPayload(TypedDict, total=False):
     projection_version: str
     function_structural_id: str
     function_id: str
-    module_id: str
+    module_qualified_name: str
     language: str
     file_path: str
     line_span: Sequence[int]
