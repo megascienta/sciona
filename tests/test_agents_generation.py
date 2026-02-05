@@ -1,10 +1,11 @@
 from pathlib import Path
 
-from sciona.pipelines import agents
+from sciona.runtime.templates import agents
+from sciona.reducers.registry import get_reducers
 
 
 def test_agents_block_has_markers():
-    block = agents.build_agents_block()
+    block = agents.build_agents_block(get_reducers())
     assert agents.BEGIN_MARKER in block
     assert agents.END_MARKER in block
     assert "Common tasks" in block
@@ -14,7 +15,7 @@ def test_agents_block_has_markers():
 def test_agents_upsert_append_and_remove(tmp_path: Path):
     target = tmp_path / agents.AGENTS_FILENAME
     target.write_text("Custom header\n", encoding="utf-8")
-    agents.upsert_agents_file(tmp_path, mode="append")
+    agents.upsert_agents_file(tmp_path, mode="append", reducers=get_reducers())
     content = target.read_text(encoding="utf-8")
     assert "Custom header" in content
     assert agents.BEGIN_MARKER in content
@@ -30,7 +31,7 @@ def test_agents_upsert_append_and_remove(tmp_path: Path):
 def test_agents_upsert_overwrite(tmp_path: Path):
     target = tmp_path / agents.AGENTS_FILENAME
     target.write_text("Old content\n", encoding="utf-8")
-    agents.upsert_agents_file(tmp_path, mode="overwrite")
+    agents.upsert_agents_file(tmp_path, mode="overwrite", reducers=get_reducers())
     content = target.read_text(encoding="utf-8")
     assert agents.BEGIN_MARKER in content
     assert "Old content" not in content

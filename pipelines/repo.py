@@ -8,7 +8,8 @@ from .domain.repository import RepoState
 from .domain.policies import BuildPolicy
 from ..runtime.logging import get_logger
 from ..prompts.bootstrap import ensure_prompts_initialized
-from . import agents as agents_runtime
+from ..runtime.templates import agents as agents_runtime
+from ..reducers.registry import get_reducers
 from .exec.build import (
     BuildResult,
     build_repo as exec_build,
@@ -41,7 +42,8 @@ def init(repo_root: Optional[Path] = None) -> Path:
 def init_agents(repo_root: Optional[Path], *, mode: str = "append") -> Path:
     repo_state = policy_repo.resolve_repo_state(repo_root, allow_missing_config=True)
     policy_repo.ensure_repo_has_commits(repo_state)
-    return agents_runtime.upsert_agents_file(repo_state.repo_root, mode=mode)
+    reducers = get_reducers()
+    return agents_runtime.upsert_agents_file(repo_state.repo_root, mode=mode, reducers=reducers)
 
 
 def init_dialog_defaults(repo_root: Optional[Path] = None) -> InitDialogDefaults:

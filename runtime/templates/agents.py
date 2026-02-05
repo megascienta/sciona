@@ -1,4 +1,4 @@
-"""Managed AGENTS.md generation helpers (application layer)."""
+"""Managed AGENTS.md generation helpers."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -6,7 +6,6 @@ from typing import Iterable
 
 import inspect
 
-from ..reducers.registry import get_reducers
 
 BEGIN_MARKER = "<!-- sciona:begin -->"
 END_MARKER = "<!-- sciona:end -->"
@@ -14,8 +13,7 @@ AGENTS_FILENAME = "AGENTS.md"
 TEMPLATE_FILENAME = "agents_template.md"
 
 
-def build_agents_block() -> str:
-    reducers = get_reducers()
+def build_agents_block(reducers) -> str:
     template = _load_template()
     content = template.format(
         COMMON_TASKS=_render_common_tasks(reducers),
@@ -23,9 +21,9 @@ def build_agents_block() -> str:
     return "\n".join([BEGIN_MARKER, content.strip(), END_MARKER]).rstrip() + "\n"
 
 
-def upsert_agents_file(repo_root: Path, *, mode: str = "append") -> Path:
+def upsert_agents_file(repo_root: Path, *, mode: str = "append", reducers) -> Path:
     target = Path(repo_root) / AGENTS_FILENAME
-    block = build_agents_block()
+    block = build_agents_block(reducers)
     if mode not in {"append", "overwrite"}:
         raise ValueError("mode must be 'append' or 'overwrite'.")
     if mode == "overwrite" or not target.exists():
@@ -88,7 +86,7 @@ def _remove_block(text: str) -> str:
 
 
 def _load_template() -> str:
-    path = Path(__file__).parent / "templates" / TEMPLATE_FILENAME
+    path = Path(__file__).parent / TEMPLATE_FILENAME
     return path.read_text(encoding="utf-8")
 
 

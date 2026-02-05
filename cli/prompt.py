@@ -8,7 +8,6 @@ import json
 import typer
 
 from ..pipelines import prompt as prompt_pipeline
-from ..pipelines.policy import prompt as prompt_policy
 from ..prompts import get_prompts
 from . import render as cli_render
 from .utils import cli_call, emit_dirty_worktree_warning, get_dirty_worktree_warning, parse_extra_args
@@ -31,7 +30,7 @@ def register(app: typer.Typer) -> None:
         module_id: Optional[str] = typer.Option(None, "--module-id", help="Module id."),
     ) -> None:
         """Compile and print a prompt or LLM answer (latest committed snapshot only)."""
-        repo_root = prompt_policy.ensure_prompt_preconditions()
+        repo_root = prompt_pipeline.ensure_prompt_preconditions()
         extra_args = list(ctx.args)
         explicit_ids = {
             "callable_id": callable_id,
@@ -124,7 +123,7 @@ def register(app: typer.Typer) -> None:
     @prompt_app.command("list")
     def list_prompts() -> None:
         """List prompts with CLI call signatures (warns if dirty)."""
-        repo_root = prompt_policy.ensure_prompt_preconditions()
+        repo_root = prompt_pipeline.ensure_prompt_preconditions()
         emit_dirty_worktree_warning()
         entries = _prompt_entries(repo_root=repo_root)
         lines = ["Prompts:"]
@@ -142,7 +141,7 @@ def register(app: typer.Typer) -> None:
         ),
     ) -> None:
         """Show prompt metadata (warns if dirty)."""
-        repo_root = prompt_policy.ensure_prompt_preconditions()
+        repo_root = prompt_pipeline.ensure_prompt_preconditions()
         emit_dirty_worktree_warning()
         entries = _prompt_entries(repo_root=repo_root)
         if prompt_id:

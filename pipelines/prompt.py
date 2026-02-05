@@ -17,6 +17,10 @@ from .resolve import require_identifier
 _SECTION_PREFIX = "## "
 
 
+def ensure_prompt_preconditions(repo_root: Optional[Path] = None) -> Path:
+    return prompt_policy.ensure_prompt_preconditions(repo_root)
+
+
 def prompt_allows_answer(prompt_name: str, *, repo_root: Optional[Path] = None) -> bool:
     prompts = get_prompts(repo_root)
     entry = prompts.get(prompt_name)
