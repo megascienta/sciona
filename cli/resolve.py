@@ -5,7 +5,7 @@ import json
 
 import typer
 
-from ..pipelines import resolve as resolver
+from ..api import resolve as resolver
 from .utils import cli_call, emit_dirty_worktree_warning, get_dirty_worktree_warning
 from . import render as cli_render
 

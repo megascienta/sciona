@@ -7,8 +7,7 @@ import json
 
 import typer
 
-from ..pipelines import prompt as prompt_pipeline
-from ..prompts import get_prompts
+from ..api import prompts as prompt_api
 from . import render as cli_render
 from .utils import (
     cli_call,
@@ -36,7 +35,7 @@ def register(app: typer.Typer) -> None:
         module_id: Optional[str] = typer.Option(None, "--module-id", help="Module id."),
     ) -> None:
         """Compile and print a prompt or LLM answer (latest committed snapshot only)."""
-        repo_root = prompt_pipeline.ensure_prompt_preconditions()
+        repo_root = prompt_api.ensure_prompt_preconditions()
         extra_args = list(ctx.args)
         explicit_ids = {
             "callable_id": callable_id,
@@ -61,22 +60,22 @@ def register(app: typer.Typer) -> None:
             arg_map[name] = value
         prompt_name = _require_prompt_id(prompt_id, repo_root=repo_root)
         if answer:
-            if not prompt_pipeline.prompt_allows_answer(prompt_name):
+            if not prompt_api.prompt_allows_answer(prompt_name):
                 raise typer.BadParameter("This prompt does not support --answer.")
             prompt_text, snapshot_id, resolved_arg_map = cli_call(
-                prompt_pipeline.compile_prompt_payload,
+                prompt_api.compile_prompt_payload,
                 prompt_name,
                 arg_map=arg_map,
                 node_id=node_id,
             )
             answer_text = cli_call(
-                prompt_pipeline.answer_prompt_text_by_name,
+                prompt_api.answer_prompt_text_by_name,
                 prompt_name,
                 arg_map=arg_map,
                 node_id=node_id,
             )
             if json_output:
-                sections = prompt_pipeline.extract_prompt_sections(prompt_text)
+                sections = prompt_api.extract_prompt_sections(prompt_text)
                 warning = get_dirty_worktree_warning()
                 payload: dict[str, object] = {
                     "prompt_name": prompt_name,
@@ -99,13 +98,13 @@ def register(app: typer.Typer) -> None:
                 typer.echo(answer_text)
         else:
             prompt_text, snapshot_id, resolved_arg_map = cli_call(
-                prompt_pipeline.compile_prompt_payload,
+                prompt_api.compile_prompt_payload,
                 prompt_name,
                 arg_map=arg_map,
                 node_id=node_id,
             )
             if json_output:
-                sections = prompt_pipeline.extract_prompt_sections(prompt_text)
+                sections = prompt_api.extract_prompt_sections(prompt_text)
                 warning = get_dirty_worktree_warning()
                 payload: dict[str, object] = {
                     "prompt_name": prompt_name,
@@ -129,7 +128,7 @@ def register(app: typer.Typer) -> None:
     @prompt_app.command("list")
     def list_prompts() -> None:
         """List prompts with CLI call signatures (warns if dirty)."""
-        repo_root = prompt_pipeline.ensure_prompt_preconditions()
+        repo_root = prompt_api.ensure_prompt_preconditions()
         emit_dirty_worktree_warning()
         entries = _prompt_entries(repo_root=repo_root)
         lines = ["Prompts:"]
@@ -147,7 +146,7 @@ def register(app: typer.Typer) -> None:
         ),
     ) -> None:
         """Show prompt metadata (warns if dirty)."""
-        repo_root = prompt_pipeline.ensure_prompt_preconditions()
+        repo_root = prompt_api.ensure_prompt_preconditions()
         emit_dirty_worktree_warning()
         entries = _prompt_entries(repo_root=repo_root)
         if prompt_id:
@@ -175,7 +174,7 @@ _STANDARD_PROMPT_ARGS = {
 
 def _prompt_entries(*, repo_root: Optional[Path]) -> list[dict[str, object]]:
     entries: list[dict[str, object]] = []
-    for name, entry in get_prompts(repo_root).items():
+    for name, entry in prompt_api.get_prompts(repo_root).items():
         if entry.get("_source") == "addon":
             continue
         if entry.get("kind") in {"internal", "addon"}:
@@ -235,7 +234,7 @@ def _require_prompt_id(prompt_id: str, *, repo_root: Optional[Path]) -> str:
     if not prompt_id:
         raise typer.BadParameter("Missing prompt id.")
     prompt_id = prompt_id.strip()
-    entry = get_prompts(repo_root).get(prompt_id)
+    entry = prompt_api.get_prompts(repo_root).get(prompt_id)
     if not entry or entry.get("_source") == "addon" or entry.get("kind") == "internal":
         raise typer.BadParameter(f"Unknown prompt '{prompt_id}'.")
     return prompt_id

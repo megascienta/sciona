@@ -6,8 +6,8 @@ import json
 
 import typer
 
-from ...pipelines import repo as pipeline_commands
-from ...runtime.paths import get_repo_root, get_sciona_dir
+from ...api import repo as api_repo
+from ...api import runtime as api_runtime
 from ..utils import cli_call
 from .. import render as cli_render
 
@@ -16,7 +16,7 @@ def register_build(app: typer.Typer) -> None:
     @app.command()
     def build() -> None:
         """Create a new snapshot and ingest enabled languages (clean worktree required)."""
-        result = cli_call(pipeline_commands.build)
+        result = cli_call(api_repo.build)
         cli_render.emit(cli_render.render_build(result.__dict__))
         _emit_build_warnings(result)
         _exit_if_no_discovery(result)
@@ -49,8 +49,8 @@ def _emit_build_warnings(result) -> None:
 
 def _record_last_build(result) -> None:
     try:
-        repo_root = get_repo_root()
-        sciona_dir = get_sciona_dir(repo_root)
+        repo_root = api_runtime.get_repo_root()
+        sciona_dir = api_runtime.get_sciona_dir(repo_root)
         payload = {
             "snapshot_id": result.snapshot_id,
             "status": result.status,

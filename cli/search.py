@@ -6,7 +6,7 @@ from typing import Optional
 
 import typer
 
-from ..pipelines import reducers as reducer_pipeline
+from ..api import reducers as reducer_api
 from .utils import (
     cli_call,
     emit_dirty_worktree_warning,
@@ -30,7 +30,7 @@ def register(app: typer.Typer) -> None:
     ) -> None:
         """Search symbols in the latest committed snapshot."""
         reducer_text, snapshot_id, _resolved_args = cli_call(
-            reducer_pipeline.emit,
+            reducer_api.emit,
             "symbol_lookup",
             query=query,
             kind=kind,

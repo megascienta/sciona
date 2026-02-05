@@ -23,14 +23,25 @@ Applies to core, reducers, prompts, addons, and CLI.
 ## Public API contract
 
 SCIONA exposes a **stable public API** via `sciona.api` (and re-exports in
-`sciona.__init__`) with two namespaces:
+`sciona.__init__`). The public surface is the set of modules under `sciona.api`
+and their `__all__` exports:
 - `sciona.api.user` for user-facing library operations
 - `sciona.api.addons` for addon/plugin operations
+- `sciona.api.prompts` for prompt registry and compilation helpers
+- `sciona.api.reducers` for reducer registry and rendering helpers
+- `sciona.api.repo` for repo lifecycle (init/build/status/clean) helpers
+- `sciona.api.resolve` for identifier resolution helpers
+- `sciona.api.runtime` for runtime wiring (paths, config, logging)
+- `sciona.api.errors` for public error types
 
 Only symbols exported from these namespaces are considered stable and supported.
 All other modules and symbols are **internal** and may change without notice.
+CLI implementations must depend on `sciona.api.*` only.
 
-See `sciona.api.user.__all__` and `sciona.api.addons.__all__` for the canonical list.
+See each module’s `__all__` for the canonical list.
+
+Notes:
+- `sciona.api.prompts.validate_prompt_entry` provides reducer wiring validation for prompt entries.
 
 ---
 

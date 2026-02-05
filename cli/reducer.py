@@ -7,8 +7,7 @@ import json
 
 import typer
 
-from ..pipelines import reducers as reducer_pipeline
-from ..reducers.registry import get_reducers, load_reducer
+from ..api import reducers as reducer_api
 from .utils import (
     cli_call,
     emit_dirty_worktree_warning,
@@ -101,7 +100,7 @@ def register(app: typer.Typer) -> None:
             arg_map[name] = value
         _validate_reducer_args(arg_map, dynamic_param_names | set(explicit_args.keys()))
         reducer_text, snapshot_id, resolved_args = cli_call(
-            reducer_pipeline.emit,
+            reducer_api.emit,
             reducer_id,
             **arg_map,
         )
@@ -123,11 +122,11 @@ def register(app: typer.Typer) -> None:
     def _emit_reducer_info(reducer_id: Optional[str]) -> None:
         if reducer_id:
             emit_dirty_worktree_warning()
-            entry = cli_call(reducer_pipeline.get_entry, reducer_id)
+            entry = cli_call(reducer_api.get_entry, reducer_id)
             cli_render.emit(cli_render.render_reducer_show(entry))
             return
         emit_dirty_worktree_warning()
-        entries = cli_call(reducer_pipeline.list_entries)
+        entries = cli_call(reducer_api.list_entries)
         cli_render.emit(cli_render.render_reducer_list(entries))
 
     @reducer_app.command("info")
@@ -151,14 +150,14 @@ def register(app: typer.Typer) -> None:
     ) -> None:
         """List reducers with CLI call signatures (warns if dirty)."""
         emit_dirty_worktree_warning()
-        entries = cli_call(reducer_pipeline.list_entries)
+        entries = cli_call(reducer_api.list_entries)
         if reducer_id:
             entries = [entry for entry in entries if entry["reducer_id"] == reducer_id]
             if not entries:
                 raise typer.BadParameter(f"Unknown reducer '{reducer_id}'.")
         lines = ["Reducers:"]
         for entry in entries:
-            reducer = load_reducer(entry["reducer_id"])
+            reducer = reducer_api.load_reducer(entry["reducer_id"])
             call = _format_reducer_call(entry["reducer_id"], reducer)
             lines.append(f"  {call}")
             lines.append(f"    {entry['summary']}")
@@ -168,7 +167,7 @@ def register(app: typer.Typer) -> None:
 
 
 def _build_dynamic_reducer_params() -> list[inspect.Parameter]:
-    reducers = get_reducers()
+    reducers = reducer_api.get_reducers()
     params: dict[str, inspect.Parameter] = {}
     for entry in reducers.values():
         render = getattr(entry.module, "render", None)
@@ -232,7 +231,7 @@ def _validate_reducer_args(arg_map: dict[str, object], allowed: set[str]) -> Non
 
 def _build_reducer_notes(reducer_id: str) -> list[str]:
     notes = ["[tool limitation] Results reflect the latest committed snapshot only."]
-    entry = get_reducers().get(reducer_id)
+    entry = reducer_api.get_reducers().get(reducer_id)
     if entry and entry.lossy:
         notes.append("[design choice] Reducer output is lossy (summary or compressed).")
     return notes

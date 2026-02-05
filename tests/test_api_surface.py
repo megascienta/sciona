@@ -4,9 +4,18 @@ from sciona import api
 
 
 def test_public_api_root_exposes_namespaces_only():
-    assert api.__all__ == ["user", "addons"]
-    assert hasattr(api, "user")
-    assert hasattr(api, "addons")
+    assert api.__all__ == [
+        "user",
+        "addons",
+        "prompts",
+        "reducers",
+        "repo",
+        "resolve",
+        "runtime",
+        "errors",
+    ]
+    for name in api.__all__:
+        assert hasattr(api, name)
 
 
 def test_public_user_api_surface_is_explicit_and_stable():
@@ -39,6 +48,7 @@ def test_public_addon_api_surface_is_explicit_and_stable():
         "PLUGIN_API_MAJOR",
         "PLUGIN_API_MINOR",
         "Registry",
+        "load_for_cli",
         "compile_prompt_payload",
         "emit",
     ]

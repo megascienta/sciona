@@ -5,9 +5,8 @@ import json
 
 import typer
 
-from ...pipelines import repo as pipeline_commands
-from ...runtime.config import load_runtime_config
-from ...runtime.paths import get_repo_root, get_sciona_dir
+from ...api import repo as api_repo
+from ...api import runtime as api_runtime
 from ..utils import cli_call, emit_dirty_worktree_warning
 from .. import render as cli_render
 
@@ -16,9 +15,9 @@ def register_status(app: typer.Typer) -> None:
     @app.command()
     def status() -> None:
         """Show SCIONA status for the current repository (warns if dirty)."""
-        status_result = cli_call(pipeline_commands.status)
+        status_result = cli_call(api_repo.status)
         try:
-            runtime_cfg = cli_call(load_runtime_config, status_result.repo_root)
+            runtime_cfg = cli_call(api_runtime.load_runtime_config, status_result.repo_root)
         except Exception:
             return
         enabled = [name for name, settings in runtime_cfg.languages.items() if settings.enabled]
@@ -26,7 +25,7 @@ def register_status(app: typer.Typer) -> None:
         last_build = None
         try:
             repo_root = status_result.repo_root
-            sciona_dir = get_sciona_dir(repo_root)
+            sciona_dir = api_runtime.get_sciona_dir(repo_root)
             path = sciona_dir / ".last_build.json"
             if path.exists():
                 last_build = json.loads(path.read_text(encoding="utf-8"))
@@ -57,16 +56,16 @@ def register_status(app: typer.Typer) -> None:
         ),
     ) -> None:
         """Remove the SCIONA state directory for the current repository."""
-        repo_root = cli_call(get_repo_root)
-        sciona_dir = get_sciona_dir(repo_root)
-        removed = cli_call(pipeline_commands.clean, repo_root)
+        repo_root = cli_call(api_runtime.get_repo_root)
+        sciona_dir = api_runtime.get_sciona_dir(repo_root)
+        removed = cli_call(api_repo.clean, repo_root)
         if not removed:
             typer.secho(".sciona directory not found; nothing to clean.", fg=typer.colors.YELLOW)
             if not agents:
                 raise typer.Exit(code=0)
         typer.echo(f"Removed {sciona_dir}")
         if agents:
-            removed_agents = cli_call(pipeline_commands.clean_agents, repo_root)
+            removed_agents = cli_call(api_repo.clean_agents, repo_root)
             if removed_agents:
                 typer.echo("Removed managed SCIONA block from AGENTS.md")
             else:

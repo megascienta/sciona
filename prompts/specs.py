@@ -6,8 +6,6 @@ import re
 from typing import Mapping, Optional
 import importlib.resources as resources
 
-from ..runtime import paths as runtime_paths
-
 PLACEHOLDER_PATTERN = re.compile(r"{([A-Za-z0-9_]+)}")
 
 
@@ -56,6 +54,7 @@ def resolve_spec_path(entry: Mapping[str, object], repo_root: Optional[Path]) ->
                 raise ValueError("Prompt specs with spec_root require a repository root.")
             base_dir = (repo_root / spec_root).resolve()
     elif repo_root is not None:
+        from ..runtime import paths as runtime_paths
         base_dir = runtime_paths.get_prompts_dir(repo_root)
     else:
         base_dir = Path(__file__).resolve().parent / "templates"

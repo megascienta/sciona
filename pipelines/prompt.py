@@ -12,6 +12,7 @@ from ..runtime.paths import get_db_path
 from ..runtime.config import load_llm_settings
 from ..runtime.llm import Adapter
 from .policy import prompt as prompt_policy
+from .prompt_validation import resolve_prompt_reducers
 from .resolve import require_identifier
 
 _SECTION_PREFIX = "## "
@@ -103,18 +104,31 @@ def _compile_prompt_with_resolution(
             node_name=node_name,
             arg_map=arg_map,
         )
+        try:
+            reducer_pairs = resolve_prompt_reducers(
+                prompt_name,
+                entry,
+                repo_root=repo_root,
+            )
+        except ValueError as exc:
+            raise WorkflowError(str(exc), code="prompt_error") from exc
         missing = [key for key in required if not arg_map.get(key)]
         if missing:
             raise WorkflowError(
                 f"Missing required parameters: {', '.join(missing)}.",
                 code="missing_parameters",
             )
+        reducer_args = _build_reducer_args(arg_map)
+        payloads: dict[str, str] = {}
+        for reducer, placeholder in reducer_pairs:
+            value = reducer.render(snapshot_id, conn, repo_root, **reducer_args)
+            payloads[placeholder] = value
         try:
             prompt_text = compile_prompt(
                 prompt_name,
                 snapshot_id,
-                conn,
                 repo_root,
+                payloads=payloads,
                 **arg_map,
             )
         except ValueError as exc:
@@ -246,3 +260,10 @@ def _id_arg_kind(id_arg: str) -> str:
     if id_arg == "callable_id":
         return "callable"
     return id_arg.replace("_id", "")
+
+
+def _build_reducer_args(arg_map: dict[str, str]) -> dict[str, str]:
+    reducer_args = dict(arg_map)
+    if "callable_id" in arg_map and not (arg_map.get("function_id") or arg_map.get("method_id")):
+        reducer_args["function_id"] = arg_map["callable_id"]
+    return reducer_args

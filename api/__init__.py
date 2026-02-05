@@ -1,9 +1,15 @@
 """Public SCIONA API namespaces (stable)."""
 from __future__ import annotations
 
-from . import addons, user
+from . import addons, errors, prompts, reducers, repo, resolve, runtime, user
 
 __all__ = [
     "user",
     "addons",
+    "prompts",
+    "reducers",
+    "repo",
+    "resolve",
+    "runtime",
+    "errors",
 ]

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import typer
 
-from ..runtime.errors import ScionaError
+from ..api.errors import ScionaError
 from . import render as cli_render
 
 

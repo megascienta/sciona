@@ -6,13 +6,11 @@ import click
 
 import inspect
 
-from ..runtime.logging import configure_logging
-from ..runtime.errors import ScionaError
-from ..runtime import addons as addon_runtime
-from ..runtime.config import load_logging_settings
-from ..runtime.paths import get_repo_root
-from ..api.prompts import freeze_registry as freeze_prompt_registry
-from ..reducers.registry import freeze_registry as freeze_reducer_registry
+from ..api import addons as addons_api
+from ..api import errors as api_errors
+from ..api import prompts as prompts_api
+from ..api import reducers as reducers_api
+from ..api import runtime as runtime_api
 from .commands import register as register_commands
 
 
@@ -73,38 +71,38 @@ app = typer.Typer(
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 
-_ADDON_REGISTRY = addon_runtime.load_for_cli()
+_ADDON_REGISTRY = addons_api.load_for_cli()
 @app.callback(invoke_without_command=True)
 def _main(
     ctx: typer.Context,
     help: bool = typer.Option(False, "--help", "-h", is_eager=True),
 ) -> None:
     """CLI entrypoint."""
-    addon_registry: addon_runtime.Registry | None = _ADDON_REGISTRY
+    addon_registry: addons_api.Registry | None = _ADDON_REGISTRY
     repo_root = None
     try:
-        repo_root = get_repo_root()
-        logging_settings = load_logging_settings(
+        repo_root = runtime_api.get_repo_root()
+        logging_settings = runtime_api.load_logging_settings(
             repo_root,
             allow_missing=True,
         )
-        configure_logging(
+        runtime_api.configure_logging(
             level=logging_settings.level,
             module_levels=logging_settings.module_levels,
             debug=logging_settings.debug,
             structured=logging_settings.structured,
             repo_root=repo_root,
         )
-    except ScionaError:
-        configure_logging()
-    freeze_prompt_registry(repo_root)
-    freeze_reducer_registry()
+    except api_errors.ScionaError:
+        runtime_api.configure_logging()
+    prompts_api.freeze_registry(repo_root)
+    reducers_api.freeze_registry()
     if help or ctx.invoked_subcommand is None:
         typer.echo(_render_help(addon_registry))
         raise typer.Exit()
 
 
-def _render_help(addon_registry: addon_runtime.Registry | None) -> str:
+def _render_help(addon_registry: addons_api.Registry | None) -> str:
     root_group = _get_click_group(app)
     addon_commands = _addon_commands(addon_registry)
     core_commands = _core_commands(app, root_group)

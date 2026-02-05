@@ -6,8 +6,8 @@ from typing import Optional
 
 import typer
 
-from ..pipelines import reducers as reducer_pipeline
-from ..pipelines import resolve as resolver
+from ..api import reducers as reducer_api
+from ..api import resolve as resolver
 from .utils import (
     cli_call,
     emit_dirty_worktree_warning,
@@ -50,7 +50,7 @@ def register(app: typer.Typer) -> None:
             cli_render.emit(message.splitlines())
             return
         reducer_text, snapshot_id, resolved_args = cli_call(
-            reducer_pipeline.emit,
+            reducer_api.emit,
             "import_references",
             module_id=result.resolved_id,
             limit=limit,

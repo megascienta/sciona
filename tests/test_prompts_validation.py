@@ -2,7 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from sciona.prompts import get_prompts
+from sciona.pipelines import prompt as prompt_pipeline
+from sciona.pipelines.errors import WorkflowError
 
 from .helpers import seed_repo_with_snapshot
 
@@ -29,8 +30,12 @@ def test_prompt_rejects_duplicate_placeholders(tmp_path):
 """
     _write_prompt(repo_root, registry_text, "bad_duplicate_v1.md", spec_text)
 
-    with pytest.raises(ValueError, match=r"Duplicate placeholders"):
-        get_prompts(repo_root)
+    with pytest.raises(WorkflowError, match=r"Duplicate placeholders"):
+        prompt_pipeline.compile_prompt_by_name(
+            "bad_duplicate_v1",
+            repo_root=repo_root,
+            arg_map={"function_id": "pkg.alpha.Service.run"},
+        )
 
 
 def test_prompt_requires_bijection(tmp_path):
@@ -47,8 +52,12 @@ def test_prompt_requires_bijection(tmp_path):
 """
     _write_prompt(repo_root, registry_text, "bad_missing_v1.md", spec_text)
 
-    with pytest.raises(ValueError, match=r"Missing placeholders"):
-        get_prompts(repo_root)
+    with pytest.raises(WorkflowError, match=r"Missing placeholders"):
+        prompt_pipeline.compile_prompt_by_name(
+            "bad_missing_v1",
+            repo_root=repo_root,
+            arg_map={"limit": "5"},
+        )
 
 
 def test_prompt_warns_unused_args(tmp_path, caplog):
@@ -68,7 +77,11 @@ def test_prompt_warns_unused_args(tmp_path, caplog):
     _write_prompt(repo_root, registry_text, "unused_args_v1.md", spec_text)
 
     with caplog.at_level("WARNING"):
-        get_prompts(repo_root)
+        prompt_pipeline.compile_prompt_by_name(
+            "unused_args_v1",
+            repo_root=repo_root,
+            arg_map={"unused_required_arg": "unused"},
+        )
 
     assert "unused by reducers" in caplog.text
     assert "unused_optional_arg" in caplog.text

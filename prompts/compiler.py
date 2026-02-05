@@ -1,16 +1,18 @@
 """Prompt compiler."""
 from __future__ import annotations
 
+from typing import Mapping
+
 from .registry import get_prompts
 from .specs import load_spec_text, validate_placeholder_bijection
-from ..reducers.registry import load_reducer
 
 
 def compile_prompt(
     prompt_name: str,
     snapshot_id: str,
-    conn,
     repo_root,
+    *,
+    payloads: Mapping[str, str],
     **kwargs: object,
 ) -> str:
     prompts = get_prompts(repo_root)
@@ -31,36 +33,14 @@ def compile_prompt(
     if missing_args:
         missing = ", ".join(missing_args)
         raise ValueError(f"PROMPT COMPILATION ERROR: Missing required prompt args: {missing}.")
-    reducer_args = dict(merged_args)
-    if "callable_id" in merged_args and not (
-        merged_args.get("function_id") or merged_args.get("method_id")
-    ):
-        reducer_args["function_id"] = merged_args["callable_id"]
     template = load_spec_text(entry, repo_root)
-    reducers = [load_reducer(name) for name in entry["reducers"]]
-    reducer_placeholders = []
-    reducer_placeholder_map = []
-    for reducer in reducers:
-        meta = getattr(reducer, "REDUCER_META", None)
-        placeholders = getattr(meta, "placeholders", None)
-        if not isinstance(placeholders, tuple) or not placeholders:
-            raise ValueError(
-                f"PROMPT COMPILATION ERROR: Reducer '{reducer.__name__}' missing metadata placeholders."
-            )
-        reducer_placeholders.extend(placeholders)
-        reducer_placeholder_map.append((reducer, placeholders))
     validate_placeholder_bijection(
         template,
-        reducer_placeholders,
+        list(payloads.keys()),
         error_prefix="PROMPT COMPILATION ERROR",
     )
-    for reducer, placeholders in reducer_placeholder_map:
-        if len(placeholders) != 1:
-            raise ValueError(
-                f"PROMPT COMPILATION ERROR: Reducer '{reducer.__name__}' must define exactly one placeholder."
-            )
-        value = reducer.render(snapshot_id, conn, repo_root, **reducer_args)
-        template = template.replace(f"{{{placeholders[0]}}}", value)
+    for placeholder, value in payloads.items():
+        template = template.replace(f"{{{placeholder}}}", value)
     header_lines = [f"PROMPT: {prompt_name}"]
     header_lines.append(f"SNAPSHOT: {snapshot_id}")
     header = "\n".join(header_lines)

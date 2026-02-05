@@ -5,9 +5,9 @@ import sys
 
 import typer
 
-from ...pipelines import repo as pipeline_commands
-from ...pipelines.errors import ConfigError
-from ...runtime.paths import get_repo_root
+from ...api import errors as api_errors
+from ...api import repo as api_repo
+from ...api import runtime as api_runtime
 from ..utils import cli_call
 from .. import render as cli_render
 
@@ -38,8 +38,8 @@ def register_init(app: typer.Typer) -> None:
     ) -> None:
         """Initialize SCIONA state for the current repository."""
         try:
-            sciona_dir = cli_call(pipeline_commands.init)
-        except ConfigError as exc:
+            sciona_dir = cli_call(api_repo.init)
+        except api_errors.ConfigError as exc:
             typer.secho(str(exc), fg=typer.colors.YELLOW)
             raise typer.Exit(code=0) from exc
         payload = {"sciona_dir": sciona_dir}
@@ -56,7 +56,7 @@ def register_init(app: typer.Typer) -> None:
 def _maybe_init_dialog(sciona_dir, *, no_interactive: bool) -> None:
     if no_interactive or not sys.stdin.isatty():
         return
-    defaults = cli_call(pipeline_commands.init_dialog_defaults)
+    defaults = cli_call(api_repo.init_dialog_defaults)
     detected = list(defaults.detected_languages)
     detected_display = ", ".join(detected) if detected else "none"
     typer.echo("")
@@ -67,13 +67,13 @@ def _maybe_init_dialog(sciona_dir, *, no_interactive: bool) -> None:
         default=default,
         show_default=bool(default),
     )
-    supported = cli_call(pipeline_commands.init_supported_languages)
+    supported = cli_call(api_repo.init_supported_languages)
     selected = _parse_language_selection(selection, detected, supported)
     if selected is None:
         typer.secho("No valid languages selected; leaving defaults unchanged.", fg=typer.colors.YELLOW)
         return
     try:
-        cli_call(pipeline_commands.init_apply_languages, selected)
+        cli_call(api_repo.init_apply_languages, selected)
     except Exception:
         typer.secho("Failed to update .sciona/config.yaml.", fg=typer.colors.YELLOW)
 
@@ -114,7 +114,7 @@ def _maybe_init_agents(
             typer.secho("Ignoring --agents flags in interactive mode.", fg=typer.colors.YELLOW)
         if not typer.confirm("Generate a managed SCIONA block in AGENTS.md?", default=False):
             return
-        repo_root = cli_call(get_repo_root)
+        repo_root = cli_call(api_runtime.get_repo_root)
         agents_path = repo_root / "AGENTS.md"
         mode = "append"
         if agents_path.exists():
@@ -129,14 +129,14 @@ def _maybe_init_agents(
             elif action != "append":
                 typer.secho("Unknown choice; skipping AGENTS.md update.", fg=typer.colors.YELLOW)
                 return
-        path = cli_call(pipeline_commands.init_agents, repo_root, mode=mode)
+        path = cli_call(api_repo.init_agents, repo_root, mode=mode)
         typer.echo(f"Updated {path}")
         return
     if agents:
         if agents_append and agents_overwrite:
             raise typer.BadParameter("Choose only one of --agents-append or --agents-overwrite.")
         mode = "overwrite" if agents_overwrite else "append"
-        path = cli_call(pipeline_commands.init_agents, get_repo_root(), mode=mode)
+        path = cli_call(api_repo.init_agents, api_runtime.get_repo_root(), mode=mode)
         typer.echo(f"Updated {path}")
 
 
