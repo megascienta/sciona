@@ -28,7 +28,6 @@ Structural spine (core, required by tooling):
 - callable_overview
 - call_graph
 - class_overview
-- class_method_list
 - class_inheritance
 
 Baseline / control (public, non-core):
@@ -65,7 +64,7 @@ Structural optional (public, non-core):
 | symbol_lookup | codebase | SYMBOL_LOOKUP | strict | false | false | false | Ranked symbol matches for a query. |
 | symbol_references | codebase | SYMBOL_REFERENCES | strict | true | false | false | Relationship references (calls/imports) for symbols matching a query. |
 | file_outline | codebase | FILE_OUTLINE | strict | false | false | false | File-level outline of modules, classes, and callables. |
-| module_file_map | codebase | MODULE_FILE_MAP | strict | false | false | false | Module-to-file map with module qualified names and file paths. |
+| module_file_map | codebase | MODULE_FILE_MAP | strict | false | false | false | Module-to-file map with module qualified names, structural ids, file paths, and line spans. |
 | dependency_edges | codebase | DEPENDENCY_EDGES | strict | true | false | false | Explicit module import edges for the snapshot. |
 | import_references | codebase | IMPORT_REFERENCES | strict | true | false | false | Modules that import the target module(s). |
 
@@ -98,7 +97,6 @@ Payload field naming:
 | fan_summary | codebase | FAN_SUMMARY | strict | true | false | false | Fan-in/out summary for calls and imports. |
 | hotspot_summary | codebase | HOTSPOT_SUMMARY | strict | true | false | false | Compressed codebase hotspot summary. |
 | module_call_graph | module | MODULE_CALL_GRAPH | strict | true | false | false | Module-level call graph summary. |
-| class_method_list | class | CLASS_METHOD_LIST | strict | true | false | false | List of methods for a class with basic visibility. |
 | importers_index | codebase | IMPORTERS_INDEX | strict | true | false | false | Index of modules that import target module(s). |
 
 Notes:
@@ -130,3 +128,4 @@ Notes:
 Notes:
 - `callable_source` accepts `callable_id`, `function_id`, or `method_id`.
 - `concatenated_source` requires `scope` (`codebase`, `module`, or `class`); `module` requires `module_id`, `class` requires `class_id`.
+- `concatenated_source` includes only snapshot-tracked files (from `node_instances`); it does not scan the filesystem.
