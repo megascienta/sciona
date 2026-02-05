@@ -7,7 +7,12 @@ from typing import Optional
 import typer
 
 from ..pipelines import reducers as reducer_pipeline
-from .utils import cli_call, emit_dirty_worktree_warning, get_dirty_worktree_warning
+from .utils import (
+    cli_call,
+    emit_dirty_worktree_warning,
+    get_dirty_worktree_warning,
+    parse_payload,
+)
 from . import render as cli_render
 
 
@@ -31,7 +36,7 @@ def register(app: typer.Typer) -> None:
             kind=kind,
             limit=limit,
         )
-        payload = _parse_payload(reducer_text)
+        payload = parse_payload(reducer_text)
         if json_output:
             warning = get_dirty_worktree_warning()
             output = payload or {"payload": reducer_text}
@@ -65,18 +70,3 @@ def register(app: typer.Typer) -> None:
                 f"[score: {score}]"
             )
         cli_render.emit(lines)
-
-
-def _parse_payload(text: str) -> Optional[dict]:
-    try:
-        return json.loads(_strip_json_fence(text))
-    except Exception:
-        return None
-
-
-def _strip_json_fence(text: str) -> str:
-    trimmed = text.strip()
-    if trimmed.startswith("```json") and trimmed.endswith("```"):
-        lines = trimmed.splitlines()
-        return "\n".join(lines[1:-1])
-    return trimmed

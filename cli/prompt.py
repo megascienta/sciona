@@ -10,7 +10,13 @@ import typer
 from ..pipelines import prompt as prompt_pipeline
 from ..prompts import get_prompts
 from . import render as cli_render
-from .utils import cli_call, emit_dirty_worktree_warning, get_dirty_worktree_warning, parse_extra_args
+from .utils import (
+    cli_call,
+    emit_dirty_worktree_warning,
+    get_dirty_worktree_warning,
+    normalize_flag_args,
+    parse_extra_args,
+)
 
 
 def register(app: typer.Typer) -> None:
@@ -46,7 +52,7 @@ def register(app: typer.Typer) -> None:
         provided_ids = [name for name, value in explicit_ids.items() if value]
         if len(provided_ids) > 1:
             raise typer.BadParameter("Provide only one specific id option.")
-        arg_map = parse_extra_args(_normalize_flag_args(extra_args))
+        arg_map = parse_extra_args(normalize_flag_args(extra_args))
         for name, value in explicit_ids.items():
             if not value:
                 continue
@@ -156,23 +162,6 @@ def register(app: typer.Typer) -> None:
         cli_render.emit(lines)
 
     app.add_typer(prompt_app, name="prompt")
-
-
-def _normalize_flag_args(args: list[str]) -> list[str]:
-    """Allow bare boolean flags like --extras by coercing them to true."""
-    normalized: list[str] = []
-    index = 0
-    while index < len(args):
-        token = args[index]
-        if token == "--extras":
-            next_token = args[index + 1] if index + 1 < len(args) else None
-            if next_token is None or next_token.startswith("--"):
-                normalized.extend([token, "true"])
-                index += 1
-                continue
-        normalized.append(token)
-        index += 1
-    return normalized
 
 
 _STANDARD_PROMPT_ARGS = {

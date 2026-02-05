@@ -9,7 +9,13 @@ import typer
 
 from ..pipelines import reducers as reducer_pipeline
 from ..reducers.registry import get_reducers, load_reducer
-from .utils import cli_call, emit_dirty_worktree_warning, get_dirty_worktree_warning, parse_extra_args
+from .utils import (
+    cli_call,
+    emit_dirty_worktree_warning,
+    get_dirty_worktree_warning,
+    normalize_flag_args,
+    parse_extra_args,
+)
 from . import render as cli_render
 import inspect
 
@@ -77,7 +83,7 @@ def register(app: typer.Typer) -> None:
             raise typer.BadParameter("Provide only one specific id option.")
 
         extra_args = list(ctx.args)
-        arg_map = parse_extra_args(_normalize_flag_args(extra_args))
+        arg_map = parse_extra_args(normalize_flag_args(extra_args))
         explicit_args = dict(explicit_ids)
         if scope:
             explicit_args["scope"] = scope
@@ -159,23 +165,6 @@ def register(app: typer.Typer) -> None:
         cli_render.emit(lines)
 
     app.add_typer(reducer_app, name="reducer")
-
-
-def _normalize_flag_args(args: list[str]) -> list[str]:
-    """Allow bare boolean flags like --extras by coercing them to true."""
-    normalized: list[str] = []
-    index = 0
-    while index < len(args):
-        token = args[index]
-        if token == "--extras":
-            next_token = args[index + 1] if index + 1 < len(args) else None
-            if next_token is None or next_token.startswith("--"):
-                normalized.extend([token, "true"])
-                index += 1
-                continue
-        normalized.append(token)
-        index += 1
-    return normalized
 
 
 def _build_dynamic_reducer_params() -> list[inspect.Parameter]:

@@ -8,7 +8,12 @@ import typer
 
 from ..pipelines import reducers as reducer_pipeline
 from ..pipelines import resolve as resolver
-from .utils import cli_call, emit_dirty_worktree_warning, get_dirty_worktree_warning
+from .utils import (
+    cli_call,
+    emit_dirty_worktree_warning,
+    get_dirty_worktree_warning,
+    parse_payload,
+)
 from . import render as cli_render
 
 
@@ -51,7 +56,7 @@ def register(app: typer.Typer) -> None:
             limit=limit,
             edge_type=edge_type,
         )
-        payload = _parse_payload(reducer_text)
+        payload = parse_payload(reducer_text)
         if json_output:
             warning = get_dirty_worktree_warning()
             output = {
@@ -96,21 +101,6 @@ def register(app: typer.Typer) -> None:
                 f"[edge: {edge.get('edge_type')}]"
             )
         cli_render.emit(lines)
-
-
-def _parse_payload(text: str) -> Optional[dict]:
-    try:
-        return json.loads(_strip_json_fence(text))
-    except Exception:
-        return None
-
-
-def _strip_json_fence(text: str) -> str:
-    trimmed = text.strip()
-    if trimmed.startswith("```json") and trimmed.endswith("```"):
-        lines = trimmed.splitlines()
-        return "\n".join(lines[1:-1])
-    return trimmed
 
 
 def _first_target_name(payload: dict) -> Optional[str]:

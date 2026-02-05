@@ -1,13 +1,14 @@
 """CLI helpers for error handling and argument parsing."""
 from __future__ import annotations
 
+import json
 import re
 import traceback
 
 import typer
 
 from ..runtime.logging import debug_enabled
-from ..pipelines.policy import repo as policy_repo
+from ..pipelines import repo as pipeline_repo
 from . import render as cli_render
 from .errors import handle_cli_error
 
@@ -58,6 +59,38 @@ def parse_extra_args(args: list[str]) -> dict[str, str]:
     return parsed
 
 
+def normalize_flag_args(args: list[str]) -> list[str]:
+    """Allow bare boolean flags like --extras by coercing them to true."""
+    normalized: list[str] = []
+    index = 0
+    while index < len(args):
+        token = args[index]
+        if token == "--extras":
+            next_token = args[index + 1] if index + 1 < len(args) else None
+            if next_token is None or next_token.startswith("--"):
+                normalized.extend([token, "true"])
+                index += 1
+                continue
+        normalized.append(token)
+        index += 1
+    return normalized
+
+
+def parse_payload(text: str) -> dict | None:
+    try:
+        return json.loads(strip_json_fence(text))
+    except Exception:
+        return None
+
+
+def strip_json_fence(text: str) -> str:
+    trimmed = text.strip()
+    if trimmed.startswith("```json") and trimmed.endswith("```"):
+        lines = trimmed.splitlines()
+        return "\n".join(lines[1:-1])
+    return trimmed
+
+
 def emit_dirty_worktree_warning(repo_root=None) -> None:
     warning = get_dirty_worktree_warning(repo_root)
     if warning:
@@ -66,8 +99,7 @@ def emit_dirty_worktree_warning(repo_root=None) -> None:
 
 def get_dirty_worktree_warning(repo_root=None) -> str | None:
     try:
-        repo_state = policy_repo.resolve_repo_state(repo_root, allow_missing_config=True)
-        return policy_repo.dirty_worktree_warning(repo_state)
+        return pipeline_repo.dirty_worktree_warning(repo_root)
     except Exception:
         return None
 

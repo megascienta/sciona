@@ -94,6 +94,11 @@ def clean_agents(repo_root: Optional[Path] = None) -> bool:
     return agents_runtime.remove_agents_block(repo_state.repo_root)
 
 
+def dirty_worktree_warning(repo_root: Optional[Path] = None) -> str | None:
+    repo_state = policy_repo.resolve_repo_state(repo_root, allow_missing_config=True)
+    return policy_repo.dirty_worktree_warning(repo_state)
+
+
 def _run_build(repo_state: RepoState, policy: BuildPolicy) -> BuildResult:
     policy_repo.ensure_initialized(repo_state)
     policy_repo.ensure_repo_has_commits(repo_state)
