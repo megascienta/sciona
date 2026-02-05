@@ -8,7 +8,10 @@ from typing import Optional
 from ..prompts import compile_prompt, get_prompts
 from .errors import WorkflowError
 from ..data_storage.connections import core
+from ..data_storage.connections import artifact as artifact_db
 from ..runtime.paths import get_db_path
+from ..runtime.paths import get_artifact_db_path
+from . import diff_overlay
 from ..runtime.config import load_llm_settings
 from ..runtime.llm import Adapter
 from .policy import prompt as prompt_policy
@@ -120,9 +123,22 @@ def _compile_prompt_with_resolution(
             )
         reducer_args = _build_reducer_args(arg_map)
         payloads: dict[str, str] = {}
-        for reducer, placeholder in reducer_pairs:
-            value = reducer.render(snapshot_id, conn, repo_root, **reducer_args)
-            payloads[placeholder] = value
+        artifact_path = get_artifact_db_path(repo_root)
+        artifact_scope = (
+            artifact_db(artifact_path, repo_root=repo_root)
+            if artifact_path.exists()
+            else nullcontext(None)
+        )
+        with artifact_scope as artifact_conn:
+            overlay = diff_overlay.get_overlay(
+                repo_root=repo_root,
+                snapshot_id=snapshot_id,
+                core_conn=conn,
+                artifact_conn=artifact_conn,
+            )
+            for reducer, placeholder in reducer_pairs:
+                value = reducer.render(snapshot_id, conn, repo_root, **reducer_args)
+                payloads[placeholder] = diff_overlay.apply_overlay_to_text(value, overlay)
         try:
             prompt_text = compile_prompt(
                 prompt_name,

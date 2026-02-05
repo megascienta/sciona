@@ -84,11 +84,12 @@ def validate_git_args(args: list[str]) -> None:
         return
     command = str(args[0])
     allowed_options: dict[str, Set[str]] = {
+        "diff": {"--name-status", "--cached"},
         "hash-object": {"--no-filters", "--stdin-paths"},
         "rev-parse": {"--abbrev-ref", "--show-toplevel"},
         "show": {"-s", "--format=%cI"},
         "status": {"--porcelain", "-z"},
-        "ls-files": set(),
+        "ls-files": {"--others", "--exclude-standard"},
     }
     allowed = allowed_options.get(command, set())
     allow_dash_args = False

@@ -43,6 +43,20 @@ def latest_committed_snapshot_id(conn: sqlite3.Connection) -> str | None:
     return None
 
 
+def snapshot_git_commit_sha(conn: sqlite3.Connection, snapshot_id: str) -> str | None:
+    row = conn.execute(
+        """
+        SELECT git_commit_sha
+        FROM snapshots
+        WHERE snapshot_id = ?
+        """,
+        (snapshot_id,),
+    ).fetchone()
+    if not row:
+        return None
+    return row["git_commit_sha"]
+
+
 def count_committed_snapshots(conn: sqlite3.Connection) -> int:
     row = conn.execute(
         "SELECT COUNT(*) AS count FROM snapshots WHERE is_committed = 1"
@@ -342,6 +356,75 @@ def list_nodes_by_types(
         (snapshot_id, *node_types),
     ).fetchall()
     return [(row[0], row[1], row[2]) for row in rows]
+
+
+def node_instances_for_file_paths(
+    conn: sqlite3.Connection,
+    snapshot_id: str,
+    file_paths: Sequence[str],
+) -> list[dict[str, object]]:
+    if not file_paths:
+        return []
+    rows: list[dict[str, object]] = []
+    for batch in chunked(list(file_paths), SQLITE_MAX_VARS - 1):
+        placeholders = ",".join("?" for _ in batch)
+        params = [snapshot_id, *batch]
+        batch_rows = conn.execute(
+            f"""
+            SELECT sn.structural_id,
+                   sn.node_type,
+                   sn.language,
+                   ni.qualified_name,
+                   ni.file_path,
+                   ni.start_line,
+                   ni.end_line,
+                   ni.content_hash
+            FROM structural_nodes sn
+            JOIN node_instances ni ON ni.structural_id = sn.structural_id
+            WHERE ni.snapshot_id = ?
+              AND ni.file_path IN ({placeholders})
+            """,
+            params,
+        ).fetchall()
+        for row in batch_rows:
+            rows.append(
+                {
+                    "structural_id": row["structural_id"],
+                    "node_type": row["node_type"],
+                    "language": row["language"],
+                    "qualified_name": row["qualified_name"],
+                    "file_path": row["file_path"],
+                    "start_line": row["start_line"],
+                    "end_line": row["end_line"],
+                    "content_hash": row["content_hash"],
+                }
+            )
+    return rows
+
+
+def edges_for_source_ids(
+    conn: sqlite3.Connection,
+    snapshot_id: str,
+    src_structural_ids: Sequence[str],
+) -> list[tuple[str, str, str]]:
+    if not src_structural_ids:
+        return []
+    edges: list[tuple[str, str, str]] = []
+    for batch in chunked(list(src_structural_ids), SQLITE_MAX_VARS - 2):
+        placeholders = ",".join("?" for _ in batch)
+        params = [snapshot_id, *batch]
+        rows = conn.execute(
+            f"""
+            SELECT src_structural_id, dst_structural_id, edge_type
+            FROM edges
+            WHERE snapshot_id = ?
+              AND src_structural_id IN ({placeholders})
+            """,
+            params,
+        ).fetchall()
+        for row in rows:
+            edges.append((row["src_structural_id"], row["dst_structural_id"], row["edge_type"]))
+    return edges
 
 
 def structural_hash_node_entries(conn: sqlite3.Connection, snapshot_id: str) -> list[str]:

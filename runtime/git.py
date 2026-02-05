@@ -79,6 +79,37 @@ def worktree_status_paths(repo_root: Path) -> List[str]:
     return paths
 
 
+def diff_name_status(
+    repo_root: Path,
+    base_commit: str,
+    *,
+    cached: bool = False,
+) -> List[tuple[str, List[str]]]:
+    """Return parsed output for git diff --name-status base_commit."""
+    args = ["diff", "--name-status"]
+    if cached:
+        args.append("--cached")
+    args.append(base_commit)
+    output = run_git(args, repo_root)
+    changes: List[tuple[str, List[str]]] = []
+    for line in output.splitlines():
+        parts = line.split("\t")
+        if not parts:
+            continue
+        status = parts[0]
+        paths = parts[1:]
+        if not status or not paths:
+            continue
+        changes.append((status, paths))
+    return changes
+
+
+def untracked_paths(repo_root: Path) -> List[str]:
+    """Return untracked file paths excluding standard ignores."""
+    output = run_git(["ls-files", "--others", "--exclude-standard"], repo_root)
+    return [line.strip() for line in output.splitlines() if line.strip()]
+
+
 def ensure_clean_worktree(repo_root: Path) -> None:
     """Abort if the working tree contains uncommitted changes."""
     if is_worktree_dirty(repo_root):
@@ -138,6 +169,7 @@ __all__ = [
     "blob_sha",
     "blob_sha_batch",
     "commit_meta",
+    "diff_name_status",
     "ensure_repo",
     "ensure_repo_has_commits",
     "ensure_clean_worktree",
@@ -145,5 +177,6 @@ __all__ = [
     "is_worktree_dirty",
     "run_git",
     "tracked_paths",
+    "untracked_paths",
     "worktree_status_paths",
 ]

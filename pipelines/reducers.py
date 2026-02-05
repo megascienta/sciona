@@ -13,6 +13,7 @@ from .policy import repo as policy_repo
 from .policy import prompt as prompt_policy
 from ..data_storage.connections import core
 from ..data_storage.connections import artifact as artifact_db
+from . import diff_overlay
 from .errors import WorkflowError
 from ..runtime.paths import get_artifact_db_path, get_db_path
 from ..reducers.helpers.context import use_artifact_connection
@@ -93,10 +94,17 @@ def emit(
         )
         with artifact_scope as artifact_conn:
             with use_artifact_connection(artifact_conn):
+                overlay = diff_overlay.get_overlay(
+                    repo_root=repo_state.repo_root,
+                    snapshot_id=snapshot_id,
+                    core_conn=conn,
+                    artifact_conn=artifact_conn,
+                )
                 try:
                     text = reducer.render(snapshot_id, conn, repo_state.repo_root, **resolved_kwargs)
                 except ValueError as exc:
                     raise WorkflowError(str(exc), code="reducer_error") from exc
+                text = diff_overlay.apply_overlay_to_text(text, overlay)
     return text, snapshot_id, resolved_kwargs
 
 

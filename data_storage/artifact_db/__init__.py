@@ -1,6 +1,6 @@
 """ArtifactDB namespace (derived, last-committed-snapshot only)."""
 
-from . import maintenance, read_status, schema, write_graph, write_index
+from . import diff_overlay, maintenance, read_status, schema, write_graph, write_index
 
 
 def connect(db_path, *, repo_root=None):
@@ -11,6 +11,7 @@ def connect(db_path, *, repo_root=None):
 
 __all__ = [
     "connect",
+    "diff_overlay",
     "maintenance",
     "read_status",
     "schema",

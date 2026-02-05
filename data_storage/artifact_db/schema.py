@@ -124,6 +124,24 @@ SCHEMA_STATEMENTS: list[str] = [
         updated_at TEXT NOT NULL
     )
     """,
+    """
+    CREATE TABLE IF NOT EXISTS diff_overlay (
+        snapshot_id TEXT NOT NULL,
+        worktree_hash TEXT NOT NULL,
+        structural_id TEXT NOT NULL,
+        node_type TEXT NOT NULL,
+        diff_kind TEXT NOT NULL,
+        field TEXT,
+        old_value TEXT,
+        new_value TEXT,
+        created_at TEXT NOT NULL,
+        PRIMARY KEY (snapshot_id, worktree_hash, structural_id, field)
+    )
+    """,
+    """
+    CREATE INDEX IF NOT EXISTS idx_diff_overlay_snapshot
+    ON diff_overlay(snapshot_id, worktree_hash)
+    """,
 ]
 
 def ensure_schema(conn: sqlite3.Connection) -> None:
