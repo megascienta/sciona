@@ -1,25 +1,9 @@
-import importlib
 import json
 
-from typer.testing import CliRunner
 
-from sciona.runtime import paths as runtime_paths
-from sciona.pipelines.prompts import ensure_prompts_initialized
-
-from tests.helpers import seed_repo_with_snapshot
-
-
-def test_cli_prompt_json_includes_sections(tmp_path, monkeypatch):
-    repo_root, _ = seed_repo_with_snapshot(tmp_path)
-    ensure_prompts_initialized(repo_root)
-    monkeypatch.setattr(runtime_paths, "get_repo_root", lambda: repo_root)
-    import sciona.cli.main as cli_module
-
-    importlib.reload(cli_module)
-    runner = CliRunner()
-
-    result = runner.invoke(
-        cli_module.app,
+def test_cli_prompt_json_includes_sections(cli_app_with_prompts, cli_runner):
+    result = cli_runner.invoke(
+        cli_app_with_prompts,
         [
             "prompt",
             "run",

@@ -3,6 +3,8 @@ from pathlib import Path
 import pytest
 
 from sciona.pipelines import prompt as prompt_pipeline
+from sciona.pipelines.prompts import ensure_prompts_initialized
+from sciona.api import prompts as prompt_api
 from sciona.pipelines.errors import WorkflowError
 
 from .helpers import seed_repo_with_snapshot
@@ -85,3 +87,11 @@ def test_prompt_warns_unused_args(tmp_path, caplog):
 
     assert "unused by reducers" in caplog.text
     assert "unused_optional_arg" in caplog.text
+
+
+def test_api_prompt_validate_entry(tmp_path):
+    repo_root, _snapshot_id = seed_repo_with_snapshot(tmp_path)
+    ensure_prompts_initialized(repo_root)
+    prompts = prompt_api.get_prompts(repo_root)
+    entry = dict(prompts["preflight_v1"])
+    prompt_api.validate_prompt_entry("preflight_v1", entry, repo_root=repo_root)

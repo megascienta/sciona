@@ -1,38 +1,17 @@
-import importlib
 import json
 
-from typer.testing import CliRunner
 
-from sciona.runtime import paths as runtime_paths
-
-from tests.helpers import seed_repo_with_snapshot
-
-
-def test_cli_reducer_renders_payload(tmp_path, monkeypatch):
-    repo_root, _ = seed_repo_with_snapshot(tmp_path)
-    monkeypatch.setattr(runtime_paths, "get_repo_root", lambda: repo_root)
-    import sciona.cli.main as cli_module
-
-    importlib.reload(cli_module)
-    runner = CliRunner()
-
-    result = runner.invoke(cli_module.app, ["reducer", "--id", "structural_index"])
+def test_cli_reducer_renders_payload(cli_app, cli_runner):
+    result = cli_runner.invoke(cli_app, ["reducer", "--id", "structural_index"])
 
     assert result.exit_code == 0
     payload = json.loads(result.stdout)
     assert "payload" in payload
 
 
-def test_cli_reducer_callable_id_resolves_method(tmp_path, monkeypatch):
-    repo_root, _ = seed_repo_with_snapshot(tmp_path)
-    monkeypatch.setattr(runtime_paths, "get_repo_root", lambda: repo_root)
-    import sciona.cli.main as cli_module
-
-    importlib.reload(cli_module)
-    runner = CliRunner()
-
-    result = runner.invoke(
-        cli_module.app,
+def test_cli_reducer_callable_id_resolves_method(cli_app, cli_runner):
+    result = cli_runner.invoke(
+        cli_app,
         ["reducer", "--id", "callable_overview", "--callable-id", "pkg.alpha.Service.run"],
     )
 
@@ -42,15 +21,8 @@ def test_cli_reducer_callable_id_resolves_method(tmp_path, monkeypatch):
     assert reducer_payload["callable_id"] == "meth_alpha"
 
 
-def test_cli_reducer_list_outputs_calls(tmp_path, monkeypatch):
-    repo_root, _ = seed_repo_with_snapshot(tmp_path)
-    monkeypatch.setattr(runtime_paths, "get_repo_root", lambda: repo_root)
-    import sciona.cli.main as cli_module
-
-    importlib.reload(cli_module)
-    runner = CliRunner()
-
-    result = runner.invoke(cli_module.app, ["reducer", "list"])
+def test_cli_reducer_list_outputs_calls(cli_app, cli_runner):
+    result = cli_runner.invoke(cli_app, ["reducer", "list"])
 
     assert result.exit_code == 0
     assert "reducer --id structural_index" in result.stdout

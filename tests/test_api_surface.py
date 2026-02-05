@@ -57,3 +57,10 @@ def test_public_addon_api_surface_is_explicit_and_stable():
     assert len(api.addons.__all__) == len(set(api.addons.__all__))
     for name in expected:
         assert hasattr(api.addons, name), f"Missing addon API symbol: {name}"
+
+
+def test_addon_api_can_list_reducers():
+    entries = api.addons.list_entries()
+    assert entries
+    reducer_ids = {entry["reducer_id"] for entry in entries}
+    assert "structural_index" in reducer_ids
