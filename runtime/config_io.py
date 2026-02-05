@@ -1,4 +1,4 @@
-"""Configuration IO utilities."""
+"""Configuration file IO helpers for SCIONA runtime."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -6,36 +6,34 @@ from typing import Any, Dict
 
 import yaml
 
-from ...runtime import config_defaults as defaults
-from ...runtime.paths import get_config_path
-from .errors import RuntimeConfigError
+from . import config_defaults as defaults
+from .errors import ConfigError
+from .paths import get_config_path
 
 
 def load_raw_config(repo_root: Path) -> Dict[str, Any]:
+    """Read .sciona/config.yaml and return a dictionary payload."""
     config_path = get_config_path(repo_root)
     if not config_path.exists():
-        raise RuntimeConfigError(
+        raise ConfigError(
             "Missing .sciona/config.yaml. Run 'sciona init' and edit the generated template before building.",
             code="missing_config",
             hint="Run `sciona init` and edit .sciona/config.yaml to enable languages.",
-            exit_code=1,
         )
     try:
         raw_text = config_path.read_text(encoding="utf-8")
         if len(raw_text.encode("utf-8")) > 1_000_000:
-            raise RuntimeConfigError(
+            raise ConfigError(
                 "Config file too large.",
                 code="invalid_config",
                 hint="Reduce .sciona/config.yaml size.",
-                exit_code=1,
             )
         data = yaml.safe_load(raw_text) or {}
     except yaml.YAMLError as exc:
-        raise RuntimeConfigError(
+        raise ConfigError(
             "Failed to parse .sciona/config.yaml",
             code="invalid_config",
             hint="Fix the YAML syntax in .sciona/config.yaml.",
-            exit_code=1,
         ) from exc
     if not isinstance(data, dict):
         return {}

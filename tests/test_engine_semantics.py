@@ -49,15 +49,15 @@ def test_engine_records_nodes_for_failed_parse(tmp_path, monkeypatch):
     monkeypatch.setattr(registry, "get_analyzer", lambda language: FailingAnalyzer())
     monkeypatch.setattr(registry, "get_analyzer_for_path", lambda path, analyzers: analyzers.get("python"))
     monkeypatch.setattr(
-        "sciona.code_analysis.tools.git_support.tracked_paths",
+        "sciona.runtime.git.tracked_paths",
         lambda _root: {Path("pkg/mod.py").as_posix()},
     )
     monkeypatch.setattr(
-        "sciona.code_analysis.tools.git_support.blob_sha_batch",
+        "sciona.runtime.git.blob_sha_batch",
         lambda _root, paths: {path: "hash" for path in paths},
     )
     monkeypatch.setattr(
-        "sciona.code_analysis.tools.git_support.blob_sha",
+        "sciona.runtime.git.blob_sha",
         lambda _root, _path: "hash",
     )
 
@@ -112,15 +112,15 @@ def test_engine_warns_on_empty_language_matches(tmp_path, monkeypatch):
     discovery = core_config.DiscoverySettings(exclude_globs=["**/*.py"])
 
     monkeypatch.setattr(
-        "sciona.code_analysis.tools.git_support.tracked_paths",
+        "sciona.runtime.git.tracked_paths",
         lambda _root: {Path("src/mod.py").as_posix()},
     )
     monkeypatch.setattr(
-        "sciona.code_analysis.tools.git_support.blob_sha_batch",
+        "sciona.runtime.git.blob_sha_batch",
         lambda _root, paths: {path: "hash" for path in paths},
     )
     monkeypatch.setattr(
-        "sciona.code_analysis.tools.git_support.blob_sha",
+        "sciona.runtime.git.blob_sha",
         lambda _root, _path: "hash",
     )
 

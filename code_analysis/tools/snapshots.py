@@ -4,8 +4,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Callable, List, Optional
 
+from ...runtime import git as git_ops
 from ..core.normalize.model import FileRecord, FileSnapshot
-from . import git_support
 
 
 def prepare_file_snapshots(
@@ -16,11 +16,11 @@ def prepare_file_snapshots(
 ) -> List[FileSnapshot]:
     """Build FileSnapshot entries with git blob and line metadata."""
     snapshots: List[FileSnapshot] = []
-    blob_shas = git_support.blob_sha_batch(
+    blob_shas = git_ops.blob_sha_batch(
         repo_root, [record.relative_path for record in records]
     )
     for record in records:
-        blob = blob_shas.get(record.relative_path) or git_support.blob_sha(
+        blob = blob_shas.get(record.relative_path) or git_ops.blob_sha(
             repo_root, record.relative_path
         )
         size = record.path.stat().st_size

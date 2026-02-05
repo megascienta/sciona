@@ -5,9 +5,9 @@ import os
 from pathlib import Path
 from typing import Iterable, List, Set
 
-from ...code_analysis.tools import git_support
 from ...code_analysis.core.extract.registry import extensions_for_language
 from ...code_analysis.config import LANGUAGE_CONFIG
+from ...runtime import git as git_ops
 from ...runtime.config import load_language_settings
 from ..helpers import queries
 from ...runtime.errors import ConfigError
@@ -111,7 +111,7 @@ def _collect_paths(
     include_extras: bool,
     language_exts: Set[str],
 ) -> List[Path]:
-    tracked = git_support.tracked_paths(repo_root)
+    tracked = git_ops.tracked_paths(repo_root)
     tracked_paths = {Path(path) for path in tracked}
     root_list = list(roots)
     base = [

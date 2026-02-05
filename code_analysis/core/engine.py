@@ -5,11 +5,12 @@ from pathlib import Path
 from typing import Callable, Dict, List, Optional, Tuple
 
 from ...runtime import config as runtime_config
+from ...runtime import git as git_ops
 from ...runtime.errors import IngestionError
 from ...runtime.logging import get_logger
 from .routing import resolve_analyzer, select_analyzers, should_register_module
 from .module_naming import module_name_from_path
-from ..tools import git_support, snapshots, walker
+from ..tools import snapshots, walker
 from ..tools.discovery import compute_discovery_details
 from .normalize.model import FileRecord, FileSnapshot
 from .structural_assembler import StructuralAssembler
@@ -56,7 +57,7 @@ class BuildEngine:
         savepoint = "ingest_build"
         self.conn.execute(f"SAVEPOINT {savepoint}")
         try:
-            tracked = git_support.tracked_paths(self.workspace_root)
+            tracked = git_ops.tracked_paths(self.workspace_root)
             if self.discovery is None:
                 self.discovery = runtime_config.load_discovery_settings(self.config_root)
             self.exclude_globs = list(self.discovery.exclude_globs)

@@ -8,7 +8,7 @@ from typing import Sequence
 import yaml
 
 from ...code_analysis import config as analysis_config
-from ...code_analysis.tools import git_support
+from ...runtime import git as git_ops
 from ...runtime.paths import get_config_path
 
 
@@ -18,7 +18,7 @@ class InitDialogDefaults:
 
 
 def detect_languages(repo_root: Path) -> InitDialogDefaults:
-    tracked = git_support.tracked_paths(repo_root)
+    tracked = git_ops.tracked_paths(repo_root)
     detected: set[str] = set()
     for path_str in tracked:
         suffix = Path(path_str).suffix.lower()

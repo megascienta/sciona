@@ -1,4 +1,4 @@
-from sciona.pipelines.config.io import write_default_config
+from sciona.runtime.config_io import write_default_config
 from sciona.runtime.config import load_logging_settings
 from sciona.runtime.paths import get_config_path
 

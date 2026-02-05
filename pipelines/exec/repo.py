@@ -7,6 +7,7 @@ import shutil
 from typing import Optional
 
 from ...runtime import constants as setup_config
+from ...runtime.config_io import write_default_config
 from ...runtime.logging import get_logger
 from ..domain.repository import RepoState
 
@@ -14,7 +15,6 @@ _LOGGER = get_logger("pipelines.exec.repo")
 from ...data_storage.connections import core
 from ...prompts.bootstrap import ensure_prompts_initialized
 from .. import setup as versioning
-from ..config.io import write_default_config
 from ..errors import ConfigError
 
 

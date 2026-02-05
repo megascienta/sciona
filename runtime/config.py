@@ -6,8 +6,6 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, Optional, Sequence
 
-import yaml
-
 from .config_defaults import (
     DEFAULT_LLM_MODEL,
     DEFAULT_LLM_PROVIDER,
@@ -25,7 +23,7 @@ from .config_defaults import (
     LANGUAGE_DEFAULTS,
 )
 from .errors import ConfigError
-from .paths import get_config_path
+from .config_io import load_raw_config
 
 
 
@@ -85,36 +83,6 @@ class ScionaConfig:
     runtime: RuntimeConfig
     llm: LLMSettings
     logging: LoggingSettings
-
-
-def _load_raw_config(repo_root: Path) -> Dict[str, Any]:
-    config_path = get_config_path(repo_root)
-    if not config_path.exists():
-        raise ConfigError(
-            "Missing .sciona/config.yaml. Run 'sciona init' and edit the generated template before building.",
-            code="missing_config",
-            hint="Run `sciona init` and edit .sciona/config.yaml to enable languages.",
-        )
-    try:
-        raw_text = config_path.read_text(encoding="utf-8")
-        if len(raw_text.encode("utf-8")) > 1_000_000:
-            raise ConfigError(
-                "Config file too large.",
-                code="invalid_config",
-                hint="Reduce .sciona/config.yaml size.",
-            )
-        data = yaml.safe_load(raw_text) or {}
-    except yaml.YAMLError as exc:
-        raise ConfigError(
-            "Failed to parse .sciona/config.yaml",
-            code="invalid_config",
-            hint="Fix the YAML syntax in .sciona/config.yaml.",
-        ) from exc
-    if not isinstance(data, dict):
-        return {}
-    return data
-
-
 def _coerce_int(block: Dict[str, Any], key: str, default: int) -> int:
     try:
         return int(block.get(key, default))
@@ -145,7 +113,7 @@ def _coerce_bool(block: Dict[str, Any], key: str, default: bool) -> bool:
 
 
 def _load_language_settings(repo_root: Path) -> Dict[str, LanguageSettings]:
-    raw_config = _load_raw_config(repo_root)
+    raw_config = load_raw_config(repo_root)
     lang_block = raw_config.get("languages", {}) if isinstance(raw_config, dict) else {}
     resolved: Dict[str, LanguageSettings] = {}
     for name, lang_defaults in LANGUAGE_DEFAULTS.items():
@@ -170,7 +138,7 @@ def _load_discovery_settings(raw: Dict[str, Any]) -> DiscoverySettings:
 
 
 def _load_runtime_config(repo_root: Path) -> RuntimeConfig:
-    raw = _load_raw_config(repo_root)
+    raw = load_raw_config(repo_root)
     languages = _load_language_settings(repo_root)
     discovery = _load_discovery_settings(raw)
     database = _load_database_settings(raw)
@@ -185,7 +153,7 @@ def _load_runtime_config(repo_root: Path) -> RuntimeConfig:
 
 def _load_logging_settings(repo_root: Path, *, allow_missing: bool = False) -> LoggingSettings:
     try:
-        raw = _load_raw_config(repo_root)
+        raw = load_raw_config(repo_root)
     except ConfigError:
         if not allow_missing:
             raise
@@ -226,7 +194,7 @@ def _load_git_settings(raw: Dict[str, Any]) -> GitSettings:
 
 
 def _load_llm_settings(repo_root: Path) -> LLMSettings:
-    raw = _load_raw_config(repo_root)
+    raw = load_raw_config(repo_root)
     llm_block = raw.get("llm", {}) if isinstance(raw, dict) else {}
     if not isinstance(llm_block, dict):
         llm_block = {}

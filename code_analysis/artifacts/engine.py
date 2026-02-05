@@ -5,9 +5,10 @@ from pathlib import Path
 from typing import Callable, Dict, List, Optional, Tuple
 
 from ...runtime import config as runtime_config
+from ...runtime import git as git_ops
 from ...runtime.logging import get_logger
 from ..core import routing
-from ..tools import git_support, snapshots, walker
+from ..tools import snapshots, walker
 from ..tools.call_extraction import CallExtractionRecord
 
 logger = get_logger(__name__)
@@ -38,7 +39,7 @@ class ArtifactEngine:
         self.warnings: list[str] = []
 
     def run(self, snapshot_id: str) -> List[CallExtractionRecord]:
-        tracked = git_support.tracked_paths(self.workspace_root)
+        tracked = git_ops.tracked_paths(self.workspace_root)
         if self.discovery is None:
             self.discovery = runtime_config.load_discovery_settings(self.config_root)
         records = walker.collect_files(
