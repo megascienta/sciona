@@ -138,7 +138,12 @@ def _compile_prompt_with_resolution(
             )
             for reducer, placeholder in reducer_pairs:
                 value = reducer.render(snapshot_id, conn, repo_root, **reducer_args)
-                payloads[placeholder] = diff_overlay.apply_overlay_to_text(value, overlay)
+                payloads[placeholder] = diff_overlay.apply_overlay_to_text(
+                    value,
+                    overlay,
+                    snapshot_id=snapshot_id,
+                    conn=conn,
+                )
         try:
             prompt_text = compile_prompt(
                 prompt_name,

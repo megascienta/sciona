@@ -104,7 +104,12 @@ def emit(
                     text = reducer.render(snapshot_id, conn, repo_state.repo_root, **resolved_kwargs)
                 except ValueError as exc:
                     raise WorkflowError(str(exc), code="reducer_error") from exc
-                text = diff_overlay.apply_overlay_to_text(text, overlay)
+                text = diff_overlay.apply_overlay_to_text(
+                    text,
+                    overlay,
+                    snapshot_id=snapshot_id,
+                    conn=conn,
+                )
     return text, snapshot_id, resolved_kwargs
 
 
