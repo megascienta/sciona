@@ -2,6 +2,7 @@ from pathlib import Path
 
 from sciona.code_analysis.core.extract.languages.typescript import TypeScriptAnalyzer
 from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
+from sciona.runtime import paths as runtime_paths
 
 
 def test_typescript_analyzer_extracts_structure(tmp_path):
@@ -39,7 +40,8 @@ def test_typescript_analyzer_extracts_structure(tmp_path):
     import_edges = [edge for edge in result.edges if edge.edge_type == "IMPORTS_DECLARED"]
     assert import_edges
     imported = {edge.dst_qualified_name for edge in import_edges}
-    assert "src.utils" in imported, imported
+    repo_prefix = runtime_paths.repo_name_prefix(repo)
+    assert f"{repo_prefix}.src.utils" in imported, imported
     assert not [edge for edge in result.edges if edge.edge_type == "CALLS"]
     method_edges = [edge for edge in result.edges if edge.edge_type == "DEFINES_METHOD"]
     assert method_edges and method_edges[0].src_node_type == "class"

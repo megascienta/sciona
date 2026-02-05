@@ -226,8 +226,14 @@ def _normalize_ts_import(specifier: Optional[str], snapshot: FileSnapshot, modul
     if spec.startswith("."):
         parent = PurePosixPath(snapshot.record.relative_path.parent.as_posix())
         normalized = _normalize_relative_path(parent, PurePosixPath(spec))
-        module_path = normalized.as_posix()
-        return _ts_module_name_from_path(module_path)
+        module_path = _normalize_ts_path(normalized.as_posix())
+        repo_root = _repo_root_from_snapshot(snapshot)
+        return module_name_from_path(
+            repo_root,
+            Path(module_path),
+            strip_suffix=False,
+            treat_init_as_package=False,
+        )
     return spec.replace("/", ".")
 
 
@@ -244,7 +250,7 @@ def _normalize_relative_path(base: PurePosixPath, relative: PurePosixPath) -> Pu
     return PurePosixPath(*parts)
 
 
-def _ts_module_name_from_path(path: str) -> str:
+def _normalize_ts_path(path: str) -> str:
     name = path
     if name.endswith(".d.ts"):
         name = name[: -len(".d.ts")]
@@ -258,4 +264,11 @@ def _ts_module_name_from_path(path: str) -> str:
         name = name[: -len(".cjs")]
     elif name.endswith(".js"):
         name = name[: -len(".js")]
-    return name.replace("/", ".")
+    return name
+
+
+def _repo_root_from_snapshot(snapshot: FileSnapshot) -> Path:
+    rel_parts = snapshot.record.relative_path.parts
+    if not rel_parts:
+        return snapshot.record.path.parent
+    return snapshot.record.path.parents[len(rel_parts) - 1]

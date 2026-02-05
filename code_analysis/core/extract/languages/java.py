@@ -11,6 +11,7 @@ from ....tools.call_extraction import collect_call_identifiers
 from ...normalize.model import AnalysisResult, CallRecord, EdgeRecord, FileSnapshot, SemanticNodeRecord
 from ..analyzer import ASTAnalyzer
 from ..utils import count_lines, find_nodes_of_type
+from .....runtime import paths as runtime_paths
 
 
 class JavaAnalyzer(ASTAnalyzer):
@@ -55,7 +56,7 @@ class JavaAnalyzer(ASTAnalyzer):
             imports: List[str] = []
             for import_node in find_nodes_of_type(root, "import_declaration"):
                 fragment = snapshot.content[import_node.start_byte : import_node.end_byte].decode("utf-8")
-                normalized = _normalize_java_import(fragment)
+                normalized = _normalize_java_import(fragment, module_name, snapshot)
                 if normalized:
                     imports.append(normalized)
 
@@ -217,7 +218,7 @@ def module_name(repo_root: Path, snapshot: FileSnapshot) -> str:
     )
 
 
-def _normalize_java_import(fragment: str) -> Optional[str]:
+def _normalize_java_import(fragment: str, module_name: str, snapshot: FileSnapshot) -> Optional[str]:
     raw = fragment.strip()
     if not raw.startswith("import"):
         return None
@@ -234,7 +235,31 @@ def _normalize_java_import(fragment: str) -> Optional[str]:
     text = text.strip()
     if not text:
         return None
+    repo_root = _repo_root_from_snapshot(snapshot)
+    repo_prefix = runtime_paths.repo_name_prefix(repo_root)
+    if repo_prefix and (text == repo_prefix or text.startswith(f"{repo_prefix}.")):
+        return text
+    top_package = _top_level_package(module_name, repo_prefix)
+    if top_package and (text == top_package or text.startswith(f"{top_package}.")):
+        return f"{repo_prefix}.{text}" if repo_prefix else text
     return text
+
+
+def _top_level_package(module_name: str, repo_prefix: str) -> str | None:
+    if repo_prefix and (module_name == repo_prefix or module_name.startswith(f"{repo_prefix}.")):
+        remainder = module_name[len(repo_prefix) + 1 :]
+    else:
+        remainder = module_name
+    if not remainder:
+        return None
+    return remainder.split(".", 1)[0]
+
+
+def _repo_root_from_snapshot(snapshot: FileSnapshot) -> Path:
+    rel_parts = snapshot.record.relative_path.parts
+    if not rel_parts:
+        return snapshot.record.path.parent
+    return snapshot.record.path.parents[len(rel_parts) - 1]
 
 
 def _extract_package_name(root, content: bytes) -> Optional[str]:

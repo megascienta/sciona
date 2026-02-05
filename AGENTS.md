@@ -46,7 +46,7 @@ File navigation (codebase-scoped; filters supported):
 
 Code text (last resort):
 - sciona reducer --id callable_source [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>]
-- sciona reducer --id concatenated_source [--scope <scope>] [--module-id <module_id>] [--class-id <class_id>] [--extras]
+- sciona reducer --id concatenated_source [--scope <scope>] [--module-id <module_id>] [--class-id <class_id>]
 
 5) Reducer discovery
 - `sciona reducer list`
