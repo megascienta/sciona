@@ -19,6 +19,8 @@ Note: if the worktree is dirty, outputs reflect the latest committed snapshot on
 - SCIONA reflects the last committed snapshot only.
 - Use SCIONA for structure/calls/deps, then manually verify files you changed.
 - For accurate SCIONA results on new/modified files, make small WIP commits and amend/squash later.
+- Dirty worktrees may include `_diff` overlays in reducer/prompt payloads; overlays are best-effort only.
+- `sciona build` clears any `diff_overlay` entries on clean head before rebuilding artifacts.
 
 4) Common tasks (copy/paste templates)
 Orientation:
@@ -56,6 +58,7 @@ Code text (last resort):
 - Prefer a compressed SCIONA evidence summary over raw dumps.
 - After evidence, you may add a clearly labeled interpretation note.
 - If worktree is dirty, say outputs reflect the latest committed snapshot only.
+- If `_diff` is present, call it out explicitly as overlay data.
 
 7) If SCIONA cannot answer
 - State which command failed and why, then open files manually.
