@@ -1,6 +1,6 @@
 """Database helpers for SCIONA."""
 
-from . import schema
+from . import errors, read_ops, schema, write_ops
 
 
 def connect(db_path, *, repo_root=None):
@@ -9,4 +9,4 @@ def connect(db_path, *, repo_root=None):
     return connect_core(db_path, repo_root=repo_root)
 
 
-__all__ = ["connect", "schema"]
+__all__ = ["connect", "errors", "read_ops", "schema", "write_ops"]

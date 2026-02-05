@@ -13,6 +13,7 @@ from ..domain.repository import RepoState
 
 _LOGGER = get_logger("pipelines.exec.repo")
 from ...data_storage.connections import core
+from ...data_storage.core_db import read_ops as core_read
 from ...prompts.bootstrap import ensure_prompts_initialized
 from .. import setup as versioning
 from ..errors import ConfigError
@@ -56,22 +57,11 @@ def status_repo(repo_state: RepoState) -> StatusResult:
     latest_created: Optional[str] = None
     if db_exists:
         with core(db_path, repo_root=repo_state.repo_root) as conn:
-            row = conn.execute(
-                "SELECT COUNT(*) AS count FROM snapshots WHERE is_committed = 1"
-            ).fetchone()
-            snapshot_count = row["count"] if row and row["count"] is not None else 0
-            latest_row = conn.execute(
-                """
-                SELECT snapshot_id, created_at
-                FROM snapshots
-                WHERE is_committed = 1
-                ORDER BY created_at DESC
-                LIMIT 1
-                """
-            ).fetchone()
-            if latest_row:
-                latest_snapshot = latest_row["snapshot_id"]
-                latest_created = latest_row["created_at"]
+            snapshot_count = core_read.count_committed_snapshots(conn)
+            latest_meta = core_read.latest_committed_snapshot(conn)
+            if latest_meta:
+                latest_snapshot = latest_meta["snapshot_id"]
+                latest_created = latest_meta["created_at"]
     return StatusResult(
         repo_root=repo_state.repo_root,
         sciona_dir=repo_state.sciona_dir,

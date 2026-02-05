@@ -4,7 +4,7 @@ import pytest
 
 from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.data_storage.artifact_db.maintenance import rebuild_graph_index
-from sciona.data_storage.core_db import store as core_store
+from sciona.data_storage.core_db import errors as core_errors
 from sciona.data_storage.core_db.schema import ensure_schema
 from sciona.runtime.paths import get_artifact_db_path
 
@@ -28,7 +28,7 @@ def test_rebuild_graph_rejects_uncommitted_snapshot(tmp_path):
 
     artifact_conn = artifact_connect(get_artifact_db_path(repo_root), repo_root=repo_root)
     try:
-        with pytest.raises(core_store.UncommittedSnapshotError):
+        with pytest.raises(core_errors.UncommittedSnapshotError):
             rebuild_graph_index(artifact_conn, core_conn=core_conn, snapshot_id="snap_temp")
     finally:
         artifact_conn.close()

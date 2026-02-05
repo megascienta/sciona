@@ -4,7 +4,7 @@ from pathlib import Path
 
 from sciona.data_storage.core_db.schema import ensure_schema
 from sciona.code_analysis.core.engine import BuildEngine
-from sciona.data_storage.core_db import store as core_store
+from sciona.data_storage.core_db import write_ops as core_write
 from sciona.code_analysis.core.snapshot import create_snapshot
 from sciona.code_analysis.analysis.structural_hash import compute_structural_hash
 
@@ -44,7 +44,7 @@ def test_snapshot_structural_hash_is_deterministic(tmp_path):
     conn.row_factory = sqlite3.Row
     ensure_schema(conn)
 
-    engine = BuildEngine(repo_root, conn, core_store)
+    engine = BuildEngine(repo_root, conn, core_write)
 
     snap_a = create_snapshot(repo_root, source="scan")
     conn.execute("BEGIN")

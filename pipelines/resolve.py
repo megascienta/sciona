@@ -9,7 +9,7 @@ from .errors import WorkflowError
 from .policy import repo as repo_policy
 from .policy import prompt as prompt_policy
 from ..data_storage.connections import core
-from ..data_storage.core_db import store as core_store
+from ..data_storage.core_db import read_ops as core_read
 from ..runtime.paths import get_db_path
 
 
@@ -148,33 +148,7 @@ def _lookup_structural_id(
     identifier: str,
     node_types: Sequence[str],
 ) -> Optional[dict[str, str]]:
-    placeholders = ", ".join("?" for _ in node_types)
-    params: list[str] = [snapshot_id, *node_types, identifier]
-    row = conn.execute(
-        f"""
-        SELECT sn.structural_id,
-               sn.node_type,
-               sn.language,
-               ni.qualified_name,
-               ni.file_path
-        FROM structural_nodes sn
-        JOIN node_instances ni ON ni.structural_id = sn.structural_id
-        WHERE ni.snapshot_id = ?
-          AND sn.node_type IN ({placeholders})
-          AND sn.structural_id = ?
-        LIMIT 1
-        """,
-        tuple(params),
-    ).fetchone()
-    if not row:
-        return None
-    return {
-        "structural_id": row["structural_id"],
-        "node_type": row["node_type"],
-        "language": row["language"],
-        "qualified_name": row["qualified_name"],
-        "file_path": row["file_path"],
-    }
+    return core_read.lookup_structural_id(conn, snapshot_id, identifier, node_types)
 
 
 def _lookup_by_qualified_name(
@@ -186,7 +160,7 @@ def _lookup_by_qualified_name(
     matches: list[dict[str, str]] = []
     for node_type in node_types:
         matches.extend(
-            core_store.lookup_node_instances(
+            core_read.lookup_node_instances(
                 conn,
                 snapshot_id=snapshot_id,
                 node_type=node_type,
@@ -205,25 +179,13 @@ def _search_candidates(
     limit: int = 5,
 ) -> Iterable[ResolutionCandidate]:
     lowered = identifier.lower()
-    placeholders = ", ".join("?" for _ in node_types)
-    params: list[str] = [snapshot_id, *node_types, f"%{lowered}%", limit]
-    rows = conn.execute(
-        f"""
-        SELECT sn.structural_id,
-               sn.node_type,
-               sn.language,
-               ni.qualified_name,
-               ni.file_path
-        FROM node_instances ni
-        JOIN structural_nodes sn ON sn.structural_id = ni.structural_id
-        WHERE ni.snapshot_id = ?
-          AND sn.node_type IN ({placeholders})
-          AND LOWER(ni.qualified_name) LIKE ?
-        ORDER BY ni.qualified_name, sn.language, ni.file_path
-        LIMIT ?
-        """,
-        tuple(params),
-    ).fetchall()
+    rows = core_read.search_node_instances(
+        conn,
+        snapshot_id,
+        node_types,
+        identifier,
+        limit=limit,
+    )
     candidates: list[ResolutionCandidate] = []
     for row in rows:
         score = _score_identifier(lowered, str(row["qualified_name"]).lower())

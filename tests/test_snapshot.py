@@ -4,9 +4,9 @@ from pathlib import Path
 
 from sciona.runtime import constants as setup_config
 from sciona.data_storage.core_db.schema import ensure_schema
-from sciona.data_storage.core_db import store as core_store
+from sciona.data_storage.core_db import write_ops as core_write
 from sciona.code_analysis.core import snapshot
-from sciona.data_storage.core_db import store as snapshot_storage
+from sciona.data_storage.core_db import write_ops as snapshot_storage
 from tests.helpers import insert_snapshot
 
 
@@ -36,7 +36,7 @@ def test_create_snapshot_captures_git_metadata(tmp_path):
         snap,
         structural_hash=structural_hash,
         is_committed=True,
-        store=core_store,
+        store=core_write,
     )
     row = conn.execute(
         """

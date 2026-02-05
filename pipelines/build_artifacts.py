@@ -10,12 +10,10 @@ from ..code_analysis.artifacts.engine import ArtifactEngine
 from ..code_analysis.core.annotate import diff as annotate_diff
 from ..data_storage.connections import artifact
 from ..data_storage.transactions import transaction
-from ..data_storage.artifact_db import store as artifact_store
-from ..data_storage.core_db import store as core_store
-from ..data_storage.artifact_db.maintenance_graph import (
-    rebuild_graph_index,
-)
-from ..data_storage.artifact_db.store import NODE_STATUS_PRODUCER, rewrite_node_status
+from ..data_storage.artifact_db import read_status as artifact_read
+from ..data_storage.artifact_db import write_index as artifact_write
+from ..data_storage.core_db import read_ops as core_read
+from ..data_storage.artifact_db.maintenance_graph import rebuild_graph_index
 from ..runtime.paths import get_artifact_db_path
 from .progress import make_progress_factory
 
@@ -28,7 +26,7 @@ def build_artifacts_for_snapshot(
     snapshot_id: str,
     languages,
 ) -> tuple[Sequence[CallExtractionRecord], list[str]]:
-    core_store.validate_snapshot_for_read(conn, snapshot_id, require_committed=True)
+    core_read.validate_snapshot_for_read(conn, snapshot_id, require_committed=True)
     artifacts_engine = ArtifactEngine(
         workspace_root,
         conn,
@@ -60,15 +58,15 @@ def refresh_artifact_state(
     }
     artifact_path = get_artifact_db_path(repo_root)
     with artifact(artifact_path, repo_root=repo_root) as artifact_conn:
-        artifact_store.mark_rebuild_started(artifact_conn, snapshot_id=snapshot_id)
+        artifact_write.mark_rebuild_started(artifact_conn, snapshot_id=snapshot_id)
         artifact_conn.commit()
         try:
             with transaction(artifact_conn):
-                artifact_store.cleanup_removed_nodes(artifact_conn, current_node_ids)
-                rewrite_node_status(
+                artifact_write.cleanup_removed_nodes(artifact_conn, current_node_ids)
+                artifact_write.rewrite_node_status(
                     artifact_conn,
                     statuses=statuses,
-                    producer_id=NODE_STATUS_PRODUCER,
+                    producer_id=artifact_write.NODE_STATUS_PRODUCER,
                 )
                 artifact_derivation.write_call_artifacts(
                     artifact_conn=artifact_conn,
@@ -83,8 +81,8 @@ def refresh_artifact_state(
                     core_conn=conn,
                     snapshot_id=snapshot_id,
                 )
-            artifact_store.mark_rebuild_completed(artifact_conn, snapshot_id=snapshot_id)
-            if not artifact_store.rebuild_consistent_for_snapshot(
+            artifact_write.mark_rebuild_completed(artifact_conn, snapshot_id=snapshot_id)
+            if not artifact_read.rebuild_consistent_for_snapshot(
                 artifact_conn,
                 snapshot_id=snapshot_id,
             ):
@@ -93,23 +91,18 @@ def refresh_artifact_state(
                 )
             artifact_conn.commit()
         except Exception:
-            artifact_store.mark_rebuild_failed(artifact_conn, snapshot_id=snapshot_id)
+            artifact_write.mark_rebuild_failed(artifact_conn, snapshot_id=snapshot_id)
             artifact_conn.commit()
             raise
 
 
 def _snapshot_nodes_status(conn, snapshot_id: str) -> Tuple[List[Tuple[str, str]], Set[str]]:
-    rows = conn.execute(
-        "SELECT structural_id, content_hash FROM node_instances WHERE snapshot_id = ?",
-        (snapshot_id,),
-    ).fetchall()
+    current_hashes = core_read.snapshot_node_hashes(conn, snapshot_id)
     previous_snapshot_id = annotate_diff.previous_snapshot_id(conn, snapshot_id)
     previous_hashes = previous_node_hashes(conn, previous_snapshot_id)
     statuses: List[Tuple[str, str]] = []
     current_ids: Set[str] = set()
-    for row in rows:
-        structural_id = row["structural_id"]
-        content_hash = row["content_hash"]
+    for structural_id, content_hash in current_hashes.items():
         current_ids.add(structural_id)
         statuses.append((structural_id, classify_status(content_hash, previous_hashes.get(structural_id))))
     return statuses, current_ids
@@ -118,11 +111,7 @@ def _snapshot_nodes_status(conn, snapshot_id: str) -> Tuple[List[Tuple[str, str]
 def previous_node_hashes(conn, snapshot_id: str | None) -> Dict[str, str]:
     if not snapshot_id:
         return {}
-    rows = conn.execute(
-        "SELECT structural_id, content_hash FROM node_instances WHERE snapshot_id = ?",
-        (snapshot_id,),
-    ).fetchall()
-    return {row["structural_id"]: row["content_hash"] for row in rows}
+    return core_read.snapshot_node_hashes(conn, snapshot_id)
 
 
 def classify_status(current_hash: str, previous_hash: str | None) -> str:

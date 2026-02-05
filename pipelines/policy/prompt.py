@@ -6,7 +6,7 @@ from typing import Optional
 
 from ..errors import WorkflowError
 from ..policy import repo as repo_policy
-from ...data_storage.core_db import store as core_store
+from ...data_storage.core_db import read_ops as core_read
 
 
 def ensure_prompt_preconditions(repo_root: Optional[Path] = None) -> Path:
@@ -16,7 +16,7 @@ def ensure_prompt_preconditions(repo_root: Optional[Path] = None) -> Path:
 
 
 def resolve_latest_snapshot(conn) -> str:
-    committed_ids = core_store.list_committed_snapshots(conn)
+    committed_ids = core_read.list_committed_snapshots(conn)
     if not committed_ids:
         raise WorkflowError(
             "No committed snapshots available. Run 'sciona build' first.",

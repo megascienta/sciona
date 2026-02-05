@@ -14,7 +14,8 @@ from ..domain.policies import BuildPolicy
 from ..domain.repository import RepoState
 from ..domain.snapshots import SnapshotDecision, SnapshotLifecycle
 from ...data_storage.connections import core
-from ...data_storage.core_db import store as core_store
+from ...data_storage.core_db import read_ops as core_read
+from ...data_storage.core_db import write_ops as core_write
 from ..build_artifacts import build_artifacts_for_snapshot
 from ..progress import make_progress_factory
 
@@ -50,14 +51,14 @@ def build_repo(
     with core(repo_state.db_path, repo_root=repo_state.repo_root) as conn:
         try:
             conn.execute("BEGIN IMMEDIATE")
-            core_store.purge_uncommitted_snapshots(conn)
-            baseline_meta = core_store.latest_committed_snapshot(conn)
+            core_write.purge_uncommitted_snapshots(conn)
+            baseline_meta = core_read.latest_committed_snapshot(conn)
 
             snapshot = snapshot_ingest.create_snapshot(workspace, source=source)
             engine = BuildEngine(
                 workspace,
                 conn,
-                core_store,
+                core_write,
                 languages=languages,
                 config_root=repo_state.repo_root,
                 progress_factory=make_progress_factory(),
@@ -74,7 +75,7 @@ def build_repo(
                 baseline_meta=baseline_meta,
             )
             if decision.lifecycle == SnapshotLifecycle.REUSED and baseline_meta:
-                if not core_store.snapshot_exists(conn, baseline_meta["snapshot_id"]):
+                if not core_read.snapshot_exists(conn, baseline_meta["snapshot_id"]):
                     decision = SnapshotDecision(
                         lifecycle=SnapshotLifecycle.COMMITTED,
                         snapshot_id=snapshot.snapshot_id,
@@ -85,9 +86,9 @@ def build_repo(
             committed_snapshot_id = snapshot.snapshot_id
             status = SnapshotLifecycle.COMMITTED.value
             if decision.lifecycle == SnapshotLifecycle.REUSED and baseline_meta:
-                core_store.delete_snapshot_tree(conn, snapshot.snapshot_id)
-                core_store.delete_committed_snapshots_except(conn, baseline_meta["snapshot_id"])
-                core_store.prune_orphan_structural_nodes(conn)
+                core_write.delete_snapshot_tree(conn, snapshot.snapshot_id)
+                core_write.delete_committed_snapshots_except(conn, baseline_meta["snapshot_id"])
+                core_write.prune_orphan_structural_nodes(conn)
                 committed_snapshot_id = baseline_meta["snapshot_id"]
                 status = decision.lifecycle.value
             else:
@@ -96,10 +97,10 @@ def build_repo(
                     snapshot,
                     structural_hash,
                     is_committed=True,
-                    store=core_store,
+                    store=core_write,
                 )
-                core_store.delete_committed_snapshots_except(conn, snapshot.snapshot_id)
-                core_store.prune_orphan_structural_nodes(conn)
+                core_write.delete_committed_snapshots_except(conn, snapshot.snapshot_id)
+                core_write.prune_orphan_structural_nodes(conn)
             conn.commit()
             call_artifacts: Sequence[CallExtractionRecord] = []
             artifact_warnings: Sequence[str] = []

@@ -7,7 +7,7 @@ from typing import Optional
 from .errors import WorkflowError
 from .policy import repo as repo_policy
 from ..data_storage.connections import core
-from ..data_storage.core_db import store as core_store
+from ..data_storage.core_db import read_ops as core_read
 from ..runtime.paths import get_db_path
 
 
@@ -21,7 +21,7 @@ def latest_committed_snapshot_id(repo_root: Optional[Path] = None) -> str:
             code="missing_snapshot",
         )
     with core(db_path, repo_root=repo_state.repo_root) as conn:
-        snapshot_id = core_store.latest_committed_snapshot_id(conn)
+        snapshot_id = core_read.latest_committed_snapshot_id(conn)
     if not snapshot_id:
         raise WorkflowError(
             "No committed snapshots available. Run 'sciona build' first.",

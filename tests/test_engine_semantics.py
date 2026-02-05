@@ -4,7 +4,7 @@ from pathlib import Path
 from sciona.data_storage.core_db.schema import ensure_schema
 from sciona.code_analysis.core.extract.analyzer import ASTAnalyzer
 from sciona.code_analysis.core.engine import BuildEngine
-from sciona.data_storage.core_db import store as core_store
+from sciona.data_storage.core_db import write_ops as core_write
 from sciona.runtime import config as core_config
 from sciona.code_analysis.core.extract import registry
 from sciona.code_analysis.core.snapshot import Snapshot
@@ -62,7 +62,7 @@ def test_engine_records_nodes_for_failed_parse(tmp_path, monkeypatch):
     )
 
     discovery = core_config.DiscoverySettings(exclude_globs=[])
-    engine = BuildEngine(repo_root, conn, core_store, languages=languages, discovery=discovery)
+    engine = BuildEngine(repo_root, conn, core_write, languages=languages, discovery=discovery)
     conn.execute("BEGIN")
     engine.run(
         snapshot=Snapshot(
@@ -124,7 +124,7 @@ def test_engine_warns_on_empty_language_matches(tmp_path, monkeypatch):
         lambda _root, _path: "hash",
     )
 
-    engine = BuildEngine(repo_root, conn, core_store, languages=languages, discovery=discovery)
+    engine = BuildEngine(repo_root, conn, core_write, languages=languages, discovery=discovery)
     conn.execute("BEGIN")
     engine.run(
         snapshot=Snapshot(

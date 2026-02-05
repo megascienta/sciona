@@ -4,7 +4,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Dict, List
 
-from ...data_storage.artifact_db import store as artifact_store
+from ...data_storage.artifact_db import read_status as artifact_read
+from ...data_storage.core_db import read_ops as core_read
 from .context import current_artifact_connection, fallback_artifact_connection
 from .utils import require_latest_committed_snapshot
 
@@ -14,11 +15,7 @@ def build_node_status_payload(snapshot_id: str, *, conn, repo_root: Path) -> Dic
         raise ValueError("node_status payload requires an active database connection.")
     if not repo_root:
         raise ValueError("node_status payload requires repo_root.")
-    row = conn.execute(
-        "SELECT is_committed FROM snapshots WHERE snapshot_id = ?",
-        (snapshot_id,),
-    ).fetchone()
-    if not row or not row["is_committed"]:
+    if not core_read.snapshot_is_committed(conn, snapshot_id):
         raise ValueError("node_status payload requires a committed snapshot.")
     require_latest_committed_snapshot(conn, snapshot_id, reducer_name="node_status payload")
     artifact_conn = current_artifact_connection()
@@ -29,35 +26,22 @@ def build_node_status_payload(snapshot_id: str, *, conn, repo_root: Path) -> Dic
     if artifact_conn is None:
         raise ValueError("node_status payload requires the artifact database.")
     try:
-        statuses = artifact_store.get_node_status(artifact_conn)
+        statuses = artifact_read.get_node_status(artifact_conn)
     finally:
         if owns_connection:
             artifact_conn.close()
 
-    rows = conn.execute(
-        """
-        SELECT sn.structural_id,
-               sn.node_type,
-               ni.qualified_name
-        FROM structural_nodes sn
-        JOIN node_instances ni ON ni.structural_id = sn.structural_id
-        WHERE ni.snapshot_id = ?
-        ORDER BY sn.node_type, ni.qualified_name
-        """,
-        (snapshot_id,),
-    ).fetchall()
+    rows = core_read.list_nodes_with_names(conn, snapshot_id)
     entries: List[Dict[str, object]] = []
     by_status: Dict[str, int] = {}
     by_type: Dict[str, int] = {}
-    for row in rows:
-        node_id = row["structural_id"]
-        node_type = row["node_type"]
+    for node_id, node_type, qualified_name in rows:
         status = statuses.get(node_id, "unknown")
         entries.append(
             {
                 "node_id": node_id,
                 "node_type": node_type,
-                "qualified_name": row["qualified_name"],
+                "qualified_name": qualified_name,
                 "status": status,
             }
         )

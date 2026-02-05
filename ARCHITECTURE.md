@@ -64,6 +64,17 @@ Artifacts are rebuilt for the **latest committed snapshot** and are not part of 
 - Artifact maintenance helpers live under `data_storage/artifact_db/`
 - No policy decisions or orchestration
 
+#### data_storage API map (read/write split)
+
+- CoreDB
+  - `data_storage/core_db/read_ops.py`: snapshot lookup/validation, node/edge queries, structural-hash inputs
+  - `data_storage/core_db/write_ops.py`: inserts/upserts, snapshot lifecycle cleanup, pruning
+  - `data_storage/core_db/errors.py`: snapshot validation errors
+- ArtifactDB
+  - `data_storage/artifact_db/read_status.py`: node status and rebuild-status reads
+  - `data_storage/artifact_db/write_index.py`: node status + node call writes, rebuild-status writes
+  - `data_storage/artifact_db/write_graph.py`: graph index writes
+
 ### code_analysis
 - File discovery and parsing
 - Node/edge extraction and normalization

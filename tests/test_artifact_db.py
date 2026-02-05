@@ -1,7 +1,8 @@
 from pathlib import Path
 
 from sciona.data_storage.artifact_db import connect as artifact_connect
-from sciona.data_storage.artifact_db import store as artifact_store
+from sciona.data_storage.artifact_db import read_status as artifact_read
+from sciona.data_storage.artifact_db import write_index as artifact_write
 from sciona.data_storage.transactions import transaction
 from sciona.runtime.paths import get_artifact_db_path
 
@@ -19,17 +20,17 @@ def test_node_status_rewrite_and_update(tmp_path: Path):
     conn, _ = _artifact_db_conn(tmp_path)
     try:
         with transaction(conn):
-            artifact_store.rewrite_node_status(
+            artifact_write.rewrite_node_status(
                 conn,
                 statuses=[("alpha", "added"), ("beta", "modified")],
-                producer_id=artifact_store.NODE_STATUS_PRODUCER,
+                producer_id=artifact_write.NODE_STATUS_PRODUCER,
             )
-        statuses = artifact_store.get_node_status(conn)
+        statuses = artifact_read.get_node_status(conn)
         assert statuses == {"alpha": "added", "beta": "modified"}
 
         with transaction(conn):
-            artifact_store.set_node_status(conn, "beta", "valid")
-        assert artifact_store.get_node_status(conn)["beta"] == "valid"
+            artifact_write.set_node_status(conn, "beta", "valid")
+        assert artifact_read.get_node_status(conn)["beta"] == "valid"
     finally:
         conn.close()
 
@@ -38,7 +39,7 @@ def test_node_calls_and_cleanup(tmp_path: Path):
     conn, _ = _artifact_db_conn(tmp_path)
     try:
         with transaction(conn):
-            artifact_store.upsert_node_calls(
+            artifact_write.upsert_node_calls(
                 conn,
                 caller_id="node-alpha",
                 callee_ids=["node-beta", "node-gamma"],
@@ -54,7 +55,7 @@ def test_node_calls_and_cleanup(tmp_path: Path):
         ]
 
         with transaction(conn):
-            artifact_store.cleanup_removed_nodes(conn, {"node-alpha", "node-beta"})
+            artifact_write.cleanup_removed_nodes(conn, {"node-alpha", "node-beta"})
         remaining = conn.execute(
             "SELECT caller_id, callee_id FROM node_calls ORDER BY callee_id"
         ).fetchall()
