@@ -37,6 +37,11 @@ def rebuild_graph_rollups(
         for row in node_rows
         if row["node_type"] == "module" and row["qualified_name"]
     }
+    module_id_by_name = {
+        row["qualified_name"]: row["structural_id"]
+        for row in node_rows
+        if row["node_type"] == "module" and row["qualified_name"]
+    }
     module_lookup: dict[str, str] = {}
     node_kind_lookup: dict[str, str] = {}
     for row in node_rows:
@@ -44,7 +49,10 @@ def rebuild_graph_rollups(
         qualified_name = row["qualified_name"]
         node_kind_lookup[structural_id] = row["node_type"]
         if qualified_name:
-            module_lookup[structural_id] = module_id_for(qualified_name, module_names)
+            module_name = module_id_for(qualified_name, module_names)
+            module_structural_id = module_id_by_name.get(module_name)
+            if module_structural_id:
+                module_lookup[structural_id] = module_structural_id
     method_edges = core_conn.execute(
         """
         SELECT src_structural_id, dst_structural_id
