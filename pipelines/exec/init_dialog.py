@@ -8,6 +8,7 @@ from typing import Sequence
 import yaml
 
 from ...code_analysis import config as analysis_config
+from ...code_analysis.tools.discovery import detect_languages_from_tracked_paths
 from ...runtime import git as git_ops
 from ...runtime.paths import get_config_path
 
@@ -19,15 +20,11 @@ class InitDialogDefaults:
 
 def detect_languages(repo_root: Path) -> InitDialogDefaults:
     tracked = git_ops.tracked_paths(repo_root)
-    detected: set[str] = set()
-    for path_str in tracked:
-        suffix = Path(path_str).suffix.lower()
-        if not suffix:
-            continue
-        for language, cfg in analysis_config.LANGUAGE_CONFIG.items():
-            if suffix in cfg.extensions:
-                detected.add(language)
-    return InitDialogDefaults(detected_languages=sorted(detected))
+    detected = detect_languages_from_tracked_paths(
+        tracked,
+        tuple(analysis_config.LANGUAGE_CONFIG.keys()),
+    )
+    return InitDialogDefaults(detected_languages=detected)
 
 
 def apply_language_selection(repo_root: Path, selected: Sequence[str]) -> None:

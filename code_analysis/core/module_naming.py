@@ -57,12 +57,3 @@ def _apply_repo_prefix(clean: str, repo_prefix: str) -> str:
     if clean == repo_prefix or clean.startswith(f"{repo_prefix}."):
         return clean
     return f"{repo_prefix}.{clean}" if clean else repo_prefix
-
-
-def _apply_package_prefix(clean: str, package_prefix: str, repo_prefix: str) -> str:
-    if clean == package_prefix or clean.startswith(f"{package_prefix}."):
-        clean = clean[len(package_prefix) :].lstrip(".")
-    prefix = package_prefix
-    if repo_prefix and prefix != repo_prefix and not prefix.startswith(f"{repo_prefix}."):
-        prefix = f"{repo_prefix}.{prefix}"
-    return f"{prefix}.{clean}" if clean else prefix

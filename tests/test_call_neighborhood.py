@@ -1,9 +1,9 @@
 import sqlite3
 from pathlib import Path
 
+from sciona.code_analysis.artifacts import write_call_artifacts
 from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.code_analysis.tools.call_extraction import CallExtractionRecord
-from sciona.pipelines.domain.artifacts import write_call_artifacts
 from sciona.runtime.paths import get_artifact_db_path
 
 from .helpers import seed_repo_with_snapshot

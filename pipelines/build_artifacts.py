@@ -4,6 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Dict, List, Sequence, Set, Tuple
 
+from ..code_analysis import artifacts as artifact_derivation
 from ..code_analysis.tools.call_extraction import CallExtractionRecord
 from ..code_analysis.artifacts.engine import ArtifactEngine
 from ..code_analysis.core.annotate import diff as annotate_diff
@@ -16,7 +17,6 @@ from ..data_storage.artifact_db.maintenance_graph import (
 )
 from ..data_storage.artifact_db.store import NODE_STATUS_PRODUCER, rewrite_node_status
 from ..runtime.paths import get_artifact_db_path
-from .domain import artifacts as artifact_domain
 from .progress import make_progress_factory
 
 
@@ -70,7 +70,7 @@ def refresh_artifact_state(
                     statuses=statuses,
                     producer_id=NODE_STATUS_PRODUCER,
                 )
-                artifact_domain.write_call_artifacts(
+                artifact_derivation.write_call_artifacts(
                     artifact_conn=artifact_conn,
                     core_conn=conn,
                     snapshot_id=snapshot_id,
@@ -78,7 +78,7 @@ def refresh_artifact_state(
                     eligible_callers=eligible_callers,
                 )
                 rebuild_graph_index(artifact_conn, core_conn=conn, snapshot_id=snapshot_id)
-                artifact_domain.rebuild_graph_rollups(
+                artifact_derivation.rebuild_graph_rollups(
                     artifact_conn,
                     core_conn=conn,
                     snapshot_id=snapshot_id,

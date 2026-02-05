@@ -46,9 +46,6 @@ class FileSnapshot(FileMetadata):
     def content(self, value: Optional[bytes]) -> None:
         self._content = value
 
-    def unload_content(self) -> None:
-        self._content = None
-
 
 @dataclass
 class SemanticNodeRecord:
@@ -87,15 +84,6 @@ class SemanticNodeRecord:
                     f"end_byte ({self.end_byte}) must be >= start_byte ({self.start_byte})"
                 )
 
-    @property
-    def line_span(self) -> int:
-        return self.end_line - self.start_line + 1
-
-    @property
-    def byte_span(self) -> Optional[int]:
-        if self.start_byte is not None and self.end_byte is not None:
-            return self.end_byte - self.start_byte
-        return None
 
 
 @dataclass
@@ -119,7 +107,6 @@ class EdgeRecord:
     confidence: float = 1.0
 
 
-@dataclass
 @dataclass
 class AnalysisResult:
     nodes: List[SemanticNodeRecord] = field(default_factory=list)

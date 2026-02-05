@@ -25,12 +25,12 @@ Applies to core, reducers, prompts, addons, and CLI.
 SCIONA exposes a **stable public API** via `sciona.api` (and re-exports in
 `sciona.__init__`) with two namespaces:
 - `sciona.api.user` for user-facing library operations
-- `sciona.api.plugins` for addon/plugin operations
+- `sciona.api.addons` for addon/plugin operations
 
 Only symbols exported from these namespaces are considered stable and supported.
 All other modules and symbols are **internal** and may change without notice.
 
-See `sciona.api.user.__all__` and `sciona.api.plugins.__all__` for the canonical list.
+See `sciona.api.user.__all__` and `sciona.api.addons.__all__` for the canonical list.
 
 ---
 
@@ -249,8 +249,8 @@ configured LLM; no artifact is persisted.
 - Addons are discovered from Python entry points in group `sciona.addons`.
 - Addons may only register CLI commands through `runtime/addon_api.Registry.register_cli`.
 - Core auto-attaches installed addon CLI commands to the `sciona` CLI.
-- Addons may call reducer emission and prompt compiler services through `sciona.api.plugins`.
-- `sciona.api.plugins` exports plugin API version constants (`PLUGIN_API_VERSION`,
+- Addons may call reducer emission and prompt compiler services through `sciona.api.addons`.
+- `sciona.api.addons` exports plugin API version constants (`PLUGIN_API_VERSION`,
   `PLUGIN_API_MAJOR`, `PLUGIN_API_MINOR`).
 - Addons may declare `REQUIRES_SCIONA_PLUGIN_API` (e.g., `">=1,<2"`); incompatible
   addons are skipped during load.

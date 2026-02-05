@@ -1,12 +1,12 @@
-"""Artifact-domain derivation logic used by build orchestration."""
+"""Artifact graph/rollup derivation logic from code-analysis outputs."""
 from __future__ import annotations
 
 from collections import Counter, defaultdict
 from typing import Iterable, Sequence
 
-from ...code_analysis.analysis.graph import module_id_for
-from ...code_analysis.config import CALLABLE_NODE_TYPES
-from ...code_analysis.tools.call_extraction import CallExtractionRecord
+from ..analysis.graph import module_id_for
+from ..config import CALLABLE_NODE_TYPES
+from ..tools.call_extraction import CallExtractionRecord
 from ...data_storage.artifact_db import store as artifact_store
 from ...data_storage.artifact_db import store_rollups as artifact_rollups
 from ...data_storage.core_db import store as core_store
@@ -182,8 +182,7 @@ def _build_symbol_index(core_conn, snapshot_id: str) -> dict[str, list[str]]:
         (snapshot_id, *callable_types),
     ).fetchall()
     index: dict[str, list[str]] = defaultdict(list)
-    for structural_id, node_type, qualified_name in rows:
-        del node_type
+    for structural_id, _node_type, qualified_name in rows:
         identifier = _simple_identifier(qualified_name)
         if not identifier:
             continue
@@ -244,7 +243,4 @@ def _simple_identifier(qualified_name: str) -> str | None:
     return parts[-1] if parts else qualified_name
 
 
-__all__ = [
-    "rebuild_graph_rollups",
-    "write_call_artifacts",
-]
+__all__ = ["rebuild_graph_rollups", "write_call_artifacts"]

@@ -49,3 +49,22 @@ def compute_discovery_details(
             excluded_by_glob[pattern] = count
     excluded_total = len(excluded_set)
     return candidate_counts, discovered_counts, excluded_by_glob, excluded_total
+
+
+def detect_languages_from_tracked_paths(
+    tracked_paths: Iterable[str],
+    available_languages: Sequence[str],
+) -> list[str]:
+    """Infer languages present in tracked paths based on known extensions."""
+    detected: set[str] = set()
+    for path_str in tracked_paths:
+        rel_path = Path(path_str)
+        if rel_path.parts and rel_path.parts[0] in {".git", ".sciona"}:
+            continue
+        extension = rel_path.suffix.lower()
+        if not extension:
+            continue
+        language = registry.language_for_extension(extension, available_languages)
+        if language:
+            detected.add(language)
+    return sorted(detected)
