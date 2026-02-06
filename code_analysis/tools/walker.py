@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import List, Optional, Set
+from typing import List, Mapping, Optional, Set
 
 import pathspec
 
@@ -14,7 +14,7 @@ from ..core.extract import registry
 
 def collect_files(
     repo_root: Path,
-    languages: Dict[str, core_config.LanguageSettings],
+    languages: Mapping[str, core_config.LanguageSettings],
     *,
     discovery: Optional[core_config.DiscoverySettings] = None,
     tracked_paths: Optional[Set[str]] = None,
@@ -25,7 +25,7 @@ def collect_files(
         name for name, settings in languages.items() if settings.enabled
     ]
     if not enabled_languages:
-        return []
+        raise ValueError("No enabled languages for discovery.")
     exclude_globs = discovery.exclude_globs if discovery else []
     exclude_spec = (
         pathspec.PathSpec.from_lines("gitwildmatch", exclude_globs)
@@ -35,9 +35,10 @@ def collect_files(
     records: List[FileRecord] = []
     for path_str in sorted(tracked_paths):
         rel_path = Path(path_str)
+        posix_path = rel_path.as_posix()
         if _is_explicitly_excluded(rel_path):
             continue
-        if exclude_spec and exclude_spec.match_file(rel_path.as_posix()):
+        if exclude_spec and exclude_spec.match_file(posix_path):
             continue
         extension = rel_path.suffix.lower()
         if not extension:

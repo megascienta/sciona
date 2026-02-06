@@ -45,6 +45,11 @@ class ArtifactEngine:
         tracked = git_ops.tracked_paths(self.workspace_root)
         if self.discovery is None:
             self.discovery = runtime_config.load_discovery_settings(self.config_root)
+        enabled_languages = [
+            name for name, settings in self.languages.items() if settings.enabled
+        ]
+        if not enabled_languages:
+            return []
         records = walker.collect_files(
             self.workspace_root,
             self.languages,

@@ -67,15 +67,17 @@ class BuildEngine:
                     self.config_root
                 )
             self.exclude_globs = list(self.discovery.exclude_globs)
+            enabled_languages = [
+                name for name, settings in self.languages.items() if settings.enabled
+            ]
+            if not enabled_languages:
+                raise IngestionError("No enabled languages for discovery.")
             records = walker.collect_files(
                 self.workspace_root,
                 self.languages,
                 discovery=self.discovery,
                 tracked_paths=tracked,
             )
-            enabled_languages = [
-                name for name, settings in self.languages.items() if settings.enabled
-            ]
             candidate_counts, discovered_counts, excluded_by_glob, excluded_total = (
                 compute_discovery_details(
                     tracked,
