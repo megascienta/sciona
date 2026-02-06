@@ -3,14 +3,15 @@
 
 from pathlib import Path
 
-from sciona.runtime.templates import agents
+from sciona.runtime import agents_setup as agents
 from sciona.reducers.registry import get_reducers
 
 
-def test_agents_block_has_markers():
-    block = agents.build_agents_block(get_reducers())
+def test_agents_block_has_markers(tmp_path: Path):
+    block = agents.build_agents_block(tmp_path, get_reducers())
     assert agents.BEGIN_MARKER in block
     assert agents.END_MARKER in block
+    assert "Tracked File Scope" in block
     assert "Common tasks" in block
     assert "Reducer discovery" in block
 

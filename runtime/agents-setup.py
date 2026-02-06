@@ -10,24 +10,35 @@ from typing import Iterable
 
 import inspect
 
+from .config import io as config_io
+from .config import defaults as config_defaults
+from .errors import ConfigError
+
 
 BEGIN_MARKER = "<!-- sciona:begin -->"
 END_MARKER = "<!-- sciona:end -->"
 AGENTS_FILENAME = "AGENTS.md"
-TEMPLATE_FILENAME = "agents_template.md"
+TEMPLATE_PATH = Path(__file__).parent / "templates" / "agents_template.md"
+
+_LANGUAGE_EXTENSIONS = {
+    "python": [".py"],
+    "typescript": [".ts", ".tsx"],
+    "java": [".java"],
+}
 
 
-def build_agents_block(reducers) -> str:
+def build_agents_block(repo_root: Path, reducers) -> str:
     template = _load_template()
     content = template.format(
         COMMON_TASKS=_render_common_tasks(reducers),
+        TRACKED_FILE_SCOPE=_render_tracked_file_scope(repo_root),
     )
     return "\n".join([BEGIN_MARKER, content.strip(), END_MARKER]).rstrip() + "\n"
 
 
 def upsert_agents_file(repo_root: Path, *, mode: str = "append", reducers) -> Path:
     target = Path(repo_root) / AGENTS_FILENAME
-    block = build_agents_block(reducers)
+    block = build_agents_block(repo_root, reducers)
     if mode not in {"append", "overwrite"}:
         raise ValueError("mode must be 'append' or 'overwrite'.")
     if mode == "overwrite" or not target.exists():
@@ -90,8 +101,50 @@ def _remove_block(text: str) -> str:
 
 
 def _load_template() -> str:
-    path = Path(__file__).parent / TEMPLATE_FILENAME
-    return path.read_text(encoding="utf-8")
+    return TEMPLATE_PATH.read_text(encoding="utf-8")
+
+
+def _render_tracked_file_scope(repo_root: Path) -> str:
+    try:
+        raw = config_io.load_raw_config(repo_root)
+    except ConfigError:
+        return "\n".join(
+            [
+                "- Enabled languages: unknown (missing .sciona/config.yaml)",
+                "- Tracked file types: unknown",
+                "- Discovery excludes: unknown",
+            ]
+        )
+
+    lang_block = raw.get("languages", {}) if isinstance(raw, dict) else {}
+    enabled = []
+    for name, defaults in config_defaults.LANGUAGE_DEFAULTS.items():
+        user_cfg = lang_block.get(name, {}) if isinstance(lang_block, dict) else {}
+        if bool(user_cfg.get("enabled", defaults["enabled"])):
+            enabled.append(name)
+    enabled = sorted(enabled)
+
+    extensions = []
+    for name in enabled:
+        extensions.extend(_LANGUAGE_EXTENSIONS.get(name, []))
+    extensions = sorted(set(extensions))
+
+    discovery_block = raw.get("discovery", {}) if isinstance(raw, dict) else {}
+    exclude_globs = discovery_block.get("exclude_globs", [])
+    if not isinstance(exclude_globs, list):
+        exclude_globs = []
+    cleaned = [str(entry) for entry in exclude_globs if entry]
+
+    enabled_text = ", ".join(enabled) if enabled else "none"
+    extensions_text = ", ".join(extensions) if extensions else "none"
+    excludes_text = ", ".join(cleaned) if cleaned else "none"
+    return "\n".join(
+        [
+            f"- Enabled languages: {enabled_text}",
+            f"- Tracked file types: {extensions_text}",
+            f"- Discovery excludes: {excludes_text}",
+        ]
+    )
 
 
 def _render_common_tasks(reducers) -> str:

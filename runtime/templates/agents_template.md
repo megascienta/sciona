@@ -5,6 +5,9 @@ Goal: always use SCIONA CLI first when installed, before manual inspection or ad
 Intent: SCIONA-first discipline anchors LLM reasoning to structural truth, reduces
 hallucinations, and keeps answers deterministic and scoped.
 
+Tracked File Scope (from .sciona/config)
+{TRACKED_FILE_SCOPE}
+
 Mandatory rules (non-optional):
 - Use SCIONA first for any structural question if installed and available.
 - Do not open files or use ripgrep before SCIONA unless SCIONA fails.
