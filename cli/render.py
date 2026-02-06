@@ -15,6 +15,15 @@ def render_init(payload: dict) -> list[str]:
                 "  - Ensure '.sciona/' is not committed to version control",
             ]
         )
+    else:
+        config_path = payload.get("config_path")
+        lines.extend(
+            [
+                "Warning:",
+                f"  Edit config: {config_path}",
+                "  Enable languages, then run: sciona build",
+            ]
+        )
     lines.extend(
         [
             "Next steps:",

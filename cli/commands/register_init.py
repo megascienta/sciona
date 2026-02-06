@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+from pathlib import Path
 
 import typer
 
@@ -36,6 +37,16 @@ def register_init(app: typer.Typer) -> None:
             "--agents-overwrite",
             help="Overwrite AGENTS.md with the managed SCIONA block (no-interactive only).",
         ),
+        post_commit_hook: bool = typer.Option(
+            False,
+            "--post-commit-hook",
+            help="Install a post-commit hook that runs sciona build.",
+        ),
+        post_commit_hook_command: str | None = typer.Option(
+            None,
+            "--post-commit-hook-command",
+            help="Command for the post-commit hook (default: sciona build).",
+        ),
     ) -> None:
         """Initialize SCIONA state for the current repository."""
         try:
@@ -46,6 +57,7 @@ def register_init(app: typer.Typer) -> None:
         payload = {
             "sciona_dir": sciona_dir,
             "iterative": bool(not no_interactive and sys.stdin.isatty()),
+            "config_path": sciona_dir / "config.yaml",
         }
         cli_render.emit(cli_render.render_init(payload))
         _maybe_init_dialog(sciona_dir, no_interactive=no_interactive)
@@ -54,6 +66,12 @@ def register_init(app: typer.Typer) -> None:
             agents=agents,
             agents_append=agents_append,
             agents_overwrite=agents_overwrite,
+        )
+        _maybe_init_hook(
+            sciona_dir,
+            no_interactive=no_interactive,
+            install=post_commit_hook,
+            command=post_commit_hook_command,
         )
 
 
@@ -157,6 +175,29 @@ def _maybe_init_agents(
         mode = "overwrite" if agents_overwrite else "append"
         path = cli_call(api_repo.init_agents, api_runtime.get_repo_root(), mode=mode)
         typer.echo(f"Updated {path}")
+
+
+def _maybe_init_hook(
+    sciona_dir: Path,
+    *,
+    no_interactive: bool,
+    install: bool,
+    command: str | None,
+) -> None:
+    repo_root = sciona_dir.parent
+    cmd = command or "sciona build"
+    if no_interactive:
+        if install:
+            cli_call(api_repo.install_commit_hook, cmd, repo_root)
+        return
+    if not sys.stdin.isatty():
+        return
+    if not typer.confirm(
+        "Install a post-commit hook to run sciona build?", default=False
+    ):
+        return
+    cmd_input = typer.prompt("Hook command", default=cmd, show_default=True)
+    cli_call(api_repo.install_commit_hook, cmd_input.strip() or cmd, repo_root)
 
 
 __all__ = ["register_init"]
