@@ -5,6 +5,19 @@ On working with this codebase always use `conda` multiphysics env
 
 Goal: always use SCIONA CLI first when installed, before manual inspection or ad-hoc scripts.
 
+Mandatory rules (non-optional):
+- Use SCIONA first for any structural question if installed and available.
+- Do not open files or use ripgrep before SCIONA unless SCIONA fails.
+- Ask once per thread for invocation; never ask again; always reuse the chosen invocation.
+- If worktree is dirty and `_diff` exists, treat `_diff` as primary evidence.
+- Always include a compressed SCIONA evidence summary before conclusions.
+
+Compliance checklist (must include in responses when reasoning about code):
+- SCIONA used: <command>
+- Dirty worktree: yes/no
+- _diff used: yes/no (if no, state why)
+- Snapshot warning stated: yes/no
+
 1) Invocation (confirm once per thread)
 - Ask which command to use: `sciona …` or `conda run -n <env> sciona …` (only the first time in a thread).
 - After the first answer, reuse that invocation without asking again.
