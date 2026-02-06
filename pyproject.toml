@@ -32,7 +32,6 @@ sciona = [
     "prompts/templates/*.md",
     "prompts/templates/registry.yaml",
     "pipelines/templates/*.md",
-    "runtime/agents-setup.py",
 ]
 
 [tool.pytest.ini_options]
