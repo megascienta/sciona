@@ -7,6 +7,19 @@ It records structural facts (nodes + edges) per snapshot and stores state under
 `.sciona/` in the target repo. The goal is to anchor reasoning to structural
 truth and keep analysis reproducible.
 
+## Non-goals (short)
+
+- SCIONA does not execute code.
+- SCIONA is not a runtime or semantic analyzer.
+- SCIONA is not tied to any LLM or provider.
+
+## What you get
+
+Concrete outputs you can query:
+- `module_overview` shows classes/functions and file span for a module.
+- `call_graph` summarizes call edges for a callable.
+- `importers_index` shows which modules import a target module.
+
 ## Docs (Audience + Purpose)
 
 - `README.md` — simple user guide (install, run, common commands).
@@ -18,7 +31,7 @@ truth and keep analysis reproducible.
 
 ## Install
 
-SCIONA requires Python 3.11 and Tree-sitter runtimes.
+Pre-release: install from source.
 
 ```bash
 pip install -e . --no-build-isolation
@@ -38,12 +51,14 @@ sciona build
 sciona status
 ```
 
-Key rules:
+Safety + determinism:
 - Build requires a clean worktree for tracked language files in scope.
 - Untracked files do not block builds.
 - Read-only commands may proceed on a dirty worktree but warn that outputs reflect
   the latest committed snapshot.
 - Dirty worktrees may include a best-effort `_diff` overlay in reducer/prompt payloads.
+
+See `USERGUIDE.md` for full expectations and limitations.
 
 ---
 
@@ -126,7 +141,9 @@ sciona init --post-commit-hook-command "sciona build"
 
 ---
 
-## Prompt configuration
+## Optional: prompt + LLM workflow
+
+SCIONA works without any LLM. Prompt workflows are optional.
 
 LLM settings live in `.sciona/config.yaml`:
 

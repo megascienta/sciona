@@ -17,12 +17,24 @@ FORBIDDEN_IMPORTS = {
     "pipelines": {"cli", "api"},
     "reducers": {"cli", "api", "pipelines"},
     "api": {"cli"},
-    "cli": {"pipelines"},
+    "cli": {"pipelines", "runtime", "data_storage", "code_analysis", "reducers"},
 }
 
 RESPONSIBILITY_FORBIDDEN_IMPORTS = {
     "pipelines": {"runtime.config.parse"},
     "api": {"pipelines.domain"},
+    "cli": {
+        "pipelines",
+        "runtime",
+        "data_storage",
+        "code_analysis",
+        "reducers",
+        "sciona.pipelines",
+        "sciona.runtime",
+        "sciona.data_storage",
+        "sciona.code_analysis",
+        "sciona.reducers",
+    },
 }
 
 
@@ -136,3 +148,8 @@ def test_pipelines_responsibility_boundaries() -> None:
 def test_api_responsibility_boundaries() -> None:
     violations = _scan_responsibility("api")
     assert not violations, "API responsibility violations:\n" + "\n".join(violations)
+
+
+def test_cli_responsibility_boundaries() -> None:
+    violations = _scan_responsibility("cli")
+    assert not violations, "CLI responsibility violations:\n" + "\n".join(violations)

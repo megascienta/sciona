@@ -2,11 +2,14 @@
 
 This document is self-contained for addon developers. It is intended to live
 in addons repositories.
+For user-facing expectations and the public contract, see `USERGUIDE.md` in
+the core repo.
 
 ## What addons can do
 
 Addons can register additional CLI commands under their own namespace.
-Addons must not register reducers.
+Addons must not register reducers (core-owned for determinism and DB lifecycle
+ownership).
 
 ## Entry point
 
@@ -48,6 +51,10 @@ Supported formats:
 - string major or major.minor (e.g., `"1"`, `"1.0"`)
 - range string (e.g., `">=1,<2"`)
 
+Versioning policy:
+- Major bump: breaking changes to Registry API.
+- Minor bump: additive, backward-compatible changes.
+
 If incompatible, the addon is skipped with a warning.
 
 ## Disable addons
@@ -55,6 +62,12 @@ If incompatible, the addon is skipped with a warning.
 Set environment flags to disable addon loading:
 - `SCIONA_DISABLE_ADDONS=1`
 - `SCIONA_SAFE_MODE=1`
+
+## Hello addon (minimal walkthrough)
+
+1. Install your addon package into the environment.
+2. Run `sciona --help` and confirm your namespace appears.
+3. Run your addon command via `sciona <your-namespace> ...`.
 
 ## Packaging and testing
 

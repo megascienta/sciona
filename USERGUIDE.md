@@ -24,7 +24,9 @@ snapshot. All read operations are anchored to the latest committed snapshot.
 ## Clean vs dirty worktree
 
 - Build requires a clean worktree for tracked language files in scope.
+- Only enabled-language tracked files block `build`; other tracked files do not.
 - Untracked files do not block builds.
+- Example: edits to docs/config-only files do not block `build`.
 - If the worktree is dirty, read-only commands warn that outputs reflect the
   last committed snapshot.
 
@@ -49,12 +51,14 @@ If `_diff` is present, treat it as the primary evidence for dirty changes. If
 - No directory walking is performed.
 - Language support is based on file extensions for enabled languages.
 
-## Structural accuracy limits
+## Structural accuracy limits (examples)
 
 SCIONA captures structure, not full semantics.
 
-- Imports are syntax-based hints, not full resolution.
-- Call graphs are derived artifacts and may be incomplete.
+- Imports are syntax-based hints. Example: re-exports or dynamic imports may not
+  be resolved to the final module.
+- Call graphs are derived artifacts and may be incomplete. Example: callbacks,
+  dynamic dispatch, or reflection can be missed.
 - Module names are derived from repo-relative paths only.
 
 ## Determinism

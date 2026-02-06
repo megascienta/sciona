@@ -2,6 +2,7 @@
 
 This guide is for contributors and maintainers. It consolidates architecture,
 contracts, and reducer inventory.
+For user-facing expectations and the public contract, see `USERGUIDE.md`.
 
 ## Architecture overview
 
@@ -19,11 +20,17 @@ derived artifacts in ArtifactDB.
 6. Rebuild artifacts for the committed snapshot (node status, call artifacts, graph index).
 7. Record artifact rebuild status (`start`/`complete`/`failed`) in ArtifactDB.
 
-## CoreDB vs ArtifactDB
+## CoreDB vs ArtifactDB (examples)
 
-- CoreDB stores structural truth for committed snapshots.
-- ArtifactDB stores derived artifacts (graphs, call edges, overlays).
-- Reducers read from CoreDB/ArtifactDB only; they never mutate storage.
+CoreDB (authoritative):
+- structural nodes
+- structural edges
+- snapshot metadata and hashes
+
+ArtifactDB (derived):
+- call edges and call rollups
+- overlay tables (`diff_overlay*`)
+- rebuild status markers
 
 ## Reducer contract (binding)
 
@@ -41,15 +48,9 @@ Pipelines may append a best-effort `_diff` overlay to reducer payloads when the
 worktree is dirty. `_diff` includes baseline metadata (snapshot/head/merge-base),
 patch coverage, and warnings. Overlays are non-authoritative.
 
-## Prompt contract
+## Reducer inventory (stability)
 
-- Prompt compilation is deterministic.
-- Prompts use reducer payloads as evidence.
-- Prompt templates and registry live in `.sciona/prompts`.
-
-## Reducer inventory
-
-Structural spine (core, required by tooling):
+Stable contract (core, required by tooling):
 - structural_index
 - module_overview
 - callable_overview
@@ -57,19 +58,17 @@ Structural spine (core, required by tooling):
 - class_overview
 - class_inheritance
 
-Baseline / control (public, non-core):
+Stable contract (public, non-core):
 - callable_source
 - concatenated_source
 
-Derived / optional (public, non-core):
+Best-effort (public, may change):
 - fan_summary
 - hotspot_summary
 - class_call_graph
 - module_call_graph
 - callsite_index
 - importers_index
-
-Structural optional (public, non-core):
 - symbol_lookup
 - symbol_references
 - file_outline
@@ -87,6 +86,9 @@ Notes:
 The public surface is `sciona.api.*` and their `__all__` exports. All other
 modules are internal and may change without notice. CLI must depend on
 `sciona.api.*` only.
+
+Enforcement:
+- `tests/test_layer_boundaries.py` checks import boundaries.
 
 ## Logging and errors
 
