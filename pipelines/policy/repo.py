@@ -90,8 +90,9 @@ def ensure_clean_worktree_for_enabled_languages(repo_state: RepoState) -> None:
 
 def dirty_worktree_warning(repo_state: RepoState) -> str | None:
     warning = (
-        "Warning: worktree is dirty; outputs reflect the last committed snapshot, "
-        "not current files."
+        "Worktree is dirty; outputs reflect the last committed snapshot, "
+        "not current files. Commit/stash tracked changes or run sciona build "
+        "from a clean worktree."
     )
     try:
         runtime_cfg = runtime_config.load_runtime_config(repo_state.repo_root)

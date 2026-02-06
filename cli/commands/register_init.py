@@ -43,7 +43,10 @@ def register_init(app: typer.Typer) -> None:
         except api_errors.ConfigError as exc:
             typer.secho(str(exc), fg=typer.colors.YELLOW)
             raise typer.Exit(code=0) from exc
-        payload = {"sciona_dir": sciona_dir}
+        payload = {
+            "sciona_dir": sciona_dir,
+            "iterative": bool(not no_interactive and sys.stdin.isatty()),
+        }
         cli_render.emit(cli_render.render_init(payload))
         _maybe_init_dialog(sciona_dir, no_interactive=no_interactive)
         _maybe_init_agents(
