@@ -46,8 +46,9 @@ Important rules:
 - Read-only commands may proceed on a dirty worktree but warn that outputs reflect
   the last committed snapshot.
 - When the worktree is dirty, reducer and prompt payloads may include a best-effort
-  `_diff` overlay and patched structural fields to reflect local changes. Overlays
-  use the merge-base between the snapshot commit and `HEAD`, and ignore submodules.
+  `_diff` overlay and patched structural fields to reflect local changes. `_diff`
+  includes baseline metadata, patch coverage, and warnings. Overlays use the
+  merge-base between the snapshot commit and `HEAD`, and ignore submodules.
 - All read operations use the **latest committed snapshot** only.
 
 ---

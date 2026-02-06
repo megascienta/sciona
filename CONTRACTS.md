@@ -19,7 +19,8 @@ Applies to core, reducers, prompts, addons, and CLI.
   reflect the last committed snapshot. Pipelines may append a best-effort
   `diff_overlay` to reducer payloads when the worktree is dirty. The overlay may
   patch structural fields and include call-edge diffs and summary stats, but is
-  non-authoritative.
+  non-authoritative. `_diff` includes baseline metadata (snapshot/head/merge-base),
+  patch coverage, and warnings.
 
 ---
 
@@ -174,6 +175,7 @@ Rules:
 - Pipelines may append a `_diff` overlay to reducer payloads when the worktree
   is dirty; this overlay is best-effort and non-authoritative, and may patch
   structural fields and include call-edge diffs and summary stats. Overlays
+  include baseline metadata (snapshot/head/merge-base), patch coverage, and warnings,
   use the merge-base between the snapshot commit and `HEAD` when they diverge,
   and ignore submodule paths with a warning.
 - Reducers must not own DB path resolution or connection lifecycle; pipelines provide read context.

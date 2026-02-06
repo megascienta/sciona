@@ -116,6 +116,7 @@ def emit(
                         snapshot_id=snapshot_id,
                         conn=conn,
                         strict=True,
+                        reducer_id=reducer_id,
                     )
                 except ValueError as exc:
                     raise WorkflowError(

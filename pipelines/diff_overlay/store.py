@@ -23,9 +23,14 @@ def overlay_bundle_exists(artifact_conn, snapshot_id: str, worktree_hash: str) -
 
 def rows_to_payload(
     worktree_hash: str,
+    snapshot_commit: str | None,
+    base_commit: str | None,
+    head_commit: str | None,
+    merge_base: str | None,
     rows: Iterable[dict[str, object]],
     call_rows: Iterable[dict[str, object]],
     summary: dict[str, object] | None,
+    warnings: list[str],
 ) -> OverlayPayload:
     nodes = {"add": [], "remove": [], "modify": []}
     edges = {"add": [], "remove": []}
@@ -53,10 +58,15 @@ def rows_to_payload(
             calls[diff_kind].append(entry)
     return OverlayPayload(
         worktree_hash=worktree_hash,
+        snapshot_commit=snapshot_commit,
+        base_commit=base_commit,
+        head_commit=head_commit,
+        merge_base=merge_base,
         nodes=nodes,
         edges=edges,
         calls=calls,
         summary=summary,
+        warnings=warnings,
     )
 
 

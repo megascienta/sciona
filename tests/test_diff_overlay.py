@@ -28,6 +28,10 @@ def test_dirty_overlay_adds_node(repo_with_snapshot):
     payload = _parse_json_payload(text)
     diff = payload.get("_diff")
     assert diff, "Expected diff overlay in reducer payload"
+    assert diff["version"] == 1
+    assert diff["worktree_hash"]
+    assert diff.get("patched", {}).get("projection") is True
+    assert "coverage" in diff
     adds = diff["nodes"]["add"]
     assert any("helper2" in (entry.get("new_value") or "") for entry in adds)
 
@@ -47,6 +51,7 @@ def test_dirty_overlay_calls_and_summary(repo_with_snapshot):
     payload = _parse_json_payload(text)
     diff = payload.get("_diff")
     assert diff, "Expected diff overlay in reducer payload"
+    assert diff.get("coverage", {}).get("summary") in {"partial", "none"}
     assert diff.get("calls", {}).get("add"), "Expected call edge diffs"
     summary = diff.get("summary")
     assert summary, "Expected diff summary"

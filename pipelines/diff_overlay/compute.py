@@ -76,6 +76,7 @@ def compute_overlay_rows(
     list[dict[str, object]],
     list[dict[str, object]],
     dict[str, object] | None,
+    list[str],
 ]:
     change_set = collect_changes(repo_root, base_commit, cache=git_cache)
     exclude_globs = discovery_excludes(repo_root)
@@ -241,7 +242,7 @@ def compute_overlay_rows(
         repo_root=repo_root,
     )
     summary = summarize_overlay(rows, call_rows)
-    return rows, call_rows, summary
+    return rows, call_rows, summary, change_set.warnings
 
 
 def build_node_lookup(
@@ -269,6 +270,7 @@ def collect_changes(
     cache: dict[tuple[Path, tuple[str, ...], str | None], str],
 ) -> "_ChangeSet":
     submodules = git_ops.submodule_paths(repo_root, cache=cache)
+    warnings: list[str] = []
     added: set[str] = set()
     modified: set[str] = set()
     deleted: set[str] = set()
@@ -289,12 +291,17 @@ def collect_changes(
                 "Skipping submodule paths in diff overlay: %s",
                 ", ".join(ignored),
             )
+            warnings.append(
+                "submodules_ignored: " + ", ".join(ignored)
+            )
             added.difference_update(ignored)
             modified.difference_update(ignored)
             deleted.difference_update(ignored)
     changed_paths = sorted(added | modified)
     deleted_paths = sorted(deleted)
-    return _ChangeSet(changed_paths=changed_paths, deleted_paths=deleted_paths)
+    return _ChangeSet(
+        changed_paths=changed_paths, deleted_paths=deleted_paths, warnings=warnings
+    )
 
 
 def ingest_status(
@@ -509,6 +516,7 @@ def analyzers_by_language() -> dict[str, object]:
 class _ChangeSet:
     changed_paths: list[str]
     deleted_paths: list[str]
+    warnings: list[str]
 
 
 __all__ = [

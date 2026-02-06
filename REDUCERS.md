@@ -10,7 +10,8 @@ Snapshot policy:
 - Reducers operate on the **latest committed snapshot only**.
 - Pipelines may append a `_diff` overlay to reducer payloads when the worktree
   is dirty; overlays are best-effort and non-authoritative, and may patch
-  structural fields and include call-edge diffs and summary stats.
+  structural fields and include call-edge diffs and summary stats. `_diff`
+  includes baseline metadata (snapshot/head/merge-base), patch coverage, and warnings.
 
 ---
 
