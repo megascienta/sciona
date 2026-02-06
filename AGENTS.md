@@ -1,5 +1,3 @@
-On working with this codebase always use `conda` multiphysics env
-
 <!-- sciona:begin -->
 # SCIONA usage (managed)
 

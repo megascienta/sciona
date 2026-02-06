@@ -84,7 +84,7 @@ def build(repo_root: Optional[Path] = None) -> BuildResult:
     repo_state = policy_repo.resolve_repo_state(repo_root)
     policy_repo.ensure_repo_has_commits(repo_state)
     policy = policy_build.resolve_build_policy(repo_state)
-    policy_repo.ensure_clean_worktree(repo_state)
+    policy_repo.ensure_clean_worktree_for_enabled_languages(repo_state)
     return _run_build(repo_state, policy)
 
 
