@@ -10,7 +10,9 @@ def test_cli_prompt_json_includes_sections(cli_app_with_prompts, cli_runner):
         [
             "prompt",
             "run",
-            "preflight_v1",
+            "callable_impact_v1",
+            "--callable-id",
+            "pkg.alpha.service.helper",
             "--json",
         ],
     )
@@ -24,4 +26,4 @@ def test_cli_prompt_json_includes_sections(cli_app_with_prompts, cli_runner):
     assert "evidence" in payload
     assert "resolved_arg_map" in payload
     assert "PROMPT:" in (payload["prompt_header"] or "")
-    assert "SCIONA pre-flight" in (payload["prompt_body"] or "")
+    assert "SCIONA callable impact briefing" in (payload["prompt_body"] or "")

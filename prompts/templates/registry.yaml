@@ -1,24 +1,20 @@
-preflight_v1:
+module_impact_v1:
   kind: core
-  spec: preflight_v1.md
+  spec: module_impact_v1.md
   reducers:
-    - hotspot_summary
-  required_args: []
-  summary: Pre-flight structural assessment of the codebase.
+    - module_overview
+    - dependency_edges
+    - importers_index
+  required_args:
+    - module_id
+  summary: Evidence-first impact briefing for a target module.
 
-architecture_overview_v1:
+callable_impact_v1:
   kind: core
-  spec: architecture_overview_v1.md
+  spec: callable_impact_v1.md
   reducers:
-    - structural_index
-  required_args: []
-  summary: Architecture overview from structural summaries and public surfaces.
-
-risk_radar_v1:
-  kind: core
-  spec: risk_radar_v1.md
-  reducers:
-    - fan_summary
-    - hotspot_summary
-  required_args: []
-  summary: Structural risk radar focused on fan-in/out and hotspots.
+    - callable_overview
+    - call_graph
+  required_args:
+    - callable_id
+  summary: Evidence-first impact briefing for a target callable.

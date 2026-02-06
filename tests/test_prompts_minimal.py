@@ -11,9 +11,11 @@ def test_compile_prompt_renders_core_prompt(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     ensure_prompts_initialized(repo_root)
     prompt, _ = prompt_pipeline.compile_prompt_by_name(
-        "preflight_v1", repo_root=repo_root
+        "callable_impact_v1",
+        repo_root=repo_root,
+        arg_map={"callable_id": "pkg.alpha.service.helper"},
     )
 
-    assert "PROMPT: preflight_v1" in prompt
+    assert "PROMPT: callable_impact_v1" in prompt
     assert f"SNAPSHOT: {snapshot_id}" in prompt
-    assert "SCIONA pre-flight" in prompt
+    assert "SCIONA callable impact briefing" in prompt

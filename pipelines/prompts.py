@@ -76,12 +76,23 @@ def ensure_prompts_initialized(repo_root: Path) -> Path:
     else:
         # Keep user/addon entries, but always refresh core prompt entries from bundled seed.
         merged = dict(existing_registry)
+        pruned = []
+        for name, entry in list(merged.items()):
+            if name in seed_registry:
+                continue
+            kind = entry.get("kind") if isinstance(entry, dict) else None
+            source = entry.get("_source") if isinstance(entry, dict) else None
+            if kind == "core" and source != "addon":
+                pruned.append(name)
+                merged.pop(name, None)
         changed = False
         for name, seed_entry in seed_registry.items():
             existing_entry = existing_registry.get(name)
             if existing_entry != seed_entry:
                 merged[name] = seed_entry
                 changed = True
+        if pruned:
+            changed = True
         if changed:
             _write_registry(registry_path, merged)
 

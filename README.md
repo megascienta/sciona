@@ -102,8 +102,9 @@ sciona status
 Prompts:
 ```bash
 sciona prompt list
-sciona prompt run preflight_v1
-sciona prompt run preflight_v1 --answer
+sciona prompt run module_impact_v1 --module-id pkg.alpha
+sciona prompt run callable_impact_v1 --callable-id pkg.alpha.service.helper
+sciona prompt run callable_impact_v1 --callable-id pkg.alpha.service.helper --answer
 ```
 
 Reducers:

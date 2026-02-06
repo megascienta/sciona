@@ -98,5 +98,5 @@ def test_api_prompt_validate_entry(tmp_path):
     repo_root, _snapshot_id = seed_repo_with_snapshot(tmp_path)
     ensure_prompts_initialized(repo_root)
     prompts = prompt_api.get_prompts(repo_root)
-    entry = dict(prompts["preflight_v1"])
-    prompt_api.validate_prompt_entry("preflight_v1", entry, repo_root=repo_root)
+    entry = dict(prompts["callable_impact_v1"])
+    prompt_api.validate_prompt_entry("callable_impact_v1", entry, repo_root=repo_root)
