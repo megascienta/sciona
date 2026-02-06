@@ -109,12 +109,18 @@ def emit(
                     )
                 except ValueError as exc:
                     raise WorkflowError(str(exc), code="reducer_error") from exc
-                text = diff_overlay.apply_overlay_to_text(
-                    text,
-                    overlay,
-                    snapshot_id=snapshot_id,
-                    conn=conn,
-                )
+                try:
+                    text = diff_overlay.apply_overlay_to_text(
+                        text,
+                        overlay,
+                        snapshot_id=snapshot_id,
+                        conn=conn,
+                        strict=True,
+                    )
+                except ValueError as exc:
+                    raise WorkflowError(
+                        f"Reducer '{reducer_id}' must return JSON.", code="invalid_json"
+                    ) from exc
     return text, snapshot_id, resolved_kwargs
 
 

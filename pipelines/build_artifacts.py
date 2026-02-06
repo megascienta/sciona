@@ -12,6 +12,8 @@ from ..code_analysis.core.annotate import diff as annotate_diff
 from ..data_storage.connections import artifact
 from ..data_storage.transactions import transaction
 from ..data_storage.artifact_db import diff_overlay as overlay_store
+from ..data_storage.artifact_db import diff_overlay_calls as overlay_call_store
+from ..data_storage.artifact_db import diff_overlay_summary as overlay_summary_store
 from ..data_storage.artifact_db import read_status as artifact_read
 from ..data_storage.artifact_db import write_index as artifact_write
 from ..data_storage.core_db import read_ops as core_read
@@ -62,6 +64,8 @@ def refresh_artifact_state(
     with artifact(artifact_path, repo_root=repo_root) as artifact_conn:
         artifact_write.mark_rebuild_started(artifact_conn, snapshot_id=snapshot_id)
         overlay_store.clear_all(artifact_conn)
+        overlay_call_store.clear_all(artifact_conn)
+        overlay_summary_store.clear_all(artifact_conn)
         artifact_conn.commit()
         try:
             with transaction(artifact_conn):

@@ -19,7 +19,9 @@ Note: if the worktree is dirty, outputs reflect the latest committed snapshot on
 - Use SCIONA for structure/calls/deps, then manually verify files you changed.
 - For accurate SCIONA results on new/modified files, make small WIP commits and amend/squash later.
 - Dirty worktrees may include `_diff` overlays in reducer/prompt payloads; overlays are best-effort only.
-- `sciona build` clears any `diff_overlay` entries on clean head before rebuilding artifacts.
+- Reducers are JSON-only; prompts may include JSON payloads but remain human-oriented text.
+- `_diff` overlays include nodes/edges and may include call-edge diffs and summary stats.
+- `sciona build` clears any diff overlay tables on clean head before rebuilding artifacts.
 
 4) Common tasks (copy/paste templates)
 {COMMON_TASKS}

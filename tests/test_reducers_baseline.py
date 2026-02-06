@@ -32,8 +32,10 @@ def test_concatenated_source_codebase_scope(tmp_path):
         )
     finally:
         conn.close()
-    assert "pkg/alpha/service.py" in payload_text
-    assert "pkg/beta/__init__.py" in payload_text
+    payload = json.loads(_strip_json_fence(payload_text))
+    paths = {entry["path"] for entry in payload["files"]}
+    assert "pkg/alpha/service.py" in paths
+    assert "pkg/beta/__init__.py" in paths
 
 
 def test_concatenated_source_module_scope(tmp_path):
@@ -49,8 +51,10 @@ def test_concatenated_source_module_scope(tmp_path):
         )
     finally:
         conn.close()
-    assert "pkg/alpha/service.py" in payload_text
-    assert "pkg/beta/__init__.py" not in payload_text
+    payload = json.loads(_strip_json_fence(payload_text))
+    paths = {entry["path"] for entry in payload["files"]}
+    assert "pkg/alpha/service.py" in paths
+    assert "pkg/beta/__init__.py" not in paths
 
 
 def test_concatenated_source_class_scope(tmp_path):
@@ -66,7 +70,9 @@ def test_concatenated_source_class_scope(tmp_path):
         )
     finally:
         conn.close()
-    assert "pkg/alpha/service.py" in payload_text
+    payload = json.loads(_strip_json_fence(payload_text))
+    paths = {entry["path"] for entry in payload["files"]}
+    assert "pkg/alpha/service.py" in paths
 
 
 def test_callable_source_payload(tmp_path):

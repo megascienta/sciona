@@ -143,6 +143,45 @@ SCHEMA_STATEMENTS: list[str] = [
     CREATE INDEX IF NOT EXISTS idx_diff_overlay_snapshot
     ON diff_overlay(snapshot_id, worktree_hash)
     """,
+    """
+    CREATE TABLE IF NOT EXISTS diff_overlay_calls (
+        snapshot_id TEXT NOT NULL,
+        worktree_hash TEXT NOT NULL,
+        src_structural_id TEXT NOT NULL,
+        dst_structural_id TEXT NOT NULL,
+        diff_kind TEXT NOT NULL,
+        src_node_type TEXT,
+        dst_node_type TEXT,
+        src_qualified_name TEXT,
+        dst_qualified_name TEXT,
+        src_file_path TEXT,
+        dst_file_path TEXT,
+        created_at TEXT NOT NULL,
+        PRIMARY KEY (
+            snapshot_id,
+            worktree_hash,
+            src_structural_id,
+            dst_structural_id
+        )
+    )
+    """,
+    """
+    CREATE INDEX IF NOT EXISTS idx_diff_overlay_calls_snapshot
+    ON diff_overlay_calls(snapshot_id, worktree_hash)
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS diff_overlay_summary (
+        snapshot_id TEXT NOT NULL,
+        worktree_hash TEXT NOT NULL,
+        summary_json TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        PRIMARY KEY (snapshot_id, worktree_hash)
+    )
+    """,
+    """
+    CREATE INDEX IF NOT EXISTS idx_diff_overlay_summary_snapshot
+    ON diff_overlay_summary(snapshot_id, worktree_hash)
+    """,
 ]
 
 

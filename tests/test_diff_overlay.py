@@ -30,3 +30,24 @@ def test_dirty_overlay_adds_node(repo_with_snapshot):
     assert diff, "Expected diff overlay in reducer payload"
     adds = diff["nodes"]["add"]
     assert any("helper2" in (entry.get("new_value") or "") for entry in adds)
+
+
+def test_dirty_overlay_calls_and_summary(repo_with_snapshot):
+    repo_root, _snapshot_id = repo_with_snapshot
+    service_path = repo_root / "pkg/alpha/service.py"
+    service_path.write_text(
+        "def helper():\n    return 1\n\n\ndef caller():\n    return helper()\n",
+        encoding="utf-8",
+    )
+
+    text, _, _ = api.reducers.emit(
+        "fan_summary",
+        repo_root=repo_root,
+    )
+    payload = _parse_json_payload(text)
+    diff = payload.get("_diff")
+    assert diff, "Expected diff overlay in reducer payload"
+    assert diff.get("calls", {}).get("add"), "Expected call edge diffs"
+    summary = diff.get("summary")
+    assert summary, "Expected diff summary"
+    assert summary["calls"]["add"] >= 1

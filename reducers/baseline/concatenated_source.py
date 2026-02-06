@@ -8,6 +8,7 @@ from typing import Iterable, List
 from ..helpers import queries
 from ..metadata import ReducerMeta
 from ..helpers.base import require_connection
+from ..helpers.render import render_json_payload
 from ..helpers.utils import require_latest_committed_snapshot
 
 REDUCER_META = ReducerMeta(
@@ -46,7 +47,12 @@ def render(
         file_paths = _collect_snapshot_paths(conn, snapshot_id, repo_root, roots=[root])
     else:
         file_paths = [_resolve_class_file(conn, snapshot_id, class_id, repo_root)]
-    return _render_file_dump(repo_root, file_paths)
+    payload = {
+        "scope": resolved_scope,
+        "file_count": len(file_paths),
+        "files": _render_file_dump(repo_root, file_paths),
+    }
+    return render_json_payload(payload)
 
 
 def _normalize_scope(
@@ -140,32 +146,32 @@ def _normalize_repo_relative(repo_root: Path, file_path: Path) -> Path:
     return Path(file_path.as_posix())
 
 
-def _render_file_dump(repo_root: Path, relative_paths: Iterable[Path]) -> str:
-    chunks: List[str] = []
+def _render_file_dump(
+    repo_root: Path, relative_paths: Iterable[Path]
+) -> List[dict[str, object]]:
+    entries: List[dict[str, object]] = []
     for rel_path in relative_paths:
         header = rel_path.as_posix()
-        chunks.append(f"# {header}\n\n")
         path = repo_root / rel_path
         try:
             file_size = path.stat().st_size
         except FileNotFoundError:
-            chunks.append(f"# MISSING: {header}\n\n")
+            entries.append({"path": header, "status": "missing", "content": ""})
             continue
         if file_size > MAX_SOURCE_BYTES:
-            chunks.append(f"# SKIPPED: {header} (too large)\n\n")
+            entries.append({"path": header, "status": "skipped_too_large", "content": ""})
             continue
         try:
             raw = path.read_bytes()
         except FileNotFoundError:
-            chunks.append(f"# MISSING: {header}\n\n")
+            entries.append({"path": header, "status": "missing", "content": ""})
             continue
         try:
             content = raw.decode("utf-8")
         except UnicodeDecodeError:
-            chunks.append(f"# SKIPPED: {header} (non-UTF-8)\n\n")
+            entries.append(
+                {"path": header, "status": "skipped_non_utf8", "content": ""}
+            )
             continue
-        chunks.append(content)
-        if not content.endswith("\n"):
-            chunks.append("\n")
-        chunks.append("\n")
-    return "".join(chunks)
+        entries.append({"path": header, "status": "ok", "content": content})
+    return entries
