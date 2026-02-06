@@ -56,7 +56,8 @@ def get_overlay(
         git_ops.run_git(["rev-parse", base_commit], repo_root)
     except GitError:
         base_commit = "HEAD"
-    worktree_hash = _worktree_fingerprint(repo_root, base_commit)
+    git_cache: dict[tuple[Path, tuple[str, ...], str | None], str] = {}
+    worktree_hash = _worktree_fingerprint(repo_root, base_commit, cache=git_cache)
     if not overlay_store.overlay_exists(artifact_conn, snapshot_id, worktree_hash):
         rows = _compute_overlay_rows(
             repo_root=repo_root,
@@ -64,6 +65,7 @@ def get_overlay(
             base_commit=base_commit,
             core_conn=core_conn,
             worktree_hash=worktree_hash,
+            git_cache=git_cache,
         )
         overlay_store.insert_overlay_rows(artifact_conn, rows)
         artifact_conn.commit()
@@ -96,14 +98,33 @@ def apply_overlay_to_text(
     return render_json_payload(patched)
 
 
-def _worktree_fingerprint(repo_root: Path, base_commit: str) -> str:
+def _worktree_fingerprint(
+    repo_root: Path,
+    base_commit: str,
+    *,
+    cache: dict[tuple[Path, tuple[str, ...], str | None], str],
+) -> str:
     parts = []
-    parts.append(git_ops.run_git(["diff", "--name-status", base_commit], repo_root))
     parts.append(
-        git_ops.run_git(["diff", "--cached", "--name-status", base_commit], repo_root)
+        git_ops.git_output(
+            repo_root,
+            ["diff", "--name-status", base_commit],
+            cache=cache,
+        )
     )
     parts.append(
-        git_ops.run_git(["ls-files", "--others", "--exclude-standard"], repo_root)
+        git_ops.git_output(
+            repo_root,
+            ["diff", "--cached", "--name-status", base_commit],
+            cache=cache,
+        )
+    )
+    parts.append(
+        git_ops.git_output(
+            repo_root,
+            ["ls-files", "--others", "--exclude-standard"],
+            cache=cache,
+        )
     )
     config_text = runtime_config_io.load_config_text(repo_root) or ""
     parts.append(config_text)
@@ -119,8 +140,9 @@ def _compute_overlay_rows(
     base_commit: str,
     core_conn,
     worktree_hash: str,
+    git_cache: dict[tuple[Path, tuple[str, ...], str | None], str],
 ) -> list[dict[str, object]]:
-    change_set = _collect_changes(repo_root, base_commit)
+    change_set = _collect_changes(repo_root, base_commit, cache=git_cache)
     target_paths = sorted(change_set.changed_paths)
     deleted_paths = sorted(change_set.deleted_paths)
     records = _build_file_records(repo_root, target_paths)
@@ -1170,15 +1192,29 @@ def _parse_json_fenced(text: str) -> Optional[dict[str, object]]:
     return payload
 
 
-def _collect_changes(repo_root: Path, base_commit: str) -> "_ChangeSet":
+def _collect_changes(
+    repo_root: Path,
+    base_commit: str,
+    *,
+    cache: dict[tuple[Path, tuple[str, ...], str | None], str],
+) -> "_ChangeSet":
     added: set[str] = set()
     modified: set[str] = set()
     deleted: set[str] = set()
-    for status, paths in git_ops.diff_name_status(repo_root, base_commit):
+    for status, paths in git_ops.diff_name_status(
+        repo_root,
+        base_commit,
+        cache=cache,
+    ):
         _ingest_status(status, paths, added, modified, deleted)
-    for status, paths in git_ops.diff_name_status(repo_root, base_commit, cached=True):
+    for status, paths in git_ops.diff_name_status(
+        repo_root,
+        base_commit,
+        cached=True,
+        cache=cache,
+    ):
         _ingest_status(status, paths, added, modified, deleted)
-    for path in git_ops.untracked_paths(repo_root):
+    for path in git_ops.untracked_paths(repo_root, cache=cache):
         added.add(path)
     changed_paths = sorted(added | modified)
     deleted_paths = sorted(deleted)

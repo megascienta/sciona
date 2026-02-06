@@ -9,7 +9,7 @@ from ...code_analysis.core.extract.registry import extensions_for_language
 from ...runtime import git as git_ops
 from ...runtime import paths as runtime_paths
 from ...runtime import config as runtime_config
-from ...runtime.git.adapter import GitAdapter, RealGitAdapter
+from ...runtime.git.adapter import GitAdapter, GitCliAdapter
 from ..domain.repository import RepoState
 from ...runtime.config import LanguageSettings
 from ...runtime.config.defaults import LANGUAGE_DEFAULTS
@@ -23,7 +23,7 @@ def resolve_repo_state(
     git: Optional[GitAdapter] = None,
     allow_missing_config: bool = False,
 ) -> RepoState:
-    git_adapter = git or RealGitAdapter()
+    git_adapter = git or GitCliAdapter()
     root = repo_root or runtime_paths.get_repo_root()
     return RepoState.from_repo_root(
         root,

@@ -2,41 +2,25 @@
 
 from __future__ import annotations
 
-import subprocess
 from pathlib import Path
 from typing import Dict, List, Set
 
-from ..config import defaults
 from ..errors import GitError
-from .exec import git_binary, run_git, validate_git_args
+from .exec import run_git, run_git_in_cwd
 
 
 def ensure_repo(repo_root: Path) -> None:
-    git_dir = repo_root / ".git"
-    if not git_dir.exists():
-        raise GitError(f"{repo_root} is not a git repository")
     run_git(["--version"], repo_root)
 
 
 def get_repo_root(cwd: Path | None = None) -> Path:
     """Return the git repository root for the provided cwd (or current working dir)."""
     working_dir = cwd or Path.cwd()
-    validate_git_args(["rev-parse", "--show-toplevel"])
-    timeout = float(defaults.DEFAULT_GIT_TIMEOUT)
     try:
-        result = subprocess.run(
-            [git_binary(), "rev-parse", "--show-toplevel"],
-            cwd=working_dir,
-            capture_output=True,
-            text=True,
-            check=True,
-            timeout=timeout,
-        )
-    except subprocess.CalledProcessError as exc:
+        output = run_git_in_cwd(["rev-parse", "--show-toplevel"], working_dir)
+    except GitError as exc:
         raise GitError("SCIONA must be run inside a git repository.") from exc
-    except subprocess.TimeoutExpired as exc:
-        raise GitError(f"Git command timed out: {exc}") from exc
-    return Path(result.stdout.strip())
+    return Path(output.strip())
 
 
 def ensure_repo_has_commits(repo_root: Path) -> None:
@@ -55,9 +39,40 @@ def is_worktree_dirty(repo_root: Path) -> bool:
     return bool(output.strip())
 
 
-def worktree_status_paths(repo_root: Path) -> List[str]:
+def _run_git_cached(
+    repo_root: Path,
+    args: list[str],
+    *,
+    cache: dict[tuple[Path, tuple[str, ...], str | None], str] | None = None,
+    input_text: str | None = None,
+) -> str:
+    if cache is None:
+        return run_git(args, repo_root, input_text=input_text)
+    key = (repo_root, tuple(args), input_text)
+    if key in cache:
+        return cache[key]
+    output = run_git(args, repo_root, input_text=input_text)
+    cache[key] = output
+    return output
+
+
+def git_output(
+    repo_root: Path,
+    args: list[str],
+    *,
+    cache: dict[tuple[Path, tuple[str, ...], str | None], str] | None = None,
+    input_text: str | None = None,
+) -> str:
+    return _run_git_cached(repo_root, args, cache=cache, input_text=input_text)
+
+
+def worktree_status_paths(
+    repo_root: Path,
+    *,
+    cache: dict[tuple[Path, tuple[str, ...], str | None], str] | None = None,
+) -> List[str]:
     """Return file paths reported by git status --porcelain."""
-    output = run_git(["status", "--porcelain", "-z"], repo_root)
+    output = _run_git_cached(repo_root, ["status", "--porcelain", "-z"], cache=cache)
     if not output:
         return []
     paths: List[str] = []
@@ -85,13 +100,14 @@ def diff_name_status(
     base_commit: str,
     *,
     cached: bool = False,
+    cache: dict[tuple[Path, tuple[str, ...], str | None], str] | None = None,
 ) -> List[tuple[str, List[str]]]:
     """Return parsed output for git diff --name-status base_commit."""
     args = ["diff", "--name-status"]
     if cached:
         args.append("--cached")
     args.append(base_commit)
-    output = run_git(args, repo_root)
+    output = _run_git_cached(repo_root, args, cache=cache)
     changes: List[tuple[str, List[str]]] = []
     for line in output.splitlines():
         parts = line.split("\t")
@@ -105,9 +121,17 @@ def diff_name_status(
     return changes
 
 
-def untracked_paths(repo_root: Path) -> List[str]:
+def untracked_paths(
+    repo_root: Path,
+    *,
+    cache: dict[tuple[Path, tuple[str, ...], str | None], str] | None = None,
+) -> List[str]:
     """Return untracked file paths excluding standard ignores."""
-    output = run_git(["ls-files", "--others", "--exclude-standard"], repo_root)
+    output = _run_git_cached(
+        repo_root,
+        ["ls-files", "--others", "--exclude-standard"],
+        cache=cache,
+    )
     return [line.strip() for line in output.splitlines() if line.strip()]
 
 
@@ -168,6 +192,7 @@ def commit_meta(repo_root: Path) -> Dict[str, str]:
 
 
 __all__ = [
+    "git_output",
     "blob_sha",
     "blob_sha_batch",
     "commit_meta",

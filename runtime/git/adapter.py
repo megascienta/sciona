@@ -17,7 +17,7 @@ class GitAdapter(Protocol):
 
 
 @dataclass(frozen=True)
-class RealGitAdapter:
+class GitCliAdapter:
     def get_repo_root(self) -> Path:
         return runtime.get_repo_root()
 
@@ -31,4 +31,4 @@ class RealGitAdapter:
         return runtime.is_worktree_dirty(repo_root)
 
 
-__all__ = ["GitAdapter", "RealGitAdapter"]
+__all__ = ["GitAdapter", "GitCliAdapter"]

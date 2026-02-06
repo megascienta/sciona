@@ -7,6 +7,7 @@ import re
 
 from . import constants
 from . import git as git_ops
+from .git.exec import validate_repo_root as validate_git_repo_root
 from .errors import EnvError
 
 
@@ -68,11 +69,9 @@ def get_prompts_registry_path(repo_root: Path) -> Path:
 
 def validate_repo_root(repo_root: Path) -> Path:
     try:
-        resolved = repo_root.resolve(strict=True)
-    except FileNotFoundError as exc:
-        raise EnvError(f"Invalid repo path: {repo_root}") from exc
-    if not (resolved / ".git").exists():
-        raise EnvError(f"{resolved} is not a git repository")
+        resolved = validate_git_repo_root(repo_root)
+    except git_ops.GitError as exc:
+        raise EnvError(str(exc)) from exc
     sciona_dir = get_sciona_dir(resolved)
     try:
         sciona_dir.resolve().relative_to(resolved)

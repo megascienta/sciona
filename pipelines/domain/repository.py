@@ -8,7 +8,7 @@ from typing import Optional
 
 from ...runtime import paths as runtime
 from ...runtime.config import ScionaConfig, load_sciona_config
-from ...runtime.git.adapter import GitAdapter, RealGitAdapter
+from ...runtime.git.adapter import GitAdapter, GitCliAdapter
 
 
 @dataclass(frozen=True)
@@ -28,7 +28,7 @@ class RepoState:
         load_config: bool = True,
         allow_missing_config: bool = False,
     ) -> "RepoState":
-        git_adapter = git or RealGitAdapter()
+        git_adapter = git or GitCliAdapter()
         repo_root = runtime.validate_repo_root(repo_root)
         sciona_dir = runtime.get_sciona_dir(repo_root)
         config: Optional[ScionaConfig] = None
