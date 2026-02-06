@@ -17,7 +17,8 @@ Applies to core, reducers, prompts, addons, and CLI.
 - Read-only commands may proceed on a dirty worktree but must warn that outputs
   reflect the last committed snapshot. Pipelines may append a best-effort
   `diff_overlay` to reducer payloads when the worktree is dirty. The overlay may
-  also patch structural fields in payloads but is non-authoritative.
+  patch structural fields and include call-edge diffs and summary stats, but is
+  non-authoritative.
 
 ---
 
@@ -167,10 +168,11 @@ Rules:
 - Reducers must not mutate storage.
 - Reducers must not call external services.
 - Output must be deterministic and ordered.
+- Reducers return JSON payloads only.
 - Reducers operate on the **latest committed snapshot only**.
 - Pipelines may append a `_diff` overlay to reducer payloads when the worktree
   is dirty; this overlay is best-effort and non-authoritative, and may patch
-  structural fields in reducer payloads.
+  structural fields and include call-edge diffs and summary stats.
 - Reducers must not own DB path resolution or connection lifecycle; pipelines provide read context.
 - The reducer registry is frozen by default.
 - Reducers share a single unified namespace; there is no internal-only reducer class.
@@ -225,7 +227,8 @@ Prompts should prefer structural spine reducers. Baseline and derived reducers
 are allowed for experiments or addon-specific prompts.
 
 Note:
-- `concatenated_source` includes only snapshot-tracked files (from `node_instances`); it does not scan the filesystem.
+- `concatenated_source` returns JSON with per-file entries and includes only snapshot-tracked files
+  (from `node_instances`); it does not scan the filesystem.
 
 ### Ordering rules
 

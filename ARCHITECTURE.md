@@ -47,6 +47,8 @@ it.
 - `graph_nodes` / `graph_edges`: combined graph index (structural + calls)
 - Rollups: `module_call_edges`, `class_call_edges`, `node_fan_stats`
 - `diff_overlay`: dirty-worktree overlay rows used to augment reducer payloads
+- `diff_overlay_calls`: dirty-worktree call-edge overlays
+- `diff_overlay_summary`: dirty-worktree overlay summary stats
 
 Artifacts are rebuilt for the **latest committed snapshot** and are not part of SCI.
 
@@ -142,7 +144,7 @@ No ephemeral snapshots are exposed. Uncommitted snapshots are internal only.
 When the worktree is dirty, pipelines may compute a best-effort `diff_overlay`
 in ArtifactDB and apply it to reducer payloads. The overlay never modifies
 CoreDB or ArtifactDB structural truth; it only augments payloads at render time
-and may patch structural fields in reducer payloads.
+and may patch structural fields and include call-edge diffs and summary stats.
 
 ### Parsing scope
 

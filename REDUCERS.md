@@ -10,12 +10,13 @@ Snapshot policy:
 - Reducers operate on the **latest committed snapshot only**.
 - Pipelines may append a `_diff` overlay to reducer payloads when the worktree
   is dirty; overlays are best-effort and non-authoritative, and may patch
-  structural fields in reducer payloads.
+  structural fields and include call-edge diffs and summary stats.
 
 ---
 
 ## Reducer constraints
 
+- Reducers return JSON payloads only.
 - Reducers read from SCI/Artifact DBs only; source files are used only to enrich
   known nodes (signatures, parameters, decorators, doc spans).
 - Reducers never discover new nodes or infer relationships.
@@ -126,7 +127,7 @@ Notes:
 | reducer_id | scope | placeholder | determinism | lossy | baseline_only | composite | summary |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | callable_source | function | CALLABLE_SOURCE | conditional | true | true | false | Full source payload for a callable (function or method). |
-| concatenated_source | codebase | CONCATENATED_SOURCE | conditional | true | true | false | Concatenated source for codebase, module, or class scope. |
+| concatenated_source | codebase | CONCATENATED_SOURCE | conditional | true | true | false | JSON payload with per-file content for codebase, module, or class scope. |
 
 Notes:
 - `callable_source` accepts `callable_id`, `function_id`, or `method_id`.
