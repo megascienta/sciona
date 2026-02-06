@@ -1,4 +1,5 @@
 """Centralized configuration for language handling and shared constants."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -38,6 +39,7 @@ def _java_analyzer_factory() -> "ASTAnalyzer":
 
     return java_lang.JavaAnalyzer()
 
+
 def _python_module_namer(repo_root: Path, snapshot: "FileSnapshot") -> str:
     from .core.extract.languages import python as python_lang
 
@@ -54,6 +56,7 @@ def _java_module_namer(repo_root: Path, snapshot: "FileSnapshot") -> str:
     from .core.extract.languages import java as java_lang
 
     return java_lang.module_name(repo_root, snapshot)
+
 
 CALLABLE_NODE_TYPES = frozenset({"function", "method"})
 TERMINAL_IDENTIFIER_TYPES = frozenset(

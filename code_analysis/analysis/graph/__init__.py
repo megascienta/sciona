@@ -1,4 +1,5 @@
 """Graph helpers."""
+
 from __future__ import annotations
 
 from typing import Set
@@ -15,5 +16,6 @@ def module_id_for(qualified_name: str, module_names: Set[str]) -> str:
         if candidate in module_names:
             return candidate
     return parts[0]
+
 
 __all__ = ["module_id_for"]

@@ -1,4 +1,5 @@
 """CoreDB schema."""
+
 from __future__ import annotations
 
 import sqlite3
@@ -78,6 +79,7 @@ SCHEMA_STATEMENTS: list[str] = [
     """,
 ]
 
+
 def ensure_schema(conn: sqlite3.Connection) -> None:
     conn.execute("PRAGMA foreign_keys=ON")
     _ensure_schema(conn, SCHEMA_STATEMENTS)
@@ -85,10 +87,7 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
 
 
 def _ensure_fk_schema(conn: sqlite3.Connection) -> None:
-    if (
-        _has_foreign_keys(conn, "node_instances")
-        and _has_foreign_keys(conn, "edges")
-    ):
+    if _has_foreign_keys(conn, "node_instances") and _has_foreign_keys(conn, "edges"):
         return
     conn.execute("PRAGMA foreign_keys=OFF")
     try:

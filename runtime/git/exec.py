@@ -1,4 +1,5 @@
 """Low-level git process execution + argument validation."""
+
 from __future__ import annotations
 
 import os
@@ -7,9 +8,9 @@ import subprocess
 from pathlib import Path
 from typing import Set
 
-from . import config as runtime_config
-from . import config_defaults as defaults
-from .errors import GitError
+from .. import config as runtime_config
+from ..config import defaults
+from ..errors import GitError
 
 _GIT_BIN: str | None = None
 

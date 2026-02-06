@@ -1,4 +1,5 @@
 """Repository setup and versioning helpers."""
+
 from __future__ import annotations
 
 import json
@@ -6,7 +7,11 @@ from pathlib import Path
 from typing import Any, Dict
 
 from ..runtime import constants
-from ..runtime.errors import CorruptVersionFileError, NotInitializedError, SchemaMismatchError
+from ..runtime.errors import (
+    CorruptVersionFileError,
+    NotInitializedError,
+    SchemaMismatchError,
+)
 
 
 def write_version_file(sciona_dir: Path) -> None:
@@ -30,13 +35,13 @@ def read_version_file(sciona_dir: Path) -> Dict[str, Any]:
         raise CorruptVersionFileError("version.json is corrupted.") from exc
 
 
-def ensure_schema_version(version_info: Dict[str, Any], repo_root: Path | None = None) -> None:
+def ensure_schema_version(
+    version_info: Dict[str, Any], repo_root: Path | None = None
+) -> None:
     schema_version = version_info.get("schema_version")
     if schema_version == constants.SCHEMA_VERSION:
         return
-    message = (
-        "SCIONA schema version mismatch. Remove the .sciona directory and run 'sciona init' to rebuild state."
-    )
+    message = "SCIONA schema version mismatch. Remove the .sciona directory and run 'sciona init' to rebuild state."
     raise SchemaMismatchError(message)
 
 

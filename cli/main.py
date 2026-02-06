@@ -1,4 +1,5 @@
 """SCIONA command-line interface."""
+
 from __future__ import annotations
 
 import typer
@@ -72,6 +73,8 @@ app = typer.Typer(
 )
 
 _ADDON_REGISTRY = addons_api.load_for_cli()
+
+
 @app.callback(invoke_without_command=True)
 def _main(
     ctx: typer.Context,
@@ -106,11 +109,19 @@ def _render_help(addon_registry: addons_api.Registry | None) -> str:
     root_group = _get_click_group(app)
     addon_commands = _addon_commands(addon_registry)
     core_commands = _core_commands(app, root_group)
-    reducer_commands = _group_commands(app, "reducer", root_group, include_root_options=False)
-    core_core = [entry for entry in core_commands if entry.split()[0] in {"init", "build", "status", "clean"}]
+    reducer_commands = _group_commands(
+        app, "reducer", root_group, include_root_options=False
+    )
+    core_core = [
+        entry
+        for entry in core_commands
+        if entry.split()[0] in {"init", "build", "status", "clean"}
+    ]
     core_reducers = ["reducer --help"]
     core_reducers.extend(reducer_commands)
-    advanced_core = [entry for entry in core_commands if entry.split()[0] in {"resolve", "search"}]
+    advanced_core = [
+        entry for entry in core_commands if entry.split()[0] in {"resolve", "search"}
+    ]
     return "\n".join(
         [
             "Usage: sciona [OPTIONS] COMMAND [ARGS]...",

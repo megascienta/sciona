@@ -1,4 +1,5 @@
 """Artifact build helpers for committed snapshots."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -77,13 +78,17 @@ def refresh_artifact_state(
                     call_records=call_artifacts,
                     eligible_callers=eligible_callers,
                 )
-                rebuild_graph_index(artifact_conn, core_conn=conn, snapshot_id=snapshot_id)
+                rebuild_graph_index(
+                    artifact_conn, core_conn=conn, snapshot_id=snapshot_id
+                )
                 artifact_derivation.rebuild_graph_rollups(
                     artifact_conn,
                     core_conn=conn,
                     snapshot_id=snapshot_id,
                 )
-            artifact_write.mark_rebuild_completed(artifact_conn, snapshot_id=snapshot_id)
+            artifact_write.mark_rebuild_completed(
+                artifact_conn, snapshot_id=snapshot_id
+            )
             if not artifact_read.rebuild_consistent_for_snapshot(
                 artifact_conn,
                 snapshot_id=snapshot_id,
@@ -98,7 +103,9 @@ def refresh_artifact_state(
             raise
 
 
-def _snapshot_nodes_status(conn, snapshot_id: str) -> Tuple[List[Tuple[str, str]], Set[str]]:
+def _snapshot_nodes_status(
+    conn, snapshot_id: str
+) -> Tuple[List[Tuple[str, str]], Set[str]]:
     current_hashes = core_read.snapshot_node_hashes(conn, snapshot_id)
     previous_snapshot_id = annotate_diff.previous_snapshot_id(conn, snapshot_id)
     previous_hashes = previous_node_hashes(conn, previous_snapshot_id)
@@ -106,7 +113,12 @@ def _snapshot_nodes_status(conn, snapshot_id: str) -> Tuple[List[Tuple[str, str]
     current_ids: Set[str] = set()
     for structural_id, content_hash in current_hashes.items():
         current_ids.add(structural_id)
-        statuses.append((structural_id, classify_status(content_hash, previous_hashes.get(structural_id))))
+        statuses.append(
+            (
+                structural_id,
+                classify_status(content_hash, previous_hashes.get(structural_id)),
+            )
+        )
     return statuses, current_ids
 
 

@@ -1,4 +1,5 @@
 """Repository-focused CLI commands (aggregator)."""
+
 from __future__ import annotations
 
 import typer

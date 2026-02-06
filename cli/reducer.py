@@ -1,4 +1,5 @@
 """Reducer commands."""
+
 from __future__ import annotations
 
 from typing import Optional, Union, get_args, get_origin
@@ -49,8 +50,12 @@ def register(app: typer.Typer) -> None:
             "--id",
             help="Reducer id to render (e.g., structural_index).",
         ),
-        callable_id: Optional[str] = typer.Option(None, "--callable-id", help="Callable id (function or method)."),
-        function_id: Optional[str] = typer.Option(None, "--function-id", help="Function id."),
+        callable_id: Optional[str] = typer.Option(
+            None, "--callable-id", help="Callable id (function or method)."
+        ),
+        function_id: Optional[str] = typer.Option(
+            None, "--function-id", help="Function id."
+        ),
         method_id: Optional[str] = typer.Option(None, "--method-id", help="Method id."),
         class_id: Optional[str] = typer.Option(None, "--class-id", help="Class id."),
         module_id: Optional[str] = typer.Option(None, "--module-id", help="Module id."),
@@ -68,7 +73,9 @@ def register(app: typer.Typer) -> None:
             raise typer.BadParameter("Missing --id.")
 
         if callable_id and (function_id or method_id):
-            raise typer.BadParameter("Provide only one of --callable-id, --function-id, or --method-id.")
+            raise typer.BadParameter(
+                "Provide only one of --callable-id, --function-id, or --method-id."
+            )
 
         explicit_ids = {
             "callable_id": callable_id,
@@ -177,7 +184,10 @@ def _build_dynamic_reducer_params() -> list[inspect.Parameter]:
         for name, param in sig.parameters.items():
             if name in _RESERVED_REDUCER_ARGS or name in _EXPLICIT_REDUCER_ARGS:
                 continue
-            if param.kind in {inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD}:
+            if param.kind in {
+                inspect.Parameter.VAR_POSITIONAL,
+                inspect.Parameter.VAR_KEYWORD,
+            }:
                 continue
             if name in params:
                 continue
@@ -214,10 +224,13 @@ def _extract_primitive_type(annotation):
     return None
 
 
-def _build_reducer_signature(func, dynamic_params: list[inspect.Parameter]) -> inspect.Signature:
+def _build_reducer_signature(
+    func, dynamic_params: list[inspect.Parameter]
+) -> inspect.Signature:
     sig = inspect.signature(func)
     base_params = [
-        param for param in sig.parameters.values()
+        param
+        for param in sig.parameters.values()
         if param.kind is not inspect.Parameter.VAR_KEYWORD
     ]
     return sig.replace(parameters=[*base_params, *dynamic_params])
@@ -246,7 +259,10 @@ def _format_reducer_call(reducer_id: str, reducer_module) -> str:
     for name, param in sig.parameters.items():
         if name in {"snapshot_id", "conn", "repo_root"}:
             continue
-        if param.kind in {inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD}:
+        if param.kind in {
+            inspect.Parameter.VAR_POSITIONAL,
+            inspect.Parameter.VAR_KEYWORD,
+        }:
             continue
         flag = f"--{name.replace('_', '-')}"
         if name == "extras":

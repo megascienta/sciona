@@ -1,4 +1,5 @@
 """File outline reducer."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -30,7 +31,9 @@ def render(
     **_: object,
 ) -> str:
     conn = require_connection(conn)
-    require_latest_committed_snapshot(conn, snapshot_id, reducer_name="file_outline reducer")
+    require_latest_committed_snapshot(
+        conn, snapshot_id, reducer_name="file_outline reducer"
+    )
     module_ids: Optional[List[str]] = None
     file_filter: Optional[set[str]] = None
     if module_id:
@@ -85,7 +88,11 @@ def render(
         entry = grouped[file_key]
         entry["nodes"] = sorted(
             entry["nodes"],
-            key=lambda item: (item["line_span"][0], item["line_span"][1], str(item["qualified_name"])),
+            key=lambda item: (
+                item["line_span"][0],
+                item["line_span"][1],
+                str(item["qualified_name"]),
+            ),
         )
         files.append(entry)
     body = {
@@ -112,7 +119,9 @@ def _resolve_module_ids(conn, snapshot_id: str, module_name: str) -> List[str]:
     ).fetchall()
     module_ids = [row["qualified_name"] for row in rows if row["qualified_name"]]
     if not module_ids:
-        raise ValueError(f"Module '{module_name}' not found in snapshot '{snapshot_id}'.")
+        raise ValueError(
+            f"Module '{module_name}' not found in snapshot '{snapshot_id}'."
+        )
     return module_ids
 
 
@@ -128,5 +137,7 @@ def _normalize_file_path(repo_root, path_value: str) -> str:
         try:
             return str(raw_path.resolve().relative_to(repo_root))
         except ValueError as exc:
-            raise ValueError("file_outline file_path must be within the repo root.") from exc
+            raise ValueError(
+                "file_outline file_path must be within the repo root."
+            ) from exc
     return raw_path.as_posix()

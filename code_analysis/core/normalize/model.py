@@ -1,4 +1,5 @@
 """Shared ingestion data structures."""
+
 from __future__ import annotations
 
 from dataclasses import InitVar, dataclass, field
@@ -83,7 +84,6 @@ class SemanticNodeRecord:
                 raise ValueError(
                     f"end_byte ({self.end_byte}) must be >= start_byte ({self.start_byte})"
                 )
-
 
 
 @dataclass

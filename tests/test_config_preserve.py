@@ -1,6 +1,6 @@
 import shutil
 
-from sciona.runtime.config_io import load_config_text, write_config_text
+from sciona.runtime.config.io import load_config_text, write_config_text
 from sciona.runtime.paths import get_config_path, get_sciona_dir
 
 

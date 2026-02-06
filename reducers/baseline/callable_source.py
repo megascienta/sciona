@@ -1,9 +1,14 @@
 """Callable source reducer."""
+
 from __future__ import annotations
 
 from typing import Iterable, List
 
-from ..helpers.base import load_function_overview, load_method_overview, require_connection
+from ..helpers.base import (
+    load_function_overview,
+    load_method_overview,
+    require_connection,
+)
 from ..helpers.render import render_json_payload
 from ..helpers.utils import require_latest_committed_snapshot
 from ..metadata import ReducerMeta
@@ -31,7 +36,9 @@ def render(
     **_: object,
 ) -> str:
     conn = require_connection(conn)
-    require_latest_committed_snapshot(conn, snapshot_id, reducer_name="callable_source reducer")
+    require_latest_committed_snapshot(
+        conn, snapshot_id, reducer_name="callable_source reducer"
+    )
     if callable_id and not (function_id or method_id):
         function_id = callable_id
     if method_id:
@@ -39,7 +46,9 @@ def render(
     elif function_id:
         payload = load_function_overview(snapshot_id, conn, repo_root, function_id)
     else:
-        raise ValueError("CALLABLE_SOURCE requires callable_id, function_id, or method_id.")
+        raise ValueError(
+            "CALLABLE_SOURCE requires callable_id, function_id, or method_id."
+        )
     file_path = payload.get("file_path")
     line_span = payload.get("line_span")
     if not file_path or not line_span:
@@ -48,7 +57,9 @@ def render(
     return _format_payload(file_path, line_span, snippet_lines)
 
 
-def _extract_snippet(repo_root, relative_path: str, line_span: Iterable[int]) -> List[str]:
+def _extract_snippet(
+    repo_root, relative_path: str, line_span: Iterable[int]
+) -> List[str]:
     repo_root = repo_root.resolve()
     file_path = (repo_root / relative_path).resolve()
     try:

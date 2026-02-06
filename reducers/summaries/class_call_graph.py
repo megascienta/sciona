@@ -1,4 +1,5 @@
 """Class-level call graph reducer."""
+
 from __future__ import annotations
 
 from typing import Dict, List
@@ -31,7 +32,9 @@ def render(
     **_: object,
 ) -> str:
     conn = require_connection(conn)
-    require_latest_committed_snapshot(conn, snapshot_id, reducer_name="class_call_graph reducer")
+    require_latest_committed_snapshot(
+        conn, snapshot_id, reducer_name="class_call_graph reducer"
+    )
     resolved_class_id = class_id
     if not resolved_class_id and method_id:
         method_structural_id = queries.resolve_method_id(conn, snapshot_id, method_id)
@@ -72,7 +75,9 @@ def render(
     return render_json_payload(body)
 
 
-def _edges_to_entries(edges: List[tuple[str, str, int]], *, direction: str) -> List[Dict[str, int | str]]:
+def _edges_to_entries(
+    edges: List[tuple[str, str, int]], *, direction: str
+) -> List[Dict[str, int | str]]:
     entries: List[Dict[str, int | str]] = []
     for src_id, dst_id, count in edges:
         class_id = dst_id if direction == "outgoing" else src_id

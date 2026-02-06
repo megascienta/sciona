@@ -50,7 +50,11 @@ def test_create_snapshot_captures_git_metadata(tmp_path):
     assert row["is_committed"] == 1
     assert row["structural_hash"] == structural_hash
     head_sha = subprocess.run(
-        ["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True, check=True
+        ["git", "rev-parse", "HEAD"],
+        cwd=repo,
+        capture_output=True,
+        text=True,
+        check=True,
     ).stdout.strip()
     assert row["git_commit_sha"] == head_sha
     conn.close()

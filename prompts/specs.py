@@ -1,4 +1,5 @@
 """Prompt spec resolution helpers."""
+
 from __future__ import annotations
 
 from pathlib import Path, PurePosixPath
@@ -51,10 +52,13 @@ def resolve_spec_path(entry: Mapping[str, object], repo_root: Optional[Path]) ->
             base_dir = resources.files(addon_package) / spec_root
         else:
             if repo_root is None:
-                raise ValueError("Prompt specs with spec_root require a repository root.")
+                raise ValueError(
+                    "Prompt specs with spec_root require a repository root."
+                )
             base_dir = (repo_root / spec_root).resolve()
     elif repo_root is not None:
         from ..runtime import paths as runtime_paths
+
         base_dir = runtime_paths.get_prompts_dir(repo_root)
     else:
         base_dir = Path(__file__).resolve().parent / "templates"

@@ -1,5 +1,3 @@
-
-
 def test_cli_resolve_callable(cli_app, cli_runner):
     result = cli_runner.invoke(
         cli_app,

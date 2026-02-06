@@ -1,4 +1,5 @@
 """Build policy resolution."""
+
 from __future__ import annotations
 
 from ..domain.policies import AnalysisPolicy, ArtifactPolicy, BuildPolicy

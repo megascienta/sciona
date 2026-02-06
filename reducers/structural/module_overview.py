@@ -1,8 +1,9 @@
 """Module overview reducer."""
+
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List
 
 from ...code_analysis.analysis.orderings import order_nodes, order_strings
 from ..helpers import queries
@@ -23,6 +24,7 @@ REDUCER_META = ReducerMeta(
     summary="Structural overview payload for a module.",
 )
 
+
 def render(
     snapshot_id: str,
     conn,
@@ -40,37 +42,53 @@ def render(
     resolved_module_id = module_id
     if not resolved_module_id and class_id:
         class_structural_id = queries.resolve_class_id(conn, snapshot_id, class_id)
-        resolved_module_id = queries.module_id_for_structural(conn, snapshot_id, class_structural_id)
+        resolved_module_id = queries.module_id_for_structural(
+            conn, snapshot_id, class_structural_id
+        )
     if not resolved_module_id and method_id:
         method_structural_id = queries.resolve_method_id(conn, snapshot_id, method_id)
-        resolved_module_id = queries.module_id_for_structural(conn, snapshot_id, method_structural_id)
+        resolved_module_id = queries.module_id_for_structural(
+            conn, snapshot_id, method_structural_id
+        )
     if not resolved_module_id and function_id:
-        function_structural_id = queries.resolve_function_id(conn, snapshot_id, function_id)
-        resolved_module_id = queries.module_id_for_structural(conn, snapshot_id, function_structural_id)
+        function_structural_id = queries.resolve_function_id(
+            conn, snapshot_id, function_id
+        )
+        resolved_module_id = queries.module_id_for_structural(
+            conn, snapshot_id, function_structural_id
+        )
     if not resolved_module_id:
         raise ValueError("Prompt requires a resolvable module_id.")
-    payload = run(snapshot_id, conn=conn, repo_root=repo_root, module_id=resolved_module_id)
+    payload = run(
+        snapshot_id, conn=conn, repo_root=repo_root, module_id=resolved_module_id
+    )
     return render_json_payload(payload)
 
 
 def run(snapshot_id: str, **params) -> ModuleOverviewPayload:
     conn = params.get("conn")
     if conn is None:
-        raise ValueError("module_overview reducer requires an active database connection.")
+        raise ValueError(
+            "module_overview reducer requires an active database connection."
+        )
     row = conn.execute(
         "SELECT is_committed FROM snapshots WHERE snapshot_id = ?",
         (snapshot_id,),
     ).fetchone()
     if not row or not row["is_committed"]:
         raise ValueError("module_overview reducer requires a committed snapshot.")
-    require_latest_committed_snapshot(conn, snapshot_id, reducer_name="module_overview reducer")
+    require_latest_committed_snapshot(
+        conn, snapshot_id, reducer_name="module_overview reducer"
+    )
     module_identifier = params.get("module_id")
     if not module_identifier:
         raise ValueError("module_overview requires 'module_id'.")
     repo_root = params.get("repo_root")
     repo_path = Path(repo_root) if repo_root else None
     if repo_path is None:
-        raise ValueError("module_overview requires repo_root for artifact graph traversal.")
+        raise ValueError(
+            "module_overview requires repo_root for artifact graph traversal."
+        )
     artifact_available = artifact_db_available(repo_path)
 
     row = _resolve_module(conn, snapshot_id, module_identifier)
@@ -138,7 +156,9 @@ def _resolve_module(conn, snapshot_id: str, identifier: str) -> dict:
         (snapshot_id, identifier),
     ).fetchone()
     if not row:
-        raise ValueError(f"Module '{identifier}' not found in snapshot '{snapshot_id}'.")
+        raise ValueError(
+            f"Module '{identifier}' not found in snapshot '{snapshot_id}'."
+        )
     return row
 
 
@@ -157,7 +177,9 @@ def _resolve_module_ids(conn, snapshot_id: str, module_name: str) -> List[str]:
     ).fetchall()
     module_ids = [row["structural_id"] for row in rows]
     if not module_ids:
-        raise ValueError(f"Module '{module_name}' not found in snapshot '{snapshot_id}'.")
+        raise ValueError(
+            f"Module '{module_name}' not found in snapshot '{snapshot_id}'."
+        )
     return module_ids
 
 
@@ -213,7 +235,9 @@ def _list_children(
     return entries
 
 
-def _list_imports(conn, snapshot_id: str, module_ids: List[str], repo_root: Path) -> List[Dict[str, str]]:
+def _list_imports(
+    conn, snapshot_id: str, module_ids: List[str], repo_root: Path
+) -> List[Dict[str, str]]:
     edges = load_artifact_edges(
         repo_root,
         edge_kinds=["IMPORTS_DECLARED"],
@@ -233,7 +257,10 @@ def _list_imports(conn, snapshot_id: str, module_ids: List[str], repo_root: Path
         (snapshot_id, *module_ids_out),
     ).fetchall()
     entries = [
-        {"module_structural_id": row["structural_id"], "module_qualified_name": row["qualified_name"]}
+        {
+            "module_structural_id": row["structural_id"],
+            "module_qualified_name": row["qualified_name"],
+        }
         for row in rows
         if row["qualified_name"]
     ]
@@ -241,7 +268,9 @@ def _list_imports(conn, snapshot_id: str, module_ids: List[str], repo_root: Path
     return entries
 
 
-def _language_breakdown(conn, snapshot_id: str, module_ids: List[str], repo_root: Path) -> Dict[str, int]:
+def _language_breakdown(
+    conn, snapshot_id: str, module_ids: List[str], repo_root: Path
+) -> Dict[str, int]:
     edges = load_artifact_edges(
         repo_root,
         edge_kinds=["CONTAINS"],
@@ -291,7 +320,9 @@ def _language_breakdown(conn, snapshot_id: str, module_ids: List[str], repo_root
     return dict(sorted(counts.items(), key=lambda item: item[0]))
 
 
-def _list_methods(conn, snapshot_id: str, module_ids: List[str], repo_root: Path) -> List[Dict[str, str]]:
+def _list_methods(
+    conn, snapshot_id: str, module_ids: List[str], repo_root: Path
+) -> List[Dict[str, str]]:
     container_edges = load_artifact_edges(
         repo_root,
         edge_kinds=["CONTAINS"],

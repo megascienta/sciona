@@ -4,12 +4,13 @@ Cost profile: O(nodes + edges) for the active snapshot because it reads every
 node instance and aggregates module/edge metadata exactly once. It must never
 diff multiple snapshots.
 """
+
 from __future__ import annotations
 
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence, Set, Tuple
+from typing import Dict, List, Sequence, Set, Tuple
 
 import networkx as nx
 
@@ -31,10 +32,12 @@ REDUCER_META = ReducerMeta(
     summary="Canonical structural index payload for the codebase.",
 )
 
+
 def render(snapshot_id: str, conn, repo_root, **_: object) -> str:
     conn = require_connection(conn)
     payload = run(snapshot_id, conn=conn, repo_root=repo_root)
     return render_json_payload(payload)
+
 
 CLASS_NODE_TYPES = {"class", "interface"}
 CALLABLE_NODE_TYPES = {"function", "method"}
@@ -45,17 +48,23 @@ METHOD_NODE_TYPES = {"method"}
 def run(snapshot_id: str, **params) -> StructuralIndexPayload:
     conn = params.get("conn")
     if conn is None:
-        raise ValueError("structural_index reducer requires an active database connection.")
+        raise ValueError(
+            "structural_index reducer requires an active database connection."
+        )
     repo_root = params.get("repo_root")
     if not repo_root:
-        raise ValueError("structural_index reducer requires repo_root for artifact graph traversal.")
+        raise ValueError(
+            "structural_index reducer requires repo_root for artifact graph traversal."
+        )
     row = conn.execute(
         "SELECT is_committed FROM snapshots WHERE snapshot_id = ?",
         (snapshot_id,),
     ).fetchone()
     if not row or not row["is_committed"]:
         raise ValueError("structural_index reducer requires a committed snapshot.")
-    require_latest_committed_snapshot(conn, snapshot_id, reducer_name="structural_index reducer")
+    require_latest_committed_snapshot(
+        conn, snapshot_id, reducer_name="structural_index reducer"
+    )
 
     artifact_available = artifact_db_available(Path(repo_root))
     module_graph = _build_module_graph(conn, snapshot_id, repo_root)
@@ -94,7 +103,9 @@ def run(snapshot_id: str, **params) -> StructuralIndexPayload:
         "classes": {
             "count": len(class_entries),
             "entries": class_entries,
-            "by_module": _count_to_entries(class_counts, key_name="module_qualified_name"),
+            "by_module": _count_to_entries(
+                class_counts, key_name="module_qualified_name"
+            ),
         },
         "functions": function_stats,
         "methods": method_stats,
@@ -108,7 +119,9 @@ def run(snapshot_id: str, **params) -> StructuralIndexPayload:
     }
 
 
-def _module_summaries(conn, snapshot_id: str, module_graph) -> Tuple[
+def _module_summaries(
+    conn, snapshot_id: str, module_graph
+) -> Tuple[
     List[Dict[str, object]],
     Dict[str, str],
     Dict[str, int],
@@ -215,7 +228,9 @@ def _file_entries(
     return entries
 
 
-def _class_entries(conn, snapshot_id: str, structural_lookup: Dict[str, str]) -> List[Dict[str, object]]:
+def _class_entries(
+    conn, snapshot_id: str, structural_lookup: Dict[str, str]
+) -> List[Dict[str, object]]:
     rows = conn.execute(
         """
         SELECT sn.structural_id,
@@ -248,7 +263,9 @@ def _class_entries(conn, snapshot_id: str, structural_lookup: Dict[str, str]) ->
     return entries
 
 
-def _callable_stats(counts: Dict[str, int], language_counts: Counter[str]) -> Dict[str, object]:
+def _callable_stats(
+    counts: Dict[str, int], language_counts: Counter[str]
+) -> Dict[str, object]:
     total = sum(counts.values())
     per_module = _count_to_entries(counts, key_name="module_qualified_name")
     language_entries = [
@@ -320,30 +337,36 @@ def _import_edges(module_graph) -> List[Dict[str, str]]:
     edges: List[Dict[str, str]] = []
     for src, neighbors in module_graph.outgoing.items():
         for dst in neighbors:
-            edges.append({"from_module_qualified_name": src, "to_module_qualified_name": dst})
-    order_edges(edges, fields=("from_module_qualified_name", "to_module_qualified_name"))
+            edges.append(
+                {"from_module_qualified_name": src, "to_module_qualified_name": dst}
+            )
+    order_edges(
+        edges, fields=("from_module_qualified_name", "to_module_qualified_name")
+    )
     return edges
 
 
 def _import_cycles(import_edges: List[Dict[str, str]]) -> List[Dict[str, List[str]]]:
     graph = nx.DiGraph()
     for edge in import_edges:
-        graph.add_edge(edge["from_module_qualified_name"], edge["to_module_qualified_name"])
+        graph.add_edge(
+            edge["from_module_qualified_name"], edge["to_module_qualified_name"]
+        )
     cycles: List[Dict[str, List[str]]] = []
     for component in nx.strongly_connected_components(graph):
         if len(component) <= 1:
             continue
         members = sorted(component)
         cycles.append({"module_qualified_names": members})
-    order_nodes(cycles, key=lambda entry: tuple(entry.get("module_qualified_names", ())))
+    order_nodes(
+        cycles, key=lambda entry: tuple(entry.get("module_qualified_names", ()))
+    )
     return cycles
 
 
 def _count_to_entries(counts: Dict[str, int], key_name: str) -> List[Dict[str, object]]:
     entries = [
-        {key_name: key, "count": value}
-        for key, value in counts.items()
-        if value
+        {key_name: key, "count": value} for key, value in counts.items() if value
     ]
     order_nodes(entries, key=lambda item: (-item["count"], item[key_name]))
     return entries

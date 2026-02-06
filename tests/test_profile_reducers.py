@@ -6,7 +6,11 @@ from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.data_storage.artifact_db.maintenance import rebuild_graph_index
 from sciona.data_storage.core_db.schema import ensure_schema
 from sciona.data_storage.transactions import transaction
-from sciona.reducers.structural import callable_overview, class_overview, module_overview
+from sciona.reducers.structural import (
+    callable_overview,
+    class_overview,
+    module_overview,
+)
 from tests.helpers import insert_snapshot
 
 
@@ -68,23 +72,109 @@ export function createWidget(name: string): WidgetService {
         "ts_function": "func_ts",
     }
     nodes = [
-        (ids["module_pkg_alpha"], "module", "python", "pkg.alpha", "pkg/alpha/__init__.py", 1, 1),
-        (ids["module_alpha"], "module", "python", "pkg.alpha.service", "pkg/alpha/service.py", 1, 17),
-        (ids["module_beta"], "module", "python", "pkg.beta.worker", "pkg/beta/worker.py", 1, 2),
-        (ids["class_order"], "class", "python", "pkg.alpha.service.OrderService", "pkg/alpha/service.py", 6, 10),
-        (ids["function_helper"], "function", "python", "pkg.alpha.service.helper", "pkg/alpha/service.py", 13, 15),
-        (ids["method_one"], "method", "python", "pkg.alpha.service.OrderService.method_one", "pkg/alpha/service.py", 8, 10),
-        (ids["module_ts"], "module", "typescript", "pkg.ts.service", "pkg/ts/service.ts", 1, 11),
-        (ids["ts_class"], "class", "typescript", "pkg.ts.service.WidgetService", "pkg/ts/service.ts", 3, 8),
-        (ids["ts_function"], "function", "typescript", "pkg.ts.service.createWidget", "pkg/ts/service.ts", 10, 11),
+        (
+            ids["module_pkg_alpha"],
+            "module",
+            "python",
+            "pkg.alpha",
+            "pkg/alpha/__init__.py",
+            1,
+            1,
+        ),
+        (
+            ids["module_alpha"],
+            "module",
+            "python",
+            "pkg.alpha.service",
+            "pkg/alpha/service.py",
+            1,
+            17,
+        ),
+        (
+            ids["module_beta"],
+            "module",
+            "python",
+            "pkg.beta.worker",
+            "pkg/beta/worker.py",
+            1,
+            2,
+        ),
+        (
+            ids["class_order"],
+            "class",
+            "python",
+            "pkg.alpha.service.OrderService",
+            "pkg/alpha/service.py",
+            6,
+            10,
+        ),
+        (
+            ids["function_helper"],
+            "function",
+            "python",
+            "pkg.alpha.service.helper",
+            "pkg/alpha/service.py",
+            13,
+            15,
+        ),
+        (
+            ids["method_one"],
+            "method",
+            "python",
+            "pkg.alpha.service.OrderService.method_one",
+            "pkg/alpha/service.py",
+            8,
+            10,
+        ),
+        (
+            ids["module_ts"],
+            "module",
+            "typescript",
+            "pkg.ts.service",
+            "pkg/ts/service.ts",
+            1,
+            11,
+        ),
+        (
+            ids["ts_class"],
+            "class",
+            "typescript",
+            "pkg.ts.service.WidgetService",
+            "pkg/ts/service.ts",
+            3,
+            8,
+        ),
+        (
+            ids["ts_function"],
+            "function",
+            "typescript",
+            "pkg.ts.service.createWidget",
+            "pkg/ts/service.ts",
+            10,
+            11,
+        ),
     ]
-    for structural_id, node_type, language, qualified_name, file_path, start_line, end_line in nodes:
+    for (
+        structural_id,
+        node_type,
+        language,
+        qualified_name,
+        file_path,
+        start_line,
+        end_line,
+    ) in nodes:
         conn.execute(
             """
             INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id, retired_snapshot_id)
             VALUES (?, ?, ?, ?, ?)
             """,
-            (structural_id, node_type, language, snapshot_id, setup_config.ACTIVE_RETIREMENT_FLAG),
+            (
+                structural_id,
+                node_type,
+                language,
+                snapshot_id,
+                setup_config.ACTIVE_RETIREMENT_FLAG,
+            ),
         )
         conn.execute(
             """

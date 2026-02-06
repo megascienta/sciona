@@ -1,13 +1,14 @@
 """Git repository and metadata helpers for SCIONA."""
+
 from __future__ import annotations
 
 import subprocess
 from pathlib import Path
 from typing import Dict, List, Set
 
-from . import config_defaults as defaults
-from .errors import GitError
-from .git_exec import git_binary, run_git, validate_git_args
+from ..config import defaults
+from ..errors import GitError
+from .exec import git_binary, run_git, validate_git_args
 
 
 def ensure_repo(repo_root: Path) -> None:
@@ -113,7 +114,9 @@ def untracked_paths(repo_root: Path) -> List[str]:
 def ensure_clean_worktree(repo_root: Path) -> None:
     """Abort if the working tree contains uncommitted changes."""
     if is_worktree_dirty(repo_root):
-        raise GitError("Uncommitted changes detected. Please commit or stash before running SCIONA.")
+        raise GitError(
+            "Uncommitted changes detected. Please commit or stash before running SCIONA."
+        )
 
 
 def tracked_paths(repo_root: Path) -> Set[str]:

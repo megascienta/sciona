@@ -1,4 +1,5 @@
 """Prompt compilation pipeline."""
+
 from __future__ import annotations
 
 from contextlib import nullcontext
@@ -34,6 +35,7 @@ def prompt_allows_answer(prompt_name: str, *, repo_root: Optional[Path] = None) 
     if allow_answer is None:
         return True
     return bool(allow_answer)
+
 
 def compile_prompt_by_name(
     prompt_name: str,
@@ -88,9 +90,7 @@ def _compile_prompt_with_resolution(
     arg_map = dict(arg_map or {})
     db_path = get_db_path(repo_root)
     conn_ctx = (
-        core(db_path, repo_root=repo_root)
-        if db_path.exists()
-        else nullcontext(None)
+        core(db_path, repo_root=repo_root) if db_path.exists() else nullcontext(None)
     )
     with conn_ctx as conn:
         if conn is None:
@@ -249,13 +249,17 @@ def _apply_prompt_node_resolution(
 ) -> None:
     if not required_args:
         if node_id or node_name:
-            raise WorkflowError("This prompt does not accept node identifiers.", code="invalid_prompt")
+            raise WorkflowError(
+                "This prompt does not accept node identifiers.", code="invalid_prompt"
+            )
         return
     id_arg = _prompt_id_arg(required_args)
     if id_arg is None:
         return
     if id_arg in arg_map and (node_id or node_name):
-        raise WorkflowError("Provide either a qualified name or --id, not both.", code="invalid_prompt")
+        raise WorkflowError(
+            "Provide either a qualified name or --id, not both.", code="invalid_prompt"
+        )
     if node_id:
         arg_map[id_arg] = node_id
         return
@@ -285,6 +289,8 @@ def _id_arg_kind(id_arg: str) -> str:
 
 def _build_reducer_args(arg_map: dict[str, str]) -> dict[str, str]:
     reducer_args = dict(arg_map)
-    if "callable_id" in arg_map and not (arg_map.get("function_id") or arg_map.get("method_id")):
+    if "callable_id" in arg_map and not (
+        arg_map.get("function_id") or arg_map.get("method_id")
+    ):
         reducer_args["function_id"] = arg_map["callable_id"]
     return reducer_args

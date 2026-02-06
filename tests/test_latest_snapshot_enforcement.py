@@ -51,14 +51,21 @@ def _insert_snapshot(conn, snapshot_id: str, *, created_at: str) -> None:
 
 
 def test_reducers_require_single_committed_snapshot_state(tmp_path: Path) -> None:
-    repo_root, db_path, old_snapshot, _latest_snapshot = _setup_latest_snapshot_db(tmp_path)
+    repo_root, db_path, old_snapshot, _latest_snapshot = _setup_latest_snapshot_db(
+        tmp_path
+    )
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     try:
         reducers = reducer_registry.get_reducers()
         for reducer_id, entry in reducers.items():
             reducer = entry.module
-            if reducer_id in {"callable_overview", "class_overview", "module_overview", "structural_index"}:
+            if reducer_id in {
+                "callable_overview",
+                "class_overview",
+                "module_overview",
+                "structural_index",
+            }:
                 with pytest.raises(ValueError, match="exactly one committed snapshot"):
                     reducer.run(old_snapshot, conn=conn, repo_root=repo_root)
                 continue

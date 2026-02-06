@@ -29,7 +29,4 @@ def test_dirty_overlay_adds_node(repo_with_snapshot):
     diff = payload.get("_diff")
     assert diff, "Expected diff overlay in reducer payload"
     adds = diff["nodes"]["add"]
-    assert any(
-        "helper2" in (entry.get("new_value") or "")
-        for entry in adds
-    )
+    assert any("helper2" in (entry.get("new_value") or "") for entry in adds)

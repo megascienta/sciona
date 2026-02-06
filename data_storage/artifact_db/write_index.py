@@ -1,4 +1,5 @@
 """ArtifactDB write/index helpers."""
+
 from __future__ import annotations
 
 import sqlite3
@@ -6,7 +7,7 @@ from typing import Iterable, Sequence
 
 from ...runtime.time import utc_now
 from ..encoding import bool_to_int
-from ..sql_utils import SQLITE_MAX_VARS, chunked, temp_id_table
+from ..sql_utils import temp_id_table
 
 NODE_STATUS_PRODUCER = "node_status_v1"
 
@@ -28,7 +29,10 @@ def upsert_node_calls(
     conn.execute("DELETE FROM node_calls WHERE caller_id = ?", (caller_id,))
     if not callee_ids:
         return
-    entries = [(caller_id, callee_id, bool_to_int(valid), call_hash) for callee_id in callee_ids]
+    entries = [
+        (caller_id, callee_id, bool_to_int(valid), call_hash)
+        for callee_id in callee_ids
+    ]
     conn.executemany(
         """
         INSERT INTO node_calls(caller_id, callee_id, valid, call_hash)

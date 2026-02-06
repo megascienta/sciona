@@ -1,4 +1,5 @@
 """Build execution logic (mechanism only)."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -20,6 +21,7 @@ from ..build_artifacts import build_artifacts_for_snapshot
 from ..progress import make_progress_factory
 
 _LOGGER = get_logger("pipelines.exec.build")
+
 
 @dataclass(frozen=True)
 class BuildResult:
@@ -87,7 +89,9 @@ def build_repo(
             status = SnapshotLifecycle.COMMITTED.value
             if decision.lifecycle == SnapshotLifecycle.REUSED and baseline_meta:
                 core_write.delete_snapshot_tree(conn, snapshot.snapshot_id)
-                core_write.delete_committed_snapshots_except(conn, baseline_meta["snapshot_id"])
+                core_write.delete_committed_snapshots_except(
+                    conn, baseline_meta["snapshot_id"]
+                )
                 core_write.prune_orphan_structural_nodes(conn)
                 committed_snapshot_id = baseline_meta["snapshot_id"]
                 status = decision.lifecycle.value

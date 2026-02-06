@@ -1,4 +1,5 @@
 """Dependency edge reducer."""
+
 from __future__ import annotations
 
 from typing import Dict, List, Optional
@@ -32,7 +33,9 @@ def render(
     **_: object,
 ) -> str:
     conn = require_connection(conn)
-    require_latest_committed_snapshot(conn, snapshot_id, reducer_name="dependency_edges reducer")
+    require_latest_committed_snapshot(
+        conn, snapshot_id, reducer_name="dependency_edges reducer"
+    )
     source_selector = from_module_id or module_id
     from_ids: Optional[List[str]] = None
     to_ids: Optional[List[str]] = None
@@ -54,7 +57,9 @@ def render(
     if from_ids == [] or to_ids == []:
         edges = []
     else:
-        edges = _fetch_edges(conn, snapshot_id, from_ids, to_ids, edge_type_value, limit_value)
+        edges = _fetch_edges(
+            conn, snapshot_id, from_ids, to_ids, edge_type_value, limit_value
+        )
     lookup = _node_lookup(
         conn,
         snapshot_id,
@@ -106,7 +111,9 @@ def _resolve_module_ids(conn, snapshot_id: str, module_name: str) -> List[str]:
     ).fetchall()
     module_ids = [row["structural_id"] for row in rows]
     if not module_ids:
-        raise ValueError(f"Module '{module_name}' not found in snapshot '{snapshot_id}'.")
+        raise ValueError(
+            f"Module '{module_name}' not found in snapshot '{snapshot_id}'."
+        )
     return module_ids
 
 
@@ -129,7 +136,9 @@ def _resolve_module_query(conn, snapshot_id: str, query: str) -> List[str]:
     ).fetchall()
     module_ids = [row["structural_id"] for row in rows]
     if not module_ids:
-        raise ValueError(f"No modules match query '{normalized}' in snapshot '{snapshot_id}'.")
+        raise ValueError(
+            f"No modules match query '{normalized}' in snapshot '{snapshot_id}'."
+        )
     return module_ids
 
 
@@ -164,7 +173,11 @@ def _fetch_edges(
     edge_type: str | None,
     limit: int | None,
 ) -> List[Dict[str, str]]:
-    clauses = ["e.snapshot_id = ?", "sn_src.node_type = 'module'", "sn_dst.node_type = 'module'"]
+    clauses = [
+        "e.snapshot_id = ?",
+        "sn_src.node_type = 'module'",
+        "sn_dst.node_type = 'module'",
+    ]
     params: list[object] = [snapshot_id]
     if edge_type:
         clauses.append("e.edge_type = ?")
@@ -203,7 +216,9 @@ def _fetch_edges(
     ]
 
 
-def _node_lookup(conn, snapshot_id: str, node_ids: set[str]) -> Dict[str, Dict[str, str]]:
+def _node_lookup(
+    conn, snapshot_id: str, node_ids: set[str]
+) -> Dict[str, Dict[str, str]]:
     if not node_ids:
         return {}
     placeholders = ",".join("?" for _ in node_ids)

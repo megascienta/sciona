@@ -1,11 +1,12 @@
 """Git adapter abstraction for test seams."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
 
-from . import paths as runtime
+from .. import paths as runtime
 
 
 class GitAdapter(Protocol):

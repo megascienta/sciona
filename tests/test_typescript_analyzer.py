@@ -37,7 +37,9 @@ def test_typescript_analyzer_extracts_structure(tmp_path):
     result = analyzer.analyze(snapshot, "src.mod")
     node_types = {node.node_type for node in result.nodes}
     assert {"module", "class", "function", "method"}.issubset(node_types)
-    import_edges = [edge for edge in result.edges if edge.edge_type == "IMPORTS_DECLARED"]
+    import_edges = [
+        edge for edge in result.edges if edge.edge_type == "IMPORTS_DECLARED"
+    ]
     assert import_edges
     imported = {edge.dst_qualified_name for edge in import_edges}
     repo_prefix = runtime_paths.repo_name_prefix(repo)

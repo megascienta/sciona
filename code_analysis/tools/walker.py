@@ -1,8 +1,9 @@
 """Tracked-file discovery for ingestion."""
+
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Iterable, List, Optional, Set
+from typing import List, Optional, Set
 
 import pathspec
 

@@ -24,7 +24,9 @@ def test_walker_tracks_paths_and_exclude_globs(tmp_path):
 
     discovery = core_config.DiscoverySettings(exclude_globs=["**/dist/**"])
     tracked = {Path("src/kept.py").as_posix(), Path("src/dist/ignored.py").as_posix()}
-    records = walker.collect_files(repo, _settings(), discovery=discovery, tracked_paths=tracked)
+    records = walker.collect_files(
+        repo, _settings(), discovery=discovery, tracked_paths=tracked
+    )
     paths = [record.relative_path.as_posix() for record in records]
     assert paths == ["src/kept.py"]
 

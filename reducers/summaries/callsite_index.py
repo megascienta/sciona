@@ -1,4 +1,5 @@
 """Callsite index reducer."""
+
 from __future__ import annotations
 
 from typing import Dict, List, Optional
@@ -33,7 +34,9 @@ def render(
     **_: object,
 ) -> str:
     conn = require_connection(conn)
-    require_latest_committed_snapshot(conn, snapshot_id, reducer_name="callsite_index reducer")
+    require_latest_committed_snapshot(
+        conn, snapshot_id, reducer_name="callsite_index reducer"
+    )
     if callable_id and not (function_id or method_id):
         function_id = callable_id
     if method_id:
@@ -48,11 +51,15 @@ def render(
         owns_connection = artifact_conn is not None
     artifact_available = _artifact_db_available(artifact_conn)
     try:
-        edges = _load_edges(repo_root, snapshot_id, resolved_id, dir_value, artifact_conn=artifact_conn)
+        edges = _load_edges(
+            repo_root, snapshot_id, resolved_id, dir_value, artifact_conn=artifact_conn
+        )
     finally:
         if owns_connection:
             artifact_conn.close()
-    node_ids = {edge["caller_id"] for edge in edges} | {edge["callee_id"] for edge in edges}
+    node_ids = {edge["caller_id"] for edge in edges} | {
+        edge["callee_id"] for edge in edges
+    }
     lookup = _node_lookup(conn, snapshot_id, node_ids)
     module_lookup = queries.module_id_lookup(conn, snapshot_id)
     enriched = []
@@ -197,7 +204,9 @@ def _load_edges(
     return fallback
 
 
-def _node_lookup(conn, snapshot_id: str, node_ids: set[str]) -> Dict[str, Dict[str, str]]:
+def _node_lookup(
+    conn, snapshot_id: str, node_ids: set[str]
+) -> Dict[str, Dict[str, str]]:
     if not node_ids:
         return {}
     placeholders = ",".join("?" for _ in node_ids)

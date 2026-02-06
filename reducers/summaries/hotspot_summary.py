@@ -1,10 +1,12 @@
 """Compressed hotspot summary reducer."""
+
 from __future__ import annotations
 
 from collections import Counter
 
 from ..metadata import ReducerMeta
-from ..helpers.base import load_structural_index, render_json_payload, require_connection
+from ..helpers.base import load_structural_index
+from ..helpers.render import render_json_payload, require_connection
 from ..helpers.utils import require_latest_committed_snapshot, top_modules
 
 REDUCER_META = ReducerMeta(
@@ -18,9 +20,12 @@ REDUCER_META = ReducerMeta(
     lossy=True,
 )
 
+
 def render(snapshot_id: str, conn, repo_root, **_: object) -> str:
     conn = require_connection(conn)
-    require_latest_committed_snapshot(conn, snapshot_id, reducer_name="hotspot_summary reducer")
+    require_latest_committed_snapshot(
+        conn, snapshot_id, reducer_name="hotspot_summary reducer"
+    )
     payload = load_structural_index(snapshot_id, conn, repo_root)
     module_entries = (payload.get("modules") or {}).get("entries", []) or []
     edges = (payload.get("imports") or {}).get("edges", []) or []
@@ -33,10 +38,16 @@ def render(snapshot_id: str, conn, repo_root, **_: object) -> str:
         )
 
     by_size = [
-        {"module_qualified_name": entry.get("module_qualified_name"), "count": _size_metric(entry)}
+        {
+            "module_qualified_name": entry.get("module_qualified_name"),
+            "count": _size_metric(entry),
+        }
         for entry in sorted(
             module_entries,
-            key=lambda item: (-_size_metric(item), item.get("module_qualified_name") or ""),
+            key=lambda item: (
+                -_size_metric(item),
+                item.get("module_qualified_name") or "",
+            ),
         )[:5]
         if entry.get("module_qualified_name")
     ]

@@ -13,7 +13,13 @@ from sciona.data_storage.transactions import transaction
 from sciona.pipelines import setup as versioning
 
 
-def insert_snapshot(conn, snapshot_id: str, *, is_committed: bool = True, structural_hash: Optional[str] = None) -> None:
+def insert_snapshot(
+    conn,
+    snapshot_id: str,
+    *,
+    is_committed: bool = True,
+    structural_hash: Optional[str] = None,
+) -> None:
     created_at = "2024-01-01T00:00:00Z"
     commit_time = created_at
     structural_hash = structural_hash or f"hash-{snapshot_id}"
@@ -56,8 +62,20 @@ def setup_structural_index_db(tmp_path: Path) -> Tuple[Path, str]:
         ("mod_alpha", "module", "python", "pkg.alpha", "pkg/alpha/__init__.py"),
         ("mod_beta", "module", "python", "pkg.beta", "pkg/beta/__init__.py"),
         ("cls_alpha", "class", "python", "pkg.alpha.Service", "pkg/alpha/service.py"),
-        ("func_alpha", "function", "python", "pkg.alpha.service.helper", "pkg/alpha/service.py"),
-        ("meth_alpha", "method", "python", "pkg.alpha.Service.run", "pkg/alpha/service.py"),
+        (
+            "func_alpha",
+            "function",
+            "python",
+            "pkg.alpha.service.helper",
+            "pkg/alpha/service.py",
+        ),
+        (
+            "meth_alpha",
+            "method",
+            "python",
+            "pkg.alpha.Service.run",
+            "pkg/alpha/service.py",
+        ),
     ]
     for structural_id, node_type, language, qualified_name, path in nodes:
         conn.execute(
@@ -65,7 +83,13 @@ def setup_structural_index_db(tmp_path: Path) -> Tuple[Path, str]:
             INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id, retired_snapshot_id)
             VALUES (?, ?, ?, ?, ?)
             """,
-            (structural_id, node_type, language, snapshot_id, setup_config.ACTIVE_RETIREMENT_FLAG),
+            (
+                structural_id,
+                node_type,
+                language,
+                snapshot_id,
+                setup_config.ACTIVE_RETIREMENT_FLAG,
+            ),
         )
         conn.execute(
             """
@@ -129,7 +153,9 @@ def seed_repo_with_snapshot(tmp_path: Path, *, commit: bool = True) -> Tuple[Pat
         core_conn.close()
     (repo_root / "pkg/alpha").mkdir(parents=True, exist_ok=True)
     (repo_root / "pkg/beta").mkdir(parents=True, exist_ok=True)
-    (repo_root / "pkg/alpha/service.py").write_text("def helper():\n    return 1\n", encoding="utf-8")
+    (repo_root / "pkg/alpha/service.py").write_text(
+        "def helper():\n    return 1\n", encoding="utf-8"
+    )
     (repo_root / "pkg/alpha/__init__.py").write_text("", encoding="utf-8")
     (repo_root / "pkg/beta/__init__.py").write_text("", encoding="utf-8")
     if commit:
@@ -152,7 +178,9 @@ def init_git_repo(repo_root: Path, *, commit: bool = False) -> None:
         capture_output=True,
     )
     if commit:
-        subprocess.run(["git", "add", "-A"], cwd=repo_root, check=True, capture_output=True)
+        subprocess.run(
+            ["git", "add", "-A"], cwd=repo_root, check=True, capture_output=True
+        )
         subprocess.run(
             ["git", "commit", "--allow-empty", "-m", "init"],
             cwd=repo_root,
@@ -163,7 +191,9 @@ def init_git_repo(repo_root: Path, *, commit: bool = False) -> None:
 
 def commit_all(repo_root: Path, *, message: str = "init") -> None:
     subprocess.run(["git", "add", "-A"], cwd=repo_root, check=True, capture_output=True)
-    subprocess.run(["git", "commit", "-m", message], cwd=repo_root, check=True, capture_output=True)
+    subprocess.run(
+        ["git", "commit", "-m", message], cwd=repo_root, check=True, capture_output=True
+    )
 
 
 def setup_evolution_db(tmp_path: Path) -> Dict[str, object]:
@@ -176,20 +206,75 @@ def setup_evolution_db(tmp_path: Path) -> Dict[str, object]:
     insert_snapshot(conn, "snap_a", structural_hash="struct-a")
     insert_snapshot(conn, "snap_b", structural_hash="struct-b")
     nodes = [
-        ("mod_alpha", "module", "python", "pkg.alpha", "pkg/alpha/__init__.py", ["snap_a", "snap_b"]),
-        ("mod_beta", "module", "python", "pkg.beta", "pkg/beta/__init__.py", ["snap_b"]),
-        ("func_old", "function", "python", "pkg.alpha.old_helper", "pkg/alpha/old.py", ["snap_a"]),
-        ("func_new", "function", "python", "pkg.alpha.new_helper", "pkg/alpha/new.py", ["snap_b"]),
-        ("func_beta", "function", "python", "pkg.beta.worker", "pkg/beta/worker.py", ["snap_a", "snap_b"]),
-        ("orphan_func", "function", "python", "pkg.alpha.orphan", "pkg/alpha/orphan.py", ["snap_b"]),
+        (
+            "mod_alpha",
+            "module",
+            "python",
+            "pkg.alpha",
+            "pkg/alpha/__init__.py",
+            ["snap_a", "snap_b"],
+        ),
+        (
+            "mod_beta",
+            "module",
+            "python",
+            "pkg.beta",
+            "pkg/beta/__init__.py",
+            ["snap_b"],
+        ),
+        (
+            "func_old",
+            "function",
+            "python",
+            "pkg.alpha.old_helper",
+            "pkg/alpha/old.py",
+            ["snap_a"],
+        ),
+        (
+            "func_new",
+            "function",
+            "python",
+            "pkg.alpha.new_helper",
+            "pkg/alpha/new.py",
+            ["snap_b"],
+        ),
+        (
+            "func_beta",
+            "function",
+            "python",
+            "pkg.beta.worker",
+            "pkg/beta/worker.py",
+            ["snap_a", "snap_b"],
+        ),
+        (
+            "orphan_func",
+            "function",
+            "python",
+            "pkg.alpha.orphan",
+            "pkg/alpha/orphan.py",
+            ["snap_b"],
+        ),
     ]
-    for structural_id, node_type, language, qualified_name, path, snapshots_present in nodes:
+    for (
+        structural_id,
+        node_type,
+        language,
+        qualified_name,
+        path,
+        snapshots_present,
+    ) in nodes:
         conn.execute(
             """
             INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id, retired_snapshot_id)
             VALUES (?, ?, ?, ?, ?)
             """,
-            (structural_id, node_type, language, "snap_a", setup_config.ACTIVE_RETIREMENT_FLAG),
+            (
+                structural_id,
+                node_type,
+                language,
+                "snap_a",
+                setup_config.ACTIVE_RETIREMENT_FLAG,
+            ),
         )
         for snap in snapshots_present:
             conn.execute(
@@ -245,7 +330,9 @@ class Diagnostics:
     def __init__(self, conn):
         self._conn = conn
 
-    def run(self, snapshot_id: str, include_breakdown: bool = False) -> DiagnosticsResult:
+    def run(
+        self, snapshot_id: str, include_breakdown: bool = False
+    ) -> DiagnosticsResult:
         orphan_nodes = self._find_orphan_nodes(snapshot_id)
         dangling_edges = self._count_dangling_edges(snapshot_id)
         missing_instances = self._count_missing_instances(snapshot_id)
@@ -373,7 +460,11 @@ class Diagnostics:
             """,
             (snapshot_id,),
         ).fetchall()
-        module_names = {row["qualified_name"] for row in rows if row["node_type"] == "module" and row["qualified_name"]}
+        module_names = {
+            row["qualified_name"]
+            for row in rows
+            if row["node_type"] == "module" and row["qualified_name"]
+        }
         lookup = {}
         for row in rows:
             qualified_name = row["qualified_name"]
@@ -385,16 +476,27 @@ class Diagnostics:
             module_id = lookup.get(structural_id)
             if not module_id:
                 continue
-            entry = issues.setdefault(module_id, {"module_id": module_id, "orphan_nodes": 0, "containment_conflicts": 0})
+            entry = issues.setdefault(
+                module_id,
+                {"module_id": module_id, "orphan_nodes": 0, "containment_conflicts": 0},
+            )
             entry["orphan_nodes"] += 1
         for structural_id in containment_conflicts:
             module_id = lookup.get(structural_id)
             if not module_id:
                 continue
-            entry = issues.setdefault(module_id, {"module_id": module_id, "orphan_nodes": 0, "containment_conflicts": 0})
+            entry = issues.setdefault(
+                module_id,
+                {"module_id": module_id, "orphan_nodes": 0, "containment_conflicts": 0},
+            )
             entry["containment_conflicts"] += 1
         entries = list(issues.values())
-        entries.sort(key=lambda item: (-(item["orphan_nodes"] + item["containment_conflicts"]), item["module_id"]))
+        entries.sort(
+            key=lambda item: (
+                -(item["orphan_nodes"] + item["containment_conflicts"]),
+                item["module_id"],
+            )
+        )
         return entries
 
 
@@ -438,7 +540,8 @@ class SnapshotDelta:
                 "to_path": nodes_b[structural_id]["file_path"],
             }
             for structural_id in sorted(set(nodes_a) & set(nodes_b))
-            if nodes_a[structural_id]["file_path"] != nodes_b[structural_id]["file_path"]
+            if nodes_a[structural_id]["file_path"]
+            != nodes_b[structural_id]["file_path"]
         ]
         added_nodes.sort(key=lambda item: item.get("qualified_name") or "")
         removed_nodes.sort(key=lambda item: item.get("qualified_name") or "")
@@ -446,8 +549,20 @@ class SnapshotDelta:
 
         added_edges = [_edge_entry(edge) for edge in edges_b - edges_a]
         removed_edges = [_edge_entry(edge) for edge in edges_a - edges_b]
-        added_edges.sort(key=lambda item: (item["src_structural_id"], item["dst_structural_id"], item["edge_type"]))
-        removed_edges.sort(key=lambda item: (item["src_structural_id"], item["dst_structural_id"], item["edge_type"]))
+        added_edges.sort(
+            key=lambda item: (
+                item["src_structural_id"],
+                item["dst_structural_id"],
+                item["edge_type"],
+            )
+        )
+        removed_edges.sort(
+            key=lambda item: (
+                item["src_structural_id"],
+                item["dst_structural_id"],
+                item["edge_type"],
+            )
+        )
 
         return cls(
             snapshot_a=snapshot_a,
@@ -496,7 +611,10 @@ def _load_edges(conn, snapshot_id: str) -> set[Tuple[str, str, str]]:
         """,
         (snapshot_id,),
     ).fetchall()
-    return {(row["src_structural_id"], row["dst_structural_id"], row["edge_type"]) for row in rows}
+    return {
+        (row["src_structural_id"], row["dst_structural_id"], row["edge_type"])
+        for row in rows
+    }
 
 
 def _node_entry(structural_id: str, data: Dict[str, object]) -> Dict[str, object]:

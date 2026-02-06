@@ -1,4 +1,5 @@
 """Identifier resolution helpers for prompts/reducers."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -81,7 +82,9 @@ def _resolve_identifier(
         )
         return ResolutionResult("ambiguous", None, candidates)
 
-    candidates = tuple(_search_candidates(conn, snapshot_id, identifier, node_types, limit=limit))
+    candidates = tuple(
+        _search_candidates(conn, snapshot_id, identifier, node_types, limit=limit)
+    )
     return ResolutionResult("missing", None, candidates)
 
 
@@ -200,7 +203,12 @@ def _search_candidates(
             )
         )
     candidates.sort(
-        key=lambda item: (-item.score, item.qualified_name, item.language, item.file_path)
+        key=lambda item: (
+            -item.score,
+            item.qualified_name,
+            item.language,
+            item.file_path,
+        )
     )
     return candidates[:limit]
 

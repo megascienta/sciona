@@ -1,4 +1,5 @@
 """Core structural query helpers."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -33,7 +34,9 @@ def resolve_function_id(conn, snapshot_id: str, function_id: str | None) -> str:
         (snapshot_id,),
     ).fetchall()
     if len(rows) != 1:
-        raise ValueError("Reducer requires exactly one function or method in the snapshot.")
+        raise ValueError(
+            "Reducer requires exactly one function or method in the snapshot."
+        )
     return rows[0]["structural_id"]
 
 
@@ -87,7 +90,9 @@ def module_id_lookup(conn, snapshot_id: str) -> Dict[str, str]:
         (snapshot_id,),
     ).fetchall()
     module_names: Set[str] = {
-        row["qualified_name"] for row in rows if row["node_type"] == "module" and row["qualified_name"]
+        row["qualified_name"]
+        for row in rows
+        if row["node_type"] == "module" and row["qualified_name"]
     }
     lookup: Dict[str, str] = {}
     for row in rows:
@@ -116,7 +121,9 @@ def module_root_paths(conn, snapshot_id: str, repo_root: Path) -> List[Path]:
     return sorted(roots, key=lambda path: path.as_posix())
 
 
-def resolve_module_root(conn, snapshot_id: str, module_id: str, repo_root: Path) -> Path:
+def resolve_module_root(
+    conn, snapshot_id: str, module_id: str, repo_root: Path
+) -> Path:
     row = conn.execute(
         """
         SELECT ni.file_path

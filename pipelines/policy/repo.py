@@ -1,4 +1,5 @@
 """Repository policy helpers (validation and guards)."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -8,10 +9,10 @@ from ...code_analysis.core.extract.registry import extensions_for_language
 from ...runtime import git as git_ops
 from ...runtime import paths as runtime_paths
 from ...runtime import config as runtime_config
-from ...runtime.git_adapter import GitAdapter, RealGitAdapter
+from ...runtime.git.adapter import GitAdapter, RealGitAdapter
 from ..domain.repository import RepoState
 from ...runtime.config import LanguageSettings
-from ...runtime.config_defaults import LANGUAGE_DEFAULTS
+from ...runtime.config.defaults import LANGUAGE_DEFAULTS
 from .. import setup as versioning
 from ..errors import ConfigError, GitError
 

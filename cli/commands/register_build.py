@@ -1,4 +1,5 @@
 """CLI commands for repository builds."""
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -21,7 +22,9 @@ def register_build(app: typer.Typer) -> None:
         _emit_build_warnings(result)
         _exit_if_no_discovery(result)
         if result.status == "reused":
-            typer.echo(f"No structural diffs detected; snapshot {result.snapshot_id} reused.")
+            typer.echo(
+                f"No structural diffs detected; snapshot {result.snapshot_id} reused."
+            )
         else:
             typer.echo(f"Snapshot {result.snapshot_id} recorded.")
         _record_last_build(result)

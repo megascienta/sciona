@@ -1,4 +1,5 @@
 """CLI commands for repository initialization."""
+
 from __future__ import annotations
 
 import sys
@@ -70,7 +71,10 @@ def _maybe_init_dialog(sciona_dir, *, no_interactive: bool) -> None:
     supported = cli_call(api_repo.init_supported_languages)
     selected = _parse_language_selection(selection, detected, supported)
     if selected is None:
-        typer.secho("No valid languages selected; leaving defaults unchanged.", fg=typer.colors.YELLOW)
+        typer.secho(
+            "No valid languages selected; leaving defaults unchanged.",
+            fg=typer.colors.YELLOW,
+        )
         return
     try:
         cli_call(api_repo.init_apply_languages, selected)
@@ -111,30 +115,42 @@ def _maybe_init_agents(
         agents = True
     if not no_interactive and sys.stdin.isatty():
         if agents:
-            typer.secho("Ignoring --agents flags in interactive mode.", fg=typer.colors.YELLOW)
-        if not typer.confirm("Generate a managed SCIONA block in AGENTS.md?", default=False):
+            typer.secho(
+                "Ignoring --agents flags in interactive mode.", fg=typer.colors.YELLOW
+            )
+        if not typer.confirm(
+            "Generate a managed SCIONA block in AGENTS.md?", default=False
+        ):
             return
         repo_root = cli_call(api_runtime.get_repo_root)
         agents_path = repo_root / "AGENTS.md"
         mode = "append"
         if agents_path.exists():
-            action = typer.prompt(
-                "AGENTS.md exists. Choose action [append/overwrite/skip]",
-                default="append",
-            ).strip().lower()
+            action = (
+                typer.prompt(
+                    "AGENTS.md exists. Choose action [append/overwrite/skip]",
+                    default="append",
+                )
+                .strip()
+                .lower()
+            )
             if action == "skip":
                 return
             if action == "overwrite":
                 mode = "overwrite"
             elif action != "append":
-                typer.secho("Unknown choice; skipping AGENTS.md update.", fg=typer.colors.YELLOW)
+                typer.secho(
+                    "Unknown choice; skipping AGENTS.md update.", fg=typer.colors.YELLOW
+                )
                 return
         path = cli_call(api_repo.init_agents, repo_root, mode=mode)
         typer.echo(f"Updated {path}")
         return
     if agents:
         if agents_append and agents_overwrite:
-            raise typer.BadParameter("Choose only one of --agents-append or --agents-overwrite.")
+            raise typer.BadParameter(
+                "Choose only one of --agents-append or --agents-overwrite."
+            )
         mode = "overwrite" if agents_overwrite else "append"
         path = cli_call(api_repo.init_agents, api_runtime.get_repo_root(), mode=mode)
         typer.echo(f"Updated {path}")

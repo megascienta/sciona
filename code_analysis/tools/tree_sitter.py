@@ -1,4 +1,5 @@
 """Tree-sitter adapter helpers."""
+
 from __future__ import annotations
 
 from tree_sitter import Parser

@@ -1,4 +1,5 @@
 """Packaging metadata helpers (best-effort)."""
+
 from __future__ import annotations
 
 import tomllib

@@ -1,13 +1,14 @@
 """Snapshot metadata capture helpers."""
+
 from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 from ...runtime import git as git_ops
 from ...runtime.time import utc_now
+
 
 @dataclass
 class Snapshot:
@@ -17,7 +18,6 @@ class Snapshot:
     git_commit_sha: str
     git_commit_time: str
     git_branch: str
-
 
 
 def create_snapshot(repo_root: Path, source: str = "scan") -> Snapshot:

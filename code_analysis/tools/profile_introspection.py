@@ -1,4 +1,5 @@
 """Language-specific symbol introspection helpers for profile reducers."""
+
 from __future__ import annotations
 
 import ast
@@ -27,7 +28,12 @@ def python_function_extras(
     details = inspector.function_details(start_line, end_line)
     if not details:
         return [], False, None, []
-    return details.parameters, details.has_docstring, details.docstring_span, details.decorators
+    return (
+        details.parameters,
+        details.has_docstring,
+        details.docstring_span,
+        details.decorators,
+    )
 
 
 def python_class_extras(
@@ -46,7 +52,12 @@ def python_class_extras(
     details = inspector.class_details(start_line, end_line)
     if not details:
         return [], [], False, None
-    return details.decorators, details.bases, details.has_docstring, details.docstring_span
+    return (
+        details.decorators,
+        details.bases,
+        details.has_docstring,
+        details.docstring_span,
+    )
 
 
 def typescript_function_extras(
@@ -68,7 +79,9 @@ def typescript_function_extras(
             parameters = details.parameters
             decorators = details.decorators
     if not parameters:
-        fallback = _line_based_ts_parameters(repo_root / file_path, start_line, end_line)
+        fallback = _line_based_ts_parameters(
+            repo_root / file_path, start_line, end_line
+        )
         if fallback:
             parameters = fallback
     return parameters, decorators
@@ -116,7 +129,9 @@ class _PythonInspector:
         self.classes: Dict[Tuple[int, int], _ClassDetails] = {}
         self._scan(self._tree, 0)
 
-    def function_details(self, start_line: int, end_line: int) -> Optional[_FunctionDetails]:
+    def function_details(
+        self, start_line: int, end_line: int
+    ) -> Optional[_FunctionDetails]:
         return self.functions.get((start_line, end_line))
 
     def class_details(self, start_line: int, end_line: int) -> Optional[_ClassDetails]:
@@ -144,7 +159,9 @@ class _PythonInspector:
             parameters=_collect_parameters(node.args),
             has_docstring=doc_span is not None,
             docstring_span=doc_span,
-            decorators=[_safe_unparse(entry) for entry in getattr(node, "decorator_list", [])],
+            decorators=[
+                _safe_unparse(entry) for entry in getattr(node, "decorator_list", [])
+            ],
         )
 
     def _record_class(self, node: ast.ClassDef) -> None:
@@ -168,12 +185,16 @@ class _PythonInspector:
         )
 
 
-def _python_inspector(repo_root: Path, relative_path: str) -> Optional[_PythonInspector]:
+def _python_inspector(
+    repo_root: Path, relative_path: str
+) -> Optional[_PythonInspector]:
     return _python_inspector_cached(str(repo_root.resolve()), relative_path)
 
 
 @lru_cache(maxsize=128)
-def _python_inspector_cached(root_key: str, relative_path: str) -> Optional[_PythonInspector]:
+def _python_inspector_cached(
+    root_key: str, relative_path: str
+) -> Optional[_PythonInspector]:
     path = Path(root_key) / relative_path
     try:
         source = path.read_text(encoding="utf-8")
@@ -259,10 +280,14 @@ class _TypeScriptInspector:
         self.classes: Dict[Tuple[int, int], _TypeScriptClassDetails] = {}
         self._scan(tree.root_node)
 
-    def function_details(self, start_line: int, end_line: int) -> Optional[_TypeScriptFunctionDetails]:
+    def function_details(
+        self, start_line: int, end_line: int
+    ) -> Optional[_TypeScriptFunctionDetails]:
         return self.functions.get((start_line, end_line))
 
-    def class_details(self, start_line: int, end_line: int) -> Optional[_TypeScriptClassDetails]:
+    def class_details(
+        self, start_line: int, end_line: int
+    ) -> Optional[_TypeScriptClassDetails]:
         return self.classes.get((start_line, end_line))
 
     def _scan(self, node) -> None:
@@ -283,11 +308,15 @@ class _TypeScriptInspector:
             text = self._slice(params_node.start_byte, params_node.end_byte)
             parameters = _parse_typescript_parameters(text)
         else:
-            fragment = _find_parameter_fragment(self._source, node.start_byte, node.end_byte)
+            fragment = _find_parameter_fragment(
+                self._source, node.start_byte, node.end_byte
+            )
             if fragment:
                 parameters = _parse_typescript_parameters(fragment)
         decorators = _collect_ts_decorators(node, self._source)
-        self.functions[(lineno, end_lineno)] = _TypeScriptFunctionDetails(parameters=parameters, decorators=decorators)
+        self.functions[(lineno, end_lineno)] = _TypeScriptFunctionDetails(
+            parameters=parameters, decorators=decorators
+        )
 
     def _record_class(self, node) -> None:
         lineno = node.start_point[0] + 1
@@ -298,18 +327,24 @@ class _TypeScriptInspector:
         if heritage:
             text = self._slice(heritage.start_byte, heritage.end_byte)
             bases = _parse_typescript_bases(text)
-        self.classes[(lineno, end_lineno)] = _TypeScriptClassDetails(decorators=decorators, bases=bases)
+        self.classes[(lineno, end_lineno)] = _TypeScriptClassDetails(
+            decorators=decorators, bases=bases
+        )
 
     def _slice(self, start: int, end: int) -> str:
         return self._source.encode("utf-8")[start:end].decode("utf-8")
 
 
-def _typescript_inspector(repo_root: Path, relative_path: str) -> Optional[_TypeScriptInspector]:
+def _typescript_inspector(
+    repo_root: Path, relative_path: str
+) -> Optional[_TypeScriptInspector]:
     return _typescript_inspector_cached(str(repo_root.resolve()), relative_path)
 
 
 @lru_cache(maxsize=128)
-def _typescript_inspector_cached(root_key: str, relative_path: str) -> Optional[_TypeScriptInspector]:
+def _typescript_inspector_cached(
+    root_key: str, relative_path: str
+) -> Optional[_TypeScriptInspector]:
     path = Path(root_key) / relative_path
     try:
         source = path.read_text(encoding="utf-8")
@@ -355,12 +390,18 @@ def _collect_ts_decorators(node, source: str) -> List[str]:
         return decorators
     for child in node.children:
         if child.type == "decorator":
-            text = source.encode("utf-8")[child.start_byte : child.end_byte].decode("utf-8").strip()
+            text = (
+                source.encode("utf-8")[child.start_byte : child.end_byte]
+                .decode("utf-8")
+                .strip()
+            )
             decorators.append(text)
     return decorators
 
 
-def _find_parameter_fragment(source: str, start_byte: int, end_byte: int) -> Optional[str]:
+def _find_parameter_fragment(
+    source: str, start_byte: int, end_byte: int
+) -> Optional[str]:
     segment = source.encode("utf-8")[start_byte:end_byte].decode("utf-8")
     start = segment.find("(")
     end = segment.find(")", start + 1)

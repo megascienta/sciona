@@ -1,4 +1,5 @@
 """Cross-layer SCIONA error hierarchy."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -35,7 +36,9 @@ class ScionaError(RuntimeError):
         if self.status_code is None:
             self.status_code = getattr(self, "DEFAULT_STATUS_CODE", 400)
         if self.rollback_policy is None:
-            self.rollback_policy = getattr(self, "DEFAULT_ROLLBACK_POLICY", RollbackPolicy.CORE_ONLY)
+            self.rollback_policy = getattr(
+                self, "DEFAULT_ROLLBACK_POLICY", RollbackPolicy.CORE_ONLY
+            )
 
     def __str__(self) -> str:
         return self.message

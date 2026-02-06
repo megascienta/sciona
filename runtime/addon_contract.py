@@ -1,4 +1,5 @@
 """Plugin API version contract for addons."""
+
 from __future__ import annotations
 
 import re

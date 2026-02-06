@@ -1,4 +1,5 @@
 """CLI helper to compile prompts."""
+
 from __future__ import annotations
 
 from typing import Optional
@@ -21,15 +22,30 @@ from .utils import (
 def register(app: typer.Typer) -> None:
     prompt_app = typer.Typer(help="Prompt registry helpers.", no_args_is_help=True)
 
-    @prompt_app.command("run", context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
+    @prompt_app.command(
+        "run",
+        context_settings={"allow_extra_args": True, "ignore_unknown_options": True},
+    )
     def run_prompt(
         ctx: typer.Context,
         prompt_id: str = typer.Argument(..., help="Prompt id (from registry)."),
-        answer: bool = typer.Option(False, "--answer", help="Send the prompt to the configured LLM and print the answer."),
-        json_output: bool = typer.Option(False, "--json", help="Emit machine-readable JSON output."),
-        node_id: Optional[str] = typer.Option(None, "--id", help="Use a structural id directly."),
-        callable_id: Optional[str] = typer.Option(None, "--callable-id", help="Callable id (function or method)."),
-        function_id: Optional[str] = typer.Option(None, "--function-id", help="Function id."),
+        answer: bool = typer.Option(
+            False,
+            "--answer",
+            help="Send the prompt to the configured LLM and print the answer.",
+        ),
+        json_output: bool = typer.Option(
+            False, "--json", help="Emit machine-readable JSON output."
+        ),
+        node_id: Optional[str] = typer.Option(
+            None, "--id", help="Use a structural id directly."
+        ),
+        callable_id: Optional[str] = typer.Option(
+            None, "--callable-id", help="Callable id (function or method)."
+        ),
+        function_id: Optional[str] = typer.Option(
+            None, "--function-id", help="Function id."
+        ),
         method_id: Optional[str] = typer.Option(None, "--method-id", help="Method id."),
         class_id: Optional[str] = typer.Option(None, "--class-id", help="Class id."),
         module_id: Optional[str] = typer.Option(None, "--module-id", help="Module id."),
@@ -206,23 +222,35 @@ def _collect_prompt_options(entry: dict[str, object]) -> tuple[list[str], list[s
     optional_flags: list[str] = []
     seen_required: set[str] = set()
     seen_optional: set[str] = set()
-    required_args = [arg for arg in entry.get("required_args") or [] if isinstance(arg, str)]
-    optional_args = [arg for arg in entry.get("optional_args") or [] if isinstance(arg, str)]
-    default_args = [arg for arg in entry.get("default_args") or {} if isinstance(arg, str)]
+    required_args = [
+        arg for arg in entry.get("required_args") or [] if isinstance(arg, str)
+    ]
+    optional_args = [
+        arg for arg in entry.get("optional_args") or [] if isinstance(arg, str)
+    ]
+    default_args = [
+        arg for arg in entry.get("default_args") or {} if isinstance(arg, str)
+    ]
     for arg in required_args:
-        flag = _STANDARD_PROMPT_ARGS.get(arg, f"--{arg.replace('_', '-')} {arg.upper()}")
+        flag = _STANDARD_PROMPT_ARGS.get(
+            arg, f"--{arg.replace('_', '-')} {arg.upper()}"
+        )
         if flag in seen_required:
             continue
         seen_required.add(flag)
         required_flags.append(flag)
     for arg in optional_args:
-        flag = _STANDARD_PROMPT_ARGS.get(arg, f"--{arg.replace('_', '-')} {arg.upper()}")
+        flag = _STANDARD_PROMPT_ARGS.get(
+            arg, f"--{arg.replace('_', '-')} {arg.upper()}"
+        )
         if flag in seen_required or flag in seen_optional:
             continue
         seen_optional.add(flag)
         optional_flags.append(f"[{flag}]")
     for arg in default_args:
-        flag = _STANDARD_PROMPT_ARGS.get(arg, f"--{arg.replace('_', '-')} {arg.upper()}")
+        flag = _STANDARD_PROMPT_ARGS.get(
+            arg, f"--{arg.replace('_', '-')} {arg.upper()}"
+        )
         if flag in seen_required or flag in seen_optional:
             continue
         seen_optional.add(flag)

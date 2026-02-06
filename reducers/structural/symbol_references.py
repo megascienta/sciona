@@ -1,9 +1,9 @@
 """Symbol reference reducer."""
+
 from __future__ import annotations
 
 from typing import Dict, List, Optional, Sequence
 
-from ..helpers import queries
 from ..helpers.artifact_graph_edges import artifact_db_available, load_artifact_edges
 from ..helpers.render import render_json_payload, require_connection
 from ..helpers.utils import require_latest_committed_snapshot
@@ -33,13 +33,17 @@ def render(
     **_: object,
 ) -> str:
     conn = require_connection(conn)
-    require_latest_committed_snapshot(conn, snapshot_id, reducer_name="symbol_references reducer")
+    require_latest_committed_snapshot(
+        conn, snapshot_id, reducer_name="symbol_references reducer"
+    )
     if not query or not str(query).strip():
         raise ValueError("symbol_references requires a non-empty query.")
     node_types = _normalize_kind(kind)
     normalized_query = str(query).strip()
     limit_value = _normalize_limit(limit)
-    candidates = _fetch_candidates(conn, snapshot_id, normalized_query, node_types, limit=limit_value * 5)
+    candidates = _fetch_candidates(
+        conn, snapshot_id, normalized_query, node_types, limit=limit_value * 5
+    )
     ranked = _rank_candidates(normalized_query, candidates)[:limit_value]
     node_ids = [match["structural_id"] for match in ranked]
     lookup = _node_lookup(conn, snapshot_id, set(node_ids))
@@ -127,18 +131,30 @@ def _fetch_candidates(
     ]
 
 
-def _rank_candidates(query: str, candidates: List[Dict[str, object]]) -> List[Dict[str, object]]:
+def _rank_candidates(
+    query: str, candidates: List[Dict[str, object]]
+) -> List[Dict[str, object]]:
     lowered = query.lower()
     ranked: List[Dict[str, object]] = []
     for row in candidates:
         qualified_name = str(row["qualified_name"])
-        score = _score_identifier(lowered, qualified_name.lower(), str(row["structural_id"]))
+        score = _score_identifier(
+            lowered, qualified_name.lower(), str(row["structural_id"])
+        )
         ranked.append({**row, "score": score})
-    ranked.sort(key=lambda item: (-float(item["score"]), str(item["qualified_name"]), str(item["file_path"])))
+    ranked.sort(
+        key=lambda item: (
+            -float(item["score"]),
+            str(item["qualified_name"]),
+            str(item["file_path"]),
+        )
+    )
     return ranked
 
 
-def _score_identifier(identifier: str, qualified_name: str, structural_id: str) -> float:
+def _score_identifier(
+    identifier: str, qualified_name: str, structural_id: str
+) -> float:
     if identifier == structural_id:
         return 1.0
     if identifier == qualified_name:
@@ -161,11 +177,19 @@ def _build_references(
     matches: List[Dict[str, object]],
     lookup: Dict[str, Dict[str, str]],
 ) -> List[Dict[str, object]]:
-    callable_ids = [match["structural_id"] for match in matches if match["node_type"] in {"function", "method"}]
-    module_ids = [match["structural_id"] for match in matches if match["node_type"] == "module"]
+    callable_ids = [
+        match["structural_id"]
+        for match in matches
+        if match["node_type"] in {"function", "method"}
+    ]
+    module_ids = [
+        match["structural_id"] for match in matches if match["node_type"] == "module"
+    ]
     references: List[Dict[str, object]] = []
     if callable_ids:
-        references.extend(_call_references(conn, repo_root, snapshot_id, callable_ids, lookup))
+        references.extend(
+            _call_references(conn, repo_root, snapshot_id, callable_ids, lookup)
+        )
     if module_ids:
         references.extend(_import_references(conn, snapshot_id, module_ids, lookup))
     return references
@@ -191,9 +215,12 @@ def _call_references(
         dst_ids=callable_ids,
     )
     refs: List[Dict[str, object]] = []
-    all_ids = {src for src, _, _ in outgoing} | {dst for _, dst, _ in outgoing} | {
-        src for src, _, _ in incoming
-    } | {dst for _, dst, _ in incoming}
+    all_ids = (
+        {src for src, _, _ in outgoing}
+        | {dst for _, dst, _ in outgoing}
+        | {src for src, _, _ in incoming}
+        | {dst for _, dst, _ in incoming}
+    )
     lookup = {**lookup, **_node_lookup(conn, snapshot_id, set(all_ids))}
     for src, dst, edge_kind in outgoing:
         other = lookup.get(dst, {})
@@ -249,7 +276,9 @@ def _import_references(
         (snapshot_id, *module_ids, *module_ids),
     ).fetchall()
     refs: List[Dict[str, object]] = []
-    all_ids = {row["src_structural_id"] for row in rows} | {row["dst_structural_id"] for row in rows}
+    all_ids = {row["src_structural_id"] for row in rows} | {
+        row["dst_structural_id"] for row in rows
+    }
     lookup = {**lookup, **_node_lookup(conn, snapshot_id, set(all_ids))}
     for row in rows:
         src = row["src_structural_id"]
@@ -286,7 +315,9 @@ def _import_references(
     return refs
 
 
-def _node_lookup(conn, snapshot_id: str, node_ids: set[str]) -> Dict[str, Dict[str, str]]:
+def _node_lookup(
+    conn, snapshot_id: str, node_ids: set[str]
+) -> Dict[str, Dict[str, str]]:
     if not node_ids:
         return {}
     placeholders = ",".join("?" for _ in node_ids)

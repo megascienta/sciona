@@ -1,4 +1,5 @@
 """Identifier resolution API (stable)."""
+
 from __future__ import annotations
 
 from ..pipelines import resolve as resolve_pipeline

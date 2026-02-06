@@ -1,4 +1,5 @@
 """Module file map reducer."""
+
 from __future__ import annotations
 
 from typing import List, Optional
@@ -27,7 +28,9 @@ def render(
     **_: object,
 ) -> str:
     conn = require_connection(conn)
-    require_latest_committed_snapshot(conn, snapshot_id, reducer_name="module_file_map reducer")
+    require_latest_committed_snapshot(
+        conn, snapshot_id, reducer_name="module_file_map reducer"
+    )
     module_ids: Optional[List[str]] = None
     if module_id:
         module_ids = _resolve_module_ids(conn, snapshot_id, module_id)
@@ -86,5 +89,7 @@ def _resolve_module_ids(conn, snapshot_id: str, module_name: str) -> List[str]:
     ).fetchall()
     module_ids = [row["qualified_name"] for row in rows if row["qualified_name"]]
     if not module_ids:
-        raise ValueError(f"Module '{module_name}' not found in snapshot '{snapshot_id}'.")
+        raise ValueError(
+            f"Module '{module_name}' not found in snapshot '{snapshot_id}'."
+        )
     return module_ids

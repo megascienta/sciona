@@ -1,4 +1,5 @@
 """LLM adapter that dispatches to stateless providers."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -45,6 +46,8 @@ class Adapter:
             max_retries=max_retries,
         )
 
-    def complete(self, prompt: str, *, model: str, temperature: float = 0.0) -> LLMResponse:
+    def complete(
+        self, prompt: str, *, model: str, temperature: float = 0.0
+    ) -> LLMResponse:
         request = LLMRequest(prompt=prompt, model=model, temperature=temperature)
         return self._provider.complete(request)

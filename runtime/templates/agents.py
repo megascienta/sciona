@@ -1,4 +1,5 @@
 """Managed AGENTS.md generation helpers."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -122,7 +123,10 @@ def _format_reducer_command(reducer_id: str, reducer_module) -> str:
     for name, param in signature.parameters.items():
         if name in {"snapshot_id", "conn", "repo_root"}:
             continue
-        if param.kind in {inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD}:
+        if param.kind in {
+            inspect.Parameter.VAR_POSITIONAL,
+            inspect.Parameter.VAR_KEYWORD,
+        }:
             continue
         flag = f"--{name.replace('_', '-')}"
         if name == "extras":
@@ -141,11 +145,17 @@ def _format_reducer_command(reducer_id: str, reducer_module) -> str:
 
 _COMMON_TASK_SECTIONS = [
     ("Orientation", ["structural_index"]),
-    ("Structure (module/class/callable)", ["module_overview", "class_overview", "callable_overview"]),
+    (
+        "Structure (module/class/callable)",
+        ["module_overview", "class_overview", "callable_overview"],
+    ),
     ("Dependencies / imports", ["dependency_edges", "importers_index"]),
     ("Calls / call graph", ["call_graph", "callsite_index"]),
     ("References / usages", ["symbol_references"]),
-    ("File navigation (codebase-scoped; filters supported)", ["module_file_map", "file_outline"]),
+    (
+        "File navigation (codebase-scoped; filters supported)",
+        ["module_file_map", "file_outline"],
+    ),
     ("Code text (last resort)", ["callable_source", "concatenated_source"]),
 ]
 

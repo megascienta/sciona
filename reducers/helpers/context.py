@@ -1,4 +1,5 @@
 """Reducer runtime context for DB handles owned by pipelines."""
+
 from __future__ import annotations
 
 from contextlib import contextmanager
@@ -8,7 +9,9 @@ from typing import Iterator
 
 from ...data_storage.artifact_db import connect as artifact_connect
 
-_ARTIFACT_CONN: ContextVar[object | None] = ContextVar("reducer_artifact_conn", default=None)
+_ARTIFACT_CONN: ContextVar[object | None] = ContextVar(
+    "reducer_artifact_conn", default=None
+)
 
 
 def current_artifact_connection() -> object | None:

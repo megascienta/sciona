@@ -1,4 +1,5 @@
 """Artifact graph rollup helpers."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -42,7 +43,10 @@ def load_module_call_edges(
             """,
             tuple(params),
         ).fetchall()
-        return [(row["src_module_id"], row["dst_module_id"], int(row["call_count"])) for row in rows]
+        return [
+            (row["src_module_id"], row["dst_module_id"], int(row["call_count"]))
+            for row in rows
+        ]
     finally:
         if owns_connection:
             conn.close()
@@ -83,7 +87,10 @@ def load_class_call_edges(
             """,
             tuple(params),
         ).fetchall()
-        return [(row["src_class_id"], row["dst_class_id"], int(row["call_count"])) for row in rows]
+        return [
+            (row["src_class_id"], row["dst_class_id"], int(row["call_count"]))
+            for row in rows
+        ]
     finally:
         if owns_connection:
             conn.close()

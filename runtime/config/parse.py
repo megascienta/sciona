@@ -1,10 +1,11 @@
 """Runtime config parsing/coercion helpers."""
+
 from __future__ import annotations
 
 from pathlib import Path
 from typing import Any, Dict, Sequence
 
-from .config_defaults import (
+from .defaults import (
     DEFAULT_DB_TIMEOUT,
     DEFAULT_GIT_TIMEOUT,
     DEFAULT_LLM_ALLOW_API_KEY_FOR_CUSTOM_ENDPOINT,
@@ -20,8 +21,8 @@ from .config_defaults import (
     DEFAULT_TEMPERATURE,
     LANGUAGE_DEFAULTS,
 )
-from .config_io import load_raw_config
-from .config_models import (
+from .io import load_raw_config
+from .models import (
     DatabaseSettings,
     DiscoverySettings,
     GitSettings,
@@ -30,7 +31,7 @@ from .config_models import (
     LoggingSettings,
     RuntimeConfig,
 )
-from .errors import ConfigError
+from ..errors import ConfigError
 
 
 def _coerce_int(block: Dict[str, Any], key: str, default: int) -> int:
@@ -113,7 +114,9 @@ def load_runtime_config(repo_root: Path) -> RuntimeConfig:
     )
 
 
-def load_logging_settings(repo_root: Path, *, allow_missing: bool = False) -> LoggingSettings:
+def load_logging_settings(
+    repo_root: Path, *, allow_missing: bool = False
+) -> LoggingSettings:
     try:
         raw = load_raw_config(repo_root)
     except ConfigError:
@@ -156,7 +159,9 @@ def load_llm_settings(repo_root: Path) -> LLMSettings:
     if max_retries < 0:
         max_retries = DEFAULT_LLM_MAX_RETRIES
     llm = LLMSettings(
-        provider=str(llm_block.get("provider", DEFAULT_LLM_PROVIDER) or DEFAULT_LLM_PROVIDER),
+        provider=str(
+            llm_block.get("provider", DEFAULT_LLM_PROVIDER) or DEFAULT_LLM_PROVIDER
+        ),
         model=str(llm_block.get("model", DEFAULT_LLM_MODEL) or DEFAULT_LLM_MODEL),
         api_endpoint=llm_block.get("api_endpoint"),
         api_key=llm_block.get("api_key"),

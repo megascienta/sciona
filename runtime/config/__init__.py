@@ -1,11 +1,12 @@
 """Immutable runtime config loaders and cache boundary."""
+
 from __future__ import annotations
 
 from functools import lru_cache
 from pathlib import Path
 from typing import Dict
 
-from .config_models import (
+from .models import (
     DatabaseSettings,
     DiscoverySettings,
     GitSettings,
@@ -15,8 +16,7 @@ from .config_models import (
     RuntimeConfig,
     ScionaConfig,
 )
-from .config_parse import (
-    load_language_settings as _load_language_settings,
+from .parse import (
     load_llm_settings as _load_llm_settings,
     load_logging_settings as _load_logging_settings,
     load_runtime_config as _load_runtime_config,
@@ -50,7 +50,9 @@ def load_llm_settings(repo_root: Path) -> LLMSettings:
     return _cached_llm_settings(repo_root)
 
 
-def load_logging_settings(repo_root: Path, *, allow_missing: bool = False) -> LoggingSettings:
+def load_logging_settings(
+    repo_root: Path, *, allow_missing: bool = False
+) -> LoggingSettings:
     if allow_missing:
         return _load_logging_settings(repo_root, allow_missing=True)
     return _cached_logging_settings(repo_root)

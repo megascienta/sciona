@@ -1,4 +1,5 @@
 """Call extraction helpers shared across core and artifact paths."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

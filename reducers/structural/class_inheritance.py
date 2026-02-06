@@ -1,4 +1,5 @@
 """Class relationships reducer."""
+
 from __future__ import annotations
 
 from ..helpers import queries
@@ -16,6 +17,7 @@ REDUCER_META = ReducerMeta(
     summary="Class inheritance and interface relationships.",
 )
 
+
 def render(
     snapshot_id: str,
     conn,
@@ -24,6 +26,8 @@ def render(
     **_: object,
 ) -> str:
     conn = require_connection(conn)
-    require_latest_committed_snapshot(conn, snapshot_id, reducer_name="class_inheritance reducer")
+    require_latest_committed_snapshot(
+        conn, snapshot_id, reducer_name="class_inheritance reducer"
+    )
     queries.resolve_class_id(conn, snapshot_id, class_id)
     return render_json_payload({"outgoing": [], "incoming": []})

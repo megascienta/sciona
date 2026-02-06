@@ -34,7 +34,9 @@ def test_importers_index_returns_importers(tmp_path):
         conn.close()
     payload = json.loads(_strip_json_fence(payload_text))
     assert payload["importers"]
-    assert any(entry["module_qualified_name"] == "pkg.beta" for entry in payload["importers"])
+    assert any(
+        entry["module_qualified_name"] == "pkg.beta" for entry in payload["importers"]
+    )
 
 
 def test_callsite_index_reducer_returns_payload(tmp_path):

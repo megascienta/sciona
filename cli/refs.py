@@ -1,4 +1,5 @@
 """CLI helper to list module import references."""
+
 from __future__ import annotations
 
 import json
@@ -20,7 +21,9 @@ from . import render as cli_render
 def register(app: typer.Typer) -> None:
     @app.command("refs")
     def refs(
-        identifier: str = typer.Argument(..., help="Module identifier or qualified name."),
+        identifier: str = typer.Argument(
+            ..., help="Module identifier or qualified name."
+        ),
         kind: str = typer.Option(
             "module",
             "--kind",
@@ -32,7 +35,9 @@ def register(app: typer.Typer) -> None:
             "--edge-type",
             help="Edge type filter (default IMPORTS_DECLARED; use 'any' for all).",
         ),
-        json_output: bool = typer.Option(False, "--json", help="Emit machine-readable JSON output."),
+        json_output: bool = typer.Option(
+            False, "--json", help="Emit machine-readable JSON output."
+        ),
     ) -> None:
         """List modules that import the target module (latest committed snapshot only)."""
         normalized_kind = str(kind).strip().lower()

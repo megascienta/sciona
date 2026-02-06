@@ -1,4 +1,5 @@
 """Artifact graph/rollup derivation logic from code-analysis outputs."""
+
 from __future__ import annotations
 
 from collections import Counter, defaultdict

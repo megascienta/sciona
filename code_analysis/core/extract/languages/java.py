@@ -1,14 +1,21 @@
 """Java Tree-sitter analyzer."""
+
 from __future__ import annotations
 
 from pathlib import Path
-from typing import List, Optional, Set
+from typing import List, Optional
 
 from ....tools.tree_sitter import build_parser
 
 from ...module_naming import module_name_from_path
 from ....tools.call_extraction import collect_call_identifiers
-from ...normalize.model import AnalysisResult, CallRecord, EdgeRecord, FileSnapshot, SemanticNodeRecord
+from ...normalize.model import (
+    AnalysisResult,
+    CallRecord,
+    EdgeRecord,
+    FileSnapshot,
+    SemanticNodeRecord,
+)
 from ..analyzer import ASTAnalyzer
 from ..utils import count_lines, find_nodes_of_type
 from .....runtime import paths as runtime_paths
@@ -55,7 +62,9 @@ class JavaAnalyzer(ASTAnalyzer):
 
             imports: List[str] = []
             for import_node in find_nodes_of_type(root, "import_declaration"):
-                fragment = snapshot.content[import_node.start_byte : import_node.end_byte].decode("utf-8")
+                fragment = snapshot.content[
+                    import_node.start_byte : import_node.end_byte
+                ].decode("utf-8")
                 normalized = _normalize_java_import(fragment, module_name, snapshot)
                 if normalized:
                     imports.append(normalized)
@@ -94,11 +103,18 @@ class JavaAnalyzer(ASTAnalyzer):
         result: AnalysisResult,
         class_stack: List[str],
     ) -> None:
-        if node.type in {"class_declaration", "interface_declaration", "enum_declaration", "record_declaration"}:
+        if node.type in {
+            "class_declaration",
+            "interface_declaration",
+            "enum_declaration",
+            "record_declaration",
+        }:
             name_node = node.child_by_field_name("name")
             if not name_node:
                 return
-            class_name = snapshot.content[name_node.start_byte : name_node.end_byte].decode("utf-8")
+            class_name = snapshot.content[
+                name_node.start_byte : name_node.end_byte
+            ].decode("utf-8")
             qualified = f"{module_name}.{class_name}"
             class_record = SemanticNodeRecord(
                 language=self.language,
@@ -139,7 +155,9 @@ class JavaAnalyzer(ASTAnalyzer):
             name_node = node.child_by_field_name("name")
             if not name_node:
                 return
-            func_name = snapshot.content[name_node.start_byte : name_node.end_byte].decode("utf-8")
+            func_name = snapshot.content[
+                name_node.start_byte : name_node.end_byte
+            ].decode("utf-8")
             if not class_stack:
                 return
             node_type = "method"
@@ -218,7 +236,9 @@ def module_name(repo_root: Path, snapshot: FileSnapshot) -> str:
     )
 
 
-def _normalize_java_import(fragment: str, module_name: str, snapshot: FileSnapshot) -> Optional[str]:
+def _normalize_java_import(
+    fragment: str, module_name: str, snapshot: FileSnapshot
+) -> Optional[str]:
     raw = fragment.strip()
     if not raw.startswith("import"):
         return None
@@ -246,7 +266,9 @@ def _normalize_java_import(fragment: str, module_name: str, snapshot: FileSnapsh
 
 
 def _top_level_package(module_name: str, repo_prefix: str) -> str | None:
-    if repo_prefix and (module_name == repo_prefix or module_name.startswith(f"{repo_prefix}.")):
+    if repo_prefix and (
+        module_name == repo_prefix or module_name.startswith(f"{repo_prefix}.")
+    ):
         remainder = module_name[len(repo_prefix) + 1 :]
     else:
         remainder = module_name

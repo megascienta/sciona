@@ -1,4 +1,5 @@
 """Node status payload helper."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -10,14 +11,18 @@ from .context import current_artifact_connection, fallback_artifact_connection
 from .utils import require_latest_committed_snapshot
 
 
-def build_node_status_payload(snapshot_id: str, *, conn, repo_root: Path) -> Dict[str, object]:
+def build_node_status_payload(
+    snapshot_id: str, *, conn, repo_root: Path
+) -> Dict[str, object]:
     if conn is None:
         raise ValueError("node_status payload requires an active database connection.")
     if not repo_root:
         raise ValueError("node_status payload requires repo_root.")
     if not core_read.snapshot_is_committed(conn, snapshot_id):
         raise ValueError("node_status payload requires a committed snapshot.")
-    require_latest_committed_snapshot(conn, snapshot_id, reducer_name="node_status payload")
+    require_latest_committed_snapshot(
+        conn, snapshot_id, reducer_name="node_status payload"
+    )
     artifact_conn = current_artifact_connection()
     owns_connection = False
     if artifact_conn is None:

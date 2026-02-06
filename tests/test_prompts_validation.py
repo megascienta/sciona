@@ -10,7 +10,9 @@ from sciona.pipelines.errors import WorkflowError
 from .helpers import seed_repo_with_snapshot
 
 
-def _write_prompt(repo_root: Path, registry_text: str, spec_name: str, spec_text: str) -> None:
+def _write_prompt(
+    repo_root: Path, registry_text: str, spec_name: str, spec_text: str
+) -> None:
     prompts_dir = repo_root / ".sciona" / "prompts"
     prompts_dir.mkdir(parents=True, exist_ok=True)
     (prompts_dir / "registry.yaml").write_text(registry_text, encoding="utf-8")

@@ -1,4 +1,5 @@
 """Routing helpers for ingest orchestration."""
+
 from __future__ import annotations
 
 from typing import Dict, Optional
@@ -23,11 +24,15 @@ def select_analyzers(languages: Dict[str, core_config.LanguageSettings]) -> Anal
     return analyzers
 
 
-def resolve_analyzer(file_snapshot: FileSnapshot, analyzers: AnalyzerMap) -> Optional[object]:
+def resolve_analyzer(
+    file_snapshot: FileSnapshot, analyzers: AnalyzerMap
+) -> Optional[object]:
     """Pick the analyzer for a file snapshot, if any."""
     return registry.get_analyzer_for_path(file_snapshot.record.path, analyzers)
 
 
-def should_register_module(file_snapshot: FileSnapshot, analyzer: Optional[object]) -> bool:
+def should_register_module(
+    file_snapshot: FileSnapshot, analyzer: Optional[object]
+) -> bool:
     """Routing gate for module registration during ingest."""
     return analyzer is not None

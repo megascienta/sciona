@@ -1,4 +1,5 @@
 """CoreDB read/query helpers."""
+
 from __future__ import annotations
 
 import sqlite3
@@ -239,7 +240,9 @@ def snapshot_node_hashes(conn: sqlite3.Connection, snapshot_id: str) -> dict[str
     return {row["structural_id"]: row["content_hash"] for row in rows}
 
 
-def node_hashes_for_ids(conn: sqlite3.Connection, node_ids: Iterable[str]) -> dict[str, str]:
+def node_hashes_for_ids(
+    conn: sqlite3.Connection, node_ids: Iterable[str]
+) -> dict[str, str]:
     if not node_ids:
         return {}
     node_list = list(node_ids)
@@ -319,7 +322,9 @@ def list_nodes_with_names(
         """,
         (snapshot_id,),
     ).fetchall()
-    return [(row["structural_id"], row["node_type"], row["qualified_name"]) for row in rows]
+    return [
+        (row["structural_id"], row["node_type"], row["qualified_name"]) for row in rows
+    ]
 
 
 def list_edges_by_type(
@@ -423,11 +428,15 @@ def edges_for_source_ids(
             params,
         ).fetchall()
         for row in rows:
-            edges.append((row["src_structural_id"], row["dst_structural_id"], row["edge_type"]))
+            edges.append(
+                (row["src_structural_id"], row["dst_structural_id"], row["edge_type"])
+            )
     return edges
 
 
-def structural_hash_node_entries(conn: sqlite3.Connection, snapshot_id: str) -> list[str]:
+def structural_hash_node_entries(
+    conn: sqlite3.Connection, snapshot_id: str
+) -> list[str]:
     rows = conn.execute(
         """
         SELECT sn.structural_id,
@@ -463,7 +472,9 @@ def structural_hash_node_entries(conn: sqlite3.Connection, snapshot_id: str) -> 
     ]
 
 
-def structural_hash_edge_entries(conn: sqlite3.Connection, snapshot_id: str) -> list[str]:
+def structural_hash_edge_entries(
+    conn: sqlite3.Connection, snapshot_id: str
+) -> list[str]:
     rows = conn.execute(
         """
         SELECT snapshot_id,

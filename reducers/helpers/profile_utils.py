@@ -1,4 +1,5 @@
 """Reducer-facing profile helpers."""
+
 from __future__ import annotations
 
 from ...code_analysis.tools.profile_introspection import (
@@ -30,7 +31,9 @@ def fetch_node_instance(conn, snapshot_id: str, structural_id: str) -> dict:
         (structural_id, snapshot_id),
     ).fetchone()
     if not row:
-        raise ValueError(f"Node '{structural_id}' not found in snapshot '{snapshot_id}'.")
+        raise ValueError(
+            f"Node '{structural_id}' not found in snapshot '{snapshot_id}'."
+        )
     return row
 
 

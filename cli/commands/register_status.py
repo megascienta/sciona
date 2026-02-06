@@ -1,4 +1,5 @@
 """CLI commands for repository status and cleanup."""
+
 from __future__ import annotations
 
 import json
@@ -17,10 +18,14 @@ def register_status(app: typer.Typer) -> None:
         """Show SCIONA status for the current repository (warns if dirty)."""
         status_result = cli_call(api_repo.status)
         try:
-            runtime_cfg = cli_call(api_runtime.load_runtime_config, status_result.repo_root)
+            runtime_cfg = cli_call(
+                api_runtime.load_runtime_config, status_result.repo_root
+            )
         except Exception:
             return
-        enabled = [name for name, settings in runtime_cfg.languages.items() if settings.enabled]
+        enabled = [
+            name for name, settings in runtime_cfg.languages.items() if settings.enabled
+        ]
         exclude_globs = runtime_cfg.discovery.exclude_globs
         last_build = None
         try:
@@ -60,7 +65,9 @@ def register_status(app: typer.Typer) -> None:
         sciona_dir = api_runtime.get_sciona_dir(repo_root)
         removed = cli_call(api_repo.clean, repo_root)
         if not removed:
-            typer.secho(".sciona directory not found; nothing to clean.", fg=typer.colors.YELLOW)
+            typer.secho(
+                ".sciona directory not found; nothing to clean.", fg=typer.colors.YELLOW
+            )
             if not agents:
                 raise typer.Exit(code=0)
         typer.echo(f"Removed {sciona_dir}")
@@ -69,7 +76,10 @@ def register_status(app: typer.Typer) -> None:
             if removed_agents:
                 typer.echo("Removed managed SCIONA block from AGENTS.md")
             else:
-                typer.secho("No managed SCIONA block found in AGENTS.md.", fg=typer.colors.YELLOW)
+                typer.secho(
+                    "No managed SCIONA block found in AGENTS.md.",
+                    fg=typer.colors.YELLOW,
+                )
 
 
 __all__ = ["register_status"]

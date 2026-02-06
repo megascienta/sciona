@@ -1,4 +1,5 @@
 """Repository state container for orchestration."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -7,7 +8,7 @@ from typing import Optional
 
 from ...runtime import paths as runtime
 from ...runtime.config import ScionaConfig, load_sciona_config
-from ...runtime.git_adapter import GitAdapter, RealGitAdapter
+from ...runtime.git.adapter import GitAdapter, RealGitAdapter
 
 
 @dataclass(frozen=True)

@@ -1,4 +1,5 @@
 """Plugin-facing SCIONA API (stable, read-only)."""
+
 from __future__ import annotations
 
 from ..runtime import addons as addon_runtime

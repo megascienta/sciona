@@ -1,4 +1,5 @@
 """Transaction helpers for coordinated persistence."""
+
 from __future__ import annotations
 
 from contextlib import contextmanager
@@ -7,8 +8,10 @@ from uuid import uuid4
 
 import sqlite3
 
+
 def _savepoint_name(prefix: str) -> str:
     return f"{prefix}_{uuid4().hex}"
+
 
 @contextmanager
 def transaction(conn: sqlite3.Connection) -> Iterator[sqlite3.Connection]:

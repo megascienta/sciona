@@ -1,4 +1,5 @@
 """Dirty-worktree diff overlay helpers for reducer payloads."""
+
 from __future__ import annotations
 
 import hashlib
@@ -11,13 +12,17 @@ import pathspec
 
 from ..code_analysis.core.extract import registry
 from ..code_analysis import config as analysis_config
-from ..code_analysis.core.normalize.model import FileRecord, FileSnapshot, SemanticNodeRecord
+from ..code_analysis.core.normalize.model import (
+    FileRecord,
+    FileSnapshot,
+    SemanticNodeRecord,
+)
 from ..code_analysis.tools import snapshots as snapshot_tools
 from ..data_storage.artifact_db import diff_overlay as overlay_store
 from ..data_storage.core_db import read_ops as core_read
 from ..reducers.helpers.render import render_json_payload
 from ..runtime import config as runtime_config
-from ..runtime import config_io as runtime_config_io
+from ..runtime.config import io as runtime_config_io
 from ..runtime import constants as runtime_constants
 from ..runtime import git as git_ops
 from ..runtime.errors import GitError
@@ -80,7 +85,9 @@ def apply_overlay_to_text(
     payload = _parse_json_fenced(text)
     if payload is None:
         return text
-    patched = _apply_overlay_to_payload(payload, overlay, snapshot_id=snapshot_id, conn=conn)
+    patched = _apply_overlay_to_payload(
+        payload, overlay, snapshot_id=snapshot_id, conn=conn
+    )
     patched["_diff"] = {
         "worktree_hash": overlay.worktree_hash,
         "nodes": overlay.nodes,
@@ -92,8 +99,12 @@ def apply_overlay_to_text(
 def _worktree_fingerprint(repo_root: Path, base_commit: str) -> str:
     parts = []
     parts.append(git_ops.run_git(["diff", "--name-status", base_commit], repo_root))
-    parts.append(git_ops.run_git(["diff", "--cached", "--name-status", base_commit], repo_root))
-    parts.append(git_ops.run_git(["ls-files", "--others", "--exclude-standard"], repo_root))
+    parts.append(
+        git_ops.run_git(["diff", "--cached", "--name-status", base_commit], repo_root)
+    )
+    parts.append(
+        git_ops.run_git(["ls-files", "--others", "--exclude-standard"], repo_root)
+    )
     config_text = runtime_config_io.load_config_text(repo_root) or ""
     parts.append(config_text)
     parts.append(runtime_constants.TOOL_VERSION)
@@ -151,7 +162,13 @@ def _compute_overlay_rows(
                 )
             )
             continue
-        for field in ("qualified_name", "file_path", "start_line", "end_line", "content_hash"):
+        for field in (
+            "qualified_name",
+            "file_path",
+            "start_line",
+            "end_line",
+            "content_hash",
+        ):
             old_value = snapshot_node[field]
             new_value = node[field]
             if str(old_value) != str(new_value):
@@ -241,7 +258,9 @@ def _compute_overlay_rows(
     return rows
 
 
-def _rows_to_payload(worktree_hash: str, rows: Iterable[dict[str, object]]) -> OverlayPayload:
+def _rows_to_payload(
+    worktree_hash: str, rows: Iterable[dict[str, object]]
+) -> OverlayPayload:
     nodes = {"add": [], "remove": [], "modify": []}
     edges = {"add": [], "remove": []}
     for row in rows:
@@ -378,19 +397,34 @@ def _module_in_scope(module_name: str, target: str) -> bool:
     return target.startswith(f"{module_name}.")
 
 
-def _patch_structural_index(payload: dict[str, object], overlay: OverlayPayload) -> dict[str, object]:
+def _patch_structural_index(
+    payload: dict[str, object], overlay: OverlayPayload
+) -> dict[str, object]:
     modules = list((payload.get("modules") or {}).get("entries", []) or [])
     files = list((payload.get("files") or {}).get("entries", []) or [])
     classes = list((payload.get("classes") or {}).get("entries", []) or [])
     functions = list((payload.get("functions") or {}).get("by_module", []) or [])
     methods = list((payload.get("methods") or {}).get("by_module", []) or [])
 
-    module_map = {entry.get("module_qualified_name"): entry for entry in modules if entry.get("module_qualified_name")}
+    module_map = {
+        entry.get("module_qualified_name"): entry
+        for entry in modules
+        if entry.get("module_qualified_name")
+    }
     file_map = {entry.get("path"): entry for entry in files if entry.get("path")}
-    class_ids = {entry.get("structural_id") for entry in classes if entry.get("structural_id")}
-    function_counts = {entry.get("module_qualified_name"): entry.get("count", 0) for entry in functions}
-    method_counts = {entry.get("module_qualified_name"): entry.get("count", 0) for entry in methods}
-    class_counts = {entry.get("module_qualified_name"): entry.get("count", 0) for entry in payload.get("classes", {}).get("by_module", []) or []}
+    class_ids = {
+        entry.get("structural_id") for entry in classes if entry.get("structural_id")
+    }
+    function_counts = {
+        entry.get("module_qualified_name"): entry.get("count", 0) for entry in functions
+    }
+    method_counts = {
+        entry.get("module_qualified_name"): entry.get("count", 0) for entry in methods
+    }
+    class_counts = {
+        entry.get("module_qualified_name"): entry.get("count", 0)
+        for entry in payload.get("classes", {}).get("by_module", []) or []
+    }
 
     for change in _iter_node_changes(overlay):
         node = _node_from_value(change.get("new_value") or change.get("old_value"))
@@ -432,25 +466,47 @@ def _patch_structural_index(payload: dict[str, object], overlay: OverlayPayload)
             if node_type == "method" and module_name:
                 method_counts[module_name] = method_counts.get(module_name, 0) + 1
             if file_path and file_path not in file_map:
-                file_map[file_path] = {"path": file_path, "module_qualified_name": module_name}
+                file_map[file_path] = {
+                    "path": file_path,
+                    "module_qualified_name": module_name,
+                }
         elif change["diff_kind"] == "remove":
             if node_type == "class":
-                classes = [entry for entry in classes if entry.get("structural_id") != node.get("structural_id")]
+                classes = [
+                    entry
+                    for entry in classes
+                    if entry.get("structural_id") != node.get("structural_id")
+                ]
                 if module_name:
-                    class_counts[module_name] = max(0, class_counts.get(module_name, 0) - 1)
+                    class_counts[module_name] = max(
+                        0, class_counts.get(module_name, 0) - 1
+                    )
             if node_type == "function" and module_name:
-                function_counts[module_name] = max(0, function_counts.get(module_name, 0) - 1)
+                function_counts[module_name] = max(
+                    0, function_counts.get(module_name, 0) - 1
+                )
             if node_type == "method" and module_name:
-                method_counts[module_name] = max(0, method_counts.get(module_name, 0) - 1)
+                method_counts[module_name] = max(
+                    0, method_counts.get(module_name, 0) - 1
+                )
 
     modules = list(module_map.values())
     for entry in modules:
         module_name = entry.get("module_qualified_name")
-        entry["class_count"] = class_counts.get(module_name, entry.get("class_count", 0))
-        entry["function_count"] = function_counts.get(module_name, entry.get("function_count", 0))
-        entry["method_count"] = method_counts.get(module_name, entry.get("method_count", 0))
+        entry["class_count"] = class_counts.get(
+            module_name, entry.get("class_count", 0)
+        )
+        entry["function_count"] = function_counts.get(
+            module_name, entry.get("function_count", 0)
+        )
+        entry["method_count"] = method_counts.get(
+            module_name, entry.get("method_count", 0)
+        )
     import_edges = list((payload.get("imports") or {}).get("edges", []) or [])
-    import_key = lambda entry: (entry.get("from_module_qualified_name"), entry.get("to_module_qualified_name"))
+    import_key = lambda entry: (
+        entry.get("from_module_qualified_name"),
+        entry.get("to_module_qualified_name"),
+    )
     import_map = {import_key(entry): entry for entry in import_edges}
     for change in _iter_edge_changes(overlay):
         edge = _edge_from_value(change.get("new_value") or change.get("old_value"))
@@ -470,14 +526,23 @@ def _patch_structural_index(payload: dict[str, object], overlay: OverlayPayload)
             import_map.pop(key, None)
     payload["imports"]["edges"] = sorted(
         import_map.values(),
-        key=lambda item: (str(item.get("from_module_qualified_name")), str(item.get("to_module_qualified_name"))),
+        key=lambda item: (
+            str(item.get("from_module_qualified_name")),
+            str(item.get("to_module_qualified_name")),
+        ),
     )
     payload["imports"]["edge_count"] = len(payload["imports"]["edges"])
-    payload["modules"]["entries"] = sorted(modules, key=lambda item: str(item.get("module_qualified_name")))
+    payload["modules"]["entries"] = sorted(
+        modules, key=lambda item: str(item.get("module_qualified_name"))
+    )
     payload["modules"]["count"] = len(payload["modules"]["entries"])
-    payload["files"]["entries"] = sorted(file_map.values(), key=lambda item: str(item.get("path")))
+    payload["files"]["entries"] = sorted(
+        file_map.values(), key=lambda item: str(item.get("path"))
+    )
     payload["files"]["count"] = len(payload["files"]["entries"])
-    payload["classes"]["entries"] = sorted(classes, key=lambda item: str(item.get("qualified_name")))
+    payload["classes"]["entries"] = sorted(
+        classes, key=lambda item: str(item.get("qualified_name"))
+    )
     payload["classes"]["count"] = len(payload["classes"]["entries"])
     payload["classes"]["by_module"] = [
         {"module_qualified_name": module, "count": count}
@@ -497,7 +562,9 @@ def _patch_structural_index(payload: dict[str, object], overlay: OverlayPayload)
     return payload
 
 
-def _patch_module_overview(payload: dict[str, object], overlay: OverlayPayload) -> dict[str, object]:
+def _patch_module_overview(
+    payload: dict[str, object], overlay: OverlayPayload
+) -> dict[str, object]:
     module_name = str(payload.get("module_qualified_name", "")).strip()
     if not module_name:
         return payload
@@ -507,10 +574,20 @@ def _patch_module_overview(payload: dict[str, object], overlay: OverlayPayload) 
     methods = list(payload.get("methods", []) or [])
     imports = list(payload.get("imports", []) or [])
 
-    class_ids = {entry.get("structural_id") for entry in classes if entry.get("structural_id")}
-    function_ids = {entry.get("structural_id") for entry in functions if entry.get("structural_id")}
-    method_ids = {entry.get("structural_id") for entry in methods if entry.get("structural_id")}
-    import_ids = {entry.get("module_structural_id") for entry in imports if entry.get("module_structural_id")}
+    class_ids = {
+        entry.get("structural_id") for entry in classes if entry.get("structural_id")
+    }
+    function_ids = {
+        entry.get("structural_id") for entry in functions if entry.get("structural_id")
+    }
+    method_ids = {
+        entry.get("structural_id") for entry in methods if entry.get("structural_id")
+    }
+    import_ids = {
+        entry.get("module_structural_id")
+        for entry in imports
+        if entry.get("module_structural_id")
+    }
 
     for change in _iter_node_changes(overlay):
         node = _node_from_value(change.get("new_value") or change.get("old_value"))
@@ -524,17 +601,29 @@ def _patch_module_overview(payload: dict[str, object], overlay: OverlayPayload) 
         if change["diff_kind"] == "add":
             if node_type == "class" and node.get("structural_id") not in class_ids:
                 classes.append(
-                    {"structural_id": node.get("structural_id"), "qualified_name": qualified_name}
+                    {
+                        "structural_id": node.get("structural_id"),
+                        "qualified_name": qualified_name,
+                    }
                 )
                 class_ids.add(node.get("structural_id"))
-            if node_type == "function" and node.get("structural_id") not in function_ids:
+            if (
+                node_type == "function"
+                and node.get("structural_id") not in function_ids
+            ):
                 functions.append(
-                    {"structural_id": node.get("structural_id"), "qualified_name": qualified_name}
+                    {
+                        "structural_id": node.get("structural_id"),
+                        "qualified_name": qualified_name,
+                    }
                 )
                 function_ids.add(node.get("structural_id"))
             if node_type == "method" and node.get("structural_id") not in method_ids:
                 methods.append(
-                    {"structural_id": node.get("structural_id"), "qualified_name": qualified_name}
+                    {
+                        "structural_id": node.get("structural_id"),
+                        "qualified_name": qualified_name,
+                    }
                 )
                 method_ids.add(node.get("structural_id"))
             file_path = node.get("file_path")
@@ -542,13 +631,27 @@ def _patch_module_overview(payload: dict[str, object], overlay: OverlayPayload) 
                 files.add(file_path)
         elif change["diff_kind"] == "remove":
             if node_type == "class":
-                classes = [entry for entry in classes if entry.get("structural_id") != node.get("structural_id")]
+                classes = [
+                    entry
+                    for entry in classes
+                    if entry.get("structural_id") != node.get("structural_id")
+                ]
             if node_type == "function":
-                functions = [entry for entry in functions if entry.get("structural_id") != node.get("structural_id")]
+                functions = [
+                    entry
+                    for entry in functions
+                    if entry.get("structural_id") != node.get("structural_id")
+                ]
             if node_type == "method":
-                methods = [entry for entry in methods if entry.get("structural_id") != node.get("structural_id")]
+                methods = [
+                    entry
+                    for entry in methods
+                    if entry.get("structural_id") != node.get("structural_id")
+                ]
         elif change["diff_kind"] == "modify":
-            if node_type == "module" and node.get("structural_id") == payload.get("module_structural_id"):
+            if node_type == "module" and node.get("structural_id") == payload.get(
+                "module_structural_id"
+            ):
                 if change.get("field") == "file_path":
                     payload["file_path"] = change.get("new_value")
                 if change.get("field") == "start_line":
@@ -580,23 +683,37 @@ def _patch_module_overview(payload: dict[str, object], overlay: OverlayPayload) 
                 )
                 import_ids.add(dst_id)
         elif change["diff_kind"] == "remove":
-            imports = [entry for entry in imports if entry.get("module_structural_id") != dst_id]
+            imports = [
+                entry
+                for entry in imports
+                if entry.get("module_structural_id") != dst_id
+            ]
 
     payload["files"] = sorted(files)
     payload["file_count"] = len(payload["files"])
-    payload["classes"] = sorted(classes, key=lambda item: str(item.get("qualified_name")))
-    payload["functions"] = sorted(functions, key=lambda item: str(item.get("qualified_name")))
-    payload["methods"] = sorted(methods, key=lambda item: str(item.get("qualified_name")))
+    payload["classes"] = sorted(
+        classes, key=lambda item: str(item.get("qualified_name"))
+    )
+    payload["functions"] = sorted(
+        functions, key=lambda item: str(item.get("qualified_name"))
+    )
+    payload["methods"] = sorted(
+        methods, key=lambda item: str(item.get("qualified_name"))
+    )
     payload["node_counts"] = {
         "classes": len(payload["classes"]),
         "functions": len(payload["functions"]),
         "methods": len(payload["methods"]),
     }
-    payload["imports"] = sorted(imports, key=lambda item: str(item.get("module_qualified_name")))
+    payload["imports"] = sorted(
+        imports, key=lambda item: str(item.get("module_qualified_name"))
+    )
     return payload
 
 
-def _patch_callable_overview(payload: dict[str, object], overlay: OverlayPayload) -> dict[str, object]:
+def _patch_callable_overview(
+    payload: dict[str, object], overlay: OverlayPayload
+) -> dict[str, object]:
     structural_id = payload.get("function_id") or payload.get("callable_id")
     if not structural_id:
         return payload
@@ -623,18 +740,26 @@ def _patch_callable_overview(payload: dict[str, object], overlay: OverlayPayload
     return payload
 
 
-def _patch_class_overview(payload: dict[str, object], overlay: OverlayPayload) -> dict[str, object]:
+def _patch_class_overview(
+    payload: dict[str, object], overlay: OverlayPayload
+) -> dict[str, object]:
     class_id = payload.get("class_id")
     if not class_id:
         return payload
     methods = list(payload.get("methods", []) or [])
-    method_ids = {entry.get("function_id") for entry in methods if entry.get("function_id")}
+    method_ids = {
+        entry.get("function_id") for entry in methods if entry.get("function_id")
+    }
     for change in _iter_node_changes(overlay):
         node = _node_from_value(change.get("new_value") or change.get("old_value"))
         if not node:
             continue
         node_type = node.get("node_type")
-        if node_type == "class" and node.get("structural_id") == class_id and change.get("diff_kind") == "modify":
+        if (
+            node_type == "class"
+            and node.get("structural_id") == class_id
+            and change.get("diff_kind") == "modify"
+        ):
             if change.get("field") == "file_path":
                 payload["file_path"] = change.get("new_value")
             if change.get("field") == "start_line":
@@ -650,12 +775,21 @@ def _patch_class_overview(payload: dict[str, object], overlay: OverlayPayload) -
             if change.get("field") == "content_hash":
                 payload["content_hash"] = change.get("new_value")
         if node_type == "method":
-            parent_module = _module_for_node("method", str(node.get("qualified_name", "")))
-            if payload.get("module_qualified_name") and parent_module and not _module_in_scope(
-                str(payload.get("module_qualified_name")), parent_module
+            parent_module = _module_for_node(
+                "method", str(node.get("qualified_name", ""))
+            )
+            if (
+                payload.get("module_qualified_name")
+                and parent_module
+                and not _module_in_scope(
+                    str(payload.get("module_qualified_name")), parent_module
+                )
             ):
                 continue
-            if change.get("diff_kind") == "add" and node.get("structural_id") not in method_ids:
+            if (
+                change.get("diff_kind") == "add"
+                and node.get("structural_id") not in method_ids
+            ):
                 methods.append(
                     {
                         "function_id": node.get("structural_id"),
@@ -664,14 +798,24 @@ def _patch_class_overview(payload: dict[str, object], overlay: OverlayPayload) -
                 )
                 method_ids.add(node.get("structural_id"))
             if change.get("diff_kind") == "remove":
-                methods = [entry for entry in methods if entry.get("function_id") != node.get("structural_id")]
-    payload["methods"] = sorted(methods, key=lambda item: str(item.get("qualified_name")))
+                methods = [
+                    entry
+                    for entry in methods
+                    if entry.get("function_id") != node.get("structural_id")
+                ]
+    payload["methods"] = sorted(
+        methods, key=lambda item: str(item.get("qualified_name"))
+    )
     return payload
 
 
-def _patch_file_outline(payload: dict[str, object], overlay: OverlayPayload) -> dict[str, object]:
+def _patch_file_outline(
+    payload: dict[str, object], overlay: OverlayPayload
+) -> dict[str, object]:
     files = list(payload.get("files", []) or [])
-    file_map = {entry.get("file_path"): entry for entry in files if entry.get("file_path")}
+    file_map = {
+        entry.get("file_path"): entry for entry in files if entry.get("file_path")
+    }
     file_filter = payload.get("file_path")
     module_filter = payload.get("module_filter")
     for change in _iter_node_changes(overlay):
@@ -686,7 +830,11 @@ def _patch_file_outline(payload: dict[str, object], overlay: OverlayPayload) -> 
         qualified_name = str(node.get("qualified_name", ""))
         node_type = str(node.get("node_type", ""))
         module_name = _module_for_node(node_type, qualified_name)
-        if module_filter and module_name and not _module_in_scope(str(module_filter), module_name):
+        if (
+            module_filter
+            and module_name
+            and not _module_in_scope(str(module_filter), module_name)
+        ):
             continue
         entry = file_map.setdefault(
             file_path,
@@ -704,7 +852,11 @@ def _patch_file_outline(payload: dict[str, object], overlay: OverlayPayload) -> 
                 }
             )
         elif change["diff_kind"] == "remove":
-            nodes = [item for item in nodes if item.get("structural_id") != node.get("structural_id")]
+            nodes = [
+                item
+                for item in nodes
+                if item.get("structural_id") != node.get("structural_id")
+            ]
         elif change["diff_kind"] == "modify":
             for item in nodes:
                 if item.get("structural_id") != node.get("structural_id"):
@@ -721,7 +873,11 @@ def _patch_file_outline(payload: dict[str, object], overlay: OverlayPayload) -> 
                     item["qualified_name"] = change.get("new_value")
         entry["nodes"] = sorted(
             nodes,
-            key=lambda item: (item.get("line_span", [0, 0])[0], item.get("line_span", [0, 0])[1], str(item.get("qualified_name"))),
+            key=lambda item: (
+                item.get("line_span", [0, 0])[0],
+                item.get("line_span", [0, 0])[1],
+                str(item.get("qualified_name")),
+            ),
         )
         file_map[file_path] = entry
     payload["files"] = [file_map[key] for key in sorted(file_map)]
@@ -729,16 +885,26 @@ def _patch_file_outline(payload: dict[str, object], overlay: OverlayPayload) -> 
     return payload
 
 
-def _patch_module_file_map(payload: dict[str, object], overlay: OverlayPayload) -> dict[str, object]:
+def _patch_module_file_map(
+    payload: dict[str, object], overlay: OverlayPayload
+) -> dict[str, object]:
     modules = list(payload.get("modules", []) or [])
-    module_map = {entry.get("module_structural_id"): entry for entry in modules if entry.get("module_structural_id")}
+    module_map = {
+        entry.get("module_structural_id"): entry
+        for entry in modules
+        if entry.get("module_structural_id")
+    }
     module_filter = payload.get("module_filter")
     for change in _iter_node_changes(overlay):
         node = _node_from_value(change.get("new_value") or change.get("old_value"))
         if not node or node.get("node_type") != "module":
             continue
         module_name = node.get("qualified_name")
-        if module_filter and module_name and not _module_in_scope(str(module_filter), str(module_name)):
+        if (
+            module_filter
+            and module_name
+            and not _module_in_scope(str(module_filter), str(module_name))
+        ):
             continue
         structural_id = node.get("structural_id")
         if change["diff_kind"] == "add":
@@ -775,7 +941,9 @@ def _patch_module_file_map(payload: dict[str, object], overlay: OverlayPayload) 
     return payload
 
 
-def _patch_dependency_edges(payload: dict[str, object], overlay: OverlayPayload) -> dict[str, object]:
+def _patch_dependency_edges(
+    payload: dict[str, object], overlay: OverlayPayload
+) -> dict[str, object]:
     edges = list(payload.get("edges", []) or [])
     edge_key = lambda entry: (
         entry.get("from_module_structural_id"),
@@ -791,9 +959,21 @@ def _patch_dependency_edges(payload: dict[str, object], overlay: OverlayPayload)
             continue
         src_id = edge.get("src_structural_id")
         dst_id = edge.get("dst_structural_id")
-        if from_filter and edge.get("src_qualified_name") and not _module_in_scope(str(from_filter), str(edge.get("src_qualified_name"))):
+        if (
+            from_filter
+            and edge.get("src_qualified_name")
+            and not _module_in_scope(
+                str(from_filter), str(edge.get("src_qualified_name"))
+            )
+        ):
             continue
-        if to_filter and edge.get("dst_qualified_name") and not _module_in_scope(str(to_filter), str(edge.get("dst_qualified_name"))):
+        if (
+            to_filter
+            and edge.get("dst_qualified_name")
+            and not _module_in_scope(
+                str(to_filter), str(edge.get("dst_qualified_name"))
+            )
+        ):
             continue
         key = (src_id, dst_id, edge.get("edge_type"))
         if change["diff_kind"] == "add":
@@ -815,7 +995,9 @@ def _patch_dependency_edges(payload: dict[str, object], overlay: OverlayPayload)
     return payload
 
 
-def _patch_import_references(payload: dict[str, object], overlay: OverlayPayload) -> dict[str, object]:
+def _patch_import_references(
+    payload: dict[str, object], overlay: OverlayPayload
+) -> dict[str, object]:
     edges = list(payload.get("edges", []) or [])
     edge_key = lambda entry: (
         entry.get("from_module_structural_id"),
@@ -823,7 +1005,10 @@ def _patch_import_references(payload: dict[str, object], overlay: OverlayPayload
         entry.get("edge_type"),
     )
     edge_map = {edge_key(entry): entry for entry in edges}
-    target_ids = {target.get("module_structural_id") for target in payload.get("targets", []) or []}
+    target_ids = {
+        target.get("module_structural_id")
+        for target in payload.get("targets", []) or []
+    }
     for change in _iter_edge_changes(overlay):
         edge = _edge_from_value(change.get("new_value") or change.get("old_value"))
         if not edge or edge.get("edge_type") != "IMPORTS_DECLARED":
@@ -851,8 +1036,13 @@ def _patch_import_references(payload: dict[str, object], overlay: OverlayPayload
     return payload
 
 
-def _patch_importers_index(payload: dict[str, object], overlay: OverlayPayload) -> dict[str, object]:
-    target_ids = {target.get("module_structural_id") for target in payload.get("targets", []) or []}
+def _patch_importers_index(
+    payload: dict[str, object], overlay: OverlayPayload
+) -> dict[str, object]:
+    target_ids = {
+        target.get("module_structural_id")
+        for target in payload.get("targets", []) or []
+    }
     importer_map = {
         entry.get("module_structural_id"): entry
         for entry in payload.get("importers", []) or []
@@ -882,9 +1072,13 @@ def _patch_importers_index(payload: dict[str, object], overlay: OverlayPayload) 
     return payload
 
 
-def _patch_symbol_lookup(payload: dict[str, object], overlay: OverlayPayload) -> dict[str, object]:
+def _patch_symbol_lookup(
+    payload: dict[str, object], overlay: OverlayPayload
+) -> dict[str, object]:
     matches = list(payload.get("matches", []) or [])
-    match_ids = {entry.get("structural_id") for entry in matches if entry.get("structural_id")}
+    match_ids = {
+        entry.get("structural_id") for entry in matches if entry.get("structural_id")
+    }
     for change in _iter_node_changes(overlay):
         node = _node_from_value(change.get("new_value") or change.get("old_value"))
         if not node:
@@ -902,17 +1096,28 @@ def _patch_symbol_lookup(payload: dict[str, object], overlay: OverlayPayload) ->
             )
             match_ids.add(node.get("structural_id"))
         elif change["diff_kind"] == "remove":
-            matches = [entry for entry in matches if entry.get("structural_id") != node.get("structural_id")]
+            matches = [
+                entry
+                for entry in matches
+                if entry.get("structural_id") != node.get("structural_id")
+            ]
     payload["matches"] = sorted(
         matches,
-        key=lambda item: (-float(item.get("score", 0.0)), str(item.get("qualified_name"))),
+        key=lambda item: (
+            -float(item.get("score", 0.0)),
+            str(item.get("qualified_name")),
+        ),
     )[: int(payload.get("limit") or 0) or len(matches)]
     return payload
 
 
-def _patch_symbol_references(payload: dict[str, object], overlay: OverlayPayload) -> dict[str, object]:
+def _patch_symbol_references(
+    payload: dict[str, object], overlay: OverlayPayload
+) -> dict[str, object]:
     matches = list(payload.get("matches", []) or [])
-    match_ids = {entry.get("structural_id") for entry in matches if entry.get("structural_id")}
+    match_ids = {
+        entry.get("structural_id") for entry in matches if entry.get("structural_id")
+    }
     for change in _iter_node_changes(overlay):
         node = _node_from_value(change.get("new_value") or change.get("old_value"))
         if not node:
@@ -931,10 +1136,17 @@ def _patch_symbol_references(payload: dict[str, object], overlay: OverlayPayload
             )
             match_ids.add(node.get("structural_id"))
         elif change["diff_kind"] == "remove":
-            matches = [entry for entry in matches if entry.get("structural_id") != node.get("structural_id")]
+            matches = [
+                entry
+                for entry in matches
+                if entry.get("structural_id") != node.get("structural_id")
+            ]
     payload["matches"] = sorted(
         matches,
-        key=lambda item: (-float(item.get("score", 0.0)), str(item.get("qualified_name"))),
+        key=lambda item: (
+            -float(item.get("score", 0.0)),
+            str(item.get("qualified_name")),
+        ),
     )[: int(payload.get("limit") or 0) or len(matches)]
     payload["reference_count"] = len(payload.get("references", []) or [])
     return payload
@@ -1047,8 +1259,12 @@ def _analyze_files(
     return nodes, edges
 
 
-def _node_payload(node: SemanticNodeRecord, file_snapshot: FileSnapshot) -> dict[str, object]:
-    structural_id = ids.structural_id(node.node_type, node.language, node.qualified_name)
+def _node_payload(
+    node: SemanticNodeRecord, file_snapshot: FileSnapshot
+) -> dict[str, object]:
+    structural_id = ids.structural_id(
+        node.node_type, node.language, node.qualified_name
+    )
     return {
         "structural_id": structural_id,
         "node_type": node.node_type,
@@ -1076,8 +1292,12 @@ def _node_content_hash(node: SemanticNodeRecord, file_snapshot: FileSnapshot) ->
 
 
 def _edge_payload(edge) -> dict[str, object]:
-    src_id = ids.structural_id(edge.src_node_type, edge.src_language, edge.src_qualified_name)
-    dst_id = ids.structural_id(edge.dst_node_type, edge.dst_language, edge.dst_qualified_name)
+    src_id = ids.structural_id(
+        edge.src_node_type, edge.src_language, edge.src_qualified_name
+    )
+    dst_id = ids.structural_id(
+        edge.dst_node_type, edge.dst_language, edge.dst_qualified_name
+    )
     return {
         "src_structural_id": src_id,
         "dst_structural_id": dst_id,

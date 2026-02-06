@@ -1,4 +1,5 @@
 """Prompt registry I/O helpers."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -56,4 +57,3 @@ def _load_yaml_registry(path: Path, *, allow_missing: bool) -> Dict[str, dict]:
     except OSError as exc:
         _registry_error(f"Failed to read prompt registry {path}: {exc}")
     return _normalize_registry(raw, path)
-

@@ -42,6 +42,8 @@ def helper():
     assert not [edge for edge in result.edges if edge.edge_type == "CALLS"]
     method_edges = [edge for edge in result.edges if edge.edge_type == "DEFINES_METHOD"]
     assert method_edges and method_edges[0].src_node_type == "class"
-    import_edges = [edge for edge in result.edges if edge.edge_type == "IMPORTS_DECLARED"]
+    import_edges = [
+        edge for edge in result.edges if edge.edge_type == "IMPORTS_DECLARED"
+    ]
     imported = {edge.dst_qualified_name for edge in import_edges}
     assert {"pkg.helpers", "pkg.utils", "pkg"}.issubset(imported)

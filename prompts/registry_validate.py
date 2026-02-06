@@ -1,4 +1,5 @@
 """Prompt registry validation helpers."""
+
 from __future__ import annotations
 
 from pathlib import Path, PurePosixPath
@@ -31,7 +32,9 @@ def _validate_default_args(value: object, prompt_name: str) -> dict[str, object]
     if value is None:
         return {}
     if not isinstance(value, dict):
-        _registry_error(f"Prompt '{prompt_name}' has invalid default_args; expected mapping.")
+        _registry_error(
+            f"Prompt '{prompt_name}' has invalid default_args; expected mapping."
+        )
     for key in value.keys():
         if not isinstance(key, str) or not key:
             _registry_error(f"Prompt '{prompt_name}' has invalid default_args key.")
@@ -64,7 +67,9 @@ def _validate_entry(
         _registry_error(f"Prompt '{prompt_name}' has invalid spec_root.")
     if isinstance(spec_root, str) and spec_root:
         spec_root_path = PurePosixPath(spec_root)
-        if spec_root_path.is_absolute() or any(part == ".." for part in spec_root_path.parts):
+        if spec_root_path.is_absolute() or any(
+            part == ".." for part in spec_root_path.parts
+        ):
             _registry_error(f"Prompt '{prompt_name}' has invalid spec_root path.")
     reducers = entry.get("reducers")
     if not isinstance(reducers, list) or not reducers:

@@ -1,4 +1,5 @@
 """Python Tree-sitter analyzer."""
+
 from __future__ import annotations
 
 import importlib.util
@@ -31,7 +32,9 @@ class PythonAnalyzer(ASTAnalyzer):
     def analyze(self, snapshot: FileSnapshot, module_name: str) -> AnalysisResult:
         tree = self._parser.parse(snapshot.content)
         result = AnalysisResult()
-        module_metadata = {"status": "partial_parse"} if tree.root_node.has_error else None
+        module_metadata = (
+            {"status": "partial_parse"} if tree.root_node.has_error else None
+        )
         module_node = SemanticNodeRecord(
             language=self.language,
             node_type="module",
@@ -67,7 +70,9 @@ class PythonAnalyzer(ASTAnalyzer):
             local_packages = set(runtime_packaging.local_package_names(repo_root))
             for child in root.children:
                 if child.type in {"import_statement", "import_from_statement"}:
-                    segment = snapshot.content[child.start_byte : child.end_byte].decode("utf-8")
+                    segment = snapshot.content[
+                        child.start_byte : child.end_byte
+                    ].decode("utf-8")
                     imports.extend(
                         _resolved_python_imports(
                             segment,
@@ -111,7 +116,9 @@ class PythonAnalyzer(ASTAnalyzer):
             name_node = node.child_by_field_name("name")
             if not name_node:
                 return
-            class_name = snapshot.content[name_node.start_byte : name_node.end_byte].decode("utf-8")
+            class_name = snapshot.content[
+                name_node.start_byte : name_node.end_byte
+            ].decode("utf-8")
             qualified = f"{module_name}.{class_name}"
             class_record = SemanticNodeRecord(
                 language=self.language,
@@ -148,7 +155,9 @@ class PythonAnalyzer(ASTAnalyzer):
             name_node = node.child_by_field_name("name")
             if not name_node:
                 return
-            func_name = snapshot.content[name_node.start_byte : name_node.end_byte].decode("utf-8")
+            func_name = snapshot.content[
+                name_node.start_byte : name_node.end_byte
+            ].decode("utf-8")
             if class_stack:
                 node_type = "method"
                 parent = class_stack[-1]

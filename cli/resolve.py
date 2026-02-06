@@ -1,4 +1,5 @@
 """CLI helper to resolve identifiers."""
+
 from __future__ import annotations
 
 import json
@@ -20,7 +21,9 @@ def register(app: typer.Typer) -> None:
             help="Identifier kind: callable, function, method, class, or module.",
         ),
         limit: int = typer.Option(5, "--limit", help="Maximum candidates to return."),
-        json_output: bool = typer.Option(False, "--json", help="Emit machine-readable JSON output."),
+        json_output: bool = typer.Option(
+            False, "--json", help="Emit machine-readable JSON output."
+        ),
     ) -> None:
         """Resolve an identifier to a structural id (latest committed snapshot only)."""
         result = cli_call(

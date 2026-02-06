@@ -1,7 +1,8 @@
 """Shared ordering helpers for projection payloads."""
+
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, Iterable, List, Sequence, Tuple
+from typing import Any, Callable, Dict, Sequence
 
 
 def order_nodes(

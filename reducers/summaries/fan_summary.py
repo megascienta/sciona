@@ -1,4 +1,5 @@
 """Fan-in/fan-out summary reducer."""
+
 from __future__ import annotations
 
 from typing import Dict, List, Optional
@@ -35,7 +36,9 @@ def render(
     **_: object,
 ) -> str:
     conn = require_connection(conn)
-    require_latest_committed_snapshot(conn, snapshot_id, reducer_name="fan_summary reducer")
+    require_latest_committed_snapshot(
+        conn, snapshot_id, reducer_name="fan_summary reducer"
+    )
     if callable_id and not (function_id or method_id):
         function_id = callable_id
     artifact_available = artifact_db_available(repo_root) if repo_root else False
@@ -86,7 +89,9 @@ def render(
     return render_json_payload(body)
 
 
-def _fan_tables(conn, snapshot_id: str, stats: List[tuple[str, str, str, int, int]]) -> Dict[str, List[Dict[str, int | str]]]:
+def _fan_tables(
+    conn, snapshot_id: str, stats: List[tuple[str, str, str, int, int]]
+) -> Dict[str, List[Dict[str, int | str]]]:
     by_fan_in = sorted(stats, key=lambda item: (-item[3], item[0]))[:5]
     by_fan_out = sorted(stats, key=lambda item: (-item[4], item[0]))[:5]
     return {
@@ -131,7 +136,11 @@ def _fetch_names(conn, snapshot_id: str, node_ids: List[str]) -> Dict[str, str]:
         """,
         (snapshot_id, *node_ids),
     ).fetchall()
-    return {row["structural_id"]: row["qualified_name"] for row in rows if row["qualified_name"]}
+    return {
+        row["structural_id"]: row["qualified_name"]
+        for row in rows
+        if row["qualified_name"]
+    }
 
 
 def _resolve_module_id(conn, snapshot_id: str, identifier: str) -> Optional[str]:
@@ -148,5 +157,7 @@ def _resolve_module_id(conn, snapshot_id: str, identifier: str) -> Optional[str]
         (snapshot_id, identifier, identifier),
     ).fetchone()
     if not row:
-        raise ValueError(f"Module '{identifier}' not found in snapshot '{snapshot_id}'.")
+        raise ValueError(
+            f"Module '{identifier}' not found in snapshot '{snapshot_id}'."
+        )
     return row["structural_id"]

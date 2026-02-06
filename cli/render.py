@@ -1,4 +1,5 @@
 """CLI render helpers for human-readable output."""
+
 from __future__ import annotations
 
 from typing import Iterable
@@ -58,7 +59,9 @@ def render_build(payload: dict) -> list[str]:
     lines.append(f"Structural nodes updated: {payload['nodes_recorded']}")
     if payload.get("parse_failures"):
         lines.append("Analysis warnings:")
-        lines.append(f"  - {payload['parse_failures']} files failed to parse (partial snapshot)")
+        lines.append(
+            f"  - {payload['parse_failures']} files failed to parse (partial snapshot)"
+        )
         lines.append("Run with --debug for details.")
     return lines
 
@@ -71,7 +74,9 @@ def render_status(payload: dict) -> list[str]:
         f"Committed snapshots: {payload['snapshot_count']}",
     ]
     if payload.get("latest_snapshot"):
-        lines.append(f"Latest snapshot: {payload['latest_snapshot']} @ {payload['latest_created']}")
+        lines.append(
+            f"Latest snapshot: {payload['latest_snapshot']} @ {payload['latest_created']}"
+        )
     lines.append(f"Database present: {'yes' if payload['db_exists'] else 'no'}")
     if payload.get("enabled_languages") is not None:
         enabled = payload.get("enabled_languages") or []
@@ -81,7 +86,9 @@ def render_status(payload: dict) -> list[str]:
                 lines.append(f"  {language}")
         else:
             lines.append("Enabled languages: none")
-    lines.append(f"Discovery exclude_globs: {payload.get('exclude_globs_count', 0)} pattern(s)")
+    lines.append(
+        f"Discovery exclude_globs: {payload.get('exclude_globs_count', 0)} pattern(s)"
+    )
     for entry in payload.get("exclude_globs", []) or []:
         lines.append(f"  - {entry}")
     last_build = payload.get("last_build")

@@ -1,4 +1,5 @@
 """Discovery helpers shared across CLI and pipelines."""
+
 from __future__ import annotations
 
 from pathlib import Path

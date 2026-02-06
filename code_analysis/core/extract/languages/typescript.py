@@ -1,4 +1,5 @@
 """TypeScript Tree-sitter analyzer."""
+
 from __future__ import annotations
 
 from pathlib import Path, PurePosixPath
@@ -8,7 +9,13 @@ from ....tools.tree_sitter import build_parser
 
 from ...module_naming import module_name_from_path
 from ....tools.call_extraction import collect_call_identifiers
-from ...normalize.model import AnalysisResult, CallRecord, EdgeRecord, FileSnapshot, SemanticNodeRecord
+from ...normalize.model import (
+    AnalysisResult,
+    CallRecord,
+    EdgeRecord,
+    FileSnapshot,
+    SemanticNodeRecord,
+)
 from ..analyzer import ASTAnalyzer
 from ..utils import count_lines, find_nodes_of_type
 
@@ -22,7 +29,9 @@ class TypeScriptAnalyzer(ASTAnalyzer):
     def analyze(self, snapshot: FileSnapshot, module_name: str) -> AnalysisResult:
         tree = self._parser.parse(snapshot.content)
         result = AnalysisResult()
-        module_metadata = {"status": "partial_parse"} if tree.root_node.has_error else None
+        module_metadata = (
+            {"status": "partial_parse"} if tree.root_node.has_error else None
+        )
         module_node = SemanticNodeRecord(
             language=self.language,
             node_type="module",
@@ -46,7 +55,9 @@ class TypeScriptAnalyzer(ASTAnalyzer):
             # Extract imports (v1: import_statement only; best-effort, syntax-only).
             imports: List[str] = []
             for import_node in find_nodes_of_type(root, "import_statement"):
-                target = snapshot.content[import_node.start_byte : import_node.end_byte].decode("utf-8")
+                target = snapshot.content[
+                    import_node.start_byte : import_node.end_byte
+                ].decode("utf-8")
                 module = _extract_ts_import(target)
                 normalized = _normalize_ts_import(module, snapshot, module_name)
                 if normalized:
@@ -90,7 +101,9 @@ class TypeScriptAnalyzer(ASTAnalyzer):
             name_node = node.child_by_field_name("name")
             if not name_node:
                 return
-            class_name = snapshot.content[name_node.start_byte : name_node.end_byte].decode("utf-8")
+            class_name = snapshot.content[
+                name_node.start_byte : name_node.end_byte
+            ].decode("utf-8")
             qualified = f"{module_name}.{class_name}"
             class_record = SemanticNodeRecord(
                 language=self.language,
@@ -128,7 +141,9 @@ class TypeScriptAnalyzer(ASTAnalyzer):
             name_node = node.child_by_field_name("name")
             if not name_node:
                 return
-            func_name = snapshot.content[name_node.start_byte : name_node.end_byte].decode("utf-8")
+            func_name = snapshot.content[
+                name_node.start_byte : name_node.end_byte
+            ].decode("utf-8")
             if node.type == "method_definition":
                 if not class_stack:
                     # Ignore object-literal methods; only class members are structural methods.
@@ -217,7 +232,9 @@ def _extract_ts_import(fragment: str) -> Optional[str]:
     return None
 
 
-def _normalize_ts_import(specifier: Optional[str], snapshot: FileSnapshot, module_name: str) -> Optional[str]:
+def _normalize_ts_import(
+    specifier: Optional[str], snapshot: FileSnapshot, module_name: str
+) -> Optional[str]:
     if not specifier:
         return None
     spec = specifier.strip().strip("'\"")
@@ -237,7 +254,9 @@ def _normalize_ts_import(specifier: Optional[str], snapshot: FileSnapshot, modul
     return spec.replace("/", ".")
 
 
-def _normalize_relative_path(base: PurePosixPath, relative: PurePosixPath) -> PurePosixPath:
+def _normalize_relative_path(
+    base: PurePosixPath, relative: PurePosixPath
+) -> PurePosixPath:
     parts = list(base.parts)
     for part in relative.parts:
         if part in {"", "."}:

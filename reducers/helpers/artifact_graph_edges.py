@@ -1,4 +1,5 @@
 """Artifact graph edge helpers."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -50,7 +51,9 @@ def load_artifact_edges(
             """,
             tuple(params),
         ).fetchall()
-        return [(row["src_node_id"], row["dst_node_id"], row["edge_kind"]) for row in rows]
+        return [
+            (row["src_node_id"], row["dst_node_id"], row["edge_kind"]) for row in rows
+        ]
     finally:
         if owns_connection:
             conn.close()

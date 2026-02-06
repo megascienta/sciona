@@ -1,4 +1,5 @@
 """Interactive init helpers."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -51,4 +52,9 @@ def supported_languages() -> list[str]:
     return sorted(analysis_config.LANGUAGE_CONFIG.keys())
 
 
-__all__ = ["InitDialogDefaults", "apply_language_selection", "detect_languages", "supported_languages"]
+__all__ = [
+    "InitDialogDefaults",
+    "apply_language_selection",
+    "detect_languages",
+    "supported_languages",
+]

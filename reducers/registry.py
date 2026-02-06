@@ -1,4 +1,5 @@
 """Prompt reducer registry (reflective metadata)."""
+
 from __future__ import annotations
 
 from contextlib import contextmanager
@@ -49,7 +50,9 @@ def _iter_reducer_modules() -> Iterator[ModuleType]:
                 continue
             module = importlib.import_module(f"{__package__}.{package}.{entry.name}")
             if not hasattr(module, "REDUCER_META"):
-                raise ValueError(f"Reducer module '{module.__name__}' is missing REDUCER_META.")
+                raise ValueError(
+                    f"Reducer module '{module.__name__}' is missing REDUCER_META."
+                )
             yield module
 
 
@@ -57,11 +60,17 @@ def _validate_meta(meta: ReducerMeta, module_name: str) -> None:
     if meta.scope not in _VALID_SCOPES:
         raise ValueError(f"Reducer '{module_name}' has invalid scope '{meta.scope}'.")
     if meta.determinism not in _VALID_DETERMINISM:
-        raise ValueError(f"Reducer '{module_name}' has invalid determinism '{meta.determinism}'.")
+        raise ValueError(
+            f"Reducer '{module_name}' has invalid determinism '{meta.determinism}'."
+        )
     if meta.semantic_tag not in _VALID_TAGS:
-        raise ValueError(f"Reducer '{module_name}' has invalid semantic tag '{meta.semantic_tag}'.")
+        raise ValueError(
+            f"Reducer '{module_name}' has invalid semantic tag '{meta.semantic_tag}'."
+        )
     if not meta.placeholders or len(meta.placeholders) != 1:
-        raise ValueError(f"Reducer '{module_name}' must declare exactly one placeholder.")
+        raise ValueError(
+            f"Reducer '{module_name}' must declare exactly one placeholder."
+        )
 
 
 def _build_registry() -> dict[str, ReducerEntry]:
@@ -96,7 +105,6 @@ REDUCERS: Mapping[str, ReducerEntry] = _REDUCERS
 
 def get_reducers() -> Mapping[str, ReducerEntry]:
     return REDUCERS
-
 
 
 def load_reducer(reducer_id: str):

@@ -136,7 +136,10 @@ def test_dependency_edges_query_filters_sources(tmp_path):
         conn.close()
     payload = json.loads(_strip_json_fence(payload_text))
     assert payload["edges"]
-    assert all(edge["from_module_qualified_name"].startswith("pkg.alpha") for edge in payload["edges"])
+    assert all(
+        edge["from_module_qualified_name"].startswith("pkg.alpha")
+        for edge in payload["edges"]
+    )
 
 
 def test_import_references_returns_importers(tmp_path):
@@ -153,7 +156,9 @@ def test_import_references_returns_importers(tmp_path):
         conn.close()
     payload = json.loads(_strip_json_fence(payload_text))
     assert payload["edges"]
-    assert any(edge["from_module_qualified_name"] == "pkg.beta" for edge in payload["edges"])
+    assert any(
+        edge["from_module_qualified_name"] == "pkg.beta" for edge in payload["edges"]
+    )
 
 
 def test_module_file_map_returns_modules(tmp_path):

@@ -12,7 +12,13 @@ def test_cli_reducer_renders_payload(cli_app, cli_runner):
 def test_cli_reducer_callable_id_resolves_method(cli_app, cli_runner):
     result = cli_runner.invoke(
         cli_app,
-        ["reducer", "--id", "callable_overview", "--callable-id", "pkg.alpha.Service.run"],
+        [
+            "reducer",
+            "--id",
+            "callable_overview",
+            "--callable-id",
+            "pkg.alpha.Service.run",
+        ],
     )
 
     assert result.exit_code == 0

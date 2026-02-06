@@ -1,4 +1,5 @@
 """Module-level call graph reducer."""
+
 from __future__ import annotations
 
 from typing import Dict, List
@@ -34,19 +35,29 @@ def render(
     **_: object,
 ) -> str:
     conn = require_connection(conn)
-    require_latest_committed_snapshot(conn, snapshot_id, reducer_name="module_call_graph reducer")
+    require_latest_committed_snapshot(
+        conn, snapshot_id, reducer_name="module_call_graph reducer"
+    )
     if callable_id and not (function_id or method_id):
         function_id = callable_id
     resolved_module_id = module_id
     if not resolved_module_id and class_id:
         class_structural_id = queries.resolve_class_id(conn, snapshot_id, class_id)
-        resolved_module_id = queries.module_id_for_structural(conn, snapshot_id, class_structural_id)
+        resolved_module_id = queries.module_id_for_structural(
+            conn, snapshot_id, class_structural_id
+        )
     if not resolved_module_id and method_id:
         method_structural_id = queries.resolve_method_id(conn, snapshot_id, method_id)
-        resolved_module_id = queries.module_id_for_structural(conn, snapshot_id, method_structural_id)
+        resolved_module_id = queries.module_id_for_structural(
+            conn, snapshot_id, method_structural_id
+        )
     if not resolved_module_id and function_id:
-        function_structural_id = queries.resolve_function_id(conn, snapshot_id, function_id)
-        resolved_module_id = queries.module_id_for_structural(conn, snapshot_id, function_structural_id)
+        function_structural_id = queries.resolve_function_id(
+            conn, snapshot_id, function_id
+        )
+        resolved_module_id = queries.module_id_for_structural(
+            conn, snapshot_id, function_structural_id
+        )
     if not resolved_module_id:
         raise ValueError("MODULE_CALL_GRAPH requires a resolvable module_id.")
     artifact_available = artifact_db_available(repo_root) if repo_root else False
@@ -77,10 +88,14 @@ def render(
     return render_json_payload(body)
 
 
-def _edges_to_entries(edges: List[tuple[str, str, int]], *, direction: str) -> List[Dict[str, int | str]]:
+def _edges_to_entries(
+    edges: List[tuple[str, str, int]], *, direction: str
+) -> List[Dict[str, int | str]]:
     entries: List[Dict[str, int | str]] = []
     for src_id, dst_id, count in edges:
         module_name = dst_id if direction == "outgoing" else src_id
         entries.append({"module_qualified_name": module_name, "call_count": count})
-    entries.sort(key=lambda item: (-int(item["call_count"]), str(item["module_qualified_name"])))
+    entries.sort(
+        key=lambda item: (-int(item["call_count"]), str(item["module_qualified_name"]))
+    )
     return entries

@@ -1,4 +1,5 @@
 """Runtime environment and repository helpers."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -7,6 +8,7 @@ import re
 from . import constants
 from . import git as git_ops
 from .errors import EnvError
+
 
 def get_repo_root() -> Path:
     """Return the path to the git repository root for the current working dir."""

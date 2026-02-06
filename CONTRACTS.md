@@ -303,7 +303,7 @@ never for module identifiers.
 Public config/runtime surfaces:
 - `runtime.config`: typed config loading (`load_sciona_config`, `load_runtime_config`,
   `load_language_settings`, `load_llm_settings`, `load_logging_settings`)
-- `runtime.config_io`: config file read/write helpers used by init workflows
+- `runtime.config.io`: config file read/write helpers used by init workflows
 - `runtime.paths`: repository and state paths (`get_repo_root`, `get_sciona_dir`,
   `get_db_path`, `get_artifact_db_path`, `get_config_path`, ...)
 

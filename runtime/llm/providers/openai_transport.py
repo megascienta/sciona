@@ -1,4 +1,5 @@
 """HTTP transport and retry for OpenAI requests."""
+
 from __future__ import annotations
 
 import time

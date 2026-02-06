@@ -1,4 +1,5 @@
 """Shared reducer helpers."""
+
 from __future__ import annotations
 
 from ..structural import (
@@ -8,7 +9,7 @@ from ..structural import (
     structural_index,
 )
 from . import queries
-from .render import render_json_payload, require_connection
+from .render import require_connection
 from .types import (
     ClassOverviewPayload,
     FunctionOverviewPayload,

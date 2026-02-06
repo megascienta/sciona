@@ -1,4 +1,5 @@
 """Database connection helpers and pooling."""
+
 from __future__ import annotations
 
 import os
@@ -9,12 +10,13 @@ from threading import Lock, local
 from typing import Callable, Iterator
 
 from ..runtime import config as runtime_config
-from ..runtime import config_defaults as defaults
+from ..runtime.config import defaults
 from ..runtime.logging import get_logger
 from .core_db import schema as core_schema
 from .artifact_db import schema as artifact_schema
 
 _LOGGER = get_logger("data_storage.connections")
+
 
 def _resolve_db_timeout(repo_root: Path | None) -> float:
     env_override = os.getenv("SCIONA_DB_TIMEOUT")
@@ -32,7 +34,9 @@ def _resolve_db_timeout(repo_root: Path | None) -> float:
     return float(defaults.DEFAULT_DB_TIMEOUT)
 
 
-def _base_connect(db_path: Path, *, repo_root: Path | None = None) -> sqlite3.Connection:
+def _base_connect(
+    db_path: Path, *, repo_root: Path | None = None
+) -> sqlite3.Connection:
     timeout = _resolve_db_timeout(repo_root)
     db_path.parent.mkdir(parents=True, exist_ok=True)
     uri = f"file:{db_path.as_posix()}?mode=rwc"
@@ -49,7 +53,9 @@ def connect_core(db_path: Path, *, repo_root: Path | None = None) -> sqlite3.Con
     return conn
 
 
-def connect_artifact(db_path: Path, *, repo_root: Path | None = None) -> sqlite3.Connection:
+def connect_artifact(
+    db_path: Path, *, repo_root: Path | None = None
+) -> sqlite3.Connection:
     conn = _base_connect(db_path, repo_root=repo_root)
     artifact_schema.ensure_schema(conn)
     return conn
@@ -74,11 +80,15 @@ class ConnectionPool:
         return pools.setdefault(key, [])
 
     @contextmanager
-    def acquire(self, db_path: Path, *, repo_root: Path | None = None) -> Iterator[sqlite3.Connection]:
+    def acquire(
+        self, db_path: Path, *, repo_root: Path | None = None
+    ) -> Iterator[sqlite3.Connection]:
         key = str(db_path.resolve())
         with self._lock:
             pool = self._get_pool(key)
-            conn = pool.pop() if pool else self._connect_func(db_path, repo_root=repo_root)
+            conn = (
+                pool.pop() if pool else self._connect_func(db_path, repo_root=repo_root)
+            )
         try:
             yield conn
         finally:

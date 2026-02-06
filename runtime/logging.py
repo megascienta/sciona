@@ -1,4 +1,5 @@
 """Logging helpers for SCIONA modules."""
+
 from __future__ import annotations
 
 import logging
@@ -45,7 +46,11 @@ def configure_logging(
                 resolved_level = logging._nameToLevel.get(module_level.upper(), level)
             else:
                 resolved_level = int(module_level)
-            logger_name = module_name if module_name.startswith("sciona.") else f"sciona.{module_name}"
+            logger_name = (
+                module_name
+                if module_name.startswith("sciona.")
+                else f"sciona.{module_name}"
+            )
             logging.getLogger(logger_name).setLevel(resolved_level)
     formatter: logging.Formatter
     if structured:

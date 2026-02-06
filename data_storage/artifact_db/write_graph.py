@@ -1,4 +1,5 @@
 """ArtifactDB graph write helpers."""
+
 from __future__ import annotations
 
 import sqlite3
@@ -11,7 +12,9 @@ def reset_graph_index(conn: sqlite3.Connection) -> None:
     conn.execute("DELETE FROM graph_nodes")
 
 
-def insert_graph_nodes(conn: sqlite3.Connection, *, rows: Iterable[tuple[str, str]]) -> None:
+def insert_graph_nodes(
+    conn: sqlite3.Connection, *, rows: Iterable[tuple[str, str]]
+) -> None:
     """rows: (node_id, node_kind)"""
     conn.executemany(
         "INSERT OR REPLACE INTO graph_nodes(node_id, node_kind) VALUES (?, ?)",

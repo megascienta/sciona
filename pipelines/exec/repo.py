@@ -1,4 +1,5 @@
 """Repository execution helpers (mechanism only)."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -7,7 +8,7 @@ import shutil
 from typing import Optional
 
 from ...runtime import constants as setup_config
-from ...runtime.config_io import write_default_config
+from ...runtime.config.io import write_default_config
 from ...runtime.logging import get_logger
 from ..domain.repository import RepoState
 

@@ -24,7 +24,8 @@ def test_snapshot_delta_reports_expected_changes(tmp_path):
     assert "func_old" in removed_ids  # retired helper disappears
     # Edge-level churn should include the new import edge from alpha->beta
     assert any(
-        edge["src_structural_id"] == "mod_alpha" and edge["dst_structural_id"] == "mod_beta"
+        edge["src_structural_id"] == "mod_alpha"
+        and edge["dst_structural_id"] == "mod_beta"
         for edge in delta.added_edges
     )
 

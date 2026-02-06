@@ -1,4 +1,5 @@
 """Typed payloads exposed to prompt reducers."""
+
 from __future__ import annotations
 
 from typing import Dict, List, Sequence, TypedDict

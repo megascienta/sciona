@@ -1,4 +1,5 @@
 """Class overview reducer."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -27,6 +28,7 @@ REDUCER_META = ReducerMeta(
     summary="Structural overview payload for a class.",
 )
 
+
 def render(
     snapshot_id: str,
     conn,
@@ -46,21 +48,27 @@ def render(
         )
         if edges:
             resolved_class_id = edges[0][0]
-    payload = run(snapshot_id, conn=conn, repo_root=repo_root, class_id=resolved_class_id)
+    payload = run(
+        snapshot_id, conn=conn, repo_root=repo_root, class_id=resolved_class_id
+    )
     return render_json_payload(payload)
 
 
 def run(snapshot_id: str, **params) -> ClassOverviewPayload:
     conn = params.get("conn")
     if conn is None:
-        raise ValueError("class_overview reducer requires an active database connection.")
+        raise ValueError(
+            "class_overview reducer requires an active database connection."
+        )
     row = conn.execute(
         "SELECT is_committed FROM snapshots WHERE snapshot_id = ?",
         (snapshot_id,),
     ).fetchone()
     if not row or not row["is_committed"]:
         raise ValueError("class_overview reducer requires a committed snapshot.")
-    require_latest_committed_snapshot(conn, snapshot_id, reducer_name="class_overview reducer")
+    require_latest_committed_snapshot(
+        conn, snapshot_id, reducer_name="class_overview reducer"
+    )
     class_id = params.get("class_id")
     if not class_id:
         raise ValueError("class_overview requires 'class_id'.")
@@ -116,7 +124,9 @@ def run(snapshot_id: str, **params) -> ClassOverviewPayload:
     }
 
 
-def _load_methods(conn, snapshot_id: str, class_id: str, repo_root: Path | None) -> List[Dict[str, str]]:
+def _load_methods(
+    conn, snapshot_id: str, class_id: str, repo_root: Path | None
+) -> List[Dict[str, str]]:
     if repo_root is None:
         return []
     edges = load_artifact_edges(

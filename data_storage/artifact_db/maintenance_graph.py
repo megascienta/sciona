@@ -1,4 +1,5 @@
 """ArtifactDB graph maintenance routines."""
+
 from __future__ import annotations
 
 from typing import Final
@@ -34,5 +35,6 @@ def rebuild_graph_index(
         [(row["caller_id"], row["callee_id"], CALL_EDGE_KIND) for row in call_edges]
     )
     write_graph.insert_graph_edges(artifact_conn, rows=graph_edges)
+
 
 __all__ = ["CALL_EDGE_KIND", "rebuild_graph_index"]

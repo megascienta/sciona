@@ -1,4 +1,5 @@
 """Deterministic hashing for snapshot structural state."""
+
 from __future__ import annotations
 
 import hashlib

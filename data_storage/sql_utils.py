@@ -1,8 +1,9 @@
 """Shared SQLite helpers."""
+
 from __future__ import annotations
 
 from contextlib import contextmanager
-from typing import Iterable, Iterator, Sequence
+from typing import Iterator, Sequence
 from uuid import uuid4
 
 SQLITE_MAX_VARS = 900

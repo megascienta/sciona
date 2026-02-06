@@ -1,4 +1,5 @@
 """Shared SCIONA constants."""
+
 from __future__ import annotations
 
 TOOL_VERSION = "1.0.0"

@@ -1,4 +1,5 @@
 """Prompt compiler."""
+
 from __future__ import annotations
 
 from typing import Mapping
@@ -32,7 +33,9 @@ def compile_prompt(
     missing_args = [arg for arg in required_args if merged_args.get(arg) is None]
     if missing_args:
         missing = ", ".join(missing_args)
-        raise ValueError(f"PROMPT COMPILATION ERROR: Missing required prompt args: {missing}.")
+        raise ValueError(
+            f"PROMPT COMPILATION ERROR: Missing required prompt args: {missing}."
+        )
     template = load_spec_text(entry, repo_root)
     validate_placeholder_bijection(
         template,

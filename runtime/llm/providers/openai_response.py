@@ -1,4 +1,5 @@
 """Response parsing helpers for OpenAI payloads."""
+
 from __future__ import annotations
 
 import json

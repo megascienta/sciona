@@ -1,4 +1,5 @@
 """Language registry for ingestion analyzers and extensions."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -6,6 +7,7 @@ from typing import Callable, Dict, Iterable, Optional, Tuple
 
 from ...config import LANGUAGE_CONFIG
 from .analyzer import ASTAnalyzer
+
 AnalyzerFactory = Callable[[], ASTAnalyzer]
 
 
@@ -23,7 +25,9 @@ def extensions_for_language(language: str) -> Tuple[str, ...]:
     return config.extensions
 
 
-def language_for_extension(extension: str, enabled_languages: Iterable[str]) -> Optional[str]:
+def language_for_extension(
+    extension: str, enabled_languages: Iterable[str]
+) -> Optional[str]:
     normalized = extension.lower()
     for language in enabled_languages:
         if normalized in extensions_for_language(language):

@@ -1,4 +1,5 @@
 """Reducer registry pipeline helpers."""
+
 from __future__ import annotations
 
 import builtins
@@ -82,7 +83,9 @@ def emit(
     except ValueError as exc:
         raise WorkflowError(str(exc), code="unknown_reducer") from exc
     if not hasattr(reducer, "render"):
-        raise WorkflowError(f"Reducer '{reducer_id}' cannot be rendered.", code="invalid_reducer")
+        raise WorkflowError(
+            f"Reducer '{reducer_id}' cannot be rendered.", code="invalid_reducer"
+        )
     with core(db_path, repo_root=repo_state.repo_root) as conn:
         snapshot_id = prompt_policy.resolve_latest_snapshot(conn)
         resolved_kwargs = _resolve_reducer_identifiers(conn, snapshot_id, kwargs)
@@ -101,7 +104,9 @@ def emit(
                     artifact_conn=artifact_conn,
                 )
                 try:
-                    text = reducer.render(snapshot_id, conn, repo_state.repo_root, **resolved_kwargs)
+                    text = reducer.render(
+                        snapshot_id, conn, repo_state.repo_root, **resolved_kwargs
+                    )
                 except ValueError as exc:
                     raise WorkflowError(str(exc), code="reducer_error") from exc
                 text = diff_overlay.apply_overlay_to_text(

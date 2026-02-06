@@ -13,7 +13,9 @@ def test_write_call_artifacts_resolves_function(tmp_path: Path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     core_conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
     try:
-        artifact_conn = artifact_connect(get_artifact_db_path(repo_root), repo_root=repo_root)
+        artifact_conn = artifact_connect(
+            get_artifact_db_path(repo_root), repo_root=repo_root
+        )
         try:
             statuses = {"meth_alpha": "added"}
             call_records = [

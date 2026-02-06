@@ -1,4 +1,5 @@
 """ArtifactDB read helpers."""
+
 from __future__ import annotations
 
 import sqlite3
@@ -53,7 +54,9 @@ def get_node_status(
     return statuses
 
 
-def rebuild_consistent_for_snapshot(conn: sqlite3.Connection, *, snapshot_id: str) -> bool:
+def rebuild_consistent_for_snapshot(
+    conn: sqlite3.Connection, *, snapshot_id: str
+) -> bool:
     rows = conn.execute(
         """
         SELECT key, value

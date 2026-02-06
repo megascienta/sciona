@@ -1,4 +1,5 @@
 """Callable overview reducer."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -25,6 +26,7 @@ REDUCER_META = ReducerMeta(
     semantic_tag="evidence",
     summary="Structural overview payload for a callable (function or method).",
 )
+
 
 def render(
     snapshot_id: str,
@@ -54,17 +56,23 @@ def render(
 def run(snapshot_id: str, **params) -> FunctionOverviewPayload:
     conn = params.get("conn")
     if conn is None:
-        raise ValueError("callable_overview reducer requires an active database connection.")
+        raise ValueError(
+            "callable_overview reducer requires an active database connection."
+        )
     row = conn.execute(
         "SELECT is_committed FROM snapshots WHERE snapshot_id = ?",
         (snapshot_id,),
     ).fetchone()
     if not row or not row["is_committed"]:
         raise ValueError("callable_overview reducer requires a committed snapshot.")
-    require_latest_committed_snapshot(conn, snapshot_id, reducer_name="callable_overview reducer")
+    require_latest_committed_snapshot(
+        conn, snapshot_id, reducer_name="callable_overview reducer"
+    )
     requested_id = params.get("function_id")
     if not requested_id:
-        raise ValueError("callable_overview requires 'function_id' (function or method).")
+        raise ValueError(
+            "callable_overview requires 'function_id' (function or method)."
+        )
 
     repo_root = params.get("repo_root")
     repo_path = Path(repo_root) if repo_root else None
@@ -76,7 +84,9 @@ def run(snapshot_id: str, **params) -> FunctionOverviewPayload:
     if row["node_type"] not in {"function", "method"}:
         raise ValueError(f"Node '{requested_id}' is not a function or method.")
 
-    module_name = queries.module_id_for_structural(conn, snapshot_id, row["structural_id"])
+    module_name = queries.module_id_for_structural(
+        conn, snapshot_id, row["structural_id"]
+    )
     artifact_available = artifact_db_available(repo_path) if repo_path else False
     params_list: List[str] = []
     decorators: List[str] = []

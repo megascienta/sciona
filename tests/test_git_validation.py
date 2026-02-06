@@ -7,7 +7,9 @@ from sciona.runtime.errors import GitError
 
 
 def _init_repo(repo_root):
-    subprocess.run(["git", "init"], cwd=repo_root, check=True, capture_output=True, text=True)
+    subprocess.run(
+        ["git", "init"], cwd=repo_root, check=True, capture_output=True, text=True
+    )
 
 
 def test_run_git_rejects_dangerous_args(tmp_path):

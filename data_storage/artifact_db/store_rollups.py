@@ -1,4 +1,5 @@
 """ArtifactDB rollup persistence helpers."""
+
 from __future__ import annotations
 
 import sqlite3

@@ -13,7 +13,9 @@ ALLOWED_PREFIXES = ("sciona.addons",)
 def _is_allowed_import_name(name: str) -> bool:
     if name in ALLOWED_MODULES:
         return True
-    if any(name == prefix or name.startswith(f"{prefix}.") for prefix in ALLOWED_PREFIXES):
+    if any(
+        name == prefix or name.startswith(f"{prefix}.") for prefix in ALLOWED_PREFIXES
+    ):
         return True
     return False
 
@@ -21,7 +23,10 @@ def _is_allowed_import_name(name: str) -> bool:
 def _is_allowed_import_from(module: str, names: list[str]) -> bool:
     if module in ALLOWED_MODULES:
         return True
-    if any(module == prefix or module.startswith(f"{prefix}.") for prefix in ALLOWED_PREFIXES):
+    if any(
+        module == prefix or module.startswith(f"{prefix}.")
+        for prefix in ALLOWED_PREFIXES
+    ):
         return True
     return False
 

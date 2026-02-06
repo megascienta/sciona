@@ -30,7 +30,16 @@ def test_node_instances_require_existing_snapshot_and_node(tmp_path):
                     start_line, end_line, content_hash
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """,
-                ("inst_1", "missing_node", "snap_1", "pkg.mod", "pkg/mod.py", 1, 1, "h1"),
+                (
+                    "inst_1",
+                    "missing_node",
+                    "snap_1",
+                    "pkg.mod",
+                    "pkg/mod.py",
+                    1,
+                    1,
+                    "h1",
+                ),
             )
     finally:
         conn.close()

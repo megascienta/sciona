@@ -47,7 +47,11 @@ def test_engine_records_nodes_for_failed_parse(tmp_path, monkeypatch):
     }
 
     monkeypatch.setattr(registry, "get_analyzer", lambda language: FailingAnalyzer())
-    monkeypatch.setattr(registry, "get_analyzer_for_path", lambda path, analyzers: analyzers.get("python"))
+    monkeypatch.setattr(
+        registry,
+        "get_analyzer_for_path",
+        lambda path, analyzers: analyzers.get("python"),
+    )
     monkeypatch.setattr(
         "sciona.runtime.git.tracked_paths",
         lambda _root: {Path("pkg/mod.py").as_posix()},
@@ -62,7 +66,9 @@ def test_engine_records_nodes_for_failed_parse(tmp_path, monkeypatch):
     )
 
     discovery = core_config.DiscoverySettings(exclude_globs=[])
-    engine = BuildEngine(repo_root, conn, core_write, languages=languages, discovery=discovery)
+    engine = BuildEngine(
+        repo_root, conn, core_write, languages=languages, discovery=discovery
+    )
     conn.execute("BEGIN")
     engine.run(
         snapshot=Snapshot(
@@ -124,7 +130,9 @@ def test_engine_warns_on_empty_language_matches(tmp_path, monkeypatch):
         lambda _root, _path: "hash",
     )
 
-    engine = BuildEngine(repo_root, conn, core_write, languages=languages, discovery=discovery)
+    engine = BuildEngine(
+        repo_root, conn, core_write, languages=languages, discovery=discovery
+    )
     conn.execute("BEGIN")
     engine.run(
         snapshot=Snapshot(

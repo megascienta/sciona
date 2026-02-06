@@ -1,4 +1,5 @@
 """Addon-facing registry API (dependency-light)."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

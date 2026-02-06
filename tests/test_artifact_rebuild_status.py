@@ -27,6 +27,8 @@ def test_rebuild_status_consistency_failed(tmp_path):
         artifact_write.mark_rebuild_started(conn, snapshot_id="snap_2")
         artifact_write.mark_rebuild_failed(conn, snapshot_id="snap_2")
         conn.commit()
-        assert not artifact_read.rebuild_consistent_for_snapshot(conn, snapshot_id="snap_2")
+        assert not artifact_read.rebuild_consistent_for_snapshot(
+            conn, snapshot_id="snap_2"
+        )
     finally:
         conn.close()

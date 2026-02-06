@@ -1,4 +1,5 @@
 """Core structural analysis + ingestion orchestration for SCIONA builds."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -21,6 +22,7 @@ logger = get_logger(__name__)
 
 class BuildEngine:
     """Sequence ingest phases without interpreting structure or policy."""
+
     def __init__(
         self,
         workspace_root: Path,
@@ -37,7 +39,9 @@ class BuildEngine:
         self.repo_root = workspace_root
         self.config_root = config_root or workspace_root
         self.conn = conn
-        self.languages = languages or runtime_config.load_language_settings(workspace_root)
+        self.languages = languages or runtime_config.load_language_settings(
+            workspace_root
+        )
         self.discovery = discovery
         self.discovery_counts: dict[str, int] = {}
         self.discovery_candidates: dict[str, int] = {}
@@ -59,7 +63,9 @@ class BuildEngine:
         try:
             tracked = git_ops.tracked_paths(self.workspace_root)
             if self.discovery is None:
-                self.discovery = runtime_config.load_discovery_settings(self.config_root)
+                self.discovery = runtime_config.load_discovery_settings(
+                    self.config_root
+                )
             self.exclude_globs = list(self.discovery.exclude_globs)
             records = walker.collect_files(
                 self.workspace_root,
@@ -89,6 +95,7 @@ class BuildEngine:
 
             snapshot_id = snapshot.snapshot_id
             self.assembler.prime_structural_cache(None)
+
             def _warn_line_count(path: Path, exc: Exception) -> None:
                 self._warn(f"Could not count lines in {path}: {exc}")
 
@@ -112,13 +119,13 @@ class BuildEngine:
                         if progress:
                             progress.advance(1)
                         continue
-                    module_name = analyzer.module_name(self.workspace_root, file_snapshot)
+                    module_name = analyzer.module_name(
+                        self.workspace_root, file_snapshot
+                    )
                     try:
                         analysis = analyzer.analyze(file_snapshot, module_name)
                     except Exception as exc:
-                        warning = (
-                            f"Failed to analyze {file_snapshot.record.relative_path}: {exc}"
-                        )
+                        warning = f"Failed to analyze {file_snapshot.record.relative_path}: {exc}"
                         self._warn(warning)
                         self.parse_failures += 1
                         self.assembler.register_module_node(
@@ -187,8 +194,12 @@ class BuildEngine:
             module_names.add(module_name)
             module_snapshots.append((file_snapshot, module_name))
         for file_snapshot, module_name in module_snapshots:
-            inserted += self.assembler.register_module_node(snapshot_id, file_snapshot, module_name)
-        inserted += self._register_directory_modules(snapshot_id, snapshots, module_names)
+            inserted += self.assembler.register_module_node(
+                snapshot_id, file_snapshot, module_name
+            )
+        inserted += self._register_directory_modules(
+            snapshot_id, snapshots, module_names
+        )
         return inserted
 
     def _register_directory_modules(

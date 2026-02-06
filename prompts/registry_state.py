@@ -1,4 +1,5 @@
 """Prompt registry state and accessors."""
+
 from __future__ import annotations
 
 from contextlib import contextmanager
@@ -22,6 +23,7 @@ def _resolve_repo_root(repo_root: Optional[Path]) -> Optional[Path]:
     if repo_root is None:
         try:
             from ..runtime import paths as runtime_paths
+
             return runtime_paths.get_repo_root()
         except EnvError:
             return None
@@ -32,6 +34,7 @@ def _load_registry(repo_root: Optional[Path]) -> dict[str, dict[str, object]]:
     repo_entries: dict[str, dict[str, object]] = {}
     if repo_root is not None:
         from ..runtime import paths as runtime_paths
+
         registry_path = runtime_paths.get_prompts_registry_path(repo_root)
         repo_entries = _load_yaml_registry(registry_path, allow_missing=True)
         if repo_entries:
@@ -48,7 +51,9 @@ def _load_registry(repo_root: Optional[Path]) -> dict[str, dict[str, object]]:
     return merged
 
 
-def _freeze_registry(entries: dict[str, dict[str, object]]) -> Mapping[str, Mapping[str, object]]:
+def _freeze_registry(
+    entries: dict[str, dict[str, object]],
+) -> Mapping[str, Mapping[str, object]]:
     frozen: dict[str, Mapping[str, object]] = {}
     for name, entry in entries.items():
         frozen_entry: dict[str, object] = {}
@@ -93,7 +98,9 @@ def freeze_registry(repo_root: Optional[Path] = None) -> None:
 
 
 @contextmanager
-def mutable_registry(repo_root: Optional[Path] = None) -> Iterator[dict[str, dict[str, object]]]:
+def mutable_registry(
+    repo_root: Optional[Path] = None,
+) -> Iterator[dict[str, dict[str, object]]]:
     """Temporarily expose a mutable registry (for tests only)."""
     global PROMPTS, _FROZEN
     repo_root = _resolve_repo_root(repo_root)

@@ -1,11 +1,14 @@
 """Diff overlay storage for dirty-worktree payload augmentation."""
+
 from __future__ import annotations
 
 import sqlite3
 from typing import Iterable, List
 
 
-def overlay_exists(conn: sqlite3.Connection, snapshot_id: str, worktree_hash: str) -> bool:
+def overlay_exists(
+    conn: sqlite3.Connection, snapshot_id: str, worktree_hash: str
+) -> bool:
     row = conn.execute(
         """
         SELECT 1

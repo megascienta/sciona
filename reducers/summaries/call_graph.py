@@ -1,4 +1,5 @@
 """Callable call graph reducer."""
+
 from __future__ import annotations
 
 from typing import Dict, List
@@ -32,7 +33,9 @@ def render(
     **_: object,
 ) -> str:
     conn = require_connection(conn)
-    require_latest_committed_snapshot(conn, snapshot_id, reducer_name="call_graph reducer")
+    require_latest_committed_snapshot(
+        conn, snapshot_id, reducer_name="call_graph reducer"
+    )
     if callable_id and not (function_id or method_id):
         function_id = callable_id
     if method_id:

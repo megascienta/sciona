@@ -1,4 +1,5 @@
 """CLI helpers for error handling and argument parsing."""
+
 from __future__ import annotations
 
 import json
@@ -32,6 +33,7 @@ def cli_call(func, *args, **kwargs):
 
 runtime_call = cli_call
 setup_call = cli_call
+
 
 def parse_extra_args(args: list[str]) -> dict[str, str]:
     """Parse --key value or --key=value args into a string-only key/value map; no positional args or coercion. This function is part of the CLI ABI; do not change without a version bump."""

@@ -1,4 +1,5 @@
 """Configuration file IO helpers for SCIONA runtime."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -6,9 +7,9 @@ from typing import Any, Dict
 
 import yaml
 
-from . import config_defaults as defaults
-from .errors import ConfigError
-from .paths import get_config_path
+from . import defaults
+from ..errors import ConfigError
+from ..paths import get_config_path
 
 
 def load_raw_config(repo_root: Path) -> Dict[str, Any]:

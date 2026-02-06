@@ -1,4 +1,5 @@
 """CoreDB write/maintenance helpers."""
+
 from __future__ import annotations
 
 import sqlite3
@@ -160,7 +161,9 @@ def delete_snapshot_tree(conn: sqlite3.Connection, snapshot_id: str) -> None:
     conn.execute("DELETE FROM snapshots WHERE snapshot_id = ?", (snapshot_id,))
 
 
-def purge_uncommitted_snapshots(conn: sqlite3.Connection, exclude: str | None = None) -> list[str]:
+def purge_uncommitted_snapshots(
+    conn: sqlite3.Connection, exclude: str | None = None
+) -> list[str]:
     """Delete temporary snapshots that were never committed."""
     rows = conn.execute(
         "SELECT snapshot_id FROM snapshots WHERE is_committed = 0"
@@ -175,7 +178,9 @@ def purge_uncommitted_snapshots(conn: sqlite3.Connection, exclude: str | None = 
     return purged
 
 
-def delete_committed_snapshots_except(conn: sqlite3.Connection, keep_snapshot_id: str) -> list[str]:
+def delete_committed_snapshots_except(
+    conn: sqlite3.Connection, keep_snapshot_id: str
+) -> list[str]:
     """Delete committed snapshots except the provided snapshot id."""
     rows = conn.execute(
         """

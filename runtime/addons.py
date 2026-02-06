@@ -1,4 +1,5 @@
 """Addon discovery and registration helpers."""
+
 from __future__ import annotations
 
 import importlib
@@ -10,6 +11,7 @@ from .logging import get_logger, debug_enabled
 from .addon_contract import PLUGIN_API_VERSION, requirement_compatible
 
 _LOGGER = get_logger("runtime.addons")
+
 
 def load(repo_root=None) -> Registry:
     del repo_root

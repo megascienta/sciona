@@ -1,4 +1,5 @@
 """Public SCIONA API namespaces (stable)."""
+
 from __future__ import annotations
 
 from . import addons, errors, prompts, reducers, repo, resolve, runtime, user

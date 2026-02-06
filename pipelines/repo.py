@@ -1,4 +1,5 @@
 """Pipeline implementations backing CLI commands."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -43,7 +44,9 @@ def init_agents(repo_root: Optional[Path], *, mode: str = "append") -> Path:
     repo_state = policy_repo.resolve_repo_state(repo_root, allow_missing_config=True)
     policy_repo.ensure_repo_has_commits(repo_state)
     reducers = get_reducers()
-    return agents_runtime.upsert_agents_file(repo_state.repo_root, mode=mode, reducers=reducers)
+    return agents_runtime.upsert_agents_file(
+        repo_state.repo_root, mode=mode, reducers=reducers
+    )
 
 
 def init_dialog_defaults(repo_root: Optional[Path] = None) -> InitDialogDefaults:

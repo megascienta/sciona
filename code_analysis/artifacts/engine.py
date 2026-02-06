@@ -1,4 +1,5 @@
 """Derived artifact analysis execution."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -31,7 +32,9 @@ class ArtifactEngine:
         self.repo_root = workspace_root
         self.config_root = config_root or workspace_root
         self.conn = conn
-        self.languages = languages or runtime_config.load_language_settings(workspace_root)
+        self.languages = languages or runtime_config.load_language_settings(
+            workspace_root
+        )
         self.discovery = discovery
         self.analyzers = routing.select_analyzers(self.languages)
         self._progress_factory = progress_factory
@@ -50,6 +53,7 @@ class ArtifactEngine:
         )
         if not records:
             return []
+
         def _warn_line_count(path: Path, exc: Exception) -> None:
             self._warn(f"Could not count lines in {path}: {exc}")
 
@@ -61,7 +65,9 @@ class ArtifactEngine:
         node_map = _load_node_map(self.conn, snapshot_id)
         progress = None
         if self._progress_factory:
-            progress = self._progress_factory("Analyzing artifacts", len(file_snapshots))
+            progress = self._progress_factory(
+                "Analyzing artifacts", len(file_snapshots)
+            )
         call_artifacts: List[CallExtractionRecord] = []
         all_call_records = []
         try:
@@ -83,7 +89,9 @@ class ArtifactEngine:
                         progress.advance(1)
                     continue
                 all_call_records.extend(
-                    record for record in analysis.call_records if record.callee_identifiers
+                    record
+                    for record in analysis.call_records
+                    if record.callee_identifiers
                 )
                 if progress:
                     progress.advance(1)
@@ -129,4 +137,6 @@ def _load_node_map(conn, snapshot_id: str) -> Dict[Tuple[str, str], str]:
             mapping[key] = None
         else:
             mapping[key] = structural_id
-    return {key: structural_id for key, structural_id in mapping.items() if structural_id}
+    return {
+        key: structural_id for key, structural_id in mapping.items() if structural_id
+    }

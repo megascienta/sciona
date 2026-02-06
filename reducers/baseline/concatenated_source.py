@@ -1,4 +1,5 @@
 """Concatenate source reducer."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -23,6 +24,7 @@ REDUCER_META = ReducerMeta(
 
 MAX_SOURCE_BYTES = 200_000
 
+
 def render(
     snapshot_id: str,
     conn,
@@ -33,7 +35,9 @@ def render(
     **_: object,
 ) -> str:
     conn = require_connection(conn)
-    require_latest_committed_snapshot(conn, snapshot_id, reducer_name="concatenated_source reducer")
+    require_latest_committed_snapshot(
+        conn, snapshot_id, reducer_name="concatenated_source reducer"
+    )
     resolved_scope = _normalize_scope(scope, module_id, class_id)
     if resolved_scope == "codebase":
         file_paths = _collect_snapshot_paths(conn, snapshot_id, repo_root)
@@ -44,23 +48,35 @@ def render(
         file_paths = [_resolve_class_file(conn, snapshot_id, class_id, repo_root)]
     return _render_file_dump(repo_root, file_paths)
 
-def _normalize_scope(scope: str | None, module_id: str | None, class_id: str | None) -> str:
+
+def _normalize_scope(
+    scope: str | None, module_id: str | None, class_id: str | None
+) -> str:
     if scope is None:
         raise ValueError("concatenated_source_v1 requires a scope.")
     normalized = scope.strip().lower()
     if normalized not in {"codebase", "module", "class"}:
-        raise ValueError("concatenated_source_v1 scope must be 'codebase', 'module', or 'class'.")
+        raise ValueError(
+            "concatenated_source_v1 scope must be 'codebase', 'module', or 'class'."
+        )
     if normalized == "module" and not module_id:
         raise ValueError("concatenated_source_v1 scope 'module' requires module_id.")
     if normalized == "class" and not class_id:
         raise ValueError("concatenated_source_v1 scope 'class' requires class_id.")
     if normalized == "codebase" and module_id:
-        raise ValueError("concatenated_source_v1 scope 'codebase' must not include module_id.")
+        raise ValueError(
+            "concatenated_source_v1 scope 'codebase' must not include module_id."
+        )
     if normalized == "codebase" and class_id:
-        raise ValueError("concatenated_source_v1 scope 'codebase' must not include class_id.")
+        raise ValueError(
+            "concatenated_source_v1 scope 'codebase' must not include class_id."
+        )
     if normalized == "module" and class_id:
-        raise ValueError("concatenated_source_v1 scope 'module' must not include class_id.")
+        raise ValueError(
+            "concatenated_source_v1 scope 'module' must not include class_id."
+        )
     return normalized
+
 
 def _resolve_class_file(conn, snapshot_id: str, class_id: str, repo_root: Path) -> Path:
     structural_id = queries.resolve_class_id(conn, snapshot_id, class_id)
@@ -75,8 +91,11 @@ def _resolve_class_file(conn, snapshot_id: str, class_id: str, repo_root: Path) 
         (snapshot_id, structural_id),
     ).fetchone()
     if not row or not row["file_path"]:
-        raise ValueError(f"Class '{class_id}' missing file_path in snapshot '{snapshot_id}'.")
+        raise ValueError(
+            f"Class '{class_id}' missing file_path in snapshot '{snapshot_id}'."
+        )
     return _normalize_repo_relative(repo_root, Path(row["file_path"]))
+
 
 def _collect_snapshot_paths(
     conn,
@@ -107,8 +126,10 @@ def _collect_snapshot_paths(
         results.append(rel_path)
     return results
 
+
 def _is_under_any_root(path: Path, roots: Iterable[Path]) -> bool:
     return any(path.is_relative_to(root) for root in roots)
+
 
 def _normalize_repo_relative(repo_root: Path, file_path: Path) -> Path:
     if file_path.is_absolute():
@@ -117,6 +138,7 @@ def _normalize_repo_relative(repo_root: Path, file_path: Path) -> Path:
         except ValueError as exc:
             raise ValueError(f"Path '{file_path}' is outside the repo root.") from exc
     return Path(file_path.as_posix())
+
 
 def _render_file_dump(repo_root: Path, relative_paths: Iterable[Path]) -> str:
     chunks: List[str] = []

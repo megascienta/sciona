@@ -1,4 +1,5 @@
 """Prompt initialization helpers (pipeline-owned)."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -59,6 +60,7 @@ def _write_registry(path: Path, entries: Dict[str, dict]) -> None:
 
 def ensure_prompts_initialized(repo_root: Path) -> Path:
     from ..runtime import paths as runtime_paths
+
     prompts_dir = runtime_paths.get_prompts_dir(repo_root)
     prompts_dir.mkdir(parents=True, exist_ok=True)
     registry_path = runtime_paths.get_prompts_registry_path(repo_root)

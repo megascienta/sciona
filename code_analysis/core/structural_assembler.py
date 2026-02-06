@@ -1,12 +1,18 @@
 """Build structural graph records for ingestion."""
+
 from __future__ import annotations
 
 import hashlib
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import Dict, Iterable, Optional, Tuple
 
 from typing import Protocol
 from ...runtime import identity as ids
-from .normalize.model import AnalysisResult, EdgeRecord, FileSnapshot, SemanticNodeRecord
+from .normalize.model import (
+    AnalysisResult,
+    EdgeRecord,
+    FileSnapshot,
+    SemanticNodeRecord,
+)
 
 
 class CoreStore(Protocol):
@@ -50,7 +56,9 @@ class StructuralAssembler:
             structural_id = self._emit_structural_node(node, snapshot_id)
             node_id_map[node.qualified_name] = (structural_id, node.node_type)
             node_count += 1
-        self._emit_node_instances(snapshot_id, analysis.nodes, file_snapshot, node_id_map)
+        self._emit_node_instances(
+            snapshot_id, analysis.nodes, file_snapshot, node_id_map
+        )
         self._emit_edges(snapshot_id, analysis.edges, node_id_map)
         return node_count, node_id_map
 
@@ -84,7 +92,9 @@ class StructuralAssembler:
         key = (node.language, node.node_type, node.qualified_name)
         if key in self.structural_cache:
             return self.structural_cache[key]
-        structural_id = ids.structural_id(node.node_type, node.language, node.qualified_name)
+        structural_id = ids.structural_id(
+            node.node_type, node.language, node.qualified_name
+        )
         existing = self.conn.execute(
             "SELECT structural_id FROM structural_nodes WHERE structural_id = ?",
             (structural_id,),
@@ -131,8 +141,18 @@ class StructuralAssembler:
         node_id_map: Dict[str, Tuple[str, str]],
     ) -> None:
         for edge in edges:
-            src_id = self._lookup_structural_id(edge.src_language, edge.src_node_type, edge.src_qualified_name, node_id_map)
-            dst_id = self._lookup_structural_id(edge.dst_language, edge.dst_node_type, edge.dst_qualified_name, node_id_map)
+            src_id = self._lookup_structural_id(
+                edge.src_language,
+                edge.src_node_type,
+                edge.src_qualified_name,
+                node_id_map,
+            )
+            dst_id = self._lookup_structural_id(
+                edge.dst_language,
+                edge.dst_node_type,
+                edge.dst_qualified_name,
+                node_id_map,
+            )
             if not src_id or not dst_id:
                 continue
             self._store.insert_edge(
@@ -156,7 +176,9 @@ class StructuralAssembler:
         cache_key = (language, node_type, qualified_name)
         return self.structural_cache.get(cache_key)
 
-    def _node_content_hash(self, node: SemanticNodeRecord, file_snapshot: FileSnapshot) -> str:
+    def _node_content_hash(
+        self, node: SemanticNodeRecord, file_snapshot: FileSnapshot
+    ) -> str:
         content = file_snapshot.content
         if (
             node.start_byte is not None

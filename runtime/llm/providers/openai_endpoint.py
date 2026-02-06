@@ -1,4 +1,5 @@
 """Endpoint validation for the OpenAI provider."""
+
 from __future__ import annotations
 
 from typing import Optional
@@ -38,7 +39,9 @@ def validated_endpoint(
             "LLM api_endpoint must not include inline credentials.",
             code="llm_invalid_endpoint",
         )
-    allowlist = {entry.strip().lower() for entry in endpoint_allowlist if entry and entry.strip()}
+    allowlist = {
+        entry.strip().lower() for entry in endpoint_allowlist if entry and entry.strip()
+    }
     if not allowlist:
         allowlist = {"api.openai.com"}
     if host not in allowlist:

@@ -17,7 +17,9 @@ def test_rollups_use_structural_ids_for_module_edges(tmp_path: Path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     core_conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
     core_conn.row_factory = sqlite3.Row
-    artifact_conn = artifact_connect(get_artifact_db_path(repo_root), repo_root=repo_root)
+    artifact_conn = artifact_connect(
+        get_artifact_db_path(repo_root), repo_root=repo_root
+    )
     try:
         call_records = [
             CallExtractionRecord(
@@ -35,8 +37,12 @@ def test_rollups_use_structural_ids_for_module_edges(tmp_path: Path):
                 call_records=call_records,
                 eligible_callers={"meth_alpha"},
             )
-            rebuild_graph_index(artifact_conn, core_conn=core_conn, snapshot_id=snapshot_id)
-            rebuild_graph_rollups(artifact_conn, core_conn=core_conn, snapshot_id=snapshot_id)
+            rebuild_graph_index(
+                artifact_conn, core_conn=core_conn, snapshot_id=snapshot_id
+            )
+            rebuild_graph_rollups(
+                artifact_conn, core_conn=core_conn, snapshot_id=snapshot_id
+            )
 
         rows = artifact_conn.execute(
             "SELECT src_module_id, dst_module_id, call_count FROM module_call_edges"

@@ -1,4 +1,5 @@
 """Prompt reducer validation helpers."""
+
 from __future__ import annotations
 
 import inspect
@@ -54,7 +55,9 @@ def _validate_reducer_arg_coverage(
         raise ValueError(
             f"Prompt '{prompt_name}' is missing required args for reducer use: {missing}."
         )
-    unused_args = sorted(arg for arg in prompt_args if arg not in reducer_required | reducer_optional)
+    unused_args = sorted(
+        arg for arg in prompt_args if arg not in reducer_required | reducer_optional
+    )
     if unused_args:
         unused = ", ".join(unused_args)
         _LOGGER.warning(
@@ -82,7 +85,9 @@ def resolve_prompt_reducers(
         try:
             reducer_modules.append(load_reducer(reducer_name))
         except Exception as exc:
-            raise ValueError(f"Prompt '{prompt_name}' unknown reducer '{reducer_name}': {exc}") from exc
+            raise ValueError(
+                f"Prompt '{prompt_name}' unknown reducer '{reducer_name}': {exc}"
+            ) from exc
     reducer_placeholders = []
     reducer_placeholder_pairs: list[tuple[object, str]] = []
     for reducer in reducer_modules:

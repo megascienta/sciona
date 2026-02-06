@@ -26,10 +26,14 @@ def test_rebuild_graph_rejects_uncommitted_snapshot(tmp_path):
     )
     core_conn.commit()
 
-    artifact_conn = artifact_connect(get_artifact_db_path(repo_root), repo_root=repo_root)
+    artifact_conn = artifact_connect(
+        get_artifact_db_path(repo_root), repo_root=repo_root
+    )
     try:
         with pytest.raises(core_errors.UncommittedSnapshotError):
-            rebuild_graph_index(artifact_conn, core_conn=core_conn, snapshot_id="snap_temp")
+            rebuild_graph_index(
+                artifact_conn, core_conn=core_conn, snapshot_id="snap_temp"
+            )
     finally:
         artifact_conn.close()
         core_conn.close()

@@ -1,4 +1,5 @@
 """CLI helper to search symbols."""
+
 from __future__ import annotations
 
 import json
@@ -19,14 +20,18 @@ from . import render as cli_render
 def register(app: typer.Typer) -> None:
     @app.command("search")
     def search(
-        query: str = typer.Argument(..., help="Search query (qualified name or substring)."),
+        query: str = typer.Argument(
+            ..., help="Search query (qualified name or substring)."
+        ),
         kind: Optional[str] = typer.Option(
             None,
             "--kind",
             help="Filter kind: module, class, function, method, callable, or any.",
         ),
         limit: int = typer.Option(10, "--limit", help="Maximum matches to return."),
-        json_output: bool = typer.Option(False, "--json", help="Emit machine-readable JSON output."),
+        json_output: bool = typer.Option(
+            False, "--json", help="Emit machine-readable JSON output."
+        ),
     ) -> None:
         """Search symbols in the latest committed snapshot."""
         reducer_text, snapshot_id, _resolved_args = cli_call(

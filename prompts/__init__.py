@@ -1,4 +1,5 @@
 """Minimal prompt compiler."""
+
 from __future__ import annotations
 
 from .compiler import compile_prompt

@@ -1,4 +1,5 @@
 """Snapshot diff helpers for incremental ingestion."""
+
 from __future__ import annotations
 
 from typing import Optional
@@ -25,7 +26,12 @@ def previous_snapshot_id(conn, current_snapshot_id: str) -> Optional[str]:
             ORDER BY created_at DESC, snapshot_id DESC
             LIMIT 1
             """,
-            (current_snapshot_id, current_created_at, current_created_at, current_snapshot_id),
+            (
+                current_snapshot_id,
+                current_created_at,
+                current_created_at,
+                current_snapshot_id,
+            ),
         ).fetchone()
     else:
         row = conn.execute(

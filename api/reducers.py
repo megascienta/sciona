@@ -1,4 +1,5 @@
 """Reducer API (stable)."""
+
 from __future__ import annotations
 
 from ..pipelines import reducers as reducers_pipeline

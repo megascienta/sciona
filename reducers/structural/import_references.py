@@ -1,7 +1,8 @@
 """Import reference reducer (who imports a module)."""
+
 from __future__ import annotations
 
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from ..helpers.render import render_json_payload, require_connection
 from ..helpers.utils import require_latest_committed_snapshot
@@ -30,13 +31,17 @@ def render(
     **_: object,
 ) -> str:
     conn = require_connection(conn)
-    require_latest_committed_snapshot(conn, snapshot_id, reducer_name="import_references reducer")
+    require_latest_committed_snapshot(
+        conn, snapshot_id, reducer_name="import_references reducer"
+    )
     if not module_id and not query:
         raise ValueError("import_references requires module_id or query.")
     target_ids = _resolve_module_ids(conn, snapshot_id, module_id, query)
     edge_type_value = _normalize_edge_type(edge_type)
     limit_value = _normalize_limit(limit)
-    edges = _fetch_importers(conn, snapshot_id, target_ids, edge_type_value, limit_value)
+    edges = _fetch_importers(
+        conn, snapshot_id, target_ids, edge_type_value, limit_value
+    )
     lookup = _node_lookup(
         conn,
         snapshot_id,
@@ -106,7 +111,9 @@ def _resolve_module_ids(
         ).fetchall()
         module_ids = [row["structural_id"] for row in rows]
         if not module_ids:
-            raise ValueError(f"Module '{normalized}' not found in snapshot '{snapshot_id}'.")
+            raise ValueError(
+                f"Module '{normalized}' not found in snapshot '{snapshot_id}'."
+            )
         return module_ids
     normalized = str(query).strip() if query else ""
     if not normalized:
@@ -126,7 +133,9 @@ def _resolve_module_ids(
     ).fetchall()
     module_ids = [row["structural_id"] for row in rows]
     if not module_ids:
-        raise ValueError(f"No modules match query '{normalized}' in snapshot '{snapshot_id}'.")
+        raise ValueError(
+            f"No modules match query '{normalized}' in snapshot '{snapshot_id}'."
+        )
     return module_ids
 
 
@@ -162,7 +171,11 @@ def _fetch_importers(
 ) -> List[Dict[str, str]]:
     if not target_ids:
         return []
-    clauses = ["e.snapshot_id = ?", "sn_src.node_type = 'module'", "sn_dst.node_type = 'module'"]
+    clauses = [
+        "e.snapshot_id = ?",
+        "sn_src.node_type = 'module'",
+        "sn_dst.node_type = 'module'",
+    ]
     params: list[object] = [snapshot_id]
     if edge_type:
         clauses.append("e.edge_type = ?")
@@ -196,7 +209,9 @@ def _fetch_importers(
     ]
 
 
-def _node_lookup(conn, snapshot_id: str, node_ids: set[str]) -> Dict[str, Dict[str, str]]:
+def _node_lookup(
+    conn, snapshot_id: str, node_ids: set[str]
+) -> Dict[str, Dict[str, str]]:
     if not node_ids:
         return {}
     placeholders = ",".join("?" for _ in node_ids)

@@ -1,4 +1,5 @@
 """ArtifactDB schema."""
+
 from __future__ import annotations
 
 import sqlite3
@@ -144,6 +145,7 @@ SCHEMA_STATEMENTS: list[str] = [
     """,
 ]
 
+
 def ensure_schema(conn: sqlite3.Connection) -> None:
     _ensure_schema(conn, SCHEMA_STATEMENTS)
     _ensure_graph_fk_schema(conn)
@@ -160,13 +162,13 @@ def _ensure_graph_fk_schema(conn: sqlite3.Connection) -> None:
     conn.execute("DROP TABLE IF EXISTS class_call_edges")
     conn.execute("DROP TABLE IF EXISTS node_fan_stats")
     statements = [
-        SCHEMA_STATEMENTS[6],   # graph_edges
+        SCHEMA_STATEMENTS[6],  # graph_edges
         SCHEMA_STATEMENTS[10],  # module_call_edges
         SCHEMA_STATEMENTS[13],  # class_call_edges
         SCHEMA_STATEMENTS[16],  # node_fan_stats
-        SCHEMA_STATEMENTS[7],   # idx_graph_edges_src
-        SCHEMA_STATEMENTS[8],   # idx_graph_edges_dst
-        SCHEMA_STATEMENTS[9],   # idx_graph_edges_kind
+        SCHEMA_STATEMENTS[7],  # idx_graph_edges_src
+        SCHEMA_STATEMENTS[8],  # idx_graph_edges_dst
+        SCHEMA_STATEMENTS[9],  # idx_graph_edges_kind
         SCHEMA_STATEMENTS[11],  # idx_module_call_edges_src
         SCHEMA_STATEMENTS[12],  # idx_module_call_edges_dst
         SCHEMA_STATEMENTS[14],  # idx_class_call_edges_src

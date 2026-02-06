@@ -47,14 +47,22 @@ def test_java_analyzer_extracts_structure_and_calls(tmp_path):
     node_types = {node.node_type for node in result.nodes}
     assert {"module", "class", "method"}.issubset(node_types)
 
-    import_edges = [edge for edge in result.edges if edge.edge_type == "IMPORTS_DECLARED"]
+    import_edges = [
+        edge for edge in result.edges if edge.edge_type == "IMPORTS_DECLARED"
+    ]
     imported = {edge.dst_qualified_name for edge in import_edges}
     assert "java.util.List" in imported
     assert "java.util.Collections.emptyList" in imported
 
     module_node = next(node for node in result.nodes if node.node_type == "module")
-    assert module_node.metadata and module_node.metadata.get("package") == "com.example.foo"
+    assert (
+        module_node.metadata
+        and module_node.metadata.get("package") == "com.example.foo"
+    )
 
-    call_records = {record.qualified_name: set(record.callee_identifiers) for record in result.call_records}
+    call_records = {
+        record.qualified_name: set(record.callee_identifiers)
+        for record in result.call_records
+    }
     assert "src.Foo.Foo.helper" in call_records
     assert {"baz", "Baz"}.issubset(call_records["src.Foo.Foo.helper"])
