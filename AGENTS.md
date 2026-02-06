@@ -14,6 +14,7 @@ Mandatory rules (non-optional):
 - Ask once per thread for invocation; never ask again; always reuse the chosen invocation.
 - If worktree is dirty and `_diff` exists, treat `_diff` as primary evidence.
 - Always include a compressed SCIONA evidence summary before conclusions.
+- If SCIONA output is stale or `_diff` is missing for a dirty worktree, remind the user to commit and run `sciona build`.
 
 Minimum required behavior:
 1. Use SCIONA before touching files.
