@@ -23,15 +23,53 @@ dependencies = [
 [project.scripts]
 sciona = "sciona.cli.main:run"
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["sciona*"]
+[tool.setuptools]
+packages = [
+    "sciona",
+    "sciona.api",
+    "sciona.cli",
+    "sciona.cli.commands",
+    "sciona.code_analysis",
+    "sciona.code_analysis.analysis",
+    "sciona.code_analysis.analysis.graph",
+    "sciona.code_analysis.artifacts",
+    "sciona.code_analysis.core",
+    "sciona.code_analysis.core.annotate",
+    "sciona.code_analysis.core.extract",
+    "sciona.code_analysis.core.extract.languages",
+    "sciona.code_analysis.core.normalize",
+    "sciona.code_analysis.tools",
+    "sciona.data_storage",
+    "sciona.data_storage.artifact_db",
+    "sciona.data_storage.core_db",
+    "sciona.pipelines",
+    "sciona.pipelines.config",
+    "sciona.pipelines.diff_overlay",
+    "sciona.pipelines.domain",
+    "sciona.pipelines.exec",
+    "sciona.pipelines.policy",
+    "sciona.prompts",
+    "sciona.reducers",
+    "sciona.reducers.baseline",
+    "sciona.reducers.helpers",
+    "sciona.reducers.structural",
+    "sciona.reducers.summaries",
+    "sciona.runtime",
+    "sciona.runtime.config",
+    "sciona.runtime.git",
+    "sciona.runtime.llm",
+    "sciona.runtime.llm.providers",
+    "sciona.runtime.templates",
+]
+
+[tool.setuptools.package-dir]
+sciona = "."
 
 [tool.setuptools.package-data]
 sciona = [
     "prompts/templates/*.md",
     "prompts/templates/registry.yaml",
-    "pipelines/templates/*.md",
+    "runtime/templates/*.md",
 ]
 
 [tool.pytest.ini_options]
