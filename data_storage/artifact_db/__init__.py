@@ -1,13 +1,9 @@
 """ArtifactDB namespace (derived, last-committed-snapshot only)."""
 
+from __future__ import annotations
+
 from . import diff_overlay, maintenance, read_status, schema, write_graph, write_index
-
-
-def connect(db_path, *, repo_root=None):
-    from ..connections import connect_artifact
-
-    return connect_artifact(db_path, repo_root=repo_root)
-
+from .connect import connect
 
 __all__ = [
     "connect",
