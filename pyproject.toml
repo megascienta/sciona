@@ -8,6 +8,7 @@ version = "1.0.0"
 description = "SCIONA semantic structural index builder"
 authors = [{ name = "SCIONA" }]
 readme = "README.md"
+license = { file = "LICENSE" }
 requires-python = ">=3.11"
 dependencies = [
     "typer>=0.9,<1.0",
@@ -22,51 +23,13 @@ dependencies = [
 [project.scripts]
 sciona = "sciona.cli.main:run"
 
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["sciona*"]
+
 [tool.setuptools.package-data]
 sciona = [
     "prompts/templates/*.md",
     "prompts/templates/registry.yaml",
     "pipelines/templates/*.md",
 ]
-
-[tool.setuptools]
-packages = [
-    "sciona",
-    "sciona.api",
-    "sciona.cli",
-    "sciona.cli.commands",
-    "sciona.code_analysis",
-    "sciona.code_analysis.analysis",
-    "sciona.code_analysis.analysis.graph",
-    "sciona.code_analysis.artifacts",
-    "sciona.code_analysis.core",
-    "sciona.code_analysis.core.annotate",
-    "sciona.code_analysis.core.extract",
-    "sciona.code_analysis.core.extract.languages",
-    "sciona.code_analysis.core.normalize",
-    "sciona.code_analysis.tools",
-    "sciona.data_storage",
-    "sciona.data_storage.artifact_db",
-    "sciona.data_storage.core_db",
-    "sciona.pipelines",
-    "sciona.pipelines.config",
-    "sciona.pipelines.domain",
-    "sciona.pipelines.exec",
-    "sciona.pipelines.policy",
-    "sciona.prompts",
-    "sciona.reducers",
-    "sciona.reducers.baseline",
-    "sciona.reducers.helpers",
-    "sciona.reducers.structural",
-    "sciona.reducers.summaries",
-    "sciona.runtime",
-    "sciona.runtime.llm",
-    "sciona.runtime.llm.providers",
-]
-
-[tool.setuptools.package-dir]
-sciona = "."
-
-[tool.pytest.ini_options]
-cache_dir = "/tmp/sciona-pytest-cache"
-pythonpath = ["."]
