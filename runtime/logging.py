@@ -61,19 +61,19 @@ def configure_logging(
         formatter = logging.Formatter(
             "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
         )
-    if not root_logger.handlers:
+    if not sciona_logger.handlers:
         handler = logging.StreamHandler()
         handler.setFormatter(formatter)
-        root_logger.addHandler(handler)
+        sciona_logger.addHandler(handler)
     else:
-        for handler in root_logger.handlers:
+        for handler in sciona_logger.handlers:
             handler.setFormatter(formatter)
-    _maybe_add_file_handler(root_logger, formatter, repo_root)
+    _maybe_add_file_handler(sciona_logger, formatter, repo_root)
     root_logger.setLevel(level)
 
 
 def _maybe_add_file_handler(
-    root_logger: logging.Logger,
+    target_logger: logging.Logger,
     formatter: logging.Formatter,
     repo_root: Optional[Path],
 ) -> None:
@@ -85,13 +85,13 @@ def _maybe_add_file_handler(
     log_path = _resolve_log_path(repo_root)
     log_path.parent.mkdir(parents=True, exist_ok=True)
     log_path_str = str(log_path)
-    for handler in root_logger.handlers:
+    for handler in target_logger.handlers:
         if isinstance(handler, logging.FileHandler):
             if getattr(handler, "baseFilename", None) == log_path_str:
                 return
     file_handler = logging.FileHandler(log_path_str, encoding="utf-8")
     file_handler.setFormatter(formatter)
-    root_logger.addHandler(file_handler)
+    target_logger.addHandler(file_handler)
 
 
 def _resolve_log_path(repo_root: Path) -> Path:

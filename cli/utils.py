@@ -13,6 +13,9 @@ from ..api import runtime as api_runtime
 from . import render as cli_render
 from .errors import handle_cli_error
 
+def emit_user_warning(message: str) -> None:
+    if message:
+        cli_render.emit_warning([message])
 
 def cli_call(func, *args, **kwargs):
     """Invoke CLI helpers and translate errors into CLI exits."""
@@ -96,7 +99,7 @@ def strip_json_fence(text: str) -> str:
 def emit_dirty_worktree_warning(repo_root=None) -> None:
     warning = get_dirty_worktree_warning(repo_root)
     if warning:
-        cli_render.emit_warning([warning])
+        emit_user_warning(warning)
 
 
 def get_dirty_worktree_warning(repo_root=None) -> str | None:

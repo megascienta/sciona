@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path, PurePosixPath
 from typing import Optional
 
-from ..runtime.logging import get_logger
+from ..runtime.logging import debug_enabled, get_logger
 from .specs import load_spec_text
 
 _LOGGER = get_logger("prompts.registry")
@@ -13,7 +13,8 @@ _ALLOWED_KINDS = {"core", "addon", "internal", "user"}
 
 
 def _registry_error(message: str) -> None:
-    _LOGGER.error(message)
+    if debug_enabled():
+        _LOGGER.error(message)
     raise ValueError(message)
 
 
