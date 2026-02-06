@@ -8,7 +8,13 @@ from typing import Optional
 from .domain.repository import RepoState
 from .domain.policies import BuildPolicy
 from ..runtime.logging import get_logger
-from .prompts import ensure_prompts_initialized
+from .prompts import custom_prompt_names, ensure_prompts_initialized
+from .hooks import (
+    HookStatus,
+    install_post_commit_hook,
+    post_commit_hook_status,
+    remove_post_commit_hook,
+)
 from ..runtime.templates import agents as agents_runtime
 from ..reducers.registry import get_reducers
 from .exec.build import (
@@ -90,6 +96,29 @@ def clean(repo_root: Optional[Path] = None) -> bool:
     logger.info("Cleaning SCIONA repository state.")
     repo_state = policy_repo.resolve_repo_state(repo_root, allow_missing_config=True)
     return exec_clean(repo_state)
+
+
+def custom_prompts(repo_root: Optional[Path] = None) -> list[str]:
+    repo_state = policy_repo.resolve_repo_state(repo_root, allow_missing_config=True)
+    return custom_prompt_names(repo_state.repo_root)
+
+
+def install_commit_hook(
+    command: str,
+    repo_root: Optional[Path] = None,
+) -> HookStatus:
+    repo_state = policy_repo.resolve_repo_state(repo_root, allow_missing_config=True)
+    return install_post_commit_hook(repo_state.repo_root, command)
+
+
+def remove_commit_hook(repo_root: Optional[Path] = None) -> HookStatus:
+    repo_state = policy_repo.resolve_repo_state(repo_root, allow_missing_config=True)
+    return remove_post_commit_hook(repo_state.repo_root)
+
+
+def commit_hook_status(repo_root: Optional[Path] = None) -> HookStatus:
+    repo_state = policy_repo.resolve_repo_state(repo_root, allow_missing_config=True)
+    return post_commit_hook_status(repo_state.repo_root)
 
 
 def clean_agents(repo_root: Optional[Path] = None) -> bool:

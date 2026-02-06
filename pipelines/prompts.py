@@ -92,4 +92,16 @@ def ensure_prompts_initialized(repo_root: Path) -> Path:
     return prompts_dir
 
 
-__all__ = ["ensure_prompts_initialized"]
+def custom_prompt_names(repo_root: Path) -> list[str]:
+    from ..runtime import paths as runtime_paths
+
+    registry_path = runtime_paths.get_prompts_registry_path(repo_root)
+    if not registry_path.exists():
+        return []
+    seed_registry = _load_registry(_TEMPLATES_DIR / _REGISTRY_FILENAME)
+    existing_registry = _load_registry(registry_path)
+    extras = [name for name in existing_registry if name not in seed_registry]
+    return sorted(extras)
+
+
+__all__ = ["custom_prompt_names", "ensure_prompts_initialized"]
