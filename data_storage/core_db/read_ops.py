@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 """CoreDB read/query helpers."""
 
 from __future__ import annotations

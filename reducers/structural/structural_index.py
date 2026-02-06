@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 """Canonical structural_index reducer.
 
 Cost profile: O(nodes + edges) for the active snapshot because it reads every

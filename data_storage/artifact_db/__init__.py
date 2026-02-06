@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 """ArtifactDB namespace (derived, last-committed-snapshot only)."""
 
 from __future__ import annotations

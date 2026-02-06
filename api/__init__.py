@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 """Public SCIONA API namespaces (stable)."""
 
 from __future__ import annotations

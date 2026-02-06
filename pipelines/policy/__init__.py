@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 """Policy helpers for pipeline orchestration."""
 
 from .build import resolve_build_policy

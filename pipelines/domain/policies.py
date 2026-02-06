@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 """Policy objects that decouple orchestration from execution."""
 
 from __future__ import annotations

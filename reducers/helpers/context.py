@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 """Reducer runtime context for DB handles owned by pipelines."""
 
 from __future__ import annotations

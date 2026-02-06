@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 """Diff overlay storage for dirty-worktree payload augmentation."""
 
 from __future__ import annotations

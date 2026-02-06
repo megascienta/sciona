@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 """Typed payloads exposed to prompt reducers."""
 
 from __future__ import annotations

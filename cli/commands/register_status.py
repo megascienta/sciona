@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 """CLI commands for repository status and cleanup."""
 
 from __future__ import annotations

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 from sciona.pipelines import prompt as prompt_pipeline
 from sciona.pipelines.prompts import ensure_prompts_initialized
 

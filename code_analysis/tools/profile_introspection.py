@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 """Language-specific symbol introspection helpers for profile reducers."""
 
 from __future__ import annotations

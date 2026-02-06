@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 """Deterministic hashing for snapshot structural state."""
 
 from __future__ import annotations

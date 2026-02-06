@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 """Identifier resolution helpers for prompts/reducers."""
 
 from __future__ import annotations

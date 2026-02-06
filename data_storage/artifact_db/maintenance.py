@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 """ArtifactDB maintenance routines that bridge core and artifact stores."""
 
 from __future__ import annotations

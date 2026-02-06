@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 from sciona.runtime.config.io import write_default_config
 from sciona.runtime.config import load_logging_settings
 from sciona.runtime.paths import get_config_path

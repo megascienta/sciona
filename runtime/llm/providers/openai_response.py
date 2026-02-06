@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 """Response parsing helpers for OpenAI payloads."""
 
 from __future__ import annotations

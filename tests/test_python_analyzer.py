@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 from pathlib import Path
 
 from sciona.code_analysis.core.extract.languages.python import PythonAnalyzer

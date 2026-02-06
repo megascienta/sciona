@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 """Configuration file IO helpers for SCIONA runtime."""
 
 from __future__ import annotations

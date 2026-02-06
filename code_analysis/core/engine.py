@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 """Core structural analysis + ingestion orchestration for SCIONA builds."""
 
 from __future__ import annotations

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 import shutil
 
 from sciona.runtime.config.io import load_config_text, write_config_text

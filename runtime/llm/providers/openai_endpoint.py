@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 """Endpoint validation for the OpenAI provider."""
 
 from __future__ import annotations

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 """Call extraction helpers shared across core and artifact paths."""
 
 from __future__ import annotations

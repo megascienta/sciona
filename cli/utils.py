@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 """CLI helpers for error handling and argument parsing."""
 
 from __future__ import annotations

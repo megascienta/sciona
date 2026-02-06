@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 """Shared exclusion helpers for discovery and overlays."""
 
 from __future__ import annotations

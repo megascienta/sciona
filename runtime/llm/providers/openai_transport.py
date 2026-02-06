@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 """HTTP transport and retry for OpenAI requests."""
 
 from __future__ import annotations

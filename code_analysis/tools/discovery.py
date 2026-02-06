@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 """Discovery helpers shared across CLI and pipelines."""
 
 from __future__ import annotations

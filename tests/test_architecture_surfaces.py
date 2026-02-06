@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 from sciona import reducers
 from sciona.code_analysis.analysis import graph as analysis_graph
 

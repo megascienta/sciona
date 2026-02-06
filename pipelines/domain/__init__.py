@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 """Pipeline domain models."""
 
 from .policies import AnalysisPolicy, ArtifactPolicy, BuildPolicy

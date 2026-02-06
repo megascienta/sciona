@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 """Artifact graph/rollup derivation logic from code-analysis outputs."""
 
 from __future__ import annotations

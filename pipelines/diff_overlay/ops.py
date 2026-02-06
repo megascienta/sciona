@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 """Dirty-worktree diff overlay helpers for reducer payloads."""
 
 from __future__ import annotations

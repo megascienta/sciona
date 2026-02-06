@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 """Addon-facing registry API (dependency-light)."""
 
 from __future__ import annotations

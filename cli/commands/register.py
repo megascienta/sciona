@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 """Repository-focused CLI commands (aggregator)."""
 
 from __future__ import annotations

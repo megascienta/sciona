@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
 from sciona.data_storage.core_db import connect as db_connect
 from sciona.runtime import constants as setup_config
 from sciona.runtime.paths import get_db_path
