@@ -128,7 +128,7 @@ Supported languages (1.0): Python, TypeScript, Java.
 
 Discovery:
 - Core discovery is driven by git-tracked files only.
-- `.gitignore` does not affect tracked-file discovery.
+- `.gitignore` affects tracked-file discovery when files are explicitly ignored.
 
 ---
 
@@ -172,7 +172,9 @@ Rules:
 - Reducers operate on the **latest committed snapshot only**.
 - Pipelines may append a `_diff` overlay to reducer payloads when the worktree
   is dirty; this overlay is best-effort and non-authoritative, and may patch
-  structural fields and include call-edge diffs and summary stats.
+  structural fields and include call-edge diffs and summary stats. Overlays
+  use the merge-base between the snapshot commit and `HEAD` when they diverge,
+  and ignore submodule paths with a warning.
 - Reducers must not own DB path resolution or connection lifecycle; pipelines provide read context.
 - The reducer registry is frozen by default.
 - Reducers share a single unified namespace; there is no internal-only reducer class.

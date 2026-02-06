@@ -45,7 +45,8 @@ Important rules:
 - Read-only commands may proceed on a dirty worktree but warn that outputs reflect
   the last committed snapshot.
 - When the worktree is dirty, reducer and prompt payloads may include a best-effort
-  `_diff` overlay and patched structural fields to reflect local changes.
+  `_diff` overlay and patched structural fields to reflect local changes. Overlays
+  use the merge-base between the snapshot commit and `HEAD`, and ignore submodules.
 - All read operations use the **latest committed snapshot** only.
 
 ---
@@ -74,7 +75,8 @@ Discovery rules (authoritative):
 - Hard excludes: `.git/**`, `.sciona/**`.
 - Applies `discovery.exclude_globs` (gitwildmatch semantics).
 - Only enabled-language extensions are eligible.
-- No directory walking and no `.gitignore` evaluation.
+- `.gitignore` is respected for tracked files that are explicitly ignored.
+- No directory walking.
 
 ---
 

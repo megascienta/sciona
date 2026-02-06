@@ -145,11 +145,13 @@ When the worktree is dirty, pipelines may compute a best-effort `diff_overlay`
 in ArtifactDB and apply it to reducer payloads. The overlay never modifies
 CoreDB or ArtifactDB structural truth; it only augments payloads at render time
 and may patch structural fields and include call-edge diffs and summary stats.
+When the snapshot commit diverges from `HEAD`, overlays use the merge-base as
+the baseline and emit a warning. Submodule paths are ignored with a warning.
 
 ### Parsing scope
 
 - Discovery is driven by git-tracked files only (no directory walking).
-- `.gitignore` does not affect tracked-file discovery.
+- `.gitignore` affects tracked-file discovery when files are explicitly ignored.
 - Discovery applies `discovery.exclude_globs` after hard excludes (`.git/`, `.sciona/`).
 - Partial ASTs are allowed.
 - Import edges are syntax-based hints, not full symbol resolution.

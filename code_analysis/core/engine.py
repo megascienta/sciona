@@ -62,6 +62,7 @@ class BuildEngine:
         self.conn.execute(f"SAVEPOINT {savepoint}")
         try:
             tracked = git_ops.tracked_paths(self.workspace_root)
+            ignored = git_ops.ignored_tracked_paths(self.workspace_root)
             if self.discovery is None:
                 self.discovery = runtime_config.load_discovery_settings(
                     self.config_root
@@ -77,6 +78,7 @@ class BuildEngine:
                 self.languages,
                 discovery=self.discovery,
                 tracked_paths=tracked,
+                ignored_paths=ignored,
             )
             candidate_counts, discovered_counts, excluded_by_glob, excluded_total = (
                 compute_discovery_details(
@@ -84,6 +86,7 @@ class BuildEngine:
                     enabled_languages,
                     records,
                     self.exclude_globs,
+                    ignored_paths=ignored,
                 )
             )
             self.discovery_candidates = candidate_counts

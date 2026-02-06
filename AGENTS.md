@@ -3,7 +3,7 @@ On working with this codebase always use `conda` multiphysics env
 <!-- sciona:begin -->
 # SCIONA usage (managed)
 
-Goal: maximize use of SCIONA CLI before manual inspection or ad-hoc scripts.
+Goal: always use SCIONA CLI first when installed, before manual inspection or ad-hoc scripts.
 
 1) Invocation (confirm once per thread)
 - Ask which command to use: `sciona …` or `conda run -n <env> sciona …` (only the first time in a thread).
@@ -16,10 +16,13 @@ Goal: maximize use of SCIONA CLI before manual inspection or ad-hoc scripts.
   `sciona resolve <identifier> --kind module|class|function|method|callable`
 
 Note: if the worktree is dirty, outputs reflect the latest committed snapshot only.
+If a reducer payload includes `_diff`, use the overlay as the primary evidence
+for dirty-worktree changes and clearly separate it from committed snapshot data.
 
 3) Dirty worktree strategy (recommended)
 - SCIONA reflects the last committed snapshot only.
-- Use SCIONA for structure/calls/deps, then manually verify files you changed.
+- When `_diff` is present, use it as the primary evidence for dirty-worktree changes.
+- Use SCIONA for structure/calls/deps, then manually verify files you changed when needed.
 - For accurate SCIONA results on new/modified files, make small WIP commits and amend/squash later.
 - Dirty worktrees may include `_diff` overlays in reducer/prompt payloads; overlays are best-effort only.
 - Reducers are JSON-only; prompts may include JSON payloads but remain human-oriented text.
@@ -62,7 +65,7 @@ Code text (last resort):
 - Prefer a compressed SCIONA evidence summary over raw dumps.
 - After evidence, you may add a clearly labeled interpretation note.
 - If worktree is dirty, say outputs reflect the latest committed snapshot only.
-- If `_diff` is present, call it out explicitly as overlay data.
+- If `_diff` is present, call it out explicitly as overlay data and use it as the primary evidence for dirty changes.
 
 7) If SCIONA cannot answer
 - State which command failed and why, then open files manually.

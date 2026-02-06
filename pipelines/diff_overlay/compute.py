@@ -8,12 +8,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
 
-import pathspec
-
 from ...code_analysis.core.extract import registry
 from ...code_analysis import config as analysis_config
 from ...code_analysis.core.normalize.model import FileRecord, FileSnapshot, SemanticNodeRecord
 from ...code_analysis.tools import snapshots as snapshot_tools
+from ...code_analysis.tools import excludes as path_excludes
 from ...data_storage.core_db import read_ops as core_read
 from ...runtime import config as runtime_config
 from ...runtime.config import io as runtime_config_io
@@ -22,10 +21,12 @@ from ...runtime import git as git_ops
 from ...runtime import identity as ids
 from ...runtime import time as runtime_time
 from ...runtime.errors import ConfigError
+from ...runtime.logging import get_logger
 
 from .calls import compute_call_overlay_rows
 from .summary import summarize_overlay
 
+logger = get_logger(__name__)
 
 def worktree_fingerprint(
     repo_root: Path,
@@ -77,9 +78,26 @@ def compute_overlay_rows(
     dict[str, object] | None,
 ]:
     change_set = collect_changes(repo_root, base_commit, cache=git_cache)
-    target_paths = sorted(change_set.changed_paths)
-    deleted_paths = sorted(change_set.deleted_paths)
-    records = build_file_records(repo_root, target_paths)
+    exclude_globs = discovery_excludes(repo_root)
+    ignored_paths = git_ops.ignored_tracked_paths(repo_root, cache=git_cache)
+    target_paths = filter_excluded_paths(
+        change_set.changed_paths,
+        repo_root=repo_root,
+        exclude_globs=exclude_globs,
+        ignored_paths=ignored_paths,
+    )
+    deleted_paths = filter_excluded_paths(
+        change_set.deleted_paths,
+        repo_root=repo_root,
+        exclude_globs=exclude_globs,
+        ignored_paths=ignored_paths,
+    )
+    records = build_file_records(
+        repo_root,
+        target_paths,
+        exclude_globs=exclude_globs,
+        ignored_paths=ignored_paths,
+    )
     file_paths = [record.relative_path.as_posix() for record in records]
     snapshot_rows = core_read.node_instances_for_file_paths(
         core_conn, snapshot_id, [*file_paths, *deleted_paths]
@@ -250,6 +268,7 @@ def collect_changes(
     *,
     cache: dict[tuple[Path, tuple[str, ...], str | None], str],
 ) -> "_ChangeSet":
+    submodules = git_ops.submodule_paths(repo_root, cache=cache)
     added: set[str] = set()
     modified: set[str] = set()
     deleted: set[str] = set()
@@ -259,15 +278,20 @@ def collect_changes(
         cache=cache,
     ):
         ingest_status(status, paths, added, modified, deleted)
-    for status, paths in git_ops.diff_name_status(
-        repo_root,
-        base_commit,
-        cached=True,
-        cache=cache,
-    ):
-        ingest_status(status, paths, added, modified, deleted)
     for path in git_ops.untracked_paths(repo_root, cache=cache):
         added.add(path)
+    if submodules:
+        ignored = sorted(
+            path for path in added | modified | deleted if path in submodules
+        )
+        if ignored:
+            logger.warning(
+                "Skipping submodule paths in diff overlay: %s",
+                ", ".join(ignored),
+            )
+            added.difference_update(ignored)
+            modified.difference_update(ignored)
+            deleted.difference_update(ignored)
     changed_paths = sorted(added | modified)
     deleted_paths = sorted(deleted)
     return _ChangeSet(changed_paths=changed_paths, deleted_paths=deleted_paths)
@@ -294,20 +318,23 @@ def ingest_status(
     modified.add(paths[0])
 
 
-def build_file_records(repo_root: Path, paths: list[str]) -> list[FileRecord]:
+def build_file_records(
+    repo_root: Path,
+    paths: list[str],
+    *,
+    exclude_globs: list[str],
+    ignored_paths: set[str],
+) -> list[FileRecord]:
     enabled = resolve_enabled_languages(repo_root)
-    exclude_globs = discovery_excludes(repo_root)
-    exclude_spec = (
-        pathspec.PathSpec.from_lines("gitwildmatch", exclude_globs)
-        if exclude_globs
-        else None
-    )
+    exclude_spec = path_excludes.build_exclude_spec(exclude_globs)
     records: list[FileRecord] = []
     for path_str in paths:
         rel_path = Path(path_str)
-        if rel_path.parts and rel_path.parts[0] in {".git", ".sciona"}:
-            continue
-        if exclude_spec and exclude_spec.match_file(rel_path.as_posix()):
+        if path_excludes.is_excluded_path(
+            rel_path,
+            exclude_spec=exclude_spec,
+            ignored_paths=ignored_paths,
+        ):
             continue
         extension = rel_path.suffix.lower()
         if not extension:
@@ -322,6 +349,27 @@ def build_file_records(repo_root: Path, paths: list[str]) -> list[FileRecord]:
             FileRecord(path=abs_path, relative_path=rel_path, language=language)
         )
     return records
+
+
+def filter_excluded_paths(
+    paths: list[str],
+    *,
+    repo_root: Path,
+    exclude_globs: list[str],
+    ignored_paths: set[str],
+) -> list[str]:
+    exclude_spec = path_excludes.build_exclude_spec(exclude_globs)
+    filtered: list[str] = []
+    for path_str in paths:
+        rel_path = Path(path_str)
+        if path_excludes.is_excluded_path(
+            rel_path,
+            exclude_spec=exclude_spec,
+            ignored_paths=ignored_paths,
+        ):
+            continue
+        filtered.append(path_str)
+    return filtered
 
 
 def analyze_files(

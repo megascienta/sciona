@@ -99,13 +99,10 @@ def diff_name_status(
     repo_root: Path,
     base_commit: str,
     *,
-    cached: bool = False,
     cache: dict[tuple[Path, tuple[str, ...], str | None], str] | None = None,
 ) -> List[tuple[str, List[str]]]:
     """Return parsed output for git diff --name-status base_commit."""
-    args = ["diff", "--name-status"]
-    if cached:
-        args.append("--cached")
+    args = ["diff", "--name-status", "-M", "-C"]
     args.append(base_commit)
     output = _run_git_cached(repo_root, args, cache=cache)
     changes: List[tuple[str, List[str]]] = []
@@ -133,6 +130,42 @@ def untracked_paths(
         cache=cache,
     )
     return [line.strip() for line in output.splitlines() if line.strip()]
+
+
+def ignored_tracked_paths(
+    repo_root: Path,
+    *,
+    cache: dict[tuple[Path, tuple[str, ...], str | None], str] | None = None,
+) -> Set[str]:
+    """Return tracked paths that are ignored by gitignore rules."""
+    output = _run_git_cached(
+        repo_root,
+        ["ls-files", "-ci", "--exclude-standard"],
+        cache=cache,
+    )
+    return {line.strip() for line in output.splitlines() if line.strip()}
+
+
+def submodule_paths(
+    repo_root: Path,
+    *,
+    cache: dict[tuple[Path, tuple[str, ...], str | None], str] | None = None,
+) -> Set[str]:
+    """Return tracked submodule paths (mode 160000)."""
+    output = _run_git_cached(
+        repo_root,
+        ["ls-files", "--stage"],
+        cache=cache,
+    )
+    submodules: Set[str] = set()
+    for line in output.splitlines():
+        parts = line.split()
+        if len(parts) < 4:
+            continue
+        mode, path = parts[0], parts[-1]
+        if mode == "160000":
+            submodules.add(path.strip())
+    return submodules
 
 
 def ensure_clean_worktree(repo_root: Path) -> None:
@@ -191,12 +224,25 @@ def commit_meta(repo_root: Path) -> Dict[str, str]:
     }
 
 
+def head_sha(repo_root: Path) -> str:
+    ensure_repo(repo_root)
+    return run_git(["rev-parse", "HEAD"], repo_root)
+
+
+def merge_base(repo_root: Path, commit_a: str, commit_b: str) -> str:
+    ensure_repo(repo_root)
+    return run_git(["merge-base", commit_a, commit_b], repo_root)
+
+
 __all__ = [
     "git_output",
     "blob_sha",
     "blob_sha_batch",
     "commit_meta",
     "diff_name_status",
+    "head_sha",
+    "merge_base",
+    "submodule_paths",
     "ensure_repo",
     "ensure_repo_has_commits",
     "ensure_clean_worktree",
@@ -204,5 +250,6 @@ __all__ = [
     "is_worktree_dirty",
     "tracked_paths",
     "untracked_paths",
+    "ignored_tracked_paths",
     "worktree_status_paths",
 ]

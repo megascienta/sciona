@@ -38,8 +38,12 @@ def test_walker_hard_excludes_git_and_sciona(tmp_path):
     tracked = {
         Path(".git/ignored.py").as_posix(),
         Path(".sciona/ignored.py").as_posix(),
+        Path("vendor/.git/hooks/ignored.py").as_posix(),
+        Path("vendor/.sciona/ignored.py").as_posix(),
         Path("src/keep.py").as_posix(),
     }
+    (repo / "vendor" / ".git" / "hooks").mkdir(parents=True)
+    (repo / "vendor" / ".sciona").mkdir(parents=True)
     (repo / "src").mkdir()
     (repo / "src" / "keep.py").write_text("print('ok')\n", encoding="utf-8")
 
@@ -65,3 +69,18 @@ def test_walker_respects_enabled_languages_only(tmp_path):
 def test_walker_requires_tracked_paths(tmp_path):
     with pytest.raises(ValueError):
         walker.collect_files(tmp_path, _settings(), tracked_paths=None)
+
+
+def test_walker_excludes_ignored_paths(tmp_path):
+    repo = tmp_path
+    (repo / "src").mkdir()
+    (repo / "src" / "ignored.py").write_text("print('no')\n", encoding="utf-8")
+    (repo / "src" / "kept.py").write_text("print('yes')\n", encoding="utf-8")
+    tracked = {Path("src/ignored.py").as_posix(), Path("src/kept.py").as_posix()}
+    ignored = {Path("src/ignored.py").as_posix()}
+
+    records = walker.collect_files(
+        repo, _settings(), tracked_paths=tracked, ignored_paths=ignored
+    )
+    paths = [record.relative_path.as_posix() for record in records]
+    assert paths == ["src/kept.py"]

@@ -57,6 +57,10 @@ def test_engine_records_nodes_for_failed_parse(tmp_path, monkeypatch):
         lambda _root: {Path("pkg/mod.py").as_posix()},
     )
     monkeypatch.setattr(
+        "sciona.runtime.git.ignored_tracked_paths",
+        lambda _root: set(),
+    )
+    monkeypatch.setattr(
         "sciona.runtime.git.blob_sha_batch",
         lambda _root, paths: {path: "hash" for path in paths},
     )
@@ -120,6 +124,10 @@ def test_engine_warns_on_empty_language_matches(tmp_path, monkeypatch):
     monkeypatch.setattr(
         "sciona.runtime.git.tracked_paths",
         lambda _root: {Path("src/mod.py").as_posix()},
+    )
+    monkeypatch.setattr(
+        "sciona.runtime.git.ignored_tracked_paths",
+        lambda _root: set(),
     )
     monkeypatch.setattr(
         "sciona.runtime.git.blob_sha_batch",

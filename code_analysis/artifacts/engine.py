@@ -43,6 +43,7 @@ class ArtifactEngine:
 
     def run(self, snapshot_id: str) -> List[CallExtractionRecord]:
         tracked = git_ops.tracked_paths(self.workspace_root)
+        ignored = git_ops.ignored_tracked_paths(self.workspace_root)
         if self.discovery is None:
             self.discovery = runtime_config.load_discovery_settings(self.config_root)
         enabled_languages = [
@@ -55,6 +56,7 @@ class ArtifactEngine:
             self.languages,
             discovery=self.discovery,
             tracked_paths=tracked,
+            ignored_paths=ignored,
         )
         if not records:
             return []

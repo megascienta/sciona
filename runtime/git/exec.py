@@ -99,12 +99,13 @@ def validate_git_args(args: list[str]) -> None:
         return
     command = str(args[0])
     allowed_options: dict[str, Set[str]] = {
-        "diff": {"--name-status", "--cached"},
+        "diff": {"--name-status", "--cached", "-M", "-C"},
         "hash-object": {"--no-filters", "--stdin-paths"},
+        "merge-base": set(),
         "rev-parse": {"--abbrev-ref", "--show-toplevel", "--git-dir"},
         "show": {"-s", "--format=%cI"},
         "status": {"--porcelain", "-z"},
-        "ls-files": {"--others", "--exclude-standard"},
+        "ls-files": {"--others", "--exclude-standard", "--stage", "-c", "-i", "-ci"},
     }
     if command not in allowed_options:
         raise GitError(f"Unsupported git command: {command}")

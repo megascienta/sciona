@@ -21,9 +21,11 @@ class InitDialogDefaults:
 
 def detect_languages(repo_root: Path) -> InitDialogDefaults:
     tracked = git_ops.tracked_paths(repo_root)
+    ignored = git_ops.ignored_tracked_paths(repo_root)
     detected = detect_languages_from_tracked_paths(
         tracked,
         tuple(analysis_config.LANGUAGE_CONFIG.keys()),
+        ignored_paths=ignored,
     )
     return InitDialogDefaults(detected_languages=detected)
 
