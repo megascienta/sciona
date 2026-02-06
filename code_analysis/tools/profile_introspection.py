@@ -8,8 +8,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-from tree_sitter import Parser
-from tree_sitter_languages import get_language
+from .tree_sitter import build_parser
 
 
 def python_function_extras(
@@ -262,17 +261,11 @@ class _TypeScriptClassDetails:
 
 
 class _TypeScriptInspector:
-    _PARSER: Parser | None = None
+    _PARSER = None
 
     def __init__(self, source: str) -> None:
         if _TypeScriptInspector._PARSER is None:
-            parser = Parser()
-            language = get_language("typescript")
-            if hasattr(parser, "set_language"):
-                parser.set_language(language)
-            else:
-                parser.language = language
-            _TypeScriptInspector._PARSER = parser
+            _TypeScriptInspector._PARSER = build_parser("typescript")
         assert _TypeScriptInspector._PARSER is not None
         tree = _TypeScriptInspector._PARSER.parse(source.encode("utf-8"))
         self._source = source
