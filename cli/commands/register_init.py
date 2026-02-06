@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+from typing import Optional
 
 import typer
 
@@ -42,7 +43,7 @@ def register_init(app: typer.Typer) -> None:
             "--post-commit-hook",
             help="Install a post-commit hook that runs sciona build.",
         ),
-        post_commit_hook_command: str | None = typer.Option(
+        post_commit_hook_command: Optional[str] = typer.Option(
             None,
             "--post-commit-hook-command",
             help="Command for the post-commit hook (default: sciona build).",
