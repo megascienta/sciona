@@ -153,6 +153,7 @@ the baseline and emit a warning. Submodule paths are ignored with a warning.
 - Discovery is driven by git-tracked files only (no directory walking).
 - `.gitignore` affects tracked-file discovery when files are explicitly ignored.
 - Discovery applies `discovery.exclude_globs` after hard excludes (`.git/`, `.sciona/`).
+- Clean-worktree enforcement is scoped to tracked files in enabled languages after excludes/ignores.
 - Partial ASTs are allowed.
 - Import edges are syntax-based hints, not full symbol resolution.
 - Call graphs are derived artifacts and may be incomplete.

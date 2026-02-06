@@ -13,7 +13,8 @@ Applies to core, reducers, prompts, addons, and CLI.
 - CoreDB must contain exactly one committed snapshot after a successful build.
 - ArtifactDB always reflects the **latest committed snapshot** (see Artifact DB
   definition in `ARCHITECTURE.md`).
-- Build requires a **clean worktree** for tracked language sources.
+- Build requires a **clean worktree** for tracked language sources in scope
+  (enabled languages after excludes/ignores). Untracked files do not block builds.
 - Read-only commands may proceed on a dirty worktree but must warn that outputs
   reflect the last committed snapshot. Pipelines may append a best-effort
   `diff_overlay` to reducer payloads when the worktree is dirty. The overlay may

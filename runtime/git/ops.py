@@ -95,6 +95,37 @@ def worktree_status_paths(
     return paths
 
 
+def worktree_status_tracked_paths(
+    repo_root: Path,
+    *,
+    cache: dict[tuple[Path, tuple[str, ...], str | None], str] | None = None,
+) -> Set[str]:
+    """Return tracked file paths reported by git status --porcelain (excludes ??)."""
+    output = _run_git_cached(repo_root, ["status", "--porcelain", "-z"], cache=cache)
+    if not output:
+        return set()
+    paths: Set[str] = set()
+    entries = output.split("\x00")
+    index = 0
+    while index < len(entries):
+        entry = entries[index]
+        index += 1
+        if not entry or len(entry) < 4:
+            continue
+        status = entry[:2]
+        if status == "??":
+            continue
+        path = entry[3:]
+        if path:
+            paths.add(path)
+        if status and status[0] in {"R", "C"} and index < len(entries):
+            renamed = entries[index]
+            index += 1
+            if renamed:
+                paths.add(renamed)
+    return paths
+
+
 def diff_name_status(
     repo_root: Path,
     base_commit: str,
@@ -249,6 +280,7 @@ __all__ = [
     "get_repo_root",
     "is_worktree_dirty",
     "tracked_paths",
+    "worktree_status_tracked_paths",
     "untracked_paths",
     "ignored_tracked_paths",
     "worktree_status_paths",

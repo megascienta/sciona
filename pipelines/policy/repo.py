@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Mapping, Optional, Set
 
 from ...code_analysis.core.extract.registry import extensions_for_language
+from ...code_analysis.tools import excludes as path_excludes
 from ...runtime import git as git_ops
 from ...runtime import paths as runtime_paths
 from ...runtime import config as runtime_config
@@ -134,11 +135,23 @@ def _language_extensions(languages: Mapping[str, LanguageSettings]) -> Set[str]:
 def _dirty_language_paths(repo_root: Path, language_exts: Set[str]) -> list[Path]:
     if not language_exts:
         return []
-    tracked = git_ops.tracked_paths(repo_root)
+    try:
+        exclude_globs = list(
+            runtime_config.load_discovery_settings(repo_root).exclude_globs
+        )
+    except ConfigError:
+        exclude_globs = []
+    exclude_spec = path_excludes.build_exclude_spec(exclude_globs)
+    ignored_paths = git_ops.ignored_tracked_paths(repo_root)
+    dirty_tracked = git_ops.worktree_status_tracked_paths(repo_root)
     dirty: list[Path] = []
-    for path_text in git_ops.worktree_status_paths(repo_root):
+    for path_text in dirty_tracked:
         rel_path = Path(path_text)
-        if rel_path.as_posix() not in tracked:
+        if path_excludes.is_excluded_path(
+            rel_path,
+            exclude_spec=exclude_spec,
+            ignored_paths=ignored_paths,
+        ):
             continue
         if rel_path.suffix.lower() in language_exts:
             dirty.append(rel_path)

@@ -20,6 +20,7 @@ from .ops import (
     merge_base,
     submodule_paths,
     tracked_paths,
+    worktree_status_tracked_paths,
     untracked_paths,
     worktree_status_paths,
 )
@@ -42,6 +43,7 @@ __all__ = [
     "submodule_paths",
     "run_git",
     "tracked_paths",
+    "worktree_status_tracked_paths",
     "untracked_paths",
     "worktree_status_paths",
 ]

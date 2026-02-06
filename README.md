@@ -41,7 +41,8 @@ sciona clean --agents
 ```
 
 Important rules:
-- Build requires a **clean worktree** for tracked language files.
+- Build requires a **clean worktree** for tracked language files in scope
+  (enabled languages after excludes/ignores). Untracked files do not block builds.
 - Read-only commands may proceed on a dirty worktree but warn that outputs reflect
   the last committed snapshot.
 - When the worktree is dirty, reducer and prompt payloads may include a best-effort
