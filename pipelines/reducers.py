@@ -71,10 +71,17 @@ def emit(
     reducer_id: str,
     *,
     repo_root: Optional[Path] = None,
+    diff_mode: str = "full",
     **kwargs: object,
 ) -> Tuple[str, str, dict[str, object]]:
     repo_state = policy_repo.resolve_repo_state(repo_root, allow_missing_config=True)
     policy_repo.ensure_initialized(repo_state)
+    normalized_diff_mode = str(diff_mode or "full").strip().lower()
+    if normalized_diff_mode not in {"full", "summary"}:
+        raise WorkflowError(
+            f"Invalid diff mode '{diff_mode}'.",
+            code="invalid_diff_mode",
+        )
     db_path = get_db_path(repo_state.repo_root)
     if not db_path.exists():
         raise WorkflowError(
@@ -92,6 +99,7 @@ def emit(
     with core(db_path, repo_root=repo_state.repo_root) as conn:
         snapshot_id = snapshot_policy.resolve_latest_snapshot(conn)
         resolved_kwargs = _resolve_reducer_identifiers(conn, snapshot_id, kwargs)
+        resolved_kwargs["diff_mode"] = normalized_diff_mode
         artifact_path = get_artifact_db_path(repo_state.repo_root)
         artifact_scope = (
             artifact_db(artifact_path, repo_root=repo_state.repo_root)
@@ -111,8 +119,10 @@ def emit(
                     artifact_conn=artifact_conn,
                 )
                 try:
+                    render_kwargs = dict(resolved_kwargs)
+                    render_kwargs.pop("diff_mode", None)
                     text = reducer.render(
-                        snapshot_id, conn, repo_state.repo_root, **resolved_kwargs
+                        snapshot_id, conn, repo_state.repo_root, **render_kwargs
                     )
                 except ValueError as exc:
                     raise WorkflowError(str(exc), code="reducer_error") from exc
@@ -125,6 +135,7 @@ def emit(
                         conn=conn,
                         strict=True,
                         reducer_id=reducer_id,
+                        diff_mode=normalized_diff_mode,
                     )
                 except ValueError as exc:
                     raise WorkflowError(
@@ -140,6 +151,7 @@ def emit(
                         snapshot_id=snapshot_id,
                         reducer_id=reducer_id,
                         warnings=warnings,
+                        diff_mode=normalized_diff_mode,
                     )
     return text, snapshot_id, resolved_kwargs
 

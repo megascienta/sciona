@@ -39,6 +39,7 @@ tooling changes and MUST always be followed.
 - If the worktree is dirty and reducer payloads include a `_diff` overlay:
   - treat `_diff` as **primary evidence** for uncommitted changes
   - `_diff` overlays are best-effort and must be labeled as such
+- `_diff` mode can be selected with `--diff-mode {full,summary}`; `summary` is a strict subset of `full` (no per-entity change lists or top_changed entries).
 - If the worktree is dirty and `_diff` is missing:
   - explicitly warn that SCIONA outputs may be stale
   - recommend committing and running `sciona build`
@@ -100,7 +101,7 @@ If identifiers are unknown, `sciona search QUERY [--kind KIND] [--limit LIMIT] [
 
 ### Common reducer usage (templates)
 Orientation:
-- sciona reducer --id structural_index
+- sciona reducer --id structural_index [--diff-mode {full,summary}]
 
 Structure (module/class/callable):
 - sciona reducer --id callable_overview [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>]
@@ -141,6 +142,7 @@ Include this checklist explicitly in responses:
 - SCIONA used: <command(s)>
 - Dirty worktree: yes / no / unknown
 - `_diff` used: yes / no / not available
+- `_diff` mode: full / summary / not available
 - Snapshot warning stated: yes / no
 - If SCIONA failed: command + error summarized: yes / no
 

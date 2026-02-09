@@ -53,6 +53,11 @@ def register(app: typer.Typer) -> None:
             "--id",
             help="Reducer id to render (e.g., structural_index).",
         ),
+        diff_mode: str = typer.Option(
+            "full",
+            "--diff-mode",
+            help="Diff overlay mode: full or summary.",
+        ),
         callable_id: Optional[str] = typer.Option(
             None, "--callable-id", help="Callable id (function or method)."
         ),
@@ -94,6 +99,10 @@ def register(app: typer.Typer) -> None:
         extra_args = list(ctx.args)
         arg_map = parse_extra_args(normalize_flag_args(extra_args))
         explicit_args = dict(explicit_ids)
+        normalized_diff_mode = str(diff_mode or "full").strip().lower()
+        if normalized_diff_mode not in {"full", "summary"}:
+            raise typer.BadParameter("diff-mode must be 'full' or 'summary'.")
+        explicit_args["diff_mode"] = normalized_diff_mode
         if scope:
             explicit_args["scope"] = scope
         for name, value in explicit_args.items():

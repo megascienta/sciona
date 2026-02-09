@@ -61,3 +61,33 @@ def test_dirty_overlay_calls_and_summary(repo_with_snapshot):
     summary = diff.get("summary")
     assert summary, "Expected diff summary"
     assert summary["calls"]["add"] >= 1
+
+
+def test_dirty_overlay_summary_mode(repo_with_snapshot):
+    repo_root, _snapshot_id = repo_with_snapshot
+    service_path = repo_root / "pkg/alpha/service.py"
+    service_path.write_text(
+        "def helper():\n    return 1\n\n\ndef helper3():\n    return 3\n",
+        encoding="utf-8",
+    )
+
+    text, _, _ = api.reducers.emit(
+        "module_overview",
+        repo_root=repo_root,
+        module_id="pkg.alpha",
+        diff_mode="summary",
+    )
+    payload = _parse_json_payload(text)
+    diff = payload.get("_diff")
+    assert diff, "Expected diff overlay in reducer payload"
+    assert diff["mode"] == "summary"
+    assert diff["overlay_available"] is True
+    assert diff["worktree_hash"]
+    changes = diff.get("changes") or {}
+    assert changes.get("nodes", {}).get("add") == []
+    assert changes.get("edges", {}).get("add") == []
+    assert changes.get("calls", {}).get("add") == []
+    top_changed = diff.get("top_changed") or {}
+    assert top_changed.get("nodes") == []
+    assert top_changed.get("edges") == []
+    assert top_changed.get("calls") == []

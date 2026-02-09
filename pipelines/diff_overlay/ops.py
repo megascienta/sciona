@@ -28,6 +28,8 @@ from .types import OverlayPayload
 
 logger = get_logger(__name__)
 
+_DIFF_MODES = {"full", "summary"}
+
 _LANGUAGE_EXTENSIONS = {
     "python": [".py"],
     "typescript": [".ts", ".tsx"],
@@ -131,9 +133,11 @@ def apply_overlay_to_text(
     conn,
     strict: bool = False,
     reducer_id: str | None = None,
+    diff_mode: str = "full",
 ) -> str:
     if not overlay:
         return text
+    mode = _normalize_diff_mode(diff_mode)
     payload = parse_json_fenced(text)
     if payload is None:
         if strict:
@@ -151,10 +155,19 @@ def apply_overlay_to_text(
         warnings.append("summary_missing")
     patched_detail = _patched_detail(projection, patched_projection)
     diff_scope, scope_exclusions = _resolve_diff_scope(repo_root)
-    top_changed = _build_top_changed(overlay, limit=20)
+    if mode == "summary":
+        changes = _empty_changes()
+        top_changed = _empty_top_changed()
+    else:
+        changes = {
+            "nodes": overlay.nodes,
+            "edges": overlay.edges,
+            "calls": overlay.calls,
+        }
+        top_changed = _build_top_changed(overlay, limit=20)
     diff_payload = {
         "version": 2,
-        "mode": "full",
+        "mode": mode,
         "overlay_available": True,
         "overlay_reason": "available",
         "worktree_hash": overlay.worktree_hash,
@@ -165,11 +178,7 @@ def apply_overlay_to_text(
         "reducer_id": reducer_id,
         "projection": projection or None,
         "projection_version": projection_version,
-        "changes": {
-            "nodes": overlay.nodes,
-            "edges": overlay.edges,
-            "calls": overlay.calls,
-        },
+        "changes": changes,
         "summary": overlay.summary,
         "top_changed": top_changed,
         "patched": patched_detail,
@@ -192,10 +201,12 @@ def attach_unavailable_overlay(
     snapshot_id: str,
     reducer_id: str | None,
     warnings: list[str],
+    diff_mode: str = "full",
 ) -> str:
     payload = parse_json_fenced(text)
     if payload is None or "_diff" in payload:
         return text
+    mode = _normalize_diff_mode(diff_mode)
     projection = str(payload.get("projection", "")).strip().lower()
     diff_scope, scope_exclusions = _resolve_diff_scope(repo_root)
     patched_detail = {
@@ -208,7 +219,7 @@ def attach_unavailable_overlay(
     }
     diff_payload = {
         "version": 2,
-        "mode": "full",
+        "mode": mode,
         "overlay_available": False,
         "overlay_reason": _overlay_reason(warnings),
         "worktree_hash": None,
@@ -219,13 +230,9 @@ def attach_unavailable_overlay(
         "reducer_id": reducer_id,
         "projection": projection or None,
         "projection_version": payload.get("projection_version"),
-        "changes": {
-            "nodes": {"add": [], "remove": [], "modify": []},
-            "edges": {"add": [], "remove": [], "modify": []},
-            "calls": {"add": [], "remove": [], "modify": []},
-        },
+        "changes": _empty_changes(),
         "summary": None,
-        "top_changed": {"limit": 0, "nodes": [], "edges": [], "calls": []},
+        "top_changed": _empty_top_changed(),
         "patched": patched_detail,
         "coverage": {"nodes": "none", "edges": "none", "calls": "none", "summary": "none"},
         "warnings": list(warnings),
@@ -310,6 +317,25 @@ def _coverage_detail(
         "calls": calls,
         "summary": summary,
     }
+
+
+def _normalize_diff_mode(diff_mode: str | None) -> str:
+    mode = str(diff_mode or "full").strip().lower()
+    if mode not in _DIFF_MODES:
+        raise ValueError(f"Invalid diff mode '{diff_mode}'.")
+    return mode
+
+
+def _empty_changes() -> dict[str, dict[str, list[dict[str, object]]]]:
+    return {
+        "nodes": {"add": [], "remove": [], "modify": []},
+        "edges": {"add": [], "remove": [], "modify": []},
+        "calls": {"add": [], "remove": [], "modify": []},
+    }
+
+
+def _empty_top_changed() -> dict[str, object]:
+    return {"limit": 0, "nodes": [], "edges": [], "calls": []}
 
 
 def _validate_diff_payload(diff: dict[str, object]) -> list[str]:
