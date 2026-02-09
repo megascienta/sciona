@@ -59,8 +59,8 @@ def insert_structural_node(
     conn.execute(
         """
         INSERT OR IGNORE INTO structural_nodes(
-            structural_id, node_type, language, created_snapshot_id, retired_snapshot_id
-        ) VALUES (?, ?, ?, ?, NULL)
+            structural_id, node_type, language, created_snapshot_id
+        ) VALUES (?, ?, ?, ?)
         """,
         (
             structural_id,

@@ -72,10 +72,10 @@ def test_delete_snapshot_tree_removes_rows(tmp_path):
     insert_snapshot(conn, snapshot_id, is_committed=False)
     conn.execute(
         """
-        INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id, retired_snapshot_id)
-        VALUES ('node_one', 'module', 'python', ?, ?)
+        INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
+        VALUES ('node_one', 'module', 'python', ?)
         """,
-        (snapshot_id, setup_config.ACTIVE_RETIREMENT_FLAG),
+        (snapshot_id,),
     )
     conn.execute(
         """

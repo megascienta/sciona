@@ -61,8 +61,8 @@ def test_edges_require_existing_snapshot_and_nodes(tmp_path):
         conn.execute(
             """
             INSERT INTO structural_nodes(
-                structural_id, node_type, language, created_snapshot_id, retired_snapshot_id
-            ) VALUES ('node_a', 'module', 'python', 'snap_1', NULL)
+                structural_id, node_type, language, created_snapshot_id
+            ) VALUES ('node_a', 'module', 'python', 'snap_1')
             """
         )
         with pytest.raises(sqlite3.IntegrityError):

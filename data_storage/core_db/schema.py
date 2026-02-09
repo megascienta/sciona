@@ -35,8 +35,7 @@ SCHEMA_STATEMENTS: list[str] = [
         structural_id TEXT PRIMARY KEY,
         node_type TEXT NOT NULL,
         language TEXT NOT NULL,
-        created_snapshot_id TEXT NOT NULL,
-        retired_snapshot_id TEXT
+        created_snapshot_id TEXT NOT NULL
     )
     """,
     """

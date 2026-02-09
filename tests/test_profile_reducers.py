@@ -168,15 +168,14 @@ export function createWidget(name: string): WidgetService {
     ) in nodes:
         conn.execute(
             """
-            INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id, retired_snapshot_id)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
+            VALUES (?, ?, ?, ?)
             """,
             (
                 structural_id,
                 node_type,
                 language,
                 snapshot_id,
-                setup_config.ACTIVE_RETIREMENT_FLAG,
             ),
         )
         conn.execute(

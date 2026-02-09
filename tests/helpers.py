@@ -83,15 +83,14 @@ def setup_structural_index_db(tmp_path: Path) -> Tuple[Path, str]:
     for structural_id, node_type, language, qualified_name, path in nodes:
         conn.execute(
             """
-            INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id, retired_snapshot_id)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
+            VALUES (?, ?, ?, ?)
             """,
             (
                 structural_id,
                 node_type,
                 language,
                 snapshot_id,
-                setup_config.ACTIVE_RETIREMENT_FLAG,
             ),
         )
         conn.execute(
@@ -268,15 +267,14 @@ def setup_evolution_db(tmp_path: Path) -> Dict[str, object]:
     ) in nodes:
         conn.execute(
             """
-            INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id, retired_snapshot_id)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
+            VALUES (?, ?, ?, ?)
             """,
             (
                 structural_id,
                 node_type,
                 language,
                 "snap_a",
-                setup_config.ACTIVE_RETIREMENT_FLAG,
             ),
         )
         for snap in snapshots_present:
@@ -420,12 +418,11 @@ class Diagnostics:
             """
             SELECT COUNT(*) AS count
             FROM structural_nodes sn
-            WHERE sn.retired_snapshot_id = ?
-              AND sn.structural_id NOT IN (
-                  SELECT structural_id FROM node_instances WHERE snapshot_id = ?
-              )
+            WHERE sn.structural_id NOT IN (
+                SELECT structural_id FROM node_instances WHERE snapshot_id = ?
+            )
             """,
-            (setup_config.ACTIVE_RETIREMENT_FLAG, snapshot_id),
+            (snapshot_id,),
         ).fetchone()
         return row["count"] if row else 0
 
