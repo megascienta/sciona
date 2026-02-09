@@ -145,10 +145,14 @@ No ephemeral snapshots are exposed. Uncommitted snapshots are internal only.
 
 When the worktree is dirty, pipelines may compute a best-effort `diff_overlay`
 in ArtifactDB and apply it to reducer payloads. The overlay never modifies
-CoreDB or ArtifactDB structural truth; it only augments payloads at render time
-and may patch structural fields and include call-edge diffs and summary stats.
-When the snapshot commit diverges from `HEAD`, overlays use the merge-base as
-the baseline and emit a warning. Submodule paths are ignored with a warning.
+CoreDB or ArtifactDB structural truth; it only augments payloads at render time.
+The `_diff` payload (v2) includes `overlay_available`/`overlay_reason`, grouped
+`changes` (nodes/edges/calls), summary stats, a deterministic `top_changed` list,
+and declarative scope metadata (`diff_scope`, `scope_exclusions`). When the
+snapshot commit diverges from `HEAD`, overlays use the merge-base as the baseline
+and emit a warning. Submodule paths are ignored with a warning. If the worktree
+is dirty and no overlay can be produced, reducers attach `_diff` with
+`overlay_available=false` and emit a top-level `snapshot_warning`.
 
 ### Parsing scope
 

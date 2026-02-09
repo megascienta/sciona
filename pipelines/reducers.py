@@ -120,6 +120,7 @@ def emit(
                     text = diff_overlay.apply_overlay_to_text(
                         text,
                         overlay,
+                        repo_root=repo_state.repo_root,
                         snapshot_id=snapshot_id,
                         conn=conn,
                         strict=True,
@@ -135,6 +136,7 @@ def emit(
                         warnings.append("artifact_db_missing")
                     text = diff_overlay.attach_unavailable_overlay(
                         text,
+                        repo_root=repo_state.repo_root,
                         snapshot_id=snapshot_id,
                         reducer_id=reducer_id,
                         warnings=warnings,

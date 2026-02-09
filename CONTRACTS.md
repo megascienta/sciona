@@ -20,8 +20,12 @@ Applies to core, reducers, addons, and CLI.
   reflect the last committed snapshot. Pipelines may append a best-effort
   `diff_overlay` to reducer payloads when the worktree is dirty. The overlay may
   patch structural fields and include call-edge diffs and summary stats, but is
-  non-authoritative. `_diff` includes baseline metadata (snapshot/head/merge-base),
-  patch coverage, and warnings.
+  non-authoritative. `_diff` v2 includes baseline metadata (snapshot/head/merge-base),
+  `overlay_available`/`overlay_reason`, grouped `changes`, patch coverage, warnings,
+  a deterministic `top_changed` list, and declarative scope metadata
+  (`diff_scope`, `scope_exclusions`). If the worktree is dirty and no overlay can be
+  produced, reducers attach `_diff` with `overlay_available=false` and emit a
+  top-level `snapshot_warning`.
 
 ---
 
@@ -178,10 +182,14 @@ Rules:
 - Reducers operate on the **latest committed snapshot only**.
 - Pipelines may append a `_diff` overlay to reducer payloads when the worktree
   is dirty; this overlay is best-effort and non-authoritative, and may patch
-  structural fields and include call-edge diffs and summary stats. Overlays
-  include baseline metadata (snapshot/head/merge-base), patch coverage, and warnings,
-  use the merge-base between the snapshot commit and `HEAD` when they diverge,
-  and ignore submodule paths with a warning.
+  structural fields and include call-edge diffs and summary stats. `_diff` v2
+  includes baseline metadata (snapshot/head/merge-base), `overlay_available`/
+  `overlay_reason`, grouped `changes`, patch coverage, warnings, deterministic
+  `top_changed`, and declarative scope metadata (`diff_scope`, `scope_exclusions`).
+  Overlays use the merge-base between the snapshot commit and `HEAD` when they
+  diverge and ignore submodule paths with a warning. If the worktree is dirty and
+  no overlay can be produced, reducers attach `_diff` with `overlay_available=false`
+  and emit a top-level `snapshot_warning`.
 - Reducers must not own DB path resolution or connection lifecycle; pipelines provide read context.
 - The reducer registry is frozen by default.
 - Reducers share a single unified namespace; there is no internal-only reducer class.
