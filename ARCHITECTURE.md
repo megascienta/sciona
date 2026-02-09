@@ -24,10 +24,14 @@ it.
 - Deterministic output for the same repo state, config, and version.
 - Snapshots are committed-only and immutable at the logical layer.
 - CoreDB keeps exactly one committed snapshot (the latest clean-HEAD build).
+- SCIONA is read-only with respect to the target repo; only `sciona build` may
+  write under `.sciona/`. Any other repo mutations are explicit, opt-in actions
+  outside the core pipeline.
 - Derived artifacts live outside SCI and never modify it.
 - Public pipelines and CLI surfaces read the **latest committed snapshot only**.
 - ArtifactDB always reflects the **latest committed snapshot**.
 - Best-effort parsing is allowed; ambiguity is omitted, not guessed.
+- Reducers must not expose timestamps, UUIDs, or other wall-clock metadata.
 
 ---
 
@@ -151,6 +155,7 @@ the baseline and emit a warning. Submodule paths are ignored with a warning.
 - `.gitignore` affects tracked-file discovery when files are explicitly ignored.
 - Discovery applies `discovery.exclude_globs` after hard excludes (`.git/`, `.sciona/`).
 - Clean-worktree enforcement is scoped to tracked files in enabled languages after excludes/ignores.
+- Uncommitted changes outside tracked language files do not invalidate a snapshot.
 - Partial ASTs are allowed.
 - Import edges are syntax-based hints, not full symbol resolution.
 - Call graphs are derived artifacts and may be incomplete.

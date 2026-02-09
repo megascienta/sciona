@@ -57,6 +57,7 @@ def rows_to_payload(
         diff_kind = row.get("diff_kind")
         entry = dict(row)
         entry.pop("diff_kind", None)
+        entry.pop("created_at", None)
         if diff_kind in calls:
             calls[diff_kind].append(entry)
     return OverlayPayload(

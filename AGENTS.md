@@ -17,6 +17,10 @@ tooling changes and MUST always be followed.
 ### Authority model
 - SCIONA reducers produce authoritative structural evidence for the codebase.
 - Reducer outputs reflect the **last committed snapshot**.
+- SCIONA is read-only with respect to the target repo; only `sciona build` may
+  write under `.sciona/`. Any other repo mutations (e.g., `AGENTS.md`, git hooks)
+  require explicit user instruction and are outside the default pipeline.
+- Reducers must not expose timestamps, UUIDs, or other wall-clock metadata.
 
 ### SCIONA-first principle
 - If SCIONA is installed and available, agents MUST use SCIONA CLI for any
@@ -29,6 +33,8 @@ tooling changes and MUST always be followed.
 
 ### Snapshot vs dirty worktree semantics
 - SCIONA reflects the last committed snapshot only.
+- Clean/dirty enforcement is scoped to tracked language files only; uncommitted
+  changes outside that scope do not invalidate the snapshot.
 - If the worktree is dirty and reducer payloads include a `_diff` overlay:
   - treat `_diff` as **primary evidence** for uncommitted changes
   - `_diff` overlays are best-effort and must be labeled as such

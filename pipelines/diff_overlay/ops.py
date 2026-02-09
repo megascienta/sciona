@@ -166,6 +166,40 @@ def apply_overlay_to_text(
     return render_json_payload(patched)
 
 
+def attach_unavailable_overlay(
+    text: str,
+    *,
+    snapshot_id: str,
+    reducer_id: str | None,
+    warnings: list[str],
+) -> str:
+    payload = parse_json_fenced(text)
+    if payload is None or "_diff" in payload:
+        return text
+    projection = str(payload.get("projection", "")).strip().lower()
+    diff_payload = {
+        "version": 1,
+        "worktree_hash": None,
+        "snapshot_commit": None,
+        "base_commit": None,
+        "head_commit": None,
+        "merge_base": None,
+        "reducer_id": reducer_id,
+        "snapshot_id": snapshot_id,
+        "projection": projection or None,
+        "projection_version": payload.get("projection_version"),
+        "nodes": None,
+        "edges": None,
+        "calls": None,
+        "summary": None,
+        "patched": "none",
+        "coverage": "none",
+        "warnings": list(warnings),
+    }
+    payload["_diff"] = diff_payload
+    return render_json_payload(payload)
+
+
 _NODE_PROJECTIONS = {
     "structural_index",
     "module_overview",
