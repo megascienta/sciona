@@ -14,28 +14,9 @@ ownership). Prefer reducer emission as the primary contract for reading data.
 
 ## Entry point
 
-Addons are discovered via Python entry points (opt-in):
-- Entry point group: `sciona.addons`
-- Each entry point must be a callable that accepts a `Registry`.
-Addon auto-loading is disabled by default. Core CLI only loads addons when
-`SCIONA_ENABLE_ADDONS=1` is set.
-
-Example (pyproject.toml):
-```toml
-[project.entry-points."sciona.addons"]
-my_addon = "my_addon.plugin:register"
-```
-
-Example (plugin.py):
-```python
-from sciona.runtime.addon_api import Registry
-
-REQUIRES_SCIONA_PLUGIN_API = ">=1,<2"
-
-
-def register(registry: Registry) -> None:
-    registry.register_cli("my-addon", build_cli_app())
-```
+Addons are separate products that consume core as a library. Core does not
+discover or load addons. If your addon product uses an entry-point loader,
+it may define a `sciona.addons` group and a callable that accepts a `Registry`.
 
 ## Registry API
 
@@ -58,15 +39,11 @@ Versioning policy:
 - Major bump: breaking changes to Registry API.
 - Minor bump: additive, backward-compatible changes.
 
-If incompatible, the addon is skipped with a warning.
+Compatibility checks are enforced by the addon product.
 
 ## Disable addons
 
-Set environment flags to disable addon loading:
-- `SCIONA_DISABLE_ADDONS=1`
-- `SCIONA_SAFE_MODE=1`
-Enable addon loading explicitly:
-- `SCIONA_ENABLE_ADDONS=1`
+Not applicable in core. Addon loading (if any) is owned by external products.
 
 ## Hello addon (minimal walkthrough)
 

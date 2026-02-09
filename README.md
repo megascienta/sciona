@@ -25,7 +25,6 @@ Concrete outputs you can query:
 - `README.md` — simple user guide (install, run, common commands).
 - `USERGUIDE.md` — expectations + limitations (what SCIONA does under the hood).
 - `DEVELOPER.md` — developer guide (architecture, extending, tests).
-- `ADDONS.md` — addons developer guide (self-contained for addons repos).
 
 ---
 
@@ -99,14 +98,6 @@ sciona build
 sciona status
 ```
 
-Prompts (addon):
-```bash
-sciona prompts list
-sciona prompts run module_impact_v1 --module-id pkg.alpha
-sciona prompts run callable_impact_v1 --callable-id pkg.alpha.service.helper
-sciona prompts run callable_impact_v1 --callable-id pkg.alpha.service.helper --answer
-```
-
 Reducers:
 ```bash
 sciona reducer list
@@ -124,7 +115,7 @@ Clean:
 sciona clean
 ```
 Notes:
-- `sciona clean` removes `.sciona` entirely (including any addon state).
+- `sciona clean` removes `.sciona` entirely.
 
 Hooks (optional):
 ```bash
@@ -140,13 +131,3 @@ sciona init --post-commit-hook-command "sciona build"
 ```
 
 ---
-
-## Optional: prompt + LLM workflow
-
-SCIONA works without any LLM. Prompt workflows are optional.
-
-Prompt templates are provided by the prompts addon (`sciona-addons/prompts`).
-Install the prompts addon to enable `sciona prompts ...`.
-Custom prompt overrides live in `.sciona/prompts`.
-LLM settings for prompts live in `.sciona/prompts/config.yaml` (see addon docs).
-Use `DEVELOPER.md` for implementation details.

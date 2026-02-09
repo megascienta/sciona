@@ -147,7 +147,7 @@ def registry_frozen() -> bool:
 
 @contextmanager
 def mutable_registry() -> Iterator[dict[str, ReducerEntry]]:
-    """Temporarily expose a mutable registry (tests/addon registration)."""
+    """Temporarily expose a mutable registry (tests only)."""
     global REDUCERS, _FROZEN
     if _FROZEN:
         mutable = dict(_REDUCERS)
@@ -163,50 +163,6 @@ def mutable_registry() -> Iterator[dict[str, ReducerEntry]]:
         yield _REDUCERS
 
 
-def register_addon_reducers(modules: Iterable[ModuleType]) -> None:
-    global REDUCERS
-    target_registry = _REDUCERS if _FROZEN else REDUCERS
-    added = False
-    for module in modules:
-        meta = getattr(module, "REDUCER_META", None)
-        if not isinstance(meta, ReducerMeta):
-            raise ValueError(f"Reducer '{module.__name__}' is missing valid metadata.")
-        _validate_meta(meta, module.__name__)
-        reducer_id = meta.reducer_id
-        if reducer_id in target_registry:
-            existing = target_registry[reducer_id]
-            if existing.module is module:
-                continue
-            if getattr(existing.module, "__name__", None) == module.__name__:
-                continue
-            existing_path = getattr(existing.module, "__file__", None)
-            module_path = getattr(module, "__file__", None)
-            if existing_path and module_path:
-                try:
-                    if Path(existing_path).resolve() == Path(module_path).resolve():
-                        continue
-                except OSError:
-                    pass
-            raise ValueError(f"Duplicate reducer id '{reducer_id}'.")
-        target_registry[reducer_id] = ReducerEntry(
-            reducer_id=reducer_id,
-            category=meta.category,
-            scope=meta.scope,
-            placeholders=meta.placeholders,
-            determinism=meta.determinism,
-            payload_size_stats=meta.payload_size_stats,
-            semantic_tag=meta.semantic_tag,
-            summary=meta.summary,
-            lossy=meta.lossy,
-            baseline_only=meta.baseline_only,
-            composite=meta.composite,
-            module=module,
-        )
-        added = True
-    if added and _FROZEN:
-        REDUCERS = MappingProxyType(dict(_REDUCERS))
-
-
 __all__ = [
     "ReducerEntry",
     "REDUCERS",
@@ -215,7 +171,6 @@ __all__ = [
     "load_reducer",
     "mutable_registry",
     "registry_frozen",
-    "register_addon_reducers",
 ]
 
 freeze_registry()

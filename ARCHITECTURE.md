@@ -110,10 +110,9 @@ Artifacts are rebuilt for the **latest committed snapshot** and are not part of 
 
 ### addons
 - Addon/plugin contracts live in `CONTRACTS.md` ("Addon plugin contract")
-- Addons are plugins discovered by the `sciona.addons` entry-point group.
-- Core only auto-attaches addon CLI subcommands when `SCIONA_ENABLE_ADDONS=1` is set.
-- Addons may consume core reducer emission through the addon-facing public API
-  (`sciona.api.addons`). Prompt tooling lives in the prompts addon.
+- Core does not load addons. Addons are separate products that consume core via
+  the public API (`sciona.api.*`).
+- Addons may consume core reducer emission through `sciona.api.addons`.
 - Addons must not register reducers or prompts into core.
 - Addons may access CoreDB/ArtifactDB via **read-only** storage helpers
   (`sciona.api.storage`), but should prefer reducers as the primary contract.

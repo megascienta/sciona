@@ -53,8 +53,8 @@ Notes:
 - Addons can enumerate core reducers via `sciona.api.addons.list_entries` (see `REDUCERS.md` for the canonical list).
 - Addons may open CoreDB/ArtifactDB in **read-only** mode via `sciona.api.storage` or `sciona.api.addons` helpers.
 - Prompt tooling is provided by `sciona.addons.prompts` and is not part of core.
-- Addon auto-loading is opt-in. Core CLI only loads addon entry points when
-  `SCIONA_ENABLE_ADDONS=1` is set.
+- Core does not auto-load addons. Addons are separate products that consume
+  core via the public API.
 
 ---
 
@@ -263,17 +263,14 @@ addon documentation for prompt registry and compilation contracts.
 
 ---
 
-## Addon plugin contract
+## Addon library contract
 
-- Addons are discovered from Python entry points in group `sciona.addons`.
-- Addons may only register CLI commands through `runtime/addon_api.Registry.register_cli`.
-- Core auto-attaches installed addon CLI commands to the `sciona` CLI.
+- Core does not discover or load addons.
+- Addons consume core as a library via `sciona.api.*`.
 - Addons may call reducer emission through `sciona.api.addons`. Prompt compilation is provided
   by the prompts addon.
 - `sciona.api.addons` exports plugin API version constants (`PLUGIN_API_VERSION`,
-  `PLUGIN_API_MAJOR`, `PLUGIN_API_MINOR`).
-- Addons may declare `REQUIRES_SCIONA_PLUGIN_API` (e.g., `">=1,<2"`); incompatible
-  addons are skipped during load.
+  `PLUGIN_API_MAJOR`, `PLUGIN_API_MINOR`) for addon compatibility checks.
 - Addons must not register reducers or prompts into core registries.
 
 ---

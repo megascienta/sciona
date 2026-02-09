@@ -5,13 +5,11 @@
 
 from __future__ import annotations
 
-import os
 import typer
 import click
 
 import inspect
 
-from ..api import addons as addons_api
 from ..api import errors as api_errors
 from ..api import reducers as reducers_api
 from ..api import runtime as runtime_api
@@ -75,13 +73,6 @@ app = typer.Typer(
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 
-_ADDON_REGISTRY = (
-    addons_api.load_for_cli()
-    if os.getenv("SCIONA_ENABLE_ADDONS", "").strip().lower()
-    in {"1", "true", "yes", "on"}
-    else None
-)
-
 
 @app.callback(invoke_without_command=True)
 def _main(
@@ -89,7 +80,6 @@ def _main(
     help: bool = typer.Option(False, "--help", "-h", is_eager=True),
 ) -> None:
     """CLI entrypoint."""
-    addon_registry: addons_api.Registry | None = _ADDON_REGISTRY
     repo_root = None
     try:
         repo_root = runtime_api.get_repo_root()
@@ -108,13 +98,12 @@ def _main(
         runtime_api.configure_logging()
     reducers_api.freeze_registry()
     if help or ctx.invoked_subcommand is None:
-        typer.echo(_render_help(addon_registry))
+        typer.echo(_render_help())
         raise typer.Exit()
 
 
-def _render_help(addon_registry: addons_api.Registry | None) -> str:
+def _render_help() -> str:
     root_group = _get_click_group(app)
-    addon_commands = _addon_commands(addon_registry)
     core_commands = _core_commands(app, root_group)
     reducer_commands = _group_commands(
         app, "reducer", root_group, include_root_options=False
@@ -132,7 +121,6 @@ def _render_help(addon_registry: addons_api.Registry | None) -> str:
     return "\n".join(
         [
             "Usage: sciona [OPTIONS] COMMAND [ARGS]...",
-            "",
             "SCIONA structural index builder.",
             "",
             "Common tasks:",
@@ -151,9 +139,6 @@ def _render_help(addon_registry: addons_api.Registry | None) -> str:
             "Reducers:",
             *[f"  {entry}" for entry in core_reducers],
             "",
-            "",
-            "Addons (registry-driven; optional):",
-            *[f"  {entry}" for entry in addon_commands],
             "",
         ]
     )
@@ -210,25 +195,6 @@ def _group_commands(
         rendered = _format_params(cmd)
         entries.append(f"{group_name} {name}{rendered}")
     return entries
-
-
-def _addon_commands(addon_registry: addon_runtime.Registry | None) -> list[str]:
-    if not addon_registry:
-        return []
-    entries: list[str] = []
-    for addon_name, addon_app in sorted(addon_registry.cli_apps.items()):
-        addon_group = _get_click_group(addon_app)
-        commands = []
-        if isinstance(addon_group, click.Group) and addon_group.commands:
-            commands = list(addon_group.commands.items())
-        else:
-            commands = [(name, None) for name in _command_names(addon_app)]
-        if not commands:
-            entries.append(addon_name)
-            continue
-        for sub_name, cmd in commands:
-            entries.append(f"{addon_name} {sub_name}{_format_params(cmd)}")
-    return sorted(entries)
 
 
 def _find_group(cli_app: typer.Typer, group_name: str) -> typer.Typer | None:
@@ -312,14 +278,6 @@ def _primary_argument(argument: click.Argument) -> str:
     return label
 
 
-def _register_addon_cli(addon_registry: addon_runtime.Registry | None) -> None:
-    if not addon_registry:
-        return
-    for name, addon_app in addon_registry.cli_apps.items():
-        app.add_typer(addon_app, name=name)
-
-
-_register_addon_cli(_ADDON_REGISTRY)
 register_commands(app)
 
 
