@@ -1,40 +1,31 @@
 # SCIONA Contracts (1.0)
 
-This document defines binding contracts for contributors, addons, reducers, and tooling,
-including ingestion, edges, reducers, and CLI usage in SCIONA 1.0. Prompt tooling is owned
-by the prompts addon.
+This document defines binding behavioral contracts for contributors, addons,
+reducers, and tooling.
 
 ---
 
-## Snapshot policy (global contract)
+## Snapshot policy (binding)
 
-Applies to core, reducers, addons, and CLI.
+Authoritative rules are defined in `ARCHITECTURE.md` (Core invariants and Runtime
+behavior). This contract binds all parties to those rules and adds enforcement
+expectations:
 
-- All public pipelines/CLI operate on the **latest committed snapshot only**.
-- CoreDB must contain exactly one committed snapshot after a successful build.
-- ArtifactDB always reflects the **latest committed snapshot** (see Artifact DB
-  definition in `ARCHITECTURE.md`).
-- Build requires a **clean worktree** for tracked language sources in scope
-  (enabled languages after excludes/ignores). Untracked files do not block builds.
-- Read-only commands may proceed on a dirty worktree but must warn that outputs
-  reflect the last committed snapshot. Pipelines may append a best-effort
-  `diff_overlay` to reducer payloads when the worktree is dirty. The overlay may
-  patch structural fields and include call-edge diffs and summary stats, but is
-  non-authoritative. `_diff` v2 includes baseline metadata (snapshot/head/merge-base),
-  `overlay_available`/`overlay_reason`, grouped `changes`, patch coverage, warnings,
-  a deterministic `top_changed` list, and declarative scope metadata
-  (`diff_scope`, `scope_exclusions`). If the worktree is dirty and no overlay can be
-  produced, reducers attach `_diff` with `overlay_available=false` and emit a
-  top-level `snapshot_warning`.
+- Pipelines and CLI must enforce clean-worktree policy and clearly warn when
+  operating on a dirty worktree.
+- Reducer payloads must not silently blend dirty changes; any overlay must be
+  explicitly labeled (e.g., `_diff`) as best-effort and non-authoritative.
+- Addons and tooling must treat overlays as hints, not truth, and must not
+  persist overlay content as authoritative data.
 
 ---
 
 ## Public API contract
 
-SCIONA exposes a **stable public API** via `sciona.api` (and re-exports in
+SCIONA exposes a stable public API via `sciona.api` (and re-exports in
 `sciona.__init__`). The public surface is the set of modules under `sciona.api`
-and their `__all__` exports. The **preferred entrypoint** for user-facing code
-is `sciona.api.user`; other namespaces are advanced surfaces used by tooling.
+and their `__all__` exports. The preferred entrypoint for user-facing code is
+`sciona.api.user`.
 
 - `sciona.api.user` for user-facing library operations (preferred)
 - `sciona.api.addons` for addon/plugin operations
@@ -46,266 +37,72 @@ is `sciona.api.user`; other namespaces are advanced surfaces used by tooling.
 - `sciona.api.errors` for public error types
 
 Only symbols exported from these namespaces are considered stable and supported.
-All other modules and symbols are **internal** and may change without notice.
-CLI implementations must depend on `sciona.api.*` only.
-
-See each module’s `__all__` for the canonical list.
+All other modules and symbols are internal and may change without notice.
 
 Notes:
-- Registry mutation helpers (`freeze_registry`, `mutable_registry`) are intentionally
-  not part of the public API surface.
-- Addons can enumerate core reducers via `sciona.api.addons.list_entries`.
-- Addons may open CoreDB/ArtifactDB in **read-only** mode via `sciona.api.storage` or `sciona.api.addons` helpers.
-- Prompt tooling is provided by `sciona.addons.prompts` and is not part of core.
-- Core does not auto-load addons. Addons are separate products that consume
-  core via the public API.
+- CLI implementations must depend on `sciona.api.*` only.
+
+---
+
+## Addon contract (binding)
+
+This contract applies to all addon products. See `ADDONSDEVGUIDE.md` for the
+standalone addon developer manual.
+
+- Addons must consume core via `sciona.api.*` only.
+- Addons must not register reducers into core.
+- Addons must not mutate snapshots or rely on internal storage schemas.
+- Addons may access CoreDB/ArtifactDB in **read-only** mode via
+  `sciona.api.storage` or `sciona.api.addons` helpers.
+
+---
+
+## Reducer contract (binding)
+
+Reducer invariants are defined in `ARCHITECTURE.md`. This contract adds the
+following operational constraints:
+
+- Reducers share a single unified namespace; there is no internal-only class.
+- The reducer registry is frozen by default; mutation is a controlled exception.
+- Reducer existence does not imply endorsement; CLI exposure may be restricted.
+- Reducers may read source files only to enrich already-known nodes (signatures,
+  spans, decorators). Reducers must not discover new nodes or infer semantics.
 
 ---
 
 ## Edge contract
 
-### Node types
+Edge and node type semantics are defined in `ARCHITECTURE.md`. This contract
+binds contributors to:
 
-- `module`: file or compilation unit namespace
-- `class`: class/type declaration
-- `function`: top-level callable
-- `method`: callable defined as a class member
-
-### Edge types
-
-#### CONTAINS
-
-Meaning: lexical containment.
-
-Emit when:
-- module contains class
-- module contains function
-
-#### DEFINES_METHOD
-
-Meaning: class defines a method.
-
-Emit when:
-- class contains method definitions
-
-Notes:
-- Do not emit module CONTAINS method for class methods.
-
-#### IMPORTS_DECLARED
-
-Meaning: explicit import statement (syntax-only, best-effort).
-
-Emit when:
-- Python `import` / `from ... import`
-- TypeScript `import` syntax
-- Java `import` / `import static` syntax
-
-Notes:
-- Import edges may target external modules.
-- Unresolved or ambiguous imports may be omitted.
-
-### Non-goals (SCI)
-
-- CALLS / CALLERS
-- Symbol resolution
-- Type inference
-- Runtime behavior
-- Cross-language linkage
+- Avoid introducing new node/edge types without updating `ARCHITECTURE.md` and
+  the relevant tests.
+- Avoid changing existing semantics without updating `ARCHITECTURE.md` and all
+  dependent reducers.
 
 ---
 
 ## Ingest contract
 
-Every ingestor must emit, per file:
-
-Nodes:
-- one `module`
-- zero or more `class`
-- zero or more `function`
-- zero or more `method`
-
-Edges:
-- module CONTAINS class
-- module CONTAINS function
-- class DEFINES_METHOD method
-- module IMPORTS_DECLARED module (best-effort)
-
-Failure handling:
-- On parse failure: still emit the module node.
-- Partial ASTs are allowed and recorded.
-
-Supported languages (1.0): Python, TypeScript, Java.
-
-Discovery:
-- Core discovery is driven by git-tracked files only.
-- `.gitignore` affects tracked-file discovery when files are explicitly ignored.
+Ingestor emission rules are defined in `ARCHITECTURE.md`. Any change to ingest
+behavior must update `ARCHITECTURE.md` first, then adjust ingestors and tests to
+match.
 
 ---
 
 ## Artifact contract
 
-Artifacts are derived and stored in ArtifactDB.
-Artifact rebuild helpers live under `data_storage/artifact_db/`.
+Artifacts are derived and stored in ArtifactDB per `ARCHITECTURE.md`. They are
+not authoritative structural truth. Artifact rebuild helpers live under
+`data_storage/artifact_db/`.
 
 - `node_status` is rebuilt for the latest committed snapshot.
 - `node_calls.call_hash` is the node content hash from the core snapshot.
 - `graph_nodes`/`graph_edges` are rebuilt from core edges and node_calls.
 - Artifact rebuild lifecycle is tracked in `rebuild_status` (`start` / `complete` / `failed`).
 
-Artifacts are not authoritative structural truth.
-ArtifactDB is always scoped to the latest committed snapshot.
-CoreDB and ArtifactDB are not cross-DB atomic; artifacts are rebuilt after core commit.
-
-### Graph rollups (ArtifactDB)
-
-The artifact rebuild step may also materialize derived rollups for the graph:
-
-- `module_call_edges`: module-level call aggregation derived from `CALLS` edges
-- `class_call_edges`: class-level call aggregation derived from `CALLS` edges
-- `node_fan_stats`: per-node fan-in/fan-out counts by `edge_kind`
-
-These rollups are derived from the same committed snapshot as `graph_edges` and
-are used by reducers for efficient summaries. They do not add new edges or semantics.
-
----
-
-## Reducer contract
-
-Reducers are deterministic formatters of SCI/Artifact data, registered in a single
-capability registry.
-
-Rules:
-- Reducers must not mutate storage.
-- Reducers must not call external services.
-- Output must be deterministic and ordered.
-- Reducers return JSON payloads only.
-- Reducers operate on the **latest committed snapshot only**.
-- Pipelines may append a `_diff` overlay to reducer payloads when the worktree
-  is dirty; this overlay is best-effort and non-authoritative, and may patch
-  structural fields and include call-edge diffs and summary stats. `_diff` v2
-  includes baseline metadata (snapshot/head/merge-base), `overlay_available`/
-  `overlay_reason`, grouped `changes`, patch coverage, warnings, deterministic
-  `top_changed`, and declarative scope metadata (`diff_scope`, `scope_exclusions`).
-  Overlays use the merge-base between the snapshot commit and `HEAD` when they
-  diverge and ignore submodule paths with a warning. If the worktree is dirty and
-  no overlay can be produced, reducers attach `_diff` with `overlay_available=false`
-  and emit a top-level `snapshot_warning`.
-- Reducers must not own DB path resolution or connection lifecycle; pipelines provide read context.
-- The reducer registry is frozen by default.
-- Reducers share a single unified namespace; there is no internal-only reducer class.
-- The reducer registry is a capability surface; reducer existence does not imply endorsement.
-- Some reducers may be hidden from CLI surfaces (e.g., control/baseline surfaces).
-- Reducers must treat SCI/Artifact DBs as the authoritative source of truth.
-- Source files may be read only to enrich already-known nodes (signatures, parameters, decorators, doc spans).
-- Reducers must never discover new nodes, infer new relationships, or perform semantic analysis.
-- Reducers must declare metadata with exactly one placeholder (used by prompt tooling).
-- The reducer inventory for prompt addon authors is documented below.
-
-Graph traversal surfaces must use the artifact graph (`graph_nodes`/`graph_edges`).
-Core structural edges are not used for traversal in public surfaces.
-
-Reducer categories are semantic only and live under:
-- `reducers/structural` (DB-derived, non-inferential structure)
-- `reducers/summaries` (lossy compression)
-- `reducers/composites` (curated orientation)
-- `reducers/baseline` (control/baseline surfaces)
-- `reducers/helpers` (shared utilities, not reducers)
-
-### Reducer inventory (all reducers, by type)
-
-Structural spine (core, required by tooling):
-- `structural_index` — Canonical structural index payload for the codebase.
-- `module_overview` — Structural overview payload for a module.
-- `callable_overview` — Structural overview payload for a callable (function or method).
-- `call_graph` — Caller/callee call graph for a callable.
-- `class_overview` — Structural overview payload for a class.
-- `class_inheritance` — Class inheritance and interface relationships.
-
-Baseline / control (public, non-core):
-- `callable_source` — Full source payload for a callable (function or method).
-- `concatenated_source` — JSON payload with per-file content for codebase/module/class scope.
-
-Derived / optional (public, non-core):
-- `fan_summary` — Fan-in/out summary for calls and imports.
-- `hotspot_summary` — Compressed codebase hotspot summary.
-- `class_call_graph` — Class-level call graph summary.
-- `module_call_graph` — Module-level call graph summary.
-- `callsite_index` — Caller/callee edge index for a callable.
-- `importers_index` — Index of modules that import target module(s).
-
-Structural optional (public, non-core):
-- `symbol_lookup` — Ranked symbol matches for a query.
-- `symbol_references` — Relationship references (calls/imports) for symbols matching a query.
-- `file_outline` — File-level outline of modules, classes, and callables.
-- `module_file_map` — Module-to-file map with module qualified names, structural ids, file paths, and line spans.
-- `dependency_edges` — Explicit module import edges for the snapshot.
-- `import_references` — Modules that import the target module(s).
-
-Prompt tooling should prefer structural spine reducers. Baseline and derived reducers
-are allowed for experiments or addon-specific prompts.
-
-Note:
-- `concatenated_source` returns JSON with per-file entries and includes only snapshot-tracked files
-  (from `node_instances`); it does not scan the filesystem.
-
-### Ordering rules
-
-Reducers must return stable ordering. Current guarantees:
-
-- `structural_index`:
-  - modules.entries sorted by module_qualified_name
-  - files.entries sorted by path
-  - classes.entries sorted by qualified_name
-  - classes.by_module/functions.by_module/methods.by_module sorted by (-count, key)
-  - imports.edges sorted by (from_module_qualified_name, to_module_qualified_name)
-  - import_cycles sorted lexicographically
-- `module_overview`:
-  - files sorted by path
-  - classes/functions/methods sorted by qualified_name
-
----
-
-## Prompt contract
-
-Prompt tooling is owned by the prompts addon (`sciona.addons.prompts`). See the
-addon documentation for prompt registry and compilation contracts.
-
----
-
-## Addon library contract
-
-- Core does not discover or load addons.
-- Addons consume core as a library via `sciona.api.*`.
-- Addons may call reducer emission through `sciona.api.addons`. Prompt compilation is provided
-  by the prompts addon.
-- `sciona.api.addons` exports plugin API version constants (`PLUGIN_API_VERSION`,
-  `PLUGIN_API_MAJOR`, `PLUGIN_API_MINOR`) for addon compatibility checks.
-- Addons must not register reducers or prompts into core registries.
-
----
-
-## Module naming contract
-
-- Module identifiers are derived from repo-relative paths only.
-- The repo root folder name is the top-level prefix.
-- Language packaging metadata (pyproject package-dir, npm package name, etc.) is ignored.
-- Python `__init__.py` files collapse to their package path.
-- Other languages use the dotted file path minus the extension.
-- Directory modules are synthesized for any folder containing tracked files.
-
-Note: packaging metadata may be used for best-effort import normalization, but
-never for module identifiers.
-
----
-
-## Config contract
-
-Public config/runtime surfaces:
-- `runtime.config`: typed config loading (`load_sciona_config`, `load_runtime_config`,
-  `load_language_settings`, `load_logging_settings`)
-- `runtime.config.io`: config file read/write helpers used by init workflows
-- `runtime.paths`: repository and state paths (`get_repo_root`, `get_sciona_dir`,
-  `get_db_path`, `get_artifact_db_path`, `get_config_path`, ...)
-
-All user-configurable core settings live in `.sciona/config.yaml`. Prompt addon
-settings (including LLM config) live under `.sciona/prompts/`.
+These rollups are derived from the committed snapshot and are used by reducers
+for efficient summaries:
+- `module_call_edges`
+- `class_call_edges`
+- `node_fan_stats`

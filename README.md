@@ -1,133 +1,103 @@
 # SCIONA
 
-## Intro
+SCIONA builds a **deterministic structural index (SCI)** for a Git repository. It records *what exists* in code (modules, classes, functions, methods) and *how entities are structurally connected*.
 
-SCIONA builds a deterministic structural code index (SCI) for a Git repository.
-It records structural facts (nodes + edges) per snapshot and stores state under
-`.sciona/` in the target repo. The goal is to anchor reasoning to structural
-truth and keep analysis reproducible.
+SCIONA is **snapshot-based, reducer-driven, and LLM-agnostic**. It does not execute code, infer intent, or perform semantic retrieval. Reducers are the truth surfaces: they render structural facts deterministically from a **committed snapshot**.
 
-## Non-goals (short)
-
-- SCIONA does not execute code.
-- SCIONA is not a runtime or semantic analyzer.
-- SCIONA is not tied to any LLM or provider.
-
-## What you get
-
-Concrete outputs you can query:
-- `module_overview` shows classes/functions and file span for a module.
-- `call_graph` summarizes call edges for a callable.
-- `importers_index` shows which modules import a target module.
-
-## Docs (Audience + Purpose)
-
-- `README.md` — simple user guide (install, run, common commands).
-- `USERGUIDE.md` — expectations + limitations (what SCIONA does under the hood).
-- `DEVELOPER.md` — developer guide (architecture, extending, tests).
+By providing an explicit, deterministic representation of structural truth, SCIONA can be used to **anchor LLM-assisted workflows**: downstream tools may reason only over reducer outputs, rather than reconstructing structure heuristically or hallucinating it from source text.
 
 ---
 
-## Install
+## Why SCIONA exists
 
-Pre-release: install from source.
+When working with large, long-lived codebases, we repeatedly encountered the same failure mode:
 
-```bash
-pip install -e . --no-build-isolation
-```
+LLM assistance starts out helpful, but gradually becomes inconsistent. Earlier assumptions are contradicted. Structural constraints are forgotten. The model continues to “sound right” while no longer reflecting the actual code.
+
+This is not primarily an LLM problem. It is a **context problem**.
+
+In real-world software systems, the relevant information is not just which functions exist, but how files, modules, symbols, and dependencies are *structurally connected* and can be reasoned about consistently.
+
+Most LLM tooling today relies on embeddings, semantic retrieval, or opaque context assembly. These approaches are powerful, but difficult to make reproducible and hard to constrain over long sessions, refactors, or collaboration boundaries.
+
+SCIONA takes a deliberately different approach.
+
+It builds a **deterministic structural snapshot** of a codebase: no embeddings, no semantic guessing, no code execution. Just an explicit, versioned representation of structural truth that downstream tools, including LLM copilots, can be constrained by, rather than asked to hallucinate around.
+
+SCIONA is opinionated and intentionally limited in scope. It provides structure, not interpretation.
 
 ---
 
-## Quick start
+## Core guarantees (summary)
 
-SCIONA operates on the current repo and only on git-tracked files.
+Authoritative definitions live in `ARCHITECTURE.md`. At a glance:
+
+- **No code execution**
+- **Snapshot-only truth** (latest committed snapshot)
+- **Read-only w.r.t. the repo**, except `.sciona/` and explicit setup commands
+- **Deterministic outputs** for the same snapshot, config, and version
+- **LLM-agnostic** (no provider or prompt assumptions)
+
+---
+
+## How SCIONA can be used today
+
+SCIONA can be used directly via its CLI or integrated into LLM-assisted workflows.
+
+One supported mode of operation is interaction through an LLM copilot guided
+by an auto-generated `AGENTS.md` file in the repository root. This file serves
+as a control surface for the copilot by explicitly specifying how SCIONA should
+be used during code reasoning.
+
+In particular, `AGENTS.md`:
+- enforces *SCIONA-first* discipline for structural questions
+- specifies which reducers to run before any interpretation
+- defines snapshot vs dirty-worktree semantics
+- requires explicit declaration when SCIONA cannot be used
+
+In this mode, the copilot is instructed to reason only over reducer outputs, rather than reconstructing structure heuristically from source text.
+
+Manual CLI usage is fully supported and provides a complete interface for non-copilot workflows.
+
+---
+
+## Quick start (minimal)
 
 ```bash
 cd /path/to/repo
 sciona init
-# edit .sciona/config.yaml to enable languages
+$EDITOR .sciona/config.yaml   # enable languages
 sciona build
 sciona status
-```
+````
 
-Safety + determinism:
-- Build requires a clean worktree for tracked language files in scope.
-- Untracked files do not block builds.
-- Read-only commands may proceed on a dirty worktree but warn that outputs reflect
-  the latest committed snapshot.
-- Dirty worktrees may include a best-effort `_diff` overlay in reducer payloads.
+Explore available reducers:
 
-See `USERGUIDE.md` for full expectations and limitations.
-
----
-
-## Configuration
-
-`sciona init` creates `.sciona/config.yaml`. Languages are disabled by default.
-Enable at least one language before `build`:
-
-```yaml
-languages:
-  python:
-    enabled: true
-
-# optional
-# discovery:
-#   exclude_globs:
-#     - "**/node_modules/**"
-#     - "**/dist/**"
-```
-
-Supported languages (1.0): Python, TypeScript, Java.
-
-Discovery rules:
-- SCIONA asks git for tracked file paths (repo-relative POSIX paths).
-- Hard excludes: `.git/**`, `.sciona/**`.
-- Applies `discovery.exclude_globs` (gitwildmatch semantics).
-- Only enabled-language extensions are eligible.
-- `.gitignore` is respected for tracked files explicitly ignored.
-- No directory walking.
-
----
-
-## Common commands
-
-Build + status:
-```bash
-sciona build
-sciona status
-```
-
-Reducers:
 ```bash
 sciona reducer list
-sciona reducer info --id module_overview
+sciona reducer --id module_overview --module-id pkg.mod
 ```
 
-Resolve and search:
-```bash
-sciona resolve pkg.alpha --kind module --limit 10
-sciona search pkg.alpha --kind module --limit 10
-```
-
-Clean:
-```bash
-sciona clean
-```
-Notes:
-- `sciona clean` removes `.sciona` entirely.
-
-Hooks (optional):
-```bash
-sciona hooks install
-sciona hooks status
-sciona hooks remove
-```
-
-`sciona init` also supports:
-```bash
-sciona init --post-commit-hook
-sciona init --post-commit-hook-command "sciona build"
-```
+For copilot-driven workflows, start with `AGENTS.md` in the repo root.
 
 ---
+
+## Discovery and scope (high level)
+
+* Only **git-tracked files** are analyzed
+* Only **enabled languages** are indexed
+* `.gitignore` is respected for tracked files
+* No directory walking
+* No runtime import resolution
+
+If the worktree is dirty, reducers may include a best-effort `_diff` overlay. Overlays are **non-authoritative hints**, not structural truth.
+
+---
+
+## If you want X, read Y
+
+* **Understand user expectations and limitations** → `USERGUIDE.md`
+* **See binding behavioral rules** → `CONTRACTS.md`
+* **Understand architecture and invariants** → `ARCHITECTURE.md`
+* **Work on SCIONA core safely** → `COREDEVGUIDE.md`
+* **Build addons independently** → `ADDONSDEVGUIDE.md`

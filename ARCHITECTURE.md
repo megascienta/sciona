@@ -1,20 +1,14 @@
 # SCIONA Architecture (1.0)
 
-**Normative document.**
-All other documents defer to `ARCHITECTURE.md` for invariants and data-flow rules.
-
 This document defines runtime boundaries and data flow for SCIONA 1.0.
 
 ---
 
 ## Purpose
 
-SCIONA is a deterministic structural indexing tool. It records what exists in
-code (nodes), how entities relate (edges), and which snapshot the facts came
-from. It does not interpret intent or behavior.
+SCIONA is a deterministic structural indexing tool. It records what exists in code (nodes), how entities relate (edges), and which snapshot the facts came from. It does not interpret intent or behavior.
 
-Derived tooling (addons) may consume the index but must not feed data back into
-it.
+Derived tooling (addons) may consume the index but must not feed data back into it.
 
 ---
 
@@ -118,7 +112,7 @@ Artifacts are rebuilt for the **latest committed snapshot** and are not part of 
 - Core does not load addons. Addons are separate products that consume core via
   the public API (`sciona.api.*`).
 - Addons may consume core reducer emission through `sciona.api.addons`.
-- Addons must not register reducers or prompts into core.
+- Addons must not register reducers into core.
 - Addons may access CoreDB/ArtifactDB via **read-only** storage helpers
   (`sciona.api.storage`), but should prefer reducers as the primary contract.
 
@@ -143,8 +137,6 @@ Artifacts are rebuilt for the **latest committed snapshot** and are not part of 
 5. Commit CoreDB transaction.
 6. Rebuild artifacts for the committed snapshot (node status, call artifacts, graph index).
 7. Record artifact rebuild status (`start`/`complete`/`failed`) in ArtifactDB.
-
-No ephemeral snapshots are exposed. Uncommitted snapshots are internal only.
 
 ### Dirty-worktree overlays
 
