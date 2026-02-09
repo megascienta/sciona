@@ -11,7 +11,6 @@ def test_public_api_root_exposes_namespaces_only():
     assert api.__all__ == [
         "user",
         "addons",
-        "prompts",
         "reducers",
         "repo",
         "resolve",
@@ -53,7 +52,6 @@ def test_public_addon_api_surface_is_explicit_and_stable():
         "PLUGIN_API_MINOR",
         "Registry",
         "load_for_cli",
-        "compile_prompt_payload",
         "emit",
         "list_entries",
     ]

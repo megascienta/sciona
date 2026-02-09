@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Optional, Sequence
+from typing import Dict
 
 
 @dataclass(frozen=True)
@@ -47,23 +47,8 @@ class LoggingSettings:
 
 
 @dataclass(frozen=True)
-class LLMSettings:
-    provider: str
-    model: str
-    api_endpoint: Optional[str]
-    api_key: Optional[str]
-    endpoint_allowlist: Sequence[str]
-    allow_api_key_for_custom_endpoint: bool
-    temperature: float
-    supported_models: Sequence[str]
-    timeout: float
-    max_retries: int
-
-
-@dataclass(frozen=True)
 class ScionaConfig:
     runtime: RuntimeConfig
-    llm: LLMSettings
     logging: LoggingSettings
 
 
@@ -72,7 +57,6 @@ __all__ = [
     "DiscoverySettings",
     "RuntimeConfig",
     "LoggingSettings",
-    "LLMSettings",
     "DatabaseSettings",
     "GitSettings",
     "ScionaConfig",

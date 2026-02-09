@@ -73,17 +73,6 @@ def write_default_config(repo_root: Path) -> None:
             f"  structured: {str(defaults.DEFAULT_LOG_STRUCTURED).lower()}",
             "  module_levels: {}",
             "",
-            "llm:",
-            f'  provider: "{defaults.DEFAULT_LLM_PROVIDER}"',
-            f'  model: "{defaults.DEFAULT_LLM_MODEL}"',
-            "  api_endpoint: null",
-            "  api_key: null",
-            '  endpoint_allowlist: ["api.openai.com"]',
-            f"  allow_api_key_for_custom_endpoint: {str(defaults.DEFAULT_LLM_ALLOW_API_KEY_FOR_CUSTOM_ENDPOINT).lower()}",
-            f"  temperature: {defaults.DEFAULT_TEMPERATURE}",
-            f"  timeout: {defaults.DEFAULT_LLM_TIMEOUT}",
-            f"  max_retries: {defaults.DEFAULT_LLM_MAX_RETRIES}",
-            "",
         ]
     )
     template = "\n".join(lines) + "\n"

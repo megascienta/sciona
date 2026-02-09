@@ -13,8 +13,6 @@ DB_FILENAME = "sciona.db"
 ARTIFACT_DB_FILENAME = "sciona.artifacts.db"
 CONFIG_FILENAME = "config.yaml"
 ACTIVE_RETIREMENT_FLAG = "ACTIVE"
-PROMPTS_DIRNAME = "prompts"
-PROMPTS_REGISTRY_FILENAME = "registry.yaml"
 LOG_DIRNAME = ""
 LOG_FILENAME = "sciona.log"
 
@@ -27,8 +25,6 @@ __all__ = [
     "ARTIFACT_DB_FILENAME",
     "CONFIG_FILENAME",
     "ACTIVE_RETIREMENT_FLAG",
-    "PROMPTS_DIRNAME",
-    "PROMPTS_REGISTRY_FILENAME",
     "LOG_DIRNAME",
     "LOG_FILENAME",
 ]

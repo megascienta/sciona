@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Identifier resolution helpers for prompts/reducers."""
+"""Identifier resolution helpers for reducers."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from typing import Iterable, Optional, Sequence
 
 from .errors import WorkflowError
 from .policy import repo as repo_policy
-from .policy import prompt as prompt_policy
+from .policy import snapshot as snapshot_policy
 from ..data_storage.connections import core
 from ..data_storage.core_db import read_ops as core_read
 from ..runtime.paths import get_db_path
@@ -108,7 +108,7 @@ def identifier_for_repo(
             code="missing_snapshot",
         )
     with core(db_path, repo_root=repo_state.repo_root) as conn:
-        snapshot_id = prompt_policy.resolve_latest_snapshot(conn)
+        snapshot_id = snapshot_policy.resolve_latest_snapshot(conn)
         return _resolve_identifier(
             conn,
             snapshot_id,

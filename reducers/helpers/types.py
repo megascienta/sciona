@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Typed payloads exposed to prompt reducers."""
+"""Typed payloads exposed to reducers and addon consumers."""
 
 from __future__ import annotations
 

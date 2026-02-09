@@ -6,22 +6,15 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, Sequence
+from typing import Any, Dict
 
 from .defaults import (
     DEFAULT_DB_TIMEOUT,
     DEFAULT_GIT_TIMEOUT,
-    DEFAULT_LLM_ALLOW_API_KEY_FOR_CUSTOM_ENDPOINT,
-    DEFAULT_LLM_ENDPOINT_ALLOWLIST,
-    DEFAULT_LLM_MAX_RETRIES,
-    DEFAULT_LLM_MODEL,
-    DEFAULT_LLM_PROVIDER,
-    DEFAULT_LLM_TIMEOUT,
     DEFAULT_LOG_DEBUG,
     DEFAULT_LOG_LEVEL,
     DEFAULT_LOG_MODULE_LEVELS,
     DEFAULT_LOG_STRUCTURED,
-    DEFAULT_TEMPERATURE,
     LANGUAGE_DEFAULTS,
 )
 from .io import load_raw_config
@@ -29,19 +22,11 @@ from .models import (
     DatabaseSettings,
     DiscoverySettings,
     GitSettings,
-    LLMSettings,
     LanguageSettings,
     LoggingSettings,
     RuntimeConfig,
 )
 from ..errors import ConfigError
-
-
-def _coerce_int(block: Dict[str, Any], key: str, default: int) -> int:
-    try:
-        return int(block.get(key, default))
-    except (TypeError, ValueError):
-        return default
 
 
 def _coerce_float(block: Dict[str, Any], key: str, default: float) -> float:
@@ -145,70 +130,8 @@ def load_logging_settings(
     )
 
 
-def load_llm_settings(repo_root: Path) -> LLMSettings:
-    raw = load_raw_config(repo_root)
-    llm_block = raw.get("llm", {}) if isinstance(raw, dict) else {}
-    if not isinstance(llm_block, dict):
-        llm_block = {}
-
-    supported_models_raw = llm_block.get("supported_models", [])
-    if not isinstance(supported_models_raw, list):
-        supported_models_raw = []
-    supported_models = tuple(str(entry) for entry in supported_models_raw if entry)
-    timeout = _coerce_float(llm_block, "timeout", DEFAULT_LLM_TIMEOUT)
-    if timeout <= 0:
-        timeout = DEFAULT_LLM_TIMEOUT
-    max_retries = _coerce_int(llm_block, "max_retries", DEFAULT_LLM_MAX_RETRIES)
-    if max_retries < 0:
-        max_retries = DEFAULT_LLM_MAX_RETRIES
-    llm = LLMSettings(
-        provider=str(
-            llm_block.get("provider", DEFAULT_LLM_PROVIDER) or DEFAULT_LLM_PROVIDER
-        ),
-        model=str(llm_block.get("model", DEFAULT_LLM_MODEL) or DEFAULT_LLM_MODEL),
-        api_endpoint=llm_block.get("api_endpoint"),
-        api_key=llm_block.get("api_key"),
-        endpoint_allowlist=_load_endpoint_allowlist(llm_block),
-        allow_api_key_for_custom_endpoint=_coerce_bool(
-            llm_block,
-            "allow_api_key_for_custom_endpoint",
-            DEFAULT_LLM_ALLOW_API_KEY_FOR_CUSTOM_ENDPOINT,
-        ),
-        temperature=_coerce_float(llm_block, "temperature", DEFAULT_TEMPERATURE),
-        supported_models=supported_models,
-        timeout=timeout,
-        max_retries=max_retries,
-    )
-    if llm.supported_models and llm.model not in llm.supported_models:
-        raise ConfigError(
-            f"Configured LLM model '{llm.model}' is not in supported_models.",
-            code="invalid_llm_model",
-        )
-    return llm
-
-
-def _load_endpoint_allowlist(llm_block: Dict[str, Any]) -> Sequence[str]:
-    raw = llm_block.get("endpoint_allowlist", list(DEFAULT_LLM_ENDPOINT_ALLOWLIST))
-    if isinstance(raw, str):
-        raw = [raw]
-    if not isinstance(raw, list):
-        return tuple(DEFAULT_LLM_ENDPOINT_ALLOWLIST)
-    hosts = []
-    for entry in raw:
-        text = str(entry or "").strip().lower()
-        if not text:
-            continue
-        if "://" in text:
-            continue
-        hosts.append(text)
-    if not hosts:
-        return tuple(DEFAULT_LLM_ENDPOINT_ALLOWLIST)
-    return tuple(dict.fromkeys(hosts))
-
-
 __all__ = [
     "load_language_settings",
-    "load_llm_settings",
     "load_logging_settings",
     "load_runtime_config",
 ]

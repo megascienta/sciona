@@ -32,7 +32,7 @@ snapshot. All read operations are anchored to the latest committed snapshot.
 
 ### Dirty-worktree overlays (`_diff`)
 
-When the worktree is dirty, reducer and prompt payloads may include a best-effort
+When the worktree is dirty, reducer payloads may include a best-effort
 `_diff` overlay. This overlay is non-authoritative and exists to help you reason
 about local changes without rebuilding.
 

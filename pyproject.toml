@@ -48,7 +48,6 @@ packages = [
     "sciona.pipelines.domain",
     "sciona.pipelines.exec",
     "sciona.pipelines.policy",
-    "sciona.prompts",
     "sciona.reducers",
     "sciona.reducers.baseline",
     "sciona.reducers.helpers",
@@ -57,8 +56,6 @@ packages = [
     "sciona.runtime",
     "sciona.runtime.config",
     "sciona.runtime.git",
-    "sciona.runtime.llm",
-    "sciona.runtime.llm.providers",
     "sciona.runtime.templates",
 ]
 
@@ -67,8 +64,6 @@ sciona = "."
 
 [tool.setuptools.package-data]
 sciona = [
-    "prompts/templates/*.md",
-    "prompts/templates/registry.yaml",
     "runtime/templates/*.md",
 ]
 

@@ -17,7 +17,6 @@ init_agents = repo_pipeline.init_agents
 clean = repo_pipeline.clean
 clean_agents = repo_pipeline.clean_agents
 dirty_worktree_warning = repo_pipeline.dirty_worktree_warning
-custom_prompts = repo_pipeline.custom_prompts
 install_commit_hook = repo_pipeline.install_commit_hook
 remove_commit_hook = repo_pipeline.remove_commit_hook
 commit_hook_status = repo_pipeline.commit_hook_status
@@ -33,7 +32,6 @@ __all__ = [
     "clean",
     "clean_agents",
     "dirty_worktree_warning",
-    "custom_prompts",
     "install_commit_hook",
     "remove_commit_hook",
     "commit_hook_status",

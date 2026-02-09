@@ -14,7 +14,7 @@ from pathlib import Path
 from ..reducers.registry import get_reducers, load_reducer
 from .resolve import require_identifier
 from .policy import repo as policy_repo
-from .policy import prompt as prompt_policy
+from .policy import snapshot as snapshot_policy
 from ..data_storage.connections import core
 from ..data_storage.connections import artifact as artifact_db
 from . import diff_overlay
@@ -90,7 +90,7 @@ def emit(
             f"Reducer '{reducer_id}' cannot be rendered.", code="invalid_reducer"
         )
     with core(db_path, repo_root=repo_state.repo_root) as conn:
-        snapshot_id = prompt_policy.resolve_latest_snapshot(conn)
+        snapshot_id = snapshot_policy.resolve_latest_snapshot(conn)
         resolved_kwargs = _resolve_reducer_identifiers(conn, snapshot_id, kwargs)
         artifact_path = get_artifact_db_path(repo_state.repo_root)
         artifact_scope = (

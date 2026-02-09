@@ -49,9 +49,8 @@ for dirty-worktree changes and clearly separate it from committed snapshot data.
 - When `_diff` is present, use it as the primary evidence for dirty-worktree changes.
 - Use SCIONA for structure/calls/deps, then manually verify files you changed when needed.
 - For accurate SCIONA results on new/modified files, make small WIP commits and amend/squash later.
-- Dirty worktrees may include `_diff` overlays in reducer/prompt payloads; overlays are best-effort only.
-- Reducers are JSON-only; prompts may include JSON payloads but remain human-oriented text.
-- Reducer outputs are authoritative evidence; prompt payloads are explanatory and non-authoritative.
+- Dirty worktrees may include `_diff` overlays in reducer payloads; overlays are best-effort only.
+- Reducer outputs are authoritative evidence; explanatory payloads are non-authoritative.
 - `_diff` overlays include nodes/edges and may include call-edge diffs and summary stats.
 - `sciona build` clears any diff overlay tables on clean head before rebuilding artifacts.
 

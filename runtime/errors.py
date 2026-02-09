@@ -65,11 +65,6 @@ class WorkflowError(ScionaError):
     DEFAULT_ROLLBACK_POLICY = RollbackPolicy.PAIR_REQUIRED
 
 
-class LLMError(ScionaError):
-    DEFAULT_ORIGIN_LAYER = "llm"
-    DEFAULT_ROLLBACK_POLICY = RollbackPolicy.NONE
-
-
 class GitError(EnvError):
     DEFAULT_ORIGIN_LAYER = "git"
     DEFAULT_ROLLBACK_POLICY = RollbackPolicy.NONE
@@ -105,7 +100,6 @@ __all__ = [
     "EnvError",
     "SetupError",
     "WorkflowError",
-    "LLMError",
     "GitError",
     "IngestionError",
     "NotInitializedError",

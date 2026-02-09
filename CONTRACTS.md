@@ -1,13 +1,14 @@
 # SCIONA Contracts (1.0)
 
-This document defines binding contracts for contributors, addons, prompts, and tooling,
-including ingestion, edges, reducers, prompts, and CLI usage in SCIONA 1.0.
+This document defines binding contracts for contributors, addons, reducers, and tooling,
+including ingestion, edges, reducers, and CLI usage in SCIONA 1.0. Prompt tooling is owned
+by the prompts addon.
 
 ---
 
 ## Snapshot policy (global contract)
 
-Applies to core, reducers, prompts, addons, and CLI.
+Applies to core, reducers, addons, and CLI.
 
 - All public pipelines/CLI operate on the **latest committed snapshot only**.
 - CoreDB must contain exactly one committed snapshot after a successful build.
@@ -33,7 +34,6 @@ is `sciona.api.user`; other namespaces are advanced surfaces used by tooling.
 
 - `sciona.api.user` for user-facing library operations (preferred)
 - `sciona.api.addons` for addon/plugin operations
-- `sciona.api.prompts` for prompt compilation and validation helpers
 - `sciona.api.reducers` for reducer registry and rendering helpers
 - `sciona.api.repo` for repo lifecycle (init/build/status/clean) helpers
 - `sciona.api.resolve` for identifier resolution helpers
@@ -47,10 +47,10 @@ CLI implementations must depend on `sciona.api.*` only.
 See each module’s `__all__` for the canonical list.
 
 Notes:
-- `sciona.api.prompts.validate_prompt_entry` provides reducer wiring validation for prompt entries.
 - Registry mutation helpers (`freeze_registry`, `mutable_registry`) are intentionally
   not part of the public API surface.
 - Addons can enumerate core reducers via `sciona.api.addons.list_entries` (see `REDUCERS.md` for the canonical list).
+- Prompt tooling is provided by `sciona.addons.prompts` and is not part of core.
 
 ---
 
@@ -186,8 +186,8 @@ Rules:
 - Reducers must treat SCI/Artifact DBs as the authoritative source of truth.
 - Source files may be read only to enrich already-known nodes (signatures, parameters, decorators, doc spans).
 - Reducers must never discover new nodes, infer new relationships, or perform semantic analysis.
-- Reducers must declare metadata with exactly one placeholder (used by prompt compilation).
-- The canonical reducer inventory for prompt authors is documented in `REDUCERS.md`.
+- Reducers must declare metadata with exactly one placeholder (used by prompt tooling).
+- The canonical reducer inventory for prompt addon authors is documented in `REDUCERS.md`.
 
 Graph traversal surfaces must use the artifact graph (`graph_nodes`/`graph_edges`).
 Core structural edges are not used for traversal in public surfaces.
@@ -228,7 +228,7 @@ Structural optional (public, non-core):
 - dependency_edges
 - import_references
 
-Prompts should prefer structural spine reducers. Baseline and derived reducers
+Prompt tooling should prefer structural spine reducers. Baseline and derived reducers
 are allowed for experiments or addon-specific prompts.
 
 Note:
@@ -254,27 +254,8 @@ Reducers must return stable ordering. Current guarantees:
 
 ## Prompt contract
 
-- Prompts are derived tooling and never feed back into SCI.
-- Prompt registry is YAML under `.sciona/prompts/registry.yaml`; core seeds bundled prompts at init.
-- Templates must use only registered placeholders.
-- Compiler enforces placeholder bijection.
-- Reducer placeholders are declared in `REDUCER_META.placeholders` (see `REDUCERS.md`).
-- Prompt registries must declare every reducer-required argument in
-  `required_args`/`optional_args`/`default_args`; missing reducer-required args
-  are rejected during prompt compilation/validation.
-- Prompt registries may declare optional/default args not required by reducers;
-  these emit a warning to help keep prompt interfaces tight during compilation.
-- Compiled prompt header includes PROMPT and SNAPSHOT.
-- Prompt usefulness/certification is evaluated at the prompt level, not the reducer level.
-- Prompt compilation/answering uses the latest committed snapshot only; any other snapshot id is rejected.
-- JSON prompt payloads include the full prompt text plus split `prompt_header`,
-  `prompt_body`, `instructions`, `evidence`, and `resolved_arg_map` fields (when present)
-  for machine parsing and identifier validation.
-- CLI prompt output is human-readable by default; `--json` emits the JSON payload.
-- CLI reducer output is machine-readable JSON by default.
-
-Prompt answering (CLI `--answer`) compiles the prompt and sends it to the
-configured LLM; no artifact is persisted.
+Prompt tooling is owned by the prompts addon (`sciona.addons.prompts`). See the
+addon documentation for prompt registry and compilation contracts.
 
 ---
 
@@ -283,7 +264,8 @@ configured LLM; no artifact is persisted.
 - Addons are discovered from Python entry points in group `sciona.addons`.
 - Addons may only register CLI commands through `runtime/addon_api.Registry.register_cli`.
 - Core auto-attaches installed addon CLI commands to the `sciona` CLI.
-- Addons may call reducer emission and prompt compiler services through `sciona.api.addons`.
+- Addons may call reducer emission through `sciona.api.addons`. Prompt compilation is provided
+  by the prompts addon.
 - `sciona.api.addons` exports plugin API version constants (`PLUGIN_API_VERSION`,
   `PLUGIN_API_MAJOR`, `PLUGIN_API_MINOR`).
 - Addons may declare `REQUIRES_SCIONA_PLUGIN_API` (e.g., `">=1,<2"`); incompatible
@@ -310,10 +292,10 @@ never for module identifiers.
 
 Public config/runtime surfaces:
 - `runtime.config`: typed config loading (`load_sciona_config`, `load_runtime_config`,
-  `load_language_settings`, `load_llm_settings`, `load_logging_settings`)
+  `load_language_settings`, `load_logging_settings`)
 - `runtime.config.io`: config file read/write helpers used by init workflows
 - `runtime.paths`: repository and state paths (`get_repo_root`, `get_sciona_dir`,
   `get_db_path`, `get_artifact_db_path`, `get_config_path`, ...)
 
-All user-configurable core settings live in `.sciona/config.yaml`. LLM settings are
-top-level (`llm:`).
+All user-configurable core settings live in `.sciona/config.yaml`. Prompt addon
+settings (including LLM config) live under `.sciona/prompts/`.

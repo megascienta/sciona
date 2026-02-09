@@ -1,10 +1,9 @@
 # SCIONA Reducers
 
-This document lists reducers available to prompt developers. Every reducer is
-registered, deterministic (strict or conditional), and must expose exactly one
-placeholder for prompt compilation.
-This list is exhaustive but not normative; reducer availability does not imply
-suitability for any specific prompt.
+This document lists reducers available to addon developers (including prompt tooling).
+Every reducer is registered, deterministic (strict or conditional), and must expose
+exactly one placeholder for prompt compilation. This list is exhaustive but not
+normative; reducer availability does not imply suitability for any specific prompt.
 
 Snapshot policy:
 - Reducers operate on the **latest committed snapshot only**.
@@ -92,7 +91,7 @@ Payload field naming:
 
 ---
 
-## Summary reducers (lossy, prompt-oriented)
+## Summary reducers (lossy, LLM-oriented)
 
 | reducer_id | scope | placeholder | determinism | lossy | baseline_only | composite | summary |
 | --- | --- | --- | --- | --- | --- | --- | --- |

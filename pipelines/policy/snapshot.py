@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Prompt policy helpers."""
+"""Snapshot policy helpers."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ from ...data_storage.core_db import read_ops as core_read
 from ...runtime.paths import get_db_path
 
 
-def ensure_prompt_preconditions(repo_root: Optional[Path] = None) -> Path:
+def ensure_repo_preconditions(repo_root: Optional[Path] = None) -> Path:
     repo_state = repo_policy.resolve_repo_state(repo_root, allow_missing_config=True)
     repo_policy.ensure_initialized(repo_state)
     return repo_state.repo_root
@@ -53,3 +53,10 @@ def latest_committed_snapshot_id(repo_root: Optional[Path] = None) -> str:
             code="missing_snapshot",
         )
     return snapshot_id
+
+
+__all__ = [
+    "ensure_repo_preconditions",
+    "resolve_latest_snapshot",
+    "latest_committed_snapshot_id",
+]

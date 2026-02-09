@@ -13,7 +13,7 @@ SCIONA is a deterministic structural indexing tool. It records what exists in
 code (nodes), how entities relate (edges), and which snapshot the facts came
 from. It does not interpret intent or behavior.
 
-Derived tooling (prompts) may consume the index but must not feed data back into
+Derived tooling (addons) may consume the index but must not feed data back into
 it.
 
 ---
@@ -58,7 +58,6 @@ Artifacts are rebuilt for the **latest committed snapshot** and are not part of 
 
 ### runtime
 - Paths, config parsing, logging, and errors (`runtime/*`)
-- LLM adapter + providers (`runtime/llm/*`)
 - Git backend (`runtime/git.py`)
 - Infrastructure only (no pipeline policy/domain models, no reducer assembly, no persistence/domain logic)
 
@@ -89,12 +88,10 @@ Artifacts are rebuilt for the **latest committed snapshot** and are not part of 
 - Domain models (`pipelines.domain`)
 - Orchestration (`pipelines.exec`)
 - Build + artifact refresh
-- Prompt compilation + prompt answering (LLM optional)
 - Owns reducer execution context (opens DB connections and passes read handles to reducers)
 
-### reducers / prompts
+### reducers
 - Deterministic payload formatting over SCI/Artifact data
-- Prompt compilation using reducer outputs
 - No mutation or persistence
 - No path discovery or connection ownership (read handles are supplied by pipelines)
 - Reducer payload emission is centralized in `pipelines.reducers.emit`.
@@ -105,20 +102,20 @@ Artifacts are rebuilt for the **latest committed snapshot** and are not part of 
   - `baseline/` (control/baseline reducers)
   - `helpers/` (shared utilities; not reducers)
 - Reducer catalog lives in `REDUCERS.md`
-- Identifier resolution for prompts/reducers is centralized in `pipelines/resolve.py` and returns best-fit candidates on ambiguity/missing matches.
+- Identifier resolution for reducers is centralized in `pipelines/resolve.py` and returns best-fit candidates on ambiguity/missing matches.
 
 ### addons
 - Addon/plugin contracts live in `CONTRACTS.md` ("Addon plugin contract")
 - Addons are plugins discovered by the `sciona.addons` entry-point group.
 - Core only auto-attaches addon CLI subcommands via `runtime/addon_api.py`.
-- Addons may consume core reducer emission and prompt compilation through the
-  addon-facing public API (`sciona.api.addons`).
+- Addons may consume core reducer emission through the addon-facing public API
+  (`sciona.api.addons`). Prompt tooling lives in the prompts addon.
 - Addons must not register reducers or prompts into core.
 
 ### Interfaces
 - Thin adapters over pipelines
 - Core CLI exposes core pipeline surfaces only.
-- Prompt/reducer registries are frozen during startup
+- Reducer registry is frozen during startup
 - Resolver/search surfaces provide identifier resolution and ranked symbol lookup (read-only).
 - CLI exposes `resolve` (exact/ambiguous) and `search` (ranked candidates) as separate read-only surfaces.
 

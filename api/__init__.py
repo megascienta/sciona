@@ -5,12 +5,11 @@
 
 from __future__ import annotations
 
-from . import addons, errors, prompts, reducers, repo, resolve, runtime, user
+from . import addons, errors, reducers, repo, resolve, runtime, user
 
 __all__ = [
     "user",
     "addons",
-    "prompts",
     "reducers",
     "repo",
     "resolve",

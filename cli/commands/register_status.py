@@ -66,15 +66,6 @@ def register_status(app: typer.Typer) -> None:
         """Remove the SCIONA state directory for the current repository."""
         repo_root = cli_call(api_runtime.get_repo_root)
         sciona_dir = api_runtime.get_sciona_dir(repo_root)
-        custom_prompts = cli_call(api_repo.custom_prompts, repo_root)
-        if custom_prompts:
-            message = (
-                "Custom prompts are registered in .sciona/prompts/registry.yaml: "
-                + ", ".join(custom_prompts)
-                + ". Clean canceled."
-            )
-            cli_render.emit_warning([message])
-            raise typer.Exit(code=0)
         removed = cli_call(api_repo.clean, repo_root)
         if not removed:
             typer.secho(

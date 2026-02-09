@@ -56,7 +56,7 @@ Safety + determinism:
 - Untracked files do not block builds.
 - Read-only commands may proceed on a dirty worktree but warn that outputs reflect
   the latest committed snapshot.
-- Dirty worktrees may include a best-effort `_diff` overlay in reducer/prompt payloads.
+- Dirty worktrees may include a best-effort `_diff` overlay in reducer payloads.
 
 See `USERGUIDE.md` for full expectations and limitations.
 
@@ -99,12 +99,12 @@ sciona build
 sciona status
 ```
 
-Prompts:
+Prompts (addon):
 ```bash
-sciona prompt list
-sciona prompt run module_impact_v1 --module-id pkg.alpha
-sciona prompt run callable_impact_v1 --callable-id pkg.alpha.service.helper
-sciona prompt run callable_impact_v1 --callable-id pkg.alpha.service.helper --answer
+sciona prompts list
+sciona prompts run module_impact_v1 --module-id pkg.alpha
+sciona prompts run callable_impact_v1 --callable-id pkg.alpha.service.helper
+sciona prompts run callable_impact_v1 --callable-id pkg.alpha.service.helper --answer
 ```
 
 Reducers:
@@ -124,8 +124,7 @@ Clean:
 sciona clean
 ```
 Notes:
-- `sciona clean` cancels if custom prompts are registered in `.sciona/prompts/registry.yaml`.
-  Remove or reset custom entries first.
+- `sciona clean` removes `.sciona` entirely (including any addon state).
 
 Hooks (optional):
 ```bash
@@ -146,16 +145,8 @@ sciona init --post-commit-hook-command "sciona build"
 
 SCIONA works without any LLM. Prompt workflows are optional.
 
-LLM settings live in `.sciona/config.yaml`:
-
-```yaml
-llm:
-  provider: "openai"
-  model: "gpt-4.1"
-  api_key: null
-  api_endpoint: null
-  temperature: 0.0
-```
-
-Prompt templates and the registry live in `.sciona/prompts`.
+Prompt templates are provided by the prompts addon (`sciona-addons/prompts`).
+Install the prompts addon to enable `sciona prompts ...`.
+Custom prompt overrides live in `.sciona/prompts`.
+LLM settings for prompts live in `.sciona/prompts/config.yaml` (see addon docs).
 Use `DEVELOPER.md` for implementation details.

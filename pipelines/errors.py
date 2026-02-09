@@ -9,7 +9,6 @@ from ..runtime.errors import (
     ConfigError,
     EnvError,
     GitError,
-    LLMError,
     ScionaError,
     SetupError,
     WorkflowError,
@@ -21,6 +20,5 @@ __all__ = [
     "EnvError",
     "SetupError",
     "WorkflowError",
-    "LLMError",
     "GitError",
 ]

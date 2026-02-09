@@ -11,7 +11,6 @@ from typing import Optional
 from .domain.repository import RepoState
 from .domain.policies import BuildPolicy
 from ..runtime.logging import get_logger
-from .prompts import custom_prompt_names, ensure_prompts_initialized
 from .hooks import (
     HookStatus,
     install_post_commit_hook,
@@ -101,11 +100,6 @@ def clean(repo_root: Optional[Path] = None) -> bool:
     return exec_clean(repo_state)
 
 
-def custom_prompts(repo_root: Optional[Path] = None) -> list[str]:
-    repo_state = policy_repo.resolve_repo_state(repo_root, allow_missing_config=True)
-    return custom_prompt_names(repo_state.repo_root)
-
-
 def install_commit_hook(
     command: str,
     repo_root: Optional[Path] = None,
@@ -137,5 +131,4 @@ def dirty_worktree_warning(repo_root: Optional[Path] = None) -> str | None:
 def _run_build(repo_state: RepoState, policy: BuildPolicy) -> BuildResult:
     policy_repo.ensure_initialized(repo_state)
     policy_repo.ensure_repo_has_commits(repo_state)
-    ensure_prompts_initialized(repo_state.repo_root)
     return exec_build(repo_state, policy)

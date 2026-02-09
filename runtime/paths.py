@@ -9,14 +9,14 @@ from pathlib import Path
 import re
 
 from . import constants
-from . import git as git_ops
-from .git.exec import validate_repo_root as validate_git_repo_root
 from .errors import EnvError
 
 
 def get_repo_root() -> Path:
     """Return the path to the git repository root for the current working dir."""
     try:
+        from . import git as git_ops
+
         return git_ops.get_repo_root()
     except git_ops.GitError as exc:
         raise EnvError("SCIONA must be run inside a git repository.") from exc
@@ -25,6 +25,8 @@ def get_repo_root() -> Path:
 def ensure_repo_has_commits(repo_root: Path) -> None:
     """Ensure the repository has at least one commit."""
     try:
+        from . import git as git_ops
+
         git_ops.ensure_repo_has_commits(repo_root)
     except git_ops.GitError as exc:
         raise EnvError(str(exc)) from exc
@@ -33,6 +35,8 @@ def ensure_repo_has_commits(repo_root: Path) -> None:
 def ensure_clean_worktree(repo_root: Path) -> None:
     """Abort if the working tree contains uncommitted changes."""
     try:
+        from . import git as git_ops
+
         git_ops.ensure_clean_worktree(repo_root)
     except git_ops.GitError as exc:
         raise EnvError(str(exc)) from exc
@@ -41,6 +45,8 @@ def ensure_clean_worktree(repo_root: Path) -> None:
 def is_worktree_dirty(repo_root: Path) -> bool:
     """Return True when the git working tree has uncommitted changes."""
     try:
+        from . import git as git_ops
+
         return git_ops.is_worktree_dirty(repo_root)
     except git_ops.GitError as exc:
         raise EnvError(str(exc)) from exc
@@ -62,16 +68,11 @@ def get_config_path(repo_root: Path) -> Path:
     return get_sciona_dir(repo_root) / constants.CONFIG_FILENAME
 
 
-def get_prompts_dir(repo_root: Path) -> Path:
-    return get_sciona_dir(repo_root) / constants.PROMPTS_DIRNAME
-
-
-def get_prompts_registry_path(repo_root: Path) -> Path:
-    return get_prompts_dir(repo_root) / constants.PROMPTS_REGISTRY_FILENAME
-
-
 def validate_repo_root(repo_root: Path) -> Path:
     try:
+        from . import git as git_ops
+        from .git.exec import validate_repo_root as validate_git_repo_root
+
         resolved = validate_git_repo_root(repo_root)
     except git_ops.GitError as exc:
         raise EnvError(str(exc)) from exc

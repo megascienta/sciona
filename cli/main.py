@@ -12,7 +12,6 @@ import inspect
 
 from ..api import addons as addons_api
 from ..api import errors as api_errors
-from ..api import prompts as prompts_api
 from ..api import reducers as reducers_api
 from ..api import runtime as runtime_api
 from .commands import register as register_commands
@@ -101,7 +100,6 @@ def _main(
         )
     except api_errors.ScionaError:
         runtime_api.configure_logging()
-    prompts_api.freeze_registry(repo_root)
     reducers_api.freeze_registry()
     if help or ctx.invoked_subcommand is None:
         typer.echo(_render_help(addon_registry))
@@ -136,7 +134,6 @@ def _render_help(addon_registry: addons_api.Registry | None) -> str:
             "  sciona build",
             "  sciona status",
             "  sciona reducer --help",
-            "  sciona prompt --help",
             "",
             "Build/status:",
             *[f"  {entry}" for entry in core_core],
@@ -147,10 +144,6 @@ def _render_help(addon_registry: addons_api.Registry | None) -> str:
             "Reducers:",
             *[f"  {entry}" for entry in core_reducers],
             "",
-            "Prompts (.sciona/prompts):",
-            "  prompt --help",
-            "  prompt list",
-            "  prompt info [--id PROMPT_ID]",
             "",
             "Addons (registry-driven; optional):",
             *[f"  {entry}" for entry in addon_commands],
@@ -164,7 +157,6 @@ def _core_commands(
     root_group: click.Group,
 ) -> list[str]:
     commands = _command_names(cli_app)
-    commands = [name for name in commands if name not in {"prompt"}]
     entries: list[str] = []
     for name in commands:
         cmd = _get_command(root_group, name)
@@ -328,13 +320,11 @@ def run() -> None:
     app()
 
 
-from .prompt import register as register_prompt  # noqa: E402
 from .reducer import register as register_reducer  # noqa: E402
 from .resolve import register as register_resolve  # noqa: E402
 from .search import register as register_search  # noqa: E402
 from .refs import register as register_refs  # noqa: E402
 
-register_prompt(app)
 register_reducer(app)
 register_resolve(app)
 register_search(app)

@@ -11,14 +11,12 @@ from typing import Dict
 
 from .models import (
     DiscoverySettings,
-    LLMSettings,
     LanguageSettings,
     LoggingSettings,
     RuntimeConfig,
     ScionaConfig,
 )
 from .parse import (
-    load_llm_settings as _load_llm_settings,
     load_logging_settings as _load_logging_settings,
     load_runtime_config as _load_runtime_config,
 )
@@ -28,14 +26,8 @@ from .parse import (
 def load_sciona_config(repo_root: Path) -> ScionaConfig:
     return ScionaConfig(
         runtime=_load_runtime_config(repo_root),
-        llm=_load_llm_settings(repo_root),
         logging=_load_logging_settings(repo_root),
     )
-
-
-@lru_cache(maxsize=4)
-def _cached_llm_settings(repo_root: Path) -> LLMSettings:
-    return _load_llm_settings(repo_root)
 
 
 @lru_cache(maxsize=4)
@@ -45,10 +37,6 @@ def _cached_logging_settings(repo_root: Path) -> LoggingSettings:
 
 def load_runtime_config(repo_root: Path) -> RuntimeConfig:
     return load_sciona_config(repo_root).runtime
-
-
-def load_llm_settings(repo_root: Path) -> LLMSettings:
-    return _cached_llm_settings(repo_root)
 
 
 def load_logging_settings(
@@ -68,7 +56,6 @@ def load_discovery_settings(repo_root: Path) -> DiscoverySettings:
 
 
 __all__ = [
-    "load_llm_settings",
     "load_discovery_settings",
     "load_language_settings",
     "load_logging_settings",

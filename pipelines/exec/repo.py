@@ -18,7 +18,6 @@ from ..domain.repository import RepoState
 _LOGGER = get_logger("pipelines.exec.repo")
 from ...data_storage.connections import core
 from ...data_storage.core_db import read_ops as core_read
-from ..prompts import ensure_prompts_initialized
 from .. import setup as versioning
 from ..errors import ConfigError
 
@@ -45,7 +44,6 @@ def init_repo(repo_state: RepoState) -> Path:
         )
     versioning.write_version_file(sciona_dir)
     write_default_config(repo_state.repo_root)
-    ensure_prompts_initialized(repo_state.repo_root)
     return sciona_dir
 
 
