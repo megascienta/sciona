@@ -24,43 +24,11 @@ dependencies = [
 sciona = "sciona.cli.main:run"
 
 [tool.setuptools]
-packages = [
-    "sciona",
-    "sciona.api",
-    "sciona.cli",
-    "sciona.cli.commands",
-    "sciona.code_analysis",
-    "sciona.code_analysis.analysis",
-    "sciona.code_analysis.analysis.graph",
-    "sciona.code_analysis.artifacts",
-    "sciona.code_analysis.core",
-    "sciona.code_analysis.core.annotate",
-    "sciona.code_analysis.core.extract",
-    "sciona.code_analysis.core.extract.languages",
-    "sciona.code_analysis.core.normalize",
-    "sciona.code_analysis.tools",
-    "sciona.data_storage",
-    "sciona.data_storage.artifact_db",
-    "sciona.data_storage.core_db",
-    "sciona.pipelines",
-    "sciona.pipelines.config",
-    "sciona.pipelines.diff_overlay",
-    "sciona.pipelines.domain",
-    "sciona.pipelines.exec",
-    "sciona.pipelines.policy",
-    "sciona.reducers",
-    "sciona.reducers.baseline",
-    "sciona.reducers.helpers",
-    "sciona.reducers.structural",
-    "sciona.reducers.summaries",
-    "sciona.runtime",
-    "sciona.runtime.config",
-    "sciona.runtime.git",
-    "sciona.runtime.templates",
-]
+package-dir = { "" = "src" }
 
-[tool.setuptools.package-dir]
-sciona = "."
+[tool.setuptools.packages.find]
+where = ["src"]
+exclude = ["tests*"]
 
 [tool.setuptools.package-data]
 sciona = [
@@ -69,4 +37,4 @@ sciona = [
 
 [tool.pytest.ini_options]
 cache_dir = "/tmp/sciona-pytest-cache"
-pythonpath = ["."]
+pythonpath = ["src"]
