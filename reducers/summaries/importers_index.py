@@ -13,6 +13,7 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="importers_index",
+    category="dependencies",
     scope="codebase",
     placeholders=("IMPORTERS_INDEX",),
     determinism="strict",

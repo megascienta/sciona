@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
+from typing import Mapping, Optional
 
 from .domain.repository import RepoState
 from .domain.policies import BuildPolicy
@@ -48,12 +48,21 @@ def init(repo_root: Optional[Path] = None) -> Path:
     return exec_init(repo_state)
 
 
-def init_agents(repo_root: Optional[Path], *, mode: str = "append") -> Path:
+def init_agents(
+    repo_root: Optional[Path],
+    *,
+    mode: str = "append",
+    commands: Mapping[str, str] | None = None,
+) -> Path:
+    """Generate/update the managed AGENTS.md block.
+
+    commands: optional CLI command map for template placeholders.
+    """
     repo_state = policy_repo.resolve_repo_state(repo_root, allow_missing_config=True)
     policy_repo.ensure_repo_has_commits(repo_state)
     reducers = get_reducers()
     return agents_runtime.upsert_agents_file(
-        repo_state.repo_root, mode=mode, reducers=reducers
+        repo_state.repo_root, mode=mode, reducers=reducers, commands=commands
     )
 
 

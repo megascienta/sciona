@@ -13,6 +13,7 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="module_file_map",
+    category="navigation",
     scope="codebase",
     placeholders=("MODULE_FILE_MAP",),
     determinism="strict",

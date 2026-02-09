@@ -18,6 +18,16 @@ from .metadata import ReducerMeta
 _VALID_SCOPES = {"function", "class", "module", "codebase"}
 _VALID_DETERMINISM = {"strict", "conditional"}
 _VALID_TAGS = {"summary", "evidence", "context", "dependency"}
+_VALID_CATEGORIES = {
+    "orientation",
+    "structure",
+    "dependencies",
+    "calls",
+    "references",
+    "navigation",
+    "code_text",
+    "summaries",
+}
 
 _FROZEN = False
 
@@ -25,6 +35,7 @@ _FROZEN = False
 @dataclass(frozen=True)
 class ReducerEntry:
     reducer_id: str
+    category: str
     scope: str
     placeholders: tuple[str, ...]
     determinism: str
@@ -60,6 +71,10 @@ def _iter_reducer_modules() -> Iterator[ModuleType]:
 
 
 def _validate_meta(meta: ReducerMeta, module_name: str) -> None:
+    if meta.category not in _VALID_CATEGORIES:
+        raise ValueError(
+            f"Reducer '{module_name}' has invalid category '{meta.category}'."
+        )
     if meta.scope not in _VALID_SCOPES:
         raise ValueError(f"Reducer '{module_name}' has invalid scope '{meta.scope}'.")
     if meta.determinism not in _VALID_DETERMINISM:
@@ -88,6 +103,7 @@ def _build_registry() -> dict[str, ReducerEntry]:
             raise ValueError(f"Duplicate reducer id '{reducer_id}'.")
         entries[reducer_id] = ReducerEntry(
             reducer_id=reducer_id,
+            category=meta.category,
             scope=meta.scope,
             placeholders=meta.placeholders,
             determinism=meta.determinism,
@@ -174,6 +190,7 @@ def register_addon_reducers(modules: Iterable[ModuleType]) -> None:
             raise ValueError(f"Duplicate reducer id '{reducer_id}'.")
         target_registry[reducer_id] = ReducerEntry(
             reducer_id=reducer_id,
+            category=meta.category,
             scope=meta.scope,
             placeholders=meta.placeholders,
             determinism=meta.determinism,

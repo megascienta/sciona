@@ -16,6 +16,7 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="class_call_graph",
+    category="calls",
     scope="class",
     placeholders=("CLASS_CALL_GRAPH",),
     determinism="strict",

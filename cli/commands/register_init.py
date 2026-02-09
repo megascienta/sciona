@@ -14,7 +14,7 @@ import typer
 from ...api import errors as api_errors
 from ...api import repo as api_repo
 from ...api import runtime as api_runtime
-from ..utils import cli_call
+from ..utils import agents_command_map, cli_call
 from .. import render as cli_render
 
 
@@ -168,7 +168,9 @@ def _maybe_init_agents(
                     "Unknown choice; skipping AGENTS.md update.", fg=typer.colors.YELLOW
                 )
                 return
-        path = cli_call(api_repo.init_agents, repo_root, mode=mode)
+        path = cli_call(
+            api_repo.init_agents, repo_root, mode=mode, commands=agents_command_map()
+        )
         typer.echo(f"Updated {path}")
         return
     if agents:
@@ -177,7 +179,12 @@ def _maybe_init_agents(
                 "Choose only one of --agents-append or --agents-overwrite."
             )
         mode = "overwrite" if agents_overwrite else "append"
-        path = cli_call(api_repo.init_agents, api_runtime.get_repo_root(), mode=mode)
+        path = cli_call(
+            api_repo.init_agents,
+            api_runtime.get_repo_root(),
+            mode=mode,
+            commands=agents_command_map(),
+        )
         typer.echo(f"Updated {path}")
 
 

@@ -12,6 +12,7 @@ from typing import Mapping, Tuple
 @dataclass(frozen=True)
 class ReducerMeta:
     reducer_id: str
+    category: str
     scope: str
     placeholders: Tuple[str, ...]
     determinism: str

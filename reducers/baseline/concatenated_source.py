@@ -16,6 +16,7 @@ from ..helpers.utils import require_latest_committed_snapshot
 
 REDUCER_META = ReducerMeta(
     reducer_id="concatenated_source",
+    category="code_text",
     scope="codebase",
     placeholders=("CONCATENATED_SOURCE",),
     determinism="conditional",

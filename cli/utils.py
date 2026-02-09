@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 import re
 import traceback
+from typing import Mapping
 
 import typer
 
@@ -110,6 +111,40 @@ def get_dirty_worktree_warning(repo_root=None) -> str | None:
         return api_repo.dirty_worktree_warning(repo_root)
     except Exception:
         return None
+
+
+def agents_command_map() -> Mapping[str, str]:
+    try:
+        from . import main as cli_main
+    except Exception:
+        return {}
+    try:
+        root_group = cli_main._get_click_group(cli_main.app)
+        reducer_cmds = cli_main._group_commands(
+            cli_main.app, "reducer", root_group, include_root_options=False
+        )
+        core_cmds = cli_main._core_commands(cli_main.app, root_group)
+    except Exception:
+        return {}
+
+    def _pick(prefix: str, entries: list[str]) -> str | None:
+        for entry in entries:
+            if entry.startswith(prefix):
+                return entry
+        return None
+
+    list_cmd = _pick("reducer list", reducer_cmds) or "reducer list"
+    info_cmd = _pick("reducer info", reducer_cmds) or "reducer info --id <reducer_id>"
+    build_cmd = _pick("build", core_cmds) or "build"
+    search_cmd = _pick("search", core_cmds) or "search"
+    resolve_cmd = _pick("resolve", core_cmds) or "resolve"
+    return {
+        "reducer_list": f"sciona {list_cmd}",
+        "reducer_info": f"sciona {info_cmd}",
+        "build": f"sciona {build_cmd}",
+        "search": f"sciona {search_cmd}",
+        "resolve": f"sciona {resolve_cmd}",
+    }
 
 
 def _validate_extra_arg(key: str, value: str) -> None:

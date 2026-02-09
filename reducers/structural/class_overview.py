@@ -23,6 +23,7 @@ from ..helpers.utils import require_latest_committed_snapshot
 
 REDUCER_META = ReducerMeta(
     reducer_id="class_overview",
+    category="structure",
     scope="class",
     placeholders=("CLASS_OVERVIEW",),
     determinism="strict",

@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, Mapping
 
 import inspect
 
@@ -27,18 +27,43 @@ _LANGUAGE_EXTENSIONS = {
 }
 
 
-def build_agents_block(repo_root: Path, reducers) -> str:
+def build_agents_block(
+    repo_root: Path,
+    reducers,
+    *,
+    commands: Mapping[str, str] | None = None,
+) -> str:
     template = _load_template()
+    commands = _merge_commands(commands)
     content = template.format(
         COMMON_TASKS=_render_common_tasks(reducers),
+        CMD_REDUCER_LIST=commands.get("reducer_list", "sciona reducer list"),
+        CMD_REDUCER_INFO=commands.get(
+            "reducer_info", "sciona reducer info --id <reducer_id>"
+        ),
+        CMD_BUILD=commands.get("build", "sciona build"),
+        CMD_SEARCH=commands.get(
+            "search",
+            "sciona search <query> --kind module|class|function|method|callable --limit 10",
+        ),
+        CMD_RESOLVE=commands.get(
+            "resolve",
+            "sciona resolve <identifier> --kind module|class|function|method|callable",
+        ),
         TRACKED_FILE_SCOPE=_render_tracked_file_scope(repo_root),
     )
     return "\n".join([BEGIN_MARKER, content.strip(), END_MARKER]).rstrip() + "\n"
 
 
-def upsert_agents_file(repo_root: Path, *, mode: str = "append", reducers) -> Path:
+def upsert_agents_file(
+    repo_root: Path,
+    *,
+    mode: str = "append",
+    reducers,
+    commands: Mapping[str, str] | None = None,
+) -> Path:
     target = Path(repo_root) / AGENTS_FILENAME
-    block = build_agents_block(repo_root, reducers)
+    block = build_agents_block(repo_root, reducers, commands=commands)
     if mode not in {"append", "overwrite"}:
         raise ValueError("mode must be 'append' or 'overwrite'.")
     if mode == "overwrite" or not target.exists():
@@ -149,7 +174,23 @@ def _render_tracked_file_scope(repo_root: Path) -> str:
 
 def _render_common_tasks(reducers) -> str:
     lines: list[str] = []
-    for title, reducer_ids in _COMMON_TASK_SECTIONS:
+    categories: dict[str, list[str]] = {}
+    for reducer_id in sorted(reducers.keys()):
+        entry = reducers.get(reducer_id)
+        if entry is None:
+            continue
+        categories.setdefault(entry.category, []).append(reducer_id)
+
+    ordered_categories = []
+    for category in _CATEGORY_ORDER:
+        if category in categories:
+            ordered_categories.append(category)
+    for category in sorted(set(categories.keys()) - set(_CATEGORY_ORDER)):
+        ordered_categories.append(category)
+
+    for category in ordered_categories:
+        reducer_ids = categories.get(category, [])
+        title = _CATEGORY_TITLES.get(category, category.replace("_", " ").title())
         commands = _commands_for_reducers(reducer_ids, reducers)
         if not commands:
             continue
@@ -168,6 +209,13 @@ def _commands_for_reducers(reducer_ids: Iterable[str], reducers) -> list[str]:
             continue
         commands.append(_format_reducer_command(reducer_id, entry.module))
     return commands
+
+
+def _merge_commands(commands: Mapping[str, str] | None) -> dict[str, str]:
+    merged = dict(_DEFAULT_COMMANDS)
+    if commands:
+        merged.update(commands)
+    return merged
 
 
 def _format_reducer_command(reducer_id: str, reducer_module) -> str:
@@ -199,21 +247,35 @@ def _format_reducer_command(reducer_id: str, reducer_module) -> str:
     return f"sciona reducer --id {reducer_id}"
 
 
-_COMMON_TASK_SECTIONS = [
-    ("Orientation", ["structural_index"]),
-    (
-        "Structure (module/class/callable)",
-        ["module_overview", "class_overview", "callable_overview"],
-    ),
-    ("Dependencies / imports", ["dependency_edges", "importers_index"]),
-    ("Calls / call graph", ["call_graph", "callsite_index"]),
-    ("References / usages", ["symbol_references"]),
-    (
-        "File navigation (codebase-scoped; filters supported)",
-        ["module_file_map", "file_outline"],
-    ),
-    ("Code text (last resort)", ["callable_source", "concatenated_source"]),
+_CATEGORY_TITLES = {
+    "orientation": "Orientation",
+    "structure": "Structure (module/class/callable)",
+    "dependencies": "Dependencies / imports",
+    "calls": "Calls / call graph",
+    "references": "References / usages",
+    "navigation": "File navigation (codebase-scoped; filters supported)",
+    "code_text": "Code text (last resort)",
+    "summaries": "Summaries",
+}
+
+_CATEGORY_ORDER = [
+    "orientation",
+    "structure",
+    "dependencies",
+    "calls",
+    "references",
+    "navigation",
+    "code_text",
+    "summaries",
 ]
+
+_DEFAULT_COMMANDS = {
+    "reducer_list": "sciona reducer list",
+    "reducer_info": "sciona reducer info --id <reducer_id>",
+    "build": "sciona build",
+    "search": "sciona search <query> --kind module|class|function|method|callable --limit 10",
+    "resolve": "sciona resolve <identifier> --kind module|class|function|method|callable",
+}
 
 
 __all__ = [

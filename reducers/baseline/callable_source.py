@@ -18,6 +18,7 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="callable_source",
+    category="code_text",
     scope="function",
     placeholders=("CALLABLE_SOURCE",),
     determinism="conditional",

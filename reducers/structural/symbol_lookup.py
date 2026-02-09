@@ -15,6 +15,7 @@ _NODE_TYPES = {"module", "class", "function", "method"}
 
 REDUCER_META = ReducerMeta(
     reducer_id="symbol_lookup",
+    category="references",
     scope="codebase",
     placeholders=("SYMBOL_LOOKUP",),
     determinism="strict",
