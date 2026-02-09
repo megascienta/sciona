@@ -16,9 +16,10 @@ tooling changes and MUST always be followed.
 ### Authority model
 - SCIONA reducers produce authoritative structural evidence for the codebase.
 - Reducer outputs reflect the **last committed snapshot**.
-- SCIONA is read-only with respect to the target repo; only `sciona build` may
-  write under `.sciona/`. Any other repo mutations (e.g., `AGENTS.md`, git hooks)
-  require explicit user instruction and are outside the default pipeline.
+- SCIONA is read-only with respect to the target repo during normal operation.
+  Repo-root mutations are limited to explicit, opt-in setup steps (e.g.,
+  `sciona init` creating/populating `.sciona/` and optional post-commit hook
+  installation). Outside setup, only `sciona build` may write under `.sciona/`.
 - Reducers must not expose timestamps, UUIDs, or other wall-clock metadata.
 
 ### SCIONA-first principle

@@ -54,7 +54,7 @@ See each module’s `__all__` for the canonical list.
 Notes:
 - Registry mutation helpers (`freeze_registry`, `mutable_registry`) are intentionally
   not part of the public API surface.
-- Addons can enumerate core reducers via `sciona.api.addons.list_entries` (see `REDUCERS.md` for the canonical list).
+- Addons can enumerate core reducers via `sciona.api.addons.list_entries`.
 - Addons may open CoreDB/ArtifactDB in **read-only** mode via `sciona.api.storage` or `sciona.api.addons` helpers.
 - Prompt tooling is provided by `sciona.addons.prompts` and is not part of core.
 - Core does not auto-load addons. Addons are separate products that consume
@@ -199,7 +199,7 @@ Rules:
 - Source files may be read only to enrich already-known nodes (signatures, parameters, decorators, doc spans).
 - Reducers must never discover new nodes, infer new relationships, or perform semantic analysis.
 - Reducers must declare metadata with exactly one placeholder (used by prompt tooling).
-- The canonical reducer inventory for prompt addon authors is documented in `REDUCERS.md`.
+- The reducer inventory for prompt addon authors is documented below.
 
 Graph traversal surfaces must use the artifact graph (`graph_nodes`/`graph_edges`).
 Core structural edges are not used for traversal in public surfaces.
@@ -211,34 +211,35 @@ Reducer categories are semantic only and live under:
 - `reducers/baseline` (control/baseline surfaces)
 - `reducers/helpers` (shared utilities, not reducers)
 
-### Public reducer tiers (frozen)
+### Reducer inventory (all reducers, by type)
 
 Structural spine (core, required by tooling):
-- structural_index
-- module_overview
-- callable_overview
-- call_graph
-- class_overview
-- class_inheritance
+- `structural_index` — Canonical structural index payload for the codebase.
+- `module_overview` — Structural overview payload for a module.
+- `callable_overview` — Structural overview payload for a callable (function or method).
+- `call_graph` — Caller/callee call graph for a callable.
+- `class_overview` — Structural overview payload for a class.
+- `class_inheritance` — Class inheritance and interface relationships.
 
 Baseline / control (public, non-core):
-- concatenated_source
+- `callable_source` — Full source payload for a callable (function or method).
+- `concatenated_source` — JSON payload with per-file content for codebase/module/class scope.
 
 Derived / optional (public, non-core):
-- fan_summary
-- hotspot_summary
-- class_call_graph
-- module_call_graph
-- callsite_index
-- importers_index
+- `fan_summary` — Fan-in/out summary for calls and imports.
+- `hotspot_summary` — Compressed codebase hotspot summary.
+- `class_call_graph` — Class-level call graph summary.
+- `module_call_graph` — Module-level call graph summary.
+- `callsite_index` — Caller/callee edge index for a callable.
+- `importers_index` — Index of modules that import target module(s).
 
 Structural optional (public, non-core):
-- symbol_lookup
-- symbol_references
-- file_outline
-- module_file_map
-- dependency_edges
-- import_references
+- `symbol_lookup` — Ranked symbol matches for a query.
+- `symbol_references` — Relationship references (calls/imports) for symbols matching a query.
+- `file_outline` — File-level outline of modules, classes, and callables.
+- `module_file_map` — Module-to-file map with module qualified names, structural ids, file paths, and line spans.
+- `dependency_edges` — Explicit module import edges for the snapshot.
+- `import_references` — Modules that import the target module(s).
 
 Prompt tooling should prefer structural spine reducers. Baseline and derived reducers
 are allowed for experiments or addon-specific prompts.
