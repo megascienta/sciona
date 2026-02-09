@@ -52,6 +52,7 @@ def test_load_registers_all_installed(monkeypatch):
         "beta": _Entry("beta", _register_beta),
     }
     monkeypatch.setattr(addon_runtime, "_discover_installed_addons", lambda: installed)
+    monkeypatch.setattr(addon_runtime, "_addons_enabled", lambda: True)
     monkeypatch.setattr(addon_runtime, "_addons_disabled", lambda: False)
 
     registry = addon_runtime.load(Path("."))
@@ -66,6 +67,7 @@ def test_load_for_cli_matches_load(monkeypatch):
 
     installed = {"alpha": _Entry("alpha", _register)}
     monkeypatch.setattr(addon_runtime, "_discover_installed_addons", lambda: installed)
+    monkeypatch.setattr(addon_runtime, "_addons_enabled", lambda: True)
     monkeypatch.setattr(addon_runtime, "_addons_disabled", lambda: False)
 
     registry = addon_runtime.load_for_cli(Path("."))
@@ -80,6 +82,7 @@ def test_load_skips_incompatible_plugin_api_requirement(monkeypatch):
     _register.REQUIRES_SCIONA_PLUGIN_API = ">=2,<3"
     installed = {"alpha": _Entry("alpha", _register)}
     monkeypatch.setattr(addon_runtime, "_discover_installed_addons", lambda: installed)
+    monkeypatch.setattr(addon_runtime, "_addons_enabled", lambda: True)
     monkeypatch.setattr(addon_runtime, "_addons_disabled", lambda: False)
 
     registry = addon_runtime.load(Path("."))

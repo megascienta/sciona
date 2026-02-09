@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from . import addons, errors, reducers, repo, resolve, runtime, user
+from . import addons, errors, reducers, repo, resolve, runtime, storage, user
 
 __all__ = [
     "user",
@@ -14,5 +14,6 @@ __all__ = [
     "repo",
     "resolve",
     "runtime",
+    "storage",
     "errors",
 ]

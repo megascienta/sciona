@@ -15,6 +15,7 @@ def test_public_api_root_exposes_namespaces_only():
         "repo",
         "resolve",
         "runtime",
+        "storage",
         "errors",
     ]
     for name in api.__all__:
@@ -54,6 +55,10 @@ def test_public_addon_api_surface_is_explicit_and_stable():
         "load_for_cli",
         "emit",
         "list_entries",
+        "open_core_readonly",
+        "open_artifact_readonly",
+        "core_readonly",
+        "artifact_readonly",
     ]
     assert api.addons.__all__ == expected
     assert len(api.addons.__all__) == len(set(api.addons.__all__))

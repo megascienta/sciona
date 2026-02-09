@@ -38,15 +38,23 @@ def _resolve_db_timeout(repo_root: Path | None) -> float:
 
 
 def _base_connect(
-    db_path: Path, *, repo_root: Path | None = None
+    db_path: Path,
+    *,
+    repo_root: Path | None = None,
+    read_only: bool = False,
 ) -> sqlite3.Connection:
     timeout = _resolve_db_timeout(repo_root)
-    db_path.parent.mkdir(parents=True, exist_ok=True)
-    uri = f"file:{db_path.as_posix()}?mode=rwc"
+    if not read_only:
+        db_path.parent.mkdir(parents=True, exist_ok=True)
+    mode = "ro" if read_only else "rwc"
+    uri = f"file:{db_path.as_posix()}?mode={mode}"
     conn = sqlite3.connect(uri, uri=True, timeout=timeout)
     conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA journal_mode=WAL")
+    if not read_only:
+        conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA foreign_keys=ON")
+    if read_only:
+        conn.execute("PRAGMA query_only=ON")
     return conn
 
 
@@ -56,12 +64,24 @@ def connect_core(db_path: Path, *, repo_root: Path | None = None) -> sqlite3.Con
     return conn
 
 
+def connect_core_readonly(
+    db_path: Path, *, repo_root: Path | None = None
+) -> sqlite3.Connection:
+    return _base_connect(db_path, repo_root=repo_root, read_only=True)
+
+
 def connect_artifact(
     db_path: Path, *, repo_root: Path | None = None
 ) -> sqlite3.Connection:
     conn = _base_connect(db_path, repo_root=repo_root)
     artifact_schema.ensure_schema(conn)
     return conn
+
+
+def connect_artifact_readonly(
+    db_path: Path, *, repo_root: Path | None = None
+) -> sqlite3.Connection:
+    return _base_connect(db_path, repo_root=repo_root, read_only=True)
 
 
 class ConnectionPool:
@@ -111,6 +131,8 @@ class ConnectionPool:
 
 _core_pool = ConnectionPool(connect_core, max_connections=20)
 _artifact_pool = ConnectionPool(connect_artifact, max_connections=10)
+_core_ro_pool = ConnectionPool(connect_core_readonly, max_connections=20)
+_artifact_ro_pool = ConnectionPool(connect_artifact_readonly, max_connections=10)
 
 
 @contextmanager
@@ -124,10 +146,30 @@ def core(
 
 
 @contextmanager
+def core_readonly(
+    db_path: Path,
+    *,
+    repo_root: Path | None = None,
+) -> Iterator[sqlite3.Connection]:
+    with _core_ro_pool.acquire(db_path, repo_root=repo_root) as conn:
+        yield conn
+
+
+@contextmanager
 def artifact(
     db_path: Path,
     *,
     repo_root: Path | None = None,
 ) -> Iterator[sqlite3.Connection]:
     with _artifact_pool.acquire(db_path, repo_root=repo_root) as conn:
+        yield conn
+
+
+@contextmanager
+def artifact_readonly(
+    db_path: Path,
+    *,
+    repo_root: Path | None = None,
+) -> Iterator[sqlite3.Connection]:
+    with _artifact_ro_pool.acquire(db_path, repo_root=repo_root) as conn:
         yield conn

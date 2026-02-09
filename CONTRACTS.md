@@ -38,6 +38,7 @@ is `sciona.api.user`; other namespaces are advanced surfaces used by tooling.
 - `sciona.api.repo` for repo lifecycle (init/build/status/clean) helpers
 - `sciona.api.resolve` for identifier resolution helpers
 - `sciona.api.runtime` for runtime wiring (paths, config, logging)
+- `sciona.api.storage` for read-only CoreDB/ArtifactDB access
 - `sciona.api.errors` for public error types
 
 Only symbols exported from these namespaces are considered stable and supported.
@@ -50,7 +51,10 @@ Notes:
 - Registry mutation helpers (`freeze_registry`, `mutable_registry`) are intentionally
   not part of the public API surface.
 - Addons can enumerate core reducers via `sciona.api.addons.list_entries` (see `REDUCERS.md` for the canonical list).
+- Addons may open CoreDB/ArtifactDB in **read-only** mode via `sciona.api.storage` or `sciona.api.addons` helpers.
 - Prompt tooling is provided by `sciona.addons.prompts` and is not part of core.
+- Addon auto-loading is opt-in. Core CLI only loads addon entry points when
+  `SCIONA_ENABLE_ADDONS=1` is set.
 
 ---
 

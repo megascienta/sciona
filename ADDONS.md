@@ -1,7 +1,8 @@
 # SCIONA Addons Guide
 
 This document is self-contained for addon developers. It is intended to live
-in addons repositories.
+in addons repositories. Addons consume core as a library via `sciona.api.*`
+and must treat storage as read-only.
 For user-facing expectations and the public contract, see `USERGUIDE.md` in
 the core repo.
 
@@ -9,13 +10,15 @@ the core repo.
 
 Addons can register additional CLI commands under their own namespace.
 Addons must not register reducers (core-owned for determinism and DB lifecycle
-ownership).
+ownership). Prefer reducer emission as the primary contract for reading data.
 
 ## Entry point
 
-Addons are discovered via Python entry points:
+Addons are discovered via Python entry points (opt-in):
 - Entry point group: `sciona.addons`
 - Each entry point must be a callable that accepts a `Registry`.
+Addon auto-loading is disabled by default. Core CLI only loads addons when
+`SCIONA_ENABLE_ADDONS=1` is set.
 
 Example (pyproject.toml):
 ```toml
@@ -62,6 +65,8 @@ If incompatible, the addon is skipped with a warning.
 Set environment flags to disable addon loading:
 - `SCIONA_DISABLE_ADDONS=1`
 - `SCIONA_SAFE_MODE=1`
+Enable addon loading explicitly:
+- `SCIONA_ENABLE_ADDONS=1`
 
 ## Hello addon (minimal walkthrough)
 
@@ -78,5 +83,7 @@ Set environment flags to disable addon loading:
 
 - Addons do not modify SCIONA core snapshots or reducers.
 - Addons should not rely on private/internal APIs.
+- Addons may open CoreDB/ArtifactDB in **read-only** mode via `sciona.api.storage`
+  or `sciona.api.addons` helpers.
 
 For core behavior, see `README.md` and `USERGUIDE.md` in the core repo.

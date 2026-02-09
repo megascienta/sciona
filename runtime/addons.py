@@ -19,6 +19,8 @@ _LOGGER = get_logger("runtime.addons")
 def load(repo_root=None) -> Registry:
     del repo_root
     registry = Registry()
+    if not _addons_enabled():
+        return registry
     if _addons_disabled():
         return registry
     installed = _discover_installed_addons()
@@ -72,6 +74,10 @@ def _discover_installed_addons() -> dict[str, metadata.EntryPoint]:
 
 def _addons_disabled() -> bool:
     return _env_flag("SCIONA_DISABLE_ADDONS") or _env_flag("SCIONA_SAFE_MODE")
+
+
+def _addons_enabled() -> bool:
+    return _env_flag("SCIONA_ENABLE_ADDONS")
 
 
 def _env_flag(name: str) -> bool:

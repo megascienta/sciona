@@ -13,6 +13,12 @@ from ..runtime.addon_contract import (
     PLUGIN_API_VERSION,
 )
 from ..pipelines.reducers import emit, list_entries
+from .storage import (
+    artifact_readonly,
+    core_readonly,
+    open_artifact_readonly,
+    open_core_readonly,
+)
 
 load_for_cli = addon_runtime.load_for_cli
 
@@ -24,4 +30,8 @@ __all__ = [
     "load_for_cli",
     "emit",
     "list_entries",
+    "open_core_readonly",
+    "open_artifact_readonly",
+    "core_readonly",
+    "artifact_readonly",
 ]

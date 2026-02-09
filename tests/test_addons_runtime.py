@@ -5,6 +5,7 @@ from sciona.runtime import addons as addon_runtime
 
 
 def test_load_skips_import_errors(monkeypatch):
+    monkeypatch.setattr(addon_runtime, "_addons_enabled", lambda: True)
     monkeypatch.setattr(addon_runtime, "_addons_disabled", lambda: False)
 
     def _boom(_registry):
@@ -23,6 +24,7 @@ def test_load_skips_import_errors(monkeypatch):
 
 
 def test_load_skips_register_errors(monkeypatch):
+    monkeypatch.setattr(addon_runtime, "_addons_enabled", lambda: True)
     monkeypatch.setattr(addon_runtime, "_addons_disabled", lambda: False)
 
     def _register(_registry):

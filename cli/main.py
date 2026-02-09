@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import os
 import typer
 import click
 
@@ -74,7 +75,12 @@ app = typer.Typer(
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 
-_ADDON_REGISTRY = addons_api.load_for_cli()
+_ADDON_REGISTRY = (
+    addons_api.load_for_cli()
+    if os.getenv("SCIONA_ENABLE_ADDONS", "").strip().lower()
+    in {"1", "true", "yes", "on"}
+    else None
+)
 
 
 @app.callback(invoke_without_command=True)
