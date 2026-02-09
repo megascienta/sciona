@@ -63,6 +63,9 @@ Manual CLI usage is fully supported and provides a complete interface for non-co
 
 ## Quick start (minimal)
 
+Default install: `pip install sciona` or `pip install git+https://github.com/megascienta/sciona`
+Development install: `pip install -e ".[dev]"`
+
 ```bash
 cd /path/to/repo
 sciona init

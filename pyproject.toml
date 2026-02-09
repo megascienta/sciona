@@ -1,12 +1,12 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=68", "setuptools-scm>=8", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "sciona"
-version = "1.0.0"
+dynamic = ["version"]
 description = "SCIONA semantic structural index builder"
-authors = [{ name = "SCIONA" }]
+authors = [{ name = "Dmitry Chigrin & MegaScienta" }]
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.11"
@@ -18,6 +18,15 @@ dependencies = [
     "tree_sitter>=0.20,<0.21",
     "tree_sitter_languages>=1.10",
     "networkx>=3.2,<4.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7",
+]
+docs = []
+dev = [
+    "pytest>=7",
 ]
 
 [project.scripts]
@@ -36,5 +45,13 @@ sciona = [
 ]
 
 [tool.pytest.ini_options]
-cache_dir = "/tmp/sciona-pytest-cache"
 pythonpath = ["src"]
+
+[tool.setuptools_scm]
+version_scheme = "release-branch-semver"
+local_scheme = "no-local-version"
+
+[project.urls]
+Homepage = "https://github.com/megascienta/sciona"
+Repository = "https://github.com/megascienta/sciona"
+Issues = "https://github.com/megascienta/sciona/issues"

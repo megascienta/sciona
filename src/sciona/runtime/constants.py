@@ -5,7 +5,19 @@
 
 from __future__ import annotations
 
-TOOL_VERSION = "1.0.0"
+from importlib.metadata import PackageNotFoundError, version
+
+
+def _resolve_tool_version() -> str:
+    try:
+        return version("sciona")
+    except PackageNotFoundError:
+        return "0+unknown"
+    except Exception:
+        return "0+unknown"
+
+
+TOOL_VERSION = _resolve_tool_version()
 SCHEMA_VERSION = "1.0"
 SCIONA_DIR_NAME = ".sciona"
 VERSION_FILENAME = "version.json"
