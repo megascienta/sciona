@@ -116,7 +116,7 @@ def _render_help(addon_registry: addons_api.Registry | None) -> str:
     core_core = [
         entry
         for entry in core_commands
-        if entry.split()[0] in {"init", "build", "status", "clean"}
+        if entry.split()[0] in {"init", "build", "status", "clean", "agents"}
     ]
     core_reducers = ["reducer --help"]
     core_reducers.extend(reducer_commands)
@@ -133,6 +133,7 @@ def _render_help(addon_registry: addons_api.Registry | None) -> str:
             "  sciona init",
             "  sciona build",
             "  sciona status",
+            "  sciona agents",
             "  sciona reducer --help",
             "",
             "Build/status:",
