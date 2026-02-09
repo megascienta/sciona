@@ -164,6 +164,33 @@ def delete_snapshot_tree(conn: sqlite3.Connection, snapshot_id: str) -> None:
     conn.execute("DELETE FROM snapshots WHERE snapshot_id = ?", (snapshot_id,))
 
 
+def rekey_snapshot_id(
+    conn: sqlite3.Connection,
+    *,
+    from_snapshot_id: str,
+    to_snapshot_id: str,
+) -> None:
+    """Replace snapshot identifiers across CoreDB tables."""
+    if from_snapshot_id == to_snapshot_id:
+        return
+    conn.execute(
+        "UPDATE snapshots SET snapshot_id = ? WHERE snapshot_id = ?",
+        (to_snapshot_id, from_snapshot_id),
+    )
+    conn.execute(
+        "UPDATE node_instances SET snapshot_id = ? WHERE snapshot_id = ?",
+        (to_snapshot_id, from_snapshot_id),
+    )
+    conn.execute(
+        "UPDATE edges SET snapshot_id = ? WHERE snapshot_id = ?",
+        (to_snapshot_id, from_snapshot_id),
+    )
+    conn.execute(
+        "UPDATE structural_nodes SET created_snapshot_id = ? WHERE created_snapshot_id = ?",
+        (to_snapshot_id, from_snapshot_id),
+    )
+
+
 def purge_uncommitted_snapshots(
     conn: sqlite3.Connection, exclude: str | None = None
 ) -> list[str]:

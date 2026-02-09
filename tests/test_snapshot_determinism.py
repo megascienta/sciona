@@ -6,6 +6,9 @@ import subprocess
 from pathlib import Path
 
 from sciona.data_storage.core_db.schema import ensure_schema
+from sciona.pipelines.exec.build import build_repo
+from sciona.pipelines.policy import build as policy_build
+from sciona.pipelines.domain.repository import RepoState
 from sciona.code_analysis.core.engine import BuildEngine
 from sciona.data_storage.core_db import write_ops as core_write
 from sciona.code_analysis.core.snapshot import create_snapshot
@@ -64,3 +67,19 @@ def test_snapshot_structural_hash_is_deterministic(tmp_path):
     conn.close()
 
     assert hash_a == hash_b
+
+
+def test_committed_snapshot_id_is_deterministic(tmp_path):
+    repo_root = tmp_path / "repo"
+    _init_repo(repo_root)
+    _write_config(repo_root)
+
+    repo_state = RepoState.from_repo_root(repo_root)
+    policy = policy_build.resolve_build_policy(
+        repo_state, refresh_artifacts=False, refresh_calls=False
+    )
+
+    result_a = build_repo(repo_state, policy)
+    result_b = build_repo(repo_state, policy)
+
+    assert result_a.snapshot_id == result_b.snapshot_id

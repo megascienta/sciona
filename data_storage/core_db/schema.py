@@ -27,6 +27,10 @@ SCHEMA_STATEMENTS: list[str] = [
     ON snapshots(is_committed, created_at)
     """,
     """
+    CREATE INDEX IF NOT EXISTS idx_snapshots_committed_commit_time
+    ON snapshots(is_committed, git_commit_time)
+    """,
+    """
     CREATE INDEX IF NOT EXISTS idx_snapshots_hash
     ON snapshots(structural_hash)
     """,

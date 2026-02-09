@@ -18,7 +18,7 @@ def latest_committed_snapshot(conn: sqlite3.Connection) -> dict | None:
         SELECT snapshot_id, structural_hash, created_at
         FROM snapshots
         WHERE is_committed = 1
-        ORDER BY created_at DESC
+        ORDER BY COALESCE(git_commit_time, created_at) DESC, snapshot_id DESC
         LIMIT 1
         """
     ).fetchone()
@@ -38,7 +38,7 @@ def latest_committed_snapshot_id(conn: sqlite3.Connection) -> str | None:
         SELECT snapshot_id
         FROM snapshots
         WHERE is_committed = 1
-        ORDER BY created_at DESC
+        ORDER BY COALESCE(git_commit_time, created_at) DESC, snapshot_id DESC
         LIMIT 1
         """
     ).fetchone()
@@ -77,7 +77,7 @@ def list_committed_snapshots(conn: sqlite3.Connection) -> list[str]:
         SELECT snapshot_id
         FROM snapshots
         WHERE is_committed = 1
-        ORDER BY created_at DESC
+        ORDER BY COALESCE(git_commit_time, created_at) DESC, snapshot_id DESC
         """
     ).fetchall()
     return [row["snapshot_id"] for row in rows]

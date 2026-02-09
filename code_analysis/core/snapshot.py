@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
@@ -36,6 +37,17 @@ def create_snapshot(repo_root: Path, source: str = "scan") -> Snapshot:
         git_commit_time=meta["git_commit_time"],
         git_branch=meta["git_branch"],
     )
+
+
+def deterministic_snapshot_id(
+    *,
+    structural_hash: str,
+    git_commit_sha: str,
+    source: str,
+) -> str:
+    """Derive a stable snapshot id for committed snapshots."""
+    basis = f"{git_commit_sha}:{structural_hash}:{source}".encode("utf-8")
+    return hashlib.sha256(basis).hexdigest()
 
 
 def persist_snapshot(

@@ -163,7 +163,6 @@ def apply_overlay_to_text(
         "head_commit": overlay.head_commit,
         "merge_base": overlay.merge_base,
         "reducer_id": reducer_id,
-        "snapshot_id": snapshot_id,
         "projection": projection or None,
         "projection_version": projection_version,
         "changes": {
@@ -218,7 +217,6 @@ def attach_unavailable_overlay(
         "head_commit": None,
         "merge_base": None,
         "reducer_id": reducer_id,
-        "snapshot_id": snapshot_id,
         "projection": projection or None,
         "projection_version": payload.get("projection_version"),
         "changes": {

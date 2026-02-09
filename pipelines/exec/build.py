@@ -73,6 +73,11 @@ def build_repo(
             enabled_languages = [
                 name for name, settings in languages.items() if settings.enabled
             ]
+            canonical_snapshot_id = snapshot_ingest.deterministic_snapshot_id(
+                structural_hash=structural_hash,
+                git_commit_sha=snapshot.git_commit_sha,
+                source=snapshot.source,
+            )
 
             decision = _decide_snapshot(
                 snapshot_id=snapshot.snapshot_id,
@@ -92,13 +97,29 @@ def build_repo(
             status = SnapshotLifecycle.COMMITTED.value
             if decision.lifecycle == SnapshotLifecycle.REUSED and baseline_meta:
                 core_write.delete_snapshot_tree(conn, snapshot.snapshot_id)
-                core_write.delete_committed_snapshots_except(
-                    conn, baseline_meta["snapshot_id"]
-                )
-                core_write.prune_orphan_structural_nodes(conn)
                 committed_snapshot_id = baseline_meta["snapshot_id"]
+                if committed_snapshot_id != canonical_snapshot_id:
+                    if core_read.snapshot_exists(conn, canonical_snapshot_id):
+                        core_write.delete_snapshot_tree(conn, canonical_snapshot_id)
+                    core_write.rekey_snapshot_id(
+                        conn,
+                        from_snapshot_id=committed_snapshot_id,
+                        to_snapshot_id=canonical_snapshot_id,
+                    )
+                    committed_snapshot_id = canonical_snapshot_id
+                core_write.delete_committed_snapshots_except(conn, committed_snapshot_id)
+                core_write.prune_orphan_structural_nodes(conn)
                 status = decision.lifecycle.value
             else:
+                if core_read.snapshot_exists(conn, canonical_snapshot_id):
+                    core_write.delete_snapshot_tree(conn, canonical_snapshot_id)
+                core_write.rekey_snapshot_id(
+                    conn,
+                    from_snapshot_id=snapshot.snapshot_id,
+                    to_snapshot_id=canonical_snapshot_id,
+                )
+                snapshot.snapshot_id = canonical_snapshot_id
+                committed_snapshot_id = snapshot.snapshot_id
                 snapshot_ingest.persist_snapshot(
                     conn,
                     snapshot,

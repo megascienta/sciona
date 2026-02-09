@@ -24,9 +24,12 @@ it.
 - Deterministic output for the same repo state, config, and version.
 - Snapshots are committed-only and immutable at the logical layer.
 - CoreDB keeps exactly one committed snapshot (the latest clean-HEAD build).
-- SCIONA is read-only with respect to the target repo; only `sciona build` may
-  write under `.sciona/`. Any other repo mutations are explicit, opt-in actions
-  outside the core pipeline.
+- SCIONA is read-only with respect to the target repo during normal operation.
+  Repo-root mutations are limited to explicit, opt-in setup steps (e.g.,
+  `sciona init` creating/populating `.sciona/` and optional post-commit hook
+  installation). Outside setup, only `sciona build` may write under `.sciona/`.
+- Committed snapshot ids are deterministic and derived from structural content
+  and git commit metadata; ingest-time ids are internal only.
 - Derived artifacts live outside SCI and never modify it.
 - Public pipelines and CLI surfaces read the **latest committed snapshot only**.
 - ArtifactDB always reflects the **latest committed snapshot**.
@@ -40,6 +43,8 @@ it.
 ### Core DB (SCI)
 
 - `snapshots`: snapshot_id, created_at, source, is_committed, structural_hash, git metadata
+  - `created_at` is internal metadata; "latest snapshot" selection uses commit
+    metadata, not wall-clock time.
 - `structural_nodes`: stable identity (structural_id, type, language)
 - `node_instances`: snapshot-specific facts (qualified_name, file_path, lines, content_hash)
 - `edges`: structural relations within a snapshot

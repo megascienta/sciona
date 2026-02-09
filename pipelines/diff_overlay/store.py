@@ -59,6 +59,7 @@ def rows_to_payload(
         entry = dict(row)
         entry.pop("diff_kind", None)
         entry.pop("created_at", None)
+        entry.pop("snapshot_id", None)
         if diff_kind in calls:
             calls[diff_kind].append(entry)
     _sort_change_entries(nodes, edges, calls)
