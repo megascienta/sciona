@@ -58,6 +58,7 @@ Rules:
 - Reuse a known invocation within the same session/thread.
 - If invocation context is unknown, ask ONCE how SCIONA should be invoked.
 - If the user cannot answer, assume `sciona …` and attempt execution.
+- If a SCIONA invocation fails, the agent MUST explicitly declare SCIONA unavailable BEFORE using any non-SCIONA tools or reasoning.
 - If execution fails, follow the “explicit failure declaration” rule.
 
 ### Tracked file scope (derived from .sciona/config)
