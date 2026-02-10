@@ -127,6 +127,7 @@ Rules:
 - Prefer discovery over assumptions.
 - Agents MUST prefer reducers that minimize semantic interpretation.
 - All reducers support `--diff-mode {{full,summary}}`
+- All reducers do not support `--json`
 
 ### 6.2 Common usage
 {COMMON_TASKS}
@@ -151,7 +152,7 @@ Rules:
 
   {CMD_RESOLVE}
 
-- Reducers have not `--json` option, but always emit **machine-parseable JSON**.
+- Reducers always emit **machine-parseable JSON**.
 
 ---
 
@@ -159,7 +160,7 @@ Rules:
 
 Every response MUST include:
 
-Status: sciona used: yes/no worktree: clean/dirty/unknown | diff: full/summary/unavailable/n/a | warned: yes/no
+Status: sciona used: yes/no | worktree: clean/dirty/unknown | diff: full/summary/unavailable/n/a | warned: yes/no
 Evidence: X entities → Y edges → notes (snapshot/diff source, caveats)
 
 ---
