@@ -23,7 +23,7 @@ REDUCER_META = ReducerMeta(
     payload_size_stats=None,
     semantic_tag="context",
     summary="Concatenated source for codebase, module, or class scope.",
-    lossy=True,
+    lossy=False,
     baseline_only=True,
 )
 

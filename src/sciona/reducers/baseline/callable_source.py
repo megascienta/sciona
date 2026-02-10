@@ -25,7 +25,7 @@ REDUCER_META = ReducerMeta(
     payload_size_stats=None,
     semantic_tag="evidence",
     summary="Full source payload for a callable (function or method).",
-    lossy=True,
+    lossy=False,
     baseline_only=True,
 )
 
