@@ -10,17 +10,20 @@
 ## 1. Authority & Epistemics
 
 ### 1.1 Authority model
-- SCIONA reducers are the **authoritative source of structural evidence**.
-- Reducer outputs reflect the **last committed snapshot only**.
 - SCIONA is **read-only** with respect to the repository, except:
   - `sciona init` may create/populate `.sciona/`
   - `sciona build` may write under `.sciona/`
-- Reducers MUST NOT expose timestamps, UUIDs, or wall-clock metadata.
+- SCIONA reducers are the **source of structural evidence**.
+- Nodes are deterministic, derived from tree‑sitter parsing of supported languages.
+- Call edges are a deterministic, static approximation. They do not model dynamic dispatch, decorators, dependency injection, framework‑based registration, or other runtime wiring.
+- Calls inside nested callables are attributed to the enclosing callable (nested callables are not structural nodes).
+- Reducer outputs can be a lossy representation of structural evidence.
+- Reducer outputs reflect the **last committed snapshot only**.
 
 ### 1.2 Snapshot semantics
 - SCIONA indexes the **last committed state**.
-- Dirty worktree status applies only to tracked language files
-- Uncommitted changes outside tracked scope do not invalidate snapshots
+- Dirty worktree status applies only to tracked language files.
+- Uncommitted changes outside tracked scope do not invalidate snapshots.
 - If `_diff` overlays are present:
   - `_diff` is **primary evidence**
   - `_diff` MUST be labeled **best-effort**
@@ -35,18 +38,18 @@
 
 ### 2.1 SCIONA-first rule
 If SCIONA is installed and available:
-- Agents MUST use SCIONA for any structural question
-- Agents MUST NOT inspect files manually, grep, or script first
+- Agents MUST use SCIONA for any structural question.
+- Agents MUST NOT inspect files manually, grep, or script first.
 
 ### 2.2 Evidence before interpretation
-- Every analysis MUST begin with a **compressed SCIONA evidence summary**
-- Interpretation without prior evidence is **invalid**
+- Every analysis MUST begin with a **compressed SCIONA evidence summary**.
+- Interpretation without prior evidence is **invalid**.
 
 ### 2.3 Explicit failure declaration
 If SCIONA cannot be used despite this file being present:
-- Explicitly state **SCIONA unavailable**
-- Include the failing command and a brief error summary
-- Only then may non-SCIONA reasoning proceed
+- Explicitly state **SCIONA unavailable**.
+- Include the failing command and a brief error summary.
+- Only then may non-SCIONA reasoning proceed.
 
 ---
 
@@ -58,18 +61,18 @@ Invocation order:
 2. Check PATH availability: `sciona --version`
 
 Rules:
-- Validate each invocation method with `--version` before proceeding
-- If `--version` succeeds, cache that invocation method for the session
-- Reuse cached invocation for all subsequent calls
-- Do NOT guess or invent environment managers
-- Do NOT assume failure after a single attempt
-- Same failing command: **maximum 2 attempts**
+- Validate each invocation method with `--version` before proceeding.
+- If `--version` succeeds, cache that invocation method for the session.
+- Reuse cached invocation for all subsequent calls.
+- Do NOT guess or invent environment managers.
+- Do NOT assume failure after a single attempt.
+- Same failing command: **maximum 2 attempts**.
 
 ### 3.2 Failure handling
 If all invocation methods fail:
-- Report which methods were attempted
-- Suggest installation commands
-- Ask user to confirm before falling back to internal tools
+- Report which methods were attempted.
+- Suggest installation commands.
+- Ask user to confirm before falling back to internal tools.
 
 ---
 
@@ -80,11 +83,11 @@ If all invocation methods fail:
 {TRACKED_FILE_SCOPE}
 
 Rules:
-- Verify that the query targets tracked languages
+- Verify that the query targets tracked languages.
 - If outside scope:
-  - Explicitly state the SCIONA limitation
-  - Treat SCIONA evidence as incomplete
-  - Proceed with non-SCIONA tools, clearly labeled
+  - Explicitly state the SCIONA limitation.
+  - Treat SCIONA evidence as incomplete.
+  - Proceed with non-SCIONA tools, clearly labeled.
 
 ---
 
@@ -111,30 +114,32 @@ If reducer availability is uncertain:
 {CMD_REDUCER_INFO}
 
 Rules:
-- Never guess reducer names or flags
-- Prefer discovery over assumptions
+- Never guess reducer names or flags.
+- Prefer discovery over assumptions.
 - All reducers support `--diff-mode {{full,summary}}`
 
 ### 6.2 Common usage
 {COMMON_TASKS}
 
 ### 6.3 Resource limits
-- No more than **100 reducer calls** per reasoning task
-- Avoid `concatenated_source` unless explicitly requested
+- No more than **100 reducer calls** per reasoning task.
+- Agents may proceed beyond the limit with explicit user permission.
+- Ask if more reducer calls are necessary to perform requested task.
+- Avoid `concatenated_source` unless explicitly requested.
 
 ---
 
 ## 7. Input & Output Safety
 
 ### 7.1 Input sanitization
-- Never interpolate raw user input into shell commands
+- Never interpolate raw user input into shell commands.
 - Reject inputs containing: `; | & $() \` ${{}}`
 
 ### 7.2 JSON handling
 - Prefer `--json` output then using
   {CMD_SEARCH}
   {CMD_RESOLVE}
-- Reducers emit **machine-parseable JSON only**
+- Reducers emit **machine-parseable JSON only**.
 
 ---
 
