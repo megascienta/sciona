@@ -10,21 +10,14 @@ from typing import Iterable
 
 def render_init(payload: dict) -> list[str]:
     lines = [f"Initialized SCIONA in {payload['sciona_dir']}"]
+    if payload.get("iterative"):
+        return lines
     if not payload.get("iterative"):
         lines.extend(
             [
                 "Notes:",
                 "  - SCIONA analyzes only git-tracked files",
                 "  - Ensure '.sciona/' is not committed to version control",
-            ]
-        )
-    else:
-        config_path = payload.get("config_path")
-        lines.extend(
-            [
-                "Warning:",
-                f"  Edit config: {config_path}",
-                "  Enable languages, then run: sciona build",
             ]
         )
     lines.extend(

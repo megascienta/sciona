@@ -141,7 +141,7 @@ Rules:
 
 Every response MUST include:
 
-SCIONA used:  `<command(s)>`
+SCIONA used:  `<reducer_name> (N times), <reducer_name> (M times)...`
 Status: worktree: clean/dirty/unknown | diff: full/summary/unavailable/n/a | warned: yes/no
 Evidence: X entities → Y edges → notes (snapshot/diff source, caveats)
 

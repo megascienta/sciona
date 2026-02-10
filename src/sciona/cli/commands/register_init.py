@@ -41,11 +41,6 @@ def register_init(app: typer.Typer) -> None:
             "--post-commit-hook",
             help="Install a post-commit hook that runs sciona build.",
         ),
-        post_commit_hook_command: Optional[str] = typer.Option(
-            None,
-            "--post-commit-hook-command",
-            help="Command for the post-commit hook (default: sciona build).",
-        ),
     ) -> None:
         """Initialize SCIONA state for the current repository."""
         try:
@@ -69,7 +64,6 @@ def register_init(app: typer.Typer) -> None:
             sciona_dir,
             no_interactive=no_interactive,
             install=post_commit_hook,
-            command=post_commit_hook_command,
         )
 
 
@@ -182,10 +176,9 @@ def _maybe_init_hook(
     *,
     no_interactive: bool,
     install: bool,
-    command: str | None,
 ) -> None:
     repo_root = sciona_dir.parent
-    cmd = command or "sciona build"
+    cmd = "sciona build"
     if no_interactive:
         if install:
             cli_call(api_repo.install_commit_hook, cmd, repo_root)
