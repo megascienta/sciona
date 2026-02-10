@@ -68,14 +68,17 @@ def _patch_typer_argument_make_metavar() -> None:
 _patch_click_make_metavar()
 
 app = typer.Typer(
-    help="SCIONA builds a deterministic structural index (SCI) for a Git repository. " \
-    "It records what exists in code (modules, classes, functions, methods) and how " \
-    "entities are structurally connected. By providing an explicit, deterministic " \
-    "representation of structural truth, SCIONA can be used to anchor LLM-assisted " \
-    "workflows: downstream tools may reason only over reducer outputs, rather than " \
-    "reconstructing structure heuristically or hallucinating it from source text.",
+    help=(
+        "[bold]SCIONA[/bold] builds a deterministic structural index (SCI) of a Git repository."
+        "It records what exists in code—modules, classes, functions, methods—and how "
+        "these entities are structurally connected. The result is an explicit, "
+        "machine-readable representation of code structure. "
+        "[bold]SCIONA[/bold] is designed to anchor LLM-assisted workflows: downstream tools can "
+        "reason over deterministic structure instead of heuristically inferring it "
+        "from source text or hallucinating missing connections."
+    ),
+    rich_markup_mode="rich",
     add_completion=False,
-    rich_markup_mode=None,
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 
