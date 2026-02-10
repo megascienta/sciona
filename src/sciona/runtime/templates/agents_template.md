@@ -54,24 +54,22 @@ If SCIONA cannot be used despite this file being present:
 
 ### 3.1 Invocation resolution
 Invocation order:
-1. `conda run -n <env> sciona` (if environment detected)
-2. `sciona` (if available in PATH)
-3. Attempt `sciona` once by default
+1. Check for conda environment: `conda run -n <env> sciona --version`
+2. Check PATH availability: `sciona --version`
 
 Rules:
-- Validate invocation with `--version`
-- Do NOT guess or invent environment managers
-- Cache the working invocation for the session
+- Validate each invocation method with `--version` before proceeding
+- If `--version` succeeds, cache that invocation method for the session
 - Reuse cached invocation for all subsequent calls
+- Do NOT guess or invent environment managers
+- Do NOT assume failure after a single attempt
+- Same failing command: **maximum 2 attempts**
 
 ### 3.2 Failure handling
-Error classes:
-- `not_installed` → fallback immediately
-- `not_built` → suggest `sciona build`, then fallback
-- `syntax_error` → retry once after reducer discovery
-
-Retry limit:
-- Same failing command: **maximum 2 attempts**
+If all invocation methods fail:
+- Report which methods were attempted
+- Suggest installation commands
+- Ask user to confirm before falling back to internal tools
 
 ---
 
@@ -143,17 +141,9 @@ Rules:
 
 Every response MUST include:
 
-- SCIONA used: `<command(s)>`
-- Dirty worktree: yes / no / unknown
-- `_diff` used: yes / no / not available
-- `_diff` mode: full / summary / n/a
-- Snapshot warning stated: yes / no
-- If SCIONA failed: command + error summarized
-
-### Evidence summary (compressed)
-- **Entities:** resolved modules / classes / callables
-- **Key edges:** imports, calls, dependencies
-- **Notes:** snapshot vs `_diff` separation
+SCIONA used:  `<command(s)>`
+Status: worktree: clean/dirty/unknown | diff: full/summary/unavailable/n/a | warned: yes/no
+Evidence: X entities → Y edges → notes (snapshot/diff source, caveats)
 
 ---
 

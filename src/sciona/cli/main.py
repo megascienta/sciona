@@ -14,6 +14,7 @@ from ..api import errors as api_errors
 from ..api import reducers as reducers_api
 from ..api import runtime as runtime_api
 from .commands import register as register_commands
+from ..runtime.constants import TOOL_VERSION
 
 
 def _patch_click_make_metavar() -> None:
@@ -78,8 +79,14 @@ app = typer.Typer(
 def _main(
     ctx: typer.Context,
     help: bool = typer.Option(False, "--help", "-h", is_eager=True),
+    version: bool = typer.Option(
+        False, "--version", is_eager=True, help="Show version and exit."
+    ),
 ) -> None:
     """CLI entrypoint."""
+    if version:
+        typer.echo(TOOL_VERSION)
+        raise typer.Exit()
     repo_root = None
     try:
         repo_root = runtime_api.get_repo_root()
@@ -122,6 +129,10 @@ def _render_help() -> str:
         [
             "Usage: sciona [OPTIONS] COMMAND [ARGS]...",
             "SCIONA structural index builder.",
+            "",
+            "Options:",
+            "  -h, --help     Show this help and exit.",
+            "  --version      Show version and exit.",
             "",
             "Common tasks:",
             "  sciona init",
