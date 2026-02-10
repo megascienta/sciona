@@ -13,12 +13,11 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="importers_index",
-    category="dependencies",
+    category="dependency",
     scope="codebase",
     placeholders=("IMPORTERS_INDEX",),
     determinism="conditional",
     payload_size_stats=None,
-    semantic_tag="dependency",
     summary="Index of modules that import target module(s).",
     lossy=True,
 )

@@ -14,12 +14,11 @@ from ..helpers.utils import require_latest_committed_snapshot, top_modules
 
 REDUCER_META = ReducerMeta(
     reducer_id="hotspot_summary",
-    category="summaries",
+    category="summary",
     scope="codebase",
     placeholders=("HOTSPOT_SUMMARY",),
     determinism="conditional",
     payload_size_stats=None,
-    semantic_tag="summary",
     summary="Compressed codebase hotspot summary.",
     lossy=True,
 )

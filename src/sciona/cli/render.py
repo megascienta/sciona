@@ -163,7 +163,7 @@ def render_reducer_show(entry: dict) -> list[str]:
     lines = [
         f"Reducer: {entry['reducer_id']}",
         f"Scope: {entry['scope']}",
-        f"Semantic tag: {entry['semantic_tag']}",
+        f"Category: {entry['category']}",
         f"Determinism: {entry['determinism']}",
         "",
         "Summary:",

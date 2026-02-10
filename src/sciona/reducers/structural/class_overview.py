@@ -23,12 +23,11 @@ from ..helpers.utils import require_latest_committed_snapshot
 
 REDUCER_META = ReducerMeta(
     reducer_id="class_overview",
-    category="structure",
+    category="evidence",
     scope="class",
     placeholders=("CLASS_OVERVIEW",),
-    determinism="strict",
+    determinism="conditional",
     payload_size_stats=None,
-    semantic_tag="evidence",
     summary="Structural overview payload for a class.",
 )
 
@@ -43,10 +42,15 @@ def render(
 ) -> str:
     conn = require_connection(conn)
     resolved_class_id = class_id
+    repo_path = Path(repo_root) if repo_root else None
     if not resolved_class_id and method_id:
+        if repo_path is None:
+            raise ValueError(
+                "class_overview with method_id requires repo_root for artifact lookup."
+            )
         method_structural_id = queries.resolve_method_id(conn, snapshot_id, method_id)
         edges = load_artifact_edges(
-            Path(repo_root),
+            repo_path,
             edge_kinds=["DEFINES_METHOD"],
             dst_ids=[method_structural_id],
         )

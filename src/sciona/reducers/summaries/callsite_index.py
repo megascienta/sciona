@@ -16,12 +16,11 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="callsite_index",
-    category="calls",
-    scope="function",
+    category="dependency",
+    scope="callable",
     placeholders=("CALLSITE_INDEX",),
-    determinism="strict",
+    determinism="conditional",
     payload_size_stats=None,
-    semantic_tag="dependency",
     summary="Caller/callee edge index for a callable.",
     lossy=True,
 )

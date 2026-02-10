@@ -14,8 +14,8 @@ from ..structural import (
 from . import queries
 from .render import require_connection
 from .types import (
+    CallableOverviewPayload,
     ClassOverviewPayload,
-    FunctionOverviewPayload,
     ModuleOverviewPayload,
     StructuralIndexPayload,
 )
@@ -42,7 +42,7 @@ def load_function_overview(
     conn,
     repo_root,
     function_id: str | None,
-) -> FunctionOverviewPayload:
+) -> CallableOverviewPayload:
     conn = require_connection(conn)
     resolved_id = resolve_function_id(conn, snapshot_id, function_id)
     return callable_overview.run(
@@ -58,7 +58,7 @@ def load_method_overview(
     conn,
     repo_root,
     method_id: str | None,
-) -> FunctionOverviewPayload:
+) -> CallableOverviewPayload:
     conn = require_connection(conn)
     resolved_id = resolve_method_id(conn, snapshot_id, method_id)
     return callable_overview.run(
@@ -75,7 +75,7 @@ def load_callable_overview(
     repo_root,
     function_id: str | None = None,
     method_id: str | None = None,
-) -> FunctionOverviewPayload:
+) -> CallableOverviewPayload:
     conn = require_connection(conn)
     if method_id:
         resolved_id = resolve_method_id(conn, snapshot_id, method_id)

@@ -15,12 +15,11 @@ _NODE_TYPES = {"module", "class", "function", "method"}
 
 REDUCER_META = ReducerMeta(
     reducer_id="symbol_lookup",
-    category="references",
+    category="evidence",
     scope="codebase",
     placeholders=("SYMBOL_LOOKUP",),
     determinism="conditional",
     payload_size_stats=None,
-    semantic_tag="evidence",
     summary="Ranked symbol matches for a query.",
 )
 

@@ -27,12 +27,11 @@ from ..helpers.types import StructuralIndexPayload
 
 REDUCER_META = ReducerMeta(
     reducer_id="structural_index",
-    category="orientation",
+    category="evidence",
     scope="codebase",
     placeholders=("STRUCTURAL_INDEX",),
-    determinism="strict",
+    determinism="conditional",
     payload_size_stats=None,
-    semantic_tag="evidence",
     summary="Canonical structural index payload for the codebase.",
 )
 

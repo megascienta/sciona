@@ -15,12 +15,11 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="file_outline",
-    category="navigation",
+    category="evidence",
     scope="codebase",
     placeholders=("FILE_OUTLINE",),
     determinism="strict",
     payload_size_stats=None,
-    semantic_tag="evidence",
     summary="File-level outline of modules, classes, and callables.",
     lossy=False,
 )

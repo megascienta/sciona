@@ -6,19 +6,19 @@
 from __future__ import annotations
 
 from ..helpers import queries
+from . import class_overview
 from ..helpers.render import render_json_payload, require_connection
 from ..helpers.utils import require_latest_committed_snapshot
 from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="class_inheritance",
-    category="structure",
+    category="dependency",
     scope="class",
     placeholders=("CLASS_INHERITANCE",),
-    determinism="strict",
+    determinism="conditional",
     payload_size_stats=None,
-    semantic_tag="dependency",
-    summary="Class inheritance and interface relationships.",
+    summary="Best-effort class inheritance derived from parsed base clauses.",
 )
 
 
@@ -33,5 +33,25 @@ def render(
     require_latest_committed_snapshot(
         conn, snapshot_id, reducer_name="class_inheritance reducer"
     )
-    queries.resolve_class_id(conn, snapshot_id, class_id)
-    return render_json_payload({"outgoing": [], "incoming": []})
+    resolved_id = queries.resolve_class_id(conn, snapshot_id, class_id)
+    overview = class_overview.run(
+        snapshot_id, conn=conn, repo_root=repo_root, class_id=resolved_id
+    )
+    bases = overview.get("bases") or []
+    outgoing = [
+        {
+            "edge_type": "INHERITS",
+            "related_structural_id": None,
+            "related_qualified_name": base,
+        }
+        for base in bases
+    ]
+    body = {
+        "class_id": resolved_id,
+        "outgoing_count": len(outgoing),
+        "incoming_count": 0,
+        "outgoing": outgoing,
+        "incoming": [],
+        "edge_source": "profile" if bases else "none",
+    }
+    return render_json_payload(body)

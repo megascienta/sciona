@@ -16,12 +16,11 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="call_graph",
-    category="calls",
-    scope="function",
+    category="dependency",
+    scope="callable",
     placeholders=("CALL_GRAPH",),
     determinism="conditional",
     payload_size_stats=None,
-    semantic_tag="dependency",
     summary="Caller/callee call graph for a callable.",
     lossy=True,
 )

@@ -17,12 +17,11 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="fan_summary",
-    category="summaries",
+    category="dependency",
     scope="codebase",
     placeholders=("FAN_SUMMARY",),
     determinism="conditional",
     payload_size_stats=None,
-    semantic_tag="dependency",
     summary="Fan-in/out summary for calls and imports.",
     lossy=True,
 )
@@ -58,7 +57,6 @@ def render(
     if resolved_id:
         stats = load_node_fan_stats(
             repo_root,
-            snapshot_id=snapshot_id,
             node_ids=[resolved_id],
         )
         edge_map: Dict[str, Dict[str, int]] = {}
@@ -74,13 +72,11 @@ def render(
 
     call_stats = load_node_fan_stats(
         repo_root,
-        snapshot_id=snapshot_id,
         edge_kinds=["CALLS"],
         node_kinds=["function", "method"],
     )
     import_stats = load_node_fan_stats(
         repo_root,
-        snapshot_id=snapshot_id,
         edge_kinds=["IMPORTS_DECLARED"],
         node_kinds=["module"],
     )

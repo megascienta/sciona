@@ -16,12 +16,11 @@ _NODE_TYPES = {"module", "class", "function", "method"}
 
 REDUCER_META = ReducerMeta(
     reducer_id="symbol_references",
-    category="references",
+    category="evidence",
     scope="codebase",
     placeholders=("SYMBOL_REFERENCES",),
-    determinism="strict",
+    determinism="conditional",
     payload_size_stats=None,
-    semantic_tag="evidence",
     summary="Relationship references (calls/imports) for symbols matching a query.",
     lossy=True,
 )

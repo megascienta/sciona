@@ -16,12 +16,11 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="class_call_graph",
-    category="calls",
+    category="dependency",
     scope="class",
     placeholders=("CLASS_CALL_GRAPH",),
     determinism="conditional",
     payload_size_stats=None,
-    semantic_tag="dependency",
     summary="Class-level call graph summary.",
     lossy=True,
 )
@@ -55,12 +54,10 @@ def render(
 
     outgoing_edges = load_class_call_edges(
         repo_root,
-        snapshot_id=snapshot_id,
         src_class_ids=[resolved_class_id],
     )
     incoming_edges = load_class_call_edges(
         repo_root,
-        snapshot_id=snapshot_id,
         dst_class_ids=[resolved_class_id],
     )
 

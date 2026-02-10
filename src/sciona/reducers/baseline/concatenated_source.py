@@ -16,12 +16,11 @@ from ..helpers.utils import require_latest_committed_snapshot
 
 REDUCER_META = ReducerMeta(
     reducer_id="concatenated_source",
-    category="code_text",
+    category="context",
     scope="codebase",
     placeholders=("CONCATENATED_SOURCE",),
     determinism="conditional",
     payload_size_stats=None,
-    semantic_tag="context",
     summary="Concatenated source for codebase, module, or class scope.",
     lossy=False,
     baseline_only=True,

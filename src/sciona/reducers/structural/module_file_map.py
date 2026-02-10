@@ -13,12 +13,11 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="module_file_map",
-    category="navigation",
+    category="evidence",
     scope="codebase",
     placeholders=("MODULE_FILE_MAP",),
     determinism="strict",
     payload_size_stats=None,
-    semantic_tag="evidence",
     summary="Module-to-file map with module ids and file paths.",
     lossy=False,
 )

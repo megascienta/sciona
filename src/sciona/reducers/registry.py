@@ -15,19 +15,9 @@ from typing import Iterable, Iterator, Mapping
 
 from .metadata import ReducerMeta
 
-_VALID_SCOPES = {"function", "class", "module", "codebase"}
+_VALID_SCOPES = {"callable", "class", "module", "codebase"}
 _VALID_DETERMINISM = {"strict", "conditional"}
-_VALID_TAGS = {"summary", "evidence", "context", "dependency"}
-_VALID_CATEGORIES = {
-    "orientation",
-    "structure",
-    "dependencies",
-    "calls",
-    "references",
-    "navigation",
-    "code_text",
-    "summaries",
-}
+_VALID_CATEGORIES = {"summary", "evidence", "context", "dependency"}
 
 _FROZEN = False
 
@@ -40,11 +30,9 @@ class ReducerEntry:
     placeholders: tuple[str, ...]
     determinism: str
     payload_size_stats: Mapping[str, object] | None
-    semantic_tag: str
     summary: str
     lossy: bool
     baseline_only: bool
-    composite: bool
     module: ModuleType
 
 
@@ -81,10 +69,6 @@ def _validate_meta(meta: ReducerMeta, module_name: str) -> None:
         raise ValueError(
             f"Reducer '{module_name}' has invalid determinism '{meta.determinism}'."
         )
-    if meta.semantic_tag not in _VALID_TAGS:
-        raise ValueError(
-            f"Reducer '{module_name}' has invalid semantic tag '{meta.semantic_tag}'."
-        )
     if not meta.placeholders or len(meta.placeholders) != 1:
         raise ValueError(
             f"Reducer '{module_name}' must declare exactly one placeholder."
@@ -108,11 +92,9 @@ def _build_registry() -> dict[str, ReducerEntry]:
             placeholders=meta.placeholders,
             determinism=meta.determinism,
             payload_size_stats=meta.payload_size_stats,
-            semantic_tag=meta.semantic_tag,
             summary=meta.summary,
             lossy=meta.lossy,
             baseline_only=meta.baseline_only,
-            composite=meta.composite,
             module=module,
         )
     return entries

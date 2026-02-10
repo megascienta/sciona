@@ -18,12 +18,11 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="callable_source",
-    category="code_text",
-    scope="function",
+    category="evidence",
+    scope="callable",
     placeholders=("CALLABLE_SOURCE",),
     determinism="conditional",
     payload_size_stats=None,
-    semantic_tag="evidence",
     summary="Full source payload for a callable (function or method).",
     lossy=False,
     baseline_only=True,

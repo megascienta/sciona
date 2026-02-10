@@ -16,18 +16,17 @@ from ..helpers.artifact_graph_edges import artifact_db_available, load_artifact_
 from ..helpers.profile_utils import fetch_node_instance
 from ..helpers import queries
 from ..helpers.render import render_json_payload, require_connection
-from ..helpers.types import FunctionOverviewPayload
+from ..helpers.types import CallableOverviewPayload
 from ..helpers.utils import require_latest_committed_snapshot
 from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="callable_overview",
-    category="structure",
-    scope="function",
+    category="evidence",
+    scope="callable",
     placeholders=("CALLABLE_OVERVIEW",),
-    determinism="strict",
+    determinism="conditional",
     payload_size_stats=None,
-    semantic_tag="evidence",
     summary="Structural overview payload for a callable (function or method).",
 )
 
@@ -57,7 +56,7 @@ def render(
     return render_json_payload(payload)
 
 
-def run(snapshot_id: str, **params) -> FunctionOverviewPayload:
+def run(snapshot_id: str, **params) -> CallableOverviewPayload:
     conn = params.get("conn")
     if conn is None:
         raise ValueError(

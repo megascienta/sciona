@@ -14,11 +14,9 @@ from .context import current_artifact_connection, fallback_artifact_connection
 def load_module_call_edges(
     repo_root: Path,
     *,
-    snapshot_id: Optional[str] = None,
     src_module_ids: Optional[Sequence[str]] = None,
     dst_module_ids: Optional[Sequence[str]] = None,
 ) -> List[Tuple[str, str, int]]:
-    del snapshot_id
     conn = current_artifact_connection()
     owns_connection = False
     if conn is None:
@@ -58,11 +56,9 @@ def load_module_call_edges(
 def load_class_call_edges(
     repo_root: Path,
     *,
-    snapshot_id: Optional[str] = None,
     src_class_ids: Optional[Sequence[str]] = None,
     dst_class_ids: Optional[Sequence[str]] = None,
 ) -> List[Tuple[str, str, int]]:
-    del snapshot_id
     conn = current_artifact_connection()
     owns_connection = False
     if conn is None:
@@ -102,12 +98,10 @@ def load_class_call_edges(
 def load_node_fan_stats(
     repo_root: Path,
     *,
-    snapshot_id: Optional[str] = None,
     node_ids: Optional[Sequence[str]] = None,
     edge_kinds: Optional[Sequence[str]] = None,
     node_kinds: Optional[Sequence[str]] = None,
 ) -> List[Tuple[str, str, str, int, int]]:
-    del snapshot_id
     conn = current_artifact_connection()
     owns_connection = False
     if conn is None:

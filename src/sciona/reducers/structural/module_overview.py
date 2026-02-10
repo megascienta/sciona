@@ -19,12 +19,11 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="module_overview",
-    category="structure",
+    category="evidence",
     scope="module",
     placeholders=("MODULE_OVERVIEW",),
-    determinism="strict",
+    determinism="conditional",
     payload_size_stats=None,
-    semantic_tag="evidence",
     summary="Structural overview payload for a module.",
 )
 

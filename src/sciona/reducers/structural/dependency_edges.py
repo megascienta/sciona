@@ -13,12 +13,11 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="dependency_edges",
-    category="dependencies",
+    category="dependency",
     scope="codebase",
     placeholders=("DEPENDENCY_EDGES",),
     determinism="strict",
     payload_size_stats=None,
-    semantic_tag="dependency",
     summary="Explicit module import edges for the snapshot.",
     lossy=True,
 )

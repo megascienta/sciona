@@ -25,12 +25,13 @@ class ModuleOverviewPayload(TypedDict, total=False):
     node_counts: Dict[str, int]
     language_breakdown: Dict[str, int]
     imports: List[Dict[str, str]]
+    artifact_available: bool
+    edge_source: str
 
 
 class ClassOverviewPayload(TypedDict, total=False):
     projection: str
     projection_version: str
-    class_structural_id: str
     class_id: str
     module_qualified_name: str
     language: str
@@ -38,21 +39,35 @@ class ClassOverviewPayload(TypedDict, total=False):
     line_span: Sequence[int]
     content_hash: str
     methods: List[Dict[str, str]]
+    decorators: List[str]
+    bases: List[str]
+    has_docstring: bool
+    docstring_span: Sequence[int] | None
+    artifact_available: bool
+    edge_source: str
 
 
-class FunctionOverviewPayload(TypedDict, total=False):
+class CallableOverviewPayload(TypedDict, total=False):
     projection: str
     projection_version: str
-    function_structural_id: str
+    callable_id: str
     function_id: str
+    requested_identifier: str
     module_qualified_name: str
     language: str
     file_path: str
     line_span: Sequence[int]
     content_hash: str
     parameters: List[str]
+    signature: str
+    has_docstring: bool
+    docstring_span: Sequence[int] | None
     decorators: List[str]
-    docstring: bool
+    parent_structural_id: str | None
+    parent_type: str | None
+    parent_qualified_name: str | None
+    artifact_available: bool
+    edge_source: str
 
 
 class StructuralIndexPayload(TypedDict, total=False):

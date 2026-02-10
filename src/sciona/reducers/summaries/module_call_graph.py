@@ -16,12 +16,11 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="module_call_graph",
-    category="calls",
+    category="dependency",
     scope="module",
     placeholders=("MODULE_CALL_GRAPH",),
-    determinism="strict",
+    determinism="conditional",
     payload_size_stats=None,
-    semantic_tag="dependency",
     summary="Module-level call graph summary.",
     lossy=True,
 )
@@ -68,12 +67,10 @@ def render(
 
     outgoing_edges = load_module_call_edges(
         repo_root,
-        snapshot_id=snapshot_id,
         src_module_ids=[resolved_module_id],
     )
     incoming_edges = load_module_call_edges(
         repo_root,
-        snapshot_id=snapshot_id,
         dst_module_ids=[resolved_module_id],
     )
 

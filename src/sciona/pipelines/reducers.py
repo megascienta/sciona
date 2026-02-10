@@ -44,11 +44,10 @@ def list_entries(
                 "placeholders": builtins.list(entry.placeholders),
                 "determinism": entry.determinism,
                 "payload_size_stats": entry.payload_size_stats,
-                "semantic_tag": entry.semantic_tag,
+                "category": entry.category,
                 "summary": entry.summary,
                 "lossy": entry.lossy,
                 "baseline_only": entry.baseline_only,
-                "composite": entry.composite,
             }
         )
     return sorted(entries, key=lambda item: item["reducer_id"])
