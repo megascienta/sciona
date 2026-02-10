@@ -69,7 +69,7 @@ def _record_last_build(result) -> None:
             "discovery_excluded_by_glob": result.discovery_excluded_by_glob,
             "exclude_globs": list(result.exclude_globs),
             "parse_failures": result.parse_failures,
-            "recorded_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(timezone.utc).isoformat(),
         }
         path = sciona_dir / ".last_build.json"
         path.write_text(json.dumps(payload, indent=2), encoding="utf-8")

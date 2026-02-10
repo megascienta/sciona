@@ -31,15 +31,10 @@ def register_init(app: typer.Typer) -> None:
             "--agents",
             help="Generate a managed SCIONA block in AGENTS.md (no-interactive only).",
         ),
-        agents_append: bool = typer.Option(
-            False,
-            "--agents-append",
-            help="Append/update the managed SCIONA block in AGENTS.md (no-interactive only).",
-        ),
-        agents_overwrite: bool = typer.Option(
-            False,
-            "--agents-overwrite",
-            help="Overwrite AGENTS.md with the managed SCIONA block (no-interactive only).",
+        agents_mode: str = typer.Option(
+            "append",
+            "--agents-mode",
+            help="Update mode for AGENTS.md (append or overwrite; no-interactive only).",
         ),
         post_commit_hook: bool = typer.Option(
             False,
@@ -68,8 +63,7 @@ def register_init(app: typer.Typer) -> None:
         _maybe_init_agents(
             no_interactive=no_interactive,
             agents=agents,
-            agents_append=agents_append,
-            agents_overwrite=agents_overwrite,
+            agents_mode=agents_mode,
         )
         _maybe_init_hook(
             sciona_dir,
@@ -133,11 +127,8 @@ def _maybe_init_agents(
     *,
     no_interactive: bool,
     agents: bool,
-    agents_append: bool,
-    agents_overwrite: bool,
+    agents_mode: str,
 ) -> None:
-    if agents_append or agents_overwrite:
-        agents = True
     if not no_interactive and sys.stdin.isatty():
         if agents:
             typer.secho(
@@ -174,11 +165,9 @@ def _maybe_init_agents(
         typer.echo(f"Updated {path}")
         return
     if agents:
-        if agents_append and agents_overwrite:
-            raise typer.BadParameter(
-                "Choose only one of --agents-append or --agents-overwrite."
-            )
-        mode = "overwrite" if agents_overwrite else "append"
+        mode = agents_mode.strip().lower()
+        if mode not in {"append", "overwrite"}:
+            raise typer.BadParameter("Mode must be 'append' or 'overwrite'.")
         path = cli_call(
             api_repo.init_agents,
             api_runtime.get_repo_root(),

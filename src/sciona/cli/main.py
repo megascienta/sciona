@@ -78,7 +78,6 @@ app = typer.Typer(
 @app.callback(invoke_without_command=True)
 def _main(
     ctx: typer.Context,
-    help: bool = typer.Option(False, "--help", "-h", is_eager=True),
     version: bool = typer.Option(
         False, "--version", is_eager=True, help="Show version and exit."
     ),
@@ -104,55 +103,9 @@ def _main(
     except api_errors.ScionaError:
         runtime_api.configure_logging()
     reducers_api.freeze_registry()
-    if help or ctx.invoked_subcommand is None:
-        typer.echo(_render_help())
+    if ctx.invoked_subcommand is None:
+        typer.echo(ctx.get_help())
         raise typer.Exit()
-
-
-def _render_help() -> str:
-    root_group = _get_click_group(app)
-    core_commands = _core_commands(app, root_group)
-    reducer_commands = _group_commands(
-        app, "reducer", root_group, include_root_options=False
-    )
-    core_core = [
-        entry
-        for entry in core_commands
-        if entry.split()[0] in {"init", "build", "status", "clean", "agents"}
-    ]
-    core_reducers = ["reducer --help"]
-    core_reducers.extend(reducer_commands)
-    advanced_core = [
-        entry for entry in core_commands if entry.split()[0] in {"resolve", "search"}
-    ]
-    return "\n".join(
-        [
-            "Usage: sciona [OPTIONS] COMMAND [ARGS]...",
-            "SCIONA structural index builder.",
-            "",
-            "Options:",
-            "  -h, --help     Show this help and exit.",
-            "  --version      Show version and exit.",
-            "",
-            "Common tasks:",
-            "  sciona init",
-            "  sciona build",
-            "  sciona status",
-            "  sciona agents",
-            "  sciona reducer --help",
-            "",
-            "Build/status:",
-            *[f"  {entry}" for entry in core_core],
-            "",
-            "Resolver (find ids):",
-            *[f"  {entry}" for entry in advanced_core],
-            "",
-            "Reducers:",
-            *[f"  {entry}" for entry in core_reducers],
-            "",
-            "",
-        ]
-    )
 
 
 def _core_commands(

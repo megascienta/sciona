@@ -20,24 +20,8 @@ def register_agents(app: typer.Typer) -> None:
             "--mode",
             help="Update mode for AGENTS.md (append or overwrite).",
         ),
-        append: bool = typer.Option(
-            False,
-            "--append",
-            help="Append/update the managed SCIONA block in AGENTS.md.",
-        ),
-        overwrite: bool = typer.Option(
-            False,
-            "--overwrite",
-            help="Overwrite AGENTS.md with the managed SCIONA block.",
-        ),
     ) -> None:
         """Regenerate the managed SCIONA block in AGENTS.md."""
-        if append and overwrite:
-            raise typer.BadParameter("Choose only one of --append or --overwrite.")
-        if append:
-            mode = "append"
-        elif overwrite:
-            mode = "overwrite"
         if mode not in {"append", "overwrite"}:
             raise typer.BadParameter("Mode must be 'append' or 'overwrite'.")
         path = cli_call(

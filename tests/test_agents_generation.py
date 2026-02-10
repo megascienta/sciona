@@ -12,8 +12,8 @@ def test_agents_block_has_markers(tmp_path: Path):
     assert agents.BEGIN_MARKER in block
     assert agents.END_MARKER in block
     assert "Tracked file scope" in block
-    assert "Common reducer usage" in block
-    assert "Reducer discovery" in block
+    assert "6.2 Common usage" in block
+    assert "6.1 Discovery" in block
 
 
 def test_agents_upsert_append_and_remove(tmp_path: Path):
@@ -57,14 +57,14 @@ def test_agents_block_expands_placeholders(tmp_path: Path):
     assert "sciona reducer info" in block
     assert "sciona search" in block
     assert "sciona resolve" in block
-    assert "Evidence summary format" in block
+    assert "Every response MUST include:" in block
     assert "Troubleshooting" in block
 
 
 def test_agents_block_section_order(tmp_path: Path):
     block = agents.build_agents_block(tmp_path, get_reducers())
-    discovery = block.index("### Reducer discovery")
-    common = block.index("### Common reducer usage")
-    reporting = block.index("### Reporting checklist")
-    troubleshooting = block.index("### Troubleshooting")
+    discovery = block.index("### 6.1 Discovery")
+    common = block.index("### 6.2 Common usage")
+    reporting = block.index("## 8. Reporting Checklist")
+    troubleshooting = block.index("## 9. Troubleshooting")
     assert discovery < common < reporting < troubleshooting

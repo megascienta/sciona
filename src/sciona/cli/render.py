@@ -123,8 +123,9 @@ def render_status(payload: dict) -> list[str]:
     if last_build:
         lines.append("Last build:")
         lines.append(f"  Snapshot: {last_build.get('snapshot_id')}")
-        if last_build.get("created_at") is not None:
-            lines.append(f"  Created: {_format_ts(last_build.get('created_at'))}")
+        created_at = last_build.get("created_at") or last_build.get("recorded_at")
+        if created_at is not None:
+            lines.append(f"  Created: {_format_ts(created_at)}")
         lines.append(f"  Files analyzed: {last_build.get('files_processed')}")
         langs = last_build.get("enabled_languages") or []
         if langs:

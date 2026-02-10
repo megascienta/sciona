@@ -20,16 +20,22 @@ def register_status(app: typer.Typer) -> None:
     def status() -> None:
         """Show SCIONA status for the current repository (warns if dirty)."""
         status_result = cli_call(api_repo.status)
+        enabled: list[str] | None = None
+        exclude_globs: list[str] = []
         try:
             runtime_cfg = cli_call(
                 api_runtime.load_runtime_config, status_result.repo_root
             )
+            enabled = [
+                name
+                for name, settings in runtime_cfg.languages.items()
+                if settings.enabled
+            ]
+            exclude_globs = runtime_cfg.discovery.exclude_globs
         except Exception:
-            return
-        enabled = [
-            name for name, settings in runtime_cfg.languages.items() if settings.enabled
-        ]
-        exclude_globs = runtime_cfg.discovery.exclude_globs
+            cli_render.emit_warning(
+                ["Failed to load runtime config; discovery settings unavailable."]
+            )
         last_build = None
         try:
             repo_root = status_result.repo_root
