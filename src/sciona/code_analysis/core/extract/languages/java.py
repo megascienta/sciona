@@ -193,6 +193,9 @@ class JavaAnalyzer(ASTAnalyzer):
                 )
             )
             body_node = node.child_by_field_name("body")
+            # Nested callables (e.g., lambdas) are treated as implementation
+            # detail, but their calls should be attributed to the enclosing
+            # method for higher recall.
             calls = collect_call_identifiers(
                 body_node,
                 snapshot.content,
@@ -209,10 +212,6 @@ class JavaAnalyzer(ASTAnalyzer):
                     "interface_declaration",
                     "enum_declaration",
                     "record_declaration",
-                    "method_declaration",
-                    "constructor_declaration",
-                    "compact_constructor_declaration",
-                    "lambda_expression",
                 },
                 callee_field_names=("name", "type", "function"),
             )

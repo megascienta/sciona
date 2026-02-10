@@ -187,16 +187,15 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                 )
             )
             body_node = node.child_by_field_name("body")
+            # Nested callables (e.g., function expressions, arrow functions) are
+            # treated as implementation detail, but their calls should be
+            # attributed to the enclosing callable for higher recall.
             calls = collect_call_identifiers(
                 body_node,
                 snapshot.content,
                 call_node_types={"call_expression"},
                 skip_node_types={
                     "class_declaration",
-                    "function_declaration",
-                    "method_definition",
-                    "function_expression",
-                    "arrow_function",
                 },
             )
             if calls:

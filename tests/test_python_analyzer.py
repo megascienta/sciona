@@ -17,6 +17,11 @@ class Foo:
     def bar(self):
         helper()
 
+def outer():
+    def inner():
+        helper()
+    inner()
+
 def helper():
     pass
 """
@@ -50,3 +55,9 @@ def helper():
     ]
     imported = {edge.dst_qualified_name for edge in import_edges}
     assert {"pkg.helpers", "pkg.utils", "pkg"}.issubset(imported)
+    call_records = {
+        record.qualified_name: set(record.callee_identifiers)
+        for record in result.call_records
+    }
+    assert "pkg.mod.outer" in call_records
+    assert "helper" in call_records["pkg.mod.outer"]

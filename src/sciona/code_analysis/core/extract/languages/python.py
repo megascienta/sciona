@@ -197,16 +197,14 @@ class PythonAnalyzer(ASTAnalyzer):
                 )
             )
             body = node.child_by_field_name("body")
-            # Nested callables are treated as implementation detail, not structural nodes.
+            # Nested callables are treated as implementation detail, not structural
+            # nodes, but we still want their calls attributed to the enclosing
+            # callable for higher recall.
             calls = collect_call_identifiers(
                 body,
                 snapshot.content,
                 call_node_types={"call"},
-                skip_node_types={
-                    "function_definition",
-                    "async_function_definition",
-                    "class_definition",
-                },
+                skip_node_types={"class_definition"},
             )
             if calls:
                 result.call_records.append(

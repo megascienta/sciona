@@ -16,6 +16,10 @@ def test_typescript_analyzer_extracts_structure(tmp_path):
         helper();
       }
     }
+    export function outer() {
+      const inner = () => helper();
+      inner();
+    }
     export function helper() {}
     """
     repo = tmp_path
@@ -50,3 +54,9 @@ def test_typescript_analyzer_extracts_structure(tmp_path):
     assert not [edge for edge in result.edges if edge.edge_type == "CALLS"]
     method_edges = [edge for edge in result.edges if edge.edge_type == "DEFINES_METHOD"]
     assert method_edges and method_edges[0].src_node_type == "class"
+    call_records = {
+        record.qualified_name: set(record.callee_identifiers)
+        for record in result.call_records
+    }
+    assert "src.mod.outer" in call_records
+    assert "helper" in call_records["src.mod.outer"]

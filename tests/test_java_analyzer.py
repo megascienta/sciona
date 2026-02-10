@@ -21,7 +21,11 @@ def test_java_analyzer_extracts_structure_and_calls(tmp_path):
         public void helper() {
             baz();
             new Baz();
+            Runnable r = () -> qux();
+            r.run();
         }
+
+        public void qux() {}
     }
 
     class Baz {}
@@ -68,4 +72,4 @@ def test_java_analyzer_extracts_structure_and_calls(tmp_path):
         for record in result.call_records
     }
     assert "src.Foo.Foo.helper" in call_records
-    assert {"baz", "Baz"}.issubset(call_records["src.Foo.Foo.helper"])
+    assert {"baz", "Baz", "qux"}.issubset(call_records["src.Foo.Foo.helper"])
