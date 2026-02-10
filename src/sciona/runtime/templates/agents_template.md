@@ -131,9 +131,10 @@ Rules:
 - Reject inputs containing: `; | & $() \` ${{}}`
 
 ### 7.2 JSON handling
-- Prefer `--json` output (not all reducers expose `--json`; check command help)
-- Reducers emit **machine-parseable JSON on stdout only**
-- Always validate JSON syntax
+- Prefer `--json` output then using
+  {CMD_SEARCH}
+  {CMD_RESOLVE}
+- Reducers emit **machine-parseable JSON only**
 
 ---
 
@@ -141,8 +142,7 @@ Rules:
 
 Every response MUST include:
 
-SCIONA used:  `<reducer_name> (N times), <reducer_name> (M times)...`
-Status: worktree: clean/dirty/unknown | diff: full/summary/unavailable/n/a | warned: yes/no
+Status: sciona used: yes/no worktree: clean/dirty/unknown | diff: full/summary/unavailable/n/a | warned: yes/no
 Evidence: X entities → Y edges → notes (snapshot/diff source, caveats)
 
 ---
