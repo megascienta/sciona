@@ -41,6 +41,7 @@ def render(
     **_: object,
 ) -> str:
     conn = require_connection(conn)
+    requested_identifier = method_id or function_id or callable_id
     if callable_id and not (function_id or method_id):
         function_id = callable_id
     if method_id:
@@ -52,6 +53,7 @@ def render(
         conn=conn,
         repo_root=repo_root,
         function_id=resolved_id,
+        requested_identifier=requested_identifier,
     )
     return render_json_payload(payload)
 
@@ -71,21 +73,22 @@ def run(snapshot_id: str, **params) -> CallableOverviewPayload:
     require_latest_committed_snapshot(
         conn, snapshot_id, reducer_name="callable_overview reducer"
     )
-    requested_id = params.get("function_id")
-    if not requested_id:
+    resolved_id = params.get("function_id")
+    if not resolved_id:
         raise ValueError(
             "callable_overview requires 'function_id' (function or method)."
         )
+    requested_identifier = params.get("requested_identifier") or resolved_id
 
     repo_root = params.get("repo_root")
     repo_path = Path(repo_root) if repo_root else None
 
     try:
-        row = fetch_node_instance(conn, snapshot_id, requested_id)
+        row = fetch_node_instance(conn, snapshot_id, resolved_id)
     except ValueError:
-        row = _fetch_by_qualified_name(conn, snapshot_id, requested_id)
+        row = _fetch_by_qualified_name(conn, snapshot_id, resolved_id)
     if row["node_type"] not in {"function", "method"}:
-        raise ValueError(f"Node '{requested_id}' is not a function or method.")
+        raise ValueError(f"Node '{resolved_id}' is not a function or method.")
 
     module_name = queries.module_id_for_structural(
         conn, snapshot_id, row["structural_id"]
@@ -121,7 +124,7 @@ def run(snapshot_id: str, **params) -> CallableOverviewPayload:
         "projection_version": "1.0",
         "function_id": row["structural_id"],
         "callable_id": row["structural_id"],
-        "requested_identifier": requested_id,
+        "requested_identifier": requested_identifier,
         "language": row["language"],
         "module_qualified_name": module_name,
         "file_path": row["file_path"],

@@ -70,6 +70,8 @@ def run(snapshot_id: str, **params) -> StructuralIndexPayload:
     )
 
     artifact_available = artifact_db_available(Path(repo_root))
+    if not artifact_available:
+        raise ValueError("structural_index reducer requires the artifact database.")
     module_graph = _build_module_graph(conn, snapshot_id, repo_root)
     (
         module_entries,

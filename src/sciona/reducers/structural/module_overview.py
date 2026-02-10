@@ -93,6 +93,8 @@ def run(snapshot_id: str, **params) -> ModuleOverviewPayload:
             "module_overview requires repo_root for artifact graph traversal."
         )
     artifact_available = artifact_db_available(repo_path)
+    if not artifact_available:
+        raise ValueError("module_overview reducer requires the artifact database.")
 
     row = _resolve_module(conn, snapshot_id, module_identifier)
     if row["node_type"] != "module":

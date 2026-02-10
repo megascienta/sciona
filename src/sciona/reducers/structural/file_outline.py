@@ -110,7 +110,7 @@ def render(
 def _resolve_module_ids(conn, snapshot_id: str, module_name: str) -> List[str]:
     rows = conn.execute(
         """
-        SELECT ni.qualified_name
+        SELECT sn.structural_id
         FROM structural_nodes sn
         JOIN node_instances ni ON ni.structural_id = sn.structural_id
         WHERE ni.snapshot_id = ?
@@ -120,12 +120,24 @@ def _resolve_module_ids(conn, snapshot_id: str, module_name: str) -> List[str]:
         """,
         (snapshot_id, module_name, f"{module_name}.%", module_name),
     ).fetchall()
-    module_ids = [row["qualified_name"] for row in rows if row["qualified_name"]]
-    if not module_ids:
+    module_structural_ids = [row["structural_id"] for row in rows]
+    if not module_structural_ids:
         raise ValueError(
             f"Module '{module_name}' not found in snapshot '{snapshot_id}'."
         )
-    return module_ids
+    module_lookup = queries.module_id_lookup(conn, snapshot_id)
+    resolved: List[str] = []
+    seen: set[str] = set()
+    for structural_id in module_structural_ids:
+        module_id = module_lookup.get(structural_id)
+        if module_id and module_id not in seen:
+            resolved.append(module_id)
+            seen.add(module_id)
+    if not resolved:
+        raise ValueError(
+            f"Module '{module_name}' not found in snapshot '{snapshot_id}'."
+        )
+    return resolved
 
 
 def _normalize_file_path(repo_root, path_value: str) -> str:

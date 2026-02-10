@@ -46,6 +46,10 @@ sciona = [
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
+filterwarnings = [
+    "ignore:'BaseCommand' is deprecated and will be removed in Click 9.0.*:DeprecationWarning:typer\\.completion",
+    "ignore:The '__version__' attribute is deprecated and will be removed in Click 9.1.*:DeprecationWarning:typer\\._compat_utils",
+]
 
 [tool.setuptools_scm]
 version_scheme = "release-branch-semver"
