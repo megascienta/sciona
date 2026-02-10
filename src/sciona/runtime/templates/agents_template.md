@@ -135,7 +135,6 @@ Rules:
 - No more than **100 reducer calls** per reasoning task.
 - Agents may proceed beyond the limit with explicit user permission.
 - Ask if more reducer calls are necessary to perform requested task.
-- Avoid `concatenated_source` unless explicitly requested.
 
 ---
 
@@ -152,7 +151,7 @@ Rules:
 
   {CMD_RESOLVE}
 
-- Reducers emit **machine-parseable JSON only**.
+- Reducers have not `--json` option, but always emit **machine-parseable JSON**.
 
 ---
 
