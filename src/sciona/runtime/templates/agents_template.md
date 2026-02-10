@@ -131,7 +131,7 @@ Rules:
 - Reject inputs containing: `; | & $() \` ${{}}`
 
 ### 7.2 JSON handling
-- Prefer `--json` output where available
+- Prefer `--json` output (not all reducers expose `--json`; check command help)
 - Reducers emit **machine-parseable JSON on stdout only**
 - Always validate JSON syntax
 

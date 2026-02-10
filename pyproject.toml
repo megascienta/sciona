@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "sciona"
 dynamic = ["version"]
-description = "SCIONA semantic structural index builder"
+description = "SCIONA deterministic structural index builder"
 authors = [{ name = "Dmitry Chigrin & MegaScienta" }]
 readme = "README.md"
 license = { file = "LICENSE" }

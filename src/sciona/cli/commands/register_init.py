@@ -73,7 +73,6 @@ def _maybe_init_dialog(sciona_dir, *, no_interactive: bool) -> None:
     defaults = cli_call(api_repo.init_dialog_defaults)
     detected = list(defaults.detected_languages)
     detected_display = ", ".join(detected) if detected else "none"
-    typer.echo("")
     typer.echo(f"Detected languages: {detected_display}")
     default = ", ".join(detected)
     selection = typer.prompt(
