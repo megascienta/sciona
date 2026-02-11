@@ -5,7 +5,6 @@
 
 from __future__ import annotations
 
-from ..runtime.addon_api import Registry
 from ..runtime.addon_contract import (
     PLUGIN_API_MAJOR,
     PLUGIN_API_MINOR,
@@ -23,7 +22,6 @@ __all__ = [
     "PLUGIN_API_VERSION",
     "PLUGIN_API_MAJOR",
     "PLUGIN_API_MINOR",
-    "Registry",
     "emit",
     "list_entries",
     "open_core_readonly",

@@ -51,7 +51,6 @@ def test_public_addon_api_surface_is_explicit_and_stable():
         "PLUGIN_API_VERSION",
         "PLUGIN_API_MAJOR",
         "PLUGIN_API_MINOR",
-        "Registry",
         "emit",
         "list_entries",
         "open_core_readonly",

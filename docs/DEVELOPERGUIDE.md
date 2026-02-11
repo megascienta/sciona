@@ -139,10 +139,9 @@ Reducer execution is mediated by `src/sciona/pipelines/reducers.py`:
 
 ## Addons
 
-Addons are separate products that use `sciona.api.*`; core does not load or invoke them.
-- Allowed: register addon CLI, consume reducers, and read CoreDB/ArtifactDB via read-only helpers.
+Addons are separate products that use `sciona.api.*`; core does not load, discover, or register them.
+- Allowed: consume reducers and read CoreDB/ArtifactDB via read-only helpers.
 - Forbidden: register reducers/prompts in core, mutate snapshots/artifacts, or rely on internal modules/schemas.
-- Entry point group (if used): `sciona.addons` with a callable that receives a `Registry`.
 - Compatibility: `REQUIRES_SCIONA_PLUGIN_API` (int, string major/minor, or range). Major bump breaks API; minor bump is additive.
 
 ## Edge and ingest contracts
