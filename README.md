@@ -1,70 +1,36 @@
-# SCIONA
+# SCIONA (version 0.9.0 beta)
 
-SCIONA builds a **deterministic structural index (SCI)** for a Git repository. It records *what exists* in code (modules, classes, functions, methods) and *how entities are structurally connected*.
-
-SCIONA is **snapshot-based, reducer-driven, and LLM-agnostic**. It does not execute code, infer intent, or perform semantic retrieval. Reducers are the truth surfaces: they render structural facts deterministically from a **committed snapshot**.
-
-By providing an explicit, deterministic representation of structural truth, SCIONA can be used to **anchor LLM-assisted workflows**: downstream tools may reason only over reducer outputs, rather than reconstructing structure heuristically or hallucinating it from source text.
-
----
+SCIONA builds a **deterministic structural index (SCI)** for a Git repository. It captures what exists in the code (modules, classes, functions, methods) and how entities are structurally connected. SCIONA is **snapshot-based, reducer-driven, and LLM-agnostic**. It does not execute code or perform semantic inference. Instead, SCIONA produces  explicit structural representations derived from tree-sitter parsing. Reducers serve as the **source of structural evidence**, rendering reproducible  facts from a committed snapshot. This deterministic representation can be used to stabilize tooling workflows, including LLM-assisted development.
 
 ## Why SCIONA exists
 
-When working with large, long-lived codebases, we repeatedly encountered the same failure mode:
+When working with large, long-lived codebases, we repeatedly observed the same pattern: LLM assistance initially improves productivity, but gradually becomes inconsistent.  Earlier assumptions drift. Structural constraints are forgotten. The model continues to generate plausible responses that no longer reflect the actual code. **This is not primarily an LLM failure.** It is a **context stability problem**.
 
-LLM assistance starts out helpful, but gradually becomes inconsistent. Earlier assumptions are contradicted. Structural constraints are forgotten. The model continues to “sound right” while no longer reflecting the actual code.
+In real software systems, correctness often depends on structural relationships: which symbols exist, where they live, and how modules and callables interact. Most LLM tooling relies on embeddings, semantic retrieval, or dynamically assembled  context. While powerful, these approaches can be difficult to reproduce and hard to constrain across long sessions or refactors.
 
-This is not primarily an LLM problem. It is a **context problem**.
+SCIONA takes a deliberately different path: it provides a stable structural snapshot that downstream tools can rely on. Rather than reconstructing structure heuristically, tools may reason over deterministic reducer outputs. **SCIONA is intentionally limited in scope. It provides structure - not interpretation.**
 
-In real-world software systems, the relevant information is not just which functions exist, but how files, modules, symbols, and dependencies are *structurally connected* and can be reasoned about consistently.
+## Disclaimer
 
-Most LLM tooling today relies on embeddings, semantic retrieval, or opaque context assembly. These approaches are powerful, but difficult to make reproducible and hard to constrain over long sessions, refactors, or collaboration boundaries.
+SCIONA was originally developed as an internal tool at MegaScienta to address limitations observed in LLM-assisted workflows. It has been tested in day-to-day development across several active projects and has shown promising results. However, broader real-world validation across diverse repositories is still ongoing. Feedback, issue reports, and field experience are highly appreciated. **Thank you and happy coding.**
 
-SCIONA takes a deliberately different approach.
+## How SCIONA can be used
 
-It builds a **deterministic structural snapshot** of a codebase: no embeddings, no semantic guessing, no code execution. Just an explicit, versioned representation of structural truth that downstream tools, including LLM copilots, can be constrained by, rather than asked to hallucinate around.
+SCIONA can be used directly via its CLI or integrated into LLM-assisted workflows. During initialization, SCIONA optionally auto-generates an AGENTS.md file in the repository root. This file serves as a control surface for LLM copilots by explicitly specifying how SCIONA should be used during code reasoning. In this mode, the copilot is instructed to reason over reducer outputs rather than reconstructing structure heuristically from source text.
 
-SCIONA is opinionated and intentionally limited in scope. It provides structure, not interpretation.
+## Installation
 
----
+Default install:
 
-## Core guarantees (summary)
+```pip install sciona```
 
-Authoritative definitions live in `ARCHITECTURE.md`. At a glance:
+```pip install git+https://github.com/megascienta/sciona```
 
-- **No code execution**
-- **Snapshot-only truth** (latest committed snapshot)
-- **Read-only w.r.t. the repo**, except `.sciona/` and explicit setup commands
-- **Deterministic outputs** for the same snapshot, config, and version
-- **LLM-agnostic** (no provider or prompt assumptions)
+Development install:
 
----
+```pip install -e ".[dev]"```
 
-## How SCIONA can be used today
-
-SCIONA can be used directly via its CLI or integrated into LLM-assisted workflows.
-
-One supported mode of operation is interaction through an LLM copilot guided
-by an auto-generated `AGENTS.md` file in the repository root. This file serves
-as a control surface for the copilot by explicitly specifying how SCIONA should
-be used during code reasoning.
-
-In particular, `AGENTS.md`:
-- enforces *SCIONA-first* discipline for structural questions
-- specifies which reducers to run before any interpretation
-- defines snapshot vs dirty-worktree semantics
-- requires explicit declaration when SCIONA cannot be used
-
-In this mode, the copilot is instructed to reason only over reducer outputs, rather than reconstructing structure heuristically from source text.
-
-Manual CLI usage is fully supported and provides a complete interface for non-copilot workflows.
-
----
-
-## Quick start (minimal)
-
-Default install: `pip install sciona` or `pip install git+https://github.com/megascienta/sciona`
-Development install: `pip install -e ".[dev]"`
+## Quick start
 
 ```bash
 cd /path/to/repo
@@ -72,7 +38,11 @@ sciona init
 $EDITOR .sciona/config.yaml   # enable languages
 sciona build
 sciona status
-````
+```
+
+## Reducers usage
+
+### Discovery
 
 Explore available reducers:
 
@@ -81,26 +51,131 @@ sciona reducer list
 sciona reducer --id module_overview --module-id pkg.mod
 ```
 
-For copilot-driven workflows, start with `AGENTS.md` in the repo root.
+If node (module, classe, function, method) identifier is unknown:
 
----
+```bash
+sciona search QUERY [--kind KIND] [--limit LIMIT] [--json]
+sciona resolve IDENTIFIER [--kind KIND] [--limit LIMIT] [--json]
+```
 
-## Discovery and scope (high level)
+### Available reducers:
 
-* Only **git-tracked files** are analyzed
-* Only **enabled languages** are indexed
-* `.gitignore` is respected for tracked files
-* No directory walking
-* No runtime import resolution
+- Canonical structural index payload for the codebase
 
-If the worktree is dirty, reducers may include a best-effort `_diff` overlay. Overlays are **non-authoritative hints**, not structural truth.
+```bash
+sciona reducer --id structural_index
+```
 
----
+- Caller/callee call graph for a callable
 
-## If you want X, read Y
+```bash
+sciona reducer --id call_graph [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>]
+```
 
-* **Understand user expectations and limitations** → `USERGUIDE.md`
-* **See binding behavioral rules** → `CONTRACTS.md`
-* **Understand architecture and invariants** → `ARCHITECTURE.md`
-* **Work on SCIONA core safely** → `COREDEVGUIDE.md`
-* **Build addons independently** → `ADDONSDEVGUIDE.md`
+- Caller/callee edge index for a callable
+
+```bash
+sciona reducer --id callsite_index [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>] [--direction <direction>]
+```
+
+- Class-level call graph summary
+
+```bash
+sciona reducer --id class_call_graph [--class-id <class_id>] [--method-id <method_id>]
+```
+
+- Best-effort class inheritance derived from parsed base clauses
+
+```bash
+sciona reducer --id class_inheritance [--class-id <class_id>]
+```
+
+- Explicit module import edges for the snapshot
+
+```bash
+sciona reducer --id dependency_edges [--module-id <module_id>] [--from-module-id <from_module_id>] [--to-module-id <to_module_id>] [--query <query>] [--edge-type <edge_type>] [--limit <limit>]
+```
+
+- Fan-in/out summary for calls and imports
+
+```bash
+sciona reducer --id fan_summary [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>] [--class-id <class_id>] [--module-id <module_id>]
+```
+
+- Modules that import the target module(s)
+
+```bash
+sciona reducer --id import_references [--module-id <module_id>] [--query <query>] [--edge-type <edge_type>] [--limit <limit>]
+```
+
+- Index of modules that import target module(s)
+
+```bash
+sciona reducer --id importers_index [--module-id <module_id>] [--query <query>] [--edge-type <edge_type>] [--limit <limit>]
+```
+
+- Module-level call graph summary
+
+```bash
+sciona reducer --id module_call_graph [--module-id <module_id>] [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>] [--class-id <class_id>]
+```
+
+- Structural overview payload for a callable (function or method)
+
+```bash
+sciona reducer --id callable_overview [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>]
+```
+
+- Full source payload for a callable (function or method)
+
+```bash
+sciona reducer --id callable_source [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>]
+```
+
+- Structural overview payload for a class
+
+```bash
+sciona reducer --id class_overview [--class-id <class_id>] [--method-id <method_id>]
+```
+
+- File-level outline of modules, classes, and callables
+
+```bash
+sciona reducer --id file_outline [--module-id <module_id>] [--file-path <file_path>]
+```
+
+- Module-to-file map with module ids and file paths
+
+```bash
+sciona reducer --id module_file_map [--module-id <module_id>]
+```
+
+- Structural overview payload for a module
+
+```bash
+sciona reducer --id module_overview [--module-id <module_id>] [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>] [--class-id <class_id>]
+```
+
+- Ranked symbol matches for a query
+
+```bash
+sciona reducer --id symbol_lookup [--query <query>] [--kind <kind>] [--limit <limit>]
+```
+
+- Relationship references (calls/imports) for symbols matching a query
+
+```bash
+sciona reducer --id symbol_references [--query <query>] [--kind <kind>] [--limit <limit>]
+```
+
+- Compressed codebase hotspot summary
+
+```bash
+sciona reducer --id hotspot_summary
+```
+
+- Concatenated source for codebase, module, or class scope
+
+```bash
+sciona reducer --id concatenated_source [--scope <scope>] [--module-id <module_id>] [--class-id <class_id>]
+```
