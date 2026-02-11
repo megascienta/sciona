@@ -12,15 +12,17 @@ SCIONA takes a deliberately different path: it provides a stable structural snap
 
 ## Disclaimer
 
-SCIONA was originally developed as an internal tool at MegaScienta to address limitations observed in LLM-assisted workflows. It has been tested in day-to-day development across several active projects and has shown promising results. However, broader real-world validation across diverse repositories is still ongoing. Feedback, issue reports, and field experience are highly appreciated. **Thank you and happy coding.**
+SCIONA was originally developed as an internal tool at MegaScienta to address limitations observed in LLM-assisted workflows. It has been tested in day-to-day development across several active projects and has demonstrated practical utility in internal workflows.
+
+The tool is functional and actively used, but should currently be considered an early public release. Broader real-world validation across diverse repositories is still ongoing. Feedback, issue reports, and field experience are highly appreciated. Thank you and happy coding.
 
 ## How SCIONA can be used
 
-SCIONA can be used directly via its CLI or integrated into LLM-assisted workflows. During initialization, SCIONA optionally auto-generates an AGENTS.md file in the repository root. This file serves as a control surface for LLM copilots by explicitly specifying how SCIONA should be used during code reasoning. In this mode, the copilot is instructed to reason over reducer outputs rather than reconstructing structure heuristically from source text.
+SCIONA can be used directly via its CLI or integrated into LLM-assisted workflows. During initialization, SCIONA optionally auto-generates an `AGENTS.md` file in the repository root. This file serves as a control surface for LLM copilots by explicitly specifying how SCIONA should be used during code reasoning. In this mode, the copilot is instructed to reason over reducer outputs rather than reconstructing structure heuristically from source text.
 
 ## Installation
 
-Default install (from GitHub):
+Default install (pre-release) (from GitHub):
 
 ```bash
 pip install git+https://github.com/megascienta/sciona
