@@ -23,7 +23,7 @@ def test_dirty_overlay_adds_node(repo_with_snapshot):
         encoding="utf-8",
     )
 
-    text, _, _ = api.reducers.emit(
+    text, _, _ = api.addons.emit(
         "module_overview",
         repo_root=repo_root,
         module_id="pkg.alpha",
@@ -49,7 +49,7 @@ def test_dirty_overlay_calls_and_summary(repo_with_snapshot):
         encoding="utf-8",
     )
 
-    text, _, _ = api.reducers.emit(
+    text, _, _ = api.addons.emit(
         "fan_summary",
         repo_root=repo_root,
     )
@@ -71,7 +71,7 @@ def test_dirty_overlay_summary_mode(repo_with_snapshot):
         encoding="utf-8",
     )
 
-    text, _, _ = api.reducers.emit(
+    text, _, _ = api.addons.emit(
         "module_overview",
         repo_root=repo_root,
         module_id="pkg.alpha",

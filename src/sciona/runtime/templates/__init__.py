@@ -2,3 +2,5 @@
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
 """Runtime templates."""
+
+__all__ = []

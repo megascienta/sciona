@@ -34,7 +34,7 @@ def _find_forbidden_keys(payload: object, forbidden: Iterable[str]) -> set[str]:
 
 def test_reducer_payload_excludes_snapshot_metadata(repo_with_snapshot):
     repo_root, _snapshot_id = repo_with_snapshot
-    text, _, _ = api.reducers.emit(
+    text, _, _ = api.addons.emit(
         "module_overview",
         repo_root=repo_root,
         module_id="pkg.alpha",

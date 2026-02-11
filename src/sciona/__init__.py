@@ -5,15 +5,9 @@
 
 from __future__ import annotations
 
-import pkgutil
-
 from . import api
-from .runtime import constants
-from .runtime import identity
 from .runtime.constants import TOOL_VERSION
 
 __version__ = TOOL_VERSION
 
-__path__ = pkgutil.extend_path(__path__, __name__)  # type: ignore[name-defined]
-
-__all__ = ["TOOL_VERSION", "__version__", "api", "constants", "identity"]
+__all__ = ["TOOL_VERSION", "__version__", "api"]

@@ -1,19 +1,10 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Public SCIONA API namespaces (stable)."""
+"""Public SCIONA addon API namespace (stable)."""
 
 from __future__ import annotations
 
-from . import addons, errors, reducers, repo, resolve, runtime, storage, user
+from . import addons
 
-__all__ = [
-    "user",
-    "addons",
-    "reducers",
-    "repo",
-    "resolve",
-    "runtime",
-    "storage",
-    "errors",
-]
+__all__ = ["addons"]

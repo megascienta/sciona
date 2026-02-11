@@ -12,8 +12,7 @@ from typing import Mapping
 
 import typer
 
-from ..api import repo as api_repo
-from ..api import runtime as api_runtime
+from ..api import cli as api_cli
 from . import render as cli_render
 from .errors import handle_cli_error
 
@@ -32,7 +31,7 @@ def cli_call(func, *args, **kwargs):
             raise
         except Exception:
             typer.secho(f"Internal error: {exc}", fg=typer.colors.RED)
-            if api_runtime.debug_enabled():
+            if api_cli.debug_enabled():
                 typer.secho(traceback.format_exc(), fg=typer.colors.YELLOW, err=True)
             raise typer.Exit(code=1) from exc
         raise
@@ -108,7 +107,7 @@ def emit_dirty_worktree_warning(repo_root=None) -> None:
 
 def get_dirty_worktree_warning(repo_root=None) -> str | None:
     try:
-        return api_repo.dirty_worktree_warning(repo_root)
+        return api_cli.dirty_worktree_warning(repo_root)
     except Exception:
         return None
 

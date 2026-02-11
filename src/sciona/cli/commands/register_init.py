@@ -12,8 +12,7 @@ from typing import Optional
 import typer
 
 from ...api import errors as api_errors
-from ...api import repo as api_repo
-from ...api import runtime as api_runtime
+from ...api import cli as api_cli
 from ..utils import agents_command_map, cli_call
 from .. import render as cli_render
 
@@ -44,7 +43,7 @@ def register_init(app: typer.Typer) -> None:
     ) -> None:
         """Initialize SCIONA state for the current repository."""
         try:
-            sciona_dir = cli_call(api_repo.init)
+            sciona_dir = cli_call(api_cli.init)
         except api_errors.ConfigError as exc:
             typer.secho(str(exc), fg=typer.colors.YELLOW)
             raise typer.Exit(code=0) from exc
@@ -70,7 +69,7 @@ def register_init(app: typer.Typer) -> None:
 def _maybe_init_dialog(sciona_dir, *, no_interactive: bool) -> None:
     if no_interactive or not sys.stdin.isatty():
         return
-    defaults = cli_call(api_repo.init_dialog_defaults)
+    defaults = cli_call(api_cli.init_dialog_defaults)
     detected = list(defaults.detected_languages)
     detected_display = ", ".join(detected) if detected else "none"
     typer.echo(f"Detected languages: {detected_display}")
@@ -80,7 +79,7 @@ def _maybe_init_dialog(sciona_dir, *, no_interactive: bool) -> None:
         default=default,
         show_default=bool(default),
     )
-    supported = cli_call(api_repo.init_supported_languages)
+    supported = cli_call(api_cli.init_supported_languages)
     selected = _parse_language_selection(selection, detected, supported)
     if selected is None:
         typer.secho(
@@ -89,7 +88,7 @@ def _maybe_init_dialog(sciona_dir, *, no_interactive: bool) -> None:
         )
         return
     try:
-        cli_call(api_repo.init_apply_languages, selected)
+        cli_call(api_cli.init_apply_languages, selected)
     except Exception:
         typer.secho("Failed to update .sciona/config.yaml.", fg=typer.colors.YELLOW)
 
@@ -131,7 +130,7 @@ def _maybe_init_agents(
             "Generate a managed SCIONA block in AGENTS.md?", default=False
         ):
             return
-        repo_root = cli_call(api_runtime.get_repo_root)
+        repo_root = cli_call(api_cli.get_repo_root)
         agents_path = repo_root / "AGENTS.md"
         mode = "append"
         if agents_path.exists():
@@ -153,7 +152,7 @@ def _maybe_init_agents(
                 )
                 return
         path = cli_call(
-            api_repo.init_agents, repo_root, mode=mode, commands=agents_command_map()
+            api_cli.init_agents, repo_root, mode=mode, commands=agents_command_map()
         )
         typer.echo(f"Updated {path}")
         return
@@ -162,8 +161,8 @@ def _maybe_init_agents(
         if mode not in {"append", "overwrite"}:
             raise typer.BadParameter("Mode must be 'append' or 'overwrite'.")
         path = cli_call(
-            api_repo.init_agents,
-            api_runtime.get_repo_root(),
+            api_cli.init_agents,
+            api_cli.get_repo_root(),
             mode=mode,
             commands=agents_command_map(),
         )
@@ -180,7 +179,7 @@ def _maybe_init_hook(
     cmd = "sciona build"
     if no_interactive:
         if install:
-            cli_call(api_repo.install_commit_hook, cmd, repo_root)
+            cli_call(api_cli.install_commit_hook, cmd, repo_root)
         return
     if not sys.stdin.isatty():
         return
@@ -189,7 +188,7 @@ def _maybe_init_hook(
     ):
         return
     cmd_input = typer.prompt("Hook command", default=cmd, show_default=True)
-    cli_call(api_repo.install_commit_hook, cmd_input.strip() or cmd, repo_root)
+    cli_call(api_cli.install_commit_hook, cmd_input.strip() or cmd, repo_root)
 
 
 __all__ = ["register_init"]

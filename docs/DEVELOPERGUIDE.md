@@ -26,33 +26,26 @@ Layer mapping (no layer may reach “up” the stack):
 - `src/sciona/code_analysis/`: discovery, parsing, node/edge extraction, normalization.
 - `src/sciona/pipelines/`: policy validation, orchestration, build lifecycle, reducer execution context.
 - `src/sciona/reducers/`: deterministic payload formatting and registry.
-- `src/sciona/api/`: stable public API surface (`sciona.api.*`).
+- `src/sciona/api/`: stable public addon API surface (`sciona.api.addons`).
+  Internal boundaries: `sciona.api.cli`, `sciona.api.errors`.
 
 If you change invariants, update this guide first, then align code and tests.
 
 ## Public API contract
 
-The only stable API is `sciona.api.*` and symbols exported from each module’s `__all__`.
-Preferred entrypoint: `sciona.api.user`.
+The only stable API is `sciona.api.addons` and symbols exported from its `__all__`.
 
-Stable namespaces:
-- `sciona.api.user` (preferred user-facing library surface)
+Stable namespace:
 - `sciona.api.addons`
-- `sciona.api.reducers`
-- `sciona.api.repo`
-- `sciona.api.resolve`
-- `sciona.api.runtime`
-- `sciona.api.storage`
-- `sciona.api.errors`
 
-CLI implementations must depend on `sciona.api.*` only.
+CLI implementations must depend on `sciona.api.cli` (internal boundary) only.
 
 ## CLI and pipelines
 
 CLI entrypoint:
 - `sciona.cli.main:run` (registered in `pyproject.toml`).
 
-User-facing pipeline functions (from `sciona.api.user`):
+CLI pipeline functions (from `sciona.api.cli`, internal):
 - `init`, `build`, `status`
 - `init_dialog_defaults`, `init_supported_languages`, `init_apply_languages`
 - `clean`, `clean_agents`
@@ -139,7 +132,7 @@ Reducer execution is mediated by `src/sciona/pipelines/reducers.py`:
 
 ## Addons
 
-Addons are separate products that use `sciona.api.*`; core does not load, discover, or register them.
+Addons are separate products that use `sciona.api.addons`; core does not load, discover, or register them.
 - Allowed: consume reducers and read CoreDB/ArtifactDB via read-only helpers.
 - Forbidden: register reducers/prompts in core, mutate snapshots/artifacts, or rely on internal modules/schemas.
 - Compatibility: `REQUIRES_SCIONA_PLUGIN_API` (int, string major/minor, or range). Major bump breaks API; minor bump is additive.
@@ -172,7 +165,7 @@ Typical `.sciona/` contents:
 ## Tests
 
 Testing focuses on invariants and boundaries:
-- Public API boundary tests (`sciona.api.*` only).
+- Public API boundary tests (`sciona.api.addons` only).
 - Pipeline lifecycle and artifact rebuild behavior.
 - Reducer determinism and ordering.
 - Storage schema invariants.

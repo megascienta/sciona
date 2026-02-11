@@ -10,7 +10,7 @@ from typing import Optional
 
 import typer
 
-from ..api import reducers as reducer_api
+from ..api import cli as reducer_api
 from .utils import (
     cli_call,
     emit_dirty_worktree_warning,

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Public error types (stable)."""
+"""Internal error types for CLI and tooling (not public)."""
 
 from __future__ import annotations
 

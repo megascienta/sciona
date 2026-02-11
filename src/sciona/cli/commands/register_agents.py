@@ -7,8 +7,7 @@ from __future__ import annotations
 
 import typer
 
-from ...api import repo as api_repo
-from ...api import runtime as api_runtime
+from ...api import cli as api_cli
 from ..utils import agents_command_map, cli_call
 
 
@@ -25,8 +24,8 @@ def register_agents(app: typer.Typer) -> None:
         if mode not in {"append", "overwrite"}:
             raise typer.BadParameter("Mode must be 'append' or 'overwrite'.")
         path = cli_call(
-            api_repo.init_agents,
-            api_runtime.get_repo_root(),
+            api_cli.init_agents,
+            api_cli.get_repo_root(),
             mode=mode,
             commands=agents_command_map(),
         )

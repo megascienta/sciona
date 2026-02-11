@@ -2,3 +2,5 @@
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
 """SCIONA CLI package."""
+
+__all__ = []

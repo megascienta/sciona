@@ -8,42 +8,9 @@ from sciona.runtime import paths as runtime_paths
 
 
 def test_public_api_root_exposes_namespaces_only():
-    assert api.__all__ == [
-        "user",
-        "addons",
-        "reducers",
-        "repo",
-        "resolve",
-        "runtime",
-        "storage",
-        "errors",
-    ]
+    assert api.__all__ == ["addons"]
     for name in api.__all__:
         assert hasattr(api, name)
-
-
-def test_public_user_api_surface_is_explicit_and_stable():
-    expected = [
-        "init",
-        "build",
-        "status",
-        "init_dialog_defaults",
-        "init_supported_languages",
-        "init_apply_languages",
-        "clean",
-        "clean_agents",
-        "emit",
-        "list_entries",
-        "get_entry",
-        "identifier_for_repo",
-        "identifier",
-        "require_identifier",
-    ]
-
-    assert api.user.__all__ == expected
-    assert len(api.user.__all__) == len(set(api.user.__all__))
-    for name in expected:
-        assert hasattr(api.user, name), f"Missing user API symbol: {name}"
 
 
 def test_public_addon_api_surface_is_explicit_and_stable():
