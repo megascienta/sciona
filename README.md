@@ -1,12 +1,12 @@
-# SCIONA (version 0.9.0 beta)
+# SCIONA
 
-SCIONA builds a **deterministic structural index (SCI)** for a Git repository. It captures what exists in the code (modules, classes, functions, methods) and how entities are structurally connected. SCIONA is **snapshot-based, reducer-driven, and LLM-agnostic**. It does not execute code or perform semantic inference. Instead, SCIONA produces  explicit structural representations derived from tree-sitter parsing. Reducers serve as the **source of structural evidence**, rendering reproducible  facts from a committed snapshot. This deterministic representation can be used to stabilize tooling workflows, including LLM-assisted development.
+SCIONA builds a **deterministic structural index (SCI)** for a *git* repository. It captures what exists in the code (modules, classes, functions, methods) and how entities are structurally connected. SCIONA is **snapshot-based, reducer-driven, and LLM-agnostic**. It does not execute code or perform semantic inference. Instead, SCIONA produces  explicit structural representations derived from tree-sitter parsing. Reducers serve as the **source of structural evidence**, rendering reproducible  facts from a committed snapshot. This deterministic representation can be used to stabilize tooling workflows, including LLM-assisted development.
 
 ## Why SCIONA exists
 
-When working with large, long-lived codebases, we repeatedly observed the same pattern: LLM assistance initially improves productivity, but gradually becomes inconsistent.  Earlier assumptions drift. Structural constraints are forgotten. The model continues to generate plausible responses that no longer reflect the actual code. **This is not primarily an LLM failure.** It is a **context stability problem**.
+When working with large, long-lived codebases, we repeatedly observed the same pattern: LLM assistance initially improves productivity, but gradually becomes inconsistent.  Earlier assumptions drift. Structural constraints are forgotten. The model continues to generate plausible responses that no longer reflect the actual code. **This is not primarily an LLM failure. It is a context stability problem**.
 
-In real software systems, correctness often depends on structural relationships: which symbols exist, where they live, and how modules and callables interact. Most LLM tooling relies on embeddings, semantic retrieval, or dynamically assembled  context. While powerful, these approaches can be difficult to reproduce and hard to constrain across long sessions or refactors.
+In real software systems, correctness often depends on structural relationships. Most LLM tooling relies on embeddings, semantic retrieval, or dynamically assembled  context. While powerful, these approaches can be difficult to reproduce and hard to constrain across long sessions or refactors.
 
 SCIONA takes a deliberately different path: it provides a stable structural snapshot that downstream tools can rely on. Rather than reconstructing structure heuristically, tools may reason over deterministic reducer outputs. **SCIONA is intentionally limited in scope. It provides structure - not interpretation.**
 
@@ -20,15 +20,20 @@ SCIONA can be used directly via its CLI or integrated into LLM-assisted workflow
 
 ## Installation
 
-Default install:
+Default install (from GitHub):
 
-```pip install sciona```
+```bash
+pip install git+https://github.com/megascienta/sciona
+```
 
-```pip install git+https://github.com/megascienta/sciona```
+Install development dependencies and run tests:
 
-Development install:
-
-```pip install -e ".[dev]"```
+```bash
+git clone https://github.com/megascienta/sciona
+cd sciona
+pip install -e ".[dev]"
+pytest -q
+```
 
 ## Quick start
 
@@ -39,6 +44,16 @@ $EDITOR .sciona/config.yaml   # enable languages
 sciona build
 sciona status
 ```
+
+## Snapshot model
+
+SCIONA indexes the **last committed snapshot**. Reducers are evaluated against that committed snapshot, not against uncommitted working tree state. If you change tracked source files, commit and run `sciona build` to refresh the snapshot before relying on reducer output.
+
+If your worktree is dirty, some reducer outputs include an `_diff` payload describing a best‑effort overlay of uncommitted changes. `_diff` payload should be treated as advisory. Please use a clean commit and `sciona build` for authoritative results.
+
+## Supported languages
+
+Built-in analyzers currently include Python, TypeScript, and Java. Enable languages in `.sciona/config.yaml` after `sciona init`.
 
 ## Reducers usage
 
