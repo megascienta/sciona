@@ -1,4 +1,7 @@
-# SCIONA
+<p align="left">
+    <img src="assets/logo.jpg" alt="SCIONA logo" width="240">
+</p>
+
 
 SCIONA builds a **deterministic structural index (SCI)** for a *git* repository. It captures what exists in the code (modules, classes, functions, methods) and how entities are structurally connected. SCIONA is **snapshot-based, reducer-driven, and LLM-agnostic**. It does not execute code or perform semantic inference. Instead, SCIONA produces  explicit structural representations derived from tree-sitter parsing. Reducers serve as the **source of structural evidence**, rendering reproducible  facts from a committed snapshot. This deterministic representation can be used to stabilize tooling workflows, including LLM-assisted development.
 
