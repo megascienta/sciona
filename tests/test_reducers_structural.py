@@ -67,6 +67,62 @@ def test_symbol_lookup_accepts_any_kind(tmp_path):
     assert payload["matches"]
 
 
+def test_symbol_lookup_deterministic_prelimit_with_duplicate_names(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = _core_conn(repo_root)
+    duplicate_name = "pkg.duplicate.target"
+    duplicate_paths = [
+        "pkg/z_last.py",
+        "pkg/y_last.py",
+        "pkg/x_last.py",
+        "pkg/w_last.py",
+        "pkg/v_last.py",
+        "pkg/a_first.py",
+    ]
+    try:
+        for idx, file_path in enumerate(duplicate_paths):
+            structural_id = f"dup_{idx}"
+            conn.execute(
+                """
+                INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
+                VALUES (?, ?, ?, ?)
+                """,
+                (structural_id, "function", "python", snapshot_id),
+            )
+            conn.execute(
+                """
+                INSERT INTO node_instances(
+                    instance_id, structural_id, snapshot_id, qualified_name, file_path, start_line, end_line, content_hash
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    f"{snapshot_id}:{structural_id}",
+                    structural_id,
+                    snapshot_id,
+                    duplicate_name,
+                    file_path,
+                    1,
+                    10,
+                    f"hash-{structural_id}",
+                ),
+            )
+        conn.commit()
+        payload_text = symbol_lookup.render(
+            snapshot_id,
+            conn,
+            repo_root,
+            query="pkg.duplicate.target",
+            kind="function",
+            limit=1,
+        )
+    finally:
+        conn.close()
+    payload = json.loads(_strip_json_fence(payload_text))
+    assert payload["matches"]
+    assert payload["matches"][0]["qualified_name"] == duplicate_name
+    assert payload["matches"][0]["file_path"] == "pkg/a_first.py"
+
+
 def test_symbol_references_returns_relationships(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     conn = _core_conn(repo_root)

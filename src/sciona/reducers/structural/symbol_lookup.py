@@ -102,7 +102,7 @@ def _fetch_candidates(
         WHERE ni.snapshot_id = ?
           AND sn.node_type IN ({placeholders})
           AND (sn.structural_id = ? OR LOWER(ni.qualified_name) LIKE ?)
-        ORDER BY ni.qualified_name
+        ORDER BY ni.qualified_name, ni.file_path, sn.structural_id
         LIMIT ?
         """,
         (snapshot_id, *node_types, query, f"%{lowered}%", limit),
