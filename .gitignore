@@ -20,4 +20,4 @@ ENV/
 .sciona/
 pip-wheel-metadata/
 AGENTS.md
-reports/
+tests&experiments/
