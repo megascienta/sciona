@@ -75,6 +75,15 @@ Clean-worktree enforcement is scoped to tracked files in enabled languages (hono
 
 ## Parsing scope and limits
 
+Analysis is static and source-only across all supported languages. Analyzers parse source syntax using tree-sitter without importing, executing, or evaluating code. Edges (imports/calls) are syntax-based and are best-effort; partial parses are allowed and ambiguity is omitted rather than guessed. Dynamic dispatch, decorators, reflection, dependency injection, runtime registration, and build-time code generation are not modeled.
+
+By contract, SCIONA does not:
+- Execute code, import modules, or run builds/tests.
+- Perform runtime symbol resolution, dataflow analysis, or type checking.
+- Guarantee complete call graphs or import resolution (edges are best-effort).
+- Analyze languages outside the supported list; non-tracked files are ignored.
+- Index generated artifacts unless they are committed, tracked files.
+
 - Discovery is git-tracked files only; no directory walking.
 - `.gitignore` affects tracked-file discovery when files are explicitly ignored.
 - Discovery applies `discovery.exclude_globs` after hard excludes (`.git/`, `.sciona/`).
