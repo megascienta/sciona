@@ -17,7 +17,7 @@ from ..helpers.profile_utils import fetch_node_instance
 from ..helpers import queries
 from ..helpers.render import render_json_payload, require_connection
 from ..helpers.types import CallableOverviewPayload
-from ..helpers.utils import require_latest_committed_snapshot
+from ..helpers.utils import line_span_hash, require_latest_committed_snapshot
 from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
@@ -115,6 +115,7 @@ def run(snapshot_id: str, **params) -> CallableOverviewPayload:
     parent = _resolve_parent(conn, snapshot_id, row["structural_id"], repo_path)
     signature = _build_signature(row["qualified_name"], params_list)
 
+    line_span = [row["start_line"], row["end_line"]]
     return {
         "projection": "callable_overview",
         "projection_version": "1.0",
@@ -124,8 +125,9 @@ def run(snapshot_id: str, **params) -> CallableOverviewPayload:
         "language": row["language"],
         "module_qualified_name": module_name,
         "file_path": row["file_path"],
-        "line_span": [row["start_line"], row["end_line"]],
+        "line_span": line_span,
         "content_hash": row["content_hash"],
+        "line_span_hash": line_span_hash(repo_path, row["file_path"], line_span),
         "parameters": params_list,
         "signature": signature,
         "decorators": decorators,

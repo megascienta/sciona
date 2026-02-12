@@ -8,8 +8,7 @@ from __future__ import annotations
 from typing import Dict, List, Optional
 
 from ..helpers import queries
-from ..helpers.artifact_graph_edges import load_artifact_edges
-from ..helpers.context import current_artifact_connection, fallback_artifact_connection
+from ..helpers.artifact_graph_edges import artifact_db_available, load_artifact_edges
 from ..helpers.render import render_json_payload, require_connection
 from ..helpers.utils import require_latest_committed_snapshot
 from ..metadata import ReducerMeta
@@ -47,19 +46,8 @@ def render(
     else:
         resolved_id = queries.resolve_function_id(conn, snapshot_id, function_id)
     dir_value = _normalize_direction(direction)
-    artifact_conn = current_artifact_connection()
-    owns_connection = False
-    if artifact_conn is None:
-        artifact_conn = fallback_artifact_connection(repo_root)
-        owns_connection = artifact_conn is not None
-    artifact_available = _artifact_db_available(artifact_conn)
-    try:
-        edges = _load_edges(
-            repo_root, snapshot_id, resolved_id, dir_value, artifact_conn=artifact_conn
-        )
-    finally:
-        if owns_connection:
-            artifact_conn.close()
+    artifact_available = artifact_db_available(repo_root) if repo_root else False
+    edges = _load_edges(repo_root, snapshot_id, resolved_id, dir_value)
     node_ids = {edge["caller_id"] for edge in edges} | {
         edge["callee_id"] for edge in edges
     }
@@ -109,65 +97,14 @@ def _normalize_direction(direction: Optional[str]) -> str:
     raise ValueError("callsite_index direction must be one of: in, out, both.")
 
 
-def _artifact_db_available(artifact_conn: Optional[object]) -> bool:
-    return artifact_conn is not None
-
-
 def _load_edges(
     repo_root,
     snapshot_id: str,
     resolved_id: str,
     direction: str,
-    *,
-    artifact_conn=None,
 ) -> List[Dict[str, str]]:
-    if repo_root is None or artifact_conn is None:
+    if repo_root is None:
         return []
-    edges = []
-    if direction in {"out", "both"}:
-        rows = artifact_conn.execute(
-            """
-            SELECT caller_id, callee_id, call_hash
-            FROM node_calls
-            WHERE caller_id = ?
-              AND valid = 1
-            """,
-            (resolved_id,),
-        ).fetchall()
-        for row in rows:
-            edges.append(
-                {
-                    "caller_id": row["caller_id"],
-                    "callee_id": row["callee_id"],
-                    "edge_kind": "CALLS",
-                    "edge_source": "artifact_db",
-                    "call_hash": row["call_hash"],
-                }
-            )
-    if direction in {"in", "both"}:
-        rows = artifact_conn.execute(
-            """
-            SELECT caller_id, callee_id, call_hash
-            FROM node_calls
-            WHERE callee_id = ?
-              AND valid = 1
-            """,
-            (resolved_id,),
-        ).fetchall()
-        for row in rows:
-            edges.append(
-                {
-                    "caller_id": row["caller_id"],
-                    "callee_id": row["callee_id"],
-                    "edge_kind": "CALLS",
-                    "edge_source": "artifact_db",
-                    "call_hash": row["call_hash"],
-                }
-            )
-    if edges:
-        return edges
-    # fallback to graph edges (no call_hash)
-    fallback = []
     if direction in {"out", "both"}:
         outgoing = load_artifact_edges(
             repo_root,
@@ -184,8 +121,9 @@ def _load_edges(
         )
     else:
         incoming = []
+    edges: List[Dict[str, str]] = []
     for src, dst, edge_kind in outgoing:
-        fallback.append(
+        edges.append(
             {
                 "caller_id": src,
                 "callee_id": dst,
@@ -195,7 +133,7 @@ def _load_edges(
             }
         )
     for src, dst, edge_kind in incoming:
-        fallback.append(
+        edges.append(
             {
                 "caller_id": src,
                 "callee_id": dst,
@@ -204,7 +142,7 @@ def _load_edges(
                 "call_hash": None,
             }
         )
-    return fallback
+    return edges
 
 
 def _node_lookup(

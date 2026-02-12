@@ -14,7 +14,7 @@ from ..helpers.artifact_graph_edges import artifact_db_available, load_artifact_
 from ..helpers.profile_utils import fetch_node_instance
 from ..helpers.render import render_json_payload, require_connection
 from ..helpers.types import ModuleOverviewPayload
-from ..helpers.utils import require_latest_committed_snapshot
+from ..helpers.utils import line_span_hash, require_latest_committed_snapshot
 from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
@@ -111,6 +111,7 @@ def run(snapshot_id: str, **params) -> ModuleOverviewPayload:
     language_breakdown = _language_breakdown(conn, snapshot_id, module_ids, repo_path)
 
     # Scope clamp: no cross-module aggregation or ranking beyond direct structure facts.
+    line_span = [row["start_line"], row["end_line"]]
     return {
         "projection": "module_overview",
         "projection_version": "1.0",
@@ -118,8 +119,9 @@ def run(snapshot_id: str, **params) -> ModuleOverviewPayload:
         "module_qualified_name": module_name,
         "language": row["language"],
         "file_path": row["file_path"],
-        "line_span": [row["start_line"], row["end_line"]],
+        "line_span": line_span,
         "content_hash": row["content_hash"],
+        "line_span_hash": line_span_hash(repo_path, row["file_path"], line_span),
         "files": files,
         "file_count": len(files),
         "classes": classes,

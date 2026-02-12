@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from ..helpers import queries
 from ..helpers.artifact_graph_edges import artifact_db_available
@@ -35,6 +35,7 @@ def render(
     function_id: str | None = None,
     method_id: str | None = None,
     class_id: str | None = None,
+    top_k: int | None = None,
     **_: object,
 ) -> str:
     conn = require_connection(conn)
@@ -65,6 +66,8 @@ def render(
         raise ValueError("MODULE_CALL_GRAPH requires a resolvable module_id.")
     artifact_available = artifact_db_available(repo_root) if repo_root else False
 
+    limit = _normalize_top_k(top_k)
+
     outgoing_edges = load_module_call_edges(
         repo_root,
         src_module_ids=[resolved_module_id],
@@ -74,13 +77,27 @@ def render(
         dst_module_ids=[resolved_module_id],
     )
 
-    outgoing = _edges_to_entries(outgoing_edges, direction="outgoing")
-    incoming = _edges_to_entries(incoming_edges, direction="incoming")
+    outgoing_all = _edges_to_entries(outgoing_edges, direction="outgoing")
+    incoming_all = _edges_to_entries(incoming_edges, direction="incoming")
+    outgoing = _apply_top_k(outgoing_all, limit)
+    incoming = _apply_top_k(incoming_all, limit)
 
     body = {
         "module_qualified_name": resolved_module_id,
         "outgoing_count": len(outgoing),
         "incoming_count": len(incoming),
+        "outgoing_total": len(outgoing_all),
+        "incoming_total": len(incoming_all),
+        "outgoing_coverage_ratio": _coverage_ratio(len(outgoing), len(outgoing_all)),
+        "incoming_coverage_ratio": _coverage_ratio(len(incoming), len(incoming_all)),
+        "total_edges": len(outgoing_all) + len(incoming_all),
+        "edge_summary": {
+            "CALLS": {
+                "outgoing": len(outgoing_all),
+                "incoming": len(incoming_all),
+            }
+        },
+        "top_k": limit,
         "outgoing": outgoing,
         "incoming": incoming,
         "artifact_available": artifact_available,
@@ -94,9 +111,42 @@ def _edges_to_entries(
 ) -> List[Dict[str, int | str]]:
     entries: List[Dict[str, int | str]] = []
     for src_id, dst_id, count in edges:
-        module_name = dst_id if direction == "outgoing" else src_id
-        entries.append({"module_qualified_name": module_name, "call_count": count})
+        entries.append(
+            {
+                "src_module_qualified_name": src_id,
+                "dst_module_qualified_name": dst_id,
+                "direction": direction,
+                "call_count": count,
+            }
+        )
     entries.sort(
-        key=lambda item: (-int(item["call_count"]), str(item["module_qualified_name"]))
+        key=lambda item: (
+            -int(item["call_count"]),
+            str(item["src_module_qualified_name"]),
+            str(item["dst_module_qualified_name"]),
+        )
     )
     return entries
+
+
+def _normalize_top_k(value: Optional[int]) -> Optional[int]:
+    if value is None:
+        return None
+    value = int(value)
+    if value <= 0:
+        raise ValueError("module_call_graph top_k must be a positive integer.")
+    return value
+
+
+def _apply_top_k(
+    entries: List[Dict[str, int | str]], top_k: Optional[int]
+) -> List[Dict[str, int | str]]:
+    if top_k is None:
+        return entries
+    return entries[:top_k]
+
+
+def _coverage_ratio(selected: int, total: int) -> float:
+    if total <= 0:
+        return 1.0
+    return round(selected / total, 4)

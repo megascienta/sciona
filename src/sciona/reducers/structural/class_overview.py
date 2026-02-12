@@ -19,7 +19,7 @@ from ..helpers import queries
 from ..helpers.render import render_json_payload, require_connection
 from ..metadata import ReducerMeta
 from ..helpers.types import ClassOverviewPayload
-from ..helpers.utils import require_latest_committed_snapshot
+from ..helpers.utils import line_span_hash, require_latest_committed_snapshot
 
 REDUCER_META = ReducerMeta(
     reducer_id="class_overview",
@@ -109,6 +109,7 @@ def run(snapshot_id: str, **params) -> ClassOverviewPayload:
         )
 
     methods = _load_methods(conn, snapshot_id, class_id, repo_path)
+    line_span = [row["start_line"], row["end_line"]]
     return {
         "projection": "class_overview",
         "projection_version": "1.0",
@@ -116,8 +117,9 @@ def run(snapshot_id: str, **params) -> ClassOverviewPayload:
         "language": row["language"],
         "module_qualified_name": module_name,
         "file_path": row["file_path"],
-        "line_span": [row["start_line"], row["end_line"]],
+        "line_span": line_span,
         "content_hash": row["content_hash"],
+        "line_span_hash": line_span_hash(repo_path, row["file_path"], line_span),
         "decorators": decorators,
         "bases": bases,
         "methods": methods,

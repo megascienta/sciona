@@ -6,6 +6,9 @@
 from __future__ import annotations
 
 from collections import Counter
+import hashlib
+from pathlib import Path
+from typing import Optional
 
 from ...data_storage.core_db import read_ops as core_read
 
@@ -29,3 +32,28 @@ def require_latest_committed_snapshot(
         raise ValueError(
             f"{reducer_name} requires the committed snapshot selected by build."
         )
+
+
+def line_span_hash(
+    repo_root: Optional[Path],
+    file_path: Optional[str],
+    line_span: Optional[list[int]],
+) -> Optional[str]:
+    if repo_root is None or not file_path or not line_span:
+        return None
+    if len(line_span) != 2:
+        return None
+    start, end = line_span
+    if start is None or end is None or start < 1 or end < start:
+        return None
+    try:
+        content = (repo_root / file_path).read_text(encoding="utf-8")
+    except OSError:
+        return None
+    lines = content.splitlines(keepends=True)
+    if start > len(lines):
+        return None
+    segment = "".join(lines[start - 1 : min(end, len(lines))])
+    if not segment:
+        return None
+    return hashlib.sha1(segment.encode("utf-8")).hexdigest()

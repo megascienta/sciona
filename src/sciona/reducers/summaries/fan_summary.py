@@ -36,6 +36,7 @@ def render(
     method_id: str | None = None,
     class_id: str | None = None,
     module_id: str | None = None,
+    top_k: int | None = None,
     **_: object,
 ) -> str:
     conn = require_connection(conn)
@@ -54,6 +55,8 @@ def render(
         resolved_id = queries.resolve_class_id(conn, snapshot_id, class_id)
     elif module_id:
         resolved_id = _resolve_module_id(conn, snapshot_id, module_id)
+    limit = _normalize_top_k(top_k, default=5)
+
     if resolved_id:
         stats = load_node_fan_stats(
             repo_root,
@@ -65,6 +68,8 @@ def render(
         body = {
             "node_id": resolved_id,
             "edge_kinds": edge_map,
+            "edge_summary": edge_map,
+            "top_k": limit,
             "artifact_available": artifact_available,
             "edge_source": "artifact_db" if artifact_available else "none",
         }
@@ -80,9 +85,16 @@ def render(
         edge_kinds=["IMPORTS_DECLARED"],
         node_kinds=["module"],
     )
+    calls_table = _fan_tables(conn, snapshot_id, call_stats, top_k=limit)
+    imports_table = _fan_tables(conn, snapshot_id, import_stats, top_k=limit)
     body = {
-        "calls": _fan_tables(conn, snapshot_id, call_stats),
-        "imports": _fan_tables(conn, snapshot_id, import_stats),
+        "calls": calls_table,
+        "imports": imports_table,
+        "edge_summary": {
+            "CALLS": {"rows": len(call_stats)},
+            "IMPORTS_DECLARED": {"rows": len(import_stats)},
+        },
+        "top_k": limit,
         "artifact_available": artifact_available,
         "edge_source": "artifact_db" if artifact_available else "none",
     }
@@ -90,11 +102,22 @@ def render(
 
 
 def _fan_tables(
-    conn, snapshot_id: str, stats: List[tuple[str, str, str, int, int]]
-) -> Dict[str, List[Dict[str, int | str]]]:
-    by_fan_in = sorted(stats, key=lambda item: (-item[3], item[0]))[:5]
-    by_fan_out = sorted(stats, key=lambda item: (-item[4], item[0]))[:5]
+    conn,
+    snapshot_id: str,
+    stats: List[tuple[str, str, str, int, int]],
+    *,
+    top_k: Optional[int],
+) -> Dict[str, object]:
+    by_fan_in = sorted(stats, key=lambda item: (-item[3], item[0]))
+    by_fan_out = sorted(stats, key=lambda item: (-item[4], item[0]))
+    by_fan_in = _apply_top_k(by_fan_in, top_k)
+    by_fan_out = _apply_top_k(by_fan_out, top_k)
+    total = len(stats)
     return {
+        "total": total,
+        "top_k": top_k,
+        "fan_in_coverage_ratio": _coverage_ratio(len(by_fan_in), total),
+        "fan_out_coverage_ratio": _coverage_ratio(len(by_fan_out), total),
         "by_fan_in": _fan_entries(conn, snapshot_id, by_fan_in, index=3),
         "by_fan_out": _fan_entries(conn, snapshot_id, by_fan_out, index=4),
     }
@@ -161,3 +184,26 @@ def _resolve_module_id(conn, snapshot_id: str, identifier: str) -> Optional[str]
             f"Module '{identifier}' not found in snapshot '{snapshot_id}'."
         )
     return row["structural_id"]
+
+
+def _normalize_top_k(value: Optional[int], *, default: int) -> Optional[int]:
+    if value is None:
+        return default
+    value = int(value)
+    if value <= 0:
+        raise ValueError("fan_summary top_k must be a positive integer.")
+    return value
+
+
+def _apply_top_k(
+    stats: List[tuple[str, str, str, int, int]], top_k: Optional[int]
+) -> List[tuple[str, str, str, int, int]]:
+    if top_k is None:
+        return stats
+    return stats[:top_k]
+
+
+def _coverage_ratio(selected: int, total: int) -> float:
+    if total <= 0:
+        return 1.0
+    return round(selected / total, 4)

@@ -110,8 +110,8 @@ CoreDB:
 
 ArtifactDB:
 - `node_status`: per-snapshot node state (added/modified/unchanged).
-- `node_calls`: derived call edges with `call_hash` from core node hashes.
-- `graph_nodes` / `graph_edges`: combined structural + call graph index.
+- `node_calls`: derived call edges with `call_hash` from core node hashes (legacy; prefer `graph_edges`).
+- `graph_nodes` / `graph_edges`: consolidated structural + call graph index. `graph_edges` includes `IMPORTS_DECLARED`, `CONTAINS`, and `CALLS`.
 - `rebuild_status`: artifact rebuild lifecycle (`start` / `complete` / `failed`).
 - `diff_overlay*`: best-effort dirty-worktree overlays for reducer payloads.
 
@@ -124,6 +124,7 @@ Rules:
 - Reducers may read source files only to enrich already-known nodes.
 - Reducers must not discover new nodes or infer semantics.
 - Reducer existence does not imply endorsement; CLI exposure may be restricted.
+- Reducers that emit `file_path` + `line_span` may also emit `line_span_hash` (sha1 of the exact line span).
 
 Where to add reducers:
 - Implement under `src/sciona/reducers/` (use semantic folders).
