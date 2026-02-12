@@ -25,6 +25,12 @@ SCIONA can be used directly via its CLI or integrated into LLM-assisted workflow
 
 ## Installation
 
+Requirements:
+- Python 3.11 or 3.12
+- Git (for cloning and for snapshot metadata)
+- `pip` (or another PEP 517 installer)
+- Note: Python 3.13 is not supported because `tree_sitter_languages` does not publish wheels yet.
+
 Default install (pre-release) (from GitHub):
 
 ```bash
@@ -80,82 +86,18 @@ sciona resolve IDENTIFIER [--kind KIND] [--limit LIMIT] [--json]
 
 ### Available reducers:
 
-- Canonical structural index payload for the codebase
+#### Discovery and Search
+
+- Ranked symbol matches for a query
 
 ```bash
-sciona reducer --id structural_index
+sciona reducer --id symbol_lookup [--query <query>] [--kind <kind>] [--limit <limit>]
 ```
 
-- Caller/callee call graph for a callable
+- Relationship references (calls/imports) for symbols matching a query
 
 ```bash
-sciona reducer --id call_graph [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>]
-```
-
-- Caller/callee edge index for a callable
-
-```bash
-sciona reducer --id callsite_index [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>] [--direction <direction>]
-```
-
-- Class-level call graph summary
-
-```bash
-sciona reducer --id class_call_graph [--class-id <class_id>] [--method-id <method_id>]
-```
-
-- Best-effort class inheritance derived from parsed base clauses
-
-```bash
-sciona reducer --id class_inheritance [--class-id <class_id>]
-```
-
-- Explicit module import edges for the snapshot
-
-```bash
-sciona reducer --id dependency_edges [--module-id <module_id>] [--from-module-id <from_module_id>] [--to-module-id <to_module_id>] [--query <query>] [--edge-type <edge_type>] [--limit <limit>]
-```
-
-- Fan-in/out summary for calls and imports
-
-```bash
-sciona reducer --id fan_summary [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>] [--class-id <class_id>] [--module-id <module_id>]
-```
-
-- Modules that import the target module(s)
-
-```bash
-sciona reducer --id import_references [--module-id <module_id>] [--query <query>] [--edge-type <edge_type>] [--limit <limit>]
-```
-
-- Index of modules that import target module(s)
-
-```bash
-sciona reducer --id importers_index [--module-id <module_id>] [--query <query>] [--edge-type <edge_type>] [--limit <limit>]
-```
-
-- Module-level call graph summary
-
-```bash
-sciona reducer --id module_call_graph [--module-id <module_id>] [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>] [--class-id <class_id>]
-```
-
-- Structural overview payload for a callable (function or method)
-
-```bash
-sciona reducer --id callable_overview [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>]
-```
-
-- Full source payload for a callable (function or method)
-
-```bash
-sciona reducer --id callable_source [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>]
-```
-
-- Structural overview payload for a class
-
-```bash
-sciona reducer --id class_overview [--class-id <class_id>] [--method-id <method_id>]
+sciona reducer --id symbol_references [--query <query>] [--kind <kind>] [--limit <limit>]
 ```
 
 - File-level outline of modules, classes, and callables
@@ -170,22 +112,100 @@ sciona reducer --id file_outline [--module-id <module_id>] [--file-path <file_pa
 sciona reducer --id module_file_map [--module-id <module_id>]
 ```
 
+#### Index and Snapshot
+
+- Canonical structural index payload for the codebase
+
+```bash
+sciona reducer --id structural_index
+```
+
+#### Structural Overviews
+
 - Structural overview payload for a module
 
 ```bash
 sciona reducer --id module_overview [--module-id <module_id>] [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>] [--class-id <class_id>]
 ```
 
-- Ranked symbol matches for a query
+- Structural overview payload for a class
 
 ```bash
-sciona reducer --id symbol_lookup [--query <query>] [--kind <kind>] [--limit <limit>]
+sciona reducer --id class_overview [--class-id <class_id>] [--method-id <method_id>]
 ```
 
-- Relationship references (calls/imports) for symbols matching a query
+- Structural overview payload for a callable (function or method)
 
 ```bash
-sciona reducer --id symbol_references [--query <query>] [--kind <kind>] [--limit <limit>]
+sciona reducer --id callable_overview [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>]
+```
+
+#### Source and Composition
+
+- Full source payload for a callable (function or method)
+
+```bash
+sciona reducer --id callable_source [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>]
+```
+
+- Concatenated source for codebase, module, or class scope
+
+```bash
+sciona reducer --id concatenated_source [--scope <scope>] [--module-id <module_id>] [--class-id <class_id>]
+```
+
+#### Relationships: Calls
+
+- Caller/callee call graph for a callable
+
+```bash
+sciona reducer --id call_graph [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>]
+```
+
+- Caller/callee edge index for a callable
+
+```bash
+sciona reducer --id callsite_index [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>] [--direction <direction>]
+```
+
+- Module-level call graph summary
+
+```bash
+sciona reducer --id module_call_graph [--module-id <module_id>] [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>] [--class-id <class_id>]
+```
+
+- Class-level call graph summary
+
+```bash
+sciona reducer --id class_call_graph [--class-id <class_id>] [--method-id <method_id>]
+```
+
+#### Relationships: Imports
+
+- Explicit module import edges for the snapshot
+
+```bash
+sciona reducer --id dependency_edges [--module-id <module_id>] [--from-module-id <from_module_id>] [--to-module-id <to_module_id>] [--query <query>] [--edge-type <edge_type>] [--limit <limit>]
+```
+
+- Modules that import the target module(s)
+
+```bash
+sciona reducer --id import_references [--module-id <module_id>] [--query <query>] [--edge-type <edge_type>] [--limit <limit>]
+```
+
+- Index of modules that import target module(s)
+
+```bash
+sciona reducer --id importers_index [--module-id <module_id>] [--query <query>] [--edge-type <edge_type>] [--limit <limit>]
+```
+
+#### Summaries
+
+- Fan-in/out summary for calls and imports
+
+```bash
+sciona reducer --id fan_summary [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>] [--class-id <class_id>] [--module-id <module_id>]
 ```
 
 - Compressed codebase hotspot summary
@@ -194,8 +214,10 @@ sciona reducer --id symbol_references [--query <query>] [--kind <kind>] [--limit
 sciona reducer --id hotspot_summary
 ```
 
-- Concatenated source for codebase, module, or class scope
+#### Type Structure
+
+- Best-effort class inheritance derived from parsed base clauses
 
 ```bash
-sciona reducer --id concatenated_source [--scope <scope>] [--module-id <module_id>] [--class-id <class_id>]
+sciona reducer --id class_inheritance [--class-id <class_id>]
 ```

@@ -6,6 +6,11 @@ This guide consolidates the required core, contracts, and addon rules for workin
 
 SCIONA builds a deterministic structural index (SCI) for a git repository. It records *what exists* and *how entities relate* for a committed snapshot only. It does **not** execute code or infer semantics.
 
+## Requirements (for contributors)
+
+Comment: SCIONA currently requires Python 3.11 or 3.12. Ensure `git` and `pip` are available on your PATH.
+Comment: Python 3.13 is not supported yet because `tree_sitter_languages` has no published wheels for 3.13.
+
 Core invariants (all must hold):
 - Deterministic output for the same repo state, config, and version.
 - Snapshots are committed-only and logically immutable.
