@@ -6,15 +6,17 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict, List, Sequence, Set
+from typing import Dict, Iterable, List, Sequence, Set
 
 from ...code_analysis.analysis.graph import module_id_for
 
 NODE_TYPE_MODULE = ("module",)
+NODE_TYPE_DIRECTORY = ("directory",)
 NODE_TYPE_CLASS = ("class",)
 NODE_TYPE_FUNCTION_OR_METHOD = ("function", "method")
 NODE_TYPE_METHOD = ("method",)
 NODE_TYPE_FUNCTION = ("function",)
+NODE_TYPE_FILE_BACKED = ("module", "class", "function", "method")
 
 
 def resolve_function_id(conn, snapshot_id: str, function_id: str | None) -> str:
@@ -144,6 +146,49 @@ def resolve_module_root(
     return _normalize_repo_relative(repo_root, Path(row["file_path"]).parent)
 
 
+def collect_file_paths(
+    conn,
+    snapshot_id: str,
+    repo_root: Path,
+    *,
+    roots: Iterable[Path] | None = None,
+    node_types: Sequence[str] | None = NODE_TYPE_FILE_BACKED,
+    exclude_languages: Sequence[str] | None = None,
+) -> List[Path]:
+    node_clause = _in_clause("sn.node_type", node_types) if node_types else ""
+    lang_clause = _not_in_clause("sn.language", exclude_languages) if exclude_languages else ""
+    params: list[str] = [snapshot_id]
+    if node_types:
+        params.extend(node_types)
+    if exclude_languages:
+        params.extend(exclude_languages)
+    rows = conn.execute(
+        f"""
+        SELECT DISTINCT ni.file_path
+        FROM node_instances ni
+        JOIN structural_nodes sn ON sn.structural_id = ni.structural_id
+        WHERE ni.snapshot_id = ?
+          AND ni.file_path IS NOT NULL
+          AND ni.file_path != ''
+          {node_clause}
+          {lang_clause}
+        ORDER BY ni.file_path
+        """,
+        tuple(params),
+    ).fetchall()
+    root_list = list(roots) if roots else []
+    results: List[Path] = []
+    for row in rows:
+        raw_path = row["file_path"]
+        if not raw_path:
+            continue
+        rel_path = _normalize_repo_relative(repo_root, Path(raw_path))
+        if root_list and not any(rel_path.is_relative_to(root) for root in root_list):
+            continue
+        results.append(rel_path)
+    return results
+
+
 def fetch_children(
     conn,
     snapshot_id: str,
@@ -253,3 +298,8 @@ def _normalize_repo_relative(repo_root: Path, path: Path) -> Path:
 def _in_clause(field: str, values: Sequence[str]) -> str:
     placeholders = ", ".join("?" for _ in values)
     return f"AND {field} IN ({placeholders})"
+
+
+def _not_in_clause(field: str, values: Sequence[str]) -> str:
+    placeholders = ", ".join("?" for _ in values)
+    return f"AND {field} NOT IN ({placeholders})"

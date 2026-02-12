@@ -44,10 +44,12 @@ def render(
     )
     resolved_scope = _normalize_scope(scope, module_id, class_id)
     if resolved_scope == "codebase":
-        file_paths = _collect_snapshot_paths(conn, snapshot_id, repo_root)
+        file_paths = queries.collect_file_paths(conn, snapshot_id, repo_root)
     elif resolved_scope == "module":
         root = queries.resolve_module_root(conn, snapshot_id, module_id, repo_root)
-        file_paths = _collect_snapshot_paths(conn, snapshot_id, repo_root, roots=[root])
+        file_paths = queries.collect_file_paths(
+            conn, snapshot_id, repo_root, roots=[root]
+        )
     else:
         file_paths = [_resolve_class_file(conn, snapshot_id, class_id, repo_root)]
     payload = {
@@ -104,40 +106,6 @@ def _resolve_class_file(conn, snapshot_id: str, class_id: str, repo_root: Path) 
             f"Class '{class_id}' missing file_path in snapshot '{snapshot_id}'."
         )
     return _normalize_repo_relative(repo_root, Path(row["file_path"]))
-
-
-def _collect_snapshot_paths(
-    conn,
-    snapshot_id: str,
-    repo_root: Path,
-    *,
-    roots: Iterable[Path] | None = None,
-) -> List[Path]:
-    rows = conn.execute(
-        """
-        SELECT DISTINCT ni.file_path
-        FROM node_instances ni
-        WHERE ni.snapshot_id = ?
-          AND ni.file_path IS NOT NULL
-        ORDER BY ni.file_path
-        """,
-        (snapshot_id,),
-    ).fetchall()
-    root_list = list(roots) if roots else []
-    results: List[Path] = []
-    for row in rows:
-        raw_path = row["file_path"]
-        if not raw_path:
-            continue
-        rel_path = _normalize_repo_relative(repo_root, Path(raw_path))
-        if root_list and not _is_under_any_root(rel_path, root_list):
-            continue
-        results.append(rel_path)
-    return results
-
-
-def _is_under_any_root(path: Path, roots: Iterable[Path]) -> bool:
-    return any(path.is_relative_to(root) for root in roots)
 
 
 def _normalize_repo_relative(repo_root: Path, file_path: Path) -> Path:

@@ -13,7 +13,7 @@ from ..helpers.base import (
     require_connection,
 )
 from ..helpers.render import render_json_payload
-from ..helpers.utils import require_latest_committed_snapshot
+from ..helpers.utils import require_latest_committed_snapshot, resolve_repo_file
 from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
@@ -63,13 +63,8 @@ def render(
 def _extract_snippet(
     repo_root, relative_path: str, line_span: Iterable[int]
 ) -> List[str]:
-    repo_root = repo_root.resolve()
-    file_path = (repo_root / relative_path).resolve()
-    try:
-        file_path.relative_to(repo_root)
-    except ValueError:
-        return []
-    if not file_path.exists():
+    file_path = resolve_repo_file(repo_root, relative_path)
+    if file_path is None:
         return []
     try:
         text = file_path.read_text(encoding="utf-8")

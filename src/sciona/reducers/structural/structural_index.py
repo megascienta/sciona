@@ -162,11 +162,11 @@ def _module_summaries(
         module_name = module_graph.structural_lookup.get(structural_id)
         if not module_name:
             continue
+        node_type = row["node_type"]
         file_path = row["file_path"]
-        if file_path:
+        if file_path and node_type != "directory":
             module_files.setdefault(module_name, set()).add(file_path)
             file_path_votes[file_path][module_name] += 1
-        node_type = row["node_type"]
         if node_type in FUNCTION_NODE_TYPES:
             function_counts[module_name] = function_counts.get(module_name, 0) + 1
             function_languages[row["language"]] += 1
@@ -211,9 +211,11 @@ def _file_entries(
 ) -> List[Dict[str, object]]:
     rows = conn.execute(
         """
-        SELECT DISTINCT file_path AS path
-        FROM node_instances
-        WHERE snapshot_id = ?
+        SELECT DISTINCT ni.file_path AS path
+        FROM node_instances ni
+        JOIN structural_nodes sn ON sn.structural_id = ni.structural_id
+        WHERE ni.snapshot_id = ?
+          AND sn.node_type != 'directory'
         """,
         (snapshot_id,),
     ).fetchall()

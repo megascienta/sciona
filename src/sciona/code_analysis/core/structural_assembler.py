@@ -70,13 +70,14 @@ class StructuralAssembler:
         snapshot_id: str,
         file_snapshot: FileSnapshot,
         module_name: str,
+        node_type: str = "module",
         metadata: Optional[Dict[str, object]] = None,
     ) -> int:
         if not module_name:
             return 0
         module_node = SemanticNodeRecord(
             language=file_snapshot.record.language,
-            node_type="module",
+            node_type=node_type,
             qualified_name=module_name,
             display_name=module_name.split(".")[-1] or module_name,
             file_path=file_snapshot.record.relative_path,

@@ -235,7 +235,7 @@ class BuildEngine:
             record = FileRecord(
                 path=self.workspace_root / directory,
                 relative_path=directory,
-                language="meta",
+                language="synthetic",
             )
             snapshot = FileSnapshot(
                 record=record,
@@ -249,6 +249,7 @@ class BuildEngine:
                 snapshot_id,
                 snapshot,
                 module_name,
+                node_type="directory",
                 metadata={"synthetic": "directory"},
             )
         return inserted

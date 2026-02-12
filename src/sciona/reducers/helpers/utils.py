@@ -46,8 +46,11 @@ def line_span_hash(
     start, end = line_span
     if start is None or end is None or start < 1 or end < start:
         return None
+    resolved = resolve_repo_file(repo_root, file_path)
+    if resolved is None:
+        return None
     try:
-        content = (repo_root / file_path).read_text(encoding="utf-8")
+        content = resolved.read_text(encoding="utf-8")
     except OSError:
         return None
     lines = content.splitlines(keepends=True)
@@ -57,3 +60,28 @@ def line_span_hash(
     if not segment:
         return None
     return hashlib.sha1(segment.encode("utf-8")).hexdigest()
+
+
+def resolve_repo_file(
+    repo_root: Optional[Path],
+    file_path: Optional[str | Path],
+) -> Optional[Path]:
+    if repo_root is None or not file_path:
+        return None
+    repo_root = Path(repo_root).resolve()
+    candidate = Path(file_path)
+    if candidate.is_absolute():
+        full_path = candidate
+    else:
+        full_path = repo_root / candidate
+    try:
+        resolved = full_path.resolve()
+    except FileNotFoundError:
+        return None
+    try:
+        resolved.relative_to(repo_root)
+    except ValueError:
+        return None
+    if not resolved.is_file():
+        return None
+    return resolved
