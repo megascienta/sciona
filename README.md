@@ -77,7 +77,7 @@ sciona reducer list
 sciona reducer --id module_overview --module-id pkg.mod
 ```
 
-If node (module, classe, function, method) identifier is unknown:
+If node (module, classes, function, method) identifier is unknown:
 
 ```bash
 sciona search QUERY [--kind KIND] [--limit LIMIT] [--json]
@@ -205,7 +205,7 @@ sciona reducer --id importers_index [--module-id <module_id>] [--query <query>] 
 - Fan-in/out summary for calls and imports
 
 ```bash
-sciona   reducer --id fan_summary [--callable-id CALLABLE_ID] [--function-id FUNCTION_ID] [--method-id METHOD_ID] [--class-id CLASS_ID] [--module-id MODULE_ID] [--top-k TOP_K]
+sciona reducer --id fan_summary [--callable-id CALLABLE_ID] [--function-id FUNCTION_ID] [--method-id METHOD_ID] [--class-id CLASS_ID] [--module-id MODULE_ID] [--top-k TOP_K]
 ```
 
 - Compressed codebase hotspot summary
