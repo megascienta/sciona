@@ -41,8 +41,6 @@ class ClassOverviewPayload(TypedDict, total=False):
     methods: List[Dict[str, str]]
     decorators: List[str]
     bases: List[str]
-    has_docstring: bool
-    docstring_span: Sequence[int] | None
     artifact_available: bool
     edge_source: str
 
@@ -60,8 +58,6 @@ class CallableOverviewPayload(TypedDict, total=False):
     content_hash: str
     parameters: List[str]
     signature: str
-    has_docstring: bool
-    docstring_span: Sequence[int] | None
     decorators: List[str]
     parent_structural_id: str | None
     parent_type: str | None

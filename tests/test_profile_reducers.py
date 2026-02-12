@@ -249,8 +249,6 @@ def test_callable_overview_reducer_returns_python_metadata(tmp_path):
     assert payload["file_path"] == "pkg/alpha/service.py"
     assert payload["parameters"] == ["user_id", "*args", "**kwargs"]
     assert payload["signature"].startswith("helper(")
-    assert payload["has_docstring"] is True
-    assert payload["docstring_span"] == [14, 14]
     assert payload["parent_structural_id"] == repo["ids"]["module_alpha"]
     assert payload["decorators"] == []
     assert "confidence" not in payload
@@ -290,8 +288,6 @@ def test_class_overview_reducer_exposes_methods_and_metadata(tmp_path):
     assert payload["module_qualified_name"] == "pkg.alpha.service"
     assert payload["decorators"] == ["decorator('value')"]
     assert payload["bases"] == ["BaseService", "Mixin"]
-    assert payload["has_docstring"] is True
-    assert payload["docstring_span"] == [7, 7]
     assert payload["methods"] == [
         {
             "function_id": repo["ids"]["method_one"],

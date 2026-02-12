@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from ...code_analysis.tools.profile_introspection import (
     python_function_extras,
@@ -96,18 +96,14 @@ def run(snapshot_id: str, **params) -> CallableOverviewPayload:
     artifact_available = artifact_db_available(repo_path) if repo_path else False
     params_list: List[str] = []
     decorators: List[str] = []
-    has_docstring = False
-    docstring_span: Optional[List[int]] = None
     if row["language"] == "python":
-        params_list, has_docstring, doc_span, decorators = python_function_extras(
+        params_list, decorators = python_function_extras(
             row["language"],
             repo_path,
             row["file_path"],
             row["start_line"],
             row["end_line"],
         )
-        if doc_span:
-            docstring_span = [doc_span[0], doc_span[1]]
     elif row["language"] == "typescript":
         params_list, decorators = typescript_function_extras(
             row["language"],
@@ -132,8 +128,6 @@ def run(snapshot_id: str, **params) -> CallableOverviewPayload:
         "content_hash": row["content_hash"],
         "parameters": params_list,
         "signature": signature,
-        "has_docstring": has_docstring,
-        "docstring_span": docstring_span,
         "decorators": decorators,
         "parent_structural_id": parent.get("structural_id"),
         "parent_type": parent.get("node_type"),

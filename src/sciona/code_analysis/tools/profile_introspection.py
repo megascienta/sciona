@@ -20,22 +20,17 @@ def python_function_extras(
     file_path: str,
     start_line: int,
     end_line: int,
-) -> Tuple[List[str], bool, Optional[Tuple[int, int]], List[str]]:
-    """Return parameters + docstring location info for Python functions."""
+) -> Tuple[List[str], List[str]]:
+    """Return parameters and decorators for Python functions."""
     if language != "python" or repo_root is None:
-        return [], False, None, []
+        return [], []
     inspector = _python_inspector(repo_root, file_path)
     if not inspector:
-        return [], False, None, []
+        return [], []
     details = inspector.function_details(start_line, end_line)
     if not details:
-        return [], False, None, []
-    return (
-        details.parameters,
-        details.has_docstring,
-        details.docstring_span,
-        details.decorators,
-    )
+        return [], []
+    return details.parameters, details.decorators
 
 
 def python_class_extras(
@@ -44,22 +39,17 @@ def python_class_extras(
     file_path: str,
     start_line: int,
     end_line: int,
-) -> Tuple[List[str], List[str], bool, Optional[Tuple[int, int]]]:
+) -> Tuple[List[str], List[str]]:
     """Return decorator/base metadata for Python classes."""
     if language != "python" or repo_root is None:
-        return [], [], False, None
+        return [], []
     inspector = _python_inspector(repo_root, file_path)
     if not inspector:
-        return [], [], False, None
+        return [], []
     details = inspector.class_details(start_line, end_line)
     if not details:
-        return [], [], False, None
-    return (
-        details.decorators,
-        details.bases,
-        details.has_docstring,
-        details.docstring_span,
-    )
+        return [], []
+    return details.decorators, details.bases
 
 
 def typescript_function_extras(
@@ -111,8 +101,6 @@ def typescript_class_extras(
 @dataclass
 class _FunctionDetails:
     parameters: List[str]
-    has_docstring: bool
-    docstring_span: Optional[Tuple[int, int]]
     decorators: List[str]
 
 
@@ -120,8 +108,6 @@ class _FunctionDetails:
 class _ClassDetails:
     decorators: List[str]
     bases: List[str]
-    has_docstring: bool
-    docstring_span: Optional[Tuple[int, int]]
 
 
 class _PythonInspector:
@@ -156,11 +142,8 @@ class _PythonInspector:
             return
         if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             return
-        doc_span = _docstring_span(node)
         self.functions[(lineno, end_lineno)] = _FunctionDetails(
             parameters=_collect_parameters(node.args),
-            has_docstring=doc_span is not None,
-            docstring_span=doc_span,
             decorators=[
                 _safe_unparse(entry) for entry in getattr(node, "decorator_list", [])
             ],
@@ -178,12 +161,9 @@ class _PythonInspector:
                 bases.append(f"{keyword.arg}={expr}")
             else:
                 bases.append(expr)
-        doc_span = _docstring_span(node)
         self.classes[(lineno, end_lineno)] = _ClassDetails(
             decorators=[_safe_unparse(entry) for entry in node.decorator_list],
             bases=bases,
-            has_docstring=doc_span is not None,
-            docstring_span=doc_span,
         )
 
 
@@ -231,21 +211,6 @@ def _safe_unparse(node: ast.AST) -> str:
         return ast.dump(node)
     except ValueError:
         return ""
-
-
-def _docstring_span(node: ast.AST) -> Optional[Tuple[int, int]]:
-    body = getattr(node, "body", None)
-    if not body or not isinstance(body, list) or not body:
-        return None
-    expr = body[0]
-    if isinstance(expr, ast.Expr):
-        value = getattr(expr, "value", None)
-        if isinstance(value, ast.Constant) and isinstance(value.value, str):
-            lineno = getattr(expr, "lineno", None)
-            end_lineno = getattr(expr, "end_lineno", None)
-            if lineno is not None and end_lineno is not None:
-                return lineno, end_lineno
-    return None
 
 
 _MAX_AST_DEPTH = 2000

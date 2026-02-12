@@ -91,18 +91,14 @@ def run(snapshot_id: str, **params) -> ClassOverviewPayload:
     artifact_available = artifact_db_available(repo_path) if repo_path else False
     decorators: List[str] = []
     bases: List[str] = []
-    has_docstring = False
-    docstring_span: List[int] | None = None
     if row["language"] == "python":
-        decorators, bases, has_docstring, doc_span = python_class_extras(
+        decorators, bases = python_class_extras(
             row["language"],
             repo_path,
             row["file_path"],
             row["start_line"],
             row["end_line"],
         )
-        if doc_span:
-            docstring_span = [doc_span[0], doc_span[1]]
     elif row["language"] == "typescript":
         decorators, bases = typescript_class_extras(
             row["language"],
@@ -124,8 +120,6 @@ def run(snapshot_id: str, **params) -> ClassOverviewPayload:
         "content_hash": row["content_hash"],
         "decorators": decorators,
         "bases": bases,
-        "has_docstring": has_docstring,
-        "docstring_span": docstring_span,
         "methods": methods,
         "artifact_available": artifact_available,
         "edge_source": "artifact_db" if artifact_available else "none",
