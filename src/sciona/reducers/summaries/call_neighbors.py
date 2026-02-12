@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Callable call graph reducer."""
+"""Callable call neighbors reducer."""
 
 from __future__ import annotations
 
@@ -15,13 +15,13 @@ from ..helpers.utils import require_latest_committed_snapshot
 from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
-    reducer_id="call_graph",
+    reducer_id="call_neighbors",
     category="dependency",
     scope="callable",
     placeholders=("CALL_GRAPH",),
     determinism="conditional",
     payload_size_stats=None,
-    summary="Caller/callee call graph for a callable.",
+    summary="Caller/callee node sets (deduped) for a callable.",
     lossy=True,
 )
 
@@ -37,7 +37,7 @@ def render(
 ) -> str:
     conn = require_connection(conn)
     require_latest_committed_snapshot(
-        conn, snapshot_id, reducer_name="call_graph reducer"
+        conn, snapshot_id, reducer_name="call_neighbors reducer"
     )
     if callable_id and not (function_id or method_id):
         function_id = callable_id

@@ -15,7 +15,7 @@ from ..helpers.utils import require_latest_committed_snapshot
 from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
-    reducer_id="module_call_graph",
+    reducer_id="module_call_graph_summary",
     category="dependency",
     scope="module",
     placeholders=("MODULE_CALL_GRAPH",),
@@ -40,7 +40,7 @@ def render(
 ) -> str:
     conn = require_connection(conn)
     require_latest_committed_snapshot(
-        conn, snapshot_id, reducer_name="module_call_graph reducer"
+        conn, snapshot_id, reducer_name="module_call_graph_summary reducer"
     )
     if callable_id and not (function_id or method_id):
         function_id = callable_id
@@ -134,7 +134,7 @@ def _normalize_top_k(value: Optional[int]) -> Optional[int]:
         return None
     value = int(value)
     if value <= 0:
-        raise ValueError("module_call_graph top_k must be a positive integer.")
+        raise ValueError("module_call_graph_summary top_k must be a positive integer.")
     return value
 
 

@@ -6,21 +6,21 @@
 from __future__ import annotations
 
 from . import (
-    call_graph,
+    call_neighbors,
     callsite_index,
-    class_call_graph,
+    class_call_graph_summary,
     fan_summary,
     hotspot_summary,
     importers_index,
-    module_call_graph,
+    module_call_graph_summary,
 )
 
 __all__ = [
-    "call_graph",
+    "call_neighbors",
     "callsite_index",
-    "class_call_graph",
+    "class_call_graph_summary",
     "fan_summary",
     "hotspot_summary",
     "importers_index",
-    "module_call_graph",
+    "module_call_graph_summary",
 ]

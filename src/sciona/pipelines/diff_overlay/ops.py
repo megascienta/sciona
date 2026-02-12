@@ -259,17 +259,17 @@ _NODE_PROJECTIONS = {
     "file_outline",
     "module_file_map",
     "dependency_edges",
-    "import_references",
+    "import_targets",
     "importers_index",
     "symbol_lookup",
     "symbol_references",
 }
 
 _SUMMARY_PROJECTIONS = {
-    "call_graph",
+    "call_neighbors",
     "callsite_index",
-    "class_call_graph",
-    "module_call_graph",
+    "class_call_graph_summary",
+    "module_call_graph_summary",
     "fan_summary",
     "hotspot_summary",
 }

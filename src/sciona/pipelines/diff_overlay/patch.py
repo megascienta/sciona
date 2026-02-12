@@ -33,8 +33,8 @@ def apply_overlay_to_payload(
         return patch_module_file_map(payload, overlay), True
     if projection == "dependency_edges":
         return patch_dependency_edges(payload, overlay), True
-    if projection == "import_references":
-        return patch_import_references(payload, overlay), True
+    if projection == "import_targets":
+        return patch_import_targets(payload, overlay), True
     if projection == "importers_index":
         return patch_importers_index(payload, overlay), True
     if projection == "symbol_lookup":
@@ -42,10 +42,10 @@ def apply_overlay_to_payload(
     if projection == "symbol_references":
         return patch_symbol_references(payload, overlay), True
     if projection in {
-        "call_graph",
+        "call_neighbors",
         "callsite_index",
-        "class_call_graph",
-        "module_call_graph",
+        "class_call_graph_summary",
+        "module_call_graph_summary",
         "fan_summary",
         "hotspot_summary",
     }:
@@ -716,7 +716,7 @@ def patch_dependency_edges(
     return payload
 
 
-def patch_import_references(
+def patch_import_targets(
     payload: dict[str, object], overlay: OverlayPayload
 ) -> dict[str, object]:
     edges = list(payload.get("edges", []) or [])

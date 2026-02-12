@@ -156,10 +156,10 @@ sciona reducer --id concatenated_source [--scope <scope>] [--module-id <module_i
 
 #### Relationships: Calls
 
-- Caller/callee call graph for a callable
+- Caller/callee node sets (deduped) for a callable
 
 ```bash
-sciona reducer --id call_graph [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>]
+sciona reducer --id call_neighbors [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>]
 ```
 
 - Caller/callee edge index for a callable
@@ -171,13 +171,13 @@ sciona reducer --id callsite_index [--callable-id <callable_id>] [--function-id 
 - Module-level call graph summary
 
 ```bash
-sciona reducer --id module_call_graph [--module-id <module_id>] [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>] [--class-id <class_id>]
+sciona reducer --id module_call_graph_summary [--module-id <module_id>] [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>] [--class-id <class_id>]
 ```
 
 - Class-level call graph summary
 
 ```bash
-sciona reducer --id class_call_graph [--class-id <class_id>] [--method-id <method_id>]
+sciona reducer --id class_call_graph_summary [--class-id <class_id>] [--method-id <method_id>]
 ```
 
 #### Relationships: Imports
@@ -188,10 +188,10 @@ sciona reducer --id class_call_graph [--class-id <class_id>] [--method-id <metho
 sciona reducer --id dependency_edges [--module-id <module_id>] [--from-module-id <from_module_id>] [--to-module-id <to_module_id>] [--query <query>] [--edge-type <edge_type>] [--limit <limit>]
 ```
 
-- Modules that import the target module(s)
+- Import edges targeting module(s), including target list and edge detail
 
 ```bash
-sciona reducer --id import_references [--module-id <module_id>] [--query <query>] [--edge-type <edge_type>] [--limit <limit>]
+sciona reducer --id import_targets [--module-id <module_id>] [--query <query>] [--edge-type <edge_type>] [--limit <limit>]
 ```
 
 - Index of modules that import target module(s)
@@ -205,7 +205,7 @@ sciona reducer --id importers_index [--module-id <module_id>] [--query <query>] 
 - Fan-in/out summary for calls and imports
 
 ```bash
-sciona reducer --id fan_summary [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>] [--class-id <class_id>] [--module-id <module_id>]
+sciona   reducer --id fan_summary [--callable-id CALLABLE_ID] [--function-id FUNCTION_ID] [--method-id METHOD_ID] [--class-id CLASS_ID] [--module-id MODULE_ID] [--top-k TOP_K]
 ```
 
 - Compressed codebase hotspot summary

@@ -7,7 +7,7 @@ import sqlite3
 from sciona.reducers.structural import (
     dependency_edges,
     file_outline,
-    import_references,
+    import_targets,
     module_file_map,
     symbol_lookup,
     symbol_references,
@@ -201,11 +201,11 @@ def test_dependency_edges_query_filters_sources(tmp_path):
     )
 
 
-def test_import_references_returns_importers(tmp_path):
+def test_import_targets_returns_importers(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     conn = _core_conn(repo_root)
     try:
-        payload_text = import_references.render(
+        payload_text = import_targets.render(
             snapshot_id,
             conn,
             repo_root,

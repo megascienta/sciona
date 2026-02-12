@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Import reference reducer (who imports a module)."""
+"""Import target reducer (who imports a module)."""
 
 from __future__ import annotations
 
@@ -12,13 +12,13 @@ from ..helpers.utils import require_latest_committed_snapshot
 from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
-    reducer_id="import_references",
+    reducer_id="import_targets",
     category="dependency",
     scope="codebase",
     placeholders=("IMPORT_REFERENCES",),
     determinism="conditional",
     payload_size_stats=None,
-    summary="Modules that import the target module(s).",
+    summary="Import edges targeting module(s), including target list and edge detail.",
     lossy=True,
 )
 
@@ -35,10 +35,10 @@ def render(
 ) -> str:
     conn = require_connection(conn)
     require_latest_committed_snapshot(
-        conn, snapshot_id, reducer_name="import_references reducer"
+        conn, snapshot_id, reducer_name="import_targets reducer"
     )
     if not module_id and not query:
-        raise ValueError("import_references requires module_id or query.")
+        raise ValueError("import_targets requires module_id or query.")
     target_ids = _resolve_module_ids(conn, snapshot_id, module_id, query)
     edge_type_value = _normalize_edge_type(edge_type)
     limit_value = _normalize_limit(limit)
@@ -99,7 +99,7 @@ def _resolve_module_ids(
     if module_name:
         normalized = str(module_name).strip()
         if not normalized:
-            raise ValueError("import_references module_id must be non-empty.")
+            raise ValueError("import_targets module_id must be non-empty.")
         rows = conn.execute(
             """
             SELECT sn.structural_id
@@ -120,7 +120,7 @@ def _resolve_module_ids(
         return module_ids
     normalized = str(query).strip() if query else ""
     if not normalized:
-        raise ValueError("import_references query must be non-empty.")
+        raise ValueError("import_targets query must be non-empty.")
     lowered = normalized.lower()
     rows = conn.execute(
         """
@@ -159,9 +159,9 @@ def _normalize_limit(limit: int | str | None) -> int | None:
     try:
         value = int(limit)
     except (TypeError, ValueError):
-        raise ValueError("import_references limit must be an integer.")
+        raise ValueError("import_targets limit must be an integer.")
     if value <= 0:
-        raise ValueError("import_references limit must be positive.")
+        raise ValueError("import_targets limit must be positive.")
     return min(value, 10000)
 
 
