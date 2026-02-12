@@ -171,8 +171,8 @@ Typical `.sciona/` contents:
 
 Releases are tag-based and use `setuptools_scm` for versioning.
 1. Ensure a clean working tree and passing tests.
-2. Create an annotated tag on the release commit (e.g., `v1.2.3`).
-3. Push the tag: `git push origin v1.2.3`.
+2. Create an annotated tag on the release commit (git tag -a vX.Y.Z -m "vX.Y.Z").
+3. Push the tag: `git push origin vX.Y.Z`.
 4. CI builds and publishes from the tag.
 
 ## Tests
