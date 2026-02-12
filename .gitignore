@@ -20,3 +20,4 @@ ENV/
 .sciona/
 pip-wheel-metadata/
 AGENTS.md
+reducer_quality_evaluation.md
