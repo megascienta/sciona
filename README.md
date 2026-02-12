@@ -31,13 +31,13 @@ Requirements:
 - `pip` (or another PEP 517 installer)
 - Note: Python 3.13 is not supported because `tree_sitter_languages` does not publish wheels yet.
 
-Default install (pre-release) (from GitHub):
+Default install (from GitHub release tag):
 
 ```bash
-pip install git+https://github.com/megascienta/sciona
+pip install git+https://github.com/megascienta/sciona@vX.Y.Z
 ```
 
-Install development dependencies and run tests:
+Install development version with dependencies and run tests:
 
 ```bash
 git clone https://github.com/megascienta/sciona

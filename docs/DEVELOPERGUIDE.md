@@ -167,6 +167,14 @@ Typical `.sciona/` contents:
 4. Run `sciona build` to refresh the committed snapshot.
 5. Use `sciona search` / `sciona resolve` then `sciona reducer --id ...` to inspect structural truth.
 
+## Release process
+
+Releases are tag-based and use `setuptools_scm` for versioning.
+1. Ensure a clean working tree and passing tests.
+2. Create an annotated tag on the release commit (e.g., `v1.2.3`).
+3. Push the tag: `git push origin v1.2.3`.
+4. CI builds and publishes from the tag.
+
 ## Tests
 
 Testing focuses on invariants and boundaries:
