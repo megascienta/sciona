@@ -722,6 +722,16 @@ def _schema_compliance(
     )
 
 
+def _normalize_report_path(repo_root: Path, value: str) -> str:
+    candidate = Path(value)
+    if candidate.is_absolute():
+        try:
+            return candidate.relative_to(repo_root).as_posix()
+        except Exception:
+            return (Path("repo_root") / "external" / candidate.name).as_posix()
+    return candidate.as_posix()
+
+
 def _blind_checks(
     payload: dict[str, Any] | None,
     gt_ids: set[str],
@@ -753,7 +763,9 @@ def _blind_checks(
         span = record.get("line_span")
         if not file_path:
             continue
-        full_path = repo_root / file_path
+        full_path = Path(file_path)
+        if not full_path.is_absolute():
+            full_path = repo_root / full_path
         if not full_path.exists() or not full_path.is_file():
             continue
         try:
@@ -799,13 +811,14 @@ def _blind_checks(
                 hash_hits += 1
             elif len(hash_diagnostics) < MAX_HASH_DIAGNOSTICS:
                 hash_diagnostics_total += 1
+                report_file_path = _normalize_report_path(repo_root, str(file_path))
                 candidates = _content_hash_candidates_bytes(snippet_bytes)
                 hash_diagnostics.append(
                     {
                         "reducer_id": reducer_id,
                         "entity_id": entity.structural_id if entity else None,
                         "entity_qname": entity.qualified_name if entity else None,
-                        "file_path": file_path,
+                        "file_path": report_file_path,
                         "line_span": span,
                         "byte_span": [start_byte, end_byte]
                         if isinstance(start_byte, int) and isinstance(end_byte, int)
@@ -2593,14 +2606,13 @@ def _sanitize_run_parameters(run_parameters: dict[str, Any]) -> dict[str, Any]:
         return run_parameters
     repo_root_path = Path(repo_root)
     sanitized = dict(run_parameters)
-    for key in ("contracts", "out_json", "out_md"):
+    sanitized["repo_root"] = "repo_root/"
+    for key in ("contracts", "out_json", "out_md", "baseline_json", "regression_thresholds"):
         value = sanitized.get(key)
         if not isinstance(value, str):
             continue
         try:
-            candidate = Path(value)
-            if candidate.is_absolute():
-                sanitized[key] = str(candidate.relative_to(repo_root_path))
+            sanitized[key] = _normalize_report_path(repo_root_path, value)
         except Exception:
             continue
     return sanitized
