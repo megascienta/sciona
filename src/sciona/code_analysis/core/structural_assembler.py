@@ -10,6 +10,7 @@ from typing import Dict, Iterable, Optional, Tuple
 
 from typing import Protocol
 from ...runtime import identity as ids
+from ...runtime.text import canonical_span_bytes
 from .normalize.model import (
     AnalysisResult,
     EdgeRecord,
@@ -192,5 +193,7 @@ class StructuralAssembler:
         ):
             segment = content[node.start_byte : node.end_byte]
             if segment:
-                return hashlib.sha1(segment).hexdigest()
+                canonical = canonical_span_bytes(segment)
+                if canonical:
+                    return hashlib.sha1(canonical).hexdigest()
         return file_snapshot.blob_sha

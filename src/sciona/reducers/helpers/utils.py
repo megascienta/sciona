@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Optional
 
 from ...data_storage.core_db import read_ops as core_read
+from ...runtime.text import canonical_span_text
 
 
 def top_modules(counter: Counter, *, limit: int) -> list[tuple[str, int]]:
@@ -59,7 +60,10 @@ def line_span_hash(
     segment = "".join(lines[start - 1 : min(end, len(lines))])
     if not segment:
         return None
-    return hashlib.sha1(segment.encode("utf-8")).hexdigest()
+    canonical = canonical_span_text(segment)
+    if not canonical:
+        return None
+    return hashlib.sha1(canonical.encode("utf-8")).hexdigest()
 
 
 def resolve_repo_file(

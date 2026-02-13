@@ -22,6 +22,7 @@ from ...runtime.config import io as runtime_config_io
 from ...runtime import constants as runtime_constants
 from ...runtime import git as git_ops
 from ...runtime import identity as ids
+from ...runtime.text import canonical_span_bytes
 from ...runtime import time as runtime_time
 from ...runtime.errors import ConfigError
 from ...runtime.logging import get_logger
@@ -441,7 +442,9 @@ def node_content_hash(node: SemanticNodeRecord, file_snapshot: FileSnapshot) -> 
     ):
         segment = content[node.start_byte : node.end_byte]
         if segment:
-            return hashlib.sha1(segment).hexdigest()
+            canonical = canonical_span_bytes(segment)
+            if canonical:
+                return hashlib.sha1(canonical).hexdigest()
     return file_snapshot.blob_sha
 
 

@@ -133,7 +133,6 @@ Rules:
 - Reducers may read source files only to enrich already-known nodes.
 - Reducers must not discover new nodes or infer semantics.
 - Reducer existence does not imply endorsement; CLI exposure may be restricted.
-- Reducers that emit `file_path` + `line_span` may also emit `line_span_hash` (sha1 of the exact line span).
 
 Where to add reducers:
 - Implement under `src/sciona/reducers/` (use semantic folders).
