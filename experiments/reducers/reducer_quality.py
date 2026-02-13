@@ -18,6 +18,7 @@ import sqlite3
 import statistics
 import tempfile
 import shutil
+import time
 from collections import defaultdict
 from contextlib import nullcontext
 from dataclasses import dataclass
@@ -86,6 +87,21 @@ DEFAULT_THRESHOLDS = {
     "identifier_overlap_drop": 0.1,
 }
 
+DEFAULT_CONTRACT_DEFAULTS = {
+    "reducer_type": "structural",
+    "overlap_policy": {"enabled": True},
+    "structural_accuracy_policy": {"enabled": True},
+    "unknown_policy": {
+        "enabled": True,
+        "penalize_out_of_scope": False,
+        "penalize_out_of_sample": False,
+        "penalize_unresolved_in_scope": True,
+        "penalize_resolution_failure": True,
+    },
+    "allow_empty": [],
+    "min_items": {},
+}
+
 
 @dataclass(frozen=True)
 class Entity:
@@ -135,17 +151,18 @@ class ReducerMetrics(TypedDict, total=False):
     samples: int
     invocations: int
     inference: dict[str, Any]
+    reducer_type: str
     structural_variance: float
     semantic_variance: float
     token_length_variation_cv: float
-    unknown_id_qname_rate: float
-    unknown_id_qname_out_of_scope_rate: float
-    unknown_id_qname_out_of_sample_rate: float
-    unknown_id_qname_unresolved_in_scope_rate: float
-    unknown_id_qname_resolution_failure_rate: float
+    unknown_id_qname_rate: float | None
+    unknown_id_qname_out_of_scope_rate: float | None
+    unknown_id_qname_out_of_sample_rate: float | None
+    unknown_id_qname_unresolved_in_scope_rate: float | None
+    unknown_id_qname_resolution_failure_rate: float | None
     omission_rate: float
-    structural_accuracy: float
-    identifier_overlap: float
+    structural_accuracy: float | None
+    identifier_overlap: float | None
     length_stability: float
     ordering_instability_rate: float
     determinism_score: float
@@ -153,6 +170,9 @@ class ReducerMetrics(TypedDict, total=False):
     coverage_score: float
     empty_match_rate: float | None
     error_rate: float
+    latency_ms_avg: float | None
+    latency_ms_p95: float | None
+    latency_ms_max: float | None
     cross_run_structural_diff: float
     forbidden_fields_present: int
     blind: BlindSummary
@@ -309,6 +329,26 @@ def _safe_mean(values: list[float], default: float | None = None) -> float | Non
 
 def _safe_ratio(numerator: float, denominator: float, default: float = 0.0) -> float:
     return (numerator / denominator) if denominator else default
+
+
+def _percentile(values: list[float], pct: float) -> float | None:
+    if not values:
+        return None
+    ordered = sorted(values)
+    if len(ordered) == 1:
+        return ordered[0]
+    pos = (len(ordered) - 1) * pct
+    lo = int(pos)
+    hi = min(lo + 1, len(ordered) - 1)
+    if lo == hi:
+        return ordered[lo]
+    return ordered[lo] + (ordered[hi] - ordered[lo]) * (pos - lo)
+
+
+def _fmt_metric(value: float | None) -> str:
+    if value is None:
+        return "n/a"
+    return f"{value}"
 
 
 def _normalize_payload_text(text: str, echo_fields: Iterable[str] | None = None) -> str:
@@ -664,20 +704,89 @@ def _load_contracts(path: Path) -> dict[str, dict[str, Any]]:
 
 
 def _contract_requirements(contracts: dict[str, dict[str, Any]], reducer_id: str) -> dict[str, Any]:
+    defaults = contracts.get("_defaults", {})
     entry = contracts.get(reducer_id, {})
+    merged = {**DEFAULT_CONTRACT_DEFAULTS, **defaults, **entry}
     return {
-        "required_fields": entry.get("required_fields", []),
-        "optional_fields": entry.get("optional_fields", []),
-        "forbidden_fields": entry.get("forbidden_fields", []),
-        "required_paths": entry.get("required_paths", []),
-        "scope": entry.get("scope"),
-        "invoke": entry.get("invoke", {}),
-        "types": entry.get("types", {}),
-        "invariants": entry.get("invariants", []),
-        "echo_fields": entry.get("echo_fields", []),
-        "evidence_fields": entry.get("evidence_fields", []),
-        "qname_allow_suffix": bool(entry.get("qname_allow_suffix", False)),
+        "required_fields": merged.get("required_fields", []),
+        "optional_fields": merged.get("optional_fields", []),
+        "forbidden_fields": merged.get("forbidden_fields", []),
+        "required_paths": merged.get("required_paths", []),
+        "scope": merged.get("scope"),
+        "invoke": merged.get("invoke", {}),
+        "types": merged.get("types", {}),
+        "invariants": merged.get("invariants", []),
+        "echo_fields": merged.get("echo_fields", []),
+        "evidence_fields": merged.get("evidence_fields", []),
+        "qname_allow_suffix": bool(merged.get("qname_allow_suffix", False)),
+        "reducer_type": merged.get("reducer_type", "structural"),
+        "overlap_policy": merged.get("overlap_policy", {}),
+        "structural_accuracy_policy": merged.get("structural_accuracy_policy", {}),
+        "unknown_policy": merged.get("unknown_policy", {}),
+        "allow_empty": merged.get("allow_empty", []),
+        "min_items": merged.get("min_items", {}),
     }
+
+
+def _policy_enabled(policy: Any, default: bool | None = True) -> bool | None:
+    if isinstance(policy, dict):
+        if "enabled" in policy:
+            return bool(policy["enabled"])
+        return default
+    if isinstance(policy, bool):
+        return policy
+    return default
+
+
+def _reducer_type(contract: dict[str, Any]) -> str:
+    return str(contract.get("reducer_type") or "structural")
+
+
+def _structural_accuracy_enabled(contract: dict[str, Any]) -> bool:
+    policy = contract.get("structural_accuracy_policy", {})
+    enabled = _policy_enabled(policy, default=None)
+    if enabled is not None:
+        return enabled
+    reducer_type = _reducer_type(contract)
+    return reducer_type == "structural"
+
+
+def _overlap_enabled(contract: dict[str, Any], reducer_id: str) -> bool:
+    policy = contract.get("overlap_policy", {})
+    enabled = _policy_enabled(policy, default=None)
+    if enabled is not None:
+        return enabled
+    reducer_type = _reducer_type(contract)
+    if reducer_type:
+        return reducer_type in {"structural", "projection", "query"}
+    return reducer_id not in SUMMARY_REDUCERS
+
+
+def _unknown_checks_enabled(contract: dict[str, Any], reducer_id: str) -> bool:
+    if reducer_id in SOURCE_REDUCERS:
+        return False
+    policy = contract.get("unknown_policy", {})
+    return _policy_enabled(policy, default=True)
+
+
+def _unknown_penalty(
+    policy: dict[str, Any],
+    *,
+    out_of_scope: int,
+    out_of_sample: int,
+    unresolved_in_scope: int,
+    resolution_failure: int,
+) -> int:
+    total = 0
+    if policy.get("penalize_out_of_scope", False):
+        total += out_of_scope
+    if policy.get("penalize_out_of_sample", False):
+        total += out_of_sample
+    if policy.get("penalize_unresolved_in_scope", True):
+        total += unresolved_in_scope
+    if policy.get("penalize_resolution_failure", True):
+        total += resolution_failure
+    return total
 
 
 def _schema_compliance(
@@ -688,7 +797,13 @@ def _schema_compliance(
     forbidden = contract.get("forbidden_fields", [])
     type_rules = contract.get("types", {})
     invariants = contract.get("invariants", [])
+    allow_empty = contract.get("allow_empty", [])
+    min_items = contract.get("min_items", {})
     if payload is None:
+        list_missing = (
+            [f"allow_empty:{field}" for field in allow_empty]
+            + [f"min_items:{field}:{value}" for field, value in (min_items or {}).items()]
+        )
         return (
             0,
             len(required),
@@ -699,14 +814,15 @@ def _schema_compliance(
             len(type_rules),
             list(type_rules.keys()),
             0,
-            len(invariants),
-            [str(item) for item in invariants],
+            len(invariants) + len(list_missing),
+            [str(item) for item in invariants] + list_missing,
         )
     present_required = sum(1 for key in required if key in payload)
     forbidden_hits = sum(1 for key in forbidden if key in payload)
     present_paths, missing_paths = _validate_paths(payload, required_paths)
     type_ok, type_total, type_missing = _type_check(payload, type_rules)
     invariant_ok, invariant_total, invariant_missing = _invariant_check(payload, invariants)
+    list_ok, list_total, list_missing = _list_policy_check(payload, allow_empty, min_items)
     return (
         present_required,
         len(required),
@@ -716,9 +832,9 @@ def _schema_compliance(
         type_ok,
         type_total,
         type_missing,
-        invariant_ok,
-        invariant_total,
-        invariant_missing,
+        invariant_ok + list_ok,
+        invariant_total + list_total,
+        invariant_missing + list_missing,
     )
 
 
@@ -1109,6 +1225,7 @@ def _snippet_preview_bytes(data: bytes) -> str:
         text = ""
     return _snippet_preview(text)
 
+
 def _validate_paths(payload: dict[str, Any], paths: list[str]) -> tuple[int, list[str]]:
     present = 0
     missing: list[str] = []
@@ -1143,6 +1260,28 @@ def _path_exists(root: dict[str, Any], path: str) -> bool:
         if not nodes:
             return False
     return True
+
+
+def _extract_path_values(root: dict[str, Any], path: str) -> list[Any] | None:
+    parts = path.split(".")
+    nodes: list[Any] = [root]
+    for part in parts:
+        next_nodes: list[Any] = []
+        list_mode = part.endswith("[]")
+        key = part[:-2] if list_mode else part
+        for node in nodes:
+            if not isinstance(node, dict) or key not in node:
+                continue
+            value = node[key]
+            if list_mode:
+                if isinstance(value, list):
+                    next_nodes.extend(value)
+            else:
+                next_nodes.append(value)
+        nodes = next_nodes
+        if not nodes:
+            return None
+    return nodes
 
 
 def _db_consistency(core_ids: set[str], artifact_ids: set[str]) -> float:
@@ -1302,6 +1441,31 @@ def _type_matches(value: Any, type_name: str) -> bool:
     return False
 
 
+def _list_policy_check(
+    payload: dict[str, Any], allow_empty: Iterable[str], min_items: dict[str, int]
+) -> tuple[int, int, list[str]]:
+    ok = 0
+    failures: list[str] = []
+    allow_empty_set = set(allow_empty or [])
+    for field, minimum in (min_items or {}).items():
+        value = payload.get(field)
+        if not isinstance(value, list):
+            failures.append(f"min_items:{field}:{minimum}")
+            continue
+        if len(value) >= minimum:
+            ok += 1
+        else:
+            failures.append(f"min_items:{field}:{minimum}")
+    for field in allow_empty_set:
+        value = payload.get(field)
+        if isinstance(value, list):
+            ok += 1
+        else:
+            failures.append(f"allow_empty:{field}")
+    total = len(min_items or {}) + len(allow_empty_set)
+    return ok, total, failures
+
+
 def _invariant_check(payload: dict[str, Any], invariants: list[dict[str, Any]]) -> tuple[int, int, list[str]]:
     ok = 0
     failures: list[str] = []
@@ -1317,6 +1481,42 @@ def _invariant_check(payload: dict[str, Any], invariants: list[dict[str, Any]]) 
                     failures.append(f"equals_len:{count_field}:{list_field}")
             else:
                 failures.append(f"equals_len:{count_field}:{list_field}")
+        elif "min_items" in rule:
+            field, minimum = rule["min_items"]
+            value = payload.get(field)
+            if isinstance(value, list) and isinstance(minimum, int) and len(value) >= minimum:
+                ok += 1
+            else:
+                failures.append(f"min_items:{field}:{minimum}")
+        elif "unique" in rule:
+            field = rule["unique"]
+            values = _extract_path_values(payload, field)
+            if values is None:
+                failures.append(f"unique:{field}")
+            else:
+                filtered = [v for v in values if v is not None]
+                if len(set(filtered)) == len(filtered):
+                    ok += 1
+                else:
+                    failures.append(f"unique:{field}")
+        elif "non_negative" in rule:
+            field = rule["non_negative"]
+            value = payload.get(field)
+            if isinstance(value, (int, float)) and not isinstance(value, bool) and value >= 0:
+                ok += 1
+            else:
+                failures.append(f"non_negative:{field}")
+        elif "subset_of" in rule:
+            left, right = rule["subset_of"]
+            left_values = _extract_path_values(payload, left)
+            right_values = _extract_path_values(payload, right)
+            if left_values is None or right_values is None:
+                failures.append(f"subset_of:{left}:{right}")
+            else:
+                if set(left_values) <= set(right_values):
+                    ok += 1
+                else:
+                    failures.append(f"subset_of:{left}:{right}")
         else:
             failures.append(str(rule))
     return ok, len(invariants), failures
@@ -1349,39 +1549,58 @@ def _source_reducer_omission(
     return False
 
 
-def _summarize_strengths(metrics: dict[str, float], reducer_id: str) -> list[str]:
+def _summarize_strengths(
+    metrics: dict[str, Any],
+    reducer_id: str,
+    *,
+    overlap_enabled: bool,
+    structural_accuracy_enabled: bool,
+) -> list[str]:
     strengths: list[str] = []
     if metrics["determinism_score"] >= 0.95:
         strengths.append("High determinism across repeated runs.")
-    if metrics["structural_accuracy"] >= 0.95:
+    if structural_accuracy_enabled and metrics.get("structural_accuracy") is not None and metrics["structural_accuracy"] >= 0.95:
         strengths.append("Strong edge-level agreement with DB evidence.")
-    if reducer_id not in SUMMARY_REDUCERS and metrics["identifier_overlap"] >= 0.7:
-        strengths.append("High identifier overlap with direct-code terms.")
+    if overlap_enabled and metrics.get("identifier_overlap") is not None and metrics["identifier_overlap"] >= 0.7:
+        strengths.append("High evidence-term overlap with direct-code terms.")
     if metrics["length_stability"] >= 0.98:
         strengths.append("Stable payload length.")
     return strengths or ["No standout strengths observed."]
 
 
-def _summarize_failures(metrics: dict[str, float], reducer_id: str) -> list[str]:
+def _summarize_failures(
+    metrics: dict[str, Any],
+    reducer_id: str,
+    *,
+    overlap_enabled: bool,
+    structural_accuracy_enabled: bool,
+    unknown_enabled: bool,
+) -> list[str]:
     failures: list[str] = []
-    if reducer_id not in SOURCE_REDUCERS and metrics["unknown_id_qname_rate"] > 0:
+    if unknown_enabled and metrics.get("unknown_id_qname_rate") not in (None, 0):
         failures.append("Unknown ids/qualified names present in evidence fields (may include out-of-scope symbols).")
     if metrics["omission_rate"] > 0:
         failures.append("Target entity omitted for some invocations.")
-    if metrics["structural_accuracy"] < 0.9:
+    if structural_accuracy_enabled and metrics.get("structural_accuracy") is not None and metrics["structural_accuracy"] < 0.9:
         failures.append("Dependency tuples include DB-unverified pairs.")
-    if reducer_id not in SUMMARY_REDUCERS and metrics["identifier_overlap"] < 0.5:
-        failures.append("Low identifier overlap with direct-code terms.")
+    if overlap_enabled and metrics.get("identifier_overlap") is not None and metrics["identifier_overlap"] < 0.5:
+        failures.append("Low evidence-term overlap with direct-code terms.")
     return failures or ["No major failure mode observed."]
 
 
-def _summarize_recommendations(metrics: dict[str, float], reducer_id: str) -> list[str]:
+def _summarize_recommendations(
+    metrics: dict[str, Any],
+    reducer_id: str,
+    *,
+    overlap_enabled: bool,
+    unknown_enabled: bool,
+) -> list[str]:
     recs: list[str] = []
-    if reducer_id not in SOURCE_REDUCERS and metrics["unknown_id_qname_rate"] > 0:
+    if unknown_enabled and metrics.get("unknown_id_qname_rate") not in (None, 0):
         recs.append("Verify unknown ids/qnames; constrain to snapshot-resolved evidence if they are internal.")
     if metrics["determinism_score"] < 0.95:
         recs.append("Sort collections prior to serialization.")
-    if reducer_id not in SUMMARY_REDUCERS and metrics["identifier_overlap"] < 0.7:
+    if overlap_enabled and metrics.get("identifier_overlap") is not None and metrics["identifier_overlap"] < 0.7:
         recs.append("Expose identifiers in evidence fields when available.")
     if metrics["token_length_variation_cv"] > 0.05:
         recs.append("Normalize optional sections and ordering.")
@@ -1407,14 +1626,30 @@ def _build_executive_summary(
         ]
 
     avg_determinism = _safe_mean([r["determinism_score"] for r in valid_rows], default=0.0) or 0.0
-    avg_structural_accuracy = _safe_mean([r["structural_accuracy"] for r in valid_rows], default=0.0) or 0.0
-    overlap_rows = [r for r in valid_rows if r["reducer_id"] not in SUMMARY_REDUCERS]
+    structural_rows = [
+        r for r in valid_rows if r.get("structural_accuracy") is not None
+    ]
+    avg_structural_accuracy = (
+        _safe_mean([r["structural_accuracy"] for r in structural_rows], default=None)
+        if structural_rows
+        else None
+    )
+    overlap_rows = [
+        r for r in valid_rows if r.get("identifier_overlap") is not None
+    ]
     avg_identifier_overlap = (
-        (_safe_mean([r["identifier_overlap"] for r in overlap_rows], default=None) or 0.0)
+        _safe_mean([r["identifier_overlap"] for r in overlap_rows], default=None)
         if overlap_rows
         else None
     )
-    avg_unknown_id_qname = _safe_mean([r["unknown_id_qname_rate"] for r in valid_rows], default=0.0) or 0.0
+    unknown_rows = [
+        r for r in valid_rows if r.get("unknown_id_qname_rate") is not None
+    ]
+    avg_unknown_id_qname = (
+        _safe_mean([r["unknown_id_qname_rate"] for r in unknown_rows], default=None)
+        if unknown_rows
+        else None
+    )
     avg_error_rate = _safe_mean([r.get("error_rate", 0.0) for r in valid_rows], default=0.0) or 0.0
 
     empty_match_rows = [
@@ -1448,7 +1683,11 @@ def _build_executive_summary(
     lowest_semantic = (
         min(overlap_rows, key=lambda r: r["identifier_overlap"]) if overlap_rows else None
     )
-    highest_hallucination = max(valid_rows, key=lambda r: r["unknown_id_qname_rate"])
+    highest_hallucination = (
+        max(unknown_rows, key=lambda r: r["unknown_id_qname_rate"])
+        if unknown_rows
+        else None
+    )
     lowest_determinism = min(valid_rows, key=lambda r: r["determinism_score"])
     highest_determinism = max(valid_rows, key=lambda r: r["determinism_score"])
 
@@ -1460,29 +1699,42 @@ def _build_executive_summary(
     summary.append(
         "Overall quality snapshot: "
         f"avg_determinism=`{avg_determinism:.4f}`, "
-        f"avg_structural_accuracy=`{avg_structural_accuracy:.4f}`, "
         + (
-            f"avg_identifier_overlap=`{avg_identifier_overlap:.4f}`, "
-            if avg_identifier_overlap is not None
-            else "avg_identifier_overlap=`n/a` (summary reducers excluded), "
+            f"avg_structural_accuracy=`{avg_structural_accuracy:.4f}`, "
+            if avg_structural_accuracy is not None
+            else "avg_structural_accuracy=`n/a` (not applicable for some reducers), "
         )
-        + f"avg_unknown_id_qname_rate=`{avg_unknown_id_qname:.4f}`, "
-        f"avg_error_rate=`{avg_error_rate:.4f}`."
+        + (
+            f"avg_identifier_overlap=`{avg_identifier_overlap:.4f}` (evidence-term overlap), "
+            if avg_identifier_overlap is not None
+            else "avg_identifier_overlap=`n/a` (not applicable for some reducers), "
+        )
+        + (
+            f"avg_unknown_id_qname_rate=`{avg_unknown_id_qname:.4f}`, "
+            if avg_unknown_id_qname is not None
+            else "avg_unknown_id_qname_rate=`n/a` (not applicable for some reducers), "
+        )
+        + f"avg_error_rate=`{avg_error_rate:.4f}`."
     )
     if lowest_semantic is not None:
         summary.append(
             "Secondary signal outliers: "
-            f"lowest identifier overlap=`{lowest_semantic['reducer_id']}` "
+            f"lowest evidence-term overlap=`{lowest_semantic['reducer_id']}` "
             f"({lowest_semantic['identifier_overlap']}); "
-            f"highest unknown-id/qname rate=`{highest_hallucination['reducer_id']}` "
-            f"({highest_hallucination['unknown_id_qname_rate']})."
+            + (
+                f"highest unknown-id/qname rate=`{highest_hallucination['reducer_id']}` "
+                f"({highest_hallucination['unknown_id_qname_rate']})."
+                if highest_hallucination is not None
+                else "highest unknown-id/qname rate=`n/a`."
+            )
         )
     else:
-        summary.append(
-            "Secondary signal outliers: "
-            f"highest unknown-id/qname rate=`{highest_hallucination['reducer_id']}` "
-            f"({highest_hallucination['unknown_id_qname_rate']})."
-        )
+        if highest_hallucination is not None:
+            summary.append(
+                "Secondary signal outliers: "
+                f"highest unknown-id/qname rate=`{highest_hallucination['reducer_id']}` "
+                f"({highest_hallucination['unknown_id_qname_rate']})."
+            )
     if avg_empty_match_rate is not None:
         summary.append(
             "Query reducer signal: "
@@ -1662,14 +1914,16 @@ def _baseline_diff(
         base_row = base_rows.get(reducer_id)
         if not base_row or "error" in base_row:
             continue
-        if reducer_id in SUMMARY_REDUCERS:
+        if row.get("identifier_overlap") is None:
+            continue
+        if base_row.get("identifier_overlap") is None:
             continue
         delta = row.get("identifier_overlap", 1.0) - base_row.get("identifier_overlap", 1.0)
         if delta < -thresholds["identifier_overlap_drop"]:
             overlap_regressions.append(reducer_id)
     if overlap_regressions:
         regressions.append(
-            "identifier_overlap dropped beyond threshold for: "
+            "identifier_overlap (evidence-term overlap) dropped beyond threshold for: "
             + ", ".join(f"`{rid}`" for rid in sorted(overlap_regressions))
         )
 
@@ -1976,6 +2230,11 @@ def _evaluate_reducers(
                 for reducer_id in reducer_ids:
                     reducer = load_reducer(reducer_id)
                     contract = _contract_requirements(contracts, reducer_id)
+                    reducer_type = _reducer_type(contract)
+                    overlap_enabled = _overlap_enabled(contract, reducer_id)
+                    structural_accuracy_enabled = _structural_accuracy_enabled(contract)
+                    unknown_enabled = _unknown_checks_enabled(contract, reducer_id)
+                    unknown_policy = contract.get("unknown_policy", {})
                     invocations = _invocations_for_reducer(
                         reducer_id,
                         contract,
@@ -1993,6 +2252,7 @@ def _evaluate_reducers(
                     echo_fields = contract.get("echo_fields", [])
                     negative_probe_results: list[dict[str, Any]] = []
                     negative_inv_keys: set[str] = set()
+                    durations_ms: list[float] = []
                     for inv in invocations:
                         entity = inv.entity
                         kwargs = inv.kwargs
@@ -2003,7 +2263,9 @@ def _evaluate_reducers(
                         for _ in range(run_count):
                             invocations_total += 1
                             try:
+                                start = time.perf_counter()
                                 rendered = reducer.render(snapshot_id, conn, repo_root, **kwargs)
+                                durations_ms.append((time.perf_counter() - start) * 1000)
                             except Exception as exc:  # noqa: BLE001
                                 errors.append(f"{inv_key}: {type(exc).__name__}: {exc}")
                                 invocation_errors += 1
@@ -2208,7 +2470,7 @@ def _evaluate_reducers(
                             )
 
                         # Symbol checks are reducer-specific: skip free-form source reducers.
-                        if reducer_id not in SOURCE_REDUCERS and first_payload:
+                        if unknown_enabled and first_payload:
                             evidence_payload = first_payload
                             if echo_fields:
                                 evidence_payload = _prune_echo_fields(
@@ -2255,7 +2517,13 @@ def _evaluate_reducers(
                                     unresolved_in_scope += 1
                             if qtokens or idtokens:
                                 total_tokens = max(1, len(qtokens) + len(idtokens))
-                                unknown_total = unresolved_in_scope + resolution_failure
+                                unknown_total = _unknown_penalty(
+                                    unknown_policy,
+                                    out_of_scope=out_of_scope,
+                                    out_of_sample=out_of_sample,
+                                    unresolved_in_scope=unresolved_in_scope,
+                                    resolution_failure=resolution_failure,
+                                )
                                 hallucinated += unknown_total / total_tokens
                                 unknown_out_of_scope += out_of_scope / total_tokens
                                 unknown_out_of_sample += out_of_sample / total_tokens
@@ -2272,7 +2540,7 @@ def _evaluate_reducers(
                                 dep_bad += 1
 
                         expected = direct_terms.get(entity.structural_id, set())
-                        if expected:
+                        if expected and overlap_enabled:
                             if reducer_id in SOURCE_REDUCERS:
                                 sem_hits += sum(1 for term in expected if term in raw_text)
                                 sem_total += len(expected)
@@ -2330,27 +2598,68 @@ def _evaluate_reducers(
                     empty_match_rate = None
                     if query_match_checks:
                         empty_match_rate = round(query_empty_matches / query_match_checks, 4)
+                    structural_accuracy = (
+                        round(1 - (dep_bad / dep_total), 4) if dep_total else 1.0
+                    )
+                    if not structural_accuracy_enabled:
+                        structural_accuracy = None
+                    identifier_overlap = round(sem_hits / sem_total, 4) if sem_total else 1.0
+                    if not overlap_enabled:
+                        identifier_overlap = None
+                    unknown_rate = (
+                        round(hallucinated / max(1, invocation_count), 4)
+                        if unknown_enabled
+                        else None
+                    )
+                    unknown_out_scope = (
+                        round(unknown_out_of_scope / max(1, invocation_count), 4)
+                        if unknown_enabled
+                        else None
+                    )
+                    unknown_out_sample = (
+                        round(unknown_out_of_sample / max(1, invocation_count), 4)
+                        if unknown_enabled
+                        else None
+                    )
+                    unknown_unresolved = (
+                        round(unknown_unresolved_in_scope / max(1, invocation_count), 4)
+                        if unknown_enabled
+                        else None
+                    )
+                    unknown_resolution = (
+                        round(unknown_resolution_failure / max(1, invocation_count), 4)
+                        if unknown_enabled
+                        else None
+                    )
+                    latency_avg = (
+                        round(_safe_mean(durations_ms, default=None), 4)
+                        if durations_ms
+                        else None
+                    )
+                    latency_p95 = (
+                        round(_percentile(durations_ms, 0.95), 4)
+                        if durations_ms
+                        else None
+                    )
+                    latency_max = (
+                        round(max(durations_ms), 4) if durations_ms else None
+                    )
                     metrics: ReducerMetrics = {
                         "samples": sum(len(v) for v in by_invocation.values()),
                         "invocations": invocation_count,
                         "inference": {"temperature": 0.0, "seed": args.seed},
+                        "reducer_type": reducer_type,
                         "structural_variance": round(_safe_mean(structural_variance, default=0.0) or 0.0, 4),
                         "semantic_variance": round(_safe_mean(semantic_variance, default=0.0) or 0.0, 4),
                         "token_length_variation_cv": round(avg_cv, 4),
-                        "unknown_id_qname_rate": round(hallucinated / max(1, invocation_count), 4),
-                        "unknown_id_qname_out_of_scope_rate": round(
-                            unknown_out_of_scope / max(1, invocation_count), 4
-                        ),
-                        "unknown_id_qname_out_of_sample_rate": round(unknown_out_of_sample / max(1, invocation_count), 4),
-                        "unknown_id_qname_unresolved_in_scope_rate": round(
-                            unknown_unresolved_in_scope / max(1, invocation_count), 4
-                        ),
-                        "unknown_id_qname_resolution_failure_rate": round(
-                            unknown_resolution_failure / max(1, invocation_count), 4
-                        ),
+                        "unknown_id_qname_rate": unknown_rate,
+                        "unknown_id_qname_out_of_scope_rate": unknown_out_scope,
+                        "unknown_id_qname_out_of_sample_rate": unknown_out_sample,
+                        "unknown_id_qname_unresolved_in_scope_rate": unknown_unresolved,
+                        "unknown_id_qname_resolution_failure_rate": unknown_resolution,
                         "omission_rate": round(omissions / max(1, invocation_count), 4),
-                        "structural_accuracy": round(1 - (dep_bad / dep_total), 4) if dep_total else 1.0,
-                        "identifier_overlap": round(sem_hits / sem_total, 4) if sem_total else 1.0,
+                        "structural_accuracy": structural_accuracy,
+                        "identifier_overlap": identifier_overlap,
                         "length_stability": round(1 / (1 + avg_cv), 4),
                         "ordering_instability_rate": round(ordering_instability, 4),
                         "determinism_score": round(_safe_mean(determinism, default=1.0) or 1.0, 4),
@@ -2358,6 +2667,9 @@ def _evaluate_reducers(
                         "coverage_score": round(coverage_score, 4),
                         "empty_match_rate": empty_match_rate,
                         "error_rate": round(error_rate, 4),
+                        "latency_ms_avg": latency_avg,
+                        "latency_ms_p95": latency_p95,
+                        "latency_ms_max": latency_max,
                         "cross_run_structural_diff": round(_safe_mean(structural_variance, default=0.0) or 0.0, 4),
                         "forbidden_fields_present": forbidden_hits,
                         "blind": blind_summary,
@@ -2457,9 +2769,9 @@ def _render_markdown_report(
     ):
         lines.append(f"- {item}")
     lines.append(
-        "- Secondary signals (`identifier_overlap`, `unknown_id_qname_rate`) are scoped to "
-        "contract evidence/required fields; summary reducers are excluded from overlap, "
-        "and unknown ids/qnames may be out-of-scope by design."
+        "- Secondary signals: `identifier_overlap` measures evidence-term overlap between "
+        "payload identifiers and direct-code terms (not a recall metric); `unknown_id_qname_rate` "
+        "penalizes only categories enabled by contract policy (out_of_scope/out_of_sample may be allowed)."
     )
     lines.append("")
     lines.append("## Copilot Overall Summary")
@@ -2531,7 +2843,7 @@ def _render_markdown_report(
     lines.append("")
     lines.append(
         "Metrics key: `structural_accuracy`, `schema_compliance_score`, `coverage_score`, "
-        "`determinism_score`, secondary=`identifier_overlap`, "
+        "`determinism_score`, secondary=`identifier_overlap` (evidence-term overlap), "
         "`unknown_id_qname_rate` (out_of_scope/out_of_sample/unresolved_in_scope/"
         "resolution_failure), `omission_rate`."
     )
@@ -2546,19 +2858,26 @@ def _render_markdown_report(
         if row.get("empty_match_rate") is not None:
             extra += f", empty_match_rate=`{row['empty_match_rate']}`"
         extra += f", ordering_instability_rate=`{row.get('ordering_instability_rate', 0.0)}`"
+        if row.get("latency_ms_avg") is not None:
+            extra += f", latency_ms_avg=`{row['latency_ms_avg']}`"
+        if row.get("latency_ms_p95") is not None:
+            extra += f", latency_ms_p95=`{row['latency_ms_p95']}`"
+        if row.get("latency_ms_max") is not None:
+            extra += f", latency_ms_max=`{row['latency_ms_max']}`"
         extra += f", hash_diagnostics=`{hash_diag_count}`"
         lines.append(
             f"- `{reducer_id}`: "
-            f"structural_accuracy=`{row['structural_accuracy']}`, "
+            f"type=`{row.get('reducer_type', 'unknown')}`, "
+            f"structural_accuracy=`{_fmt_metric(row.get('structural_accuracy'))}`, "
             f"schema_compliance_score=`{row.get('schema_compliance_score', 1.0)}`, "
             f"coverage_score=`{row.get('coverage_score', 0.0)}`, "
             f"determinism_score=`{row['determinism_score']}`, "
-            f"identifier_overlap=`{row['identifier_overlap']}`, "
-            f"unknown_id_qname_rate=`{row['unknown_id_qname_rate']}` "
-            f"(out_of_scope=`{row['unknown_id_qname_out_of_scope_rate']}`, "
-            f"out_of_sample=`{row['unknown_id_qname_out_of_sample_rate']}`, "
-            f"unresolved_in_scope=`{row['unknown_id_qname_unresolved_in_scope_rate']}`, "
-            f"resolution_failure=`{row['unknown_id_qname_resolution_failure_rate']}`), "
+            f"identifier_overlap=`{_fmt_metric(row.get('identifier_overlap'))}`, "
+            f"unknown_id_qname_rate=`{_fmt_metric(row.get('unknown_id_qname_rate'))}` "
+            f"(out_of_scope=`{_fmt_metric(row.get('unknown_id_qname_out_of_scope_rate'))}`, "
+            f"out_of_sample=`{_fmt_metric(row.get('unknown_id_qname_out_of_sample_rate'))}`, "
+            f"unresolved_in_scope=`{_fmt_metric(row.get('unknown_id_qname_unresolved_in_scope_rate'))}`, "
+            f"resolution_failure=`{_fmt_metric(row.get('unknown_id_qname_resolution_failure_rate'))}`), "
             f"omission_rate=`{row['omission_rate']}`"
             f"{extra}"
         )
@@ -2789,12 +3108,12 @@ def main() -> int:
             "Source reducers (concatenated_source/callable_source) skip unknown-id/qname checks.",
             "Direct code assessment uses tree-sitter when available, with AST fallback.",
             "Coherence checks normalize callsite_index by excluding the focal callable id.",
-            "Unknown-id/qname rates exclude out-of-scope and out-of-sample symbols by design.",
-            "Identifier overlap excludes summary reducers that do not emit identifiers.",
+            "Unknown-id/qname penalties follow contract policy; out-of-scope/out-of-sample may be allowed.",
+            "Identifier overlap is evidence-term overlap and is computed only when enabled by contract policy.",
             "Content-hash mismatches include span diagnostics in blind results.",
             "Unknown-id/qname sub-rates include out-of-scope, out-of-sample, unresolved-in-scope, and resolution-failure categories.",
             "Coverage for symbol reducers treats empty match lists as valid payloads.",
-            "Unknown-id/qname breakdown is scoped: out-of-scope/out-of-sample are reported but not penalized.",
+            "Unknown-id/qname breakdown reports all categories; penalization is policy-driven.",
             "Ordering instability is detected when outputs differ only by list/map ordering.",
             "cross_run_structural_diff is an alias of structural_variance for reporting continuity.",
         ],

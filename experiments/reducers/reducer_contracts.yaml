@@ -1,5 +1,24 @@
+_defaults:
+  reducer_type: structural
+  overlap_policy:
+    enabled: true
+  structural_accuracy_policy:
+    enabled: true
+  unknown_policy:
+    enabled: true
+    penalize_out_of_scope: false
+    penalize_out_of_sample: false
+    penalize_unresolved_in_scope: true
+    penalize_resolution_failure: true
+  allow_empty: []
+  min_items: {}
+
 call_neighbors:
   scope: callable
+  reducer_type: structural
+  allow_empty:
+    - callers
+    - callees
   invoke:
     entity: callable
     args:
@@ -37,6 +56,7 @@ call_neighbors:
 
 callable_overview:
   scope: callable
+  reducer_type: structural
   invoke:
     entity: callable
     args:
@@ -97,6 +117,11 @@ callable_overview:
 
 callable_source:
   scope: callable
+  reducer_type: projection
+  structural_accuracy_policy:
+    enabled: false
+  unknown_policy:
+    enabled: false
   invoke:
     entity: callable
     args:
@@ -116,6 +141,9 @@ callable_source:
 
 callsite_index:
   scope: callable
+  reducer_type: structural
+  allow_empty:
+    - edges
   invoke:
     entity: callable
     args:
@@ -150,6 +178,10 @@ callsite_index:
 
 class_call_graph_summary:
   scope: class
+  reducer_type: structural
+  allow_empty:
+    - outgoing
+    - incoming
   invoke:
     entity: class
     args:
@@ -195,6 +227,10 @@ class_call_graph_summary:
 
 class_inheritance:
   scope: class
+  reducer_type: structural
+  allow_empty:
+    - outgoing
+    - incoming
   invoke:
     entity: class
     args:
@@ -224,6 +260,7 @@ class_inheritance:
 
 class_overview:
   scope: class
+  reducer_type: structural
   invoke:
     entity: class
     args:
@@ -267,6 +304,13 @@ class_overview:
 
 concatenated_source:
   scope: codebase
+  reducer_type: aggregation
+  overlap_policy:
+    enabled: false
+  structural_accuracy_policy:
+    enabled: false
+  unknown_policy:
+    enabled: false
   invoke:
     entity: mixed
   required_fields:
@@ -288,6 +332,9 @@ concatenated_source:
 
 dependency_edges:
   scope: codebase
+  reducer_type: structural
+  allow_empty:
+    - edges
   invoke:
     entity: module
     args:
@@ -327,6 +374,11 @@ dependency_edges:
 
 fan_summary:
   scope: codebase
+  reducer_type: summary
+  overlap_policy:
+    enabled: false
+  structural_accuracy_policy:
+    enabled: false
   invoke:
     entity: mixed
   required_fields:
@@ -349,6 +401,9 @@ fan_summary:
 
 file_outline:
   scope: codebase
+  reducer_type: structural
+  allow_empty:
+    - files
   invoke:
     entity: module
     args:
@@ -376,6 +431,11 @@ file_outline:
 
 hotspot_summary:
   scope: codebase
+  reducer_type: summary
+  overlap_policy:
+    enabled: false
+  structural_accuracy_policy:
+    enabled: false
   invoke:
     entity: codebase
   required_fields:
@@ -398,6 +458,10 @@ hotspot_summary:
 
 import_targets:
   scope: codebase
+  reducer_type: structural
+  allow_empty:
+    - targets
+    - edges
   invoke:
     entity: module
     args:
@@ -441,6 +505,10 @@ import_targets:
 
 importers_index:
   scope: codebase
+  reducer_type: structural
+  allow_empty:
+    - targets
+    - importers
   invoke:
     entity: module
     args:
@@ -483,6 +551,10 @@ importers_index:
 
 module_call_graph_summary:
   scope: module
+  reducer_type: structural
+  allow_empty:
+    - outgoing
+    - incoming
   invoke:
     entity: module
     args:
@@ -528,6 +600,9 @@ module_call_graph_summary:
 
 module_file_map:
   scope: codebase
+  reducer_type: structural
+  allow_empty:
+    - modules
   invoke:
     entity: module
     args:
@@ -552,6 +627,13 @@ module_file_map:
 
 module_overview:
   scope: module
+  reducer_type: structural
+  allow_empty:
+    - files
+    - classes
+    - functions
+    - methods
+    - imports
   invoke:
     entity: module
     args:
@@ -618,6 +700,9 @@ module_overview:
 
 structural_index:
   scope: codebase
+  reducer_type: summary
+  structural_accuracy_policy:
+    enabled: false
   invoke:
     entity: codebase
   required_fields:
@@ -654,6 +739,9 @@ structural_index:
 
 symbol_lookup:
   scope: codebase
+  reducer_type: query
+  allow_empty:
+    - matches
   invoke:
     entity: mixed
     args:
@@ -684,6 +772,10 @@ symbol_lookup:
 
 symbol_references:
   scope: codebase
+  reducer_type: query
+  allow_empty:
+    - matches
+    - references
   invoke:
     entity: mixed
     args:
