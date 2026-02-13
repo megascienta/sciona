@@ -81,6 +81,8 @@ def upsert_node_instance(
     file_path: str,
     start_line: int,
     end_line: int,
+    start_byte: int | None = None,
+    end_byte: int | None = None,
     content_hash: str,
 ) -> None:
     conn.execute(
@@ -93,8 +95,10 @@ def upsert_node_instance(
             file_path,
             start_line,
             end_line,
+            start_byte,
+            end_byte,
             content_hash
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             instance_id,
@@ -104,6 +108,8 @@ def upsert_node_instance(
             file_path,
             start_line,
             end_line,
+            start_byte,
+            end_byte,
             content_hash,
         ),
     )
@@ -119,6 +125,8 @@ def insert_node_instance(
     file_path: str,
     start_line: int,
     end_line: int,
+    start_byte: int | None = None,
+    end_byte: int | None = None,
     content_hash: str,
 ) -> None:
     upsert_node_instance(
@@ -130,6 +138,8 @@ def insert_node_instance(
         file_path=file_path,
         start_line=start_line,
         end_line=end_line,
+        start_byte=start_byte,
+        end_byte=end_byte,
         content_hash=content_hash,
     )
 

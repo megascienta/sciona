@@ -133,6 +133,8 @@ def run(snapshot_id: str, **params) -> CallableOverviewPayload:
         },
         "file_path": row["file_path"],
         "line_span": line_span,
+        "start_byte": row["start_byte"],
+        "end_byte": row["end_byte"],
         "content_hash": row["content_hash"],
         "line_span_hash": line_span_hash(repo_path, row["file_path"], line_span),
         "parameters": params_list,
@@ -200,6 +202,8 @@ def _fetch_by_qualified_name(conn, snapshot_id: str, qualified_name: str):
                ni.file_path,
                ni.start_line,
                ni.end_line,
+               ni.start_byte,
+               ni.end_byte,
                ni.content_hash
         FROM structural_nodes sn
         JOIN node_instances ni ON ni.structural_id = sn.structural_id

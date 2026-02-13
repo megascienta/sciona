@@ -25,6 +25,8 @@ def fetch_node_instance(conn, snapshot_id: str, structural_id: str) -> dict:
             ni.file_path,
             ni.start_line,
             ni.end_line,
+            ni.start_byte,
+            ni.end_byte,
             ni.content_hash
         FROM structural_nodes sn
         JOIN node_instances ni ON ni.structural_id = sn.structural_id

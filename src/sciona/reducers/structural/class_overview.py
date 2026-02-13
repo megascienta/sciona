@@ -119,6 +119,8 @@ def run(snapshot_id: str, **params) -> ClassOverviewPayload:
         "module_qualified_name": module_name,
         "file_path": row["file_path"],
         "line_span": line_span,
+        "start_byte": row["start_byte"],
+        "end_byte": row["end_byte"],
         "content_hash": row["content_hash"],
         "line_span_hash": line_span_hash(repo_path, row["file_path"], line_span),
         "decorators": decorators,

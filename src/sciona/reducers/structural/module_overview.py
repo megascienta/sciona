@@ -120,6 +120,8 @@ def run(snapshot_id: str, **params) -> ModuleOverviewPayload:
         "language": row["language"],
         "file_path": row["file_path"],
         "line_span": line_span,
+        "start_byte": row["start_byte"],
+        "end_byte": row["end_byte"],
         "content_hash": row["content_hash"],
         "line_span_hash": line_span_hash(repo_path, row["file_path"], line_span),
         "files": files,
@@ -154,6 +156,8 @@ def _resolve_module(conn, snapshot_id: str, identifier: str) -> dict:
             ni.file_path,
             ni.start_line,
             ni.end_line,
+            ni.start_byte,
+            ni.end_byte,
             ni.content_hash
         FROM structural_nodes sn
         JOIN node_instances ni ON ni.structural_id = sn.structural_id

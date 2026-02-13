@@ -136,6 +136,8 @@ class StructuralAssembler:
                 file_path=node.file_path.as_posix(),
                 start_line=node.start_line,
                 end_line=node.end_line,
+                start_byte=node.start_byte,
+                end_byte=node.end_byte,
                 content_hash=content_hash,
             )
 

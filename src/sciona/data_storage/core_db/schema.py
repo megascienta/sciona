@@ -51,6 +51,8 @@ SCHEMA_STATEMENTS: list[str] = [
         file_path TEXT NOT NULL,
         start_line INTEGER NOT NULL,
         end_line INTEGER NOT NULL,
+        start_byte INTEGER,
+        end_byte INTEGER,
         content_hash TEXT NOT NULL,
         UNIQUE (structural_id, snapshot_id),
         FOREIGN KEY (structural_id) REFERENCES structural_nodes(structural_id) ON DELETE CASCADE
@@ -90,6 +92,7 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
     conn.execute("PRAGMA foreign_keys=ON")
     _ensure_schema(conn, SCHEMA_STATEMENTS)
     _ensure_fk_schema(conn)
+    _ensure_node_instance_span_columns(conn)
 
 
 def _ensure_fk_schema(conn: sqlite3.Connection) -> None:
@@ -127,6 +130,8 @@ def _migrate_node_instances(conn: sqlite3.Connection) -> None:
             file_path TEXT NOT NULL,
             start_line INTEGER NOT NULL,
             end_line INTEGER NOT NULL,
+            start_byte INTEGER,
+            end_byte INTEGER,
             content_hash TEXT NOT NULL,
             UNIQUE (structural_id, snapshot_id),
             FOREIGN KEY (structural_id) REFERENCES structural_nodes(structural_id) ON DELETE CASCADE
@@ -143,6 +148,8 @@ def _migrate_node_instances(conn: sqlite3.Connection) -> None:
             file_path,
             start_line,
             end_line,
+            start_byte,
+            end_byte,
             content_hash
         )
         SELECT ni.instance_id,
@@ -152,6 +159,8 @@ def _migrate_node_instances(conn: sqlite3.Connection) -> None:
                ni.file_path,
                ni.start_line,
                ni.end_line,
+               NULL as start_byte,
+               NULL as end_byte,
                ni.content_hash
         FROM node_instances ni
         JOIN structural_nodes sn ON sn.structural_id = ni.structural_id
@@ -165,6 +174,15 @@ def _migrate_node_instances(conn: sqlite3.Connection) -> None:
         ON node_instances(snapshot_id)
         """
     )
+
+
+def _ensure_node_instance_span_columns(conn: sqlite3.Connection) -> None:
+    rows = conn.execute("PRAGMA table_info(node_instances)").fetchall()
+    col_names = {row[1] if not isinstance(row, dict) else row["name"] for row in rows}
+    if "start_byte" not in col_names:
+        conn.execute("ALTER TABLE node_instances ADD COLUMN start_byte INTEGER")
+    if "end_byte" not in col_names:
+        conn.execute("ALTER TABLE node_instances ADD COLUMN end_byte INTEGER")
 
 
 def _migrate_edges(conn: sqlite3.Connection) -> None:

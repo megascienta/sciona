@@ -16,6 +16,8 @@ class ModuleOverviewPayload(TypedDict, total=False):
     language: str
     file_path: str
     line_span: Sequence[int]
+    start_byte: int
+    end_byte: int
     content_hash: str
     files: List[str]
     file_count: int
@@ -37,6 +39,8 @@ class ClassOverviewPayload(TypedDict, total=False):
     language: str
     file_path: str
     line_span: Sequence[int]
+    start_byte: int
+    end_byte: int
     content_hash: str
     methods: List[Dict[str, str]]
     decorators: List[str]
@@ -55,6 +59,8 @@ class CallableOverviewPayload(TypedDict, total=False):
     language: str
     file_path: str
     line_span: Sequence[int]
+    start_byte: int
+    end_byte: int
     content_hash: str
     parameters: List[str]
     signature: str
