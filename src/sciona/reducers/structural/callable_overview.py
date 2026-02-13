@@ -93,6 +93,7 @@ def run(snapshot_id: str, **params) -> CallableOverviewPayload:
     module_name = queries.module_id_for_structural(
         conn, snapshot_id, row["structural_id"]
     )
+    module_identity = _resolve_module_identity(conn, snapshot_id, module_name)
     artifact_available = artifact_db_available(repo_path) if repo_path else False
     params_list: List[str] = []
     decorators: List[str] = []
@@ -124,6 +125,12 @@ def run(snapshot_id: str, **params) -> CallableOverviewPayload:
         "requested_identifier": requested_identifier,
         "language": row["language"],
         "module_qualified_name": module_name,
+        "identity": {
+            "qualified_name": row["qualified_name"],
+            "module_structural_id": module_identity.get("structural_id"),
+            "module_qualified_name": module_identity.get("qualified_name") or module_name,
+            "module_file_path": module_identity.get("file_path"),
+        },
         "file_path": row["file_path"],
         "line_span": line_span,
         "content_hash": row["content_hash"],
@@ -206,3 +213,27 @@ def _fetch_by_qualified_name(conn, snapshot_id: str, qualified_name: str):
     if not row:
         raise ValueError(f"Callable '{qualified_name}' not found in snapshot.")
     return row
+
+
+def _resolve_module_identity(conn, snapshot_id: str, module_name: str) -> Dict[str, Optional[str]]:
+    if not module_name:
+        return {"structural_id": None, "qualified_name": None, "file_path": None}
+    row = conn.execute(
+        """
+        SELECT sn.structural_id, ni.qualified_name, ni.file_path
+        FROM structural_nodes sn
+        JOIN node_instances ni ON ni.structural_id = sn.structural_id
+        WHERE ni.snapshot_id = ?
+          AND sn.node_type = 'module'
+          AND ni.qualified_name = ?
+        LIMIT 1
+        """,
+        (snapshot_id, module_name),
+    ).fetchone()
+    if not row:
+        return {"structural_id": None, "qualified_name": None, "file_path": None}
+    return {
+        "structural_id": row["structural_id"],
+        "qualified_name": row["qualified_name"],
+        "file_path": row["file_path"],
+    }
