@@ -55,6 +55,7 @@ def render(
             dst_ids=[method_structural_id],
         )
         if edges:
+            edges.sort(key=lambda entry: (entry[0], entry[1], entry[2]))
             resolved_class_id = edges[0][0]
     payload = run(
         snapshot_id, conn=conn, repo_root=repo_root, class_id=resolved_class_id
