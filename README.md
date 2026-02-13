@@ -3,7 +3,7 @@
 </p>
 
 
-SCIONA builds a **deterministic structural index (SCI)** for a *git* repository. It captures what exists in the code (modules, classes, functions, methods) and how entities are structurally connected. SCIONA is **snapshot-based, reducer-driven, and LLM-agnostic**. It does not execute code or perform semantic inference. Instead, SCIONA produces  explicit structural representations derived from tree-sitter parsing. Analysis is static and source-only across supported languages. Reducers serve as the source of structural evidence, rendering reproducible  facts from a committed snapshot. This deterministic representation can be used to stabilize tooling workflows, including LLM-assisted development.
+SCIONA builds a **deterministic structural index (SCI)** for a *git* repository. It captures what exists in the code (modules, classes, functions, methods) and how entities are structurally connected. SCIONA is **snapshot-based, reducer-driven, and LLM-agnostic**. It does not execute code or perform semantic inference. Instead, SCIONA produces  explicit structural representations derived from tree-sitter parsing. Analysis is static and source-only across supported languages. Reducers serve as the source of structural evidence, rendering reproducible  facts from a committed snapshot. **This deterministic representation can be used to stabilize tooling workflows, including LLM-assisted development.**
 
 ## Why SCIONA exists
 
@@ -56,15 +56,35 @@ sciona build
 sciona status
 ```
 
+## Supported languages
+
+Built-in analyzers currently include Python, TypeScript, and Java. Enable languages in `.sciona/config.yaml` after `sciona init`.
+
 ## Snapshot model
 
 SCIONA indexes the **last committed snapshot**. Reducers are evaluated against that committed snapshot, not against uncommitted working tree state. If you change tracked source files, commit and run `sciona build` to refresh the snapshot before relying on reducer output.
 
-If your worktree is dirty, some reducer outputs include an `_diff` payload describing a best‑effort overlay of uncommitted changes. `_diff` payload should be treated as advisory. Please use a clean commit and `sciona build` for authoritative results.
+If your worktree is dirty, reducer outputs include an `_diff` payload describing a best‑effort overlay of uncommitted changes. `_diff` payload should be treated as advisory. Please use a clean commit and `sciona build` for authoritative results.
 
-## Supported languages
+## Reducer Contract Validation
 
-Built-in analyzers currently include Python, TypeScript, and Java. Enable languages in `.sciona/config.yaml` after `sciona init`.
+SCIONA includes a reducer validation script (`experiments/reducers/`) designed to verify structural correctness, determinism, and payload integrity. The evaluation operates on committed snapshots indexed by SCIONA and systematically checks reducer outputs for schema compliance, structural invariants, deterministic behavior, identifier resolution, file span validity, and hash/content consistency. Reducers are validated strictly against their declared contracts rather than heuristic expectations. The validation suite is repository-agnostic and can be executed against any git repository indexed by SCIONA. This allows users to independently reproduce validation results and assess reducer stability for their own codebases.
+
+Usage:
+
+```bash
+python experiments/reducers/reducer_quality.py --repo-root <repo-root> --nodes <nodes> --runs <runs> --seed <seed>
+```
+
+Full evaluation reports are available in `experiments/reports/` and document reducer contract validation across representative multi-language repositories, including [Apache Commons Lang](https://github.com/apache/commons-lang) (Java), [FastAPI](https://github.com/fastapi/fastapi) (Python), and [Nest](https://github.com/nestjs/nest) (TypeScript). Across tens of thousands of reducer invocations per project, all reducers achieved deterministic outputs, full schema compliance, contract-scoped structural accuracy, and zero invocation errors.
+
+| Repository          | Language   | Reducers | Invocations | Determinism | Schema Compliance | Structural Accuracy* | Error Rate |
+| ------------------- | ---------- | -------- | ----------- | ----------- | ----------------- | -------------------- | ---------- |
+| [Apache Commons Lang](https://github.com/apache/commons-lang) | Java       | 20       | 41,702      | **1.0**     | **1.0**           | **1.0**              | **0.0**    |
+| [FastAPI](https://github.com/fastapi/fastapi)             | Python     | 20       | 41,702      | **1.0**     | **1.0**           | **1.0**              | **0.0**    |
+| [Nest](https://github.com/nestjs/nest)                | TypeScript | 20       | 41,702      | **1.0**     | **1.0**           | **1.0**              | **0.0**    |
+
+*Structural accuracy within declared reducer contract scope. Validation does not attempt to assess semantic correctness, runtime behavior, or completeness of dynamically resolved relationships.
 
 ## Reducers usage
 
