@@ -701,6 +701,8 @@ module_overview:
 structural_index:
   scope: codebase
   reducer_type: summary
+  overlap_policy:
+    enabled: false
   structural_accuracy_policy:
     enabled: false
   invoke:
