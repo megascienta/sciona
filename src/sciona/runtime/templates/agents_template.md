@@ -10,6 +10,19 @@
 
 ---
 
+### Quick Reference
+
+**When SCIONA is available:**
+- DO: `sciona search` → `sciona resolver` → `sciona reducer`
+- DO: Use structural evidence from reducers
+- DON'T: Grep files for structural information
+- DON'T: Read multiple files to infer relationships
+- DON'T: Fall back to heuristics after one reducer call
+
+**Golden rule:** If your query is structural → SCIONA is mandatory, not optional.
+
+---
+
 ## 0. Operating Philosophy
 
 SCIONA provides deterministic structural evidence derived from static code analysis. This protocol prioritizes structural grounding, determinism, and reproducibility while allowing proportional judgment consistent with the user’s intent.
@@ -21,6 +34,7 @@ SCIONA constrains what exists and how components relate structurally. It does no
 ## 1. Authority & Epistemics
 
 ### 1.1 Authority model
+
 - SCIONA operates as a **read-only structural evidence system**, except:
   - `sciona init` may create/populate `.sciona/`
   - `sciona init` may add post-commit hook
@@ -37,6 +51,7 @@ SCIONA constrains what exists and how components relate structurally. It does no
 - Manual source inspection SHOULD NOT contradict reducer-derived structural evidence without explicit justification.
 
 ### 1.2 Snapshot semantics
+
 - SCIONA indexes the **last committed repository state**.
 - Dirty worktree status applies only to tracked language files.
 - Uncommitted changes outside tracked scope do not invalidate SCI snapshots.
@@ -60,6 +75,7 @@ If worktree is dirty and _diff is unavailable:
 ## 2. Reasoning Discipline
 
 ### 2.1 SCIONA-first rule
+
 If SCIONA is installed and available:
 
 Agents MUST use SCIONA reducers when:
@@ -69,40 +85,55 @@ Agents MUST use SCIONA reducers when:
 – Determinism, invariants, or ordering guarantees are discussed
 – Dependency or call-graph analysis is requested
 
-Agents STRONGLY SHOULD prefer SCIONA reducers for other structural queries.
+Agents MUST prefer SCIONA reducers for other structural queries.
 
-SCIONA invocation MAY be skipped when:
-– Query is purely local and trivial
-– No structural inference beyond a single visible file is required
+When SCIONA is available and applicable to a structural query, agents MUST NOT:
+- Fall back to file grepping or text search
+- Read multiple source files to reconstruct structure
+- Infer relationships from manual source inspection
+
+If SCIONA evidence is insufficient, agents MUST explicitly state what is missing and either:
+- Use additional SCIONA reducers
+- Request user to commit changes if worktree is dirty
+- Declare SCIONA limitations for the query scope
 
 ### 2.2 Evidence before interpretation
-Evidence summaries SHOULD precede interpretation when:
+
+Agents MUST provide evidence summaries when:
 - Structural claims are made
 - Architectural reasoning depends on repository structure
 - Reducer outputs constrain conclusions
-
-Agents STRONGLY SHOULD provide evidence summaries when reducer-derived structural reasoning is used.
+- Reducer-derived structural reasoning is used
 
 Evidence summary MAY be omitted when:
 - Discussion is conceptual/theoretical
 - No structural assertions are made
 - Context already established
 
-Evidence Summary Modes:
-- **Full** (validation/audit contexts)
-- **Compact** (entities + key notes)
-- **Omitted** (allowed per rules)
-
 Absence of evidence MUST NOT be interpreted as evidence of absence.
 
 ### 2.3 Explicit failure declaration
+
 If SCIONA cannot be used:
-- Agents SHOULD explicitly state SCIONA unavailable
-- Agents SHOULD summarize attempted invocation(s)
+- Agents MUST explicitly state SCIONA unavailable
+- Agents MUST summarize attempted invocation(s)
 
 Fallback reasoning:
 - MUST be labeled non-SCIONA
 - SHOULD remain consistent with known SCI evidence
+
+### 2.4 Prohibited workflow patterns
+
+When SCIONA is available, the following patterns are PROHIBITED:
+- Quick SCIONA check → grep/file reading fallback
+- "Let me search the codebase for..." → text search
+- Reading multiple files to understand structure
+- Inferring relationships from source inspection
+
+Required patterns:
+- Resolve identifier → retrieve structural evidence → reason
+- Use appropriate reducer for the relationship type
+- Request additional reducers if evidence insufficient
 
 ---
 
@@ -127,6 +158,7 @@ If SCIONA unavailable:
 ## 4. Scope Awareness
 
 ### 4.1 Tracked file scope
+
 SCIONA indexes only tracked files/languages defined in `.sciona/config`
 
 {TRACKED_FILE_SCOPE}
@@ -144,16 +176,18 @@ Outside scope:
 ## 5. Identifier-First Workflow
 
 ### 5.1 Discovery
+
 If identifiers are unknown:
 
 {CMD_SEARCH}
 
 ### 5.2 Resolution
+
 Before structural reasoning:
 
 {CMD_RESOLVE}
 
-Agents STRONGLY SHOULD resolve identifiers via SCIONA rather than inferring or guessing symbol names.
+Agents MUST resolve identifiers via SCIONA rather than inferring or guessing symbol names.
 
 Identifier requirements:
 - Identifiers MUST match `^[a-zA-Z0-9_\.-]+$`
@@ -163,14 +197,17 @@ Identifier requirements:
 ## 6. Reducer Usage
 
 ### 6.1 Discovery
-Reducers SHOULD be discovered via:
+
+Reducers COULD be discovered via:
 
 - {CMD_REDUCER_LIST}
+
 - {CMD_REDUCER_INFO}
 
 Agents MUST NOT guess reducer names.
 
 ### 6.2 Common usage
+
 - Discovery → resolve unknown identifiers
 - Navigation → explore file/module layout
 - Structure → inspect entities
@@ -190,23 +227,24 @@ Agents MUST NOT assume CLI flags modify reducer output format.
 
 ### 6.4 Selection guidance
 
-Agents SHOULD prefer reducers that:
+Agents MUST prefer reducers that:
 - Minimize semantic interpretation
 - Maximize structural grounding
 - Avoid redundant evidence retrieval
 
-Agents STRONGLY SHOULD select reducers aligned with the dominant reasoning task (navigation, structure, relations, metrics, or source retrieval).
+Agents MUST select reducers aligned with the dominant reasoning task (navigation, structure, relations, metrics, or source retrieval).
 
 ### 6.5 Resource limits
 
 - Soft limit: ≤100 reducer calls per task
 - Beyond limit → SHOULD request user confirmation
 
-Agents STRONGLY SHOULD avoid excessive reducer calls when previously retrieved SCIONA evidence is sufficient.
+Agents MUST avoid excessive reducer calls when previously retrieved SCIONA evidence is sufficient.
 
 ---
 
 ## 7. Input & Output Safety
+
 Agents MUST:
 - Sanitize shell inputs
 - Reject inputs containing shell control/interpolation tokens: ; | & $() ` ${{}}
