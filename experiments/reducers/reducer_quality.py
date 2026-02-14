@@ -73,7 +73,7 @@ MAX_HASH_DIAGNOSTICS = 50
 HASH_SNIPPET_LIMIT = 400
 MAX_APPENDIX_DIAGNOSTICS = 100
 SCRIPT_DIR = Path(__file__).resolve().parent
-REPORTS_DIR = SCRIPT_DIR.parent / "reports"
+REPORTS_DIR = SCRIPT_DIR / "reports"
 
 DEFAULT_THRESHOLDS = {
     "blind_error_rate_max": 0.01,

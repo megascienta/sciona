@@ -76,7 +76,7 @@ Usage:
 python experiments/reducers/reducer_quality.py --repo-root <repo-root> --nodes <nodes> --runs <runs> --seed <seed>
 ```
 
-Full evaluation reports are available in `experiments/reports/` and document reducer contract validation across representative multi-language repositories, including [Apache Commons Lang](https://github.com/apache/commons-lang) (Java), [FastAPI](https://github.com/fastapi/fastapi) (Python), and [Nest](https://github.com/nestjs/nest) (TypeScript). Across tens of thousands of reducer invocations per project, all reducers achieved deterministic outputs, full schema compliance, contract-scoped structural accuracy, and zero invocation errors.
+Full evaluation reports are available in `experiments/reducers/reports/` and document reducer contract validation across representative multi-language repositories, including [Apache Commons Lang](https://github.com/apache/commons-lang) (Java), [FastAPI](https://github.com/fastapi/fastapi) (Python), and [Nest](https://github.com/nestjs/nest) (TypeScript). Across tens of thousands of reducer invocations per project, all reducers achieved deterministic outputs, full schema compliance, contract-scoped structural accuracy, and zero invocation errors.
 
 | Repository          | Language   | Reducers | Invocations | Determinism | Schema Compliance | Structural Accuracy* | Error Rate |
 | ------------------- | ---------- | -------- | ----------- | ----------- | ----------------- | -------------------- | ---------- |
