@@ -20,3 +20,4 @@ ENV/
 .sciona/
 pip-wheel-metadata/
 AGENTS.md
+experiments/copilot/
