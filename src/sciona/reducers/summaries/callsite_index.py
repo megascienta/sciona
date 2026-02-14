@@ -15,7 +15,7 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="callsite_index",
-    category="dependency",
+    category="relations",
     scope="callable",
     placeholders=("CALLSITE_INDEX",),
     determinism="conditional",

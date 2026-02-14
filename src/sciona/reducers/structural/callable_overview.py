@@ -22,7 +22,7 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="callable_overview",
-    category="evidence",
+    category="structure",
     scope="callable",
     placeholders=("CALLABLE_OVERVIEW",),
     determinism="conditional",

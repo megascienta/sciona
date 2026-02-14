@@ -19,7 +19,7 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="module_overview",
-    category="evidence",
+    category="structure",
     scope="module",
     placeholders=("MODULE_OVERVIEW",),
     determinism="conditional",

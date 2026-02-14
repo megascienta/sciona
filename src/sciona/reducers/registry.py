@@ -17,7 +17,14 @@ from .metadata import ReducerMeta
 
 _VALID_SCOPES = {"callable", "class", "module", "codebase"}
 _VALID_DETERMINISM = {"strict", "conditional"}
-_VALID_CATEGORIES = {"summary", "evidence", "context", "dependency"}
+_VALID_CATEGORIES = {
+    "discovery",
+    "navigation",
+    "structure",
+    "relations",
+    "metrics",
+    "source",
+}
 
 _FROZEN = False
 

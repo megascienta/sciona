@@ -7,6 +7,8 @@ from __future__ import annotations
 
 from typing import Iterable
 
+from ..reducers.listing import render_reducer_catalog
+
 
 def render_init(payload: dict) -> list[str]:
     lines = [f"Initialized SCIONA in {payload['sciona_dir']}"]
@@ -153,10 +155,7 @@ def emit_warning(lines: Iterable[str]) -> None:
 
 
 def render_reducer_list(entries: list[dict]) -> list[str]:
-    lines = ["Available reducers:"]
-    for entry in sorted(entries, key=lambda item: (item["scope"], item["reducer_id"])):
-        lines.append(f"- {entry['reducer_id']}: {entry['summary']}")
-    return lines
+    return render_reducer_catalog(entries)
 
 
 def render_reducer_show(entry: dict) -> list[str]:

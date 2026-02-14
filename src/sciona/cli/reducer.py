@@ -12,6 +12,7 @@ import json
 import typer
 
 from ..api import cli as reducer_api
+from ..reducers.listing import render_reducer_list
 from .utils import (
     cli_call,
     emit_dirty_worktree_warning,
@@ -174,13 +175,8 @@ def register(app: typer.Typer) -> None:
             entries = [entry for entry in entries if entry["reducer_id"] == reducer_id]
             if not entries:
                 raise typer.BadParameter(f"Unknown reducer '{reducer_id}'.")
-        lines = ["Reducers:"]
-        for entry in entries:
-            reducer = reducer_api.load_reducer(entry["reducer_id"])
-            call = _format_reducer_call(entry["reducer_id"], reducer)
-            lines.append(f"  {call}")
-            lines.append(f"    {entry['summary']}")
-        cli_render.emit(lines)
+        reducers = reducer_api.get_reducers()
+        cli_render.emit(render_reducer_list(entries, reducers, include_prefix=True))
 
     app.add_typer(reducer_app, name="reducer")
 
@@ -261,31 +257,3 @@ def _build_reducer_notes(reducer_id: str) -> list[str]:
         notes.append("[design choice] Reducer output is lossy (summary or compressed).")
     return notes
 
-
-def _format_reducer_call(reducer_id: str, reducer_module) -> str:
-    signature = getattr(reducer_module, "render", None)
-    if signature is None:
-        return f"reducer --id {reducer_id}"
-    sig = inspect.signature(signature)
-    options = []
-    for name, param in sig.parameters.items():
-        if name in {"snapshot_id", "conn", "repo_root"}:
-            continue
-        if param.kind in {
-            inspect.Parameter.VAR_POSITIONAL,
-            inspect.Parameter.VAR_KEYWORD,
-        }:
-            continue
-        flag = f"--{name.replace('_', '-')}"
-        if name == "extras":
-            options.append(f"[{flag}]")
-            continue
-        metavar = name.upper()
-        if param.default is inspect._empty:
-            options.append(f"{flag} {metavar}")
-        else:
-            options.append(f"[{flag} {metavar}]")
-    rendered = " ".join(options)
-    if rendered:
-        return f"reducer --id {reducer_id} {rendered}"
-    return f"reducer --id {reducer_id}"

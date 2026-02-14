@@ -15,7 +15,7 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="file_outline",
-    category="evidence",
+    category="navigation",
     scope="codebase",
     placeholders=("FILE_OUTLINE",),
     determinism="strict",

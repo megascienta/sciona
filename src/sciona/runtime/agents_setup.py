@@ -6,13 +6,12 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Iterable, Mapping
-
-import inspect
+from typing import Mapping
 
 from .config import io as config_io
 from .config import defaults as config_defaults
 from .errors import ConfigError
+from ..reducers.listing import render_reducer_list
 
 
 BEGIN_MARKER = "<!-- sciona:begin -->"
@@ -173,42 +172,16 @@ def _render_tracked_file_scope(repo_root: Path) -> str:
 
 
 def _render_common_tasks(reducers) -> str:
-    lines: list[str] = []
-    categories: dict[str, list[str]] = {}
-    for reducer_id in sorted(reducers.keys()):
-        entry = reducers.get(reducer_id)
-        if entry is None:
-            continue
-        categories.setdefault(entry.category, []).append(reducer_id)
-
-    ordered_categories = []
-    for category in _CATEGORY_ORDER:
-        if category in categories:
-            ordered_categories.append(category)
-    for category in sorted(set(categories.keys()) - set(_CATEGORY_ORDER)):
-        ordered_categories.append(category)
-
-    for category in ordered_categories:
-        reducer_ids = categories.get(category, [])
-        title = _CATEGORY_TITLES.get(category, category.replace("_", " ").title())
-        commands = _commands_for_reducers(reducer_ids, reducers)
-        if not commands:
-            continue
-        lines.append(f"{title}:")
-        for command in commands:
-            lines.append(f"- {command}")
-        lines.append("")
-    return "\n".join(lines).rstrip()
-
-
-def _commands_for_reducers(reducer_ids: Iterable[str], reducers) -> list[str]:
-    commands: list[str] = []
-    for reducer_id in reducer_ids:
-        entry = reducers.get(reducer_id)
-        if entry is None:
-            continue
-        commands.append(_format_reducer_command(reducer_id, entry.module))
-    return commands
+    entries = []
+    for reducer_id, entry in reducers.items():
+        entries.append(
+            {
+                "reducer_id": reducer_id,
+                "category": entry.category,
+                "summary": entry.summary,
+            }
+        )
+    return "\n".join(render_reducer_list(entries, reducers, include_prefix=True))
 
 
 def _merge_commands(commands: Mapping[str, str] | None) -> dict[str, str]:
@@ -218,56 +191,6 @@ def _merge_commands(commands: Mapping[str, str] | None) -> dict[str, str]:
     return merged
 
 
-def _format_reducer_command(reducer_id: str, reducer_module) -> str:
-    render = getattr(reducer_module, "render", None)
-    if render is None:
-        return f"sciona reducer --id {reducer_id}"
-    signature = inspect.signature(render)
-    args = []
-    for name, param in signature.parameters.items():
-        if name in {"snapshot_id", "conn", "repo_root"}:
-            continue
-        if param.kind in {
-            inspect.Parameter.VAR_POSITIONAL,
-            inspect.Parameter.VAR_KEYWORD,
-        }:
-            continue
-        flag = f"--{name.replace('_', '-')}"
-        if name == "extras":
-            args.append(f"[{flag}]")
-            continue
-        placeholder = f"<{name}>"
-        if param.default is inspect._empty:
-            args.append(f"{flag} {placeholder}")
-        else:
-            args.append(f"[{flag} {placeholder}]")
-    rendered_args = " ".join(args)
-    if rendered_args:
-        return f"sciona reducer --id {reducer_id} {rendered_args}"
-    return f"sciona reducer --id {reducer_id}"
-
-
-_CATEGORY_TITLES = {
-    "orientation": "Orientation",
-    "structure": "Structure (module/class/callable)",
-    "dependencies": "Dependencies / imports",
-    "calls": "Calls / call graph",
-    "references": "References / usages",
-    "navigation": "File navigation (codebase-scoped; filters supported)",
-    "code_text": "Code text (last resort)",
-    "summaries": "Summaries",
-}
-
-_CATEGORY_ORDER = [
-    "orientation",
-    "structure",
-    "dependencies",
-    "calls",
-    "references",
-    "navigation",
-    "code_text",
-    "summaries",
-]
 
 _DEFAULT_COMMANDS = {
     "reducer_list": "sciona reducer list",

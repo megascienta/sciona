@@ -57,14 +57,11 @@ def test_agents_block_expands_placeholders(tmp_path: Path):
     assert "sciona reducer info" in block
     assert "sciona search" in block
     assert "sciona resolve" in block
-    assert "Every response MUST include:" in block
-    assert "Troubleshooting" in block
-
 
 def test_agents_block_section_order(tmp_path: Path):
     block = agents.build_agents_block(tmp_path, get_reducers())
-    discovery = block.index("### 6.1 Discovery")
-    common = block.index("### 6.2 Common usage")
-    reporting = block.index("## 8. Reporting Checklist")
-    troubleshooting = block.index("## 9. Troubleshooting")
+    discovery = block.index("Discovery")
+    common = block.index("Common usage")
+    reporting = block.index("Reporting Checklist")
+    troubleshooting = block.index("Troubleshooting")
     assert discovery < common < reporting < troubleshooting

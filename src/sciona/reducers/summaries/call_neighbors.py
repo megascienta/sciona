@@ -16,7 +16,7 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="call_neighbors",
-    category="dependency",
+    category="relations",
     scope="callable",
     placeholders=("CALL_GRAPH",),
     determinism="conditional",

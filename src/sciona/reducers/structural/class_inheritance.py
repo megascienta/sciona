@@ -13,7 +13,7 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="class_inheritance",
-    category="dependency",
+    category="relations",
     scope="class",
     placeholders=("CLASS_INHERITANCE",),
     determinism="conditional",

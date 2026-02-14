@@ -17,7 +17,7 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="fan_summary",
-    category="dependency",
+    category="metrics",
     scope="codebase",
     placeholders=("FAN_SUMMARY",),
     determinism="conditional",

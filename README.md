@@ -106,138 +106,52 @@ sciona resolve IDENTIFIER [--kind KIND] [--limit LIMIT] [--json]
 
 ### Available reducers:
 
-#### Discovery and Search
-
-- Ranked symbol matches for a query
-
-```bash
-sciona reducer --id symbol_lookup [--query <query>] [--kind <kind>] [--limit <limit>]
-```
-
-- Relationship references (calls/imports) for symbols matching a query
-
-```bash
-sciona reducer --id symbol_references [--query <query>] [--kind <kind>] [--limit <limit>]
-```
-
-- File-level outline of modules, classes, and callables
-
-```bash
-sciona reducer --id file_outline [--module-id <module_id>] [--file-path <file_path>]
-```
-
-- Module-to-file map with module ids and file paths
-
-```bash
-sciona reducer --id module_file_map [--module-id <module_id>]
-```
-
-#### Index and Snapshot
-
-- Canonical structural index payload for the codebase
-
-```bash
-sciona reducer --id structural_index
-```
-
-#### Structural Overviews
-
-- Structural overview payload for a module
-
-```bash
-sciona reducer --id module_overview [--module-id <module_id>] [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>] [--class-id <class_id>]
-```
-
-- Structural overview payload for a class
-
-```bash
-sciona reducer --id class_overview [--class-id <class_id>] [--method-id <method_id>]
-```
-
-- Structural overview payload for a callable (function or method)
-
-```bash
-sciona reducer --id callable_overview [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>]
-```
-
-#### Source and Composition
-
-- Full source payload for a callable (function or method)
-
-```bash
-sciona reducer --id callable_source [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>]
-```
-
-- Concatenated source for codebase, module, or class scope
-
-```bash
-sciona reducer --id concatenated_source [--scope <scope>] [--module-id <module_id>] [--class-id <class_id>]
-```
-
-#### Relationships: Calls
-
-- Caller/callee node sets (deduped) for a callable
-
-```bash
-sciona reducer --id call_neighbors [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>]
-```
-
-- Caller/callee edge index for a callable
-
-```bash
-sciona reducer --id callsite_index [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>] [--direction <direction>]
-```
-
-- Module-level call graph summary
-
-```bash
-sciona reducer --id module_call_graph_summary [--module-id <module_id>] [--callable-id <callable_id>] [--function-id <function_id>] [--method-id <method_id>] [--class-id <class_id>]
-```
-
-- Class-level call graph summary
-
-```bash
-sciona reducer --id class_call_graph_summary [--class-id <class_id>] [--method-id <method_id>]
-```
-
-#### Relationships: Imports
-
-- Explicit module import edges for the snapshot
-
-```bash
-sciona reducer --id dependency_edges [--module-id <module_id>] [--from-module-id <from_module_id>] [--to-module-id <to_module_id>] [--query <query>] [--edge-type <edge_type>] [--limit <limit>]
-```
-
-- Import edges targeting module(s), including target list and edge detail
-
-```bash
-sciona reducer --id import_targets [--module-id <module_id>] [--query <query>] [--edge-type <edge_type>] [--limit <limit>]
-```
-
-- Index of modules that import target module(s)
-
-```bash
-sciona reducer --id importers_index [--module-id <module_id>] [--query <query>] [--edge-type <edge_type>] [--limit <limit>]
-```
-
-#### Summaries
-
-- Fan-in/out summary for calls and imports
-
-```bash
-sciona reducer --id fan_summary [--callable-id CALLABLE_ID] [--function-id FUNCTION_ID] [--method-id METHOD_ID] [--class-id CLASS_ID] [--module-id MODULE_ID] [--top-k TOP_K]
-```
-
-- Compressed codebase hotspot summary
-
-```bash
-sciona reducer --id hotspot_summary
-```
-
-#### Type Structure
-
-- Best-effort class inheritance derived from parsed base clauses
-
-```bash
-sciona reducer --id class_inheritance [--class-id <class_id>]
+```text
+Reducers:
+Category: discovery
+  sciona reducer --id symbol_lookup [--query QUERY] [--kind KIND] [--limit LIMIT]
+    Summary: Ranked structural symbol matches for a query. Use when resolving unknown identifiers. Scope: query → symbols.
+  sciona reducer --id symbol_references [--query QUERY] [--kind KIND] [--limit LIMIT]
+    Summary: Structural relationships (calls/imports) for matched symbols. Use for impact analysis or dependency tracing. Scope: symbol → relations.
+Category: navigation
+  sciona reducer --id file_outline [--module-id MODULE_ID] [--file-path FILE_PATH]
+    Summary: Structural outline of a file, including modules, classes, and callables. Use for navigation and symbol discovery. Scope: file-level structure.
+  sciona reducer --id module_file_map [--module-id MODULE_ID]
+    Summary: Mapping between module identifiers and file paths. Use for structural resolution or navigation. Scope: module ↔ files.
+Category: structure
+  sciona reducer --id callable_overview [--callable-id CALLABLE_ID] [--function-id FUNCTION_ID] [--method-id METHOD_ID]
+    Summary: Structural summary of a callable, including signature, location, and metadata. Use for quick callable inspection without retrieving full source. Scope: single function or method.
+  sciona reducer --id class_overview [--class-id CLASS_ID] [--method-id METHOD_ID]
+    Summary: Structural summary of a class, including methods and metadata. Use for quick class inspection. Scope: class-level structure.
+  sciona reducer --id module_overview [--module-id MODULE_ID] [--callable-id CALLABLE_ID] [--function-id FUNCTION_ID] [--method-id METHOD_ID] [--class-id CLASS_ID]
+    Summary: Structural summary of a module, including contained classes and callables. Use for architectural inspection. Scope: module-level.
+  sciona reducer --id structural_index
+    Summary: Canonical structural index of the codebase. Use for global structural reasoning or validation. Scope: entire SCI snapshot.
+Category: relations
+  sciona reducer --id call_neighbors [--callable-id CALLABLE_ID] [--function-id FUNCTION_ID] [--method-id METHOD_ID]
+    Summary: Immediate caller and callee callable sets for a given callable. Use when analysing local call relationships or impact propagation. Scope: single callable → neighboring callables.
+  sciona reducer --id callsite_index [--callable-id CALLABLE_ID] [--function-id FUNCTION_ID] [--method-id METHOD_ID] [--direction DIRECTION]
+    Summary: Indexed caller/callee edges for a callable, including callsite details. Use when reasoning about call directionality or callsite-level analysis. Scope: callable-level call edges.
+  sciona reducer --id class_call_graph_summary [--class-id CLASS_ID] [--method-id METHOD_ID] [--top-k TOP_K]
+    Summary: Summary of call relationships within a class. Use for analysing method interaction patterns or internal coupling. Scope: class-level call graph.
+  sciona reducer --id class_inheritance [--class-id CLASS_ID]
+    Summary: Parsed base classes and inheritance relations. Use when reasoning about type hierarchy or polymorphic structure. Scope: class hierarchy.
+  sciona reducer --id dependency_edges [--module-id MODULE_ID] [--from-module-id FROM_MODULE_ID] [--to-module-id TO_MODULE_ID] [--query QUERY] [--edge-type EDGE_TYPE] [--limit LIMIT]
+    Summary: Explicit module import dependencies. Use for analysing module coupling or dependency graphs. Scope: module-level import edges.
+  sciona reducer --id import_targets [--module-id MODULE_ID] [--query QUERY] [--edge-type EDGE_TYPE] [--limit LIMIT]
+    Summary: Modules imported by a given module. Use when analysing outward dependencies. Scope: module → imported modules.
+  sciona reducer --id importers_index [--module-id MODULE_ID] [--query QUERY] [--edge-type EDGE_TYPE] [--limit LIMIT]
+    Summary: Modules that import a given module. Use when analysing inbound dependencies. Scope: module → importing modules.
+  sciona reducer --id module_call_graph_summary [--module-id MODULE_ID] [--callable-id CALLABLE_ID] [--function-id FUNCTION_ID] [--method-id METHOD_ID] [--class-id CLASS_ID] [--top-k TOP_K]
+    Summary: Summary of call relationships within a module. Use for module-level flow or coupling analysis. Scope: module call graph.
+Category: metrics
+  sciona reducer --id fan_summary [--callable-id CALLABLE_ID] [--function-id FUNCTION_ID] [--method-id METHOD_ID] [--class-id CLASS_ID] [--module-id MODULE_ID] [--top-k TOP_K]
+    Summary: Fan-in/fan-out metrics for calls and imports. Use to identify highly connected entities or hotspots. Scope: callable/class/module.
+  sciona reducer --id hotspot_summary
+    Summary: Compressed summary of structurally significant or highly connected entities. Use for architectural orientation or complexity inspection. Scope: codebase-level.
+Category: source
+  sciona reducer --id callable_source [--callable-id CALLABLE_ID] [--function-id FUNCTION_ID] [--method-id METHOD_ID]
+    Summary: Full source code of a callable. Use only when implementation details are required. Scope: single function or method.
+  sciona reducer --id concatenated_source [--scope SCOPE] [--module-id MODULE_ID] [--class-id CLASS_ID]
+    Summary: Concatenated source code for a selected scope (codebase/module/class). Use for large-context reasoning or cross-entity inspection. Scope: configurable.
 ```
