@@ -59,15 +59,15 @@ If worktree is dirty and _diff is unavailable:
 
 ### 2.1 SCIONA-first rule
 If SCIONA is installed and available:
-- Agents SHOULD prefer SCIONA reducers for structural queries
-- Agents SHOULD avoid manual file inspection for non-trivial structural questions
 
-Manual inspection MAY be used when:
-- Query is purely local and trivial
-- SCIONA coverage is incomplete
-- SCIONA invocation fails
+Agents MUST use SCIONA reducers when:
+– Structural correctness is critical
+– Cross-file or cross-module reasoning is performed
+– Architectural or refactoring changes are proposed
+– Determinism, invariants, or ordering guarantees are discussed
+– Dependency or call-graph analysis is requested
 
-Agents SHOULD use the lowest-cost reliable evidence source consistent with grounding and determinism goals.
+Agents SHOULD prefer SCIONA reducers for other structural queries.
 
 ### 2.2 Evidence before interpretation
 Evidence summaries SHOULD precede interpretation when:
@@ -161,6 +161,12 @@ Reducers SHOULD be discovered via:
 Agents MUST NOT guess reducer names.
 
 ### 6.2 Common usage
+- Discovery → resolve unknown identifiers
+- Navigation → explore file/module layout
+- Structure → inspect entities
+- Relations → analyse dependencies/interactions
+- Metrics → identify hotspots/connectivity
+- Source → retrieve raw code evidence
 
 {COMMON_TASKS}
 
@@ -179,7 +185,7 @@ Agents SHOULD prefer reducers that:
 - Maximize structural grounding
 - Avoid redundant evidence retrieval
 
-### 6.4 Resource limits
+### 6.5 Resource limits
 
 - Soft limit: ≤100 reducer calls per task
 - Beyond limit → SHOULD request user confirmation
@@ -191,18 +197,19 @@ Agents SHOULD avoid excessive reducer calls when existing evidence suffices.
 ## 7. Input & Output Safety
 Agents MUST:
 - Sanitize shell inputs
-- Reject inputs containing: `; | & $() \` ${{}}`
+- Reject inputs containing shell control/interpolation tokens: ; | & $() ` ${}
 
 ---
 
 ## 8. Reporting Checklist
 
-Every response MUST include:
+Strict Mode applies when:
+– Structural claims about the repository are made
+– Reducer-derived evidence is used in reasoning
+– Determinism, invariants, or ordering guarantees are analysed
+– Architectural, refactoring, or dependency reasoning is perform
 
-Status: sciona used: yes/no | worktree: clean/dirty/unknown | diff: full/summary/unavailable/n/a | warned: yes/no
-Evidence: X entities → Y edges → notes (snapshot/diff source, caveats)
-
-Mandatory in Strict Mode / Validation Contexts:
+Strict Mode:
 
 Status: sciona used: yes/no | worktree: clean/dirty/unknown | diff: full/summary/unavailable/n/a | warned: yes/no
 Evidence: X entities → Y edges → notes (snapshot/diff source, caveats)
