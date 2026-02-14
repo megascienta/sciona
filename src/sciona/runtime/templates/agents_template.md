@@ -273,21 +273,7 @@ Evidence: available / n/a
 
 ---
 
-## 9. Reasoning Modes
-
-Normal Mode (default):
-- Prefer SCIONA
-- Flexible verbosity
-- Lightweight reporting
-
-Strict Mode (validation/audit):
-- Mandatory evidence summary
-- Mandatory reporting checklist
-- SCIONA-first enforcement
-
----
-
-## 10. Troubleshooting
+## 9. Troubleshooting
 
 - No committed snapshots → `{CMD_BUILD}`
 - Unknown reducer → `{CMD_REDUCER_LIST}`
