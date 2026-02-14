@@ -197,7 +197,7 @@ Agents SHOULD avoid excessive reducer calls when existing evidence suffices.
 ## 7. Input & Output Safety
 Agents MUST:
 - Sanitize shell inputs
-- Reject inputs containing shell control/interpolation tokens: ; | & $() ` ${}
+- Reject inputs containing shell control/interpolation tokens: ; | & $() ` ${{}}
 
 ---
 
