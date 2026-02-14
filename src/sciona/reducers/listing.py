@@ -70,7 +70,7 @@ def render_reducer_list(
         ordered_categories.append(category)
 
     prefix = "sciona " if include_prefix else ""
-    lines = ["Reducers:"]
+    lines = []
     for category in ordered_categories:
         lines.append(f"Category: {category}")
         lines.append(f"")
