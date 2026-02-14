@@ -197,6 +197,11 @@ Agents MUST:
 
 ## 8. Reporting Checklist
 
+Every response MUST include:
+
+Status: sciona used: yes/no | worktree: clean/dirty/unknown | diff: full/summary/unavailable/n/a | warned: yes/no
+Evidence: X entities → Y edges → notes (snapshot/diff source, caveats)
+
 Mandatory in Strict Mode / Validation Contexts:
 
 Status: sciona used: yes/no | worktree: clean/dirty/unknown | diff: full/summary/unavailable/n/a | warned: yes/no
