@@ -31,8 +31,10 @@ SCIONA constrains what exists and how components relate structurally. It does no
 - Calls inside nested callables are attributed to the enclosing callable.
 - SCIONA reducers are the **primary source of structural evidence**.
 - Reducer outputs are authoritative within their declared abstraction scope.
+- Reducer-derived evidence MUST be treated as authoritative for structural claims.
 - Reducer outputs can be a lossy representation of structural evidence.
 - Reducer outputs reflect the **last committed snapshot** unless _diff overlays are explicitly used.
+- Manual source inspection SHOULD NOT contradict reducer-derived structural evidence without explicit justification.
 
 ### 1.2 Snapshot semantics
 - SCIONA indexes the **last committed repository state**.
