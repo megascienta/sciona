@@ -67,13 +67,19 @@ Agents MUST use SCIONA reducers when:
 – Determinism, invariants, or ordering guarantees are discussed
 – Dependency or call-graph analysis is requested
 
-Agents SHOULD prefer SCIONA reducers for other structural queries.
+Agents STRONGLY SHOULD prefer SCIONA reducers for other structural queries.
+
+SCIONA invocation MAY be skipped when:
+– Query is purely local and trivial
+– No structural inference beyond a single visible file is required
 
 ### 2.2 Evidence before interpretation
 Evidence summaries SHOULD precede interpretation when:
 - Structural claims are made
 - Architectural reasoning depends on repository structure
 - Reducer outputs constrain conclusions
+
+Agents STRONGLY SHOULD provide evidence summaries when reducer-derived structural reasoning is used.
 
 Evidence summary MAY be omitted when:
 - Discussion is conceptual/theoretical
@@ -141,9 +147,11 @@ If identifiers are unknown:
 {CMD_SEARCH}
 
 ### 5.2 Resolution
-Before analysis:
+Before structural reasoning:
 
 {CMD_RESOLVE}
+
+Agents STRONGLY SHOULD resolve identifiers via SCIONA rather than inferring or guessing symbol names.
 
 Identifier requirements:
 - Identifiers MUST match `^[a-zA-Z0-9_\.-]+$`
@@ -185,12 +193,14 @@ Agents SHOULD prefer reducers that:
 - Maximize structural grounding
 - Avoid redundant evidence retrieval
 
+Agents STRONGLY SHOULD select reducers aligned with the dominant reasoning task (navigation, structure, relations, metrics, or source retrieval).
+
 ### 6.5 Resource limits
 
 - Soft limit: ≤100 reducer calls per task
 - Beyond limit → SHOULD request user confirmation
 
-Agents SHOULD avoid excessive reducer calls when existing evidence suffices.
+Agents STRONGLY SHOULD avoid excessive reducer calls when previously retrieved SCIONA evidence is sufficient.
 
 ---
 
@@ -207,14 +217,16 @@ Strict Mode applies when:
 – Structural claims about the repository are made
 – Reducer-derived evidence is used in reasoning
 – Determinism, invariants, or ordering guarantees are analysed
-– Architectural, refactoring, or dependency reasoning is perform
+– Architectural, refactoring, or dependency reasoning is performed
 
-Strict Mode:
+In Strict Mode, responses MUST include:
 
 Status: sciona used: yes/no | worktree: clean/dirty/unknown | diff: full/summary/unavailable/n/a | warned: yes/no
-Evidence: X entities → Y edges → notes (snapshot/diff source, caveats)
+Evidence: summary of relevant SCIONA outputs (entities, relations, caveats)
 
-Compact Mode:
+Compact Mode MAY be used when Strict Mode conditions are not met.
+
+In Compact Mode:
 
 Status: sciona used: yes/no
 Evidence: available / n/a
