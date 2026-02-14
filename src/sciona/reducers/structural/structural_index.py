@@ -32,7 +32,9 @@ REDUCER_META = ReducerMeta(
     placeholders=("STRUCTURAL_INDEX",),
     determinism="conditional",
     payload_size_stats=None,
-    summary="Canonical structural index payload for the codebase.",
+    summary="Canonical structural index of the codebase. " \
+    "Use for global structural reasoning or validation. " \
+    "Scope: entire SCI snapshot.",
 )
 
 

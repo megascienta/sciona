@@ -19,7 +19,9 @@ REDUCER_META = ReducerMeta(
     placeholders=("HOTSPOT_SUMMARY",),
     determinism="conditional",
     payload_size_stats=None,
-    summary="Compressed codebase hotspot summary.",
+    summary="Compressed summary of structurally significant or highly connected entities. " \
+    "Use for architectural orientation or complexity inspection. " \
+    "Scope: codebase-level.",
     lossy=True,
 )
 

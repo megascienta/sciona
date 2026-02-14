@@ -28,7 +28,8 @@ REDUCER_META = ReducerMeta(
     placeholders=("CLASS_OVERVIEW",),
     determinism="conditional",
     payload_size_stats=None,
-    summary="Structural overview payload for a class.",
+    summary="Structural summary of a class, including methods and metadata. " \
+    "Use for quick class inspection. Scope: class-level structure.",
 )
 
 

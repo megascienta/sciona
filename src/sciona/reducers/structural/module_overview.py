@@ -24,7 +24,9 @@ REDUCER_META = ReducerMeta(
     placeholders=("MODULE_OVERVIEW",),
     determinism="conditional",
     payload_size_stats=None,
-    summary="Structural overview payload for a module.",
+    summary="Structural summary of a module, including contained classes and callables. " \
+    "Use for architectural inspection. " \
+    "Scope: module-level.",
 )
 
 

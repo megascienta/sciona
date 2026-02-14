@@ -21,7 +21,9 @@ REDUCER_META = ReducerMeta(
     placeholders=("CALL_GRAPH",),
     determinism="conditional",
     payload_size_stats=None,
-    summary="Caller/callee node sets (deduped) for a callable.",
+    summary="Immediate caller and callee callable sets for a given callable. " \
+    "Use when analysing local call relationships or impact propagation. " \
+    "Scope: single callable → neighboring callables.",
     lossy=True,
 )
 

@@ -21,7 +21,9 @@ REDUCER_META = ReducerMeta(
     placeholders=("CONCATENATED_SOURCE",),
     determinism="conditional",
     payload_size_stats=None,
-    summary="Concatenated source for codebase, module, or class scope.",
+    summary="Concatenated source code for a selected scope (codebase/module/class). " \
+    "Use for large-context reasoning or cross-entity inspection. " \
+    "Scope: configurable.",
     lossy=False,
     baseline_only=True,
 )

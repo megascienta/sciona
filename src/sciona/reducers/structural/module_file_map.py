@@ -18,7 +18,9 @@ REDUCER_META = ReducerMeta(
     placeholders=("MODULE_FILE_MAP",),
     determinism="strict",
     payload_size_stats=None,
-    summary="Module-to-file map with module ids and file paths.",
+    summary="Mapping between module identifiers and file paths. " \
+    "Use for structural resolution or navigation. " \
+    "Scope: module ↔ files.",
     lossy=False,
 )
 

@@ -21,7 +21,9 @@ REDUCER_META = ReducerMeta(
     placeholders=("MODULE_CALL_GRAPH",),
     determinism="conditional",
     payload_size_stats=None,
-    summary="Module-level call graph summary.",
+    summary="Summary of call relationships within a module. " \
+    "Use for module-level flow or coupling analysis. " \
+    "Scope: module call graph.",
     lossy=True,
 )
 

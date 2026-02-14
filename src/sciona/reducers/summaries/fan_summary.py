@@ -22,7 +22,9 @@ REDUCER_META = ReducerMeta(
     placeholders=("FAN_SUMMARY",),
     determinism="conditional",
     payload_size_stats=None,
-    summary="Fan-in/out summary for calls and imports.",
+    summary="Fan-in/fan-out metrics for calls and imports. " \
+    "Use to identify highly connected entities or hotspots. " \
+    "Scope: callable/class/module.",
     lossy=True,
 )
 

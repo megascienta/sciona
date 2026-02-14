@@ -21,10 +21,11 @@ REDUCER_META = ReducerMeta(
     placeholders=("CLASS_CALL_GRAPH",),
     determinism="conditional",
     payload_size_stats=None,
-    summary="Class-level call graph summary.",
+    summary="Summary of call relationships within a class. " \
+    "Use for analysing method interaction patterns or internal coupling. " \
+    "Scope: class-level call graph.",
     lossy=True,
 )
-
 
 def render(
     snapshot_id: str,

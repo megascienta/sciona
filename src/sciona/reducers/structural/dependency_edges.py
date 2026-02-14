@@ -18,7 +18,9 @@ REDUCER_META = ReducerMeta(
     placeholders=("DEPENDENCY_EDGES",),
     determinism="strict",
     payload_size_stats=None,
-    summary="Explicit module import edges for the snapshot.",
+    summary="Explicit module import dependencies. " \
+    "Use for analysing module coupling or dependency graphs. " \
+    "Scope: module-level import edges.",
     lossy=True,
 )
 

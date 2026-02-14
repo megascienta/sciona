@@ -20,7 +20,9 @@ REDUCER_META = ReducerMeta(
     placeholders=("CALLSITE_INDEX",),
     determinism="conditional",
     payload_size_stats=None,
-    summary="Caller/callee edge index for a callable.",
+    summary="Indexed caller/callee edges for a callable, including callsite details. " \
+    "Use when reasoning about call directionality or callsite-level analysis. " \
+    "Scope: callable-level call edges.",
     lossy=True,
 )
 

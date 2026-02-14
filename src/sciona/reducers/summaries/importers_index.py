@@ -18,7 +18,9 @@ REDUCER_META = ReducerMeta(
     placeholders=("IMPORTERS_INDEX",),
     determinism="conditional",
     payload_size_stats=None,
-    summary="Index of modules that import target module(s).",
+    summary="Modules that import a given module. " \
+    "Use when analysing inbound dependencies. " \
+    "Scope: module → importing modules.",
     lossy=True,
 )
 

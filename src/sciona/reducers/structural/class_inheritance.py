@@ -18,7 +18,9 @@ REDUCER_META = ReducerMeta(
     placeholders=("CLASS_INHERITANCE",),
     determinism="conditional",
     payload_size_stats=None,
-    summary="Best-effort class inheritance derived from parsed base clauses.",
+    summary="Parsed base classes and inheritance relations. " \
+    "Use when reasoning about type hierarchy or polymorphic structure. " \
+    "Scope: class hierarchy.",
 )
 
 

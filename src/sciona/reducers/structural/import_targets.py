@@ -18,7 +18,9 @@ REDUCER_META = ReducerMeta(
     placeholders=("IMPORT_REFERENCES",),
     determinism="conditional",
     payload_size_stats=None,
-    summary="Import edges targeting module(s), including target list and edge detail.",
+    summary="Modules imported by a given module. " \
+    "Use when analysing outward dependencies. " \
+    "Scope: module → imported modules.",
     lossy=True,
 )
 

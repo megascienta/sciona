@@ -21,7 +21,9 @@ REDUCER_META = ReducerMeta(
     placeholders=("SYMBOL_REFERENCES",),
     determinism="conditional",
     payload_size_stats=None,
-    summary="Relationship references (calls/imports) for symbols matching a query.",
+    summary="Structural relationships (calls/imports) for matched symbols. " \
+    "Use for impact analysis or dependency tracing. " \
+    "Scope: symbol → relations.",
     lossy=True,
 )
 

@@ -23,7 +23,8 @@ REDUCER_META = ReducerMeta(
     placeholders=("CALLABLE_SOURCE",),
     determinism="conditional",
     payload_size_stats=None,
-    summary="Full source payload for a callable (function or method).",
+    summary="Full source code of a callable. Use only when " \
+    "implementation details are required. Scope: single function or method.",
     lossy=False,
     baseline_only=True,
 )

@@ -20,9 +20,10 @@ REDUCER_META = ReducerMeta(
     placeholders=("SYMBOL_LOOKUP",),
     determinism="conditional",
     payload_size_stats=None,
-    summary="Ranked symbol matches for a query.",
+    summary="Ranked structural symbol matches for a query. " \
+    "Use when resolving unknown identifiers. " \
+    "Scope: query → symbols.",
 )
-
 
 def render(
     snapshot_id: str,

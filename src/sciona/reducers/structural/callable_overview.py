@@ -27,7 +27,9 @@ REDUCER_META = ReducerMeta(
     placeholders=("CALLABLE_OVERVIEW",),
     determinism="conditional",
     payload_size_stats=None,
-    summary="Structural overview payload for a callable (function or method).",
+    summary="Structural summary of a callable, including signature, location, and metadata. " \
+    "Use for quick callable inspection without retrieving full source. " \
+    "Scope: single function or method.",
 )
 
 
