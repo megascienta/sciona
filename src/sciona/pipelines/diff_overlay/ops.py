@@ -162,6 +162,8 @@ def apply_overlay_to_text(
         warnings.append("summary_missing")
     patched_detail = _patched_detail(projection, patched_projection)
     diff_scope, scope_exclusions = _resolve_diff_scope(repo_root)
+    scope_hint = _extract_scope_hint(payload, projection)
+    scoped_changes, scoped_relevance = _scoped_changes(overlay, scope_hint)
     if mode == "summary":
         changes = _empty_changes()
         top_changed = _empty_top_changed()
@@ -187,7 +189,10 @@ def apply_overlay_to_text(
         "reducer_id": reducer_id,
         "projection": projection or None,
         "projection_version": projection_version,
+        "patch_scope": scope_hint,
         "changes": changes,
+        "changes_scoped": scoped_changes,
+        "relevance": scoped_relevance,
         "summary": overlay.summary,
         "top_changed": top_changed,
         "patched": patched_detail,
@@ -225,8 +230,10 @@ def attach_unavailable_overlay(
         "edges": False,
         "calls": False,
         "summary": False,
+        "default_partial": False,
         "reasons": ["overlay_unavailable"],
     }
+    scope_hint = _extract_scope_hint(payload, projection)
     diff_payload = {
         "version": 2,
         "mode": mode,
@@ -241,7 +248,15 @@ def attach_unavailable_overlay(
         "reducer_id": reducer_id,
         "projection": projection or None,
         "projection_version": payload.get("projection_version"),
+        "patch_scope": scope_hint,
         "changes": _empty_changes(),
+        "changes_scoped": _empty_changes(),
+        "relevance": {
+            "affected": False,
+            "nodes": {"total": 0, "scoped": 0},
+            "edges": {"total": 0, "scoped": 0},
+            "calls": {"total": 0, "scoped": 0},
+        },
         "summary": None,
         "top_changed": _empty_top_changed(),
         "patched": patched_detail,
@@ -494,6 +509,192 @@ def _empty_top_changed() -> dict[str, object]:
     return {"limit": 0, "nodes": [], "edges": [], "calls": []}
 
 
+def _extract_scope_hint(payload: dict[str, object], projection: str) -> dict[str, object]:
+    scope: dict[str, object] = {"scope": "unknown"}
+    if projection in {
+        "module_overview",
+        "dependency_edges",
+        "module_call_graph_summary",
+    }:
+        module_name = payload.get("module_qualified_name") or payload.get("module_filter")
+        scope = {
+            "scope": "module",
+            "module_qualified_name": module_name,
+            "module_structural_id": payload.get("module_structural_id")
+            or payload.get("module_filter"),
+        }
+    elif projection in {"callable_overview", "callsite_index"}:
+        scope = {
+            "scope": "callable",
+            "callable_id": payload.get("callable_id") or payload.get("function_id"),
+            "qualified_name": payload.get("qualified_name")
+            or payload.get("identity", {}).get("qualified_name"),
+        }
+    elif projection in {"class_overview", "class_call_graph_summary", "class_inheritance"}:
+        scope = {
+            "scope": "class",
+            "class_id": payload.get("class_id"),
+            "qualified_name": payload.get("qualified_name"),
+        }
+    elif projection == "file_outline":
+        scope = {
+            "scope": "file",
+            "file_path": payload.get("file_path"),
+            "module_filter": payload.get("module_filter"),
+        }
+    elif projection == "structural_index":
+        scope = {"scope": "codebase"}
+    elif projection in {"symbol_lookup", "symbol_references"}:
+        scope = {"scope": "query", "query": payload.get("query")}
+    elif projection == "fan_summary":
+        scope = {
+            "scope": "fan",
+            "node_id": payload.get("node_id"),
+            "module_id": payload.get("module_id"),
+            "class_id": payload.get("class_id"),
+            "callable_id": payload.get("callable_id") or payload.get("function_id"),
+        }
+    elif projection == "hotspot_summary":
+        scope = {"scope": "codebase"}
+    return scope
+
+
+def _parse_overlay_value(entry: dict[str, object]) -> dict[str, object]:
+    raw = entry.get("new_value") or entry.get("old_value")
+    if not isinstance(raw, str) or not raw:
+        return {}
+    try:
+        value = json.loads(raw)
+    except Exception:
+        return {}
+    if isinstance(value, dict):
+        return value
+    return {}
+
+
+def _scoped_changes(
+    overlay: OverlayPayload, scope: dict[str, object]
+) -> tuple[dict[str, dict[str, list[dict[str, object]]]], dict[str, object]]:
+    if not overlay:
+        return _empty_changes(), {
+            "affected": False,
+            "nodes": {"total": 0, "scoped": 0},
+            "edges": {"total": 0, "scoped": 0},
+            "calls": {"total": 0, "scoped": 0},
+        }
+    scope_type = str(scope.get("scope") or "unknown")
+    module_name = scope.get("module_qualified_name")
+    file_path = scope.get("file_path")
+    module_filter = scope.get("module_filter")
+    class_id = scope.get("class_id")
+    callable_id = scope.get("callable_id")
+    node_id = scope.get("node_id")
+
+    def _module_match(name: str | None) -> bool:
+        if not name:
+            return False
+        target = module_name or module_filter
+        if not target:
+            return False
+        return name == target or name.startswith(f"{target}.")
+
+    def _node_match(entry: dict[str, object]) -> bool:
+        if scope_type == "codebase":
+            return True
+        meta = _parse_overlay_value(entry)
+        qualified = meta.get("qualified_name")
+        if scope_type == "file":
+            return bool(file_path and meta.get("file_path") == file_path)
+        if scope_type == "module":
+            return _module_match(str(qualified)) or _module_match(str(meta.get("module")))
+        if scope_type == "callable":
+            return str(entry.get("structural_id")) == str(callable_id)
+        if scope_type == "class":
+            return str(entry.get("structural_id")) == str(class_id)
+        if scope_type == "fan":
+            return str(entry.get("structural_id")) == str(node_id)
+        return False
+
+    def _edge_match(entry: dict[str, object]) -> bool:
+        if scope_type == "codebase":
+            return True
+        meta = _parse_overlay_value(entry)
+        src_name = meta.get("src_qualified_name")
+        dst_name = meta.get("dst_qualified_name")
+        if scope_type == "file":
+            return bool(
+                file_path
+                and (meta.get("src_file_path") == file_path or meta.get("dst_file_path") == file_path)
+            )
+        if scope_type == "module":
+            return _module_match(str(src_name)) or _module_match(str(dst_name))
+        if scope_type == "callable":
+            return False
+        if scope_type == "class":
+            return False
+        if scope_type == "fan":
+            return False
+        return False
+
+    def _call_match(entry: dict[str, object]) -> bool:
+        if scope_type == "codebase":
+            return True
+        if scope_type == "callable":
+            return str(entry.get("src_structural_id")) == str(callable_id) or str(
+                entry.get("dst_structural_id")
+            ) == str(callable_id)
+        if scope_type == "module":
+            src_name = entry.get("src_qualified_name")
+            dst_name = entry.get("dst_qualified_name")
+            return _module_match(str(src_name)) or _module_match(str(dst_name))
+        if scope_type == "file":
+            return bool(
+                file_path
+                and (entry.get("src_file_path") == file_path or entry.get("dst_file_path") == file_path)
+            )
+        return False
+
+    scoped = _empty_changes()
+    total_nodes = 0
+    total_edges = 0
+    total_calls = 0
+    scoped_nodes = 0
+    scoped_edges = 0
+    scoped_calls = 0
+
+    for kind, entries in overlay.nodes.items():
+        total_nodes += len(entries)
+        for entry in entries:
+            if _node_match(entry):
+                scoped["nodes"][kind].append(entry)
+                scoped_nodes += 1
+    for kind, entries in overlay.edges.items():
+        total_edges += len(entries)
+        for entry in entries:
+            if _edge_match(entry):
+                scoped["edges"][kind].append(entry)
+                scoped_edges += 1
+    for kind, entries in overlay.calls.items():
+        total_calls += len(entries)
+        for entry in entries:
+            if _call_match(entry):
+                scoped["calls"][kind].append(entry)
+                scoped_calls += 1
+
+    affected: bool | None
+    if scope_type == "unknown":
+        affected = None
+    else:
+        affected = any([scoped_nodes > 0, scoped_edges > 0, scoped_calls > 0])
+    relevance = {
+        "affected": affected,
+        "nodes": {"total": total_nodes, "scoped": scoped_nodes},
+        "edges": {"total": total_edges, "scoped": scoped_edges},
+        "calls": {"total": total_calls, "scoped": scoped_calls},
+    }
+    return scoped, relevance
+
+
 def _validate_diff_payload(diff: dict[str, object]) -> list[str]:
     warnings: list[str] = []
     if not isinstance(diff.get("version"), int):
@@ -534,6 +735,15 @@ def _validate_diff_payload(diff: dict[str, object]) -> list[str]:
     coverage = diff.get("coverage")
     if not isinstance(coverage, dict):
         warnings.append("schema:coverage_not_dict")
+    patch_scope = diff.get("patch_scope")
+    if patch_scope is not None and not isinstance(patch_scope, dict):
+        warnings.append("schema:patch_scope_not_dict")
+    changes_scoped = diff.get("changes_scoped")
+    if changes_scoped is not None and not isinstance(changes_scoped, dict):
+        warnings.append("schema:changes_scoped_not_dict")
+    relevance = diff.get("relevance")
+    if relevance is not None and not isinstance(relevance, dict):
+        warnings.append("schema:relevance_not_dict")
     diff_scope = diff.get("diff_scope")
     if not isinstance(diff_scope, dict):
         warnings.append("schema:diff_scope_not_dict")
