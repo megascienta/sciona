@@ -237,3 +237,14 @@ Concatenated source code for a selected scope (codebase/module/class). Use for l
 ```bash
 sciona reducer --id concatenated_source [--scope SCOPE] [--module-id MODULE_ID] [--class-id CLASS_ID]
 ```
+
+## Project Governance
+
+Sciona is developed and maintained by Dmitry Chigrin. This work is part of my independent research & engineering activities under the MetaScienta brand.
+
+## Support Sciona
+
+If Sciona contributes to your development workflow, you can support its maintenance:
+
+GitHub Sponsors  
+buymecoffee.com/sciona

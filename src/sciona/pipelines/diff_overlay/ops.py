@@ -65,19 +65,21 @@ def get_overlay(
     except GitError:
         head_commit = None
     if head_commit and base_commit != head_commit:
-        logger.warning(
-            "Diff overlay base commit %s differs from HEAD %s; "
-            "overlay includes branch divergence.",
-            base_commit,
-            head_commit,
-        )
-        warnings.append("base_commit_differs_from_head")
         try:
             merge_base = git_ops.merge_base(repo_root, base_commit, head_commit)
-            base_commit = merge_base
+            if merge_base:
+                base_commit = merge_base
         except GitError:
             warnings.append("merge_base_failed")
             base_commit = head_commit
+        if base_commit != snapshot_commit:
+            logger.warning(
+                "Diff overlay base commit %s differs from HEAD %s; "
+                "overlay includes branch divergence.",
+                snapshot_commit,
+                head_commit,
+            )
+            warnings.append("base_commit_differs_from_head")
     git_cache: dict[tuple[Path, tuple[str, ...], str | None], str] = {}
     worktree_hash = worktree_fingerprint(repo_root, base_commit, cache=git_cache)
     if not overlay_bundle_exists(artifact_conn, snapshot_id, worktree_hash):
@@ -144,9 +146,9 @@ def apply_overlay_to_text(
             raise ValueError("Reducer payload must be JSON.")
         return text
     patched, patched_projection = apply_overlay_to_payload(
-        payload, overlay, snapshot_id=snapshot_id, conn=conn
+        payload, overlay, snapshot_id=snapshot_id, conn=conn, reducer_id=reducer_id
     )
-    projection = str(payload.get("projection", "")).strip().lower()
+    projection = _resolve_projection(payload, reducer_id)
     projection_version = payload.get("projection_version")
     warnings = list(overlay.warnings)
     if patched_projection is False:
@@ -165,6 +167,7 @@ def apply_overlay_to_text(
             "calls": overlay.calls,
         }
         top_changed = _build_top_changed(overlay, limit=20)
+    coverage_detail = _coverage_detail_reasons(patched_detail, overlay)
     diff_payload = {
         "version": 2,
         "mode": mode,
@@ -183,6 +186,7 @@ def apply_overlay_to_text(
         "top_changed": top_changed,
         "patched": patched_detail,
         "coverage": _coverage_detail(patched_detail, overlay),
+        "coverage_detail": coverage_detail,
         "warnings": warnings,
         "diff_scope": diff_scope,
         "scope_exclusions": scope_exclusions,
@@ -207,7 +211,7 @@ def attach_unavailable_overlay(
     if payload is None or "_diff" in payload:
         return text
     mode = _normalize_diff_mode(diff_mode)
-    projection = str(payload.get("projection", "")).strip().lower()
+    projection = _resolve_projection(payload, reducer_id)
     diff_scope, scope_exclusions = _resolve_diff_scope(repo_root)
     patched_detail = {
         "projection": False,
@@ -235,6 +239,12 @@ def attach_unavailable_overlay(
         "top_changed": _empty_top_changed(),
         "patched": patched_detail,
         "coverage": {"nodes": "none", "edges": "none", "calls": "none", "summary": "none"},
+        "coverage_detail": {
+            "nodes": ["overlay_unavailable"],
+            "edges": ["overlay_unavailable"],
+            "calls": ["overlay_unavailable"],
+            "summary": ["overlay_unavailable"],
+        },
         "warnings": list(warnings),
         "diff_scope": diff_scope,
         "scope_exclusions": scope_exclusions,
@@ -319,11 +329,46 @@ def _coverage_detail(
     }
 
 
+def _coverage_detail_reasons(
+    patched_detail: dict[str, object], overlay: OverlayPayload
+) -> dict[str, list[str]]:
+    def _reasons(flag: bool, data: dict[str, list[dict[str, object]]] | None) -> list[str]:
+        if not flag:
+            return ["projection_not_supported"]
+        if data is None:
+            return ["overlay_missing"]
+        if not any(data.values()):
+            return ["overlay_empty"]
+        return []
+
+    nodes = _reasons(bool(patched_detail.get("nodes")), overlay.nodes)
+    edges = _reasons(bool(patched_detail.get("edges")), overlay.edges)
+    calls = _reasons(bool(patched_detail.get("calls")), overlay.calls)
+    summary = []
+    if not patched_detail.get("summary"):
+        summary = ["projection_not_supported"]
+    elif overlay.summary is None:
+        summary = ["summary_missing"]
+    return {
+        "nodes": nodes,
+        "edges": edges,
+        "calls": calls,
+        "summary": summary,
+    }
+
+
 def _normalize_diff_mode(diff_mode: str | None) -> str:
     mode = str(diff_mode or "full").strip().lower()
     if mode not in _DIFF_MODES:
         raise ValueError(f"Invalid diff mode '{diff_mode}'.")
     return mode
+
+
+def _resolve_projection(payload: dict[str, object], reducer_id: str | None) -> str:
+    projection = str(payload.get("projection", "")).strip().lower()
+    if projection:
+        return projection
+    return str(reducer_id or "").strip().lower()
 
 
 def _empty_changes() -> dict[str, dict[str, list[dict[str, object]]]]:

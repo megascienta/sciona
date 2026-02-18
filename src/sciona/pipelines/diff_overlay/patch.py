@@ -9,6 +9,7 @@ import json
 from typing import Optional
 
 from .types import OverlayPayload
+from ...runtime import identity as ids
 
 
 def apply_overlay_to_payload(
@@ -17,8 +18,9 @@ def apply_overlay_to_payload(
     *,
     snapshot_id: str,
     conn,
+    reducer_id: str | None = None,
 ) -> tuple[dict[str, object], bool]:
-    projection = str(payload.get("projection", "")).strip().lower()
+    projection = _resolve_projection(payload, reducer_id)
     if projection == "structural_index":
         return patch_structural_index(payload, overlay), True
     if projection == "module_overview":
@@ -41,16 +43,30 @@ def apply_overlay_to_payload(
         return patch_symbol_lookup(payload, overlay), True
     if projection == "symbol_references":
         return patch_symbol_references(payload, overlay), True
-    if projection in {
-        "call_neighbors",
-        "callsite_index",
-        "class_call_graph_summary",
-        "module_call_graph_summary",
-        "fan_summary",
-        "hotspot_summary",
-    }:
-        return patch_summary_payload(payload, overlay), True
+    if projection == "call_neighbors":
+        return patch_call_neighbors(payload, overlay, snapshot_id=snapshot_id, conn=conn), True
+    if projection == "callsite_index":
+        return patch_callsite_index(payload, overlay, snapshot_id=snapshot_id, conn=conn), True
+    if projection == "class_call_graph_summary":
+        return patch_class_call_graph_summary(
+            payload, overlay, snapshot_id=snapshot_id, conn=conn
+        ), True
+    if projection == "module_call_graph_summary":
+        return patch_module_call_graph_summary(
+            payload, overlay, snapshot_id=snapshot_id, conn=conn
+        ), True
+    if projection == "fan_summary":
+        return patch_fan_summary(payload, overlay, snapshot_id=snapshot_id, conn=conn), True
+    if projection == "hotspot_summary":
+        return patch_hotspot_summary(payload, overlay, snapshot_id=snapshot_id, conn=conn), True
     return payload, False
+
+
+def _resolve_projection(payload: dict[str, object], reducer_id: str | None) -> str:
+    projection = str(payload.get("projection", "")).strip().lower()
+    if projection:
+        return projection
+    return str(reducer_id or "").strip().lower()
 
 
 def iter_node_changes(overlay: OverlayPayload) -> list[dict[str, object]]:
@@ -880,6 +896,630 @@ def patch_summary_payload(
         return payload
     payload["diff_summary"] = overlay.summary
     return payload
+
+
+def patch_call_neighbors(
+    payload: dict[str, object],
+    overlay: OverlayPayload,
+    *,
+    snapshot_id: str,
+    conn,
+) -> dict[str, object]:
+    target_id = payload.get("callable_id")
+    if not target_id:
+        return payload
+    callers = {
+        entry.get("structural_id"): entry for entry in payload.get("callers", []) or []
+    }
+    callees = {
+        entry.get("structural_id"): entry for entry in payload.get("callees", []) or []
+    }
+    ids_needed: set[str] = set()
+    for change in overlay.calls.get("add", []) + overlay.calls.get("remove", []):
+        src_id = change.get("src_structural_id")
+        dst_id = change.get("dst_structural_id")
+        if src_id == target_id or dst_id == target_id:
+            if src_id:
+                ids_needed.add(str(src_id))
+            if dst_id:
+                ids_needed.add(str(dst_id))
+    meta_lookup = _node_meta_lookup(conn, snapshot_id, overlay, ids_needed)
+
+    def _entry(node_id: str) -> dict[str, object] | None:
+        meta = meta_lookup.get(node_id, {})
+        qualified = meta.get("qualified_name")
+        node_type = meta.get("node_type")
+        if not qualified or not node_type:
+            return None
+        return {
+            "structural_id": node_id,
+            "qualified_name": qualified,
+            "node_type": node_type,
+        }
+
+    for change in overlay.calls.get("add", []):
+        src_id = change.get("src_structural_id")
+        dst_id = change.get("dst_structural_id")
+        if src_id == target_id and dst_id:
+            entry = _entry(str(dst_id))
+            if entry:
+                callees[str(dst_id)] = entry
+        if dst_id == target_id and src_id:
+            entry = _entry(str(src_id))
+            if entry:
+                callers[str(src_id)] = entry
+    for change in overlay.calls.get("remove", []):
+        src_id = change.get("src_structural_id")
+        dst_id = change.get("dst_structural_id")
+        if src_id == target_id and dst_id:
+            callees.pop(str(dst_id), None)
+        if dst_id == target_id and src_id:
+            callers.pop(str(src_id), None)
+
+    payload["callers"] = sorted(
+        callers.values(), key=lambda item: str(item.get("qualified_name"))
+    )
+    payload["callees"] = sorted(
+        callees.values(), key=lambda item: str(item.get("qualified_name"))
+    )
+    payload["caller_count"] = len(payload["callers"])
+    payload["callee_count"] = len(payload["callees"])
+    return payload
+
+
+def patch_callsite_index(
+    payload: dict[str, object],
+    overlay: OverlayPayload,
+    *,
+    snapshot_id: str,
+    conn,
+) -> dict[str, object]:
+    target_id = payload.get("callable_id")
+    if not target_id:
+        return payload
+    direction = str(payload.get("direction") or "both").lower()
+    edges = list(payload.get("edges", []) or [])
+    edge_map: dict[tuple[str, str, str], dict[str, object]] = {}
+    for entry in edges:
+        key = (
+            str(entry.get("caller_id") or ""),
+            str(entry.get("callee_id") or ""),
+            str(entry.get("edge_kind") or "CALLS"),
+        )
+        edge_map[key] = entry
+    ids_needed: set[str] = set()
+    for change in overlay.calls.get("add", []) + overlay.calls.get("remove", []):
+        src_id = change.get("src_structural_id")
+        dst_id = change.get("dst_structural_id")
+        if src_id:
+            ids_needed.add(str(src_id))
+        if dst_id:
+            ids_needed.add(str(dst_id))
+    meta_lookup = _node_meta_lookup(conn, snapshot_id, overlay, ids_needed)
+
+    def _module_name(node_id: str) -> str | None:
+        meta = meta_lookup.get(node_id, {})
+        return _module_for_node(
+            str(meta.get("node_type") or ""), str(meta.get("qualified_name") or "")
+        )
+
+    def _entry(caller_id: str, callee_id: str, edge_source: str) -> dict[str, object]:
+        caller = meta_lookup.get(caller_id, {})
+        callee = meta_lookup.get(callee_id, {})
+        return {
+            "caller_id": caller_id,
+            "callee_id": callee_id,
+            "caller_qualified_name": caller.get("qualified_name"),
+            "callee_qualified_name": callee.get("qualified_name"),
+            "caller_file_path": caller.get("file_path"),
+            "callee_file_path": callee.get("file_path"),
+            "caller_language": caller.get("language"),
+            "callee_language": callee.get("language"),
+            "caller_node_type": caller.get("node_type"),
+            "callee_node_type": callee.get("node_type"),
+            "caller_module_qualified_name": _module_name(caller_id),
+            "callee_module_qualified_name": _module_name(callee_id),
+            "edge_kind": "CALLS",
+            "edge_source": edge_source,
+            "call_hash": None,
+            "line_span": None,
+        }
+
+    def _matches_direction(src_id: str, dst_id: str) -> bool:
+        if direction == "out":
+            return src_id == target_id
+        if direction == "in":
+            return dst_id == target_id
+        return src_id == target_id or dst_id == target_id
+
+    for change in overlay.calls.get("add", []):
+        src_id = change.get("src_structural_id")
+        dst_id = change.get("dst_structural_id")
+        if not src_id or not dst_id:
+            continue
+        if not _matches_direction(str(src_id), str(dst_id)):
+            continue
+        key = (str(src_id), str(dst_id), "CALLS")
+        edge_map[key] = _entry(str(src_id), str(dst_id), "overlay")
+
+    for change in overlay.calls.get("remove", []):
+        src_id = change.get("src_structural_id")
+        dst_id = change.get("dst_structural_id")
+        if not src_id or not dst_id:
+            continue
+        if not _matches_direction(str(src_id), str(dst_id)):
+            continue
+        edge_map.pop((str(src_id), str(dst_id), "CALLS"), None)
+
+    payload["edges"] = sorted(
+        edge_map.values(),
+        key=lambda item: (
+            str(item.get("caller_id")),
+            str(item.get("callee_id")),
+        ),
+    )
+    payload["edge_count"] = len(payload["edges"])
+    return payload
+
+
+def patch_module_call_graph_summary(
+    payload: dict[str, object],
+    overlay: OverlayPayload,
+    *,
+    snapshot_id: str,
+    conn,
+) -> dict[str, object]:
+    target_id = payload.get("module_qualified_name")
+    if not target_id:
+        return payload
+    top_k = payload.get("top_k")
+    outgoing_map: dict[tuple[str, str], int] = {}
+    incoming_map: dict[tuple[str, str], int] = {}
+    for entry in payload.get("outgoing", []) or []:
+        key = (
+            str(entry.get("src_module_qualified_name")),
+            str(entry.get("dst_module_qualified_name")),
+        )
+        outgoing_map[key] = int(entry.get("call_count") or 0)
+    for entry in payload.get("incoming", []) or []:
+        key = (
+            str(entry.get("src_module_qualified_name")),
+            str(entry.get("dst_module_qualified_name")),
+        )
+        incoming_map[key] = int(entry.get("call_count") or 0)
+    ids_needed: set[str] = set()
+    for change in overlay.calls.get("add", []) + overlay.calls.get("remove", []):
+        if change.get("src_structural_id"):
+            ids_needed.add(str(change.get("src_structural_id")))
+        if change.get("dst_structural_id"):
+            ids_needed.add(str(change.get("dst_structural_id")))
+    meta_lookup = _node_meta_lookup(conn, snapshot_id, overlay, ids_needed)
+
+    def _module_id(node_id: str) -> str | None:
+        meta = meta_lookup.get(node_id, {})
+        module_name = _module_for_node(
+            str(meta.get("node_type") or ""), str(meta.get("qualified_name") or "")
+        )
+        language = meta.get("language")
+        if not module_name or not language:
+            return None
+        return ids.structural_id("module", str(language), str(module_name))
+
+    for change in overlay.calls.get("add", []) + overlay.calls.get("remove", []):
+        src_id = change.get("src_structural_id")
+        dst_id = change.get("dst_structural_id")
+        if not src_id or not dst_id:
+            continue
+        src_module = _module_id(str(src_id))
+        dst_module = _module_id(str(dst_id))
+        if not src_module or not dst_module:
+            continue
+        delta = 1 if change.get("diff_kind") == "add" else -1
+        if src_module == target_id:
+            outgoing_map[(src_module, dst_module)] = max(
+                0, outgoing_map.get((src_module, dst_module), 0) + delta
+            )
+        if dst_module == target_id:
+            incoming_map[(src_module, dst_module)] = max(
+                0, incoming_map.get((src_module, dst_module), 0) + delta
+            )
+
+    def _entries(edge_map: dict[tuple[str, str], int], direction: str) -> list[dict[str, object]]:
+        entries = []
+        for (src, dst), count in edge_map.items():
+            if count <= 0:
+                continue
+            entries.append(
+                {
+                    "src_module_qualified_name": src,
+                    "dst_module_qualified_name": dst,
+                    "direction": direction,
+                    "call_count": count,
+                }
+            )
+        entries.sort(
+            key=lambda item: (
+                -int(item.get("call_count") or 0),
+                str(item.get("src_module_qualified_name")),
+                str(item.get("dst_module_qualified_name")),
+            )
+        )
+        if top_k is not None:
+            try:
+                limit = int(top_k)
+            except (TypeError, ValueError):
+                limit = None
+            if limit and limit > 0:
+                entries = entries[:limit]
+        return entries
+
+    outgoing_all = _entries(outgoing_map, "outgoing")
+    incoming_all = _entries(incoming_map, "incoming")
+    payload["outgoing"] = outgoing_all
+    payload["incoming"] = incoming_all
+    payload["outgoing_count"] = len(outgoing_all)
+    payload["incoming_count"] = len(incoming_all)
+    payload["outgoing_total"] = len(outgoing_all)
+    payload["incoming_total"] = len(incoming_all)
+    payload["total_edges"] = len(outgoing_all) + len(incoming_all)
+    payload["edge_summary"] = {
+        "CALLS": {"outgoing": len(outgoing_all), "incoming": len(incoming_all)}
+    }
+    if outgoing_all:
+        payload["outgoing_coverage_ratio"] = 1.0
+    if incoming_all:
+        payload["incoming_coverage_ratio"] = 1.0
+    return payload
+
+
+def patch_class_call_graph_summary(
+    payload: dict[str, object],
+    overlay: OverlayPayload,
+    *,
+    snapshot_id: str,
+    conn,
+) -> dict[str, object]:
+    target_id = payload.get("class_id")
+    if not target_id:
+        return payload
+    top_k = payload.get("top_k")
+    outgoing_map: dict[tuple[str, str], int] = {}
+    incoming_map: dict[tuple[str, str], int] = {}
+    for entry in payload.get("outgoing", []) or []:
+        key = (str(entry.get("src_class_id")), str(entry.get("dst_class_id")))
+        outgoing_map[key] = int(entry.get("call_count") or 0)
+    for entry in payload.get("incoming", []) or []:
+        key = (str(entry.get("src_class_id")), str(entry.get("dst_class_id")))
+        incoming_map[key] = int(entry.get("call_count") or 0)
+    ids_needed: set[str] = set()
+    for change in overlay.calls.get("add", []) + overlay.calls.get("remove", []):
+        if change.get("src_structural_id"):
+            ids_needed.add(str(change.get("src_structural_id")))
+        if change.get("dst_structural_id"):
+            ids_needed.add(str(change.get("dst_structural_id")))
+    meta_lookup = _node_meta_lookup(conn, snapshot_id, overlay, ids_needed)
+
+    def _class_id(node_id: str) -> str | None:
+        meta = meta_lookup.get(node_id, {})
+        if meta.get("node_type") != "method":
+            return None
+        qualified = str(meta.get("qualified_name") or "")
+        language = meta.get("language")
+        parts = qualified.split(".")
+        if len(parts) < 2 or not language:
+            return None
+        class_name = ".".join(parts[:-1])
+        return ids.structural_id("class", str(language), class_name)
+
+    for change in overlay.calls.get("add", []) + overlay.calls.get("remove", []):
+        src_id = change.get("src_structural_id")
+        dst_id = change.get("dst_structural_id")
+        if not src_id or not dst_id:
+            continue
+        src_class = _class_id(str(src_id))
+        dst_class = _class_id(str(dst_id))
+        if not src_class or not dst_class:
+            continue
+        delta = 1 if change.get("diff_kind") == "add" else -1
+        if src_class == target_id:
+            outgoing_map[(src_class, dst_class)] = max(
+                0, outgoing_map.get((src_class, dst_class), 0) + delta
+            )
+        if dst_class == target_id:
+            incoming_map[(src_class, dst_class)] = max(
+                0, incoming_map.get((src_class, dst_class), 0) + delta
+            )
+
+    def _entries(edge_map: dict[tuple[str, str], int], direction: str) -> list[dict[str, object]]:
+        entries = []
+        for (src, dst), count in edge_map.items():
+            if count <= 0:
+                continue
+            entries.append(
+                {
+                    "src_class_id": src,
+                    "dst_class_id": dst,
+                    "direction": direction,
+                    "call_count": count,
+                }
+            )
+        entries.sort(
+            key=lambda item: (
+                -int(item.get("call_count") or 0),
+                str(item.get("src_class_id")),
+                str(item.get("dst_class_id")),
+            )
+        )
+        if top_k is not None:
+            try:
+                limit = int(top_k)
+            except (TypeError, ValueError):
+                limit = None
+            if limit and limit > 0:
+                entries = entries[:limit]
+        return entries
+
+    outgoing_all = _entries(outgoing_map, "outgoing")
+    incoming_all = _entries(incoming_map, "incoming")
+    payload["outgoing"] = outgoing_all
+    payload["incoming"] = incoming_all
+    payload["outgoing_count"] = len(outgoing_all)
+    payload["incoming_count"] = len(incoming_all)
+    payload["outgoing_total"] = len(outgoing_all)
+    payload["incoming_total"] = len(incoming_all)
+    payload["total_edges"] = len(outgoing_all) + len(incoming_all)
+    payload["edge_summary"] = {
+        "CALLS": {"outgoing": len(outgoing_all), "incoming": len(incoming_all)}
+    }
+    if outgoing_all:
+        payload["outgoing_coverage_ratio"] = 1.0
+    if incoming_all:
+        payload["incoming_coverage_ratio"] = 1.0
+    return payload
+
+
+def patch_fan_summary(
+    payload: dict[str, object],
+    overlay: OverlayPayload,
+    *,
+    snapshot_id: str,
+    conn,
+) -> dict[str, object]:
+    node_id = payload.get("node_id")
+    if node_id:
+        edge_kinds = dict(payload.get("edge_kinds") or {})
+        deltas = _fan_deltas_for_node(overlay, str(node_id))
+        for edge_kind, delta_map in deltas.items():
+            entry = dict(edge_kinds.get(edge_kind) or {})
+            entry["fan_in"] = max(0, int(entry.get("fan_in") or 0) + delta_map.get("fan_in", 0))
+            entry["fan_out"] = max(0, int(entry.get("fan_out") or 0) + delta_map.get("fan_out", 0))
+            edge_kinds[edge_kind] = entry
+        payload["edge_kinds"] = edge_kinds
+        payload["edge_summary"] = edge_kinds
+        return payload
+
+    calls_table = dict(payload.get("calls") or {})
+    imports_table = dict(payload.get("imports") or {})
+    payload["calls"] = _patch_fan_table(calls_table, overlay, edge_kind="CALLS")
+    payload["imports"] = _patch_fan_table(
+        imports_table, overlay, edge_kind="IMPORTS_DECLARED"
+    )
+    return payload
+
+
+def patch_hotspot_summary(
+    payload: dict[str, object],
+    overlay: OverlayPayload,
+    *,
+    snapshot_id: str,
+    conn,
+) -> dict[str, object]:
+    by_size = list(payload.get("by_size", []) or [])
+    size_map = {entry.get("module_qualified_name"): int(entry.get("count") or 0) for entry in by_size}
+    module_names = [name for name in size_map.keys() if name]
+    for change in iter_node_changes(overlay):
+        node = node_from_value(change.get("new_value") or change.get("old_value"))
+        if not node:
+            continue
+        node_type = str(node.get("node_type") or "")
+        if node_type not in {"class", "function", "method"}:
+            continue
+        module_name = _match_module_name(
+            str(node.get("qualified_name") or ""), module_names
+        )
+        if module_name not in size_map:
+            continue
+        delta = 1 if change.get("diff_kind") == "add" else -1 if change.get("diff_kind") == "remove" else 0
+        if delta:
+            size_map[module_name] = max(0, size_map.get(module_name, 0) + delta)
+
+    by_size = [
+        {"module_qualified_name": name, "count": count}
+        for name, count in size_map.items()
+    ]
+    by_size.sort(key=lambda item: (-int(item.get("count") or 0), str(item.get("module_qualified_name"))))
+    payload["by_size"] = by_size[: len(payload.get("by_size", []) or [])]
+
+    fan_in = {entry.get("module_qualified_name"): int(entry.get("count") or 0) for entry in payload.get("by_fan_in", []) or []}
+    fan_out = {entry.get("module_qualified_name"): int(entry.get("count") or 0) for entry in payload.get("by_fan_out", []) or []}
+    for change in iter_edge_changes(overlay):
+        edge = edge_from_value(change.get("new_value") or change.get("old_value"))
+        if not edge or edge.get("edge_type") != "IMPORTS_DECLARED":
+            continue
+        src_name = edge.get("src_qualified_name")
+        dst_name = edge.get("dst_qualified_name")
+        delta = 1 if change.get("diff_kind") == "add" else -1 if change.get("diff_kind") == "remove" else 0
+        if delta:
+            if src_name in fan_out:
+                fan_out[src_name] = max(0, fan_out.get(src_name, 0) + delta)
+            if dst_name in fan_in:
+                fan_in[dst_name] = max(0, fan_in.get(dst_name, 0) + delta)
+    payload["by_fan_in"] = [
+        {"module_qualified_name": name, "count": count}
+        for name, count in sorted(fan_in.items(), key=lambda item: (-item[1], str(item[0])))
+    ][: len(payload.get("by_fan_in", []) or [])]
+    payload["by_fan_out"] = [
+        {"module_qualified_name": name, "count": count}
+        for name, count in sorted(fan_out.items(), key=lambda item: (-item[1], str(item[0])))
+    ][: len(payload.get("by_fan_out", []) or [])]
+    return payload
+
+
+def _node_meta_lookup(
+    conn,
+    snapshot_id: str,
+    overlay: OverlayPayload,
+    node_ids: set[str],
+) -> dict[str, dict[str, object]]:
+    lookup: dict[str, dict[str, object]] = {}
+    for change in iter_node_changes(overlay):
+        node = node_from_value(change.get("new_value") or change.get("old_value"))
+        if not node:
+            continue
+        structural_id = node.get("structural_id")
+        if not structural_id:
+            continue
+        lookup[str(structural_id)] = {
+            "qualified_name": node.get("qualified_name"),
+            "file_path": node.get("file_path"),
+            "node_type": node.get("node_type"),
+            "language": node.get("language"),
+        }
+    if not node_ids:
+        return lookup
+    missing = [node_id for node_id in node_ids if node_id not in lookup]
+    if not missing:
+        return lookup
+    placeholders = ",".join("?" for _ in missing)
+    rows = conn.execute(
+        f"""
+        SELECT sn.structural_id, sn.node_type, sn.language, ni.qualified_name, ni.file_path
+        FROM structural_nodes sn
+        JOIN node_instances ni
+            ON ni.structural_id = sn.structural_id
+           AND ni.snapshot_id = ?
+        WHERE sn.structural_id IN ({placeholders})
+        """,
+        (snapshot_id, *missing),
+    ).fetchall()
+    for row in rows:
+        lookup[str(row["structural_id"])] = {
+            "qualified_name": row["qualified_name"],
+            "file_path": row["file_path"],
+            "node_type": row["node_type"],
+            "language": row["language"],
+        }
+    return lookup
+
+
+def _module_for_node(node_type: str, qualified_name: str) -> str | None:
+    if not qualified_name:
+        return None
+    if node_type == "module":
+        return qualified_name
+    parts = qualified_name.split(".")
+    if not parts:
+        return None
+    if node_type == "method":
+        if len(parts) >= 3:
+            return ".".join(parts[:-2])
+        return None
+    if len(parts) >= 2:
+        return ".".join(parts[:-1])
+    return None
+
+
+def _match_module_name(qualified_name: str, module_names: list[str]) -> str | None:
+    if not qualified_name or not module_names:
+        return None
+    best = None
+    best_len = -1
+    q_parts = qualified_name.split(".")
+    for name in module_names:
+        n_parts = name.split(".")
+        if len(n_parts) > len(q_parts):
+            continue
+        for idx in range(len(q_parts) - len(n_parts) + 1):
+            if q_parts[idx : idx + len(n_parts)] == n_parts:
+                if len(n_parts) > best_len:
+                    best = name
+                    best_len = len(n_parts)
+                break
+    return best
+
+
+def _fan_deltas_for_node(overlay: OverlayPayload, node_id: str) -> dict[str, dict[str, int]]:
+    deltas: dict[str, dict[str, int]] = {
+        "CALLS": {"fan_in": 0, "fan_out": 0},
+        "IMPORTS_DECLARED": {"fan_in": 0, "fan_out": 0},
+    }
+    for change in overlay.calls.get("add", []):
+        if change.get("src_structural_id") == node_id:
+            deltas["CALLS"]["fan_out"] += 1
+        if change.get("dst_structural_id") == node_id:
+            deltas["CALLS"]["fan_in"] += 1
+    for change in overlay.calls.get("remove", []):
+        if change.get("src_structural_id") == node_id:
+            deltas["CALLS"]["fan_out"] -= 1
+        if change.get("dst_structural_id") == node_id:
+            deltas["CALLS"]["fan_in"] -= 1
+    for change in overlay.edges.get("add", []):
+        edge = edge_from_value(change.get("new_value") or change.get("old_value"))
+        if not edge or edge.get("edge_type") != "IMPORTS_DECLARED":
+            continue
+        if edge.get("src_structural_id") == node_id:
+            deltas["IMPORTS_DECLARED"]["fan_out"] += 1
+        if edge.get("dst_structural_id") == node_id:
+            deltas["IMPORTS_DECLARED"]["fan_in"] += 1
+    for change in overlay.edges.get("remove", []):
+        edge = edge_from_value(change.get("new_value") or change.get("old_value"))
+        if not edge or edge.get("edge_type") != "IMPORTS_DECLARED":
+            continue
+        if edge.get("src_structural_id") == node_id:
+            deltas["IMPORTS_DECLARED"]["fan_out"] -= 1
+        if edge.get("dst_structural_id") == node_id:
+            deltas["IMPORTS_DECLARED"]["fan_in"] -= 1
+    return deltas
+
+
+def _patch_fan_table(
+    table: dict[str, object],
+    overlay: OverlayPayload,
+    *,
+    edge_kind: str,
+) -> dict[str, object]:
+    by_in = {entry.get("node_id"): int(entry.get("count") or 0) for entry in table.get("by_fan_in", []) or []}
+    by_out = {entry.get("node_id"): int(entry.get("count") or 0) for entry in table.get("by_fan_out", []) or []}
+    if edge_kind == "CALLS":
+        for change in overlay.calls.get("add", []) + overlay.calls.get("remove", []):
+            delta = 1 if change.get("diff_kind") == "add" else -1
+            src_id = change.get("src_structural_id")
+            dst_id = change.get("dst_structural_id")
+            if src_id in by_out:
+                by_out[src_id] = max(0, by_out.get(src_id, 0) + delta)
+            if dst_id in by_in:
+                by_in[dst_id] = max(0, by_in.get(dst_id, 0) + delta)
+    if edge_kind == "IMPORTS_DECLARED":
+        for change in overlay.edges.get("add", []) + overlay.edges.get("remove", []):
+            edge = edge_from_value(change.get("new_value") or change.get("old_value"))
+            if not edge or edge.get("edge_type") != "IMPORTS_DECLARED":
+                continue
+            delta = 1 if change.get("diff_kind") == "add" else -1
+            src_id = edge.get("src_structural_id")
+            dst_id = edge.get("dst_structural_id")
+            if src_id in by_out:
+                by_out[src_id] = max(0, by_out.get(src_id, 0) + delta)
+            if dst_id in by_in:
+                by_in[dst_id] = max(0, by_in.get(dst_id, 0) + delta)
+    table["by_fan_in"] = [
+        {"node_id": node_id, "count": count}
+        for node_id, count in sorted(by_in.items(), key=lambda item: (-item[1], str(item[0])))
+    ]
+    table["by_fan_out"] = [
+        {"node_id": node_id, "count": count}
+        for node_id, count in sorted(by_out.items(), key=lambda item: (-item[1], str(item[0])))
+    ]
+    return table
 
 
 def parse_json_fenced(text: str) -> Optional[dict[str, object]]:

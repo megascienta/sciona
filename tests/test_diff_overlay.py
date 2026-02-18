@@ -91,3 +91,53 @@ def test_dirty_overlay_summary_mode(repo_with_snapshot):
     assert top_changed.get("nodes") == []
     assert top_changed.get("edges") == []
     assert top_changed.get("calls") == []
+
+
+def test_dirty_overlay_fan_summary_node_id_updates(repo_with_snapshot):
+    repo_root, _snapshot_id = repo_with_snapshot
+    service_path = repo_root / "pkg/alpha/service.py"
+    service_path.write_text(
+        "def helper():\n    return 1\n\n\ndef caller():\n    return helper()\n",
+        encoding="utf-8",
+    )
+
+    text, _, _ = api.addons.emit(
+        "fan_summary",
+        repo_root=repo_root,
+        function_id="pkg.alpha.service.helper",
+    )
+    payload = _parse_json_payload(text)
+    edge_kinds = payload.get("edge_kinds") or {}
+    calls = edge_kinds.get("CALLS") or {}
+    assert calls.get("fan_in") == 1
+
+
+def test_dirty_overlay_hotspot_summary_size_updates(repo_with_snapshot):
+    repo_root, _snapshot_id = repo_with_snapshot
+    text, _, _ = api.addons.emit(
+        "hotspot_summary",
+        repo_root=repo_root,
+    )
+    payload = _parse_json_payload(text)
+    baseline = {
+        entry.get("module_qualified_name"): entry.get("count")
+        for entry in payload.get("by_size", [])
+    }
+
+    service_path = repo_root / "pkg/alpha/service.py"
+    service_path.write_text(
+        "def helper():\n    return 1\n\n\ndef helper2():\n    return 2\n",
+        encoding="utf-8",
+    )
+
+    text, _, _ = api.addons.emit(
+        "hotspot_summary",
+        repo_root=repo_root,
+    )
+    payload = _parse_json_payload(text)
+    updated = {
+        entry.get("module_qualified_name"): entry.get("count")
+        for entry in payload.get("by_size", [])
+    }
+    baseline_count = baseline.get("pkg.alpha") or 0
+    assert updated.get("pkg.alpha") == baseline_count - 1
