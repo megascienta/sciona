@@ -8,15 +8,7 @@ from __future__ import annotations
 import inspect
 from typing import Iterable, Mapping
 
-
-CATEGORY_ORDER = [
-    "discovery",
-    "navigation",
-    "structure",
-    "relations",
-    "metrics",
-    "source",
-]
+from .reducer_metadata import CATEGORY_ORDER
 
 
 def format_reducer_call(reducer_id: str, reducer_module) -> str:

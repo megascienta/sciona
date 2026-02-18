@@ -6,23 +6,22 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal, Mapping, Tuple
+from typing import Mapping, Tuple
+
+from ..runtime.reducer_metadata import (
+    CategoryLiteral,
+    DeterminismLiteral,
+    ScopeLiteral,
+)
 
 
 @dataclass(frozen=True)
 class ReducerMeta:
     reducer_id: str
-    category: Literal[
-        "discovery",
-        "navigation",
-        "structure",
-        "relations",
-        "metrics",
-        "source",
-    ]
-    scope: Literal["callable", "class", "module", "codebase"]
+    category: CategoryLiteral
+    scope: ScopeLiteral
     placeholders: Tuple[str, ...]
-    determinism: Literal["strict", "conditional"]
+    determinism: DeterminismLiteral
     payload_size_stats: Mapping[str, object] | None
     summary: str
     lossy: bool = False

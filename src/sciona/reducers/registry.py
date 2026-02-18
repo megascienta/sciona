@@ -13,18 +13,12 @@ from pathlib import Path
 from types import MappingProxyType, ModuleType
 from typing import Iterable, Iterator, Mapping
 
+from ..runtime.reducer_metadata import (
+    VALID_CATEGORIES,
+    VALID_DETERMINISM,
+    VALID_SCOPES,
+)
 from .metadata import ReducerMeta
-
-_VALID_SCOPES = {"callable", "class", "module", "codebase"}
-_VALID_DETERMINISM = {"strict", "conditional"}
-_VALID_CATEGORIES = {
-    "discovery",
-    "navigation",
-    "structure",
-    "relations",
-    "metrics",
-    "source",
-}
 
 _FROZEN = False
 
@@ -66,13 +60,13 @@ def _iter_reducer_modules() -> Iterator[ModuleType]:
 
 
 def _validate_meta(meta: ReducerMeta, module_name: str) -> None:
-    if meta.category not in _VALID_CATEGORIES:
+    if meta.category not in VALID_CATEGORIES:
         raise ValueError(
             f"Reducer '{module_name}' has invalid category '{meta.category}'."
         )
-    if meta.scope not in _VALID_SCOPES:
+    if meta.scope not in VALID_SCOPES:
         raise ValueError(f"Reducer '{module_name}' has invalid scope '{meta.scope}'.")
-    if meta.determinism not in _VALID_DETERMINISM:
+    if meta.determinism not in VALID_DETERMINISM:
         raise ValueError(
             f"Reducer '{module_name}' has invalid determinism '{meta.determinism}'."
         )
