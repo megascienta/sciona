@@ -13,6 +13,7 @@ class OverlayPayload:
     worktree_hash: str
     snapshot_commit: str | None
     base_commit: str | None
+    base_commit_strategy: str | None
     head_commit: str | None
     merge_base: str | None
     nodes: dict[str, list[dict[str, object]]]

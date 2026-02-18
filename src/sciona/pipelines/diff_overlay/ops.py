@@ -52,6 +52,7 @@ def get_overlay(
     if not snapshot_commit:
         return None
     base_commit = snapshot_commit
+    base_commit_strategy = "snapshot"
     head_commit = None
     merge_base = None
     warnings: list[str] = []
@@ -60,6 +61,7 @@ def get_overlay(
     except GitError:
         warnings.append("snapshot_commit_missing")
         base_commit = "HEAD"
+        base_commit_strategy = "snapshot_missing"
     try:
         head_commit = git_ops.head_sha(repo_root)
     except GitError:
@@ -69,14 +71,16 @@ def get_overlay(
             merge_base = git_ops.merge_base(repo_root, base_commit, head_commit)
             if merge_base:
                 base_commit = merge_base
+                base_commit_strategy = "merge_base"
         except GitError:
             warnings.append("merge_base_failed")
             base_commit = head_commit
-        if base_commit != snapshot_commit:
+            base_commit_strategy = "head_fallback"
+        if base_commit != head_commit and base_commit_strategy != "merge_base":
             logger.warning(
                 "Diff overlay base commit %s differs from HEAD %s; "
                 "overlay includes branch divergence.",
-                snapshot_commit,
+                base_commit,
                 head_commit,
             )
             warnings.append("base_commit_differs_from_head")
@@ -117,6 +121,7 @@ def get_overlay(
         worktree_hash,
         snapshot_commit=snapshot_commit,
         base_commit=base_commit,
+        base_commit_strategy=base_commit_strategy,
         head_commit=head_commit,
         merge_base=merge_base,
         rows=rows,
@@ -176,6 +181,7 @@ def apply_overlay_to_text(
         "worktree_hash": overlay.worktree_hash,
         "snapshot_commit": overlay.snapshot_commit,
         "base_commit": overlay.base_commit,
+        "base_commit_strategy": overlay.base_commit_strategy,
         "head_commit": overlay.head_commit,
         "merge_base": overlay.merge_base,
         "reducer_id": reducer_id,
@@ -229,6 +235,7 @@ def attach_unavailable_overlay(
         "worktree_hash": None,
         "snapshot_commit": None,
         "base_commit": None,
+        "base_commit_strategy": None,
         "head_commit": None,
         "merge_base": None,
         "reducer_id": reducer_id,
@@ -261,15 +268,98 @@ def attach_unavailable_overlay(
     return render_json_payload(payload)
 
 
-_NODE_PROJECTIONS = {
-    "structural_index",
-    "module_overview",
-    "callable_overview",
-    "class_overview",
-    "file_outline",
-    "dependency_edges",
-    "symbol_lookup",
-    "symbol_references",
+_PROJECTION_COVERAGE: dict[str, dict[str, object]] = {
+    "structural_index": {
+        "nodes": True,
+        "edges": True,
+        "calls": False,
+        "summary": False,
+        "default_partial": False,
+    },
+    "module_overview": {
+        "nodes": True,
+        "edges": True,
+        "calls": False,
+        "summary": False,
+        "default_partial": False,
+    },
+    "callable_overview": {
+        "nodes": True,
+        "edges": True,
+        "calls": False,
+        "summary": False,
+        "default_partial": False,
+    },
+    "class_overview": {
+        "nodes": True,
+        "edges": True,
+        "calls": False,
+        "summary": False,
+        "default_partial": False,
+    },
+    "file_outline": {
+        "nodes": True,
+        "edges": True,
+        "calls": False,
+        "summary": False,
+        "default_partial": False,
+    },
+    "dependency_edges": {
+        "nodes": True,
+        "edges": True,
+        "calls": False,
+        "summary": False,
+        "default_partial": False,
+    },
+    "symbol_lookup": {
+        "nodes": True,
+        "edges": False,
+        "calls": False,
+        "summary": False,
+        "default_partial": False,
+    },
+    "symbol_references": {
+        "nodes": True,
+        "edges": True,
+        "calls": False,
+        "summary": False,
+        "default_partial": False,
+    },
+    "callsite_index": {
+        "nodes": True,
+        "edges": False,
+        "calls": True,
+        "summary": False,
+        "default_partial": True,
+    },
+    "class_call_graph_summary": {
+        "nodes": True,
+        "edges": False,
+        "calls": True,
+        "summary": False,
+        "default_partial": True,
+    },
+    "module_call_graph_summary": {
+        "nodes": True,
+        "edges": False,
+        "calls": True,
+        "summary": False,
+        "default_partial": True,
+    },
+    "fan_summary": {
+        "nodes": False,
+        "edges": True,
+        "calls": True,
+        "summary": False,
+        "default_partial": True,
+    },
+    "hotspot_summary": {
+        "nodes": True,
+        "edges": True,
+        "calls": False,
+        "summary": False,
+        "default_partial": True,
+    },
 }
 
 _SUMMARY_PROJECTIONS = {
@@ -289,14 +379,26 @@ def _patched_detail(projection: str, patched_projection: bool) -> dict[str, obje
             "edges": False,
             "calls": False,
             "summary": False,
+            "default_partial": False,
             "reasons": ["projection_not_supported"],
         }
+    coverage = _PROJECTION_COVERAGE.get(
+        projection,
+        {
+            "nodes": False,
+            "edges": False,
+            "calls": False,
+            "summary": False,
+            "default_partial": False,
+        },
+    )
     return {
         "projection": True,
-        "nodes": projection in _NODE_PROJECTIONS,
-        "edges": projection in _NODE_PROJECTIONS,
-        "calls": False,
-        "summary": projection in _SUMMARY_PROJECTIONS,
+        "nodes": bool(coverage.get("nodes")),
+        "edges": bool(coverage.get("edges")),
+        "calls": bool(coverage.get("calls")),
+        "summary": bool(coverage.get("summary")),
+        "default_partial": bool(coverage.get("default_partial")),
         "reasons": [],
     }
 
@@ -304,18 +406,23 @@ def _patched_detail(projection: str, patched_projection: bool) -> dict[str, obje
 def _coverage_detail(
     patched_detail: dict[str, object], overlay: OverlayPayload
 ) -> dict[str, str]:
-    def _coverage(flag: bool, data: dict[str, list[dict[str, object]]] | None) -> str:
+    def _coverage(
+        flag: bool,
+        data: dict[str, list[dict[str, object]]] | None,
+        default_partial: bool,
+    ) -> str:
         if not flag:
             return "none"
         if not data:
-            return "none"
+            return "partial" if default_partial else "none"
         if not any(data.values()):
-            return "none"
+            return "partial" if default_partial else "none"
         return "partial"
 
-    nodes = _coverage(bool(patched_detail.get("nodes")), overlay.nodes)
-    edges = _coverage(bool(patched_detail.get("edges")), overlay.edges)
-    calls = _coverage(bool(patched_detail.get("calls")), overlay.calls)
+    default_partial = bool(patched_detail.get("default_partial"))
+    nodes = _coverage(bool(patched_detail.get("nodes")), overlay.nodes, default_partial)
+    edges = _coverage(bool(patched_detail.get("edges")), overlay.edges, default_partial)
+    calls = _coverage(bool(patched_detail.get("calls")), overlay.calls, default_partial)
     summary = "partial" if patched_detail.get("summary") and overlay.summary else "none"
     return {
         "nodes": nodes,
@@ -328,18 +435,26 @@ def _coverage_detail(
 def _coverage_detail_reasons(
     patched_detail: dict[str, object], overlay: OverlayPayload
 ) -> dict[str, list[str]]:
-    def _reasons(flag: bool, data: dict[str, list[dict[str, object]]] | None) -> list[str]:
+    def _reasons(
+        flag: bool,
+        data: dict[str, list[dict[str, object]]] | None,
+        default_partial: bool,
+    ) -> list[str]:
         if not flag:
             return ["projection_not_supported"]
         if data is None:
             return ["overlay_missing"]
         if not any(data.values()):
-            return ["overlay_empty"]
+            reasons = ["overlay_empty"]
+            if default_partial:
+                reasons.append("coverage_default_partial")
+            return reasons
         return []
 
-    nodes = _reasons(bool(patched_detail.get("nodes")), overlay.nodes)
-    edges = _reasons(bool(patched_detail.get("edges")), overlay.edges)
-    calls = _reasons(bool(patched_detail.get("calls")), overlay.calls)
+    default_partial = bool(patched_detail.get("default_partial"))
+    nodes = _reasons(bool(patched_detail.get("nodes")), overlay.nodes, default_partial)
+    edges = _reasons(bool(patched_detail.get("edges")), overlay.edges, default_partial)
+    calls = _reasons(bool(patched_detail.get("calls")), overlay.calls, default_partial)
     summary = []
     if not patched_detail.get("summary"):
         summary = ["projection_not_supported"]
