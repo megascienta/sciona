@@ -11,7 +11,7 @@ from typing import Mapping
 from .config import io as config_io
 from .config import defaults as config_defaults
 from .errors import ConfigError
-from ..reducers.listing import render_reducer_list
+from .reducer_listing import render_reducer_list
 
 
 BEGIN_MARKER = "<!-- sciona:begin -->"

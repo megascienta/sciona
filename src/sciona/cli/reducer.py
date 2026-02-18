@@ -12,7 +12,7 @@ import json
 import typer
 
 from ..api import cli as reducer_api
-from ..reducers.listing import render_reducer_list
+from ..runtime.reducer_listing import render_reducer_list
 from .utils import (
     cli_call,
     emit_dirty_worktree_warning,
@@ -256,4 +256,3 @@ def _build_reducer_notes(reducer_id: str) -> list[str]:
     if entry and entry.lossy:
         notes.append("[design choice] Reducer output is lossy (summary or compressed).")
     return notes
-

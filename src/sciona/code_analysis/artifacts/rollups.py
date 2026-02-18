@@ -135,13 +135,21 @@ def write_call_artifacts(
     if not caller_set:
         return
     symbol_index = _build_symbol_index(core_conn, snapshot_id)
+    module_lookup, import_targets = _build_module_context(core_conn, snapshot_id)
     node_hashes = _load_node_hashes(core_conn, caller_set)
     processed_callers: set[str] = set()
     for record in call_records:
         caller_id = record.caller_structural_id
         if caller_id not in caller_set:
             continue
-        callee_ids, _ = _resolve_callees(record.callee_identifiers, symbol_index)
+        caller_module_id = module_lookup.get(caller_id)
+        callee_ids, _ = _resolve_callees(
+            record.callee_identifiers,
+            symbol_index,
+            caller_module_id=caller_module_id,
+            module_lookup=module_lookup,
+            import_targets=import_targets,
+        )
         if not callee_ids or caller_id in processed_callers:
             continue
         call_hash = node_hashes.get(caller_id)
@@ -169,6 +177,39 @@ def _build_symbol_index(core_conn, snapshot_id: str) -> dict[str, list[str]]:
     return index
 
 
+def _build_module_context(
+    core_conn,
+    snapshot_id: str,
+) -> tuple[dict[str, str], dict[str, set[str]]]:
+    node_rows = core_read.list_nodes_with_names(core_conn, snapshot_id)
+    module_names = {
+        qualified_name
+        for _structural_id, node_type, qualified_name in node_rows
+        if node_type == "module" and qualified_name
+    }
+    module_id_by_name = {
+        qualified_name: structural_id
+        for structural_id, node_type, qualified_name in node_rows
+        if node_type == "module" and qualified_name
+    }
+    module_lookup: dict[str, str] = {}
+    for structural_id, _node_type, qualified_name in node_rows:
+        if not qualified_name:
+            continue
+        module_name = module_id_for(qualified_name, module_names)
+        module_structural_id = module_id_by_name.get(module_name)
+        if module_structural_id:
+            module_lookup[structural_id] = module_structural_id
+    module_ids = set(module_id_by_name.values())
+    import_targets: dict[str, set[str]] = defaultdict(set)
+    for src_id, dst_id in core_read.list_edges_by_type(
+        core_conn, snapshot_id, "IMPORTS_DECLARED"
+    ):
+        if src_id in module_ids and dst_id in module_ids:
+            import_targets[src_id].add(dst_id)
+    return module_lookup, import_targets
+
+
 def _load_node_hashes(core_conn, node_ids: Iterable[str]) -> dict[str, str]:
     return core_read.node_hashes_for_ids(core_conn, node_ids)
 
@@ -176,6 +217,10 @@ def _load_node_hashes(core_conn, node_ids: Iterable[str]) -> dict[str, str]:
 def _resolve_callees(
     identifiers: Sequence[str],
     symbol_index: dict[str, Sequence[str]],
+    *,
+    caller_module_id: str | None,
+    module_lookup: dict[str, str],
+    import_targets: dict[str, set[str]],
 ) -> tuple[set[str], set[str]]:
     resolved_ids: set[str] = set()
     resolved_names: set[str] = set()
@@ -183,6 +228,19 @@ def _resolve_callees(
         candidates = symbol_index.get(identifier) or []
         if len(candidates) == 1:
             resolved_ids.add(candidates[0])
+            resolved_names.add(identifier)
+            continue
+        if not candidates or not caller_module_id:
+            continue
+        allowed_modules = set(import_targets.get(caller_module_id, set()))
+        allowed_modules.add(caller_module_id)
+        narrowed = [
+            candidate
+            for candidate in candidates
+            if module_lookup.get(candidate) in allowed_modules
+        ]
+        if len(narrowed) == 1:
+            resolved_ids.add(narrowed[0])
             resolved_names.add(identifier)
     return resolved_ids, resolved_names
 

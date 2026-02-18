@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Iterable
 
-from ..reducers.listing import render_reducer_catalog
+from ..runtime.reducer_listing import render_reducer_catalog
 
 
 def render_init(payload: dict) -> list[str]:

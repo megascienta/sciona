@@ -73,7 +73,7 @@ def render_reducer_list(
     lines = []
     for category in ordered_categories:
         lines.append(f"Category: {category}")
-        lines.append(f"")
+        lines.append("")
         for entry in bucket.get(category, []):
             reducer_id = str(entry.get("reducer_id") or "").strip()
             reducer_entry = reducers.get(reducer_id)
@@ -84,7 +84,7 @@ def render_reducer_list(
             lines.append(f"  Summary: {summary}")
             call = format_reducer_call(reducer_id, reducer_module)
             lines.append(f"  Command: {prefix}{call}")
-            lines.append(f"")
+            lines.append("")
     return lines
 
 
