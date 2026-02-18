@@ -2,11 +2,11 @@
 
 This guide consolidates the required core, contracts, and addon rules for working on SCIONA. It is intentionally brief and self-contained and is the single source of truth for contributors.
 
-## Purpose and invariants (non-negotiable)
+## Purpose and invariants
 
 SCIONA builds a deterministic structural index (SCI) for a git repository. It records *what exists* and *how entities relate* for a committed snapshot only. It does **not** execute code or infer semantics.
 
-## Requirements (for contributors)
+## Requirements
 
 Comment: SCIONA currently requires Python 3.11 or 3.12. Ensure `git` and `pip` are available on your PATH.
 Comment: Python 3.13 is not supported yet because `tree_sitter_languages` has no published wheels for 3.13.
@@ -32,7 +32,8 @@ Layer mapping (no layer may reach “up” the stack):
 - `src/sciona/pipelines/`: policy validation, orchestration, build lifecycle, reducer execution context.
 - `src/sciona/reducers/`: deterministic payload formatting and registry.
 - `src/sciona/api/`: stable public addon API surface (`sciona.api.addons`).
-  Internal boundaries: `sciona.api.cli`, `sciona.api.errors`.
+
+Internal boundaries: `sciona.api.cli`, `sciona.api.errors`.
 
 If you change invariants, update this guide first, then align code and tests.
 
@@ -83,7 +84,6 @@ By contract, SCIONA does not:
 - Guarantee complete call graphs or import resolution (edges are best-effort).
 - Analyze languages outside the supported list; non-tracked files are ignored.
 - Index generated artifacts unless they are committed, tracked files.
-
 - Discovery is git-tracked files only; no directory walking.
 - `.gitignore` affects tracked-file discovery when files are explicitly ignored.
 - Discovery applies `discovery.exclude_globs` after hard excludes (`.git/`, `.sciona/`).
@@ -135,8 +135,7 @@ Rules:
 - Reducer existence does not imply endorsement; CLI exposure may be restricted.
 
 Where to add reducers:
-- Implement under `src/sciona/reducers/` (use semantic folders).
-- Register in reducer registry (`src/sciona/reducers/registry.py`).
+- Implement under `src/sciona/reducers/`.
 - Add deterministic output tests.
 
 Reducer execution is mediated by `src/sciona/pipelines/reducers.py`:
@@ -151,12 +150,6 @@ Addons are separate products that use `sciona.api.addons`; core does not load, d
 - Forbidden: register reducers/prompts in core, mutate snapshots/artifacts, or rely on internal modules/schemas.
 - Compatibility: `REQUIRES_SCIONA_PLUGIN_API` (int, string major/minor, or range). Major bump breaks API; minor bump is additive.
 
-## Edge and ingest contracts
-
-- Do not introduce new node/edge types without updating this guide and tests.
-- Do not change existing node/edge semantics without updating this guide and dependent reducers/tests.
-- Ingest behavior changes must update this guide first, then ingestors and tests.
-
 ## Configuration and on-disk artifacts
 
 `.sciona/config.yaml` controls language enablement and runtime settings.
@@ -167,14 +160,6 @@ Typical `.sciona/` contents:
 - `sciona.artifacts.db` (ArtifactDB)
 - `version.json`
 - `sciona.log`
-
-## Daily workflow
-
-1. Make code changes in the appropriate layer only.
-2. Run `pytest -q` if you touched invariants, reducers, or storage.
-3. Commit changes that affect tracked language files before relying on reducers.
-4. Run `sciona build` to refresh the committed snapshot.
-5. Use `sciona search` / `sciona resolve` then `sciona reducer --id ...` to inspect structural truth.
 
 ## Release process
 
