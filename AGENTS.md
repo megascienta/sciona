@@ -1,3 +1,86 @@
+# AGENTS.md — Contract & Layer Enforcement
+
+## Purpose and invariants (non-negotiable)
+
+SCIONA builds a **deterministic structural index (SCI)** for a git repository.
+It records *what exists* and *how entities relate* for **committed snapshots only**.
+
+SCIONA does NOT:
+- execute code
+- import modules
+- infer semantics
+
+---
+
+## Architectural contracts (MUST)
+
+### Layer dependency rule
+
+- No layer may import from a layer above it.
+- Cross-layer shortcuts are FORBIDDEN.
+
+---
+
+## Repository layout and ownership boundaries (MUST)
+
+- `runtime/` → config, paths, logging, git plumbing  
+- `data_storage/` → DB schemas & helpers  
+- `code_analysis/` → discovery & parsing  
+- `pipelines/` → lifecycle & orchestration  
+- `reducers/` → deterministic rendering only  
+- `api/` → stable public addon surface (`sciona.api.addons`)
+
+Internal boundaries:
+- sciona.api.cli
+- sciona.api.errors
+
+---
+
+## Determinism contract (MUST)
+
+Same repo state + config + SCIONA version ⇒ identical outputs.
+
+Forbidden:
+- timestamps
+- UUIDs
+- randomness
+- nondeterministic ordering
+
+Outputs MUST be stably sorted.
+
+---
+
+## Reducer contract (MUST)
+
+Reducers are:
+- read-only
+- deterministic
+- forbidden from discovering nodes
+- forbidden from DB mutation
+- forbidden from semantic inference
+
+---
+
+## Data model (reference)
+
+CoreDB (authoritative SCI):
+- snapshots
+- structural_nodes
+- node_instances
+- edges
+
+ArtifactDB (derived, non-authoritative):
+- node_status
+- node_calls
+- graph_nodes
+- graph_edges
+- rollups / overlays
+
+## Tests
+
+For tests use `conda` `multiphysics` enviroment
+
+<!-- sciona:begin -->
 # SCIONA Agent Protocol
 
 **Status:** Authoritative.
@@ -161,7 +244,9 @@ If SCIONA unavailable:
 
 SCIONA indexes only tracked files/languages defined in `.sciona/config`
 
-{TRACKED_FILE_SCOPE}
+- Enabled languages: python
+- Tracked file types: .py
+- Discovery excludes: none
 
 Agents SHOULD:
 - Verify query targets tracked scope
@@ -179,13 +264,13 @@ Outside scope:
 
 If identifiers are unknown:
 
-{CMD_SEARCH}
+sciona search QUERY [--kind KIND] [--limit LIMIT] [--json]
 
 ### 5.2 Resolution
 
 Before structural reasoning:
 
-{CMD_RESOLVE}
+sciona resolve IDENTIFIER [--kind KIND] [--limit LIMIT] [--json]
 
 Agents MUST resolve identifiers via SCIONA rather than inferring or guessing symbol names.
 
@@ -200,9 +285,9 @@ Identifier requirements:
 
 Reducers COULD be discovered via:
 
-- {CMD_REDUCER_LIST}
+- sciona reducer list [--id REDUCER_ID]
 
-- {CMD_REDUCER_INFO}
+- sciona reducer info [--id REDUCER_ID]
 
 Agents MUST NOT guess reducer names.
 
@@ -215,7 +300,60 @@ Agents MUST NOT guess reducer names.
 - Metrics → identify hotspots/connectivity
 - Source → retrieve raw code evidence
 
-{COMMON_TASKS}
+Category: core
+
+  Summary: Structural summary of a callable, including signature, location, and metadata. Use for quick callable inspection without retrieving full source. Scope: single function or method.
+  Command: sciona reducer --id callable_overview [--callable-id CALLABLE_ID] [--function-id FUNCTION_ID] [--method-id METHOD_ID]
+
+  Summary: Parsed base classes and inheritance relations. Use when reasoning about type hierarchy or polymorphic structure. Scope: class hierarchy.
+  Command: sciona reducer --id class_inheritance [--class-id CLASS_ID]
+
+  Summary: Structural summary of a class, including methods and metadata. Use for quick class inspection. Scope: class-level structure.
+  Command: sciona reducer --id class_overview [--class-id CLASS_ID] [--method-id METHOD_ID]
+
+  Summary: Explicit module import dependencies. Use for analysing module coupling or dependency graphs. direction='in' or 'out' scopes module_id filters. Scope: module-level import edges.
+  Command: sciona reducer --id dependency_edges [--module-id MODULE_ID] [--from-module-id FROM_MODULE_ID] [--to-module-id TO_MODULE_ID] [--query QUERY] [--edge-type EDGE_TYPE] [--direction DIRECTION] [--limit LIMIT]
+
+  Summary: Structural outline of a file, including modules, classes, and callables. Use for navigation and symbol discovery. Scope: file-level structure.
+  Command: sciona reducer --id file_outline [--module-id MODULE_ID] [--file-path FILE_PATH]
+
+  Summary: Structural summary of a module, including contained classes and callables. Use for architectural inspection. Scope: module-level.
+  Command: sciona reducer --id module_overview [--module-id MODULE_ID] [--callable-id CALLABLE_ID] [--function-id FUNCTION_ID] [--method-id METHOD_ID] [--class-id CLASS_ID] [--include-file-map INCLUDE_FILE_MAP]
+
+  Summary: Canonical structural index of the codebase. Use for global structural reasoning or validation. Scope: entire SCI snapshot.
+  Command: sciona reducer --id structural_index
+
+  Summary: Ranked structural symbol matches for a query. Use when resolving unknown identifiers. Scope: query → symbols.
+  Command: sciona reducer --id symbol_lookup [--query QUERY] [--kind KIND] [--limit LIMIT]
+
+  Summary: Structural relationships (calls/imports) for matched symbols. Use for impact analysis or dependency tracing. Scope: symbol → relations.
+  Command: sciona reducer --id symbol_references [--query QUERY] [--kind KIND] [--limit LIMIT]
+
+Category: grounding
+
+  Summary: Full source code of a callable. Use only when implementation details are required. Scope: single function or method.
+  Command: sciona reducer --id callable_source [--callable-id CALLABLE_ID] [--function-id FUNCTION_ID] [--method-id METHOD_ID]
+
+  Summary: Concatenated source code for a selected scope (codebase/module/class). Use for large-context reasoning or cross-entity inspection. Scope: configurable.
+  Command: sciona reducer --id concatenated_source [--scope SCOPE] [--module-id MODULE_ID] [--class-id CLASS_ID]
+
+Category: analytics
+
+  Summary: Indexed caller/callee edges for a callable, including callsite details. Use when reasoning about call directionality or callsite-level analysis. detail_level='neighbors' returns caller/callee sets. Scope: callable-level call edges.
+  Command: sciona reducer --id callsite_index [--callable-id CALLABLE_ID] [--function-id FUNCTION_ID] [--method-id METHOD_ID] [--direction DIRECTION] [--detail-level DETAIL_LEVEL]
+
+  Summary: Summary of call relationships within a class. Use for analysing method interaction patterns or internal coupling. Scope: class-level call graph.
+  Command: sciona reducer --id class_call_graph_summary [--class-id CLASS_ID] [--method-id METHOD_ID] [--top-k TOP_K]
+
+  Summary: Fan-in/fan-out metrics for calls and imports. Use to identify highly connected entities or hotspots. Scope: callable/class/module.
+  Command: sciona reducer --id fan_summary [--callable-id CALLABLE_ID] [--function-id FUNCTION_ID] [--method-id METHOD_ID] [--class-id CLASS_ID] [--module-id MODULE_ID] [--top-k TOP_K]
+
+  Summary: Compressed summary of structurally significant or highly connected entities. Use for architectural orientation or complexity inspection. Scope: codebase-level.
+  Command: sciona reducer --id hotspot_summary
+
+  Summary: Summary of call relationships within a module. Use for module-level flow or coupling analysis. Scope: module call graph.
+  Command: sciona reducer --id module_call_graph_summary [--module-id MODULE_ID] [--callable-id CALLABLE_ID] [--function-id FUNCTION_ID] [--method-id METHOD_ID] [--class-id CLASS_ID] [--top-k TOP_K]
+
 
 ### 6.3 Output semantics
 
@@ -247,7 +385,7 @@ Agents MUST avoid excessive reducer calls when previously retrieved SCIONA evide
 
 Agents MUST:
 - Sanitize shell inputs
-- Reject inputs containing shell control/interpolation tokens: ; | & $() ` ${{}}
+- Reject inputs containing shell control/interpolation tokens: ; | & $() ` ${}
 
 ---
 
@@ -276,5 +414,6 @@ Evidence: available / n/a
 
 ## 9. Troubleshooting
 
-- No committed snapshots → `{CMD_BUILD}`
-- Unknown reducer → `{CMD_REDUCER_LIST}`
+- No committed snapshots → `sciona build`
+- Unknown reducer → `sciona reducer list [--id REDUCER_ID]`
+<!-- sciona:end -->
