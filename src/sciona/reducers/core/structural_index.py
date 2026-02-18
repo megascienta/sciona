@@ -27,7 +27,7 @@ from ..helpers.types import StructuralIndexPayload
 
 REDUCER_META = ReducerMeta(
     reducer_id="structural_index",
-    category="structure",
+    category="core",
     scope="codebase",
     placeholders=("STRUCTURAL_INDEX",),
     determinism="conditional",

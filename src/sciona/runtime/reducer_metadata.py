@@ -8,29 +8,18 @@ from __future__ import annotations
 from typing import Literal
 
 
-CATEGORY_ORDER = (
-    "discovery",
-    "navigation",
-    "structure",
-    "relations",
-    "metrics",
-    "source",
-)
-
+CATEGORY_ORDER = ("core", "grounding", "analytics")
 VALID_CATEGORIES = frozenset(CATEGORY_ORDER)
-VALID_SCOPES = frozenset(("callable", "class", "module", "codebase"))
-VALID_DETERMINISM = frozenset(("strict", "conditional"))
 
-CategoryLiteral = Literal[
-    "discovery",
-    "navigation",
-    "structure",
-    "relations",
-    "metrics",
-    "source",
-]
-ScopeLiteral = Literal["callable", "class", "module", "codebase"]
-DeterminismLiteral = Literal["strict", "conditional"]
+SCOPE_ORDER = ("callable", "class", "module", "codebase")
+VALID_SCOPES = frozenset(SCOPE_ORDER)
+
+DETERMINISM_ORDER = ("strict", "conditional")
+VALID_DETERMINISM = frozenset(DETERMINISM_ORDER)
+
+CategoryLiteral = Literal[*CATEGORY_ORDER]
+ScopeLiteral = Literal[*SCOPE_ORDER]
+DeterminismLiteral = Literal[*DETERMINISM_ORDER]
 
 __all__ = [
     "CATEGORY_ORDER",

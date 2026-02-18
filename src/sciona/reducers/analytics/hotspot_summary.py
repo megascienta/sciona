@@ -14,7 +14,7 @@ from ..helpers.utils import require_latest_committed_snapshot, top_modules
 
 REDUCER_META = ReducerMeta(
     reducer_id="hotspot_summary",
-    category="metrics",
+    category="analytics",
     scope="codebase",
     placeholders=("HOTSPOT_SUMMARY",),
     determinism="conditional",

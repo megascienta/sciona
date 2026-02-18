@@ -4,7 +4,7 @@
 import json
 import sqlite3
 
-from sciona.reducers.summaries import callsite_index, importers_index
+from sciona.reducers.analytics import callsite_index
 
 from tests.helpers import seed_repo_with_snapshot
 
@@ -21,25 +21,6 @@ def _core_conn(repo_root):
     conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
     conn.row_factory = sqlite3.Row
     return conn
-
-
-def test_importers_index_returns_importers(tmp_path):
-    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
-    conn = _core_conn(repo_root)
-    try:
-        payload_text = importers_index.render(
-            snapshot_id,
-            conn,
-            repo_root,
-            module_id="pkg.alpha",
-        )
-    finally:
-        conn.close()
-    payload = json.loads(_strip_json_fence(payload_text))
-    assert payload["importers"]
-    assert any(
-        entry["module_qualified_name"] == "pkg.beta" for entry in payload["importers"]
-    )
 
 
 def test_callsite_index_reducer_returns_payload(tmp_path):
@@ -63,3 +44,22 @@ def test_callsite_index_reducer_returns_payload(tmp_path):
         edge = payload["edges"][0]
         assert "caller_node_type" in edge
         assert "callee_node_type" in edge
+
+
+def test_callsite_index_neighbors_detail_level(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = _core_conn(repo_root)
+    try:
+        payload_text = callsite_index.render(
+            snapshot_id,
+            conn,
+            repo_root,
+            function_id="pkg.alpha.service.helper",
+            detail_level="neighbors",
+        )
+    finally:
+        conn.close()
+    payload = json.loads(_strip_json_fence(payload_text))
+    assert payload["callable_id"]
+    assert "callers" in payload
+    assert "callees" in payload

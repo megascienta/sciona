@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Structural reducers."""
+"""Core reducers."""
 
 from __future__ import annotations
 
@@ -11,8 +11,6 @@ from . import (
     class_inheritance,
     dependency_edges,
     file_outline,
-    import_targets,
-    module_file_map,
     module_overview,
     structural_index,
     symbol_lookup,
@@ -25,8 +23,6 @@ __all__ = [
     "class_inheritance",
     "dependency_edges",
     "file_outline",
-    "import_targets",
-    "module_file_map",
     "module_overview",
     "structural_index",
     "symbol_lookup",

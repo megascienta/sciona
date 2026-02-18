@@ -4,11 +4,9 @@
 import json
 import sqlite3
 
-from sciona.reducers.structural import (
+from sciona.reducers.core import (
     dependency_edges,
     file_outline,
-    import_targets,
-    module_file_map,
     symbol_lookup,
     symbol_references,
 )
@@ -201,42 +199,6 @@ def test_dependency_edges_query_filters_sources(tmp_path):
     )
 
 
-def test_import_targets_returns_importers(tmp_path):
-    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
-    conn = _core_conn(repo_root)
-    try:
-        payload_text = import_targets.render(
-            snapshot_id,
-            conn,
-            repo_root,
-            module_id="pkg.alpha",
-        )
-    finally:
-        conn.close()
-    payload = json.loads(_strip_json_fence(payload_text))
-    assert payload["edges"]
-    assert any(
-        edge["from_module_qualified_name"] == "pkg.beta" for edge in payload["edges"]
-    )
-
-
-def test_module_file_map_returns_modules(tmp_path):
-    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
-    conn = _core_conn(repo_root)
-    try:
-        payload_text = module_file_map.render(
-            snapshot_id,
-            conn,
-            repo_root,
-            module_id="pkg.alpha",
-        )
-    finally:
-        conn.close()
-    payload = json.loads(_strip_json_fence(payload_text))
-    assert payload["modules"]
-    assert payload["modules"][0]["module_qualified_name"].startswith("pkg.alpha")
-
-
 def test_file_outline_returns_nodes(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     conn = _core_conn(repo_root)
@@ -252,3 +214,41 @@ def test_file_outline_returns_nodes(tmp_path):
     payload = json.loads(_strip_json_fence(payload_text))
     assert payload["files"]
     assert any(entry["nodes"] for entry in payload["files"])
+
+
+def test_dependency_edges_direction_filters(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = _core_conn(repo_root)
+    try:
+        payload_text = dependency_edges.render(
+            snapshot_id,
+            conn,
+            repo_root,
+            module_id="pkg.alpha",
+            direction="out",
+        )
+    finally:
+        conn.close()
+    payload = json.loads(_strip_json_fence(payload_text))
+    assert payload["edges"]
+    assert all(
+        edge["from_module_qualified_name"].startswith("pkg.alpha")
+        for edge in payload["edges"]
+    )
+    conn = _core_conn(repo_root)
+    try:
+        payload_text = dependency_edges.render(
+            snapshot_id,
+            conn,
+            repo_root,
+            module_id="pkg.alpha",
+            direction="in",
+        )
+    finally:
+        conn.close()
+    payload = json.loads(_strip_json_fence(payload_text))
+    assert payload["edges"]
+    assert all(
+        edge["to_module_qualified_name"].startswith("pkg.alpha")
+        for edge in payload["edges"]
+    )

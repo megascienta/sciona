@@ -23,7 +23,7 @@ from ..helpers.utils import line_span_hash, require_latest_committed_snapshot
 
 REDUCER_META = ReducerMeta(
     reducer_id="class_overview",
-    category="structure",
+    category="core",
     scope="class",
     placeholders=("CLASS_OVERVIEW",),
     determinism="conditional",

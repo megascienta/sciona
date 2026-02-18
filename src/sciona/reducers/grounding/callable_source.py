@@ -18,7 +18,7 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="callable_source",
-    category="source",
+    category="grounding",
     scope="callable",
     placeholders=("CALLABLE_SOURCE",),
     determinism="conditional",

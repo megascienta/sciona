@@ -9,7 +9,7 @@ from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.data_storage.artifact_db.maintenance import rebuild_graph_index
 from sciona.data_storage.core_db.schema import ensure_schema
 from sciona.data_storage.transactions import transaction
-from sciona.reducers.structural import (
+from sciona.reducers.core import (
     callable_overview,
     class_overview,
     module_overview,
@@ -350,3 +350,24 @@ def test_module_overview_reducer_expands_package_modules(tmp_path):
             "module_qualified_name": "pkg.beta.worker",
         }
     ]
+
+
+def test_module_overview_include_file_map(tmp_path):
+    repo = _build_profile_repo(tmp_path)
+    conn = sqlite3.connect(repo["db_path"])
+    conn.row_factory = sqlite3.Row
+    payload = module_overview.run(
+        repo["snapshot_id"],
+        conn=conn,
+        module_id="pkg.alpha",
+        repo_root=repo["repo_root"],
+        include_file_map=True,
+    )
+    conn.close()
+
+    assert payload["module_file_count"] >= 1
+    assert payload["module_files"]
+    assert any(
+        entry["module_qualified_name"].startswith("pkg.alpha")
+        for entry in payload["module_files"]
+    )

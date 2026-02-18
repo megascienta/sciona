@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from ..structural import (
+from ..core import (
     callable_overview,
     class_overview,
     module_overview,

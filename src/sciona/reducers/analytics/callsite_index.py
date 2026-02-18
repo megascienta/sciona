@@ -15,13 +15,14 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="callsite_index",
-    category="relations",
+    category="analytics",
     scope="callable",
     placeholders=("CALLSITE_INDEX",),
     determinism="conditional",
     payload_size_stats=None,
     summary="Indexed caller/callee edges for a callable, including callsite details. " \
     "Use when reasoning about call directionality or callsite-level analysis. " \
+    "detail_level='neighbors' returns caller/callee sets. " \
     "Scope: callable-level call edges.",
     lossy=True,
 )
@@ -35,18 +36,24 @@ def render(
     function_id: str | None = None,
     method_id: str | None = None,
     direction: str | None = None,
+    detail_level: str | None = None,
     **_: object,
 ) -> str:
     conn = require_connection(conn)
     require_latest_committed_snapshot(
         conn, snapshot_id, reducer_name="callsite_index reducer"
     )
-    if callable_id and not (function_id or method_id):
-        function_id = callable_id
-    if method_id:
-        resolved_id = queries.resolve_method_id(conn, snapshot_id, method_id)
-    else:
-        resolved_id = queries.resolve_function_id(conn, snapshot_id, function_id)
+    resolved_id = _resolve_callable_id(
+        conn,
+        snapshot_id,
+        callable_id=callable_id,
+        function_id=function_id,
+        method_id=method_id,
+    )
+    level = _normalize_detail_level(detail_level)
+    if level == "neighbors":
+        body = build_neighbors_payload(conn, snapshot_id, repo_root, resolved_id)
+        return render_json_payload(body)
     dir_value = _normalize_direction(direction)
     artifact_available = artifact_db_available(repo_root) if repo_root else False
     edges = _load_edges(repo_root, snapshot_id, resolved_id, dir_value)
@@ -82,12 +89,65 @@ def render(
     body = {
         "callable_id": resolved_id,
         "direction": dir_value,
+        "detail_level": level,
         "artifact_available": artifact_available,
         "edge_source": "artifact_db" if artifact_available else "none",
         "edge_count": len(enriched),
         "edges": enriched,
     }
     return render_json_payload(body)
+
+
+def build_neighbors_payload(conn, snapshot_id: str, repo_root, resolved_id: str) -> dict:
+    artifact_available = artifact_db_available(repo_root) if repo_root else False
+    outgoing_edges = load_artifact_edges(
+        repo_root,
+        edge_kinds=["CALLS"],
+        src_ids=[resolved_id],
+    )
+    incoming_edges = load_artifact_edges(
+        repo_root,
+        edge_kinds=["CALLS"],
+        dst_ids=[resolved_id],
+    )
+    callee_ids = sorted({dst for _, dst, _ in outgoing_edges})
+    caller_ids = sorted({src for src, _, _ in incoming_edges})
+    callees = _fetch_nodes(conn, snapshot_id, callee_ids)
+    callers = _fetch_nodes(conn, snapshot_id, caller_ids)
+    return {
+        "callable_id": resolved_id,
+        "caller_count": len(callers),
+        "callee_count": len(callees),
+        "callers": callers,
+        "callees": callees,
+        "artifact_available": artifact_available,
+        "edge_source": "artifact_db" if artifact_available else "none",
+    }
+
+
+def _resolve_callable_id(
+    conn,
+    snapshot_id: str,
+    *,
+    callable_id: str | None,
+    function_id: str | None,
+    method_id: str | None,
+) -> str:
+    resolved_function_id = function_id
+    if callable_id and not (function_id or method_id):
+        resolved_function_id = callable_id
+    if method_id:
+        return queries.resolve_method_id(conn, snapshot_id, method_id)
+    return queries.resolve_function_id(conn, snapshot_id, resolved_function_id)
+
+
+def _normalize_detail_level(detail_level: Optional[str]) -> str:
+    if not detail_level:
+        return "callsites"
+    value = str(detail_level).strip().lower()
+    if value in {"callsites", "neighbors"}:
+        return value
+    raise ValueError("callsite_index detail_level must be 'callsites' or 'neighbors'.")
 
 
 def _normalize_direction(direction: Optional[str]) -> str:
@@ -173,3 +233,29 @@ def _node_lookup(
         }
         for row in rows
     }
+
+
+def _fetch_nodes(conn, snapshot_id: str, node_ids: List[str]) -> List[Dict[str, str]]:
+    if not node_ids:
+        return []
+    placeholders = ",".join("?" for _ in node_ids)
+    rows = conn.execute(
+        f"""
+        SELECT sn.structural_id, sn.node_type, ni.qualified_name
+        FROM structural_nodes sn
+        JOIN node_instances ni
+            ON ni.structural_id = sn.structural_id
+            AND ni.snapshot_id = ?
+        WHERE sn.structural_id IN ({placeholders})
+        """,
+        (snapshot_id, *node_ids),
+    ).fetchall()
+    return [
+        {
+            "structural_id": row["structural_id"],
+            "qualified_name": row["qualified_name"],
+            "node_type": row["node_type"],
+        }
+        for row in rows
+        if row["qualified_name"]
+    ]

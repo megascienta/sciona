@@ -39,7 +39,7 @@ class ReducerEntry:
 
 def _iter_reducer_modules() -> Iterator[ModuleType]:
     base_dir = Path(__file__).resolve().parent
-    reducer_packages = ("structural", "summaries", "composites", "baseline")
+    reducer_packages = ("core", "grounding", "analytics", "composites")
     for package in reducer_packages:
         package_path = base_dir / package
         if not package_path.exists():

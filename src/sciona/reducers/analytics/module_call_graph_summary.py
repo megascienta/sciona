@@ -16,7 +16,7 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="module_call_graph_summary",
-    category="relations",
+    category="analytics",
     scope="module",
     placeholders=("MODULE_CALL_GRAPH",),
     determinism="conditional",

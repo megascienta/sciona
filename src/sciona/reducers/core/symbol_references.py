@@ -16,7 +16,7 @@ _NODE_TYPES = {"module", "class", "function", "method"}
 
 REDUCER_META = ReducerMeta(
     reducer_id="symbol_references",
-    category="discovery",
+    category="core",
     scope="codebase",
     placeholders=("SYMBOL_REFERENCES",),
     determinism="conditional",

@@ -4,7 +4,7 @@
 import json
 import sqlite3
 
-from sciona.reducers.baseline import callable_source, concatenated_source
+from sciona.reducers.grounding import callable_source, concatenated_source
 
 from tests.helpers import seed_repo_with_snapshot
 

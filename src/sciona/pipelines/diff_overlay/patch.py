@@ -31,20 +31,12 @@ def apply_overlay_to_payload(
         return patch_class_overview(payload, overlay), True
     if projection == "file_outline":
         return patch_file_outline(payload, overlay), True
-    if projection == "module_file_map":
-        return patch_module_file_map(payload, overlay), True
     if projection == "dependency_edges":
         return patch_dependency_edges(payload, overlay), True
-    if projection == "import_targets":
-        return patch_import_targets(payload, overlay), True
-    if projection == "importers_index":
-        return patch_importers_index(payload, overlay), True
     if projection == "symbol_lookup":
         return patch_symbol_lookup(payload, overlay), True
     if projection == "symbol_references":
         return patch_symbol_references(payload, overlay), True
-    if projection == "call_neighbors":
-        return patch_call_neighbors(payload, overlay, snapshot_id=snapshot_id, conn=conn), True
     if projection == "callsite_index":
         return patch_callsite_index(payload, overlay, snapshot_id=snapshot_id, conn=conn), True
     if projection == "class_call_graph_summary":
@@ -306,6 +298,7 @@ def patch_module_overview(
     if not module_name:
         return payload
     files = set(payload.get("files", []) or [])
+    module_files = list(payload.get("module_files", []) or [])
     classes = list(payload.get("classes", []) or [])
     functions = list(payload.get("functions", []) or [])
     methods = list(payload.get("methods", []) or [])
@@ -323,6 +316,12 @@ def patch_module_overview(
     import_ids = {
         entry.get("module_structural_id")
         for entry in imports
+        if entry.get("module_structural_id")
+    }
+
+    module_file_map = {
+        entry.get("module_structural_id"): entry
+        for entry in module_files
         if entry.get("module_structural_id")
     }
 
@@ -366,6 +365,17 @@ def patch_module_overview(
             file_path = node.get("file_path")
             if file_path:
                 files.add(file_path)
+            if node_type == "module" and node.get("structural_id"):
+                module_file_map[node.get("structural_id")] = {
+                    "module_qualified_name": qualified_name,
+                    "module_structural_id": node.get("structural_id"),
+                    "language": node.get("language"),
+                    "file_path": file_path,
+                    "line_span": [
+                        node.get("start_line"),
+                        node.get("end_line"),
+                    ],
+                }
         elif change["diff_kind"] == "remove":
             if node_type == "class":
                 classes = [
@@ -385,6 +395,8 @@ def patch_module_overview(
                     for entry in methods
                     if entry.get("structural_id") != node.get("structural_id")
                 ]
+            if node_type == "module" and node.get("structural_id"):
+                module_file_map.pop(node.get("structural_id"), None)
         elif change["diff_kind"] == "modify":
             if node_type == "module" and node.get("structural_id") == payload.get(
                 "module_structural_id"
@@ -403,6 +415,20 @@ def patch_module_overview(
                         payload["line_span"] = line_span
                 if change.get("field") == "content_hash":
                     payload["content_hash"] = change.get("new_value")
+            if node_type == "module" and node.get("structural_id"):
+                entry = module_file_map.get(node.get("structural_id"))
+                if entry and change.get("field") == "file_path":
+                    entry["file_path"] = change.get("new_value")
+                if entry and change.get("field") == "start_line":
+                    span = entry.get("line_span") or []
+                    if isinstance(span, list) and span:
+                        span[0] = int(change.get("new_value") or span[0])
+                        entry["line_span"] = span
+                if entry and change.get("field") == "end_line":
+                    span = entry.get("line_span") or []
+                    if isinstance(span, list) and span:
+                        span[1] = int(change.get("new_value") or span[1])
+                        entry["line_span"] = span
 
     for change in iter_edge_changes(overlay):
         edge = edge_from_value(change.get("new_value") or change.get("old_value"))
@@ -445,6 +471,12 @@ def patch_module_overview(
     payload["imports"] = sorted(
         imports, key=lambda item: str(item.get("module_qualified_name"))
     )
+    if module_files:
+        payload["module_files"] = sorted(
+            module_file_map.values(),
+            key=lambda item: str(item.get("module_qualified_name")),
+        )
+        payload["module_file_count"] = len(payload["module_files"])
     return payload
 
 
@@ -622,62 +654,6 @@ def patch_file_outline(
     return payload
 
 
-def patch_module_file_map(
-    payload: dict[str, object], overlay: OverlayPayload
-) -> dict[str, object]:
-    modules = list(payload.get("modules", []) or [])
-    module_map = {
-        entry.get("module_structural_id"): entry
-        for entry in modules
-        if entry.get("module_structural_id")
-    }
-    module_filter = payload.get("module_filter")
-    for change in iter_node_changes(overlay):
-        node = node_from_value(change.get("new_value") or change.get("old_value"))
-        if not node or node.get("node_type") != "module":
-            continue
-        module_name = node.get("qualified_name")
-        if (
-            module_filter
-            and module_name
-            and not module_in_scope(str(module_filter), str(module_name))
-        ):
-            continue
-        structural_id = node.get("structural_id")
-        if change["diff_kind"] == "add":
-            module_map[structural_id] = {
-                "module_qualified_name": module_name,
-                "module_structural_id": structural_id,
-                "language": node.get("language"),
-                "file_path": node.get("file_path"),
-                "line_span": [node.get("start_line"), node.get("end_line")],
-            }
-        elif change["diff_kind"] == "remove":
-            module_map.pop(structural_id, None)
-        elif change["diff_kind"] == "modify":
-            entry = module_map.get(structural_id)
-            if not entry:
-                continue
-            if change.get("field") == "file_path":
-                entry["file_path"] = change.get("new_value")
-            if change.get("field") == "start_line":
-                span = list(entry.get("line_span") or [])
-                if len(span) == 2:
-                    span[0] = int(change.get("new_value") or span[0])
-                    entry["line_span"] = span
-            if change.get("field") == "end_line":
-                span = list(entry.get("line_span") or [])
-                if len(span) == 2:
-                    span[1] = int(change.get("new_value") or span[1])
-                    entry["line_span"] = span
-    payload["modules"] = sorted(
-        module_map.values(),
-        key=lambda item: str(item.get("module_qualified_name")),
-    )
-    payload["count"] = len(payload["modules"])
-    return payload
-
-
 def patch_dependency_edges(
     payload: dict[str, object], overlay: OverlayPayload
 ) -> dict[str, object]:
@@ -690,28 +666,38 @@ def patch_dependency_edges(
     edge_map = {edge_key(entry): entry for entry in edges}
     from_filter = payload.get("from_module_filter")
     to_filter = payload.get("to_module_filter")
+    module_filter = payload.get("module_filter")
+    direction = str(payload.get("direction") or "both").lower()
     for change in iter_edge_changes(overlay):
         edge = edge_from_value(change.get("new_value") or change.get("old_value"))
         if not edge or edge.get("edge_type") != "IMPORTS_DECLARED":
             continue
         src_id = edge.get("src_structural_id")
         dst_id = edge.get("dst_structural_id")
-        if (
-            from_filter
-            and edge.get("src_qualified_name")
-            and not module_in_scope(
+        if from_filter and edge.get("src_qualified_name"):
+            if not module_in_scope(
                 str(from_filter), str(edge.get("src_qualified_name"))
-            )
-        ):
-            continue
-        if (
-            to_filter
-            and edge.get("dst_qualified_name")
-            and not module_in_scope(
+            ):
+                continue
+        if to_filter and edge.get("dst_qualified_name"):
+            if not module_in_scope(
                 str(to_filter), str(edge.get("dst_qualified_name"))
-            )
-        ):
-            continue
+            ):
+                continue
+        if module_filter and not from_filter and not to_filter:
+            src_name = edge.get("src_qualified_name")
+            dst_name = edge.get("dst_qualified_name")
+            if direction == "out":
+                if not (src_name and module_in_scope(str(module_filter), str(src_name))):
+                    continue
+            elif direction == "in":
+                if not (dst_name and module_in_scope(str(module_filter), str(dst_name))):
+                    continue
+            else:
+                src_ok = src_name and module_in_scope(str(module_filter), str(src_name))
+                dst_ok = dst_name and module_in_scope(str(module_filter), str(dst_name))
+                if not (src_ok or dst_ok):
+                    continue
         key = (src_id, dst_id, edge.get("edge_type"))
         if change["diff_kind"] == "add":
             edge_map[key] = {
@@ -729,83 +715,6 @@ def patch_dependency_edges(
     patched = sorted(edge_map.values(), key=edge_key)
     payload["edges"] = patched
     payload["edge_count"] = len(patched)
-    return payload
-
-
-def patch_import_targets(
-    payload: dict[str, object], overlay: OverlayPayload
-) -> dict[str, object]:
-    edges = list(payload.get("edges", []) or [])
-    edge_key = lambda entry: (
-        entry.get("from_module_structural_id"),
-        entry.get("to_module_structural_id"),
-        entry.get("edge_type"),
-    )
-    edge_map = {edge_key(entry): entry for entry in edges}
-    target_ids = {
-        target.get("module_structural_id")
-        for target in payload.get("targets", []) or []
-    }
-    for change in iter_edge_changes(overlay):
-        edge = edge_from_value(change.get("new_value") or change.get("old_value"))
-        if not edge or edge.get("edge_type") != "IMPORTS_DECLARED":
-            continue
-        dst_id = edge.get("dst_structural_id")
-        if target_ids and dst_id not in target_ids:
-            continue
-        key = (edge.get("src_structural_id"), dst_id, edge.get("edge_type"))
-        if change["diff_kind"] == "add":
-            edge_map[key] = {
-                "from_module_structural_id": edge.get("src_structural_id"),
-                "to_module_structural_id": dst_id,
-                "from_module_qualified_name": edge.get("src_qualified_name"),
-                "to_module_qualified_name": edge.get("dst_qualified_name"),
-                "from_file_path": edge.get("src_file_path"),
-                "to_file_path": edge.get("dst_file_path"),
-                "edge_type": edge.get("edge_type"),
-                "edge_source": "overlay",
-            }
-        elif change["diff_kind"] == "remove":
-            edge_map.pop(key, None)
-    patched = sorted(edge_map.values(), key=edge_key)
-    payload["edges"] = patched
-    payload["edge_count"] = len(patched)
-    return payload
-
-
-def patch_importers_index(
-    payload: dict[str, object], overlay: OverlayPayload
-) -> dict[str, object]:
-    target_ids = {
-        target.get("module_structural_id")
-        for target in payload.get("targets", []) or []
-    }
-    importer_map = {
-        entry.get("module_structural_id"): entry
-        for entry in payload.get("importers", []) or []
-        if entry.get("module_structural_id")
-    }
-    for change in iter_edge_changes(overlay):
-        edge = edge_from_value(change.get("new_value") or change.get("old_value"))
-        if not edge or edge.get("edge_type") != "IMPORTS_DECLARED":
-            continue
-        dst_id = edge.get("dst_structural_id")
-        if target_ids and dst_id not in target_ids:
-            continue
-        src_id = edge.get("src_structural_id")
-        if change["diff_kind"] == "add":
-            importer_map[src_id] = {
-                "module_structural_id": src_id,
-                "module_qualified_name": edge.get("src_qualified_name"),
-                "file_path": edge.get("src_file_path"),
-            }
-        elif change["diff_kind"] == "remove":
-            importer_map.pop(src_id, None)
-    payload["importers"] = sorted(
-        importer_map.values(),
-        key=lambda item: str(item.get("module_qualified_name")),
-    )
-    payload["importer_count"] = len(payload["importers"])
     return payload
 
 
@@ -974,6 +883,8 @@ def patch_callsite_index(
     snapshot_id: str,
     conn,
 ) -> dict[str, object]:
+    if "callers" in payload or "callees" in payload:
+        return patch_call_neighbors(payload, overlay, snapshot_id=snapshot_id, conn=conn)
     target_id = payload.get("callable_id")
     if not target_id:
         return payload

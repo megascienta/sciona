@@ -134,6 +134,11 @@ Rules:
 - Reducers must not discover new nodes or infer semantics.
 - Reducer existence does not imply endorsement; CLI exposure may be restricted.
 
+Reducer categories:
+- `core`: canonical structural entities and relations.
+- `grounding`: source/context renderers used for inspection.
+- `analytics`: derived summaries or rankings.
+
 Where to add reducers:
 - Implement under `src/sciona/reducers/`.
 - Add deterministic output tests.

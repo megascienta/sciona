@@ -5,7 +5,7 @@ import json
 import sqlite3
 
 from tests.helpers import seed_repo_with_snapshot
-from sciona.reducers.summaries import hotspot_summary
+from sciona.reducers.analytics import hotspot_summary
 
 
 def _parse_json_block(payload: str) -> dict:

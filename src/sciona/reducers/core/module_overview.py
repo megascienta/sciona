@@ -19,7 +19,7 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="module_overview",
-    category="structure",
+    category="core",
     scope="module",
     placeholders=("MODULE_OVERVIEW",),
     determinism="conditional",
@@ -39,6 +39,7 @@ def render(
     function_id: str | None = None,
     method_id: str | None = None,
     class_id: str | None = None,
+    include_file_map: bool | None = None,
     **_: object,
 ) -> str:
     conn = require_connection(conn)
@@ -65,7 +66,11 @@ def render(
     if not resolved_module_id:
         raise ValueError("Prompt requires a resolvable module_id.")
     payload = run(
-        snapshot_id, conn=conn, repo_root=repo_root, module_id=resolved_module_id
+        snapshot_id,
+        conn=conn,
+        repo_root=repo_root,
+        module_id=resolved_module_id,
+        include_file_map=include_file_map,
     )
     return render_json_payload(payload)
 
@@ -86,6 +91,7 @@ def run(snapshot_id: str, **params) -> ModuleOverviewPayload:
         conn, snapshot_id, reducer_name="module_overview reducer"
     )
     module_identifier = params.get("module_id")
+    include_file_map = bool(params.get("include_file_map"))
     if not module_identifier:
         raise ValueError("module_overview requires 'module_id'.")
     repo_root = params.get("repo_root")
@@ -106,6 +112,9 @@ def run(snapshot_id: str, **params) -> ModuleOverviewPayload:
 
     module_ids = _resolve_module_ids(conn, snapshot_id, module_name)
     files = _list_module_files(conn, snapshot_id, module_ids)
+    module_file_entries = (
+        _module_file_entries(conn, snapshot_id, module_ids) if include_file_map else []
+    )
     classes = _list_children(conn, snapshot_id, module_ids, "class", repo_path)
     functions = _list_children(conn, snapshot_id, module_ids, "function", repo_path)
     methods = _list_methods(conn, snapshot_id, module_ids, repo_path)
@@ -114,7 +123,7 @@ def run(snapshot_id: str, **params) -> ModuleOverviewPayload:
 
     # Scope clamp: no cross-module aggregation or ranking beyond direct structure facts.
     line_span = [row["start_line"], row["end_line"]]
-    return {
+    payload: ModuleOverviewPayload = {
         "projection": "module_overview",
         "projection_version": "1.0",
         "module_structural_id": module_structural_id,
@@ -141,6 +150,10 @@ def run(snapshot_id: str, **params) -> ModuleOverviewPayload:
         "artifact_available": artifact_available,
         "edge_source": "artifact_db" if artifact_available else "none",
     }
+    if include_file_map:
+        payload["module_files"] = module_file_entries
+        payload["module_file_count"] = len(module_file_entries)
+    return payload
 
 
 def _resolve_module(conn, snapshot_id: str, identifier: str) -> dict:
@@ -209,6 +222,46 @@ def _list_module_files(conn, snapshot_id: str, module_ids: List[str]) -> List[st
     files = [row["file_path"] for row in rows if row["file_path"]]
     order_strings(files)
     return files
+
+
+def _module_file_entries(
+    conn, snapshot_id: str, module_ids: List[str]
+) -> List[Dict[str, str]]:
+    if not module_ids:
+        return []
+    placeholders = ",".join("?" for _ in module_ids)
+    rows = conn.execute(
+        f"""
+        SELECT sn.structural_id,
+               sn.language,
+               ni.qualified_name,
+               ni.file_path,
+               ni.start_line,
+               ni.end_line
+        FROM structural_nodes sn
+        JOIN node_instances ni ON ni.structural_id = sn.structural_id
+        WHERE ni.snapshot_id = ?
+          AND sn.node_type = 'module'
+          AND sn.structural_id IN ({placeholders})
+        ORDER BY ni.qualified_name
+        """,
+        (snapshot_id, *module_ids),
+    ).fetchall()
+    entries = []
+    for row in rows:
+        qualified_name = row["qualified_name"]
+        if not qualified_name:
+            continue
+        entries.append(
+            {
+                "module_qualified_name": qualified_name,
+                "module_structural_id": row["structural_id"],
+                "language": row["language"],
+                "file_path": row["file_path"],
+                "line_span": [row["start_line"], row["end_line"]],
+            }
+        )
+    return entries
 
 
 def _list_children(

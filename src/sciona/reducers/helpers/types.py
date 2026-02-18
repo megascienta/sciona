@@ -21,6 +21,8 @@ class ModuleOverviewPayload(TypedDict, total=False):
     content_hash: str
     files: List[str]
     file_count: int
+    module_files: List[Dict[str, str]] | None
+    module_file_count: int
     classes: List[Dict[str, str]]
     functions: List[Dict[str, str]]
     methods: List[Dict[str, str]]

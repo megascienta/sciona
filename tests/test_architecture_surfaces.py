@@ -18,5 +18,5 @@ def test_structural_reducers_public_surface_exports_modules():
         "callable_overview",
     }
     for name in expected:
-        module = getattr(reducers.structural, name)
+        module = getattr(reducers.core, name)
         assert hasattr(module, "run"), f"Reducer module '{name}' must expose run()"

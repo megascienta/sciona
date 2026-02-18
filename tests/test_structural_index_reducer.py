@@ -3,7 +3,7 @@
 
 import sqlite3
 
-from sciona.reducers.structural import structural_index
+from sciona.reducers.core import structural_index
 from sciona.runtime import constants as setup_config
 
 from tests.helpers import seed_repo_with_snapshot

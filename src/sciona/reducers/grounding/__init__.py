@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Baseline reducers."""
+"""Grounding reducers."""
 
 from __future__ import annotations
 
