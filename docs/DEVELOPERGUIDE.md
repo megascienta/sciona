@@ -25,13 +25,18 @@ Core invariants (all must hold):
 
 ## Repository layout and ownership boundaries
 
-Layer mapping (no layer may reach “up” the stack):
+Layer mapping (responsibility-first; no layer may reach “up” the stack):
 - `src/sciona/runtime/`: paths, config parsing, logging, git plumbing, error types.
 - `src/sciona/data_storage/`: CoreDB/ArtifactDB schemas and read/write helpers.
 - `src/sciona/code_analysis/`: discovery, parsing, node/edge extraction, normalization.
-- `src/sciona/pipelines/`: policy validation, orchestration, build lifecycle, reducer execution context.
+- `src/sciona/pipelines/`: policy validation and build lifecycle orchestration.
 - `src/sciona/reducers/`: deterministic payload formatting and registry.
 - `src/sciona/api/`: stable public addon API surface (`sciona.api.addons`).
+
+Dependency rule:
+- Upward imports are forbidden.
+- Exception (scoped): pipelines may import reducers modules only for reducer registry,
+  context helpers, and payload rendering. No other upward imports are allowed.
 
 Internal boundaries: `sciona.api.cli`, `sciona.api.errors`.
 
