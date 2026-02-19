@@ -17,22 +17,28 @@ if __package__ is None or __package__ == "":
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 from experiments.reducers.validation import config
-from experiments.reducers.validation.independent.python_ast import parse_python_file
+from experiments.reducers.validation.independent.python_ast import parse_python_files
 from experiments.reducers.validation.independent.ts_node import parse_typescript_files
 from experiments.reducers.validation.independent.java_runner import parse_java_files
 from experiments.reducers.validation.independent.shared import EdgeRecord, FileParseResult
-from experiments.reducers.validation.metrics import compute_metrics
+from experiments.reducers.validation.metrics import compute_metrics, compare_edge_sets
 from experiments.reducers.validation.report import render_summary, write_json, write_markdown
-from experiments.reducers.validation.sampling import load_entities, sample_entities
+from experiments.reducers.validation.sampling import build_entities_from_structural_index, sample_entities
+from experiments.reducers.validation.db_adapter import (
+    callable_call_edges,
+    class_method_ids,
+    module_import_edges,
+    open_artifact_db,
+    resolve_node_instance,
+)
 from experiments.reducers.validation.sciona_adapter import (
-    get_call_edges,
-    get_class_methods,
-    get_dependency_edges,
+    get_callsite_index_payload,
+    get_dependency_edges_payload,
     get_snapshot_id,
     get_structural_index_hash,
-    get_callable_overview,
+    get_structural_index_payload,
     get_class_overview,
-    get_module_overview,
+    get_module_overview_payload,
     open_core_db,
 )
 
@@ -52,6 +58,23 @@ def _module_qname_from_entity(entity) -> str:
     if len(parts) > 1:
         return ".".join(parts[:-1])
     return entity.qualified_name
+
+
+def _enrich_entities_with_db(entities, conn, snapshot_id) -> None:
+    for entity in entities:
+        if entity.file_path and entity.start_line and entity.end_line and entity.language:
+            continue
+        resolved = resolve_node_instance(conn, snapshot_id, entity.qualified_name, entity.kind)
+        if not resolved:
+            continue
+        if not entity.file_path:
+            entity.file_path = resolved.get("file_path") or entity.file_path
+        if not entity.start_line:
+            entity.start_line = resolved.get("start_line")
+        if not entity.end_line:
+            entity.end_line = resolved.get("end_line")
+        if not entity.language:
+            entity.language = resolved.get("language") or entity.language
 
 
 def _edge_record_from_call(edge: dict, fallback_caller: str) -> EdgeRecord:
@@ -111,107 +134,168 @@ def _edge_records_from_ground_truth(
     return expected, out_of_contract
 
 
-def _get_file_module_map(entities, repo_root, conn, snapshot_id) -> Tuple[Dict[str, dict], Dict[str, str]]:
+def _get_file_module_map(entities, conn, snapshot_id) -> Tuple[Dict[str, dict], Dict[str, str]]:
     mapping: Dict[str, dict] = {}
     errors: Dict[str, str] = {}
     for entity in entities:
-        try:
-            if entity.kind == "module":
-                overview = get_module_overview(snapshot_id, conn, repo_root, entity.qualified_name)
-                module_qname = overview.get("module_qualified_name") or entity.qualified_name
-                file_path = (overview.get("files") or [entity.file_path])[0]
-            elif entity.kind == "class":
-                overview = get_class_overview(snapshot_id, conn, repo_root, entity.qualified_name)
-                module_qname = overview.get("module_qualified_name") or _module_qname_from_entity(entity)
-                file_path = overview.get("file_path") or entity.file_path
-            else:
-                overview = get_callable_overview(
-                    snapshot_id,
-                    conn,
-                    repo_root,
-                    function_id=entity.qualified_name if entity.kind == "function" else None,
-                    method_id=entity.qualified_name if entity.kind == "method" else None,
-                    callable_id=entity.qualified_name,
-                )
-                module_qname = overview.get("module_qualified_name") or _module_qname_from_entity(entity)
-                file_path = overview.get("file_path") or entity.file_path
-        except Exception as exc:
-            errors[entity.qualified_name] = str(exc)
-            module_qname = _module_qname_from_entity(entity)
-            file_path = entity.file_path
-
-        if file_path:
-            mapping[file_path] = {
-                "file_path": file_path,
-                "module_qualified_name": module_qname,
-                "language": entity.language,
-            }
+        file_path = entity.file_path
+        module_qname = entity.module_qualified_name or _module_qname_from_entity(entity)
+        if not file_path:
+            resolved = resolve_node_instance(conn, snapshot_id, entity.qualified_name, entity.kind)
+            if resolved and resolved.get("file_path"):
+                file_path = resolved.get("file_path")
+        if not file_path:
+            errors[entity.qualified_name] = "missing file_path"
+            continue
+        mapping[file_path] = {
+            "file_path": file_path,
+            "module_qualified_name": module_qname,
+            "language": entity.language,
+        }
     return mapping, errors
 
 
 def _parse_independent(repo_root: Path, file_entries: Dict[str, dict]) -> Dict[str, FileParseResult]:
-    python_files = []
-    ts_files = []
-    java_files = []
+    by_language: Dict[str, List[dict]] = {}
     for entry in file_entries.values():
-        if entry["language"] == "python":
-            python_files.append(entry)
-        elif entry["language"] == "typescript":
-            ts_files.append(entry)
-        elif entry["language"] == "java":
-            java_files.append(entry)
+        by_language.setdefault(entry["language"], []).append(entry)
+
+    parsers = {
+        "python": parse_python_files,
+        "typescript": parse_typescript_files,
+        "java": parse_java_files,
+    }
 
     results: Dict[str, FileParseResult] = {}
-    for entry in python_files:
-        results[entry["file_path"]] = parse_python_file(repo_root, entry["file_path"], entry["module_qualified_name"])
-
-    if ts_files:
-        for output in parse_typescript_files(repo_root, ts_files):
-            results[output.file_path] = output
-
-    if java_files:
-        for output in parse_java_files(repo_root, java_files):
+    for language, entries in by_language.items():
+        parser = parsers.get(language)
+        if not parser:
+            continue
+        for output in parser(repo_root, entries):
             results[output.file_path] = output
 
     return results
 
 
-def _collect_sciona_edges(entity, conn, repo_root, snapshot_id) -> List[EdgeRecord]:
+def _collect_reducer_outputs(
+    entity,
+    conn,
+    repo_root,
+    snapshot_id,
+    module_overviews: Dict[str, dict],
+) -> Tuple[Dict[str, object], List[EdgeRecord]]:
+    payloads: Dict[str, object] = {}
     edges: List[EdgeRecord] = []
     if entity.kind == "module":
-        for edge in get_dependency_edges(snapshot_id, conn, repo_root, entity.qualified_name):
+        dep_payload = get_dependency_edges_payload(
+            snapshot_id,
+            conn,
+            repo_root,
+            entity.qualified_name,
+        )
+        payloads["dependency_edges"] = dep_payload
+        if entity.qualified_name in module_overviews:
+            payloads["module_overview"] = module_overviews[entity.qualified_name]
+        for edge in dep_payload.get("edges", []) or []:
             edges.append(_edge_record_from_import(edge))
-        return edges
+        return payloads, edges
 
     if entity.kind == "class":
-        methods = get_class_methods(snapshot_id, conn, repo_root, entity.qualified_name)
-        for method in methods:
+        class_payload = get_class_overview(snapshot_id, conn, repo_root, entity.qualified_name)
+        payloads["class_overview"] = class_payload
+        method_payloads = []
+        for method in class_payload.get("methods", []) or []:
             method_qname = method.get("qualified_name")
             if not method_qname:
                 continue
-            for edge in get_call_edges(
+            call_payload = get_callsite_index_payload(
                 snapshot_id,
                 conn,
                 repo_root,
                 method_id=method_qname,
-            ):
+            )
+            method_payloads.append(call_payload)
+            for edge in call_payload.get("edges", []) or []:
                 edges.append(_edge_record_from_call(edge, method_qname))
-        return edges
+        payloads["callsite_index"] = method_payloads
+        return payloads, edges
 
     if entity.kind == "function":
-        for edge in get_call_edges(snapshot_id, conn, repo_root, function_id=entity.qualified_name):
+        call_payload = get_callsite_index_payload(
+            snapshot_id,
+            conn,
+            repo_root,
+            function_id=entity.qualified_name,
+        )
+        payloads["callsite_index"] = call_payload
+        for edge in call_payload.get("edges", []) or []:
             edges.append(_edge_record_from_call(edge, entity.qualified_name))
-        return edges
+        return payloads, edges
 
     if entity.kind == "method":
-        for edge in get_call_edges(snapshot_id, conn, repo_root, method_id=entity.qualified_name):
+        call_payload = get_callsite_index_payload(
+            snapshot_id,
+            conn,
+            repo_root,
+            method_id=entity.qualified_name,
+        )
+        payloads["callsite_index"] = call_payload
+        for edge in call_payload.get("edges", []) or []:
             edges.append(_edge_record_from_call(edge, entity.qualified_name))
-        return edges
+        return payloads, edges
 
-    return edges
+    return payloads, edges
 
 
-def _aggregate_group_metrics(rows: List[dict]) -> Dict[str, dict]:
+def _collect_db_outputs(
+    entity,
+    core_conn,
+    artifact_conn,
+    snapshot_id,
+) -> Tuple[Dict[str, object], List[EdgeRecord], str | None]:
+    payloads: Dict[str, object] = {}
+    edges: List[EdgeRecord] = []
+    error = None
+    try:
+        if entity.kind == "module":
+            resolved = resolve_node_instance(core_conn, snapshot_id, entity.qualified_name, "module")
+            if not resolved or not resolved.get("structural_id"):
+                raise RuntimeError("module structural_id not found")
+            module_id = resolved["structural_id"]
+            payloads["module_structural_id"] = module_id
+            edges = module_import_edges(core_conn, snapshot_id, module_id)
+            payloads["import_edges"] = [asdict(edge) for edge in edges]
+            return payloads, edges, None
+
+        if entity.kind == "class":
+            resolved = resolve_node_instance(core_conn, snapshot_id, entity.qualified_name, "class")
+            if not resolved or not resolved.get("structural_id"):
+                raise RuntimeError("class structural_id not found")
+            class_id = resolved["structural_id"]
+            payloads["class_structural_id"] = class_id
+            method_ids = class_method_ids(artifact_conn, class_id)
+            payloads["method_structural_ids"] = method_ids
+            for method_id in method_ids:
+                edges.extend(callable_call_edges(artifact_conn, core_conn, snapshot_id, method_id))
+            payloads["call_edges"] = [asdict(edge) for edge in edges]
+            return payloads, edges, None
+
+        if entity.kind in {"function", "method"}:
+            resolved = resolve_node_instance(core_conn, snapshot_id, entity.qualified_name, entity.kind)
+            if not resolved or not resolved.get("structural_id"):
+                raise RuntimeError("callable structural_id not found")
+            call_id = resolved["structural_id"]
+            payloads["callable_structural_id"] = call_id
+            edges = callable_call_edges(artifact_conn, core_conn, snapshot_id, call_id)
+            payloads["call_edges"] = [asdict(edge) for edge in edges]
+            return payloads, edges, None
+    except Exception as exc:
+        error = str(exc)
+
+    return payloads, edges, error
+
+
+def _aggregate_group_metrics(rows: List[dict], metric_key: str) -> Dict[str, dict]:
     groups: Dict[str, List[dict]] = {}
     for row in rows:
         key = f"{row['language']}::{row['kind']}"
@@ -219,38 +303,48 @@ def _aggregate_group_metrics(rows: List[dict]) -> Dict[str, dict]:
 
     metrics: Dict[str, dict] = {}
     for key, entries in groups.items():
-        precision_values = [r["metrics"]["in_contract_precision"] for r in entries if r["metrics"]["in_contract_precision"] is not None]
-        recall_values = [r["metrics"]["in_contract_recall"] for r in entries if r["metrics"]["in_contract_recall"] is not None]
+        precision_values = [
+            r[metric_key]["in_contract_precision"]
+            for r in entries
+            if r.get(metric_key) and r[metric_key]["in_contract_precision"] is not None
+        ]
+        recall_values = [
+            r[metric_key]["in_contract_recall"]
+            for r in entries
+            if r.get(metric_key) and r[metric_key]["in_contract_recall"] is not None
+        ]
         precision = sum(precision_values) / len(precision_values) if precision_values else None
         recall = sum(recall_values) / len(recall_values) if recall_values else None
         metrics[key] = {"precision": precision, "recall": recall}
     return metrics
 
 
-def _edge_type_breakdown(rows: List[dict]) -> Dict[str, dict]:
+def _edge_type_breakdown(rows: List[dict], metric_key: str) -> Dict[str, dict]:
     breakdown: Dict[str, dict] = {
         "calls": {"tp": 0, "fp": 0, "fn": 0},
         "imports": {"tp": 0, "fp": 0, "fn": 0},
     }
     for row in rows:
+        if not row.get(metric_key):
+            continue
         edge_type = "imports" if row["kind"] == "module" else "calls"
-        breakdown[edge_type]["tp"] += row["metrics"]["tp"]
-        breakdown[edge_type]["fp"] += row["metrics"]["fp"]
-        breakdown[edge_type]["fn"] += row["metrics"]["fn"]
+        breakdown[edge_type]["tp"] += row[metric_key]["tp"]
+        breakdown[edge_type]["fp"] += row[metric_key]["fp"]
+        breakdown[edge_type]["fn"] += row[metric_key]["fn"]
     return breakdown
 
 
-def _failure_examples(rows: List[dict], limit: int = 10) -> List[dict]:
+def _failure_examples(rows: List[dict], metric_key: str, limit: int = 10) -> List[dict]:
     failures = sorted(
-        [r for r in rows if r["metrics"]["in_contract_recall"] is not None],
-        key=lambda r: r["metrics"]["in_contract_recall"],
+        [r for r in rows if r.get(metric_key) and r[metric_key]["in_contract_recall"] is not None],
+        key=lambda r: r[metric_key]["in_contract_recall"],
     )
     examples: List[dict] = []
     for entry in failures[:limit]:
         examples.append(
             {
                 "node": entry["entity"],
-                "issue": f"recall={entry['metrics']['in_contract_recall']}",
+                "issue": f"recall={entry[metric_key]['in_contract_recall']}",
             }
         )
     return examples
@@ -263,14 +357,31 @@ def _aggregate(
     parse_ok_files: int,
     total_files: int,
     stability_score: float,
+    metric_key: str,
 ) -> dict:
-    precision_values = [r["metrics"]["in_contract_precision"] for r in rows if r["metrics"]["in_contract_precision"] is not None]
-    recall_values = [r["metrics"]["in_contract_recall"] for r in rows if r["metrics"]["in_contract_recall"] is not None]
+    precision_values = [
+        r[metric_key]["in_contract_precision"]
+        for r in rows
+        if r.get(metric_key) and r[metric_key]["in_contract_precision"] is not None
+    ]
+    recall_values = [
+        r[metric_key]["in_contract_recall"]
+        for r in rows
+        if r.get(metric_key) and r[metric_key]["in_contract_recall"] is not None
+    ]
     precision_mean = sum(precision_values) / len(precision_values) if precision_values else None
     recall_mean = sum(recall_values) / len(recall_values) if recall_values else None
 
-    misses_out_of_contract = sum(r["metrics"]["out_of_contract_missing_count"] for r in rows)
-    misses_in_contract = sum(r["metrics"]["fn"] for r in rows)
+    misses_out_of_contract = sum(
+        r[metric_key]["out_of_contract_missing_count"]
+        for r in rows
+        if r.get(metric_key)
+    )
+    misses_in_contract = sum(
+        r[metric_key]["fn"]
+        for r in rows
+        if r.get(metric_key)
+    )
     denom = misses_out_of_contract + misses_in_contract
     misses_out_rate = (misses_out_of_contract / denom) if denom else None
 
@@ -329,68 +440,140 @@ def main() -> int:
 
     with open_core_db(repo_root) as conn:
         snapshot_id = get_snapshot_id(conn)
-        entities = load_entities(repo_root, repo_root / ".sciona" / "sciona.db")
-        sampling = sample_entities(entities, repo_root, args.nodes, args.seed)
-        sampled = sampling.sampled
+        with open_artifact_db(repo_root) as artifact_conn:
+            structural_index = get_structural_index_payload(snapshot_id, conn, repo_root)
+            module_overviews: Dict[str, dict] = {}
+            for entry in structural_index.get("modules", {}).get("entries", []):
+                module_name = entry.get("module_qualified_name")
+                if not module_name:
+                    continue
+                module_overviews[module_name] = get_module_overview_payload(
+                    snapshot_id,
+                    conn,
+                    repo_root,
+                    module_id=module_name,
+                )
 
-        file_map, overview_errors = _get_file_module_map(sampled, repo_root, conn, snapshot_id)
-        independent_results = _parse_independent(repo_root, file_map)
+            entities = build_entities_from_structural_index(structural_index, module_overviews)
+            _enrich_entities_with_db(entities, conn, snapshot_id)
+            sampling = sample_entities(entities, args.nodes, args.seed)
+            sampled = sampling.sampled
 
-        stability_score = None
-        stability_error = None
-        try:
-            stability_hash_a = get_structural_index_hash(snapshot_id, conn, repo_root)
-            stability_hash_b = get_structural_index_hash(snapshot_id, conn, repo_root)
-            stability_score = 1.0 if stability_hash_a == stability_hash_b else 0.0
-        except Exception as exc:
-            stability_error = str(exc)
+            file_map, overview_errors = _get_file_module_map(sampled, conn, snapshot_id)
+            independent_results = _parse_independent(repo_root, file_map)
 
-        rows: List[dict] = []
-        parse_ok_files = 0
-        total_files = len(independent_results)
-        for entity in sampled:
-            file_result = independent_results.get(entity.file_path)
-            if not file_result:
-                continue
-            if file_result.parse_ok:
-                parse_ok_files += 1
-            expected, out_of_contract = _edge_records_from_ground_truth(file_result, entity)
-            reducer_error = None
-            sciona_edges = []
+            stability_score = None
+            stability_error = None
             try:
-                sciona_edges = _collect_sciona_edges(entity, conn, repo_root, snapshot_id)
+                stability_hash_a = get_structural_index_hash(snapshot_id, conn, repo_root)
+                stability_hash_b = get_structural_index_hash(snapshot_id, conn, repo_root)
+                stability_score = 1.0 if stability_hash_a == stability_hash_b else 0.0
             except Exception as exc:
-                reducer_error = str(exc)
-            metrics = None
-            if file_result.parse_ok and not reducer_error:
-                metrics = compute_metrics(expected, out_of_contract, sciona_edges)
-            rows.append(
-                {
-                    "entity": entity.qualified_name,
-                    "language": entity.language,
-                    "kind": entity.kind,
-                    "file_path": entity.file_path,
-                    "metrics": asdict(metrics) if metrics else None,
-                    "ground_truth_parse_ok": file_result.parse_ok,
-                    "ground_truth_error": file_result.error,
-                    "reducer_error": reducer_error,
-                }
-            )
+                stability_error = str(exc)
 
-    scored_rows = [row for row in rows if row["metrics"] is not None]
-    aggregate = _aggregate(scored_rows, len(scored_rows), len(rows), parse_ok_files, total_files, stability_score or 0.0)
-    group_metrics = _aggregate_group_metrics(scored_rows)
-    edge_breakdown = _edge_type_breakdown(scored_rows)
-    failures = _failure_examples(scored_rows)
+            rows: List[dict] = []
+            total_files = len(independent_results)
+            parse_ok_files = sum(
+                1 for file_result in independent_results.values() if file_result.parse_ok
+            )
+            for entity in sampled:
+                file_result = independent_results.get(entity.file_path)
+                if not file_result:
+                    continue
+                expected, out_of_contract = _edge_records_from_ground_truth(file_result, entity)
+                reducer_error = None
+                db_error = None
+                reducer_edges: List[EdgeRecord] = []
+                reducer_payloads: Dict[str, object] = {}
+                try:
+                    reducer_payloads, reducer_edges = _collect_reducer_outputs(
+                        entity,
+                        conn,
+                        repo_root,
+                        snapshot_id,
+                        module_overviews,
+                    )
+                except Exception as exc:
+                    reducer_error = str(exc)
+
+                db_payloads: Dict[str, object] = {}
+                db_edges: List[EdgeRecord] = []
+                db_payloads, db_edges, db_error = _collect_db_outputs(
+                    entity,
+                    conn,
+                    artifact_conn,
+                    snapshot_id,
+                )
+
+                reducer_metrics = None
+                db_metrics = None
+                reducer_vs_db = None
+                if file_result.parse_ok and not reducer_error:
+                    reducer_metrics = compute_metrics(expected, out_of_contract, reducer_edges)
+                if file_result.parse_ok and not db_error:
+                    db_metrics = compute_metrics(expected, out_of_contract, db_edges)
+                if reducer_edges and db_edges:
+                    reducer_vs_db = compare_edge_sets(db_edges, reducer_edges)
+                rows.append(
+                    {
+                        "entity": entity.qualified_name,
+                        "language": entity.language,
+                        "kind": entity.kind,
+                        "file_path": entity.file_path,
+                        "module_qualified_name": entity.module_qualified_name,
+                        "metrics_reducer": asdict(reducer_metrics) if reducer_metrics else None,
+                        "metrics_db": asdict(db_metrics) if db_metrics else None,
+                        "metrics_reducer_vs_db": asdict(reducer_vs_db) if reducer_vs_db else None,
+                        "reducer_payloads": reducer_payloads,
+                        "db_payloads": db_payloads,
+                        "expected_edges": [asdict(edge) for edge in expected],
+                        "out_of_contract_edges": [asdict(edge) for edge in out_of_contract],
+                        "ground_truth_parse_ok": file_result.parse_ok,
+                        "ground_truth_error": file_result.error,
+                        "reducer_error": reducer_error,
+                        "db_error": db_error,
+                    }
+                )
+
+    scored_rows = [row for row in rows if row.get("metrics_reducer") is not None]
+    scored_rows_db = [row for row in rows if row.get("metrics_db") is not None]
+    aggregate = _aggregate(
+        scored_rows,
+        len(scored_rows),
+        len(rows),
+        parse_ok_files,
+        total_files,
+        stability_score or 0.0,
+        "metrics_reducer",
+    )
+    aggregate_db = _aggregate(
+        scored_rows_db,
+        len(scored_rows_db),
+        len(rows),
+        parse_ok_files,
+        total_files,
+        stability_score or 0.0,
+        "metrics_db",
+    )
+    group_metrics = _aggregate_group_metrics(scored_rows, "metrics_reducer")
+    group_metrics_db = _aggregate_group_metrics(scored_rows_db, "metrics_db")
+    edge_breakdown = _edge_type_breakdown(scored_rows, "metrics_reducer")
+    edge_breakdown_db = _edge_type_breakdown(scored_rows_db, "metrics_db")
+    failures = _failure_examples(scored_rows, "metrics_reducer")
+    failures_db = _failure_examples(scored_rows_db, "metrics_db")
     threshold_eval = _evaluate_thresholds(aggregate, group_metrics)
 
     summary = []
     summary.append(f"repo={repo_name_prefix(repo_root)}")
     summary.append(f"sampled_nodes={len(rows)}")
     if aggregate.get("in_contract_precision_mean") is not None:
-        summary.append(f"precision_mean={aggregate['in_contract_precision_mean']}")
+        summary.append(f"reducer_precision_mean={aggregate['in_contract_precision_mean']}")
     if aggregate.get("in_contract_recall_mean") is not None:
-        summary.append(f"recall_mean={aggregate['in_contract_recall_mean']}")
+        summary.append(f"reducer_recall_mean={aggregate['in_contract_recall_mean']}")
+    if aggregate_db.get("in_contract_precision_mean") is not None:
+        summary.append(f"db_precision_mean={aggregate_db['in_contract_precision_mean']}")
+    if aggregate_db.get("in_contract_recall_mean") is not None:
+        summary.append(f"db_recall_mean={aggregate_db['in_contract_recall_mean']}")
     summary.append(f"thresholds_passed={threshold_eval['passed']}")
 
     payload = {
@@ -398,9 +581,13 @@ def main() -> int:
         "snapshot_id": snapshot_id,
         "summary": summary,
         "aggregate": aggregate,
+        "aggregate_db": aggregate_db,
         "group_metrics": group_metrics,
+        "group_metrics_db": group_metrics_db,
         "edge_type_breakdown": edge_breakdown,
+        "edge_type_breakdown_db": edge_breakdown_db,
         "failure_examples": failures,
+        "failure_examples_db": failures_db,
         "threshold_evaluation": threshold_eval,
         "population_by_language": sampling.population_by_language,
         "population_by_kind": sampling.population_by_kind,

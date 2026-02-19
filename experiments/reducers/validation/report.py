@@ -32,6 +32,7 @@ def render_summary(payload: dict) -> List[str]:
     lines.append("## Aggregate Metrics")
     lines.append("")
     agg = payload.get("aggregate", {})
+    agg_db = payload.get("aggregate_db", {})
     for key in [
         "in_contract_precision_mean",
         "in_contract_recall_mean",
@@ -41,7 +42,9 @@ def render_summary(payload: dict) -> List[str]:
         "stability_score",
     ]:
         if key in agg:
-            lines.append(f"- {key}: `{agg[key]}`")
+            lines.append(f"- reducer_{key}: `{agg[key]}`")
+        if key in agg_db:
+            lines.append(f"- db_{key}: `{agg_db[key]}`")
     lines.append("")
 
     lines.append("## Threshold Evaluation")
@@ -59,14 +62,20 @@ def render_summary(payload: dict) -> List[str]:
     lines.append("## Group Metrics")
     lines.append("")
     for group, stats in payload.get("group_metrics", {}).items():
-        lines.append(f"- {group}: precision=`{stats.get('precision')}`, recall=`{stats.get('recall')}`")
+        lines.append(f"- reducer {group}: precision=`{stats.get('precision')}`, recall=`{stats.get('recall')}`")
+    for group, stats in payload.get("group_metrics_db", {}).items():
+        lines.append(f"- db {group}: precision=`{stats.get('precision')}`, recall=`{stats.get('recall')}`")
     lines.append("")
 
     lines.append("## Edge Type Breakdown")
     lines.append("")
     for edge_type, stats in payload.get("edge_type_breakdown", {}).items():
         lines.append(
-            f"- {edge_type}: tp=`{stats.get('tp')}`, fp=`{stats.get('fp')}`, fn=`{stats.get('fn')}`"
+            f"- reducer {edge_type}: tp=`{stats.get('tp')}`, fp=`{stats.get('fp')}`, fn=`{stats.get('fn')}`"
+        )
+    for edge_type, stats in payload.get("edge_type_breakdown_db", {}).items():
+        lines.append(
+            f"- db {edge_type}: tp=`{stats.get('tp')}`, fp=`{stats.get('fp')}`, fn=`{stats.get('fn')}`"
         )
     lines.append("")
 
@@ -77,4 +86,11 @@ def render_summary(payload: dict) -> List[str]:
         lines.append("- none")
     for item in failures:
         lines.append(f"- {item.get('node')}: {item.get('issue')}")
+    failures_db = payload.get("failure_examples_db", [])
+    if failures_db:
+        lines.append("")
+        lines.append("## Failure Examples (DB vs Independent)")
+        lines.append("")
+        for item in failures_db:
+            lines.append(f"- {item.get('node')}: {item.get('issue')}")
     return lines

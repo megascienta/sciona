@@ -18,8 +18,18 @@ SCRIPT_PATH = Path(__file__).resolve().parent / "scripts" / "JavaParserRunner.ja
 def _require_jar() -> str:
     jar = os.environ.get("SCIONA_JAVAPARSER_JAR")
     if not jar:
+        try:
+            from experiments.reducers.validation import local_config
+        except Exception:
+            local_config = None
+        jar = getattr(local_config, "JAVAPARSER_JAR", None) if local_config else None
+    if not jar:
         raise RuntimeError("SCIONA_JAVAPARSER_JAR is not set")
-    return jar
+    jar_path = Path(jar).expanduser()
+    if not jar_path.is_absolute():
+        repo_root = Path(__file__).resolve().parents[4]
+        jar_path = repo_root / jar_path
+    return str(jar_path)
 
 
 def parse_java_files(repo_root: Path, files: List[dict]) -> List[FileParseResult]:

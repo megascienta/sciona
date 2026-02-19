@@ -119,3 +119,16 @@ def parse_python_file(repo_root: Path, file_path: str, module_qname: str) -> Fil
         import_edges=import_visitor.imports,
         parse_ok=True,
     )
+
+
+def parse_python_files(repo_root: Path, files: List[dict]) -> List[FileParseResult]:
+    results: List[FileParseResult] = []
+    for entry in files:
+        results.append(
+            parse_python_file(
+                repo_root,
+                entry["file_path"],
+                entry["module_qualified_name"],
+            )
+        )
+    return results

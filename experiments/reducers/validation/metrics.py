@@ -90,3 +90,10 @@ def compute_metrics(
         fp=fp,
         fn=fn,
     )
+
+
+def compare_edge_sets(
+    reference_edges: List[EdgeRecord],
+    candidate_edges: List[EdgeRecord],
+) -> Metrics:
+    return compute_metrics(reference_edges, [], candidate_edges)
