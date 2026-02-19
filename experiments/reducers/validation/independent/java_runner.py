@@ -77,6 +77,18 @@ def parse_java_files(repo_root: Path, files: List[dict]) -> List[FileParseResult
     data = json.loads(run_result.stdout)
     outputs: List[FileParseResult] = []
     for item in data.get("results", []):
+        raw_path = item.get("file_path") or ""
+        file_path = raw_path
+        if raw_path:
+            try:
+                raw_path_obj = Path(raw_path)
+                repo_root_resolved = repo_root.resolve()
+                if raw_path_obj.is_absolute():
+                    raw_path_resolved = raw_path_obj.resolve()
+                    if repo_root_resolved in raw_path_resolved.parents or raw_path_resolved == repo_root_resolved:
+                        file_path = raw_path_resolved.relative_to(repo_root_resolved).as_posix()
+            except Exception:
+                file_path = raw_path
         defs = []
         for entry in item.get("defs", []):
             parts = entry.split("|")
@@ -114,7 +126,7 @@ def parse_java_files(repo_root: Path, files: List[dict]) -> List[FileParseResult
         outputs.append(
             FileParseResult(
                 language=item.get("language") or "java",
-                file_path=item.get("file_path") or "",
+                file_path=file_path,
                 module_qualified_name=item.get("module_qualified_name") or "",
                 defs=defs,
                 call_edges=call_edges,
