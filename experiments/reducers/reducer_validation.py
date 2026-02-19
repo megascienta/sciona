@@ -541,12 +541,14 @@ def main() -> int:
     with open_core_db(repo_root) as conn:
         snapshot_id = get_snapshot_id(conn)
         with open_artifact_db(repo_root) as artifact_conn:
+            print("Loading nodes...")
             nodes = list_nodes_from_artifacts(
                 artifact_conn,
                 conn,
                 snapshot_id,
                 node_kinds=["module", "class", "function", "method"],
             )
+            print(f"Loading nodes...done ({len(nodes)} nodes)")
             module_entries = [
                 entry
                 for entry in nodes
