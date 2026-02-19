@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 import argparse
-import json
 import sys
 from dataclasses import asdict
 from pathlib import Path
@@ -26,9 +25,9 @@ from experiments.reducers.validation.independent.shared import EdgeRecord, FileP
 from experiments.reducers.validation.independent.normalize import normalize_file_edges
 from experiments.reducers.validation.metrics import compute_metrics, compare_edge_sets
 from experiments.reducers.validation.report import render_summary, write_json, write_markdown
-from experiments.reducers.validation.sampling import build_entities_from_structural_index, sample_entities
+from experiments.reducers.validation.sampling import build_entities_from_db, sample_entities
 from experiments.reducers.validation.call_contract import (
-    build_call_resolution_context,
+    build_call_resolution_context_from_nodes,
 )
 from experiments.reducers.validation.ground_truth import (
     build_module_imports_by_prefix,
@@ -38,6 +37,7 @@ from experiments.reducers.validation.out_of_contract import aggregate_breakdown
 from experiments.reducers.validation.db_adapter import (
     graph_edge_targets_for_ids,
     graph_edges_for_ids,
+    list_nodes_from_artifacts,
     node_lookup,
     open_artifact_db,
     resolve_node_instance,
@@ -48,9 +48,7 @@ from experiments.reducers.validation.sciona_adapter import (
     get_dependency_edges_payload,
     get_snapshot_id,
     get_structural_index_hash,
-    get_structural_index_payload,
     get_class_overview,
-    get_module_overview_payload,
     open_core_db,
 )
 from sciona.data_storage.artifact_db import read_status as artifact_read_status
@@ -163,23 +161,19 @@ def _get_file_module_map(entities, conn, snapshot_id) -> Tuple[Dict[str, dict], 
 def _build_parse_file_map(
     sampled,
     file_map: Dict[str, dict],
-    structural_index: dict,
+    module_entries: List[dict],
 ) -> Dict[str, dict]:
     parse_map = dict(file_map)
-    entries = structural_index.get("files", {}).get("entries", []) or []
-    module_entries = [
-        entry for entry in entries if entry.get("path") and entry.get("module_qualified_name")
-    ]
     for entity in sampled:
         if entity.kind != "module":
             continue
         prefix = entity.qualified_name
         for entry in module_entries:
-            module_name = entry.get("module_qualified_name")
+            module_name = entry.get("module_qualified_name") or entry.get("qualified_name")
             if not module_name:
                 continue
             if module_name == prefix or module_name.startswith(f"{prefix}."):
-                path = entry.get("path")
+                path = entry.get("path") or entry.get("file_path")
                 if not path:
                     continue
                 parse_map.setdefault(
@@ -231,7 +225,6 @@ def _collect_reducer_outputs(
     conn,
     repo_root,
     snapshot_id,
-    module_overviews: Dict[str, dict],
 ) -> Tuple[Dict[str, object], List[EdgeRecord]]:
     payloads: Dict[str, object] = {}
     edges: List[EdgeRecord] = []
@@ -243,8 +236,6 @@ def _collect_reducer_outputs(
             entity.qualified_name,
         )
         payloads["dependency_edges"] = dep_payload
-        if entity.qualified_name in module_overviews:
-            payloads["module_overview"] = module_overviews[entity.qualified_name]
         for edge in dep_payload.get("edges", []) or []:
             edges.append(_edge_record_from_import(edge))
         return payloads, edges
@@ -550,43 +541,36 @@ def main() -> int:
     with open_core_db(repo_root) as conn:
         snapshot_id = get_snapshot_id(conn)
         with open_artifact_db(repo_root) as artifact_conn:
-            structural_index = get_structural_index_payload(snapshot_id, conn, repo_root)
-            module_overviews: Dict[str, dict] = {}
-            module_entries = structural_index.get("modules", {}).get("entries", []) or []
-            progress = make_progress_factory()("Loading module overviews", len(module_entries))
-            for entry in module_entries:
-                module_name = entry.get("module_qualified_name")
-                if not module_name:
-                    if progress:
-                        progress.advance(1)
-                    continue
-                module_overviews[module_name] = get_module_overview_payload(
-                    snapshot_id,
-                    conn,
-                    repo_root,
-                    module_id=module_name,
-                )
-                if progress:
-                    progress.advance(1)
-            if progress:
-                progress.close()
+            nodes = list_nodes_from_artifacts(
+                artifact_conn,
+                conn,
+                snapshot_id,
+                node_kinds=["module", "class", "function", "method"],
+            )
+            module_entries = [
+                entry
+                for entry in nodes
+                if (entry.get("node_type") or entry.get("node_kind")) == "module"
+                and entry.get("file_path")
+                and entry.get("qualified_name")
+            ]
             module_names = {
-                entry.get("module_qualified_name")
-                for entry in structural_index.get("modules", {}).get("entries", [])
-                if entry.get("module_qualified_name")
+                entry.get("qualified_name")
+                for entry in module_entries
+                if entry.get("qualified_name")
             }
-            call_resolution = build_call_resolution_context(module_overviews)
+            call_resolution = build_call_resolution_context_from_nodes(nodes)
             call_resolution["import_targets"] = _build_import_targets(conn, snapshot_id)
             repo_prefix = repo_name_prefix(repo_root)
             local_packages = set(runtime_packaging.local_package_names(repo_root))
 
-            entities = build_entities_from_structural_index(structural_index, module_overviews)
+            entities = build_entities_from_db(nodes)
             _enrich_entities_with_db(entities, conn, snapshot_id)
             sampling = sample_entities(entities, args.nodes, args.seed)
             sampled = sampling.sampled
 
             file_map, overview_errors = _get_file_module_map(sampled, conn, snapshot_id)
-            parse_file_map = _build_parse_file_map(sampled, file_map, structural_index)
+            parse_file_map = _build_parse_file_map(sampled, file_map, module_entries)
             progress_factory = make_progress_factory()
             independent_results = _parse_independent(
                 repo_root, parse_file_map, progress_factory=progress_factory
@@ -652,7 +636,6 @@ def main() -> int:
                         conn,
                         repo_root,
                         snapshot_id,
-                        module_overviews,
                     )
                 except Exception as exc:
                     reducer_error = str(exc)

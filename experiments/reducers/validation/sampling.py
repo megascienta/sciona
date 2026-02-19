@@ -125,6 +125,31 @@ def build_entities_from_structural_index(
     return entities
 
 
+def build_entities_from_db(nodes: Iterable[dict]) -> list[Entity]:
+    entities: list[Entity] = []
+    for entry in nodes:
+        qname = entry.get("qualified_name")
+        kind = entry.get("node_type") or entry.get("node_kind")
+        if not qname or not kind:
+            continue
+        language = entry.get("language") or ""
+        file_path = entry.get("file_path") or ""
+        module_name = _module_from_qualified_name(kind, qname)
+        entities.append(
+            Entity(
+                structural_id=entry.get("structural_id") or "",
+                qualified_name=qname,
+                kind=kind,
+                language=language,
+                file_path=file_path,
+                module_qualified_name=module_name,
+                start_line=entry.get("start_line"),
+                end_line=entry.get("end_line"),
+            )
+        )
+    return entities
+
+
 def _module_from_qualified_name(kind: str, qualified_name: str) -> str:
     parts = qualified_name.split(".")
     if kind == "method":

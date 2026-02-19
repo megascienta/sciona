@@ -10,6 +10,8 @@ from sciona.reducers.core import module_overview
 
 from .independent.shared import EdgeRecord
 
+_BATCH_SIZE = 900
+
 
 def resolve_node_instance(
     conn,
@@ -43,6 +45,65 @@ def resolve_node_instance(
         "language": row["language"],
         "node_type": row["node_type"],
     }
+
+
+def list_nodes_from_artifacts(
+    artifact_conn,
+    core_conn,
+    snapshot_id: str,
+    node_kinds: Optional[Sequence[str]] = None,
+) -> List[dict]:
+    if artifact_conn is None:
+        return []
+    params: list[object] = []
+    kind_clause = ""
+    if node_kinds:
+        placeholders = ",".join("?" for _ in node_kinds)
+        kind_clause = f"WHERE node_kind IN ({placeholders})"
+        params.extend(node_kinds)
+    rows = artifact_conn.execute(
+        f"SELECT node_id, node_kind FROM graph_nodes {kind_clause}",
+        params,
+    ).fetchall()
+    if not rows:
+        return []
+    node_ids = [row["node_id"] for row in rows]
+    kind_lookup = {row["node_id"]: row["node_kind"] for row in rows}
+    results: List[dict] = []
+    for idx in range(0, len(node_ids), _BATCH_SIZE):
+        chunk = node_ids[idx : idx + _BATCH_SIZE]
+        placeholders = ",".join("?" for _ in chunk)
+        core_rows = core_conn.execute(
+            f"""
+            SELECT ni.structural_id,
+                   ni.qualified_name,
+                   ni.file_path,
+                   ni.start_line,
+                   ni.end_line,
+                   sn.language,
+                   sn.node_type
+            FROM node_instances ni
+            JOIN structural_nodes sn ON sn.structural_id = ni.structural_id
+            WHERE ni.snapshot_id = ?
+              AND ni.structural_id IN ({placeholders})
+            """,
+            (snapshot_id, *chunk),
+        ).fetchall()
+        for row in core_rows:
+            node_id = row["structural_id"]
+            results.append(
+                {
+                    "structural_id": node_id,
+                    "qualified_name": row["qualified_name"],
+                    "file_path": row["file_path"],
+                    "start_line": row["start_line"],
+                    "end_line": row["end_line"],
+                    "language": row["language"],
+                    "node_type": row["node_type"],
+                    "node_kind": kind_lookup.get(node_id, row["node_type"]),
+                }
+            )
+    return results
 
 
 def module_import_edges(

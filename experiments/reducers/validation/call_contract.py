@@ -28,6 +28,29 @@ def build_call_resolution_context(module_overviews: dict[str, dict]) -> dict:
     }
 
 
+def build_call_resolution_context_from_nodes(nodes: list[dict]) -> dict:
+    symbol_index: dict[str, set[str]] = {}
+    module_lookup: dict[str, str] = {}
+    for entry in nodes:
+        node_type = entry.get("node_type") or entry.get("node_kind")
+        if node_type not in {"function", "method"}:
+            continue
+        qname = entry.get("qualified_name")
+        if not qname:
+            continue
+        identifier = qname.split(".")[-1]
+        symbol_index.setdefault(identifier, set()).add(qname)
+        module_name = entry.get("module_qualified_name")
+        if not module_name:
+            parts = qname.split(".")
+            module_name = ".".join(parts[:-1]) if len(parts) > 1 else qname
+        module_lookup[qname] = module_name
+    return {
+        "symbol_index": {k: sorted(v) for k, v in symbol_index.items()},
+        "module_lookup": module_lookup,
+    }
+
+
 def call_in_contract(
     edge,
     caller_module: str,
