@@ -13,12 +13,6 @@ from typing import Dict, List, Tuple
 
 from sciona.runtime.paths import repo_name_prefix
 from sciona.runtime import packaging as runtime_packaging
-from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
-from sciona.code_analysis.core.extract.languages.python_imports import (
-    _resolve_python_module_name,
-)
-from sciona.code_analysis.core.extract.languages.typescript import _normalize_ts_import
-from sciona.code_analysis.core.extract.languages.java import _normalize_java_import
 import yaml
 
 if __package__ is None or __package__ == "":
@@ -33,6 +27,14 @@ from experiments.reducers.validation.independent.normalize import normalize_file
 from experiments.reducers.validation.metrics import compute_metrics, compare_edge_sets
 from experiments.reducers.validation.report import render_summary, write_json, write_markdown
 from experiments.reducers.validation.sampling import build_entities_from_structural_index, sample_entities
+from experiments.reducers.validation.call_contract import (
+    build_call_resolution_context,
+)
+from experiments.reducers.validation.ground_truth import (
+    build_module_imports_by_prefix,
+    edge_records_from_ground_truth,
+)
+from experiments.reducers.validation.out_of_contract import aggregate_breakdown
 from experiments.reducers.validation.db_adapter import (
     graph_edge_targets_for_ids,
     graph_edges_for_ids,
@@ -52,6 +54,7 @@ from experiments.reducers.validation.sciona_adapter import (
     open_core_db,
 )
 from sciona.data_storage.artifact_db import read_status as artifact_read_status
+from sciona.pipelines.progress import make_progress_factory
 
 
 def parse_args() -> argparse.Namespace:
@@ -105,213 +108,11 @@ def _edge_record_from_import(edge: dict) -> EdgeRecord:
     return EdgeRecord(caller=caller, callee=callee, callee_qname=callee)
 
 
-def _edge_records_from_ground_truth(
-    file_result: FileParseResult,
-    normalized_calls,
-    normalized_imports,
-    module_imports_by_prefix: dict[str, list[tuple[str, str, str, object]]],
-    entity,
-    module_names: set[str],
-    call_resolution: dict,
-    contract: dict,
-    file_module_map: Dict[str, str],
-    repo_root: Path,
-    repo_prefix: str,
-    local_packages: set[str],
-) -> Tuple[List[EdgeRecord], List[EdgeRecord]]:
-    expected: List[EdgeRecord] = []
-    out_of_contract: List[EdgeRecord] = []
-
-    if entity.kind == "module":
-        for module_name, file_path, language, edge in module_imports_by_prefix.get(
-            entity.qualified_name, []
-        ):
-            resolved = _resolve_import_contract(
-                edge.target_module,
-                file_path,
-                module_name,
-                language,
-                contract,
-                module_names,
-                repo_root,
-                repo_prefix,
-                local_packages,
-            )
-            record = EdgeRecord(
-                caller=module_name,
-                callee=resolved or edge.target_module,
-                callee_qname=resolved,
-            )
-            if edge.dynamic or not resolved:
-                out_of_contract.append(record)
-            else:
-                expected.append(record)
-        if not module_imports_by_prefix.get(entity.qualified_name):
-            for edge in normalized_imports:
-                resolved = _resolve_import_contract(
-                    edge.target_module,
-                    file_result.file_path,
-                    file_result.module_qualified_name,
-                    file_result.language,
-                    contract,
-                    module_names,
-                    repo_root,
-                    repo_prefix,
-                    local_packages,
-                )
-                record = EdgeRecord(
-                    caller=file_result.module_qualified_name,
-                    callee=resolved or edge.target_module,
-                    callee_qname=resolved,
-                )
-                if edge.dynamic or not resolved:
-                    out_of_contract.append(record)
-                else:
-                    expected.append(record)
-        return expected, out_of_contract
-
-    if entity.kind == "class":
-        prefix = f"{entity.qualified_name}."
-        for edge in normalized_calls:
-            if not edge.caller.startswith(prefix):
-                continue
-            record = EdgeRecord(edge.caller, edge.callee, edge.callee_qname)
-            if edge.dynamic or not _call_in_contract(
-                edge, entity.module_qualified_name, call_resolution, contract
-            ):
-                out_of_contract.append(record)
-            else:
-                expected.append(record)
-        return expected, out_of_contract
-
-    for edge in normalized_calls:
-        if edge.caller != entity.qualified_name:
-            continue
-        record = EdgeRecord(edge.caller, edge.callee, edge.callee_qname)
-        if edge.dynamic or not _call_in_contract(
-            edge, entity.module_qualified_name, call_resolution, contract
-        ):
-            out_of_contract.append(record)
-        else:
-            expected.append(record)
-    return expected, out_of_contract
-
-
-def _call_in_contract(
-    edge,
-    caller_module: str,
-    call_resolution: dict,
-    contract: dict,
-) -> bool:
-    require_in_repo = (
-        contract.get("call_contract", {}).get("require_callee_in_repo", True)
-    )
-    identifier = (edge.callee or "").strip()
-    if not identifier and edge.callee_qname:
-        identifier = edge.callee_qname.split(".")[-1]
-    if not identifier:
-        return False
-
-    symbol_index: dict[str, list[str]] = call_resolution.get("symbol_index", {})
-    module_lookup: dict[str, str] = call_resolution.get("module_lookup", {})
-    import_targets: dict[str, set[str]] = call_resolution.get("import_targets", {})
-
-    candidates = symbol_index.get(identifier) or []
-    if len(candidates) == 1:
-        return True if require_in_repo else True
-    if not candidates or not caller_module:
-        return False
-    allowed_modules = set(import_targets.get(caller_module, set()))
-    allowed_modules.add(caller_module)
-    narrowed = [
-        candidate for candidate in candidates if module_lookup.get(candidate) in allowed_modules
-    ]
-    if len(narrowed) == 1:
-        return True if require_in_repo else True
-    return False
-
-
-def _snapshot_for_file(repo_root: Path, file_path: str, language: str) -> FileSnapshot:
-    rel = Path(file_path)
-    record = FileRecord(path=repo_root / rel, relative_path=rel, language=language)
-    return FileSnapshot(record=record, file_id="", blob_sha="", size=0, line_count=1, content=None)
-
-
-def _resolve_import_contract(
-    raw_target: str,
-    file_path: str,
-    module_qname: str,
-    language: str,
-    contract: dict,
-    module_names: set[str],
-    repo_root: Path,
-    repo_prefix: str,
-    local_packages: set[str],
-) -> str | None:
-    if not raw_target:
-        return None
-    imports_spec = contract.get("imports", {})
-    require_in_repo = imports_spec.get("require_module_in_repo", True)
-    language_spec = (imports_spec.get("languages") or {}).get(language, {})
-    resolver = language_spec.get("resolver")
-    if not resolver:
-        return None
-    resolved = None
-    if resolver == "python_resolve":
-        is_package = Path(file_path).name == "__init__.py"
-        resolved = _resolve_python_module_name(
-            raw_target,
-            module_qname,
-            is_package,
-            repo_prefix=repo_prefix,
-            local_packages=local_packages,
-        )
-    elif resolver == "typescript_normalize":
-        snapshot = _snapshot_for_file(repo_root, file_path, language)
-        resolved = _normalize_ts_import(raw_target, snapshot, module_qname)
-    elif resolver == "java_normalize":
-        snapshot = _snapshot_for_file(repo_root, file_path, language)
-        fragment = raw_target
-        if not raw_target.strip().startswith("import"):
-            fragment = f"import {raw_target};"
-        resolved = _normalize_java_import(fragment, module_qname, snapshot)
-    if resolved:
-        if resolved in module_names:
-            return resolved
-        if not require_in_repo:
-            return resolved
-    return None
-
-
 def _load_contract_spec(path: Path) -> dict:
     data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
     if not isinstance(data, dict):
         raise ValueError("contract spec must be a mapping")
     return data
-
-
-def _build_call_resolution_context(module_overviews: Dict[str, dict]) -> dict:
-    symbol_index: dict[str, set[str]] = {}
-    module_lookup: dict[str, str] = {}
-    for module_name, overview in module_overviews.items():
-        for entry in (overview.get("functions", []) or []):
-            qname = entry.get("qualified_name")
-            if not qname:
-                continue
-            identifier = qname.split(".")[-1]
-            symbol_index.setdefault(identifier, set()).add(qname)
-            module_lookup[qname] = module_name
-        for entry in (overview.get("methods", []) or []):
-            qname = entry.get("qualified_name")
-            if not qname:
-                continue
-            identifier = qname.split(".")[-1]
-            symbol_index.setdefault(identifier, set()).add(qname)
-            module_lookup[qname] = module_name
-    return {
-        "symbol_index": {k: sorted(v) for k, v in symbol_index.items()},
-        "module_lookup": module_lookup,
-    }
 
 
 def _build_import_targets(core_conn, snapshot_id: str) -> dict[str, set[str]]:
@@ -336,70 +137,6 @@ def _build_import_targets(core_conn, snapshot_id: str) -> dict[str, set[str]]:
             continue
         targets.setdefault(src_name, set()).add(dst_name)
     return targets
-
-
-def _resolve_import_target(
-    raw_target: str,
-    file_path: str,
-    module_qname: str,
-    module_names: set[str],
-    file_module_map: Dict[str, str],
-    repo_root: Path,
-    repo_prefix: str,
-    local_packages: set[str],
-) -> str | None:
-    if not raw_target:
-        return None
-    if raw_target in module_names:
-        return raw_target
-    if repo_prefix and (
-        raw_target == repo_prefix or raw_target.startswith(f"{repo_prefix}.")
-    ):
-        if raw_target in module_names:
-            return raw_target
-    if local_packages:
-        for package in local_packages:
-            if raw_target == package or raw_target.startswith(f"{package}."):
-                candidate = f"{repo_prefix}.{raw_target}" if repo_prefix else raw_target
-                if candidate in module_names:
-                    return candidate
-                break
-    if raw_target.startswith(".") and module_qname:
-        level = len(raw_target) - len(raw_target.lstrip("."))
-        remainder = raw_target.lstrip(".")
-        parts = module_qname.split(".")
-        if level <= len(parts):
-            base = ".".join(parts[:-level]) if level else module_qname
-            if remainder:
-                candidate = f"{base}.{remainder}" if base else remainder
-            else:
-                candidate = base
-            if candidate in module_names:
-                return candidate
-    if raw_target.startswith(".") or raw_target.startswith("/"):
-        base = (repo_root / file_path).parent
-        raw = raw_target.lstrip("./")
-        candidates = [
-            base / (raw + ".ts"),
-            base / (raw + ".tsx"),
-            base / (raw + ".d.ts"),
-            base / raw / "index.ts",
-            base / raw / "index.tsx",
-            base / raw / "index.d.ts",
-        ]
-        for candidate in candidates:
-            try:
-                rel = candidate.resolve().relative_to(repo_root)
-                key = rel.as_posix()
-            except Exception:
-                continue
-            mapped = file_module_map.get(key)
-            if mapped:
-                return mapped
-        return None
-    if raw_target in file_module_map:
-        return file_module_map[raw_target]
-    return None
 
 
 def _get_file_module_map(entities, conn, snapshot_id) -> Tuple[Dict[str, dict], Dict[str, str]]:
@@ -786,13 +523,8 @@ def main() -> int:
                 for entry in structural_index.get("modules", {}).get("entries", [])
                 if entry.get("module_qualified_name")
             }
-            call_resolution = _build_call_resolution_context(module_overviews)
+            call_resolution = build_call_resolution_context(module_overviews)
             call_resolution["import_targets"] = _build_import_targets(conn, snapshot_id)
-            file_module_map = {
-                entry.get("path"): entry.get("module_qualified_name")
-                for entry in structural_index.get("files", {}).get("entries", [])
-                if entry.get("path") and entry.get("module_qualified_name")
-            }
             repo_prefix = repo_name_prefix(repo_root)
             local_packages = set(runtime_packaging.local_package_names(repo_root))
 
@@ -814,42 +546,33 @@ def main() -> int:
                 stability_error = str(exc)
 
             normalized_edge_map: Dict[str, Tuple[List[object], List[object]]] = {}
-            module_imports_by_prefix: Dict[str, List[Tuple[str, str, str, object]]] = {}
             for file_result in independent_results.values():
-                normalized = normalize_file_edges(
+                normalized_edge_map[file_result.file_path] = normalize_file_edges(
                     file_result.module_qualified_name,
                     file_result.call_edges,
                     file_result.import_edges,
                 )
-                normalized_edge_map[file_result.file_path] = normalized
-                module_name = file_result.module_qualified_name
-                module_parts = module_name.split(".") if module_name else []
-                if normalized[1]:
-                    for edge in normalized[1]:
-                        for i in range(1, len(module_parts) + 1):
-                            prefix = ".".join(module_parts[:i])
-                            module_imports_by_prefix.setdefault(prefix, []).append(
-                                (
-                                    module_name,
-                                    file_result.file_path,
-                                    file_result.language,
-                                    edge,
-                                )
-                            )
+            module_imports_by_prefix = build_module_imports_by_prefix(
+                independent_results, normalized_edge_map
+            )
 
             rows: List[dict] = []
+            out_of_contract_meta: List[dict] = []
             total_files = len(independent_results)
             parse_ok_files = sum(
                 1 for file_result in independent_results.values() if file_result.parse_ok
             )
+            progress = make_progress_factory()("Validating", len(sampled))
             for entity in sampled:
                 file_result = independent_results.get(entity.file_path)
                 if not file_result:
+                    if progress:
+                        progress.advance(1)
                     continue
                 normalized_calls, normalized_imports = normalized_edge_map.get(
                     entity.file_path, ([], [])
                 )
-                expected, out_of_contract = _edge_records_from_ground_truth(
+                expected, out_of_contract, out_meta = edge_records_from_ground_truth(
                     file_result,
                     normalized_calls,
                     normalized_imports,
@@ -858,11 +581,11 @@ def main() -> int:
                     module_names,
                     call_resolution,
                     contract,
-                    file_module_map,
                     repo_root,
                     repo_prefix,
                     local_packages,
                 )
+                out_of_contract_meta.extend(out_meta)
                 reducer_error = None
                 db_error = None
                 reducer_edges: List[EdgeRecord] = []
@@ -924,6 +647,10 @@ def main() -> int:
                         "db_error": db_error,
                     }
                 )
+                if progress:
+                    progress.advance(1)
+            if progress:
+                progress.close()
 
     scored_rows_contract = [row for row in rows if row.get("metrics_contract") is not None]
     scored_rows_full = [row for row in rows if row.get("metrics_full") is not None]
@@ -1028,6 +755,7 @@ def main() -> int:
         "failure_examples_db_equivalence": failures_db_equivalence,
         "failure_examples_contract": failures_contract,
         "failure_examples_full": failures_full,
+        "out_of_contract_breakdown": aggregate_breakdown(out_of_contract_meta),
         "independent_totals": {
             "raw_call_edges": raw_call_total,
             "raw_import_edges": raw_import_total,

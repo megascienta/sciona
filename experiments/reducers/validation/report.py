@@ -131,29 +131,12 @@ def render_summary(payload: dict) -> List[str]:
         )
     lines.append("")
 
-    lines.append("## Failure Examples (DB Equivalence)")
+    lines.append("## Out-of-Contract Breakdown")
     lines.append("")
-    failures_db_eq = payload.get("failure_examples_db_equivalence", [])
-    if not failures_db_eq:
+    breakdown = payload.get("out_of_contract_breakdown", {})
+    if not breakdown:
         lines.append("- none")
-    for item in failures_db_eq:
-        lines.append(f"- {item.get('node')}: {item.get('issue')}")
-    lines.append("")
-
-    lines.append("## Failure Examples (Contract)")
-    lines.append("")
-    failures_contract = payload.get("failure_examples_contract", [])
-    if not failures_contract:
-        lines.append("- none")
-    for item in failures_contract:
-        lines.append(f"- {item.get('node')}: {item.get('issue')}")
-    lines.append("")
-
-    lines.append("## Failure Examples (Full)")
-    lines.append("")
-    failures_full = payload.get("failure_examples_full", [])
-    if not failures_full:
-        lines.append("- none")
-    for item in failures_full:
-        lines.append(f"- {item.get('node')}: {item.get('issue')}")
+    else:
+        for key, stats in breakdown.items():
+            lines.append(f"- {key}: `{stats}`")
     return lines

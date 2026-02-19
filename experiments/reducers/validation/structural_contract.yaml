@@ -41,3 +41,55 @@ imports:
       resolver: typescript_normalize
     java:
       resolver: java_normalize
+
+out_of_contract:
+  standard_calls:
+    - len
+    - range
+    - print
+    - sorted
+    - sum
+    - min
+    - max
+    - str
+    - int
+    - float
+    - bool
+    - list
+    - dict
+    - set
+    - tuple
+    - enumerate
+    - zip
+    - map
+    - filter
+    - any
+    - all
+    - isinstance
+    - issubclass
+    - open
+    - getattr
+    - setattr
+    - hasattr
+    - dir
+    - abs
+    - round
+    - pow
+    - divmod
+    - complex
+    - bytes
+    - bytearray
+    - format
+    - hash
+    - id
+    - oct
+    - ord
+    - repr
+    - reversed
+    - slice
+    - sqrt
+    - sin
+    - cos
+    - tan
+    - log
+    - exp
