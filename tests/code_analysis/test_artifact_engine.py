@@ -7,7 +7,7 @@ import sqlite3
 
 from sciona.code_analysis.artifacts.engine import ArtifactEngine
 
-from .helpers import seed_repo_with_snapshot
+from tests.helpers import seed_repo_with_snapshot
 
 
 def test_artifact_engine_runs_without_shadowing_error(tmp_path):

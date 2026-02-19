@@ -42,6 +42,12 @@ Internal boundaries: `sciona.api.cli`, `sciona.api.errors`.
 
 If you change invariants, update this guide first, then align code and tests.
 
+## Tests
+
+Tests are organized by layer under `tests/`. See `tests/README.md` for the
+current layout and scope expectations. Add or update tests within the owning
+layer package and avoid cross-layer assertions except through public APIs.
+
 ## Public API contract
 
 The only stable API is `sciona.api.addons` and symbols exported from its `__all__`.

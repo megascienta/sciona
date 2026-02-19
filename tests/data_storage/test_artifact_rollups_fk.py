@@ -13,7 +13,7 @@ from sciona.data_storage.artifact_db.maintenance_graph import rebuild_graph_inde
 from sciona.data_storage.transactions import transaction
 from sciona.runtime.paths import get_artifact_db_path
 
-from .helpers import seed_repo_with_snapshot
+from tests.helpers import seed_repo_with_snapshot
 
 
 def test_rollups_use_structural_ids_for_module_edges(tmp_path: Path):

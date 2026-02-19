@@ -9,7 +9,7 @@ from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.code_analysis.tools.call_extraction import CallExtractionRecord
 from sciona.runtime.paths import get_artifact_db_path
 
-from .helpers import seed_repo_with_snapshot
+from tests.helpers import seed_repo_with_snapshot
 
 
 def test_write_call_artifacts_resolves_function(tmp_path: Path):

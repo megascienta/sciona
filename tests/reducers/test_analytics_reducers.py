@@ -5,7 +5,6 @@ import json
 import sqlite3
 
 from sciona.reducers.analytics import callsite_index
-
 from tests.helpers import seed_repo_with_snapshot
 
 
