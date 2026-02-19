@@ -17,31 +17,56 @@ class _CallVisitor(ast.NodeVisitor):
         self.module_qname = module_qname
         self.call_edges: List[CallEdge] = []
         self.defs: List[Definition] = []
-        self._scope_stack: List[str] = []
+        self._scope_stack: List[tuple[str, str]] = []
 
     def _current_scope(self) -> str:
         if not self._scope_stack:
             return self.module_qname
-        return self._scope_stack[-1]
+        return self._scope_stack[-1][0]
+
+    def _current_scope_kind(self) -> str:
+        if not self._scope_stack:
+            return "module"
+        return self._scope_stack[-1][1]
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
-        qname = f"{self.module_qname}.{node.name}"
-        self.defs.append(Definition("function", qname, node.lineno, node.end_lineno or node.lineno))
-        self._scope_stack.append(qname)
+        scope_kind = self._current_scope_kind()
+        if scope_kind in {"function", "method"}:
+            # Nested callables are treated as implementation detail; attribute calls
+            # to the enclosing scope.
+            self.generic_visit(node)
+            return
+        if scope_kind == "class":
+            kind = "method"
+            qname = f"{self._current_scope()}.{node.name}"
+        else:
+            kind = "function"
+            qname = f"{self.module_qname}.{node.name}"
+        self.defs.append(Definition(kind, qname, node.lineno, node.end_lineno or node.lineno))
+        self._scope_stack.append((qname, kind))
         self.generic_visit(node)
         self._scope_stack.pop()
 
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
-        qname = f"{self.module_qname}.{node.name}"
-        self.defs.append(Definition("function", qname, node.lineno, node.end_lineno or node.lineno))
-        self._scope_stack.append(qname)
+        scope_kind = self._current_scope_kind()
+        if scope_kind in {"function", "method"}:
+            self.generic_visit(node)
+            return
+        if scope_kind == "class":
+            kind = "method"
+            qname = f"{self._current_scope()}.{node.name}"
+        else:
+            kind = "function"
+            qname = f"{self.module_qname}.{node.name}"
+        self.defs.append(Definition(kind, qname, node.lineno, node.end_lineno or node.lineno))
+        self._scope_stack.append((qname, kind))
         self.generic_visit(node)
         self._scope_stack.pop()
 
     def visit_ClassDef(self, node: ast.ClassDef) -> None:
         qname = f"{self.module_qname}.{node.name}"
         self.defs.append(Definition("class", qname, node.lineno, node.end_lineno or node.lineno))
-        self._scope_stack.append(qname)
+        self._scope_stack.append((qname, "class"))
         self.generic_visit(node)
         self._scope_stack.pop()
 
