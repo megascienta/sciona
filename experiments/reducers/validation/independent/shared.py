@@ -21,10 +21,27 @@ class CallEdge:
     callee: str
     callee_qname: str | None
     dynamic: bool
+    callee_text: str | None = None
 
 
 @dataclass(frozen=True)
 class ImportEdge:
+    source_module: str
+    target_module: str
+    dynamic: bool
+    target_text: str | None = None
+
+
+@dataclass(frozen=True)
+class NormalizedCallEdge:
+    caller: str
+    callee: str
+    callee_qname: str | None
+    dynamic: bool
+
+
+@dataclass(frozen=True)
+class NormalizedImportEdge:
     source_module: str
     target_module: str
     dynamic: bool

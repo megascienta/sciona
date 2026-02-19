@@ -72,15 +72,20 @@ class _CallVisitor(ast.NodeVisitor):
 
     def visit_Call(self, node: ast.Call) -> None:
         callee, dynamic = _callee_name(node.func)
-        if callee:
-            self.call_edges.append(
-                CallEdge(
-                    caller=self._current_scope(),
-                    callee=callee,
-                    callee_qname=None,
-                    dynamic=dynamic or (callee in _DYNAMIC_FUNCS),
-                )
+        callee_text = None
+        try:
+            callee_text = ast.unparse(node.func)
+        except Exception:
+            callee_text = None
+        self.call_edges.append(
+            CallEdge(
+                caller=self._current_scope(),
+                callee=callee or "",
+                callee_qname=None,
+                dynamic=dynamic or (not callee) or (callee in _DYNAMIC_FUNCS),
+                callee_text=callee_text,
             )
+        )
         self.generic_visit(node)
 
 

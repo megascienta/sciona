@@ -66,14 +66,26 @@ function parseFile(entry) {
       }
 
       const callee = calleeName(node.expression);
-      if (callee) {
-        call_edges.push({
-          caller: currentScope(),
-          callee: callee,
-          callee_qname: "",
-          dynamic: dynamic
-        });
-      }
+      const calleeText = node.expression ? node.expression.getText(sourceFile) : "";
+      call_edges.push({
+        caller: currentScope(),
+        callee: callee || "",
+        callee_qname: "",
+        dynamic: dynamic || !callee,
+        callee_text: calleeText || null
+      });
+    }
+
+    if (ts.isNewExpression(node)) {
+      const callee = calleeName(node.expression);
+      const calleeText = node.expression ? node.expression.getText(sourceFile) : "";
+      call_edges.push({
+        caller: currentScope(),
+        callee: callee || "",
+        callee_qname: "",
+        dynamic: !callee,
+        callee_text: calleeText || null
+      });
     }
 
     if (ts.isFunctionDeclaration(node) && node.name) {

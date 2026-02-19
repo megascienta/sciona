@@ -29,6 +29,7 @@ from experiments.reducers.validation.independent.python_ast import parse_python_
 from experiments.reducers.validation.independent.ts_node import parse_typescript_files
 from experiments.reducers.validation.independent.java_runner import parse_java_files
 from experiments.reducers.validation.independent.shared import EdgeRecord, FileParseResult
+from experiments.reducers.validation.independent.normalize import normalize_file_edges
 from experiments.reducers.validation.metrics import compute_metrics, compare_edge_sets
 from experiments.reducers.validation.report import render_summary, write_json, write_markdown
 from experiments.reducers.validation.sampling import build_entities_from_structural_index, sample_entities
@@ -72,19 +73,21 @@ def _module_qname_from_entity(entity) -> str:
 
 def _enrich_entities_with_db(entities, conn, snapshot_id) -> None:
     for entity in entities:
-        if entity.file_path and entity.start_line and entity.end_line and entity.language:
-            continue
         resolved = resolve_node_instance(conn, snapshot_id, entity.qualified_name, entity.kind)
         if not resolved:
             continue
-        if not entity.file_path:
-            entity.file_path = resolved.get("file_path") or entity.file_path
-        if not entity.start_line:
-            entity.start_line = resolved.get("start_line")
-        if not entity.end_line:
-            entity.end_line = resolved.get("end_line")
-        if not entity.language:
-            entity.language = resolved.get("language") or entity.language
+        resolved_path = resolved.get("file_path")
+        if resolved_path:
+            entity.file_path = resolved_path
+        resolved_start = resolved.get("start_line")
+        if resolved_start is not None:
+            entity.start_line = resolved_start
+        resolved_end = resolved.get("end_line")
+        if resolved_end is not None:
+            entity.end_line = resolved_end
+        resolved_lang = resolved.get("language")
+        if resolved_lang:
+            entity.language = resolved_lang
 
 
 def _edge_record_from_call(edge: dict, fallback_caller: str) -> EdgeRecord:
@@ -104,6 +107,8 @@ def _edge_record_from_import(edge: dict) -> EdgeRecord:
 
 def _edge_records_from_ground_truth(
     file_result: FileParseResult,
+    normalized_calls,
+    normalized_imports,
     entity,
     module_names: set[str],
     call_resolution: dict,
@@ -117,7 +122,7 @@ def _edge_records_from_ground_truth(
     out_of_contract: List[EdgeRecord] = []
 
     if entity.kind == "module":
-        for edge in file_result.import_edges:
+        for edge in normalized_imports:
             resolved = _resolve_import_contract(
                 edge.target_module,
                 file_result.file_path,
@@ -142,7 +147,7 @@ def _edge_records_from_ground_truth(
 
     if entity.kind == "class":
         prefix = f"{entity.qualified_name}."
-        for edge in file_result.call_edges:
+        for edge in normalized_calls:
             if not edge.caller.startswith(prefix):
                 continue
             record = EdgeRecord(edge.caller, edge.callee, edge.callee_qname)
@@ -154,7 +159,7 @@ def _edge_records_from_ground_truth(
                 expected.append(record)
         return expected, out_of_contract
 
-    for edge in file_result.call_edges:
+    for edge in normalized_calls:
         if edge.caller != entity.qualified_name:
             continue
         record = EdgeRecord(edge.caller, edge.callee, edge.callee_qname)
@@ -245,8 +250,15 @@ def _resolve_import_contract(
         if not raw_target.strip().startswith("import"):
             fragment = f"import {raw_target};"
         resolved = _normalize_java_import(fragment, module_qname, snapshot)
-    if resolved and (not require_in_repo or resolved in module_names):
-        return resolved
+    if resolved:
+        if resolved in module_names:
+            return resolved
+        if repo_prefix:
+            alt = f"{repo_prefix}.src.{resolved}"
+            if alt in module_names:
+                return alt
+        if not require_in_repo:
+            return resolved
     return None
 
 
@@ -258,7 +270,7 @@ def _load_contract_spec(path: Path) -> dict:
 
 
 def _build_call_resolution_context(module_overviews: Dict[str, dict]) -> dict:
-    symbol_index: dict[str, list[str]] = {}
+    symbol_index: dict[str, set[str]] = {}
     module_lookup: dict[str, str] = {}
     for module_name, overview in module_overviews.items():
         for entry in (overview.get("functions", []) or []):
@@ -266,16 +278,19 @@ def _build_call_resolution_context(module_overviews: Dict[str, dict]) -> dict:
             if not qname:
                 continue
             identifier = qname.split(".")[-1]
-            symbol_index.setdefault(identifier, []).append(qname)
+            symbol_index.setdefault(identifier, set()).add(qname)
             module_lookup[qname] = module_name
         for entry in (overview.get("methods", []) or []):
             qname = entry.get("qualified_name")
             if not qname:
                 continue
             identifier = qname.split(".")[-1]
-            symbol_index.setdefault(identifier, []).append(qname)
+            symbol_index.setdefault(identifier, set()).add(qname)
             module_lookup[qname] = module_name
-    return {"symbol_index": symbol_index, "module_lookup": module_lookup}
+    return {
+        "symbol_index": {k: sorted(v) for k, v in symbol_index.items()},
+        "module_lookup": module_lookup,
+    }
 
 
 def _build_import_targets(core_conn, snapshot_id: str) -> dict[str, set[str]]:
@@ -777,6 +792,14 @@ def main() -> int:
             except Exception as exc:
                 stability_error = str(exc)
 
+            normalized_edge_map: Dict[str, Tuple[List[object], List[object]]] = {}
+            for file_result in independent_results.values():
+                normalized_edge_map[file_result.file_path] = normalize_file_edges(
+                    file_result.module_qualified_name,
+                    file_result.call_edges,
+                    file_result.import_edges,
+                )
+
             rows: List[dict] = []
             total_files = len(independent_results)
             parse_ok_files = sum(
@@ -786,8 +809,13 @@ def main() -> int:
                 file_result = independent_results.get(entity.file_path)
                 if not file_result:
                     continue
+                normalized_calls, normalized_imports = normalized_edge_map.get(
+                    entity.file_path, ([], [])
+                )
                 expected, out_of_contract = _edge_records_from_ground_truth(
                     file_result,
+                    normalized_calls,
+                    normalized_imports,
                     entity,
                     module_names,
                     call_resolution,
@@ -850,6 +878,10 @@ def main() -> int:
                         "out_of_contract_edges": [asdict(edge) for edge in out_of_contract],
                         "ground_truth_parse_ok": file_result.parse_ok,
                         "ground_truth_error": file_result.error,
+                        "raw_call_edges_count": len(file_result.call_edges),
+                        "raw_import_edges_count": len(file_result.import_edges),
+                        "normalized_call_edges_count": len(normalized_calls),
+                        "normalized_import_edges_count": len(normalized_imports),
                         "reducer_error": reducer_error,
                         "db_error": db_error,
                     }
@@ -904,6 +936,17 @@ def main() -> int:
     )
     threshold_eval = _evaluate_thresholds(aggregate_contract, group_metrics_contract)
 
+    raw_call_total = sum(len(result.call_edges) for result in independent_results.values())
+    raw_import_total = sum(len(result.import_edges) for result in independent_results.values())
+    normalized_call_total = sum(
+        len(edges[0]) for edges in normalized_edge_map.values()
+    )
+    normalized_import_total = sum(
+        len(edges[1]) for edges in normalized_edge_map.values()
+    )
+    expected_total = sum(len(row["expected_edges"]) for row in rows)
+    out_of_contract_total = sum(len(row["out_of_contract_edges"]) for row in rows)
+
     summary = []
     summary.append(f"repo={repo_name_prefix(repo_root)}")
     summary.append(f"sampled_nodes={len(rows)}")
@@ -947,6 +990,14 @@ def main() -> int:
         "failure_examples_db_equivalence": failures_db_equivalence,
         "failure_examples_contract": failures_contract,
         "failure_examples_full": failures_full,
+        "independent_totals": {
+            "raw_call_edges": raw_call_total,
+            "raw_import_edges": raw_import_total,
+            "normalized_call_edges": normalized_call_total,
+            "normalized_import_edges": normalized_import_total,
+            "in_contract_edges": expected_total,
+            "out_of_contract_edges": out_of_contract_total,
+        },
         "threshold_evaluation_contract": threshold_eval,
         "population_by_language": sampling.population_by_language,
         "population_by_kind": sampling.population_by_kind,

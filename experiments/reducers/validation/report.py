@@ -42,6 +42,21 @@ def render_summary(payload: dict) -> List[str]:
             lines.append(f"- {key}: `{agg_db_eq[key]}`")
     lines.append("")
 
+    lines.append("## Independent Parser Totals")
+    lines.append("")
+    independent_totals = payload.get("independent_totals", {})
+    for key in [
+        "raw_call_edges",
+        "raw_import_edges",
+        "normalized_call_edges",
+        "normalized_import_edges",
+        "in_contract_edges",
+        "out_of_contract_edges",
+    ]:
+        if key in independent_totals:
+            lines.append(f"- {key}: `{independent_totals[key]}`")
+    lines.append("")
+
     lines.append("## Contract Accuracy (Reducer vs Ground Truth In-Contract)")
     lines.append("")
     agg_contract = payload.get("aggregate_contract", {})

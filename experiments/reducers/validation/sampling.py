@@ -92,6 +92,7 @@ def build_entities_from_structural_index(
             qname = entry.get("qualified_name")
             if not qname:
                 continue
+            module_qname = _module_from_qualified_name("function", qname)
             entities.append(
                 Entity(
                     structural_id=entry.get("structural_id") or "",
@@ -99,7 +100,7 @@ def build_entities_from_structural_index(
                     kind="function",
                     language=language,
                     file_path=file_path or "",
-                    module_qualified_name=module_name,
+                    module_qualified_name=module_qname,
                     start_line=None,
                     end_line=None,
                 )
@@ -108,6 +109,7 @@ def build_entities_from_structural_index(
             qname = entry.get("qualified_name")
             if not qname:
                 continue
+            module_qname = _module_from_qualified_name("method", qname)
             entities.append(
                 Entity(
                     structural_id=entry.get("structural_id") or "",
@@ -115,12 +117,25 @@ def build_entities_from_structural_index(
                     kind="method",
                     language=language,
                     file_path=file_path or "",
-                    module_qualified_name=module_name,
+                    module_qualified_name=module_qname,
                     start_line=None,
                     end_line=None,
                 )
             )
     return entities
+
+
+def _module_from_qualified_name(kind: str, qualified_name: str) -> str:
+    parts = qualified_name.split(".")
+    if kind == "method":
+        if len(parts) > 2:
+            return ".".join(parts[:-2])
+        if len(parts) > 1:
+            return ".".join(parts[:-1])
+        return qualified_name
+    if len(parts) > 1:
+        return ".".join(parts[:-1])
+    return qualified_name
 
 
 def _estimate_loc(entity: Entity) -> int:

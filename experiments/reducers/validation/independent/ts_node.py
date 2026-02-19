@@ -64,17 +64,20 @@ def parse_typescript_files(repo_root: Path, files: List[dict]) -> List[FileParse
                 callee = entry.get("callee", "")
                 callee_qname = entry.get("callee_qname")
                 dynamic = entry.get("dynamic", False)
+                callee_text = entry.get("callee_text")
             else:
                 parts = entry.split("|")
                 if len(parts) != 4:
                     continue
                 caller, callee, callee_qname, dynamic = parts
+                callee_text = None
             call_edges.append(
                 CallEdge(
                     caller=caller,
                     callee=callee,
                     callee_qname=callee_qname or None,
                     dynamic=dynamic == "true" if isinstance(dynamic, str) else bool(dynamic),
+                    callee_text=callee_text,
                 )
             )
         import_edges = []
@@ -83,16 +86,19 @@ def parse_typescript_files(repo_root: Path, files: List[dict]) -> List[FileParse
                 src = entry.get("source_module", "")
                 dst = entry.get("target_module", "")
                 dynamic = entry.get("dynamic", False)
+                target_text = entry.get("target_text")
             else:
                 parts = entry.split("|")
                 if len(parts) != 3:
                     continue
                 src, dst, dynamic = parts
+                target_text = None
             import_edges.append(
                 ImportEdge(
                     source_module=src,
                     target_module=dst,
                     dynamic=dynamic == "true" if isinstance(dynamic, str) else bool(dynamic),
+                    target_text=target_text,
                 )
             )
         outputs.append(
