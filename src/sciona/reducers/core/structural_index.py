@@ -34,7 +34,7 @@ REDUCER_META = ReducerMeta(
     payload_size_stats=None,
     summary="Canonical structural index of the codebase. " \
     "Use for global structural reasoning or validation. " \
-    "Scope: entire SCI snapshot.",
+    "Scope: entire SCI snapshot. Payload kind: summary.",
 )
 
 
@@ -99,6 +99,7 @@ def run(snapshot_id: str, **params) -> StructuralIndexPayload:
     return {
         "projection": "structural_index",
         "projection_version": "1.0",
+        "payload_kind": "summary",
         "modules": {
             "count": len(module_entries),
             "entries": module_entries,

@@ -23,7 +23,7 @@ REDUCER_META = ReducerMeta(
     payload_size_stats=None,
     summary="Summary of call relationships within a class. " \
     "Use for analysing method interaction patterns or internal coupling. " \
-    "Scope: class-level call graph.",
+    "Scope: class-level call graph. Payload kind: summary.",
     lossy=True,
 )
 
@@ -81,6 +81,7 @@ def render(
     incoming = _apply_top_k(incoming_all, limit)
 
     body = {
+        "payload_kind": "summary",
         "class_id": resolved_class_id,
         "outgoing_count": len(outgoing),
         "incoming_count": len(incoming),

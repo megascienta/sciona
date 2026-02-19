@@ -23,7 +23,7 @@ REDUCER_META = ReducerMeta(
     payload_size_stats=None,
     summary="Structural relationships (calls/imports) for matched symbols. " \
     "Use for impact analysis or dependency tracing. " \
-    "Scope: symbol → relations.",
+    "Scope: symbol → relations. Payload kind: summary.",
     lossy=True,
 )
 
@@ -55,6 +55,7 @@ def render(
     references = _build_references(conn, repo_root, snapshot_id, ranked, lookup)
     artifact_available = artifact_db_available(repo_root) if repo_root else False
     body = {
+        "payload_kind": "summary",
         "query": normalized_query,
         "kind": kind,
         "limit": limit_value,
@@ -197,6 +198,15 @@ def _build_references(
         )
     if module_ids:
         references.extend(_import_references(conn, snapshot_id, module_ids, lookup))
+    references.sort(
+        key=lambda item: (
+            str(item.get("symbol_id")),
+            str(item.get("reference_kind")),
+            str(item.get("direction")),
+            str(item.get("edge_kind")),
+            str(item.get("other_id")),
+        )
+    )
     return references
 
 

@@ -29,7 +29,7 @@ REDUCER_META = ReducerMeta(
     payload_size_stats=None,
     summary="Structural summary of a callable, including signature, location, and metadata. " \
     "Use for quick callable inspection without retrieving full source. " \
-    "Scope: single function or method.",
+    "Scope: single function or method. Payload kind: summary.",
 )
 
 
@@ -122,6 +122,7 @@ def run(snapshot_id: str, **params) -> CallableOverviewPayload:
     return {
         "projection": "callable_overview",
         "projection_version": "1.0",
+        "payload_kind": "summary",
         "function_id": row["structural_id"],
         "callable_id": row["structural_id"],
         "requested_identifier": requested_identifier,

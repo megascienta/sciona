@@ -11,6 +11,7 @@ from typing import Dict, List, Sequence, TypedDict
 class ModuleOverviewPayload(TypedDict, total=False):
     projection: str
     projection_version: str
+    payload_kind: str
     module_structural_id: str
     module_qualified_name: str
     language: str
@@ -36,6 +37,7 @@ class ModuleOverviewPayload(TypedDict, total=False):
 class ClassOverviewPayload(TypedDict, total=False):
     projection: str
     projection_version: str
+    payload_kind: str
     class_id: str
     module_qualified_name: str
     language: str
@@ -54,6 +56,7 @@ class ClassOverviewPayload(TypedDict, total=False):
 class CallableOverviewPayload(TypedDict, total=False):
     projection: str
     projection_version: str
+    payload_kind: str
     callable_id: str
     function_id: str
     requested_identifier: str
@@ -77,6 +80,7 @@ class CallableOverviewPayload(TypedDict, total=False):
 class StructuralIndexPayload(TypedDict, total=False):
     projection: str
     projection_version: str
+    payload_kind: str
     modules: Dict[str, object]
     files: Dict[str, object]
     classes: Dict[str, object]

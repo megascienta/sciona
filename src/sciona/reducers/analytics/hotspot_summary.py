@@ -21,7 +21,7 @@ REDUCER_META = ReducerMeta(
     payload_size_stats=None,
     summary="Compressed summary of structurally significant or highly connected entities. " \
     "Use for architectural orientation or complexity inspection. " \
-    "Scope: codebase-level.",
+    "Scope: codebase-level. Payload kind: summary.",
     lossy=True,
 )
 
@@ -77,6 +77,7 @@ def render(snapshot_id: str, conn, repo_root, **_: object) -> str:
     ]
 
     body = {
+        "payload_kind": "summary",
         "by_size": by_size,
         "by_fan_in": by_fan_in,
         "by_fan_out": by_fan_out,

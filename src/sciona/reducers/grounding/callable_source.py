@@ -24,7 +24,7 @@ REDUCER_META = ReducerMeta(
     determinism="conditional",
     payload_size_stats=None,
     summary="Full source code of a callable. Use only when " \
-    "implementation details are required. Scope: single function or method.",
+    "implementation details are required. Scope: single function or method. Payload kind: source.",
     lossy=False,
     baseline_only=True,
 )
@@ -88,6 +88,7 @@ def _format_payload(
 ) -> str:
     source_text = "\n".join(snippet_lines) if snippet_lines else None
     payload = {
+        "payload_kind": "source",
         "file_path": file_path,
         "line_span": list(line_span) if line_span else None,
         "source": source_text,

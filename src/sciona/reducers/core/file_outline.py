@@ -22,7 +22,7 @@ REDUCER_META = ReducerMeta(
     payload_size_stats=None,
     summary="Structural outline of a file, including modules, classes, and callables. " \
     "Use for navigation and symbol discovery. " \
-    "Scope: file-level structure.",
+    "Scope: file-level structure. Payload kind: summary.",
     lossy=False,
 )
 
@@ -101,6 +101,7 @@ def render(
         )
         files.append(entry)
     body = {
+        "payload_kind": "summary",
         "module_filter": module_id,
         "file_path": file_path,
         "count": len(files),

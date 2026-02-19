@@ -23,7 +23,7 @@ REDUCER_META = ReducerMeta(
     payload_size_stats=None,
     summary="Summary of call relationships within a module. " \
     "Use for module-level flow or coupling analysis. " \
-    "Scope: module call graph.",
+    "Scope: module call graph. Payload kind: summary.",
     lossy=True,
 )
 
@@ -85,6 +85,7 @@ def render(
     incoming = _apply_top_k(incoming_all, limit)
 
     body = {
+        "payload_kind": "summary",
         "module_qualified_name": resolved_module_id,
         "outgoing_count": len(outgoing),
         "incoming_count": len(incoming),

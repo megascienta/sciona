@@ -24,7 +24,7 @@ REDUCER_META = ReducerMeta(
     payload_size_stats=None,
     summary="Fan-in/fan-out metrics for calls and imports. " \
     "Use to identify highly connected entities or hotspots. " \
-    "Scope: callable/class/module.",
+    "Scope: callable/class/module. Payload kind: summary.",
     lossy=True,
 )
 
@@ -68,6 +68,7 @@ def render(
         for _node_id, _node_kind, edge_kind, fan_in, fan_out in stats:
             edge_map[edge_kind] = {"fan_in": fan_in, "fan_out": fan_out}
         body = {
+            "payload_kind": "summary",
             "node_id": resolved_id,
             "edge_kinds": edge_map,
             "edge_summary": edge_map,
@@ -90,6 +91,7 @@ def render(
     calls_table = _fan_tables(conn, snapshot_id, call_stats, top_k=limit)
     imports_table = _fan_tables(conn, snapshot_id, import_stats, top_k=limit)
     body = {
+        "payload_kind": "summary",
         "calls": calls_table,
         "imports": imports_table,
         "edge_summary": {

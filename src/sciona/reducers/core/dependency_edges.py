@@ -21,7 +21,7 @@ REDUCER_META = ReducerMeta(
     summary="Explicit module import dependencies. " \
     "Use for analysing module coupling or dependency graphs. " \
     "direction='in' or 'out' scopes module_id filters. " \
-    "Scope: module-level import edges.",
+    "Scope: module-level import edges. Payload kind: summary.",
     lossy=True,
 )
 
@@ -110,6 +110,7 @@ def render(
             }
         )
     body = {
+        "payload_kind": "summary",
         "module_filter": module_id,
         "from_module_filter": from_module_id,
         "to_module_filter": to_module_id,

@@ -23,7 +23,7 @@ REDUCER_META = ReducerMeta(
     payload_size_stats=None,
     summary="Concatenated source code for a selected scope (codebase/module/class). " \
     "Use for large-context reasoning or cross-entity inspection. " \
-    "Scope: configurable.",
+    "Scope: configurable. Payload kind: source.",
     lossy=False,
     baseline_only=True,
 )
@@ -54,7 +54,9 @@ def render(
         )
     else:
         file_paths = [_resolve_class_file(conn, snapshot_id, class_id, repo_root)]
+    file_paths = sorted(file_paths, key=lambda path: path.as_posix())
     payload = {
+        "payload_kind": "source",
         "scope": resolved_scope,
         "file_count": len(file_paths),
         "files": _render_file_dump(repo_root, file_paths),

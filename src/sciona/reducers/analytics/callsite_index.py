@@ -23,7 +23,7 @@ REDUCER_META = ReducerMeta(
     summary="Indexed caller/callee edges for a callable, including callsite details. " \
     "Use when reasoning about call directionality or callsite-level analysis. " \
     "detail_level='neighbors' returns caller/callee sets. " \
-    "Scope: callable-level call edges.",
+    "Scope: callable-level call edges. Payload kind: summary.",
     lossy=True,
 )
 
@@ -87,6 +87,7 @@ def render(
             }
         )
     body = {
+        "payload_kind": "summary",
         "callable_id": resolved_id,
         "direction": dir_value,
         "detail_level": level,
@@ -115,6 +116,7 @@ def build_neighbors_payload(conn, snapshot_id: str, repo_root, resolved_id: str)
     callees = _fetch_nodes(conn, snapshot_id, callee_ids)
     callers = _fetch_nodes(conn, snapshot_id, caller_ids)
     return {
+        "payload_kind": "summary",
         "callable_id": resolved_id,
         "caller_count": len(callers),
         "callee_count": len(callees),
@@ -204,6 +206,13 @@ def _load_edges(
                 "call_hash": None,
             }
         )
+    edges.sort(
+        key=lambda entry: (
+            str(entry.get("caller_id")),
+            str(entry.get("callee_id")),
+            str(entry.get("edge_kind")),
+        )
+    )
     return edges
 
 
@@ -250,7 +259,7 @@ def _fetch_nodes(conn, snapshot_id: str, node_ids: List[str]) -> List[Dict[str, 
         """,
         (snapshot_id, *node_ids),
     ).fetchall()
-    return [
+    entries = [
         {
             "structural_id": row["structural_id"],
             "qualified_name": row["qualified_name"],
@@ -259,3 +268,5 @@ def _fetch_nodes(conn, snapshot_id: str, node_ids: List[str]) -> List[Dict[str, 
         for row in rows
         if row["qualified_name"]
     ]
+    entries.sort(key=lambda item: (str(item.get("qualified_name")), str(item.get("structural_id"))))
+    return entries

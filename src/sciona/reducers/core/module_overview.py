@@ -26,7 +26,7 @@ REDUCER_META = ReducerMeta(
     payload_size_stats=None,
     summary="Structural summary of a module, including contained classes and callables. " \
     "Use for architectural inspection. " \
-    "Scope: module-level.",
+    "Scope: module-level. Payload kind: summary.",
 )
 
 
@@ -126,6 +126,7 @@ def run(snapshot_id: str, **params) -> ModuleOverviewPayload:
     payload: ModuleOverviewPayload = {
         "projection": "module_overview",
         "projection_version": "1.0",
+        "payload_kind": "summary",
         "module_structural_id": module_structural_id,
         "module_qualified_name": module_name,
         "language": row["language"],

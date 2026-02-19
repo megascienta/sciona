@@ -22,7 +22,7 @@ REDUCER_META = ReducerMeta(
     payload_size_stats=None,
     summary="Ranked structural symbol matches for a query. " \
     "Use when resolving unknown identifiers. " \
-    "Scope: query → symbols.",
+    "Scope: query → symbols. Payload kind: summary.",
 )
 
 def render(
@@ -48,6 +48,7 @@ def render(
     )
     ranked = _rank_candidates(normalized_query, candidates)[:limit_value]
     body = {
+        "payload_kind": "summary",
         "query": normalized_query,
         "kind": kind,
         "limit": limit_value,

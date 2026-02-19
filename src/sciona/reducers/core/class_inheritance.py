@@ -20,7 +20,7 @@ REDUCER_META = ReducerMeta(
     payload_size_stats=None,
     summary="Parsed base classes and inheritance relations. " \
     "Use when reasoning about type hierarchy or polymorphic structure. " \
-    "Scope: class hierarchy.",
+    "Scope: class hierarchy. Payload kind: summary.",
 )
 
 
@@ -48,7 +48,9 @@ def render(
         }
         for base in bases
     ]
+    outgoing.sort(key=lambda item: str(item.get("related_qualified_name") or ""))
     body = {
+        "payload_kind": "summary",
         "class_id": resolved_id,
         "outgoing_count": len(outgoing),
         "incoming_count": 0,

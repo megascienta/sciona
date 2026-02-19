@@ -29,7 +29,7 @@ REDUCER_META = ReducerMeta(
     determinism="conditional",
     payload_size_stats=None,
     summary="Structural summary of a class, including methods and metadata. " \
-    "Use for quick class inspection. Scope: class-level structure.",
+    "Use for quick class inspection. Scope: class-level structure. Payload kind: summary.",
 )
 
 
@@ -115,6 +115,7 @@ def run(snapshot_id: str, **params) -> ClassOverviewPayload:
     return {
         "projection": "class_overview",
         "projection_version": "1.0",
+        "payload_kind": "summary",
         "class_id": class_id,
         "language": row["language"],
         "module_qualified_name": module_name,
