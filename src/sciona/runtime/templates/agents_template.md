@@ -60,12 +60,10 @@ SCIONA constrains what exists and how components relate structurally. It does no
 
 When worktree is dirty:
 - Reducer payloads SHOULD include an `_diff` section; agents MUST check it.
-- Prefer `diff_mode=full` for structural reasoning; use `summary` only for lightweight status checks.
+- `_diff` is minimal: use `scope`, `affected`, and `affected_by` to decide relevance.
 - If `_diff.overlay_available` is false or `_diff` missing, warn and treat evidence as committed-only.
 - If `_diff.warnings` includes `base_commit_differs_from_head`, explicitly note branch divergence risk.
 - If `_diff.warnings` includes `projection_not_patched`, treat the payload as unpatched and rely on committed SCI.
-- If `_diff.warnings` includes `summary_missing`, note that summary reducers lack overlay coverage.
-- If `_diff.coverage` is partial, state which areas are unpatched (nodes/edges/calls).
  - Treat `_diff` as best-effort overlay evidence and not fully authoritative.
  - If `_diff` conflicts with SCI evidence, SCI remains authoritative; `_diff` is provisional.
  - If worktree is dirty and `_diff` is unavailable, warn that evidence may be stale and recommend commit + sciona build.
@@ -263,7 +261,7 @@ In Strict Mode, responses MUST include:
 
 Status: sciona used: yes/no | worktree: clean/dirty/unknown | diff: full/summary/unavailable/n/a | warned: yes/no
 Evidence: summary of relevant SCIONA outputs (entities, relations, caveats)
-If `_diff` present: cite mode, coverage, and key warnings (if any)
+If `_diff` present: cite `affected` / `affected_by` and key warnings (if any)
 
 Compact Mode MAY be used when Strict Mode conditions are not met.
 

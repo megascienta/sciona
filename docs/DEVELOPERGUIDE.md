@@ -148,6 +148,31 @@ Reducer execution is mediated by `src/sciona/pipelines/reducers.py`:
 - Resolves identifiers against the latest committed snapshot.
 - Applies diff overlays when available.
 
+## Diff overlay construction
+
+When the worktree is dirty and the artifact DB is available, reducers attach a `_diff`
+overlay to payloads. The overlay is best-effort and must never replace the committed
+SCI evidence.
+
+How it is built:
+- Base commit is the snapshot commit; if it diverges from HEAD, a merge-base is used.
+- A worktree fingerprint is computed from git status + config + tool version.
+- Structural deltas are computed by re-parsing changed files and comparing to the
+  committed snapshot (nodes, edges, calls).
+- Overlay rows and summaries are cached in ArtifactDB keyed by worktree hash.
+
+Minimal `_diff` schema (current):
+- `overlay_available`, `base_commit`, `head_commit`, `projection`, `scope`
+- `affected`, `affected_by`, `warnings`
+
+Affected logic:
+- `affected` is true if scoped changes exist in the reducer’s `affected_by` categories.
+- If scope cannot be resolved, `affected` is null and a warning is emitted.
+
+Determinism:
+- Overlay contents are sorted and derived from snapshot + worktree state only.
+- Overlays are hints; committed SCI remains authoritative.
+
 ## Addons
 
 Addons are separate products that use `sciona.api.addons`; core does not load, discover, or register them.

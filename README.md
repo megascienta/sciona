@@ -64,7 +64,7 @@ Built-in analyzers currently include Python, TypeScript, and Java. Enable langua
 
 SCIONA indexes the **last committed snapshot**. Reducers are evaluated against that committed snapshot, not against uncommitted working tree state. If you change tracked source files, commit and run `sciona build` to refresh the snapshot before relying on reducer output.
 
-If your worktree is dirty, reducer outputs include an `_diff` payload describing a best‑effort overlay of uncommitted changes. `_diff` payload should be treated as advisory. Please use a clean commit and `sciona build` for authoritative results.
+If your worktree is dirty, reducer outputs include an `_diff` payload describing a best‑effort overlay of uncommitted changes. `_diff` payload should be treated as advisory. The current `_diff` schema is minimal: it reports scope plus `affected`/`affected_by` signals rather than full change lists. Please use a clean commit and `sciona build` for authoritative results.
 
 ## Reducer Contract Validation
 
