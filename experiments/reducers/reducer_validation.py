@@ -13,6 +13,13 @@ from typing import Dict, List, Tuple
 
 from sciona.runtime.paths import repo_name_prefix
 from sciona.runtime import packaging as runtime_packaging
+from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
+from sciona.code_analysis.core.extract.languages.python_imports import (
+    _resolve_python_module_name,
+)
+from sciona.code_analysis.core.extract.languages.typescript import _normalize_ts_import
+from sciona.code_analysis.core.extract.languages.java import _normalize_java_import
+import yaml
 
 if __package__ is None or __package__ == "":
     sys.path.append(str(Path(__file__).resolve().parents[2]))
@@ -28,6 +35,7 @@ from experiments.reducers.validation.sampling import build_entities_from_structu
 from experiments.reducers.validation.db_adapter import (
     graph_edge_targets_for_ids,
     graph_edges_for_ids,
+    node_lookup,
     open_artifact_db,
     resolve_node_instance,
     resolve_module_structural_ids,
@@ -98,6 +106,8 @@ def _edge_records_from_ground_truth(
     file_result: FileParseResult,
     entity,
     module_names: set[str],
+    call_resolution: dict,
+    contract: dict,
     file_module_map: Dict[str, str],
     repo_root: Path,
     repo_prefix: str,
@@ -108,12 +118,13 @@ def _edge_records_from_ground_truth(
 
     if entity.kind == "module":
         for edge in file_result.import_edges:
-            resolved = _resolve_import_target(
+            resolved = _resolve_import_contract(
                 edge.target_module,
                 file_result.file_path,
                 file_result.module_qualified_name,
+                file_result.language,
+                contract,
                 module_names,
-                file_module_map,
                 repo_root,
                 repo_prefix,
                 local_packages,
@@ -135,7 +146,9 @@ def _edge_records_from_ground_truth(
             if not edge.caller.startswith(prefix):
                 continue
             record = EdgeRecord(edge.caller, edge.callee, edge.callee_qname)
-            if edge.dynamic:
+            if edge.dynamic or not _call_in_contract(
+                edge, entity.module_qualified_name, call_resolution, contract
+            ):
                 out_of_contract.append(record)
             else:
                 expected.append(record)
@@ -145,11 +158,148 @@ def _edge_records_from_ground_truth(
         if edge.caller != entity.qualified_name:
             continue
         record = EdgeRecord(edge.caller, edge.callee, edge.callee_qname)
-        if edge.dynamic:
+        if edge.dynamic or not _call_in_contract(
+            edge, entity.module_qualified_name, call_resolution, contract
+        ):
             out_of_contract.append(record)
         else:
             expected.append(record)
     return expected, out_of_contract
+
+
+def _call_in_contract(
+    edge,
+    caller_module: str,
+    call_resolution: dict,
+    contract: dict,
+) -> bool:
+    require_in_repo = (
+        contract.get("call_contract", {}).get("require_callee_in_repo", True)
+    )
+    identifier = (edge.callee or "").strip()
+    if not identifier and edge.callee_qname:
+        identifier = edge.callee_qname.split(".")[-1]
+    if not identifier:
+        return False
+
+    symbol_index: dict[str, list[str]] = call_resolution.get("symbol_index", {})
+    module_lookup: dict[str, str] = call_resolution.get("module_lookup", {})
+    import_targets: dict[str, set[str]] = call_resolution.get("import_targets", {})
+
+    candidates = symbol_index.get(identifier) or []
+    if len(candidates) == 1:
+        return True if require_in_repo else True
+    if not candidates or not caller_module:
+        return False
+    allowed_modules = set(import_targets.get(caller_module, set()))
+    allowed_modules.add(caller_module)
+    narrowed = [
+        candidate for candidate in candidates if module_lookup.get(candidate) in allowed_modules
+    ]
+    if len(narrowed) == 1:
+        return True if require_in_repo else True
+    return False
+
+
+def _snapshot_for_file(repo_root: Path, file_path: str, language: str) -> FileSnapshot:
+    rel = Path(file_path)
+    record = FileRecord(path=repo_root / rel, relative_path=rel, language=language)
+    return FileSnapshot(record=record, file_id="", blob_sha="", size=0, line_count=1, content=None)
+
+
+def _resolve_import_contract(
+    raw_target: str,
+    file_path: str,
+    module_qname: str,
+    language: str,
+    contract: dict,
+    module_names: set[str],
+    repo_root: Path,
+    repo_prefix: str,
+    local_packages: set[str],
+) -> str | None:
+    if not raw_target:
+        return None
+    imports_spec = contract.get("imports", {})
+    require_in_repo = imports_spec.get("require_module_in_repo", True)
+    language_spec = (imports_spec.get("languages") or {}).get(language, {})
+    resolver = language_spec.get("resolver")
+    if not resolver:
+        return None
+    resolved = None
+    if resolver == "python_resolve":
+        is_package = Path(file_path).name == "__init__.py"
+        resolved = _resolve_python_module_name(
+            raw_target,
+            module_qname,
+            is_package,
+            repo_prefix=repo_prefix,
+            local_packages=local_packages,
+        )
+    elif resolver == "typescript_normalize":
+        snapshot = _snapshot_for_file(repo_root, file_path, language)
+        resolved = _normalize_ts_import(raw_target, snapshot, module_qname)
+    elif resolver == "java_normalize":
+        snapshot = _snapshot_for_file(repo_root, file_path, language)
+        fragment = raw_target
+        if not raw_target.strip().startswith("import"):
+            fragment = f"import {raw_target};"
+        resolved = _normalize_java_import(fragment, module_qname, snapshot)
+    if resolved and (not require_in_repo or resolved in module_names):
+        return resolved
+    return None
+
+
+def _load_contract_spec(path: Path) -> dict:
+    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    if not isinstance(data, dict):
+        raise ValueError("contract spec must be a mapping")
+    return data
+
+
+def _build_call_resolution_context(module_overviews: Dict[str, dict]) -> dict:
+    symbol_index: dict[str, list[str]] = {}
+    module_lookup: dict[str, str] = {}
+    for module_name, overview in module_overviews.items():
+        for entry in (overview.get("functions", []) or []):
+            qname = entry.get("qualified_name")
+            if not qname:
+                continue
+            identifier = qname.split(".")[-1]
+            symbol_index.setdefault(identifier, []).append(qname)
+            module_lookup[qname] = module_name
+        for entry in (overview.get("methods", []) or []):
+            qname = entry.get("qualified_name")
+            if not qname:
+                continue
+            identifier = qname.split(".")[-1]
+            symbol_index.setdefault(identifier, []).append(qname)
+            module_lookup[qname] = module_name
+    return {"symbol_index": symbol_index, "module_lookup": module_lookup}
+
+
+def _build_import_targets(core_conn, snapshot_id: str) -> dict[str, set[str]]:
+    rows = core_conn.execute(
+        """
+        SELECT src_structural_id, dst_structural_id
+        FROM edges
+        WHERE snapshot_id = ?
+          AND edge_type = 'IMPORTS_DECLARED'
+        """,
+        (snapshot_id,),
+    ).fetchall()
+    node_ids = {row["src_structural_id"] for row in rows} | {
+        row["dst_structural_id"] for row in rows
+    }
+    lookup = node_lookup(core_conn, snapshot_id, node_ids)
+    targets: dict[str, set[str]] = {}
+    for row in rows:
+        src_name = lookup.get(row["src_structural_id"], "")
+        dst_name = lookup.get(row["dst_structural_id"], "")
+        if not src_name or not dst_name:
+            continue
+        targets.setdefault(src_name, set()).add(dst_name)
+    return targets
 
 
 def _resolve_import_target(
@@ -577,6 +727,8 @@ def main() -> int:
     args = parse_args()
     repo_root = args.repo_root.resolve()
     reports = config.report_paths(repo_root)
+    contract_path = Path(__file__).resolve().parent / "validation" / "structural_contract.yaml"
+    contract = _load_contract_spec(contract_path)
 
     with open_core_db(repo_root) as conn:
         snapshot_id = get_snapshot_id(conn)
@@ -598,6 +750,8 @@ def main() -> int:
                 for entry in structural_index.get("modules", {}).get("entries", [])
                 if entry.get("module_qualified_name")
             }
+            call_resolution = _build_call_resolution_context(module_overviews)
+            call_resolution["import_targets"] = _build_import_targets(conn, snapshot_id)
             file_module_map = {
                 entry.get("path"): entry.get("module_qualified_name")
                 for entry in structural_index.get("files", {}).get("entries", [])
@@ -636,6 +790,8 @@ def main() -> int:
                     file_result,
                     entity,
                     module_names,
+                    call_resolution,
+                    contract,
                     file_module_map,
                     repo_root,
                     repo_prefix,

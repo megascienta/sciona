@@ -1,0 +1,43 @@
+version: 1
+name: sciona_structural_contract
+description: >
+  Structural contract for reducer validation. This spec encodes the rules
+  used to classify in-contract edges and is treated as authoritative by
+  validation.
+
+nodes:
+  module:
+    qualified_name_from_path:
+      strip_suffix: true
+      treat_init_as_package:
+        python: true
+        typescript: false
+        java: false
+  class:
+    qualified_name: "{module}.{class_name}"
+  function:
+    qualified_name: "{module}.{function_name}"
+    scope: top_level_only
+  method:
+    qualified_name: "{class}.{method_name}"
+    scope: class_only
+
+call_contract:
+  identifier_source: terminal_identifier
+  require_callee_in_repo: true
+  resolution:
+    algorithm: symbol_index_with_import_narrowing
+    symbol_index: simple_identifier
+    narrowing:
+      allowed_modules: caller_module + imports_declared(caller_module)
+      accept_if_single: true
+
+imports:
+  require_module_in_repo: true
+  languages:
+    python:
+      resolver: python_resolve
+    typescript:
+      resolver: typescript_normalize
+    java:
+      resolver: java_normalize
