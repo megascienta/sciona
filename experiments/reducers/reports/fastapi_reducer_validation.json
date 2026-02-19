@@ -1,0 +1,3869 @@
+{
+  "repo_root": "/Users/dc/Downloads/fastapi",
+  "snapshot_id": "30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb",
+  "summary": [
+    "repo=fastapi",
+    "sampled_nodes=200",
+    "precision_mean=0.6822464621148832",
+    "recall_mean=0.2314106816755121",
+    "thresholds_passed=False"
+  ],
+  "aggregate": {
+    "in_contract_precision_mean": 0.6822464621148832,
+    "in_contract_recall_mean": 0.2314106816755121,
+    "misses_out_of_contract_rate": 0.0,
+    "coverage_node_rate": 0.835,
+    "coverage_file_rate": 1.3333333333333333,
+    "stability_score": 1.0
+  },
+  "group_metrics": {
+    "python::module": {
+      "precision": 0.6822464621148832,
+      "recall": 0.4075591110106034
+    },
+    "python::function": {
+      "precision": null,
+      "recall": 0.0
+    },
+    "python::method": {
+      "precision": null,
+      "recall": null
+    }
+  },
+  "edge_type_breakdown": {
+    "calls": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 345
+    },
+    "imports": {
+      "tp": 159,
+      "fp": 1171,
+      "fn": 298
+    }
+  },
+  "failure_examples": [
+    {
+      "node": "fastapi.tests.test_tutorial.test_generate_clients.test_tutorial004",
+      "issue": "recall=0.0"
+    },
+    {
+      "node": "fastapi.param_functions.Path",
+      "issue": "recall=0.0"
+    },
+    {
+      "node": "fastapi.tests.test_application.test_openapi_schema",
+      "issue": "recall=0.0"
+    },
+    {
+      "node": "fastapi.encoders.jsonable_encoder",
+      "issue": "recall=0.0"
+    },
+    {
+      "node": "fastapi.responses",
+      "issue": "recall=0.0"
+    },
+    {
+      "node": "fastapi.tests.test_tutorial.test_body_multiple_params.test_tutorial004.test_put_all",
+      "issue": "recall=0.0"
+    },
+    {
+      "node": "fastapi.tests.test_additional_properties_bool.test_openapi_schema",
+      "issue": "recall=0.0"
+    },
+    {
+      "node": "fastapi.tests.test_tutorial.test_sql_databases.test_tutorial002.test_openapi_schema",
+      "issue": "recall=0.0"
+    },
+    {
+      "node": "fastapi.tests.test_infer_param_optionality.test_openapi_schema",
+      "issue": "recall=0.0"
+    },
+    {
+      "node": "fastapi.websockets",
+      "issue": "recall=0.0"
+    }
+  ],
+  "threshold_evaluation": {
+    "passed": false,
+    "failures": [
+      "precision_mean 0.6822464621148832 < 0.95",
+      "recall_mean 0.2314106816755121 < 0.9",
+      "misses_out_of_contract_rate 0.0 < 0.8",
+      "group python::module precision 0.6822464621148832 < 0.85",
+      "group python::module recall 0.4075591110106034 < 0.8",
+      "group python::function recall 0.0 < 0.8"
+    ]
+  },
+  "population_by_language": {
+    "python": 6363
+  },
+  "population_by_kind": {
+    "module": 1284,
+    "class": 660,
+    "function": 4178,
+    "method": 241
+  },
+  "strata_counts": {
+    "python/class/small/dense/nested": 7,
+    "python/class/small/sparse/nested": 6,
+    "python/module/medium/sparse/deep": 1,
+    "python/function/medium/moderate/nested": 5,
+    "python/module/medium/moderate/nested": 4,
+    "python/method/small/moderate/nested": 4,
+    "python/module/medium/moderate/deep": 5,
+    "python/method/medium/moderate/nested": 5,
+    "python/module/medium/dense/deep": 4,
+    "python/function/large/sparse/nested": 2,
+    "python/function/medium/dense/nested": 2,
+    "python/module/small/moderate/top": 2,
+    "python/function/small/moderate/deep": 7,
+    "python/function/small/sparse/nested": 4,
+    "python/module/medium/dense/top": 2,
+    "python/method/small/dense/deep": 8,
+    "python/class/large/moderate/nested": 2,
+    "python/function/medium/sparse/deep": 5,
+    "python/class/small/dense/deep": 7,
+    "python/method/large/moderate/nested": 1,
+    "python/function/medium/sparse/nested": 4,
+    "python/module/medium/moderate/top": 1,
+    "python/module/small/sparse/top": 5,
+    "python/module/medium/dense/nested": 5,
+    "python/module/small/dense/top": 5,
+    "python/module/small/dense/deep": 8,
+    "python/function/small/moderate/nested": 4,
+    "python/module/small/moderate/nested": 6,
+    "python/module/small/sparse/nested": 7,
+    "python/module/small/moderate/deep": 5,
+    "python/module/large/dense/nested": 2,
+    "python/method/medium/dense/nested": 3,
+    "python/function/small/dense/nested": 6,
+    "python/module/large/moderate/nested": 2,
+    "python/class/small/sparse/deep": 4,
+    "python/module/small/sparse/deep": 7,
+    "python/method/small/moderate/deep": 7,
+    "python/class/small/moderate/nested": 4,
+    "python/class/small/moderate/deep": 3,
+    "python/function/small/sparse/deep": 6,
+    "python/module/large/moderate/top": 2,
+    "python/module/large/sparse/nested": 2,
+    "python/module/large/dense/top": 1,
+    "python/module/small/dense/nested": 7,
+    "python/method/small/dense/nested": 4,
+    "python/function/small/dense/deep": 7
+  },
+  "per_node": [
+    {
+      "entity": "fastapi.tests.test_skip_defaults.ModelSubclass",
+      "language": "python",
+      "kind": "class",
+      "file_path": "tests/test_skip_defaults.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.tests.test_skip_defaults.ModelSubclass' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.tests.test_generic_parameterless_depends.B",
+      "language": "python",
+      "kind": "class",
+      "file_path": "tests/test_generic_parameterless_depends.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.tests.test_generic_parameterless_depends.B' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_generate_clients.test_tutorial004",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_tutorial/test_generate_clients/test_tutorial004.py",
+      "metrics": {
+        "in_contract_expected_edges": 6,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 6
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.param_functions.Path",
+      "language": "python",
+      "kind": "function",
+      "file_path": "fastapi/param_functions.py",
+      "metrics": {
+        "in_contract_expected_edges": 32,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 32
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_security_oauth2_optional_description",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_security_oauth2_optional_description.py",
+      "metrics": {
+        "in_contract_expected_edges": 7,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.42857142857142855,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 3,
+        "fp": 0,
+        "fn": 4
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.routing.APIRoute.get_route_handler",
+      "language": "python",
+      "kind": "method",
+      "file_path": "fastapi/routing.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_body_updates.test_tutorial002",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_tutorial/test_body_updates/test_tutorial002.py",
+      "metrics": {
+        "in_contract_expected_edges": 5,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.4,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 2,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.routing.APIRouter.head",
+      "language": "python",
+      "kind": "method",
+      "file_path": "fastapi/routing.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_security.test_tutorial004",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_tutorial/test_security/test_tutorial004.py",
+      "metrics": {
+        "in_contract_expected_edges": 7,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.2857142857142857,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 2,
+        "fp": 0,
+        "fn": 5
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_application.test_openapi_schema",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_application.py",
+      "metrics": {
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.encoders.jsonable_encoder",
+      "language": "python",
+      "kind": "function",
+      "file_path": "fastapi/encoders.py",
+      "metrics": {
+        "in_contract_expected_edges": 57,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 57
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.responses",
+      "language": "python",
+      "kind": "module",
+      "file_path": "fastapi/responses.py",
+      "metrics": {
+        "in_contract_expected_edges": 10,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 0.0,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 89,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 89,
+        "fn": 10
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_body_multiple_params.test_tutorial004.test_put_all",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_tutorial/test_body_multiple_params/test_tutorial004.py",
+      "metrics": {
+        "in_contract_expected_edges": 2,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 2
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_additional_properties_bool.test_openapi_schema",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_additional_properties_bool.py",
+      "metrics": {
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.encoders",
+      "language": "python",
+      "kind": "module",
+      "file_path": "fastapi/encoders.py",
+      "metrics": {
+        "in_contract_expected_edges": 21,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 0.21428571428571427,
+        "in_contract_recall": 0.14285714285714285,
+        "in_contract_false_positive_count": 11,
+        "out_of_contract_missing_count": 0,
+        "tp": 3,
+        "fp": 11,
+        "fn": 18
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.handling_errors.tutorial003_py39.UnicornException.__init__",
+      "language": "python",
+      "kind": "method",
+      "file_path": "docs_src/handling_errors/tutorial003_py39.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.routing.APIRouter",
+      "language": "python",
+      "kind": "class",
+      "file_path": "fastapi/routing.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.routing.APIRouter' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_sql_databases.test_tutorial002.test_openapi_schema",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_tutorial/test_sql_databases/test_tutorial002.py",
+      "metrics": {
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_request_params.test_query.test_required_str.QueryModelRequiredStr",
+      "language": "python",
+      "kind": "class",
+      "file_path": "tests/test_request_params/test_query/test_required_str.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.tests.test_request_params.test_query.test_required_str.QueryModelRequiredStr' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.applications.FastAPI.__init__",
+      "language": "python",
+      "kind": "method",
+      "file_path": "fastapi/applications.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_infer_param_optionality.test_openapi_schema",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_infer_param_optionality.py",
+      "metrics": {
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.params",
+      "language": "python",
+      "kind": "module",
+      "file_path": "fastapi/params.py",
+      "metrics": {
+        "in_contract_expected_edges": 11,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 0.42857142857142855,
+        "in_contract_recall": 0.2727272727272727,
+        "in_contract_false_positive_count": 4,
+        "out_of_contract_missing_count": 0,
+        "tp": 3,
+        "fp": 4,
+        "fn": 8
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.websockets",
+      "language": "python",
+      "kind": "module",
+      "file_path": "fastapi/websockets.py",
+      "metrics": {
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 0.0,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 6,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 6,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_default_response_class_router",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_default_response_class_router.py",
+      "metrics": {
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 3,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.utils",
+      "language": "python",
+      "kind": "module",
+      "file_path": "fastapi/utils.py",
+      "metrics": {
+        "in_contract_expected_edges": 10,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 0.4444444444444444,
+        "in_contract_recall": 0.4,
+        "in_contract_false_positive_count": 5,
+        "out_of_contract_missing_count": 0,
+        "tp": 4,
+        "fp": 5,
+        "fn": 6
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_response_cookies.test_tutorial001",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_tutorial/test_response_cookies/test_tutorial001.py",
+      "metrics": {
+        "in_contract_expected_edges": 2,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.5,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 1,
+        "fp": 0,
+        "fn": 1
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_security_openid_connect_optional.test_openapi_schema",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_security_openid_connect_optional.py",
+      "metrics": {
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.metadata.tutorial001_py310",
+      "language": "python",
+      "kind": "module",
+      "file_path": "docs_src/metadata/tutorial001_py310.py",
+      "metrics": {
+        "in_contract_expected_edges": 1,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 1,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.settings.app02_py310",
+      "language": "python",
+      "kind": "module",
+      "file_path": "docs_src/settings/app02_py310/__init__.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 0.0,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 5,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 5,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_schema_extra_example.test_tutorial001",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_tutorial/test_schema_extra_example/test_tutorial001.py",
+      "metrics": {
+        "in_contract_expected_edges": 5,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.4,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 2,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.dependencies.utils",
+      "language": "python",
+      "kind": "module",
+      "file_path": "fastapi/dependencies/utils.py",
+      "metrics": {
+        "in_contract_expected_edges": 32,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 0.7142857142857143,
+        "in_contract_recall": 0.3125,
+        "in_contract_false_positive_count": 4,
+        "out_of_contract_missing_count": 0,
+        "tp": 10,
+        "fp": 4,
+        "fn": 22
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.applications.FastAPI.include_router",
+      "language": "python",
+      "kind": "method",
+      "file_path": "fastapi/applications.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_security_http_bearer_description.test_security_http_bearer_incorrect_scheme_credentials",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_security_http_bearer_description.py",
+      "metrics": {
+        "in_contract_expected_edges": 2,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 2
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_schema_extra_examples",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_schema_extra_examples.py",
+      "metrics": {
+        "in_contract_expected_edges": 7,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.42857142857142855,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 3,
+        "fp": 0,
+        "fn": 4
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.graphql_.tutorial001_py39.User",
+      "language": "python",
+      "kind": "class",
+      "file_path": "docs_src/graphql_/tutorial001_py39.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.docs_src.graphql_.tutorial001_py39.User' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.tests.test_request_params.test_cookie.test_list",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_request_params/test_cookie/test_list.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.security.oauth2.OAuth2.make_not_authenticated_error",
+      "language": "python",
+      "kind": "method",
+      "file_path": "fastapi/security/oauth2.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.openapi.models.Components",
+      "language": "python",
+      "kind": "class",
+      "file_path": "fastapi/openapi/models.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.openapi.models.Components' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.docs_src.header_param_models.tutorial002_py310.CommonHeaders",
+      "language": "python",
+      "kind": "class",
+      "file_path": "docs_src/header_param_models/tutorial002_py310.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.docs_src.header_param_models.tutorial002_py310.CommonHeaders' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_request_forms.test_tutorial001.test_openapi_schema",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_tutorial/test_request_forms/test_tutorial001.py",
+      "metrics": {
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.param_functions",
+      "language": "python",
+      "kind": "module",
+      "file_path": "fastapi/param_functions.py",
+      "metrics": {
+        "in_contract_expected_edges": 8,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 0.5,
+        "in_contract_recall": 0.375,
+        "in_contract_false_positive_count": 3,
+        "out_of_contract_missing_count": 0,
+        "tp": 3,
+        "fp": 3,
+        "fn": 5
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_include_router_defaults_overrides",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_include_router_defaults_overrides.py",
+      "metrics": {
+        "in_contract_expected_edges": 6,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.5,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 3,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.routing",
+      "language": "python",
+      "kind": "module",
+      "file_path": "fastapi/routing.py",
+      "metrics": {
+        "in_contract_expected_edges": 32,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 0.4090909090909091,
+        "in_contract_recall": 0.28125,
+        "in_contract_false_positive_count": 13,
+        "out_of_contract_missing_count": 0,
+        "tp": 9,
+        "fp": 13,
+        "fn": 23
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.forward_reference_type",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/forward_reference_type.py",
+      "metrics": {
+        "in_contract_expected_edges": 1,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 0.0,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 1,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 1,
+        "fn": 1
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.datastructures.DefaultPlaceholder.__bool__",
+      "language": "python",
+      "kind": "method",
+      "file_path": "fastapi/datastructures.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.scripts.tests.test_translation_fixer.test_code_blocks.test_code_blocks_mermaid.test_not_translated",
+      "language": "python",
+      "kind": "function",
+      "file_path": "scripts/tests/test_translation_fixer/test_code_blocks/test_code_blocks_mermaid.py",
+      "metrics": {
+        "in_contract_expected_edges": 5,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 5
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_include_router_defaults_overrides.ResponseLevel1",
+      "language": "python",
+      "kind": "class",
+      "file_path": "tests/test_include_router_defaults_overrides.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.tests.test_include_router_defaults_overrides.ResponseLevel1' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.security.base.SecurityBase",
+      "language": "python",
+      "kind": "class",
+      "file_path": "fastapi/security/base.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.security.base.SecurityBase' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_testing.test_tutorial004",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_tutorial/test_testing/test_tutorial004.py",
+      "metrics": {
+        "in_contract_expected_edges": 1,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 1
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.graphql_.tutorial001_py39.Query.user",
+      "language": "python",
+      "kind": "method",
+      "file_path": "docs_src/graphql_/tutorial001_py39.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_request_params.test_path.test_optional_list",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_request_params/test_path/test_optional_list.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_body_multiple_params.test_tutorial004.test_put_invalid_importance",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_tutorial/test_body_multiple_params/test_tutorial004.py",
+      "metrics": {
+        "in_contract_expected_edges": 2,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 2
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.dataclasses_.tutorial001_py310.Item",
+      "language": "python",
+      "kind": "class",
+      "file_path": "docs_src/dataclasses_/tutorial001_py310.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.docs_src.dataclasses_.tutorial001_py310.Item' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.tests.test_reponse_set_reponse_code_empty",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_reponse_set_reponse_code_empty.py",
+      "metrics": {
+        "in_contract_expected_edges": 4,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.5,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 2,
+        "fp": 0,
+        "fn": 2
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_query_param_models.test_tutorial001.test_openapi_schema",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_tutorial/test_query_param_models/test_tutorial001.py",
+      "metrics": {
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.header_param_models.tutorial002_an_py310.CommonHeaders",
+      "language": "python",
+      "kind": "class",
+      "file_path": "docs_src/header_param_models/tutorial002_an_py310.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.docs_src.header_param_models.tutorial002_an_py310.CommonHeaders' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_additional_responses.test_tutorial003",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_tutorial/test_additional_responses/test_tutorial003.py",
+      "metrics": {
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.3333333333333333,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 1,
+        "fp": 0,
+        "fn": 2
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/__init__.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 0.0,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 836,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 836,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.__main__",
+      "language": "python",
+      "kind": "module",
+      "file_path": "fastapi/__main__.py",
+      "metrics": {
+        "in_contract_expected_edges": 1,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 1,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi._compat",
+      "language": "python",
+      "kind": "module",
+      "file_path": "fastapi/_compat/__init__.py",
+      "metrics": {
+        "in_contract_expected_edges": 30,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 0.10526315789473684,
+        "in_contract_recall": 0.06666666666666667,
+        "in_contract_false_positive_count": 17,
+        "out_of_contract_missing_count": 0,
+        "tp": 2,
+        "fp": 17,
+        "fn": 28
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_default_response_class",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_default_response_class.py",
+      "metrics": {
+        "in_contract_expected_edges": 5,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.6,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 3,
+        "fp": 0,
+        "fn": 2
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_security_openid_connect_description.test_security_oauth2",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_security_openid_connect_description.py",
+      "metrics": {
+        "in_contract_expected_edges": 2,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 2
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.params.Security",
+      "language": "python",
+      "kind": "class",
+      "file_path": "fastapi/params.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.params.Security' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.dependencies.models.Dependant._uses_scopes",
+      "language": "python",
+      "kind": "method",
+      "file_path": "fastapi/dependencies/models.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.applications",
+      "language": "python",
+      "kind": "module",
+      "file_path": "fastapi/applications.py",
+      "metrics": {
+        "in_contract_expected_edges": 27,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 0.9166666666666666,
+        "in_contract_recall": 0.4074074074074074,
+        "in_contract_false_positive_count": 1,
+        "out_of_contract_missing_count": 0,
+        "tp": 11,
+        "fp": 1,
+        "fn": 16
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.applications.FastAPI",
+      "language": "python",
+      "kind": "class",
+      "file_path": "fastapi/applications.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.applications.FastAPI' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.routing.APIRouter.__init__",
+      "language": "python",
+      "kind": "method",
+      "file_path": "fastapi/routing.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.applications.FastAPI.get",
+      "language": "python",
+      "kind": "method",
+      "file_path": "fastapi/applications.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_response_model_as_return_annotation",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_response_model_as_return_annotation.py",
+      "metrics": {
+        "in_contract_expected_edges": 8,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.5,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 4,
+        "fp": 0,
+        "fn": 4
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_validate_response_dataclass.Item",
+      "language": "python",
+      "kind": "class",
+      "file_path": "tests/test_validate_response_dataclass.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.tests.test_validate_response_dataclass.Item' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.exceptions",
+      "language": "python",
+      "kind": "module",
+      "file_path": "fastapi/exceptions.py",
+      "metrics": {
+        "in_contract_expected_edges": 6,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 0.0,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 36,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 36,
+        "fn": 6
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_schema_extra_examples.create_app",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_schema_extra_examples.py",
+      "metrics": {
+        "in_contract_expected_edges": 11,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 11
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_security_scopes_sub_dependency.test_security_scopes_sub_dependency_caching",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_security_scopes_sub_dependency.py",
+      "metrics": {
+        "in_contract_expected_edges": 2,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 2
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.openapi.models.Operation",
+      "language": "python",
+      "kind": "class",
+      "file_path": "fastapi/openapi/models.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.openapi.models.Operation' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.param_functions.File",
+      "language": "python",
+      "kind": "function",
+      "file_path": "fastapi/param_functions.py",
+      "metrics": {
+        "in_contract_expected_edges": 33,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 33
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_application",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_application.py",
+      "metrics": {
+        "in_contract_expected_edges": 4,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.5,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 2,
+        "fp": 0,
+        "fn": 2
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_include_router_defaults_overrides.test_openapi",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_include_router_defaults_overrides.py",
+      "metrics": {
+        "in_contract_expected_edges": 8,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 8
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tuples",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_tuples.py",
+      "metrics": {
+        "in_contract_expected_edges": 4,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.5,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 2,
+        "fp": 0,
+        "fn": 2
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_openapi_examples.test_openapi_schema",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_openapi_examples.py",
+      "metrics": {
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_generate_unique_id_function",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_generate_unique_id_function.py",
+      "metrics": {
+        "in_contract_expected_edges": 6,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.5,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 3,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_request_params.test_body.test_list",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_request_params/test_body/test_list.py",
+      "metrics": {
+        "in_contract_expected_edges": 7,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.42857142857142855,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 3,
+        "fp": 0,
+        "fn": 4
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_body_multiple_params.test_tutorial003",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_tutorial/test_body_multiple_params/test_tutorial003.py",
+      "metrics": {
+        "in_contract_expected_edges": 5,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.4,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 2,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_bigger_applications.test_main.test_openapi_schema",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_tutorial/test_bigger_applications/test_main.py",
+      "metrics": {
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.authentication_error_status_code",
+      "language": "python",
+      "kind": "module",
+      "file_path": "docs_src/authentication_error_status_code/__init__.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 0.0,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 4,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 4,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_dependency_cache",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_dependency_cache.py",
+      "metrics": {
+        "in_contract_expected_edges": 2,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 2,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.dataclasses_.tutorial002_py310.Item",
+      "language": "python",
+      "kind": "class",
+      "file_path": "docs_src/dataclasses_/tutorial002_py310.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.docs_src.dataclasses_.tutorial002_py310.Item' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_security.test_tutorial005.test_incorrect_token_type",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_tutorial/test_security/test_tutorial005.py",
+      "metrics": {
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_python_types.test_tutorial007",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_tutorial/test_python_types/test_tutorial007.py",
+      "metrics": {
+        "in_contract_expected_edges": 1,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 1
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.websockets.tutorial003_py310.ConnectionManager.__init__",
+      "language": "python",
+      "kind": "method",
+      "file_path": "docs_src/websockets/tutorial003_py310.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.bigger_applications.app_an_py39.internal",
+      "language": "python",
+      "kind": "module",
+      "file_path": "docs_src/bigger_applications/app_an_py39/internal/__init__.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 0.0,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 2,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 2,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_body_multiple_params.test_tutorial002.test_post_all",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_tutorial/test_body_multiple_params/test_tutorial002.py",
+      "metrics": {
+        "in_contract_expected_edges": 2,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 2
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.dataclasses_.tutorial003_py310.Item",
+      "language": "python",
+      "kind": "class",
+      "file_path": "docs_src/dataclasses_/tutorial003_py310.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.docs_src.dataclasses_.tutorial003_py310.Item' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.tests.test_union_forms",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_union_forms.py",
+      "metrics": {
+        "in_contract_expected_edges": 5,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.4,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 2,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_dependencies.test_tutorial005.test_openapi_schema",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_tutorial/test_dependencies/test_tutorial005.py",
+      "metrics": {
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.schema_extra_example.tutorial001_py310.Item",
+      "language": "python",
+      "kind": "class",
+      "file_path": "docs_src/schema_extra_example/tutorial001_py310.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.docs_src.schema_extra_example.tutorial001_py310.Item' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_response_model.test_tutorial004",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_tutorial/test_response_model/test_tutorial004.py",
+      "metrics": {
+        "in_contract_expected_edges": 5,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.4,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 2,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.staticfiles",
+      "language": "python",
+      "kind": "module",
+      "file_path": "fastapi/staticfiles.py",
+      "metrics": {
+        "in_contract_expected_edges": 1,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 0.0,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 6,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 6,
+        "fn": 1
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.exception_handlers",
+      "language": "python",
+      "kind": "module",
+      "file_path": "fastapi/exception_handlers.py",
+      "metrics": {
+        "in_contract_expected_edges": 8,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 0.5714285714285714,
+        "in_contract_recall": 0.5,
+        "in_contract_false_positive_count": 3,
+        "out_of_contract_missing_count": 0,
+        "tp": 4,
+        "fp": 3,
+        "fn": 4
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.security.api_key.APIKeyBase.__init__",
+      "language": "python",
+      "kind": "method",
+      "file_path": "fastapi/security/api_key.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.routing.APIRouter.include_router",
+      "language": "python",
+      "kind": "method",
+      "file_path": "fastapi/routing.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.applications.FastAPI.post",
+      "language": "python",
+      "kind": "method",
+      "file_path": "fastapi/applications.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_openapi_examples.query_examples",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_openapi_examples.py",
+      "metrics": {
+        "in_contract_expected_edges": 2,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 2
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.params.Cookie",
+      "language": "python",
+      "kind": "class",
+      "file_path": "fastapi/params.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.params.Cookie' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.param_functions.Form",
+      "language": "python",
+      "kind": "function",
+      "file_path": "fastapi/param_functions.py",
+      "metrics": {
+        "in_contract_expected_edges": 33,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 33
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_openapi_examples",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_openapi_examples.py",
+      "metrics": {
+        "in_contract_expected_edges": 5,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.4,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 2,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_openapi_separate_input_output_schemas.test_openapi_schema_no_separate",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_openapi_separate_input_output_schemas.py",
+      "metrics": {
+        "in_contract_expected_edges": 4,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 4
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.request_form_models",
+      "language": "python",
+      "kind": "module",
+      "file_path": "docs_src/request_form_models/__init__.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 0.0,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 8,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 8,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.query_params.tutorial001_py310",
+      "language": "python",
+      "kind": "module",
+      "file_path": "docs_src/query_params/tutorial001_py310.py",
+      "metrics": {
+        "in_contract_expected_edges": 1,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 1,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.body_multiple_params.tutorial002_py310.Item",
+      "language": "python",
+      "kind": "class",
+      "file_path": "docs_src/body_multiple_params/tutorial002_py310.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.docs_src.body_multiple_params.tutorial002_py310.Item' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.docs_src.handling_errors.tutorial003_py310.unicorn_exception_handler",
+      "language": "python",
+      "kind": "function",
+      "file_path": "docs_src/handling_errors/tutorial003_py310.py",
+      "metrics": {
+        "in_contract_expected_edges": 2,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 2
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_custom_request_and_route.test_tutorial001",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_tutorial/test_custom_request_and_route/test_tutorial001.py",
+      "metrics": {
+        "in_contract_expected_edges": 7,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.2857142857142857,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 2,
+        "fp": 0,
+        "fn": 5
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.authentication_error_status_code.tutorial001_an_py310.HTTPBearer403.make_not_authenticated_error",
+      "language": "python",
+      "kind": "method",
+      "file_path": "docs_src/authentication_error_status_code/tutorial001_an_py310.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_request_params.test_path.test_list",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_request_params/test_path/test_list.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.request_files.tutorial003_an_py39.main",
+      "language": "python",
+      "kind": "function",
+      "file_path": "docs_src/request_files/tutorial003_an_py39.py",
+      "metrics": {
+        "in_contract_expected_edges": 2,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 2
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.graphql_.tutorial001_py310.User",
+      "language": "python",
+      "kind": "class",
+      "file_path": "docs_src/graphql_/tutorial001_py310.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.docs_src.graphql_.tutorial001_py310.User' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.tests.test_forms_single_param",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_forms_single_param.py",
+      "metrics": {
+        "in_contract_expected_edges": 4,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.5,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 2,
+        "fp": 0,
+        "fn": 2
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_query_params_str_validations.test_tutorial003.test_openapi_schema",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_tutorial/test_query_params_str_validations/test_tutorial003.py",
+      "metrics": {
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_generate_unique_id_function.custom_generate_unique_id2",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_generate_unique_id_function.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_custom_route_class.APIRouteA",
+      "language": "python",
+      "kind": "class",
+      "file_path": "tests/test_custom_route_class.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.tests.test_custom_route_class.APIRouteA' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.security.oauth2.OAuth2PasswordRequestForm.__init__",
+      "language": "python",
+      "kind": "method",
+      "file_path": "fastapi/security/oauth2.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_response_model_invalid.NonPydanticModel",
+      "language": "python",
+      "kind": "class",
+      "file_path": "tests/test_response_model_invalid.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.tests.test_response_model_invalid.NonPydanticModel' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.tests.test_security_oauth2_optional_description.test_openapi_schema",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_security_oauth2_optional_description.py",
+      "metrics": {
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_encoder.test_tutorial001",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_tutorial/test_encoder/test_tutorial001.py",
+      "metrics": {
+        "in_contract_expected_edges": 6,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.3333333333333333,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 2,
+        "fp": 0,
+        "fn": 4
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_generate_clients.test_tutorial004.test_remove_tags",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_tutorial/test_generate_clients/test_tutorial004.py",
+      "metrics": {
+        "in_contract_expected_edges": 8,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 8
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_sub_applications",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_tutorial/test_sub_applications/__init__.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 0.0,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 1,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 1,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_security_scopes_dont_propagate",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_security_scopes_dont_propagate.py",
+      "metrics": {
+        "in_contract_expected_edges": 4,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.75,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 3,
+        "fp": 0,
+        "fn": 1
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.additional_responses.tutorial004_py310.Item",
+      "language": "python",
+      "kind": "class",
+      "file_path": "docs_src/additional_responses/tutorial004_py310.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.docs_src.additional_responses.tutorial004_py310.Item' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_path_params_numeric_validations.test_tutorial006.test_read_items_size_too_small",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_tutorial/test_path_params_numeric_validations/test_tutorial006.py",
+      "metrics": {
+        "in_contract_expected_edges": 2,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 2
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.bigger_applications.app_an_py310.main",
+      "language": "python",
+      "kind": "module",
+      "file_path": "docs_src/bigger_applications/app_an_py310/main.py",
+      "metrics": {
+        "in_contract_expected_edges": 4,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 4,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.security.oauth2.OAuth2PasswordBearer.__call__",
+      "language": "python",
+      "kind": "method",
+      "file_path": "fastapi/security/oauth2.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_request_params.test_cookie.test_optional_list",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_request_params/test_cookie/test_optional_list.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_query_params_str_validations.test_tutorial015.test_openapi_schema",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_tutorial/test_query_params_str_validations/test_tutorial015.py",
+      "metrics": {
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.openapi.utils",
+      "language": "python",
+      "kind": "module",
+      "file_path": "fastapi/openapi/utils.py",
+      "metrics": {
+        "in_contract_expected_edges": 22,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 0.8125,
+        "in_contract_recall": 0.5909090909090909,
+        "in_contract_false_positive_count": 3,
+        "out_of_contract_missing_count": 0,
+        "tp": 13,
+        "fp": 3,
+        "fn": 9
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.main.get_path_param_lt0",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/main.py",
+      "metrics": {
+        "in_contract_expected_edges": 2,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 2
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_include_router_defaults_overrides.ResponseLevel2",
+      "language": "python",
+      "kind": "class",
+      "file_path": "tests/test_include_router_defaults_overrides.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.tests.test_include_router_defaults_overrides.ResponseLevel2' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.security.api_key.APIKeyBase.make_not_authenticated_error",
+      "language": "python",
+      "kind": "method",
+      "file_path": "fastapi/security/api_key.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.applications.FastAPI.websocket",
+      "language": "python",
+      "kind": "method",
+      "file_path": "fastapi/applications.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.applications.FastAPI.openapi",
+      "language": "python",
+      "kind": "method",
+      "file_path": "fastapi/applications.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_generate_unique_id_function.test_router_include_overrides_generate_unique_id",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_generate_unique_id_function.py",
+      "metrics": {
+        "in_contract_expected_edges": 7,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 7
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_security_oauth2.test_openapi_schema",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_security_oauth2.py",
+      "metrics": {
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_configure_swagger_ui",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_tutorial/test_configure_swagger_ui/__init__.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 0.0,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 3,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 3,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.request_files.tutorial001_py310",
+      "language": "python",
+      "kind": "module",
+      "file_path": "docs_src/request_files/tutorial001_py310.py",
+      "metrics": {
+        "in_contract_expected_edges": 1,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 1,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.security.tutorial004_py310.Token",
+      "language": "python",
+      "kind": "class",
+      "file_path": "docs_src/security/tutorial004_py310.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.docs_src.security.tutorial004_py310.Token' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.scripts.playwright.separate_openapi_schemas.image03.run",
+      "language": "python",
+      "kind": "function",
+      "file_path": "scripts/playwright/separate_openapi_schemas/image03.py",
+      "metrics": {
+        "in_contract_expected_edges": 14,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 14
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_events.test_tutorial002",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_tutorial/test_events/test_tutorial002.py",
+      "metrics": {
+        "in_contract_expected_edges": 5,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.4,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 2,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_dependency_after_yield_websockets.Session.__iter__",
+      "language": "python",
+      "kind": "method",
+      "file_path": "tests/test_dependency_after_yield_websockets.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.bigger_applications.app_an_py310.internal",
+      "language": "python",
+      "kind": "module",
+      "file_path": "docs_src/bigger_applications/app_an_py310/internal/__init__.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 0.0,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 2,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 2,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.custom_response.tutorial002_py310.read_items",
+      "language": "python",
+      "kind": "function",
+      "file_path": "docs_src/custom_response/tutorial002_py310.py",
+      "metrics": {
+        "in_contract_expected_edges": 1,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 1
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.schema_extra_example.tutorial003_an_py310",
+      "language": "python",
+      "kind": "module",
+      "file_path": "docs_src/schema_extra_example/tutorial003_an_py310.py",
+      "metrics": {
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.3333333333333333,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 1,
+        "fp": 0,
+        "fn": 2
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_path_params_numeric_validations.test_tutorial005.test_openapi_schema",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_tutorial/test_path_params_numeric_validations/test_tutorial005.py",
+      "metrics": {
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_schema_extra_example.test_tutorial002",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_tutorial/test_schema_extra_example/test_tutorial002.py",
+      "metrics": {
+        "in_contract_expected_edges": 5,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.4,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 2,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.dependencies",
+      "language": "python",
+      "kind": "module",
+      "file_path": "fastapi/dependencies/__init__.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 0.0,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 19,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 19,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.cli",
+      "language": "python",
+      "kind": "module",
+      "file_path": "fastapi/cli.py",
+      "metrics": {
+        "in_contract_expected_edges": 1,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 0.0,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 2,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 2,
+        "fn": 1
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_dependency_overrides",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_dependency_overrides.py",
+      "metrics": {
+        "in_contract_expected_edges": 4,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.5,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 2,
+        "fp": 0,
+        "fn": 2
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_query.test_query_list_default",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_query.py",
+      "metrics": {
+        "in_contract_expected_edges": 2,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 2
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_additional_responses_response_class.Error",
+      "language": "python",
+      "kind": "class",
+      "file_path": "tests/test_additional_responses_response_class.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.tests.test_additional_responses_response_class.Error' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi._compat.v2.ModelField.serialize",
+      "language": "python",
+      "kind": "method",
+      "file_path": "fastapi/_compat/v2.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.routing.APIRoute.matches",
+      "language": "python",
+      "kind": "method",
+      "file_path": "fastapi/routing.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.params.Param.__init__",
+      "language": "python",
+      "kind": "method",
+      "file_path": "fastapi/params.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.routing.APIRouter.post",
+      "language": "python",
+      "kind": "method",
+      "file_path": "fastapi/routing.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_serialize_response_dataclass.Item",
+      "language": "python",
+      "kind": "class",
+      "file_path": "tests/test_serialize_response_dataclass.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.tests.test_serialize_response_dataclass.Item' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.tests.test_request_params.test_query.test_optional_str",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_request_params/test_query/test_optional_str.py",
+      "metrics": {
+        "in_contract_expected_edges": 6,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.3333333333333333,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 2,
+        "fp": 0,
+        "fn": 4
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_body_nested_models.test_tutorial007",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_tutorial/test_body_nested_models/test_tutorial007.py",
+      "metrics": {
+        "in_contract_expected_edges": 5,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.4,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 2,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_security.test_tutorial005.test_openapi_schema",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_tutorial/test_security/test_tutorial005.py",
+      "metrics": {
+        "in_contract_expected_edges": 4,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 4
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.settings.app03_an_py310",
+      "language": "python",
+      "kind": "module",
+      "file_path": "docs_src/settings/app03_an_py310/__init__.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 0.0,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 2,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 2,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.path_operation_configuration.tutorial002b_py310",
+      "language": "python",
+      "kind": "module",
+      "file_path": "docs_src/path_operation_configuration/tutorial002b_py310.py",
+      "metrics": {
+        "in_contract_expected_edges": 2,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.5,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 1,
+        "fp": 0,
+        "fn": 1
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.separate_openapi_schemas.tutorial001_py310.Item",
+      "language": "python",
+      "kind": "class",
+      "file_path": "docs_src/separate_openapi_schemas/tutorial001_py310.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.docs_src.separate_openapi_schemas.tutorial001_py310.Item' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.tests.test_request_params.test_cookie.test_required_str.test_required_alias_and_validation_alias_schema",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_request_params/test_cookie/test_required_str.py",
+      "metrics": {
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_cors.test_tutorial001",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_tutorial/test_cors/test_tutorial001.py",
+      "metrics": {
+        "in_contract_expected_edges": 2,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.5,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 1,
+        "fp": 0,
+        "fn": 1
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_stringified_annotation_dependency.DummyClient.close",
+      "language": "python",
+      "kind": "method",
+      "file_path": "tests/test_stringified_annotation_dependency.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_request_params.test_path.test_optional_str",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_request_params/test_path/test_optional_str.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_body_nested_models.test_tutorial007.test_put_empty_body",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_tutorial/test_body_nested_models/test_tutorial007.py",
+      "metrics": {
+        "in_contract_expected_edges": 2,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 2
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_union_body",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_union_body.py",
+      "metrics": {
+        "in_contract_expected_edges": 5,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.4,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 2,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_path_operation_configurations.test_tutorial001.test_openapi_schema",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_tutorial/test_path_operation_configurations/test_tutorial001.py",
+      "metrics": {
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_response_model.test_tutorial003_02",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_tutorial/test_response_model/test_tutorial003_02.py",
+      "metrics": {
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.3333333333333333,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 1,
+        "fp": 0,
+        "fn": 2
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.security",
+      "language": "python",
+      "kind": "module",
+      "file_path": "fastapi/security/__init__.py",
+      "metrics": {
+        "in_contract_expected_edges": 15,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 0.05194805194805195,
+        "in_contract_recall": 0.26666666666666666,
+        "in_contract_false_positive_count": 73,
+        "out_of_contract_missing_count": 0,
+        "tp": 4,
+        "fp": 73,
+        "fn": 11
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.types",
+      "language": "python",
+      "kind": "module",
+      "file_path": "fastapi/types.py",
+      "metrics": {
+        "in_contract_expected_edges": 6,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 0.0,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 8,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 8,
+        "fn": 6
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_router_events",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_router_events.py",
+      "metrics": {
+        "in_contract_expected_edges": 8,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.25,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 2,
+        "fp": 0,
+        "fn": 6
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_security_api_key_cookie.test_security_api_key_no_key",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_security_api_key_cookie.py",
+      "metrics": {
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.openapi.models.Contact",
+      "language": "python",
+      "kind": "class",
+      "file_path": "fastapi/openapi/models.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.openapi.models.Contact' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.security.oauth2.OAuth2PasswordRequestFormStrict.__init__",
+      "language": "python",
+      "kind": "method",
+      "file_path": "fastapi/security/oauth2.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.routing._DefaultLifespan.__aenter__",
+      "language": "python",
+      "kind": "method",
+      "file_path": "fastapi/routing.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.params.Query.__init__",
+      "language": "python",
+      "kind": "method",
+      "file_path": "fastapi/params.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.routing.APIRouter.options",
+      "language": "python",
+      "kind": "method",
+      "file_path": "fastapi/routing.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_jsonable_encoder.Item",
+      "language": "python",
+      "kind": "class",
+      "file_path": "tests/test_jsonable_encoder.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.tests.test_jsonable_encoder.Item' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.tests.test_security_scopes_sub_dependency.call_counts_fixture",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_security_scopes_sub_dependency.py",
+      "metrics": {
+        "in_contract_expected_edges": 1,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 1
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.params.Form",
+      "language": "python",
+      "kind": "class",
+      "file_path": "fastapi/params.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.params.Form' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.param_functions.Header",
+      "language": "python",
+      "kind": "function",
+      "file_path": "fastapi/param_functions.py",
+      "metrics": {
+        "in_contract_expected_edges": 33,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 33
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_starlette_exception.test_openapi_schema",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_starlette_exception.py",
+      "metrics": {
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_sub_callbacks",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_sub_callbacks.py",
+      "metrics": {
+        "in_contract_expected_edges": 5,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.4,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 2,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_response_model_as_return_annotation.test_openapi_schema",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_response_model_as_return_annotation.py",
+      "metrics": {
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_request_params.test_file.test_list",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_request_params/test_file/test_list.py",
+      "metrics": {
+        "in_contract_expected_edges": 5,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.6,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 3,
+        "fp": 0,
+        "fn": 2
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_dataclasses.test_tutorial003",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_tutorial/test_dataclasses/test_tutorial003.py",
+      "metrics": {
+        "in_contract_expected_edges": 5,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.4,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 2,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_sql_databases.test_tutorial001.test_openapi_schema",
+      "language": "python",
+      "kind": "function",
+      "file_path": "tests/test_tutorial/test_sql_databases/test_tutorial001.py",
+      "metrics": {
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.cors",
+      "language": "python",
+      "kind": "module",
+      "file_path": "docs_src/cors/__init__.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 0.0,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 4,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 4,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.query_params_str_validations.tutorial012_an_py310",
+      "language": "python",
+      "kind": "module",
+      "file_path": "docs_src/query_params_str_validations/tutorial012_an_py310.py",
+      "metrics": {
+        "in_contract_expected_edges": 2,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.5,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 1,
+        "fp": 0,
+        "fn": 1
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.docs_src.header_param_models.tutorial001_an_py310.CommonHeaders",
+      "language": "python",
+      "kind": "class",
+      "file_path": "docs_src/header_param_models/tutorial001_an_py310.py",
+      "metrics": null,
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": "Node 'fastapi.docs_src.header_param_models.tutorial001_an_py310.CommonHeaders' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+    },
+    {
+      "entity": "fastapi.docs_src.security.tutorial005_an_py310.read_own_items",
+      "language": "python",
+      "kind": "function",
+      "file_path": "docs_src/security/tutorial005_an_py310.py",
+      "metrics": {
+        "in_contract_expected_edges": 2,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 2
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi.tests.test_tutorial.test_static_files.test_tutorial001",
+      "language": "python",
+      "kind": "module",
+      "file_path": "tests/test_tutorial/test_static_files/test_tutorial001.py",
+      "metrics": {
+        "in_contract_expected_edges": 6,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.16666666666666666,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 1,
+        "fp": 0,
+        "fn": 5
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    },
+    {
+      "entity": "fastapi._compat.v2.ModelField.alias",
+      "language": "python",
+      "kind": "method",
+      "file_path": "fastapi/_compat/v2.py",
+      "metrics": {
+        "in_contract_expected_edges": 0,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": null,
+        "in_contract_recall": null,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "ground_truth_parse_ok": true,
+      "ground_truth_error": null,
+      "reducer_error": null
+    }
+  ],
+  "overview_errors": {
+    "fastapi.tests.test_skip_defaults.ModelSubclass": "Node 'fastapi.tests.test_skip_defaults.ModelSubclass' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.tests.test_generic_parameterless_depends.B": "Node 'fastapi.tests.test_generic_parameterless_depends.B' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.routing.APIRouter": "Node 'fastapi.routing.APIRouter' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.tests.test_request_params.test_query.test_required_str.QueryModelRequiredStr": "Node 'fastapi.tests.test_request_params.test_query.test_required_str.QueryModelRequiredStr' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.docs_src.graphql_.tutorial001_py39.User": "Node 'fastapi.docs_src.graphql_.tutorial001_py39.User' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.openapi.models.Components": "Node 'fastapi.openapi.models.Components' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.docs_src.header_param_models.tutorial002_py310.CommonHeaders": "Node 'fastapi.docs_src.header_param_models.tutorial002_py310.CommonHeaders' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.tests.test_include_router_defaults_overrides.ResponseLevel1": "Node 'fastapi.tests.test_include_router_defaults_overrides.ResponseLevel1' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.security.base.SecurityBase": "Node 'fastapi.security.base.SecurityBase' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.docs_src.dataclasses_.tutorial001_py310.Item": "Node 'fastapi.docs_src.dataclasses_.tutorial001_py310.Item' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.docs_src.header_param_models.tutorial002_an_py310.CommonHeaders": "Node 'fastapi.docs_src.header_param_models.tutorial002_an_py310.CommonHeaders' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.params.Security": "Node 'fastapi.params.Security' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.applications.FastAPI": "Node 'fastapi.applications.FastAPI' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.tests.test_validate_response_dataclass.Item": "Node 'fastapi.tests.test_validate_response_dataclass.Item' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.openapi.models.Operation": "Node 'fastapi.openapi.models.Operation' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.docs_src.dataclasses_.tutorial002_py310.Item": "Node 'fastapi.docs_src.dataclasses_.tutorial002_py310.Item' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.docs_src.dataclasses_.tutorial003_py310.Item": "Node 'fastapi.docs_src.dataclasses_.tutorial003_py310.Item' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.docs_src.schema_extra_example.tutorial001_py310.Item": "Node 'fastapi.docs_src.schema_extra_example.tutorial001_py310.Item' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.params.Cookie": "Node 'fastapi.params.Cookie' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.docs_src.body_multiple_params.tutorial002_py310.Item": "Node 'fastapi.docs_src.body_multiple_params.tutorial002_py310.Item' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.docs_src.graphql_.tutorial001_py310.User": "Node 'fastapi.docs_src.graphql_.tutorial001_py310.User' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.tests.test_custom_route_class.APIRouteA": "Node 'fastapi.tests.test_custom_route_class.APIRouteA' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.tests.test_response_model_invalid.NonPydanticModel": "Node 'fastapi.tests.test_response_model_invalid.NonPydanticModel' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.docs_src.additional_responses.tutorial004_py310.Item": "Node 'fastapi.docs_src.additional_responses.tutorial004_py310.Item' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.tests.test_include_router_defaults_overrides.ResponseLevel2": "Node 'fastapi.tests.test_include_router_defaults_overrides.ResponseLevel2' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.docs_src.security.tutorial004_py310.Token": "Node 'fastapi.docs_src.security.tutorial004_py310.Token' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.tests.test_additional_responses_response_class.Error": "Node 'fastapi.tests.test_additional_responses_response_class.Error' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.tests.test_serialize_response_dataclass.Item": "Node 'fastapi.tests.test_serialize_response_dataclass.Item' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.docs_src.separate_openapi_schemas.tutorial001_py310.Item": "Node 'fastapi.docs_src.separate_openapi_schemas.tutorial001_py310.Item' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.openapi.models.Contact": "Node 'fastapi.openapi.models.Contact' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.tests.test_jsonable_encoder.Item": "Node 'fastapi.tests.test_jsonable_encoder.Item' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.params.Form": "Node 'fastapi.params.Form' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'.",
+    "fastapi.docs_src.header_param_models.tutorial001_an_py310.CommonHeaders": "Node 'fastapi.docs_src.header_param_models.tutorial001_an_py310.CommonHeaders' not found in snapshot '30faf32da79f2e8fb1a8150907310a72ac7c31cc290f33e5495d90560bd24acb'."
+  },
+  "thresholds": {
+    "precision_mean_min": 0.95,
+    "recall_mean_min": 0.9,
+    "precision_min_by_group": 0.85,
+    "recall_min_by_group": 0.8,
+    "misses_out_of_contract_rate_min": 0.8
+  }
+}
