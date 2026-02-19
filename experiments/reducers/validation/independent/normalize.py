@@ -17,6 +17,10 @@ def normalize_call_edges(
         caller = edge.caller or module_qualified_name
         callee = (edge.callee or "").strip()
         callee_qname = edge.callee_qname or None
+        if not callee_qname and callee and "." in callee:
+            callee_qname = callee
+        if callee_qname:
+            callee = callee_qname.split(".")[-1]
         if not callee and callee_qname:
             callee = callee_qname.split(".")[-1]
         dynamic = edge.dynamic or not callee
@@ -39,6 +43,8 @@ def normalize_import_edges(
     for edge in edges:
         source = edge.source_module or module_qualified_name
         target = (edge.target_module or "").strip()
+        if not target and edge.target_text:
+            target = edge.target_text.strip()
         normalized.append(
             NormalizedImportEdge(
                 source_module=source,

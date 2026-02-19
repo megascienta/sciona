@@ -57,6 +57,18 @@ def render_summary(payload: dict) -> List[str]:
             lines.append(f"- {key}: `{independent_totals[key]}`")
     lines.append("")
 
+    lines.append("## Independent Parser Coverage By Language")
+    lines.append("")
+    coverage_by_language = payload.get("independent_coverage_by_language", {})
+    if not coverage_by_language:
+        lines.append("- none")
+    else:
+        for language, stats in coverage_by_language.items():
+            lines.append(
+                f"- {language}: files_parsed=`{stats.get('files_parsed')}`, files_total=`{stats.get('files_total')}`"
+            )
+    lines.append("")
+
     lines.append("## Contract Accuracy (Reducer vs Ground Truth In-Contract)")
     lines.append("")
     agg_contract = payload.get("aggregate_contract", {})

@@ -65,6 +65,8 @@ def call_in_contract(
         identifier = edge.callee_qname.split(".")[-1]
     if not identifier:
         return False
+    if not require_in_repo:
+        return True
 
     symbol_index: dict[str, list[str]] = call_resolution.get("symbol_index", {})
     module_lookup: dict[str, str] = call_resolution.get("module_lookup", {})

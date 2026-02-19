@@ -8,7 +8,7 @@ import argparse
 import sys
 from dataclasses import asdict
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Callable, Dict, List, Protocol, Tuple
 
 from sciona.runtime.paths import repo_name_prefix
 from sciona.runtime import packaging as runtime_packaging
@@ -53,6 +53,10 @@ from experiments.reducers.validation.sciona_adapter import (
 )
 from sciona.data_storage.artifact_db import read_status as artifact_read_status
 from sciona.pipelines.progress import make_progress_factory
+from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
+from sciona.code_analysis.core.extract.languages.python_imports import module_name as python_module_name
+from sciona.code_analysis.core.extract.languages.typescript import module_name as typescript_module_name
+from sciona.code_analysis.core.extract.languages.java import module_name as java_module_name
 
 
 def parse_args() -> argparse.Namespace:
@@ -72,9 +76,9 @@ def _module_qname_from_entity(entity) -> str:
     return entity.qualified_name
 
 
-def _enrich_entities_with_db(entities, conn, snapshot_id) -> None:
+def _enrich_entities_with_db(entities, resolver) -> None:
     for entity in entities:
-        resolved = resolve_node_instance(conn, snapshot_id, entity.qualified_name, entity.kind)
+        resolved = resolver.resolve_node_instance(entity.qualified_name, entity.kind)
         if not resolved:
             continue
         resolved_path = resolved.get("file_path")
@@ -113,6 +117,29 @@ def _load_contract_spec(path: Path) -> dict:
     return data
 
 
+def _snapshot_for_file(repo_root: Path, file_path: str, language: str) -> FileSnapshot:
+    rel = Path(file_path)
+    record = FileRecord(path=repo_root / rel, relative_path=rel, language=language)
+    return FileSnapshot(record=record, file_id="", blob_sha="", size=0, line_count=1, content=None)
+
+
+def _canonical_module_name(repo_root: Path, file_result: FileParseResult) -> str:
+    if not file_result.file_path:
+        return file_result.module_qualified_name
+    language = (file_result.language or "").lower()
+    snapshot = _snapshot_for_file(repo_root, file_result.file_path, file_result.language)
+    try:
+        if language == "python":
+            return python_module_name(repo_root, snapshot)
+        if language == "typescript":
+            return typescript_module_name(repo_root, snapshot)
+        if language == "java":
+            return java_module_name(repo_root, snapshot)
+    except Exception:
+        return file_result.module_qualified_name
+    return file_result.module_qualified_name
+
+
 def _build_import_targets(core_conn, snapshot_id: str) -> dict[str, set[str]]:
     rows = core_conn.execute(
         """
@@ -137,14 +164,14 @@ def _build_import_targets(core_conn, snapshot_id: str) -> dict[str, set[str]]:
     return targets
 
 
-def _get_file_module_map(entities, conn, snapshot_id) -> Tuple[Dict[str, dict], Dict[str, str]]:
+def _get_file_module_map(entities, resolver) -> Tuple[Dict[str, dict], Dict[str, str]]:
     mapping: Dict[str, dict] = {}
     errors: Dict[str, str] = {}
     for entity in entities:
         file_path = entity.file_path
         module_qname = entity.module_qualified_name or _module_qname_from_entity(entity)
         if not file_path:
-            resolved = resolve_node_instance(conn, snapshot_id, entity.qualified_name, entity.kind)
+            resolved = resolver.resolve_node_instance(entity.qualified_name, entity.kind)
             if resolved and resolved.get("file_path"):
                 file_path = resolved.get("file_path")
         if not file_path:
@@ -190,7 +217,7 @@ def _build_parse_file_map(
 def _parse_independent(
     repo_root: Path,
     file_entries: Dict[str, dict],
-    progress_factory=None,
+    on_file_parsed: Callable[[str], None] | None = None,
 ) -> Dict[str, FileParseResult]:
     by_language: Dict[str, List[dict]] = {}
     for entry in file_entries.values():
@@ -207,161 +234,321 @@ def _parse_independent(
         parser = parsers.get(language)
         if not parser:
             continue
-        progress = None
-        if progress_factory:
-            progress = progress_factory(f"Parsing {language}", len(entries))
         for output in parser(repo_root, entries):
             results[output.file_path] = output
-            if progress:
-                progress.advance(1)
-        if progress:
-            progress.close()
+            if on_file_parsed:
+                on_file_parsed(output.file_path)
 
     return results
 
 
-def _collect_reducer_outputs(
-    entity,
-    conn,
-    repo_root,
-    snapshot_id,
-) -> Tuple[Dict[str, object], List[EdgeRecord]]:
-    payloads: Dict[str, object] = {}
-    edges: List[EdgeRecord] = []
-    if entity.kind == "module":
-        dep_payload = get_dependency_edges_payload(
-            snapshot_id,
-            conn,
-            repo_root,
-            entity.qualified_name,
+class EdgeSource(Protocol):
+    def get_edges(self, entity) -> Tuple[Dict[str, object], List[EdgeRecord], str | None]:
+        ...
+
+
+class ResolverCache:
+    def __init__(self, core_conn, snapshot_id: str) -> None:
+        self._core_conn = core_conn
+        self._snapshot_id = snapshot_id
+        self._node_instance_cache: Dict[Tuple[str, str], dict | None] = {}
+        self._module_ids_cache: Dict[str, List[str]] = {}
+
+    def resolve_node_instance(self, qualified_name: str, kind: str) -> dict | None:
+        key = (qualified_name, kind)
+        if key in self._node_instance_cache:
+            return self._node_instance_cache[key]
+        resolved = resolve_node_instance(self._core_conn, self._snapshot_id, qualified_name, kind)
+        self._node_instance_cache[key] = resolved
+        return resolved
+
+    def resolve_module_structural_ids(self, qualified_name: str) -> List[str]:
+        if qualified_name in self._module_ids_cache:
+            return self._module_ids_cache[qualified_name]
+        module_ids = resolve_module_structural_ids(
+            self._core_conn, self._snapshot_id, qualified_name
         )
-        payloads["dependency_edges"] = dep_payload
-        for edge in dep_payload.get("edges", []) or []:
-            edges.append(_edge_record_from_import(edge))
-        return payloads, edges
-
-    if entity.kind == "class":
-        class_id = entity.structural_id or entity.qualified_name
-        class_payload = get_class_overview(snapshot_id, conn, repo_root, class_id)
-        payloads["class_overview"] = class_payload
-        method_payloads = []
-        for method in class_payload.get("methods", []) or []:
-            method_qname = method.get("qualified_name")
-            if not method_qname:
-                continue
-            call_payload = get_callsite_index_payload(
-                snapshot_id,
-                conn,
-                repo_root,
-                method_id=method_qname,
-            )
-            method_payloads.append(call_payload)
-            for edge in call_payload.get("edges", []) or []:
-                edges.append(_edge_record_from_call(edge, method_qname))
-        payloads["callsite_index"] = method_payloads
-        return payloads, edges
-
-    if entity.kind == "function":
-        call_payload = get_callsite_index_payload(
-            snapshot_id,
-            conn,
-            repo_root,
-            function_id=entity.qualified_name,
-        )
-        payloads["callsite_index"] = call_payload
-        for edge in call_payload.get("edges", []) or []:
-            edges.append(_edge_record_from_call(edge, entity.qualified_name))
-        return payloads, edges
-
-    if entity.kind == "method":
-        call_payload = get_callsite_index_payload(
-            snapshot_id,
-            conn,
-            repo_root,
-            method_id=entity.qualified_name,
-        )
-        payloads["callsite_index"] = call_payload
-        for edge in call_payload.get("edges", []) or []:
-            edges.append(_edge_record_from_call(edge, entity.qualified_name))
-        return payloads, edges
-
-    return payloads, edges
+        self._module_ids_cache[qualified_name] = module_ids or []
+        return self._module_ids_cache[qualified_name]
 
 
-def _collect_db_outputs(
-    entity,
-    core_conn,
-    artifact_conn,
-    snapshot_id,
-) -> Tuple[Dict[str, object], List[EdgeRecord], str | None]:
-    payloads: Dict[str, object] = {}
-    edges: List[EdgeRecord] = []
-    error = None
-    try:
-        if artifact_conn is None:
-            raise RuntimeError("artifact db not available")
-        if not artifact_read_status.rebuild_consistent_for_snapshot(
-            artifact_conn, snapshot_id=snapshot_id
+class ReducerEdgeSource:
+    def __init__(self, conn, repo_root: Path, snapshot_id: str) -> None:
+        self._conn = conn
+        self._repo_root = repo_root
+        self._snapshot_id = snapshot_id
+
+    def get_edges(self, entity) -> Tuple[Dict[str, object], List[EdgeRecord], str | None]:
+        try:
+            payloads: Dict[str, object] = {}
+            edges: List[EdgeRecord] = []
+            if entity.kind == "module":
+                dep_payload = get_dependency_edges_payload(
+                    self._snapshot_id,
+                    self._conn,
+                    self._repo_root,
+                    entity.qualified_name,
+                )
+                for edge in dep_payload.get("edges", []) or []:
+                    edges.append(_edge_record_from_import(edge))
+                return payloads, edges, None
+
+            if entity.kind == "class":
+                class_id = entity.structural_id or entity.qualified_name
+                class_payload = get_class_overview(self._snapshot_id, self._conn, self._repo_root, class_id)
+                for method in class_payload.get("methods", []) or []:
+                    method_qname = method.get("qualified_name")
+                    if not method_qname:
+                        continue
+                    call_payload = get_callsite_index_payload(
+                        self._snapshot_id,
+                        self._conn,
+                        self._repo_root,
+                        method_id=method_qname,
+                    )
+                    for edge in call_payload.get("edges", []) or []:
+                        edges.append(_edge_record_from_call(edge, method_qname))
+                return payloads, edges, None
+
+            if entity.kind == "function":
+                call_payload = get_callsite_index_payload(
+                    self._snapshot_id,
+                    self._conn,
+                    self._repo_root,
+                    function_id=entity.qualified_name,
+                )
+                for edge in call_payload.get("edges", []) or []:
+                    edges.append(_edge_record_from_call(edge, entity.qualified_name))
+                return payloads, edges, None
+
+            if entity.kind == "method":
+                call_payload = get_callsite_index_payload(
+                    self._snapshot_id,
+                    self._conn,
+                    self._repo_root,
+                    method_id=entity.qualified_name,
+                )
+                for edge in call_payload.get("edges", []) or []:
+                    edges.append(_edge_record_from_call(edge, entity.qualified_name))
+                return payloads, edges, None
+        except Exception as exc:
+            return {}, [], str(exc)
+
+        return {}, [], None
+
+
+class DbEdgeSource:
+    def __init__(self, core_conn, artifact_conn, snapshot_id: str, resolver: ResolverCache) -> None:
+        self._core_conn = core_conn
+        self._artifact_conn = artifact_conn
+        self._snapshot_id = snapshot_id
+        self._resolver = resolver
+        self._method_ids_cache: Dict[str, List[str]] = {}
+        self._error: str | None = None
+        if self._artifact_conn is None:
+            self._error = "artifact db not available"
+        elif not artifact_read_status.rebuild_consistent_for_snapshot(
+            self._artifact_conn, snapshot_id=self._snapshot_id
         ):
-            raise RuntimeError("artifact graph not consistent for snapshot")
+            self._error = "artifact graph not consistent for snapshot"
 
-        if entity.kind == "module":
-            module_ids = resolve_module_structural_ids(core_conn, snapshot_id, entity.qualified_name)
-            if not module_ids:
-                raise RuntimeError("module structural_id not found")
-            payloads["module_structural_ids"] = module_ids
-            edges = graph_edges_for_ids(
-                artifact_conn,
-                core_conn,
-                snapshot_id,
-                module_ids,
-                ["IMPORTS_DECLARED"],
-            )
-            payloads["import_edges"] = [asdict(edge) for edge in edges]
-            return payloads, edges, None
-
-        if entity.kind == "class":
-            resolved = resolve_node_instance(core_conn, snapshot_id, entity.qualified_name, "class")
-            if not resolved or not resolved.get("structural_id"):
-                raise RuntimeError("class structural_id not found")
-            class_id = resolved["structural_id"]
-            payloads["class_structural_id"] = class_id
-            method_ids = graph_edge_targets_for_ids(
-                artifact_conn,
-                [class_id],
-                "DEFINES_METHOD",
-            )
-            payloads["method_structural_ids"] = method_ids
-            if method_ids:
+    def get_edges(self, entity) -> Tuple[Dict[str, object], List[EdgeRecord], str | None]:
+        if self._error:
+            return {}, [], self._error
+        try:
+            edges: List[EdgeRecord] = []
+            if entity.kind == "module":
+                module_ids = self._resolver.resolve_module_structural_ids(entity.qualified_name)
+                if not module_ids:
+                    raise RuntimeError("module structural_id not found")
                 edges = graph_edges_for_ids(
-                    artifact_conn,
-                    core_conn,
-                    snapshot_id,
-                    method_ids,
+                    self._artifact_conn,
+                    self._core_conn,
+                    self._snapshot_id,
+                    module_ids,
+                    ["IMPORTS_DECLARED"],
+                )
+                return {}, edges, None
+
+            if entity.kind == "class":
+                resolved = self._resolver.resolve_node_instance(entity.qualified_name, "class")
+                if not resolved or not resolved.get("structural_id"):
+                    raise RuntimeError("class structural_id not found")
+                class_id = resolved["structural_id"]
+                method_ids = self._method_ids_cache.get(class_id)
+                if method_ids is None:
+                    method_ids = graph_edge_targets_for_ids(
+                        self._artifact_conn,
+                        [class_id],
+                        "DEFINES_METHOD",
+                    )
+                    self._method_ids_cache[class_id] = method_ids
+                if method_ids:
+                    edges = graph_edges_for_ids(
+                        self._artifact_conn,
+                        self._core_conn,
+                        self._snapshot_id,
+                        method_ids,
+                        ["CALLS"],
+                    )
+                return {}, edges, None
+
+            if entity.kind in {"function", "method"}:
+                resolved = self._resolver.resolve_node_instance(entity.qualified_name, entity.kind)
+                if not resolved or not resolved.get("structural_id"):
+                    raise RuntimeError("callable structural_id not found")
+                call_id = resolved["structural_id"]
+                edges = graph_edges_for_ids(
+                    self._artifact_conn,
+                    self._core_conn,
+                    self._snapshot_id,
+                    [call_id],
                     ["CALLS"],
                 )
-            payloads["call_edges"] = [asdict(edge) for edge in edges]
-            return payloads, edges, None
+                return {}, edges, None
+        except Exception as exc:
+            return {}, [], str(exc)
 
-        if entity.kind in {"function", "method"}:
-            resolved = resolve_node_instance(core_conn, snapshot_id, entity.qualified_name, entity.kind)
-            if not resolved or not resolved.get("structural_id"):
-                raise RuntimeError("callable structural_id not found")
-            call_id = resolved["structural_id"]
-            payloads["callable_structural_id"] = call_id
-            edges = graph_edges_for_ids(
-                artifact_conn,
-                core_conn,
-                snapshot_id,
-                [call_id],
-                ["CALLS"],
-            )
-            payloads["call_edges"] = [asdict(edge) for edge in edges]
-            return payloads, edges, None
-    except Exception as exc:
-        error = str(exc)
+        return {}, [], None
 
-    return payloads, edges, error
+
+def sample_entities_from_db(nodes, resolver, total_nodes: int, seed: int):
+    entities = build_entities_from_db(nodes)
+    _enrich_entities_with_db(entities, resolver)
+    sampling = sample_entities(entities, total_nodes, seed)
+    return sampling
+
+
+def prepare_parse_map(sampled, module_entries, resolver) -> Tuple[Dict[str, dict], Dict[str, str]]:
+    file_map, overview_errors = _get_file_module_map(sampled, resolver)
+    parse_file_map = _build_parse_file_map(sampled, file_map, module_entries)
+    return parse_file_map, overview_errors
+
+
+def parse_independent_files(
+    repo_root: Path,
+    parse_file_map: Dict[str, dict],
+    on_file_parsed: Callable[[str], None] | None,
+) -> Dict[str, FileParseResult]:
+    return _parse_independent(repo_root, parse_file_map, on_file_parsed=on_file_parsed)
+
+
+def build_normalized_edge_maps(
+    repo_root: Path,
+    independent_results: Dict[str, FileParseResult],
+) -> Tuple[Dict[str, Tuple[List[object], List[object]]], dict]:
+    normalized_edge_map: Dict[str, Tuple[List[object], List[object]]] = {}
+    for file_result in independent_results.values():
+        canonical_module = _canonical_module_name(repo_root, file_result)
+        if canonical_module:
+            file_result.module_qualified_name = canonical_module
+        normalized_edge_map[file_result.file_path] = normalize_file_edges(
+            file_result.module_qualified_name,
+            file_result.call_edges,
+            file_result.import_edges,
+        )
+    module_imports_by_prefix = build_module_imports_by_prefix(
+        independent_results, normalized_edge_map
+    )
+    return normalized_edge_map, module_imports_by_prefix
+
+
+def _coverage_by_language(independent_results: Dict[str, FileParseResult]) -> Dict[str, dict]:
+    coverage: Dict[str, dict] = {}
+    for result in independent_results.values():
+        language = result.language or "unknown"
+        stats = coverage.setdefault(language, {"files_total": 0, "files_parsed": 0})
+        stats["files_total"] += 1
+        if result.parse_ok:
+            stats["files_parsed"] += 1
+    return coverage
+
+
+def evaluate_entities(
+    sampled,
+    independent_results: Dict[str, FileParseResult],
+    normalized_edge_map: Dict[str, Tuple[List[object], List[object]]],
+    module_imports_by_prefix: dict,
+    module_names: set[str],
+    call_resolution: dict,
+    contract: dict,
+    repo_root: Path,
+    repo_prefix: str,
+    local_packages: set[str],
+    reducer_source: EdgeSource,
+    db_source: EdgeSource,
+    progress_handle,
+) -> Tuple[List[dict], List[dict], int, int]:
+    rows: List[dict] = []
+    out_of_contract_meta: List[dict] = []
+    total_files = len(independent_results)
+    parse_ok_files = sum(1 for result in independent_results.values() if result.parse_ok)
+    for entity in sampled:
+        file_result = independent_results.get(entity.file_path)
+        if not file_result:
+            if progress_handle:
+                progress_handle.advance(1)
+            continue
+        normalized_calls, normalized_imports = normalized_edge_map.get(
+            entity.file_path, ([], [])
+        )
+        expected, out_of_contract, out_meta = edge_records_from_ground_truth(
+            file_result,
+            normalized_calls,
+            normalized_imports,
+            module_imports_by_prefix,
+            entity,
+            module_names,
+            call_resolution,
+            contract,
+            repo_root,
+            repo_prefix,
+            local_packages,
+        )
+        out_of_contract_meta.extend(out_meta)
+        _, reducer_edges, reducer_error = reducer_source.get_edges(entity)
+        _, db_edges, db_error = db_source.get_edges(entity)
+
+        metrics_db_equivalence = None
+        metrics_contract = None
+        metrics_full = None
+        empty_set_mismatch = False
+        if not reducer_error and not db_error:
+            metrics_db_equivalence = compare_edge_sets(db_edges, reducer_edges)
+            empty_set_mismatch = bool(db_edges) != bool(reducer_edges)
+        if file_result.parse_ok and not reducer_error:
+            metrics_contract = compute_metrics(expected, out_of_contract, reducer_edges)
+            metrics_full = compute_metrics(expected + out_of_contract, [], reducer_edges)
+        rows.append(
+            {
+                "entity": entity.qualified_name,
+                "language": entity.language,
+                "kind": entity.kind,
+                "file_path": entity.file_path,
+                "module_qualified_name": entity.module_qualified_name,
+                "metrics_db_equivalence": asdict(metrics_db_equivalence)
+                if metrics_db_equivalence
+                else None,
+                "metrics_contract": asdict(metrics_contract) if metrics_contract else None,
+                "metrics_full": asdict(metrics_full) if metrics_full else None,
+                "db_equivalence_empty_mismatch": empty_set_mismatch,
+                "expected_edges": [asdict(edge) for edge in expected],
+                "out_of_contract_edges": [asdict(edge) for edge in out_of_contract],
+                "ground_truth_parse_ok": file_result.parse_ok,
+                "ground_truth_error": file_result.error,
+                "raw_call_edges_count": len(file_result.call_edges),
+                "raw_import_edges_count": len(file_result.import_edges),
+                "normalized_call_edges_count": len(normalized_calls),
+                "normalized_import_edges_count": len(normalized_imports),
+                "reducer_error": reducer_error,
+                "db_error": db_error,
+            }
+        )
+        if progress_handle:
+            progress_handle.advance(1)
+    if progress_handle:
+        progress_handle.close()
+    return rows, out_of_contract_meta, total_files, parse_ok_files
 
 
 def _aggregate_group_metrics(rows: List[dict], metric_key: str) -> Dict[str, dict]:
@@ -540,6 +727,7 @@ def main() -> int:
 
     with open_core_db(repo_root) as conn:
         snapshot_id = get_snapshot_id(conn)
+        resolver = ResolverCache(conn, snapshot_id)
         with open_artifact_db(repo_root) as artifact_conn:
             print("Loading nodes...")
             nodes = list_nodes_from_artifacts(
@@ -566,21 +754,30 @@ def main() -> int:
             repo_prefix = repo_name_prefix(repo_root)
             local_packages = set(runtime_packaging.local_package_names(repo_root))
 
-            entities = build_entities_from_db(nodes)
             print("Enriching entities...")
-            _enrich_entities_with_db(entities, conn, snapshot_id)
+            sampling = sample_entities_from_db(nodes, resolver, args.nodes, args.seed)
             print("Enriching entities...done")
-            sampling = sample_entities(entities, args.nodes, args.seed)
             sampled = sampling.sampled
 
             print("Building file maps...")
-            file_map, overview_errors = _get_file_module_map(sampled, conn, snapshot_id)
-            parse_file_map = _build_parse_file_map(sampled, file_map, module_entries)
+            parse_file_map, overview_errors = prepare_parse_map(
+                sampled, module_entries, resolver
+            )
             print("Building file maps...done")
             progress_factory = make_progress_factory()
-            independent_results = _parse_independent(
-                repo_root, parse_file_map, progress_factory=progress_factory
+            parse_progress = None
+            if progress_factory:
+                parse_progress = progress_factory("Parsing files", len(parse_file_map))
+
+            def _on_file_parsed(_file_path: str) -> None:
+                if parse_progress:
+                    parse_progress.advance(1)
+
+            independent_results = parse_independent_files(
+                repo_root, parse_file_map, on_file_parsed=_on_file_parsed
             )
+            if parse_progress:
+                parse_progress.close()
 
             stability_score = None
             stability_error = None
@@ -591,111 +788,30 @@ def main() -> int:
             except Exception as exc:
                 stability_error = str(exc)
 
-            normalized_edge_map: Dict[str, Tuple[List[object], List[object]]] = {}
-            for file_result in independent_results.values():
-                normalized_edge_map[file_result.file_path] = normalize_file_edges(
-                    file_result.module_qualified_name,
-                    file_result.call_edges,
-                    file_result.import_edges,
-                )
-            module_imports_by_prefix = build_module_imports_by_prefix(
-                independent_results, normalized_edge_map
+            normalized_edge_map, module_imports_by_prefix = build_normalized_edge_maps(
+                repo_root, independent_results
             )
-
-            rows: List[dict] = []
-            out_of_contract_meta: List[dict] = []
-            total_files = len(independent_results)
-            parse_ok_files = sum(
-                1 for file_result in independent_results.values() if file_result.parse_ok
+            coverage_by_language = _coverage_by_language(independent_results)
+            reducer_source = ReducerEdgeSource(conn, repo_root, snapshot_id)
+            db_source = DbEdgeSource(conn, artifact_conn, snapshot_id, resolver)
+            validation_progress = None
+            if progress_factory:
+                validation_progress = progress_factory("Validating nodes", len(sampled))
+            rows, out_of_contract_meta, total_files, parse_ok_files = evaluate_entities(
+                sampled,
+                independent_results,
+                normalized_edge_map,
+                module_imports_by_prefix,
+                module_names,
+                call_resolution,
+                contract,
+                repo_root,
+                repo_prefix,
+                local_packages,
+                reducer_source,
+                db_source,
+                validation_progress,
             )
-            progress = make_progress_factory()("Validating", len(sampled))
-            for entity in sampled:
-                file_result = independent_results.get(entity.file_path)
-                if not file_result:
-                    if progress:
-                        progress.advance(1)
-                    continue
-                normalized_calls, normalized_imports = normalized_edge_map.get(
-                    entity.file_path, ([], [])
-                )
-                expected, out_of_contract, out_meta = edge_records_from_ground_truth(
-                    file_result,
-                    normalized_calls,
-                    normalized_imports,
-                    module_imports_by_prefix,
-                    entity,
-                    module_names,
-                    call_resolution,
-                    contract,
-                    repo_root,
-                    repo_prefix,
-                    local_packages,
-                )
-                out_of_contract_meta.extend(out_meta)
-                reducer_error = None
-                db_error = None
-                reducer_edges: List[EdgeRecord] = []
-                reducer_payloads: Dict[str, object] = {}
-                try:
-                    reducer_payloads, reducer_edges = _collect_reducer_outputs(
-                        entity,
-                        conn,
-                        repo_root,
-                        snapshot_id,
-                    )
-                except Exception as exc:
-                    reducer_error = str(exc)
-
-                db_payloads: Dict[str, object] = {}
-                db_edges: List[EdgeRecord] = []
-                db_payloads, db_edges, db_error = _collect_db_outputs(
-                    entity,
-                    conn,
-                    artifact_conn,
-                    snapshot_id,
-                )
-
-                metrics_db_equivalence = None
-                metrics_contract = None
-                metrics_full = None
-                empty_set_mismatch = False
-                if not reducer_error and not db_error:
-                    metrics_db_equivalence = compare_edge_sets(db_edges, reducer_edges)
-                    empty_set_mismatch = bool(db_edges) != bool(reducer_edges)
-                if file_result.parse_ok and not reducer_error:
-                    metrics_contract = compute_metrics(expected, out_of_contract, reducer_edges)
-                    metrics_full = compute_metrics(expected + out_of_contract, [], reducer_edges)
-                rows.append(
-                    {
-                        "entity": entity.qualified_name,
-                        "language": entity.language,
-                        "kind": entity.kind,
-                        "file_path": entity.file_path,
-                        "module_qualified_name": entity.module_qualified_name,
-                        "metrics_db_equivalence": asdict(metrics_db_equivalence)
-                        if metrics_db_equivalence
-                        else None,
-                        "metrics_contract": asdict(metrics_contract) if metrics_contract else None,
-                        "metrics_full": asdict(metrics_full) if metrics_full else None,
-                        "db_equivalence_empty_mismatch": empty_set_mismatch,
-                        "reducer_payloads": reducer_payloads,
-                        "db_payloads": db_payloads,
-                        "expected_edges": [asdict(edge) for edge in expected],
-                        "out_of_contract_edges": [asdict(edge) for edge in out_of_contract],
-                        "ground_truth_parse_ok": file_result.parse_ok,
-                        "ground_truth_error": file_result.error,
-                        "raw_call_edges_count": len(file_result.call_edges),
-                        "raw_import_edges_count": len(file_result.import_edges),
-                        "normalized_call_edges_count": len(normalized_calls),
-                        "normalized_import_edges_count": len(normalized_imports),
-                        "reducer_error": reducer_error,
-                        "db_error": db_error,
-                    }
-                )
-                if progress:
-                    progress.advance(1)
-            if progress:
-                progress.close()
 
     scored_rows_contract = [row for row in rows if row.get("metrics_contract") is not None]
     scored_rows_full = [row for row in rows if row.get("metrics_full") is not None]
@@ -809,6 +925,7 @@ def main() -> int:
             "in_contract_edges": expected_total,
             "out_of_contract_edges": out_of_contract_total,
         },
+        "independent_coverage_by_language": coverage_by_language,
         "threshold_evaluation_contract": threshold_eval,
         "population_by_language": sampling.population_by_language,
         "population_by_kind": sampling.population_by_kind,
