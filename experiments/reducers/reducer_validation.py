@@ -336,9 +336,14 @@ def main() -> int:
         file_map, overview_errors = _get_file_module_map(sampled, repo_root, conn, snapshot_id)
         independent_results = _parse_independent(repo_root, file_map)
 
-        stability_hash_a = get_structural_index_hash(snapshot_id, conn, repo_root)
-        stability_hash_b = get_structural_index_hash(snapshot_id, conn, repo_root)
-        stability_score = 1.0 if stability_hash_a == stability_hash_b else 0.0
+        stability_score = None
+        stability_error = None
+        try:
+            stability_hash_a = get_structural_index_hash(snapshot_id, conn, repo_root)
+            stability_hash_b = get_structural_index_hash(snapshot_id, conn, repo_root)
+            stability_score = 1.0 if stability_hash_a == stability_hash_b else 0.0
+        except Exception as exc:
+            stability_error = str(exc)
 
         rows: List[dict] = []
         parse_ok_files = 0
@@ -373,7 +378,7 @@ def main() -> int:
             )
 
     scored_rows = [row for row in rows if row["metrics"] is not None]
-    aggregate = _aggregate(scored_rows, len(scored_rows), len(rows), parse_ok_files, total_files, stability_score)
+    aggregate = _aggregate(scored_rows, len(scored_rows), len(rows), parse_ok_files, total_files, stability_score or 0.0)
     group_metrics = _aggregate_group_metrics(scored_rows)
     edge_breakdown = _edge_type_breakdown(scored_rows)
     failures = _failure_examples(scored_rows)
@@ -402,6 +407,7 @@ def main() -> int:
         "strata_counts": sampling.strata_counts,
         "per_node": rows,
         "overview_errors": overview_errors,
+        "stability_error": stability_error,
         "thresholds": config.DEFAULT_THRESHOLDS,
     }
 

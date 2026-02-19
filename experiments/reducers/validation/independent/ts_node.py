@@ -30,6 +30,7 @@ def parse_typescript_files(repo_root: Path, files: List[dict]) -> List[FileParse
         text=True,
         capture_output=True,
         check=False,
+        cwd=str(SCRIPT_PATH.parent.parent.parent),
     )
     if result.returncode != 0:
         raise RuntimeError(result.stderr.strip() or "TypeScript parser failed")
@@ -38,36 +39,60 @@ def parse_typescript_files(repo_root: Path, files: List[dict]) -> List[FileParse
     for item in data.get("results", []):
         defs = []
         for entry in item.get("defs", []):
-            parts = entry.split("|")
-            if len(parts) != 4:
-                continue
-            qname, kind, start_line, end_line = parts
-            defs.append(Definition(kind=kind, qualified_name=qname, start_line=int(start_line), end_line=int(end_line)))
+            if isinstance(entry, dict):
+                qname = entry.get("qualified_name", "")
+                kind = entry.get("kind", "")
+                start_line = entry.get("start_line", 1)
+                end_line = entry.get("end_line", start_line)
+            else:
+                parts = entry.split("|")
+                if len(parts) != 4:
+                    continue
+                qname, kind, start_line, end_line = parts
+            defs.append(
+                Definition(
+                    kind=kind,
+                    qualified_name=qname,
+                    start_line=int(start_line),
+                    end_line=int(end_line),
+                )
+            )
         call_edges = []
         for entry in item.get("call_edges", []):
-            parts = entry.split("|")
-            if len(parts) != 4:
-                continue
-            caller, callee, callee_qname, dynamic = parts
+            if isinstance(entry, dict):
+                caller = entry.get("caller", "")
+                callee = entry.get("callee", "")
+                callee_qname = entry.get("callee_qname")
+                dynamic = entry.get("dynamic", False)
+            else:
+                parts = entry.split("|")
+                if len(parts) != 4:
+                    continue
+                caller, callee, callee_qname, dynamic = parts
             call_edges.append(
                 CallEdge(
                     caller=caller,
                     callee=callee,
                     callee_qname=callee_qname or None,
-                    dynamic=dynamic == "true",
+                    dynamic=dynamic == "true" if isinstance(dynamic, str) else bool(dynamic),
                 )
             )
         import_edges = []
         for entry in item.get("import_edges", []):
-            parts = entry.split("|")
-            if len(parts) != 3:
-                continue
-            src, dst, dynamic = parts
+            if isinstance(entry, dict):
+                src = entry.get("source_module", "")
+                dst = entry.get("target_module", "")
+                dynamic = entry.get("dynamic", False)
+            else:
+                parts = entry.split("|")
+                if len(parts) != 3:
+                    continue
+                src, dst, dynamic = parts
             import_edges.append(
                 ImportEdge(
                     source_module=src,
                     target_module=dst,
-                    dynamic=dynamic == "true",
+                    dynamic=dynamic == "true" if isinstance(dynamic, str) else bool(dynamic),
                 )
             )
         outputs.append(
