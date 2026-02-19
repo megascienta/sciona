@@ -120,7 +120,14 @@ def get_dependency_edges_payload(
 ) -> dict:
     reducers = get_reducers()
     module = reducers["dependency_edges"].module
-    return _render_json(module, snapshot_id, conn, repo_root, module_id=module_id)
+    return _render_json(
+        module,
+        snapshot_id,
+        conn,
+        repo_root,
+        module_id=module_id,
+        direction="out",
+    )
 
 
 def get_callsite_index_payload(

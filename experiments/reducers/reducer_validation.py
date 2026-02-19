@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 
 from sciona.runtime.paths import repo_name_prefix
+from sciona.runtime import packaging as runtime_packaging
 
 if __package__ is None or __package__ == "":
     sys.path.append(str(Path(__file__).resolve().parents[2]))
@@ -28,8 +29,10 @@ from experiments.reducers.validation.db_adapter import (
     callable_call_edges,
     class_method_ids,
     module_import_edges,
+    module_import_edges_for_ids,
     open_artifact_db,
     resolve_node_instance,
+    resolve_module_structural_ids,
 )
 from experiments.reducers.validation.sciona_adapter import (
     get_callsite_index_payload,
@@ -93,19 +96,35 @@ def _edge_record_from_import(edge: dict) -> EdgeRecord:
 
 
 def _edge_records_from_ground_truth(
-    file_result: FileParseResult, entity
+    file_result: FileParseResult,
+    entity,
+    module_names: set[str],
+    file_module_map: Dict[str, str],
+    repo_root: Path,
+    repo_prefix: str,
+    local_packages: set[str],
 ) -> Tuple[List[EdgeRecord], List[EdgeRecord]]:
     expected: List[EdgeRecord] = []
     out_of_contract: List[EdgeRecord] = []
 
     if entity.kind == "module":
         for edge in file_result.import_edges:
+            resolved = _resolve_import_target(
+                edge.target_module,
+                file_result.file_path,
+                file_result.module_qualified_name,
+                module_names,
+                file_module_map,
+                repo_root,
+                repo_prefix,
+                local_packages,
+            )
             record = EdgeRecord(
                 caller=file_result.module_qualified_name,
-                callee=edge.target_module,
-                callee_qname=edge.target_module,
+                callee=resolved or edge.target_module,
+                callee_qname=resolved,
             )
-            if edge.dynamic:
+            if edge.dynamic or not resolved:
                 out_of_contract.append(record)
             else:
                 expected.append(record)
@@ -132,6 +151,70 @@ def _edge_records_from_ground_truth(
         else:
             expected.append(record)
     return expected, out_of_contract
+
+
+def _resolve_import_target(
+    raw_target: str,
+    file_path: str,
+    module_qname: str,
+    module_names: set[str],
+    file_module_map: Dict[str, str],
+    repo_root: Path,
+    repo_prefix: str,
+    local_packages: set[str],
+) -> str | None:
+    if not raw_target:
+        return None
+    if raw_target in module_names:
+        return raw_target
+    if repo_prefix and (
+        raw_target == repo_prefix or raw_target.startswith(f"{repo_prefix}.")
+    ):
+        if raw_target in module_names:
+            return raw_target
+    if local_packages:
+        for package in local_packages:
+            if raw_target == package or raw_target.startswith(f"{package}."):
+                candidate = f"{repo_prefix}.{raw_target}" if repo_prefix else raw_target
+                if candidate in module_names:
+                    return candidate
+                break
+    if raw_target.startswith(".") and module_qname:
+        level = len(raw_target) - len(raw_target.lstrip("."))
+        remainder = raw_target.lstrip(".")
+        parts = module_qname.split(".")
+        if level <= len(parts):
+            base = ".".join(parts[:-level]) if level else module_qname
+            if remainder:
+                candidate = f"{base}.{remainder}" if base else remainder
+            else:
+                candidate = base
+            if candidate in module_names:
+                return candidate
+    if raw_target.startswith(".") or raw_target.startswith("/"):
+        base = (repo_root / file_path).parent
+        raw = raw_target.lstrip("./")
+        candidates = [
+            base / (raw + ".ts"),
+            base / (raw + ".tsx"),
+            base / (raw + ".d.ts"),
+            base / raw / "index.ts",
+            base / raw / "index.tsx",
+            base / raw / "index.d.ts",
+        ]
+        for candidate in candidates:
+            try:
+                rel = candidate.resolve().relative_to(repo_root)
+                key = rel.as_posix()
+            except Exception:
+                continue
+            mapped = file_module_map.get(key)
+            if mapped:
+                return mapped
+        return None
+    if raw_target in file_module_map:
+        return file_module_map[raw_target]
+    return None
 
 
 def _get_file_module_map(entities, conn, snapshot_id) -> Tuple[Dict[str, dict], Dict[str, str]]:
@@ -201,7 +284,8 @@ def _collect_reducer_outputs(
         return payloads, edges
 
     if entity.kind == "class":
-        class_payload = get_class_overview(snapshot_id, conn, repo_root, entity.qualified_name)
+        class_id = entity.structural_id or entity.qualified_name
+        class_payload = get_class_overview(snapshot_id, conn, repo_root, class_id)
         payloads["class_overview"] = class_payload
         method_payloads = []
         for method in class_payload.get("methods", []) or []:
@@ -258,12 +342,11 @@ def _collect_db_outputs(
     error = None
     try:
         if entity.kind == "module":
-            resolved = resolve_node_instance(core_conn, snapshot_id, entity.qualified_name, "module")
-            if not resolved or not resolved.get("structural_id"):
+            module_ids = resolve_module_structural_ids(core_conn, snapshot_id, entity.qualified_name)
+            if not module_ids:
                 raise RuntimeError("module structural_id not found")
-            module_id = resolved["structural_id"]
-            payloads["module_structural_id"] = module_id
-            edges = module_import_edges(core_conn, snapshot_id, module_id)
+            payloads["module_structural_ids"] = module_ids
+            edges = module_import_edges_for_ids(core_conn, snapshot_id, module_ids)
             payloads["import_edges"] = [asdict(edge) for edge in edges]
             return payloads, edges, None
 
@@ -453,6 +536,18 @@ def main() -> int:
                     repo_root,
                     module_id=module_name,
                 )
+            module_names = {
+                entry.get("module_qualified_name")
+                for entry in structural_index.get("modules", {}).get("entries", [])
+                if entry.get("module_qualified_name")
+            }
+            file_module_map = {
+                entry.get("path"): entry.get("module_qualified_name")
+                for entry in structural_index.get("files", {}).get("entries", [])
+                if entry.get("path") and entry.get("module_qualified_name")
+            }
+            repo_prefix = repo_name_prefix(repo_root)
+            local_packages = set(runtime_packaging.local_package_names(repo_root))
 
             entities = build_entities_from_structural_index(structural_index, module_overviews)
             _enrich_entities_with_db(entities, conn, snapshot_id)
@@ -480,7 +575,15 @@ def main() -> int:
                 file_result = independent_results.get(entity.file_path)
                 if not file_result:
                     continue
-                expected, out_of_contract = _edge_records_from_ground_truth(file_result, entity)
+                expected, out_of_contract = _edge_records_from_ground_truth(
+                    file_result,
+                    entity,
+                    module_names,
+                    file_module_map,
+                    repo_root,
+                    repo_prefix,
+                    local_packages,
+                )
                 reducer_error = None
                 db_error = None
                 reducer_edges: List[EdgeRecord] = []

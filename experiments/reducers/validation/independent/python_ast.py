@@ -72,9 +72,14 @@ class _ImportVisitor(ast.NodeVisitor):
                 self.imports.append(ImportEdge("", alias.name, dynamic=False))
 
     def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
+        prefix = "." * (node.level or 0)
         module = node.module or ""
         if module:
-            self.imports.append(ImportEdge("", module, dynamic=False))
+            self.imports.append(ImportEdge("", f"{prefix}{module}", dynamic=False))
+        else:
+            for alias in node.names:
+                if alias.name:
+                    self.imports.append(ImportEdge("", f"{prefix}{alias.name}", dynamic=False))
 
 
 
