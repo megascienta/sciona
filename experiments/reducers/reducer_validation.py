@@ -567,12 +567,16 @@ def main() -> int:
             local_packages = set(runtime_packaging.local_package_names(repo_root))
 
             entities = build_entities_from_db(nodes)
+            print("Enriching entities...")
             _enrich_entities_with_db(entities, conn, snapshot_id)
+            print("Enriching entities...done")
             sampling = sample_entities(entities, args.nodes, args.seed)
             sampled = sampling.sampled
 
+            print("Building file maps...")
             file_map, overview_errors = _get_file_module_map(sampled, conn, snapshot_id)
             parse_file_map = _build_parse_file_map(sampled, file_map, module_entries)
+            print("Building file maps...done")
             progress_factory = make_progress_factory()
             independent_results = _parse_independent(
                 repo_root, parse_file_map, progress_factory=progress_factory
