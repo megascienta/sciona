@@ -109,6 +109,7 @@ def _edge_records_from_ground_truth(
     file_result: FileParseResult,
     normalized_calls,
     normalized_imports,
+    module_imports_by_prefix: dict[str, list[tuple[str, str, str, object]]],
     entity,
     module_names: set[str],
     call_resolution: dict,
@@ -122,12 +123,14 @@ def _edge_records_from_ground_truth(
     out_of_contract: List[EdgeRecord] = []
 
     if entity.kind == "module":
-        for edge in normalized_imports:
+        for module_name, file_path, language, edge in module_imports_by_prefix.get(
+            entity.qualified_name, []
+        ):
             resolved = _resolve_import_contract(
                 edge.target_module,
-                file_result.file_path,
-                file_result.module_qualified_name,
-                file_result.language,
+                file_path,
+                module_name,
+                language,
                 contract,
                 module_names,
                 repo_root,
@@ -135,7 +138,7 @@ def _edge_records_from_ground_truth(
                 local_packages,
             )
             record = EdgeRecord(
-                caller=file_result.module_qualified_name,
+                caller=module_name,
                 callee=resolved or edge.target_module,
                 callee_qname=resolved,
             )
@@ -143,6 +146,28 @@ def _edge_records_from_ground_truth(
                 out_of_contract.append(record)
             else:
                 expected.append(record)
+        if not module_imports_by_prefix.get(entity.qualified_name):
+            for edge in normalized_imports:
+                resolved = _resolve_import_contract(
+                    edge.target_module,
+                    file_result.file_path,
+                    file_result.module_qualified_name,
+                    file_result.language,
+                    contract,
+                    module_names,
+                    repo_root,
+                    repo_prefix,
+                    local_packages,
+                )
+                record = EdgeRecord(
+                    caller=file_result.module_qualified_name,
+                    callee=resolved or edge.target_module,
+                    callee_qname=resolved,
+                )
+                if edge.dynamic or not resolved:
+                    out_of_contract.append(record)
+                else:
+                    expected.append(record)
         return expected, out_of_contract
 
     if entity.kind == "class":
@@ -253,10 +278,6 @@ def _resolve_import_contract(
     if resolved:
         if resolved in module_names:
             return resolved
-        if repo_prefix:
-            alt = f"{repo_prefix}.src.{resolved}"
-            if alt in module_names:
-                return alt
         if not require_in_repo:
             return resolved
     return None
@@ -793,12 +814,28 @@ def main() -> int:
                 stability_error = str(exc)
 
             normalized_edge_map: Dict[str, Tuple[List[object], List[object]]] = {}
+            module_imports_by_prefix: Dict[str, List[Tuple[str, str, str, object]]] = {}
             for file_result in independent_results.values():
-                normalized_edge_map[file_result.file_path] = normalize_file_edges(
+                normalized = normalize_file_edges(
                     file_result.module_qualified_name,
                     file_result.call_edges,
                     file_result.import_edges,
                 )
+                normalized_edge_map[file_result.file_path] = normalized
+                module_name = file_result.module_qualified_name
+                module_parts = module_name.split(".") if module_name else []
+                if normalized[1]:
+                    for edge in normalized[1]:
+                        for i in range(1, len(module_parts) + 1):
+                            prefix = ".".join(module_parts[:i])
+                            module_imports_by_prefix.setdefault(prefix, []).append(
+                                (
+                                    module_name,
+                                    file_result.file_path,
+                                    file_result.language,
+                                    edge,
+                                )
+                            )
 
             rows: List[dict] = []
             total_files = len(independent_results)
@@ -816,6 +853,7 @@ def main() -> int:
                     file_result,
                     normalized_calls,
                     normalized_imports,
+                    module_imports_by_prefix,
                     entity,
                     module_names,
                     call_resolution,
