@@ -31,14 +31,11 @@ def test_dirty_overlay_adds_node(repo_with_snapshot):
     payload = _parse_json_payload(text)
     diff = payload.get("_diff")
     assert diff, "Expected diff overlay in reducer payload"
-    assert diff["version"] == 2
-    assert diff["mode"] == "full"
+    assert diff["version"] == 3
     assert diff["overlay_available"] is True
     assert diff["worktree_hash"]
-    assert diff.get("patched", {}).get("projection") is True
-    assert "coverage" in diff
-    adds = diff["changes"]["nodes"]["add"]
-    assert any("helper2" in (entry.get("new_value") or "") for entry in adds)
+    assert diff.get("affected") is True
+    assert "nodes" in diff.get("affected_by", [])
 
 
 def test_dirty_overlay_calls_and_summary(repo_with_snapshot):
@@ -56,11 +53,8 @@ def test_dirty_overlay_calls_and_summary(repo_with_snapshot):
     payload = _parse_json_payload(text)
     diff = payload.get("_diff")
     assert diff, "Expected diff overlay in reducer payload"
-    assert diff.get("coverage", {}).get("summary") in {"partial", "none"}
-    assert diff.get("changes", {}).get("calls", {}).get("add"), "Expected call edge diffs"
-    summary = diff.get("summary")
-    assert summary, "Expected diff summary"
-    assert summary["calls"]["add"] >= 1
+    assert diff.get("affected") is True
+    assert "calls" in diff.get("affected_by", [])
 
 
 def test_dirty_overlay_summary_mode(repo_with_snapshot):
@@ -80,17 +74,10 @@ def test_dirty_overlay_summary_mode(repo_with_snapshot):
     payload = _parse_json_payload(text)
     diff = payload.get("_diff")
     assert diff, "Expected diff overlay in reducer payload"
-    assert diff["mode"] == "summary"
     assert diff["overlay_available"] is True
     assert diff["worktree_hash"]
-    changes = diff.get("changes") or {}
-    assert changes.get("nodes", {}).get("add") == []
-    assert changes.get("edges", {}).get("add") == []
-    assert changes.get("calls", {}).get("add") == []
-    top_changed = diff.get("top_changed") or {}
-    assert top_changed.get("nodes") == []
-    assert top_changed.get("edges") == []
-    assert top_changed.get("calls") == []
+    assert diff.get("affected") is True
+    assert "nodes" in diff.get("affected_by", [])
 
 
 def test_dirty_overlay_fan_summary_node_id_updates(repo_with_snapshot):
