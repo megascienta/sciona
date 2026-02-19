@@ -160,7 +160,44 @@ def _get_file_module_map(entities, conn, snapshot_id) -> Tuple[Dict[str, dict], 
     return mapping, errors
 
 
-def _parse_independent(repo_root: Path, file_entries: Dict[str, dict]) -> Dict[str, FileParseResult]:
+def _build_parse_file_map(
+    sampled,
+    file_map: Dict[str, dict],
+    structural_index: dict,
+) -> Dict[str, dict]:
+    parse_map = dict(file_map)
+    entries = structural_index.get("files", {}).get("entries", []) or []
+    module_entries = [
+        entry for entry in entries if entry.get("path") and entry.get("module_qualified_name")
+    ]
+    for entity in sampled:
+        if entity.kind != "module":
+            continue
+        prefix = entity.qualified_name
+        for entry in module_entries:
+            module_name = entry.get("module_qualified_name")
+            if not module_name:
+                continue
+            if module_name == prefix or module_name.startswith(f"{prefix}."):
+                path = entry.get("path")
+                if not path:
+                    continue
+                parse_map.setdefault(
+                    path,
+                    {
+                        "file_path": path,
+                        "module_qualified_name": module_name,
+                        "language": entry.get("language") or entity.language,
+                    },
+                )
+    return parse_map
+
+
+def _parse_independent(
+    repo_root: Path,
+    file_entries: Dict[str, dict],
+    progress_factory=None,
+) -> Dict[str, FileParseResult]:
     by_language: Dict[str, List[dict]] = {}
     for entry in file_entries.values():
         by_language.setdefault(entry["language"], []).append(entry)
@@ -176,8 +213,15 @@ def _parse_independent(repo_root: Path, file_entries: Dict[str, dict]) -> Dict[s
         parser = parsers.get(language)
         if not parser:
             continue
+        progress = None
+        if progress_factory:
+            progress = progress_factory(f"Parsing {language}", len(entries))
         for output in parser(repo_root, entries):
             results[output.file_path] = output
+            if progress:
+                progress.advance(1)
+        if progress:
+            progress.close()
 
     return results
 
@@ -508,9 +552,13 @@ def main() -> int:
         with open_artifact_db(repo_root) as artifact_conn:
             structural_index = get_structural_index_payload(snapshot_id, conn, repo_root)
             module_overviews: Dict[str, dict] = {}
-            for entry in structural_index.get("modules", {}).get("entries", []):
+            module_entries = structural_index.get("modules", {}).get("entries", []) or []
+            progress = make_progress_factory()("Loading module overviews", len(module_entries))
+            for entry in module_entries:
                 module_name = entry.get("module_qualified_name")
                 if not module_name:
+                    if progress:
+                        progress.advance(1)
                     continue
                 module_overviews[module_name] = get_module_overview_payload(
                     snapshot_id,
@@ -518,6 +566,10 @@ def main() -> int:
                     repo_root,
                     module_id=module_name,
                 )
+                if progress:
+                    progress.advance(1)
+            if progress:
+                progress.close()
             module_names = {
                 entry.get("module_qualified_name")
                 for entry in structural_index.get("modules", {}).get("entries", [])
@@ -534,7 +586,11 @@ def main() -> int:
             sampled = sampling.sampled
 
             file_map, overview_errors = _get_file_module_map(sampled, conn, snapshot_id)
-            independent_results = _parse_independent(repo_root, file_map)
+            parse_file_map = _build_parse_file_map(sampled, file_map, structural_index)
+            progress_factory = make_progress_factory()
+            independent_results = _parse_independent(
+                repo_root, parse_file_map, progress_factory=progress_factory
+            )
 
             stability_score = None
             stability_error = None
