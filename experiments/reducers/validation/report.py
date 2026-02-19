@@ -29,10 +29,22 @@ def render_summary(payload: dict) -> List[str]:
         lines.append(f"- {item}")
     lines.append("")
 
-    lines.append("## Aggregate Metrics")
+    lines.append("## DB Equivalence (Reducer vs DB)")
     lines.append("")
-    agg = payload.get("aggregate", {})
-    agg_db = payload.get("aggregate_db", {})
+    agg_db_eq = payload.get("aggregate_db_equivalence", {})
+    for key in [
+        "precision_mean",
+        "recall_mean",
+        "coverage_node_rate",
+        "empty_set_mismatch_count",
+    ]:
+        if key in agg_db_eq:
+            lines.append(f"- {key}: `{agg_db_eq[key]}`")
+    lines.append("")
+
+    lines.append("## Contract Accuracy (Reducer vs Ground Truth In-Contract)")
+    lines.append("")
+    agg_contract = payload.get("aggregate_contract", {})
     for key in [
         "in_contract_precision_mean",
         "in_contract_recall_mean",
@@ -41,15 +53,28 @@ def render_summary(payload: dict) -> List[str]:
         "coverage_file_rate",
         "stability_score",
     ]:
-        if key in agg:
-            lines.append(f"- reducer_{key}: `{agg[key]}`")
-        if key in agg_db:
-            lines.append(f"- db_{key}: `{agg_db[key]}`")
+        if key in agg_contract:
+            lines.append(f"- {key}: `{agg_contract[key]}`")
     lines.append("")
 
-    lines.append("## Threshold Evaluation")
+    lines.append("## Full Accuracy (Reducer vs Full Ground Truth)")
     lines.append("")
-    threshold_eval = payload.get("threshold_evaluation", {})
+    agg_full = payload.get("aggregate_full", {})
+    for key in [
+        "in_contract_precision_mean",
+        "in_contract_recall_mean",
+        "misses_out_of_contract_rate",
+        "coverage_node_rate",
+        "coverage_file_rate",
+        "stability_score",
+    ]:
+        if key in agg_full:
+            lines.append(f"- {key}: `{agg_full[key]}`")
+    lines.append("")
+
+    lines.append("## Threshold Evaluation (Contract)")
+    lines.append("")
+    threshold_eval = payload.get("threshold_evaluation_contract", {})
     if threshold_eval:
         lines.append(f"- passed: `{threshold_eval.get('passed')}`")
         failures = threshold_eval.get("failures") or []
@@ -61,36 +86,59 @@ def render_summary(payload: dict) -> List[str]:
 
     lines.append("## Group Metrics")
     lines.append("")
-    for group, stats in payload.get("group_metrics", {}).items():
-        lines.append(f"- reducer {group}: precision=`{stats.get('precision')}`, recall=`{stats.get('recall')}`")
-    for group, stats in payload.get("group_metrics_db", {}).items():
-        lines.append(f"- db {group}: precision=`{stats.get('precision')}`, recall=`{stats.get('recall')}`")
+    for group, stats in payload.get("group_metrics_db_equivalence", {}).items():
+        lines.append(
+            f"- db_equivalence {group}: precision=`{stats.get('precision')}`, recall=`{stats.get('recall')}`"
+        )
+    for group, stats in payload.get("group_metrics_contract", {}).items():
+        lines.append(
+            f"- contract {group}: precision=`{stats.get('precision')}`, recall=`{stats.get('recall')}`"
+        )
+    for group, stats in payload.get("group_metrics_full", {}).items():
+        lines.append(
+            f"- full {group}: precision=`{stats.get('precision')}`, recall=`{stats.get('recall')}`"
+        )
     lines.append("")
 
     lines.append("## Edge Type Breakdown")
     lines.append("")
-    for edge_type, stats in payload.get("edge_type_breakdown", {}).items():
+    for edge_type, stats in payload.get("edge_type_breakdown_db_equivalence", {}).items():
         lines.append(
-            f"- reducer {edge_type}: tp=`{stats.get('tp')}`, fp=`{stats.get('fp')}`, fn=`{stats.get('fn')}`"
+            f"- db_equivalence {edge_type}: tp=`{stats.get('tp')}`, fp=`{stats.get('fp')}`, fn=`{stats.get('fn')}`"
         )
-    for edge_type, stats in payload.get("edge_type_breakdown_db", {}).items():
+    for edge_type, stats in payload.get("edge_type_breakdown_contract", {}).items():
         lines.append(
-            f"- db {edge_type}: tp=`{stats.get('tp')}`, fp=`{stats.get('fp')}`, fn=`{stats.get('fn')}`"
+            f"- contract {edge_type}: tp=`{stats.get('tp')}`, fp=`{stats.get('fp')}`, fn=`{stats.get('fn')}`"
+        )
+    for edge_type, stats in payload.get("edge_type_breakdown_full", {}).items():
+        lines.append(
+            f"- full {edge_type}: tp=`{stats.get('tp')}`, fp=`{stats.get('fp')}`, fn=`{stats.get('fn')}`"
         )
     lines.append("")
 
-    lines.append("## Failure Examples")
+    lines.append("## Failure Examples (DB Equivalence)")
     lines.append("")
-    failures = payload.get("failure_examples", [])
-    if not failures:
+    failures_db_eq = payload.get("failure_examples_db_equivalence", [])
+    if not failures_db_eq:
         lines.append("- none")
-    for item in failures:
+    for item in failures_db_eq:
         lines.append(f"- {item.get('node')}: {item.get('issue')}")
-    failures_db = payload.get("failure_examples_db", [])
-    if failures_db:
-        lines.append("")
-        lines.append("## Failure Examples (DB vs Independent)")
-        lines.append("")
-        for item in failures_db:
-            lines.append(f"- {item.get('node')}: {item.get('issue')}")
+    lines.append("")
+
+    lines.append("## Failure Examples (Contract)")
+    lines.append("")
+    failures_contract = payload.get("failure_examples_contract", [])
+    if not failures_contract:
+        lines.append("- none")
+    for item in failures_contract:
+        lines.append(f"- {item.get('node')}: {item.get('issue')}")
+    lines.append("")
+
+    lines.append("## Failure Examples (Full)")
+    lines.append("")
+    failures_full = payload.get("failure_examples_full", [])
+    if not failures_full:
+        lines.append("- none")
+    for item in failures_full:
+        lines.append(f"- {item.get('node')}: {item.get('issue')}")
     return lines

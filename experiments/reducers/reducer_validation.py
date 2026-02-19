@@ -509,6 +509,35 @@ def _aggregate(
     }
 
 
+def _aggregate_equivalence(
+    rows: List[dict],
+    scored_nodes: int,
+    total_nodes: int,
+    empty_mismatch_count: int,
+) -> dict:
+    precision_values = [
+        r["metrics_db_equivalence"]["in_contract_precision"]
+        for r in rows
+        if r.get("metrics_db_equivalence")
+        and r["metrics_db_equivalence"]["in_contract_precision"] is not None
+    ]
+    recall_values = [
+        r["metrics_db_equivalence"]["in_contract_recall"]
+        for r in rows
+        if r.get("metrics_db_equivalence")
+        and r["metrics_db_equivalence"]["in_contract_recall"] is not None
+    ]
+    precision_mean = sum(precision_values) / len(precision_values) if precision_values else None
+    recall_mean = sum(recall_values) / len(recall_values) if recall_values else None
+    coverage_node_rate = (scored_nodes / total_nodes) if total_nodes else None
+    return {
+        "precision_mean": precision_mean,
+        "recall_mean": recall_mean,
+        "coverage_node_rate": coverage_node_rate,
+        "empty_set_mismatch_count": empty_mismatch_count,
+    }
+
+
 def _evaluate_thresholds(aggregate: dict, group_metrics: Dict[str, dict]) -> Dict[str, object]:
     thresholds = config.DEFAULT_THRESHOLDS
     results = {"passed": True, "failures": []}
@@ -636,15 +665,16 @@ def main() -> int:
                     snapshot_id,
                 )
 
-                reducer_metrics = None
-                db_metrics = None
-                reducer_vs_db = None
+                metrics_db_equivalence = None
+                metrics_contract = None
+                metrics_full = None
+                empty_set_mismatch = False
+                if not reducer_error and not db_error:
+                    metrics_db_equivalence = compare_edge_sets(db_edges, reducer_edges)
+                    empty_set_mismatch = bool(db_edges) != bool(reducer_edges)
                 if file_result.parse_ok and not reducer_error:
-                    reducer_metrics = compute_metrics(expected, out_of_contract, reducer_edges)
-                if file_result.parse_ok and not db_error:
-                    db_metrics = compute_metrics(expected, out_of_contract, db_edges)
-                if reducer_edges and db_edges:
-                    reducer_vs_db = compare_edge_sets(db_edges, reducer_edges)
+                    metrics_contract = compute_metrics(expected, out_of_contract, reducer_edges)
+                    metrics_full = compute_metrics(expected + out_of_contract, [], reducer_edges)
                 rows.append(
                     {
                         "entity": entity.qualified_name,
@@ -652,9 +682,12 @@ def main() -> int:
                         "kind": entity.kind,
                         "file_path": entity.file_path,
                         "module_qualified_name": entity.module_qualified_name,
-                        "metrics_reducer": asdict(reducer_metrics) if reducer_metrics else None,
-                        "metrics_db": asdict(db_metrics) if db_metrics else None,
-                        "metrics_reducer_vs_db": asdict(reducer_vs_db) if reducer_vs_db else None,
+                        "metrics_db_equivalence": asdict(metrics_db_equivalence)
+                        if metrics_db_equivalence
+                        else None,
+                        "metrics_contract": asdict(metrics_contract) if metrics_contract else None,
+                        "metrics_full": asdict(metrics_full) if metrics_full else None,
+                        "db_equivalence_empty_mismatch": empty_set_mismatch,
                         "reducer_payloads": reducer_payloads,
                         "db_payloads": db_payloads,
                         "expected_edges": [asdict(edge) for edge in expected],
@@ -666,60 +699,99 @@ def main() -> int:
                     }
                 )
 
-    scored_rows = [row for row in rows if row.get("metrics_reducer") is not None]
-    scored_rows_db = [row for row in rows if row.get("metrics_db") is not None]
-    aggregate = _aggregate(
-        scored_rows,
-        len(scored_rows),
+    scored_rows_contract = [row for row in rows if row.get("metrics_contract") is not None]
+    scored_rows_full = [row for row in rows if row.get("metrics_full") is not None]
+    scored_rows_db_equivalence = [
+        row for row in rows if row.get("metrics_db_equivalence") is not None
+    ]
+    empty_set_mismatch_count = sum(
+        1 for row in scored_rows_db_equivalence if row.get("db_equivalence_empty_mismatch")
+    )
+    aggregate_contract = _aggregate(
+        scored_rows_contract,
+        len(scored_rows_contract),
         len(rows),
         parse_ok_files,
         total_files,
         stability_score or 0.0,
-        "metrics_reducer",
+        "metrics_contract",
     )
-    aggregate_db = _aggregate(
-        scored_rows_db,
-        len(scored_rows_db),
+    aggregate_full = _aggregate(
+        scored_rows_full,
+        len(scored_rows_full),
         len(rows),
         parse_ok_files,
         total_files,
         stability_score or 0.0,
-        "metrics_db",
+        "metrics_full",
     )
-    group_metrics = _aggregate_group_metrics(scored_rows, "metrics_reducer")
-    group_metrics_db = _aggregate_group_metrics(scored_rows_db, "metrics_db")
-    edge_breakdown = _edge_type_breakdown(scored_rows, "metrics_reducer")
-    edge_breakdown_db = _edge_type_breakdown(scored_rows_db, "metrics_db")
-    failures = _failure_examples(scored_rows, "metrics_reducer")
-    failures_db = _failure_examples(scored_rows_db, "metrics_db")
-    threshold_eval = _evaluate_thresholds(aggregate, group_metrics)
+    aggregate_db_equivalence = _aggregate_equivalence(
+        scored_rows_db_equivalence,
+        len(scored_rows_db_equivalence),
+        len(rows),
+        empty_set_mismatch_count,
+    )
+    group_metrics_contract = _aggregate_group_metrics(scored_rows_contract, "metrics_contract")
+    group_metrics_full = _aggregate_group_metrics(scored_rows_full, "metrics_full")
+    group_metrics_db_equivalence = _aggregate_group_metrics(
+        scored_rows_db_equivalence, "metrics_db_equivalence"
+    )
+    edge_breakdown_contract = _edge_type_breakdown(scored_rows_contract, "metrics_contract")
+    edge_breakdown_full = _edge_type_breakdown(scored_rows_full, "metrics_full")
+    edge_breakdown_db_equivalence = _edge_type_breakdown(
+        scored_rows_db_equivalence, "metrics_db_equivalence"
+    )
+    failures_contract = _failure_examples(scored_rows_contract, "metrics_contract")
+    failures_full = _failure_examples(scored_rows_full, "metrics_full")
+    failures_db_equivalence = _failure_examples(
+        scored_rows_db_equivalence, "metrics_db_equivalence"
+    )
+    threshold_eval = _evaluate_thresholds(aggregate_contract, group_metrics_contract)
 
     summary = []
     summary.append(f"repo={repo_name_prefix(repo_root)}")
     summary.append(f"sampled_nodes={len(rows)}")
-    if aggregate.get("in_contract_precision_mean") is not None:
-        summary.append(f"reducer_precision_mean={aggregate['in_contract_precision_mean']}")
-    if aggregate.get("in_contract_recall_mean") is not None:
-        summary.append(f"reducer_recall_mean={aggregate['in_contract_recall_mean']}")
-    if aggregate_db.get("in_contract_precision_mean") is not None:
-        summary.append(f"db_precision_mean={aggregate_db['in_contract_precision_mean']}")
-    if aggregate_db.get("in_contract_recall_mean") is not None:
-        summary.append(f"db_recall_mean={aggregate_db['in_contract_recall_mean']}")
+    if aggregate_db_equivalence.get("precision_mean") is not None:
+        summary.append(
+            f"db_equivalence_precision_mean={aggregate_db_equivalence['precision_mean']}"
+        )
+    if aggregate_db_equivalence.get("recall_mean") is not None:
+        summary.append(
+            f"db_equivalence_recall_mean={aggregate_db_equivalence['recall_mean']}"
+        )
+    if aggregate_contract.get("in_contract_precision_mean") is not None:
+        summary.append(
+            f"contract_precision_mean={aggregate_contract['in_contract_precision_mean']}"
+        )
+    if aggregate_contract.get("in_contract_recall_mean") is not None:
+        summary.append(
+            f"contract_recall_mean={aggregate_contract['in_contract_recall_mean']}"
+        )
+    if aggregate_full.get("in_contract_precision_mean") is not None:
+        summary.append(
+            f"full_precision_mean={aggregate_full['in_contract_precision_mean']}"
+        )
+    if aggregate_full.get("in_contract_recall_mean") is not None:
+        summary.append(f"full_recall_mean={aggregate_full['in_contract_recall_mean']}")
     summary.append(f"thresholds_passed={threshold_eval['passed']}")
 
     payload = {
         "repo_root": str(repo_root),
         "snapshot_id": snapshot_id,
         "summary": summary,
-        "aggregate": aggregate,
-        "aggregate_db": aggregate_db,
-        "group_metrics": group_metrics,
-        "group_metrics_db": group_metrics_db,
-        "edge_type_breakdown": edge_breakdown,
-        "edge_type_breakdown_db": edge_breakdown_db,
-        "failure_examples": failures,
-        "failure_examples_db": failures_db,
-        "threshold_evaluation": threshold_eval,
+        "aggregate_db_equivalence": aggregate_db_equivalence,
+        "aggregate_contract": aggregate_contract,
+        "aggregate_full": aggregate_full,
+        "group_metrics_db_equivalence": group_metrics_db_equivalence,
+        "group_metrics_contract": group_metrics_contract,
+        "group_metrics_full": group_metrics_full,
+        "edge_type_breakdown_db_equivalence": edge_breakdown_db_equivalence,
+        "edge_type_breakdown_contract": edge_breakdown_contract,
+        "edge_type_breakdown_full": edge_breakdown_full,
+        "failure_examples_db_equivalence": failures_db_equivalence,
+        "failure_examples_contract": failures_contract,
+        "failure_examples_full": failures_full,
+        "threshold_evaluation_contract": threshold_eval,
         "population_by_language": sampling.population_by_language,
         "population_by_kind": sampling.population_by_kind,
         "strata_counts": sampling.strata_counts,
