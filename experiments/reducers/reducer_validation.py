@@ -76,10 +76,12 @@ def _module_qname_from_entity(entity) -> str:
     return entity.qualified_name
 
 
-def _enrich_entities_with_db(entities, resolver) -> None:
+def _enrich_entities_with_db(entities, resolver, progress_handle=None) -> None:
     for entity in entities:
         resolved = resolver.resolve_node_instance(entity.qualified_name, entity.kind)
         if not resolved:
+            if progress_handle:
+                progress_handle.advance(1)
             continue
         resolved_path = resolved.get("file_path")
         if resolved_path:
@@ -93,6 +95,10 @@ def _enrich_entities_with_db(entities, resolver) -> None:
         resolved_lang = resolved.get("language")
         if resolved_lang:
             entity.language = resolved_lang
+        if progress_handle:
+            progress_handle.advance(1)
+    if progress_handle:
+        progress_handle.close()
 
 
 def _edge_record_from_call(edge: dict, fallback_caller: str) -> EdgeRecord:
@@ -412,9 +418,12 @@ class DbEdgeSource:
         return {}, [], None
 
 
-def sample_entities_from_db(nodes, resolver, total_nodes: int, seed: int):
+def sample_entities_from_db(nodes, resolver, total_nodes: int, seed: int, progress_factory=None):
     entities = build_entities_from_db(nodes)
-    _enrich_entities_with_db(entities, resolver)
+    progress = None
+    if progress_factory:
+        progress = progress_factory("Enriching entities", len(entities))
+    _enrich_entities_with_db(entities, resolver, progress_handle=progress)
     sampling = sample_entities(entities, total_nodes, seed)
     return sampling
 
@@ -729,14 +738,15 @@ def main() -> int:
         snapshot_id = get_snapshot_id(conn)
         resolver = ResolverCache(conn, snapshot_id)
         with open_artifact_db(repo_root) as artifact_conn:
-            print("Loading nodes...")
+            progress_factory = make_progress_factory()
+            print("Loading nodes... ", end="", flush=True)
             nodes = list_nodes_from_artifacts(
                 artifact_conn,
                 conn,
                 snapshot_id,
                 node_kinds=["module", "class", "function", "method"],
             )
-            print(f"Loading nodes...done ({len(nodes)} nodes)")
+            print(f"done ({len(nodes)} nodes)")
             module_entries = [
                 entry
                 for entry in nodes
@@ -754,17 +764,16 @@ def main() -> int:
             repo_prefix = repo_name_prefix(repo_root)
             local_packages = set(runtime_packaging.local_package_names(repo_root))
 
-            print("Enriching entities...")
-            sampling = sample_entities_from_db(nodes, resolver, args.nodes, args.seed)
-            print("Enriching entities...done")
+            sampling = sample_entities_from_db(
+                nodes, resolver, args.nodes, args.seed, progress_factory=progress_factory
+            )
             sampled = sampling.sampled
 
-            print("Building file maps...")
+            print("Building file maps... ", end="", flush=True)
             parse_file_map, overview_errors = prepare_parse_map(
                 sampled, module_entries, resolver
             )
-            print("Building file maps...done")
-            progress_factory = make_progress_factory()
+            print("done")
             parse_progress = None
             if progress_factory:
                 parse_progress = progress_factory("Parsing files", len(parse_file_map))
