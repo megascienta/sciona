@@ -1,0 +1,110 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
+"""Overlay patching for reducer payloads."""
+
+from __future__ import annotations
+
+import json
+from typing import Optional
+
+from ..types import OverlayPayload
+from ....runtime import identity as ids
+from .analytics import (
+    patch_call_neighbors,
+    patch_callsite_index,
+    patch_class_call_graph_summary,
+    patch_fan_summary,
+    patch_hotspot_summary,
+    patch_module_call_graph_summary,
+)
+from .core import (
+    patch_callable_overview,
+    patch_class_overview,
+    patch_dependency_edges,
+    patch_file_outline,
+    patch_module_overview,
+    patch_structural_index,
+    patch_symbol_lookup,
+    patch_symbol_references,
+)
+from .shared import (
+    edge_from_value,
+    iter_edge_changes,
+    iter_node_changes,
+    module_for_node,
+    module_in_scope,
+    node_from_value,
+)
+
+def apply_overlay_to_payload(
+    payload: dict[str, object],
+    overlay: OverlayPayload,
+    *,
+    snapshot_id: str,
+    conn,
+    reducer_id: str | None = None,
+) -> tuple[dict[str, object], bool]:
+    projection = _resolve_projection(payload, reducer_id)
+    if projection == "structural_index":
+        return patch_structural_index(payload, overlay), True
+    if projection == "module_overview":
+        return patch_module_overview(payload, overlay), True
+    if projection == "callable_overview":
+        return patch_callable_overview(payload, overlay), True
+    if projection == "class_overview":
+        return patch_class_overview(payload, overlay), True
+    if projection == "file_outline":
+        return patch_file_outline(payload, overlay), True
+    if projection == "dependency_edges":
+        return patch_dependency_edges(payload, overlay), True
+    if projection == "symbol_lookup":
+        return patch_symbol_lookup(payload, overlay), True
+    if projection == "symbol_references":
+        return patch_symbol_references(payload, overlay), True
+    if projection == "callsite_index":
+        return patch_callsite_index(payload, overlay, snapshot_id=snapshot_id, conn=conn), True
+    if projection == "class_call_graph_summary":
+        return patch_class_call_graph_summary(
+            payload, overlay, snapshot_id=snapshot_id, conn=conn
+        ), True
+    if projection == "module_call_graph_summary":
+        return patch_module_call_graph_summary(
+            payload, overlay, snapshot_id=snapshot_id, conn=conn
+        ), True
+    if projection == "fan_summary":
+        return patch_fan_summary(payload, overlay, snapshot_id=snapshot_id, conn=conn), True
+    if projection == "hotspot_summary":
+        return patch_hotspot_summary(payload, overlay, snapshot_id=snapshot_id, conn=conn), True
+    return payload, False
+
+def _resolve_projection(payload: dict[str, object], reducer_id: str | None) -> str:
+    projection = str(payload.get("projection", "")).strip().lower()
+    if projection:
+        return projection
+    return str(reducer_id or "").strip().lower()
+
+def patch_summary_payload(
+    payload: dict[str, object], overlay: OverlayPayload
+) -> dict[str, object]:
+    if overlay.summary is None:
+        return payload
+    payload["diff_summary"] = overlay.summary
+    return payload
+
+def parse_json_fenced(text: str) -> Optional[dict[str, object]]:
+    stripped = text.strip()
+    if not stripped.startswith("```json"):
+        return None
+    start = stripped.find("\n")
+    end = stripped.rfind("```")
+    if start == -1 or end == -1 or end <= start:
+        return None
+    body = stripped[start:end].strip()
+    try:
+        payload = json.loads(body)
+    except json.JSONDecodeError:
+        return None
+    if not isinstance(payload, dict):
+        return None
+    return payload
