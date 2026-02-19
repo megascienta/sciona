@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional
+from typing import Dict, Iterable, List, Optional, Sequence
 
 from sciona.api import addons as sciona_api
 from sciona.reducers.core import module_overview
@@ -137,6 +137,73 @@ def class_method_ids(artifact_conn, class_structural_id: str) -> List[str]:
         (class_structural_id,),
     ).fetchall()
     return [row["dst_node_id"] for row in rows]
+
+
+def graph_edge_targets_for_ids(
+    artifact_conn,
+    src_structural_ids: Sequence[str],
+    edge_kind: str,
+) -> List[str]:
+    if artifact_conn is None or not src_structural_ids:
+        return []
+    placeholders = ",".join("?" for _ in src_structural_ids)
+    rows = artifact_conn.execute(
+        f"""
+        SELECT dst_node_id
+        FROM graph_edges
+        WHERE edge_kind = ?
+          AND src_node_id IN ({placeholders})
+        """,
+        (edge_kind, *src_structural_ids),
+    ).fetchall()
+    return [row["dst_node_id"] for row in rows]
+
+
+def graph_edges_for_ids(
+    artifact_conn,
+    core_conn,
+    snapshot_id: str,
+    src_structural_ids: Sequence[str],
+    edge_kinds: Iterable[str],
+) -> List[EdgeRecord]:
+    if artifact_conn is None or not src_structural_ids:
+        return []
+    kinds = list(edge_kinds)
+    if not kinds:
+        return []
+    src_placeholders = ",".join("?" for _ in src_structural_ids)
+    kind_placeholders = ",".join("?" for _ in kinds)
+    rows = artifact_conn.execute(
+        f"""
+        SELECT src_node_id, dst_node_id, edge_kind
+        FROM graph_edges
+        WHERE src_node_id IN ({src_placeholders})
+          AND edge_kind IN ({kind_placeholders})
+        """,
+        (*src_structural_ids, *kinds),
+    ).fetchall()
+    node_ids = {row["src_node_id"] for row in rows} | {
+        row["dst_node_id"] for row in rows
+    }
+    lookup = node_lookup(core_conn, snapshot_id, node_ids)
+    edges: List[EdgeRecord] = []
+    for row in rows:
+        src_name = lookup.get(row["src_node_id"], "")
+        dst_name = lookup.get(row["dst_node_id"], "")
+        if row["edge_kind"] == "CALLS":
+            callee = dst_name.split(".")[-1] if dst_name else ""
+            callee_qname = dst_name or None
+        else:
+            callee = dst_name
+            callee_qname = dst_name or None
+        edges.append(
+            EdgeRecord(
+                caller=src_name,
+                callee=callee,
+                callee_qname=callee_qname,
+            )
+        )
+    return edges
 
 
 def node_lookup(core_conn, snapshot_id: str, structural_ids: set[str]) -> Dict[str, str]:

@@ -26,10 +26,8 @@ from experiments.reducers.validation.metrics import compute_metrics, compare_edg
 from experiments.reducers.validation.report import render_summary, write_json, write_markdown
 from experiments.reducers.validation.sampling import build_entities_from_structural_index, sample_entities
 from experiments.reducers.validation.db_adapter import (
-    callable_call_edges,
-    class_method_ids,
-    module_import_edges,
-    module_import_edges_for_ids,
+    graph_edge_targets_for_ids,
+    graph_edges_for_ids,
     open_artifact_db,
     resolve_node_instance,
     resolve_module_structural_ids,
@@ -44,6 +42,7 @@ from experiments.reducers.validation.sciona_adapter import (
     get_module_overview_payload,
     open_core_db,
 )
+from sciona.data_storage.artifact_db import read_status as artifact_read_status
 
 
 def parse_args() -> argparse.Namespace:
@@ -341,12 +340,25 @@ def _collect_db_outputs(
     edges: List[EdgeRecord] = []
     error = None
     try:
+        if artifact_conn is None:
+            raise RuntimeError("artifact db not available")
+        if not artifact_read_status.rebuild_consistent_for_snapshot(
+            artifact_conn, snapshot_id=snapshot_id
+        ):
+            raise RuntimeError("artifact graph not consistent for snapshot")
+
         if entity.kind == "module":
             module_ids = resolve_module_structural_ids(core_conn, snapshot_id, entity.qualified_name)
             if not module_ids:
                 raise RuntimeError("module structural_id not found")
             payloads["module_structural_ids"] = module_ids
-            edges = module_import_edges_for_ids(core_conn, snapshot_id, module_ids)
+            edges = graph_edges_for_ids(
+                artifact_conn,
+                core_conn,
+                snapshot_id,
+                module_ids,
+                ["IMPORTS_DECLARED"],
+            )
             payloads["import_edges"] = [asdict(edge) for edge in edges]
             return payloads, edges, None
 
@@ -356,10 +368,20 @@ def _collect_db_outputs(
                 raise RuntimeError("class structural_id not found")
             class_id = resolved["structural_id"]
             payloads["class_structural_id"] = class_id
-            method_ids = class_method_ids(artifact_conn, class_id)
+            method_ids = graph_edge_targets_for_ids(
+                artifact_conn,
+                [class_id],
+                "DEFINES_METHOD",
+            )
             payloads["method_structural_ids"] = method_ids
-            for method_id in method_ids:
-                edges.extend(callable_call_edges(artifact_conn, core_conn, snapshot_id, method_id))
+            if method_ids:
+                edges = graph_edges_for_ids(
+                    artifact_conn,
+                    core_conn,
+                    snapshot_id,
+                    method_ids,
+                    ["CALLS"],
+                )
             payloads["call_edges"] = [asdict(edge) for edge in edges]
             return payloads, edges, None
 
@@ -369,7 +391,13 @@ def _collect_db_outputs(
                 raise RuntimeError("callable structural_id not found")
             call_id = resolved["structural_id"]
             payloads["callable_structural_id"] = call_id
-            edges = callable_call_edges(artifact_conn, core_conn, snapshot_id, call_id)
+            edges = graph_edges_for_ids(
+                artifact_conn,
+                core_conn,
+                snapshot_id,
+                [call_id],
+                ["CALLS"],
+            )
             payloads["call_edges"] = [asdict(edge) for edge in edges]
             return payloads, edges, None
     except Exception as exc:
