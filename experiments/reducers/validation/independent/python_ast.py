@@ -48,14 +48,11 @@ class _CallVisitor(ast.NodeVisitor):
     def visit_Call(self, node: ast.Call) -> None:
         callee, dynamic = _callee_name(node.func)
         if callee:
-            callee_qname = None
-            if callee.isidentifier():
-                callee_qname = f"{self.module_qname}.{callee}"
             self.call_edges.append(
                 CallEdge(
                     caller=self._current_scope(),
                     callee=callee,
-                    callee_qname=callee_qname,
+                    callee_qname=None,
                     dynamic=dynamic or (callee in _DYNAMIC_FUNCS),
                 )
             )
@@ -88,9 +85,7 @@ def _callee_name(node: ast.AST) -> tuple[str | None, bool]:
         return node.id, False
     if isinstance(node, ast.Attribute):
         return node.attr, False
-    if isinstance(node, ast.Call):
-        return None, True
-    return None, False
+    return None, True
 
 
 def parse_python_file(repo_root: Path, file_path: str, module_qname: str) -> FileParseResult:

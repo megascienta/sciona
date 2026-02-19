@@ -80,8 +80,7 @@ public class JavaParserRunner {
                 }
             }
             String caller = currentScope();
-            String calleeQname = moduleQname + "." + callee;
-            result.callEdges.add(String.format("%s|%s|%s|%s", caller, callee, calleeQname, dynamic));
+            result.callEdges.add(String.format("%s|%s|%s|%s", caller, callee, "", dynamic));
             super.visit(node, arg);
         }
 
@@ -89,8 +88,7 @@ public class JavaParserRunner {
         public void visit(ObjectCreationExpr node, Void arg) {
             String callee = node.getType().getNameAsString();
             String caller = currentScope();
-            String calleeQname = moduleQname + "." + callee;
-            result.callEdges.add(String.format("%s|%s|%s|%s", caller, callee, calleeQname, false));
+            result.callEdges.add(String.format("%s|%s|%s|%s", caller, callee, "", false));
             super.visit(node, arg);
         }
     }

@@ -70,7 +70,7 @@ function parseFile(entry) {
         call_edges.push({
           caller: currentScope(),
           callee: callee,
-          callee_qname: `${entry.module_qualified_name}.${callee}`,
+          callee_qname: "",
           dynamic: dynamic
         });
       }
