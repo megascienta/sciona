@@ -1,7 +1,7 @@
-# SCIONA Structural Index Validation Protocol
+# SCIONA Reducer Validation Protocol
 
 ## 1. Objective
-Evaluate SCIONA’s structural index and reducers as a deterministic, static structural evidence system for real repositories. The experiment must measure correctness within contract and quantify out-of-contract gaps without marketing claims.
+Evaluate SCIONA’s structural index, reducers, and DB-derived evidence as a deterministic, static structural evidence system for real repositories. The experiment must measure correctness within contract and quantify out-of-contract gaps without marketing claims.
 
 ### Success criteria (default thresholds)
 Validation is considered successful only if all conditions below hold:
@@ -71,14 +71,31 @@ Stratify by:
 - Call density: sparse / moderate / dense
 - Node depth: top-level / nested
 
+Sampling is sourced from the `structural_index` reducer (canonical SCI projection), then expanded using module overviews to enumerate functions and methods.
+
 N nodes total (default 100–300).
 Only sampled nodes are fully re-parsed by independent tools.
 
-## 6. SCIONA Evidence
-For each sampled node:
-- Call neighborhood via `callsite_index` reducer
-- Imports via `dependency_edges` reducer
-- Node identity via `*_overview` reducers
+## 6. Evidence Sources (Per Node)
+For each sampled node, collect evidence from three sources and keep full payloads:
+
+### A) Reducer evidence (SCIONA)
+- `callsite_index` reducer for call edges (detail level: callsites, direction: out)
+- `dependency_edges` reducer for module import edges
+- `class_overview` / `module_overview` reducers for identity and structure
+
+### B) DB evidence (SCIONA API + direct queries)
+- CoreDB import edges (`IMPORTS_DECLARED`)
+- ArtifactDB call edges (`CALLS`)
+- Node identity (structural_id, file_path, spans)
+
+### C) Independent parser evidence
+- File-local calls and imports from independent parsers
+
+Comparisons are performed between:
+- Reducer vs Independent
+- DB vs Independent
+- Reducer vs DB
 
 SCIONA is evaluated only through reducers (tests reducer, DB, and analysis layers together).
 
@@ -100,6 +117,7 @@ Aggregate:
 - Mean precision/recall by language and node type
 - Distribution of out-of-contract edges
 - Edge type breakdown: imports vs calls
+ - Reducer vs DB agreement (precision/recall treating DB as reference)
 
 ### Additional stability and coverage
 - `stability_score`: hash stability of reducer outputs for identical snapshot
@@ -114,10 +132,41 @@ Aggregate:
 ## 9. Outputs
 - JSON report (per-node + aggregate)
 - Markdown summary (tables + key findings)
-- Confusion breakdown (TP/FP/FN by edge type)
-- Representative failure examples (5–10) with snippets
+- Confusion breakdown (TP/FP/FN by edge type) for reducer and DB
+- Representative failure examples (5–10)
 
-## 10. Contract definition mismatch risk
+## 10. Setup & Running
+
+### Prerequisites
+- SCIONA indexed repository (`sciona build` must have been run in that repo).
+- Python 3.11+
+- Node.js (for TypeScript parser)
+- Java JDK (for JavaParser)
+
+### Node/TypeScript setup
+Install TypeScript in the reducer experiment folder:
+```bash
+cd experiments/reducers
+npm install
+```
+
+### JavaParser setup
+Place `javaparser-core-<version>.jar` in `experiments/reducers/jar/`, then set:
+`experiments/reducers/validation/local_config.py`
+```python
+JAVAPARSER_JAR = "experiments/reducers/jar/javaparser-core-3.25.9.jar"
+```
+This path is resolved relative to repo root.
+
+### Run validation on any repo
+```bash
+python experiments/reducers/reducer_validation.py --repo-root /path/to/repo --nodes 200 --seed 20260219
+```
+Outputs:
+- `experiments/reducers/reports/<repo>_reducer_validation.json`
+- `experiments/reducers/reports/<repo>_reducer_validation.md`
+
+## 11. Contract definition mismatch risk
 The primary risk is mismatch between SCIONA contract and ground-truth extraction.
 
 Mitigations:
