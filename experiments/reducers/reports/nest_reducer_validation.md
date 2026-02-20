@@ -8,14 +8,17 @@
 - db_equivalence_recall_mean=1.0
 - contract_precision_mean=0.6951223751462751
 - contract_recall_mean=0.859211602363679
+- contract_coverage_mean=0.859211602363679
 - full_precision_mean=0.7130797264369597
 - full_recall_mean=0.7039707512817581
+- full_coverage_mean=0.7039707512817581
 - thresholds_passed=False
 
 ## DB Equivalence (Reducer vs DB)
 
 - precision_mean: `1.0`
 - recall_mean: `1.0`
+- coverage_mean: `1.0`
 - coverage_node_rate: `1.0`
 - empty_set_mismatch_count: `0`
 
@@ -36,6 +39,7 @@
 
 - in_contract_precision_mean: `0.6951223751462751`
 - in_contract_recall_mean: `0.859211602363679`
+- in_contract_coverage_mean: `0.859211602363679`
 - misses_out_of_contract_rate: `0.60625`
 - coverage_node_rate: `1.0`
 - coverage_file_rate: `1.0`
@@ -45,6 +49,7 @@
 
 - in_contract_precision_mean: `0.7130797264369597`
 - in_contract_recall_mean: `0.7039707512817581`
+- in_contract_coverage_mean: `0.7039707512817581`
 - misses_out_of_contract_rate: `0.0`
 - coverage_node_rate: `1.0`
 - coverage_file_rate: `1.0`
@@ -65,18 +70,18 @@
 
 ## Group Metrics
 
-- db_equivalence typescript::module: precision=`1.0`, recall=`1.0`
-- db_equivalence typescript::class: precision=`1.0`, recall=`1.0`
-- db_equivalence typescript::function: precision=`1.0`, recall=`1.0`
-- db_equivalence typescript::method: precision=`1.0`, recall=`1.0`
-- contract typescript::module: precision=`0.7613768224669387`, recall=`0.9986394557823131`
-- contract typescript::class: precision=`0.6381446986276045`, recall=`0.9694752321867657`
-- contract typescript::function: precision=`0.6666666666666665`, recall=`0.4698660714285714`
-- contract typescript::method: precision=`0.3611111111111111`, recall=`0.19318181818181818`
-- full typescript::module: precision=`0.7613768224669387`, recall=`0.8381847016943169`
-- full typescript::class: precision=`0.6381446986276045`, recall=`0.9694752321867657`
-- full typescript::function: precision=`0.68`, recall=`0.20024420024420025`
-- full typescript::method: precision=`0.6388888888888888`, recall=`0.2119047619047619`
+- db_equivalence typescript::module: precision=`1.0`, recall=`1.0`, coverage=`1.0`
+- db_equivalence typescript::class: precision=`1.0`, recall=`1.0`, coverage=`1.0`
+- db_equivalence typescript::function: precision=`1.0`, recall=`1.0`, coverage=`1.0`
+- db_equivalence typescript::method: precision=`1.0`, recall=`1.0`, coverage=`1.0`
+- contract typescript::module: precision=`0.7613768224669387`, recall=`0.9986394557823131`, coverage=`0.9986394557823131`
+- contract typescript::class: precision=`0.6381446986276045`, recall=`0.9694752321867657`, coverage=`0.9694752321867657`
+- contract typescript::function: precision=`0.6666666666666665`, recall=`0.4698660714285714`, coverage=`0.4698660714285714`
+- contract typescript::method: precision=`0.3611111111111111`, recall=`0.19318181818181818`, coverage=`0.19318181818181818`
+- full typescript::module: precision=`0.7613768224669387`, recall=`0.8381847016943169`, coverage=`0.8381847016943169`
+- full typescript::class: precision=`0.6381446986276045`, recall=`0.9694752321867657`, coverage=`0.9694752321867657`
+- full typescript::function: precision=`0.68`, recall=`0.20024420024420025`, coverage=`0.20024420024420025`
+- full typescript::method: precision=`0.6388888888888888`, recall=`0.2119047619047619`, coverage=`0.2119047619047619`
 
 ## Edge Type Breakdown
 

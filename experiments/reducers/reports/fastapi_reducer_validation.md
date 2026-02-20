@@ -8,14 +8,17 @@
 - db_equivalence_recall_mean=1.0
 - contract_precision_mean=0.8682844612143757
 - contract_recall_mean=0.7634695157717803
+- contract_coverage_mean=0.7634695157717803
 - full_precision_mean=0.9776594612143757
 - full_recall_mean=0.6066414745550394
+- full_coverage_mean=0.6066414745550394
 - thresholds_passed=False
 
 ## DB Equivalence (Reducer vs DB)
 
 - precision_mean: `1.0`
 - recall_mean: `1.0`
+- coverage_mean: `1.0`
 - coverage_node_rate: `1.0`
 - empty_set_mismatch_count: `0`
 
@@ -36,6 +39,7 @@
 
 - in_contract_precision_mean: `0.8682844612143757`
 - in_contract_recall_mean: `0.7634695157717803`
+- in_contract_coverage_mean: `0.7634695157717803`
 - misses_out_of_contract_rate: `0.3048780487804878`
 - coverage_node_rate: `1.0`
 - coverage_file_rate: `1.0`
@@ -45,6 +49,7 @@
 
 - in_contract_precision_mean: `0.9776594612143757`
 - in_contract_recall_mean: `0.6066414745550394`
+- in_contract_coverage_mean: `0.6066414745550394`
 - misses_out_of_contract_rate: `0.0`
 - coverage_node_rate: `1.0`
 - coverage_file_rate: `1.0`
@@ -63,18 +68,18 @@
 
 ## Group Metrics
 
-- db_equivalence python::module: precision=`1.0`, recall=`1.0`
-- db_equivalence python::function: precision=`1.0`, recall=`1.0`
-- db_equivalence python::method: precision=`1.0`, recall=`1.0`
-- db_equivalence python::class: precision=`1.0`, recall=`1.0`
-- contract python::module: precision=`0.9938007364939516`, recall=`0.9643920959083114`
-- contract python::function: precision=`0.5454545454545454`, recall=`0.34482758620689663`
-- contract python::method: precision=`0.2708333333333333`, recall=`0.1388888888888889`
-- contract python::class: precision=`0.9375`, recall=`1.0`
-- full python::module: precision=`0.9938007364939516`, recall=`0.964381727383389`
-- full python::function: precision=`0.9090909090909091`, recall=`0.16569183504667379`
-- full python::method: precision=`0.9583333333333334`, recall=`0.1923472008217771`
-- full python::class: precision=`0.9375`, recall=`1.0`
+- db_equivalence python::module: precision=`1.0`, recall=`1.0`, coverage=`1.0`
+- db_equivalence python::function: precision=`1.0`, recall=`1.0`, coverage=`1.0`
+- db_equivalence python::method: precision=`1.0`, recall=`1.0`, coverage=`1.0`
+- db_equivalence python::class: precision=`1.0`, recall=`1.0`, coverage=`1.0`
+- contract python::module: precision=`0.9938007364939516`, recall=`0.9643920959083114`, coverage=`0.9643920959083114`
+- contract python::function: precision=`0.5454545454545454`, recall=`0.34482758620689663`, coverage=`0.34482758620689663`
+- contract python::method: precision=`0.2708333333333333`, recall=`0.1388888888888889`, coverage=`0.1388888888888889`
+- contract python::class: precision=`0.9375`, recall=`1.0`, coverage=`1.0`
+- full python::module: precision=`0.9938007364939516`, recall=`0.964381727383389`, coverage=`0.964381727383389`
+- full python::function: precision=`0.9090909090909091`, recall=`0.16569183504667379`, coverage=`0.16569183504667379`
+- full python::method: precision=`0.9583333333333334`, recall=`0.1923472008217771`, coverage=`0.1923472008217771`
+- full python::class: precision=`0.9375`, recall=`1.0`, coverage=`1.0`
 
 ## Edge Type Breakdown
 

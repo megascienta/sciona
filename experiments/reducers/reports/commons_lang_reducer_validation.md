@@ -8,14 +8,17 @@
 - db_equivalence_recall_mean=1.0
 - contract_precision_mean=0.7069641036398031
 - contract_recall_mean=0.86389156933284
+- contract_coverage_mean=0.86389156933284
 - full_precision_mean=0.7326397793154787
 - full_recall_mean=0.8224404341287685
+- full_coverage_mean=0.8224404341287685
 - thresholds_passed=False
 
 ## DB Equivalence (Reducer vs DB)
 
 - precision_mean: `1.0`
 - recall_mean: `1.0`
+- coverage_mean: `1.0`
 - coverage_node_rate: `1.0`
 - empty_set_mismatch_count: `0`
 
@@ -36,6 +39,7 @@
 
 - in_contract_precision_mean: `0.7069641036398031`
 - in_contract_recall_mean: `0.86389156933284`
+- in_contract_coverage_mean: `0.86389156933284`
 - misses_out_of_contract_rate: `0.058511863625892654`
 - coverage_node_rate: `1.0`
 - coverage_file_rate: `1.0`
@@ -45,6 +49,7 @@
 
 - in_contract_precision_mean: `0.7326397793154787`
 - in_contract_recall_mean: `0.8224404341287685`
+- in_contract_coverage_mean: `0.8224404341287685`
 - misses_out_of_contract_rate: `0.0`
 - coverage_node_rate: `1.0`
 - coverage_file_rate: `1.0`
@@ -63,15 +68,15 @@
 
 ## Group Metrics
 
-- db_equivalence java::method: precision=`1.0`, recall=`1.0`
-- db_equivalence java::module: precision=`1.0`, recall=`1.0`
-- db_equivalence java::class: precision=`1.0`, recall=`1.0`
-- contract java::method: precision=`0.6111111111111112`, recall=`0.3908335768378503`
-- contract java::module: precision=`0.7713986883763002`, recall=`1.0`
-- contract java::class: precision=`0.6843418539492295`, recall=`0.8800955870156643`
-- full java::method: precision=`0.8222222222222222`, recall=`0.29255580522049557`
-- full java::module: precision=`0.7713986883763002`, recall=`1.0`
-- full java::class: precision=`0.6843418539492295`, recall=`0.8800955870156643`
+- db_equivalence java::method: precision=`1.0`, recall=`1.0`, coverage=`1.0`
+- db_equivalence java::module: precision=`1.0`, recall=`1.0`, coverage=`1.0`
+- db_equivalence java::class: precision=`1.0`, recall=`1.0`, coverage=`1.0`
+- contract java::method: precision=`0.6111111111111112`, recall=`0.3908335768378503`, coverage=`0.3908335768378503`
+- contract java::module: precision=`0.7713986883763002`, recall=`1.0`, coverage=`1.0`
+- contract java::class: precision=`0.6843418539492295`, recall=`0.8800955870156643`, coverage=`0.8800955870156643`
+- full java::method: precision=`0.8222222222222222`, recall=`0.29255580522049557`, coverage=`0.29255580522049557`
+- full java::module: precision=`0.7713986883763002`, recall=`1.0`, coverage=`1.0`
+- full java::class: precision=`0.6843418539492295`, recall=`0.8800955870156643`, coverage=`0.8800955870156643`
 
 ## Edge Type Breakdown
 
