@@ -129,30 +129,19 @@ def edge_records_from_ground_truth(
 
     if entity.kind == "class":
         prefix = f"{entity.qualified_name}."
-        for edge in normalized_calls:
-            if not edge.caller.startswith(prefix):
+        for definition in file_result.defs:
+            if definition.kind != "method":
                 continue
-            record = EdgeRecord(edge.caller, edge.callee, edge.callee_qname)
-            if edge.dynamic or not call_in_contract(
-                edge, entity.module_qualified_name, call_resolution, contract
-            ):
-                reason = classify_call_reason(
-                    edge=edge,
-                    language=file_result.language,
-                    call_resolution=call_resolution,
-                    contract=contract,
+            if not definition.qualified_name.startswith(prefix):
+                continue
+            callee_qname = definition.qualified_name
+            expected.append(
+                EdgeRecord(
+                    caller=entity.qualified_name,
+                    callee=callee_qname.split(".")[-1],
+                    callee_qname=callee_qname,
                 )
-                if reason not in _EXCLUDED_CALL_REASONS:
-                    out_of_contract.append(record)
-                    out_of_contract_meta.append(
-                        {
-                            "edge_type": "call",
-                            "language": file_result.language,
-                            "reason": reason,
-                        }
-                    )
-            else:
-                expected.append(record)
+            )
         return expected, out_of_contract, out_of_contract_meta
 
     for edge in normalized_calls:

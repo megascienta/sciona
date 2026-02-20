@@ -301,19 +301,20 @@ class ReducerEdgeSource:
 
             if entity.kind == "class":
                 class_id = entity.structural_id or entity.qualified_name
-                class_payload = get_class_overview(self._snapshot_id, self._conn, self._repo_root, class_id)
+                class_payload = get_class_overview(
+                    self._snapshot_id, self._conn, self._repo_root, class_id
+                )
                 for method in class_payload.get("methods", []) or []:
                     method_qname = method.get("qualified_name")
                     if not method_qname:
                         continue
-                    call_payload = get_callsite_index_payload(
-                        self._snapshot_id,
-                        self._conn,
-                        self._repo_root,
-                        method_id=method_qname,
+                    edges.append(
+                        EdgeRecord(
+                            caller=entity.qualified_name,
+                            callee=method_qname.split(".")[-1],
+                            callee_qname=method_qname,
+                        )
                     )
-                    for edge in call_payload.get("edges", []) or []:
-                        edges.append(_edge_record_from_call(edge, method_qname))
                 return payloads, edges, None
 
             if entity.kind == "function":
@@ -349,7 +350,6 @@ class DbEdgeSource:
         self._artifact_conn = artifact_conn
         self._snapshot_id = snapshot_id
         self._resolver = resolver
-        self._method_ids_cache: Dict[str, List[str]] = {}
         self._error: str | None = None
         if self._artifact_conn is None:
             self._error = "artifact db not available"
@@ -381,22 +381,13 @@ class DbEdgeSource:
                 if not resolved or not resolved.get("structural_id"):
                     raise RuntimeError("class structural_id not found")
                 class_id = resolved["structural_id"]
-                method_ids = self._method_ids_cache.get(class_id)
-                if method_ids is None:
-                    method_ids = graph_edge_targets_for_ids(
-                        self._artifact_conn,
-                        [class_id],
-                        "DEFINES_METHOD",
-                    )
-                    self._method_ids_cache[class_id] = method_ids
-                if method_ids:
-                    edges = graph_edges_for_ids(
-                        self._artifact_conn,
-                        self._core_conn,
-                        self._snapshot_id,
-                        method_ids,
-                        ["CALLS"],
-                    )
+                edges = graph_edges_for_ids(
+                    self._artifact_conn,
+                    self._core_conn,
+                    self._snapshot_id,
+                    [class_id],
+                    ["DEFINES_METHOD"],
+                )
                 return {}, edges, None
 
             if entity.kind in {"function", "method"}:

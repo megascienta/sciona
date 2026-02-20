@@ -82,15 +82,18 @@ For each sampled node, collect evidence from three sources and keep full payload
 ### A) Reducer evidence (SCIONA)
 - `callsite_index` reducer for call edges (detail level: callsites, direction: out)
 - `dependency_edges` reducer for module import edges
-- `class_overview` / `module_overview` reducers for identity and structure
+- `class_overview` reducer for class method definitions (DEFINES_METHOD)
+- `module_overview` reducer for module structure
 
 ### B) DB evidence (SCIONA API + direct queries)
 - CoreDB import edges (`IMPORTS_DECLARED`)
 - ArtifactDB call edges (`CALLS`)
+- ArtifactDB class-method edges (`DEFINES_METHOD`)
 - Node identity (structural_id, file_path, spans)
 
 ### C) Independent parser evidence
 - File-local calls and imports from independent parsers
+- Defs list (class/function/method) from independent parsers
 
 Comparisons are performed between:
 - Reducer vs Independent
