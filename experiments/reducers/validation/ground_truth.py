@@ -10,6 +10,9 @@ from .import_contract import resolve_import_contract
 from .independent.shared import EdgeRecord, FileParseResult
 from .out_of_contract import classify_call_reason, classify_import_reason
 
+_EXCLUDED_CALL_REASONS = {"external", "standard_call"}
+_EXCLUDED_IMPORT_REASONS = {"external"}
+
 
 def build_module_imports_by_prefix(
     independent_results: Dict[str, FileParseResult],
@@ -69,19 +72,21 @@ def edge_records_from_ground_truth(
                 callee_qname=resolved,
             )
             if edge.dynamic or not resolved:
-                out_of_contract.append(record)
-                out_of_contract_meta.append(
-                    {
-                        "edge_type": "import",
-                        "language": language,
-                        "reason": classify_import_reason(
-                            raw_target=edge.target_module,
-                            resolved=resolved,
-                            language=language,
-                            repo_prefix=repo_prefix,
-                        ),
-                    }
+                reason = classify_import_reason(
+                    raw_target=edge.target_module,
+                    resolved=resolved,
+                    language=language,
+                    repo_prefix=repo_prefix,
                 )
+                if reason not in _EXCLUDED_IMPORT_REASONS:
+                    out_of_contract.append(record)
+                    out_of_contract_meta.append(
+                        {
+                            "edge_type": "import",
+                            "language": language,
+                            "reason": reason,
+                        }
+                    )
             else:
                 expected.append(record)
         if not module_imports_by_prefix.get(entity.qualified_name):
@@ -103,19 +108,21 @@ def edge_records_from_ground_truth(
                     callee_qname=resolved,
                 )
                 if edge.dynamic or not resolved:
-                    out_of_contract.append(record)
-                    out_of_contract_meta.append(
-                        {
-                            "edge_type": "import",
-                            "language": file_result.language,
-                            "reason": classify_import_reason(
-                                raw_target=edge.target_module,
-                                resolved=resolved,
-                                language=file_result.language,
-                                repo_prefix=repo_prefix,
-                            ),
-                        }
+                    reason = classify_import_reason(
+                        raw_target=edge.target_module,
+                        resolved=resolved,
+                        language=file_result.language,
+                        repo_prefix=repo_prefix,
                     )
+                    if reason not in _EXCLUDED_IMPORT_REASONS:
+                        out_of_contract.append(record)
+                        out_of_contract_meta.append(
+                            {
+                                "edge_type": "import",
+                                "language": file_result.language,
+                                "reason": reason,
+                            }
+                        )
                 else:
                     expected.append(record)
         return expected, out_of_contract, out_of_contract_meta
@@ -129,19 +136,21 @@ def edge_records_from_ground_truth(
             if edge.dynamic or not call_in_contract(
                 edge, entity.module_qualified_name, call_resolution, contract
             ):
-                out_of_contract.append(record)
-                out_of_contract_meta.append(
-                    {
-                        "edge_type": "call",
-                        "language": file_result.language,
-                        "reason": classify_call_reason(
-                            edge=edge,
-                            language=file_result.language,
-                            call_resolution=call_resolution,
-                            contract=contract,
-                        ),
-                    }
+                reason = classify_call_reason(
+                    edge=edge,
+                    language=file_result.language,
+                    call_resolution=call_resolution,
+                    contract=contract,
                 )
+                if reason not in _EXCLUDED_CALL_REASONS:
+                    out_of_contract.append(record)
+                    out_of_contract_meta.append(
+                        {
+                            "edge_type": "call",
+                            "language": file_result.language,
+                            "reason": reason,
+                        }
+                    )
             else:
                 expected.append(record)
         return expected, out_of_contract, out_of_contract_meta
@@ -153,19 +162,21 @@ def edge_records_from_ground_truth(
         if edge.dynamic or not call_in_contract(
             edge, entity.module_qualified_name, call_resolution, contract
         ):
-            out_of_contract.append(record)
-            out_of_contract_meta.append(
-                {
-                    "edge_type": "call",
-                    "language": file_result.language,
-                    "reason": classify_call_reason(
-                        edge=edge,
-                        language=file_result.language,
-                        call_resolution=call_resolution,
-                        contract=contract,
-                    ),
-                }
+            reason = classify_call_reason(
+                edge=edge,
+                language=file_result.language,
+                call_resolution=call_resolution,
+                contract=contract,
             )
+            if reason not in _EXCLUDED_CALL_REASONS:
+                out_of_contract.append(record)
+                out_of_contract_meta.append(
+                    {
+                        "edge_type": "call",
+                        "language": file_result.language,
+                        "reason": reason,
+                    }
+                )
         else:
             expected.append(record)
     return expected, out_of_contract, out_of_contract_meta
