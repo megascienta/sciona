@@ -54,7 +54,7 @@ from experiments.reducers.validation.sciona_adapter import (
 from sciona.data_storage.artifact_db import read_status as artifact_read_status
 from sciona.pipelines.progress import make_progress_factory
 from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
-from sciona.code_analysis.core.extract.languages.python_imports import module_name as python_module_name
+from sciona.code_analysis.core.extract.languages.python import module_name as python_module_name
 from sciona.code_analysis.core.extract.languages.typescript import module_name as typescript_module_name
 from sciona.code_analysis.core.extract.languages.java import module_name as java_module_name
 
