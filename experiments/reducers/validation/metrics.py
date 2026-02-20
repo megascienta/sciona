@@ -15,6 +15,7 @@ class Metrics:
     out_of_contract_edges: int
     in_contract_precision: float | None
     in_contract_recall: float | None
+    in_contract_coverage: float | None
     in_contract_false_positive_count: int
     out_of_contract_missing_count: int
     tp: int
@@ -61,6 +62,7 @@ def compute_metrics(
 
     precision = _safe_ratio(tp, tp + fp)
     recall = _safe_ratio(tp, tp + fn)
+    coverage = _safe_ratio(tp, len(expected_in_contract))
 
     out_missing = 0
     for expected in out_of_contract:
@@ -84,6 +86,7 @@ def compute_metrics(
         out_of_contract_edges=len(out_of_contract),
         in_contract_precision=precision,
         in_contract_recall=recall,
+        in_contract_coverage=coverage,
         in_contract_false_positive_count=fp,
         out_of_contract_missing_count=out_missing,
         tp=tp,

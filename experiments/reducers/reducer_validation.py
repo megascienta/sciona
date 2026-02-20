@@ -569,9 +569,15 @@ def _aggregate_group_metrics(rows: List[dict], metric_key: str) -> Dict[str, dic
             for r in entries
             if r.get(metric_key) and r[metric_key]["in_contract_recall"] is not None
         ]
+        coverage_values = [
+            r[metric_key]["in_contract_coverage"]
+            for r in entries
+            if r.get(metric_key) and r[metric_key]["in_contract_coverage"] is not None
+        ]
         precision = sum(precision_values) / len(precision_values) if precision_values else None
         recall = sum(recall_values) / len(recall_values) if recall_values else None
-        metrics[key] = {"precision": precision, "recall": recall}
+        coverage = sum(coverage_values) / len(coverage_values) if coverage_values else None
+        metrics[key] = {"precision": precision, "recall": recall, "coverage": coverage}
     return metrics
 
 
@@ -625,8 +631,14 @@ def _aggregate(
         for r in rows
         if r.get(metric_key) and r[metric_key]["in_contract_recall"] is not None
     ]
+    coverage_values = [
+        r[metric_key]["in_contract_coverage"]
+        for r in rows
+        if r.get(metric_key) and r[metric_key]["in_contract_coverage"] is not None
+    ]
     precision_mean = sum(precision_values) / len(precision_values) if precision_values else None
     recall_mean = sum(recall_values) / len(recall_values) if recall_values else None
+    coverage_mean = sum(coverage_values) / len(coverage_values) if coverage_values else None
 
     misses_out_of_contract = sum(
         r[metric_key]["out_of_contract_missing_count"]
@@ -647,6 +659,7 @@ def _aggregate(
     return {
         "in_contract_precision_mean": precision_mean,
         "in_contract_recall_mean": recall_mean,
+        "in_contract_coverage_mean": coverage_mean,
         "misses_out_of_contract_rate": misses_out_rate,
         "coverage_node_rate": coverage_node_rate,
         "coverage_file_rate": coverage_file_rate,
@@ -672,12 +685,20 @@ def _aggregate_equivalence(
         if r.get("metrics_db_equivalence")
         and r["metrics_db_equivalence"]["in_contract_recall"] is not None
     ]
+    coverage_values = [
+        r["metrics_db_equivalence"]["in_contract_coverage"]
+        for r in rows
+        if r.get("metrics_db_equivalence")
+        and r["metrics_db_equivalence"]["in_contract_coverage"] is not None
+    ]
     precision_mean = sum(precision_values) / len(precision_values) if precision_values else None
     recall_mean = sum(recall_values) / len(recall_values) if recall_values else None
+    coverage_mean = sum(coverage_values) / len(coverage_values) if coverage_values else None
     coverage_node_rate = (scored_nodes / total_nodes) if total_nodes else None
     return {
         "precision_mean": precision_mean,
         "recall_mean": recall_mean,
+        "coverage_mean": coverage_mean,
         "coverage_node_rate": coverage_node_rate,
         "empty_set_mismatch_count": empty_mismatch_count,
     }
@@ -892,12 +913,18 @@ def main() -> int:
         summary.append(
             f"contract_recall_mean={aggregate_contract['in_contract_recall_mean']}"
         )
+    if aggregate_contract.get("in_contract_coverage_mean") is not None:
+        summary.append(
+            f"contract_coverage_mean={aggregate_contract['in_contract_coverage_mean']}"
+        )
     if aggregate_full.get("in_contract_precision_mean") is not None:
         summary.append(
             f"full_precision_mean={aggregate_full['in_contract_precision_mean']}"
         )
     if aggregate_full.get("in_contract_recall_mean") is not None:
         summary.append(f"full_recall_mean={aggregate_full['in_contract_recall_mean']}")
+    if aggregate_full.get("in_contract_coverage_mean") is not None:
+        summary.append(f"full_coverage_mean={aggregate_full['in_contract_coverage_mean']}")
     summary.append(f"thresholds_passed={threshold_eval['passed']}")
 
     payload = {

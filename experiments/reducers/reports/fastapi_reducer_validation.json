@@ -6,10 +6,10 @@
     "sampled_nodes=500",
     "db_equivalence_precision_mean=1.0",
     "db_equivalence_recall_mean=1.0",
-    "contract_precision_mean=0.9179267657026675",
-    "contract_recall_mean=0.7307286881170753",
-    "full_precision_mean=0.979465227241129",
-    "full_recall_mean=0.5499287901053216",
+    "contract_precision_mean=0.8682844612143757",
+    "contract_recall_mean=0.7634695157717803",
+    "full_precision_mean=0.9776594612143757",
+    "full_recall_mean=0.6066414745550394",
     "thresholds_passed=False"
   ],
   "aggregate_db_equivalence": {
@@ -19,16 +19,16 @@
     "empty_set_mismatch_count": 0
   },
   "aggregate_contract": {
-    "in_contract_precision_mean": 0.9179267657026675,
-    "in_contract_recall_mean": 0.7307286881170753,
-    "misses_out_of_contract_rate": 0.3441226575809199,
+    "in_contract_precision_mean": 0.8682844612143757,
+    "in_contract_recall_mean": 0.7634695157717803,
+    "misses_out_of_contract_rate": 0.3048780487804878,
     "coverage_node_rate": 1.0,
     "coverage_file_rate": 1.0,
     "stability_score": 1.0
   },
   "aggregate_full": {
-    "in_contract_precision_mean": 0.979465227241129,
-    "in_contract_recall_mean": 0.5499287901053216,
+    "in_contract_precision_mean": 0.9776594612143757,
+    "in_contract_recall_mean": 0.6066414745550394,
     "misses_out_of_contract_rate": 0.0,
     "coverage_node_rate": 1.0,
     "coverage_file_rate": 1.0,
@@ -58,16 +58,16 @@
       "recall": 0.9643920959083114
     },
     "python::function": {
-      "precision": 0.7692307692307693,
-      "recall": 0.27586206896551724
+      "precision": 0.5454545454545454,
+      "recall": 0.34482758620689663
     },
     "python::method": {
-      "precision": 0.4,
-      "recall": 0.13247863247863248
+      "precision": 0.2708333333333333,
+      "recall": 0.1388888888888889
     },
     "python::class": {
-      "precision": 0.4,
-      "recall": 0.28125
+      "precision": 0.9375,
+      "recall": 1.0
     }
   },
   "group_metrics_full": {
@@ -76,21 +76,21 @@
       "recall": 0.964381727383389
     },
     "python::function": {
-      "precision": 0.8461538461538461,
-      "recall": 0.09701051636535507
+      "precision": 0.9090909090909091,
+      "recall": 0.16569183504667379
     },
     "python::method": {
-      "precision": 0.9333333333333333,
-      "recall": 0.152799178222907
+      "precision": 0.9583333333333334,
+      "recall": 0.1923472008217771
     },
     "python::class": {
-      "precision": 1.0,
-      "recall": 0.13441982732986762
+      "precision": 0.9375,
+      "recall": 1.0
     }
   },
   "edge_type_breakdown_db_equivalence": {
     "calls": {
-      "tp": 45,
+      "tp": 134,
       "fp": 0,
       "fn": 0
     },
@@ -102,9 +102,9 @@
   },
   "edge_type_breakdown_contract": {
     "calls": {
-      "tp": 23,
-      "fp": 22,
-      "fn": 245
+      "tp": 88,
+      "fp": 46,
+      "fn": 145
     },
     "imports": {
       "tp": 2845,
@@ -114,9 +114,9 @@
   },
   "edge_type_breakdown_full": {
     "calls": {
-      "tp": 42,
-      "fp": 3,
-      "fn": 444
+      "tp": 127,
+      "fp": 7,
+      "fn": 280
     },
     "imports": {
       "tp": 2845,
@@ -150,33 +150,25 @@
       "issue": "recall=1.0"
     },
     {
+      "node": "fastapi.tests.test_tutorial.test_generate_clients.test_tutorial004.test_remove_tags",
+      "issue": "recall=1.0"
+    },
+    {
+      "node": "fastapi.applications.FastAPI.put",
+      "issue": "recall=1.0"
+    },
+    {
+      "node": "fastapi.docs_src.dependencies.tutorial011_py310.FixedContentQueryChecker",
+      "issue": "recall=1.0"
+    },
+    {
       "node": "fastapi.dependencies",
-      "issue": "recall=1.0"
-    },
-    {
-      "node": "fastapi.dependencies.utils",
-      "issue": "recall=1.0"
-    },
-    {
-      "node": "fastapi.encoders",
-      "issue": "recall=1.0"
-    },
-    {
-      "node": "fastapi.tests.test_request_params.test_query.test_list",
       "issue": "recall=1.0"
     }
   ],
   "failure_examples_contract": [
     {
       "node": "fastapi.applications.FastAPI.__init__",
-      "issue": "recall=0.0"
-    },
-    {
-      "node": "fastapi.applications.FastAPI",
-      "issue": "recall=0.0"
-    },
-    {
-      "node": "fastapi.tests.test_tutorial.test_generate_clients.test_tutorial004.test_remove_tags",
       "issue": "recall=0.0"
     },
     {
@@ -192,10 +184,6 @@
       "issue": "recall=0.0"
     },
     {
-      "node": "fastapi.routing.APIRouter",
-      "issue": "recall=0.0"
-    },
-    {
       "node": "fastapi.scripts.mkdocs_hooks.generate_renamed_section_items",
       "issue": "recall=0.0"
     },
@@ -206,6 +194,18 @@
     {
       "node": "fastapi.encoders.jsonable_encoder",
       "issue": "recall=0.0"
+    },
+    {
+      "node": "fastapi.docs_src.security.tutorial006_an_py39.read_current_user",
+      "issue": "recall=0.0"
+    },
+    {
+      "node": "fastapi.applications.FastAPI.patch",
+      "issue": "recall=0.0"
+    },
+    {
+      "node": "fastapi.exceptions.ValidationException.__str__",
+      "issue": "recall=0.0"
     }
   ],
   "failure_examples_full": [
@@ -215,18 +215,6 @@
     },
     {
       "node": "fastapi.tests.test_serialize_response_model.test_coerce",
-      "issue": "recall=0.0"
-    },
-    {
-      "node": "fastapi.tests.test_tutorial.test_generate_clients.test_tutorial004.test_remove_tags",
-      "issue": "recall=0.0"
-    },
-    {
-      "node": "fastapi.applications.FastAPI.put",
-      "issue": "recall=0.0"
-    },
-    {
-      "node": "fastapi.tests.test_generate_unique_id_function.test_subrouter_top_level_include_overrides_generate_unique_id",
       "issue": "recall=0.0"
     },
     {
@@ -248,21 +236,33 @@
     {
       "node": "fastapi.tests.test_openapi_examples.test_openapi_schema",
       "issue": "recall=0.0"
+    },
+    {
+      "node": "fastapi.tests.test_tutorial.test_security.test_tutorial005.test_openapi_schema",
+      "issue": "recall=0.0"
+    },
+    {
+      "node": "fastapi.scripts.mkdocs_hooks.generate_renamed_section_items",
+      "issue": "recall=0.0"
+    },
+    {
+      "node": "fastapi.encoders.jsonable_encoder",
+      "issue": "recall=0.0"
     }
   ],
   "out_of_contract_breakdown": {
-    "call::python::in_repo_unresolved": 210,
-    "call::python::dynamic": 8,
+    "call::python::in_repo_unresolved": 168,
     "import::python::relative_unresolved": 2,
-    "import::python::in_repo_unresolved": 1
+    "import::python::in_repo_unresolved": 1,
+    "call::python::dynamic": 6
   },
   "independent_totals": {
     "raw_call_edges": 15400,
     "raw_import_edges": 3702,
     "normalized_call_edges": 15400,
     "normalized_import_edges": 3702,
-    "in_contract_edges": 3253,
-    "out_of_contract_edges": 221
+    "in_contract_edges": 3218,
+    "out_of_contract_edges": 177
   },
   "independent_coverage_by_language": {
     "python": {
@@ -273,15 +273,13 @@
   "threshold_evaluation_contract": {
     "passed": false,
     "failures": [
-      "precision_mean 0.9179267657026675 < 0.95",
-      "recall_mean 0.7307286881170753 < 0.9",
-      "misses_out_of_contract_rate 0.3441226575809199 < 0.8",
-      "group python::function precision 0.7692307692307693 < 0.85",
-      "group python::function recall 0.27586206896551724 < 0.8",
-      "group python::method precision 0.4 < 0.85",
-      "group python::method recall 0.13247863247863248 < 0.8",
-      "group python::class precision 0.4 < 0.85",
-      "group python::class recall 0.28125 < 0.8"
+      "precision_mean 0.8682844612143757 < 0.95",
+      "recall_mean 0.7634695157717803 < 0.9",
+      "misses_out_of_contract_rate 0.3048780487804878 < 0.8",
+      "group python::function precision 0.5454545454545454 < 0.85",
+      "group python::function recall 0.34482758620689663 < 0.8",
+      "group python::method precision 0.2708333333333333 < 0.85",
+      "group python::method recall 0.1388888888888889 < 0.8"
     ]
   },
   "population_by_language": {
@@ -617,338 +615,152 @@
       "file_path": "fastapi/applications.py",
       "module_qualified_name": "fastapi.applications",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 4,
+        "in_contract_expected_edges": 22,
         "out_of_contract_edges": 0,
         "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 4,
+        "tp": 22,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
-        "in_contract_expected_edges": 40,
-        "out_of_contract_edges": 19,
-        "in_contract_precision": 0.0,
-        "in_contract_recall": 0.0,
-        "in_contract_false_positive_count": 4,
-        "out_of_contract_missing_count": 15,
-        "tp": 0,
-        "fp": 4,
-        "fn": 40
-      },
-      "metrics_full": {
-        "in_contract_expected_edges": 59,
+        "in_contract_expected_edges": 22,
         "out_of_contract_edges": 0,
         "in_contract_precision": 1.0,
-        "in_contract_recall": 0.06779661016949153,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 4,
+        "tp": 22,
         "fp": 0,
-        "fn": 55
+        "fn": 0
+      },
+      "metrics_full": {
+        "in_contract_expected_edges": 22,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 22,
+        "fp": 0,
+        "fn": 0
       },
       "db_equivalence_empty_mismatch": false,
       "expected_edges": [
         {
-          "caller": "fastapi.applications.FastAPI.__init__",
-          "callee": "Default",
-          "callee_qname": null
+          "caller": "fastapi.applications.FastAPI",
+          "callee": "__init__",
+          "callee_qname": "fastapi.applications.FastAPI.__init__"
         },
         {
-          "caller": "fastapi.applications.FastAPI.__init__",
-          "callee": "Default",
-          "callee_qname": null
+          "caller": "fastapi.applications.FastAPI",
+          "callee": "build_middleware_stack",
+          "callee_qname": "fastapi.applications.FastAPI.build_middleware_stack"
         },
         {
-          "caller": "fastapi.applications.FastAPI.__init__",
-          "callee": "setup",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.openapi",
-          "callee": "get_openapi",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.setup",
+          "caller": "fastapi.applications.FastAPI",
           "callee": "openapi",
-          "callee_qname": null
+          "callee_qname": "fastapi.applications.FastAPI.openapi"
         },
         {
-          "caller": "fastapi.applications.FastAPI.setup",
-          "callee": "get_swagger_ui_html",
-          "callee_qname": null
+          "caller": "fastapi.applications.FastAPI",
+          "callee": "setup",
+          "callee_qname": "fastapi.applications.FastAPI.setup"
         },
         {
-          "caller": "fastapi.applications.FastAPI.setup",
-          "callee": "get_swagger_ui_oauth2_redirect_html",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.setup",
-          "callee": "get_redoc_html",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.add_api_route",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.add_api_route",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.add_api_route",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.api_route",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.api_route",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.api_route",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.include_router",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.include_router",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.get",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.get",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.get",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.put",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.put",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.put",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.post",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.post",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.post",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.delete",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.delete",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.delete",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.options",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.options",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.options",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.head",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.head",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.head",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.patch",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.patch",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.patch",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.trace",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.trace",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.trace",
-          "callee": "Default",
-          "callee_qname": null
-        }
-      ],
-      "out_of_contract_edges": [
-        {
-          "caller": "fastapi.applications.FastAPI.setup",
-          "callee": "get",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.setup",
-          "callee": "get",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.setup",
-          "callee": "get",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.setup",
-          "callee": "get",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.applications.FastAPI.__call__",
+          "caller": "fastapi.applications.FastAPI",
           "callee": "__call__",
-          "callee_qname": null
+          "callee_qname": "fastapi.applications.FastAPI.__call__"
         },
         {
-          "caller": "fastapi.applications.FastAPI.add_api_route",
+          "caller": "fastapi.applications.FastAPI",
           "callee": "add_api_route",
-          "callee_qname": null
+          "callee_qname": "fastapi.applications.FastAPI.add_api_route"
         },
         {
-          "caller": "fastapi.applications.FastAPI.api_route",
-          "callee": "add_api_route",
-          "callee_qname": null
+          "caller": "fastapi.applications.FastAPI",
+          "callee": "api_route",
+          "callee_qname": "fastapi.applications.FastAPI.api_route"
         },
         {
-          "caller": "fastapi.applications.FastAPI.add_api_websocket_route",
+          "caller": "fastapi.applications.FastAPI",
           "callee": "add_api_websocket_route",
-          "callee_qname": null
+          "callee_qname": "fastapi.applications.FastAPI.add_api_websocket_route"
         },
         {
-          "caller": "fastapi.applications.FastAPI.websocket",
-          "callee": "add_api_websocket_route",
-          "callee_qname": null
+          "caller": "fastapi.applications.FastAPI",
+          "callee": "websocket",
+          "callee_qname": "fastapi.applications.FastAPI.websocket"
         },
         {
-          "caller": "fastapi.applications.FastAPI.include_router",
+          "caller": "fastapi.applications.FastAPI",
           "callee": "include_router",
-          "callee_qname": null
+          "callee_qname": "fastapi.applications.FastAPI.include_router"
         },
         {
-          "caller": "fastapi.applications.FastAPI.get",
+          "caller": "fastapi.applications.FastAPI",
           "callee": "get",
-          "callee_qname": null
+          "callee_qname": "fastapi.applications.FastAPI.get"
         },
         {
-          "caller": "fastapi.applications.FastAPI.put",
+          "caller": "fastapi.applications.FastAPI",
           "callee": "put",
-          "callee_qname": null
+          "callee_qname": "fastapi.applications.FastAPI.put"
         },
         {
-          "caller": "fastapi.applications.FastAPI.post",
+          "caller": "fastapi.applications.FastAPI",
           "callee": "post",
-          "callee_qname": null
+          "callee_qname": "fastapi.applications.FastAPI.post"
         },
         {
-          "caller": "fastapi.applications.FastAPI.delete",
+          "caller": "fastapi.applications.FastAPI",
           "callee": "delete",
-          "callee_qname": null
+          "callee_qname": "fastapi.applications.FastAPI.delete"
         },
         {
-          "caller": "fastapi.applications.FastAPI.options",
+          "caller": "fastapi.applications.FastAPI",
           "callee": "options",
-          "callee_qname": null
+          "callee_qname": "fastapi.applications.FastAPI.options"
         },
         {
-          "caller": "fastapi.applications.FastAPI.head",
+          "caller": "fastapi.applications.FastAPI",
           "callee": "head",
-          "callee_qname": null
+          "callee_qname": "fastapi.applications.FastAPI.head"
         },
         {
-          "caller": "fastapi.applications.FastAPI.patch",
+          "caller": "fastapi.applications.FastAPI",
           "callee": "patch",
-          "callee_qname": null
+          "callee_qname": "fastapi.applications.FastAPI.patch"
         },
         {
-          "caller": "fastapi.applications.FastAPI.trace",
+          "caller": "fastapi.applications.FastAPI",
           "callee": "trace",
-          "callee_qname": null
+          "callee_qname": "fastapi.applications.FastAPI.trace"
         },
         {
-          "caller": "fastapi.applications.FastAPI.on_event",
+          "caller": "fastapi.applications.FastAPI",
+          "callee": "websocket_route",
+          "callee_qname": "fastapi.applications.FastAPI.websocket_route"
+        },
+        {
+          "caller": "fastapi.applications.FastAPI",
           "callee": "on_event",
-          "callee_qname": null
+          "callee_qname": "fastapi.applications.FastAPI.on_event"
+        },
+        {
+          "caller": "fastapi.applications.FastAPI",
+          "callee": "middleware",
+          "callee_qname": "fastapi.applications.FastAPI.middleware"
+        },
+        {
+          "caller": "fastapi.applications.FastAPI",
+          "callee": "exception_handler",
+          "callee_qname": "fastapi.applications.FastAPI.exception_handler"
         }
       ],
+      "out_of_contract_edges": [],
       "ground_truth_parse_ok": true,
       "ground_truth_error": null,
       "raw_call_edges_count": 333,
@@ -1293,37 +1105,37 @@
       "file_path": "tests/test_tutorial/test_generate_clients/test_tutorial004.py",
       "module_qualified_name": "fastapi.tests.test_tutorial.test_generate_clients.test_tutorial004",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
         "in_contract_expected_edges": 1,
         "out_of_contract_edges": 1,
-        "in_contract_precision": null,
-        "in_contract_recall": 0.0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 1,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
-        "fn": 1
+        "fn": 0
       },
       "metrics_full": {
         "in_contract_expected_edges": 2,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": 0.0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.5,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
-        "fn": 2
+        "fn": 1
       },
       "db_equivalence_empty_mismatch": false,
       "expected_edges": [
@@ -1356,37 +1168,37 @@
       "file_path": "fastapi/applications.py",
       "module_qualified_name": "fastapi.applications",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
         "in_contract_expected_edges": 3,
         "out_of_contract_edges": 1,
-        "in_contract_precision": null,
+        "in_contract_precision": 0.0,
         "in_contract_recall": 0.0,
-        "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 1,
+        "in_contract_false_positive_count": 1,
+        "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 0,
+        "fp": 1,
         "fn": 3
       },
       "metrics_full": {
         "in_contract_expected_edges": 4,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": 0.0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.25,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
-        "fn": 4
+        "fn": 3
       },
       "db_equivalence_empty_mismatch": false,
       "expected_edges": [
@@ -1480,36 +1292,36 @@
       "file_path": "docs_src/dependencies/tutorial011_py310.py",
       "module_qualified_name": "fastapi.docs_src.dependencies.tutorial011_py310",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 2,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 2,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
+        "in_contract_precision": 0.0,
         "in_contract_recall": null,
-        "in_contract_false_positive_count": 0,
+        "in_contract_false_positive_count": 2,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 0,
+        "fp": 2,
         "fn": 0
       },
       "metrics_full": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
+        "in_contract_precision": 0.0,
         "in_contract_recall": null,
-        "in_contract_false_positive_count": 0,
+        "in_contract_false_positive_count": 2,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 0,
+        "fp": 2,
         "fn": 0
       },
       "db_equivalence_empty_mismatch": false,
@@ -1827,37 +1639,37 @@
       "file_path": "tests/test_generate_unique_id_function.py",
       "module_qualified_name": "fastapi.tests.test_generate_unique_id_function",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 3,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 3,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 6,
-        "in_contract_precision": null,
+        "in_contract_precision": 0.0,
         "in_contract_recall": null,
-        "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 6,
+        "in_contract_false_positive_count": 3,
+        "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 0,
+        "fp": 3,
         "fn": 0
       },
       "metrics_full": {
         "in_contract_expected_edges": 6,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": 0.0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.5,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 3,
         "fp": 0,
-        "fn": 6
+        "fn": 3
       },
       "db_equivalence_empty_mismatch": false,
       "expected_edges": [],
@@ -2617,333 +2429,142 @@
       "file_path": "fastapi/routing.py",
       "module_qualified_name": "fastapi.routing",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 4,
+        "in_contract_expected_edges": 20,
         "out_of_contract_edges": 0,
         "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 4,
+        "tp": 20,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
-        "in_contract_expected_edges": 43,
-        "out_of_contract_edges": 15,
-        "in_contract_precision": 0.0,
-        "in_contract_recall": 0.0,
-        "in_contract_false_positive_count": 4,
-        "out_of_contract_missing_count": 11,
-        "tp": 0,
-        "fp": 4,
-        "fn": 43
-      },
-      "metrics_full": {
-        "in_contract_expected_edges": 58,
+        "in_contract_expected_edges": 20,
         "out_of_contract_edges": 0,
         "in_contract_precision": 1.0,
-        "in_contract_recall": 0.06896551724137931,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 4,
+        "tp": 20,
         "fp": 0,
-        "fn": 54
+        "fn": 0
+      },
+      "metrics_full": {
+        "in_contract_expected_edges": 20,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 20,
+        "fp": 0,
+        "fn": 0
       },
       "db_equivalence_empty_mismatch": false,
       "expected_edges": [
         {
-          "caller": "fastapi.routing.APIRouter.__init__",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.__init__",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.__init__",
-          "callee": "_wrap_gen_lifespan_context",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.add_api_route",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.add_api_route",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.add_api_route",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.add_api_route",
-          "callee": "get_value_or_default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.add_api_route",
-          "callee": "get_value_or_default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.api_route",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.api_route",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.api_route",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.include_router",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.include_router",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.include_router",
-          "callee": "get_value_or_default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.include_router",
-          "callee": "get_value_or_default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.include_router",
-          "callee": "add_event_handler",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.include_router",
-          "callee": "add_event_handler",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.include_router",
-          "callee": "_merge_lifespan_context",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.get",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.get",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.get",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.put",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.put",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.put",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.post",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.post",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.post",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.delete",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.delete",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.delete",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.options",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.options",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.options",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.head",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.head",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.head",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.patch",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.patch",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.patch",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.trace",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.trace",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.trace",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRouter.on_event",
-          "callee": "add_event_handler",
-          "callee_qname": null
-        }
-      ],
-      "out_of_contract_edges": [
-        {
-          "caller": "fastapi.routing.APIRouter.__init__",
+          "caller": "fastapi.routing.APIRouter",
           "callee": "__init__",
-          "callee_qname": null
+          "callee_qname": "fastapi.routing.APIRouter.__init__"
         },
         {
-          "caller": "fastapi.routing.APIRouter.api_route",
+          "caller": "fastapi.routing.APIRouter",
+          "callee": "route",
+          "callee_qname": "fastapi.routing.APIRouter.route"
+        },
+        {
+          "caller": "fastapi.routing.APIRouter",
           "callee": "add_api_route",
-          "callee_qname": null
+          "callee_qname": "fastapi.routing.APIRouter.add_api_route"
         },
         {
-          "caller": "fastapi.routing.APIRouter.websocket",
+          "caller": "fastapi.routing.APIRouter",
+          "callee": "api_route",
+          "callee_qname": "fastapi.routing.APIRouter.api_route"
+        },
+        {
+          "caller": "fastapi.routing.APIRouter",
           "callee": "add_api_websocket_route",
-          "callee_qname": null
+          "callee_qname": "fastapi.routing.APIRouter.add_api_websocket_route"
         },
         {
-          "caller": "fastapi.routing.APIRouter.include_router",
-          "callee": "getattr",
-          "callee_qname": null
+          "caller": "fastapi.routing.APIRouter",
+          "callee": "websocket",
+          "callee_qname": "fastapi.routing.APIRouter.websocket"
         },
         {
-          "caller": "fastapi.routing.APIRouter.include_router",
-          "callee": "getattr",
-          "callee_qname": null
+          "caller": "fastapi.routing.APIRouter",
+          "callee": "websocket_route",
+          "callee_qname": "fastapi.routing.APIRouter.websocket_route"
         },
         {
-          "caller": "fastapi.routing.APIRouter.include_router",
-          "callee": "add_api_route",
-          "callee_qname": null
+          "caller": "fastapi.routing.APIRouter",
+          "callee": "include_router",
+          "callee_qname": "fastapi.routing.APIRouter.include_router"
         },
         {
-          "caller": "fastapi.routing.APIRouter.include_router",
-          "callee": "add_api_websocket_route",
-          "callee_qname": null
+          "caller": "fastapi.routing.APIRouter",
+          "callee": "get",
+          "callee_qname": "fastapi.routing.APIRouter.get"
         },
         {
-          "caller": "fastapi.routing.APIRouter.get",
-          "callee": "api_route",
-          "callee_qname": null
+          "caller": "fastapi.routing.APIRouter",
+          "callee": "put",
+          "callee_qname": "fastapi.routing.APIRouter.put"
         },
         {
-          "caller": "fastapi.routing.APIRouter.put",
-          "callee": "api_route",
-          "callee_qname": null
+          "caller": "fastapi.routing.APIRouter",
+          "callee": "post",
+          "callee_qname": "fastapi.routing.APIRouter.post"
         },
         {
-          "caller": "fastapi.routing.APIRouter.post",
-          "callee": "api_route",
-          "callee_qname": null
+          "caller": "fastapi.routing.APIRouter",
+          "callee": "delete",
+          "callee_qname": "fastapi.routing.APIRouter.delete"
         },
         {
-          "caller": "fastapi.routing.APIRouter.delete",
-          "callee": "api_route",
-          "callee_qname": null
+          "caller": "fastapi.routing.APIRouter",
+          "callee": "options",
+          "callee_qname": "fastapi.routing.APIRouter.options"
         },
         {
-          "caller": "fastapi.routing.APIRouter.options",
-          "callee": "api_route",
-          "callee_qname": null
+          "caller": "fastapi.routing.APIRouter",
+          "callee": "head",
+          "callee_qname": "fastapi.routing.APIRouter.head"
         },
         {
-          "caller": "fastapi.routing.APIRouter.head",
-          "callee": "api_route",
-          "callee_qname": null
+          "caller": "fastapi.routing.APIRouter",
+          "callee": "patch",
+          "callee_qname": "fastapi.routing.APIRouter.patch"
         },
         {
-          "caller": "fastapi.routing.APIRouter.patch",
-          "callee": "api_route",
-          "callee_qname": null
+          "caller": "fastapi.routing.APIRouter",
+          "callee": "trace",
+          "callee_qname": "fastapi.routing.APIRouter.trace"
         },
         {
-          "caller": "fastapi.routing.APIRouter.trace",
-          "callee": "api_route",
-          "callee_qname": null
+          "caller": "fastapi.routing.APIRouter",
+          "callee": "_startup",
+          "callee_qname": "fastapi.routing.APIRouter._startup"
+        },
+        {
+          "caller": "fastapi.routing.APIRouter",
+          "callee": "_shutdown",
+          "callee_qname": "fastapi.routing.APIRouter._shutdown"
+        },
+        {
+          "caller": "fastapi.routing.APIRouter",
+          "callee": "add_event_handler",
+          "callee_qname": "fastapi.routing.APIRouter.add_event_handler"
+        },
+        {
+          "caller": "fastapi.routing.APIRouter",
+          "callee": "on_event",
+          "callee_qname": "fastapi.routing.APIRouter.on_event"
         }
       ],
+      "out_of_contract_edges": [],
       "ground_truth_parse_ok": true,
       "ground_truth_error": null,
       "raw_call_edges_count": 454,
@@ -3731,37 +3352,37 @@
       "file_path": "fastapi/applications.py",
       "module_qualified_name": "fastapi.applications",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
         "in_contract_expected_edges": 3,
         "out_of_contract_edges": 1,
-        "in_contract_precision": null,
+        "in_contract_precision": 0.0,
         "in_contract_recall": 0.0,
-        "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 1,
+        "in_contract_false_positive_count": 1,
+        "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 0,
+        "fp": 1,
         "fn": 3
       },
       "metrics_full": {
         "in_contract_expected_edges": 4,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": 0.0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.25,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
-        "fn": 4
+        "fn": 3
       },
       "db_equivalence_empty_mismatch": false,
       "expected_edges": [
@@ -13044,47 +12665,52 @@
       "file_path": "fastapi/params.py",
       "module_qualified_name": "fastapi.params",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 2,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 2,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
-        "in_contract_expected_edges": 0,
-        "out_of_contract_edges": 1,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_expected_edges": 2,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 1,
-        "tp": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 2,
         "fp": 0,
         "fn": 0
       },
       "metrics_full": {
-        "in_contract_expected_edges": 1,
+        "in_contract_expected_edges": 2,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": 0.0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 2,
         "fp": 0,
-        "fn": 1
+        "fn": 0
       },
       "db_equivalence_empty_mismatch": false,
-      "expected_edges": [],
-      "out_of_contract_edges": [
+      "expected_edges": [
         {
-          "caller": "fastapi.params.Body.__init__",
+          "caller": "fastapi.params.Body",
           "callee": "__init__",
-          "callee_qname": null
+          "callee_qname": "fastapi.params.Body.__init__"
+        },
+        {
+          "caller": "fastapi.params.Body",
+          "callee": "__repr__",
+          "callee_qname": "fastapi.params.Body.__repr__"
         }
       ],
+      "out_of_contract_edges": [],
       "ground_truth_parse_ok": true,
       "ground_truth_error": null,
       "raw_call_edges_count": 46,
@@ -13101,37 +12727,37 @@
       "file_path": "fastapi/applications.py",
       "module_qualified_name": "fastapi.applications",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
         "in_contract_expected_edges": 3,
         "out_of_contract_edges": 1,
-        "in_contract_precision": null,
+        "in_contract_precision": 0.0,
         "in_contract_recall": 0.0,
-        "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 1,
+        "in_contract_false_positive_count": 1,
+        "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 0,
+        "fp": 1,
         "fn": 3
       },
       "metrics_full": {
         "in_contract_expected_edges": 4,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": 0.0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.25,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
-        "fn": 4
+        "fn": 3
       },
       "db_equivalence_empty_mismatch": false,
       "expected_edges": [
@@ -13559,40 +13185,46 @@
       "file_path": "docs_src/custom_response/tutorial009c_py310.py",
       "module_qualified_name": "fastapi.docs_src.custom_response.tutorial009c_py310",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
         "fn": 0
       },
       "metrics_full": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
         "fn": 0
       },
       "db_equivalence_empty_mismatch": false,
-      "expected_edges": [],
+      "expected_edges": [
+        {
+          "caller": "fastapi.docs_src.custom_response.tutorial009c_py310.CustomORJSONResponse",
+          "callee": "render",
+          "callee_qname": "fastapi.docs_src.custom_response.tutorial009c_py310.CustomORJSONResponse.render"
+        }
+      ],
       "out_of_contract_edges": [],
       "ground_truth_parse_ok": true,
       "ground_truth_error": null,
@@ -13832,37 +13464,37 @@
       "file_path": "fastapi/applications.py",
       "module_qualified_name": "fastapi.applications",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
         "in_contract_expected_edges": 3,
         "out_of_contract_edges": 1,
-        "in_contract_precision": null,
+        "in_contract_precision": 0.0,
         "in_contract_recall": 0.0,
-        "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 1,
+        "in_contract_false_positive_count": 1,
+        "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 0,
+        "fp": 1,
         "fn": 3
       },
       "metrics_full": {
         "in_contract_expected_edges": 4,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": 0.0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.25,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
-        "fn": 4
+        "fn": 3
       },
       "db_equivalence_empty_mismatch": false,
       "expected_edges": [
@@ -15572,40 +15204,46 @@
       "file_path": "tests/test_stringified_annotations_simple.py",
       "module_qualified_name": "fastapi.tests.test_stringified_annotations_simple",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
         "fn": 0
       },
       "metrics_full": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
         "fn": 0
       },
       "db_equivalence_empty_mismatch": false,
-      "expected_edges": [],
+      "expected_edges": [
+        {
+          "caller": "fastapi.tests.test_stringified_annotations_simple.Dep",
+          "callee": "__call__",
+          "callee_qname": "fastapi.tests.test_stringified_annotations_simple.Dep.__call__"
+        }
+      ],
       "out_of_contract_edges": [],
       "ground_truth_parse_ok": true,
       "ground_truth_error": null,
@@ -15747,37 +15385,37 @@
       "file_path": "tests/test_generate_unique_id_function.py",
       "module_qualified_name": "fastapi.tests.test_generate_unique_id_function",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 3,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 3,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 4,
-        "in_contract_precision": null,
+        "in_contract_precision": 0.0,
         "in_contract_recall": null,
-        "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 4,
+        "in_contract_false_positive_count": 3,
+        "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 0,
+        "fp": 3,
         "fn": 0
       },
       "metrics_full": {
         "in_contract_expected_edges": 4,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": 0.0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.75,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 3,
         "fp": 0,
-        "fn": 4
+        "fn": 1
       },
       "db_equivalence_empty_mismatch": false,
       "expected_edges": [],
@@ -16112,37 +15750,37 @@
       "file_path": "fastapi/applications.py",
       "module_qualified_name": "fastapi.applications",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
         "in_contract_expected_edges": 2,
         "out_of_contract_edges": 1,
-        "in_contract_precision": null,
+        "in_contract_precision": 0.0,
         "in_contract_recall": 0.0,
-        "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 1,
+        "in_contract_false_positive_count": 1,
+        "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 0,
+        "fp": 1,
         "fn": 2
       },
       "metrics_full": {
         "in_contract_expected_edges": 3,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": 0.0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.3333333333333333,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
-        "fn": 3
+        "fn": 2
       },
       "db_equivalence_empty_mismatch": false,
       "expected_edges": [
@@ -16485,37 +16123,37 @@
       "file_path": "fastapi/applications.py",
       "module_qualified_name": "fastapi.applications",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
         "in_contract_expected_edges": 3,
         "out_of_contract_edges": 1,
-        "in_contract_precision": null,
+        "in_contract_precision": 0.0,
         "in_contract_recall": 0.0,
-        "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 1,
+        "in_contract_false_positive_count": 1,
+        "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 0,
+        "fp": 1,
         "fn": 3
       },
       "metrics_full": {
         "in_contract_expected_edges": 4,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": 0.0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.25,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
-        "fn": 4
+        "fn": 3
       },
       "db_equivalence_empty_mismatch": false,
       "expected_edges": [
@@ -16609,37 +16247,37 @@
       "file_path": "tests/test_generate_unique_id_function.py",
       "module_qualified_name": "fastapi.tests.test_generate_unique_id_function",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 3,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 3,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 4,
-        "in_contract_precision": null,
+        "in_contract_precision": 0.0,
         "in_contract_recall": null,
-        "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 4,
+        "in_contract_false_positive_count": 3,
+        "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 0,
+        "fp": 3,
         "fn": 0
       },
       "metrics_full": {
         "in_contract_expected_edges": 4,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": 0.0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.75,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 3,
         "fp": 0,
-        "fn": 4
+        "fn": 1
       },
       "db_equivalence_empty_mismatch": false,
       "expected_edges": [],
@@ -17458,37 +17096,37 @@
       "file_path": "tests/test_generate_unique_id_function.py",
       "module_qualified_name": "fastapi.tests.test_generate_unique_id_function",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 2,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 2,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 4,
-        "in_contract_precision": null,
+        "in_contract_precision": 0.0,
         "in_contract_recall": null,
-        "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 4,
+        "in_contract_false_positive_count": 2,
+        "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 0,
+        "fp": 2,
         "fn": 0
       },
       "metrics_full": {
         "in_contract_expected_edges": 4,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": 0.0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.5,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 2,
         "fp": 0,
-        "fn": 4
+        "fn": 2
       },
       "db_equivalence_empty_mismatch": false,
       "expected_edges": [],
@@ -17648,37 +17286,37 @@
       "file_path": "tests/test_generate_unique_id_function.py",
       "module_qualified_name": "fastapi.tests.test_generate_unique_id_function",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 3,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 3,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 4,
-        "in_contract_precision": null,
+        "in_contract_precision": 0.0,
         "in_contract_recall": null,
-        "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 4,
+        "in_contract_false_positive_count": 3,
+        "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 0,
+        "fp": 3,
         "fn": 0
       },
       "metrics_full": {
         "in_contract_expected_edges": 4,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": 0.0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.75,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 3,
         "fp": 0,
-        "fn": 4
+        "fn": 1
       },
       "db_equivalence_empty_mismatch": false,
       "expected_edges": [],
@@ -19066,40 +18704,51 @@
       "file_path": "tests/test_stringified_annotation_dependency.py",
       "module_qualified_name": "fastapi.tests.test_stringified_annotation_dependency",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 2,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 2,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 2,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 2,
         "fp": 0,
         "fn": 0
       },
       "metrics_full": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 2,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 2,
         "fp": 0,
         "fn": 0
       },
       "db_equivalence_empty_mismatch": false,
-      "expected_edges": [],
+      "expected_edges": [
+        {
+          "caller": "fastapi.tests.test_stringified_annotation_dependency.DummyClient",
+          "callee": "get_people",
+          "callee_qname": "fastapi.tests.test_stringified_annotation_dependency.DummyClient.get_people"
+        },
+        {
+          "caller": "fastapi.tests.test_stringified_annotation_dependency.DummyClient",
+          "callee": "close",
+          "callee_qname": "fastapi.tests.test_stringified_annotation_dependency.DummyClient.close"
+        }
+      ],
       "out_of_contract_edges": [],
       "ground_truth_parse_ok": true,
       "ground_truth_error": null,
@@ -19117,37 +18766,37 @@
       "file_path": "fastapi/applications.py",
       "module_qualified_name": "fastapi.applications",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
         "in_contract_expected_edges": 3,
         "out_of_contract_edges": 1,
-        "in_contract_precision": null,
+        "in_contract_precision": 0.0,
         "in_contract_recall": 0.0,
-        "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 1,
+        "in_contract_false_positive_count": 1,
+        "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 0,
+        "fp": 1,
         "fn": 3
       },
       "metrics_full": {
         "in_contract_expected_edges": 4,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": 0.0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.25,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
-        "fn": 4
+        "fn": 3
       },
       "db_equivalence_empty_mismatch": false,
       "expected_edges": [
@@ -19241,37 +18890,37 @@
       "file_path": "tests/test_generate_unique_id_function.py",
       "module_qualified_name": "fastapi.tests.test_generate_unique_id_function",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 3,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 3,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 4,
-        "in_contract_precision": null,
+        "in_contract_precision": 0.0,
         "in_contract_recall": null,
-        "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 4,
+        "in_contract_false_positive_count": 3,
+        "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 0,
+        "fp": 3,
         "fn": 0
       },
       "metrics_full": {
         "in_contract_expected_edges": 4,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": 0.0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.75,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 3,
         "fp": 0,
-        "fn": 4
+        "fn": 1
       },
       "db_equivalence_empty_mismatch": false,
       "expected_edges": [],
@@ -19891,37 +19540,37 @@
       "file_path": "fastapi/applications.py",
       "module_qualified_name": "fastapi.applications",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
         "in_contract_expected_edges": 3,
         "out_of_contract_edges": 1,
-        "in_contract_precision": null,
+        "in_contract_precision": 0.0,
         "in_contract_recall": 0.0,
-        "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 1,
+        "in_contract_false_positive_count": 1,
+        "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 0,
+        "fp": 1,
         "fn": 3
       },
       "metrics_full": {
         "in_contract_expected_edges": 4,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": 0.0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.25,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
-        "fn": 4
+        "fn": 3
       },
       "db_equivalence_empty_mismatch": false,
       "expected_edges": [
@@ -21379,52 +21028,57 @@
       "file_path": "fastapi/security/oauth2.py",
       "module_qualified_name": "fastapi.security.oauth2",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 1,
+        "in_contract_expected_edges": 3,
         "out_of_contract_edges": 0,
         "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 1,
+        "tp": 3,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
-        "in_contract_expected_edges": 0,
-        "out_of_contract_edges": 2,
-        "in_contract_precision": 0.0,
-        "in_contract_recall": null,
-        "in_contract_false_positive_count": 1,
-        "out_of_contract_missing_count": 1,
-        "tp": 0,
-        "fp": 1,
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 3,
+        "fp": 0,
         "fn": 0
       },
       "metrics_full": {
-        "in_contract_expected_edges": 2,
+        "in_contract_expected_edges": 3,
         "out_of_contract_edges": 0,
         "in_contract_precision": 1.0,
-        "in_contract_recall": 0.5,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 1,
+        "tp": 3,
         "fp": 0,
-        "fn": 1
+        "fn": 0
       },
       "db_equivalence_empty_mismatch": false,
-      "expected_edges": [],
-      "out_of_contract_edges": [
+      "expected_edges": [
         {
-          "caller": "fastapi.security.oauth2.OAuth2.__call__",
-          "callee": "get",
-          "callee_qname": null
+          "caller": "fastapi.security.oauth2.OAuth2",
+          "callee": "__init__",
+          "callee_qname": "fastapi.security.oauth2.OAuth2.__init__"
         },
         {
-          "caller": "fastapi.security.oauth2.OAuth2.__call__",
+          "caller": "fastapi.security.oauth2.OAuth2",
           "callee": "make_not_authenticated_error",
-          "callee_qname": null
+          "callee_qname": "fastapi.security.oauth2.OAuth2.make_not_authenticated_error"
+        },
+        {
+          "caller": "fastapi.security.oauth2.OAuth2",
+          "callee": "__call__",
+          "callee_qname": "fastapi.security.oauth2.OAuth2.__call__"
         }
       ],
+      "out_of_contract_edges": [],
       "ground_truth_parse_ok": true,
       "ground_truth_error": null,
       "raw_call_edges_count": 69,
@@ -22077,47 +21731,57 @@
       "file_path": "docs_src/dependencies/tutorial010_py310.py",
       "module_qualified_name": "fastapi.docs_src.dependencies.tutorial010_py310",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 3,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 3,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
-        "in_contract_expected_edges": 0,
-        "out_of_contract_edges": 1,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 1,
-        "tp": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 3,
         "fp": 0,
         "fn": 0
       },
       "metrics_full": {
-        "in_contract_expected_edges": 1,
+        "in_contract_expected_edges": 3,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": 0.0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 3,
         "fp": 0,
-        "fn": 1
+        "fn": 0
       },
       "db_equivalence_empty_mismatch": false,
-      "expected_edges": [],
-      "out_of_contract_edges": [
+      "expected_edges": [
         {
-          "caller": "fastapi.docs_src.dependencies.tutorial010_py310.MySuperContextManager.__exit__",
-          "callee": "close",
-          "callee_qname": null
+          "caller": "fastapi.docs_src.dependencies.tutorial010_py310.MySuperContextManager",
+          "callee": "__init__",
+          "callee_qname": "fastapi.docs_src.dependencies.tutorial010_py310.MySuperContextManager.__init__"
+        },
+        {
+          "caller": "fastapi.docs_src.dependencies.tutorial010_py310.MySuperContextManager",
+          "callee": "__enter__",
+          "callee_qname": "fastapi.docs_src.dependencies.tutorial010_py310.MySuperContextManager.__enter__"
+        },
+        {
+          "caller": "fastapi.docs_src.dependencies.tutorial010_py310.MySuperContextManager",
+          "callee": "__exit__",
+          "callee_qname": "fastapi.docs_src.dependencies.tutorial010_py310.MySuperContextManager.__exit__"
         }
       ],
+      "out_of_contract_edges": [],
       "ground_truth_parse_ok": true,
       "ground_truth_error": null,
       "raw_call_edges_count": 3,
@@ -29556,40 +29220,46 @@
       "file_path": "tests/test_dependency_class.py",
       "module_qualified_name": "fastapi.tests.test_dependency_class",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
         "fn": 0
       },
       "metrics_full": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
         "fn": 0
       },
       "db_equivalence_empty_mismatch": false,
-      "expected_edges": [],
+      "expected_edges": [
+        {
+          "caller": "fastapi.tests.test_dependency_class.CallableDependency",
+          "callee": "__call__",
+          "callee_qname": "fastapi.tests.test_dependency_class.CallableDependency.__call__"
+        }
+      ],
       "out_of_contract_edges": [],
       "ground_truth_parse_ok": true,
       "ground_truth_error": null,
@@ -29709,58 +29379,52 @@
       "file_path": "fastapi/security/api_key.py",
       "module_qualified_name": "fastapi.security.api_key",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 1,
+        "in_contract_expected_edges": 2,
         "out_of_contract_edges": 0,
         "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 1,
+        "tp": 2,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
-        "in_contract_expected_edges": 1,
-        "out_of_contract_edges": 2,
+        "in_contract_expected_edges": 2,
+        "out_of_contract_edges": 0,
         "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 2,
-        "tp": 1,
+        "out_of_contract_missing_count": 0,
+        "tp": 2,
         "fp": 0,
         "fn": 0
       },
       "metrics_full": {
-        "in_contract_expected_edges": 3,
+        "in_contract_expected_edges": 2,
         "out_of_contract_edges": 0,
         "in_contract_precision": 1.0,
-        "in_contract_recall": 0.3333333333333333,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 1,
+        "tp": 2,
         "fp": 0,
-        "fn": 2
+        "fn": 0
       },
       "db_equivalence_empty_mismatch": false,
       "expected_edges": [
         {
-          "caller": "fastapi.security.api_key.APIKeyQuery.__call__",
-          "callee": "check_api_key",
-          "callee_qname": null
-        }
-      ],
-      "out_of_contract_edges": [
-        {
-          "caller": "fastapi.security.api_key.APIKeyQuery.__init__",
+          "caller": "fastapi.security.api_key.APIKeyQuery",
           "callee": "__init__",
-          "callee_qname": null
+          "callee_qname": "fastapi.security.api_key.APIKeyQuery.__init__"
         },
         {
-          "caller": "fastapi.security.api_key.APIKeyQuery.__call__",
-          "callee": "get",
-          "callee_qname": null
+          "caller": "fastapi.security.api_key.APIKeyQuery",
+          "callee": "__call__",
+          "callee_qname": "fastapi.security.api_key.APIKeyQuery.__call__"
         }
       ],
+      "out_of_contract_edges": [],
       "ground_truth_parse_ok": true,
       "ground_truth_error": null,
       "raw_call_edges_count": 27,
@@ -29828,37 +29492,37 @@
       "file_path": "tests/test_generate_unique_id_function.py",
       "module_qualified_name": "fastapi.tests.test_generate_unique_id_function",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 3,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 3,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 4,
-        "in_contract_precision": null,
+        "in_contract_precision": 0.0,
         "in_contract_recall": null,
-        "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 4,
+        "in_contract_false_positive_count": 3,
+        "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 0,
+        "fp": 3,
         "fn": 0
       },
       "metrics_full": {
         "in_contract_expected_edges": 4,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": 0.0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.75,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 3,
         "fp": 0,
-        "fn": 4
+        "fn": 1
       },
       "db_equivalence_empty_mismatch": false,
       "expected_edges": [],
@@ -31095,37 +30759,37 @@
       "file_path": "fastapi/applications.py",
       "module_qualified_name": "fastapi.applications",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 2,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 2,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
         "in_contract_expected_edges": 4,
         "out_of_contract_edges": 4,
-        "in_contract_precision": null,
-        "in_contract_recall": 0.0,
-        "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 4,
-        "tp": 0,
-        "fp": 0,
-        "fn": 4
+        "in_contract_precision": 0.5,
+        "in_contract_recall": 0.25,
+        "in_contract_false_positive_count": 1,
+        "out_of_contract_missing_count": 0,
+        "tp": 1,
+        "fp": 1,
+        "fn": 3
       },
       "metrics_full": {
         "in_contract_expected_edges": 8,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": 0.0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.25,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 2,
         "fp": 0,
-        "fn": 8
+        "fn": 6
       },
       "db_equivalence_empty_mismatch": false,
       "expected_edges": [
@@ -34378,13 +34042,13 @@
       "file_path": "tests/test_request_params/test_body/test_required_str.py",
       "module_qualified_name": "fastapi.tests.test_request_params.test_body.test_required_str",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 1,
+        "in_contract_expected_edges": 2,
         "out_of_contract_edges": 0,
         "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 1,
+        "tp": 2,
         "fp": 0,
         "fn": 0
       },
@@ -34393,10 +34057,10 @@
         "out_of_contract_edges": 0,
         "in_contract_precision": 0.0,
         "in_contract_recall": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 2,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 2,
         "fn": 0
       },
       "metrics_full": {
@@ -34404,10 +34068,10 @@
         "out_of_contract_edges": 0,
         "in_contract_precision": 0.0,
         "in_contract_recall": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 2,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 2,
         "fn": 0
       },
       "db_equivalence_empty_mismatch": false,
@@ -36725,13 +36389,13 @@
       "file_path": "tests/test_request_params/test_file/test_optional_list.py",
       "module_qualified_name": "fastapi.tests.test_request_params.test_file.test_optional_list",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 1,
+        "in_contract_expected_edges": 2,
         "out_of_contract_edges": 0,
         "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 1,
+        "tp": 2,
         "fp": 0,
         "fn": 0
       },
@@ -36740,10 +36404,10 @@
         "out_of_contract_edges": 0,
         "in_contract_precision": 0.0,
         "in_contract_recall": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 2,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 2,
         "fn": 0
       },
       "metrics_full": {
@@ -36751,10 +36415,10 @@
         "out_of_contract_edges": 0,
         "in_contract_precision": 0.0,
         "in_contract_recall": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 2,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 2,
         "fn": 0
       },
       "db_equivalence_empty_mismatch": false,
@@ -36827,40 +36491,46 @@
       "file_path": "docs_src/authentication_error_status_code/tutorial001_an_py310.py",
       "module_qualified_name": "fastapi.docs_src.authentication_error_status_code.tutorial001_an_py310",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
         "fn": 0
       },
       "metrics_full": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
         "fn": 0
       },
       "db_equivalence_empty_mismatch": false,
-      "expected_edges": [],
+      "expected_edges": [
+        {
+          "caller": "fastapi.docs_src.authentication_error_status_code.tutorial001_an_py310.HTTPBearer403",
+          "callee": "make_not_authenticated_error",
+          "callee_qname": "fastapi.docs_src.authentication_error_status_code.tutorial001_an_py310.HTTPBearer403.make_not_authenticated_error"
+        }
+      ],
       "out_of_contract_edges": [],
       "ground_truth_parse_ok": true,
       "ground_truth_error": null,
@@ -37043,138 +36713,57 @@
       "file_path": "fastapi/routing.py",
       "module_qualified_name": "fastapi.routing",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 2,
+        "in_contract_expected_edges": 3,
         "out_of_contract_edges": 0,
         "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 2,
+        "tp": 3,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
-        "in_contract_expected_edges": 16,
-        "out_of_contract_edges": 3,
-        "in_contract_precision": 1.0,
-        "in_contract_recall": 0.125,
-        "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 3,
-        "tp": 2,
-        "fp": 0,
-        "fn": 14
-      },
-      "metrics_full": {
-        "in_contract_expected_edges": 19,
+        "in_contract_expected_edges": 3,
         "out_of_contract_edges": 0,
         "in_contract_precision": 1.0,
-        "in_contract_recall": 0.10526315789473684,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 2,
+        "tp": 3,
         "fp": 0,
-        "fn": 17
+        "fn": 0
+      },
+      "metrics_full": {
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 3,
+        "fp": 0,
+        "fn": 0
       },
       "db_equivalence_empty_mismatch": false,
       "expected_edges": [
         {
-          "caller": "fastapi.routing.APIRoute.__init__",
-          "callee": "Default",
-          "callee_qname": null
+          "caller": "fastapi.routing.APIRoute",
+          "callee": "__init__",
+          "callee_qname": "fastapi.routing.APIRoute.__init__"
         },
         {
-          "caller": "fastapi.routing.APIRoute.__init__",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRoute.__init__",
-          "callee": "Default",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRoute.__init__",
-          "callee": "get_typed_return_annotation",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRoute.__init__",
-          "callee": "lenient_issubclass",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRoute.__init__",
-          "callee": "is_body_allowed_for_status_code",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRoute.__init__",
-          "callee": "create_model_field",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRoute.__init__",
-          "callee": "is_body_allowed_for_status_code",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRoute.__init__",
-          "callee": "create_model_field",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRoute.__init__",
-          "callee": "get_dependant",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRoute.__init__",
-          "callee": "get_parameterless_sub_dependant",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRoute.__init__",
-          "callee": "get_flat_dependant",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRoute.__init__",
-          "callee": "_should_embed_body_fields",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRoute.__init__",
-          "callee": "get_body_field",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRoute.__init__",
-          "callee": "request_response",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRoute.get_route_handler",
-          "callee": "get_request_handler",
-          "callee_qname": null
-        }
-      ],
-      "out_of_contract_edges": [
-        {
-          "caller": "fastapi.routing.APIRoute.__init__",
-          "callee": "get",
-          "callee_qname": null
-        },
-        {
-          "caller": "fastapi.routing.APIRoute.__init__",
+          "caller": "fastapi.routing.APIRoute",
           "callee": "get_route_handler",
-          "callee_qname": null
+          "callee_qname": "fastapi.routing.APIRoute.get_route_handler"
         },
         {
-          "caller": "fastapi.routing.APIRoute.matches",
+          "caller": "fastapi.routing.APIRoute",
           "callee": "matches",
-          "callee_qname": null
+          "callee_qname": "fastapi.routing.APIRoute.matches"
         }
       ],
+      "out_of_contract_edges": [],
       "ground_truth_parse_ok": true,
       "ground_truth_error": null,
       "raw_call_edges_count": 454,
@@ -37711,40 +37300,46 @@
       "file_path": "tests/test_dependency_yield_scope_websockets.py",
       "module_qualified_name": "fastapi.tests.test_dependency_yield_scope_websockets",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
         "fn": 0
       },
       "metrics_full": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
         "fn": 0
       },
       "db_equivalence_empty_mismatch": false,
-      "expected_edges": [],
+      "expected_edges": [
+        {
+          "caller": "fastapi.tests.test_dependency_yield_scope_websockets.NamedSession",
+          "callee": "__init__",
+          "callee_qname": "fastapi.tests.test_dependency_yield_scope_websockets.NamedSession.__init__"
+        }
+      ],
       "out_of_contract_edges": [],
       "ground_truth_parse_ok": true,
       "ground_truth_error": null,
@@ -38850,47 +38445,52 @@
       "file_path": "fastapi/params.py",
       "module_qualified_name": "fastapi.params",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 2,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 2,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
-        "in_contract_expected_edges": 0,
-        "out_of_contract_edges": 1,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_expected_edges": 2,
+        "out_of_contract_edges": 0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 1,
-        "tp": 0,
+        "out_of_contract_missing_count": 0,
+        "tp": 2,
         "fp": 0,
         "fn": 0
       },
       "metrics_full": {
-        "in_contract_expected_edges": 1,
+        "in_contract_expected_edges": 2,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": 0.0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 2,
         "fp": 0,
-        "fn": 1
+        "fn": 0
       },
       "db_equivalence_empty_mismatch": false,
-      "expected_edges": [],
-      "out_of_contract_edges": [
+      "expected_edges": [
         {
-          "caller": "fastapi.params.Param.__init__",
+          "caller": "fastapi.params.Param",
           "callee": "__init__",
-          "callee_qname": null
+          "callee_qname": "fastapi.params.Param.__init__"
+        },
+        {
+          "caller": "fastapi.params.Param",
+          "callee": "__repr__",
+          "callee_qname": "fastapi.params.Param.__repr__"
         }
       ],
+      "out_of_contract_edges": [],
       "ground_truth_parse_ok": true,
       "ground_truth_error": null,
       "raw_call_edges_count": 46,
@@ -39072,37 +38672,37 @@
       "file_path": "tests/test_request_params/test_query/test_list.py",
       "module_qualified_name": "fastapi.tests.test_request_params.test_query.test_list",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
         "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": 0.0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
-        "fn": 1
+        "fn": 0
       },
       "metrics_full": {
         "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": 0.0,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
-        "fn": 1
+        "fn": 0
       },
       "db_equivalence_empty_mismatch": false,
       "expected_edges": [
@@ -41476,40 +41076,46 @@
       "file_path": "docs_src/graphql_/tutorial001_py310.py",
       "module_qualified_name": "fastapi.docs_src.graphql_.tutorial001_py310",
       "metrics_db_equivalence": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
         "fn": 0
       },
       "metrics_contract": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
         "fn": 0
       },
       "metrics_full": {
-        "in_contract_expected_edges": 0,
+        "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": null,
-        "in_contract_recall": null,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 1.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 0,
+        "tp": 1,
         "fp": 0,
         "fn": 0
       },
       "db_equivalence_empty_mismatch": false,
-      "expected_edges": [],
+      "expected_edges": [
+        {
+          "caller": "fastapi.docs_src.graphql_.tutorial001_py310.Query",
+          "callee": "user",
+          "callee_qname": "fastapi.docs_src.graphql_.tutorial001_py310.Query.user"
+        }
+      ],
       "out_of_contract_edges": [],
       "ground_truth_parse_ok": true,
       "ground_truth_error": null,

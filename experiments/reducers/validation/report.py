@@ -35,6 +35,7 @@ def render_summary(payload: dict) -> List[str]:
     for key in [
         "precision_mean",
         "recall_mean",
+        "coverage_mean",
         "coverage_node_rate",
         "empty_set_mismatch_count",
     ]:
@@ -75,6 +76,7 @@ def render_summary(payload: dict) -> List[str]:
     for key in [
         "in_contract_precision_mean",
         "in_contract_recall_mean",
+        "in_contract_coverage_mean",
         "misses_out_of_contract_rate",
         "coverage_node_rate",
         "coverage_file_rate",
@@ -90,6 +92,7 @@ def render_summary(payload: dict) -> List[str]:
     for key in [
         "in_contract_precision_mean",
         "in_contract_recall_mean",
+        "in_contract_coverage_mean",
         "misses_out_of_contract_rate",
         "coverage_node_rate",
         "coverage_file_rate",
@@ -115,15 +118,15 @@ def render_summary(payload: dict) -> List[str]:
     lines.append("")
     for group, stats in payload.get("group_metrics_db_equivalence", {}).items():
         lines.append(
-            f"- db_equivalence {group}: precision=`{stats.get('precision')}`, recall=`{stats.get('recall')}`"
+            f"- db_equivalence {group}: precision=`{stats.get('precision')}`, recall=`{stats.get('recall')}`, coverage=`{stats.get('coverage')}`"
         )
     for group, stats in payload.get("group_metrics_contract", {}).items():
         lines.append(
-            f"- contract {group}: precision=`{stats.get('precision')}`, recall=`{stats.get('recall')}`"
+            f"- contract {group}: precision=`{stats.get('precision')}`, recall=`{stats.get('recall')}`, coverage=`{stats.get('coverage')}`"
         )
     for group, stats in payload.get("group_metrics_full", {}).items():
         lines.append(
-            f"- full {group}: precision=`{stats.get('precision')}`, recall=`{stats.get('recall')}`"
+            f"- full {group}: precision=`{stats.get('precision')}`, recall=`{stats.get('recall')}`, coverage=`{stats.get('coverage')}`"
         )
     lines.append("")
 
