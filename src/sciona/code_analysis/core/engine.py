@@ -117,6 +117,15 @@ class BuildEngine:
             processed_files = 0
             if changed_snapshots:
                 inserted_nodes += self._register_modules(snapshot_id, changed_snapshots)
+            module_index: set[str] = set()
+            if changed_snapshots:
+                for file_snapshot in changed_snapshots:
+                    analyzer = resolve_analyzer(file_snapshot, self.analyzers)
+                    if not analyzer:
+                        continue
+                    module_index.add(
+                        analyzer.module_name(self.workspace_root, file_snapshot)
+                    )
             progress = None
             if changed_snapshots and self._progress_factory:
                 progress = self._progress_factory("Analyzing", len(changed_snapshots))
@@ -127,6 +136,7 @@ class BuildEngine:
                         if progress:
                             progress.advance(1)
                         continue
+                    analyzer.module_index = module_index
                     module_name = analyzer.module_name(
                         self.workspace_root, file_snapshot
                     )

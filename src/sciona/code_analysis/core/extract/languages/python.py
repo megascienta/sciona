@@ -69,6 +69,17 @@ class PythonAnalyzer(ASTAnalyzer):
                     class_methods=class_methods,
                     pending_calls=pending_calls,
                 )
+            (
+                imports,
+                import_aliases,
+                member_aliases,
+                raw_module_map,
+            ) = _collect_imports(
+                root,
+                snapshot,
+                module_name,
+                module_index=getattr(self, "module_index", None),
+            )
             for qualified, node_type, body_node, class_name in pending_calls:
                 call_targets = collect_call_targets(
                     body_node,
@@ -82,6 +93,9 @@ class PythonAnalyzer(ASTAnalyzer):
                     module_functions,
                     class_methods,
                     class_name,
+                    import_aliases,
+                    member_aliases,
+                    raw_module_map,
                 )
                 if resolved:
                     result.call_records.append(
@@ -93,25 +107,6 @@ class PythonAnalyzer(ASTAnalyzer):
                     )
 
             is_package = snapshot.record.path.name == "__init__.py"
-
-            imports: List[str] = []
-            repo_root = _repo_root_from_snapshot(snapshot)
-            repo_prefix = runtime_paths.repo_name_prefix(repo_root)
-            local_packages = set(runtime_packaging.local_package_names(repo_root))
-            for child in root.children:
-                if child.type in {"import_statement", "import_from_statement"}:
-                    segment = snapshot.content[
-                        child.start_byte : child.end_byte
-                    ].decode("utf-8")
-                    imports.extend(
-                        _extract_imports(
-                            segment,
-                            module_name,
-                            is_package,
-                            repo_prefix=repo_prefix,
-                            local_packages=local_packages,
-                        )
-                    )
 
             for module in sorted(set(imports)):
                 result.edges.append(
@@ -271,46 +266,106 @@ def module_name(repo_root: Path, snapshot: FileSnapshot) -> str:
     )
 
 
-def _extract_imports(
-    fragment: str,
+def _collect_imports(
+    root,
+    snapshot: FileSnapshot,
     module_name: str,
-    is_package: bool,
     *,
-    repo_prefix: str,
-    local_packages: set[str],
-) -> List[str]:
-    raw_modules = _parse_imports(fragment)
-    resolved: List[str] = []
-    for candidate in raw_modules:
-        resolved_module = _normalize_import(
-            candidate,
-            module_name,
-            is_package,
-            repo_prefix=repo_prefix,
-            local_packages=local_packages,
-        )
-        if resolved_module:
-            resolved.append(resolved_module)
-    return resolved
-
-
-def _parse_imports(text: str) -> List[str]:
-    modules: List[str] = []
-    fragment = text.strip()
-    if fragment.startswith("import "):
-        targets = fragment[len("import ") :].split(",")
-        for target in targets:
-            candidate = target.strip()
-            if not candidate:
+    module_index: set[str] | None,
+) -> tuple[
+    list[str],
+    dict[str, str],
+    dict[str, str],
+    dict[str, str],
+]:
+    repo_root = _repo_root_from_snapshot(snapshot)
+    repo_prefix = runtime_paths.repo_name_prefix(repo_root)
+    local_packages = set(runtime_packaging.local_package_names(repo_root))
+    imports: list[str] = []
+    import_aliases: dict[str, str] = {}
+    member_aliases: dict[str, str] = {}
+    raw_module_map: dict[str, str] = {}
+    is_package = snapshot.record.path.name == "__init__.py"
+    for child in root.children:
+        if child.type == "import_statement":
+            segment = snapshot.content[child.start_byte : child.end_byte].decode("utf-8")
+            for module, alias in _parse_import_statement(segment):
+                normalized = _normalize_import(
+                    module,
+                    module_name,
+                    is_package,
+                    repo_prefix=repo_prefix,
+                    local_packages=local_packages,
+                )
+                if not normalized or not _is_internal_module(
+                    normalized, repo_prefix, module_index
+                ):
+                    continue
+                imports.append(normalized)
+                raw_module_map[module] = normalized
+                if alias:
+                    import_aliases[alias] = normalized
+                elif "." not in module:
+                    import_aliases[module] = normalized
+        elif child.type == "import_from_statement":
+            segment = snapshot.content[child.start_byte : child.end_byte].decode("utf-8")
+            module, names = _parse_from_import(segment)
+            if not module:
                 continue
-            parts = candidate.split(" as ", 1)
-            modules.append(parts[0].strip())
-    elif fragment.startswith("from ") and " import " in fragment:
-        prefix, _rest = fragment.split(" import ", 1)
-        module = prefix[len("from ") :].strip()
+            normalized = _normalize_import(
+                module,
+                module_name,
+                is_package,
+                repo_prefix=repo_prefix,
+                local_packages=local_packages,
+            )
+            if not normalized or not _is_internal_module(
+                normalized, repo_prefix, module_index
+            ):
+                continue
+            imports.append(normalized)
+            raw_module_map[module] = normalized
+            for name, alias in names:
+                if name == "*":
+                    continue
+                member_aliases[alias or name] = f"{normalized}.{name}"
+    return imports, import_aliases, member_aliases, raw_module_map
+
+
+def _parse_import_statement(text: str) -> List[tuple[str, str | None]]:
+    fragment = text.strip()
+    if not fragment.startswith("import "):
+        return []
+    targets = fragment[len("import ") :].split(",")
+    parsed: list[tuple[str, str | None]] = []
+    for target in targets:
+        candidate = target.strip()
+        if not candidate:
+            continue
+        parts = candidate.split(" as ", 1)
+        module = parts[0].strip()
+        alias = parts[1].strip() if len(parts) == 2 else None
         if module:
-            modules.append(module)
-    return modules
+            parsed.append((module, alias))
+    return parsed
+
+
+def _parse_from_import(text: str) -> tuple[str | None, List[tuple[str, str | None]]]:
+    fragment = text.strip()
+    if not fragment.startswith("from ") or " import " not in fragment:
+        return None, []
+    prefix, rest = fragment.split(" import ", 1)
+    module = prefix[len("from ") :].strip()
+    names: list[tuple[str, str | None]] = []
+    for part in rest.split(","):
+        piece = part.strip()
+        if not piece:
+            continue
+        parts = piece.split(" as ", 1)
+        name = parts[0].strip()
+        alias = parts[1].strip() if len(parts) == 2 else None
+        names.append((name, alias))
+    return module or None, names
 
 
 def _normalize_import(
@@ -364,12 +419,30 @@ def _resolve_calls(
     module_functions: set[str],
     class_methods: dict[str, set[str]],
     class_name: str | None,
+    import_aliases: dict[str, str],
+    member_aliases: dict[str, str],
+    raw_module_map: dict[str, str],
 ) -> List[str]:
     resolved: list[str] = []
     class_method_names = class_methods.get(class_name, set()) if class_name else set()
     for target in targets:
         terminal = target.terminal
         callee_text = (target.callee_text or "").strip()
+        if "." in callee_text:
+            head, rest = callee_text.split(".", 1)
+            if head in import_aliases:
+                resolved.append(f"{import_aliases[head]}.{rest}")
+                continue
+            for raw, normalized in raw_module_map.items():
+                if callee_text == raw or callee_text.startswith(f"{raw}."):
+                    suffix = callee_text[len(raw) :].lstrip(".")
+                    resolved.append(f"{normalized}.{suffix}" if suffix else normalized)
+                    break
+            else:
+                pass
+        if terminal in member_aliases:
+            resolved.append(member_aliases[terminal])
+            continue
         if class_name and _is_self_receiver(callee_text) and terminal in class_method_names:
             resolved.append(f"{class_name}.{terminal}")
             continue
@@ -386,6 +459,16 @@ def _is_unqualified(callee_text: str) -> bool:
 
 def _is_self_receiver(callee_text: str) -> bool:
     return callee_text.startswith("self.") or callee_text.startswith("cls.")
+
+
+def _is_internal_module(
+    module_name: str, repo_prefix: str, module_index: set[str] | None
+) -> bool:
+    if module_index is not None:
+        return module_name in module_index
+    if not repo_prefix:
+        return True
+    return module_name == repo_prefix or module_name.startswith(f"{repo_prefix}.")
 
 
 __all__ = [

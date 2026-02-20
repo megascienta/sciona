@@ -49,7 +49,9 @@ def test_java_analyzer_extracts_structure_and_calls(tmp_path):
         content=module.encode("utf-8"),
     )
     analyzer = JavaAnalyzer()
-    result = analyzer.analyze(snapshot, "src.Foo")
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
 
     node_types = {node.node_type for node in result.nodes}
     assert {"module", "class", "method"}.issubset(node_types)
@@ -57,9 +59,7 @@ def test_java_analyzer_extracts_structure_and_calls(tmp_path):
     import_edges = [
         edge for edge in result.edges if edge.edge_type == "IMPORTS_DECLARED"
     ]
-    imported = {edge.dst_qualified_name for edge in import_edges}
-    assert "java.util.List" in imported
-    assert "java.util.Collections" in imported
+    assert not import_edges
 
     module_node = next(node for node in result.nodes if node.node_type == "module")
     assert (
@@ -71,7 +71,11 @@ def test_java_analyzer_extracts_structure_and_calls(tmp_path):
         record.qualified_name: set(record.callee_identifiers)
         for record in result.call_records
     }
-    assert "src.Foo.Foo.helper" in call_records
-    assert {"baz", "Baz", "src.Foo.Foo.qux"}.issubset(
-        call_records["src.Foo.Foo.helper"]
-    )
+    class_name = f"{module_name}.Foo"
+    helper_key = f"{class_name}.helper"
+    assert helper_key in call_records
+    assert {
+        "baz",
+        f"{module_name}.Baz.Baz",
+        f"{class_name}.qux",
+    }.issubset(call_records[helper_key])

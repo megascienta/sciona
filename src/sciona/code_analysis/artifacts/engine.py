@@ -12,6 +12,7 @@ from ...runtime import config as runtime_config
 from ...runtime import git as git_ops
 from ...runtime.logging import get_logger
 from ..core import routing
+from ...data_storage.core_db import read_ops as core_read
 from ..tools import snapshots, walker
 from ..tools.call_extraction import CallExtractionRecord
 
@@ -73,6 +74,7 @@ class ArtifactEngine:
             on_error=_warn_line_count,
         )
         node_map = _load_node_map(self.conn, snapshot_id)
+        module_index = _load_module_index(self.conn, snapshot_id)
         progress = None
         if self._progress_factory:
             progress = self._progress_factory(
@@ -87,6 +89,7 @@ class ArtifactEngine:
                     if progress:
                         progress.advance(1)
                     continue
+                analyzer.module_index = module_index
                 module_name = analyzer.module_name(self.workspace_root, file_snapshot)
                 try:
                     analysis = analyzer.analyze(file_snapshot, module_name)
@@ -150,3 +153,8 @@ def _load_node_map(conn, snapshot_id: str) -> Dict[Tuple[str, str], str]:
     return {
         key: structural_id for key, structural_id in mapping.items() if structural_id
     }
+
+
+def _load_module_index(conn, snapshot_id: str) -> set[str]:
+    rows = core_read.list_nodes_by_types(conn, snapshot_id, ["module"])
+    return {qualified_name for _structural_id, _node_type, qualified_name in rows}

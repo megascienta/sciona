@@ -82,7 +82,16 @@ def compute_overlay_rows(
         core_conn, snapshot_id, [*file_paths, *deleted_paths]
     )
     snapshot_nodes = {row["structural_id"]: row for row in snapshot_rows}
-    analysis_nodes, analysis_edges, analysis_calls = analyze_files(repo_root, records)
+    snapshot_module_rows = core_read.list_nodes_by_types(
+        core_conn, snapshot_id, ["module"]
+    )
+    snapshot_module_index = {
+        qualified_name for _structural_id, _node_type, qualified_name in snapshot_module_rows
+    }
+    module_index = snapshot_module_index | _module_index_for_records(repo_root, records)
+    analysis_nodes, analysis_edges, analysis_calls = analyze_files(
+        repo_root, records, module_index=module_index
+    )
     analysis_map = {node["structural_id"]: node for node in analysis_nodes}
     analysis_src_ids = set(analysis_map.keys())
     snapshot_src_ids = {row["structural_id"] for row in snapshot_rows}
@@ -354,6 +363,8 @@ def filter_excluded_paths(
 def analyze_files(
     repo_root: Path,
     records: list[FileRecord],
+    *,
+    module_index: set[str] | None = None,
 ) -> tuple[list[dict[str, object]], list[dict[str, object]], list[dict[str, object]]]:
     if not records:
         return [], [], []
@@ -366,6 +377,7 @@ def analyze_files(
         analyzer = registry.get_analyzer_for_path(file_snapshot.record.path, analyzers)
         if not analyzer:
             continue
+        analyzer.module_index = module_index
         module_name = analyzer.module_name(repo_root, file_snapshot)
         analysis = analyzer.analyze(file_snapshot, module_name)
         for node in analysis.nodes:
@@ -382,3 +394,17 @@ def analyze_files(
                 }
             )
     return nodes, edges, calls
+
+
+def _module_index_for_records(repo_root: Path, records: list[FileRecord]) -> set[str]:
+    if not records:
+        return set()
+    file_snapshots = snapshot_tools.prepare_file_snapshots(repo_root, records)
+    module_index: set[str] = set()
+    analyzers = analyzers_by_language()
+    for file_snapshot in file_snapshots:
+        analyzer = registry.get_analyzer_for_path(file_snapshot.record.path, analyzers)
+        if not analyzer:
+            continue
+        module_index.add(analyzer.module_name(repo_root, file_snapshot))
+    return module_index

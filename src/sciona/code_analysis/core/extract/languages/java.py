@@ -64,6 +64,7 @@ class JavaAnalyzer(ASTAnalyzer):
             module_functions: set[str] = set()
             class_methods: dict[str, set[str]] = {}
             class_name_map: dict[str, str] = {}
+            import_class_map: dict[str, str] = {}
             pending_calls: list[tuple[str, str, object | None, str | None]] = []
             for child in root.children:
                 self._walk(
@@ -104,6 +105,7 @@ class JavaAnalyzer(ASTAnalyzer):
                     module_functions,
                     class_methods,
                     class_name_map,
+                    import_class_map,
                     class_name,
                 )
                 if resolved:
@@ -126,8 +128,18 @@ class JavaAnalyzer(ASTAnalyzer):
                     snapshot,
                     module_prefix=module_prefix,
                 )
-                if normalized:
-                    imports.append(normalized)
+                if not normalized:
+                    continue
+                if not _is_internal_module(
+                    normalized,
+                    runtime_paths.repo_name_prefix(_repo_root_from_snapshot(snapshot)),
+                    getattr(self, "module_index", None),
+                ):
+                    continue
+                imports.append(normalized)
+                simple_name = _import_simple_name(fragment)
+                if simple_name:
+                    import_class_map[simple_name] = normalized
 
             for module in sorted(set(imports)):
                 result.edges.append(
@@ -338,6 +350,25 @@ def _normalize_import(
     return text
 
 
+def _import_simple_name(fragment: str) -> str | None:
+    raw = fragment.strip()
+    if not raw.startswith("import"):
+        return None
+    is_static = raw.startswith("import static")
+    text = raw[len("import") :].strip()
+    if text.startswith("static"):
+        text = text[len("static") :].strip()
+    if text.endswith(";"):
+        text = text[:-1].strip()
+    if text.endswith(".*"):
+        return None
+    if is_static and "." in text:
+        text = text.rsplit(".", 1)[0]
+    if not text:
+        return None
+    return text.split(".")[-1]
+
+
 def _top_level_package(module_name: str, repo_prefix: str) -> str | None:
     if repo_prefix and (
         module_name == repo_prefix or module_name.startswith(f"{repo_prefix}.")
@@ -367,6 +398,16 @@ def _extract_package(root, content: bytes) -> Optional[str]:
             fragment = fragment[:-1].strip()
         return fragment or None
     return None
+
+
+def _is_internal_module(
+    module_name: str, repo_prefix: str, module_index: set[str] | None
+) -> bool:
+    if module_index is not None:
+        return module_name in module_index
+    if not repo_prefix:
+        return True
+    return module_name == repo_prefix or module_name.startswith(f"{repo_prefix}.")
 
 
 def _module_prefix_for_package(
@@ -415,6 +456,7 @@ def _resolve_java_calls(
     module_functions: set[str],
     class_methods: dict[str, set[str]],
     class_name_map: dict[str, str],
+    import_class_map: dict[str, str],
     class_name: str | None,
 ) -> List[str]:
     resolved: list[str] = []
@@ -422,6 +464,15 @@ def _resolve_java_calls(
     for target in targets:
         terminal = target.terminal
         callee_text = (target.callee_text or "").strip()
+        if _is_unqualified(callee_text):
+            import_target = import_class_map.get(terminal)
+            local_class = class_name_map.get(terminal)
+            if import_target:
+                resolved.append(f"{import_target}.{terminal}")
+                continue
+            if local_class:
+                resolved.append(f"{local_class}.{terminal}")
+                continue
         if class_name and terminal in class_method_names:
             if _is_receiver_call(callee_text) or _is_unqualified(callee_text):
                 resolved.append(f"{class_name}.{terminal}")

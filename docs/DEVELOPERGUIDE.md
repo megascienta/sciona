@@ -106,6 +106,7 @@ By contract, SCIONA does not:
 - Import edges are syntax hints, not full symbol resolution.
 - Call graphs are derived artifacts and may be incomplete.
 - Module names are derived from repo-relative paths only; packaging metadata is ignored.
+- Module names are prefixed with `repo_name_prefix` for global uniqueness across repos.
 
 ## Supported languages
 

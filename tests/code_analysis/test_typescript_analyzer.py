@@ -5,7 +5,6 @@ from pathlib import Path
 
 from sciona.code_analysis.core.extract.languages.typescript import TypeScriptAnalyzer
 from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
-from sciona.runtime import paths as runtime_paths
 
 
 def test_typescript_analyzer_extracts_structure(tmp_path):
@@ -41,16 +40,15 @@ def test_typescript_analyzer_extracts_structure(tmp_path):
         content=module.encode("utf-8"),
     )
     analyzer = TypeScriptAnalyzer()
-    result = analyzer.analyze(snapshot, "src.mod")
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
     node_types = {node.node_type for node in result.nodes}
     assert {"module", "class", "function", "method"}.issubset(node_types)
     import_edges = [
         edge for edge in result.edges if edge.edge_type == "IMPORTS_DECLARED"
     ]
-    assert import_edges
-    imported = {edge.dst_qualified_name for edge in import_edges}
-    repo_prefix = runtime_paths.repo_name_prefix(repo)
-    assert f"{repo_prefix}.src.utils" in imported, imported
+    assert not import_edges
     assert not [edge for edge in result.edges if edge.edge_type == "CALLS"]
     method_edges = [edge for edge in result.edges if edge.edge_type == "DEFINES_METHOD"]
     assert method_edges and method_edges[0].src_node_type == "class"
@@ -58,5 +56,7 @@ def test_typescript_analyzer_extracts_structure(tmp_path):
         record.qualified_name: set(record.callee_identifiers)
         for record in result.call_records
     }
-    assert "src.mod.outer" in call_records
-    assert "src.mod.helper" in call_records["src.mod.outer"]
+    outer_name = f"{module_name}.outer"
+    helper_name = f"{module_name}.helper"
+    assert outer_name in call_records
+    assert helper_name in call_records[outer_name]

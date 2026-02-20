@@ -44,7 +44,9 @@ def helper():
         content=module.encode("utf-8"),
     )
     analyzer = PythonAnalyzer()
-    result = analyzer.analyze(snapshot, "pkg.mod")
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
     node_types = {node.node_type for node in result.nodes}
     assert {"module", "class", "method", "function"}.issubset(node_types)
     assert not [edge for edge in result.edges if edge.edge_type == "CALLS"]
@@ -53,11 +55,12 @@ def helper():
     import_edges = [
         edge for edge in result.edges if edge.edge_type == "IMPORTS_DECLARED"
     ]
-    imported = {edge.dst_qualified_name for edge in import_edges}
-    assert {"pkg.helpers", "pkg.utils", "pkg"}.issubset(imported)
+    assert not import_edges
     call_records = {
         record.qualified_name: set(record.callee_identifiers)
         for record in result.call_records
     }
-    assert "pkg.mod.outer" in call_records
-    assert "pkg.mod.helper" in call_records["pkg.mod.outer"]
+    outer_name = f"{module_name}.outer"
+    helper_name = f"{module_name}.helper"
+    assert outer_name in call_records
+    assert helper_name in call_records[outer_name]
