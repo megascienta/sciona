@@ -54,6 +54,11 @@ class TypeScriptAnalyzer(ASTAnalyzer):
             class_stack: List[str] = []
             module_functions: set[str] = set()
             class_methods: dict[str, set[str]] = {}
+            class_name_map: dict[str, str] = {}
+            instance_map: dict[str, str] = {}
+            class_instance_map: dict[str, dict[str, str]] = {}
+            pending_instance_assignments: list[tuple[str, str]] = []
+            pending_class_instances: list[tuple[str, str, str]] = []
             pending_calls: list[tuple[str, str, object | None, str | None]] = []
             root = tree.root_node
             for child in root.children:
@@ -65,6 +70,9 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                     class_stack,
                     module_functions,
                     class_methods,
+                    class_name_map,
+                    pending_instance_assignments,
+                    pending_class_instances,
                     pending_calls,
                     function_depth=0,
                 )
@@ -77,6 +85,15 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                 snapshot,
                 module_name,
                 module_index=getattr(self, "module_index", None),
+            )
+            _resolve_pending_instances(
+                pending_instance_assignments,
+                pending_class_instances,
+                instance_map,
+                class_instance_map,
+                class_name_map,
+                import_aliases,
+                member_aliases,
             )
             for qualified, node_type, body_node, class_name in pending_calls:
                 call_targets = collect_call_targets(
@@ -95,6 +112,9 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                     class_name,
                     import_aliases,
                     member_aliases,
+                    class_name_map,
+                    instance_map,
+                    class_instance_map,
                 )
                 if resolved:
                     result.call_records.append(
@@ -140,6 +160,9 @@ class TypeScriptAnalyzer(ASTAnalyzer):
         class_stack: List[str],
         module_functions: set[str],
         class_methods: dict[str, set[str]],
+        class_name_map: dict[str, str],
+        pending_instance_assignments: list[tuple[str, str]],
+        pending_class_instances: list[tuple[str, str, str]],
         pending_calls: list[tuple[str, str, object | None, str | None]],
         function_depth: int,
     ) -> None:
@@ -163,6 +186,7 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                 end_byte=node.end_byte,
             )
             result.nodes.append(class_record)
+            class_name_map[class_name] = qualified
             result.edges.append(
                 EdgeRecord(
                     src_language=self.language,
@@ -187,6 +211,9 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                         class_stack,
                         module_functions,
                         class_methods,
+                        class_name_map,
+                        pending_instance_assignments,
+                        pending_class_instances,
                         pending_calls,
                         function_depth=function_depth,
                     )
@@ -259,6 +286,9 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                 class_stack,
                 module_functions,
                 class_methods,
+                class_name_map,
+                pending_instance_assignments,
+                pending_class_instances,
                 pending_calls,
                 function_depth=function_depth + 1,
             )
@@ -270,6 +300,18 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                 "initializer"
             )
             if not name_node or not value_node:
+                return
+            if value_node.type == "new_expression":
+                if name_node.type == "identifier":
+                    callee = value_node.child_by_field_name("constructor") or value_node.child_by_field_name(
+                        "function"
+                    )
+                    callee_text = _node_text(callee, snapshot.content)
+                    name = snapshot.content[
+                        name_node.start_byte : name_node.end_byte
+                    ].decode("utf-8")
+                    if callee_text and name:
+                        pending_instance_assignments.append((name, callee_text))
                 return
             if value_node.type not in {"arrow_function", "function", "function_expression"}:
                 return
@@ -327,6 +369,18 @@ class TypeScriptAnalyzer(ASTAnalyzer):
             )
             if not name_node or not value_node:
                 return
+            if value_node.type == "new_expression":
+                if name_node.type == "property_identifier":
+                    callee = value_node.child_by_field_name("constructor") or value_node.child_by_field_name(
+                        "function"
+                    )
+                    callee_text = _node_text(callee, snapshot.content)
+                    field = snapshot.content[
+                        name_node.start_byte : name_node.end_byte
+                    ].decode("utf-8")
+                    if callee_text and field:
+                        pending_class_instances.append((class_stack[-1], field, callee_text))
+                return
             if value_node.type not in {"arrow_function", "function", "function_expression"}:
                 return
             if name_node.type != "property_identifier":
@@ -380,6 +434,9 @@ class TypeScriptAnalyzer(ASTAnalyzer):
             class_stack,
             module_functions,
             class_methods,
+            class_name_map,
+            pending_instance_assignments,
+            pending_class_instances,
             pending_calls,
             function_depth=function_depth,
         )
@@ -393,6 +450,9 @@ class TypeScriptAnalyzer(ASTAnalyzer):
         class_stack: List[str],
         module_functions: set[str],
         class_methods: dict[str, set[str]],
+        class_name_map: dict[str, str],
+        pending_instance_assignments: list[tuple[str, str]],
+        pending_class_instances: list[tuple[str, str, str]],
         pending_calls: list[tuple[str, str, object | None, str | None]],
         *,
         function_depth: int,
@@ -413,6 +473,9 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                 class_stack,
                 module_functions,
                 class_methods,
+                class_name_map,
+                pending_instance_assignments,
+                pending_class_instances,
                 pending_calls,
                 function_depth=next_depth,
             )
@@ -426,6 +489,9 @@ def _resolve_typescript_calls(
     class_name: str | None,
     import_aliases: dict[str, str],
     member_aliases: dict[str, str],
+    class_name_map: dict[str, str],
+    instance_map: dict[str, str],
+    class_instance_map: dict[str, dict[str, str]],
 ) -> List[str]:
     resolved: list[str] = []
     class_method_names = class_methods.get(class_name, set()) if class_name else set()
@@ -434,6 +500,20 @@ def _resolve_typescript_calls(
         callee_text = (target.callee_text or "").strip()
         if "." in callee_text:
             head, rest = callee_text.split(".", 1)
+            if head in instance_map:
+                resolved.append(f"{instance_map[head]}.{terminal}")
+                continue
+            if head in class_name_map:
+                resolved.append(f"{class_name_map[head]}.{terminal}")
+                continue
+            if class_name and callee_text.startswith("this."):
+                parts = callee_text.split(".")
+                if len(parts) >= 3:
+                    field = parts[1]
+                    target_class = class_instance_map.get(class_name, {}).get(field)
+                    if target_class:
+                        resolved.append(f"{target_class}.{terminal}")
+                        continue
             if head in import_aliases:
                 resolved.append(f"{import_aliases[head]}.{rest}")
                 continue
@@ -472,6 +552,53 @@ def _is_internal_module(
     return False
 
 
+def _node_text(node, content: bytes) -> str | None:
+    if node is None:
+        return None
+    return content[node.start_byte : node.end_byte].decode("utf-8")
+
+
+def _resolve_ts_constructor_name(
+    callee_text: str,
+    class_name_map: dict[str, str],
+    import_aliases: dict[str, str],
+    member_aliases: dict[str, str],
+) -> str | None:
+    terminal = callee_text.split(".")[-1] if callee_text else ""
+    if terminal in class_name_map:
+        return class_name_map[terminal]
+    if terminal in member_aliases:
+        return member_aliases[terminal]
+    if "." in callee_text:
+        head, rest = callee_text.split(".", 1)
+        if head in import_aliases:
+            return f"{import_aliases[head]}.{rest}"
+    return None
+
+
+def _resolve_pending_instances(
+    pending_instance_assignments: list[tuple[str, str]],
+    pending_class_instances: list[tuple[str, str, str]],
+    instance_map: dict[str, str],
+    class_instance_map: dict[str, dict[str, str]],
+    class_name_map: dict[str, str],
+    import_aliases: dict[str, str],
+    member_aliases: dict[str, str],
+) -> None:
+    for name, callee_text in pending_instance_assignments:
+        target = _resolve_ts_constructor_name(
+            callee_text, class_name_map, import_aliases, member_aliases
+        )
+        if target:
+            instance_map[name] = target
+    for class_name, field, callee_text in pending_class_instances:
+        target = _resolve_ts_constructor_name(
+            callee_text, class_name_map, import_aliases, member_aliases
+        )
+        if target:
+            class_instance_map.setdefault(class_name, {})[field] = target
+
+
 
 
 def module_name(repo_root: Path, snapshot: FileSnapshot) -> str:
@@ -506,7 +633,14 @@ def _collect_imports(
         if not normalized or not _is_internal_module(
             normalized, repo_prefix, module_index
         ):
-            continue
+            if module_index is not None and module_spec.strip().startswith("."):
+                alt = _normalize_relative_index(module_spec, snapshot)
+                if alt and _is_internal_module(alt, repo_prefix, module_index):
+                    normalized = alt
+                else:
+                    continue
+            else:
+                continue
         imports.append(normalized)
         _populate_ts_aliases(fragment, normalized, import_aliases, member_aliases)
     for node in find_nodes_of_type(root, "lexical_declaration"):
@@ -518,7 +652,14 @@ def _collect_imports(
         if not normalized or not _is_internal_module(
             normalized, repo_prefix, module_index
         ):
-            continue
+            if module_index is not None and module_spec.strip().startswith("."):
+                alt = _normalize_relative_index(module_spec, snapshot)
+                if alt and _is_internal_module(alt, repo_prefix, module_index):
+                    normalized = alt
+                else:
+                    continue
+            else:
+                continue
         imports.append(normalized)
         import_aliases[alias] = normalized
     return imports, import_aliases, member_aliases
@@ -625,6 +766,23 @@ def _normalize_import(
             treat_init_as_package=False,
         )
     return spec.replace("/", ".")
+
+
+def _normalize_relative_index(specifier: str, snapshot: FileSnapshot) -> Optional[str]:
+    spec = specifier.strip().strip("'\"")
+    if not spec.startswith("."):
+        return None
+    parent = PurePosixPath(snapshot.record.relative_path.parent.as_posix())
+    normalized = _normalize_relative_path(parent, PurePosixPath(spec))
+    index_path = normalized / "index"
+    module_path = _normalize_ts_path(index_path.as_posix())
+    repo_root = _repo_root_from_snapshot(snapshot)
+    return module_name_from_path(
+        repo_root,
+        Path(module_path),
+        strip_suffix=False,
+        treat_init_as_package=False,
+    )
 
 
 def _normalize_relative_path(

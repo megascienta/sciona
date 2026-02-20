@@ -56,6 +56,7 @@ class PythonAnalyzer(ASTAnalyzer):
             class_stack: List[str] = []
             module_functions: set[str] = set()
             class_methods: dict[str, set[str]] = {}
+            class_name_map: dict[str, str] = {}
             pending_calls: list[tuple[str, str, object | None, str | None]] = []
             root = tree.root_node
             for child in root.children:
@@ -67,6 +68,7 @@ class PythonAnalyzer(ASTAnalyzer):
                     class_stack=class_stack,
                     module_functions=module_functions,
                     class_methods=class_methods,
+                    class_name_map=class_name_map,
                     pending_calls=pending_calls,
                 )
             (
@@ -79,6 +81,14 @@ class PythonAnalyzer(ASTAnalyzer):
                 snapshot,
                 module_name,
                 module_index=getattr(self, "module_index", None),
+            )
+            instance_map = _collect_instance_map(
+                root,
+                snapshot,
+                class_name_map,
+                import_aliases,
+                member_aliases,
+                raw_module_map,
             )
             for qualified, node_type, body_node, class_name in pending_calls:
                 call_targets = collect_call_targets(
@@ -96,6 +106,7 @@ class PythonAnalyzer(ASTAnalyzer):
                     import_aliases,
                     member_aliases,
                     raw_module_map,
+                    instance_map,
                 )
                 if resolved:
                     result.call_records.append(
@@ -138,6 +149,7 @@ class PythonAnalyzer(ASTAnalyzer):
         class_stack: List[str],
         module_functions: set[str],
         class_methods: dict[str, set[str]],
+        class_name_map: dict[str, str],
         pending_calls: list[tuple[str, str, object | None, str | None]],
     ) -> None:
         if node.type == "class_definition":
@@ -160,6 +172,7 @@ class PythonAnalyzer(ASTAnalyzer):
                 end_byte=node.end_byte,
             )
             result.nodes.append(class_record)
+            class_name_map[class_name] = qualified
             result.edges.append(
                 EdgeRecord(
                     src_language=self.language,
@@ -184,6 +197,7 @@ class PythonAnalyzer(ASTAnalyzer):
                         class_stack,
                         module_functions,
                         class_methods,
+                        class_name_map,
                         pending_calls,
                     )
             class_stack.pop()
@@ -253,6 +267,7 @@ class PythonAnalyzer(ASTAnalyzer):
                 class_stack,
                 module_functions,
                 class_methods,
+                class_name_map,
                 pending_calls,
             )
 
@@ -422,6 +437,7 @@ def _resolve_calls(
     import_aliases: dict[str, str],
     member_aliases: dict[str, str],
     raw_module_map: dict[str, str],
+    instance_map: dict[str, str],
 ) -> List[str]:
     resolved: list[str] = []
     class_method_names = class_methods.get(class_name, set()) if class_name else set()
@@ -430,6 +446,9 @@ def _resolve_calls(
         callee_text = (target.callee_text or "").strip()
         if "." in callee_text:
             head, rest = callee_text.split(".", 1)
+            if head in instance_map:
+                resolved.append(f"{instance_map[head]}.{terminal}")
+                continue
             if head in import_aliases:
                 resolved.append(f"{import_aliases[head]}.{rest}")
                 continue
@@ -467,6 +486,80 @@ def _is_internal_module(
     if module_index is not None:
         return module_name in module_index
     return False
+
+
+def _node_text(node, content: bytes) -> str | None:
+    if node is None:
+        return None
+    return content[node.start_byte : node.end_byte].decode("utf-8")
+
+
+def _resolve_constructor_target(
+    callee_text: str,
+    terminal: str,
+    class_name_map: dict[str, str],
+    import_aliases: dict[str, str],
+    member_aliases: dict[str, str],
+    raw_module_map: dict[str, str],
+) -> str | None:
+    if terminal in class_name_map:
+        return class_name_map[terminal]
+    if terminal in member_aliases:
+        return member_aliases[terminal]
+    if "." in callee_text:
+        head, rest = callee_text.split(".", 1)
+        if head in import_aliases:
+            return f"{import_aliases[head]}.{rest}"
+        for raw, normalized in raw_module_map.items():
+            if callee_text == raw or callee_text.startswith(f"{raw}."):
+                suffix = callee_text[len(raw) :].lstrip(".")
+                return f"{normalized}.{suffix}" if suffix else normalized
+    return None
+
+
+def _collect_instance_map(
+    root,
+    snapshot: FileSnapshot,
+    class_name_map: dict[str, str],
+    import_aliases: dict[str, str],
+    member_aliases: dict[str, str],
+    raw_module_map: dict[str, str],
+) -> dict[str, str]:
+    instance_map: dict[str, str] = {}
+
+    def walk(node) -> None:
+        if node is None:
+            return
+        if node.type in {"function_definition", "class_definition"}:
+            return
+        if node.type == "assignment":
+            left = node.child_by_field_name("left")
+            right = node.child_by_field_name("right")
+            if (
+                left is not None
+                and right is not None
+                and right.type == "call"
+                and left.type == "identifier"
+            ):
+                name = _node_text(left, snapshot.content)
+                callee = right.child_by_field_name("function")
+                callee_text = _node_text(callee, snapshot.content) or ""
+                terminal = callee_text.split(".")[-1] if callee_text else ""
+                target = _resolve_constructor_target(
+                    callee_text,
+                    terminal,
+                    class_name_map,
+                    import_aliases,
+                    member_aliases,
+                    raw_module_map,
+                )
+                if name and target:
+                    instance_map[name] = target
+        for child in getattr(node, "children", []):
+            walk(child)
+
+    walk(root)
+    return instance_map
 
 
 

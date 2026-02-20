@@ -69,6 +69,7 @@ class JavaAnalyzer(ASTAnalyzer):
             class_methods: dict[str, set[str]] = {}
             class_name_map: dict[str, str] = {}
             import_class_map: dict[str, str] = {}
+            class_field_types: dict[str, dict[str, str]] = {}
             pending_calls: list[tuple[str, str, object | None, str | None]] = []
             for child in root.children:
                 self._walk(
@@ -80,10 +81,16 @@ class JavaAnalyzer(ASTAnalyzer):
                     module_functions,
                     class_methods,
                     class_name_map,
+                    class_field_types,
                     pending_calls,
                 )
             resolved_calls: list[tuple[str, str, List[str]]] = []
             for qualified, node_type, body_node, class_name in pending_calls:
+                local_types = _collect_local_var_types(body_node, snapshot)
+                instance_types = {}
+                if class_name and class_field_types.get(class_name):
+                    instance_types.update(class_field_types[class_name])
+                instance_types.update(local_types)
                 call_targets = collect_call_targets(
                     body_node,
                     snapshot.content,
@@ -112,6 +119,8 @@ class JavaAnalyzer(ASTAnalyzer):
                     class_name_map,
                     import_class_map,
                     class_name,
+                    instance_types,
+                    module_prefix,
                 )
                 if resolved:
                     resolved_calls.append((qualified, node_type, list(resolved)))
@@ -186,6 +195,7 @@ class JavaAnalyzer(ASTAnalyzer):
         module_functions: set[str],
         class_methods: dict[str, set[str]],
         class_name_map: dict[str, str],
+        class_field_types: dict[str, dict[str, str]],
         pending_calls: list[tuple[str, str, object | None, str | None]],
     ) -> None:
         if node.type in {
@@ -239,6 +249,7 @@ class JavaAnalyzer(ASTAnalyzer):
                         module_functions,
                         class_methods,
                         class_name_map,
+                        class_field_types,
                         pending_calls,
                     )
             class_stack.pop()
@@ -298,6 +309,12 @@ class JavaAnalyzer(ASTAnalyzer):
             )
             return
 
+        if node.type == "field_declaration" and class_stack:
+            class_name = class_stack[-1]
+            for name, type_text in _collect_declared_vars(node, snapshot):
+                class_field_types.setdefault(class_name, {})[name] = type_text
+            return
+
         for child in getattr(node, "children", []):
             self._walk(
                 child,
@@ -308,6 +325,7 @@ class JavaAnalyzer(ASTAnalyzer):
                 module_functions,
                 class_methods,
                 class_name_map,
+                class_field_types,
                 pending_calls,
             )
 
@@ -466,6 +484,8 @@ def _resolve_java_calls(
     class_name_map: dict[str, str],
     import_class_map: dict[str, str],
     class_name: str | None,
+    instance_types: dict[str, str],
+    module_prefix: str | None,
 ) -> List[str]:
     resolved: list[str] = []
     class_method_names = class_methods.get(class_name, set()) if class_name else set()
@@ -475,6 +495,14 @@ def _resolve_java_calls(
         if "." in callee_text:
             receiver = callee_text.rsplit(".", 1)[0].strip()
             receiver_simple = receiver.rsplit(".", 1)[-1]
+            instance_type = instance_types.get(receiver_simple)
+            if instance_type:
+                qualified_type = _qualify_java_type(
+                    instance_type, module_name, class_name_map, import_class_map, module_prefix
+                )
+                if qualified_type:
+                    resolved.append(f"{qualified_type}.{terminal}")
+                    continue
             import_target = import_class_map.get(receiver_simple)
             local_class = class_name_map.get(receiver_simple)
             if import_target:
@@ -513,3 +541,72 @@ def _is_unqualified(callee_text: str) -> bool:
 
 def _is_receiver_call(callee_text: str) -> bool:
     return callee_text.startswith("this.") or callee_text.startswith("super.")
+
+
+def _collect_declared_vars(
+    node,
+    snapshot: FileSnapshot,
+) -> list[tuple[str, str]]:
+    type_node = node.child_by_field_name("type") if node is not None else None
+    type_text = _node_text(type_node, snapshot.content) if type_node else None
+    if not type_text:
+        return []
+    declared: list[tuple[str, str]] = []
+    for decl in find_nodes_of_type(node, "variable_declarator"):
+        name_node = decl.child_by_field_name("name")
+        name = _node_text(name_node, snapshot.content)
+        if name:
+            declared.append((name, type_text))
+    return declared
+
+
+def _collect_local_var_types(
+    body_node,
+    snapshot: FileSnapshot,
+) -> dict[str, str]:
+    if body_node is None:
+        return {}
+    collected: dict[str, str] = {}
+    for decl in find_nodes_of_type(body_node, "local_variable_declaration"):
+        for name, type_text in _collect_declared_vars(decl, snapshot):
+            collected[name] = type_text
+    for param in find_nodes_of_type(body_node, "formal_parameter"):
+        type_node = param.child_by_field_name("type")
+        name_node = param.child_by_field_name("name")
+        type_text = _node_text(type_node, snapshot.content) if type_node else None
+        name = _node_text(name_node, snapshot.content) if name_node else None
+        if type_text and name:
+            collected[name] = type_text
+    return collected
+
+
+def _strip_type_decorations(type_text: str) -> str:
+    text = type_text.strip()
+    if "<" in text:
+        text = text.split("<", 1)[0]
+    text = text.replace("[]", "").strip()
+    if " " in text:
+        text = text.split()[-1]
+    return text
+
+
+def _qualify_java_type(
+    type_text: str,
+    module_name: str,
+    class_name_map: dict[str, str],
+    import_class_map: dict[str, str],
+    module_prefix: str | None,
+) -> str | None:
+    base = _strip_type_decorations(type_text)
+    if not base:
+        return None
+    if base in class_name_map:
+        return class_name_map[base]
+    if base in import_class_map:
+        return import_class_map[base]
+    if "." in base:
+        return f"{module_prefix}.{base}" if module_prefix else base
+    if "." in module_name:
+        package = module_name.rsplit(".", 1)[0]
+        return f"{package}.{base}" if package else base
+    return base
