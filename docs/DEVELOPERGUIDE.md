@@ -6,6 +6,9 @@ This guide consolidates the required core, contracts, and addon rules for workin
 
 SCIONA builds a deterministic structural index (SCI) for a git repository. It records *what exists* and *how entities relate* for a committed snapshot only. It does **not** execute code or infer semantics.
 
+See `docs/CONTRACT.md` for the authoritative structural contract and
+`docs/COMPLIANCE_CHECKLIST.md` for per-language compliance requirements.
+
 ## Requirements
 
 Comment: SCIONA currently requires Python 3.11 or 3.12. Ensure `git` and `pip` are available on your PATH.
