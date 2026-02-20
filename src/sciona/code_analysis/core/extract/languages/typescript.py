@@ -78,7 +78,6 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                 module_name,
                 module_index=getattr(self, "module_index", None),
             )
-            resolved_calls: list[tuple[str, str, List[str]]] = []
             for qualified, node_type, body_node, class_name in pending_calls:
                 call_targets = collect_call_targets(
                     body_node,
@@ -98,15 +97,11 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                     member_aliases,
                 )
                 if resolved:
-                    resolved_calls.append((qualified, node_type, list(resolved)))
-            if resolved_calls:
-                normalized = _normalize_call_identifiers(resolved_calls)
-                for qualified, node_type, callee_identifiers in normalized:
                     result.call_records.append(
                         CallRecord(
                             qualified_name=qualified,
                             node_type=node_type,
-                            callee_identifiers=callee_identifiers,
+                            callee_identifiers=list(resolved),
                         )
                     )
 
@@ -474,48 +469,9 @@ def _is_internal_module(
 ) -> bool:
     if module_index is not None:
         return module_name in module_index
-    if not repo_prefix:
-        return True
-    return module_name == repo_prefix or module_name.startswith(f"{repo_prefix}.")
+    return False
 
 
-def _normalize_call_identifiers(
-    resolved_calls: list[tuple[str, str, List[str]]]
-) -> list[tuple[str, str, List[str]]]:
-    terminal_map: dict[str, str | None] = {}
-    for _qualified, _node_type, identifiers in resolved_calls:
-        for identifier in identifiers:
-            if "." not in identifier:
-                continue
-            terminal = identifier.rsplit(".", 1)[-1]
-            existing = terminal_map.get(terminal)
-            if existing is None and terminal in terminal_map:
-                continue
-            if existing is None:
-                terminal_map[terminal] = identifier
-            elif existing != identifier:
-                terminal_map[terminal] = None
-    normalized: list[tuple[str, str, List[str]]] = []
-    for qualified, node_type, identifiers in resolved_calls:
-        updated: list[str] = []
-        for identifier in identifiers:
-            if "." in identifier:
-                terminal = identifier.rsplit(".", 1)[-1]
-                mapped = terminal_map.get(terminal)
-                if mapped is None and terminal in terminal_map:
-                    updated.append(terminal)
-                elif mapped:
-                    updated.append(mapped)
-                else:
-                    updated.append(identifier)
-            else:
-                mapped = terminal_map.get(identifier)
-                if mapped:
-                    updated.append(mapped)
-                else:
-                    updated.append(identifier)
-        normalized.append((qualified, node_type, updated))
-    return normalized
 
 
 def module_name(repo_root: Path, snapshot: FileSnapshot) -> str:

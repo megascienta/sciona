@@ -14,7 +14,7 @@ from ...runtime.logging import get_logger
 from ..core import routing
 from ...data_storage.core_db import read_ops as core_read
 from ..tools import snapshots, walker
-from ..tools.call_extraction import CallExtractionRecord
+from ..tools.call_extraction import CallExtractionRecord, normalize_call_identifiers
 
 logger = get_logger(__name__)
 
@@ -111,16 +111,26 @@ class ArtifactEngine:
         finally:
             if progress:
                 progress.close()
-        for record in all_call_records:
-            node_info = node_map.get((record.qualified_name, record.node_type))
+        normalized_calls = normalize_call_identifiers(
+            [
+                (
+                    record.qualified_name,
+                    record.node_type,
+                    list(record.callee_identifiers),
+                )
+                for record in all_call_records
+            ]
+        )
+        for qualified_name, node_type, callee_identifiers in normalized_calls:
+            node_info = node_map.get((qualified_name, node_type))
             if not node_info:
                 continue
             call_artifacts.append(
                 CallExtractionRecord(
                     caller_structural_id=node_info,
-                    caller_qualified_name=record.qualified_name,
-                    caller_node_type=record.node_type,
-                    callee_identifiers=tuple(dict.fromkeys(record.callee_identifiers)),
+                    caller_qualified_name=qualified_name,
+                    caller_node_type=node_type,
+                    callee_identifiers=tuple(dict.fromkeys(callee_identifiers)),
                 )
             )
         return call_artifacts

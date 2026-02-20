@@ -11,6 +11,45 @@ from typing import Callable, Sequence, Set
 from ..config import TERMINAL_IDENTIFIER_TYPES
 
 
+def normalize_call_identifiers(
+    resolved_calls: Sequence[tuple[str, str, Sequence[str]]],
+) -> list[tuple[str, str, list[str]]]:
+    terminal_map: dict[str, str | None] = {}
+    for _qualified, _node_type, identifiers in resolved_calls:
+        for identifier in identifiers:
+            if "." not in identifier:
+                continue
+            terminal = identifier.rsplit(".", 1)[-1]
+            existing = terminal_map.get(terminal)
+            if existing is None and terminal in terminal_map:
+                continue
+            if existing is None:
+                terminal_map[terminal] = identifier
+            elif existing != identifier:
+                terminal_map[terminal] = None
+    normalized: list[tuple[str, str, list[str]]] = []
+    for qualified, node_type, identifiers in resolved_calls:
+        updated: list[str] = []
+        for identifier in identifiers:
+            if "." in identifier:
+                terminal = identifier.rsplit(".", 1)[-1]
+                mapped = terminal_map.get(terminal)
+                if mapped is None and terminal in terminal_map:
+                    updated.append(terminal)
+                elif mapped:
+                    updated.append(mapped)
+                else:
+                    updated.append(identifier)
+            else:
+                mapped = terminal_map.get(identifier)
+                if mapped:
+                    updated.append(mapped)
+                else:
+                    updated.append(identifier)
+        normalized.append((qualified, node_type, updated))
+    return normalized
+
+
 @dataclass(frozen=True)
 class CallExtractionRecord:
     """Call extraction metadata produced during ingestion."""

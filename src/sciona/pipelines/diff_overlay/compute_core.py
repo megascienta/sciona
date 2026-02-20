@@ -16,6 +16,7 @@ from ...code_analysis.core.extract import registry
 from ...code_analysis import config as analysis_config
 from ...code_analysis.core.normalize.model import FileRecord, FileSnapshot, SemanticNodeRecord
 from ...code_analysis.tools import snapshots as snapshot_tools
+from ...code_analysis.tools.call_extraction import normalize_call_identifiers
 from ...code_analysis.tools import excludes as path_excludes
 from ...data_storage.core_db import read_ops as core_read
 from ...runtime import config as runtime_config
@@ -393,6 +394,19 @@ def analyze_files(
                     "callee_identifiers": list(record.callee_identifiers),
                 }
             )
+    if calls:
+        normalized = normalize_call_identifiers(
+            [
+                (
+                    call["qualified_name"],
+                    call["node_type"],
+                    list(call["callee_identifiers"]),
+                )
+                for call in calls
+            ]
+        )
+        for idx, (_, _, callee_identifiers) in enumerate(normalized):
+            calls[idx]["callee_identifiers"] = callee_identifiers
     return nodes, edges, calls
 
 

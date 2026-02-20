@@ -11,7 +11,11 @@ from typing import List, Optional
 from ....tools.tree_sitter import build_parser
 
 from ...module_naming import module_name_from_path
-from ....tools.call_extraction import CallTarget, collect_call_targets
+from ....tools.call_extraction import (
+    CallTarget,
+    collect_call_targets,
+    normalize_call_identifiers,
+)
 from ...normalize.model import (
     AnalysisResult,
     CallRecord,
@@ -112,7 +116,7 @@ class JavaAnalyzer(ASTAnalyzer):
                 if resolved:
                     resolved_calls.append((qualified, node_type, list(resolved)))
             if resolved_calls:
-                normalized = _normalize_call_identifiers(resolved_calls)
+                normalized = normalize_call_identifiers(resolved_calls)
                 for qualified, node_type, callee_identifiers in normalized:
                     result.call_records.append(
                         CallRecord(
@@ -408,50 +412,10 @@ def _extract_package(root, content: bytes) -> Optional[str]:
 def _is_internal_module(
     module_name: str, repo_prefix: str, module_index: set[str] | None
 ) -> bool:
-    if module_index is not None:
-        return module_name in module_index
-    if not repo_prefix:
-        return True
-    return module_name == repo_prefix or module_name.startswith(f"{repo_prefix}.")
+    if module_index is None:
+        return False
+    return module_name in module_index
 
-
-def _normalize_call_identifiers(
-    resolved_calls: list[tuple[str, str, List[str]]]
-) -> list[tuple[str, str, List[str]]]:
-    terminal_map: dict[str, str | None] = {}
-    for _qualified, _node_type, identifiers in resolved_calls:
-        for identifier in identifiers:
-            if "." not in identifier:
-                continue
-            terminal = identifier.rsplit(".", 1)[-1]
-            existing = terminal_map.get(terminal)
-            if existing is None and terminal in terminal_map:
-                continue
-            if existing is None:
-                terminal_map[terminal] = identifier
-            elif existing != identifier:
-                terminal_map[terminal] = None
-    normalized: list[tuple[str, str, List[str]]] = []
-    for qualified, node_type, identifiers in resolved_calls:
-        updated: list[str] = []
-        for identifier in identifiers:
-            if "." in identifier:
-                terminal = identifier.rsplit(".", 1)[-1]
-                mapped = terminal_map.get(terminal)
-                if mapped is None and terminal in terminal_map:
-                    updated.append(terminal)
-                elif mapped:
-                    updated.append(mapped)
-                else:
-                    updated.append(identifier)
-            else:
-                mapped = terminal_map.get(identifier)
-                if mapped:
-                    updated.append(mapped)
-                else:
-                    updated.append(identifier)
-        normalized.append((qualified, node_type, updated))
-    return normalized
 
 
 def _module_prefix_for_package(
@@ -508,6 +472,17 @@ def _resolve_java_calls(
     for target in targets:
         terminal = target.terminal
         callee_text = (target.callee_text or "").strip()
+        if "." in callee_text:
+            receiver = callee_text.rsplit(".", 1)[0].strip()
+            receiver_simple = receiver.rsplit(".", 1)[-1]
+            import_target = import_class_map.get(receiver_simple)
+            local_class = class_name_map.get(receiver_simple)
+            if import_target:
+                resolved.append(f"{import_target}.{terminal}")
+                continue
+            if local_class:
+                resolved.append(f"{local_class}.{terminal}")
+                continue
         if _is_unqualified(callee_text):
             import_target = import_class_map.get(terminal)
             local_class = class_name_map.get(terminal)

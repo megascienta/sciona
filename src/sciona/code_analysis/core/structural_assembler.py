@@ -11,8 +11,10 @@ from typing import Dict, Iterable, Optional, Tuple
 from typing import Protocol
 from ...runtime import identity as ids
 from ...runtime.text import canonical_span_bytes
+from ..tools.call_extraction import normalize_call_identifiers
 from .normalize.model import (
     AnalysisResult,
+    CallRecord,
     EdgeRecord,
     FileSnapshot,
     SemanticNodeRecord,
@@ -54,6 +56,7 @@ class StructuralAssembler:
         analysis: AnalysisResult,
         file_snapshot: FileSnapshot,
     ) -> int:
+        analysis = self._normalize_call_records(analysis)
         nodes = sorted(
             analysis.nodes, key=lambda node: (node.node_type, node.qualified_name)
         )
@@ -76,6 +79,24 @@ class StructuralAssembler:
         )
         self._emit_edges(snapshot_id, edges, node_id_map)
         return node_count, node_id_map
+
+    def _normalize_call_records(self, analysis: AnalysisResult) -> AnalysisResult:
+        if not analysis.call_records:
+            return analysis
+        resolved_calls = [
+            (record.qualified_name, record.node_type, list(record.callee_identifiers))
+            for record in analysis.call_records
+        ]
+        normalized = normalize_call_identifiers(resolved_calls)
+        analysis.call_records = [
+            CallRecord(
+                qualified_name=qualified,
+                node_type=node_type,
+                callee_identifiers=callee_identifiers,
+            )
+            for qualified, node_type, callee_identifiers in normalized
+        ]
+        return analysis
 
     def register_module_node(
         self,
@@ -210,3 +231,4 @@ class StructuralAssembler:
                 if canonical:
                     return hashlib.sha1(canonical).hexdigest()
         return file_snapshot.blob_sha
+
