@@ -180,18 +180,27 @@ def build_symbol_index_for_overlay(
         core_conn, snapshot_id, sorted(CALLABLE_NODE_TYPES)
     )
     index: dict[str, list[str]] = {}
+    def _add(key: str, value: str) -> None:
+        bucket = index.setdefault(key, [])
+        if value not in bucket:
+            bucket.append(value)
     for structural_id, _node_type, qualified_name in rows:
+        if qualified_name and qualified_name not in index:
+            _add(qualified_name, structural_id)
         identifier = simple_identifier(qualified_name)
         if not identifier:
             continue
-        index.setdefault(identifier, []).append(structural_id)
+        _add(identifier, structural_id)
     for node in analysis_nodes:
         if node.get("node_type") not in CALLABLE_NODE_TYPES:
             continue
         identifier = simple_identifier(str(node.get("qualified_name", "")))
         structural_id = node.get("structural_id")
-        if identifier and structural_id and identifier not in index:
-            index.setdefault(identifier, []).append(structural_id)
+        if identifier and structural_id:
+            _add(identifier, structural_id)
+        qualified_name = str(node.get("qualified_name") or "")
+        if qualified_name and structural_id and qualified_name not in index:
+            _add(qualified_name, structural_id)
     return index
 
 

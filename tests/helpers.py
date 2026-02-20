@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 from sciona.runtime import constants as setup_config
+from sciona.runtime import paths as runtime_paths
 from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.data_storage.artifact_db.maintenance import rebuild_graph_index
 from sciona.data_storage.core_db.schema import ensure_schema
@@ -52,7 +53,7 @@ def insert_snapshot(
     )
 
 
-def setup_structural_index_db(tmp_path: Path) -> Tuple[Path, str]:
+def setup_structural_index_db(tmp_path: Path, *, repo_root: Path) -> Tuple[Path, str]:
     """Create a minimal database with one snapshot and module structure."""
     db_path = tmp_path / "structural_index.db"
     conn = sqlite3.connect(db_path)
@@ -61,22 +62,25 @@ def setup_structural_index_db(tmp_path: Path) -> Tuple[Path, str]:
 
     snapshot_id = "snap_state"
     insert_snapshot(conn, snapshot_id, structural_hash="struct-state")
+    repo_prefix = runtime_paths.repo_name_prefix(repo_root)
+    def _q(name: str) -> str:
+        return f"{repo_prefix}.{name}"
     nodes = [
-        ("mod_alpha", "module", "python", "pkg.alpha", "pkg/alpha/__init__.py"),
-        ("mod_beta", "module", "python", "pkg.beta", "pkg/beta/__init__.py"),
-        ("cls_alpha", "class", "python", "pkg.alpha.Service", "pkg/alpha/service.py"),
+        ("mod_alpha", "module", "python", _q("pkg.alpha"), "pkg/alpha/__init__.py"),
+        ("mod_beta", "module", "python", _q("pkg.beta"), "pkg/beta/__init__.py"),
+        ("cls_alpha", "class", "python", _q("pkg.alpha.Service"), "pkg/alpha/service.py"),
         (
             "func_alpha",
             "function",
             "python",
-            "pkg.alpha.service.helper",
+            _q("pkg.alpha.service.helper"),
             "pkg/alpha/service.py",
         ),
         (
             "meth_alpha",
             "method",
             "python",
-            "pkg.alpha.Service.run",
+            _q("pkg.alpha.Service.run"),
             "pkg/alpha/service.py",
         ),
     ]
@@ -132,10 +136,10 @@ def setup_structural_index_db(tmp_path: Path) -> Tuple[Path, str]:
 
 def seed_repo_with_snapshot(tmp_path: Path, *, commit: bool = True) -> Tuple[Path, str]:
     """Helper that materializes a repo with a snapshot database and basic files."""
-    db_path, snapshot_id = setup_structural_index_db(tmp_path)
     repo_root = tmp_path / "repo"
     repo_root.mkdir()
     init_git_repo(repo_root)
+    db_path, snapshot_id = setup_structural_index_db(tmp_path, repo_root=repo_root)
     sciona_dir = repo_root / ".sciona"
     sciona_dir.mkdir()
     shutil.copy(db_path, sciona_dir / "sciona.db")

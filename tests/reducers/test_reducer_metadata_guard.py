@@ -7,6 +7,7 @@ import json
 from typing import Iterable
 
 from sciona import api
+from sciona.runtime import paths as runtime_paths
 
 
 def _parse_json_payload(text: str) -> dict:
@@ -34,10 +35,11 @@ def _find_forbidden_keys(payload: object, forbidden: Iterable[str]) -> set[str]:
 
 def test_reducer_payload_excludes_snapshot_metadata(repo_with_snapshot):
     repo_root, _snapshot_id = repo_with_snapshot
+    prefix = runtime_paths.repo_name_prefix(repo_root)
     text, _, _ = api.addons.emit(
         "module_overview",
         repo_root=repo_root,
-        module_id="pkg.alpha",
+        module_id=f"{prefix}.pkg.alpha",
     )
     payload = _parse_json_payload(text)
     forbidden = {"snapshot_id", "created_at", "git_commit_time"}

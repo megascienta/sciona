@@ -11,6 +11,7 @@ from sciona.code_analysis.artifacts import rebuild_graph_rollups, write_call_art
 from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.data_storage.artifact_db.maintenance_graph import rebuild_graph_index
 from sciona.data_storage.transactions import transaction
+from sciona.runtime import paths as runtime_paths
 from sciona.runtime.paths import get_artifact_db_path
 
 from tests.helpers import seed_repo_with_snapshot
@@ -18,6 +19,7 @@ from tests.helpers import seed_repo_with_snapshot
 
 def test_rollups_use_structural_ids_for_module_edges(tmp_path: Path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    prefix = runtime_paths.repo_name_prefix(repo_root)
     core_conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
     core_conn.row_factory = sqlite3.Row
     artifact_conn = artifact_connect(
@@ -27,7 +29,7 @@ def test_rollups_use_structural_ids_for_module_edges(tmp_path: Path):
         call_records = [
             CallExtractionRecord(
                 caller_structural_id="meth_alpha",
-                caller_qualified_name="pkg.alpha.Service.run",
+                caller_qualified_name=f"{prefix}.pkg.alpha.Service.run",
                 caller_node_type="method",
                 callee_identifiers=("helper",),
             )

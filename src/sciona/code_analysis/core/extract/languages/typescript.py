@@ -11,7 +11,7 @@ from typing import List, Optional
 from ....tools.tree_sitter import build_parser
 
 from ...module_naming import module_name_from_path
-from ....tools.call_extraction import collect_call_identifiers
+from ....tools.call_extraction import CallTarget, collect_call_targets
 from ...normalize.model import (
     AnalysisResult,
     CallRecord,
@@ -51,9 +51,45 @@ class TypeScriptAnalyzer(ASTAnalyzer):
 
         try:
             class_stack: List[str] = []
+            module_functions: set[str] = set()
+            class_methods: dict[str, set[str]] = {}
+            pending_calls: list[tuple[str, str, object | None, str | None]] = []
             root = tree.root_node
             for child in root.children:
-                self._walk(child, snapshot, module_name, result, class_stack)
+                self._walk(
+                    child,
+                    snapshot,
+                    module_name,
+                    result,
+                    class_stack,
+                    module_functions,
+                    class_methods,
+                    pending_calls,
+                )
+            for qualified, node_type, body_node, class_name in pending_calls:
+                call_targets = collect_call_targets(
+                    body_node,
+                    snapshot.content,
+                    call_node_types={"call_expression"},
+                    skip_node_types={
+                        "class_declaration",
+                    },
+                )
+                resolved = _resolve_typescript_calls(
+                    call_targets,
+                    module_name,
+                    module_functions,
+                    class_methods,
+                    class_name,
+                )
+                if resolved:
+                    result.call_records.append(
+                        CallRecord(
+                            qualified_name=qualified,
+                            node_type=node_type,
+                            callee_identifiers=list(resolved),
+                        )
+                    )
 
             # Extract imports (v1: import_statement only; best-effort, syntax-only).
             imports: List[str] = []
@@ -61,8 +97,8 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                 target = snapshot.content[
                     import_node.start_byte : import_node.end_byte
                 ].decode("utf-8")
-                module = _extract_ts_import(target)
-                normalized = _normalize_ts_import(module, snapshot, module_name)
+                module = _extract_import_target(target)
+                normalized = _normalize_import(module, snapshot, module_name)
                 if normalized:
                     imports.append(normalized)
 
@@ -99,6 +135,9 @@ class TypeScriptAnalyzer(ASTAnalyzer):
         module_name: str,
         result: AnalysisResult,
         class_stack: List[str],
+        module_functions: set[str],
+        class_methods: dict[str, set[str]],
+        pending_calls: list[tuple[str, str, object | None, str | None]],
     ) -> None:
         if node.type == "class_declaration":
             name_node = node.child_by_field_name("name")
@@ -133,9 +172,19 @@ class TypeScriptAnalyzer(ASTAnalyzer):
             )
             body = node.child_by_field_name("body")
             class_stack.append(qualified)
+            class_methods.setdefault(qualified, set())
             if body:
                 for child in body.children:
-                    self._walk(child, snapshot, module_name, result, class_stack)
+                    self._walk(
+                        child,
+                        snapshot,
+                        module_name,
+                        result,
+                        class_stack,
+                        module_functions,
+                        class_methods,
+                        pending_calls,
+                    )
             class_stack.pop()
             return
 
@@ -156,12 +205,14 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                 parent_node_type = "class"
                 qualified = f"{parent}.{func_name}"
                 edge_type = "DEFINES_METHOD"
+                class_methods.setdefault(parent, set()).add(func_name)
             else:
                 node_type = "function"
                 parent = module_name
                 parent_node_type = "module"
                 qualified = f"{module_name}.{func_name}"
                 edge_type = "CONTAINS"
+                module_functions.add(func_name)
             result.nodes.append(
                 SemanticNodeRecord(
                     language=self.language,
@@ -187,29 +238,57 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                 )
             )
             body_node = node.child_by_field_name("body")
-            # Nested callables (e.g., function expressions, arrow functions) are
-            # treated as implementation detail, but their calls should be
-            # attributed to the enclosing callable for higher recall.
-            calls = collect_call_identifiers(
-                body_node,
-                snapshot.content,
-                call_node_types={"call_expression"},
-                skip_node_types={
-                    "class_declaration",
-                },
-            )
-            if calls:
-                result.call_records.append(
-                    CallRecord(
-                        qualified_name=qualified,
-                        node_type=node_type,
-                        callee_identifiers=list(calls),
-                    )
+            pending_calls.append(
+                (
+                    qualified,
+                    node_type,
+                    body_node,
+                    class_stack[-1] if class_stack else None,
                 )
+            )
             return
 
         for child in getattr(node, "children", []):
-            self._walk(child, snapshot, module_name, result, class_stack)
+            self._walk(
+                child,
+                snapshot,
+                module_name,
+                result,
+                class_stack,
+                module_functions,
+                class_methods,
+                pending_calls,
+            )
+
+
+def _resolve_typescript_calls(
+    targets: List[CallTarget],
+    module_name: str,
+    module_functions: set[str],
+    class_methods: dict[str, set[str]],
+    class_name: str | None,
+) -> List[str]:
+    resolved: list[str] = []
+    class_method_names = class_methods.get(class_name, set()) if class_name else set()
+    for target in targets:
+        terminal = target.terminal
+        callee_text = (target.callee_text or "").strip()
+        if class_name and _is_receiver_call(callee_text) and terminal in class_method_names:
+            resolved.append(f"{class_name}.{terminal}")
+            continue
+        if _is_unqualified(callee_text) and terminal in module_functions:
+            resolved.append(f"{module_name}.{terminal}")
+            continue
+        resolved.append(terminal)
+    return resolved
+
+
+def _is_unqualified(callee_text: str) -> bool:
+    return "." not in callee_text
+
+
+def _is_receiver_call(callee_text: str) -> bool:
+    return callee_text.startswith("this.") or callee_text.startswith("super.")
 
 
 def module_name(repo_root: Path, snapshot: FileSnapshot) -> str:
@@ -221,7 +300,7 @@ def module_name(repo_root: Path, snapshot: FileSnapshot) -> str:
     )
 
 
-def _extract_ts_import(fragment: str) -> Optional[str]:
+def _extract_import_target(fragment: str) -> Optional[str]:
     fragment = fragment.strip()
     if "from" in fragment:
         parts = fragment.split("from", 1)[1].strip()
@@ -234,7 +313,7 @@ def _extract_ts_import(fragment: str) -> Optional[str]:
     return None
 
 
-def _normalize_ts_import(
+def _normalize_import(
     specifier: Optional[str], snapshot: FileSnapshot, module_name: str
 ) -> Optional[str]:
     if not specifier:

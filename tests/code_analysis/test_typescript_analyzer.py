@@ -59,4 +59,4 @@ def test_typescript_analyzer_extracts_structure(tmp_path):
         for record in result.call_records
     }
     assert "src.mod.outer" in call_records
-    assert "helper" in call_records["src.mod.outer"]
+    assert "src.mod.helper" in call_records["src.mod.outer"]

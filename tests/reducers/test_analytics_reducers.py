@@ -11,6 +11,7 @@ from sciona.reducers.analytics import (
     hotspot_summary,
     module_call_graph_summary,
 )
+from sciona.runtime import paths as runtime_paths
 from tests.helpers import seed_repo_with_snapshot
 
 
@@ -30,13 +31,14 @@ def _core_conn(repo_root):
 
 def test_callsite_index_reducer_returns_payload(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    prefix = runtime_paths.repo_name_prefix(repo_root)
     conn = _core_conn(repo_root)
     try:
         payload_text = callsite_index.render(
             snapshot_id,
             conn,
             repo_root,
-            function_id="pkg.alpha.service.helper",
+            function_id=f"{prefix}.pkg.alpha.service.helper",
         )
     finally:
         conn.close()
@@ -53,13 +55,14 @@ def test_callsite_index_reducer_returns_payload(tmp_path):
 
 def test_callsite_index_neighbors_detail_level(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    prefix = runtime_paths.repo_name_prefix(repo_root)
     conn = _core_conn(repo_root)
     try:
         payload_text = callsite_index.render(
             snapshot_id,
             conn,
             repo_root,
-            function_id="pkg.alpha.service.helper",
+            function_id=f"{prefix}.pkg.alpha.service.helper",
             detail_level="neighbors",
         )
     finally:
@@ -99,31 +102,33 @@ def test_hotspot_summary_returns_payload(tmp_path):
 
 def test_module_call_graph_summary_returns_payload(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    prefix = runtime_paths.repo_name_prefix(repo_root)
     conn = _core_conn(repo_root)
     try:
         payload_text = module_call_graph_summary.render(
-            snapshot_id, conn, repo_root, module_id="pkg.alpha", top_k=5
+            snapshot_id, conn, repo_root, module_id=f"{prefix}.pkg.alpha", top_k=5
         )
     finally:
         conn.close()
     payload = json.loads(_strip_json_fence(payload_text))
     assert payload["payload_kind"] == "summary"
-    assert payload["module_qualified_name"] == "pkg.alpha"
+    assert payload["module_qualified_name"] == f"{prefix}.pkg.alpha"
     assert "outgoing" in payload
     assert "incoming" in payload
 
 
 def test_class_call_graph_summary_returns_payload(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    prefix = runtime_paths.repo_name_prefix(repo_root)
     conn = _core_conn(repo_root)
     try:
         payload_text = class_call_graph_summary.render(
-            snapshot_id, conn, repo_root, class_id="pkg.alpha.Service", top_k=5
+            snapshot_id, conn, repo_root, class_id=f"{prefix}.pkg.alpha.Service", top_k=5
         )
     finally:
         conn.close()
     payload = json.loads(_strip_json_fence(payload_text))
     assert payload["payload_kind"] == "summary"
-    assert payload["class_id"] == "pkg.alpha.Service"
+    assert payload["class_id"] == f"{prefix}.pkg.alpha.Service"
     assert "outgoing" in payload
     assert "incoming" in payload

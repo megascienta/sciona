@@ -60,4 +60,4 @@ def helper():
         for record in result.call_records
     }
     assert "pkg.mod.outer" in call_records
-    assert "helper" in call_records["pkg.mod.outer"]
+    assert "pkg.mod.helper" in call_records["pkg.mod.outer"]

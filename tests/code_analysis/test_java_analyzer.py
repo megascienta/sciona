@@ -59,7 +59,7 @@ def test_java_analyzer_extracts_structure_and_calls(tmp_path):
     ]
     imported = {edge.dst_qualified_name for edge in import_edges}
     assert "java.util.List" in imported
-    assert "java.util.Collections.emptyList" in imported
+    assert "java.util.Collections" in imported
 
     module_node = next(node for node in result.nodes if node.node_type == "module")
     assert (
@@ -72,4 +72,6 @@ def test_java_analyzer_extracts_structure_and_calls(tmp_path):
         for record in result.call_records
     }
     assert "src.Foo.Foo.helper" in call_records
-    assert {"baz", "Baz", "qux"}.issubset(call_records["src.Foo.Foo.helper"])
+    assert {"baz", "Baz", "src.Foo.Foo.qux"}.issubset(
+        call_records["src.Foo.Foo.helper"]
+    )

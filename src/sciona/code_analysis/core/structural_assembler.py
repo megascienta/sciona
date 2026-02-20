@@ -54,16 +54,27 @@ class StructuralAssembler:
         analysis: AnalysisResult,
         file_snapshot: FileSnapshot,
     ) -> int:
+        nodes = sorted(
+            analysis.nodes, key=lambda node: (node.node_type, node.qualified_name)
+        )
+        edges = sorted(
+            analysis.edges,
+            key=lambda edge: (
+                edge.src_qualified_name,
+                edge.edge_type,
+                edge.dst_qualified_name,
+            ),
+        )
         node_count = 0
         node_id_map: Dict[str, Tuple[str, str]] = {}
-        for node in analysis.nodes:
+        for node in nodes:
             structural_id = self._emit_structural_node(node, snapshot_id)
             node_id_map[node.qualified_name] = (structural_id, node.node_type)
             node_count += 1
         self._emit_node_instances(
-            snapshot_id, analysis.nodes, file_snapshot, node_id_map
+            snapshot_id, nodes, file_snapshot, node_id_map
         )
-        self._emit_edges(snapshot_id, analysis.edges, node_id_map)
+        self._emit_edges(snapshot_id, edges, node_id_map)
         return node_count, node_id_map
 
     def register_module_node(

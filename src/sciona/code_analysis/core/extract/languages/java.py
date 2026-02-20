@@ -11,7 +11,7 @@ from typing import List, Optional
 from ....tools.tree_sitter import build_parser
 
 from ...module_naming import module_name_from_path
-from ....tools.call_extraction import collect_call_identifiers
+from ....tools.call_extraction import CallTarget, collect_call_targets
 from ...normalize.model import (
     AnalysisResult,
     CallRecord,
@@ -53,22 +53,79 @@ class JavaAnalyzer(ASTAnalyzer):
         try:
             class_stack: List[str] = []
             root = tree.root_node
-            package_name = _extract_package_name(root, snapshot.content)
+            package_name = _extract_package(root, snapshot.content)
+            module_prefix = _module_prefix_for_package(module_name, package_name)
             if package_name:
                 if module_metadata is None:
                     module_metadata = {"package": package_name}
                 else:
                     module_metadata["package"] = package_name
                 module_node.metadata = module_metadata
+            module_functions: set[str] = set()
+            class_methods: dict[str, set[str]] = {}
+            class_name_map: dict[str, str] = {}
+            pending_calls: list[tuple[str, str, object | None, str | None]] = []
             for child in root.children:
-                self._walk(child, snapshot, module_name, result, class_stack)
+                self._walk(
+                    child,
+                    snapshot,
+                    module_name,
+                    result,
+                    class_stack,
+                    module_functions,
+                    class_methods,
+                    class_name_map,
+                    pending_calls,
+                )
+            for qualified, node_type, body_node, class_name in pending_calls:
+                call_targets = collect_call_targets(
+                    body_node,
+                    snapshot.content,
+                    call_node_types={
+                        "method_invocation",
+                        "object_creation_expression",
+                        "explicit_constructor_invocation",
+                        "constructor_invocation",
+                        "super_constructor_invocation",
+                        "this_constructor_invocation",
+                    },
+                    skip_node_types={
+                        "class_declaration",
+                        "interface_declaration",
+                        "enum_declaration",
+                        "record_declaration",
+                    },
+                    callee_field_names=("name", "type", "function"),
+                    callee_renderer=_callee_text,
+                )
+                resolved = _resolve_java_calls(
+                    call_targets,
+                    module_name,
+                    module_functions,
+                    class_methods,
+                    class_name_map,
+                    class_name,
+                )
+                if resolved:
+                    result.call_records.append(
+                        CallRecord(
+                            qualified_name=qualified,
+                            node_type=node_type,
+                            callee_identifiers=list(resolved),
+                        )
+                    )
 
             imports: List[str] = []
             for import_node in find_nodes_of_type(root, "import_declaration"):
                 fragment = snapshot.content[
                     import_node.start_byte : import_node.end_byte
                 ].decode("utf-8")
-                normalized = _normalize_java_import(fragment, module_name, snapshot)
+                normalized = _normalize_import(
+                    fragment,
+                    module_name,
+                    snapshot,
+                    module_prefix=module_prefix,
+                )
                 if normalized:
                     imports.append(normalized)
 
@@ -105,6 +162,10 @@ class JavaAnalyzer(ASTAnalyzer):
         module_name: str,
         result: AnalysisResult,
         class_stack: List[str],
+        module_functions: set[str],
+        class_methods: dict[str, set[str]],
+        class_name_map: dict[str, str],
+        pending_calls: list[tuple[str, str, object | None, str | None]],
     ) -> None:
         if node.type in {
             "class_declaration",
@@ -144,9 +205,21 @@ class JavaAnalyzer(ASTAnalyzer):
             )
             body = node.child_by_field_name("body")
             class_stack.append(qualified)
+            class_methods.setdefault(qualified, set())
+            class_name_map.setdefault(class_name, qualified)
             if body:
                 for child in body.children:
-                    self._walk(child, snapshot, module_name, result, class_stack)
+                    self._walk(
+                        child,
+                        snapshot,
+                        module_name,
+                        result,
+                        class_stack,
+                        module_functions,
+                        class_methods,
+                        class_name_map,
+                        pending_calls,
+                    )
             class_stack.pop()
             return
 
@@ -168,6 +241,7 @@ class JavaAnalyzer(ASTAnalyzer):
             parent_node_type = "class"
             qualified = f"{parent}.{func_name}"
             edge_type = "DEFINES_METHOD"
+            class_methods.setdefault(parent, set()).add(func_name)
             result.nodes.append(
                 SemanticNodeRecord(
                     language=self.language,
@@ -193,40 +267,28 @@ class JavaAnalyzer(ASTAnalyzer):
                 )
             )
             body_node = node.child_by_field_name("body")
-            # Nested callables (e.g., lambdas) are treated as implementation
-            # detail, but their calls should be attributed to the enclosing
-            # method for higher recall.
-            calls = collect_call_identifiers(
-                body_node,
-                snapshot.content,
-                call_node_types={
-                    "method_invocation",
-                    "object_creation_expression",
-                    "explicit_constructor_invocation",
-                    "constructor_invocation",
-                    "super_constructor_invocation",
-                    "this_constructor_invocation",
-                },
-                skip_node_types={
-                    "class_declaration",
-                    "interface_declaration",
-                    "enum_declaration",
-                    "record_declaration",
-                },
-                callee_field_names=("name", "type", "function"),
-            )
-            if calls:
-                result.call_records.append(
-                    CallRecord(
-                        qualified_name=qualified,
-                        node_type=node_type,
-                        callee_identifiers=list(calls),
-                    )
+            pending_calls.append(
+                (
+                    qualified,
+                    node_type,
+                    body_node,
+                    class_stack[-1] if class_stack else None,
                 )
+            )
             return
 
         for child in getattr(node, "children", []):
-            self._walk(child, snapshot, module_name, result, class_stack)
+            self._walk(
+                child,
+                snapshot,
+                module_name,
+                result,
+                class_stack,
+                module_functions,
+                class_methods,
+                class_name_map,
+                pending_calls,
+            )
 
 
 def module_name(repo_root: Path, snapshot: FileSnapshot) -> str:
@@ -238,8 +300,12 @@ def module_name(repo_root: Path, snapshot: FileSnapshot) -> str:
     )
 
 
-def _normalize_java_import(
-    fragment: str, module_name: str, snapshot: FileSnapshot
+def _normalize_import(
+    fragment: str,
+    module_name: str,
+    snapshot: FileSnapshot,
+    *,
+    module_prefix: str | None,
 ) -> Optional[str]:
     raw = fragment.strip()
     if not raw.startswith("import"):
@@ -252,11 +318,14 @@ def _normalize_java_import(
         text = text[:-1]
     text = text.strip()
     if text.endswith(".*"):
-        text = text[:-2]
-        return text.strip() or None
+        # Package-level wildcard imports are not resolvable to a single module.
+        return None
     text = text.strip()
     if not text:
         return None
+    if is_static and "." in text:
+        # Drop static member suffix to point at the declaring type.
+        text = text.rsplit(".", 1)[0]
     repo_root = _repo_root_from_snapshot(snapshot)
     repo_prefix = runtime_paths.repo_name_prefix(repo_root)
     if repo_prefix and (text == repo_prefix or text.startswith(f"{repo_prefix}.")):
@@ -264,6 +333,8 @@ def _normalize_java_import(
     top_package = _top_level_package(module_name, repo_prefix)
     if top_package and (text == top_package or text.startswith(f"{top_package}.")):
         return f"{repo_prefix}.{text}" if repo_prefix else text
+    if module_prefix:
+        return f"{module_prefix}.{text}"
     return text
 
 
@@ -286,7 +357,7 @@ def _repo_root_from_snapshot(snapshot: FileSnapshot) -> Path:
     return snapshot.record.path.parents[len(rel_parts) - 1]
 
 
-def _extract_package_name(root, content: bytes) -> Optional[str]:
+def _extract_package(root, content: bytes) -> Optional[str]:
     for node in find_nodes_of_type(root, "package_declaration"):
         fragment = content[node.start_byte : node.end_byte].decode("utf-8").strip()
         if not fragment.startswith("package"):
@@ -296,3 +367,79 @@ def _extract_package_name(root, content: bytes) -> Optional[str]:
             fragment = fragment[:-1].strip()
         return fragment or None
     return None
+
+
+def _module_prefix_for_package(
+    module_name: str, package_name: Optional[str]
+) -> str | None:
+    if not package_name:
+        return None
+    module_parts = module_name.split(".")
+    package_parts = package_name.split(".")
+    if len(module_parts) < len(package_parts):
+        return None
+    for idx in range(len(module_parts) - len(package_parts), -1, -1):
+        if module_parts[idx : idx + len(package_parts)] == package_parts:
+            prefix_parts = module_parts[:idx]
+            return ".".join(prefix_parts) if prefix_parts else None
+    return None
+
+
+def _node_text(node, content: bytes) -> str | None:
+    if node is None:
+        return None
+    return content[node.start_byte : node.end_byte].decode("utf-8")
+
+
+def _callee_text(call_node, callee_node, content: bytes) -> str | None:
+    if call_node is None:
+        return _node_text(callee_node, content)
+    if call_node.type == "method_invocation":
+        name_node = call_node.child_by_field_name("name")
+        object_node = call_node.child_by_field_name("object")
+        name_text = _node_text(name_node or callee_node, content)
+        if object_node is not None:
+            object_text = _node_text(object_node, content)
+            if object_text and name_text:
+                return f"{object_text}.{name_text}"
+        return name_text
+    if call_node.type == "object_creation_expression":
+        type_node = call_node.child_by_field_name("type")
+        return _node_text(type_node, content) or _node_text(callee_node, content)
+    return _node_text(callee_node, content)
+
+
+def _resolve_java_calls(
+    targets: List[CallTarget],
+    module_name: str,
+    module_functions: set[str],
+    class_methods: dict[str, set[str]],
+    class_name_map: dict[str, str],
+    class_name: str | None,
+) -> List[str]:
+    resolved: list[str] = []
+    class_method_names = class_methods.get(class_name, set()) if class_name else set()
+    for target in targets:
+        terminal = target.terminal
+        callee_text = (target.callee_text or "").strip()
+        if class_name and terminal in class_method_names:
+            if _is_receiver_call(callee_text) or _is_unqualified(callee_text):
+                resolved.append(f"{class_name}.{terminal}")
+                continue
+        if _is_unqualified(callee_text) and terminal in module_functions:
+            resolved.append(f"{module_name}.{terminal}")
+            continue
+        class_qualified = class_name_map.get(terminal)
+        if class_qualified and terminal in class_methods.get(class_qualified, set()):
+            resolved.append(f"{class_qualified}.{terminal}")
+            continue
+        resolved.append(terminal)
+    return resolved
+
+
+def _is_unqualified(callee_text: str) -> bool:
+    return "." not in callee_text
+
+
+def _is_receiver_call(callee_text: str) -> bool:
+    return callee_text.startswith("this.") or callee_text.startswith("super.")

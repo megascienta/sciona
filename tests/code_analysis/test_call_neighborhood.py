@@ -7,6 +7,7 @@ from pathlib import Path
 from sciona.code_analysis.artifacts import write_call_artifacts
 from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.code_analysis.tools.call_extraction import CallExtractionRecord
+from sciona.runtime import paths as runtime_paths
 from sciona.runtime.paths import get_artifact_db_path
 
 from tests.helpers import seed_repo_with_snapshot
@@ -14,6 +15,7 @@ from tests.helpers import seed_repo_with_snapshot
 
 def test_write_call_artifacts_resolves_function(tmp_path: Path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    prefix = runtime_paths.repo_name_prefix(repo_root)
     core_conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
     core_conn.row_factory = sqlite3.Row
     try:
@@ -25,7 +27,7 @@ def test_write_call_artifacts_resolves_function(tmp_path: Path):
             call_records = [
                 CallExtractionRecord(
                     caller_structural_id="meth_alpha",
-                    caller_qualified_name="pkg.alpha.Service.run",
+                    caller_qualified_name=f"{prefix}.pkg.alpha.Service.run",
                     caller_node_type="method",
                     callee_identifiers=("helper",),
                 )
@@ -52,23 +54,24 @@ def test_write_call_artifacts_resolves_function(tmp_path: Path):
 
 def test_write_call_artifacts_resolves_ambiguous_by_imports(tmp_path: Path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    prefix = runtime_paths.repo_name_prefix(repo_root)
     core_conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
     core_conn.row_factory = sqlite3.Row
     try:
         additions = [
-            ("mod_gamma", "module", "python", "pkg.gamma", "pkg/gamma/__init__.py"),
+            ("mod_gamma", "module", "python", f"{prefix}.pkg.gamma", "pkg/gamma/__init__.py"),
             (
                 "func_gamma",
                 "function",
                 "python",
-                "pkg.gamma.helper",
+                f"{prefix}.pkg.gamma.helper",
                 "pkg/gamma/helper.py",
             ),
             (
                 "func_beta_task",
                 "function",
                 "python",
-                "pkg.beta.task",
+                f"{prefix}.pkg.beta.task",
                 "pkg/beta/task.py",
             ),
         ]
@@ -125,7 +128,7 @@ def test_write_call_artifacts_resolves_ambiguous_by_imports(tmp_path: Path):
             call_records = [
                 CallExtractionRecord(
                     caller_structural_id="func_beta_task",
-                    caller_qualified_name="pkg.beta.task",
+                    caller_qualified_name=f"{prefix}.pkg.beta.task",
                     caller_node_type="function",
                     callee_identifiers=("helper",),
                 )

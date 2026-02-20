@@ -21,6 +21,7 @@ from sciona.reducers.core import (
 )
 from sciona.reducers.grounding import callable_source, concatenated_source
 from sciona.runtime import constants as setup_config
+from sciona.runtime import paths as runtime_paths
 from tests.helpers import insert_snapshot, seed_repo_with_snapshot
 
 
@@ -38,9 +39,16 @@ def _core_conn(repo_root):
     return conn
 
 
+def _q(repo_root, name: str) -> str:
+    return f"{runtime_paths.repo_name_prefix(repo_root)}.{name}"
+
+
 def _build_profile_repo(tmp_path: Path):
     repo_root = tmp_path / "repo"
     repo_root.mkdir()
+    repo_prefix = runtime_paths.repo_name_prefix(repo_root)
+    def _pq(name: str) -> str:
+        return f"{repo_prefix}.{name}"
     module_path = repo_root / "pkg" / "alpha"
     module_path.mkdir(parents=True)
     (module_path / "__init__.py").write_text("", encoding="utf-8")
@@ -100,7 +108,7 @@ export function createWidget(name: string): WidgetService {
             ids["module_pkg_alpha"],
             "module",
             "python",
-            "pkg.alpha",
+            _pq("pkg.alpha"),
             "pkg/alpha/__init__.py",
             1,
             1,
@@ -109,7 +117,7 @@ export function createWidget(name: string): WidgetService {
             ids["module_alpha"],
             "module",
             "python",
-            "pkg.alpha.service",
+            _pq("pkg.alpha.service"),
             "pkg/alpha/service.py",
             1,
             17,
@@ -118,7 +126,7 @@ export function createWidget(name: string): WidgetService {
             ids["module_beta"],
             "module",
             "python",
-            "pkg.beta.worker",
+            _pq("pkg.beta.worker"),
             "pkg/beta/worker.py",
             1,
             2,
@@ -127,7 +135,7 @@ export function createWidget(name: string): WidgetService {
             ids["class_order"],
             "class",
             "python",
-            "pkg.alpha.service.OrderService",
+            _pq("pkg.alpha.service.OrderService"),
             "pkg/alpha/service.py",
             6,
             10,
@@ -136,7 +144,7 @@ export function createWidget(name: string): WidgetService {
             ids["function_helper"],
             "function",
             "python",
-            "pkg.alpha.service.helper",
+            _pq("pkg.alpha.service.helper"),
             "pkg/alpha/service.py",
             13,
             15,
@@ -145,7 +153,7 @@ export function createWidget(name: string): WidgetService {
             ids["method_one"],
             "method",
             "python",
-            "pkg.alpha.service.OrderService.method_one",
+            _pq("pkg.alpha.service.OrderService.method_one"),
             "pkg/alpha/service.py",
             8,
             10,
@@ -154,7 +162,7 @@ export function createWidget(name: string): WidgetService {
             ids["module_ts"],
             "module",
             "typescript",
-            "pkg.ts.service",
+            _pq("pkg.ts.service"),
             "pkg/ts/service.ts",
             1,
             11,
@@ -163,7 +171,7 @@ export function createWidget(name: string): WidgetService {
             ids["ts_class"],
             "class",
             "typescript",
-            "pkg.ts.service.WidgetService",
+            _pq("pkg.ts.service.WidgetService"),
             "pkg/ts/service.ts",
             3,
             8,
@@ -172,7 +180,7 @@ export function createWidget(name: string): WidgetService {
             ids["ts_function"],
             "function",
             "typescript",
-            "pkg.ts.service.createWidget",
+            _pq("pkg.ts.service.createWidget"),
             "pkg/ts/service.ts",
             10,
             11,
@@ -324,7 +332,7 @@ def test_concatenated_source_module_scope(tmp_path):
             conn,
             repo_root,
             scope="module",
-            module_id="pkg.alpha",
+            module_id=_q(repo_root, "pkg.alpha"),
         )
     finally:
         conn.close()
@@ -343,7 +351,7 @@ def test_concatenated_source_class_scope(tmp_path):
             conn,
             repo_root,
             scope="class",
-            class_id="pkg.alpha.Service",
+            class_id=_q(repo_root, "pkg.alpha.Service"),
         )
     finally:
         conn.close()
@@ -360,7 +368,7 @@ def test_callable_source_payload(tmp_path):
             snapshot_id,
             conn,
             repo_root,
-            function_id="pkg.alpha.service.helper",
+            function_id=_q(repo_root, "pkg.alpha.service.helper"),
         )
     finally:
         conn.close()
@@ -391,7 +399,7 @@ def test_callable_source_skips_directory_path(tmp_path):
                 f"{snapshot_id}:func_dir",
                 "func_dir",
                 snapshot_id,
-                "pkg.alpha.dir_func",
+                _q(repo_root, "pkg.alpha.dir_func"),
                 "pkg/dir_func",
                 1,
                 1,
@@ -403,7 +411,7 @@ def test_callable_source_skips_directory_path(tmp_path):
             snapshot_id,
             conn,
             repo_root,
-            function_id="pkg.alpha.dir_func",
+            function_id=_q(repo_root, "pkg.alpha.dir_func"),
         )
     finally:
         conn.close()
@@ -420,7 +428,7 @@ def test_symbol_lookup_reducer_returns_matches(tmp_path):
             snapshot_id,
             conn,
             repo_root,
-            query="pkg.alpha",
+            query=_q(repo_root, "pkg.alpha"),
             kind="module",
             limit=5,
         )
@@ -428,7 +436,10 @@ def test_symbol_lookup_reducer_returns_matches(tmp_path):
         conn.close()
     payload = json.loads(_strip_json_fence(payload_text))
     assert payload["matches"]
-    assert any(match["qualified_name"] == "pkg.alpha" for match in payload["matches"])
+    assert any(
+        match["qualified_name"] == _q(repo_root, "pkg.alpha")
+        for match in payload["matches"]
+    )
 
 
 def test_symbol_lookup_accepts_any_kind(tmp_path):
@@ -439,7 +450,7 @@ def test_symbol_lookup_accepts_any_kind(tmp_path):
             snapshot_id,
             conn,
             repo_root,
-            query="pkg.alpha",
+            query=_q(repo_root, "pkg.alpha"),
             kind="any",
             limit=5,
         )
@@ -452,7 +463,7 @@ def test_symbol_lookup_accepts_any_kind(tmp_path):
 def test_symbol_lookup_deterministic_prelimit_with_duplicate_names(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     conn = _core_conn(repo_root)
-    duplicate_name = "pkg.duplicate.target"
+    duplicate_name = _q(repo_root, "pkg.duplicate.target")
     duplicate_paths = [
         "pkg/z_last.py",
         "pkg/y_last.py",
@@ -493,7 +504,7 @@ def test_symbol_lookup_deterministic_prelimit_with_duplicate_names(tmp_path):
             snapshot_id,
             conn,
             repo_root,
-            query="pkg.duplicate.target",
+            query=_q(repo_root, "pkg.duplicate.target"),
             kind="function",
             limit=1,
         )
@@ -513,7 +524,7 @@ def test_symbol_references_returns_relationships(tmp_path):
             snapshot_id,
             conn,
             repo_root,
-            query="pkg.alpha",
+            query=_q(repo_root, "pkg.alpha"),
             kind="module",
             limit=5,
         )
@@ -532,7 +543,7 @@ def test_dependency_edges_reducer_returns_edges(tmp_path):
             snapshot_id,
             conn,
             repo_root,
-            module_id="pkg.alpha",
+            module_id=_q(repo_root, "pkg.alpha"),
         )
     finally:
         conn.close()
@@ -552,7 +563,7 @@ def test_dependency_edges_filters_and_limit(tmp_path):
             snapshot_id,
             conn,
             repo_root,
-            from_module_id="pkg.alpha",
+            from_module_id=_q(repo_root, "pkg.alpha"),
             edge_type="IMPORTS_DECLARED",
             limit=1,
         )
@@ -571,14 +582,14 @@ def test_dependency_edges_query_filters_sources(tmp_path):
             snapshot_id,
             conn,
             repo_root,
-            query="pkg.alpha",
+            query=_q(repo_root, "pkg.alpha"),
         )
     finally:
         conn.close()
     payload = json.loads(_strip_json_fence(payload_text))
     assert payload["edges"]
     assert all(
-        edge["from_module_qualified_name"].startswith("pkg.alpha")
+        edge["from_module_qualified_name"].startswith(_q(repo_root, "pkg.alpha"))
         for edge in payload["edges"]
     )
 
@@ -591,7 +602,7 @@ def test_file_outline_returns_nodes(tmp_path):
             snapshot_id,
             conn,
             repo_root,
-            module_id="pkg.alpha",
+            module_id=_q(repo_root, "pkg.alpha"),
         )
     finally:
         conn.close()
@@ -608,7 +619,7 @@ def test_dependency_edges_direction_filters(tmp_path):
             snapshot_id,
             conn,
             repo_root,
-            module_id="pkg.alpha",
+            module_id=_q(repo_root, "pkg.alpha"),
             direction="out",
         )
     finally:
@@ -616,7 +627,7 @@ def test_dependency_edges_direction_filters(tmp_path):
     payload = json.loads(_strip_json_fence(payload_text))
     assert payload["edges"]
     assert all(
-        edge["from_module_qualified_name"].startswith("pkg.alpha")
+        edge["from_module_qualified_name"].startswith(_q(repo_root, "pkg.alpha"))
         for edge in payload["edges"]
     )
     conn = _core_conn(repo_root)
@@ -625,7 +636,7 @@ def test_dependency_edges_direction_filters(tmp_path):
             snapshot_id,
             conn,
             repo_root,
-            module_id="pkg.alpha",
+            module_id=_q(repo_root, "pkg.alpha"),
             direction="in",
         )
     finally:
@@ -633,7 +644,7 @@ def test_dependency_edges_direction_filters(tmp_path):
     payload = json.loads(_strip_json_fence(payload_text))
     assert payload["edges"]
     assert all(
-        edge["to_module_qualified_name"].startswith("pkg.alpha")
+        edge["to_module_qualified_name"].startswith(_q(repo_root, "pkg.alpha"))
         for edge in payload["edges"]
     )
 
@@ -649,21 +660,25 @@ def test_structural_index_reducer_reports_modules_and_cycles(tmp_path):
 
     assert payload["projection"] == "structural_index"
     modules = payload["modules"]["entries"]
-    assert modules[0]["module_qualified_name"] == "pkg.alpha"
+    assert modules[0]["module_qualified_name"] == _q(repo_root, "pkg.alpha")
     assert modules[0]["file_count"] == 2
     assert modules[0]["function_count"] == 1
     assert modules[0]["method_count"] == 1
     assert payload["files"]["count"] >= 2
-    assert payload["classes"]["entries"][0]["qualified_name"].startswith("pkg.alpha")
-    assert payload["functions"]["by_module"][0]["module_qualified_name"] == "pkg.alpha"
+    assert payload["classes"]["entries"][0]["qualified_name"].startswith(
+        _q(repo_root, "pkg.alpha")
+    )
+    assert payload["functions"]["by_module"][0]["module_qualified_name"] == _q(
+        repo_root, "pkg.alpha"
+    )
     edges = payload["imports"]["edges"]
     assert (
         edges[0]["from_module_qualified_name"]
         <= edges[0]["to_module_qualified_name"]
     )
     assert payload["import_cycles"][0]["module_qualified_names"] == [
-        "pkg.alpha",
-        "pkg.beta",
+        _q(repo_root, "pkg.alpha"),
+        _q(repo_root, "pkg.beta"),
     ]
     file_entry = payload["files"]["entries"][0]
     assert set(file_entry.keys()) <= {"path", "module_qualified_name"}
@@ -681,7 +696,7 @@ def test_callable_overview_reducer_returns_python_metadata(tmp_path):
     )
     conn.close()
 
-    assert payload["module_qualified_name"] == "pkg.alpha.service"
+    assert payload["module_qualified_name"] == _q(repo["repo_root"], "pkg.alpha.service")
     assert payload["file_path"] == "pkg/alpha/service.py"
     assert payload["parameters"] == ["user_id", "*args", "**kwargs"]
     assert payload["signature"].startswith("helper(")
@@ -721,13 +736,15 @@ def test_class_overview_reducer_exposes_methods_and_metadata(tmp_path):
     )
     conn.close()
 
-    assert payload["module_qualified_name"] == "pkg.alpha.service"
+    assert payload["module_qualified_name"] == _q(repo["repo_root"], "pkg.alpha.service")
     assert payload["decorators"] == ["decorator('value')"]
     assert payload["bases"] == ["BaseService", "Mixin"]
     assert payload["methods"] == [
         {
             "function_id": repo["ids"]["method_one"],
-            "qualified_name": "pkg.alpha.service.OrderService.method_one",
+            "qualified_name": _q(
+                repo["repo_root"], "pkg.alpha.service.OrderService.method_one"
+            ),
         }
     ]
     assert "confidence" not in payload
@@ -740,23 +757,27 @@ def test_module_overview_reducer_lists_children_and_imports(tmp_path):
     payload = module_overview.run(
         repo["snapshot_id"],
         conn=conn,
-        module_id="pkg.alpha.service",
+        module_id=_q(repo["repo_root"], "pkg.alpha.service"),
         repo_root=repo["repo_root"],
     )
     conn.close()
 
     assert payload["module_structural_id"] == repo["ids"]["module_alpha"]
-    assert payload["module_qualified_name"] == "pkg.alpha.service"
+    assert payload["module_qualified_name"] == _q(repo["repo_root"], "pkg.alpha.service")
     assert payload["files"] == ["pkg/alpha/service.py"]
     assert payload["file_count"] == 1
-    assert payload["classes"][0]["qualified_name"] == "pkg.alpha.service.OrderService"
-    assert payload["functions"][0]["qualified_name"] == "pkg.alpha.service.helper"
+    assert payload["classes"][0]["qualified_name"] == _q(
+        repo["repo_root"], "pkg.alpha.service.OrderService"
+    )
+    assert payload["functions"][0]["qualified_name"] == _q(
+        repo["repo_root"], "pkg.alpha.service.helper"
+    )
     assert payload["node_counts"] == {"classes": 1, "functions": 1, "methods": 1}
     assert payload["language_breakdown"] == {"python": 3}
     assert payload["imports"] == [
         {
             "module_structural_id": repo["ids"]["module_beta"],
-            "module_qualified_name": "pkg.beta.worker",
+            "module_qualified_name": _q(repo["repo_root"], "pkg.beta.worker"),
         }
     ]
     assert "confidence" not in payload
@@ -769,21 +790,25 @@ def test_module_overview_reducer_expands_package_modules(tmp_path):
     payload = module_overview.run(
         repo["snapshot_id"],
         conn=conn,
-        module_id="pkg.alpha",
+        module_id=_q(repo["repo_root"], "pkg.alpha"),
         repo_root=repo["repo_root"],
     )
     conn.close()
 
-    assert payload["module_qualified_name"] == "pkg.alpha"
+    assert payload["module_qualified_name"] == _q(repo["repo_root"], "pkg.alpha")
     assert payload["files"] == ["pkg/alpha/__init__.py", "pkg/alpha/service.py"]
     assert payload["file_count"] == 2
-    assert payload["classes"][0]["qualified_name"] == "pkg.alpha.service.OrderService"
-    assert payload["functions"][0]["qualified_name"] == "pkg.alpha.service.helper"
+    assert payload["classes"][0]["qualified_name"] == _q(
+        repo["repo_root"], "pkg.alpha.service.OrderService"
+    )
+    assert payload["functions"][0]["qualified_name"] == _q(
+        repo["repo_root"], "pkg.alpha.service.helper"
+    )
     assert payload["node_counts"] == {"classes": 1, "functions": 1, "methods": 1}
     assert payload["imports"] == [
         {
             "module_structural_id": repo["ids"]["module_beta"],
-            "module_qualified_name": "pkg.beta.worker",
+            "module_qualified_name": _q(repo["repo_root"], "pkg.beta.worker"),
         }
     ]
 
@@ -795,7 +820,7 @@ def test_module_overview_include_file_map(tmp_path):
     payload = module_overview.run(
         repo["snapshot_id"],
         conn=conn,
-        module_id="pkg.alpha",
+        module_id=_q(repo["repo_root"], "pkg.alpha"),
         repo_root=repo["repo_root"],
         include_file_map=True,
     )
@@ -804,6 +829,6 @@ def test_module_overview_include_file_map(tmp_path):
     assert payload["module_file_count"] >= 1
     assert payload["module_files"]
     assert any(
-        entry["module_qualified_name"].startswith("pkg.alpha")
+        entry["module_qualified_name"].startswith(_q(repo["repo_root"], "pkg.alpha"))
         for entry in payload["module_files"]
     )

@@ -3,6 +3,8 @@
 
 import json
 
+from sciona.runtime import paths as runtime_paths
+
 
 def test_cli_reducer_renders_payload(cli_app, cli_runner):
     result = cli_runner.invoke(cli_app, ["reducer", "--id", "structural_index"])
@@ -13,6 +15,7 @@ def test_cli_reducer_renders_payload(cli_app, cli_runner):
 
 
 def test_cli_reducer_callable_id_resolves_method(cli_app, cli_runner):
+    prefix = runtime_paths.repo_name_prefix(runtime_paths.get_repo_root())
     result = cli_runner.invoke(
         cli_app,
         [
@@ -20,7 +23,7 @@ def test_cli_reducer_callable_id_resolves_method(cli_app, cli_runner):
             "--id",
             "callable_overview",
             "--callable-id",
-            "pkg.alpha.Service.run",
+            f"{prefix}.pkg.alpha.Service.run",
         ],
     )
 

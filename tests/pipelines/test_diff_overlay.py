@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 
 from sciona import api
+from sciona.runtime import paths as runtime_paths
 
 
 def _parse_json_payload(text: str) -> dict:
@@ -13,6 +14,10 @@ def _parse_json_payload(text: str) -> dict:
     assert stripped.startswith("```json")
     body = stripped.split("\n", 1)[1].rsplit("```", 1)[0].strip()
     return json.loads(body)
+
+
+def _q(repo_root, name: str) -> str:
+    return f"{runtime_paths.repo_name_prefix(repo_root)}.{name}"
 
 
 def test_dirty_overlay_adds_node(repo_with_snapshot):
@@ -26,7 +31,7 @@ def test_dirty_overlay_adds_node(repo_with_snapshot):
     text, _, _ = api.addons.emit(
         "module_overview",
         repo_root=repo_root,
-        module_id="pkg.alpha",
+        module_id=_q(repo_root, "pkg.alpha"),
     )
     payload = _parse_json_payload(text)
     diff = payload.get("_diff")
@@ -68,7 +73,7 @@ def test_dirty_overlay_summary_mode(repo_with_snapshot):
     text, _, _ = api.addons.emit(
         "module_overview",
         repo_root=repo_root,
-        module_id="pkg.alpha",
+        module_id=_q(repo_root, "pkg.alpha"),
         diff_mode="summary",
     )
     payload = _parse_json_payload(text)
@@ -91,7 +96,7 @@ def test_dirty_overlay_fan_summary_node_id_updates(repo_with_snapshot):
     text, _, _ = api.addons.emit(
         "fan_summary",
         repo_root=repo_root,
-        function_id="pkg.alpha.service.helper",
+        function_id=_q(repo_root, "pkg.alpha.service.helper"),
     )
     payload = _parse_json_payload(text)
     edge_kinds = payload.get("edge_kinds") or {}
@@ -126,5 +131,6 @@ def test_dirty_overlay_hotspot_summary_size_updates(repo_with_snapshot):
         entry.get("module_qualified_name"): entry.get("count")
         for entry in payload.get("by_size", [])
     }
-    baseline_count = baseline.get("pkg.alpha") or 0
-    assert updated.get("pkg.alpha") == baseline_count - 1
+    prefix = runtime_paths.repo_name_prefix(repo_root)
+    baseline_count = baseline.get(f"{prefix}.pkg.alpha") or 0
+    assert updated.get(f"{prefix}.pkg.alpha") == baseline_count - 1
