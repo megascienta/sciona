@@ -5,9 +5,9 @@
 - repo=fastapi
 - sampled_nodes=500
 - invariants_passed=False
-- full_recall=0.4181633835457706
-- contract_recall=0.9783124364622162
-- overreach_rate=0.016689373297002725
+- full_recall=0.4187241330098473
+- contract_recall=0.9728116710875332
+- overreach_rate=0.014112903225806451
 
 ## Hard Invariants
 
@@ -27,16 +27,16 @@
 
 ## Core Metrics
 
-- full_recall: `0.4181633835457706`
-- contract_recall: `0.9783124364622162`
-- overreach_rate: `0.016689373297002725`
-- overreach_count: `49`
-- reducer_edge_total: `2936`
+- full_recall: `0.4187241330098473`
+- contract_recall: `0.9728116710875332`
+- overreach_rate: `0.014112903225806451`
+- overreach_count: `42`
+- reducer_edge_total: `2976`
 
 ## Determinism
 
 - stability_score: `1.0`
-- stability_hashes: `['49ae542622f8ae7d6985d3c55cea7aa8e878540f03dd4b728fd52c2dc02cfb85', '49ae542622f8ae7d6985d3c55cea7aa8e878540f03dd4b728fd52c2dc02cfb85']`
+- stability_hashes: `['bb0751bf445fe5f54f50a1bec947d238ccce734f3e07e1ff3e1f3b16cd0ea9c6', 'bb0751bf445fe5f54f50a1bec947d238ccce734f3e07e1ff3e1f3b16cd0ea9c6']`
 
 ## Independent Parser Totals
 
@@ -44,6 +44,6 @@
 - raw_import_edges: `4856`
 - normalized_call_edges: `15400`
 - normalized_import_edges: `4856`
-- filtered_in_contract_edges: `2951`
-- full_truth_edges: `6904`
-- out_of_contract_edges: `3964`
+- filtered_in_contract_edges: `3016`
+- full_truth_edges: `7007`
+- out_of_contract_edges: `4001`

@@ -4,6 +4,7 @@ Use this checklist to verify each language implementation against the structural
 
 ## Common Requirements (All Languages)
 
+- CoreDB retains exactly one committed snapshot (singleton authoritative state).
 - Emits node types: `module`, `class`, `function`, `method`.
 - Optional synthetic nodes (for example `entry_point`) are allowed for
   navigation and are excluded from language compliance checks.
@@ -14,7 +15,7 @@ Use this checklist to verify each language implementation against the structural
 - Qualified names follow `{module}.{class}` and `{module}.{function}` and `{class}.{method}`.
 - Calls are attributed to nearest enclosing structural callable.
 - Nested callables are not emitted as structural nodes.
-- CALLS targets are qualified names when resolvable, else terminal identifiers only.
+- CALLS targets are in-repo callable ids only; unresolved/external targets are excluded.
 - Imports are syntax-only and normalized to module names.
 - Outputs are deterministic and stably ordered.
 

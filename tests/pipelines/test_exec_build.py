@@ -45,3 +45,35 @@ def test_build_repo_creates_committed_snapshot(tmp_path: Path) -> None:
         assert read_snapshots.snapshot_exists(conn, result.snapshot_id)
     finally:
         conn.close()
+
+
+def test_build_repo_keeps_single_committed_snapshot_across_rebuilds(
+    tmp_path: Path,
+) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    init_git_repo(repo_root, commit=False)
+    (repo_root / "src").mkdir()
+    mod_path = repo_root / "src" / "mod.py"
+    mod_path.write_text("print('v1')\n", encoding="utf-8")
+    commit_all(repo_root)
+    _write_config(repo_root)
+
+    repo_state = RepoState.from_repo_root(repo_root)
+    policy = policy_build.resolve_build_policy(
+        repo_state, refresh_artifacts=False, refresh_calls=False
+    )
+    first = build_repo(repo_state, policy)
+
+    mod_path.write_text("print('v2')\n", encoding="utf-8")
+    commit_all(repo_root)
+    second = build_repo(repo_state, policy)
+
+    conn = sqlite3.connect(repo_state.db_path)
+    conn.row_factory = sqlite3.Row
+    try:
+        assert read_snapshots.count_committed_snapshots(conn) == 1
+        assert read_snapshots.snapshot_exists(conn, second.snapshot_id)
+        assert not read_snapshots.snapshot_exists(conn, first.snapshot_id)
+    finally:
+        conn.close()

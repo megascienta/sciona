@@ -93,6 +93,7 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
     _ensure_schema(conn, SCHEMA_STATEMENTS)
     _ensure_fk_schema(conn)
     _ensure_node_instance_span_columns(conn)
+    _ensure_single_committed_snapshot(conn)
 
 
 def _ensure_fk_schema(conn: sqlite3.Connection) -> None:
@@ -232,5 +233,15 @@ def _migrate_edges(conn: sqlite3.Connection) -> None:
         """
         CREATE INDEX IF NOT EXISTS idx_edges_dst
         ON edges(dst_structural_id)
+        """
+    )
+
+
+def _ensure_single_committed_snapshot(conn: sqlite3.Connection) -> None:
+    conn.execute(
+        """
+        CREATE UNIQUE INDEX IF NOT EXISTS uq_snapshots_single_committed
+        ON snapshots(is_committed)
+        WHERE is_committed = 1
         """
     )

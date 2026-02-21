@@ -75,3 +75,25 @@ def test_edges_require_existing_snapshot_and_nodes(tmp_path):
             )
     finally:
         conn.close()
+
+
+def test_snapshots_allow_only_one_committed_row(tmp_path):
+    conn = _conn(tmp_path)
+    try:
+        conn.execute(
+            """
+            INSERT INTO snapshots(
+                snapshot_id, created_at, source, is_committed, structural_hash
+            ) VALUES ('snap_1', '2026-01-01T00:00:00Z', 'test', 1, 'hash_1')
+            """
+        )
+        with pytest.raises(sqlite3.IntegrityError):
+            conn.execute(
+                """
+                INSERT INTO snapshots(
+                    snapshot_id, created_at, source, is_committed, structural_hash
+                ) VALUES ('snap_2', '2026-01-02T00:00:00Z', 'test', 1, 'hash_2')
+                """
+            )
+    finally:
+        conn.close()

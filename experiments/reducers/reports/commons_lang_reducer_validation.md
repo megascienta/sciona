@@ -5,9 +5,9 @@
 - repo=commons_lang
 - sampled_nodes=500
 - invariants_passed=True
-- full_recall=0.6102772831340626
-- contract_recall=0.7918284653047443
-- overreach_rate=0.014177111156770084
+- full_recall=0.6479066575154427
+- contract_recall=0.825725406935598
+- overreach_rate=0.03159622486663931
 
 ## Hard Invariants
 
@@ -26,23 +26,23 @@
 
 ## Core Metrics
 
-- full_recall: `0.6102772831340626`
-- contract_recall: `0.7918284653047443`
-- overreach_rate: `0.014177111156770084`
-- overreach_count: `69`
-- reducer_edge_total: `4867`
+- full_recall: `0.6479066575154427`
+- contract_recall: `0.825725406935598`
+- overreach_rate: `0.03159622486663931`
+- overreach_count: `154`
+- reducer_edge_total: `4874`
 
 ## Determinism
 
 - stability_score: `1.0`
-- stability_hashes: `['ac7e43f661bff845e0fec5925e4506bac56b165052bb4950e56d1d62d69d0932', 'ac7e43f661bff845e0fec5925e4506bac56b165052bb4950e56d1d62d69d0932']`
+- stability_hashes: `['c4706fe3bf1708869fcdf43326e81bce78f1ce12e2b8b9454f313ffefa2c7606', 'c4706fe3bf1708869fcdf43326e81bce78f1ce12e2b8b9454f313ffefa2c7606']`
 
 ## Independent Parser Totals
 
-- raw_call_edges: `71438`
-- raw_import_edges: `2518`
-- normalized_call_edges: `71438`
-- normalized_import_edges: `2518`
-- filtered_in_contract_edges: `5923`
-- full_truth_edges: `7862`
-- out_of_contract_edges: `1939`
+- raw_call_edges: `71055`
+- raw_import_edges: `2457`
+- normalized_call_edges: `71055`
+- normalized_import_edges: `2457`
+- filtered_in_contract_edges: `5652`
+- full_truth_edges: `7285`
+- out_of_contract_edges: `1633`

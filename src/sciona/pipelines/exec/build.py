@@ -111,6 +111,9 @@ def build_repo(
                 core_write.prune_orphan_structural_nodes(conn)
                 status = decision.lifecycle.value
             else:
+                # CoreDB keeps a singleton committed snapshot. Remove older committed
+                # rows before inserting the new committed snapshot metadata.
+                core_write.delete_committed_snapshots_except(conn, canonical_snapshot_id)
                 if core_read.snapshot_exists(conn, canonical_snapshot_id):
                     core_write.delete_snapshot_tree(conn, canonical_snapshot_id)
                 core_write.rekey_snapshot_id(

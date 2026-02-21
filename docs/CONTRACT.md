@@ -7,7 +7,7 @@ validation.
 ## Scope
 
 - Applies to all supported languages.
-- Applies to committed snapshots only.
+- Applies to the single committed snapshot retained in CoreDB.
 - Static, syntax-only analysis; no semantic inference or execution.
 
 ## Node Types
@@ -34,7 +34,7 @@ SCIONA MUST emit these edge types for all languages:
 - `CONTAINS` (module → class/function)
 - `DEFINES_METHOD` (class → method)
 - `IMPORTS_DECLARED` (module → module)
-- `CALLS` (callable → identifier, best-effort)
+- `CALLS` (callable → callable, in-repo only, best-effort)
 
 ## Edge Semantics
 
@@ -76,11 +76,9 @@ Optional alias:
 ## CALLS Target Semantics
 
 - If a call target is structurally resolvable, the target MUST be emitted as a
-  qualified name.
-- If not structurally resolvable, the target MUST be emitted as a terminal
-  identifier string only.
-- Mixed representations (some qualified, some terminal for the same target
-  class) MUST NOT occur within the same snapshot.
+  qualified in-repo callable.
+- If not structurally resolvable to an in-repo callable, the target MUST NOT be
+  emitted as a `CALLS` edge.
 
 ## Call Attribution
 
@@ -88,7 +86,8 @@ Optional alias:
 - Nested callables are treated as implementation detail; their calls MUST be
   attributed to the enclosing structural callable.
 - Nested callables MUST NOT be emitted as structural nodes.
-- Calls are identifier-only; no semantic resolution.
+- Calls are static, syntax-based, and resolved only against in-repo structural
+  callable nodes.
 
 ## Import Handling
 
