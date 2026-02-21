@@ -68,23 +68,67 @@ If your worktree is dirty, reducer outputs include an `_diff` payload describing
 
 ## Reducer Contract Validation
 
-SCIONA includes a reducer validation script (`experiments/reducers/`) designed to verify structural correctness, determinism, and payload integrity. The evaluation operates on committed snapshots indexed by SCIONA and systematically checks reducer outputs for schema compliance, structural invariants, deterministic behavior, identifier resolution, file span validity, and hash/content consistency. Reducers are validated strictly against their declared contracts rather than heuristic expectations. The validation suite is repository-agnostic and can be executed against any git repository indexed by SCIONA. This allows users to independently reproduce validation results and assess reducer stability for their own codebases.
+SCIONA includes a repository-independent reducer validation workflow in `experiments/reducers/`.
+It validates reducer behavior against:
+- direct SCIONA DB queries (internal consistency),
+- independent language parsers (external reference),
+- an explicit structural contract (`experiments/reducers/validation/structural_contract.yaml`).
 
 Usage:
 
 ```bash
-python experiments/reducers/reducer_quality.py --repo-root <repo-root> --nodes <nodes> --runs <runs> --seed <seed>
+python experiments/reducers/reducer_validation.py \
+  --repo-root /path/to/repo \
+  --nodes 500 \
+  --seed 20260221 \
+  --stability-runs 3
 ```
 
-Full evaluation reports are available in `experiments/reducers/reports/` and document reducer contract validation across representative multi-language repositories, including [Apache Commons Lang](https://github.com/apache/commons-lang) (Java), [FastAPI](https://github.com/fastapi/fastapi) (Python), and [Nest](https://github.com/nestjs/nest) (TypeScript). Across tens of thousands of reducer invocations per project, all reducers achieved deterministic outputs, full schema compliance, contract-scoped structural accuracy, and zero invocation errors.
+Workflow (current implementation):
+1. Sample a balanced set of module/class/function/method nodes from SCIONA DB.
+2. Parse corresponding files with independent parsers (Python, TypeScript, Java).
+3. Normalize independent outputs to SCIONA-comparable edge shape.
+4. Build two independent truth sets per node:
+   - `full_truth`: all parser edges in scope,
+   - `expected_filtered`: parser edges that satisfy SCIONA contract.
+5. Collect reducer edges and direct DB edges for the same node.
+6. Compute per-node and micro metrics for:
+   - reducer vs DB,
+   - reducer vs independent filtered,
+   - reducer vs independent full,
+   - DB vs independent full.
+7. Enforce hard invariants (run-gating).
+8. Emit JSON + Markdown reports to `experiments/reducers/reports/`.
 
-| Repository          | Language   | Reducers | Invocations | Determinism | Schema Compliance | Structural Accuracy* | Error Rate |
-| ------------------- | ---------- | -------- | ----------- | ----------- | ----------------- | -------------------- | ---------- |
-| [Apache Commons Lang](https://github.com/apache/commons-lang) | Java       | 20       | 41,702      | **1.0**     | **1.0**           | **1.0**              | **0.0**    |
-| [FastAPI](https://github.com/fastapi/fastapi)             | Python     | 20       | 41,702      | **1.0**     | **1.0**           | **1.0**              | **0.0**    |
-| [Nest](https://github.com/nestjs/nest)                | TypeScript | 20       | 41,702      | **1.0**     | **1.0**           | **1.0**              | **0.0**    |
+Hard invariants (all must pass):
+- `gate_reducer_db_exact`
+- `gate_aligned_scoring`
+- `gate_parse_coverage`
+- `gate_filter_subset`
+- `gate_filter_resolved`
+- `gate_parser_deterministic`
+- `gate_no_duplicate_contract_edges`
+- `gate_typescript_relative_index_contract`
+- `gate_equal_full_metrics_when_exact`
 
-*Structural accuracy within declared reducer contract scope. Validation does not attempt to assess semantic correctness, runtime behavior, or completeness of dynamically resolved relationships.
+Core metrics:
+- `contract_recall`: reducer coverage of contract-filtered independent truth.
+- `full_recall`: reducer coverage of unfiltered independent truth.
+- `overreach_rate`: reducer edges not present in independent full truth.
+
+Current report snapshot (N=500 each, from `experiments/reducers/reports/`):
+
+| Repository | Language | Sampled Nodes | Invariants Passed | Reducer vs DB | Contract Recall | Full Recall | Overreach Rate |
+| ---------- | -------- | ------------- | ----------------- | ------------- | --------------- | ----------- | -------------- |
+| [Apache Commons Lang](https://github.com/apache/commons-lang) | Java | 500 | **True** | **1.0 / 1.0** | **0.9448** | **0.6933** | **0.0097** |
+| [FastAPI](https://github.com/fastapi/fastapi) | Python | 500 | **True** | **1.0 / 1.0** | **0.9538** | **0.4046** | **0.0027** |
+| [Nest](https://github.com/nestjs/nest) | TypeScript | 500 | **True** | **1.0 / 1.0** | **0.8966** | **0.4995** | **0.1963** |
+
+Interpretation:
+- Reducer vs DB exact overlap (`1.0 / 1.0`) means reducer projection is internally consistent with DB for sampled nodes.
+- `contract_recall` is the primary SCIONA contract-coverage signal.
+- `full_recall` is expected to be lower than `contract_recall` because full truth includes out-of-contract edges.
+- Higher `overreach_rate` indicates mismatch pressure between reducer output and independent full truth representation; investigate with per-node report details and `out_of_contract_breakdown`.
 
 ## Reducers usage
 

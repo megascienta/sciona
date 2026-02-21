@@ -5,9 +5,9 @@
 - repo=fastapi
 - sampled_nodes=500
 - invariants_passed=True
-- full_recall=0.4062371768567911
-- contract_recall=0.9580645161290322
-- overreach_rate=0.0020161290322580645
+- full_recall=0.4045657166013778
+- contract_recall=0.9538216560509554
+- overreach_rate=0.002664002664002664
 
 ## Hard Invariants
 
@@ -19,20 +19,21 @@
 - gate_filter_resolved: `True`
 - gate_parser_deterministic: `True`
 - gate_no_duplicate_contract_edges: `True`
+- gate_typescript_relative_index_contract: `True`
 - gate_equal_full_metrics_when_exact: `True`
 
 ## Core Metrics
 
-- full_recall: `0.4062371768567911`
-- contract_recall: `0.9580645161290322`
-- overreach_rate: `0.0020161290322580645`
-- overreach_count: `6`
-- reducer_edge_total: `2976`
+- full_recall: `0.4045657166013778`
+- contract_recall: `0.9538216560509554`
+- overreach_rate: `0.002664002664002664`
+- overreach_count: `8`
+- reducer_edge_total: `3003`
 
 ## Determinism
 
 - stability_score: `1.0`
-- stability_hashes: `['27939561d7d111c89bcc7795c1d00a016e7e8bd4e0261e5f5e8e841d8167224b', '27939561d7d111c89bcc7795c1d00a016e7e8bd4e0261e5f5e8e841d8167224b', '27939561d7d111c89bcc7795c1d00a016e7e8bd4e0261e5f5e8e841d8167224b']`
+- stability_hashes: `['0ee4a75ffe3851c97995f65a1c02ef023be12d3ef1e001530697a5ded150fa54', '0ee4a75ffe3851c97995f65a1c02ef023be12d3ef1e001530697a5ded150fa54']`
 
 ## Independent Parser Totals
 
@@ -40,6 +41,6 @@
 - raw_import_edges: `4856`
 - normalized_call_edges: `15400`
 - normalized_import_edges: `4856`
-- filtered_in_contract_edges: `3100`
-- full_truth_edges: `7311`
-- out_of_contract_edges: `4205`
+- filtered_in_contract_edges: `3140`
+- full_truth_edges: `7403`
+- out_of_contract_edges: `4254`
