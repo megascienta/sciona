@@ -85,13 +85,9 @@ Optional alias:
 ## Call Attribution
 
 - Calls are attributed to the nearest enclosing structural callable.
-- Nested callables are treated as implementation detail; their calls are
+- Nested callables are treated as implementation detail; their calls MUST be
   attributed to the enclosing structural callable.
-
-Optional:
-
-- Nested callables MAY be emitted as nodes, but their CALLS edges MUST still be
-  attributed to the enclosing structural callable.
+- Nested callables MUST NOT be emitted as structural nodes.
 - Calls are identifier-only; no semantic resolution.
 
 ## Import Handling
@@ -111,4 +107,4 @@ Optional metadata:
 - Ordering MUST be stable by:
   1. module path lexical order
   2. qualified name lexical order
-  3. edges sorted by (source, edge_type, target)
+  3. edges sorted by (source, target, edge_type)

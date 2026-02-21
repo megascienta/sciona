@@ -64,3 +64,8 @@ def helper():
     helper_name = f"{module_name}.helper"
     assert outer_name in call_records
     assert helper_name in call_records[outer_name]
+    function_nodes = {
+        node.qualified_name for node in result.nodes if node.node_type == "function"
+    }
+    assert f"{module_name}.inner" not in function_nodes
+    assert f"{module_name}.inner" not in call_records

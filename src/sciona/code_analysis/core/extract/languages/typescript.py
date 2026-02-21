@@ -239,6 +239,9 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                 edge_type = "DEFINES_METHOD"
                 class_methods.setdefault(parent, set()).add(func_name)
             else:
+                if function_depth > 0:
+                    # Nested function declarations are implementation detail only.
+                    return
                 node_type = "function"
                 parent = module_name
                 parent_node_type = "module"

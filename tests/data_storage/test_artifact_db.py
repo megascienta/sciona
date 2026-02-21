@@ -67,3 +67,14 @@ def test_node_calls_and_cleanup(tmp_path: Path):
         ]
     finally:
         conn.close()
+
+
+def test_get_node_status_empty_filter_returns_empty(tmp_path: Path):
+    conn, _ = _artifact_db_conn(tmp_path)
+    try:
+        with transaction(conn):
+            artifact_write.set_node_status(conn, "alpha", "added")
+            artifact_write.set_node_status(conn, "beta", "modified")
+        assert artifact_read.get_node_status(conn, []) == {}
+    finally:
+        conn.close()

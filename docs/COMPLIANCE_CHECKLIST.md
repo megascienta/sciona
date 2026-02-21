@@ -13,6 +13,7 @@ Use this checklist to verify each language implementation against the structural
 - Uses canonical module identity from repo-relative path.
 - Qualified names follow `{module}.{class}` and `{module}.{function}` and `{class}.{method}`.
 - Calls are attributed to nearest enclosing structural callable.
+- Nested callables are not emitted as structural nodes.
 - CALLS targets are qualified names when resolvable, else terminal identifiers only.
 - Imports are syntax-only and normalized to module names.
 - Outputs are deterministic and stably ordered.

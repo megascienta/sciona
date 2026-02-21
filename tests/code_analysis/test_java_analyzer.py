@@ -79,3 +79,11 @@ def test_java_analyzer_extracts_structure_and_calls(tmp_path):
         f"{module_name}.Baz.Baz",
         f"{class_name}.qux",
     }.issubset(call_records[helper_key])
+    method_nodes = {
+        node.qualified_name for node in result.nodes if node.node_type == "method"
+    }
+    assert method_nodes == {
+        f"{class_name}.Foo",
+        f"{class_name}.helper",
+        f"{class_name}.qux",
+    }

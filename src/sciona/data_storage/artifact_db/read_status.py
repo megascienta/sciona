@@ -18,8 +18,10 @@ def get_node_status(
     params: list[str] = []
     clauses = []
     node_ids_list: list[str] | None = None
-    if node_ids:
+    if node_ids is not None:
         node_ids_list = list(node_ids)
+        if not node_ids_list:
+            return {}
         if len(node_ids_list) <= SQLITE_MAX_VARS:
             placeholders = ",".join("?" for _ in node_ids_list)
             clauses.append(f"node_id IN ({placeholders})")
