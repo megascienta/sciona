@@ -81,7 +81,7 @@ class ArtifactEngine:
                 "Analyzing artifacts", len(file_snapshots)
             )
         call_artifacts: List[CallExtractionRecord] = []
-        all_call_records = []
+        all_call_records: list[tuple[str, object]] = []
         try:
             for file_snapshot in file_snapshots:
                 analyzer = routing.resolve_analyzer(file_snapshot, self.analyzers)
@@ -102,7 +102,7 @@ class ArtifactEngine:
                         progress.advance(1)
                     continue
                 all_call_records.extend(
-                    record
+                    (file_snapshot.record.language, record)
                     for record in analysis.call_records
                     if record.callee_identifiers
                 )
@@ -114,14 +114,15 @@ class ArtifactEngine:
         normalized_calls = normalize_call_identifiers(
             [
                 (
+                    language,
                     record.qualified_name,
                     record.node_type,
                     list(record.callee_identifiers),
                 )
-                for record in all_call_records
+                for language, record in all_call_records
             ]
         )
-        for qualified_name, node_type, callee_identifiers in normalized_calls:
+        for _language, qualified_name, node_type, callee_identifiers in normalized_calls:
             node_info = node_map.get((qualified_name, node_type))
             if not node_info:
                 continue
@@ -140,6 +141,7 @@ class ArtifactEngine:
         logger.warning(message)
         if self._warning_sink:
             self._warning_sink(message)
+
 
 
 def _load_node_map(conn, snapshot_id: str) -> Dict[Tuple[str, str], str]:

@@ -69,3 +69,48 @@ def helper():
     }
     assert f"{module_name}.inner" not in function_nodes
     assert f"{module_name}.inner" not in call_records
+
+
+def test_python_analyzer_resolves_instance_assignments_per_callable_scope(tmp_path):
+    module = """
+class Service:
+    def run(self):
+        pass
+
+def top():
+    s = Service()
+    s.run()
+
+def other():
+    s = Service()
+    s.run()
+"""
+    repo = tmp_path
+    pkg = repo / "pkg"
+    pkg.mkdir()
+    file_path = pkg / "mod.py"
+    file_path.write_text(module, encoding="utf-8")
+    record = FileRecord(
+        path=file_path,
+        relative_path=Path("pkg/mod.py"),
+        language="python",
+    )
+    snapshot = FileSnapshot(
+        record=record,
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = PythonAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+    call_records = {
+        record.qualified_name: set(record.callee_identifiers)
+        for record in result.call_records
+    }
+    service_run = f"{module_name}.Service.run"
+    assert service_run in call_records[f"{module_name}.top"]
+    assert service_run in call_records[f"{module_name}.other"]

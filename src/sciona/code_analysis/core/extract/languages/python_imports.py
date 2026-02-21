@@ -1,0 +1,145 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
+"""Python import extraction utilities."""
+
+from __future__ import annotations
+
+import importlib.util
+from typing import List, Optional
+
+from .....runtime import packaging as runtime_packaging
+from .....runtime import paths as runtime_paths
+from ...normalize.model import FileSnapshot
+from .shared import is_internal_module, repo_root_from_snapshot
+
+
+def collect_python_imports(
+    root,
+    snapshot: FileSnapshot,
+    module_name: str,
+    *,
+    module_index: set[str] | None,
+) -> tuple[list[str], dict[str, str], dict[str, str], dict[str, str]]:
+    repo_root = repo_root_from_snapshot(snapshot)
+    repo_prefix = runtime_paths.repo_name_prefix(repo_root)
+    local_packages = set(runtime_packaging.local_package_names(repo_root))
+    imports: list[str] = []
+    import_aliases: dict[str, str] = {}
+    member_aliases: dict[str, str] = {}
+    raw_module_map: dict[str, str] = {}
+    is_package = snapshot.record.path.name == "__init__.py"
+    for child in root.children:
+        if child.type == "import_statement":
+            segment = snapshot.content[child.start_byte : child.end_byte].decode("utf-8")
+            for module, alias in parse_import_statement(segment):
+                normalized = normalize_import(
+                    module,
+                    module_name,
+                    is_package,
+                    repo_prefix=repo_prefix,
+                    local_packages=local_packages,
+                )
+                if not normalized or not is_internal_module(normalized, module_index):
+                    continue
+                imports.append(normalized)
+                raw_module_map[module] = normalized
+                if alias:
+                    import_aliases[alias] = normalized
+                elif "." not in module:
+                    import_aliases[module] = normalized
+        elif child.type == "import_from_statement":
+            segment = snapshot.content[child.start_byte : child.end_byte].decode("utf-8")
+            module, names = parse_from_import(segment)
+            if not module:
+                continue
+            normalized = normalize_import(
+                module,
+                module_name,
+                is_package,
+                repo_prefix=repo_prefix,
+                local_packages=local_packages,
+            )
+            if not normalized or not is_internal_module(normalized, module_index):
+                continue
+            imports.append(normalized)
+            raw_module_map[module] = normalized
+            for name, alias in names:
+                if name == "*":
+                    continue
+                member_aliases[alias or name] = f"{normalized}.{name}"
+    return imports, import_aliases, member_aliases, raw_module_map
+
+
+def parse_import_statement(text: str) -> List[tuple[str, str | None]]:
+    fragment = text.strip()
+    if not fragment.startswith("import "):
+        return []
+    targets = fragment[len("import ") :].split(",")
+    parsed: list[tuple[str, str | None]] = []
+    for target in targets:
+        candidate = target.strip()
+        if not candidate:
+            continue
+        parts = candidate.split(" as ", 1)
+        module = parts[0].strip()
+        alias = parts[1].strip() if len(parts) == 2 else None
+        if module:
+            parsed.append((module, alias))
+    return parsed
+
+
+def parse_from_import(text: str) -> tuple[str | None, List[tuple[str, str | None]]]:
+    fragment = text.strip()
+    if not fragment.startswith("from ") or " import " not in fragment:
+        return None, []
+    prefix, rest = fragment.split(" import ", 1)
+    module = prefix[len("from ") :].strip()
+    names: list[tuple[str, str | None]] = []
+    for part in rest.split(","):
+        piece = part.strip()
+        if not piece:
+            continue
+        parts = piece.split(" as ", 1)
+        name = parts[0].strip()
+        alias = parts[1].strip() if len(parts) == 2 else None
+        names.append((name, alias))
+    return module or None, names
+
+
+def normalize_import(
+    target: str,
+    module_name: str,
+    is_package: bool,
+    *,
+    repo_prefix: str,
+    local_packages: set[str],
+) -> Optional[str]:
+    target = target.strip()
+    if not target:
+        return None
+    if target.startswith("."):
+        package = package_context(module_name, is_package)
+        if not package:
+            return None
+        try:
+            resolved = importlib.util.resolve_name(target, package)
+            return resolved
+        except ImportError:
+            return None
+    if repo_prefix and (target == repo_prefix or target.startswith(f"{repo_prefix}.")):
+        return target
+    for package in local_packages:
+        if target == package or target.startswith(f"{package}."):
+            return f"{repo_prefix}.{target}" if repo_prefix else target
+    return target
+
+
+def package_context(module_name: str, is_package: bool) -> Optional[str]:
+    if not module_name:
+        return None
+    if is_package:
+        return module_name
+    if "." in module_name:
+        return module_name.rsplit(".", 1)[0]
+    return None

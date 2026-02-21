@@ -55,3 +55,56 @@ def insert_node_fan_stats(
         """,
         list(rows),
     )
+
+
+def delete_module_call_edges_for_nodes(
+    conn: sqlite3.Connection,
+    *,
+    node_ids: Iterable[str],
+) -> None:
+    ids = list(node_ids)
+    if not ids:
+        return
+    placeholders = ",".join("?" for _ in ids)
+    conn.execute(
+        f"""
+        DELETE FROM module_call_edges
+        WHERE src_module_id IN ({placeholders})
+           OR dst_module_id IN ({placeholders})
+        """,
+        tuple(ids + ids),
+    )
+
+
+def delete_class_call_edges_for_nodes(
+    conn: sqlite3.Connection,
+    *,
+    node_ids: Iterable[str],
+) -> None:
+    ids = list(node_ids)
+    if not ids:
+        return
+    placeholders = ",".join("?" for _ in ids)
+    conn.execute(
+        f"""
+        DELETE FROM class_call_edges
+        WHERE src_class_id IN ({placeholders})
+           OR dst_class_id IN ({placeholders})
+        """,
+        tuple(ids + ids),
+    )
+
+
+def delete_node_fan_stats_for_nodes(
+    conn: sqlite3.Connection,
+    *,
+    node_ids: Iterable[str],
+) -> None:
+    ids = list(node_ids)
+    if not ids:
+        return
+    placeholders = ",".join("?" for _ in ids)
+    conn.execute(
+        f"DELETE FROM node_fan_stats WHERE node_id IN ({placeholders})",
+        tuple(ids),
+    )

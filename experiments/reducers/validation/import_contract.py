@@ -6,14 +6,18 @@ from __future__ import annotations
 from pathlib import Path
 
 from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
-from sciona.code_analysis.core.extract.languages.python import _normalize_import
-from sciona.code_analysis.core.extract.languages.typescript import _normalize_import as _normalize_ts_import
-from sciona.code_analysis.core.extract.languages.typescript import (
-    _normalize_relative_index as _normalize_ts_relative_index,
+from sciona.code_analysis.core.extract.languages.python_imports import (
+    normalize_import as _normalize_import,
 )
-from sciona.code_analysis.core.extract.languages.java import (
-    _normalize_import as _normalize_java_import,
-    _module_prefix_for_package,
+from sciona.code_analysis.core.extract.languages.typescript_imports import (
+    normalize_import as _normalize_ts_import,
+)
+from sciona.code_analysis.core.extract.languages.typescript_imports import (
+    normalize_relative_index as _normalize_ts_relative_index,
+)
+from sciona.code_analysis.core.extract.languages.java_imports import (
+    module_prefix_for_package,
+    normalize_import as _normalize_java_import,
 )
 
 
@@ -78,7 +82,7 @@ def resolve_import_contract(
         )
     elif resolver == "typescript_normalize":
         snapshot = _snapshot_for_file(repo_root, file_path, language)
-        resolved = _normalize_ts_import(raw_target, snapshot, module_qname)
+        resolved = _normalize_ts_import(raw_target, snapshot)
         if (
             (not resolved or resolved not in module_names)
             and raw_target.strip().startswith(".")
@@ -90,7 +94,7 @@ def resolve_import_contract(
         abs_path = repo_root / Path(file_path)
         content = abs_path.read_bytes() if abs_path.exists() else None
         package_name = _java_package_name(content)
-        module_prefix = _module_prefix_for_package(module_qname, package_name)
+        module_prefix = module_prefix_for_package(module_qname, package_name)
         snapshot = _snapshot_for_file(repo_root, file_path, language, content=content)
         fragment = raw_target
         if not raw_target.strip().startswith("import"):

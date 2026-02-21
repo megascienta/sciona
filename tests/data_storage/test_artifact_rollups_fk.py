@@ -59,3 +59,55 @@ def test_rollups_use_structural_ids_for_module_edges(tmp_path: Path):
     finally:
         artifact_conn.close()
         core_conn.close()
+
+
+def test_rollups_incremental_rebuild_for_changed_nodes(tmp_path: Path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    prefix = runtime_paths.repo_name_prefix(repo_root)
+    core_conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
+    core_conn.row_factory = sqlite3.Row
+    artifact_conn = artifact_connect(
+        get_artifact_db_path(repo_root), repo_root=repo_root
+    )
+    try:
+        call_records = [
+            CallExtractionRecord(
+                caller_structural_id="meth_alpha",
+                caller_qualified_name=f"{prefix}.pkg.alpha.Service.run",
+                caller_node_type="method",
+                callee_identifiers=("helper",),
+            )
+        ]
+        with transaction(artifact_conn):
+            write_call_artifacts(
+                artifact_conn=artifact_conn,
+                core_conn=core_conn,
+                snapshot_id=snapshot_id,
+                call_records=call_records,
+                eligible_callers={"meth_alpha"},
+            )
+            rebuild_graph_index(
+                artifact_conn, core_conn=core_conn, snapshot_id=snapshot_id
+            )
+            rebuild_graph_rollups(
+                artifact_conn, core_conn=core_conn, snapshot_id=snapshot_id
+            )
+        baseline = artifact_conn.execute(
+            "SELECT COUNT(*) AS c FROM module_call_edges"
+        ).fetchone()["c"]
+        assert baseline >= 1
+
+        with transaction(artifact_conn):
+            rebuild_graph_rollups(
+                artifact_conn,
+                core_conn=core_conn,
+                snapshot_id=snapshot_id,
+                changed_node_ids={"meth_alpha"},
+            )
+        incremental = artifact_conn.execute(
+            "SELECT COUNT(*) AS c FROM module_call_edges"
+        ).fetchone()["c"]
+        assert incremental == baseline
+    finally:
+        artifact_conn.close()
+        core_conn.close()

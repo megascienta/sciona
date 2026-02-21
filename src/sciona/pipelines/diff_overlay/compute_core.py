@@ -398,6 +398,7 @@ def analyze_files(
         normalized = normalize_call_identifiers(
             [
                 (
+                    call["language"],
                     call["qualified_name"],
                     call["node_type"],
                     list(call["callee_identifiers"]),
@@ -405,7 +406,7 @@ def analyze_files(
                 for call in calls
             ]
         )
-        for idx, (_, _, callee_identifiers) in enumerate(normalized):
+        for idx, (_, _, _, callee_identifiers) in enumerate(normalized):
             calls[idx]["callee_identifiers"] = callee_identifiers
     return nodes, edges, calls
 

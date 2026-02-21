@@ -12,23 +12,27 @@ from ..config import TERMINAL_IDENTIFIER_TYPES
 
 
 def normalize_call_identifiers(
-    resolved_calls: Sequence[tuple[str, str, Sequence[str]]],
-) -> list[tuple[str, str, list[str]]]:
-    terminal_map: dict[str, str | None] = {}
-    for _qualified, _node_type, identifiers in resolved_calls:
+    resolved_calls: Sequence[tuple[str, str, str, Sequence[str]]],
+) -> list[tuple[str, str, str, list[str]]]:
+    terminal_map_by_scope: dict[tuple[str, str], dict[str, str | None]] = {}
+    for language, qualified, node_type, identifiers in resolved_calls:
+        scope = _module_scope_for_call(qualified, node_type)
+        bucket = terminal_map_by_scope.setdefault((language, scope), {})
         for identifier in identifiers:
             if "." not in identifier:
                 continue
             terminal = identifier.rsplit(".", 1)[-1]
-            existing = terminal_map.get(terminal)
-            if existing is None and terminal in terminal_map:
+            existing = bucket.get(terminal)
+            if existing is None and terminal in bucket:
                 continue
             if existing is None:
-                terminal_map[terminal] = identifier
+                bucket[terminal] = identifier
             elif existing != identifier:
-                terminal_map[terminal] = None
-    normalized: list[tuple[str, str, list[str]]] = []
-    for qualified, node_type, identifiers in resolved_calls:
+                bucket[terminal] = None
+    normalized: list[tuple[str, str, str, list[str]]] = []
+    for language, qualified, node_type, identifiers in resolved_calls:
+        scope = _module_scope_for_call(qualified, node_type)
+        terminal_map = terminal_map_by_scope.get((language, scope), {})
         updated: list[str] = []
         for identifier in identifiers:
             if "." in identifier:
@@ -46,8 +50,19 @@ def normalize_call_identifiers(
                     updated.append(mapped)
                 else:
                     updated.append(identifier)
-        normalized.append((qualified, node_type, updated))
+        normalized.append((language, qualified, node_type, updated))
     return normalized
+
+
+def _module_scope_for_call(qualified_name: str, node_type: str) -> str:
+    parts = qualified_name.split(".")
+    if node_type == "method":
+        if len(parts) > 2:
+            return ".".join(parts[:-2])
+        return qualified_name
+    if len(parts) > 1:
+        return ".".join(parts[:-1])
+    return qualified_name
 
 
 @dataclass(frozen=True)

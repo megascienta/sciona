@@ -55,7 +55,7 @@ class StructuralAssembler:
         snapshot_id: str,
         analysis: AnalysisResult,
         file_snapshot: FileSnapshot,
-    ) -> int:
+    ) -> tuple[int, Dict[str, Tuple[str, str]]]:
         analysis = self._normalize_call_records(analysis)
         nodes = sorted(
             analysis.nodes, key=lambda node: (node.node_type, node.qualified_name)
@@ -83,8 +83,18 @@ class StructuralAssembler:
     def _normalize_call_records(self, analysis: AnalysisResult) -> AnalysisResult:
         if not analysis.call_records:
             return analysis
+        node_language_by_qname = {
+            node.qualified_name: node.language for node in analysis.nodes
+        }
         resolved_calls = [
-            (record.qualified_name, record.node_type, list(record.callee_identifiers))
+            (
+                node_language_by_qname.get(
+                    record.qualified_name, file_snapshot.record.language
+                ),
+                record.qualified_name,
+                record.node_type,
+                list(record.callee_identifiers),
+            )
             for record in analysis.call_records
         ]
         normalized = normalize_call_identifiers(resolved_calls)
@@ -94,7 +104,7 @@ class StructuralAssembler:
                 node_type=node_type,
                 callee_identifiers=callee_identifiers,
             )
-            for qualified, node_type, callee_identifiers in normalized
+            for _language, qualified, node_type, callee_identifiers in normalized
         ]
         return analysis
 
@@ -231,4 +241,3 @@ class StructuralAssembler:
                 if canonical:
                     return hashlib.sha1(canonical).hexdigest()
         return file_snapshot.blob_sha
-
