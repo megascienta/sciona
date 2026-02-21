@@ -93,6 +93,12 @@ def run_validation(
                 and entry.get("file_path")
                 and entry.get("qualified_name")
             ]
+            full_module_names = {
+                entry.get("qualified_name")
+                for entry in nodes_data
+                if (entry.get("node_type") or entry.get("node_kind")) == "module"
+                and entry.get("qualified_name")
+            }
             repo_prefix = repo_name_prefix(repo_root)
             local_packages = set(runtime_packaging.local_package_names(repo_root))
 
@@ -151,15 +157,10 @@ def run_validation(
                 stability_score = 1.0 if len(set(stability_hashes)) == 1 else 0.0
             except Exception as exc:
                 stability_error = str(exc)
-            independent_module_names = {
-                result.module_qualified_name
-                for result in independent_results.values()
-                if result.module_qualified_name
-            }
             call_resolution = build_independent_call_resolution(
                 independent_results,
                 normalized_edge_map,
-                independent_module_names,
+                full_module_names,
                 contract,
                 repo_root,
                 repo_prefix,
@@ -176,7 +177,7 @@ def run_validation(
                 independent_results,
                 normalized_edge_map,
                 module_imports_by_prefix,
-                independent_module_names,
+                full_module_names,
                 call_resolution,
                 contract,
                 repo_root,
@@ -210,7 +211,9 @@ def run_validation(
     class_rows_parse_ok = [
         row
         for row in rows
-        if row.get("kind") == "class" and row.get("ground_truth_parse_ok")
+        if row.get("kind") == "class"
+        and row.get("ground_truth_parse_ok")
+        and row.get("class_has_methods")
     ]
     class_rows_nonempty = [
         row for row in class_rows_parse_ok if not row.get("class_truth_empty_while_parse_ok")
@@ -227,6 +230,29 @@ def run_validation(
             subset = [row for row in rows if row.get("kind") == kind and row.get(metric_key)]
             by_kind[kind] = micro(subset, metric_key) if subset else {}
         return by_kind
+
+    def _call_form_recall(metric_key: str) -> dict[str, dict]:
+        totals = {
+            "direct": {"tp": 0, "fn": 0},
+            "member": {"tp": 0, "fn": 0},
+        }
+        for row in rows:
+            metrics = row.get(metric_key) or {}
+            for form in ("direct", "member"):
+                bucket = metrics.get(form) or {}
+                totals[form]["tp"] += int(bucket.get("tp") or 0)
+                totals[form]["fn"] += int(bucket.get("fn") or 0)
+        result: dict[str, dict] = {}
+        for form in ("direct", "member"):
+            tp = totals[form]["tp"]
+            fn = totals[form]["fn"]
+            den = tp + fn
+            result[form] = {
+                "tp": tp,
+                "fn": fn,
+                "recall": (tp / den) if den else None,
+            }
+        return result
 
     invariants = evaluate_invariants(
         rows,
@@ -306,6 +332,14 @@ def run_validation(
             "reducer_vs_db": _micro_by_kind("metrics_reducer_vs_db"),
             "db_vs_contract_truth": _micro_by_kind("metrics_db_vs_contract"),
             "reducer_vs_contract_truth": _micro_by_kind("metrics_reducer_vs_contract"),
+        },
+        "call_form_recall": {
+            "reducer_vs_contract_truth": _call_form_recall(
+                "metrics_reducer_vs_contract_by_call_form"
+            ),
+            "db_vs_contract_truth": _call_form_recall(
+                "metrics_db_vs_contract_by_call_form"
+            ),
         },
         "edge_type_breakdown_reducer_vs_contract_truth": edge_breakdown_contract,
         "failure_examples_reducer_vs_contract_truth": failure_examples_contract,

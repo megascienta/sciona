@@ -89,6 +89,19 @@ def render_summary(payload: dict) -> List[str]:
         lines.append(f"- stability_error: `{payload.get('stability_error')}`")
     lines.append("")
 
+    lines.append("## Call Form Recall")
+    lines.append("")
+    call_form = (payload.get("call_form_recall") or {}).get("reducer_vs_contract_truth") or {}
+    if not call_form:
+        lines.append("- none")
+    else:
+        for form in ("direct", "member"):
+            bucket = call_form.get(form) or {}
+            lines.append(
+                f"- {form}: tp=`{bucket.get('tp')}`, fn=`{bucket.get('fn')}`, recall=`{_format_value(bucket.get('recall'))}`"
+            )
+    lines.append("")
+
     lines.append("## Independent Parser Totals")
     lines.append("")
     independent_totals = payload.get("independent_totals", {})
@@ -124,7 +137,7 @@ def render_summary(payload: dict) -> List[str]:
         lines.append(f"- {key}: `{breakdown[key]}`")
     lines.append("")
     lines.append(
-        "Note: `enrichment_edges` includes all out-of-contract truth edges (external, unresolved, dynamic, standard-call filtered)."
+        "Note: `enrichment_edges` includes only in-repo out-of-contract edges (unresolved, dynamic, standard-call filtered); external edges are excluded."
     )
 
     return lines

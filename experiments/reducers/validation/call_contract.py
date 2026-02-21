@@ -82,6 +82,13 @@ def _qualifier_leaf(edge) -> str | None:
     return qualifier.split(".")[-1]
 
 
+def _qualifier_tokens(edge) -> list[str]:
+    qualifier = _qualifier_from_text(edge)
+    if not qualifier:
+        return []
+    return [token for token in qualifier.split(".") if token]
+
+
 def resolve_call_in_contract(
     edge,
     caller_qname: str,
@@ -113,12 +120,28 @@ def resolve_call_in_contract(
         "import_symbol_hints", {}
     )
     namespace_aliases: dict[str, dict[str, str]] = call_resolution.get("namespace_aliases", {})
+    receiver_bindings: dict[str, dict[str, list[str]]] = call_resolution.get(
+        "receiver_bindings", {}
+    )
 
     class_qname = caller_qname.rsplit(".", 1)[0] if "." in caller_qname else ""
     class_methods = class_method_index.get(class_qname, {})
     local_method = class_methods.get(identifier)
     if local_method:
         return local_method
+
+    qualifier_tokens = _qualifier_tokens(edge)
+    if qualifier_tokens:
+        scope_bindings = receiver_bindings.get(caller_qname, {})
+        receiver_name = qualifier_tokens[-1]
+        bound = scope_bindings.get(receiver_name, [])
+        scoped = _by_prefix(candidates := (symbol_index.get(identifier) or []), f"{bound[0]}.") if len(bound) == 1 else []
+        if len(scoped) == 1:
+            return scoped[0]
+
+    module_symbols = module_symbol_index.get(caller_module, {}).get(identifier, [])
+    if len(module_symbols) == 1:
+        return module_symbols[0]
 
     candidates = symbol_index.get(identifier) or []
     if not candidates and len(identifiers) > 1:
@@ -163,6 +186,9 @@ def resolve_call_in_contract(
     hinted_narrowed = [candidate for candidate in hinted_direct if candidate in candidates]
     if len(hinted_narrowed) == 1:
         return hinted_narrowed[0]
+    if len(same_module) > 1:
+        same_module.sort()
+        return same_module[0]
     if len(narrowed) == 1:
         return narrowed[0]
     return None

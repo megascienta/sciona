@@ -8,7 +8,7 @@ import subprocess
 from pathlib import Path
 from typing import List
 
-from .shared import CallEdge, Definition, FileParseResult, ImportEdge
+from .shared import AssignmentHint, CallEdge, Definition, FileParseResult, ImportEdge
 
 SCRIPT_PATH = Path(__file__).resolve().parent / "scripts" / "ts_parser.js"
 
@@ -101,6 +101,18 @@ def parse_typescript_files(repo_root: Path, files: List[dict]) -> List[FileParse
                     target_text=target_text,
                 )
             )
+        assignment_hints = []
+        for entry in item.get("assignment_hints", []):
+            if not isinstance(entry, dict):
+                continue
+            scope = (entry.get("scope") or "").strip()
+            receiver = (entry.get("receiver") or "").strip()
+            value_text = (entry.get("value_text") or "").strip()
+            if not scope or not receiver or not value_text:
+                continue
+            assignment_hints.append(
+                AssignmentHint(scope=scope, receiver=receiver, value_text=value_text)
+            )
         outputs.append(
             FileParseResult(
                 language=item.get("language") or "typescript",
@@ -109,6 +121,7 @@ def parse_typescript_files(repo_root: Path, files: List[dict]) -> List[FileParse
                 defs=defs,
                 call_edges=call_edges,
                 import_edges=import_edges,
+                assignment_hints=assignment_hints,
                 parse_ok=bool(item.get("parse_ok")),
                 error=item.get("error"),
             )

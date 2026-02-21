@@ -36,6 +36,62 @@ from .sciona_adapter import (
 )
 
 
+def _edge_key_tuple(edge: EdgeRecord) -> tuple[str, str, str | None]:
+    return (edge.caller, edge.callee, edge.callee_qname)
+
+
+def _expected_call_form_map(entity_qname: str, normalized_calls, expected_filtered) -> dict:
+    expected_keys = {_edge_key_tuple(edge) for edge in expected_filtered}
+    forms = {key: "direct" for key in expected_keys}
+    by_qname: dict[tuple[str, str | None], list] = {}
+    for edge in normalized_calls:
+        if edge.caller != entity_qname:
+            continue
+        token = (edge.caller, edge.callee_qname)
+        by_qname.setdefault(token, []).append(edge)
+    for key in expected_keys:
+        caller, callee, callee_qname = key
+        candidates = by_qname.get((caller, callee_qname), [])
+        if not candidates:
+            continue
+        if any("." in (candidate.callee_text or "") for candidate in candidates):
+            forms[key] = "member"
+        else:
+            forms[key] = "direct"
+    return forms
+
+
+def _call_form_metrics(expected_filtered, sciona_edges, form_map: dict) -> dict:
+    from .independent.shared import match_edge
+
+    buckets = {"direct": {"tp": 0, "fn": 0}, "member": {"tp": 0, "fn": 0}}
+    for expected in expected_filtered:
+        key = _edge_key_tuple(expected)
+        form = form_map.get(key, "direct")
+        matched = False
+        for actual in sciona_edges:
+            if actual.caller != expected.caller:
+                continue
+            if match_edge(actual.callee, actual.callee_qname, expected.callee, expected.callee_qname):
+                matched = True
+                break
+        if matched:
+            buckets[form]["tp"] += 1
+        else:
+            buckets[form]["fn"] += 1
+    result: dict[str, dict] = {}
+    for form in ("direct", "member"):
+        tp = buckets[form]["tp"]
+        fn = buckets[form]["fn"]
+        den = tp + fn
+        result[form] = {
+            "tp": tp,
+            "fn": fn,
+            "recall": (tp / den) if den else None,
+        }
+    return result
+
+
 def module_qname_from_entity(entity) -> str:
     parts = entity.qualified_name.split(".")
     if entity.kind == "module":
@@ -420,6 +476,34 @@ def build_independent_call_resolution(
     module_symbol_index: Dict[str, Dict[str, set[str]]] = {}
     import_symbol_hints: Dict[str, Dict[str, set[str]]] = {}
     namespace_aliases: Dict[str, Dict[str, str]] = {}
+    receiver_bindings: Dict[str, Dict[str, set[str]]] = {}
+
+    def _register_receiver(scope: str, receiver: str, target_qname: str) -> None:
+        if not scope or not receiver or not target_qname:
+            return
+        receiver_bindings.setdefault(scope, {}).setdefault(receiver, set()).add(target_qname)
+
+    def _resolve_assignment_target(scope_module: str, value_text: str) -> list[str]:
+        raw = (value_text or "").strip()
+        if not raw:
+            return []
+        terminal = raw.split(".")[-1]
+        candidates: set[str] = set()
+        for qname in symbol_index.get(terminal, set()):
+            candidates.add(qname)
+        for qname in class_name_index.get(terminal, set()):
+            candidates.add(qname)
+        module_local = module_symbol_index.get(scope_module, {}).get(terminal, set())
+        candidates.update(module_local)
+        hinted = import_symbol_hints.get(scope_module, {}).get(terminal, set())
+        candidates.update(hinted)
+        qualifier = raw.split(".", 1)[0] if "." in raw else None
+        if qualifier:
+            alias_module = namespace_aliases.get(scope_module, {}).get(qualifier)
+            if alias_module:
+                mod_candidates = module_symbol_index.get(alias_module, {}).get(terminal, set())
+                candidates.update(mod_candidates)
+        return sorted(candidates)
 
     for file_result in independent_results.values():
         module_name = file_result.module_qualified_name
@@ -488,6 +572,15 @@ def build_independent_call_resolution(
                         local_name, set()
                     ).add(candidate)
                 continue
+            if file_result.language == "python" and " as " in hint and not hint.startswith("from "):
+                imported, local_name = [part.strip() for part in hint.split(" as ", 1)]
+                if imported and local_name:
+                    namespace_aliases.setdefault(module_name, {})[local_name] = (
+                        f"{repo_prefix}.{imported}"
+                        if repo_prefix and not imported.startswith(f"{repo_prefix}.")
+                        else imported
+                    )
+                continue
             if file_result.language == "typescript":
                 for token in hint.split(","):
                     token = token.strip()
@@ -510,6 +603,10 @@ def build_independent_call_resolution(
                         if local:
                             namespace_aliases.setdefault(module_name, {})[local] = resolved
 
+        for assignment in file_result.assignment_hints:
+            for target in _resolve_assignment_target(module_name, assignment.value_text):
+                _register_receiver(assignment.scope, assignment.receiver, target)
+
     return {
         "symbol_index": {key: sorted(values) for key, values in symbol_index.items()},
         "module_lookup": module_lookup,
@@ -525,6 +622,10 @@ def build_independent_call_resolution(
             for module, by_name in import_symbol_hints.items()
         },
         "namespace_aliases": namespace_aliases,
+        "receiver_bindings": {
+            scope: {receiver: sorted(values) for receiver, values in by_receiver.items()}
+            for scope, by_receiver in receiver_bindings.items()
+        },
     }
 
 
@@ -567,7 +668,13 @@ def evaluate_entities(
         normalized_calls, normalized_imports = normalized_edge_map.get(
             entity.file_path, ([], [])
         )
-        expected_filtered, full_truth, out_of_contract, out_meta = edge_records_from_ground_truth(
+        (
+            expected_filtered,
+            full_truth,
+            out_of_contract,
+            out_meta,
+            gt_diagnostics,
+        ) = edge_records_from_ground_truth(
             file_result,
             normalized_calls,
             normalized_imports,
@@ -597,6 +704,15 @@ def evaluate_entities(
             metrics_reducer_vs_contract = compute_metrics(
                 expected_filtered, out_of_contract, reducer_edges
             )
+        expected_form_map = _expected_call_form_map(
+            entity.qualified_name, normalized_calls, expected_filtered
+        )
+        reducer_form_metrics = _call_form_metrics(
+            expected_filtered, reducer_edges, expected_form_map
+        )
+        db_form_metrics = _call_form_metrics(
+            expected_filtered, db_edges, expected_form_map
+        )
         rows.append(
             {
                 "entity": entity.qualified_name,
@@ -615,6 +731,8 @@ def evaluate_entities(
                 "metrics_db_vs_contract": asdict(metrics_db_vs_contract)
                 if metrics_db_vs_contract
                 else None,
+                "metrics_reducer_vs_contract_by_call_form": reducer_form_metrics,
+                "metrics_db_vs_contract_by_call_form": db_form_metrics,
                 "reducer_db_empty_set_mismatch": reducer_db_empty_set_mismatch,
                 "contract_truth_edges": [asdict(edge) for edge in expected_filtered],
                 "enrichment_edges": [asdict(edge) for edge in out_of_contract],
@@ -623,8 +741,11 @@ def evaluate_entities(
                 "class_truth_empty_while_parse_ok": (
                     entity.kind == "class"
                     and file_result.parse_ok
+                    and bool(gt_diagnostics.get("class_has_methods"))
                     and len(expected_filtered) == 0
                 ),
+                "class_has_methods": gt_diagnostics.get("class_has_methods"),
+                "class_match_strategy": gt_diagnostics.get("class_match_strategy"),
                 "raw_call_edges_count": len(file_result.call_edges),
                 "raw_import_edges_count": len(file_result.import_edges),
                 "normalized_call_edges_count": len(normalized_calls),

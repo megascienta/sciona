@@ -47,13 +47,21 @@ def edge_records_from_ground_truth(
     repo_root,
     repo_prefix: str,
     local_packages: set[str],
-) -> Tuple[List[EdgeRecord], List[EdgeRecord], List[EdgeRecord], List[dict]]:
+) -> Tuple[List[EdgeRecord], List[EdgeRecord], List[EdgeRecord], List[dict], dict]:
     # Contract-first truth: only in-repo, contract-compatible edges.
     expected_filtered: List[EdgeRecord] = []
     full_truth: List[EdgeRecord] = []
     out_of_contract: List[EdgeRecord] = []
     out_of_contract_meta: List[dict] = []
+    diagnostics: dict = {
+        "class_has_methods": None,
+        "class_match_strategy": None,
+    }
     standard_calls = standard_call_names(contract)
+
+    def _skip_external(reason: str) -> bool:
+        # External dependencies are outside SCIONA contract; exclude from truth/enrichment.
+        return reason == "external"
 
     if entity.kind == "module":
         entries = module_imports_by_prefix.get(entity.qualified_name, [])
@@ -83,6 +91,8 @@ def edge_records_from_ground_truth(
                     language=language,
                     repo_prefix=repo_prefix,
                 )
+                if _skip_external(reason):
+                    continue
                 out_of_contract.append(record)
                 out_of_contract_meta.append(
                     {
@@ -121,6 +131,8 @@ def edge_records_from_ground_truth(
                         language=file_result.language,
                         repo_prefix=repo_prefix,
                     )
+                    if _skip_external(reason):
+                        continue
                     out_of_contract.append(record)
                     out_of_contract_meta.append(
                         {
@@ -137,16 +149,19 @@ def edge_records_from_ground_truth(
             dedupe_edge_records(full_truth),
             dedupe_edge_records(out_of_contract),
             out_of_contract_meta,
+            diagnostics,
         )
 
     if entity.kind == "class":
         class_qname = entity.qualified_name
         matched_class = None
+        class_match_strategy = "none"
         for definition in file_result.defs:
             if definition.kind != "class":
                 continue
             if definition.qualified_name == entity.qualified_name:
                 matched_class = definition
+                class_match_strategy = "exact_qname"
                 break
         entity_start = getattr(entity, "start_line", None)
         entity_end = getattr(entity, "end_line", None)
@@ -161,6 +176,7 @@ def edge_records_from_ground_truth(
             if containing:
                 containing.sort(key=lambda item: (item.end_line - item.start_line, item.qualified_name))
                 matched_class = containing[0]
+                class_match_strategy = "line_span"
         if matched_class is None:
             leaf = entity.qualified_name.rsplit(".", 1)[-1]
             same_leaf = [
@@ -168,12 +184,23 @@ def edge_records_from_ground_truth(
                 for definition in file_result.defs
                 if definition.kind == "class"
                 and definition.qualified_name.rsplit(".", 1)[-1] == leaf
+                and (
+                    definition.qualified_name == entity.qualified_name
+                    or definition.qualified_name.startswith(f"{entity.module_qualified_name}.")
+                )
             ]
             if len(same_leaf) == 1:
                 matched_class = same_leaf[0]
+                class_match_strategy = "scoped_leaf"
         if matched_class is not None:
             class_qname = matched_class.qualified_name
+        diagnostics["class_match_strategy"] = class_match_strategy
         prefix = f"{class_qname}."
+        diagnostics["class_has_methods"] = any(
+            definition.kind == "method"
+            and definition.qualified_name.startswith(prefix)
+            for definition in file_result.defs
+        )
         for definition in file_result.defs:
             if definition.kind != "method":
                 continue
@@ -192,6 +219,7 @@ def edge_records_from_ground_truth(
             dedupe_edge_records(full_truth),
             dedupe_edge_records(out_of_contract),
             out_of_contract_meta,
+            diagnostics,
         )
 
     for edge in normalized_calls:
@@ -222,13 +250,15 @@ def edge_records_from_ground_truth(
             expected_filtered.append(resolved_record)
             full_truth.append(resolved_record)
         else:
-            out_of_contract.append(full_record)
             reason = classify_call_reason(
                 edge=edge,
                 language=file_result.language,
                 call_resolution=call_resolution,
                 contract=contract,
             )
+            if _skip_external(reason):
+                continue
+            out_of_contract.append(full_record)
             out_of_contract_meta.append(
                 {
                     "edge_type": "call",
@@ -241,4 +271,5 @@ def edge_records_from_ground_truth(
         dedupe_edge_records(full_truth),
         dedupe_edge_records(out_of_contract),
         out_of_contract_meta,
+        diagnostics,
     )

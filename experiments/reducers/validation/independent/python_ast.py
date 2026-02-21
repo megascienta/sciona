@@ -7,7 +7,7 @@ import ast
 from pathlib import Path
 from typing import List
 
-from .shared import CallEdge, Definition, FileParseResult, ImportEdge
+from .shared import AssignmentHint, CallEdge, Definition, FileParseResult, ImportEdge
 
 _DYNAMIC_FUNCS = {"getattr", "globals", "locals", "__import__", "eval", "exec"}
 
@@ -17,6 +17,7 @@ class _CallVisitor(ast.NodeVisitor):
         self.module_qname = module_qname
         self.call_edges: List[CallEdge] = []
         self.defs: List[Definition] = []
+        self.assignment_hints: List[AssignmentHint] = []
         self._scope_stack: List[tuple[str, str]] = []
 
     def _current_scope(self) -> str:
@@ -94,6 +95,40 @@ class _CallVisitor(ast.NodeVisitor):
                 callee_text=callee_text,
             )
         )
+        self.generic_visit(node)
+
+    def _assignment_value_text(self, node: ast.AST) -> str | None:
+        if isinstance(node, ast.Call):
+            callee, callee_qname, _ = _callee_name(node.func)
+            return callee_qname or callee
+        if isinstance(node, ast.Name):
+            return node.id
+        if isinstance(node, ast.Attribute):
+            return _expr_name(node)
+        return None
+
+    def _record_assignment_target(self, target: ast.AST, value_text: str) -> None:
+        receiver = None
+        if isinstance(target, ast.Name):
+            receiver = target.id
+        elif isinstance(target, ast.Attribute):
+            receiver = _expr_name(target)
+        if receiver:
+            self.assignment_hints.append(
+                AssignmentHint(scope=self._current_scope(), receiver=receiver, value_text=value_text)
+            )
+
+    def visit_Assign(self, node: ast.Assign) -> None:
+        value_text = self._assignment_value_text(node.value)
+        if value_text and self._current_scope_kind() in {"function", "method"}:
+            for target in node.targets:
+                self._record_assignment_target(target, value_text)
+        self.generic_visit(node)
+
+    def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
+        value_text = self._assignment_value_text(node.value) if node.value else None
+        if value_text and self._current_scope_kind() in {"function", "method"}:
+            self._record_assignment_target(node.target, value_text)
         self.generic_visit(node)
 
 
@@ -176,6 +211,7 @@ def parse_python_file(repo_root: Path, file_path: str, module_qname: str) -> Fil
             defs=[],
             call_edges=[],
             import_edges=[],
+            assignment_hints=[],
             parse_ok=False,
             error=str(exc),
         )
@@ -192,6 +228,7 @@ def parse_python_file(repo_root: Path, file_path: str, module_qname: str) -> Fil
         defs=call_visitor.defs,
         call_edges=call_visitor.call_edges,
         import_edges=import_visitor.imports,
+        assignment_hints=call_visitor.assignment_hints,
         parse_ok=True,
     )
 

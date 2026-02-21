@@ -131,6 +131,7 @@ def parse_java_files(repo_root: Path, files: List[dict]) -> List[FileParseResult
                 defs=defs,
                 call_edges=call_edges,
                 import_edges=import_edges,
+                assignment_hints=[],
                 parse_ok=bool(item.get("parse_ok")),
                 error=item.get("error"),
             )

@@ -33,6 +33,13 @@ class ImportEdge:
 
 
 @dataclass(frozen=True)
+class AssignmentHint:
+    scope: str
+    receiver: str
+    value_text: str
+
+
+@dataclass(frozen=True)
 class NormalizedCallEdge:
     caller: str
     callee: str
@@ -56,6 +63,7 @@ class FileParseResult:
     defs: List[Definition]
     call_edges: List[CallEdge]
     import_edges: List[ImportEdge]
+    assignment_hints: List[AssignmentHint]
     parse_ok: bool
     error: str | None = None
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import ast
 import shutil
 from pathlib import Path
 from types import SimpleNamespace
@@ -10,6 +11,7 @@ from types import SimpleNamespace
 import pytest
 
 from experiments.reducers.reducer_validation import _independent_results_hash
+from experiments.reducers.validation.call_contract import resolve_call_in_contract
 from experiments.reducers.validation.ground_truth import edge_records_from_ground_truth
 from experiments.reducers.validation.import_contract import resolve_import_contract
 from experiments.reducers.validation.independent.contract_normalization import (
@@ -18,9 +20,15 @@ from experiments.reducers.validation.independent.contract_normalization import (
 from experiments.reducers.validation.independent.java_runner import _require_jar
 from experiments.reducers.validation.independent.normalize import normalize_file_edges
 from experiments.reducers.validation.independent.python_ast import parse_python_files
+from experiments.reducers.validation.independent.python_ast import _CallVisitor
 from experiments.reducers.validation.independent.ts_node import parse_typescript_files
 from experiments.reducers.validation.independent.java_runner import parse_java_files
-from experiments.reducers.validation.independent.shared import EdgeRecord, NormalizedCallEdge
+from experiments.reducers.validation.independent.shared import (
+    EdgeRecord,
+    FileParseResult,
+    ImportEdge,
+    NormalizedCallEdge,
+)
 from experiments.reducers.validation.metrics import compute_metrics
 
 
@@ -249,7 +257,7 @@ def test_ground_truth_dedupes_duplicate_calls() -> None:
         qualified_name="fixture.sample.entry",
         module_qualified_name="fixture.sample",
     )
-    expected_filtered, full_truth, _, _ = edge_records_from_ground_truth(
+    expected_filtered, full_truth, _, _, _ = edge_records_from_ground_truth(
         file_result=file_result,
         normalized_calls=normalized_calls,
         normalized_imports=normalized_imports,
@@ -318,3 +326,174 @@ def test_typescript_import_contract_resolves_relative_index() -> None:
         local_packages={"fixture"},
     )
     assert resolved == "fixture.pkg.api.index"
+
+
+def test_typescript_import_contract_resolves_tsconfig_path_alias(tmp_path: Path) -> None:
+    (tmp_path / "tsconfig.json").write_text(
+        json.dumps(
+            {
+                "compilerOptions": {
+                    "baseUrl": ".",
+                    "paths": {"@app/*": ["src/*"]},
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    contract = {
+        "imports": {
+            "require_module_in_repo": True,
+            "languages": {"typescript": {"resolver": "typescript_normalize"}},
+        }
+    }
+    resolved = resolve_import_contract(
+        raw_target="@app/utils",
+        file_path="src/main.ts",
+        module_qname="fixture.src.main",
+        language="typescript",
+        contract=contract,
+        module_names={"fixture.src.utils"},
+        repo_root=tmp_path,
+        repo_prefix="fixture",
+        local_packages={"fixture"},
+    )
+    assert resolved == "fixture.src.utils"
+
+
+def test_ground_truth_excludes_external_imports_from_enrichment() -> None:
+    file_result = FileParseResult(
+        language="python",
+        file_path="pkg/mod.py",
+        module_qualified_name="fixture.pkg.mod",
+        defs=[],
+        call_edges=[],
+        import_edges=[ImportEdge("fixture.pkg.mod", "requests", False)],
+        assignment_hints=[],
+        parse_ok=True,
+    )
+    normalized_calls, normalized_imports = normalize_file_edges(
+        file_result.module_qualified_name, file_result.call_edges, file_result.import_edges
+    )
+    entity = SimpleNamespace(
+        kind="module",
+        qualified_name="fixture.sample",
+        module_qualified_name="fixture.sample",
+    )
+    _, _, out_of_contract, out_meta, _ = edge_records_from_ground_truth(
+        file_result=file_result,
+        normalized_calls=normalized_calls,
+        normalized_imports=normalized_imports,
+        module_imports_by_prefix={},
+        entity=entity,
+        module_names={"fixture.sample"},
+        call_resolution={},
+        contract={
+            "imports": {
+                "require_module_in_repo": True,
+                "languages": {"python": {"resolver": "python_resolve"}},
+            }
+        },
+        repo_root=FIXTURE_ROOT / "python",
+        repo_prefix="fixture",
+        local_packages={"fixture"},
+    )
+    assert out_meta == []
+    assert out_of_contract == []
+
+
+def test_ground_truth_class_diagnostic_marks_no_method_class() -> None:
+    file_result = FileParseResult(
+        language="python",
+        file_path="pkg/mod.py",
+        module_qualified_name="fixture.pkg.mod",
+        defs=[],
+        call_edges=[],
+        import_edges=[],
+        assignment_hints=[],
+        parse_ok=True,
+    )
+    entity = SimpleNamespace(
+        kind="class",
+        qualified_name="fixture.pkg.mod.Empty",
+        module_qualified_name="fixture.pkg.mod",
+    )
+    expected, full, out_of_contract, out_meta, diagnostics = edge_records_from_ground_truth(
+        file_result=file_result,
+        normalized_calls=[],
+        normalized_imports=[],
+        module_imports_by_prefix={},
+        entity=entity,
+        module_names={"fixture.pkg.mod"},
+        call_resolution={},
+        contract={},
+        repo_root=FIXTURE_ROOT / "python",
+        repo_prefix="fixture",
+        local_packages={"fixture"},
+    )
+    assert expected == []
+    assert full == []
+    assert out_of_contract == []
+    assert out_meta == []
+    assert diagnostics["class_has_methods"] is False
+
+
+def test_python_parser_collects_assignment_hints() -> None:
+    tree = ast.parse(
+        "class Service:\n"
+        "    def run(self):\n"
+        "        return 1\n"
+        "\n"
+        "def entry():\n"
+        "    svc = Service()\n"
+        "    return svc.run()\n"
+    )
+    visitor = _CallVisitor("fixture.sample")
+    visitor.visit(tree)
+    hints = {(h.scope, h.receiver, h.value_text) for h in visitor.assignment_hints}
+    assert ("fixture.sample.entry", "svc", "Service") in hints
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="node is required")
+def test_typescript_parser_collects_assignment_hints(tmp_path: Path) -> None:
+    source = tmp_path / "sample.ts"
+    source.write_text(
+        "class Service { run() {} }\n"
+        "function entry() {\n"
+        "  const svc = new Service();\n"
+        "  return svc.run();\n"
+        "}\n",
+        encoding="utf-8",
+    )
+    result = parse_typescript_files(
+        tmp_path, [{"file_path": "sample.ts", "module_qualified_name": "fixture.sample"}]
+    )[0]
+    hints = {(h.scope, h.receiver, h.value_text) for h in result.assignment_hints}
+    assert ("fixture.sample.entry", "svc", "Service") in hints
+
+
+def test_call_contract_resolves_receiver_binding() -> None:
+    edge = NormalizedCallEdge(
+        caller="fixture.sample.entry",
+        callee="run",
+        callee_qname=None,
+        dynamic=False,
+        callee_text="svc.run",
+    )
+    resolved = resolve_call_in_contract(
+        edge=edge,
+        caller_qname="fixture.sample.entry",
+        caller_module="fixture.sample",
+        call_resolution={
+            "symbol_index": {"run": ["fixture.sample.Service.run"]},
+            "module_lookup": {"fixture.sample.Service.run": "fixture.sample"},
+            "import_targets": {"fixture.sample": set()},
+            "class_name_index": {"Service": ["fixture.sample.Service"]},
+            "class_method_index": {"fixture.sample.Service": {"run": "fixture.sample.Service.run"}},
+            "module_symbol_index": {"fixture.sample": {"run": ["fixture.sample.Service.run"]}},
+            "import_symbol_hints": {},
+            "namespace_aliases": {},
+            "receiver_bindings": {"fixture.sample.entry": {"svc": ["fixture.sample.Service"]}},
+        },
+        contract={"call_contract": {"require_callee_in_repo": True}},
+    )
+    assert resolved == "fixture.sample.Service.run"

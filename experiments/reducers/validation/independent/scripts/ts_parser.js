@@ -33,6 +33,7 @@ function calleeName(expr) {
 function expressionText(expr) {
   if (!expr) return null;
   if (ts.isIdentifier(expr)) return expr.text;
+  if (ts.isNewExpression(expr)) return expressionText(expr.expression);
   if (ts.isPropertyAccessExpression(expr)) {
     const left = expressionText(expr.expression);
     if (left) return `${left}.${expr.name.text}`;
@@ -64,6 +65,7 @@ function parseFile(entry) {
   const defs = [];
   const call_edges = [];
   const import_edges = [];
+  const assignment_hints = [];
 
   const scopeStack = [{ name: entry.module_qualified_name, kind: "module" }];
 
@@ -92,6 +94,37 @@ function parseFile(entry) {
   }
 
   function visit(node) {
+    if (
+      ts.isVariableDeclaration(node) &&
+      (currentScopeKind() === "function" || currentScopeKind() === "method") &&
+      ts.isIdentifier(node.name) &&
+      node.initializer
+    ) {
+      const valueText = expressionText(node.initializer);
+      if (valueText) {
+        assignment_hints.push({
+          scope: currentScope(),
+          receiver: node.name.text,
+          value_text: valueText
+        });
+      }
+    }
+    if (
+      ts.isBinaryExpression(node) &&
+      node.operatorToken &&
+      node.operatorToken.kind === ts.SyntaxKind.EqualsToken &&
+      (currentScopeKind() === "function" || currentScopeKind() === "method")
+    ) {
+      const lhs = expressionText(node.left);
+      const valueText = expressionText(node.right);
+      if (lhs && valueText) {
+        assignment_hints.push({
+          scope: currentScope(),
+          receiver: lhs,
+          value_text: valueText
+        });
+      }
+    }
     if (ts.isImportDeclaration(node)) {
       const moduleName = node.moduleSpecifier.text;
       const bindings = [];
@@ -281,6 +314,7 @@ function parseFile(entry) {
       defs,
       call_edges,
       import_edges,
+      assignment_hints,
       parse_ok: true,
       error: null
     };
@@ -292,6 +326,7 @@ function parseFile(entry) {
       defs: [],
       call_edges: [],
       import_edges: [],
+      assignment_hints: [],
       parse_ok: false,
       error: String(err)
     };
