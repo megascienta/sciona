@@ -11,7 +11,7 @@ from typing import Dict, Iterable, List, Sequence, Set
 from ...code_analysis.analysis.graph import module_id_for
 
 NODE_TYPE_MODULE = ("module",)
-NODE_TYPE_DIRECTORY = ("directory",)
+NODE_TYPE_ENTRY_POINT = ("entry_point",)
 NODE_TYPE_CLASS = ("class",)
 NODE_TYPE_FUNCTION_OR_METHOD = ("function", "method")
 NODE_TYPE_METHOD = ("method",)

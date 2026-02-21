@@ -51,6 +51,8 @@ def lookup_structural_id(
     structural_id: str,
     node_types: Sequence[str],
 ) -> dict[str, str] | None:
+    if not node_types:
+        return None
     placeholders = ", ".join("?" for _ in node_types)
     params: list[str] = [snapshot_id, *node_types, structural_id]
     row = conn.execute(
@@ -87,6 +89,8 @@ def search_node_instances(
     *,
     limit: int = 5,
 ) -> list[dict[str, str]]:
+    if not node_types:
+        return []
     lowered = query.lower()
     placeholders = ", ".join("?" for _ in node_types)
     params: list[str] = [snapshot_id, *node_types, f"%{lowered}%", limit]
@@ -156,6 +160,8 @@ def list_nodes_by_types(
     snapshot_id: str,
     node_types: Sequence[str],
 ) -> list[tuple[str, str, str]]:
+    if not node_types:
+        return []
     placeholders = ",".join(["?"] * len(node_types))
     rows = conn.execute(
         f"""

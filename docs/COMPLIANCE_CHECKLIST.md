@@ -5,6 +5,8 @@ Use this checklist to verify each language implementation against the structural
 ## Common Requirements (All Languages)
 
 - Emits node types: `module`, `class`, `function`, `method`.
+- Optional synthetic nodes (for example `entry_point`) are allowed for
+  navigation and are excluded from language compliance checks.
 - Emits edge types: `CONTAINS`, `DEFINES_METHOD`, `IMPORTS_DECLARED`, `CALLS`.
 - `module` MUST NOT contain `method` nodes (use `DEFINES_METHOD` from class).
 - Constructors are represented as `method` nodes.

@@ -136,7 +136,7 @@ def write_call_artifacts(
         return
     symbol_index = _build_symbol_index(core_conn, snapshot_id)
     module_lookup, import_targets = _build_module_context(core_conn, snapshot_id)
-    node_hashes = _load_node_hashes(core_conn, caller_set)
+    node_hashes = _load_node_hashes(core_conn, snapshot_id, caller_set)
     processed_callers: set[str] = set()
     for record in call_records:
         caller_id = record.caller_structural_id
@@ -210,8 +210,10 @@ def _build_module_context(
     return module_lookup, import_targets
 
 
-def _load_node_hashes(core_conn, node_ids: Iterable[str]) -> dict[str, str]:
-    return core_read.node_hashes_for_ids(core_conn, node_ids)
+def _load_node_hashes(
+    core_conn, snapshot_id: str, node_ids: Iterable[str]
+) -> dict[str, str]:
+    return core_read.node_hashes_for_ids(core_conn, snapshot_id, node_ids)
 
 
 def _resolve_callees(

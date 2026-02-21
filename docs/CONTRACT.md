@@ -19,6 +19,14 @@ SCIONA MUST emit these structural node types for all languages:
 - `function` (top-level only)
 - `method` (class members only)
 
+Non-core synthetic nodes:
+
+- Implementations MAY emit synthetic navigation nodes (for example:
+  `entry_point`) for repository-level entry anchoring.
+- Synthetic nodes are out-of-contract for language compliance and MUST NOT be
+  interpreted as language structural entities.
+- A snapshot MAY contain multiple synthetic entry anchors.
+
 ## Edge Types
 
 SCIONA MUST emit these edge types for all languages:

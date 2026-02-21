@@ -73,7 +73,7 @@ def _module_summaries(
             continue
         node_type = row["node_type"]
         file_path = row["file_path"]
-        if file_path and node_type != "directory":
+        if file_path and node_type != "entry_point":
             module_files.setdefault(module_name, set()).add(file_path)
             file_path_votes[file_path][module_name] += 1
         if node_type in FUNCTION_NODE_TYPES:
@@ -123,7 +123,7 @@ def _file_entries(
         FROM node_instances ni
         JOIN structural_nodes sn ON sn.structural_id = ni.structural_id
         WHERE ni.snapshot_id = ?
-          AND sn.node_type != 'directory'
+          AND sn.node_type != 'entry_point'
         """,
         (snapshot_id,),
     ).fetchall()

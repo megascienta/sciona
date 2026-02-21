@@ -215,12 +215,12 @@ class BuildEngine:
             inserted += self.assembler.register_module_node(
                 snapshot_id, file_snapshot, module_name
             )
-        inserted += self._register_directory_modules(
+        inserted += self._register_entry_point_modules(
             snapshot_id, snapshots, module_names
         )
         return inserted
 
-    def _register_directory_modules(
+    def _register_entry_point_modules(
         self,
         snapshot_id: str,
         snapshots: List[FileSnapshot],
@@ -259,7 +259,7 @@ class BuildEngine:
                 snapshot_id,
                 snapshot,
                 module_name,
-                node_type="directory",
-                metadata={"synthetic": "directory"},
+                node_type="entry_point",
+                metadata={"synthetic": "entry_point"},
             )
         return inserted

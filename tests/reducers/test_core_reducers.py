@@ -290,7 +290,7 @@ def test_concatenated_source_excludes_meta_modules(tmp_path):
             INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
             VALUES (?, ?, ?, ?)
             """,
-            ("mod_meta", "directory", "synthetic", snapshot_id),
+            ("mod_meta", "entry_point", "synthetic", snapshot_id),
         )
         conn.execute(
             """

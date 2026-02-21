@@ -23,7 +23,7 @@ def snapshot_node_hashes(conn: sqlite3.Connection, snapshot_id: str) -> dict[str
     return {row["structural_id"]: row["content_hash"] for row in rows}
 
 def node_hashes_for_ids(
-    conn: sqlite3.Connection, node_ids: Iterable[str]
+    conn: sqlite3.Connection, snapshot_id: str, node_ids: Iterable[str]
 ) -> dict[str, str]:
     if not node_ids:
         return {}
@@ -34,9 +34,10 @@ def node_hashes_for_ids(
             f"""
             SELECT structural_id, content_hash
             FROM node_instances
-            WHERE structural_id IN ({placeholders})
+            WHERE snapshot_id = ?
+              AND structural_id IN ({placeholders})
             """,
-            tuple(node_list),
+            (snapshot_id, *node_list),
         ).fetchall()
         return {row[0]: row[1] for row in rows if row[1]}
     result: dict[str, str] = {}
@@ -46,9 +47,10 @@ def node_hashes_for_ids(
             f"""
             SELECT structural_id, content_hash
             FROM node_instances
-            WHERE structural_id IN ({placeholders})
+            WHERE snapshot_id = ?
+              AND structural_id IN ({placeholders})
             """,
-            tuple(batch),
+            (snapshot_id, *batch),
         ).fetchall()
         for row in rows:
             if row[1]:
