@@ -20,6 +20,9 @@ DEFAULT_THRESHOLDS = {
     "precision_min_by_group": 0.85,
     "recall_min_by_group": 0.80,
     "misses_out_of_contract_rate_min": 0.80,
+    "reducer_db_overlap_min": 1.0,
+    "reducer_filtered_overlap_min": 0.95,
+    "overlap_epsilon": 1e-9,
 }
 
 LOC_BUCKETS = (

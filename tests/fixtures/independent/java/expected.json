@@ -1,0 +1,15 @@
+{
+  "defs": [
+    "fixture.sample.Sample",
+    "fixture.sample.Sample.Sample",
+    "fixture.sample.Sample.run",
+    "fixture.sample.Sample.helper"
+  ],
+  "call_callees": [
+    "requireNonNull",
+    "helper"
+  ],
+  "import_targets": [
+    "java.util.Objects"
+  ]
+}

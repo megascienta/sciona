@@ -30,6 +30,17 @@ function calleeName(expr) {
   return null;
 }
 
+function expressionText(expr) {
+  if (!expr) return null;
+  if (ts.isIdentifier(expr)) return expr.text;
+  if (ts.isPropertyAccessExpression(expr)) {
+    const left = expressionText(expr.expression);
+    if (left) return `${left}.${expr.name.text}`;
+    return expr.name.text;
+  }
+  return null;
+}
+
 function parseFile(entry) {
   const content = fs.readFileSync(entry.path, "utf8");
   const sourceFile = ts.createSourceFile(entry.path, content, ts.ScriptTarget.Latest, true);
@@ -38,16 +49,69 @@ function parseFile(entry) {
   const call_edges = [];
   const import_edges = [];
 
-  const scopeStack = [entry.module_qualified_name];
+  const scopeStack = [{ name: entry.module_qualified_name, kind: "module" }];
 
   function currentScope() {
-    return scopeStack[scopeStack.length - 1];
+    return scopeStack[scopeStack.length - 1].name;
+  }
+
+  function currentScopeKind() {
+    return scopeStack[scopeStack.length - 1].kind;
+  }
+
+  function pushScope(name, kind) {
+    scopeStack.push({ name, kind });
+  }
+
+  function popScope() {
+    scopeStack.pop();
+  }
+
+  function registerCallable(kind, qname, node, visitNode) {
+    const span = lineSpan(sourceFile, node);
+    defs.push({ kind, qualified_name: qname, start_line: span.start_line, end_line: span.end_line });
+    pushScope(qname, kind);
+    visitNode();
+    popScope();
   }
 
   function visit(node) {
     if (ts.isImportDeclaration(node)) {
       const moduleName = node.moduleSpecifier.text;
-      import_edges.push({ source_module: entry.module_qualified_name, target_module: moduleName, dynamic: false });
+      const bindings = [];
+      const clause = node.importClause;
+      if (clause) {
+        if (clause.name) {
+          bindings.push(`default:${clause.name.text}`);
+        }
+        if (clause.namedBindings) {
+          if (ts.isNamespaceImport(clause.namedBindings)) {
+            bindings.push(`namespace:${clause.namedBindings.name.text}`);
+          } else if (ts.isNamedImports(clause.namedBindings)) {
+            for (const element of clause.namedBindings.elements) {
+              const imported = element.propertyName ? element.propertyName.text : element.name.text;
+              const local = element.name.text;
+              bindings.push(`named:${imported}->${local}`);
+            }
+          }
+        }
+      }
+      import_edges.push({
+        source_module: entry.module_qualified_name,
+        target_module: moduleName,
+        dynamic: false,
+        target_text: bindings.length ? bindings.join(",") : null
+      });
+    }
+    if (ts.isImportEqualsDeclaration(node)) {
+      const moduleReference = node.moduleReference;
+      if (ts.isExternalModuleReference(moduleReference) && moduleReference.expression && ts.isStringLiteral(moduleReference.expression)) {
+        import_edges.push({
+          source_module: entry.module_qualified_name,
+          target_module: moduleReference.expression.text,
+          dynamic: false
+        });
+      }
     }
 
     if (ts.isCallExpression(node)) {
@@ -55,6 +119,12 @@ function parseFile(entry) {
       if (node.expression && node.expression.kind === ts.SyntaxKind.ImportKeyword) {
         if (node.arguments.length !== 1 || !isStringLiteral(node.arguments[0])) {
           dynamic = true;
+        } else {
+          import_edges.push({
+            source_module: entry.module_qualified_name,
+            target_module: node.arguments[0].text,
+            dynamic: false
+          });
         }
       }
       if (ts.isIdentifier(node.expression) && node.expression.text === "require") {
@@ -67,55 +137,83 @@ function parseFile(entry) {
 
       const callee = calleeName(node.expression);
       const calleeText = node.expression ? node.expression.getText(sourceFile) : "";
+      const qnameHint = expressionText(node.expression);
       call_edges.push({
         caller: currentScope(),
         callee: callee || "",
-        callee_qname: "",
+        callee_qname: qnameHint || "",
         dynamic: dynamic || !callee,
         callee_text: calleeText || null
       });
     }
 
+    if (ts.isFunctionDeclaration(node) && node.name) {
+      if (currentScopeKind() === "module") {
+        const qname = `${entry.module_qualified_name}.${node.name.text}`;
+        registerCallable("function", qname, node, () => ts.forEachChild(node, visit));
+        return;
+      }
+      // Nested callables are implementation detail; keep caller attribution on parent.
+      ts.forEachChild(node, visit);
+      return;
+    }
+
+    if (
+      ts.isVariableDeclaration(node) &&
+      currentScopeKind() === "module" &&
+      ts.isIdentifier(node.name) &&
+      node.initializer &&
+      (ts.isArrowFunction(node.initializer) || ts.isFunctionExpression(node.initializer))
+    ) {
+      const qname = `${entry.module_qualified_name}.${node.name.text}`;
+      registerCallable("function", qname, node.initializer, () => ts.forEachChild(node.initializer, visit));
+      return;
+    }
+
     if (ts.isNewExpression(node)) {
       const callee = calleeName(node.expression);
       const calleeText = node.expression ? node.expression.getText(sourceFile) : "";
+      const qnameHint = expressionText(node.expression);
       call_edges.push({
         caller: currentScope(),
         callee: callee || "",
-        callee_qname: "",
+        callee_qname: qnameHint || "",
         dynamic: !callee,
         callee_text: calleeText || null
       });
     }
 
-    if (ts.isFunctionDeclaration(node) && node.name) {
-      const qname = `${entry.module_qualified_name}.${node.name.text}`;
-      const span = lineSpan(sourceFile, node);
-      defs.push({ kind: "function", qualified_name: qname, start_line: span.start_line, end_line: span.end_line });
-      scopeStack.push(qname);
-      ts.forEachChild(node, visit);
-      scopeStack.pop();
-      return;
-    }
-
     if (ts.isClassDeclaration(node) && node.name) {
       const qname = `${entry.module_qualified_name}.${node.name.text}`;
-      const span = lineSpan(sourceFile, node);
-      defs.push({ kind: "class", qualified_name: qname, start_line: span.start_line, end_line: span.end_line });
-      scopeStack.push(qname);
-      ts.forEachChild(node, visit);
-      scopeStack.pop();
+      registerCallable("class", qname, node, () => ts.forEachChild(node, visit));
       return;
     }
 
-    if (ts.isMethodDeclaration(node) && node.name && ts.isIdentifier(node.name)) {
+    if (
+      ts.isPropertyDeclaration(node) &&
+      currentScopeKind() === "class" &&
+      node.name &&
+      ts.isIdentifier(node.name) &&
+      node.initializer &&
+      (ts.isArrowFunction(node.initializer) || ts.isFunctionExpression(node.initializer))
+    ) {
       const classScope = currentScope();
       const qname = `${classScope}.${node.name.text}`;
-      const span = lineSpan(sourceFile, node);
-      defs.push({ kind: "method", qualified_name: qname, start_line: span.start_line, end_line: span.end_line });
-      scopeStack.push(qname);
-      ts.forEachChild(node, visit);
-      scopeStack.pop();
+      registerCallable("method", qname, node.initializer, () => ts.forEachChild(node.initializer, visit));
+      return;
+    }
+
+    if (ts.isConstructorDeclaration(node) && currentScopeKind() === "class") {
+      const classScope = currentScope();
+      const qname = `${classScope}.constructor`;
+      registerCallable("method", qname, node, () => ts.forEachChild(node, visit));
+      return;
+    }
+
+    if (ts.isMethodDeclaration(node) && currentScopeKind() === "class" && node.name && ts.isIdentifier(node.name)) {
+      const classScope = currentScope();
+      const qname = `${classScope}.${node.name.text}`;
+      registerCallable("method", qname, node, () => ts.forEachChild(node, visit));
       return;
     }
 

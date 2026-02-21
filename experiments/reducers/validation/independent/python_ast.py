@@ -71,7 +71,7 @@ class _CallVisitor(ast.NodeVisitor):
         self._scope_stack.pop()
 
     def visit_Call(self, node: ast.Call) -> None:
-        callee, dynamic = _callee_name(node.func)
+        callee, callee_qname, dynamic = _callee_name(node.func)
         callee_text = None
         try:
             callee_text = ast.unparse(node.func)
@@ -81,7 +81,7 @@ class _CallVisitor(ast.NodeVisitor):
             CallEdge(
                 caller=self._current_scope(),
                 callee=callee or "",
-                callee_qname=None,
+                callee_qname=callee_qname,
                 dynamic=dynamic or (not callee) or (callee in _DYNAMIC_FUNCS),
                 callee_text=callee_text,
             )
@@ -96,26 +96,63 @@ class _ImportVisitor(ast.NodeVisitor):
     def visit_Import(self, node: ast.Import) -> None:
         for alias in node.names:
             if alias.name:
-                self.imports.append(ImportEdge("", alias.name, dynamic=False))
+                target_text = alias.name
+                if alias.asname:
+                    target_text = f"{alias.name} as {alias.asname}"
+                self.imports.append(
+                    ImportEdge("", alias.name, dynamic=False, target_text=target_text)
+                )
 
     def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
         prefix = "." * (node.level or 0)
         module = node.module or ""
         if module:
-            self.imports.append(ImportEdge("", f"{prefix}{module}", dynamic=False))
+            for alias in node.names:
+                symbol = alias.name
+                if symbol == "*":
+                    target_text = f"from {prefix}{module} import *"
+                elif alias.asname:
+                    target_text = f"from {prefix}{module} import {symbol} as {alias.asname}"
+                else:
+                    target_text = f"from {prefix}{module} import {symbol}"
+                self.imports.append(
+                    ImportEdge("", f"{prefix}{module}", dynamic=False, target_text=target_text)
+                )
         else:
             for alias in node.names:
                 if alias.name:
-                    self.imports.append(ImportEdge("", f"{prefix}{alias.name}", dynamic=False))
+                    target_text = f"{prefix}{alias.name}"
+                    if alias.asname:
+                        target_text = f"{target_text} as {alias.asname}"
+                    self.imports.append(
+                        ImportEdge(
+                            "",
+                            f"{prefix}{alias.name}",
+                            dynamic=False,
+                            target_text=target_text,
+                        )
+                    )
 
 
 
-def _callee_name(node: ast.AST) -> tuple[str | None, bool]:
+def _expr_name(node: ast.AST) -> str | None:
     if isinstance(node, ast.Name):
-        return node.id, False
+        return node.id
     if isinstance(node, ast.Attribute):
-        return node.attr, False
-    return None, True
+        root = _expr_name(node.value)
+        if root:
+            return f"{root}.{node.attr}"
+        return node.attr
+    return None
+
+
+def _callee_name(node: ast.AST) -> tuple[str | None, str | None, bool]:
+    if isinstance(node, ast.Name):
+        return node.id, None, False
+    if isinstance(node, ast.Attribute):
+        dotted = _expr_name(node)
+        return node.attr, dotted, False
+    return None, None, True
 
 
 def parse_python_file(repo_root: Path, file_path: str, module_qname: str) -> FileParseResult:

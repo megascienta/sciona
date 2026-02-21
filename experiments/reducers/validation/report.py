@@ -4,9 +4,8 @@
 from __future__ import annotations
 
 import json
-from dataclasses import asdict
 from pathlib import Path
-from typing import Dict, List
+from typing import List
 
 
 def write_json(path: Path, payload: dict) -> None:
@@ -29,18 +28,46 @@ def render_summary(payload: dict) -> List[str]:
         lines.append(f"- {item}")
     lines.append("")
 
-    lines.append("## DB Equivalence (Reducer vs DB)")
+    lines.append("## Hard Invariants")
     lines.append("")
-    agg_db_eq = payload.get("aggregate_db_equivalence", {})
-    for key in [
-        "precision_mean",
-        "recall_mean",
-        "coverage_mean",
-        "coverage_node_rate",
-        "empty_set_mismatch_count",
-    ]:
-        if key in agg_db_eq:
-            lines.append(f"- {key}: `{agg_db_eq[key]}`")
+    invariants = payload.get("invariants", {})
+    if invariants:
+        lines.append(f"- passed: `{invariants.get('passed')}`")
+        for key in [
+            "gate_reducer_db_exact",
+            "gate_aligned_scoring",
+            "gate_parse_coverage",
+            "gate_filter_subset",
+            "gate_filter_resolved",
+            "gate_parser_deterministic",
+            "gate_no_duplicate_contract_edges",
+            "gate_equal_full_metrics_when_exact",
+        ]:
+            lines.append(f"- {key}: `{invariants.get(key)}`")
+        for item in invariants.get("failures") or []:
+            lines.append(f"- failure: {item}")
+    else:
+        lines.append("- none")
+    lines.append("")
+
+    lines.append("## Core Metrics")
+    lines.append("")
+    core = payload.get("core_metrics", {})
+    if not core:
+        lines.append("- none")
+    else:
+        for key, value in core.items():
+            lines.append(f"- {key}: `{value}`")
+    lines.append("")
+
+    lines.append("## Determinism")
+    lines.append("")
+    lines.append(f"- stability_score: `{payload.get('stability_score')}`")
+    hashes = payload.get("stability_hashes") or []
+    if hashes:
+        lines.append(f"- stability_hashes: `{hashes}`")
+    if payload.get("stability_error"):
+        lines.append(f"- stability_error: `{payload.get('stability_error')}`")
     lines.append("")
 
     lines.append("## Independent Parser Totals")
@@ -51,107 +78,11 @@ def render_summary(payload: dict) -> List[str]:
         "raw_import_edges",
         "normalized_call_edges",
         "normalized_import_edges",
-        "in_contract_edges",
+        "filtered_in_contract_edges",
+        "full_truth_edges",
         "out_of_contract_edges",
     ]:
         if key in independent_totals:
             lines.append(f"- {key}: `{independent_totals[key]}`")
-    lines.append("")
 
-    lines.append("## Independent Parser Coverage By Language")
-    lines.append("")
-    coverage_by_language = payload.get("independent_coverage_by_language", {})
-    if not coverage_by_language:
-        lines.append("- none")
-    else:
-        for language, stats in coverage_by_language.items():
-            lines.append(
-                f"- {language}: files_parsed=`{stats.get('files_parsed')}`, files_total=`{stats.get('files_total')}`"
-            )
-    lines.append("")
-
-    lines.append("## Contract Accuracy (Reducer vs Ground Truth In-Contract)")
-    lines.append("")
-    agg_contract = payload.get("aggregate_contract", {})
-    for key in [
-        "in_contract_precision_mean",
-        "in_contract_recall_mean",
-        "in_contract_coverage_mean",
-        "misses_out_of_contract_rate",
-        "coverage_node_rate",
-        "coverage_file_rate",
-        "stability_score",
-    ]:
-        if key in agg_contract:
-            lines.append(f"- {key}: `{agg_contract[key]}`")
-    lines.append("")
-
-    lines.append("## Full Accuracy (Reducer vs Full Ground Truth)")
-    lines.append("")
-    agg_full = payload.get("aggregate_full", {})
-    for key in [
-        "in_contract_precision_mean",
-        "in_contract_recall_mean",
-        "in_contract_coverage_mean",
-        "misses_out_of_contract_rate",
-        "coverage_node_rate",
-        "coverage_file_rate",
-        "stability_score",
-    ]:
-        if key in agg_full:
-            lines.append(f"- {key}: `{agg_full[key]}`")
-    lines.append("")
-
-    lines.append("## Threshold Evaluation (Contract)")
-    lines.append("")
-    threshold_eval = payload.get("threshold_evaluation_contract", {})
-    if threshold_eval:
-        lines.append(f"- passed: `{threshold_eval.get('passed')}`")
-        failures = threshold_eval.get("failures") or []
-        for item in failures:
-            lines.append(f"- {item}")
-    else:
-        lines.append("- none")
-    lines.append("")
-
-    lines.append("## Group Metrics")
-    lines.append("")
-    for group, stats in payload.get("group_metrics_db_equivalence", {}).items():
-        lines.append(
-            f"- db_equivalence {group}: precision=`{stats.get('precision')}`, recall=`{stats.get('recall')}`, coverage=`{stats.get('coverage')}`"
-        )
-    for group, stats in payload.get("group_metrics_contract", {}).items():
-        lines.append(
-            f"- contract {group}: precision=`{stats.get('precision')}`, recall=`{stats.get('recall')}`, coverage=`{stats.get('coverage')}`"
-        )
-    for group, stats in payload.get("group_metrics_full", {}).items():
-        lines.append(
-            f"- full {group}: precision=`{stats.get('precision')}`, recall=`{stats.get('recall')}`, coverage=`{stats.get('coverage')}`"
-        )
-    lines.append("")
-
-    lines.append("## Edge Type Breakdown")
-    lines.append("")
-    for edge_type, stats in payload.get("edge_type_breakdown_db_equivalence", {}).items():
-        lines.append(
-            f"- db_equivalence {edge_type}: tp=`{stats.get('tp')}`, fp=`{stats.get('fp')}`, fn=`{stats.get('fn')}`"
-        )
-    for edge_type, stats in payload.get("edge_type_breakdown_contract", {}).items():
-        lines.append(
-            f"- contract {edge_type}: tp=`{stats.get('tp')}`, fp=`{stats.get('fp')}`, fn=`{stats.get('fn')}`"
-        )
-    for edge_type, stats in payload.get("edge_type_breakdown_full", {}).items():
-        lines.append(
-            f"- full {edge_type}: tp=`{stats.get('tp')}`, fp=`{stats.get('fp')}`, fn=`{stats.get('fn')}`"
-        )
-    lines.append("")
-
-    lines.append("## Out-of-Contract Breakdown")
-    lines.append("")
-    breakdown = payload.get("out_of_contract_breakdown", {})
-    if not breakdown:
-        lines.append("- none")
-    else:
-        for key, stats in breakdown.items():
-            lines.append(f"- {key}: `{stats}`")
     return lines

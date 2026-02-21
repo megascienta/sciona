@@ -1,0 +1,17 @@
+{
+  "defs": [
+    "fixture.sample.Service",
+    "fixture.sample.Service.run",
+    "fixture.sample.entry"
+  ],
+  "call_callees": [
+    "helper_fn",
+    "getcwd",
+    "Service",
+    "run"
+  ],
+  "import_targets": [
+    "pkg.utils",
+    "os"
+  ]
+}

@@ -15,6 +15,7 @@ import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
@@ -71,8 +72,27 @@ public class JavaParserRunner {
         }
 
         @Override
+        public void visit(ConstructorDeclaration node, Void arg) {
+            String classScope = currentScope();
+            String qname = classScope + "." + node.getNameAsString();
+            int start = node.getRange().map(r -> r.begin.line).orElse(1);
+            int end = node.getRange().map(r -> r.end.line).orElse(start);
+            result.defs.add(String.format("%s|method|%d|%d", qname, start, end));
+            scope.push(qname);
+            super.visit(node, arg);
+            scope.pop();
+        }
+
+        @Override
         public void visit(MethodCallExpr node, Void arg) {
             String callee = node.getNameAsString();
+            String calleeQname = "";
+            if (node.getScope().isPresent()) {
+                String scopeText = node.getScope().get().toString();
+                if (scopeText != null && !scopeText.isBlank()) {
+                    calleeQname = scopeText + "." + callee;
+                }
+            }
             boolean dynamic = false;
             if (callee.equals("forName") && node.getScope().isPresent()) {
                 if (node.getScope().get().toString().equals("Class")) {
@@ -80,15 +100,16 @@ public class JavaParserRunner {
                 }
             }
             String caller = currentScope();
-            result.callEdges.add(String.format("%s|%s|%s|%s", caller, callee, "", dynamic));
+            result.callEdges.add(String.format("%s|%s|%s|%s", caller, callee, calleeQname, dynamic));
             super.visit(node, arg);
         }
 
         @Override
         public void visit(ObjectCreationExpr node, Void arg) {
             String callee = node.getType().getNameAsString();
+            String calleeQname = node.getType().toString();
             String caller = currentScope();
-            result.callEdges.add(String.format("%s|%s|%s|%s", caller, callee, "", false));
+            result.callEdges.add(String.format("%s|%s|%s|%s", caller, callee, calleeQname, false));
             super.visit(node, arg);
         }
     }
@@ -131,7 +152,7 @@ public class JavaParserRunner {
                 }
                 ContextVisitor visitor = new ContextVisitor(moduleQname, result);
                 visitor.visit(unit, null);
-            } catch (IOException exc) {
+            } catch (Exception exc) {
                 result.parseOk = false;
                 result.error = exc.getMessage();
             }

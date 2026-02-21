@@ -6,7 +6,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, List
 
-from .independent.shared import EdgeRecord, match_edge
+from .independent.shared import EdgeRecord, dedupe_edge_records, match_edge
 
 
 @dataclass
@@ -34,6 +34,10 @@ def compute_metrics(
     out_of_contract: List[EdgeRecord],
     sciona_edges: List[EdgeRecord],
 ) -> Metrics:
+    expected_in_contract = dedupe_edge_records(expected_in_contract)
+    out_of_contract = dedupe_edge_records(out_of_contract)
+    sciona_edges = dedupe_edge_records(sciona_edges)
+
     tp = 0
     fp = 0
     fn = 0

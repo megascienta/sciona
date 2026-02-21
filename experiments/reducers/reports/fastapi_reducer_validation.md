@@ -4,95 +4,42 @@
 
 - repo=fastapi
 - sampled_nodes=500
-- db_equivalence_precision_mean=1.0
-- db_equivalence_recall_mean=1.0
-- contract_precision_mean=0.8682844612143757
-- contract_recall_mean=0.7634695157717803
-- contract_coverage_mean=0.7634695157717803
-- full_precision_mean=0.9776594612143757
-- full_recall_mean=0.6066414745550394
-- full_coverage_mean=0.6066414745550394
-- thresholds_passed=False
+- invariants_passed=True
+- full_recall=0.4062371768567911
+- contract_recall=0.9580645161290322
+- overreach_rate=0.0020161290322580645
 
-## DB Equivalence (Reducer vs DB)
+## Hard Invariants
 
-- precision_mean: `1.0`
-- recall_mean: `1.0`
-- coverage_mean: `1.0`
-- coverage_node_rate: `1.0`
-- empty_set_mismatch_count: `0`
+- passed: `True`
+- gate_reducer_db_exact: `True`
+- gate_aligned_scoring: `True`
+- gate_parse_coverage: `True`
+- gate_filter_subset: `True`
+- gate_filter_resolved: `True`
+- gate_parser_deterministic: `True`
+- gate_no_duplicate_contract_edges: `True`
+- gate_equal_full_metrics_when_exact: `True`
+
+## Core Metrics
+
+- full_recall: `0.4062371768567911`
+- contract_recall: `0.9580645161290322`
+- overreach_rate: `0.0020161290322580645`
+- overreach_count: `6`
+- reducer_edge_total: `2976`
+
+## Determinism
+
+- stability_score: `1.0`
+- stability_hashes: `['27939561d7d111c89bcc7795c1d00a016e7e8bd4e0261e5f5e8e841d8167224b', '27939561d7d111c89bcc7795c1d00a016e7e8bd4e0261e5f5e8e841d8167224b', '27939561d7d111c89bcc7795c1d00a016e7e8bd4e0261e5f5e8e841d8167224b']`
 
 ## Independent Parser Totals
 
 - raw_call_edges: `15400`
-- raw_import_edges: `3702`
+- raw_import_edges: `4856`
 - normalized_call_edges: `15400`
-- normalized_import_edges: `3702`
-- in_contract_edges: `3218`
-- out_of_contract_edges: `177`
-
-## Independent Parser Coverage By Language
-
-- python: files_parsed=`1284`, files_total=`1284`
-
-## Contract Accuracy (Reducer vs Ground Truth In-Contract)
-
-- in_contract_precision_mean: `0.8682844612143757`
-- in_contract_recall_mean: `0.7634695157717803`
-- in_contract_coverage_mean: `0.7634695157717803`
-- misses_out_of_contract_rate: `0.3048780487804878`
-- coverage_node_rate: `1.0`
-- coverage_file_rate: `1.0`
-- stability_score: `1.0`
-
-## Full Accuracy (Reducer vs Full Ground Truth)
-
-- in_contract_precision_mean: `0.9776594612143757`
-- in_contract_recall_mean: `0.6066414745550394`
-- in_contract_coverage_mean: `0.6066414745550394`
-- misses_out_of_contract_rate: `0.0`
-- coverage_node_rate: `1.0`
-- coverage_file_rate: `1.0`
-- stability_score: `1.0`
-
-## Threshold Evaluation (Contract)
-
-- passed: `False`
-- precision_mean 0.8682844612143757 < 0.95
-- recall_mean 0.7634695157717803 < 0.9
-- misses_out_of_contract_rate 0.3048780487804878 < 0.8
-- group python::function precision 0.5454545454545454 < 0.85
-- group python::function recall 0.34482758620689663 < 0.8
-- group python::method precision 0.2708333333333333 < 0.85
-- group python::method recall 0.1388888888888889 < 0.8
-
-## Group Metrics
-
-- db_equivalence python::module: precision=`1.0`, recall=`1.0`, coverage=`1.0`
-- db_equivalence python::function: precision=`1.0`, recall=`1.0`, coverage=`1.0`
-- db_equivalence python::method: precision=`1.0`, recall=`1.0`, coverage=`1.0`
-- db_equivalence python::class: precision=`1.0`, recall=`1.0`, coverage=`1.0`
-- contract python::module: precision=`0.9938007364939516`, recall=`0.9643920959083114`, coverage=`0.9643920959083114`
-- contract python::function: precision=`0.5454545454545454`, recall=`0.34482758620689663`, coverage=`0.34482758620689663`
-- contract python::method: precision=`0.2708333333333333`, recall=`0.1388888888888889`, coverage=`0.1388888888888889`
-- contract python::class: precision=`0.9375`, recall=`1.0`, coverage=`1.0`
-- full python::module: precision=`0.9938007364939516`, recall=`0.964381727383389`, coverage=`0.964381727383389`
-- full python::function: precision=`0.9090909090909091`, recall=`0.16569183504667379`, coverage=`0.16569183504667379`
-- full python::method: precision=`0.9583333333333334`, recall=`0.1923472008217771`, coverage=`0.1923472008217771`
-- full python::class: precision=`0.9375`, recall=`1.0`, coverage=`1.0`
-
-## Edge Type Breakdown
-
-- db_equivalence calls: tp=`134`, fp=`0`, fn=`0`
-- db_equivalence imports: tp=`2853`, fp=`0`, fn=`0`
-- contract calls: tp=`88`, fp=`46`, fn=`145`
-- contract imports: tp=`2845`, fp=`8`, fn=`140`
-- full calls: tp=`127`, fp=`7`, fn=`280`
-- full imports: tp=`2845`, fp=`8`, fn=`143`
-
-## Out-of-Contract Breakdown
-
-- call::python::in_repo_unresolved: `168`
-- import::python::relative_unresolved: `2`
-- import::python::in_repo_unresolved: `1`
-- call::python::dynamic: `6`
+- normalized_import_edges: `4856`
+- filtered_in_contract_edges: `3100`
+- full_truth_edges: `7311`
+- out_of_contract_edges: `4205`

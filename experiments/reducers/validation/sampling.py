@@ -203,35 +203,83 @@ def sample_entities(
         population_by_kind[entity.kind] = population_by_kind.get(entity.kind, 0) + 1
 
     grouped: Dict[Tuple[str, str, str, str, str], List[Entity]] = {}
+    grouped_by_pair: Dict[Tuple[str, str], Dict[Tuple[str, str, str], List[Entity]]] = {}
     for entity in entities:
         key = _group_key(entity)
         grouped.setdefault(key, []).append(entity)
+        pair_key = (entity.language, entity.kind)
+        grouped_by_pair.setdefault(pair_key, {}).setdefault(key[2:], []).append(entity)
 
     rng = random.Random(seed)
     for bucket in grouped.values():
         rng.shuffle(bucket)
-
-    group_keys = list(grouped.keys())
-    rng.shuffle(group_keys)
+    for pair_buckets in grouped_by_pair.values():
+        for bucket in pair_buckets.values():
+            rng.shuffle(bucket)
 
     sampled: list[Entity] = []
     used_ids: set[str] = set()
-    idx = 0
-    while len(sampled) < total_nodes and group_keys:
-        key = group_keys[idx % len(group_keys)]
-        idx += 1
-        bucket = grouped.get(key, [])
-        while bucket and bucket[-1].structural_id in used_ids:
-            bucket.pop()
-        if not bucket:
-            grouped.pop(key, None)
-            group_keys = list(grouped.keys())
-            if not group_keys:
-                break
+    pair_keys = list(grouped_by_pair.keys())
+    rng.shuffle(pair_keys)
+    quotas: Dict[Tuple[str, str], int] = {}
+    if pair_keys:
+        base = total_nodes // len(pair_keys)
+        remainder = total_nodes % len(pair_keys)
+        for idx, key in enumerate(pair_keys):
+            quotas[key] = base + (1 if idx < remainder else 0)
+
+    def _draw_from_pair(pair_key: Tuple[str, str], limit: int) -> list[Entity]:
+        selected: list[Entity] = []
+        buckets = grouped_by_pair.get(pair_key, {})
+        stratum_keys = list(buckets.keys())
+        rng.shuffle(stratum_keys)
+        if not stratum_keys:
+            return selected
+        idx = 0
+        while len(selected) < limit and stratum_keys:
+            stratum = stratum_keys[idx % len(stratum_keys)]
+            idx += 1
+            bucket = buckets.get(stratum, [])
+            while bucket and bucket[-1].structural_id in used_ids:
+                bucket.pop()
+            if not bucket:
+                buckets.pop(stratum, None)
+                stratum_keys = list(buckets.keys())
+                if not stratum_keys:
+                    break
+                continue
+            choice = bucket.pop()
+            used_ids.add(choice.structural_id)
+            selected.append(choice)
+        return selected
+
+    for pair_key in pair_keys:
+        quota = quotas.get(pair_key, 0)
+        if quota <= 0:
             continue
-        choice = bucket.pop()
-        used_ids.add(choice.structural_id)
-        sampled.append(choice)
+        sampled.extend(_draw_from_pair(pair_key, quota))
+
+    if len(sampled) < total_nodes:
+        remaining = total_nodes - len(sampled)
+        all_group_keys = list(grouped.keys())
+        rng.shuffle(all_group_keys)
+        idx = 0
+        while remaining > 0 and all_group_keys:
+            key = all_group_keys[idx % len(all_group_keys)]
+            idx += 1
+            bucket = grouped.get(key, [])
+            while bucket and bucket[-1].structural_id in used_ids:
+                bucket.pop()
+            if not bucket:
+                grouped.pop(key, None)
+                all_group_keys = list(grouped.keys())
+                if not all_group_keys:
+                    break
+                continue
+            choice = bucket.pop()
+            used_ids.add(choice.structural_id)
+            sampled.append(choice)
+            remaining -= 1
 
     strata_counts: Dict[str, int] = {}
     for entity in sampled:

@@ -1,0 +1,17 @@
+{
+  "defs": [
+    "fixture.sample.Service",
+    "fixture.sample.Service.run",
+    "fixture.sample.entry"
+  ],
+  "call_callees": [
+    "helperFn",
+    "basename",
+    "Service",
+    "run"
+  ],
+  "import_targets": [
+    "./utils",
+    "path"
+  ]
+}

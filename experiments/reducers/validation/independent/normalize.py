@@ -30,6 +30,7 @@ def normalize_call_edges(
                 callee=callee,
                 callee_qname=callee_qname,
                 dynamic=dynamic,
+                callee_text=edge.callee_text,
             )
         )
     return normalized

@@ -38,6 +38,7 @@ class NormalizedCallEdge:
     callee: str
     callee_qname: str | None
     dynamic: bool
+    callee_text: str | None = None
 
 
 @dataclass(frozen=True)
@@ -72,6 +73,22 @@ class EdgeRecord:
     caller: str
     callee: str
     callee_qname: str | None
+
+
+def edge_record_key(edge: EdgeRecord) -> tuple[str, str, str | None]:
+    return (edge.caller, edge.callee, edge.callee_qname)
+
+
+def dedupe_edge_records(edges: List[EdgeRecord]) -> List[EdgeRecord]:
+    seen: set[tuple[str, str, str | None]] = set()
+    deduped: List[EdgeRecord] = []
+    for edge in edges:
+        key = edge_record_key(edge)
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(edge)
+    return deduped
 
 
 def match_edge(
