@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from collections import Counter, defaultdict
-from typing import Iterable, Sequence
+from typing import Sequence
 
 from ..analysis.graph import module_id_for
 from ..config import CALLABLE_NODE_TYPES
@@ -14,7 +14,6 @@ from ..tools.call_extraction import CallExtractionRecord
 from ...data_storage.artifact_db import write_index as artifact_write
 from ...data_storage.artifact_db import store_rollups as artifact_rollups
 from ...data_storage.core_db import read_ops as core_read
-from ...data_storage.sql_utils import temp_id_table
 
 
 def rebuild_graph_rollups(
@@ -22,13 +21,9 @@ def rebuild_graph_rollups(
     *,
     core_conn,
     snapshot_id: str,
-    changed_node_ids: Iterable[str] | None = None,
 ) -> None:
     core_read.validate_snapshot_for_read(core_conn, snapshot_id, require_committed=True)
-    changed_ids = set(changed_node_ids or [])
-    full_rebuild = not changed_ids
-    if full_rebuild:
-        artifact_rollups.reset_graph_rollups(artifact_conn)
+    artifact_rollups.reset_graph_rollups(artifact_conn)
     node_rows = core_read.list_nodes_with_names(core_conn, snapshot_id)
     if not node_rows:
         return
@@ -57,38 +52,6 @@ def rebuild_graph_rollups(
         "DEFINES_METHOD",
     )
     method_to_class = {dst_id: src_id for src_id, dst_id in method_edges}
-    affected_nodes = set(changed_ids)
-    if not full_rebuild and changed_ids:
-        with temp_id_table(
-            artifact_conn, sorted(changed_ids), column="node_id", prefix="current_nodes"
-        ) as table:
-            edge_rows = artifact_conn.execute(
-                f"""
-                SELECT src_node_id, dst_node_id
-                FROM graph_edges
-                WHERE src_node_id IN (SELECT node_id FROM {table})
-                   OR dst_node_id IN (SELECT node_id FROM {table})
-                """
-            ).fetchall()
-        for row in edge_rows:
-            affected_nodes.add(row["src_node_id"])
-            affected_nodes.add(row["dst_node_id"])
-    affected_modules = {
-        module_lookup[node_id] for node_id in affected_nodes if node_id in module_lookup
-    }
-    affected_classes = {
-        method_to_class[node_id] for node_id in affected_nodes if node_id in method_to_class
-    }
-    if not full_rebuild:
-        artifact_rollups.delete_module_call_edges_for_nodes(
-            artifact_conn, node_ids=affected_modules
-        )
-        artifact_rollups.delete_class_call_edges_for_nodes(
-            artifact_conn, node_ids=affected_classes
-        )
-        artifact_rollups.delete_node_fan_stats_for_nodes(
-            artifact_conn, node_ids=affected_nodes
-        )
 
     call_rows = artifact_conn.execute(
         """
@@ -105,14 +68,10 @@ def rebuild_graph_rollups(
         dst_id = row["dst_node_id"]
         src_module = module_lookup.get(src_id)
         dst_module = module_lookup.get(dst_id)
-        if not full_rebuild and src_module not in affected_modules and dst_module not in affected_modules:
-            continue
         if src_module and dst_module:
             module_calls[(src_module, dst_module)] += 1
         src_class = method_to_class.get(src_id)
         dst_class = method_to_class.get(dst_id)
-        if not full_rebuild and src_class not in affected_classes and dst_class not in affected_classes:
-            continue
         if src_class and dst_class:
             class_calls[(src_class, dst_class)] += 1
     if module_calls:
@@ -138,8 +97,6 @@ def rebuild_graph_rollups(
         src_id = row["src_node_id"]
         dst_id = row["dst_node_id"]
         edge_kind = row["edge_kind"]
-        if not full_rebuild and src_id not in affected_nodes and dst_id not in affected_nodes:
-            continue
         fan_out[(src_id, edge_kind)] += 1
         fan_in[(dst_id, edge_kind)] += 1
     if fan_in or fan_out:

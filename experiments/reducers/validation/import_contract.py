@@ -5,37 +5,13 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
-from sciona.code_analysis.core.extract.languages.python_imports import (
-    normalize_import as _normalize_import,
+from .independent.contract_normalization import (
+    module_prefix_for_java_package,
+    normalize_java_import,
+    normalize_python_import,
+    normalize_typescript_import,
+    normalize_typescript_relative_index,
 )
-from sciona.code_analysis.core.extract.languages.typescript_imports import (
-    normalize_import as _normalize_ts_import,
-)
-from sciona.code_analysis.core.extract.languages.typescript_imports import (
-    normalize_relative_index as _normalize_ts_relative_index,
-)
-from sciona.code_analysis.core.extract.languages.java_imports import (
-    module_prefix_for_package,
-    normalize_import as _normalize_java_import,
-)
-
-
-def _snapshot_for_file(
-    repo_root: Path, file_path: str, language: str, *, content: bytes | None = None
-) -> FileSnapshot:
-    rel = Path(file_path)
-    record = FileRecord(path=repo_root / rel, relative_path=rel, language=language)
-    size = len(content) if content else 0
-    return FileSnapshot(
-        record=record,
-        file_id="",
-        blob_sha="",
-        size=size,
-        line_count=1,
-        content=content,
-    )
-
 
 def _java_package_name(content: bytes | None) -> str | None:
     if not content:
@@ -73,7 +49,7 @@ def resolve_import_contract(
     resolved = None
     if resolver == "python_resolve":
         is_package = Path(file_path).name == "__init__.py"
-        resolved = _normalize_import(
+        resolved = normalize_python_import(
             raw_target,
             module_qname,
             is_package,
@@ -81,29 +57,27 @@ def resolve_import_contract(
             local_packages=local_packages,
         )
     elif resolver == "typescript_normalize":
-        snapshot = _snapshot_for_file(repo_root, file_path, language)
-        resolved = _normalize_ts_import(raw_target, snapshot)
+        resolved = normalize_typescript_import(raw_target, file_path, repo_root)
         if (
             (not resolved or resolved not in module_names)
             and raw_target.strip().startswith(".")
         ):
-            alt = _normalize_ts_relative_index(raw_target, snapshot)
+            alt = normalize_typescript_relative_index(raw_target, file_path, repo_root)
             if alt:
                 resolved = alt
     elif resolver == "java_normalize":
         abs_path = repo_root / Path(file_path)
         content = abs_path.read_bytes() if abs_path.exists() else None
         package_name = _java_package_name(content)
-        module_prefix = module_prefix_for_package(module_qname, package_name)
-        snapshot = _snapshot_for_file(repo_root, file_path, language, content=content)
+        module_prefix = module_prefix_for_java_package(module_qname, package_name)
         fragment = raw_target
         if not raw_target.strip().startswith("import"):
             fragment = f"import {raw_target};"
-        resolved = _normalize_java_import(
+        resolved = normalize_java_import(
             fragment,
             module_qname,
-            snapshot,
             module_prefix=module_prefix,
+            repo_prefix=repo_prefix,
         )
     if resolved:
         if resolved in module_names:

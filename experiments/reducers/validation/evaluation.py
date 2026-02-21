@@ -7,10 +7,6 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Callable, Dict, List, Protocol, Tuple
 
-from sciona.code_analysis.core.extract.languages.java import module_name as java_module_name
-from sciona.code_analysis.core.extract.languages.python import module_name as python_module_name
-from sciona.code_analysis.core.extract.languages.typescript import module_name as typescript_module_name
-from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
 from sciona.data_storage.artifact_db import read_status as artifact_read_status
 
 from .db_adapter import (
@@ -21,6 +17,11 @@ from .db_adapter import (
 )
 from .ground_truth import build_module_imports_by_prefix, edge_records_from_ground_truth
 from .import_contract import resolve_import_contract
+from .independent.contract_normalization import (
+    module_name_from_file,
+    normalization_is_scoped_consistent,
+    normalize_scoped_calls,
+)
 from .independent.java_runner import parse_java_files
 from .independent.normalize import normalize_file_edges
 from .independent.python_ast import parse_python_files
@@ -84,27 +85,17 @@ def edge_record_from_import(edge: dict) -> EdgeRecord:
     return EdgeRecord(caller=caller, callee=callee, callee_qname=callee)
 
 
-def snapshot_for_file(repo_root: Path, file_path: str, language: str) -> FileSnapshot:
-    rel = Path(file_path)
-    record = FileRecord(path=repo_root / rel, relative_path=rel, language=language)
-    return FileSnapshot(record=record, file_id="", blob_sha="", size=0, line_count=1, content=None)
-
-
 def canonical_module_name(repo_root: Path, file_result: FileParseResult) -> str:
     if not file_result.file_path:
         return file_result.module_qualified_name
-    language = (file_result.language or "").lower()
-    snapshot = snapshot_for_file(repo_root, file_result.file_path, file_result.language)
     try:
-        if language == "python":
-            return python_module_name(repo_root, snapshot)
-        if language == "typescript":
-            return typescript_module_name(repo_root, snapshot)
-        if language == "java":
-            return java_module_name(repo_root, snapshot)
+        return module_name_from_file(
+            repo_root=repo_root,
+            file_path=file_result.file_path,
+            language=(file_result.language or "").lower(),
+        )
     except Exception:
         return file_result.module_qualified_name
-    return file_result.module_qualified_name
 
 
 def get_file_module_map(entities, resolver) -> Tuple[Dict[str, dict], Dict[str, str]]:
@@ -385,21 +376,31 @@ def parse_independent_files(
 def build_normalized_edge_maps(
     repo_root: Path,
     independent_results: Dict[str, FileParseResult],
-) -> Tuple[Dict[str, Tuple[List[object], List[object]]], dict]:
+) -> Tuple[Dict[str, Tuple[List[object], List[object]]], dict, bool]:
     normalized_edge_map: Dict[str, Tuple[List[object], List[object]]] = {}
+    scoped_normalization_ok = True
     for file_result in independent_results.values():
         canonical_module = canonical_module_name(repo_root, file_result)
         if canonical_module:
             file_result.module_qualified_name = canonical_module
-        normalized_edge_map[file_result.file_path] = normalize_file_edges(
+        normalized_calls, normalized_imports = normalize_file_edges(
             file_result.module_qualified_name,
             file_result.call_edges,
             file_result.import_edges,
+            language=file_result.language,
         )
+        normalized_calls = normalize_scoped_calls(
+            normalized_calls,
+            language=file_result.language,
+            module_scope=file_result.module_qualified_name,
+        )
+        if not normalization_is_scoped_consistent(normalized_calls):
+            scoped_normalization_ok = False
+        normalized_edge_map[file_result.file_path] = (normalized_calls, normalized_imports)
     module_imports_by_prefix = build_module_imports_by_prefix(
         independent_results, normalized_edge_map
     )
-    return normalized_edge_map, module_imports_by_prefix
+    return normalized_edge_map, module_imports_by_prefix, scoped_normalization_ok
 
 
 def build_independent_call_resolution(
@@ -627,6 +628,9 @@ def evaluate_entities(
                 "out_of_contract_edges": [asdict(edge) for edge in out_of_contract],
                 "ground_truth_parse_ok": file_result.parse_ok,
                 "ground_truth_error": file_result.error,
+                "class_truth_empty_while_parse_ok": (
+                    entity.kind == "class" and file_result.parse_ok and len(full_truth) == 0
+                ),
                 "raw_call_edges_count": len(file_result.call_edges),
                 "raw_import_edges_count": len(file_result.import_edges),
                 "normalized_call_edges_count": len(normalized_calls),

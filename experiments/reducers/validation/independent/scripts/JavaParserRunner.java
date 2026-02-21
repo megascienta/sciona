@@ -34,27 +34,48 @@ public class JavaParserRunner {
     }
 
     private static class ContextVisitor extends VoidVisitorAdapter<Void> {
+        private static class Scope {
+            final String name;
+            final String kind;
+
+            Scope(String name, String kind) {
+                this.name = name;
+                this.kind = kind;
+            }
+        }
+
         private final String moduleQname;
         private final Result result;
-        private final Deque<String> scope = new ArrayDeque<>();
+        private final Deque<Scope> scope = new ArrayDeque<>();
 
         ContextVisitor(String moduleQname, Result result) {
             this.moduleQname = moduleQname;
             this.result = result;
-            this.scope.push(moduleQname);
+            this.scope.push(new Scope(moduleQname, "module"));
         }
 
         private String currentScope() {
-            return scope.peek();
+            return scope.peek().name;
+        }
+
+        private String currentScopeKind() {
+            return scope.peek().kind;
         }
 
         @Override
         public void visit(ClassOrInterfaceDeclaration node, Void arg) {
-            String qname = moduleQname + "." + node.getNameAsString();
+            String scopeKind = currentScopeKind();
+            if ("method".equals(scopeKind)) {
+                // Nested classes inside callables are implementation detail.
+                super.visit(node, arg);
+                return;
+            }
+            String parent = "class".equals(scopeKind) ? currentScope() : moduleQname;
+            String qname = parent + "." + node.getNameAsString();
             int start = node.getRange().map(r -> r.begin.line).orElse(1);
             int end = node.getRange().map(r -> r.end.line).orElse(start);
             result.defs.add(String.format("%s|class|%d|%d", qname, start, end));
-            scope.push(qname);
+            scope.push(new Scope(qname, "class"));
             super.visit(node, arg);
             scope.pop();
         }
@@ -66,7 +87,7 @@ public class JavaParserRunner {
             int start = node.getRange().map(r -> r.begin.line).orElse(1);
             int end = node.getRange().map(r -> r.end.line).orElse(start);
             result.defs.add(String.format("%s|method|%d|%d", qname, start, end));
-            scope.push(qname);
+            scope.push(new Scope(qname, "method"));
             super.visit(node, arg);
             scope.pop();
         }
@@ -78,7 +99,7 @@ public class JavaParserRunner {
             int start = node.getRange().map(r -> r.begin.line).orElse(1);
             int end = node.getRange().map(r -> r.end.line).orElse(start);
             result.defs.add(String.format("%s|method|%d|%d", qname, start, end));
-            scope.push(qname);
+            scope.push(new Scope(qname, "method"));
             super.visit(node, arg);
             scope.pop();
         }

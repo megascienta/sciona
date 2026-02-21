@@ -134,7 +134,40 @@ def edge_records_from_ground_truth(
         )
 
     if entity.kind == "class":
-        prefix = f"{entity.qualified_name}."
+        class_qname = entity.qualified_name
+        matched_class = None
+        for definition in file_result.defs:
+            if definition.kind != "class":
+                continue
+            if definition.qualified_name == entity.qualified_name:
+                matched_class = definition
+                break
+        entity_start = getattr(entity, "start_line", None)
+        entity_end = getattr(entity, "end_line", None)
+        if matched_class is None and entity_start and entity_end:
+            containing = [
+                definition
+                for definition in file_result.defs
+                if definition.kind == "class"
+                and definition.start_line <= entity_start
+                and definition.end_line >= entity_end
+            ]
+            if containing:
+                containing.sort(key=lambda item: (item.end_line - item.start_line, item.qualified_name))
+                matched_class = containing[0]
+        if matched_class is None:
+            leaf = entity.qualified_name.rsplit(".", 1)[-1]
+            same_leaf = [
+                definition
+                for definition in file_result.defs
+                if definition.kind == "class"
+                and definition.qualified_name.rsplit(".", 1)[-1] == leaf
+            ]
+            if len(same_leaf) == 1:
+                matched_class = same_leaf[0]
+        if matched_class is not None:
+            class_qname = matched_class.qualified_name
+        prefix = f"{class_qname}."
         for definition in file_result.defs:
             if definition.kind != "method":
                 continue

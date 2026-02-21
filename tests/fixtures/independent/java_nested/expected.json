@@ -1,0 +1,12 @@
+{
+  "defs": [
+    "fixture.sample.Outer",
+    "fixture.sample.Outer.Inner",
+    "fixture.sample.Outer.Inner.ping",
+    "fixture.sample.Outer.helper"
+  ],
+  "call_callees": [
+    "helper"
+  ],
+  "import_targets": []
+}

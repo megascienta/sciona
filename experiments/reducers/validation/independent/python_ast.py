@@ -64,7 +64,15 @@ class _CallVisitor(ast.NodeVisitor):
         self._scope_stack.pop()
 
     def visit_ClassDef(self, node: ast.ClassDef) -> None:
-        qname = f"{self.module_qname}.{node.name}"
+        scope_kind = self._current_scope_kind()
+        if scope_kind in {"function", "method"}:
+            # Nested classes inside callables are implementation detail.
+            self.generic_visit(node)
+            return
+        if scope_kind == "class":
+            qname = f"{self._current_scope()}.{node.name}"
+        else:
+            qname = f"{self.module_qname}.{node.name}"
         self.defs.append(Definition("class", qname, node.lineno, node.end_lineno or node.lineno))
         self._scope_stack.append((qname, "class"))
         self.generic_visit(node)

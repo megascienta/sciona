@@ -22,6 +22,7 @@ DEFAULT_THRESHOLDS = {
     "misses_out_of_contract_rate_min": 0.80,
     "reducer_db_overlap_min": 1.0,
     "reducer_filtered_overlap_min": 0.95,
+    "class_truth_nonempty_rate_min": 0.90,
     "overlap_epsilon": 1e-9,
 }
 

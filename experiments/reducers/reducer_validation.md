@@ -3,14 +3,26 @@
 ## 1. Purpose
 This workflow validates SCIONA reducer outputs against:
 - SCIONA DB graph queries (internal consistency check), and
-- Independent parser truth (external reference).
+- independent parser truth (external reference).
 
-The goal is not to prove "all code semantics"; the goal is to validate the enforced structural contract for:
+The scope is strict structural contract validation for:
 - module imports,
 - class defined methods,
 - callable neighbors.
 
-## 2. Canonical Contract
+## 2. Independence Boundary
+Validation must remain parser-independent from SCIONA core semantics.
+
+Required boundary:
+- `experiments/reducers/validation/independent/*` and validation contract resolution use independent implementations.
+- No semantic import from `src/sciona/code_analysis/core/extract/languages/*`.
+
+Allowed shared dependencies:
+- runtime/config/path helpers,
+- DB/reducer query adapters,
+- generic dataclasses/utilities.
+
+## 3. Canonical Contract
 Authoritative machine-readable contract:
 - `experiments/reducers/validation/structural_contract.yaml`
 
@@ -19,29 +31,20 @@ Key contract rules:
 - Imports must resolve to in-repo modules for in-contract scoring.
 - Out-of-contract includes unresolved/external/dynamic and configured standard calls.
 
-## 3. Source-of-Truth Model
-Per sampled node, the workflow constructs three edge sets:
-1. `reducer_edges`: SCIONA reducer output.
-2. `db_edges`: direct graph DB query output.
-3. `independent_full` + `independent_filtered`:
-   - `full`: all independent parser edges for the node scope.
-   - `filtered`: independent edges that satisfy SCIONA contract.
-
-Independent edges are deduplicated as neighbor edges (not callsite frequency).
-
 ## 4. Validation Pipeline
 1. Load nodes from artifact/core DB.
 2. Stratified sampling by language/kind/buckets.
 3. Parse sampled files with independent parsers (Python/TS/Java).
-4. Normalize independent outputs into SCIONA comparison shape.
-5. Build independent call-resolution context.
-6. Compute per-node metrics for:
+4. Canonicalize module names and normalize independent outputs into SCIONA comparison shape.
+5. Apply independent scoped call normalization (language + module scope).
+6. Build independent call-resolution context.
+7. Compute per-node metrics for:
    - reducer vs db
    - db vs independent full
    - reducer vs independent filtered
    - reducer vs independent full
-7. Enforce hard invariants.
-8. Emit JSON + Markdown reports.
+8. Enforce hard invariants.
+9. Emit JSON + Markdown reports.
 
 ## 5. Hard Invariants (Run-Gating)
 The run is valid only when all pass:
@@ -52,6 +55,9 @@ The run is valid only when all pass:
 - `gate_filter_resolved`
 - `gate_parser_deterministic`
 - `gate_no_duplicate_contract_edges`
+- `gate_typescript_relative_index_contract`
+- `gate_class_truth_nonempty_rate`
+- `gate_scoped_call_normalization`
 - `gate_equal_full_metrics_when_exact`
 
 Interpretation:
@@ -64,17 +70,15 @@ Primary metrics:
 - `full_recall`: reducer coverage of unfiltered independent truth.
 - `overreach_rate`: reducer edges outside independent full truth.
 
-Expected behavior:
-- `contract_recall` should be near 1.0 if SCIONA contract coverage is strong.
-- `full_recall` is expected to be lower than `contract_recall`.
-- `overreach_rate` should be low; high values indicate resolver/schema mismatch risk.
+Auxiliary quality metrics:
+- `quality_gates.class_truth_nonempty_rate`
+- `quality_gates.scoped_call_normalization_ok`
+- `micro_metrics_by_kind` (module/class/function/method)
 
 ## 7. Determinism
 `--stability-runs` reruns independent parsing and hashes normalized outputs.
 - `stability_score = 1.0` means deterministic parser output across reruns.
 - Hashes are stored in `stability_hashes`.
-
-This is independent-parser determinism, not structural-index hash stability.
 
 ## 8. Output Schema (Current)
 Main report keys:
@@ -82,6 +86,8 @@ Main report keys:
 - `invariants`
 - `core_metrics`
 - `micro_metrics`
+- `micro_metrics_by_kind`
+- `quality_gates`
 - `edge_type_breakdown_reducer_vs_independent_full`
 - `out_of_contract_breakdown`
 - `independent_totals`
@@ -89,26 +95,26 @@ Main report keys:
 - `stability_score`, `stability_hashes`, `stability_error`
 - `per_node`
 
-Paths:
-- `experiments/reducers/reports/<repo>_reducer_validation.json`
-- `experiments/reducers/reports/<repo>_reducer_validation.md`
-
 ## 9. Running
 ```bash
 python experiments/reducers/reducer_validation.py \
   --repo-root /path/to/repo \
   --nodes 500 \
   --seed 20260221 \
-  --stability-runs 3
+  --stability-runs 2
 ```
 
 ## 10. Interpretation Rules
 - First check invariants; if any fail, do not trust metric comparisons.
-- If invariants pass and `reducer_vs_db` is exact, then reducer and DB are equivalent for evaluated nodes.
-- Differences vs independent truth then indicate contract/scope/resolution gaps, not reducer-vs-DB divergence.
-- Use `out_of_contract_breakdown` to separate expected contract exclusions from actionable misses.
+- If invariants pass and `reducer_vs_db` is exact, reducer and DB are equivalent for evaluated nodes.
+- Differences vs independent truth then indicate contract/scope/resolution gaps.
+- Use `micro_metrics_by_kind` and `quality_gates` before drawing language-level conclusions.
 
-## 11. Known Limits
+## 11. Rollup Policy
+Artifact rollups are rebuilt fully each run (correctness-first).
+Incremental rollup recompute is disabled by default.
+
+## 12. Known Limits
 - Independent parsers are static and contract-driven; they do not model runtime dispatch.
 - Cross-language semantic equivalence is constrained by parser/resolution quality.
-- Worktree-dirty repositories can diverge from last committed SCIONA snapshot; rebuild/index hygiene still matters.
+- Java independent parser fixture requires `SCIONA_JAVAPARSER_JAR` + `java/javac`.

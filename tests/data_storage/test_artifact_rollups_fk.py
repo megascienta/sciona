@@ -61,7 +61,7 @@ def test_rollups_use_structural_ids_for_module_edges(tmp_path: Path):
         core_conn.close()
 
 
-def test_rollups_incremental_rebuild_for_changed_nodes(tmp_path: Path):
+def test_rollups_full_rebuild_is_idempotent(tmp_path: Path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     prefix = runtime_paths.repo_name_prefix(repo_root)
     core_conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
@@ -102,12 +102,11 @@ def test_rollups_incremental_rebuild_for_changed_nodes(tmp_path: Path):
                 artifact_conn,
                 core_conn=core_conn,
                 snapshot_id=snapshot_id,
-                changed_node_ids={"meth_alpha"},
             )
-        incremental = artifact_conn.execute(
+        rebuilt = artifact_conn.execute(
             "SELECT COUNT(*) AS c FROM module_call_edges"
         ).fetchone()["c"]
-        assert incremental == baseline
+        assert rebuilt == baseline
     finally:
         artifact_conn.close()
         core_conn.close()

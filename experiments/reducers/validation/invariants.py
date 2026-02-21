@@ -84,6 +84,8 @@ def evaluate_invariants(
     parser_deterministic: bool,
     no_duplicate_contract_edges: bool,
     typescript_relative_index_contract_ok: bool,
+    class_truth_nonempty_rate_ok: bool,
+    scoped_call_normalization_ok: bool,
 ) -> dict:
     failures: List[str] = []
     exact_mismatches: List[dict] = []
@@ -134,6 +136,16 @@ def evaluate_invariants(
         failures.append(
             "typescript import contract parity failed: relative import index fallback mismatch"
         )
+    gate_class_truth_nonempty_rate = class_truth_nonempty_rate_ok
+    if not gate_class_truth_nonempty_rate:
+        failures.append(
+            "class truth quality gate failed: too many class nodes have empty full truth with parse_ok"
+        )
+    gate_scoped_call_normalization = scoped_call_normalization_ok
+    if not gate_scoped_call_normalization:
+        failures.append(
+            "scoped call normalization gate failed: ambiguous terminals remain mapped to multiple qnames"
+        )
 
     gate_equal_full_metrics = True
     if gate_reducer_db_exact and gate_aligned_scoring:
@@ -158,6 +170,8 @@ def evaluate_invariants(
         "gate_parser_deterministic": gate_parser_deterministic,
         "gate_no_duplicate_contract_edges": gate_no_duplicate_contract_edges,
         "gate_typescript_relative_index_contract": gate_typescript_relative_index_contract,
+        "gate_class_truth_nonempty_rate": gate_class_truth_nonempty_rate,
+        "gate_scoped_call_normalization": gate_scoped_call_normalization,
         "gate_equal_full_metrics_when_exact": gate_equal_full_metrics,
         "reducer_db_mismatch_examples": exact_mismatches[:10],
     }

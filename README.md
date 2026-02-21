@@ -109,23 +109,32 @@ Hard invariants (all must pass):
 - `gate_parser_deterministic`
 - `gate_no_duplicate_contract_edges`
 - `gate_typescript_relative_index_contract`
+- `gate_class_truth_nonempty_rate`
+- `gate_scoped_call_normalization`
 - `gate_equal_full_metrics_when_exact`
 
 Core metrics:
 - `contract_recall`: reducer coverage of contract-filtered independent truth.
 - `full_recall`: reducer coverage of unfiltered independent truth.
 - `overreach_rate`: reducer edges not present in independent full truth.
+- `quality_gates.class_truth_nonempty_rate`: evaluator quality gate for class truth completeness.
+- `micro_metrics_by_kind`: module/class/function/method decomposition.
+
+Validation implementation constraints:
+- Independent validation logic does not import SCIONA core language semantic normalizers.
+- Artifact rollups are rebuilt fully each run (correctness-first; incremental disabled by default).
 
 Current report snapshot (N=500 each, from `experiments/reducers/reports/`):
 
 | Repository | Language | Sampled Nodes | Invariants Passed | Reducer vs DB | Contract Recall | Full Recall | Overreach Rate |
 | ---------- | -------- | ------------- | ----------------- | ------------- | --------------- | ----------- | -------------- |
-| [Apache Commons Lang](https://github.com/apache/commons-lang) | Java | 500 | **True** | **1.0 / 1.0** | **0.9448** | **0.6933** | **0.0097** |
-| [FastAPI](https://github.com/fastapi/fastapi) | Python | 500 | **True** | **1.0 / 1.0** | **0.9538** | **0.4046** | **0.0027** |
-| [Nest](https://github.com/nestjs/nest) | TypeScript | 500 | **True** | **1.0 / 1.0** | **0.8966** | **0.4995** | **0.1963** |
+| [Apache Commons Lang](https://github.com/apache/commons-lang) | Java | 500 | **True** | **1.0 / 1.0** | **0.7918** | **0.6103** | **0.0142** |
+| [FastAPI](https://github.com/fastapi/fastapi) | Python | 500 | **False** | **1.0 / 1.0** | **0.9783** | **0.4182** | **0.0167** |
+| [Nest](https://github.com/nestjs/nest) | TypeScript | 500 | **False** | **1.0 / 1.0** | **0.9289** | **0.5225** | **0.2249** |
 
 Interpretation:
 - Reducer vs DB exact overlap (`1.0 / 1.0`) means reducer projection is internally consistent with DB for sampled nodes.
+- If invariants fail (for example `gate_class_truth_nonempty_rate`), treat comparison metrics as diagnostic only until evaluator quality is restored.
 - `contract_recall` is the primary SCIONA contract-coverage signal.
 - `full_recall` is expected to be lower than `contract_recall` because full truth includes out-of-contract edges.
 - Higher `overreach_rate` indicates mismatch pressure between reducer output and independent full truth representation; investigate with per-node report details and `out_of_contract_breakdown`.

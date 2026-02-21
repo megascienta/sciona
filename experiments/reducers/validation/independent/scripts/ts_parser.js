@@ -208,7 +208,26 @@ function parseFile(entry) {
     }
 
     if (ts.isClassDeclaration(node) && node.name) {
-      const qname = `${entry.module_qualified_name}.${node.name.text}`;
+      const scopeKind = currentScopeKind();
+      if (scopeKind === "function" || scopeKind === "method") {
+        // Nested classes inside callables are implementation detail.
+        ts.forEachChild(node, visit);
+        return;
+      }
+      const parent = scopeKind === "class" ? currentScope() : entry.module_qualified_name;
+      const qname = `${parent}.${node.name.text}`;
+      registerCallable("class", qname, node, () => ts.forEachChild(node, visit));
+      return;
+    }
+
+    if (ts.isClassExpression(node) && node.name) {
+      const scopeKind = currentScopeKind();
+      if (scopeKind === "function" || scopeKind === "method") {
+        ts.forEachChild(node, visit);
+        return;
+      }
+      const parent = scopeKind === "class" ? currentScope() : entry.module_qualified_name;
+      const qname = `${parent}.${node.name.text}`;
       registerCallable("class", qname, node, () => ts.forEachChild(node, visit));
       return;
     }

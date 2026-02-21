@@ -13,11 +13,14 @@ import pytest
 from experiments.reducers.reducer_validation import _independent_results_hash
 from experiments.reducers.validation.ground_truth import edge_records_from_ground_truth
 from experiments.reducers.validation.import_contract import resolve_import_contract
+from experiments.reducers.validation.independent.contract_normalization import (
+    normalize_scoped_calls,
+)
 from experiments.reducers.validation.independent.normalize import normalize_file_edges
 from experiments.reducers.validation.independent.python_ast import parse_python_files
 from experiments.reducers.validation.independent.ts_node import parse_typescript_files
 from experiments.reducers.validation.independent.java_runner import parse_java_files
-from experiments.reducers.validation.independent.shared import EdgeRecord
+from experiments.reducers.validation.independent.shared import EdgeRecord, NormalizedCallEdge
 from experiments.reducers.validation.metrics import compute_metrics
 
 
@@ -74,6 +77,23 @@ def test_typescript_parser_reexport_fixture() -> None:
     _assert_fixture_exact(result, expected)
 
 
+def test_python_parser_nested_class_fixture() -> None:
+    root = FIXTURE_ROOT / "python_nested"
+    files = [{"file_path": "sample.py", "module_qualified_name": "fixture.sample"}]
+    result = parse_python_files(root, files)[0]
+    expected = _load_expected(root / "expected.json")
+    _assert_fixture_exact(result, expected)
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="node is required")
+def test_typescript_parser_nested_class_fixture() -> None:
+    root = FIXTURE_ROOT / "typescript_nested"
+    files = [{"file_path": "sample.ts", "module_qualified_name": "fixture.sample"}]
+    result = parse_typescript_files(root, files)[0]
+    expected = _load_expected(root / "expected.json")
+    _assert_fixture_exact(result, expected)
+
+
 @pytest.mark.skipif(
     not os.environ.get("SCIONA_JAVAPARSER_JAR")
     or shutil.which("javac") is None
@@ -86,6 +106,114 @@ def test_java_parser_fixture() -> None:
     result = parse_java_files(root, files)[0]
     expected = _load_expected(root / "expected.json")
     _assert_fixture(result, expected)
+
+
+@pytest.mark.skipif(
+    not os.environ.get("SCIONA_JAVAPARSER_JAR")
+    or shutil.which("javac") is None
+    or shutil.which("java") is None,
+    reason="java parser toolchain is not configured",
+)
+def test_java_parser_nested_class_fixture() -> None:
+    root = FIXTURE_ROOT / "java_nested"
+    files = [{"file_path": "Sample.java", "module_qualified_name": "fixture.sample"}]
+    result = parse_java_files(root, files)[0]
+    expected = _load_expected(root / "expected.json")
+    _assert_fixture(result, expected)
+
+
+def test_scoped_call_normalization_is_module_and_language_local() -> None:
+    alpha_calls = [
+        NormalizedCallEdge(
+            caller="repo.pkg.alpha.fn",
+            callee="run",
+            callee_qname="repo.pkg.alpha.Service.run",
+            dynamic=False,
+        ),
+        NormalizedCallEdge(
+            caller="repo.pkg.alpha.fn2",
+            callee="run",
+            callee_qname="repo.pkg.alpha.Other.run",
+            dynamic=False,
+        ),
+    ]
+    beta_calls = [
+        NormalizedCallEdge(
+            caller="repo.pkg.beta.fn",
+            callee="run",
+            callee_qname="repo.pkg.beta.Service.run",
+            dynamic=False,
+        )
+    ]
+    alpha = normalize_scoped_calls(alpha_calls, language="python", module_scope="repo.pkg.alpha")
+    beta = normalize_scoped_calls(beta_calls, language="python", module_scope="repo.pkg.beta")
+    # Ambiguous terminal in same scope must collapse to terminal only.
+    assert alpha[0].callee_qname is None
+    assert alpha[0].callee == "run"
+    assert beta[0].callee_qname == "repo.pkg.beta.Service.run"
+
+
+def test_import_contract_typescript_relative_index_fallback() -> None:
+    resolved = resolve_import_contract(
+        raw_target="./api",
+        file_path="pkg/main.ts",
+        module_qname="fixture.pkg.main",
+        language="typescript",
+        contract={
+            "imports": {
+                "require_module_in_repo": True,
+                "languages": {"typescript": {"resolver": "typescript_normalize"}},
+            }
+        },
+        module_names={"fixture.pkg.api.index"},
+        repo_root=Path("/tmp/fixture"),
+        repo_prefix="fixture",
+        local_packages={"fixture"},
+    )
+    assert resolved == "fixture.pkg.api.index"
+
+
+def test_import_contract_python_relative_package_resolution() -> None:
+    resolved = resolve_import_contract(
+        raw_target=".utils",
+        file_path="pkg/mod.py",
+        module_qname="fixture.pkg.mod",
+        language="python",
+        contract={
+            "imports": {
+                "require_module_in_repo": True,
+                "languages": {"python": {"resolver": "python_resolve"}},
+            }
+        },
+        module_names={"fixture.pkg.utils"},
+        repo_root=Path("/tmp/fixture"),
+        repo_prefix="fixture",
+        local_packages={"fixture"},
+    )
+    assert resolved == "fixture.pkg.utils"
+
+
+def test_import_contract_java_package_prefix_resolution(tmp_path: Path) -> None:
+    src = tmp_path / "src" / "main" / "java" / "org" / "example"
+    src.mkdir(parents=True)
+    (src / "Main.java").write_text("package org.example;\nclass Main {}\n", encoding="utf-8")
+    resolved = resolve_import_contract(
+        raw_target="org.example.dep.Type",
+        file_path="src/main/java/org/example/Main.java",
+        module_qname="fixture.src.main.java.org.example.Main",
+        language="java",
+        contract={
+            "imports": {
+                "require_module_in_repo": True,
+                "languages": {"java": {"resolver": "java_normalize"}},
+            }
+        },
+        module_names={"fixture.src.main.java.org.example.dep.Type"},
+        repo_root=tmp_path,
+        repo_prefix="fixture",
+        local_packages={"fixture"},
+    )
+    assert resolved == "fixture.src.main.java.org.example.dep.Type"
 
 
 def test_metrics_deduplicates_neighbor_edges() -> None:

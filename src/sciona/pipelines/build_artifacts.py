@@ -59,17 +59,13 @@ def refresh_artifact_state(
     snapshot_id: str,
     call_artifacts: Sequence[CallExtractionRecord],
 ) -> None:
-    statuses, current_node_ids, removed_node_ids = _snapshot_nodes_status(conn, snapshot_id)
+    statuses, current_node_ids = _snapshot_nodes_status(conn, snapshot_id)
     current_statuses = [
         (node_id, status) for node_id, status in statuses if status != "removed"
     ]
     eligible_callers: Set[str] = {
         node_id for node_id, status in statuses if status in {"added", "modified"}
     }
-    changed_node_ids: Set[str] = {
-        node_id for node_id, status in statuses if status in {"added", "modified"}
-    }
-    changed_node_ids.update(removed_node_ids)
     artifact_path = get_artifact_db_path(repo_root)
     with artifact(artifact_path, repo_root=repo_root) as artifact_conn:
         artifact_write.mark_rebuild_started(artifact_conn, snapshot_id=snapshot_id)
@@ -99,7 +95,6 @@ def refresh_artifact_state(
                     artifact_conn,
                     core_conn=conn,
                     snapshot_id=snapshot_id,
-                    changed_node_ids=changed_node_ids,
                 )
             artifact_write.mark_rebuild_completed(
                 artifact_conn, snapshot_id=snapshot_id
@@ -120,7 +115,7 @@ def refresh_artifact_state(
 
 def _snapshot_nodes_status(
     conn, snapshot_id: str
-) -> Tuple[List[Tuple[str, str]], Set[str], Set[str]]:
+) -> Tuple[List[Tuple[str, str]], Set[str]]:
     current_hashes = core_read.snapshot_node_hashes(conn, snapshot_id)
     previous_snapshot_id = annotate_diff.previous_snapshot_id(conn, snapshot_id)
     previous_hashes = previous_node_hashes(conn, previous_snapshot_id)
@@ -137,7 +132,7 @@ def _snapshot_nodes_status(
     removed_ids = set(previous_hashes.keys()) - current_ids
     for structural_id in sorted(removed_ids):
         statuses.append((structural_id, "removed"))
-    return statuses, current_ids, removed_ids
+    return statuses, current_ids
 
 
 def previous_node_hashes(conn, snapshot_id: str | None) -> Dict[str, str]:

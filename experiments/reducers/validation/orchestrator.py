@@ -125,9 +125,11 @@ def run_validation(
             if parse_progress:
                 parse_progress.close()
 
-            normalized_edge_map, module_imports_by_prefix = build_normalized_edge_maps(
-                repo_root, independent_results
-            )
+            (
+                normalized_edge_map,
+                module_imports_by_prefix,
+                scoped_normalization_ok,
+            ) = build_normalized_edge_maps(repo_root, independent_results)
             stability_score = None
             stability_error = None
             stability_hashes: List[str] = []
@@ -140,7 +142,9 @@ def run_validation(
                     rerun_results = parse_independent_files(
                         repo_root, parse_file_map, on_file_parsed=None
                     )
-                    rerun_normalized_map, _ = build_normalized_edge_maps(repo_root, rerun_results)
+                    rerun_normalized_map, _, _ = build_normalized_edge_maps(
+                        repo_root, rerun_results
+                    )
                     stability_hashes.append(
                         independent_results_hash(rerun_results, rerun_normalized_map)
                     )
@@ -207,6 +211,26 @@ def run_validation(
         scored_rows_reducer_vs_filtered, "metrics_reducer_vs_independent_filtered"
     )
     filter_subset_ok, filter_resolved_ok, no_duplicate_contract_edges = filter_contract_checks(rows)
+    class_rows_parse_ok = [
+        row
+        for row in rows
+        if row.get("kind") == "class" and row.get("ground_truth_parse_ok")
+    ]
+    class_rows_nonempty = [
+        row for row in class_rows_parse_ok if not row.get("class_truth_empty_while_parse_ok")
+    ]
+    class_truth_nonempty_rate = (
+        (len(class_rows_nonempty) / len(class_rows_parse_ok))
+        if class_rows_parse_ok
+        else 1.0
+    )
+
+    def _micro_by_kind(metric_key: str) -> dict[str, dict]:
+        by_kind: dict[str, dict] = {}
+        for kind in ("module", "class", "function", "method"):
+            subset = [row for row in rows if row.get("kind") == kind and row.get(metric_key)]
+            by_kind[kind] = micro(subset, metric_key) if subset else {}
+        return by_kind
 
     invariants = evaluate_invariants(
         rows,
@@ -221,6 +245,10 @@ def run_validation(
         parser_deterministic=(stability_score == 1.0),
         no_duplicate_contract_edges=no_duplicate_contract_edges,
         typescript_relative_index_contract_ok=_typescript_relative_index_contract_check(contract),
+        class_truth_nonempty_rate_ok=(
+            class_truth_nonempty_rate >= config.DEFAULT_THRESHOLDS["class_truth_nonempty_rate_min"]
+        ),
+        scoped_call_normalization_ok=scoped_normalization_ok,
     )
 
     full_recall = reducer_vs_full_micro.get("recall")
@@ -277,6 +305,14 @@ def run_validation(
             "reducer_vs_independent_filtered": reducer_vs_filtered_micro,
             "reducer_vs_independent_full": reducer_vs_full_micro,
         },
+        "micro_metrics_by_kind": {
+            "reducer_vs_db": _micro_by_kind("metrics_reducer_vs_db"),
+            "db_vs_independent_full": _micro_by_kind("metrics_db_vs_independent_full"),
+            "reducer_vs_independent_filtered": _micro_by_kind(
+                "metrics_reducer_vs_independent_filtered"
+            ),
+            "reducer_vs_independent_full": _micro_by_kind("metrics_reducer_vs_independent_full"),
+        },
         "edge_type_breakdown_reducer_vs_independent_full": edge_breakdown_full,
         "failure_examples_reducer_vs_independent_full": failure_examples_full,
         "out_of_contract_breakdown": aggregate_breakdown(out_of_contract_meta),
@@ -298,6 +334,13 @@ def run_validation(
         "stability_score": stability_score,
         "stability_hashes": stability_hashes,
         "stability_error": stability_error,
+        "quality_gates": {
+            "class_truth_nonempty_rate": class_truth_nonempty_rate,
+            "class_truth_nonempty_rate_min": config.DEFAULT_THRESHOLDS[
+                "class_truth_nonempty_rate_min"
+            ],
+            "scoped_call_normalization_ok": scoped_normalization_ok,
+        },
     }
 
     write_json(reports.json_path, payload)

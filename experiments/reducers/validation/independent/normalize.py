@@ -60,7 +60,9 @@ def normalize_file_edges(
     module_qualified_name: str,
     call_edges: List[CallEdge],
     import_edges: List[ImportEdge],
+    language: str = "unknown",
 ) -> Tuple[List[NormalizedCallEdge], List[NormalizedImportEdge]]:
+    del language
     return (
         normalize_call_edges(module_qualified_name, call_edges),
         normalize_import_edges(module_qualified_name, import_edges),
