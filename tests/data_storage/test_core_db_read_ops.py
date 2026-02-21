@@ -32,7 +32,7 @@ def test_latest_committed_snapshot_orders_by_commit_time(tmp_path) -> None:
         created_at="2024-01-01T00:00:00Z",
         source="test",
         structural_hash="hash-old",
-        is_committed=True,
+        is_committed=False,
         git_commit_time="2024-01-01T00:00:00Z",
     )
     core_write.insert_snapshot(
@@ -47,7 +47,7 @@ def test_latest_committed_snapshot_orders_by_commit_time(tmp_path) -> None:
     conn.commit()
 
     assert read_snapshots.latest_committed_snapshot_id(conn) == "snap_new"
-    assert read_snapshots.list_committed_snapshots(conn) == ["snap_new", "snap_old"]
+    assert read_snapshots.list_committed_snapshots(conn) == ["snap_new"]
     conn.close()
 
 
@@ -82,7 +82,7 @@ def test_node_hashes_for_ids_is_scoped_to_snapshot(tmp_path) -> None:
         created_at="2024-01-01T00:00:00Z",
         source="test",
         structural_hash="hash-a",
-        is_committed=True,
+        is_committed=False,
     )
     core_write.insert_snapshot(
         conn,

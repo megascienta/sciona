@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import os
 import shutil
 from pathlib import Path
 from types import SimpleNamespace
@@ -16,6 +15,7 @@ from experiments.reducers.validation.import_contract import resolve_import_contr
 from experiments.reducers.validation.independent.contract_normalization import (
     normalize_scoped_calls,
 )
+from experiments.reducers.validation.independent.java_runner import _require_jar
 from experiments.reducers.validation.independent.normalize import normalize_file_edges
 from experiments.reducers.validation.independent.python_ast import parse_python_files
 from experiments.reducers.validation.independent.ts_node import parse_typescript_files
@@ -25,6 +25,16 @@ from experiments.reducers.validation.metrics import compute_metrics
 
 
 FIXTURE_ROOT = Path("tests/fixtures/independent")
+
+
+def _java_parser_ready() -> bool:
+    if shutil.which("javac") is None or shutil.which("java") is None:
+        return False
+    try:
+        jar = Path(_require_jar())
+    except Exception:
+        return False
+    return jar.is_file()
 
 
 def _load_expected(path: Path) -> dict:
@@ -95,9 +105,7 @@ def test_typescript_parser_nested_class_fixture() -> None:
 
 
 @pytest.mark.skipif(
-    not os.environ.get("SCIONA_JAVAPARSER_JAR")
-    or shutil.which("javac") is None
-    or shutil.which("java") is None,
+    not _java_parser_ready(),
     reason="java parser toolchain is not configured",
 )
 def test_java_parser_fixture() -> None:
@@ -109,9 +117,7 @@ def test_java_parser_fixture() -> None:
 
 
 @pytest.mark.skipif(
-    not os.environ.get("SCIONA_JAVAPARSER_JAR")
-    or shutil.which("javac") is None
-    or shutil.which("java") is None,
+    not _java_parser_ready(),
     reason="java parser toolchain is not configured",
 )
 def test_java_parser_nested_class_fixture() -> None:

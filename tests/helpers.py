@@ -209,7 +209,9 @@ def setup_evolution_db(tmp_path: Path) -> Dict[str, object]:
     conn.row_factory = sqlite3.Row
     ensure_schema(conn)
 
-    insert_snapshot(conn, "snap_a", structural_hash="struct-a")
+    insert_snapshot(
+        conn, "snap_a", is_committed=False, structural_hash="struct-a"
+    )
     insert_snapshot(conn, "snap_b", structural_hash="struct-b")
     nodes = [
         (

@@ -8,7 +8,11 @@ from typing import Dict, List, Tuple
 from .call_contract import resolve_call_in_contract
 from .import_contract import resolve_import_contract
 from .independent.shared import EdgeRecord, FileParseResult, dedupe_edge_records
-from .out_of_contract import classify_call_reason, classify_import_reason
+from .out_of_contract import (
+    classify_call_reason,
+    classify_import_reason,
+    standard_call_names,
+)
 
 
 def build_module_imports_by_prefix(
@@ -44,10 +48,12 @@ def edge_records_from_ground_truth(
     repo_prefix: str,
     local_packages: set[str],
 ) -> Tuple[List[EdgeRecord], List[EdgeRecord], List[EdgeRecord], List[dict]]:
+    # Contract-first truth: only in-repo, contract-compatible edges.
     expected_filtered: List[EdgeRecord] = []
     full_truth: List[EdgeRecord] = []
     out_of_contract: List[EdgeRecord] = []
     out_of_contract_meta: List[dict] = []
+    standard_calls = standard_call_names(contract)
 
     if entity.kind == "module":
         entries = module_imports_by_prefix.get(entity.qualified_name, [])
@@ -70,7 +76,6 @@ def edge_records_from_ground_truth(
                 callee=resolved or raw_target,
                 callee_qname=resolved,
             )
-            full_truth.append(record)
             if edge.dynamic or not resolved:
                 reason = classify_import_reason(
                     raw_target=raw_target,
@@ -88,6 +93,7 @@ def edge_records_from_ground_truth(
                 )
             else:
                 expected_filtered.append(record)
+                full_truth.append(record)
         if not entries:
             for edge in normalized_imports:
                 caller = file_result.module_qualified_name
@@ -108,7 +114,6 @@ def edge_records_from_ground_truth(
                     callee=resolved or raw_target,
                     callee_qname=resolved,
                 )
-                full_truth.append(record)
                 if edge.dynamic or not resolved:
                     reason = classify_import_reason(
                         raw_target=raw_target,
@@ -126,6 +131,7 @@ def edge_records_from_ground_truth(
                     )
                 else:
                     expected_filtered.append(record)
+                    full_truth.append(record)
         return (
             dedupe_edge_records(expected_filtered),
             dedupe_edge_records(full_truth),
@@ -203,15 +209,18 @@ def edge_records_from_ground_truth(
             callee=edge.callee,
             callee_qname=edge.callee_qname,
         )
-        full_truth.append(full_record)
-        if not edge.dynamic and resolved_callee_qname:
-            expected_filtered.append(
-                EdgeRecord(
-                    caller=edge.caller,
-                    callee=edge.callee or resolved_callee_qname.split(".")[-1],
-                    callee_qname=resolved_callee_qname,
-                )
+        if (
+            not edge.dynamic
+            and resolved_callee_qname
+            and (edge.callee or "").strip() not in standard_calls
+        ):
+            resolved_record = EdgeRecord(
+                caller=edge.caller,
+                callee=edge.callee or resolved_callee_qname.split(".")[-1],
+                callee_qname=resolved_callee_qname,
             )
+            expected_filtered.append(resolved_record)
+            full_truth.append(resolved_record)
         else:
             out_of_contract.append(full_record)
             reason = classify_call_reason(

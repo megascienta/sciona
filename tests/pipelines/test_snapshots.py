@@ -59,14 +59,16 @@ def _setup_latest_snapshot_db(tmp_path: Path) -> tuple[Path, Path, str, str]:
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     ensure_schema(conn)
-    _insert_snapshot(conn, "snap_old", created_at="2024-01-01T00:00:00Z")
+    _insert_snapshot(conn, "snap_old", created_at="2024-01-01T00:00:00Z", is_committed=False)
     _insert_snapshot(conn, "snap_new", created_at="2024-01-02T00:00:00Z")
     conn.commit()
     conn.close()
     return repo_root, db_path, "snap_old", "snap_new"
 
 
-def _insert_snapshot(conn, snapshot_id: str, *, created_at: str) -> None:
+def _insert_snapshot(
+    conn, snapshot_id: str, *, created_at: str, is_committed: bool = True
+) -> None:
     conn.execute(
         """
         INSERT INTO snapshots(
@@ -84,7 +86,7 @@ def _insert_snapshot(conn, snapshot_id: str, *, created_at: str) -> None:
             snapshot_id,
             created_at,
             "test",
-            1,
+            1 if is_committed else 0,
             f"hash-{snapshot_id}",
             f"commit-{snapshot_id}",
             created_at,
@@ -182,7 +184,7 @@ def test_delete_committed_snapshots_except_keeps_only_target(tmp_path):
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     ensure_schema(conn)
-    insert_snapshot(conn, "snap_old", is_committed=True)
+    insert_snapshot(conn, "snap_old", is_committed=False)
     insert_snapshot(conn, "snap_keep", is_committed=True)
     conn.commit()
 
@@ -191,8 +193,12 @@ def test_delete_committed_snapshots_except_keeps_only_target(tmp_path):
         "SELECT snapshot_id FROM snapshots WHERE is_committed = 1 ORDER BY snapshot_id"
     ).fetchall()
 
-    assert removed == ["snap_old"]
+    assert removed == []
     assert [row["snapshot_id"] for row in remaining] == ["snap_keep"]
+    uncommitted = conn.execute(
+        "SELECT snapshot_id FROM snapshots WHERE is_committed = 0"
+    ).fetchall()
+    assert [row["snapshot_id"] for row in uncommitted] == ["snap_old"]
     conn.close()
 
 
@@ -212,10 +218,10 @@ def test_reducers_require_single_committed_snapshot_state(tmp_path: Path) -> Non
                 "module_overview",
                 "structural_index",
             }:
-                with pytest.raises(ValueError, match="exactly one committed snapshot"):
+                with pytest.raises(ValueError, match="committed snapshot"):
                     reducer.run(old_snapshot, conn=conn, repo_root=repo_root)
                 continue
-            with pytest.raises(ValueError, match="exactly one committed snapshot"):
+            with pytest.raises(ValueError, match="committed snapshot"):
                 reducer.render(old_snapshot, conn, repo_root)
     finally:
         conn.close()

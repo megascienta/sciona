@@ -6,7 +6,7 @@ from __future__ import annotations
 from typing import Iterable
 
 
-def _standard_call_names(contract: dict) -> set[str]:
+def standard_call_names(contract: dict) -> set[str]:
     block = contract.get("out_of_contract", {}).get("standard_calls", []) or []
     return {name for name in block if isinstance(name, str) and name}
 
@@ -20,7 +20,7 @@ def classify_call_reason(
 ) -> str:
     if edge.dynamic:
         return "dynamic"
-    standard = _standard_call_names(contract)
+    standard = standard_call_names(contract)
     if edge.callee and edge.callee in standard:
         return "standard_call"
     identifier = (edge.callee or "").strip()

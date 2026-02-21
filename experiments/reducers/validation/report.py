@@ -37,14 +37,14 @@ def render_summary(payload: dict) -> List[str]:
             "gate_reducer_db_exact",
             "gate_aligned_scoring",
             "gate_parse_coverage",
-            "gate_filter_subset",
-            "gate_filter_resolved",
+            "gate_contract_truth_pure",
+            "gate_contract_truth_resolved",
             "gate_parser_deterministic",
             "gate_no_duplicate_contract_edges",
             "gate_typescript_relative_index_contract",
             "gate_class_truth_nonempty_rate",
             "gate_scoped_call_normalization",
-            "gate_equal_full_metrics_when_exact",
+            "gate_equal_contract_metrics_when_exact",
         ]:
             lines.append(f"- {key}: `{invariants.get(key)}`")
         for item in invariants.get("failures") or []:
@@ -81,9 +81,8 @@ def render_summary(payload: dict) -> List[str]:
         "raw_import_edges",
         "normalized_call_edges",
         "normalized_import_edges",
-        "filtered_in_contract_edges",
-        "full_truth_edges",
-        "out_of_contract_edges",
+        "contract_truth_edges",
+        "enrichment_edges",
     ]:
         if key in independent_totals:
             lines.append(f"- {key}: `{independent_totals[key]}`")

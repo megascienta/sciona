@@ -585,20 +585,18 @@ def evaluate_entities(
         _, db_edges, db_error = db_source.get_edges(entity)
 
         metrics_reducer_vs_db = None
-        metrics_reducer_vs_independent_filtered = None
-        metrics_reducer_vs_independent_full = None
-        metrics_db_vs_independent_full = None
+        metrics_reducer_vs_contract = None
+        metrics_db_vs_contract = None
         reducer_db_empty_set_mismatch = False
         if not reducer_error and not db_error:
             metrics_reducer_vs_db = compare_edge_sets(db_edges, reducer_edges)
             reducer_db_empty_set_mismatch = bool(db_edges) != bool(reducer_edges)
         if file_result.parse_ok and not db_error:
-            metrics_db_vs_independent_full = compute_metrics(full_truth, [], db_edges)
+            metrics_db_vs_contract = compute_metrics(expected_filtered, [], db_edges)
         if file_result.parse_ok and not reducer_error:
-            metrics_reducer_vs_independent_filtered = compute_metrics(
+            metrics_reducer_vs_contract = compute_metrics(
                 expected_filtered, out_of_contract, reducer_edges
             )
-            metrics_reducer_vs_independent_full = compute_metrics(full_truth, [], reducer_edges)
         rows.append(
             {
                 "entity": entity.qualified_name,
@@ -609,27 +607,23 @@ def evaluate_entities(
                 "metrics_reducer_vs_db": asdict(metrics_reducer_vs_db)
                 if metrics_reducer_vs_db
                 else None,
-                "metrics_reducer_vs_independent_filtered": asdict(
-                    metrics_reducer_vs_independent_filtered
+                "metrics_reducer_vs_contract": asdict(
+                    metrics_reducer_vs_contract
                 )
-                if metrics_reducer_vs_independent_filtered
+                if metrics_reducer_vs_contract
                 else None,
-                "metrics_reducer_vs_independent_full": asdict(
-                    metrics_reducer_vs_independent_full
-                )
-                if metrics_reducer_vs_independent_full
-                else None,
-                "metrics_db_vs_independent_full": asdict(metrics_db_vs_independent_full)
-                if metrics_db_vs_independent_full
+                "metrics_db_vs_contract": asdict(metrics_db_vs_contract)
+                if metrics_db_vs_contract
                 else None,
                 "reducer_db_empty_set_mismatch": reducer_db_empty_set_mismatch,
-                "expected_filtered_edges": [asdict(edge) for edge in expected_filtered],
-                "full_truth_edges": [asdict(edge) for edge in full_truth],
-                "out_of_contract_edges": [asdict(edge) for edge in out_of_contract],
+                "contract_truth_edges": [asdict(edge) for edge in expected_filtered],
+                "enrichment_edges": [asdict(edge) for edge in out_of_contract],
                 "ground_truth_parse_ok": file_result.parse_ok,
                 "ground_truth_error": file_result.error,
                 "class_truth_empty_while_parse_ok": (
-                    entity.kind == "class" and file_result.parse_ok and len(full_truth) == 0
+                    entity.kind == "class"
+                    and file_result.parse_ok
+                    and len(expected_filtered) == 0
                 ),
                 "raw_call_edges_count": len(file_result.call_edges),
                 "raw_import_edges_count": len(file_result.import_edges),
@@ -639,6 +633,19 @@ def evaluate_entities(
                 "db_error": db_error,
                 "reducer_edges": [asdict(edge) for edge in reducer_edges],
                 "db_edges": [asdict(edge) for edge in db_edges],
+                # Backward-compatibility aliases (deprecated).
+                "expected_filtered_edges": [asdict(edge) for edge in expected_filtered],
+                "full_truth_edges": [asdict(edge) for edge in full_truth],
+                "out_of_contract_edges": [asdict(edge) for edge in out_of_contract],
+                "metrics_reducer_vs_independent_filtered": asdict(metrics_reducer_vs_contract)
+                if metrics_reducer_vs_contract
+                else None,
+                "metrics_reducer_vs_independent_full": asdict(metrics_reducer_vs_contract)
+                if metrics_reducer_vs_contract
+                else None,
+                "metrics_db_vs_independent_full": asdict(metrics_db_vs_contract)
+                if metrics_db_vs_contract
+                else None,
             }
         )
         if progress_handle:

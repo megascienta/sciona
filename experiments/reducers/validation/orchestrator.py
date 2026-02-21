@@ -187,30 +187,26 @@ def run_validation(
                 validation_progress,
             )
 
-    scored_rows_reducer_vs_filtered = [
-        row for row in rows if row.get("metrics_reducer_vs_independent_filtered") is not None
-    ]
-    scored_rows_reducer_vs_full = [
-        row for row in rows if row.get("metrics_reducer_vs_independent_full") is not None
+    scored_rows_reducer_vs_contract = [
+        row for row in rows if row.get("metrics_reducer_vs_contract") is not None
     ]
     scored_rows_reducer_vs_db = [
         row for row in rows if row.get("metrics_reducer_vs_db") is not None
     ]
-    scored_rows_db_vs_full = [
-        row for row in rows if row.get("metrics_db_vs_independent_full") is not None
+    scored_rows_db_vs_contract = [
+        row for row in rows if row.get("metrics_db_vs_contract") is not None
     ]
 
-    reducer_full_entities = {row["entity"] for row in scored_rows_reducer_vs_full}
-    db_full_entities = {row["entity"] for row in scored_rows_db_vs_full}
+    reducer_full_entities = {row["entity"] for row in scored_rows_reducer_vs_contract}
+    db_full_entities = {row["entity"] for row in scored_rows_db_vs_contract}
 
-    reducer_vs_full_micro = micro(
-        scored_rows_reducer_vs_full, "metrics_reducer_vs_independent_full"
+    reducer_vs_contract_micro = micro(
+        scored_rows_reducer_vs_contract, "metrics_reducer_vs_contract"
     )
-    db_vs_full_micro = micro(scored_rows_db_vs_full, "metrics_db_vs_independent_full")
-    reducer_vs_filtered_micro = micro(
-        scored_rows_reducer_vs_filtered, "metrics_reducer_vs_independent_filtered"
+    db_vs_contract_micro = micro(scored_rows_db_vs_contract, "metrics_db_vs_contract")
+    contract_truth_pure_ok, contract_truth_resolved_ok, no_duplicate_contract_edges = (
+        filter_contract_checks(rows)
     )
-    filter_subset_ok, filter_resolved_ok, no_duplicate_contract_edges = filter_contract_checks(rows)
     class_rows_parse_ok = [
         row
         for row in rows
@@ -236,12 +232,12 @@ def run_validation(
         rows,
         reducer_full_entities=reducer_full_entities,
         db_full_entities=db_full_entities,
-        reducer_full_micro=reducer_vs_full_micro,
-        db_full_micro=db_vs_full_micro,
+        reducer_full_micro=reducer_vs_contract_micro,
+        db_full_micro=db_vs_contract_micro,
         parse_ok_files=parse_ok_files,
         total_files=total_files,
-        filter_subset_ok=filter_subset_ok,
-        filter_resolved_ok=filter_resolved_ok,
+        contract_truth_pure_ok=contract_truth_pure_ok,
+        contract_truth_resolved_ok=contract_truth_resolved_ok,
         parser_deterministic=(stability_score == 1.0),
         no_duplicate_contract_edges=no_duplicate_contract_edges,
         typescript_relative_index_contract_ok=_typescript_relative_index_contract_check(contract),
@@ -251,19 +247,18 @@ def run_validation(
         scoped_call_normalization_ok=scoped_normalization_ok,
     )
 
-    full_recall = reducer_vs_full_micro.get("recall")
-    contract_recall = reducer_vs_filtered_micro.get("recall")
+    contract_recall = reducer_vs_contract_micro.get("recall")
     overreach_rate = None
-    if reducer_vs_full_micro["tp"] + reducer_vs_full_micro["fp"]:
-        overreach_rate = reducer_vs_full_micro["fp"] / (
-            reducer_vs_full_micro["tp"] + reducer_vs_full_micro["fp"]
+    if reducer_vs_contract_micro["tp"] + reducer_vs_contract_micro["fp"]:
+        overreach_rate = reducer_vs_contract_micro["fp"] / (
+            reducer_vs_contract_micro["tp"] + reducer_vs_contract_micro["fp"]
         )
 
-    failure_examples_full = failure_examples(
-        scored_rows_reducer_vs_full, "metrics_reducer_vs_independent_full"
+    failure_examples_contract = failure_examples(
+        scored_rows_reducer_vs_contract, "metrics_reducer_vs_contract"
     )
-    edge_breakdown_full = edge_type_breakdown(
-        scored_rows_reducer_vs_full, "metrics_reducer_vs_independent_full"
+    edge_breakdown_contract = edge_type_breakdown(
+        scored_rows_reducer_vs_contract, "metrics_reducer_vs_contract"
     )
 
     raw_call_total = sum(len(result.call_edges) for result in independent_results.values())
@@ -274,16 +269,20 @@ def run_validation(
     normalized_import_total = sum(
         len(edges[1]) for edges in normalized_edge_map.values()
     )
-    expected_total = sum(len(row["expected_filtered_edges"]) for row in rows)
-    full_truth_total = sum(len(row["full_truth_edges"]) for row in rows)
-    out_of_contract_total = sum(len(row["out_of_contract_edges"]) for row in rows)
+    expected_total = sum(
+        len(row.get("contract_truth_edges") or row.get("expected_filtered_edges") or [])
+        for row in rows
+    )
+    out_of_contract_total = sum(
+        len(row.get("enrichment_edges") or row.get("out_of_contract_edges") or [])
+        for row in rows
+    )
     reducer_edge_total = sum(len(row.get("reducer_edges") or []) for row in rows)
 
     summary = []
     summary.append(f"repo={repo_name_prefix(repo_root)}")
     summary.append(f"sampled_nodes={len(rows)}")
     summary.append(f"invariants_passed={invariants['passed']}")
-    summary.append(f"full_recall={full_recall}")
     summary.append(f"contract_recall={contract_recall}")
     summary.append(f"overreach_rate={overreach_rate}")
 
@@ -293,37 +292,31 @@ def run_validation(
         "summary": summary,
         "invariants": invariants,
         "core_metrics": {
-            "full_recall": full_recall,
             "contract_recall": contract_recall,
             "overreach_rate": overreach_rate,
-            "overreach_count": reducer_vs_full_micro["fp"],
+            "overreach_count": reducer_vs_contract_micro["fp"],
             "reducer_edge_total": reducer_edge_total,
         },
         "micro_metrics": {
             "reducer_vs_db": micro(scored_rows_reducer_vs_db, "metrics_reducer_vs_db"),
-            "db_vs_independent_full": db_vs_full_micro,
-            "reducer_vs_independent_filtered": reducer_vs_filtered_micro,
-            "reducer_vs_independent_full": reducer_vs_full_micro,
+            "db_vs_contract_truth": db_vs_contract_micro,
+            "reducer_vs_contract_truth": reducer_vs_contract_micro,
         },
         "micro_metrics_by_kind": {
             "reducer_vs_db": _micro_by_kind("metrics_reducer_vs_db"),
-            "db_vs_independent_full": _micro_by_kind("metrics_db_vs_independent_full"),
-            "reducer_vs_independent_filtered": _micro_by_kind(
-                "metrics_reducer_vs_independent_filtered"
-            ),
-            "reducer_vs_independent_full": _micro_by_kind("metrics_reducer_vs_independent_full"),
+            "db_vs_contract_truth": _micro_by_kind("metrics_db_vs_contract"),
+            "reducer_vs_contract_truth": _micro_by_kind("metrics_reducer_vs_contract"),
         },
-        "edge_type_breakdown_reducer_vs_independent_full": edge_breakdown_full,
-        "failure_examples_reducer_vs_independent_full": failure_examples_full,
+        "edge_type_breakdown_reducer_vs_contract_truth": edge_breakdown_contract,
+        "failure_examples_reducer_vs_contract_truth": failure_examples_contract,
         "out_of_contract_breakdown": aggregate_breakdown(out_of_contract_meta),
         "independent_totals": {
             "raw_call_edges": raw_call_total,
             "raw_import_edges": raw_import_total,
             "normalized_call_edges": normalized_call_total,
             "normalized_import_edges": normalized_import_total,
-            "filtered_in_contract_edges": expected_total,
-            "full_truth_edges": full_truth_total,
-            "out_of_contract_edges": out_of_contract_total,
+            "contract_truth_edges": expected_total,
+            "enrichment_edges": out_of_contract_total,
         },
         "independent_coverage_by_language": coverage,
         "population_by_language": sampling.population_by_language,
