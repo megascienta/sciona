@@ -18,13 +18,30 @@ def write_markdown(path: Path, lines: List[str]) -> None:
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def _summary_key(item: str) -> str | None:
+    if "=" not in item:
+        return None
+    return item.split("=", 1)[0].strip()
+
+
+def _format_value(value) -> str:
+    if isinstance(value, float):
+        return f"{value:.6f}"
+    return str(value)
+
+
 def render_summary(payload: dict) -> List[str]:
     lines: List[str] = []
     lines.append("# SCIONA Reducer Validation Report")
     lines.append("")
     lines.append("## Executive Summary")
     lines.append("")
+    core = payload.get("core_metrics", {}) or {}
+    duplicated_summary_keys = {key for key in ("contract_recall", "overreach_rate") if key in core}
     for item in payload.get("summary", []):
+        key = _summary_key(item)
+        if key and key in duplicated_summary_keys:
+            continue
         lines.append(f"- {item}")
     lines.append("")
 
@@ -55,17 +72,16 @@ def render_summary(payload: dict) -> List[str]:
 
     lines.append("## Core Metrics")
     lines.append("")
-    core = payload.get("core_metrics", {})
     if not core:
         lines.append("- none")
     else:
         for key, value in core.items():
-            lines.append(f"- {key}: `{value}`")
+            lines.append(f"- {key}: `{_format_value(value)}`")
     lines.append("")
 
     lines.append("## Determinism")
     lines.append("")
-    lines.append(f"- stability_score: `{payload.get('stability_score')}`")
+    lines.append(f"- stability_score: `{_format_value(payload.get('stability_score'))}`")
     hashes = payload.get("stability_hashes") or []
     if hashes:
         lines.append(f"- stability_hashes: `{hashes}`")
@@ -86,5 +102,29 @@ def render_summary(payload: dict) -> List[str]:
     ]:
         if key in independent_totals:
             lines.append(f"- {key}: `{independent_totals[key]}`")
+    lines.append("")
+
+    lines.append("## Out-of-Contract Distribution")
+    lines.append("")
+    breakdown = payload.get("out_of_contract_breakdown", {}) or {}
+    if not breakdown:
+        lines.append("- none")
+        return lines
+
+    by_edge_type: dict[str, int] = {}
+    for key, count in breakdown.items():
+        edge_type = key.split("::", 1)[0] if "::" in key else "unknown"
+        by_edge_type[edge_type] = by_edge_type.get(edge_type, 0) + int(count)
+
+    for edge_type in sorted(by_edge_type.keys()):
+        lines.append(f"- {edge_type}: `{by_edge_type[edge_type]}`")
+    lines.append("")
+    lines.append("Breakdown by `edge_type::language::reason`:")
+    for key in sorted(breakdown.keys()):
+        lines.append(f"- {key}: `{breakdown[key]}`")
+    lines.append("")
+    lines.append(
+        "Note: `enrichment_edges` includes all out-of-contract truth edges (external, unresolved, dynamic, standard-call filtered)."
+    )
 
     return lines
