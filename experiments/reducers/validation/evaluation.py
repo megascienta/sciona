@@ -43,15 +43,19 @@ def _edge_key_tuple(edge: EdgeRecord) -> tuple[str, str, str | None]:
 def _expected_call_form_map(entity_qname: str, normalized_calls, expected_filtered) -> dict:
     expected_keys = {_edge_key_tuple(edge) for edge in expected_filtered}
     forms = {key: "direct" for key in expected_keys}
-    by_qname: dict[tuple[str, str | None], list] = {}
+    by_caller: dict[str, list] = {}
     for edge in normalized_calls:
         if edge.caller != entity_qname:
             continue
-        token = (edge.caller, edge.callee_qname)
-        by_qname.setdefault(token, []).append(edge)
+        by_caller.setdefault(edge.caller, []).append(edge)
     for key in expected_keys:
         caller, callee, callee_qname = key
-        candidates = by_qname.get((caller, callee_qname), [])
+        candidates = []
+        for candidate in by_caller.get(caller, []):
+            same_qname = callee_qname and candidate.callee_qname == callee_qname
+            same_terminal = (candidate.callee or "").strip() == (callee or "").strip()
+            if same_qname or same_terminal:
+                candidates.append(candidate)
         if not candidates:
             continue
         if any("." in (candidate.callee_text or "") for candidate in candidates):
