@@ -56,7 +56,7 @@ class StructuralAssembler:
         analysis: AnalysisResult,
         file_snapshot: FileSnapshot,
     ) -> tuple[int, Dict[str, Tuple[str, str]]]:
-        analysis = self._normalize_call_records(analysis)
+        analysis = self._normalize_call_records(analysis, file_snapshot)
         nodes = sorted(
             analysis.nodes, key=lambda node: (node.node_type, node.qualified_name)
         )
@@ -80,7 +80,11 @@ class StructuralAssembler:
         self._emit_edges(snapshot_id, edges, node_id_map)
         return node_count, node_id_map
 
-    def _normalize_call_records(self, analysis: AnalysisResult) -> AnalysisResult:
+    def _normalize_call_records(
+        self,
+        analysis: AnalysisResult,
+        file_snapshot: FileSnapshot,
+    ) -> AnalysisResult:
         if not analysis.call_records:
             return analysis
         node_language_by_qname = {
