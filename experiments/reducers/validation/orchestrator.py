@@ -231,6 +231,41 @@ def run_validation(
             by_kind[kind] = micro(subset, metric_key) if subset else {}
         return by_kind
 
+    def _micro_by_language(metric_key: str) -> dict[str, dict]:
+        by_language: dict[str, dict] = {}
+        languages = sorted(
+            {
+                row.get("language")
+                for row in rows
+                if row.get("language") and row.get(metric_key)
+            }
+        )
+        for language in languages:
+            subset = [
+                row
+                for row in rows
+                if row.get("language") == language and row.get(metric_key)
+            ]
+            by_language[language] = micro(subset, metric_key) if subset else {}
+        return by_language
+
+    def _micro_by_language_and_kind(metric_key: str) -> dict[str, dict[str, dict]]:
+        by_language_kind: dict[str, dict[str, dict]] = {}
+        languages = sorted({row.get("language") for row in rows if row.get("language")})
+        for language in languages:
+            by_kind: dict[str, dict] = {}
+            for kind in ("module", "class", "function", "method"):
+                subset = [
+                    row
+                    for row in rows
+                    if row.get("language") == language
+                    and row.get("kind") == kind
+                    and row.get(metric_key)
+                ]
+                by_kind[kind] = micro(subset, metric_key) if subset else {}
+            by_language_kind[language] = by_kind
+        return by_language_kind
+
     def _call_form_recall(metric_key: str) -> dict[str, dict]:
         totals = {
             "direct": {"tp": 0, "fn": 0},
@@ -332,6 +367,16 @@ def run_validation(
             "reducer_vs_db": _micro_by_kind("metrics_reducer_vs_db"),
             "db_vs_contract_truth": _micro_by_kind("metrics_db_vs_contract"),
             "reducer_vs_contract_truth": _micro_by_kind("metrics_reducer_vs_contract"),
+        },
+        "micro_metrics_by_language": {
+            "reducer_vs_db": _micro_by_language("metrics_reducer_vs_db"),
+            "db_vs_contract_truth": _micro_by_language("metrics_db_vs_contract"),
+            "reducer_vs_contract_truth": _micro_by_language("metrics_reducer_vs_contract"),
+        },
+        "micro_metrics_by_language_and_kind": {
+            "reducer_vs_db": _micro_by_language_and_kind("metrics_reducer_vs_db"),
+            "db_vs_contract_truth": _micro_by_language_and_kind("metrics_db_vs_contract"),
+            "reducer_vs_contract_truth": _micro_by_language_and_kind("metrics_reducer_vs_contract"),
         },
         "call_form_recall": {
             "reducer_vs_contract_truth": _call_form_recall(

@@ -102,6 +102,47 @@ def render_summary(payload: dict) -> List[str]:
             )
     lines.append("")
 
+    lines.append("## Language Breakdown")
+    lines.append("")
+    sampled_by_language: dict[str, int] = {}
+    for row in payload.get("per_node", []) or []:
+        language = row.get("language") or "unknown"
+        sampled_by_language[language] = sampled_by_language.get(language, 0) + 1
+    pop_by_language = payload.get("population_by_language") or {}
+    by_language = (
+        (payload.get("micro_metrics_by_language") or {}).get("reducer_vs_contract_truth")
+        or {}
+    )
+    by_language_kind = (
+        (payload.get("micro_metrics_by_language_and_kind") or {}).get(
+            "reducer_vs_contract_truth"
+        )
+        or {}
+    )
+    languages = sorted(
+        set(pop_by_language.keys()) | set(sampled_by_language.keys()) | set(by_language.keys())
+    )
+    if not languages:
+        lines.append("- none")
+    else:
+        for language in languages:
+            metrics = by_language.get(language) or {}
+            tp = metrics.get("tp", 0) or 0
+            fp = metrics.get("fp", 0) or 0
+            fn = metrics.get("fn", 0) or 0
+            overreach = (fp / (tp + fp)) if (tp + fp) else None
+            lines.append(
+                f"- {language}: sampled_nodes=`{sampled_by_language.get(language, 0)}`, population_nodes=`{pop_by_language.get(language, 0)}`, recall=`{_format_value(metrics.get('recall'))}`, overreach_rate=`{_format_value(overreach)}`, tp/fp/fn=`{tp}/{fp}/{fn}`"
+            )
+            for kind in ("module", "class", "function", "method"):
+                k = ((by_language_kind.get(language) or {}).get(kind) or {})
+                if not k:
+                    continue
+                lines.append(
+                    f"- {language}:{kind}: recall=`{_format_value(k.get('recall'))}`, precision=`{_format_value(k.get('precision'))}`, tp/fp/fn=`{k.get('tp', 0)}/{k.get('fp', 0)}/{k.get('fn', 0)}`"
+                )
+    lines.append("")
+
     lines.append("## Independent Parser Totals")
     lines.append("")
     independent_totals = payload.get("independent_totals", {})
