@@ -26,6 +26,7 @@ from .evaluation import (
     sample_entities_from_db,
 )
 from .invariants import evaluate_invariants, filter_contract_checks
+from .import_contract import resolve_import_contract
 from .out_of_contract import aggregate_breakdown
 from .report import render_summary, write_json, write_markdown
 from .sciona_adapter import get_snapshot_id, open_core_db
@@ -38,6 +39,26 @@ def _load_contract_spec(path: Path) -> dict:
     if not isinstance(data, dict):
         raise ValueError("contract spec must be a mapping")
     return data
+
+
+def _typescript_relative_index_contract_check(contract: dict) -> bool:
+    language_spec = (
+        (contract.get("imports") or {}).get("languages") or {}
+    ).get("typescript", {})
+    if language_spec.get("resolver") != "typescript_normalize":
+        return True
+    resolved = resolve_import_contract(
+        raw_target="./api",
+        file_path="pkg/main.ts",
+        module_qname="fixture.pkg.main",
+        language="typescript",
+        contract=contract,
+        module_names={"fixture.pkg.api.index"},
+        repo_root=Path("/tmp/fixture"),
+        repo_prefix="fixture",
+        local_packages={"fixture"},
+    )
+    return resolved == "fixture.pkg.api.index"
 
 
 def run_validation(
@@ -199,6 +220,7 @@ def run_validation(
         filter_resolved_ok=filter_resolved_ok,
         parser_deterministic=(stability_score == 1.0),
         no_duplicate_contract_edges=no_duplicate_contract_edges,
+        typescript_relative_index_contract_ok=_typescript_relative_index_contract_check(contract),
     )
 
     full_recall = reducer_vs_full_micro.get("recall")

@@ -41,6 +41,7 @@ def render_summary(payload: dict) -> List[str]:
             "gate_filter_resolved",
             "gate_parser_deterministic",
             "gate_no_duplicate_contract_edges",
+            "gate_typescript_relative_index_contract",
             "gate_equal_full_metrics_when_exact",
         ]:
             lines.append(f"- {key}: `{invariants.get(key)}`")

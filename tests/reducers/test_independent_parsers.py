@@ -12,6 +12,7 @@ import pytest
 
 from experiments.reducers.reducer_validation import _independent_results_hash
 from experiments.reducers.validation.ground_truth import edge_records_from_ground_truth
+from experiments.reducers.validation.import_contract import resolve_import_contract
 from experiments.reducers.validation.independent.normalize import normalize_file_edges
 from experiments.reducers.validation.independent.python_ast import parse_python_files
 from experiments.reducers.validation.independent.ts_node import parse_typescript_files
@@ -37,6 +38,16 @@ def _assert_fixture(result, expected: dict) -> None:
     assert set(expected["import_targets"]).issubset(import_targets)
 
 
+def _assert_fixture_exact(result, expected: dict) -> None:
+    defs = {entry.qualified_name for entry in result.defs}
+    call_callees = {entry.callee for entry in result.call_edges}
+    import_targets = {entry.target_module for entry in result.import_edges}
+    assert result.parse_ok
+    assert defs == set(expected["defs"])
+    assert call_callees == set(expected["call_callees"])
+    assert import_targets == set(expected["import_targets"])
+
+
 def test_python_parser_fixture() -> None:
     root = FIXTURE_ROOT / "python"
     files = [{"file_path": "sample.py", "module_qualified_name": "fixture.sample"}]
@@ -51,7 +62,16 @@ def test_typescript_parser_fixture() -> None:
     files = [{"file_path": "sample.ts", "module_qualified_name": "fixture.sample"}]
     result = parse_typescript_files(root, files)[0]
     expected = _load_expected(root / "expected.json")
-    _assert_fixture(result, expected)
+    _assert_fixture_exact(result, expected)
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="node is required")
+def test_typescript_parser_reexport_fixture() -> None:
+    root = FIXTURE_ROOT / "typescript_reexports"
+    files = [{"file_path": "barrel.ts", "module_qualified_name": "fixture.barrel"}]
+    result = parse_typescript_files(root, files)[0]
+    expected = _load_expected(root / "expected.json")
+    _assert_fixture_exact(result, expected)
 
 
 @pytest.mark.skipif(
@@ -139,3 +159,28 @@ def test_parser_hash_is_stable() -> None:
     assert _independent_results_hash(results1, normalized1) == _independent_results_hash(
         results2, normalized2
     )
+
+
+def test_typescript_import_contract_resolves_relative_index() -> None:
+    module_names = {
+        "fixture.pkg.api.index",
+        "fixture.pkg.api.client",
+    }
+    contract = {
+        "imports": {
+            "require_module_in_repo": True,
+            "languages": {"typescript": {"resolver": "typescript_normalize"}},
+        }
+    }
+    resolved = resolve_import_contract(
+        raw_target="./api",
+        file_path="pkg/main.ts",
+        module_qname="fixture.pkg.main",
+        language="typescript",
+        contract=contract,
+        module_names=module_names,
+        repo_root=Path("/tmp/fixture"),
+        repo_prefix="fixture",
+        local_packages={"fixture"},
+    )
+    assert resolved == "fixture.pkg.api.index"

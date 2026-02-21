@@ -83,6 +83,7 @@ def evaluate_invariants(
     filter_resolved_ok: bool,
     parser_deterministic: bool,
     no_duplicate_contract_edges: bool,
+    typescript_relative_index_contract_ok: bool,
 ) -> dict:
     failures: List[str] = []
     exact_mismatches: List[dict] = []
@@ -128,6 +129,11 @@ def evaluate_invariants(
     gate_no_duplicate_contract_edges = no_duplicate_contract_edges
     if not gate_no_duplicate_contract_edges:
         failures.append("duplicate edges detected in filtered or full independent truth")
+    gate_typescript_relative_index_contract = typescript_relative_index_contract_ok
+    if not gate_typescript_relative_index_contract:
+        failures.append(
+            "typescript import contract parity failed: relative import index fallback mismatch"
+        )
 
     gate_equal_full_metrics = True
     if gate_reducer_db_exact and gate_aligned_scoring:
@@ -151,6 +157,7 @@ def evaluate_invariants(
         "gate_filter_resolved": gate_filter_resolved,
         "gate_parser_deterministic": gate_parser_deterministic,
         "gate_no_duplicate_contract_edges": gate_no_duplicate_contract_edges,
+        "gate_typescript_relative_index_contract": gate_typescript_relative_index_contract,
         "gate_equal_full_metrics_when_exact": gate_equal_full_metrics,
         "reducer_db_mismatch_examples": exact_mismatches[:10],
     }

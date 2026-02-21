@@ -1,0 +1,11 @@
+{
+  "defs": [
+    "fixture.barrel.Barrel",
+    "fixture.barrel.Barrel.run"
+  ],
+  "call_callees": [],
+  "import_targets": [
+    "./a",
+    "./b"
+  ]
+}

@@ -41,6 +41,22 @@ function expressionText(expr) {
   return null;
 }
 
+function memberName(node, sourceFile) {
+  if (!node) return null;
+  if (ts.isIdentifier(node)) return node.text;
+  if (ts.isPrivateIdentifier(node)) return node.text;
+  if (ts.isStringLiteral(node) || ts.isNumericLiteral(node)) return node.text;
+  if (ts.isComputedPropertyName(node)) {
+    const computed = expressionText(node.expression);
+    if (computed) return computed;
+    const text = node.getText(sourceFile).trim();
+    if (text.startsWith("[") && text.endsWith("]") && text.length > 2) {
+      return text.slice(1, -1).trim();
+    }
+  }
+  return null;
+}
+
 function parseFile(entry) {
   const content = fs.readFileSync(entry.path, "utf8");
   const sourceFile = ts.createSourceFile(entry.path, content, ts.ScriptTarget.Latest, true);
@@ -101,6 +117,14 @@ function parseFile(entry) {
         target_module: moduleName,
         dynamic: false,
         target_text: bindings.length ? bindings.join(",") : null
+      });
+    }
+    if (ts.isExportDeclaration(node) && node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)) {
+      import_edges.push({
+        source_module: entry.module_qualified_name,
+        target_module: node.moduleSpecifier.text,
+        dynamic: false,
+        target_text: null
       });
     }
     if (ts.isImportEqualsDeclaration(node)) {
@@ -193,12 +217,16 @@ function parseFile(entry) {
       ts.isPropertyDeclaration(node) &&
       currentScopeKind() === "class" &&
       node.name &&
-      ts.isIdentifier(node.name) &&
       node.initializer &&
       (ts.isArrowFunction(node.initializer) || ts.isFunctionExpression(node.initializer))
     ) {
       const classScope = currentScope();
-      const qname = `${classScope}.${node.name.text}`;
+      const name = memberName(node.name, sourceFile);
+      if (!name) {
+        ts.forEachChild(node, visit);
+        return;
+      }
+      const qname = `${classScope}.${name}`;
       registerCallable("method", qname, node.initializer, () => ts.forEachChild(node.initializer, visit));
       return;
     }
@@ -210,9 +238,14 @@ function parseFile(entry) {
       return;
     }
 
-    if (ts.isMethodDeclaration(node) && currentScopeKind() === "class" && node.name && ts.isIdentifier(node.name)) {
+    if (ts.isMethodDeclaration(node) && currentScopeKind() === "class" && node.name) {
       const classScope = currentScope();
-      const qname = `${classScope}.${node.name.text}`;
+      const name = memberName(node.name, sourceFile);
+      if (!name) {
+        ts.forEachChild(node, visit);
+        return;
+      }
+      const qname = `${classScope}.${name}`;
       registerCallable("method", qname, node, () => ts.forEachChild(node, visit));
       return;
     }

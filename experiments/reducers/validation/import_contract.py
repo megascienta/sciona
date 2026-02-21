@@ -8,6 +8,9 @@ from pathlib import Path
 from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
 from sciona.code_analysis.core.extract.languages.python import _normalize_import
 from sciona.code_analysis.core.extract.languages.typescript import _normalize_import as _normalize_ts_import
+from sciona.code_analysis.core.extract.languages.typescript import (
+    _normalize_relative_index as _normalize_ts_relative_index,
+)
 from sciona.code_analysis.core.extract.languages.java import (
     _normalize_import as _normalize_java_import,
     _module_prefix_for_package,
@@ -76,6 +79,13 @@ def resolve_import_contract(
     elif resolver == "typescript_normalize":
         snapshot = _snapshot_for_file(repo_root, file_path, language)
         resolved = _normalize_ts_import(raw_target, snapshot, module_qname)
+        if (
+            (not resolved or resolved not in module_names)
+            and raw_target.strip().startswith(".")
+        ):
+            alt = _normalize_ts_relative_index(raw_target, snapshot)
+            if alt:
+                resolved = alt
     elif resolver == "java_normalize":
         abs_path = repo_root / Path(file_path)
         content = abs_path.read_bytes() if abs_path.exists() else None
