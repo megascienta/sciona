@@ -23,6 +23,7 @@ from .python_calls import resolve_python_calls
 from .python_imports import collect_python_imports
 from .python_nodes import PythonNodeState, walk_python_nodes
 from .python_resolution import collect_callable_instance_map, collect_module_instance_map
+from .python_resolution import collect_class_instance_map
 
 
 class PythonAnalyzer(ASTAnalyzer):
@@ -77,8 +78,21 @@ class PythonAnalyzer(ASTAnalyzer):
                 member_aliases,
                 raw_module_map,
             )
+            class_instance_maps = {
+                class_name: collect_class_instance_map(
+                    class_body,
+                    snapshot,
+                    state.class_name_map,
+                    import_aliases,
+                    member_aliases,
+                    raw_module_map,
+                )
+                for class_name, class_body in state.class_body_map.items()
+            }
             for qualified, node_type, body_node, class_name in state.pending_calls:
                 local_instance_map = dict(module_instance_map)
+                if class_name:
+                    local_instance_map.update(class_instance_maps.get(class_name, {}))
                 local_instance_map.update(
                     collect_callable_instance_map(
                         body_node,

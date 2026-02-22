@@ -150,3 +150,40 @@ def test_write_call_artifacts_resolves_ambiguous_by_imports(tmp_path: Path):
             artifact_conn.close()
     finally:
         core_conn.close()
+
+
+def test_write_call_artifacts_resolves_fully_qualified_identifier(tmp_path: Path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    prefix = runtime_paths.repo_name_prefix(repo_root)
+    core_conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
+    core_conn.row_factory = sqlite3.Row
+    try:
+        artifact_conn = artifact_connect(
+            get_artifact_db_path(repo_root), repo_root=repo_root
+        )
+        try:
+            call_records = [
+                CallExtractionRecord(
+                    caller_structural_id="meth_alpha",
+                    caller_qualified_name=f"{prefix}.pkg.alpha.Service.run",
+                    caller_node_type="method",
+                    callee_identifiers=(f"{prefix}.pkg.alpha.service.helper",),
+                )
+            ]
+            write_call_artifacts(
+                artifact_conn=artifact_conn,
+                core_conn=core_conn,
+                snapshot_id=snapshot_id,
+                call_records=call_records,
+                eligible_callers={"meth_alpha"},
+            )
+            rows = artifact_conn.execute(
+                "SELECT callee_id FROM node_calls WHERE caller_id = ? ORDER BY callee_id",
+                ("meth_alpha",),
+            ).fetchall()
+            assert rows
+            assert rows[0][0] == "func_alpha"
+        finally:
+            artifact_conn.close()
+    finally:
+        core_conn.close()

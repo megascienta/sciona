@@ -273,6 +273,25 @@ def walk_typescript_nodes(
         state.pending_calls.append((qualified, "method", function_body_node(value_node), parent))
         return
 
+    if node.type == "assignment_expression" and state.class_stack and function_depth > 0:
+        left = node.child_by_field_name("left")
+        right = node.child_by_field_name("right")
+        if left is not None and right is not None and right.type == "new_expression":
+            if left.type in {"member_expression", "subscript_expression"}:
+                object_node = left.child_by_field_name("object")
+                property_node = left.child_by_field_name("property")
+                object_name = node_text(object_node, snapshot.content) or ""
+                field = node_text(property_node, snapshot.content) or ""
+                if object_name == "this" and field:
+                    callee = right.child_by_field_name(
+                        "constructor"
+                    ) or right.child_by_field_name("function")
+                    callee_text = node_text(callee, snapshot.content)
+                    if callee_text:
+                        state.pending_class_instances.append(
+                            (state.class_stack[-1], field, callee_text)
+                        )
+
     walk_typescript_children(
         node,
         language=language,

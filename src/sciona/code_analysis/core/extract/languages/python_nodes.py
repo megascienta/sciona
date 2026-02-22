@@ -17,6 +17,7 @@ class PythonNodeState:
     module_functions: set[str] = field(default_factory=set)
     class_methods: dict[str, set[str]] = field(default_factory=dict)
     class_name_map: dict[str, str] = field(default_factory=dict)
+    class_body_map: dict[str, object] = field(default_factory=dict)
     pending_calls: list[tuple[str, str, object | None, str | None]] = field(
         default_factory=list
     )
@@ -67,6 +68,8 @@ def walk_python_nodes(
         state.class_methods.setdefault(qualified, set())
         state.class_stack.append(qualified)
         body = node.child_by_field_name("body")
+        if body is not None:
+            state.class_body_map[qualified] = body
         if body:
             for child in body.children:
                 walk_python_nodes(

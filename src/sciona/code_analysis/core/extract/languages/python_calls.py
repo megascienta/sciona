@@ -10,6 +10,13 @@ from typing import List
 from ....tools.call_extraction import CallTarget
 
 
+def _receiver_field(callee_text: str) -> str | None:
+    parts = callee_text.split(".")
+    if len(parts) < 2:
+        return None
+    return parts[1]
+
+
 def resolve_python_calls(
     targets: List[CallTarget],
     module_name: str,
@@ -31,6 +38,11 @@ def resolve_python_calls(
             if head in instance_map:
                 resolved.append(f"{instance_map[head]}.{terminal}")
                 continue
+            if head in {"self", "cls"}:
+                field = _receiver_field(callee_text)
+                if field and field in instance_map:
+                    resolved.append(f"{instance_map[field]}.{terminal}")
+                    continue
             if head in import_aliases:
                 resolved.append(f"{import_aliases[head]}.{rest}")
                 continue

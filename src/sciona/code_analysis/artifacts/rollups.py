@@ -168,13 +168,16 @@ def write_call_artifacts(
 def _build_symbol_index(core_conn, snapshot_id: str) -> dict[str, list[str]]:
     callable_types = sorted(CALLABLE_NODE_TYPES)
     rows = core_read.list_nodes_by_types(core_conn, snapshot_id, callable_types)
-    index: dict[str, list[str]] = defaultdict(list)
+    index_sets: dict[str, set[str]] = defaultdict(set)
     for structural_id, _node_type, qualified_name in rows:
-        identifier = _simple_identifier(qualified_name)
-        if not identifier:
+        if not qualified_name:
             continue
-        index[identifier].append(structural_id)
-    return index
+        terminal = _simple_identifier(qualified_name)
+        if terminal:
+            index_sets[terminal].add(structural_id)
+        # Preserve fully-qualified call hints emitted by analyzers.
+        index_sets[qualified_name].add(structural_id)
+    return {key: sorted(values) for key, values in index_sets.items()}
 
 
 def _build_module_context(
@@ -228,6 +231,8 @@ def _resolve_callees(
     resolved_names: set[str] = set()
     for identifier in identifiers:
         candidates = symbol_index.get(identifier) or []
+        if not candidates and "." in identifier:
+            candidates = symbol_index.get(identifier.rsplit(".", 1)[-1]) or []
         if len(candidates) == 1:
             resolved_ids.add(candidates[0])
             resolved_names.add(identifier)
@@ -243,6 +248,19 @@ def _resolve_callees(
         ]
         if len(narrowed) == 1:
             resolved_ids.add(narrowed[0])
+            resolved_names.add(identifier)
+            continue
+        same_module = [
+            candidate
+            for candidate in candidates
+            if module_lookup.get(candidate) == caller_module_id
+        ]
+        if same_module:
+            resolved_ids.add(sorted(same_module)[0])
+            resolved_names.add(identifier)
+            continue
+        if narrowed:
+            resolved_ids.add(sorted(narrowed)[0])
             resolved_names.add(identifier)
     return resolved_ids, resolved_names
 
