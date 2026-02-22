@@ -297,6 +297,19 @@ def run_validation(
             }
         return result
 
+    def _weighted_quality(
+        *,
+        tp: int,
+        fp: int,
+        fn: int,
+        fp_weight: float,
+        fn_weight: float,
+    ) -> float | None:
+        denominator = tp + (fp_weight * fp) + (fn_weight * fn)
+        if denominator <= 0:
+            return None
+        return tp / denominator
+
     def _edge_key(edge: dict) -> tuple[str, str]:
         return (
             edge.get("caller") or "",
@@ -389,6 +402,8 @@ def run_validation(
     edge_breakdown_contract = edge_type_breakdown(
         scored_rows_reducer_vs_contract, "metrics_reducer_vs_contract"
     )
+    calls_breakdown = edge_breakdown_contract.get("calls", {})
+    imports_breakdown = edge_breakdown_contract.get("imports", {})
 
     raw_call_total = sum(len(result.call_edges) for result in independent_results.values())
     raw_import_total = sum(len(result.import_edges) for result in independent_results.values())
@@ -430,6 +445,51 @@ def run_validation(
     summary.append(f"contract_recall={contract_recall}")
     summary.append(f"overreach_rate={overreach_rate}")
 
+    static_hard_gate_keys = [
+        "gate_reducer_db_exact",
+        "gate_aligned_scoring",
+        "gate_parse_coverage",
+        "gate_contract_truth_pure",
+        "gate_contract_truth_resolved",
+        "gate_parser_deterministic",
+        "gate_no_duplicate_contract_edges",
+        "gate_scoped_call_normalization",
+        "gate_equal_contract_metrics_when_exact",
+    ]
+    static_valid = all(bool(invariants.get(key)) for key in static_hard_gate_keys)
+    semantic_divergence_index = None
+    if reducer_vs_contract_micro["tp"] + reducer_vs_contract_micro["fp"] + reducer_vs_contract_micro["fn"]:
+        semantic_divergence_index = (
+            reducer_vs_contract_micro["fp"] + reducer_vs_contract_micro["fn"]
+        ) / (
+            reducer_vs_contract_micro["tp"]
+            + reducer_vs_contract_micro["fp"]
+            + reducer_vs_contract_micro["fn"]
+        )
+    module_metrics = (_micro_by_kind("metrics_reducer_vs_contract") or {}).get("module") or {}
+    function_metrics = (_micro_by_kind("metrics_reducer_vs_contract") or {}).get("function") or {}
+    method_metrics = (_micro_by_kind("metrics_reducer_vs_contract") or {}).get("method") or {}
+    navigation_reliability = _weighted_quality(
+        tp=int(module_metrics.get("tp") or 0),
+        fp=int(module_metrics.get("fp") or 0),
+        fn=int(module_metrics.get("fn") or 0),
+        fp_weight=1.0,
+        fn_weight=1.0,
+    )
+    reasoning_tp = int(function_metrics.get("tp") or 0) + int(method_metrics.get("tp") or 0)
+    reasoning_fp = int(function_metrics.get("fp") or 0) + int(method_metrics.get("fp") or 0)
+    reasoning_fn = int(function_metrics.get("fn") or 0) + int(method_metrics.get("fn") or 0)
+    reasoning_reliability = _weighted_quality(
+        tp=reasoning_tp,
+        fp=reasoning_fp,
+        fn=reasoning_fn,
+        fp_weight=1.0,
+        fn_weight=1.2,
+    )
+    coupling_stability_index = (
+        (1.0 - overreach_rate) if overreach_rate is not None else None
+    )
+
     payload = {
         "repo_root": str(repo_root),
         "snapshot_id": snapshot_id,
@@ -440,6 +500,49 @@ def run_validation(
             "overreach_rate": overreach_rate,
             "overreach_count": reducer_vs_contract_micro["fp"],
             "reducer_edge_total": reducer_edge_total,
+        },
+        "static_structural_validity": {
+            "valid": static_valid,
+            "projection": {
+                "reducer_db_exact": invariants.get("gate_reducer_db_exact"),
+                "aligned_scoring": invariants.get("gate_aligned_scoring"),
+            },
+            "determinism": {
+                "parser_stability_score": stability_score,
+                "gate_parser_deterministic": invariants.get("gate_parser_deterministic"),
+            },
+            "contract_metrics": {
+                "static_contract_precision": reducer_vs_contract_micro.get("precision"),
+                "static_contract_recall": reducer_vs_contract_micro.get("recall"),
+                "static_overreach_rate": overreach_rate,
+            },
+            "hard_gates": {key: invariants.get(key) for key in static_hard_gate_keys},
+        },
+        "semantic_alignment": {
+            "semantic_contract_precision": reducer_vs_contract_micro.get("precision"),
+            "semantic_contract_recall": reducer_vs_contract_micro.get("recall"),
+            "semantic_divergence_index": semantic_divergence_index,
+            "by_kind": _micro_by_kind("metrics_reducer_vs_contract"),
+            "by_edge_type": edge_breakdown_contract,
+            "call_form_recall": call_form_reducer_vs_contract,
+        },
+        "prompt_fitness": {
+            "navigation_structural_reliability": navigation_reliability,
+            "reasoning_structural_reliability": reasoning_reliability,
+            "coupling_stability_index": coupling_stability_index,
+            "noise_signal": {
+                "dynamic_or_unresolved_enrichment_edges": out_of_contract_total,
+                "contract_edges": expected_total,
+                "enrichment_noise_ratio": (
+                    (out_of_contract_total / (expected_total + out_of_contract_total))
+                    if (expected_total + out_of_contract_total)
+                    else None
+                ),
+            },
+            "edge_mix": {
+                "calls": calls_breakdown,
+                "imports": imports_breakdown,
+            },
         },
         "micro_metrics": {
             "reducer_vs_db": micro(scored_rows_reducer_vs_db, "metrics_reducer_vs_db"),

@@ -84,6 +84,17 @@ Auxiliary quality metrics:
 - `quality_gates.member_call_recall` vs `quality_gates.member_call_recall_min`
 - `micro_metrics_by_kind` (module/class/function/method)
 
+## 6.1 Metric Taxonomy
+Validation reports expose three explicit layers:
+- `static_structural_validity`: hard-gated static correctness (projection exactness, determinism, static contract precision/recall/overreach).
+- `semantic_alignment`: agreement diagnostics between reducer output and independent contract truth (global/by-kind/by-edge metrics).
+- `prompt_fitness`: downstream LLM-usefulness diagnostics (navigation reliability, reasoning reliability, coupling stability, noise ratio).
+
+Interpretation:
+- static layer drives run validity;
+- semantic layer drives diagnostic benchmarking;
+- prompt-fitness layer drives use-case suitability.
+
 ## 7. Determinism
 `--stability-runs` reruns independent parsing and hashes normalized outputs.
 - `stability_score = 1.0` means deterministic parser output across reruns.

@@ -74,6 +74,55 @@ def render_summary(payload: dict) -> List[str]:
         lines.append("- none")
     lines.append("")
 
+    lines.append("## Static Structural Validity")
+    lines.append("")
+    static = payload.get("static_structural_validity") or {}
+    if not static:
+        lines.append("- none")
+    else:
+        lines.append(f"- valid: `{static.get('valid')}`")
+        contract_metrics = static.get("contract_metrics") or {}
+        for key in (
+            "static_contract_precision",
+            "static_contract_recall",
+            "static_overreach_rate",
+        ):
+            lines.append(f"- {key}: `{_format_value(contract_metrics.get(key))}`")
+    lines.append("")
+
+    lines.append("## Semantic Alignment")
+    lines.append("")
+    semantic = payload.get("semantic_alignment") or {}
+    if not semantic:
+        lines.append("- none")
+    else:
+        for key in (
+            "semantic_contract_precision",
+            "semantic_contract_recall",
+            "semantic_divergence_index",
+        ):
+            lines.append(f"- {key}: `{_format_value(semantic.get(key))}`")
+    lines.append("")
+
+    lines.append("## Prompt Fitness")
+    lines.append("")
+    prompt = payload.get("prompt_fitness") or {}
+    if not prompt:
+        lines.append("- none")
+    else:
+        for key in (
+            "navigation_structural_reliability",
+            "reasoning_structural_reliability",
+            "coupling_stability_index",
+        ):
+            lines.append(f"- {key}: `{_format_value(prompt.get(key))}`")
+        noise = prompt.get("noise_signal") or {}
+        if noise:
+            lines.append(
+                f"- enrichment_noise_ratio: `{_format_value(noise.get('enrichment_noise_ratio'))}`"
+            )
+    lines.append("")
+
     lines.append("## Core Metrics")
     lines.append("")
     if not core:
