@@ -99,6 +99,7 @@ Interpretation:
 - `reducer_vs_db` exactness is mandatory; reducer is a DB projection.
 - `contract_recall` is coverage of independent contract truth.
 - `overreach_rate` is reducer output outside contract truth.
+- Reports also expose taxonomy sections: `static_structural_validity`, `semantic_alignment`, and `prompt_fitness`.
 
 Detailed cross-repo analysis, diagnostics, and before/after comparison are maintained in `experiments/reducers/reports/consolidated_validation_report.md`.
 

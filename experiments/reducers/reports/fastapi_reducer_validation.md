@@ -25,6 +25,26 @@
 - gate_member_call_recall_min: `True`
 - gate_equal_contract_metrics_when_exact: `True`
 
+## Static Structural Validity
+
+- valid: `True`
+- static_contract_precision: `0.997686`
+- static_contract_recall: `0.972294`
+- static_overreach_rate: `0.002314`
+
+## Semantic Alignment
+
+- semantic_contract_precision: `0.997686`
+- semantic_contract_recall: `0.972294`
+- semantic_divergence_index: `0.029894`
+
+## Prompt Fitness
+
+- navigation_structural_reliability: `0.987300`
+- reasoning_structural_reliability: `0.753715`
+- coupling_stability_index: `0.997686`
+- enrichment_noise_ratio: `0.043451`
+
 ## Core Metrics
 
 - contract_recall: `0.972294`
