@@ -69,72 +69,38 @@ If your worktree is dirty, reducer outputs include an `_diff` payload describing
 ## Reducer Contract Validation
 
 SCIONA includes a repository-independent reducer validation workflow in `experiments/reducers/`.
-It validates reducer behavior against:
-- direct SCIONA DB queries (internal consistency),
-- independent language parsers (external reference),
-- an explicit structural contract (`experiments/reducers/validation/structural_contract.yaml`).
+It validates reducer behavior against direct DB queries and independent parsers under an explicit structural contract (`experiments/reducers/validation/structural_contract.yaml`).
 
-Usage:
+Basic strategy:
+1. Sample balanced module/class/function/method nodes from DB.
+2. Build independent contract truth from parser outputs (in-repo only).
+3. Compare reducer edges with DB edges and contract truth.
+4. Enforce hard invariants and threshold gates before accepting metrics.
+
+Run:
 
 ```bash
 python experiments/reducers/reducer_validation.py \
   --repo-root /path/to/repo \
   --nodes 500 \
-  --seed 20260221 \
+  --seed 20260222 \
   --stability-runs 3
 ```
 
-Workflow (current implementation):
-1. Sample a balanced set of module/class/function/method nodes from SCIONA DB.
-2. Parse corresponding files with independent parsers (Python, TypeScript, Java).
-3. Normalize independent outputs to SCIONA-comparable edge shape.
-4. Build two channels per node:
-   - `contract_truth`: parser edges that satisfy SCIONA contract and resolve in-repo,
-   - `enrichment`: dynamic/unresolved/external/standard-call diagnostics.
-5. Collect reducer edges and direct DB edges for the same node.
-6. Compute per-node and micro metrics for:
-   - reducer vs DB,
-   - reducer vs contract truth,
-   - DB vs contract truth.
-7. Enforce hard invariants (run-gating).
-8. Emit JSON + Markdown reports to `experiments/reducers/reports/`.
+Latest consolidated snapshot (N=500 each):
 
-Hard invariants (all must pass):
-- `gate_reducer_db_exact`
-- `gate_aligned_scoring`
-- `gate_parse_coverage`
-- `gate_contract_truth_pure`
-- `gate_contract_truth_resolved`
-- `gate_parser_deterministic`
-- `gate_no_duplicate_contract_edges`
-- `gate_typescript_relative_index_contract`
-- `gate_class_truth_nonempty_rate`
-- `gate_scoped_call_normalization`
-- `gate_equal_contract_metrics_when_exact`
-
-Core metrics:
-- `contract_recall`: reducer coverage of independent contract truth.
-- `overreach_rate`: reducer edges not present in independent contract truth.
-- `quality_gates.class_truth_nonempty_rate`: evaluator quality gate for class truth completeness.
-- `micro_metrics_by_kind`: module/class/function/method decomposition.
-
-Validation implementation constraints:
-- Independent validation logic does not import SCIONA core language semantic normalizers.
-- Artifact rollups are rebuilt fully each run (correctness-first; incremental disabled by default).
-
-Current report snapshot (N=500 each, from `experiments/reducers/reports/`):
-
-| Repository | Language | Sampled Nodes | Invariants Passed | Reducer vs DB | Contract Recall | Overreach Rate |
-| ---------- | -------- | ------------- | ----------------- | ------------- | --------------- | -------------- |
-| [Apache Commons Lang](https://github.com/apache/commons-lang) | Java | 500 | **True** | **1.0 / 1.0** | **0.7918** | **0.0142** |
-| [FastAPI](https://github.com/fastapi/fastapi) | Python | 500 | **False** | **1.0 / 1.0** | **0.9783** | **0.0167** |
-| [Nest](https://github.com/nestjs/nest) | TypeScript | 500 | **False** | **1.0 / 1.0** | **0.9289** | **0.2249** |
+| Repository | Language | Invariants | Contract Recall | Overreach Rate | Member Recall |
+| ---------- | -------- | ---------- | --------------- | -------------- | ------------- |
+| [Apache Commons Lang](https://github.com/apache/commons-lang) | Java | **True** | **0.9904** | **0.0155** | n/a |
+| [FastAPI](https://github.com/fastapi/fastapi) | Python | **True** | **0.9723** | **0.0023** | **0.8548** |
+| [Nest](https://github.com/nestjs/nest) | TypeScript | **True** | **0.9776** | **0.0530** | **0.8927** |
 
 Interpretation:
-- Reducer vs DB exact overlap (`1.0 / 1.0`) means reducer projection is internally consistent with DB for sampled nodes.
-- If invariants fail (for example `gate_class_truth_nonempty_rate`), treat comparison metrics as diagnostic only until evaluator quality is restored.
-- `contract_recall` is the primary SCIONA contract-coverage signal.
-- Higher `overreach_rate` indicates mismatch pressure between reducer output and independent contract truth representation; investigate with per-node report details and `out_of_contract_breakdown`.
+- `reducer_vs_db` exactness is mandatory; reducer is a DB projection.
+- `contract_recall` is coverage of independent contract truth.
+- `overreach_rate` is reducer output outside contract truth.
+
+Detailed cross-repo analysis, diagnostics, and before/after comparison are maintained in `experiments/reducers/reports/consolidated_validation_report.md`.
 
 ## Reducers usage
 
