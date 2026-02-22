@@ -15,14 +15,10 @@ DEFAULT_SAMPLE_SIZE = 200
 DEFAULT_SEED = 20260219
 
 DEFAULT_THRESHOLDS = {
-    "precision_mean_min": 0.95,
-    "recall_mean_min": 0.90,
-    "precision_min_by_group": 0.85,
-    "recall_min_by_group": 0.80,
-    "misses_out_of_contract_rate_min": 0.80,
-    "reducer_db_overlap_min": 1.0,
-    "reducer_filtered_overlap_min": 0.95,
-    "class_truth_nonempty_rate_min": 0.90,
+    "class_truth_nonempty_rate_min": 0.95,
+    "contract_recall_min": 0.95,
+    "overreach_rate_max": 0.10,
+    "member_call_recall_min": 0.80,
     "overlap_epsilon": 1e-9,
 }
 

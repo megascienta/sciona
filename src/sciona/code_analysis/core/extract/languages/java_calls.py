@@ -5,9 +5,16 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import List
 
 from ....tools.call_extraction import CallTarget
+from .call_resolution_kernel import (
+    CallResolutionAdapter,
+    CallResolutionRequest,
+    resolve_with_adapter,
+    resolve_with_mode,
+)
 
 
 def callee_text(call_node, callee_node, content: bytes) -> str | None:
@@ -40,56 +47,87 @@ def resolve_java_calls(
     module_prefix: str | None,
     qualify_java_type,
 ) -> List[str]:
-    resolved: list[str] = []
     class_method_names = class_methods.get(class_name, set()) if class_name else set()
-    for target in targets:
-        terminal = target.terminal
-        raw = (target.callee_text or "").strip()
+    requests = _to_requests(targets)
+    adapter = _JavaCallAdapter(
+        module_name=module_name,
+        module_functions=module_functions,
+        class_name=class_name,
+        class_method_names=class_method_names,
+        class_methods=class_methods,
+        class_name_map=class_name_map,
+        import_class_map=import_class_map,
+        instance_types=instance_types,
+        module_prefix=module_prefix,
+        qualify_java_type=qualify_java_type,
+    )
+    return resolve_with_mode(
+        shared_resolver=lambda: resolve_with_adapter(requests, adapter),
+    )
+
+
+@dataclass(frozen=True)
+class _JavaCallAdapter(CallResolutionAdapter):
+    module_name: str
+    module_functions: set[str]
+    class_name: str | None
+    class_method_names: set[str]
+    class_methods: dict[str, set[str]]
+    class_name_map: dict[str, str]
+    import_class_map: dict[str, str]
+    instance_types: dict[str, str]
+    module_prefix: str | None
+    qualify_java_type: object
+
+    def resolve(self, request: CallResolutionRequest) -> List[str]:
+        terminal = request.terminal
+        raw = request.callee_text
         if "." in raw:
             receiver = raw.rsplit(".", 1)[0].strip()
             receiver_simple = receiver.rsplit(".", 1)[-1]
-            instance_type = instance_types.get(receiver_simple)
+            instance_type = self.instance_types.get(receiver_simple)
             if instance_type:
-                qualified_type = qualify_java_type(
+                qualified_type = self.qualify_java_type(
                     instance_type,
-                    module_name,
-                    class_name_map,
-                    import_class_map,
-                    module_prefix,
+                    self.module_name,
+                    self.class_name_map,
+                    self.import_class_map,
+                    self.module_prefix,
                 )
                 if qualified_type:
-                    resolved.append(f"{qualified_type}.{terminal}")
-                    continue
-            import_target = import_class_map.get(receiver_simple)
-            local_class = class_name_map.get(receiver_simple)
+                    return [f"{qualified_type}.{terminal}"]
+            import_target = self.import_class_map.get(receiver_simple)
+            local_class = self.class_name_map.get(receiver_simple)
             if import_target:
-                resolved.append(f"{import_target}.{terminal}")
-                continue
+                return [f"{import_target}.{terminal}"]
             if local_class:
-                resolved.append(f"{local_class}.{terminal}")
-                continue
+                return [f"{local_class}.{terminal}"]
         if is_unqualified(raw):
-            import_target = import_class_map.get(terminal)
-            local_class = class_name_map.get(terminal)
+            import_target = self.import_class_map.get(terminal)
+            local_class = self.class_name_map.get(terminal)
             if import_target:
-                resolved.append(f"{import_target}.{terminal}")
-                continue
+                return [f"{import_target}.{terminal}"]
             if local_class:
-                resolved.append(f"{local_class}.{terminal}")
-                continue
-        if class_name and terminal in class_method_names:
+                return [f"{local_class}.{terminal}"]
+        if self.class_name and terminal in self.class_method_names:
             if is_receiver_call(raw) or is_unqualified(raw):
-                resolved.append(f"{class_name}.{terminal}")
-                continue
-        if is_unqualified(raw) and terminal in module_functions:
-            resolved.append(f"{module_name}.{terminal}")
-            continue
-        class_qualified = class_name_map.get(terminal)
-        if class_qualified and terminal in class_methods.get(class_qualified, set()):
-            resolved.append(f"{class_qualified}.{terminal}")
-            continue
-        resolved.append(terminal)
-    return resolved
+                return [f"{self.class_name}.{terminal}"]
+        if is_unqualified(raw) and terminal in self.module_functions:
+            return [f"{self.module_name}.{terminal}"]
+        class_qualified = self.class_name_map.get(terminal)
+        if class_qualified and terminal in self.class_methods.get(class_qualified, set()):
+            return [f"{class_qualified}.{terminal}"]
+        return []
+
+
+def _to_requests(targets: List[CallTarget]) -> list[CallResolutionRequest]:
+    return [
+        CallResolutionRequest(
+            terminal=target.terminal,
+            callee_text=(target.callee_text or "").strip(),
+        )
+        for target in targets
+    ]
 
 
 def is_unqualified(callee_text_raw: str) -> bool:

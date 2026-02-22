@@ -70,6 +70,9 @@ def evaluate_invariants(
     typescript_relative_index_contract_ok: bool,
     class_truth_nonempty_rate_ok: bool,
     scoped_call_normalization_ok: bool,
+    contract_recall_ok: bool,
+    overreach_rate_ok: bool,
+    member_call_recall_ok: bool,
 ) -> dict:
     failures: List[str] = []
     exact_mismatches: List[dict] = []
@@ -130,6 +133,15 @@ def evaluate_invariants(
         failures.append(
             "scoped call normalization gate failed: ambiguous terminals remain mapped to multiple qnames"
         )
+    gate_contract_recall_min = contract_recall_ok
+    if not gate_contract_recall_min:
+        failures.append("contract recall quality gate failed")
+    gate_overreach_rate_max = overreach_rate_ok
+    if not gate_overreach_rate_max:
+        failures.append("overreach-rate quality gate failed")
+    gate_member_call_recall_min = member_call_recall_ok
+    if not gate_member_call_recall_min:
+        failures.append("member-call recall quality gate failed")
 
     gate_equal_contract_metrics = True
     if gate_reducer_db_exact and gate_aligned_scoring:
@@ -156,6 +168,9 @@ def evaluate_invariants(
         "gate_typescript_relative_index_contract": gate_typescript_relative_index_contract,
         "gate_class_truth_nonempty_rate": gate_class_truth_nonempty_rate,
         "gate_scoped_call_normalization": gate_scoped_call_normalization,
+        "gate_contract_recall_min": gate_contract_recall_min,
+        "gate_overreach_rate_max": gate_overreach_rate_max,
+        "gate_member_call_recall_min": gate_member_call_recall_min,
         "gate_equal_contract_metrics_when_exact": gate_equal_contract_metrics,
         "reducer_db_mismatch_examples": exact_mismatches[:10],
     }

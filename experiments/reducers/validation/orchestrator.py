@@ -289,6 +289,19 @@ def run_validation(
             }
         return result
 
+    contract_recall = reducer_vs_contract_micro.get("recall")
+    overreach_rate = None
+    if reducer_vs_contract_micro["tp"] + reducer_vs_contract_micro["fp"]:
+        overreach_rate = reducer_vs_contract_micro["fp"] / (
+            reducer_vs_contract_micro["tp"] + reducer_vs_contract_micro["fp"]
+        )
+    call_form_reducer_vs_contract = _call_form_recall(
+        "metrics_reducer_vs_contract_by_call_form"
+    )
+    member_call_recall = (call_form_reducer_vs_contract.get("member") or {}).get(
+        "recall"
+    )
+    thresholds = config.DEFAULT_THRESHOLDS
     invariants = evaluate_invariants(
         rows,
         reducer_full_entities=reducer_full_entities,
@@ -303,17 +316,20 @@ def run_validation(
         no_duplicate_contract_edges=no_duplicate_contract_edges,
         typescript_relative_index_contract_ok=_typescript_relative_index_contract_check(contract),
         class_truth_nonempty_rate_ok=(
-            class_truth_nonempty_rate >= config.DEFAULT_THRESHOLDS["class_truth_nonempty_rate_min"]
+            class_truth_nonempty_rate >= thresholds["class_truth_nonempty_rate_min"]
         ),
         scoped_call_normalization_ok=scoped_normalization_ok,
+        contract_recall_ok=(
+            contract_recall is not None and contract_recall >= thresholds["contract_recall_min"]
+        ),
+        overreach_rate_ok=(
+            overreach_rate is not None and overreach_rate <= thresholds["overreach_rate_max"]
+        ),
+        member_call_recall_ok=(
+            member_call_recall is not None
+            and member_call_recall >= thresholds["member_call_recall_min"]
+        ),
     )
-
-    contract_recall = reducer_vs_contract_micro.get("recall")
-    overreach_rate = None
-    if reducer_vs_contract_micro["tp"] + reducer_vs_contract_micro["fp"]:
-        overreach_rate = reducer_vs_contract_micro["fp"] / (
-            reducer_vs_contract_micro["tp"] + reducer_vs_contract_micro["fp"]
-        )
 
     failure_examples_contract = failure_examples(
         scored_rows_reducer_vs_contract, "metrics_reducer_vs_contract"
@@ -379,9 +395,7 @@ def run_validation(
             "reducer_vs_contract_truth": _micro_by_language_and_kind("metrics_reducer_vs_contract"),
         },
         "call_form_recall": {
-            "reducer_vs_contract_truth": _call_form_recall(
-                "metrics_reducer_vs_contract_by_call_form"
-            ),
+            "reducer_vs_contract_truth": call_form_reducer_vs_contract,
             "db_vs_contract_truth": _call_form_recall(
                 "metrics_db_vs_contract_by_call_form"
             ),
@@ -408,10 +422,14 @@ def run_validation(
         "stability_error": stability_error,
         "quality_gates": {
             "class_truth_nonempty_rate": class_truth_nonempty_rate,
-            "class_truth_nonempty_rate_min": config.DEFAULT_THRESHOLDS[
-                "class_truth_nonempty_rate_min"
-            ],
+            "class_truth_nonempty_rate_min": thresholds["class_truth_nonempty_rate_min"],
             "scoped_call_normalization_ok": scoped_normalization_ok,
+            "contract_recall": contract_recall,
+            "contract_recall_min": thresholds["contract_recall_min"],
+            "overreach_rate": overreach_rate,
+            "overreach_rate_max": thresholds["overreach_rate_max"],
+            "member_call_recall": member_call_recall,
+            "member_call_recall_min": thresholds["member_call_recall_min"],
         },
     }
 

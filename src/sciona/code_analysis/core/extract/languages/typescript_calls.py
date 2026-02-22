@@ -5,9 +5,16 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import List
 
 from ....tools.call_extraction import CallTarget
+from .call_resolution_kernel import (
+    CallResolutionAdapter,
+    CallResolutionRequest,
+    resolve_with_adapter,
+    resolve_with_mode,
+)
 
 
 def resolve_typescript_calls(
@@ -22,41 +29,77 @@ def resolve_typescript_calls(
     instance_map: dict[str, str],
     class_instance_map: dict[str, dict[str, str]],
 ) -> List[str]:
-    resolved: list[str] = []
     class_method_names = class_methods.get(class_name, set()) if class_name else set()
-    for target in targets:
-        terminal = target.terminal
-        callee_text = (target.callee_text or "").strip()
+    requests = _to_requests(targets)
+    adapter = _TypeScriptCallAdapter(
+        module_name=module_name,
+        module_functions=module_functions,
+        class_name=class_name,
+        class_method_names=class_method_names,
+        import_aliases=import_aliases,
+        member_aliases=member_aliases,
+        class_name_map=class_name_map,
+        instance_map=instance_map,
+        class_instance_map=class_instance_map,
+    )
+    return resolve_with_mode(
+        shared_resolver=lambda: resolve_with_adapter(requests, adapter),
+    )
+
+
+@dataclass(frozen=True)
+class _TypeScriptCallAdapter(CallResolutionAdapter):
+    module_name: str
+    module_functions: set[str]
+    class_name: str | None
+    class_method_names: set[str]
+    import_aliases: dict[str, str]
+    member_aliases: dict[str, str]
+    class_name_map: dict[str, str]
+    instance_map: dict[str, str]
+    class_instance_map: dict[str, dict[str, str]]
+
+    def resolve(self, request: CallResolutionRequest) -> List[str]:
+        terminal = request.terminal
+        callee_text = request.callee_text
         if "." in callee_text:
             head, rest = callee_text.split(".", 1)
-            if head in instance_map:
-                resolved.append(f"{instance_map[head]}.{terminal}")
-                continue
-            if head in class_name_map:
-                resolved.append(f"{class_name_map[head]}.{terminal}")
-                continue
-            if class_name and callee_text.startswith("this."):
+            if head in self.instance_map:
+                return [f"{self.instance_map[head]}.{terminal}"]
+            if head in self.class_name_map:
+                return [f"{self.class_name_map[head]}.{terminal}"]
+            if self.class_name and callee_text.startswith("this."):
                 parts = callee_text.split(".")
                 if len(parts) >= 3:
                     field = parts[1]
-                    target_class = class_instance_map.get(class_name, {}).get(field)
+                    target_class = self.class_instance_map.get(self.class_name, {}).get(
+                        field
+                    )
                     if target_class:
-                        resolved.append(f"{target_class}.{terminal}")
-                        continue
-            if head in import_aliases:
-                resolved.append(f"{import_aliases[head]}.{rest}")
-                continue
-        if terminal in member_aliases:
-            resolved.append(member_aliases[terminal])
-            continue
-        if class_name and is_receiver_call(callee_text) and terminal in class_method_names:
-            resolved.append(f"{class_name}.{terminal}")
-            continue
-        if is_unqualified(callee_text) and terminal in module_functions:
-            resolved.append(f"{module_name}.{terminal}")
-            continue
-        resolved.append(terminal)
-    return resolved
+                        return [f"{target_class}.{terminal}"]
+            if head in self.import_aliases:
+                return [f"{self.import_aliases[head]}.{rest}"]
+        if terminal in self.member_aliases:
+            return [self.member_aliases[terminal]]
+        if (
+            self.class_name
+            and is_receiver_call(callee_text)
+            and terminal in self.class_method_names
+        ):
+            return [f"{self.class_name}.{terminal}"]
+        if is_unqualified(callee_text) and terminal in self.module_functions:
+            return [f"{self.module_name}.{terminal}"]
+        return []
+
+
+def _to_requests(targets: List[CallTarget]) -> list[CallResolutionRequest]:
+    return [
+        CallResolutionRequest(
+            terminal=target.terminal,
+            callee_text=(target.callee_text or "").strip(),
+        )
+        for target in targets
+    ]
 
 
 def is_unqualified(callee_text: str) -> bool:

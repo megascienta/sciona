@@ -61,6 +61,9 @@ def render_summary(payload: dict) -> List[str]:
             "gate_typescript_relative_index_contract",
             "gate_class_truth_nonempty_rate",
             "gate_scoped_call_normalization",
+            "gate_contract_recall_min",
+            "gate_overreach_rate_max",
+            "gate_member_call_recall_min",
             "gate_equal_contract_metrics_when_exact",
         ]:
             lines.append(f"- {key}: `{invariants.get(key)}`")

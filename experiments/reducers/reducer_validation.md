@@ -60,6 +60,9 @@ The run is valid only when all pass:
 - `gate_typescript_relative_index_contract`
 - `gate_class_truth_nonempty_rate`
 - `gate_scoped_call_normalization`
+- `gate_contract_recall_min`
+- `gate_overreach_rate_max`
+- `gate_member_call_recall_min`
 - `gate_equal_contract_metrics_when_exact`
 
 Interpretation:
@@ -74,6 +77,9 @@ Primary metrics:
 Auxiliary quality metrics:
 - `quality_gates.class_truth_nonempty_rate`
 - `quality_gates.scoped_call_normalization_ok`
+- `quality_gates.contract_recall` vs `quality_gates.contract_recall_min`
+- `quality_gates.overreach_rate` vs `quality_gates.overreach_rate_max`
+- `quality_gates.member_call_recall` vs `quality_gates.member_call_recall_min`
 - `micro_metrics_by_kind` (module/class/function/method)
 
 ## 7. Determinism
