@@ -24,6 +24,7 @@ from experiments.reducers.validation.independent.python_ast import _CallVisitor
 from experiments.reducers.validation.independent.ts_node import parse_typescript_files
 from experiments.reducers.validation.independent.java_runner import parse_java_files
 from experiments.reducers.validation.independent.shared import (
+    Definition,
     EdgeRecord,
     FileParseResult,
     ImportEdge,
@@ -435,6 +436,70 @@ def test_ground_truth_class_diagnostic_marks_no_method_class() -> None:
     assert out_of_contract == []
     assert out_meta == []
     assert diagnostics["class_has_methods"] is False
+
+
+def test_ground_truth_class_uses_direct_method_ownership_only() -> None:
+    file_result = FileParseResult(
+        language="java",
+        file_path="src/Sample.java",
+        module_qualified_name="fixture.src.Sample",
+        defs=[
+            Definition(
+                kind="class",
+                qualified_name="fixture.src.Sample.Outer",
+                start_line=1,
+                end_line=100,
+            ),
+            Definition(
+                kind="class",
+                qualified_name="fixture.src.Sample.Outer.Inner",
+                start_line=10,
+                end_line=40,
+            ),
+            Definition(
+                kind="method",
+                qualified_name="fixture.src.Sample.Outer.outerMethod",
+                start_line=2,
+                end_line=5,
+            ),
+            Definition(
+                kind="method",
+                qualified_name="fixture.src.Sample.Outer.Inner.innerMethod",
+                start_line=12,
+                end_line=15,
+            ),
+        ],
+        call_edges=[],
+        import_edges=[],
+        assignment_hints=[],
+        parse_ok=True,
+    )
+    entity = SimpleNamespace(
+        kind="class",
+        qualified_name="fixture.src.Sample.Outer",
+        module_qualified_name="fixture.src.Sample",
+        start_line=1,
+        end_line=100,
+    )
+    expected, full, out_of_contract, out_meta, diagnostics = edge_records_from_ground_truth(
+        file_result=file_result,
+        normalized_calls=[],
+        normalized_imports=[],
+        module_imports_by_prefix={},
+        entity=entity,
+        module_names={"fixture.src.Sample"},
+        call_resolution={},
+        contract={},
+        repo_root=FIXTURE_ROOT / "java",
+        repo_prefix="fixture",
+        local_packages={"fixture"},
+    )
+    assert out_of_contract == []
+    assert out_meta == []
+    assert diagnostics["class_match_strategy"] == "exact_qname"
+    assert diagnostics["class_truth_method_count"] == 1
+    assert [edge.callee_qname for edge in expected] == ["fixture.src.Sample.Outer.outerMethod"]
+    assert [edge.callee_qname for edge in full] == ["fixture.src.Sample.Outer.outerMethod"]
 
 
 def test_python_parser_collects_assignment_hints() -> None:

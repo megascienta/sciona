@@ -289,6 +289,43 @@ def run_validation(
             }
         return result
 
+    def _edge_key(edge: dict) -> tuple[str, str]:
+        return (
+            edge.get("caller") or "",
+            edge.get("callee_qname") or edge.get("callee") or "",
+        )
+
+    def _classify_mismatches(row: dict) -> dict:
+        expected = row.get("contract_truth_edges") or row.get("expected_filtered_edges") or []
+        reducer = row.get("reducer_edges") or []
+        db = row.get("db_edges") or []
+        exp_set = {_edge_key(edge) for edge in expected}
+        reducer_set = {_edge_key(edge) for edge in reducer}
+        db_set = {_edge_key(edge) for edge in db}
+        missing = exp_set - reducer_set
+        extra = reducer_set - exp_set
+        attribution = {
+            "independent_overprojection": 0,
+            "core_missed_resolution": 0,
+            "core_overresolution": 0,
+            "normalization_contract_mismatch": 0,
+        }
+        for edge in missing:
+            if edge in db_set:
+                attribution["normalization_contract_mismatch"] += 1
+            else:
+                attribution["independent_overprojection"] += 1
+        for edge in extra:
+            if edge in db_set:
+                attribution["core_overresolution"] += 1
+            else:
+                attribution["normalization_contract_mismatch"] += 1
+        return {
+            "attribution": attribution,
+            "missing_count": len(missing),
+            "extra_count": len(extra),
+        }
+
     contract_recall = reducer_vs_contract_micro.get("recall")
     overreach_rate = None
     if reducer_vs_contract_micro["tp"] + reducer_vs_contract_micro["fp"]:
@@ -301,6 +338,10 @@ def run_validation(
     member_call_recall = (call_form_reducer_vs_contract.get("member") or {}).get(
         "recall"
     )
+    member_call_bucket = call_form_reducer_vs_contract.get("member") or {}
+    member_call_recall_applicable = (
+        int(member_call_bucket.get("tp") or 0) + int(member_call_bucket.get("fn") or 0)
+    ) > 0
     thresholds = config.DEFAULT_THRESHOLDS
     invariants = evaluate_invariants(
         rows,
@@ -328,7 +369,7 @@ def run_validation(
         member_call_recall_ok=(
             member_call_recall is not None
             and member_call_recall >= thresholds["member_call_recall_min"]
-        ),
+        ) if member_call_recall_applicable else None,
     )
 
     failure_examples_contract = failure_examples(
@@ -355,6 +396,21 @@ def run_validation(
         for row in rows
     )
     reducer_edge_total = sum(len(row.get("reducer_edges") or []) for row in rows)
+    attribution_totals = {
+        "independent_overprojection": 0,
+        "core_missed_resolution": 0,
+        "core_overresolution": 0,
+        "normalization_contract_mismatch": 0,
+    }
+    for row in rows:
+        mismatch = _classify_mismatches(row)
+        row["mismatch_attribution"] = mismatch["attribution"]
+        row["mismatch_counts"] = {
+            "missing_count": mismatch["missing_count"],
+            "extra_count": mismatch["extra_count"],
+        }
+        for key, value in mismatch["attribution"].items():
+            attribution_totals[key] += int(value or 0)
 
     summary = []
     summary.append(f"repo={repo_name_prefix(repo_root)}")
@@ -403,6 +459,7 @@ def run_validation(
         "edge_type_breakdown_reducer_vs_contract_truth": edge_breakdown_contract,
         "failure_examples_reducer_vs_contract_truth": failure_examples_contract,
         "out_of_contract_breakdown": aggregate_breakdown(out_of_contract_meta),
+        "mismatch_attribution_breakdown": attribution_totals,
         "independent_totals": {
             "raw_call_edges": raw_call_total,
             "raw_import_edges": raw_import_total,
@@ -430,6 +487,7 @@ def run_validation(
             "overreach_rate_max": thresholds["overreach_rate_max"],
             "member_call_recall": member_call_recall,
             "member_call_recall_min": thresholds["member_call_recall_min"],
+            "member_call_recall_applicable": member_call_recall_applicable,
         },
     }
 

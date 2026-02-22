@@ -72,7 +72,7 @@ def evaluate_invariants(
     scoped_call_normalization_ok: bool,
     contract_recall_ok: bool,
     overreach_rate_ok: bool,
-    member_call_recall_ok: bool,
+    member_call_recall_ok: bool | None,
 ) -> dict:
     failures: List[str] = []
     exact_mismatches: List[dict] = []
@@ -140,7 +140,7 @@ def evaluate_invariants(
     if not gate_overreach_rate_max:
         failures.append("overreach-rate quality gate failed")
     gate_member_call_recall_min = member_call_recall_ok
-    if not gate_member_call_recall_min:
+    if gate_member_call_recall_min is False:
         failures.append("member-call recall quality gate failed")
 
     gate_equal_contract_metrics = True

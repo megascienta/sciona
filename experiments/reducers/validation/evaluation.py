@@ -750,6 +750,13 @@ def evaluate_entities(
                 ),
                 "class_has_methods": gt_diagnostics.get("class_has_methods"),
                 "class_match_strategy": gt_diagnostics.get("class_match_strategy"),
+                "class_candidate_count": gt_diagnostics.get("class_candidate_count"),
+                "class_truth_method_count": gt_diagnostics.get("class_truth_method_count"),
+                "class_db_method_count": (
+                    sum(1 for edge in db_edges if edge.callee_qname)
+                    if entity.kind == "class"
+                    else None
+                ),
                 "raw_call_edges_count": len(file_result.call_edges),
                 "raw_import_edges_count": len(file_result.import_edges),
                 "normalized_call_edges_count": len(normalized_calls),

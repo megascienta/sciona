@@ -250,18 +250,6 @@ def _resolve_callees(
             resolved_ids.add(narrowed[0])
             resolved_names.add(identifier)
             continue
-        same_module = [
-            candidate
-            for candidate in candidates
-            if module_lookup.get(candidate) == caller_module_id
-        ]
-        if same_module:
-            resolved_ids.add(sorted(same_module)[0])
-            resolved_names.add(identifier)
-            continue
-        if narrowed:
-            resolved_ids.add(sorted(narrowed)[0])
-            resolved_names.add(identifier)
     return resolved_ids, resolved_names
 
 

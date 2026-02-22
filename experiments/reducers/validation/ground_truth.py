@@ -56,6 +56,8 @@ def edge_records_from_ground_truth(
     diagnostics: dict = {
         "class_has_methods": None,
         "class_match_strategy": None,
+        "class_candidate_count": 0,
+        "class_truth_method_count": 0,
     }
     standard_calls = standard_call_names(contract)
 
@@ -156,6 +158,10 @@ def edge_records_from_ground_truth(
         class_qname = entity.qualified_name
         matched_class = None
         class_match_strategy = "none"
+        class_candidates = [
+            definition for definition in file_result.defs if definition.kind == "class"
+        ]
+        diagnostics["class_candidate_count"] = len(class_candidates)
         for definition in file_result.defs:
             if definition.kind != "class":
                 continue
@@ -166,16 +172,24 @@ def edge_records_from_ground_truth(
         entity_start = getattr(entity, "start_line", None)
         entity_end = getattr(entity, "end_line", None)
         if matched_class is None and entity_start and entity_end:
-            containing = [
+            containing_exact = [
                 definition
                 for definition in file_result.defs
                 if definition.kind == "class"
                 and definition.start_line <= entity_start
                 and definition.end_line >= entity_end
+                and definition.qualified_name.startswith(
+                    f"{entity.module_qualified_name}."
+                )
             ]
-            if containing:
-                containing.sort(key=lambda item: (item.end_line - item.start_line, item.qualified_name))
-                matched_class = containing[0]
+            if containing_exact:
+                containing_exact.sort(
+                    key=lambda item: (
+                        item.end_line - item.start_line,
+                        item.qualified_name,
+                    )
+                )
+                matched_class = containing_exact[0]
                 class_match_strategy = "line_span"
         if matched_class is None:
             leaf = entity.qualified_name.rsplit(".", 1)[-1]
@@ -195,16 +209,21 @@ def edge_records_from_ground_truth(
         if matched_class is not None:
             class_qname = matched_class.qualified_name
         diagnostics["class_match_strategy"] = class_match_strategy
-        prefix = f"{class_qname}."
+
+        def _direct_owner(method_qname: str) -> str:
+            if "." not in method_qname:
+                return ""
+            return method_qname.rsplit(".", 1)[0]
+
         diagnostics["class_has_methods"] = any(
             definition.kind == "method"
-            and definition.qualified_name.startswith(prefix)
+            and _direct_owner(definition.qualified_name) == class_qname
             for definition in file_result.defs
         )
         for definition in file_result.defs:
             if definition.kind != "method":
                 continue
-            if not definition.qualified_name.startswith(prefix):
+            if _direct_owner(definition.qualified_name) != class_qname:
                 continue
             callee_qname = definition.qualified_name
             record = EdgeRecord(
@@ -214,6 +233,7 @@ def edge_records_from_ground_truth(
             )
             expected_filtered.append(record)
             full_truth.append(record)
+        diagnostics["class_truth_method_count"] = len(expected_filtered)
         return (
             dedupe_edge_records(expected_filtered),
             dedupe_edge_records(full_truth),

@@ -161,6 +161,21 @@ def render_summary(payload: dict) -> List[str]:
             lines.append(f"- {key}: `{independent_totals[key]}`")
     lines.append("")
 
+    lines.append("## Mismatch Attribution")
+    lines.append("")
+    attribution = payload.get("mismatch_attribution_breakdown") or {}
+    if not attribution:
+        lines.append("- none")
+    else:
+        for key in (
+            "core_missed_resolution",
+            "core_overresolution",
+            "normalization_contract_mismatch",
+            "independent_overprojection",
+        ):
+            lines.append(f"- {key}: `{attribution.get(key, 0)}`")
+    lines.append("")
+
     lines.append("## Out-of-Contract Distribution")
     lines.append("")
     breakdown = payload.get("out_of_contract_breakdown", {}) or {}
