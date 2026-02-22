@@ -74,7 +74,17 @@ public class JavaParserRunner {
             String qname = parent + "." + node.getNameAsString();
             int start = node.getRange().map(r -> r.begin.line).orElse(1);
             int end = node.getRange().map(r -> r.end.line).orElse(start);
-            result.defs.add(String.format("%s|class|%d|%d", qname, start, end));
+            String enclosing = "class".equals(scopeKind) ? currentScope() : "";
+            result.defs.add(
+                String.format(
+                    "%s|class|%d|%d|%s|%s|",
+                    qname,
+                    start,
+                    end,
+                    node.getNameAsString(),
+                    enclosing
+                )
+            );
             scope.push(new Scope(qname, "class"));
             super.visit(node, arg);
             scope.pop();
@@ -86,7 +96,16 @@ public class JavaParserRunner {
             String qname = classScope + "." + node.getNameAsString();
             int start = node.getRange().map(r -> r.begin.line).orElse(1);
             int end = node.getRange().map(r -> r.end.line).orElse(start);
-            result.defs.add(String.format("%s|method|%d|%d", qname, start, end));
+            result.defs.add(
+                String.format(
+                    "%s|method|%d|%d|%s||%s",
+                    qname,
+                    start,
+                    end,
+                    node.getNameAsString(),
+                    classScope
+                )
+            );
             scope.push(new Scope(qname, "method"));
             super.visit(node, arg);
             scope.pop();
@@ -98,7 +117,16 @@ public class JavaParserRunner {
             String qname = classScope + "." + node.getNameAsString();
             int start = node.getRange().map(r -> r.begin.line).orElse(1);
             int end = node.getRange().map(r -> r.end.line).orElse(start);
-            result.defs.add(String.format("%s|method|%d|%d", qname, start, end));
+            result.defs.add(
+                String.format(
+                    "%s|method|%d|%d|%s||%s",
+                    qname,
+                    start,
+                    end,
+                    node.getNameAsString(),
+                    classScope
+                )
+            );
             scope.push(new Scope(qname, "method"));
             super.visit(node, arg);
             scope.pop();

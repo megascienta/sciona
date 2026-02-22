@@ -69,6 +69,7 @@ def evaluate_invariants(
     no_duplicate_contract_edges: bool,
     typescript_relative_index_contract_ok: bool,
     class_truth_nonempty_rate_ok: bool,
+    class_truth_match_rate_ok: bool,
     scoped_call_normalization_ok: bool,
     contract_recall_ok: bool,
     overreach_rate_ok: bool,
@@ -128,6 +129,11 @@ def evaluate_invariants(
         failures.append(
             "class truth quality gate failed: too many class nodes have empty contract truth with parse_ok"
         )
+    gate_class_truth_match_rate = class_truth_match_rate_ok
+    if not gate_class_truth_match_rate:
+        failures.append(
+            "class truth match-rate gate failed: too many class rows have unreliable class mapping"
+        )
     gate_scoped_call_normalization = scoped_call_normalization_ok
     if not gate_scoped_call_normalization:
         failures.append(
@@ -167,6 +173,7 @@ def evaluate_invariants(
         "gate_no_duplicate_contract_edges": gate_no_duplicate_contract_edges,
         "gate_typescript_relative_index_contract": gate_typescript_relative_index_contract,
         "gate_class_truth_nonempty_rate": gate_class_truth_nonempty_rate,
+        "gate_class_truth_match_rate": gate_class_truth_match_rate,
         "gate_scoped_call_normalization": gate_scoped_call_normalization,
         "gate_contract_recall_min": gate_contract_recall_min,
         "gate_overreach_rate_max": gate_overreach_rate_max,

@@ -18,6 +18,7 @@ def test_member_call_recall_gate_is_not_failing_when_not_applicable() -> None:
         no_duplicate_contract_edges=True,
         typescript_relative_index_contract_ok=True,
         class_truth_nonempty_rate_ok=True,
+        class_truth_match_rate_ok=True,
         scoped_call_normalization_ok=True,
         contract_recall_ok=True,
         overreach_rate_ok=True,

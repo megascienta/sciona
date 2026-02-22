@@ -699,12 +699,21 @@ def evaluate_entities(
         metrics_reducer_vs_contract = None
         metrics_db_vs_contract = None
         reducer_db_empty_set_mismatch = False
+        class_truth_unreliable = bool(gt_diagnostics.get("class_truth_unreliable"))
         if not reducer_error and not db_error:
             metrics_reducer_vs_db = compare_edge_sets(db_edges, reducer_edges)
             reducer_db_empty_set_mismatch = bool(db_edges) != bool(reducer_edges)
-        if file_result.parse_ok and not db_error:
+        if (
+            file_result.parse_ok
+            and not db_error
+            and not (entity.kind == "class" and class_truth_unreliable)
+        ):
             metrics_db_vs_contract = compute_metrics(expected_filtered, [], db_edges)
-        if file_result.parse_ok and not reducer_error:
+        if (
+            file_result.parse_ok
+            and not reducer_error
+            and not (entity.kind == "class" and class_truth_unreliable)
+        ):
             metrics_reducer_vs_contract = compute_metrics(
                 expected_filtered, out_of_contract, reducer_edges
             )
@@ -750,6 +759,7 @@ def evaluate_entities(
                 ),
                 "class_has_methods": gt_diagnostics.get("class_has_methods"),
                 "class_match_strategy": gt_diagnostics.get("class_match_strategy"),
+                "class_truth_unreliable": class_truth_unreliable,
                 "class_candidate_count": gt_diagnostics.get("class_candidate_count"),
                 "class_truth_method_count": gt_diagnostics.get("class_truth_method_count"),
                 "class_db_method_count": (

@@ -60,6 +60,7 @@ def render_summary(payload: dict) -> List[str]:
             "gate_no_duplicate_contract_edges",
             "gate_typescript_relative_index_contract",
             "gate_class_truth_nonempty_rate",
+            "gate_class_truth_match_rate",
             "gate_scoped_call_normalization",
             "gate_contract_recall_min",
             "gate_overreach_rate_max",

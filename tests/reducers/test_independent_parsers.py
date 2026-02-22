@@ -502,6 +502,60 @@ def test_ground_truth_class_uses_direct_method_ownership_only() -> None:
     assert [edge.callee_qname for edge in full] == ["fixture.src.Sample.Outer.outerMethod"]
 
 
+def test_ground_truth_class_marks_ambiguous_match_unreliable() -> None:
+    file_result = FileParseResult(
+        language="java",
+        file_path="src/Sample.java",
+        module_qualified_name="fixture.src.Sample",
+        defs=[
+            Definition(
+                kind="class",
+                qualified_name="fixture.src.Sample.Outer.Target",
+                start_line=1,
+                end_line=10,
+                simple_name="Target",
+                enclosing_class_qname="fixture.src.Sample.Outer",
+            ),
+            Definition(
+                kind="class",
+                qualified_name="fixture.src.Sample.Other.Target",
+                start_line=20,
+                end_line=30,
+                simple_name="Target",
+                enclosing_class_qname="fixture.src.Sample.Other",
+            ),
+        ],
+        call_edges=[],
+        import_edges=[],
+        assignment_hints=[],
+        parse_ok=True,
+    )
+    entity = SimpleNamespace(
+        kind="class",
+        qualified_name="fixture.src.Sample.Target",
+        module_qualified_name="fixture.src.Sample",
+    )
+    expected, full, out_of_contract, out_meta, diagnostics = edge_records_from_ground_truth(
+        file_result=file_result,
+        normalized_calls=[],
+        normalized_imports=[],
+        module_imports_by_prefix={},
+        entity=entity,
+        module_names={"fixture.src.Sample"},
+        call_resolution={},
+        contract={},
+        repo_root=FIXTURE_ROOT / "java",
+        repo_prefix="fixture",
+        local_packages={"fixture"},
+    )
+    assert expected == []
+    assert full == []
+    assert out_of_contract == []
+    assert out_meta == []
+    assert diagnostics["class_match_strategy"] == "ambiguous"
+    assert diagnostics["class_truth_unreliable"] is True
+
+
 def test_python_parser_collects_assignment_hints() -> None:
     tree = ast.parse(
         "class Service:\n"

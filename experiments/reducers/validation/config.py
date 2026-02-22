@@ -16,6 +16,7 @@ DEFAULT_SEED = 20260219
 
 DEFAULT_THRESHOLDS = {
     "class_truth_nonempty_rate_min": 0.95,
+    "class_truth_match_rate_min": 0.95,
     "contract_recall_min": 0.95,
     "overreach_rate_max": 0.10,
     "member_call_recall_min": 0.80,

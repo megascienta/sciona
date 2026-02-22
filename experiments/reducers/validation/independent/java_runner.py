@@ -91,11 +91,37 @@ def parse_java_files(repo_root: Path, files: List[dict]) -> List[FileParseResult
                 file_path = raw_path
         defs = []
         for entry in item.get("defs", []):
-            parts = entry.split("|")
-            if len(parts) != 4:
+            if isinstance(entry, dict):
+                defs.append(
+                    Definition(
+                        kind=entry.get("kind", ""),
+                        qualified_name=entry.get("qualified_name", ""),
+                        start_line=int(entry.get("start_line", 1)),
+                        end_line=int(entry.get("end_line", entry.get("start_line", 1))),
+                        simple_name=entry.get("simple_name"),
+                        enclosing_class_qname=entry.get("enclosing_class_qname"),
+                        declaring_class_qname=entry.get("declaring_class_qname"),
+                    )
+                )
                 continue
-            qname, kind, start_line, end_line = parts
-            defs.append(Definition(kind=kind, qualified_name=qname, start_line=int(start_line), end_line=int(end_line)))
+            parts = entry.split("|")
+            if len(parts) < 4:
+                continue
+            qname, kind, start_line, end_line = parts[:4]
+            simple_name = parts[4] if len(parts) > 4 and parts[4] else None
+            enclosing = parts[5] if len(parts) > 5 and parts[5] else None
+            declaring = parts[6] if len(parts) > 6 and parts[6] else None
+            defs.append(
+                Definition(
+                    kind=kind,
+                    qualified_name=qname,
+                    start_line=int(start_line),
+                    end_line=int(end_line),
+                    simple_name=simple_name,
+                    enclosing_class_qname=enclosing,
+                    declaring_class_qname=declaring,
+                )
+            )
         call_edges = []
         for entry in item.get("call_edges", []):
             parts = entry.split("|")

@@ -13,6 +13,9 @@ class Definition:
     qualified_name: str
     start_line: int
     end_line: int
+    simple_name: str | None = None
+    enclosing_class_qname: str | None = None
+    declaring_class_qname: str | None = None
 
 
 @dataclass(frozen=True)

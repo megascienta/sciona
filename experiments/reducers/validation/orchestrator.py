@@ -215,11 +215,19 @@ def run_validation(
         and row.get("ground_truth_parse_ok")
         and row.get("class_has_methods")
     ]
+    class_rows_matchable = [
+        row for row in class_rows_parse_ok if not row.get("class_truth_unreliable")
+    ]
     class_rows_nonempty = [
         row for row in class_rows_parse_ok if not row.get("class_truth_empty_while_parse_ok")
     ]
     class_truth_nonempty_rate = (
         (len(class_rows_nonempty) / len(class_rows_parse_ok))
+        if class_rows_parse_ok
+        else 1.0
+    )
+    class_truth_match_rate = (
+        (len(class_rows_matchable) / len(class_rows_parse_ok))
         if class_rows_parse_ok
         else 1.0
     )
@@ -359,6 +367,9 @@ def run_validation(
         class_truth_nonempty_rate_ok=(
             class_truth_nonempty_rate >= thresholds["class_truth_nonempty_rate_min"]
         ),
+        class_truth_match_rate_ok=(
+            class_truth_match_rate >= thresholds["class_truth_match_rate_min"]
+        ),
         scoped_call_normalization_ok=scoped_normalization_ok,
         contract_recall_ok=(
             contract_recall is not None and contract_recall >= thresholds["contract_recall_min"]
@@ -480,6 +491,8 @@ def run_validation(
         "quality_gates": {
             "class_truth_nonempty_rate": class_truth_nonempty_rate,
             "class_truth_nonempty_rate_min": thresholds["class_truth_nonempty_rate_min"],
+            "class_truth_match_rate": class_truth_match_rate,
+            "class_truth_match_rate_min": thresholds["class_truth_match_rate_min"],
             "scoped_call_normalization_ok": scoped_normalization_ok,
             "contract_recall": contract_recall,
             "contract_recall_min": thresholds["contract_recall_min"],

@@ -58,6 +58,7 @@ def edge_records_from_ground_truth(
         "class_match_strategy": None,
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
+        "class_truth_unreliable": None,
     }
     standard_calls = standard_call_names(contract)
 
@@ -158,57 +159,88 @@ def edge_records_from_ground_truth(
         class_qname = entity.qualified_name
         matched_class = None
         class_match_strategy = "none"
+        diagnostics["class_truth_unreliable"] = False
+
         class_candidates = [
             definition for definition in file_result.defs if definition.kind == "class"
         ]
         diagnostics["class_candidate_count"] = len(class_candidates)
-        for definition in file_result.defs:
-            if definition.kind != "class":
-                continue
+
+        def _simple_name(qualified_name: str, default: str | None) -> str:
+            if default:
+                return default
+            return qualified_name.rsplit(".", 1)[-1]
+
+        def _enclosing_class(qualified_name: str, default: str | None) -> str | None:
+            if default:
+                return default
+            if "." not in qualified_name:
+                return None
+            parent = qualified_name.rsplit(".", 1)[0]
+            return parent or None
+
+        # 1) strict exact qname
+        for definition in class_candidates:
             if definition.qualified_name == entity.qualified_name:
                 matched_class = definition
                 class_match_strategy = "exact_qname"
                 break
+
         entity_start = getattr(entity, "start_line", None)
         entity_end = getattr(entity, "end_line", None)
-        if matched_class is None and entity_start and entity_end:
-            containing_exact = [
-                definition
-                for definition in file_result.defs
-                if definition.kind == "class"
-                and definition.start_line <= entity_start
-                and definition.end_line >= entity_end
-                and definition.qualified_name.startswith(
-                    f"{entity.module_qualified_name}."
-                )
-            ]
-            if containing_exact:
-                containing_exact.sort(
-                    key=lambda item: (
-                        item.end_line - item.start_line,
-                        item.qualified_name,
-                    )
-                )
-                matched_class = containing_exact[0]
-                class_match_strategy = "line_span"
+        entity_simple = entity.qualified_name.rsplit(".", 1)[-1]
+        entity_parent = (
+            entity.qualified_name.rsplit(".", 1)[0]
+            if "." in entity.qualified_name
+            else None
+        )
+
         if matched_class is None:
-            leaf = entity.qualified_name.rsplit(".", 1)[-1]
-            same_leaf = [
+            same_simple = [
                 definition
-                for definition in file_result.defs
-                if definition.kind == "class"
-                and definition.qualified_name.rsplit(".", 1)[-1] == leaf
-                and (
-                    definition.qualified_name == entity.qualified_name
-                    or definition.qualified_name.startswith(f"{entity.module_qualified_name}.")
-                )
+                for definition in class_candidates
+                if _simple_name(definition.qualified_name, definition.simple_name)
+                == entity_simple
             ]
-            if len(same_leaf) == 1:
-                matched_class = same_leaf[0]
-                class_match_strategy = "scoped_leaf"
+            if len(same_simple) == 1:
+                matched_class = same_simple[0]
+                class_match_strategy = "simple_unique"
+            elif same_simple:
+                same_parent = [
+                    definition
+                    for definition in same_simple
+                    if _enclosing_class(
+                        definition.qualified_name,
+                        definition.enclosing_class_qname,
+                    )
+                    == entity_parent
+                ]
+                if len(same_parent) == 1:
+                    matched_class = same_parent[0]
+                    class_match_strategy = "parent_and_simple"
+                else:
+                    span_candidates = same_parent or same_simple
+                    if entity_start and entity_end:
+                        overlapping = [
+                            definition
+                            for definition in span_candidates
+                            if not (
+                                definition.end_line < entity_start
+                                or definition.start_line > entity_end
+                            )
+                        ]
+                        if len(overlapping) == 1:
+                            matched_class = overlapping[0]
+                            class_match_strategy = "line_span_overlap"
+                        elif len(overlapping) > 1:
+                            class_match_strategy = "ambiguous"
+                    else:
+                        class_match_strategy = "ambiguous"
+
         if matched_class is not None:
             class_qname = matched_class.qualified_name
         diagnostics["class_match_strategy"] = class_match_strategy
+        diagnostics["class_truth_unreliable"] = matched_class is None
 
         def _direct_owner(method_qname: str) -> str:
             if "." not in method_qname:
