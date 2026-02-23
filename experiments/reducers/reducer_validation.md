@@ -14,6 +14,7 @@ Evaluated relation scope:
 Required:
 - parser/normalization/call-resolution truth logic lives in `experiments/reducers/validation/independent/*` and validation modules,
 - no semantic reuse from SCIONA core language analyzers.
+- strict contract acceptance is shared and canonicalized via `src/sciona/code_analysis/contracts/strict_call_contract.py` (required parity path).
 
 Allowed shared utilities:
 - runtime/config/path helpers,
@@ -22,14 +23,17 @@ Allowed shared utilities:
 
 ## 3. Truth Channels
 
-### 3.1 Strict Contract Proxy Truth
+### 3.1 Strict Contract Truth (Gating)
 - in-repo resolvable edges only,
+- candidate-only independent evidence is accepted/rejected through shared strict contract rules,
 - used for primary static contract alignment scoring.
 
-### 3.2 Limitation-Focused Expanded Proxy Truth
+### 3.2 Limitation-Focused Enrichment Truth (Non-Gating)
 Built from strict proxy truth plus selected in-repo limitation edges.
 
-Policy (authoritative via config):
+Policy (authoritative via code configuration):
+- `experiments/reducers/validation/contract_spec.py` (validation contract policy surface)
+- `experiments/reducers/validation/config.py` (thresholds and expanded-truth policy)
 - `scope_exclusions`: `standard_call`, `external`
 - `limitation_focus`: `dynamic`, `in_repo_unresolved`, `relative_unresolved`
 
@@ -46,13 +50,14 @@ Rationale:
 1. Load DB population (`module/class/function/method`).
 2. Stratified sample by language/kind/size buckets.
 3. Parse sampled files with independent parsers (PY/TS/Java).
-4. Normalize parser outputs and build independent call-resolution context.
-5. Build per-node edge channels:
+4. Normalize parser outputs and build independent call-resolution context (candidate production only).
+5. Apply shared strict contract selector to independent candidates (`accept_if_single` + provenance rules).
+6. Build per-node edge channels:
 - `contract_truth_edges`
 - `enrichment_edges` (only limitation-focus reasons)
 - `expanded_truth_edges_high_conf`
 - `expanded_truth_edges_full`
-6. Score per node:
+7. Score per node:
 - `reducer_vs_db`
 - `reducer_vs_contract_truth`
 - `db_vs_contract_truth`
@@ -60,24 +65,25 @@ Rationale:
 - `reducer_vs_expanded_full`
 - `db_vs_expanded_high_conf`
 - `db_vs_expanded_full`
-7. Evaluate invariants (hard + diagnostic).
-8. Emit JSON and markdown reports.
+8. Evaluate invariants (hard + diagnostic).
+9. Emit JSON and markdown reports.
 
-## 5. Report Order (Human-Readable)
+## 5. Report Order
 1. Run Verdict
 2. Internal Integrity (Hard Gates)
-3. Contract Alignment (Strict Proxy)
-4. Expanded Proxy Alignment (Diagnostic)
-5. Prompt Reliability (Heuristic Diagnostics)
+3. Strict Contract Alignment (Gating)
+4. Enrichment Alignment (Non-Gating Diagnostics)
+5. Enrichment Reliability (Heuristic)
 6. Language Breakdown
-7. Expanded Proxy Alignment by language:kind
+7. Expanded/Enrichment Alignment by language:kind
 8. Strict vs Expanded delta by kind (top-5 worst)
-9. Call Resolution Diagnostics
-10. Out-of-Contract Distribution
-11. Independent Parser Coverage & Totals
-12. Core Metrics
-13. Metric Definitions & Schema
-14. Action Priority Board
+9. Independent Strict Contract Diagnostics
+10. Call Resolution Diagnostics
+11. Out-of-Contract Distribution
+12. Independent Parser Coverage & Totals
+13. Core Metrics
+14. Metric Definitions & Schema
+15. Action Priority Board
 
 ## 6. Metric Layers
 
@@ -85,12 +91,12 @@ Rationale:
 - reducer↔DB projection precision/recall,
 - parser determinism.
 
-### 6.2 Contract Alignment (strict proxy)
+### 6.2 Strict Contract Alignment (gating)
 - strict precision/recall/overreach/divergence,
 - per-kind/edge/call-form diagnostics.
 - bootstrap uncertainty intervals (micro + method scope).
 
-### 6.3 Expanded Proxy Alignment (diagnostic)
+### 6.3 Enrichment Alignment (non-gating)
 - reducer/db alignment vs expanded proxy truth,
 - high/full tier precision/recall/divergence,
 - explicit scope policy and counts:
@@ -99,7 +105,7 @@ Rationale:
 - reason-level expanded proxy recall diagnostics (reducer/db).
 - bootstrap uncertainty interval for expanded-full micro metrics.
 
-### 6.4 Prompt Reliability (heuristic diagnostics)
+### 6.4 Enrichment Reliability (heuristic diagnostics)
 - navigation/reasoning/coupling signals,
 - explicit weights and `prompt_reliability_version`,
 - component contributions (tp/fp/fn penalties).
@@ -115,6 +121,7 @@ Hard gates (run validity):
 - `gate_parser_deterministic`
 - `gate_no_duplicate_contract_edges`
 - `gate_scoped_call_normalization`
+- `gate_strict_contract_parity`
 - `gate_equal_contract_metrics_when_exact`
 
 Diagnostic gates (non-blocking by default):
@@ -156,6 +163,7 @@ Canonical metric source/formula mapping is emitted in `metric_definitions`.
 - `micro_metrics_by_language`
 - `micro_metrics_by_language_and_kind`
 - diagnostics blocks (`call_form_recall`, edge breakdowns, mismatch attribution, out-of-contract)
+- `strict_contract_diagnostics`
 - parser/stability/population/per-node blocks
 
 ## 10. Run
@@ -170,9 +178,9 @@ python experiments/reducers/reducer_validation.py \
 ## 11. Interpretation
 1. Run Verdict first.
 2. If internal integrity is valid, reducer is faithful DB projection for evaluated nodes.
-3. Use strict contract proxy alignment as primary external quality signal.
-4. Use expanded proxy alignment to quantify static limitation gap only (without standard/external contamination).
-5. Use prompt reliability only as heuristic downstream risk.
+3. Use strict contract alignment (gating) as primary external quality signal.
+4. Use enrichment alignment to quantify static limitation gap only (without standard/external contamination).
+5. Use enrichment reliability only as heuristic downstream risk.
 
 ## 12. Known Limits
 - Independent parsing remains static and cannot model runtime behavior perfectly.

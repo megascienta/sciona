@@ -7,12 +7,12 @@ import random
 from pathlib import Path
 from typing import List
 
-import yaml
 from sciona.pipelines.progress import make_progress_factory
 from sciona.runtime import packaging as runtime_packaging
 from sciona.runtime.paths import repo_name_prefix
 
 from . import config
+from .contract_spec import get_validation_contract
 from .db_adapter import list_nodes_from_artifacts, open_artifact_db
 from .evaluation import (
     DbEdgeSource,
@@ -40,14 +40,6 @@ from .taxonomy import (
     overreach_rate,
     weighted_quality,
 )
-
-
-def _load_contract_spec(path: Path) -> dict:
-    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-    if not isinstance(data, dict):
-        raise ValueError("contract spec must be a mapping")
-    return data
-
 
 def _typescript_relative_index_contract_check(contract: dict) -> bool:
     language_spec = (
@@ -211,8 +203,7 @@ def run_validation(
 ) -> int:
     repo_root = repo_root.resolve()
     reports = config.report_paths(repo_root)
-    contract_path = Path(__file__).resolve().parent / "structural_contract.yaml"
-    contract = _load_contract_spec(contract_path)
+    contract = get_validation_contract()
 
     with open_core_db(repo_root) as conn:
         snapshot_id = get_snapshot_id(conn)

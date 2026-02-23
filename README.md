@@ -68,17 +68,8 @@ If your worktree is dirty, reducer outputs include an `_diff` payload describing
 
 ## Reducer Contract Validation
 
-SCIONA includes a repository-independent reducer validation workflow in `experiments/reducers/`.
-It validates reducer behavior against direct DB queries and independent parsers under an explicit structural contract (`experiments/reducers/validation/structural_contract.yaml`).
+SCIONA includes a repository-independent reducer validation workflow in `experiments/reducers/`. It validates reducer behavior against direct DB queries and independent parsers under a code-defined structural contract policy (`experiments/reducers/validation/contract_spec.py`) and shared strict acceptance semantics (`src/sciona/code_analysis/contracts/strict_call_contract.py`).
 
-Basic strategy:
-1. Sample balanced module/class/function/method nodes from DB.
-2. Build independent strict contract truth from parser outputs (in-repo only).
-3. Compare reducer edges with DB (internal integrity) and contract truth (external static alignment).
-4. Report three layers:
-- `internal_integrity` (hard-gated),
-- `static_contract_alignment` (diagnostic external static quality),
-- `enrichment_practical` (diagnostic LLM-usefulness).
 
 Run:
 
@@ -90,19 +81,23 @@ python experiments/reducers/reducer_validation.py \
   --stability-runs 3
 ```
 
-Latest consolidated snapshot (N=500 each):
+Latest consolidated snapshot (N=500 each, regenerated 2026-02-23):
 
-| Repository | Language | Invariants | Contract Recall | Overreach Rate | Member Recall |
+| Repository | Language | Invariants | Strict Contract Recall | Overreach Rate | Member Recall |
 | ---------- | -------- | ---------- | --------------- | -------------- | ------------- |
-| [Apache Commons Lang](https://github.com/apache/commons-lang) | Java | **True** | **0.9904** | **0.0155** | n/a |
-| [FastAPI](https://github.com/fastapi/fastapi) | Python | **True** | **0.9723** | **0.0023** | **0.8548** |
-| [Nest](https://github.com/nestjs/nest) | TypeScript | **True** | **0.9776** | **0.0530** | **0.8927** |
+| [OpenLineage](https://github.com/OpenLineage/OpenLineage) | Multi (Java/Python/TS) | **True** | **0.9884** | **0.0221** | **0.9266** |
+| [Apache Commons Lang](https://github.com/apache/commons-lang) | Java | **True** | **0.9981** | **0.0271** | n/a |
+| [FastAPI](https://github.com/fastapi/fastapi) | Python | **True** | **0.9925** | **0.0209** | **1.0000** |
+| [Nest](https://github.com/nestjs/nest) | TypeScript | **True** | **0.9939** | **0.0670** | **0.9416** |
 
 Interpretation:
 - `reducer_vs_db` exactness is mandatory; reducer is a DB projection.
 - `static_contract_recall` is coverage of independent strict contract truth.
 - `static_overreach_rate` is reducer output outside independent strict contract truth.
-- Report sections are `internal_integrity`, `static_contract_alignment`, and `enrichment_practical`.
+- Current report headings separate strict gating vs enrichment diagnostics:
+  - `Strict Contract Alignment (Gating)`
+  - `Enrichment Alignment (Non-Gating Diagnostics)`
+  - `Independent Strict Contract Diagnostics`
 
 Detailed diagnostics and consolidated analysis are maintained in `experiments/reducers/reports/consolidated_validation_report.md`.
 
