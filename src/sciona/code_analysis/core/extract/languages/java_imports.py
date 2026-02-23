@@ -74,6 +74,34 @@ def normalize_import(
     return text
 
 
+def normalize_import_node(
+    node,
+    content: bytes,
+    module_name: str,
+    snapshot: FileSnapshot,
+    *,
+    module_prefix: str | None,
+) -> Optional[str]:
+    text = import_name_from_node(node, content)
+    if not text:
+        return None
+    is_static = is_static_import(node, content)
+    if text.endswith(".*"):
+        return None
+    if is_static and "." in text:
+        text = text.rsplit(".", 1)[0]
+    repo_root = repo_root_from_snapshot(snapshot)
+    repo_prefix = runtime_paths.repo_name_prefix(repo_root)
+    if repo_prefix and (text == repo_prefix or text.startswith(f"{repo_prefix}.")):
+        return text
+    top_package = top_level_package(module_name, repo_prefix)
+    if top_package and (text == top_package or text.startswith(f"{top_package}.")):
+        return f"{repo_prefix}.{text}" if repo_prefix else text
+    if module_prefix:
+        return f"{module_prefix}.{text}"
+    return text
+
+
 def import_simple_name(fragment: str) -> str | None:
     raw = fragment.strip()
     if not raw.startswith("import"):
@@ -91,6 +119,39 @@ def import_simple_name(fragment: str) -> str | None:
     if not text:
         return None
     return text.split(".")[-1]
+
+
+def import_simple_name_node(node, content: bytes) -> str | None:
+    text = import_name_from_node(node, content)
+    if not text or text.endswith(".*"):
+        return None
+    if is_static_import(node, content) and "." in text:
+        text = text.rsplit(".", 1)[0]
+    return text.split(".")[-1] if text else None
+
+
+def import_name_from_node(node, content: bytes) -> str | None:
+    if node is None:
+        return None
+    scoped = node.child_by_field_name("name")
+    if scoped is None:
+        scoped = node.child_by_field_name("path")
+    if scoped is None:
+        text = content[node.start_byte : node.end_byte].decode("utf-8").strip()
+        if text.startswith("import"):
+            text = text[len("import") :].strip()
+            if text.startswith("static"):
+                text = text[len("static") :].strip()
+            if text.endswith(";"):
+                text = text[:-1].strip()
+            return text or None
+        return None
+    return content[scoped.start_byte : scoped.end_byte].decode("utf-8").strip()
+
+
+def is_static_import(node, content: bytes) -> bool:
+    text = content[node.start_byte : node.end_byte].decode("utf-8").strip()
+    return text.startswith("import static")
 
 
 def top_level_package(module_name: str, repo_prefix: str) -> str | None:

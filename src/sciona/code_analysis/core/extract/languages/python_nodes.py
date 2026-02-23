@@ -32,6 +32,24 @@ def walk_python_nodes(
     result,
     state: PythonNodeState,
 ) -> None:
+    if node.type == "decorated_definition":
+        definition = node.child_by_field_name("definition")
+        if definition is None:
+            for child in getattr(node, "children", []):
+                if child.type in {"class_definition", "function_definition", "async_function_definition"}:
+                    definition = child
+                    break
+        if definition is not None:
+            walk_python_nodes(
+                definition,
+                language=language,
+                snapshot=snapshot,
+                module_name=module_name,
+                result=result,
+                state=state,
+            )
+        return
+
     if node.type == "class_definition":
         name_node = node.child_by_field_name("name")
         if not name_node:
@@ -39,7 +57,14 @@ def walk_python_nodes(
         class_name = snapshot.content[name_node.start_byte : name_node.end_byte].decode(
             "utf-8"
         )
-        qualified = f"{module_name}.{class_name}"
+        if state.class_stack:
+            parent = state.class_stack[-1]
+            parent_node_type = "class"
+            qualified = f"{parent}.{class_name}"
+        else:
+            parent = module_name
+            parent_node_type = "module"
+            qualified = f"{module_name}.{class_name}"
         result.nodes.append(
             SemanticNodeRecord(
                 language=language,
@@ -53,12 +78,12 @@ def walk_python_nodes(
                 end_byte=node.end_byte,
             )
         )
-        state.class_name_map[class_name] = qualified
+        state.class_name_map.setdefault(class_name, qualified)
         result.edges.append(
             EdgeRecord(
                 src_language=language,
-                src_node_type="module",
-                src_qualified_name=module_name,
+                src_node_type=parent_node_type,
+                src_qualified_name=parent,
                 dst_language=language,
                 dst_node_type="class",
                 dst_qualified_name=qualified,
@@ -83,7 +108,7 @@ def walk_python_nodes(
         state.class_stack.pop()
         return
 
-    if node.type == "function_definition":
+    if node.type in {"function_definition", "async_function_definition"}:
         name_node = node.child_by_field_name("name")
         if not name_node:
             return

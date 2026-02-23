@@ -90,7 +90,9 @@ Clean-worktree enforcement is scoped to tracked files in enabled languages (hono
 
 ## Parsing scope and limits
 
-Analysis is static and source-only across all supported languages. Analyzers parse source syntax using tree-sitter without importing, executing, or evaluating code. Edges (imports/calls) are syntax-based and are best-effort; partial parses are allowed and ambiguity is omitted rather than guessed. Dynamic dispatch, decorators, reflection, dependency injection, runtime registration, and build-time code generation are not modeled.
+Analysis is static and source-only across all supported languages. Analyzers parse source syntax using tree-sitter without importing, executing, or evaluating code. Edges (imports/calls) are syntax-based and are best-effort; partial parses are allowed and ambiguity is omitted rather than guessed.
+
+Syntactic constructs such as decorated/annotated declarations, constructor forms, class nesting, and re-export syntax are parsed and normalized where deterministic. Runtime behavior is not modeled: dynamic dispatch, reflection, dependency injection wiring, monkey patching, runtime registration, and build-time code generation remain out of scope.
 
 By contract, SCIONA does not:
 - Execute code, import modules, or run builds/tests.

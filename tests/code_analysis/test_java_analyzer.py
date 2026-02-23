@@ -87,3 +87,41 @@ def test_java_analyzer_extracts_structure_and_calls(tmp_path):
         f"{class_name}.helper",
         f"{class_name}.qux",
     }
+
+
+def test_java_analyzer_nested_class_qname(tmp_path):
+    module = """
+    package com.example.foo;
+
+    public class Outer {
+        class Inner {
+            void ping() {}
+        }
+    }
+    """
+    repo = tmp_path
+    src = repo / "src"
+    src.mkdir()
+    file_path = src / "Outer.java"
+    file_path.write_text(module, encoding="utf-8")
+    record = FileRecord(
+        path=file_path,
+        relative_path=Path("src/Outer.java"),
+        language="java",
+    )
+    snapshot = FileSnapshot(
+        record=record,
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = JavaAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+    qnames = {node.qualified_name for node in result.nodes}
+    assert f"{module_name}.Outer" in qnames
+    assert f"{module_name}.Outer.Inner" in qnames
+    assert f"{module_name}.Outer.Inner.ping" in qnames

@@ -156,3 +156,46 @@ class Controller:
         for record in result.call_records
     }
     assert f"{module_name}.Service.run" in call_records[f"{module_name}.Controller.handle"]
+
+
+def test_python_analyzer_nested_class_and_async_decorated_callable_support(tmp_path):
+    module = """
+class Outer:
+    class Inner:
+        def ping(self):
+            return 1
+
+def deco(fn):
+    return fn
+
+@deco
+async def handler():
+    return 0
+"""
+    repo = tmp_path
+    pkg = repo / "pkg"
+    pkg.mkdir()
+    file_path = pkg / "mod.py"
+    file_path.write_text(module, encoding="utf-8")
+    record = FileRecord(
+        path=file_path,
+        relative_path=Path("pkg/mod.py"),
+        language="python",
+    )
+    snapshot = FileSnapshot(
+        record=record,
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = PythonAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+    qnames = {node.qualified_name for node in result.nodes}
+    assert f"{module_name}.Outer" in qnames
+    assert f"{module_name}.Outer.Inner" in qnames
+    assert f"{module_name}.Outer.Inner.ping" in qnames
+    assert f"{module_name}.handler" in qnames

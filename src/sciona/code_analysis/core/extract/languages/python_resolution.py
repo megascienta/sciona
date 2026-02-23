@@ -75,6 +75,15 @@ def collect_module_instance_map(
                 )
                 if name and target:
                     instance_map[name] = target
+            elif left is not None and right is not None and left.type == "identifier":
+                target = _resolve_alias_target(
+                    right,
+                    snapshot.content,
+                    instance_map,
+                )
+                name = node_text(left, snapshot.content)
+                if name and target:
+                    instance_map[name] = target
         for child in getattr(node, "children", []):
             walk(child)
 
@@ -135,6 +144,24 @@ def collect_callable_instance_map(
                 )
                 if name and target:
                     instance_map[name] = target
+            elif left is not None and right is not None:
+                name = None
+                if left.type == "identifier":
+                    name = node_text(left, snapshot.content)
+                elif left.type == "attribute":
+                    object_node = left.child_by_field_name("object")
+                    attribute_node = left.child_by_field_name("attribute")
+                    object_name = node_text(object_node, snapshot.content) or ""
+                    if object_name in {"self", "cls"}:
+                        name = node_text(attribute_node, snapshot.content)
+                if name:
+                    target = _resolve_alias_target(
+                        right,
+                        snapshot.content,
+                        instance_map,
+                    )
+                    if target:
+                        instance_map[name] = target
         for child in getattr(node, "children", []):
             walk(child)
 
@@ -190,8 +217,39 @@ def collect_class_instance_map(
                     )
                     if target:
                         instance_map[name] = target
+            elif left is not None and right is not None and left.type == "attribute":
+                object_node = left.child_by_field_name("object")
+                attribute_node = left.child_by_field_name("attribute")
+                object_name = node_text(object_node, snapshot.content) or ""
+                if object_name in {"self", "cls"}:
+                    name = node_text(attribute_node, snapshot.content)
+                    target = _resolve_alias_target(right, snapshot.content, instance_map)
+                    if name and target:
+                        instance_map[name] = target
         for child in getattr(node, "children", []):
             walk(child)
 
     walk(class_body_node)
     return instance_map
+
+
+def _resolve_alias_target(
+    node,
+    content: bytes,
+    known_instances: dict[str, str],
+) -> str | None:
+    if node is None:
+        return None
+    if node.type == "identifier":
+        name = node_text(node, content)
+        if name and name in known_instances:
+            return known_instances[name]
+        return None
+    if node.type == "attribute":
+        base = node_text(node, content) or ""
+        if base.startswith("self.") or base.startswith("cls."):
+            parts = base.split(".", 2)
+            if len(parts) >= 2:
+                return known_instances.get(parts[1])
+        return known_instances.get(base)
+    return None

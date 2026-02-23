@@ -21,6 +21,8 @@ class TypeScriptNodeState:
     class_instance_map: dict[str, dict[str, str]] = field(default_factory=dict)
     pending_instance_assignments: list[tuple[str, str]] = field(default_factory=list)
     pending_class_instances: list[tuple[str, str, str]] = field(default_factory=list)
+    pending_alias_assignments: list[tuple[str, str]] = field(default_factory=list)
+    pending_class_aliases: list[tuple[str, str, str]] = field(default_factory=list)
     pending_calls: list[tuple[str, str, object | None, str | None]] = field(
         default_factory=list
     )
@@ -43,7 +45,14 @@ def walk_typescript_nodes(
         class_name = snapshot.content[name_node.start_byte : name_node.end_byte].decode(
             "utf-8"
         )
-        qualified = f"{module_name}.{class_name}"
+        if state.class_stack:
+            parent = state.class_stack[-1]
+            parent_node_type = "class"
+            qualified = f"{parent}.{class_name}"
+        else:
+            parent = module_name
+            parent_node_type = "module"
+            qualified = f"{module_name}.{class_name}"
         result.nodes.append(
             SemanticNodeRecord(
                 language=language,
@@ -57,12 +66,12 @@ def walk_typescript_nodes(
                 end_byte=node.end_byte,
             )
         )
-        state.class_name_map[class_name] = qualified
+        state.class_name_map.setdefault(class_name, qualified)
         result.edges.append(
             EdgeRecord(
                 src_language=language,
-                src_node_type="module",
-                src_qualified_name=module_name,
+                src_node_type=parent_node_type,
+                src_qualified_name=parent,
                 dst_language=language,
                 dst_node_type="class",
                 dst_qualified_name=qualified,
@@ -162,6 +171,52 @@ def walk_typescript_nodes(
         )
         if not name_node or not value_node:
             return
+        if value_node.type in {"class", "class_expression"} and name_node.type == "identifier":
+            class_name = snapshot.content[
+                name_node.start_byte : name_node.end_byte
+            ].decode("utf-8")
+            qualified = f"{module_name}.{class_name}"
+            result.nodes.append(
+                SemanticNodeRecord(
+                    language=language,
+                    node_type="class",
+                    qualified_name=qualified,
+                    display_name=class_name,
+                    file_path=snapshot.record.relative_path,
+                    start_line=value_node.start_point[0] + 1,
+                    end_line=value_node.end_point[0] + 1,
+                    start_byte=value_node.start_byte,
+                    end_byte=value_node.end_byte,
+                )
+            )
+            result.edges.append(
+                EdgeRecord(
+                    src_language=language,
+                    src_node_type="module",
+                    src_qualified_name=module_name,
+                    dst_language=language,
+                    dst_node_type="class",
+                    dst_qualified_name=qualified,
+                    edge_type="CONTAINS",
+                )
+            )
+            state.class_name_map.setdefault(class_name, qualified)
+            state.class_stack.append(qualified)
+            state.class_methods.setdefault(qualified, set())
+            body = value_node.child_by_field_name("body")
+            if body:
+                for child in body.children:
+                    walk_typescript_nodes(
+                        child,
+                        language=language,
+                        snapshot=snapshot,
+                        module_name=module_name,
+                        result=result,
+                        state=state,
+                        function_depth=function_depth,
+                    )
+            state.class_stack.pop()
+            return
         if value_node.type == "new_expression":
             if name_node.type == "identifier":
                 callee = value_node.child_by_field_name("constructor") or value_node.child_by_field_name(
@@ -173,6 +228,16 @@ def walk_typescript_nodes(
                 )
                 if callee_text and name:
                     state.pending_instance_assignments.append((name, callee_text))
+            return
+        if value_node.type == "identifier" and name_node.type == "identifier":
+            name = snapshot.content[name_node.start_byte : name_node.end_byte].decode(
+                "utf-8"
+            )
+            source = snapshot.content[
+                value_node.start_byte : value_node.end_byte
+            ].decode("utf-8")
+            if name and source:
+                state.pending_alias_assignments.append((name, source))
             return
         if value_node.type not in {"arrow_function", "function", "function_expression"}:
             return
@@ -290,6 +355,24 @@ def walk_typescript_nodes(
                     if callee_text:
                         state.pending_class_instances.append(
                             (state.class_stack[-1], field, callee_text)
+                        )
+        elif (
+            left is not None
+            and right is not None
+            and left.type in {"member_expression", "subscript_expression"}
+            and right.type == "member_expression"
+        ):
+            object_node = left.child_by_field_name("object")
+            property_node = left.child_by_field_name("property")
+            object_name = node_text(object_node, snapshot.content) or ""
+            field = node_text(property_node, snapshot.content) or ""
+            if object_name == "this" and field:
+                rhs = node_text(right, snapshot.content) or ""
+                if rhs.startswith("this."):
+                    rhs_field = rhs.split(".", 1)[1]
+                    if rhs_field:
+                        state.pending_class_aliases.append(
+                            (state.class_stack[-1], field, rhs_field)
                         )
 
     walk_typescript_children(

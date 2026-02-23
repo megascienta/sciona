@@ -45,7 +45,14 @@ def walk_java_nodes(
         class_name = snapshot.content[name_node.start_byte : name_node.end_byte].decode(
             "utf-8"
         )
-        qualified = f"{module_name}.{class_name}"
+        if state.class_stack:
+            parent = state.class_stack[-1]
+            parent_node_type = "class"
+            qualified = f"{parent}.{class_name}"
+        else:
+            parent = module_name
+            parent_node_type = "module"
+            qualified = f"{module_name}.{class_name}"
         result.nodes.append(
             SemanticNodeRecord(
                 language=language,
@@ -62,8 +69,8 @@ def walk_java_nodes(
         result.edges.append(
             EdgeRecord(
                 src_language=language,
-                src_node_type="module",
-                src_qualified_name=module_name,
+                src_node_type=parent_node_type,
+                src_qualified_name=parent,
                 dst_language=language,
                 dst_node_type="class",
                 dst_qualified_name=qualified,

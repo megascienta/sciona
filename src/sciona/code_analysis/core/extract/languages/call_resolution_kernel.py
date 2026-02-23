@@ -24,6 +24,9 @@ class CallResolutionRequest:
 
     terminal: str
     callee_text: str
+    receiver: str | None = None
+    receiver_chain: tuple[str, ...] = ()
+    callee_kind: str = "unqualified"
 
 
 class CallResolutionAdapter(Protocol):

@@ -31,8 +31,11 @@ def collect_python_imports(
     is_package = snapshot.record.path.name == "__init__.py"
     for child in root.children:
         if child.type == "import_statement":
-            segment = snapshot.content[child.start_byte : child.end_byte].decode("utf-8")
-            for module, alias in parse_import_statement(segment):
+            extracted = extract_import_statement_from_node(child, snapshot.content)
+            if not extracted:
+                segment = snapshot.content[child.start_byte : child.end_byte].decode("utf-8")
+                extracted = parse_import_statement(segment)
+            for module, alias in extracted:
                 normalized = normalize_import(
                     module,
                     module_name,
@@ -49,8 +52,10 @@ def collect_python_imports(
                 elif "." not in module:
                     import_aliases[module] = normalized
         elif child.type == "import_from_statement":
-            segment = snapshot.content[child.start_byte : child.end_byte].decode("utf-8")
-            module, names = parse_from_import(segment)
+            module, names = extract_from_import_from_node(child, snapshot.content)
+            if module is None:
+                segment = snapshot.content[child.start_byte : child.end_byte].decode("utf-8")
+                module, names = parse_from_import(segment)
             if not module:
                 continue
             normalized = normalize_import(
@@ -89,6 +94,32 @@ def parse_import_statement(text: str) -> List[tuple[str, str | None]]:
     return parsed
 
 
+def extract_import_statement_from_node(
+    node,
+    content: bytes,
+) -> List[tuple[str, str | None]]:
+    extracted: list[tuple[str, str | None]] = []
+    for child in getattr(node, "children", []):
+        if child.type == "dotted_name":
+            module = content[child.start_byte : child.end_byte].decode("utf-8").strip()
+            if module:
+                extracted.append((module, None))
+        elif child.type == "aliased_import":
+            name_node = child.child_by_field_name("name")
+            alias_node = child.child_by_field_name("alias")
+            if name_node is None:
+                continue
+            module = content[name_node.start_byte : name_node.end_byte].decode("utf-8").strip()
+            alias = (
+                content[alias_node.start_byte : alias_node.end_byte].decode("utf-8").strip()
+                if alias_node is not None
+                else None
+            )
+            if module:
+                extracted.append((module, alias or None))
+    return extracted
+
+
 def parse_from_import(text: str) -> tuple[str | None, List[tuple[str, str | None]]]:
     fragment = text.strip()
     if not fragment.startswith("from ") or " import " not in fragment:
@@ -104,6 +135,42 @@ def parse_from_import(text: str) -> tuple[str | None, List[tuple[str, str | None
         name = parts[0].strip()
         alias = parts[1].strip() if len(parts) == 2 else None
         names.append((name, alias))
+    return module or None, names
+
+
+def extract_from_import_from_node(
+    node,
+    content: bytes,
+) -> tuple[str | None, List[tuple[str, str | None]]]:
+    module_node = node.child_by_field_name("module_name")
+    if module_node is None:
+        module_node = node.child_by_field_name("module")
+    module = (
+        content[module_node.start_byte : module_node.end_byte].decode("utf-8").strip()
+        if module_node is not None
+        else None
+    )
+    names: list[tuple[str, str | None]] = []
+    for child in getattr(node, "children", []):
+        if child.type == "wildcard_import":
+            names.append(("*", None))
+        elif child.type == "identifier":
+            name = content[child.start_byte : child.end_byte].decode("utf-8").strip()
+            if name not in {"from", "import"}:
+                names.append((name, None))
+        elif child.type == "aliased_import":
+            name_node = child.child_by_field_name("name")
+            alias_node = child.child_by_field_name("alias")
+            if name_node is None:
+                continue
+            name = content[name_node.start_byte : name_node.end_byte].decode("utf-8").strip()
+            alias = (
+                content[alias_node.start_byte : alias_node.end_byte].decode("utf-8").strip()
+                if alias_node is not None
+                else None
+            )
+            if name:
+                names.append((name, alias or None))
     return module or None, names
 
 

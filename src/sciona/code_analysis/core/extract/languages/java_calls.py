@@ -82,9 +82,12 @@ class _JavaCallAdapter(CallResolutionAdapter):
     def resolve(self, request: CallResolutionRequest) -> List[str]:
         terminal = request.terminal
         raw = request.callee_text
+        receiver_hint = request.receiver
         if "." in raw:
             receiver = raw.rsplit(".", 1)[0].strip()
             receiver_simple = receiver.rsplit(".", 1)[-1]
+            if receiver_hint and receiver_simple != receiver_hint:
+                receiver_simple = receiver_hint
             instance_type = self.instance_types.get(receiver_simple)
             if instance_type:
                 qualified_type = self.qualify_java_type(
@@ -125,6 +128,9 @@ def _to_requests(targets: List[CallTarget]) -> list[CallResolutionRequest]:
         CallResolutionRequest(
             terminal=target.terminal,
             callee_text=(target.callee_text or "").strip(),
+            receiver=target.receiver,
+            receiver_chain=target.receiver_chain,
+            callee_kind=target.callee_kind,
         )
         for target in targets
     ]

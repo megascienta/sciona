@@ -31,7 +31,9 @@ def collect_typescript_imports(
     nodes.extend(list(find_nodes_of_type(root, "import_equals_declaration")))
     for node in nodes:
         fragment = snapshot.content[node.start_byte : node.end_byte].decode("utf-8")
-        module_spec = extract_module_spec(fragment)
+        module_spec = extract_module_spec_from_node(node, snapshot.content) or extract_module_spec(
+            fragment
+        )
         if not module_spec:
             continue
         normalized = normalize_import(module_spec, snapshot)
@@ -81,6 +83,20 @@ def extract_module_spec(fragment: str) -> Optional[str]:
         return string_literal(remainder)
     if fragment.startswith("export"):
         return string_literal(fragment)
+    return None
+
+
+def extract_module_spec_from_node(node, content: bytes) -> Optional[str]:
+    source = node.child_by_field_name("source")
+    if source is not None:
+        literal = content[source.start_byte : source.end_byte].decode("utf-8").strip()
+        return literal.strip("'\"")
+    string_nodes = list(find_nodes_of_type(node, "string"))
+    if string_nodes:
+        literal = content[
+            string_nodes[0].start_byte : string_nodes[0].end_byte
+        ].decode("utf-8")
+        return literal.strip().strip("'\"")
     return None
 
 

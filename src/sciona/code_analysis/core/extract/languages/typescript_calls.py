@@ -62,16 +62,17 @@ class _TypeScriptCallAdapter(CallResolutionAdapter):
     def resolve(self, request: CallResolutionRequest) -> List[str]:
         terminal = request.terminal
         callee_text = request.callee_text
+        receiver = request.receiver
         if "." in callee_text:
             head, rest = callee_text.split(".", 1)
             if head in self.instance_map:
                 return [f"{self.instance_map[head]}.{terminal}"]
             if head in self.class_name_map:
                 return [f"{self.class_name_map[head]}.{terminal}"]
-            if self.class_name and callee_text.startswith("this."):
-                parts = callee_text.split(".")
-                if len(parts) >= 3:
-                    field = parts[1]
+            if self.class_name and (receiver == "this" or callee_text.startswith("this.")):
+                chain = request.receiver_chain
+                if len(chain) >= 2:
+                    field = chain[1]
                     target_class = self.class_instance_map.get(self.class_name, {}).get(
                         field
                     )
@@ -97,6 +98,9 @@ def _to_requests(targets: List[CallTarget]) -> list[CallResolutionRequest]:
         CallResolutionRequest(
             terminal=target.terminal,
             callee_text=(target.callee_text or "").strip(),
+            receiver=target.receiver,
+            receiver_chain=target.receiver_chain,
+            callee_kind=target.callee_kind,
         )
         for target in targets
     ]

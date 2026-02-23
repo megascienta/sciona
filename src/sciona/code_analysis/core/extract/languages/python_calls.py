@@ -67,11 +67,12 @@ class _PythonCallAdapter(CallResolutionAdapter):
     def resolve(self, request: CallResolutionRequest) -> List[str]:
         terminal = request.terminal
         callee_text = request.callee_text
+        receiver = request.receiver
         if "." in callee_text:
             head, rest = callee_text.split(".", 1)
             if head in self.instance_map:
                 return [f"{self.instance_map[head]}.{terminal}"]
-            if head in {"self", "cls"}:
+            if receiver in {"self", "cls"} or head in {"self", "cls"}:
                 field = _receiver_field(callee_text)
                 if field and field in self.instance_map:
                     return [f"{self.instance_map[field]}.{terminal}"]
@@ -99,6 +100,9 @@ def _to_requests(targets: List[CallTarget]) -> list[CallResolutionRequest]:
         CallResolutionRequest(
             terminal=target.terminal,
             callee_text=(target.callee_text or "").strip(),
+            receiver=target.receiver,
+            receiver_chain=target.receiver_chain,
+            callee_kind=target.callee_kind,
         )
         for target in targets
     ]

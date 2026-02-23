@@ -27,6 +27,8 @@ def resolve_ts_constructor_name(
 def resolve_pending_instances(
     pending_instance_assignments: list[tuple[str, str]],
     pending_class_instances: list[tuple[str, str, str]],
+    pending_alias_assignments: list[tuple[str, str]],
+    pending_class_aliases: list[tuple[str, str, str]],
     instance_map: dict[str, str],
     class_instance_map: dict[str, dict[str, str]],
     class_name_map: dict[str, str],
@@ -45,3 +47,16 @@ def resolve_pending_instances(
         )
         if target:
             class_instance_map.setdefault(class_name, {})[field] = target
+    for name, source in pending_alias_assignments:
+        target = (
+            instance_map.get(source)
+            or class_name_map.get(source)
+            or import_aliases.get(source)
+            or member_aliases.get(source)
+        )
+        if target:
+            instance_map[name] = target
+    for class_name, field, source_field in pending_class_aliases:
+        source_target = class_instance_map.get(class_name, {}).get(source_field)
+        if source_target:
+            class_instance_map.setdefault(class_name, {})[field] = source_target

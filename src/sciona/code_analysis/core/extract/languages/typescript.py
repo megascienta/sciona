@@ -73,6 +73,8 @@ class TypeScriptAnalyzer(ASTAnalyzer):
             resolve_pending_instances(
                 state.pending_instance_assignments,
                 state.pending_class_instances,
+                state.pending_alias_assignments,
+                state.pending_class_aliases,
                 state.instance_map,
                 state.class_instance_map,
                 state.class_name_map,

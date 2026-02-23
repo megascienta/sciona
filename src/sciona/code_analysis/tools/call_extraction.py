@@ -81,6 +81,9 @@ class CallTarget:
 
     terminal: str
     callee_text: str | None
+    receiver: str | None = None
+    receiver_chain: tuple[str, ...] = ()
+    callee_kind: str = "unqualified"
 
 
 def collect_call_identifiers(
@@ -137,7 +140,17 @@ def collect_call_targets(
                     callee_text = callee_renderer(current, callee, content)
                 else:
                     callee_text = _callee_text(callee, content)
-                targets.append(CallTarget(terminal=terminal, callee_text=callee_text))
+                normalized_callee = _normalize_callee_text(callee_text)
+                receiver, receiver_chain, callee_kind = _callee_shape(normalized_callee)
+                targets.append(
+                    CallTarget(
+                        terminal=terminal,
+                        callee_text=normalized_callee,
+                        receiver=receiver,
+                        receiver_chain=receiver_chain,
+                        callee_kind=callee_kind,
+                    )
+                )
         for child in getattr(current, "children", []):
             walk(child)
 
@@ -175,6 +188,31 @@ def _callee_text(node, content: bytes) -> str | None:
     if node is None:
         return None
     return content[node.start_byte : node.end_byte].decode("utf-8")
+
+
+def _normalize_callee_text(text: str | None) -> str | None:
+    if not text:
+        return text
+    normalized = text.strip()
+    normalized = normalized.replace("?.", ".")
+    normalized = normalized.replace("!.", ".")
+    normalized = normalized.replace("::", ".")
+    return normalized
+
+
+def _callee_shape(
+    callee_text: str | None,
+) -> tuple[str | None, tuple[str, ...], str]:
+    if not callee_text or "." not in callee_text:
+        return None, (), "unqualified"
+    head = callee_text.rsplit(".", 1)[0].strip()
+    chain = tuple(part for part in head.split(".") if part)
+    if not chain:
+        return None, (), "unqualified"
+    kind = "member"
+    if chain[0] in {"self", "cls", "this", "super"}:
+        kind = "receiver"
+    return chain[0], chain, kind
 
 
 def _first_child(node):

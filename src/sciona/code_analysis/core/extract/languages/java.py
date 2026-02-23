@@ -10,7 +10,6 @@ from typing import List
 
 from ....tools.call_extraction import (
     collect_call_targets,
-    normalize_call_identifiers,
 )
 from ....tools.tree_sitter import build_parser
 from ...module_naming import module_name_from_path
@@ -26,9 +25,9 @@ from ..utils import count_lines, find_nodes_of_type
 from .java_calls import callee_text, resolve_java_calls
 from .java_imports import (
     extract_package,
-    import_simple_name,
+    import_simple_name_node,
     module_prefix_for_package,
-    normalize_import,
+    normalize_import_node,
 )
 from .java_nodes import JavaNodeState, walk_java_nodes
 from .java_resolution import (
@@ -91,11 +90,9 @@ class JavaAnalyzer(ASTAnalyzer):
             imports: List[str] = []
             import_class_map: dict[str, str] = {}
             for import_node in find_nodes_of_type(root, "import_declaration"):
-                fragment = snapshot.content[
-                    import_node.start_byte : import_node.end_byte
-                ].decode("utf-8")
-                normalized = normalize_import(
-                    fragment,
+                normalized = normalize_import_node(
+                    import_node,
+                    snapshot.content,
                     module_name,
                     snapshot,
                     module_prefix=module_prefix,
@@ -105,7 +102,7 @@ class JavaAnalyzer(ASTAnalyzer):
                 if not is_internal_module(normalized, getattr(self, "module_index", None)):
                     continue
                 imports.append(normalized)
-                simple_name = import_simple_name(fragment)
+                simple_name = import_simple_name_node(import_node, snapshot.content)
                 if simple_name:
                     import_class_map[simple_name] = normalized
 
@@ -152,8 +149,7 @@ class JavaAnalyzer(ASTAnalyzer):
                     resolved_calls.append((self.language, qualified, node_type, list(resolved)))
 
             if resolved_calls:
-                normalized = normalize_call_identifiers(resolved_calls)
-                for _language, qualified, node_type, callee_identifiers in normalized:
+                for _language, qualified, node_type, callee_identifiers in resolved_calls:
                     result.call_records.append(
                         CallRecord(
                             qualified_name=qualified,
