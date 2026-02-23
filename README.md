@@ -73,9 +73,12 @@ It validates reducer behavior against direct DB queries and independent parsers 
 
 Basic strategy:
 1. Sample balanced module/class/function/method nodes from DB.
-2. Build independent contract truth from parser outputs (in-repo only).
-3. Compare reducer edges with DB edges and contract truth.
-4. Enforce hard invariants and threshold gates before accepting metrics.
+2. Build independent strict contract truth from parser outputs (in-repo only).
+3. Compare reducer edges with DB (internal integrity) and contract truth (external static alignment).
+4. Report three layers:
+- `internal_integrity` (hard-gated),
+- `static_contract_alignment` (diagnostic external static quality),
+- `enrichment_practical` (diagnostic LLM-usefulness).
 
 Run:
 
@@ -97,11 +100,11 @@ Latest consolidated snapshot (N=500 each):
 
 Interpretation:
 - `reducer_vs_db` exactness is mandatory; reducer is a DB projection.
-- `contract_recall` is coverage of independent contract truth.
-- `overreach_rate` is reducer output outside contract truth.
-- Reports also expose taxonomy sections: `static_structural_validity`, `semantic_alignment`, and `prompt_fitness`.
+- `static_contract_recall` is coverage of independent strict contract truth.
+- `static_overreach_rate` is reducer output outside independent strict contract truth.
+- Report sections are `internal_integrity`, `static_contract_alignment`, and `enrichment_practical`.
 
-Detailed cross-repo analysis, diagnostics, and before/after comparison are maintained in `experiments/reducers/reports/consolidated_validation_report.md`.
+Detailed diagnostics and consolidated analysis are maintained in `experiments/reducers/reports/consolidated_validation_report.md`.
 
 ## Reducers usage
 

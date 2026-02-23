@@ -32,6 +32,13 @@ from .report import render_summary, write_json, write_markdown
 from .sciona_adapter import get_snapshot_id, open_core_db
 from .stability import independent_results_hash
 from .stats import edge_type_breakdown, failure_examples, micro
+from .taxonomy import (
+    METRIC_DEFINITIONS,
+    REPORT_SCHEMA_VERSION,
+    divergence_index,
+    overreach_rate,
+    weighted_quality,
+)
 
 
 def _load_contract_spec(path: Path) -> dict:
@@ -201,6 +208,7 @@ def run_validation(
     reducer_full_entities = {row["entity"] for row in scored_rows_reducer_vs_contract}
     db_full_entities = {row["entity"] for row in scored_rows_db_vs_contract}
 
+    reducer_vs_db_micro = micro(scored_rows_reducer_vs_db, "metrics_reducer_vs_db")
     reducer_vs_contract_micro = micro(
         scored_rows_reducer_vs_contract, "metrics_reducer_vs_contract"
     )
@@ -297,19 +305,6 @@ def run_validation(
             }
         return result
 
-    def _weighted_quality(
-        *,
-        tp: int,
-        fp: int,
-        fn: int,
-        fp_weight: float,
-        fn_weight: float,
-    ) -> float | None:
-        denominator = tp + (fp_weight * fp) + (fn_weight * fn)
-        if denominator <= 0:
-            return None
-        return tp / denominator
-
     def _edge_key(edge: dict) -> tuple[str, str]:
         return (
             edge.get("caller") or "",
@@ -348,11 +343,7 @@ def run_validation(
         }
 
     contract_recall = reducer_vs_contract_micro.get("recall")
-    overreach_rate = None
-    if reducer_vs_contract_micro["tp"] + reducer_vs_contract_micro["fp"]:
-        overreach_rate = reducer_vs_contract_micro["fp"] / (
-            reducer_vs_contract_micro["tp"] + reducer_vs_contract_micro["fp"]
-        )
+    static_overreach_rate = overreach_rate(reducer_vs_contract_micro)
     call_form_reducer_vs_contract = _call_form_recall(
         "metrics_reducer_vs_contract_by_call_form"
     )
@@ -388,7 +379,8 @@ def run_validation(
             contract_recall is not None and contract_recall >= thresholds["contract_recall_min"]
         ),
         overreach_rate_ok=(
-            overreach_rate is not None and overreach_rate <= thresholds["overreach_rate_max"]
+            static_overreach_rate is not None
+            and static_overreach_rate <= thresholds["overreach_rate_max"]
         ),
         member_call_recall_ok=(
             member_call_recall is not None
@@ -442,10 +434,10 @@ def run_validation(
     summary.append(f"repo={repo_name_prefix(repo_root)}")
     summary.append(f"sampled_nodes={len(rows)}")
     summary.append(f"invariants_passed={invariants['passed']}")
-    summary.append(f"contract_recall={contract_recall}")
-    summary.append(f"overreach_rate={overreach_rate}")
+    summary.append(f"static_contract_recall={contract_recall}")
+    summary.append(f"static_overreach_rate={static_overreach_rate}")
 
-    static_hard_gate_keys = [
+    internal_hard_gate_keys = [
         "gate_reducer_db_exact",
         "gate_aligned_scoring",
         "gate_parse_coverage",
@@ -456,77 +448,71 @@ def run_validation(
         "gate_scoped_call_normalization",
         "gate_equal_contract_metrics_when_exact",
     ]
-    static_valid = all(bool(invariants.get(key)) for key in static_hard_gate_keys)
-    semantic_divergence_index = None
-    if reducer_vs_contract_micro["tp"] + reducer_vs_contract_micro["fp"] + reducer_vs_contract_micro["fn"]:
-        semantic_divergence_index = (
-            reducer_vs_contract_micro["fp"] + reducer_vs_contract_micro["fn"]
-        ) / (
-            reducer_vs_contract_micro["tp"]
-            + reducer_vs_contract_micro["fp"]
-            + reducer_vs_contract_micro["fn"]
-        )
+    internal_valid = all(bool(invariants.get(key)) for key in internal_hard_gate_keys)
+    semantic_divergence_index = divergence_index(reducer_vs_contract_micro)
     module_metrics = (_micro_by_kind("metrics_reducer_vs_contract") or {}).get("module") or {}
     function_metrics = (_micro_by_kind("metrics_reducer_vs_contract") or {}).get("function") or {}
     method_metrics = (_micro_by_kind("metrics_reducer_vs_contract") or {}).get("method") or {}
-    navigation_reliability = _weighted_quality(
+    navigation_weights = config.PROMPT_FITNESS_WEIGHTS["navigation"]
+    reasoning_weights = config.PROMPT_FITNESS_WEIGHTS["reasoning"]
+    navigation_reliability = weighted_quality(
         tp=int(module_metrics.get("tp") or 0),
         fp=int(module_metrics.get("fp") or 0),
         fn=int(module_metrics.get("fn") or 0),
-        fp_weight=1.0,
-        fn_weight=1.0,
+        fp_weight=float(navigation_weights["fp_weight"]),
+        fn_weight=float(navigation_weights["fn_weight"]),
     )
     reasoning_tp = int(function_metrics.get("tp") or 0) + int(method_metrics.get("tp") or 0)
     reasoning_fp = int(function_metrics.get("fp") or 0) + int(method_metrics.get("fp") or 0)
     reasoning_fn = int(function_metrics.get("fn") or 0) + int(method_metrics.get("fn") or 0)
-    reasoning_reliability = _weighted_quality(
+    reasoning_reliability = weighted_quality(
         tp=reasoning_tp,
         fp=reasoning_fp,
         fn=reasoning_fn,
-        fp_weight=1.0,
-        fn_weight=1.2,
+        fp_weight=float(reasoning_weights["fp_weight"]),
+        fn_weight=float(reasoning_weights["fn_weight"]),
     )
     coupling_stability_index = (
-        (1.0 - overreach_rate) if overreach_rate is not None else None
+        (1.0 - static_overreach_rate) if static_overreach_rate is not None else None
     )
 
     payload = {
         "repo_root": str(repo_root),
         "snapshot_id": snapshot_id,
+        "report_schema_version": REPORT_SCHEMA_VERSION,
         "summary": summary,
         "invariants": invariants,
+        "metric_definitions": METRIC_DEFINITIONS,
         "core_metrics": {
-            "contract_recall": contract_recall,
-            "overreach_rate": overreach_rate,
+            "static_contract_recall": contract_recall,
+            "static_overreach_rate": static_overreach_rate,
             "overreach_count": reducer_vs_contract_micro["fp"],
             "reducer_edge_total": reducer_edge_total,
         },
-        "static_structural_validity": {
-            "valid": static_valid,
+        "internal_integrity": {
+            "valid": internal_valid,
+            "hard_gates": {key: invariants.get(key) for key in internal_hard_gate_keys},
             "projection": {
                 "reducer_db_exact": invariants.get("gate_reducer_db_exact"),
                 "aligned_scoring": invariants.get("gate_aligned_scoring"),
+                "static_projection_precision": reducer_vs_db_micro.get("precision"),
+                "static_projection_recall": reducer_vs_db_micro.get("recall"),
             },
             "determinism": {
                 "parser_stability_score": stability_score,
                 "gate_parser_deterministic": invariants.get("gate_parser_deterministic"),
             },
-            "contract_metrics": {
-                "static_contract_precision": reducer_vs_contract_micro.get("precision"),
-                "static_contract_recall": reducer_vs_contract_micro.get("recall"),
-                "static_overreach_rate": overreach_rate,
-            },
-            "hard_gates": {key: invariants.get(key) for key in static_hard_gate_keys},
         },
-        "semantic_alignment": {
-            "semantic_contract_precision": reducer_vs_contract_micro.get("precision"),
-            "semantic_contract_recall": reducer_vs_contract_micro.get("recall"),
-            "semantic_divergence_index": semantic_divergence_index,
+        "static_contract_alignment": {
+            "static_contract_precision": reducer_vs_contract_micro.get("precision"),
+            "static_contract_recall": reducer_vs_contract_micro.get("recall"),
+            "static_overreach_rate": static_overreach_rate,
+            "static_divergence_index": semantic_divergence_index,
             "by_kind": _micro_by_kind("metrics_reducer_vs_contract"),
             "by_edge_type": edge_breakdown_contract,
             "call_form_recall": call_form_reducer_vs_contract,
         },
-        "prompt_fitness": {
+        "enrichment_practical": {
             "navigation_structural_reliability": navigation_reliability,
             "reasoning_structural_reliability": reasoning_reliability,
             "coupling_stability_index": coupling_stability_index,
@@ -543,9 +529,10 @@ def run_validation(
                 "calls": calls_breakdown,
                 "imports": imports_breakdown,
             },
+            "weights": config.PROMPT_FITNESS_WEIGHTS,
         },
         "micro_metrics": {
-            "reducer_vs_db": micro(scored_rows_reducer_vs_db, "metrics_reducer_vs_db"),
+            "reducer_vs_db": reducer_vs_db_micro,
             "db_vs_contract_truth": db_vs_contract_micro,
             "reducer_vs_contract_truth": reducer_vs_contract_micro,
         },
@@ -599,7 +586,7 @@ def run_validation(
             "scoped_call_normalization_ok": scoped_normalization_ok,
             "contract_recall": contract_recall,
             "contract_recall_min": thresholds["contract_recall_min"],
-            "overreach_rate": overreach_rate,
+            "overreach_rate": static_overreach_rate,
             "overreach_rate_max": thresholds["overreach_rate_max"],
             "member_call_recall": member_call_recall,
             "member_call_recall_min": thresholds["member_call_recall_min"],

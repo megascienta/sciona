@@ -23,6 +23,11 @@ DEFAULT_THRESHOLDS = {
     "overlap_epsilon": 1e-9,
 }
 
+PROMPT_FITNESS_WEIGHTS = {
+    "navigation": {"fp_weight": 1.0, "fn_weight": 1.0},
+    "reasoning": {"fp_weight": 1.0, "fn_weight": 1.2},
+}
+
 LOC_BUCKETS = (
     (200, "small"),
     (800, "medium"),

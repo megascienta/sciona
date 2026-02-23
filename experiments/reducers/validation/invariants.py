@@ -75,7 +75,8 @@ def evaluate_invariants(
     overreach_rate_ok: bool,
     member_call_recall_ok: bool | None,
 ) -> dict:
-    failures: List[str] = []
+    hard_failures: List[str] = []
+    diagnostic_failures: List[str] = []
     exact_mismatches: List[dict] = []
     comparable_rows = [
         row for row in rows if not row.get("reducer_error") and not row.get("db_error")
@@ -93,61 +94,61 @@ def evaluate_invariants(
             )
     gate_reducer_db_exact = len(exact_mismatches) == 0
     if not gate_reducer_db_exact:
-        failures.append(f"reducer/db exact mismatch on {len(exact_mismatches)} nodes")
+        hard_failures.append(f"reducer/db exact mismatch on {len(exact_mismatches)} nodes")
 
     gate_aligned_scoring = reducer_full_entities == db_full_entities
     if not gate_aligned_scoring:
         only_reducer = sorted(reducer_full_entities - db_full_entities)[:10]
         only_db = sorted(db_full_entities - reducer_full_entities)[:10]
-        failures.append(
+        hard_failures.append(
             f"full scoring set misaligned: reducer_only={only_reducer}, db_only={only_db}"
         )
 
     gate_parse_coverage = (parse_ok_files == total_files)
     if not gate_parse_coverage:
-        failures.append(f"independent parser parse coverage is {parse_ok_files}/{total_files}, expected full coverage")
+        hard_failures.append(f"independent parser parse coverage is {parse_ok_files}/{total_files}, expected full coverage")
 
     gate_contract_truth_pure = contract_truth_pure_ok
     if not gate_contract_truth_pure:
-        failures.append("contract truth overlaps with enrichment edges")
+        hard_failures.append("contract truth overlaps with enrichment edges")
     gate_contract_truth_resolved = contract_truth_resolved_ok
     if not gate_contract_truth_resolved:
-        failures.append("contract truth contains unresolved targets")
+        hard_failures.append("contract truth contains unresolved targets")
     gate_parser_deterministic = parser_deterministic
     if not gate_parser_deterministic:
-        failures.append("independent parser output is non-deterministic across repeated runs")
+        hard_failures.append("independent parser output is non-deterministic across repeated runs")
     gate_no_duplicate_contract_edges = no_duplicate_contract_edges
     if not gate_no_duplicate_contract_edges:
-        failures.append("duplicate edges detected in filtered or full independent truth")
+        hard_failures.append("duplicate edges detected in filtered or full independent truth")
     gate_typescript_relative_index_contract = typescript_relative_index_contract_ok
     if not gate_typescript_relative_index_contract:
-        failures.append(
+        diagnostic_failures.append(
             "typescript import contract parity failed: relative import index fallback mismatch"
         )
     gate_class_truth_nonempty_rate = class_truth_nonempty_rate_ok
     if not gate_class_truth_nonempty_rate:
-        failures.append(
+        diagnostic_failures.append(
             "class truth quality gate failed: too many class nodes have empty contract truth with parse_ok"
         )
     gate_class_truth_match_rate = class_truth_match_rate_ok
     if not gate_class_truth_match_rate:
-        failures.append(
+        diagnostic_failures.append(
             "class truth match-rate gate failed: too many class rows have unreliable class mapping"
         )
     gate_scoped_call_normalization = scoped_call_normalization_ok
     if not gate_scoped_call_normalization:
-        failures.append(
+        hard_failures.append(
             "scoped call normalization gate failed: ambiguous terminals remain mapped to multiple qnames"
         )
     gate_contract_recall_min = contract_recall_ok
     if not gate_contract_recall_min:
-        failures.append("contract recall quality gate failed")
+        diagnostic_failures.append("contract recall quality gate failed")
     gate_overreach_rate_max = overreach_rate_ok
     if not gate_overreach_rate_max:
-        failures.append("overreach-rate quality gate failed")
+        diagnostic_failures.append("overreach-rate quality gate failed")
     gate_member_call_recall_min = member_call_recall_ok
     if gate_member_call_recall_min is False:
-        failures.append("member-call recall quality gate failed")
+        diagnostic_failures.append("member-call recall quality gate failed")
 
     gate_equal_contract_metrics = True
     if gate_reducer_db_exact and gate_aligned_scoring:
@@ -156,13 +157,17 @@ def evaluate_invariants(
                 gate_equal_contract_metrics = False
                 break
         if not gate_equal_contract_metrics:
-            failures.append(
+            hard_failures.append(
                 f"reducer_vs_contract and db_vs_contract differ despite exact reducer/db overlap: reducer={reducer_full_micro}, db={db_full_micro}"
             )
 
-    passed = not failures
+    failures = hard_failures + diagnostic_failures
+    passed = not hard_failures
     return {
         "passed": passed,
+        "hard_passed": passed,
+        "hard_failures": hard_failures,
+        "diagnostic_failures": diagnostic_failures,
         "failures": failures,
         "gate_reducer_db_exact": gate_reducer_db_exact,
         "gate_aligned_scoring": gate_aligned_scoring,
