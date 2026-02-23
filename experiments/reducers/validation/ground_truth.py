@@ -66,6 +66,7 @@ def edge_records_from_ground_truth(
         "included_limitation_by_reason": {},
         "limitation_edges_high_conf": [],
         "limitation_edges_full": [],
+        "limitation_edges_by_reason": {},
     }
     standard_calls = standard_call_names(contract)
     policy = config.EXPANDED_TRUTH_POLICY
@@ -83,6 +84,9 @@ def edge_records_from_ground_truth(
         included = diagnostics.setdefault("included_limitation_by_reason", {})
         included[reason] = int(included.get(reason, 0)) + 1
         out_of_contract.append(record)
+        diagnostics.setdefault("limitation_edges_by_reason", {}).setdefault(reason, []).append(
+            record
+        )
         if reason in high_conf_reasons:
             diagnostics["limitation_edges_high_conf"].append(record)
             diagnostics["limitation_edges_full"].append(record)
@@ -90,6 +94,19 @@ def edge_records_from_ground_truth(
         if reason in low_conf_reasons:
             diagnostics["limitation_edges_full"].append(record)
             return
+
+    def _finalize_diagnostics() -> None:
+        diagnostics["limitation_edges_high_conf"] = dedupe_edge_records(
+            diagnostics["limitation_edges_high_conf"]
+        )
+        diagnostics["limitation_edges_full"] = dedupe_edge_records(
+            diagnostics["limitation_edges_full"]
+        )
+        by_reason = diagnostics.get("limitation_edges_by_reason") or {}
+        diagnostics["limitation_edges_by_reason"] = {
+            reason: dedupe_edge_records(edges)
+            for reason, edges in by_reason.items()
+        }
 
     if entity.kind == "module":
         entries = module_imports_by_prefix.get(entity.qualified_name, [])
@@ -170,12 +187,7 @@ def edge_records_from_ground_truth(
                 else:
                     expected_filtered.append(record)
                     full_truth.append(record)
-        diagnostics["limitation_edges_high_conf"] = dedupe_edge_records(
-            diagnostics["limitation_edges_high_conf"]
-        )
-        diagnostics["limitation_edges_full"] = dedupe_edge_records(
-            diagnostics["limitation_edges_full"]
-        )
+        _finalize_diagnostics()
         return (
             dedupe_edge_records(expected_filtered),
             dedupe_edge_records(full_truth),
@@ -295,12 +307,7 @@ def edge_records_from_ground_truth(
             expected_filtered.append(record)
             full_truth.append(record)
         diagnostics["class_truth_method_count"] = len(expected_filtered)
-        diagnostics["limitation_edges_high_conf"] = dedupe_edge_records(
-            diagnostics["limitation_edges_high_conf"]
-        )
-        diagnostics["limitation_edges_full"] = dedupe_edge_records(
-            diagnostics["limitation_edges_full"]
-        )
+        _finalize_diagnostics()
         return (
             dedupe_edge_records(expected_filtered),
             dedupe_edge_records(full_truth),
@@ -352,12 +359,7 @@ def edge_records_from_ground_truth(
                         "reason": reason,
                     }
                 )
-    diagnostics["limitation_edges_high_conf"] = dedupe_edge_records(
-        diagnostics["limitation_edges_high_conf"]
-    )
-    diagnostics["limitation_edges_full"] = dedupe_edge_records(
-        diagnostics["limitation_edges_full"]
-    )
+    _finalize_diagnostics()
     return (
         dedupe_edge_records(expected_filtered),
         dedupe_edge_records(full_truth),

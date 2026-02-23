@@ -97,6 +97,30 @@ def _call_form_metrics(expected_filtered, sciona_edges, form_map: dict) -> dict:
     return result
 
 
+def _reason_recall_metrics(limitation_edges_by_reason: dict, sciona_edges) -> dict:
+    from .independent.shared import match_edge
+
+    result: dict[str, dict] = {}
+    for reason, edges in (limitation_edges_by_reason or {}).items():
+        tp = 0
+        fn = 0
+        for expected in edges:
+            matched = False
+            for actual in sciona_edges:
+                if actual.caller != expected.caller:
+                    continue
+                if match_edge(actual.callee, actual.callee_qname, expected.callee, expected.callee_qname):
+                    matched = True
+                    break
+            if matched:
+                tp += 1
+            else:
+                fn += 1
+        den = tp + fn
+        result[reason] = {"tp": tp, "fn": fn, "recall": (tp / den) if den else None}
+    return result
+
+
 def module_qname_from_entity(entity) -> str:
     parts = entity.qualified_name.split(".")
     if entity.kind == "module":
@@ -763,6 +787,13 @@ def evaluate_entities(
         db_form_metrics = _call_form_metrics(
             expected_filtered, db_edges, expected_form_map
         )
+        limitation_edges_by_reason = gt_diagnostics.get("limitation_edges_by_reason") or {}
+        reducer_reason_metrics = _reason_recall_metrics(
+            limitation_edges_by_reason, reducer_edges
+        )
+        db_reason_metrics = _reason_recall_metrics(
+            limitation_edges_by_reason, db_edges
+        )
         rows.append(
             {
                 "entity": entity.qualified_name,
@@ -805,6 +836,8 @@ def evaluate_entities(
                 else None,
                 "metrics_reducer_vs_contract_by_call_form": reducer_form_metrics,
                 "metrics_db_vs_contract_by_call_form": db_form_metrics,
+                "metrics_reducer_vs_expanded_by_reason": reducer_reason_metrics,
+                "metrics_db_vs_expanded_by_reason": db_reason_metrics,
                 "reducer_db_empty_set_mismatch": reducer_db_empty_set_mismatch,
                 "contract_truth_edges": [asdict(edge) for edge in expected_filtered],
                 "enrichment_edges": [asdict(edge) for edge in out_of_contract],

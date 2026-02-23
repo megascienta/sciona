@@ -77,6 +77,7 @@ Rationale:
 11. Independent Parser Coverage & Totals
 12. Core Metrics
 13. Metric Definitions & Schema
+14. Action Priority Board
 
 ## 6. Metric Layers
 
@@ -87,6 +88,7 @@ Rationale:
 ### 6.2 Contract Alignment (strict)
 - strict precision/recall/overreach/divergence,
 - per-kind/edge/call-form diagnostics.
+- bootstrap uncertainty intervals (micro + method scope).
 
 ### 6.3 Expanded Truth Alignment (diagnostic)
 - reducer/db alignment vs expanded truth,
@@ -94,6 +96,8 @@ Rationale:
 - explicit scope policy and counts:
 - `excluded_out_of_scope_edges`
 - `included_limitation_edges`
+- reason-level expanded recall diagnostics (reducer/db).
+- bootstrap uncertainty interval for expanded-full micro metrics.
 
 ### 6.4 Prompt Reliability (heuristic diagnostics)
 - navigation/reasoning/coupling signals,
@@ -122,6 +126,11 @@ Diagnostic gates (non-blocking by default):
 - `gate_member_call_recall_min`
 
 `invariants.passed` / `invariants.hard_passed` reflect hard gates only.
+
+Threshold profile selection is automatic:
+- `single_language` profile for one-language samples,
+- `multi_language` profile otherwise.
+The active profile is emitted as `quality_gates.threshold_profile`.
 
 ## 8. Formulas
 - precision: `tp / (tp + fp)`
@@ -169,12 +178,3 @@ python experiments/reducers/reducer_validation.py \
 - Independent parsing remains static and cannot model runtime behavior perfectly.
 - Expanded truth remains diagnostic; not a correctness gate.
 - Java fixture tests require `SCIONA_JAVAPARSER_JAR` + `java/javac`.
-
-## 13. Prompt Heuristic Calibration (Offline)
-Use:
-```bash
-python experiments/reducers/validation/calibrate_prompt_weights.py \
-  --labels-jsonl /path/to/labeled_prompt_tasks.jsonl \
-  --target-key task_success
-```
-This is offline-only; runtime validation never auto-updates weights.

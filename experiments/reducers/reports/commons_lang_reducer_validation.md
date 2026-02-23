@@ -42,27 +42,43 @@
 
 ## Expanded Truth Alignment (Diagnostic)
 
-- reducer_vs_enriched_truth_precision: `0.985132`
-- reducer_vs_enriched_truth_recall: `0.968562`
-- db_vs_enriched_truth_precision: `0.985132`
-- db_vs_enriched_truth_recall: `0.968562`
-- reducer_vs_enriched_truth_divergence_index: `0.045392`
-- inclusion_policy: `{'base': 'contract_truth_edges + enrichment_edges', 'include_enrichment_reasons': ['dynamic', 'in_repo_unresolved', 'relative_unresolved', 'standard_call'], 'exclude_enrichment_reasons': ['external'], 'notes': 'Enriched truth is diagnostic-only and non-gating.'}`
+- reducer_vs_enriched_truth_precision: `0.984929`
+- reducer_vs_enriched_truth_recall: `0.970695`
+- db_vs_enriched_truth_precision: `0.984929`
+- db_vs_enriched_truth_recall: `0.970695`
+- reducer_vs_enriched_truth_divergence_index: `0.043513`
+- inclusion_policy: `{'base': 'contract_truth_edges + limitation_edges', 'scope_exclusions': ['standard_call', 'external'], 'limitation_focus': ['dynamic', 'in_repo_unresolved', 'relative_unresolved'], 'confidence_tiers': {'high': ['in_repo_unresolved'], 'low': ['dynamic', 'relative_unresolved']}, 'notes': 'Expanded truth is diagnostic-only and non-gating.'}`
+- tier.high_conf: reducer_p/r=`0.984929`/`0.970695`, db_p/r=`0.984929`/`0.970695`, divergence=`0.043513`
+- tier.full: reducer_p/r=`0.984929`/`0.970695`, db_p/r=`0.984929`/`0.970695`, divergence=`0.043513`
+- tier_edge_counts: `{'high_conf_edges': 4982, 'full_edges': 4982}`
+- scope_split_counts: `{'excluded_out_of_scope_edges': 5029, 'included_limitation_edges': 260, 'excluded_out_of_scope_by_reason': {'external': 4997, 'standard_call': 32}, 'included_limitation_by_reason': {'in_repo_unresolved': 260}}`
 
 ## Prompt Reliability (Heuristic Diagnostics)
 
 - navigation_structural_reliability: `0.847458`
 - reasoning_structural_reliability: `0.657051`
 - coupling_stability_index: `0.984521`
+- prompt_reliability_version: `v1`
 - weights: `{'navigation': {'fp_weight': 1.0, 'fn_weight': 1.0}, 'reasoning': {'fp_weight': 1.0, 'fn_weight': 1.2}}`
-- enrichment_noise_ratio: `0.022627`
+- component_contributions: `{'navigation': {'tp': 200, 'fp': 36, 'fn': 0, 'penalty_fp': 36.0, 'penalty_fn': 0.0, 'denominator': 236.0}, 'reasoning': {'tp': 164, 'fp': 40, 'fn': 38, 'penalty_fp': 40.0, 'penalty_fn': 45.6, 'denominator': 249.6}}`
+- enrichment_noise_ratio: `0.020273`
 
 ## Language Breakdown
 
-- java: sampled_nodes=`500`, population_nodes=`9722`, projection_p/r=`1.000000`/`1.000000`, contract_p/r=`0.984521`/`0.990371`, expanded_p/r=`0.985132`/`0.968562`, contract_overreach=`0.015479`, projection_tp/fp/fn=`4913/0/0`, contract_tp/fp/fn=`4834/76/47`
+- java: sampled_nodes=`500`, population_nodes=`9722`, projection_p/r=`1.000000`/`1.000000`, contract_p/r=`0.984521`/`0.990371`, expanded_p/r=`0.984929`/`0.970695`, contract_overreach=`0.015479`, projection_tp/fp/fn=`4913/0/0`, contract_tp/fp/fn=`4834/76/47`
 - java:module: recall=`1.000000`, precision=`0.847458`, tp/fp/fn=`200/36/0`
 - java:class: recall=`0.997991`, precision=`1.000000`, tp/fp/fn=`4470/0/9`
 - java:method: recall=`0.811881`, precision=`0.803922`, tp/fp/fn=`164/40/38`
+
+Expanded Alignment by language:kind
+- java:module: strict_p/r=`0.847458`/`1.000000`, expanded_p/r=`0.847458`/`1.000000`
+- java:class: strict_p/r=`1.000000`/`0.997991`, expanded_p/r=`1.000000`/`0.997991`
+- java:method: strict_p/r=`0.803922`/`0.811881`, expanded_p/r=`0.813725`/`0.547855`
+
+Strict vs Expanded delta by kind (top-5 worst recall delta)
+- java:method: delta_recall=`0.264026`, delta_precision=`-0.009804`
+- java:module: delta_recall=`0.000000`, delta_precision=`0.000000`
+- java:class: delta_recall=`0.000000`, delta_precision=`0.000000`
 
 ## Call Resolution Diagnostics
 
@@ -75,11 +91,10 @@
 
 ## Out-of-Contract Distribution
 
-- call: `292`
+- call: `260`
 
 Breakdown by `edge_type::language::reason`:
 - call::java::in_repo_unresolved: `260`
-- call::java::standard_call: `32`
 
 Note: `enrichment_edges` includes only in-repo out-of-contract edges (unresolved, dynamic, standard-call filtered); external edges are excluded.
 
@@ -91,8 +106,8 @@ Note: `enrichment_edges` includes only in-repo out-of-contract edges (unresolved
 - normalized_call_edges: `70293`
 - normalized_import_edges: `2537`
 - contract_truth_edges: `4881`
-- enrichment_edges: `113`
-- enriched_truth_edges: `4994`
+- enrichment_edges: `101`
+- enriched_truth_edges: `4982`
 
 ## Core Metrics
 
@@ -106,6 +121,10 @@ Note: `enrichment_edges` includes only in-repo out-of-contract edges (unresolved
 - report_schema_version: `2026-02-23`
 - enriched_alignment_precision: layer=`enrichment_practical`, source=`reducer_vs_enriched_truth`, formula=`tp / (tp + fp)`
 - enriched_alignment_recall: layer=`enrichment_practical`, source=`reducer_vs_enriched_truth`, formula=`tp / (tp + fn)`
+- expanded_full_precision: layer=`enrichment_practical`, source=`reducer_vs_expanded_full`, formula=`tp / (tp + fp)`
+- expanded_full_recall: layer=`enrichment_practical`, source=`reducer_vs_expanded_full`, formula=`tp / (tp + fn)`
+- expanded_high_conf_precision: layer=`enrichment_practical`, source=`reducer_vs_expanded_high_conf`, formula=`tp / (tp + fp)`
+- expanded_high_conf_recall: layer=`enrichment_practical`, source=`reducer_vs_expanded_high_conf`, formula=`tp / (tp + fn)`
 - static_contract_precision: layer=`static_contract_alignment`, source=`reducer_vs_contract_truth`, formula=`tp / (tp + fp)`
 - static_contract_recall: layer=`static_contract_alignment`, source=`reducer_vs_contract_truth`, formula=`tp / (tp + fn)`
 - static_overreach_rate: layer=`static_contract_alignment`, source=`reducer_vs_contract_truth`, formula=`fp / (tp + fp)`

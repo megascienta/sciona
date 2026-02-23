@@ -55,6 +55,9 @@ def render_summary(payload: dict) -> List[str]:
     if invariants:
         lines.append(f"- passed: `{invariants.get('passed')}`")
         lines.append(f"- hard_passed: `{invariants.get('hard_passed')}`")
+        quality = payload.get("quality_gates") or {}
+        if quality.get("threshold_profile"):
+            lines.append(f"- threshold_profile: `{quality.get('threshold_profile')}`")
         for key in [
             "gate_reducer_db_exact",
             "gate_aligned_scoring",
@@ -118,6 +121,9 @@ def render_summary(payload: dict) -> List[str]:
             "static_divergence_index",
         ):
             lines.append(f"- {key}: `{_format_value(static_alignment.get(key))}`")
+        strict_ci = static_alignment.get("uncertainty_intervals") or {}
+        if strict_ci:
+            lines.append(f"- uncertainty_intervals: `{strict_ci}`")
     lines.append("")
 
     lines.append("## Expanded Truth Alignment (Diagnostic)")
@@ -150,6 +156,20 @@ def render_summary(payload: dict) -> List[str]:
         scope_split = expanded.get("scope_split_counts") or {}
         if scope_split:
             lines.append(f"- scope_split_counts: `{scope_split}`")
+        reason_breakdown = expanded.get("reason_breakdown") or {}
+        if reason_breakdown:
+            lines.append("Reason-level expanded recall:")
+            reducer_reason = reason_breakdown.get("reducer") or {}
+            db_reason = reason_breakdown.get("db") or {}
+            for reason in sorted(set(reducer_reason.keys()) | set(db_reason.keys())):
+                rr = reducer_reason.get(reason) or {}
+                dr = db_reason.get(reason) or {}
+                lines.append(
+                    f"- reason.{reason}: reducer_recall=`{_format_value(rr.get('recall'))}`, db_recall=`{_format_value(dr.get('recall'))}`, reducer_tp/fn=`{rr.get('tp',0)}/{rr.get('fn',0)}`"
+                )
+        expanded_ci = expanded.get("uncertainty_intervals") or {}
+        if expanded_ci:
+            lines.append(f"- uncertainty_intervals: `{expanded_ci}`")
     lines.append("")
 
     lines.append("## Prompt Reliability (Heuristic Diagnostics)")
@@ -333,6 +353,10 @@ def render_summary(payload: dict) -> List[str]:
         "contract_truth_edges",
         "enrichment_edges",
         "enriched_truth_edges",
+        "expanded_high_conf_edges",
+        "expanded_full_edges",
+        "excluded_out_of_scope_edges",
+        "included_limitation_edges",
     ]:
         if key in independent_totals:
             lines.append(f"- {key}: `{independent_totals[key]}`")
@@ -345,6 +369,18 @@ def render_summary(payload: dict) -> List[str]:
     else:
         for key, value in core.items():
             lines.append(f"- {key}: `{_format_value(value)}`")
+    lines.append("")
+
+    lines.append("## Action Priority Board")
+    lines.append("")
+    board = payload.get("action_priority_board") or []
+    if not board:
+        lines.append("- none")
+    else:
+        for item in board:
+            lines.append(
+                f"- [{item.get('priority')}] {item.get('area')}::{item.get('issue')} evidence=`{item.get('evidence')}`"
+            )
     lines.append("")
 
     lines.append("## Metric Definitions & Schema")

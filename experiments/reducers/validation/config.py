@@ -39,6 +39,25 @@ EXPANDED_TRUTH_POLICY = {
     },
 }
 
+PROFILE_THRESHOLDS = {
+    "single_language": {
+        "class_truth_nonempty_rate_min": 0.95,
+        "class_truth_match_rate_min": 0.95,
+        "contract_recall_min": 0.95,
+        "overreach_rate_max": 0.10,
+        "member_call_recall_min": 0.80,
+        "overlap_epsilon": 1e-9,
+    },
+    "multi_language": {
+        "class_truth_nonempty_rate_min": 0.93,
+        "class_truth_match_rate_min": 0.93,
+        "contract_recall_min": 0.92,
+        "overreach_rate_max": 0.13,
+        "member_call_recall_min": 0.72,
+        "overlap_epsilon": 1e-9,
+    },
+}
+
 LOC_BUCKETS = (
     (200, "small"),
     (800, "medium"),

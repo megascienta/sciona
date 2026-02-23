@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import random
 from pathlib import Path
 from typing import List
 
@@ -66,6 +67,139 @@ def _typescript_relative_index_contract_check(contract: dict) -> bool:
         local_packages={"fixture"},
     )
     return resolved == "fixture.pkg.api.index"
+
+
+def _select_threshold_profile(rows: list[dict]) -> tuple[str, dict]:
+    languages = {row.get("language") for row in rows if row.get("language")}
+    profile = "multi_language" if len(languages) > 1 else "single_language"
+    thresholds = config.PROFILE_THRESHOLDS.get(profile, config.DEFAULT_THRESHOLDS)
+    return profile, dict(thresholds)
+
+
+def _bootstrap_micro_ci(
+    rows: list[dict],
+    metric_key: str,
+    *,
+    seed: int,
+    rounds: int = 300,
+) -> dict:
+    metric_rows = [row for row in rows if row.get(metric_key)]
+    if not metric_rows:
+        return {"precision_ci95": None, "recall_ci95": None, "n": 0}
+    rng = random.Random(seed)
+    precisions: list[float] = []
+    recalls: list[float] = []
+    n = len(metric_rows)
+    for _ in range(rounds):
+        sample = [metric_rows[rng.randrange(n)] for _ in range(n)]
+        m = micro(sample, metric_key)
+        if m.get("precision") is not None:
+            precisions.append(float(m["precision"]))
+        if m.get("recall") is not None:
+            recalls.append(float(m["recall"]))
+    def _ci(values: list[float]) -> list[float] | None:
+        if not values:
+            return None
+        values = sorted(values)
+        lo = values[int(0.025 * (len(values) - 1))]
+        hi = values[int(0.975 * (len(values) - 1))]
+        return [lo, hi]
+    return {"precision_ci95": _ci(precisions), "recall_ci95": _ci(recalls), "n": n}
+
+
+def _aggregate_reason_recall(rows: list[dict], metric_key: str) -> dict:
+    totals: dict[str, dict] = {}
+    for row in rows:
+        by_reason = row.get(metric_key) or {}
+        for reason, bucket in by_reason.items():
+            entry = totals.setdefault(reason, {"tp": 0, "fn": 0})
+            entry["tp"] += int(bucket.get("tp") or 0)
+            entry["fn"] += int(bucket.get("fn") or 0)
+    out: dict[str, dict] = {}
+    for reason, bucket in totals.items():
+        tp = bucket["tp"]
+        fn = bucket["fn"]
+        den = tp + fn
+        out[reason] = {"tp": tp, "fn": fn, "recall": (tp / den) if den else None}
+    return out
+
+
+def _build_action_priority_board(
+    *,
+    strict_by_kind: dict,
+    strict_overreach: float | None,
+    strict_recall: float | None,
+    expanded_full_recall: float | None,
+    reasoning_reliability: float | None,
+) -> list[dict]:
+    board: list[dict] = []
+    method = strict_by_kind.get("method") or {}
+    function = strict_by_kind.get("function") or {}
+    if method.get("recall") is not None and float(method["recall"]) < 0.85:
+        board.append(
+            {
+                "priority": "high",
+                "area": "core_analysis",
+                "issue": "method_recall_gap",
+                "evidence": {"method_recall": method.get("recall")},
+            }
+        )
+    if method.get("precision") is not None and float(method["precision"]) < 0.85:
+        board.append(
+            {
+                "priority": "high",
+                "area": "core_analysis",
+                "issue": "method_precision_gap",
+                "evidence": {"method_precision": method.get("precision")},
+            }
+        )
+    if function.get("recall") is not None and float(function["recall"]) < 0.90:
+        board.append(
+            {
+                "priority": "medium",
+                "area": "core_analysis",
+                "issue": "function_recall_gap",
+                "evidence": {"function_recall": function.get("recall")},
+            }
+        )
+    if strict_overreach is not None and strict_overreach > 0.05:
+        board.append(
+            {
+                "priority": "high",
+                "area": "core_analysis",
+                "issue": "strict_overreach_elevated",
+                "evidence": {"strict_overreach_rate": strict_overreach},
+            }
+        )
+    if (
+        strict_recall is not None
+        and expanded_full_recall is not None
+        and (strict_recall - expanded_full_recall) > 0.04
+    ):
+        board.append(
+            {
+                "priority": "medium",
+                "area": "validation_workflow",
+                "issue": "strict_to_expanded_recall_drop",
+                "evidence": {
+                    "strict_recall": strict_recall,
+                    "expanded_full_recall": expanded_full_recall,
+                    "delta": strict_recall - expanded_full_recall,
+                },
+            }
+        )
+    if reasoning_reliability is not None and reasoning_reliability < 0.70:
+        board.append(
+            {
+                "priority": "medium",
+                "area": "core_analysis",
+                "issue": "reasoning_reliability_low",
+                "evidence": {"reasoning_structural_reliability": reasoning_reliability},
+            }
+        )
+    rank = {"high": 0, "medium": 1, "low": 2}
+    board.sort(key=lambda item: rank.get(item["priority"], 9))
+    return board
 
 
 def run_validation(
@@ -388,7 +522,7 @@ def run_validation(
     member_call_recall_applicable = (
         int(member_call_bucket.get("tp") or 0) + int(member_call_bucket.get("fn") or 0)
     ) > 0
-    thresholds = config.DEFAULT_THRESHOLDS
+    profile_name, thresholds = _select_threshold_profile(rows)
     invariants = evaluate_invariants(
         rows,
         reducer_full_entities=reducer_full_entities,
@@ -431,6 +565,10 @@ def run_validation(
     calls_breakdown = edge_breakdown_contract.get("calls", {})
     imports_breakdown = edge_breakdown_contract.get("imports", {})
     enriched_divergence_index = divergence_index(reducer_vs_enriched_micro)
+    reason_recall_reducer = _aggregate_reason_recall(
+        rows, "metrics_reducer_vs_expanded_by_reason"
+    )
+    reason_recall_db = _aggregate_reason_recall(rows, "metrics_db_vs_expanded_by_reason")
 
     raw_call_total = sum(len(result.call_edges) for result in independent_results.values())
     raw_import_total = sum(len(result.import_edges) for result in independent_results.values())
@@ -551,6 +689,27 @@ def run_validation(
     nav_penalty_fn = nav_fn_weight * int(module_metrics.get("fn") or 0)
     reason_penalty_fp = reason_fp_weight * reasoning_fp
     reason_penalty_fn = reason_fn_weight * reasoning_fn
+    strict_by_kind = _micro_by_kind("metrics_reducer_vs_contract")
+    action_priority_board = _build_action_priority_board(
+        strict_by_kind=strict_by_kind,
+        strict_overreach=static_overreach_rate,
+        strict_recall=contract_recall,
+        expanded_full_recall=reducer_vs_expanded_full_micro.get("recall"),
+        reasoning_reliability=reasoning_reliability,
+    )
+    uncertainty_intervals = {
+        "strict_contract_alignment": _bootstrap_micro_ci(
+            rows, "metrics_reducer_vs_contract", seed=seed
+        ),
+        "expanded_full_alignment": _bootstrap_micro_ci(
+            rows, "metrics_reducer_vs_expanded_full", seed=seed + 1
+        ),
+        "method_strict_alignment": _bootstrap_micro_ci(
+            [row for row in rows if row.get("kind") == "method"],
+            "metrics_reducer_vs_contract",
+            seed=seed + 2,
+        ),
+    }
 
     payload = {
         "repo_root": str(repo_root),
@@ -587,6 +746,10 @@ def run_validation(
             "by_kind": _micro_by_kind("metrics_reducer_vs_contract"),
             "by_edge_type": edge_breakdown_contract,
             "call_form_recall": call_form_reducer_vs_contract,
+            "uncertainty_intervals": {
+                "micro": uncertainty_intervals["strict_contract_alignment"],
+                "method": uncertainty_intervals["method_strict_alignment"],
+            },
         },
         "enrichment_practical": {
             "prompt_reliability_version": config.PROMPT_RELIABILITY_VERSION,
@@ -665,10 +828,17 @@ def run_validation(
                 "excluded_out_of_scope_by_reason": excluded_out_of_scope_by_reason,
                 "included_limitation_by_reason": included_limitation_by_reason,
             },
+            "reason_breakdown": {
+                "reducer": reason_recall_reducer,
+                "db": reason_recall_db,
+            },
             "by_kind": _micro_by_kind("metrics_reducer_vs_enriched_truth"),
             "by_edge_type": edge_type_breakdown(
                 scored_rows_reducer_vs_enriched, "metrics_reducer_vs_enriched_truth"
             ),
+            "uncertainty_intervals": {
+                "micro": uncertainty_intervals["expanded_full_alignment"],
+            },
         },
         "micro_metrics": {
             "reducer_vs_db": reducer_vs_db_micro,
@@ -747,6 +917,7 @@ def run_validation(
         "stability_hashes": stability_hashes,
         "stability_error": stability_error,
         "quality_gates": {
+            "threshold_profile": profile_name,
             "class_truth_nonempty_rate": class_truth_nonempty_rate,
             "class_truth_nonempty_rate_min": thresholds["class_truth_nonempty_rate_min"],
             "class_truth_match_rate": class_truth_match_rate,
@@ -760,6 +931,7 @@ def run_validation(
             "member_call_recall_min": thresholds["member_call_recall_min"],
             "member_call_recall_applicable": member_call_recall_applicable,
         },
+        "action_priority_board": action_priority_board,
     }
 
     write_json(reports.json_path, payload)
