@@ -10,6 +10,7 @@
 
 - passed: `True`
 - hard_passed: `True`
+- threshold_profile: `multi_language`
 - gate_reducer_db_exact: `True`
 - gate_aligned_scoring: `True`
 - gate_parse_coverage: `True`
@@ -21,12 +22,10 @@
 - gate_class_truth_nonempty_rate: `True`
 - gate_class_truth_match_rate: `True`
 - gate_scoped_call_normalization: `True`
-- gate_contract_recall_min: `False`
-- gate_overreach_rate_max: `False`
+- gate_contract_recall_min: `True`
+- gate_overreach_rate_max: `True`
 - gate_member_call_recall_min: `False`
 - gate_equal_contract_metrics_when_exact: `True`
-- diagnostic_failure: contract recall quality gate failed
-- diagnostic_failure: overreach-rate quality gate failed
 - diagnostic_failure: member-call recall quality gate failed
 
 ## Internal Integrity (Hard Gates)
@@ -42,6 +41,7 @@
 - static_contract_recall: `0.949023`
 - static_overreach_rate: `0.125978`
 - static_divergence_index: `0.165172`
+- uncertainty_intervals: `{'micro': {'precision_ci95': [0.832427536231884, 0.9063136456211812], 'recall_ci95': [0.9250871080139372, 0.9657534246575342], 'n': 500}, 'method': {'precision_ci95': [0.46226415094339623, 0.6490384615384616], 'recall_ci95': [0.6339869281045751, 0.7924528301886793], 'n': 144}}`
 
 ## Expanded Truth Alignment (Diagnostic)
 
@@ -55,6 +55,10 @@
 - tier.full: reducer_p/r=`0.877934`/`0.887658`, db_p/r=`0.877934`/`0.887658`, divergence=`0.209859`
 - tier_edge_counts: `{'high_conf_edges': 1263, 'full_edges': 1264}`
 - scope_split_counts: `{'excluded_out_of_scope_edges': 4317, 'included_limitation_edges': 179, 'excluded_out_of_scope_by_reason': {'external': 4201, 'standard_call': 116}, 'included_limitation_by_reason': {'in_repo_unresolved': 178, 'dynamic': 1}}`
+Reason-level expanded recall:
+- reason.dynamic: reducer_recall=`0.000000`, db_recall=`0.000000`, reducer_tp/fn=`0/1`
+- reason.in_repo_unresolved: reducer_recall=`0.058140`, db_recall=`0.058140`, reducer_tp/fn=`5/81`
+- uncertainty_intervals: `{'micro': {'precision_ci95': [0.8404605263157895, 0.9059955588452998], 'recall_ci95': [0.8491827637444279, 0.9191456903127384], 'n': 500}}`
 
 ## Prompt Reliability (Heuristic Diagnostics)
 
@@ -132,6 +136,10 @@ Note: `enrichment_edges` includes only in-repo out-of-contract edges (unresolved
 - contract_truth_edges: `1177`
 - enrichment_edges: `87`
 - enriched_truth_edges: `1264`
+- expanded_high_conf_edges: `1263`
+- expanded_full_edges: `1264`
+- excluded_out_of_scope_edges: `4317`
+- included_limitation_edges: `179`
 
 ## Core Metrics
 
@@ -139,6 +147,15 @@ Note: `enrichment_edges` includes only in-repo out-of-contract edges (unresolved
 - static_overreach_rate: `0.125978`
 - overreach_count: `161`
 - reducer_edge_total: `1278`
+
+## Action Priority Board
+
+- [high] core_analysis::method_recall_gap evidence=`{'method_recall': 0.7168674698795181}`
+- [high] core_analysis::method_precision_gap evidence=`{'method_precision': 0.5613207547169812}`
+- [high] core_analysis::strict_overreach_elevated evidence=`{'strict_overreach_rate': 0.12597809076682315}`
+- [medium] core_analysis::function_recall_gap evidence=`{'function_recall': 0.8032786885245902}`
+- [medium] validation_workflow::strict_to_expanded_recall_drop evidence=`{'strict_recall': 0.9490229396771452, 'expanded_full_recall': 0.8876582278481012, 'delta': 0.061364711829044016}`
+- [medium] core_analysis::reasoning_reliability_low evidence=`{'reasoning_structural_reliability': 0.43099025141097996}`
 
 ## Metric Definitions & Schema
 

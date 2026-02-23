@@ -10,6 +10,7 @@
 
 - passed: `True`
 - hard_passed: `True`
+- threshold_profile: `single_language`
 - gate_reducer_db_exact: `True`
 - gate_aligned_scoring: `True`
 - gate_parse_coverage: `True`
@@ -39,6 +40,7 @@
 - static_contract_recall: `0.977560`
 - static_overreach_rate: `0.052954`
 - static_divergence_index: `0.073104`
+- uncertainty_intervals: `{'micro': {'precision_ci95': [0.9247743229689067, 0.9649947753396029], 'recall_ci95': [0.9682642487046632, 0.9863874345549738], 'n': 500}, 'method': {'precision_ci95': [0.7311827956989247, 0.8524590163934426], 'recall_ci95': [0.7663043478260869, 0.8918918918918919], 'n': 125}}`
 
 ## Expanded Truth Alignment (Diagnostic)
 
@@ -52,6 +54,10 @@
 - tier.full: reducer_p/r=`0.955964`/`0.911265`, db_p/r=`0.955964`/`0.911265`, divergence=`0.125446`
 - tier_edge_counts: `{'high_conf_edges': 1863, 'full_edges': 1882}`
 - scope_split_counts: `{'excluded_out_of_scope_edges': 839, 'included_limitation_edges': 170, 'excluded_out_of_scope_by_reason': {'external': 772, 'standard_call': 67}, 'included_limitation_by_reason': {'in_repo_unresolved': 150, 'dynamic': 20}}`
+Reason-level expanded recall:
+- reason.dynamic: reducer_recall=`0.000000`, db_recall=`0.000000`, reducer_tp/fn=`0/19`
+- reason.in_repo_unresolved: reducer_recall=`0.128000`, db_recall=`0.128000`, reducer_tp/fn=`16/109`
+- uncertainty_intervals: `{'micro': {'precision_ci95': [0.9333991119881598, 0.971106412966878], 'recall_ci95': [0.8884416331224841, 0.9305423406279734], 'n': 500}}`
 
 ## Prompt Reliability (Heuristic Diagnostics)
 
@@ -112,6 +118,10 @@ Note: `enrichment_edges` includes only in-repo out-of-contract edges (unresolved
 - contract_truth_edges: `1738`
 - enrichment_edges: `144`
 - enriched_truth_edges: `1882`
+- expanded_high_conf_edges: `1863`
+- expanded_full_edges: `1882`
+- excluded_out_of_scope_edges: `839`
+- included_limitation_edges: `170`
 
 ## Core Metrics
 
@@ -119,6 +129,13 @@ Note: `enrichment_edges` includes only in-repo out-of-contract edges (unresolved
 - static_overreach_rate: `0.052954`
 - overreach_count: `95`
 - reducer_edge_total: `1794`
+
+## Action Priority Board
+
+- [high] core_analysis::method_recall_gap evidence=`{'method_recall': 0.8323699421965318}`
+- [high] core_analysis::method_precision_gap evidence=`{'method_precision': 0.7955801104972375}`
+- [high] core_analysis::strict_overreach_elevated evidence=`{'strict_overreach_rate': 0.052954292084726864}`
+- [medium] validation_workflow::strict_to_expanded_recall_drop evidence=`{'strict_recall': 0.977560414269275, 'expanded_full_recall': 0.9112646121147715, 'delta': 0.06629580215450348}`
 
 ## Metric Definitions & Schema
 

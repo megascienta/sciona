@@ -10,6 +10,7 @@
 
 - passed: `True`
 - hard_passed: `True`
+- threshold_profile: `single_language`
 - gate_reducer_db_exact: `True`
 - gate_aligned_scoring: `True`
 - gate_parse_coverage: `True`
@@ -39,6 +40,7 @@
 - static_contract_recall: `0.990371`
 - static_overreach_rate: `0.015479`
 - static_divergence_index: `0.024813`
+- uncertainty_intervals: `{'micro': {'precision_ci95': [0.9781089892873778, 0.9889030380207385], 'recall_ci95': [0.9857487922705314, 0.9936080740117746], 'n': 499}, 'method': {'precision_ci95': [0.7339449541284404, 0.8663594470046083], 'recall_ci95': [0.7453703703703703, 0.8682926829268293], 'n': 166}}`
 
 ## Expanded Truth Alignment (Diagnostic)
 
@@ -52,6 +54,9 @@
 - tier.full: reducer_p/r=`0.984929`/`0.970695`, db_p/r=`0.984929`/`0.970695`, divergence=`0.043513`
 - tier_edge_counts: `{'high_conf_edges': 4982, 'full_edges': 4982}`
 - scope_split_counts: `{'excluded_out_of_scope_edges': 5029, 'included_limitation_edges': 260, 'excluded_out_of_scope_by_reason': {'external': 4997, 'standard_call': 32}, 'included_limitation_by_reason': {'in_repo_unresolved': 260}}`
+Reason-level expanded recall:
+- reason.in_repo_unresolved: reducer_recall=`0.019802`, db_recall=`0.019802`, reducer_tp/fn=`2/99`
+- uncertainty_intervals: `{'micro': {'precision_ci95': [0.9787735849056604, 0.9894924309884239], 'recall_ci95': [0.9600084192801516, 0.9799382716049383], 'n': 499}}`
 
 ## Prompt Reliability (Heuristic Diagnostics)
 
@@ -108,6 +113,10 @@ Note: `enrichment_edges` includes only in-repo out-of-contract edges (unresolved
 - contract_truth_edges: `4881`
 - enrichment_edges: `101`
 - enriched_truth_edges: `4982`
+- expanded_high_conf_edges: `4982`
+- expanded_full_edges: `4982`
+- excluded_out_of_scope_edges: `5029`
+- included_limitation_edges: `260`
 
 ## Core Metrics
 
@@ -115,6 +124,12 @@ Note: `enrichment_edges` includes only in-repo out-of-contract edges (unresolved
 - static_overreach_rate: `0.015479`
 - overreach_count: `76`
 - reducer_edge_total: `4913`
+
+## Action Priority Board
+
+- [high] core_analysis::method_recall_gap evidence=`{'method_recall': 0.8118811881188119}`
+- [high] core_analysis::method_precision_gap evidence=`{'method_precision': 0.803921568627451}`
+- [medium] core_analysis::reasoning_reliability_low evidence=`{'reasoning_structural_reliability': 0.657051282051282}`
 
 ## Metric Definitions & Schema
 
