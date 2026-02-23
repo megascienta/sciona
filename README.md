@@ -70,7 +70,6 @@ If your worktree is dirty, reducer outputs include an `_diff` payload describing
 
 SCIONA includes a repository-independent reducer validation workflow in `experiments/reducers/`. It validates reducer behavior against direct DB queries and independent parsers under a code-defined structural contract policy (`experiments/reducers/validation/contract_spec.py`) and shared strict acceptance semantics (`src/sciona/code_analysis/contracts/strict_call_contract.py`).
 
-
 Run:
 
 ```bash
@@ -83,15 +82,16 @@ python experiments/reducers/reducer_validation.py \
 
 Latest consolidated snapshot (N=500 each, regenerated 2026-02-23):
 
-| Repository | Language | Invariants | Strict Contract Recall | Overreach Rate | Member Recall |
-| ---------- | -------- | ---------- | --------------- | -------------- | ------------- |
-| [OpenLineage](https://github.com/OpenLineage/OpenLineage) | Multi (Java/Python/TS) | **True** | **0.9884** | **0.0221** | **0.9266** |
-| [Apache Commons Lang](https://github.com/apache/commons-lang) | Java | **True** | **0.9981** | **0.0271** | n/a |
-| [FastAPI](https://github.com/fastapi/fastapi) | Python | **True** | **0.9925** | **0.0209** | **1.0000** |
-| [Nest](https://github.com/nestjs/nest) | TypeScript | **True** | **0.9939** | **0.0670** | **0.9416** |
+| Repository | Language | Invariants | Strict Parity Gate | Strict Contract Recall | Overreach Rate | Member Recall |
+| ---------- | -------- | ---------- | ------------------ | ---------------------- | -------------- | ------------- |
+| [OpenLineage](https://github.com/OpenLineage/OpenLineage) | Multi (Java/Python/TS) | **True** | **True** | **0.9884** | **0.0221** | **0.9266** |
+| [Apache Commons Lang](https://github.com/apache/commons-lang) | Java | **True** | **True** | **0.9981** | **0.0271** | n/a |
+| [FastAPI](https://github.com/fastapi/fastapi) | Python | **True** | **True** | **0.9925** | **0.0209** | **1.0000** |
+| [Nest](https://github.com/nestjs/nest) | TypeScript | **True** | **True** | **0.9939** | **0.0670** | **0.9416** |
 
 Interpretation:
 - `reducer_vs_db` exactness is mandatory; reducer is a DB projection.
+- `gate_strict_contract_parity=True` in this snapshot for all listed repos.
 - `static_contract_recall` is coverage of independent strict contract truth.
 - `static_overreach_rate` is reducer output outside independent strict contract truth.
 - Current report headings separate strict gating vs enrichment diagnostics:

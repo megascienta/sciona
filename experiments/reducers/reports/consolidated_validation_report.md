@@ -14,12 +14,12 @@ Sources:
 - Remaining gaps are not contract-layer drift; they are resolver quality/calibration stress points (precision imbalance by repo/language, enrichment recall drop, unresolved volume).
 
 ## Cross-Repo Snapshot (Regenerated)
-| Repo | Hard Passed | Strict Contract Precision | Strict Contract Recall | Overreach | Expanded Full Precision | Expanded Full Recall | Strict Parity Gate |
-| --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
-| OpenLineage | True | 0.977876 | 0.988372 | 0.022124 | 0.979646 | 0.830458 | True |
-| commons_lang | True | 0.972917 | 0.998077 | 0.027083 | 0.973542 | 0.973339 | True |
-| fastapi | True | 0.979132 | 0.992494 | 0.020868 | 0.979132 | 0.964203 | True |
-| nest | True | 0.932951 | 0.993895 | 0.067049 | 0.962751 | 0.870016 | True |
+| Repo | Hard Passed | Diagnostic Failures | Strict Contract Precision | Strict Contract Recall | Overreach | Expanded Full Precision | Expanded Full Recall | Strict Parity Gate |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| OpenLineage | True | 0 | 0.977876 | 0.988372 | 0.022124 | 0.979646 | 0.830458 | True |
+| commons_lang | True | 0 | 0.972917 | 0.998077 | 0.027083 | 0.973542 | 0.973339 | True |
+| fastapi | True | 0 | 0.979132 | 0.992494 | 0.020868 | 0.979132 | 0.964203 | True |
+| nest | True | 0 | 0.932951 | 0.993895 | 0.067049 | 0.962751 | 0.870016 | True |
 
 ## Main Stress Points (Current)
 
