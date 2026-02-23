@@ -6,7 +6,7 @@ from __future__ import annotations
 from typing import Dict, List, Tuple
 
 from . import config
-from .call_contract import resolve_call_in_contract
+from .call_contract import resolve_call_in_contract_details
 from .import_contract import resolve_import_contract
 from .independent.shared import EdgeRecord, FileParseResult, dedupe_edge_records
 from .out_of_contract import (
@@ -67,6 +67,9 @@ def edge_records_from_ground_truth(
         "limitation_edges_high_conf": [],
         "limitation_edges_full": [],
         "limitation_edges_by_reason": {},
+        "strict_contract_accepted_by_provenance": {},
+        "strict_contract_dropped_by_reason": {},
+        "strict_contract_candidate_count_histogram": {},
     }
     standard_calls = standard_call_names(contract)
     policy = config.EXPANDED_TRUTH_POLICY
@@ -319,13 +322,30 @@ def edge_records_from_ground_truth(
     for edge in normalized_calls:
         if edge.caller != entity.qualified_name:
             continue
-        resolved_callee_qname = resolve_call_in_contract(
+        call_decision = resolve_call_in_contract_details(
             edge=edge,
             caller_qname=entity.qualified_name,
             caller_module=entity.module_qualified_name,
             call_resolution=call_resolution,
             contract=contract,
         )
+        resolved_callee_qname = call_decision.callee_qname
+        if call_decision.accepted_provenance:
+            accepted = diagnostics.setdefault("strict_contract_accepted_by_provenance", {})
+            accepted[call_decision.accepted_provenance] = int(
+                accepted.get(call_decision.accepted_provenance, 0)
+            ) + 1
+        if call_decision.dropped_reason:
+            dropped = diagnostics.setdefault("strict_contract_dropped_by_reason", {})
+            dropped[call_decision.dropped_reason] = int(
+                dropped.get(call_decision.dropped_reason, 0)
+            ) + 1
+        if call_decision.candidate_count >= 0:
+            histogram = diagnostics.setdefault(
+                "strict_contract_candidate_count_histogram", {}
+            )
+            bucket = str(call_decision.candidate_count)
+            histogram[bucket] = int(histogram.get(bucket, 0)) + 1
         full_record = EdgeRecord(
             caller=edge.caller,
             callee=edge.callee,

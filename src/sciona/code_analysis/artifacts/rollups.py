@@ -9,6 +9,7 @@ from collections import Counter, defaultdict
 from typing import Iterable, Sequence, cast
 
 from ..analysis.graph import module_id_for
+from ..contracts import select_strict_call_candidate
 from ..config import CALLABLE_NODE_TYPES
 from ..tools.call_extraction import CallExtractionRecord
 from ...data_storage.artifact_db import write_index as artifact_write
@@ -259,56 +260,26 @@ def _resolve_callees(
     for identifier in identifiers:
         stats["identifiers_total"] += 1
         direct_candidates = symbol_index.get(identifier) or []
-        candidates = direct_candidates
-        if not candidates and "." in identifier:
-            candidates = symbol_index.get(identifier.rsplit(".", 1)[-1]) or []
-        candidate_count = len(candidates)
-        cast(Counter[int], stats["candidate_count_histogram"])[candidate_count] += 1
-        if not candidates:
-            cast(Counter[str], stats["dropped_by_reason"])["no_candidates"] += 1
-            continue
-        if len(candidates) == 1:
-            candidate = candidates[0]
-            candidate_module = module_lookup.get(candidate)
-            if direct_candidates and "." in identifier:
-                resolved_ids.add(candidate)
-                resolved_names.add(identifier)
-                cast(Counter[str], stats["accepted_by_provenance"])["exact_qname"] += 1
-                continue
-            if caller_module_id and candidate_module == caller_module_id:
-                resolved_ids.add(candidate)
-                resolved_names.add(identifier)
-                cast(Counter[str], stats["accepted_by_provenance"])["module_scoped"] += 1
-                continue
-            cast(Counter[str], stats["dropped_by_reason"])[
-                "unique_without_provenance"
-            ] += 1
-            continue
-        if not caller_module_id:
-            cast(Counter[str], stats["dropped_by_reason"])[
-                "ambiguous_no_caller_module"
-            ] += 1
-            continue
-        allowed_modules = set(import_targets.get(caller_module_id, set()))
-        allowed_modules.add(caller_module_id)
-        narrowed = [
-            candidate
-            for candidate in candidates
-            if module_lookup.get(candidate) in allowed_modules
-        ]
-        if len(narrowed) == 1:
-            resolved_ids.add(narrowed[0])
+        fallback_candidates = []
+        if not direct_candidates and "." in identifier:
+            fallback_candidates = symbol_index.get(identifier.rsplit(".", 1)[-1]) or []
+        decision = select_strict_call_candidate(
+            identifier=identifier,
+            direct_candidates=direct_candidates,
+            fallback_candidates=fallback_candidates,
+            caller_module=caller_module_id,
+            module_lookup=module_lookup,
+            import_targets=import_targets,
+        )
+        cast(Counter[int], stats["candidate_count_histogram"])[decision.candidate_count] += 1
+        if decision.accepted_candidate:
+            resolved_ids.add(decision.accepted_candidate)
             resolved_names.add(identifier)
-            cast(Counter[str], stats["accepted_by_provenance"])["import_narrowed"] += 1
-            continue
-        if not narrowed:
-            cast(Counter[str], stats["dropped_by_reason"])[
-                "ambiguous_no_in_scope_candidate"
+            cast(Counter[str], stats["accepted_by_provenance"])[
+                str(decision.accepted_provenance)
             ] += 1
             continue
-        cast(Counter[str], stats["dropped_by_reason"])[
-            "ambiguous_multiple_in_scope_candidates"
-        ] += 1
+        cast(Counter[str], stats["dropped_by_reason"])[str(decision.dropped_reason)] += 1
     return resolved_ids, resolved_names, stats
 
 

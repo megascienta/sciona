@@ -1,111 +1,147 @@
-# Consolidated Reducer Validation Report (Aggressive Revision)
+# Consolidated Reducer Validation Report (Critical Consolidation)
 
 Date: 2026-02-23
-Source-of-truth artifacts:
+Sources:
 - `experiments/reducers/reports/OpenLineage_reducer_validation.json`
 - `experiments/reducers/reports/commons_lang_reducer_validation.json`
 - `experiments/reducers/reports/fastapi_reducer_validation.json`
 - `experiments/reducers/reports/nest_reducer_validation.json`
 
-## 1. Executive Verdict
-- All four runs pass hard integrity gates (`invariants.hard_passed = true`).
-- All four runs have exact reducer<->DB projection (`reducer_db_exact = true`, precision=1.0, recall=1.0).
-- Therefore: non-100% alignment is **not** a reducer materialization integrity bug; it is predominantly a **call/import resolution quality** gap against the independent strict proxy truth.
+## Executive Verdict
+- Integrity status is strong: all repos pass hard gates (`hard_passed=true`) and reducer-vs-DB projection remains exact.
+- Remaining gaps are quality gaps, not pipeline integrity defects.
+- Gap concentration is still call resolution under strict contract constraints, especially member/method resolution.
 
-## 2. Corrected Cross-Repo Snapshot
-
+## Cross-Repo Snapshot (Corrected)
 | Repo | Hard Passed | Strict Precision | Strict Recall | Overreach | Expanded Full Precision | Expanded Full Recall | Diagnostic Failures |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
-| OpenLineage | True | 0.9676 | 0.8991 | 0.0324 | 0.9700 | 0.8556 | contract recall gate; member-call recall gate |
-| commons_lang | True | 0.9804 | 0.9729 | 0.0196 | 0.9806 | 0.9609 | none |
-| fastapi | True | 0.9643 | 0.9792 | 0.0357 | 0.9643 | 0.9617 | member-call recall gate |
-| nest | True | 0.9380 | 0.9416 | 0.0620 | 0.9391 | 0.8870 | contract recall gate; member-call recall gate |
+| OpenLineage | True | 0.979646 | 0.884185 | 0.020354 | 0.979646 | 0.830458 | contract recall gate, member-call recall gate |
+| commons_lang | True | 0.973542 | 0.985034 | 0.026458 | 0.973542 | 0.973339 | none |
+| fastapi | True | 0.979132 | 0.984766 | 0.020868 | 0.979132 | 0.964203 | member-call recall gate |
+| nest | True | 0.961032 | 0.935826 | 0.038968 | 0.962751 | 0.870016 | contract recall gate, member-call recall gate |
 
-## 3. Where Errors Actually Concentrate
+## Critical Findings
 
-### 3.1 By edge type (strict)
-| Repo | Calls P/R | Imports P/R | Key concentration |
-| --- | --- | --- | --- |
-| OpenLineage | 0.9753 / 0.8926 | 0.8812 / 0.9889 | Imports precision + call recall |
-| commons_lang | 0.9888 / 0.9717 | 0.8252 / 1.0000 | Imports precision dominates FP |
-| fastapi | 0.6383 / 0.8219 | 0.9978 / 0.9917 | Call precision dominates FP |
-| nest | 0.9116 / 0.9161 | 0.9982 / 1.0000 | Calls dominate both FP/FN |
+### 1) Member-call recall remains the most persistent weakness
+- OpenLineage: member recall `0.664474`
+- fastapi: member recall `0.666667`
+- nest: member recall `0.671296`
+- commons_lang: n/a for member-call gate (no sampled member-call denominator in this run)
 
-### 3.2 By callable kind (strict)
-| Repo | Function P/R | Method P/R | Member-call recall |
-| --- | --- | --- | --- |
-| OpenLineage | 0.9189 / 0.6667 | 0.8791 / 0.6178 | 0.7013 |
-| commons_lang | n/a | 0.6531 / 0.4344 | n/a |
-| fastapi | 0.5726 / 0.6768 | 0.2353 / 0.6957 | 0.4615 |
-| nest | 0.9244 / 0.6875 | 0.5603 / 0.6077 | 0.5985 |
+Interpretation:
+- Recent resolver hardening improved contract safety, but member dispatch remains under-resolved under strict acceptance rules.
+- This is still the main blocker for repos failing member-call quality gates.
 
-Conclusion: **method/member resolution is the most persistent weakness across repos**. FastAPI has extreme method precision loss; Nest has method dual loss; OpenLineage has mixed-language recall drag.
+### 2) Method quality remains unstable across repos (precision/recall imbalance)
+- OpenLineage method P/R: `0.939759 / 0.600000` (recall drag)
+- commons_lang method P/R: `0.318182 / 0.392523` (both weak)
+- fastapi method P/R: `0.270833 / 0.812500` (severe over-resolution/precision collapse)
+- nest method P/R: `0.962025 / 0.684685` (recall drag)
 
-## 4. Main Drivers Of Non-100% Strict Alignment
+Interpretation:
+- The same architecture shows opposite failure modes by codebase: over-conservative in some contexts (FN-heavy), over-aggressive in others (FP-heavy).
+- This indicates calibration and stage-priority issues in deterministic resolver heuristics, not one simple global threshold issue.
 
-### Driver A: shallow deterministic adapter heuristics (core)
-Evidence:
-- Python resolver is mostly alias/instance/self/module heuristics, first-match return: `src/sciona/code_analysis/core/extract/languages/python_calls.py:70`.
-- TypeScript resolver similarly relies on alias/class/instance shortcuts with early return: `src/sciona/code_analysis/core/extract/languages/typescript_calls.py:65`.
-- Java resolver relies on simple receiver-type/import-class heuristics and unique-class fallback: `src/sciona/code_analysis/core/extract/languages/java_calls.py:85`.
-Impact pattern:
-- Lower method/member recall (FN) from conservative abstention.
-- Lower precision (FP), especially where aliases/terminals overfit (`fastapi` method precision 0.2353).
+### 3) Strict-to-expanded recall drop is still material where unresolved/dynamic calls are high
+- OpenLineage strict->expanded recall delta: `-0.0537277`
+- commons_lang delta: `-0.0116955`
+- fastapi delta: `-0.0205625`
+- nest delta: `-0.0658104`
 
-### Driver B: terminal fallback in shared kernel + later symbol narrowing (core)
-Evidence:
-- Kernel fallback emits unresolved terminal when adapter has no candidate: `src/sciona/code_analysis/core/extract/languages/call_resolution_kernel.py:39`.
-- Rollup resolution later tries terminal/full-name matching and provenance narrowing: `src/sciona/code_analysis/artifacts/rollups.py:243`.
-- Symbol index intentionally stores both terminals and full qnames, increasing collision surface: `src/sciona/code_analysis/artifacts/rollups.py:189`.
-Impact pattern:
-- Potential FP pressure from terminal collisions when identifier is weak.
-- Potential FN pressure from strict provenance drops (`unique_without_provenance`, ambiguity drops).
+Interpretation:
+- Nest and OpenLineage remain most sensitive to unresolved/dynamic limitations.
+- This still limits reasoning reliability even when strict contract metrics are acceptable.
 
-### Driver C: strict provenance gate intentionally drops uncertain candidates (core)
-Evidence:
-- `_resolve_callees` only accepts exact-qname/module-scoped/import-narrowed certainty and drops ambiguous/weakly-provenanced candidates: `src/sciona/code_analysis/artifacts/rollups.py:270`.
-- `write_call_artifacts` skips records when no resolved callees survive: `src/sciona/code_analysis/artifacts/rollups.py:160`.
-Impact pattern:
-- Contract safety improves, but recall decreases in high-ambiguity/member-heavy code.
+### 4) Import precision is still noisy in Java-heavy repos
+- OpenLineage imports P/R: `0.820896 / 0.982143`
+- commons_lang imports P/R: `0.831818 / 1.000000`
+- fastapi imports P/R: `0.997814 / 0.992032`
+- nest imports P/R: `0.997992 / 1.000000`
 
-### Driver D: independent strict proxy still uses deterministic heuristics (validation side)
-Evidence:
-- Contract truth resolution uses multi-stage heuristic resolution (`receiver_bindings`, module symbol index, import hints, namespace aliases): `experiments/reducers/validation/call_contract.py:92`.
-- Class truth mapping can use non-exact fallback strategies (`simple_unique`, `parent_and_simple`, `line_span_overlap`) and marks unreliable when unmatched: `experiments/reducers/validation/ground_truth.py:199`.
-- Evaluation suppresses class rows marked unreliable from contract/enriched scoring: `experiments/reducers/validation/evaluation.py:536`.
-Impact pattern:
-- Strict proxy truth is deterministic and useful, but not absolute.
-- Some residual mismatch is expected from proxy-vs-proxy modeling differences.
+Interpretation:
+- Import FP remains a Java-heavy pain point; Python/TypeScript import normalization looks substantially better in these runs.
 
-### Driver E: import normalization/resolution asymmetry in some repos
-Evidence:
-- `commons_lang` import precision is 0.8252 with recall 1.0, indicating over-resolution FP concentration in imports.
-Impact pattern:
-- Repo/language-specific import canonicalization differences can dominate strict FP even when call resolution is strong.
+### 5) Resolver diagnostics show ambiguity + missing-candidate pressure is still high
+Aggregate across all 4 repos:
+- Accepted by provenance: `exact_qname=803`, `import_narrowed=47`, `module_scoped=5`
+- Dropped by reason: `no_candidates=204`, `unique_without_provenance=102`, `ambiguous_no_in_scope_candidate=140`, `ambiguous_multiple_in_scope_candidates=15`
 
-## 5. Priority Interpretation (ROI)
+Interpretation:
+- Precision-first provenance gating is working as intended.
+- Recall ceilings are now dominated by deterministic ambiguity and missing-candidate generation, not post-filter acceptance logic.
 
-### High ROI (major influence)
-1. Improve method/member resolution depth in language adapters (`*_calls.py`) while preserving deterministic abstention on true ambiguity.
-- Why ROI is high: method/member is weakest axis in every repo.
-- Expected effect: biggest recall and precision gain on strict calls metrics.
+### 6) Mismatch attribution remains large in both directions
+Aggregate mismatch counts:
+- `core_overresolution=3907`
+- `independent_overprojection=3995`
+- `core_missed_resolution=0`
+- `normalization_contract_mismatch=0`
 
-2. Add mandatory rollup diagnostics reporting in validation outputs (accepted provenance + dropped reasons histogram).
-- Why ROI is high: fast root-cause visibility for FP/FN; shortens iteration loop.
-- Expected effect: faster targeted fixes, less blind tuning.
+Interpretation:
+- Large bi-directional disagreement persists between core and independent truth proxies.
+- The zero normalization mismatch is positive; disagreement is mostly about resolution semantics/coverage rather than identifier canonicalization bugs.
+
+### 7) Class mapping reliability metric is now explicit and currently healthy
+- All four repos report `class_rows_unreliable_mapping=0` and `unreliable_mapping_rate=0.0`.
+- The previous blind-spot risk from silent exclusions is currently not observed in these sampled runs.
+
+## Remaining Problems (Prioritized)
+
+### P0: Member/method call resolution parity is not yet good enough
+Symptoms:
+- Repeated member-call recall failures.
+- Large method quality variance by repo.
+
+Impact:
+- Primary source of strict-recall misses and reasoning-quality volatility.
+
+### P1: Java import precision remains low in mixed/large repos
+Symptoms:
+- Import precision around `0.82-0.83` in OpenLineage/commons_lang.
+
+Impact:
+- FP pressure in strict contract alignment despite good recall.
+
+### P1: Resolver ambiguity pressure is still high
+Symptoms:
+- `ambiguous_*` + `no_candidates` + `unique_without_provenance` drops remain substantial.
+
+Impact:
+- Hard upper bound on recall without improving deterministic pre-fallback binding.
+
+### P2: Expanded-truth robustness still trails strict truth in dynamic/unresolved-heavy repos
+Symptoms:
+- Larger strict->expanded recall drops in Nest and OpenLineage.
+
+Impact:
+- Practical reasoning reliability remains below target even when strict pass conditions hold.
+
+## Recommended Next Work (ROI-Oriented)
+
+### High ROI
+1. Deepen deterministic receiver/type binding for member calls before fallback (language-specific).
+- Focus: multi-hop receiver chains, constructor/field binding propagation, alias-aware import narrowing.
+- Expected: largest gain on member/method recall with controlled precision.
+
+2. Add targeted fixture families tied to observed drops (`no_candidates`, `ambiguous_no_in_scope_candidate`, `unique_without_provenance`).
+- Focus: Java import-heavy ambiguity, Python service chaining, TS DI/member chains.
+- Expected: faster iteration and measurable reduction in specific dropped-reason buckets.
+
+3. Add repo-level regression gates on dropped-reason budgets (not only aggregate recall/precision).
+- Focus: fail when ambiguity/no-candidate counts regress materially.
+- Expected: protects against silent quality regression hidden by pass/fail headlines.
 
 ### Medium ROI
-3. Tighten terminal fallback acceptance path by requiring stronger provenance before terminal-derived acceptance.
-- Why ROI is medium: can reduce FP in ambiguous terminal collisions; may reduce recall if too strict.
+1. Tighten Java import canonicalization and in-module scope narrowing heuristics.
+- Expected: reduce import FP in Java-heavy repos.
 
-4. Repo/language fixture expansion for known hard patterns (aliases, chained receivers, namespace imports, constructor/member dispatch) with differential checks.
-- Why ROI is medium: catches regressions and quantifies progress; slower to create but durable.
+2. Surface per-language method/member calibration profiles in report.
+- Expected: makes cross-repo overfit/underfit visible and shortens tuning cycles.
 
-### Lower ROI (for strict-alignment headline)
-5. Further polishing of global aggregate reliability metrics language.
-- Useful for communication clarity, but does not materially improve strict alignment itself.
+3. Add explicit confidence buckets in report text for independent truth interpretation.
+- Expected: better communication and fewer false assumptions that proxy truth is absolute.
 
-## 6. Bottom Line
-- Contract integrity is solid; reducer<->DB is exact.
-- Non-100% strict alignment is mainly a **resolution quality frontier**, not a data integrity defect.
-- The most leverage is in **method/member resolver depth + diagnostics-driven iteration**, not in relaxing contract constraints.
+## Bottom Line
+- The architecture is now contract-safe and observably deterministic.
+- The remaining performance ceiling is mostly a deterministic call-resolution depth problem, concentrated in member/method resolution and Java import precision.
+- Next wins will come from language-specific resolver depth plus fixture-driven ambiguity reduction, not from relaxing contract strictness.

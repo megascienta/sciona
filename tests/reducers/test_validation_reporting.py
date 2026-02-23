@@ -55,6 +55,7 @@ def test_render_summary_includes_action_and_reason_sections() -> None:
         "out_of_contract_breakdown": {},
         "call_form_recall": {},
         "mismatch_attribution_breakdown": {},
+        "strict_contract_diagnostics": {"accepted_by_provenance": {"exact_qname": 1}},
         "metric_definitions": {},
         "report_schema_version": "test",
         "action_priority_board": [{"priority": "high", "area": "core", "issue": "x", "evidence": {}}],
@@ -62,6 +63,8 @@ def test_render_summary_includes_action_and_reason_sections() -> None:
     lines = render_summary(payload)
     text = "\n".join(lines)
     assert "Reason-level expanded proxy recall:" in text
+    assert "## Enrichment Alignment (Non-Gating Diagnostics)" in text
+    assert "## Independent Strict Contract Diagnostics" in text
     assert "## Action Priority Board" in text
 
 

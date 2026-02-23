@@ -453,6 +453,22 @@ def run_validation(
             ]
             by_kind[kind] = _resolution_counter_block(subset)
         call_resolution_diagnostics_by_language_kind[language] = by_kind
+    strict_contract_accepted: dict[str, int] = {}
+    strict_contract_dropped: dict[str, int] = {}
+    strict_contract_candidate_histogram: dict[str, int] = {}
+    for row in rows:
+        _merge_counter_maps(
+            strict_contract_accepted,
+            row.get("strict_contract_accepted_by_provenance"),
+        )
+        _merge_counter_maps(
+            strict_contract_dropped,
+            row.get("strict_contract_dropped_by_reason"),
+        )
+        _merge_counter_maps(
+            strict_contract_candidate_histogram,
+            row.get("strict_contract_candidate_count_histogram"),
+        )
 
     def _micro_by_kind(metric_key: str) -> dict[str, dict]:
         by_kind: dict[str, dict] = {}
@@ -568,6 +584,32 @@ def run_validation(
     member_call_recall_applicable = (
         int(member_call_bucket.get("tp") or 0) + int(member_call_bucket.get("fn") or 0)
     ) > 0
+    allowed_acceptance = {
+        "exact_qname",
+        "module_scoped",
+        "import_narrowed",
+        "contract_out_of_repo_allowed",
+    }
+    allowed_drop_reasons = {
+        "no_candidates",
+        "unique_without_provenance",
+        "ambiguous_no_caller_module",
+        "ambiguous_no_in_scope_candidate",
+        "ambiguous_multiple_in_scope_candidates",
+    }
+    strict_contract_parity_ok = True
+    for row in rows:
+        if row.get("strict_contract_mode") != "candidate_only_strict_contract_v1":
+            strict_contract_parity_ok = False
+            break
+        accepted = row.get("strict_contract_accepted_by_provenance") or {}
+        dropped = row.get("strict_contract_dropped_by_reason") or {}
+        if any(key not in allowed_acceptance for key in accepted):
+            strict_contract_parity_ok = False
+            break
+        if any(key not in allowed_drop_reasons for key in dropped):
+            strict_contract_parity_ok = False
+            break
     profile_name, thresholds = _select_threshold_profile(rows)
     invariants = evaluate_invariants(
         rows,
@@ -589,6 +631,7 @@ def run_validation(
             class_truth_match_rate >= thresholds["class_truth_match_rate_min"]
         ),
         scoped_call_normalization_ok=scoped_normalization_ok,
+        strict_contract_parity_ok=strict_contract_parity_ok,
         contract_recall_ok=(
             contract_recall is not None and contract_recall >= thresholds["contract_recall_min"]
         ),
@@ -698,6 +741,7 @@ def run_validation(
         "gate_parser_deterministic",
         "gate_no_duplicate_contract_edges",
         "gate_scoped_call_normalization",
+        "gate_strict_contract_parity",
         "gate_equal_contract_metrics_when_exact",
     ]
     internal_valid = all(bool(invariants.get(key)) for key in internal_hard_gate_keys)
@@ -968,6 +1012,11 @@ def run_validation(
             "repo_totals": call_resolution_diagnostics_summary,
             "by_language_and_kind": call_resolution_diagnostics_by_language_kind,
         },
+        "strict_contract_diagnostics": {
+            "accepted_by_provenance": strict_contract_accepted,
+            "dropped_by_reason": strict_contract_dropped,
+            "candidate_count_histogram": strict_contract_candidate_histogram,
+        },
         "population_by_language": sampling.population_by_language,
         "population_by_kind": sampling.population_by_kind,
         "strata_counts": sampling.strata_counts,
@@ -983,6 +1032,7 @@ def run_validation(
             "class_truth_match_rate": class_truth_match_rate,
             "class_truth_match_rate_min": thresholds["class_truth_match_rate_min"],
             "scoped_call_normalization_ok": scoped_normalization_ok,
+            "strict_contract_parity_ok": strict_contract_parity_ok,
             "contract_recall": contract_recall,
             "contract_recall_min": thresholds["contract_recall_min"],
             "overreach_rate": static_overreach_rate,

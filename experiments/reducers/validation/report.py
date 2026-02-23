@@ -79,6 +79,7 @@ def render_summary(payload: dict) -> List[str]:
             "gate_class_truth_nonempty_rate",
             "gate_class_truth_match_rate",
             "gate_scoped_call_normalization",
+            "gate_strict_contract_parity",
             "gate_contract_recall_min",
             "gate_overreach_rate_max",
             "gate_member_call_recall_min",
@@ -117,7 +118,7 @@ def render_summary(payload: dict) -> List[str]:
         )
     lines.append("")
 
-    lines.append("## Contract Alignment (Strict Proxy)")
+    lines.append("## Strict Contract Alignment (Gating)")
     lines.append("")
     static_alignment = payload.get("static_contract_alignment") or {}
     if not static_alignment:
@@ -135,7 +136,7 @@ def render_summary(payload: dict) -> List[str]:
             lines.append(f"- uncertainty_intervals: `{strict_ci}`")
     lines.append("")
 
-    lines.append("## Expanded Proxy Alignment (Diagnostic)")
+    lines.append("## Enrichment Alignment (Non-Gating Diagnostics)")
     lines.append("")
     expanded = payload.get("enriched_truth_alignment") or {}
     if not expanded:
@@ -181,7 +182,7 @@ def render_summary(payload: dict) -> List[str]:
             lines.append(f"- uncertainty_intervals: `{expanded_ci}`")
     lines.append("")
 
-    lines.append("## Prompt Reliability (Heuristic Diagnostics)")
+    lines.append("## Enrichment Reliability (Heuristic)")
     lines.append("")
     practical = payload.get("enrichment_practical") or {}
     if not practical:
@@ -293,6 +294,22 @@ def render_summary(payload: dict) -> List[str]:
         for delta, language, kind, strict_p, expanded_p in sorted(delta_rows, reverse=True)[:5]:
             lines.append(
                 f"- {language}:{kind}: delta_recall=`{_format_value(delta)}`, delta_precision=`{_format_value((strict_p - expanded_p) if (strict_p is not None and expanded_p is not None) else None)}`"
+            )
+    lines.append("")
+
+    lines.append("## Independent Strict Contract Diagnostics")
+    lines.append("")
+    strict_contract_diag = payload.get("strict_contract_diagnostics") or {}
+    if not strict_contract_diag:
+        lines.append("- none")
+    else:
+        for key in (
+            "accepted_by_provenance",
+            "dropped_by_reason",
+            "candidate_count_histogram",
+        ):
+            lines.append(
+                f"- strict_contract.{key}: `{strict_contract_diag.get(key) or {}}`"
             )
     lines.append("")
 

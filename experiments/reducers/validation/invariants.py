@@ -71,6 +71,7 @@ def evaluate_invariants(
     class_truth_nonempty_rate_ok: bool,
     class_truth_match_rate_ok: bool,
     scoped_call_normalization_ok: bool,
+    strict_contract_parity_ok: bool,
     contract_recall_ok: bool,
     overreach_rate_ok: bool,
     member_call_recall_ok: bool | None,
@@ -140,6 +141,11 @@ def evaluate_invariants(
         hard_failures.append(
             "scoped call normalization gate failed: ambiguous terminals remain mapped to multiple qnames"
         )
+    gate_strict_contract_parity = strict_contract_parity_ok
+    if not gate_strict_contract_parity:
+        hard_failures.append(
+            "strict contract parity gate failed: independent strict acceptance includes out-of-contract provenance/reasons"
+        )
     gate_contract_recall_min = contract_recall_ok
     if not gate_contract_recall_min:
         diagnostic_failures.append("contract recall quality gate failed")
@@ -180,6 +186,7 @@ def evaluate_invariants(
         "gate_class_truth_nonempty_rate": gate_class_truth_nonempty_rate,
         "gate_class_truth_match_rate": gate_class_truth_match_rate,
         "gate_scoped_call_normalization": gate_scoped_call_normalization,
+        "gate_strict_contract_parity": gate_strict_contract_parity,
         "gate_contract_recall_min": gate_contract_recall_min,
         "gate_overreach_rate_max": gate_overreach_rate_max,
         "gate_member_call_recall_min": gate_member_call_recall_min,

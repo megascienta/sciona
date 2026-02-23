@@ -7,36 +7,27 @@ import importlib.util
 from pathlib import Path, PurePosixPath
 from typing import Iterable, Optional
 
-from sciona.runtime.paths import repo_name_prefix
+from sciona.code_analysis.core.module_naming import module_name_from_path
 
 from .shared import NormalizedCallEdge
 
 
 def module_name_from_file(repo_root: Path, file_path: str, language: str) -> str:
-    rel = Path(file_path).as_posix()
-    treat_init_as_package = language == "python"
-    strip_suffix = True
+    rel_path = Path(file_path)
     if language == "typescript":
-        strip_suffix = False
-    if strip_suffix:
-        suffix = Path(rel).suffix
-        if suffix:
-            rel = rel[: -len(suffix)]
-    if treat_init_as_package:
-        posix = PurePosixPath(rel)
-        if posix.name == "__init__" and posix.parent != PurePosixPath("."):
-            rel = posix.parent.as_posix()
-    if language == "typescript":
-        rel = normalize_ts_path(rel)
-    clean = "" if rel in {"", "."} else rel.replace("/", ".")
-    prefix = repo_name_prefix(repo_root)
-    if not clean:
-        if not prefix:
-            raise ValueError(f"Cannot determine module name for {file_path}")
-        return prefix
-    if not prefix or clean == prefix or clean.startswith(f"{prefix}."):
-        return clean
-    return f"{prefix}.{clean}"
+        raw = module_name_from_path(
+            repo_root,
+            rel_path,
+            strip_suffix=False,
+            treat_init_as_package=False,
+        )
+        return normalize_ts_path(raw)
+    return module_name_from_path(
+        repo_root,
+        rel_path,
+        strip_suffix=True,
+        treat_init_as_package=(language == "python"),
+    )
 
 
 def normalize_python_import(

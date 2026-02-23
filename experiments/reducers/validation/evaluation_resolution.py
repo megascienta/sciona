@@ -159,6 +159,7 @@ def build_independent_call_resolution(
                 _register_receiver(assignment.scope, assignment.receiver, target)
 
     return {
+        "mode": "candidate_only_strict_contract_v1",
         "symbol_index": {key: sorted(values) for key, values in symbol_index.items()},
         "module_lookup": module_lookup,
         "import_targets": import_targets,

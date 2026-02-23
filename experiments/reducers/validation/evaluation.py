@@ -647,6 +647,16 @@ def evaluate_entities(
                 "included_limitation_by_reason": gt_diagnostics.get(
                     "included_limitation_by_reason", {}
                 ),
+                "strict_contract_accepted_by_provenance": gt_diagnostics.get(
+                    "strict_contract_accepted_by_provenance", {}
+                ),
+                "strict_contract_dropped_by_reason": gt_diagnostics.get(
+                    "strict_contract_dropped_by_reason", {}
+                ),
+                "strict_contract_candidate_count_histogram": gt_diagnostics.get(
+                    "strict_contract_candidate_count_histogram", {}
+                ),
+                "strict_contract_mode": call_resolution.get("mode"),
                 "ground_truth_parse_ok": file_result.parse_ok,
                 "ground_truth_error": file_result.error,
                 "class_truth_empty_while_parse_ok": (

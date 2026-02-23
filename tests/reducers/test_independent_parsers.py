@@ -12,6 +12,8 @@ import pytest
 
 from experiments.reducers.reducer_validation import _independent_results_hash
 from experiments.reducers.validation.call_contract import resolve_call_in_contract
+from experiments.reducers.validation.call_contract import build_contract_call_candidates
+from experiments.reducers.validation.call_contract import resolve_call_in_contract_details
 from experiments.reducers.validation.ground_truth import edge_records_from_ground_truth
 from experiments.reducers.validation.import_contract import resolve_import_contract
 from experiments.reducers.validation.independent.contract_normalization import (
@@ -35,6 +37,7 @@ from experiments.reducers.validation.independent.shared import (
     ImportEdge,
     NormalizedCallEdge,
 )
+from sciona.code_analysis.contracts import select_strict_call_candidate
 from experiments.reducers.validation.metrics import compute_metrics
 
 
@@ -953,6 +956,60 @@ def test_call_contract_keeps_same_module_ambiguity_unresolved() -> None:
         contract={"call_contract": {"require_callee_in_repo": True}},
     )
     assert resolved is None
+
+
+def test_call_contract_details_use_shared_strict_selector() -> None:
+    edge = NormalizedCallEdge(
+        caller="fixture.sample.entry",
+        callee="run",
+        callee_qname=None,
+        dynamic=False,
+        callee_text="svc.run",
+    )
+    call_resolution = {
+        "symbol_index": {
+            "run": [
+                "fixture.sample.Service.run",
+                "fixture.sample.Other.run",
+            ]
+        },
+        "module_lookup": {
+            "fixture.sample.Service.run": "fixture.sample",
+            "fixture.sample.Other.run": "fixture.sample",
+        },
+        "import_targets": {"fixture.sample": set()},
+        "class_name_index": {},
+        "class_method_index": {},
+        "module_symbol_index": {},
+        "import_symbol_hints": {},
+        "namespace_aliases": {},
+        "receiver_bindings": {
+            "fixture.sample.entry": {"svc": ["fixture.sample.Service"]},
+        },
+    }
+    details = resolve_call_in_contract_details(
+        edge=edge,
+        caller_qname="fixture.sample.entry",
+        caller_module="fixture.sample",
+        call_resolution=call_resolution,
+        contract={"call_contract": {"require_callee_in_repo": True}},
+    )
+    candidates = build_contract_call_candidates(
+        edge=edge,
+        caller_qname="fixture.sample.entry",
+        caller_module="fixture.sample",
+        call_resolution=call_resolution,
+    )
+    expected = select_strict_call_candidate(
+        identifier=candidates.identifier,
+        direct_candidates=candidates.direct_candidates,
+        fallback_candidates=candidates.fallback_candidates,
+        caller_module="fixture.sample",
+        module_lookup=call_resolution["module_lookup"],
+        import_targets=call_resolution["import_targets"],
+    )
+    assert details.callee_qname == expected.accepted_candidate
+    assert details.accepted_provenance == expected.accepted_provenance
 
 
 def test_typescript_module_name_parity_for_d_ts_and_tsx(tmp_path: Path) -> None:

@@ -3,6 +3,25 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+
+from sciona.code_analysis.contracts import select_strict_call_candidate
+
+
+@dataclass(frozen=True)
+class ContractCallCandidates:
+    identifier: str
+    direct_candidates: list[str]
+    fallback_candidates: list[str]
+
+
+@dataclass(frozen=True)
+class ContractCallResolution:
+    callee_qname: str | None
+    accepted_provenance: str | None
+    dropped_reason: str | None
+    candidate_count: int
+
 
 def build_call_resolution_context_from_nodes(nodes: list[dict]) -> dict:
     symbol_index: dict[str, set[str]] = {}
@@ -42,29 +61,19 @@ def _qualifier_from_text(edge) -> str | None:
 
 def _candidate_identifiers(edge) -> list[str]:
     candidates: list[str] = []
-    for raw in [edge.callee, edge.callee_qname]:
+    for raw in [edge.callee_qname, edge.callee]:
         if not raw:
             continue
         value = raw.strip()
         if not value:
             continue
-        if "." in value:
-            candidates.append(value.split(".")[-1])
-        else:
-            candidates.append(value)
+        candidates.append(value.split(".")[-1] if "." in value else value)
     text = (getattr(edge, "callee_text", None) or "").strip()
     if text:
         head = text.split("(", 1)[0].strip()
         if head:
             candidates.append(head.split(".")[-1].strip())
-    seen: set[str] = set()
-    ordered: list[str] = []
-    for name in candidates:
-        if not name or name in seen:
-            continue
-        seen.add(name)
-        ordered.append(name)
-    return ordered
+    return _dedupe(candidates)
 
 
 def _by_module(candidates: list[str], module_lookup: dict[str, str], module: str) -> list[str]:
@@ -89,28 +98,25 @@ def _qualifier_tokens(edge) -> list[str]:
     return [token for token in qualifier.split(".") if token]
 
 
-def resolve_call_in_contract(
+def _dedupe(values: list[str]) -> list[str]:
+    seen: set[str] = set()
+    ordered: list[str] = []
+    for value in values:
+        if not value or value in seen:
+            continue
+        seen.add(value)
+        ordered.append(value)
+    return ordered
+
+
+def build_contract_call_candidates(
     edge,
     caller_qname: str,
     caller_module: str,
     call_resolution: dict,
-    contract: dict,
-) -> str | None:
-    require_in_repo = contract.get("call_contract", {}).get("require_callee_in_repo", True)
-    if edge.callee_qname and require_in_repo:
-        module_lookup: dict[str, str] = call_resolution.get("module_lookup", {})
-        if edge.callee_qname in module_lookup:
-            return edge.callee_qname
-    identifiers = _candidate_identifiers(edge)
-    if not identifiers:
-        return None
-    identifier = identifiers[0]
-    if not require_in_repo:
-        return edge.callee_qname or identifier
-
+) -> ContractCallCandidates:
     symbol_index: dict[str, list[str]] = call_resolution.get("symbol_index", {})
     module_lookup: dict[str, str] = call_resolution.get("module_lookup", {})
-    import_targets: dict[str, set[str]] = call_resolution.get("import_targets", {})
     class_name_index: dict[str, list[str]] = call_resolution.get("class_name_index", {})
     class_method_index: dict[str, dict[str, str]] = call_resolution.get("class_method_index", {})
     module_symbol_index: dict[str, dict[str, list[str]]] = call_resolution.get(
@@ -124,71 +130,119 @@ def resolve_call_in_contract(
         "receiver_bindings", {}
     )
 
+    identifiers = _candidate_identifiers(edge)
+    identifier = identifiers[0] if identifiers else ""
+    direct_candidates: list[str] = []
+    if edge.callee_qname and edge.callee_qname in module_lookup:
+        direct_candidates = [edge.callee_qname]
+
+    pooled: list[str] = []
+    if identifier:
+        pooled.extend(symbol_index.get(identifier) or [])
+    for alternate in identifiers[1:]:
+        pooled.extend(symbol_index.get(alternate) or [])
+
     class_qname = caller_qname.rsplit(".", 1)[0] if "." in caller_qname else ""
     class_methods = class_method_index.get(class_qname, {})
-    local_method = class_methods.get(identifier)
-    if local_method:
-        return local_method
+    if identifier:
+        local_method = class_methods.get(identifier)
+        if local_method:
+            pooled.append(local_method)
 
     qualifier_tokens = _qualifier_tokens(edge)
-    if qualifier_tokens:
+    if identifier and qualifier_tokens:
         scope_bindings = receiver_bindings.get(caller_qname, {})
         receiver_name = qualifier_tokens[-1]
         bound = scope_bindings.get(receiver_name, [])
-        scoped = _by_prefix(candidates := (symbol_index.get(identifier) or []), f"{bound[0]}.") if len(bound) == 1 else []
-        if len(scoped) == 1:
-            return scoped[0]
+        if len(bound) == 1:
+            pooled.extend(_by_prefix(symbol_index.get(identifier) or [], f"{bound[0]}."))
 
-    module_symbols = module_symbol_index.get(caller_module, {}).get(identifier, [])
-    if len(module_symbols) == 1:
-        return module_symbols[0]
-
-    candidates = symbol_index.get(identifier) or []
-    if not candidates and len(identifiers) > 1:
-        for alternate in identifiers[1:]:
-            candidates = symbol_index.get(alternate) or []
-            if candidates:
-                identifier = alternate
-                break
-    if len(candidates) == 1:
-        return candidates[0]
-    if not candidates or not caller_module:
-        return None
-
-    same_module = _by_module(candidates, module_lookup, caller_module)
-    if len(same_module) == 1:
-        return same_module[0]
+    if identifier:
+        pooled.extend(module_symbol_index.get(caller_module, {}).get(identifier, []))
 
     qualifier_leaf = _qualifier_leaf(edge)
-    if qualifier_leaf:
-        hinted = import_symbol_hints.get(caller_module, {}).get(qualifier_leaf, [])
-        if len(hinted) == 1:
-            return hinted[0]
-
+    if identifier and qualifier_leaf:
+        pooled.extend(import_symbol_hints.get(caller_module, {}).get(qualifier_leaf, []))
         class_candidates = class_name_index.get(qualifier_leaf) or []
         if class_candidates:
-            scoped = _by_prefix(candidates, f"{class_candidates[0]}.")
-            if len(scoped) == 1:
-                return scoped[0]
-
+            pooled.extend(_by_prefix(symbol_index.get(identifier) or [], f"{class_candidates[0]}."))
         namespace_target = namespace_aliases.get(caller_module, {}).get(qualifier_leaf)
         if namespace_target:
-            module_symbols = module_symbol_index.get(namespace_target, {}).get(identifier, [])
-            if len(module_symbols) == 1:
-                return module_symbols[0]
+            pooled.extend(module_symbol_index.get(namespace_target, {}).get(identifier, []))
 
-    allowed_modules = set(import_targets.get(caller_module, set()))
-    allowed_modules.add(caller_module)
-    narrowed = [
-        candidate for candidate in candidates if module_lookup.get(candidate) in allowed_modules
-    ]
-    hinted_direct = import_symbol_hints.get(caller_module, {}).get(identifier, [])
-    hinted_narrowed = [candidate for candidate in hinted_direct if candidate in candidates]
-    if len(hinted_narrowed) == 1:
-        return hinted_narrowed[0]
-    if len(narrowed) == 1:
-        return narrowed[0]
-    return None
+    if identifier:
+        pooled.extend(import_symbol_hints.get(caller_module, {}).get(identifier, []))
+    if identifier and caller_module:
+        pooled.extend(_by_module(symbol_index.get(identifier) or [], module_lookup, caller_module))
+
+    fallback_candidates = _dedupe(pooled)
+    return ContractCallCandidates(
+        identifier=identifier,
+        direct_candidates=direct_candidates,
+        fallback_candidates=fallback_candidates,
+    )
+
+
+def resolve_call_in_contract_details(
+    edge,
+    caller_qname: str,
+    caller_module: str,
+    call_resolution: dict,
+    contract: dict,
+) -> ContractCallResolution:
+    require_in_repo = contract.get("call_contract", {}).get("require_callee_in_repo", True)
+    candidates = build_contract_call_candidates(edge, caller_qname, caller_module, call_resolution)
+    if not require_in_repo:
+        if edge.callee_qname:
+            return ContractCallResolution(
+                callee_qname=edge.callee_qname,
+                accepted_provenance="contract_out_of_repo_allowed",
+                dropped_reason=None,
+                candidate_count=1,
+            )
+        if candidates.fallback_candidates:
+            return ContractCallResolution(
+                callee_qname=candidates.fallback_candidates[0],
+                accepted_provenance="contract_out_of_repo_allowed",
+                dropped_reason=None,
+                candidate_count=len(candidates.fallback_candidates),
+            )
+        return ContractCallResolution(
+            callee_qname=None,
+            accepted_provenance=None,
+            dropped_reason="no_candidates",
+            candidate_count=0,
+        )
+    decision = select_strict_call_candidate(
+        identifier=candidates.identifier,
+        direct_candidates=candidates.direct_candidates,
+        fallback_candidates=candidates.fallback_candidates,
+        caller_module=caller_module,
+        module_lookup=call_resolution.get("module_lookup", {}),
+        import_targets=call_resolution.get("import_targets", {}),
+    )
+    return ContractCallResolution(
+        callee_qname=decision.accepted_candidate,
+        accepted_provenance=decision.accepted_provenance,
+        dropped_reason=decision.dropped_reason,
+        candidate_count=decision.candidate_count,
+    )
+
+
+def resolve_call_in_contract(
+    edge,
+    caller_qname: str,
+    caller_module: str,
+    call_resolution: dict,
+    contract: dict,
+) -> str | None:
+    return resolve_call_in_contract_details(
+        edge=edge,
+        caller_qname=caller_qname,
+        caller_module=caller_module,
+        call_resolution=call_resolution,
+        contract=contract,
+    ).callee_qname
 
 
 def call_in_contract(
