@@ -407,6 +407,52 @@ def run_validation(
         if class_rows_parse_ok
         else 1.0
     )
+    class_rows_unreliable = [
+        row for row in class_rows_parse_ok if row.get("class_truth_unreliable")
+    ]
+
+    def _merge_counter_maps(target: dict[str, int], source: dict | None) -> None:
+        if not source:
+            return
+        for key, value in source.items():
+            try:
+                amount = int(value)
+            except Exception:
+                continue
+            target[key] = int(target.get(key, 0)) + amount
+
+    def _resolution_counter_block(rows_subset: list[dict]) -> dict[str, dict[str, int]]:
+        accepted: dict[str, int] = {}
+        dropped: dict[str, int] = {}
+        candidate_histogram: dict[str, int] = {}
+        record_drops: dict[str, int] = {}
+        for row in rows_subset:
+            diag = row.get("core_call_resolution_diagnostics") or {}
+            if not isinstance(diag, dict):
+                continue
+            _merge_counter_maps(accepted, diag.get("accepted_by_provenance"))
+            _merge_counter_maps(dropped, diag.get("dropped_by_reason"))
+            _merge_counter_maps(candidate_histogram, diag.get("candidate_count_histogram"))
+            _merge_counter_maps(record_drops, diag.get("record_drops"))
+        return {
+            "accepted_by_provenance": accepted,
+            "dropped_by_reason": dropped,
+            "candidate_count_histogram": candidate_histogram,
+            "record_drops": record_drops,
+        }
+
+    call_resolution_diagnostics_summary = _resolution_counter_block(rows)
+    call_resolution_diagnostics_by_language_kind: dict[str, dict[str, dict[str, dict[str, int]]]] = {}
+    for language in sorted({row.get("language") for row in rows if row.get("language")}):
+        by_kind: dict[str, dict[str, dict[str, int]]] = {}
+        for kind in ("module", "class", "function", "method"):
+            subset = [
+                row
+                for row in rows
+                if row.get("language") == language and row.get("kind") == kind
+            ]
+            by_kind[kind] = _resolution_counter_block(subset)
+        call_resolution_diagnostics_by_language_kind[language] = by_kind
 
     def _micro_by_kind(metric_key: str) -> dict[str, dict]:
         by_kind: dict[str, dict] = {}
@@ -908,6 +954,20 @@ def run_validation(
             "included_limitation_edges": included_limitation_total,
         },
         "independent_coverage_by_language": coverage,
+        "class_truth_mapping_quality": {
+            "class_rows_parse_ok_with_methods": len(class_rows_parse_ok),
+            "class_rows_unreliable_mapping": len(class_rows_unreliable),
+            "class_rows_scored": len(class_rows_matchable),
+            "unreliable_mapping_rate": (
+                (len(class_rows_unreliable) / len(class_rows_parse_ok))
+                if class_rows_parse_ok
+                else 0.0
+            ),
+        },
+        "call_resolution_diagnostics": {
+            "repo_totals": call_resolution_diagnostics_summary,
+            "by_language_and_kind": call_resolution_diagnostics_by_language_kind,
+        },
         "population_by_language": sampling.population_by_language,
         "population_by_kind": sampling.population_by_kind,
         "strata_counts": sampling.strata_counts,

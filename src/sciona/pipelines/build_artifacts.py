@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Dict, List, Sequence, Set, Tuple
 
@@ -75,6 +76,7 @@ def refresh_artifact_state(
         artifact_conn.commit()
         try:
             with transaction(artifact_conn):
+                call_resolution_diagnostics: dict[str, object] = {}
                 artifact_write.cleanup_removed_nodes(artifact_conn, current_node_ids)
                 artifact_write.rewrite_node_status(
                     artifact_conn,
@@ -87,6 +89,12 @@ def refresh_artifact_state(
                     snapshot_id=snapshot_id,
                     call_records=call_artifacts,
                     eligible_callers=eligible_callers,
+                    diagnostics=call_resolution_diagnostics,
+                )
+                artifact_write.set_rebuild_metadata(
+                    artifact_conn,
+                    key=f"call_resolution_diagnostics:{snapshot_id}",
+                    value=json.dumps(call_resolution_diagnostics, sort_keys=True),
                 )
                 rebuild_graph_index(
                     artifact_conn, core_conn=conn, snapshot_id=snapshot_id

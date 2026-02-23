@@ -11,7 +11,9 @@ from typing import List
 from ....tools.call_extraction import CallTarget
 from .call_resolution_kernel import (
     CallResolutionAdapter,
+    CallResolutionOutcome,
     CallResolutionRequest,
+    materialize_outcomes,
     resolve_with_adapter,
     resolve_with_mode,
 )
@@ -45,7 +47,7 @@ def resolve_typescript_calls(
         class_instance_map=class_instance_map,
     )
     return resolve_with_mode(
-        shared_resolver=lambda: resolve_with_adapter(requests, adapter),
+        shared_resolver=lambda: materialize_outcomes(resolve_with_adapter(requests, adapter)),
     )
 
 
@@ -62,18 +64,28 @@ class _TypeScriptCallAdapter(CallResolutionAdapter):
     instance_map: dict[str, str]
     class_instance_map: dict[str, dict[str, str]]
 
-    def resolve(self, request: CallResolutionRequest) -> List[str]:
+    def resolve(self, request: CallResolutionRequest) -> List[CallResolutionOutcome]:
         terminal = request.terminal
         callee_text = request.callee_text
         receiver = request.receiver
+        chain_target = _resolve_receiver_chain_target(
+            class_name=self.class_name,
+            receiver_chain=request.receiver_chain,
+            instance_map=self.instance_map,
+            class_instance_map=self.class_instance_map,
+        )
+        if chain_target:
+            return [_outcome(f"{chain_target}.{terminal}", "module_scoped")]
         if "." in callee_text:
             head, rest = callee_text.split(".", 1)
             if head in self.instance_map:
-                return [f"{self.instance_map[head]}.{terminal}"]
+                return [_outcome(f"{self.instance_map[head]}.{terminal}", "exact_qname")]
             if head in self.class_name_map and head[:1].isupper():
                 candidates = self.class_name_candidates.get(head) or set()
                 if len(candidates) == 1:
-                    return [f"{next(iter(candidates))}.{terminal}"]
+                    return [
+                        _outcome(f"{next(iter(candidates))}.{terminal}", "exact_qname")
+                    ]
                 return []
             if self.class_name and (receiver == "this" or callee_text.startswith("this.")):
                 chain = request.receiver_chain
@@ -83,19 +95,19 @@ class _TypeScriptCallAdapter(CallResolutionAdapter):
                         field
                     )
                     if target_class:
-                        return [f"{target_class}.{terminal}"]
+                        return [_outcome(f"{target_class}.{terminal}", "module_scoped")]
             if head in self.import_aliases:
-                return [f"{self.import_aliases[head]}.{rest}"]
+                return [_outcome(f"{self.import_aliases[head]}.{rest}", "import_narrowed")]
         if terminal in self.member_aliases:
-            return [self.member_aliases[terminal]]
+            return [_outcome(self.member_aliases[terminal], "import_narrowed")]
         if (
             self.class_name
             and is_receiver_call(callee_text)
             and terminal in self.class_method_names
         ):
-            return [f"{self.class_name}.{terminal}"]
+            return [_outcome(f"{self.class_name}.{terminal}", "module_scoped")]
         if is_unqualified(callee_text) and terminal in self.module_functions:
-            return [f"{self.module_name}.{terminal}"]
+            return [_outcome(f"{self.module_name}.{terminal}", "module_scoped")]
         return []
 
 
@@ -118,3 +130,30 @@ def is_unqualified(callee_text: str) -> bool:
 
 def is_receiver_call(callee_text: str) -> bool:
     return callee_text.startswith("this.") or callee_text.startswith("super.")
+
+
+def _resolve_receiver_chain_target(
+    *,
+    class_name: str | None,
+    receiver_chain: tuple[str, ...],
+    instance_map: dict[str, str],
+    class_instance_map: dict[str, dict[str, str]],
+) -> str | None:
+    if not receiver_chain:
+        return None
+    head = receiver_chain[0]
+    if head in instance_map:
+        return instance_map[head]
+    if head not in {"this", "super"} or not class_name:
+        return None
+    current_class = class_name
+    for field in receiver_chain[1:]:
+        next_class = class_instance_map.get(current_class, {}).get(field)
+        if not next_class:
+            return None
+        current_class = next_class
+    return current_class
+
+
+def _outcome(candidate_qname: str, provenance: str) -> CallResolutionOutcome:
+    return CallResolutionOutcome(candidate_qname=candidate_qname, provenance=provenance)

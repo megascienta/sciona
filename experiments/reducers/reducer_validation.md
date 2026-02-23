@@ -3,7 +3,7 @@
 ## 1. Purpose
 Validation has two primary goals:
 - prove reducer-to-DB internal integrity,
-- measure reducer alignment against independent parser truth.
+- measure reducer alignment against independent parser proxy truth.
 
 Evaluated relation scope:
 - module imports,
@@ -22,12 +22,12 @@ Allowed shared utilities:
 
 ## 3. Truth Channels
 
-### 3.1 Strict Contract Truth
+### 3.1 Strict Contract Proxy Truth
 - in-repo resolvable edges only,
 - used for primary static contract alignment scoring.
 
-### 3.2 Limitation-Focused Expanded Truth
-Built from strict truth plus selected in-repo limitation edges.
+### 3.2 Limitation-Focused Expanded Proxy Truth
+Built from strict proxy truth plus selected in-repo limitation edges.
 
 Policy (authoritative via config):
 - `scope_exclusions`: `standard_call`, `external`
@@ -66,11 +66,11 @@ Rationale:
 ## 5. Report Order (Human-Readable)
 1. Run Verdict
 2. Internal Integrity (Hard Gates)
-3. Contract Alignment (Strict)
-4. Expanded Truth Alignment (Diagnostic)
+3. Contract Alignment (Strict Proxy)
+4. Expanded Proxy Alignment (Diagnostic)
 5. Prompt Reliability (Heuristic Diagnostics)
 6. Language Breakdown
-7. Expanded Alignment by language:kind
+7. Expanded Proxy Alignment by language:kind
 8. Strict vs Expanded delta by kind (top-5 worst)
 9. Call Resolution Diagnostics
 10. Out-of-Contract Distribution
@@ -85,18 +85,18 @@ Rationale:
 - reducer↔DB projection precision/recall,
 - parser determinism.
 
-### 6.2 Contract Alignment (strict)
+### 6.2 Contract Alignment (strict proxy)
 - strict precision/recall/overreach/divergence,
 - per-kind/edge/call-form diagnostics.
 - bootstrap uncertainty intervals (micro + method scope).
 
-### 6.3 Expanded Truth Alignment (diagnostic)
-- reducer/db alignment vs expanded truth,
+### 6.3 Expanded Proxy Alignment (diagnostic)
+- reducer/db alignment vs expanded proxy truth,
 - high/full tier precision/recall/divergence,
 - explicit scope policy and counts:
 - `excluded_out_of_scope_edges`
 - `included_limitation_edges`
-- reason-level expanded recall diagnostics (reducer/db).
+- reason-level expanded proxy recall diagnostics (reducer/db).
 - bootstrap uncertainty interval for expanded-full micro metrics.
 
 ### 6.4 Prompt Reliability (heuristic diagnostics)
@@ -170,11 +170,12 @@ python experiments/reducers/reducer_validation.py \
 ## 11. Interpretation
 1. Run Verdict first.
 2. If internal integrity is valid, reducer is faithful DB projection for evaluated nodes.
-3. Use strict contract alignment as primary external quality signal.
-4. Use expanded alignment to quantify static limitation gap only (without standard/external contamination).
+3. Use strict contract proxy alignment as primary external quality signal.
+4. Use expanded proxy alignment to quantify static limitation gap only (without standard/external contamination).
 5. Use prompt reliability only as heuristic downstream risk.
 
 ## 12. Known Limits
 - Independent parsing remains static and cannot model runtime behavior perfectly.
-- Expanded truth remains diagnostic; not a correctness gate.
+- Independent truth is a deterministic static proxy, not absolute ground truth.
+- Expanded proxy truth remains diagnostic; not a correctness gate.
 - Java fixture tests require `SCIONA_JAVAPARSER_JAR` + `java/javac`.

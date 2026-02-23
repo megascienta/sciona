@@ -8,7 +8,11 @@ from __future__ import annotations
 from typing import Dict, List, Optional
 
 from ..helpers import queries
-from ..helpers.artifact_graph_edges import artifact_db_available, load_artifact_edges
+from ..helpers.artifact_graph_edges import (
+    artifact_db_available,
+    load_artifact_edges,
+    load_call_resolution_diagnostics,
+)
 from ..helpers.render import render_json_payload, require_connection
 from ..helpers.utils import require_latest_committed_snapshot
 from ..metadata import ReducerMeta
@@ -96,6 +100,12 @@ def render(
         "edge_count": len(enriched),
         "edges": enriched,
     }
+    if artifact_available and repo_root is not None:
+        body["resolution_diagnostics"] = load_call_resolution_diagnostics(
+            repo_root,
+            snapshot_id=snapshot_id,
+            caller_id=resolved_id,
+        )
     return render_json_payload(body)
 
 

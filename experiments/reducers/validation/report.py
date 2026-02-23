@@ -299,8 +299,11 @@ def render_summary(payload: dict) -> List[str]:
     lines.append("## Call Resolution Diagnostics")
     lines.append("")
     call_form = (payload.get("call_form_recall") or {}).get("reducer_vs_contract_truth") or {}
+    resolution_diag = (payload.get("call_resolution_diagnostics") or {}).get(
+        "repo_totals"
+    ) or {}
     attribution = payload.get("mismatch_attribution_breakdown") or {}
-    if not call_form and not attribution:
+    if not call_form and not attribution and not resolution_diag:
         lines.append("- none")
     else:
         if call_form:
@@ -317,6 +320,47 @@ def render_summary(payload: dict) -> List[str]:
                 "independent_overprojection",
             ):
                 lines.append(f"- mismatch_attribution.{key}: `{attribution.get(key, 0)}`")
+        if resolution_diag:
+            for key in (
+                "accepted_by_provenance",
+                "dropped_by_reason",
+                "candidate_count_histogram",
+                "record_drops",
+            ):
+                lines.append(f"- resolution.{key}: `{resolution_diag.get(key) or {}}`")
+            lang_kind = (payload.get("call_resolution_diagnostics") or {}).get(
+                "by_language_and_kind"
+            ) or {}
+            for language in sorted(lang_kind.keys()):
+                for kind in ("module", "class", "function", "method"):
+                    block = (lang_kind.get(language) or {}).get(kind) or {}
+                    if not block:
+                        continue
+                    accepted = block.get("accepted_by_provenance") or {}
+                    dropped = block.get("dropped_by_reason") or {}
+                    if not accepted and not dropped:
+                        continue
+                    lines.append(
+                        f"- resolution.{language}:{kind}: accepted=`{accepted}`, dropped=`{dropped}`"
+                    )
+    lines.append("")
+
+    lines.append("## Class Mapping Reliability")
+    lines.append("")
+    class_quality = payload.get("class_truth_mapping_quality") or {}
+    if not class_quality:
+        lines.append("- none")
+    else:
+        lines.append(
+            f"- class_rows_parse_ok_with_methods: `{class_quality.get('class_rows_parse_ok_with_methods')}`"
+        )
+        lines.append(
+            f"- class_rows_unreliable_mapping: `{class_quality.get('class_rows_unreliable_mapping')}`"
+        )
+        lines.append(f"- class_rows_scored: `{class_quality.get('class_rows_scored')}`")
+        lines.append(
+            f"- unreliable_mapping_rate: `{_format_value(class_quality.get('unreliable_mapping_rate'))}`"
+        )
     lines.append("")
 
     lines.append("## Out-of-Contract Distribution")

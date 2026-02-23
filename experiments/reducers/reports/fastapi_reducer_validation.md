@@ -5,6 +5,7 @@
 - repo=fastapi
 - sampled_nodes=500
 - invariants_passed=True
+- interpretation_note: independent truth is a deterministic static proxy, not absolute ground truth.
 
 ## Run Verdict
 
@@ -24,8 +25,9 @@
 - gate_scoped_call_normalization: `True`
 - gate_contract_recall_min: `True`
 - gate_overreach_rate_max: `True`
-- gate_member_call_recall_min: `True`
+- gate_member_call_recall_min: `False`
 - gate_equal_contract_metrics_when_exact: `True`
+- diagnostic_failure: member-call recall quality gate failed
 
 ## Internal Integrity (Hard Gates)
 
@@ -34,79 +36,79 @@
 - static_projection_recall: `1.000000`
 - parser_stability_score: `1.000000`
 
-## Contract Alignment (Strict)
+## Contract Alignment (Strict Proxy)
 
-- static_contract_precision: `0.997686`
-- static_contract_recall: `0.972294`
-- static_overreach_rate: `0.002314`
-- static_divergence_index: `0.029894`
-- uncertainty_intervals: `{'micro': {'precision_ci95': [0.996265172735761, 1.0], 'recall_ci95': [0.8804347826086957, 0.9846640316205534], 'n': 500}, 'method': {'precision_ci95': [1.0, 1.0], 'recall_ci95': [0.6050420168067226, 0.7692307692307693], 'n': 125}}`
+- static_contract_precision: `0.964262`
+- static_contract_recall: `0.979167`
+- static_overreach_rate: `0.035738`
+- static_divergence_index: `0.055123`
+- uncertainty_intervals: `{'micro': {'precision_ci95': [0.7883211678832117, 0.984553560215999], 'recall_ci95': [0.8829787234042553, 0.9881074899942824], 'n': 500}, 'method': {'precision_ci95': [0.125, 0.36764705882352944], 'recall_ci95': [0.45454545454545453, 0.8666666666666667], 'n': 125}}`
 
-## Expanded Truth Alignment (Diagnostic)
+## Expanded Proxy Alignment (Diagnostic)
 
-- reducer_vs_enriched_truth_precision: `0.997686`
-- reducer_vs_enriched_truth_recall: `0.945193`
-- db_vs_enriched_truth_precision: `0.997686`
-- db_vs_enriched_truth_recall: `0.945193`
-- reducer_vs_enriched_truth_divergence_index: `0.056875`
+- reducer_vs_enriched_truth_precision: `0.964262`
+- reducer_vs_enriched_truth_recall: `0.961716`
+- db_vs_enriched_truth_precision: `0.964262`
+- db_vs_enriched_truth_recall: `0.961716`
+- reducer_vs_enriched_truth_divergence_index: `0.071383`
 - inclusion_policy: `{'base': 'contract_truth_edges + limitation_edges', 'scope_exclusions': ['standard_call', 'external'], 'limitation_focus': ['dynamic', 'in_repo_unresolved', 'relative_unresolved'], 'confidence_tiers': {'high': ['in_repo_unresolved'], 'low': ['dynamic', 'relative_unresolved']}, 'notes': 'Expanded truth is diagnostic-only and non-gating.'}`
-- tier.high_conf: reducer_p/r=`0.997686`/`0.948460`, db_p/r=`0.997686`/`0.948460`, divergence=`0.053622`
-- tier.full: reducer_p/r=`0.997686`/`0.945193`, db_p/r=`0.997686`/`0.945193`, divergence=`0.056875`
-- tier_edge_counts: `{'high_conf_edges': 3182, 'full_edges': 3193}`
-- scope_split_counts: `{'excluded_out_of_scope_edges': 5623, 'included_limitation_edges': 120, 'excluded_out_of_scope_by_reason': {'external': 5539, 'standard_call': 84}, 'included_limitation_by_reason': {'relative_unresolved': 6, 'in_repo_unresolved': 101, 'dynamic': 13}}`
-Reason-level expanded recall:
-- reason.dynamic: reducer_recall=`0.000000`, db_recall=`0.000000`, reducer_tp/fn=`0/7`
-- reason.in_repo_unresolved: reducer_recall=`0.000000`, db_recall=`0.000000`, reducer_tp/fn=`0/78`
+- tier.high_conf: reducer_p/r=`0.964262`/`0.964262`, db_p/r=`0.964262`/`0.964262`, divergence=`0.069010`
+- tier.full: reducer_p/r=`0.964262`/`0.961716`, db_p/r=`0.964262`/`0.961716`, divergence=`0.071383`
+- tier_edge_counts: `{'high_conf_edges': 3022, 'full_edges': 3030}`
+- scope_split_counts: `{'excluded_out_of_scope_edges': 4722, 'included_limitation_edges': 62, 'excluded_out_of_scope_by_reason': {'standard_call': 34, 'external': 4688}, 'included_limitation_by_reason': {'in_repo_unresolved': 48, 'dynamic': 8, 'relative_unresolved': 6}}`
+Reason-level expanded proxy recall:
+- reason.dynamic: reducer_recall=`0.000000`, db_recall=`0.000000`, reducer_tp/fn=`0/4`
+- reason.in_repo_unresolved: reducer_recall=`0.000000`, db_recall=`0.000000`, reducer_tp/fn=`0/46`
 - reason.relative_unresolved: reducer_recall=`0.000000`, db_recall=`0.000000`, reducer_tp/fn=`0/4`
-- uncertainty_intervals: `{'micro': {'precision_ci95': [0.9954614220877458, 1.0], 'recall_ci95': [0.7649918962722853, 0.9715515915731201], 'n': 500}}`
+- uncertainty_intervals: `{'micro': {'precision_ci95': [0.7862318840579711, 0.9845171588188348], 'recall_ci95': [0.8017699115044248, 0.9800741427247451], 'n': 500}}`
 
 ## Prompt Reliability (Heuristic Diagnostics)
 
-- navigation_structural_reliability: `0.987300`
-- reasoning_structural_reliability: `0.753715`
-- coupling_stability_index: `0.997686`
+- navigation_structural_reliability: `0.989504`
+- reasoning_structural_reliability: `0.358067`
+- coupling_stability_index: `0.964262`
 - prompt_reliability_version: `v1`
 - weights: `{'navigation': {'fp_weight': 1.0, 'fn_weight': 1.0}, 'reasoning': {'fp_weight': 1.0, 'fn_weight': 1.2}}`
-- component_contributions: `{'navigation': {'tp': 2721, 'fp': 7, 'fn': 28, 'penalty_fp': 7.0, 'penalty_fn': 28.0, 'denominator': 2756.0}, 'reasoning': {'tp': 213, 'fp': 0, 'fn': 58, 'penalty_fp': 0.0, 'penalty_fn': 69.6, 'denominator': 282.6}}`
-- enrichment_noise_ratio: `0.027873`
+- component_contributions: `{'navigation': {'tp': 2734, 'fp': 6, 'fn': 23, 'penalty_fp': 6.0, 'penalty_fn': 23.0, 'denominator': 2763.0}, 'reasoning': {'tp': 83, 'fp': 102, 'fn': 39, 'penalty_fp': 102.0, 'penalty_fn': 46.8, 'denominator': 231.8}}`
+- enrichment_noise_ratio: `0.017822`
 
 ## Language Breakdown
 
-- python: sampled_nodes=`500`, population_nodes=`6363`, projection_p/r=`1.000000`/`1.000000`, contract_p/r=`0.997686`/`0.972294`, expanded_p/r=`0.997686`/`0.945193`, contract_overreach=`0.002314`, projection_tp/fp/fn=`3025/0/0`, contract_tp/fp/fn=`3018/7/86`
-- python:module: recall=`0.989814`, precision=`0.997434`, tp/fp/fn=`2721/7/28`
-- python:class: recall=`1.000000`, precision=`1.000000`, tp/fp/fn=`84/0/0`
-- python:function: recall=`0.872340`, precision=`1.000000`, tp/fp/fn=`123/0/18`
-- python:method: recall=`0.692308`, precision=`1.000000`, tp/fp/fn=`90/0/40`
+- python: sampled_nodes=`500`, population_nodes=`6363`, projection_p/r=`1.000000`/`1.000000`, contract_p/r=`0.964262`/`0.979167`, expanded_p/r=`0.964262`/`0.961716`, contract_overreach=`0.035738`, projection_tp/fp/fn=`3022/0/0`, contract_tp/fp/fn=`2914/108/62`
+- python:module: recall=`0.991658`, precision=`0.997810`, tp/fp/fn=`2734/6/23`
+- python:class: recall=`1.000000`, precision=`1.000000`, tp/fp/fn=`97/0/0`
+- python:function: recall=`0.676768`, precision=`0.572650`, tp/fp/fn=`67/50/32`
+- python:method: recall=`0.695652`, precision=`0.235294`, tp/fp/fn=`16/52/7`
 
-Expanded Alignment by language:kind
-- python:module: strict_p/r=`0.997434`/`0.989814`, expanded_p/r=`0.997434`/`0.988017`
+Expanded Proxy Alignment by language:kind
+- python:module: strict_p/r=`0.997810`/`0.991658`, expanded_p/r=`0.997810`/`0.989862`
 - python:class: strict_p/r=`1.000000`/`1.000000`, expanded_p/r=`1.000000`/`1.000000`
-- python:function: strict_p/r=`1.000000`/`0.872340`, expanded_p/r=`1.000000`/`0.582938`
-- python:method: strict_p/r=`1.000000`/`0.692308`, expanded_p/r=`1.000000`/`0.625000`
+- python:function: strict_p/r=`0.572650`/`0.676768`, expanded_p/r=`0.572650`/`0.485507`
+- python:method: strict_p/r=`0.235294`/`0.695652`, expanded_p/r=`0.235294`/`0.484848`
 
 Strict vs Expanded delta by kind (top-5 worst recall delta)
-- python:function: delta_recall=`0.289402`, delta_precision=`0.000000`
-- python:method: delta_recall=`0.067308`, delta_precision=`0.000000`
-- python:module: delta_recall=`0.001797`, delta_precision=`0.000000`
+- python:method: delta_recall=`0.210804`, delta_precision=`0.000000`
+- python:function: delta_recall=`0.191260`, delta_precision=`0.000000`
+- python:module: delta_recall=`0.001795`, delta_precision=`0.000000`
 - python:class: delta_recall=`0.000000`, delta_precision=`0.000000`
 
 ## Call Resolution Diagnostics
 
-- call_form.direct: tp=`2916`, fn=`64`, recall=`0.978523`
-- call_form.member: tp=`106`, fn=`18`, recall=`0.854839`
+- call_form.direct: tp=`2896`, fn=`41`, recall=`0.986040`
+- call_form.member: tp=`18`, fn=`21`, recall=`0.461538`
 - mismatch_attribution.core_missed_resolution: `0`
-- mismatch_attribution.core_overresolution: `19`
+- mismatch_attribution.core_overresolution: `172`
 - mismatch_attribution.normalization_contract_mismatch: `0`
-- mismatch_attribution.independent_overprojection: `94`
+- mismatch_attribution.independent_overprojection: `126`
 
 ## Out-of-Contract Distribution
 
-- call: `113`
+- call: `55`
 - import: `7`
 
 Breakdown by `edge_type::language::reason`:
-- call::python::dynamic: `13`
-- call::python::in_repo_unresolved: `100`
+- call::python::dynamic: `8`
+- call::python::in_repo_unresolved: `47`
 - import::python::in_repo_unresolved: `1`
 - import::python::relative_unresolved: `6`
 
@@ -119,25 +121,27 @@ Note: `enrichment_edges` includes only in-repo out-of-contract edges (unresolved
 - raw_import_edges: `4856`
 - normalized_call_edges: `15400`
 - normalized_import_edges: `4856`
-- contract_truth_edges: `3104`
-- enrichment_edges: `89`
-- enriched_truth_edges: `3193`
-- expanded_high_conf_edges: `3182`
-- expanded_full_edges: `3193`
-- excluded_out_of_scope_edges: `5623`
-- included_limitation_edges: `120`
+- contract_truth_edges: `2976`
+- enrichment_edges: `54`
+- enriched_truth_edges: `3030`
+- expanded_high_conf_edges: `3022`
+- expanded_full_edges: `3030`
+- excluded_out_of_scope_edges: `4722`
+- included_limitation_edges: `62`
 
 ## Core Metrics
 
-- static_contract_recall: `0.972294`
-- static_overreach_rate: `0.002314`
-- overreach_count: `7`
-- reducer_edge_total: `3025`
+- static_contract_recall: `0.979167`
+- static_overreach_rate: `0.035738`
+- overreach_count: `108`
+- reducer_edge_total: `3022`
 
 ## Action Priority Board
 
-- [high] core_analysis::method_recall_gap evidence=`{'method_recall': 0.6923076923076923}`
-- [medium] core_analysis::function_recall_gap evidence=`{'function_recall': 0.8723404255319149}`
+- [high] core_analysis::method_recall_gap evidence=`{'method_recall': 0.6956521739130435}`
+- [high] core_analysis::method_precision_gap evidence=`{'method_precision': 0.23529411764705882}`
+- [medium] core_analysis::function_recall_gap evidence=`{'function_recall': 0.6767676767676768}`
+- [medium] core_analysis::reasoning_reliability_low evidence=`{'reasoning_structural_reliability': 0.35806729939603105}`
 
 ## Metric Definitions & Schema
 

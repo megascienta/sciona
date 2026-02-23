@@ -1,0 +1,18 @@
+{
+  "defs": [
+    "fixture.sample.Controller",
+    "fixture.sample.Controller.__init__",
+    "fixture.sample.Controller.handle"
+  ],
+  "call_callees": [
+    "S",
+    "run",
+    "helper_run"
+  ],
+  "import_targets": [
+    ".services",
+    ".helpers"
+  ],
+  "expected_normalized_calls": [],
+  "expected_normalized_imports": []
+}

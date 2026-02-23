@@ -11,7 +11,9 @@ from typing import List
 from ....tools.call_extraction import CallTarget
 from .call_resolution_kernel import (
     CallResolutionAdapter,
+    CallResolutionOutcome,
     CallResolutionRequest,
+    materialize_outcomes,
     resolve_with_adapter,
     resolve_with_mode,
 )
@@ -64,7 +66,7 @@ def resolve_java_calls(
         qualify_java_type=qualify_java_type,
     )
     return resolve_with_mode(
-        shared_resolver=lambda: resolve_with_adapter(requests, adapter),
+        shared_resolver=lambda: materialize_outcomes(resolve_with_adapter(requests, adapter)),
     )
 
 
@@ -82,10 +84,21 @@ class _JavaCallAdapter(CallResolutionAdapter):
     module_prefix: str | None
     qualify_java_type: object
 
-    def resolve(self, request: CallResolutionRequest) -> List[str]:
+    def resolve(self, request: CallResolutionRequest) -> List[CallResolutionOutcome]:
         terminal = request.terminal
         raw = request.callee_text
         receiver_hint = request.receiver
+        receiver_symbol = _receiver_symbol(request, raw, receiver_hint)
+        if receiver_symbol and receiver_symbol in self.instance_types:
+            qualified_type = self.qualify_java_type(
+                self.instance_types[receiver_symbol],
+                self.module_name,
+                self.class_name_candidates,
+                self.import_class_map,
+                self.module_prefix,
+            )
+            if qualified_type:
+                return [_outcome(f"{qualified_type}.{terminal}", "module_scoped")]
         if "." in raw:
             receiver = raw.rsplit(".", 1)[0].strip()
             receiver_simple = receiver.rsplit(".", 1)[-1]
@@ -101,7 +114,7 @@ class _JavaCallAdapter(CallResolutionAdapter):
                     self.module_prefix,
                 )
                 if qualified_type:
-                    return [f"{qualified_type}.{terminal}"]
+                    return [_outcome(f"{qualified_type}.{terminal}", "exact_qname")]
             if receiver_simple[:1].isupper():
                 import_target = self.import_class_map.get(receiver_simple)
                 local_class = _unique_class_candidate(
@@ -109,9 +122,9 @@ class _JavaCallAdapter(CallResolutionAdapter):
                     self.class_name_candidates,
                 )
                 if import_target:
-                    return [f"{import_target}.{terminal}"]
+                    return [_outcome(f"{import_target}.{terminal}", "import_narrowed")]
                 if local_class:
-                    return [f"{local_class}.{terminal}"]
+                    return [_outcome(f"{local_class}.{terminal}", "exact_qname")]
         if is_unqualified(raw):
             import_target = self.import_class_map.get(terminal)
             local_class = _unique_class_candidate(
@@ -119,20 +132,20 @@ class _JavaCallAdapter(CallResolutionAdapter):
                 self.class_name_candidates,
             )
             if import_target:
-                return [f"{import_target}.{terminal}"]
+                return [_outcome(f"{import_target}.{terminal}", "import_narrowed")]
             if local_class:
-                return [f"{local_class}.{terminal}"]
+                return [_outcome(f"{local_class}.{terminal}", "exact_qname")]
         if self.class_name and terminal in self.class_method_names:
             if is_receiver_call(raw) or is_unqualified(raw):
-                return [f"{self.class_name}.{terminal}"]
+                return [_outcome(f"{self.class_name}.{terminal}", "module_scoped")]
         if is_unqualified(raw) and terminal in self.module_functions:
-            return [f"{self.module_name}.{terminal}"]
+            return [_outcome(f"{self.module_name}.{terminal}", "module_scoped")]
         class_qualified = _unique_class_candidate(
             terminal,
             self.class_name_candidates,
         )
         if class_qualified and terminal in self.class_methods.get(class_qualified, set()):
-            return [f"{class_qualified}.{terminal}"]
+            return [_outcome(f"{class_qualified}.{terminal}", "exact_qname")]
         return []
 
 
@@ -171,3 +184,25 @@ def _unique_class_candidate(
     if len(candidates) == 1:
         return next(iter(candidates))
     return None
+
+
+def _receiver_symbol(
+    request: CallResolutionRequest,
+    raw: str,
+    receiver_hint: str | None,
+) -> str | None:
+    chain = request.receiver_chain
+    for token in reversed(chain):
+        if token in {"this", "super"}:
+            continue
+        return token
+    if receiver_hint:
+        return receiver_hint
+    if "." in raw:
+        receiver = raw.rsplit(".", 1)[0].strip()
+        return receiver.rsplit(".", 1)[-1]
+    return None
+
+
+def _outcome(candidate_qname: str, provenance: str) -> CallResolutionOutcome:
+    return CallResolutionOutcome(candidate_qname=candidate_qname, provenance=provenance)

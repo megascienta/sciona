@@ -276,3 +276,27 @@ def test_typescript_analyzer_resolves_module_alias_assignments(tmp_path):
         for record in result.call_records
     }
     assert f"{module_name}.Service.run" in call_records[f"{module_name}.use"]
+
+
+def test_typescript_module_name_strips_d_ts_suffix(tmp_path):
+    module = "export const value = 1;\n"
+    repo = tmp_path
+    src = repo / "src"
+    src.mkdir()
+    file_path = src / "types.d.ts"
+    file_path.write_text(module, encoding="utf-8")
+    record = FileRecord(
+        path=file_path,
+        relative_path=Path("src/types.d.ts"),
+        language="typescript",
+    )
+    snapshot = FileSnapshot(
+        record=record,
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = TypeScriptAnalyzer()
+    assert analyzer.module_name(repo, snapshot) == f"{repo.name}.src.types"

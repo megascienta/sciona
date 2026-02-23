@@ -20,6 +20,19 @@
       "categories": ["nested_classes"]
     },
     {
+      "id": "python_alias_chain",
+      "language": "python",
+      "root": "python_alias_chain",
+      "file_path": "sample.py",
+      "module_qualified_name": "fixture.sample",
+      "assert_mode": "subset",
+      "categories": [
+        "alias_imports",
+        "chained_receivers",
+        "constructor_injection"
+      ]
+    },
+    {
       "id": "typescript_core_calls_imports",
       "language": "typescript",
       "root": "typescript",
@@ -50,6 +63,20 @@
       "categories": ["reexports", "imports"]
     },
     {
+      "id": "typescript_namespace_chain",
+      "language": "typescript",
+      "root": "typescript_namespace_chain",
+      "file_path": "sample.ts",
+      "module_qualified_name": "fixture.sample",
+      "assert_mode": "subset",
+      "requires": ["node"],
+      "categories": [
+        "namespace_aliases",
+        "chained_receivers",
+        "constructor_injection"
+      ]
+    },
+    {
       "id": "java_core_calls_imports",
       "language": "java",
       "root": "java",
@@ -68,6 +95,19 @@
       "assert_mode": "subset",
       "requires": ["java_parser_toolchain"],
       "categories": ["nested_classes"]
+    },
+    {
+      "id": "java_constructor_field",
+      "language": "java",
+      "root": "java_constructor_field",
+      "file_path": "Sample.java",
+      "module_qualified_name": "fixture.sample",
+      "assert_mode": "subset",
+      "requires": ["java_parser_toolchain"],
+      "categories": [
+        "constructor_injection",
+        "chained_receivers"
+      ]
     }
   ]
 }

@@ -23,7 +23,7 @@ def test_python_ambiguous_class_candidate_does_not_overresolve() -> None:
         instance_map={},
         class_name_candidates={"Service": {"repo.pkg.a.Service", "repo.pkg.b.Service"}},
     )
-    assert resolved == ["run"]
+    assert resolved == []
 
 
 def test_typescript_ambiguous_class_candidate_does_not_overresolve() -> None:
@@ -41,7 +41,7 @@ def test_typescript_ambiguous_class_candidate_does_not_overresolve() -> None:
         instance_map={},
         class_instance_map={},
     )
-    assert resolved == ["run"]
+    assert resolved == []
 
 
 def test_java_ambiguous_class_candidate_does_not_overresolve() -> None:
@@ -59,4 +59,4 @@ def test_java_ambiguous_class_candidate_does_not_overresolve() -> None:
         module_prefix=None,
         qualify_java_type=lambda *_args: None,
     )
-    assert resolved == ["run"]
+    assert resolved == []

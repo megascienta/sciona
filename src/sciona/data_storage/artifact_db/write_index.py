@@ -114,3 +114,7 @@ def _set_rebuild_status(conn: sqlite3.Connection, *, key: str, value: str) -> No
         """,
         (key, value, utc_now()),
     )
+
+
+def set_rebuild_metadata(conn: sqlite3.Connection, *, key: str, value: str) -> None:
+    _set_rebuild_status(conn, key=key, value=value)

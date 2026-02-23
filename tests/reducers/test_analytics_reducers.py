@@ -47,6 +47,7 @@ def test_callsite_index_reducer_returns_payload(tmp_path):
     assert "edges" in payload
     assert "artifact_available" in payload
     assert "edge_source" in payload
+    assert "resolution_diagnostics" in payload
     if payload["edges"]:
         edge = payload["edges"][0]
         assert "caller_node_type" in edge

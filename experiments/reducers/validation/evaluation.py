@@ -278,6 +278,7 @@ class ReducerEdgeSource:
                 )
                 for edge in dep_payload.get("edges", []) or []:
                     edges.append(edge_record_from_import(edge))
+                payloads["dependency_edges"] = dep_payload
                 return payloads, edges, None
 
             if entity.kind == "class":
@@ -296,6 +297,7 @@ class ReducerEdgeSource:
                             callee_qname=method_qname,
                         )
                     )
+                payloads["class_overview"] = class_payload
                 return payloads, edges, None
 
             if entity.kind == "function":
@@ -307,6 +309,7 @@ class ReducerEdgeSource:
                 )
                 for edge in call_payload.get("edges", []) or []:
                     edges.append(edge_record_from_call(edge, entity.qualified_name))
+                payloads["callsite_index"] = call_payload
                 return payloads, edges, None
 
             if entity.kind == "method":
@@ -318,6 +321,7 @@ class ReducerEdgeSource:
                 )
                 for edge in call_payload.get("edges", []) or []:
                     edges.append(edge_record_from_call(edge, entity.qualified_name))
+                payloads["callsite_index"] = call_payload
                 return payloads, edges, None
         except Exception as exc:
             return {}, [], str(exc)
@@ -508,7 +512,7 @@ def evaluate_entities(
             local_packages,
         )
         out_of_contract_meta.extend(out_meta)
-        _, reducer_edges, reducer_error = reducer_source.get_edges(entity)
+        reducer_payloads, reducer_edges, reducer_error = reducer_source.get_edges(entity)
         _, db_edges, db_error = db_source.get_edges(entity)
 
         metrics_reducer_vs_db = None
@@ -667,6 +671,13 @@ def evaluate_entities(
                 "normalized_import_edges_count": len(normalized_imports),
                 "reducer_error": reducer_error,
                 "db_error": db_error,
+                "core_call_resolution_diagnostics": (
+                    (reducer_payloads.get("callsite_index") or {}).get(
+                        "resolution_diagnostics"
+                    )
+                    if reducer_payloads
+                    else None
+                ),
                 "reducer_edges": [asdict(edge) for edge in reducer_edges],
                 "db_edges": [asdict(edge) for edge in db_edges],
                 # Backward-compatibility aliases (deprecated).

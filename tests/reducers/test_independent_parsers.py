@@ -15,8 +15,13 @@ from experiments.reducers.validation.call_contract import resolve_call_in_contra
 from experiments.reducers.validation.ground_truth import edge_records_from_ground_truth
 from experiments.reducers.validation.import_contract import resolve_import_contract
 from experiments.reducers.validation.independent.contract_normalization import (
+    module_name_from_file,
     normalize_scoped_calls,
 )
+from sciona.code_analysis.core.extract.languages.typescript import (
+    module_name as core_typescript_module_name,
+)
+from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
 from experiments.reducers.validation.independent.java_runner import _require_jar
 from experiments.reducers.validation.independent.normalize import normalize_file_edges
 from experiments.reducers.validation.independent.python_ast import parse_python_files
@@ -174,7 +179,15 @@ def test_fixture_matrix_quality_gates() -> None:
     assert len(ids) == len(set(ids)), "fixture ids must be unique"
     languages = {fixture.get("language") for fixture in fixtures}
     assert {"python", "typescript", "java"}.issubset(languages)
-    expected_categories = {"core_calls", "imports", "nested_classes"}
+    expected_categories = {
+        "core_calls",
+        "imports",
+        "nested_classes",
+        "alias_imports",
+        "chained_receivers",
+        "constructor_injection",
+        "namespace_aliases",
+    }
     covered_categories = set()
     for fixture in fixtures:
         fixture_id = fixture.get("id")
@@ -940,3 +953,44 @@ def test_call_contract_keeps_same_module_ambiguity_unresolved() -> None:
         contract={"call_contract": {"require_callee_in_repo": True}},
     )
     assert resolved is None
+
+
+def test_typescript_module_name_parity_for_d_ts_and_tsx(tmp_path: Path) -> None:
+    src = tmp_path / "src"
+    src.mkdir(parents=True)
+    dts_path = src / "types.d.ts"
+    dts_path.write_text("export type T = string;\n", encoding="utf-8")
+    tsx_path = src / "view.tsx"
+    tsx_path.write_text("export const V = () => null;\n", encoding="utf-8")
+
+    dts_snapshot = FileSnapshot(
+        record=FileRecord(
+            path=dts_path,
+            relative_path=Path("src/types.d.ts"),
+            language="typescript",
+        ),
+        file_id="file1",
+        blob_sha="hash1",
+        size=10,
+        line_count=1,
+        content=b"x",
+    )
+    tsx_snapshot = FileSnapshot(
+        record=FileRecord(
+            path=tsx_path,
+            relative_path=Path("src/view.tsx"),
+            language="typescript",
+        ),
+        file_id="file2",
+        blob_sha="hash2",
+        size=10,
+        line_count=1,
+        content=b"x",
+    )
+
+    assert core_typescript_module_name(tmp_path, dts_snapshot) == module_name_from_file(
+        tmp_path, "src/types.d.ts", "typescript"
+    )
+    assert core_typescript_module_name(tmp_path, tsx_snapshot) == module_name_from_file(
+        tmp_path, "src/view.tsx", "typescript"
+    )

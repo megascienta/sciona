@@ -134,12 +134,29 @@ class TypeScriptAnalyzer(ASTAnalyzer):
 
 
 def module_name(repo_root: Path, snapshot: FileSnapshot) -> str:
-    return module_name_from_path(
+    raw = module_name_from_path(
         repo_root,
         snapshot.record.relative_path,
-        strip_suffix=True,
+        strip_suffix=False,
         treat_init_as_package=False,
     )
+    return _normalize_typescript_module_name(raw)
+
+
+def _normalize_typescript_module_name(module_name: str) -> str:
+    if module_name.endswith(".d.ts"):
+        return module_name[: -len(".d.ts")]
+    if module_name.endswith(".tsx"):
+        return module_name[: -len(".tsx")]
+    if module_name.endswith(".ts"):
+        return module_name[: -len(".ts")]
+    if module_name.endswith(".mjs"):
+        return module_name[: -len(".mjs")]
+    if module_name.endswith(".cjs"):
+        return module_name[: -len(".cjs")]
+    if module_name.endswith(".js"):
+        return module_name[: -len(".js")]
+    return module_name
 
 
 __all__ = [

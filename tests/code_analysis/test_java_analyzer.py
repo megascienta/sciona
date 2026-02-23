@@ -74,10 +74,11 @@ def test_java_analyzer_extracts_structure_and_calls(tmp_path):
     class_name = f"{module_name}.Foo"
     helper_key = f"{class_name}.helper"
     assert helper_key in call_records
+    module_package = module_name.rsplit(".", 1)[0]
     assert {
-        "baz",
         f"{module_name}.Baz.Baz",
         f"{class_name}.qux",
+        f"{module_package}.Runnable.run",
     }.issubset(call_records[helper_key])
     method_nodes = {
         node.qualified_name for node in result.nodes if node.node_type == "method"
