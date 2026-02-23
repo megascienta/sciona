@@ -26,6 +26,7 @@ from .independent.java_runner import parse_java_files
 from .independent.normalize import normalize_file_edges
 from .independent.python_ast import parse_python_files
 from .independent.shared import EdgeRecord, FileParseResult
+from .independent.shared import dedupe_edge_records
 from .independent.ts_node import parse_typescript_files
 from .metrics import compare_edge_sets, compute_metrics
 from .sampling import build_entities_from_db, sample_entities
@@ -698,6 +699,20 @@ def evaluate_entities(
         metrics_reducer_vs_db = None
         metrics_reducer_vs_contract = None
         metrics_db_vs_contract = None
+        metrics_reducer_vs_enriched = None
+        metrics_db_vs_enriched = None
+        limitation_high = dedupe_edge_records(
+            gt_diagnostics.get("limitation_edges_high_conf") or []
+        )
+        limitation_full = dedupe_edge_records(
+            gt_diagnostics.get("limitation_edges_full") or []
+        )
+        expanded_high_truth = dedupe_edge_records(expected_filtered + limitation_high)
+        expanded_full_truth = dedupe_edge_records(expected_filtered + limitation_full)
+        metrics_reducer_vs_expanded_high = None
+        metrics_reducer_vs_expanded_full = None
+        metrics_db_vs_expanded_high = None
+        metrics_db_vs_expanded_full = None
         reducer_db_empty_set_mismatch = False
         class_truth_unreliable = bool(gt_diagnostics.get("class_truth_unreliable"))
         if not reducer_error and not db_error:
@@ -716,6 +731,28 @@ def evaluate_entities(
         ):
             metrics_reducer_vs_contract = compute_metrics(
                 expected_filtered, out_of_contract, reducer_edges
+            )
+        if (
+            file_result.parse_ok
+            and not db_error
+            and not (entity.kind == "class" and class_truth_unreliable)
+        ):
+            metrics_db_vs_enriched = compute_metrics(expanded_full_truth, [], db_edges)
+            metrics_db_vs_expanded_high = compute_metrics(expanded_high_truth, [], db_edges)
+            metrics_db_vs_expanded_full = compute_metrics(expanded_full_truth, [], db_edges)
+        if (
+            file_result.parse_ok
+            and not reducer_error
+            and not (entity.kind == "class" and class_truth_unreliable)
+        ):
+            metrics_reducer_vs_enriched = compute_metrics(
+                expanded_full_truth, [], reducer_edges
+            )
+            metrics_reducer_vs_expanded_high = compute_metrics(
+                expanded_high_truth, [], reducer_edges
+            )
+            metrics_reducer_vs_expanded_full = compute_metrics(
+                expanded_full_truth, [], reducer_edges
             )
         expected_form_map = _expected_call_form_map(
             entity.qualified_name, normalized_calls, expected_filtered
@@ -744,11 +781,44 @@ def evaluate_entities(
                 "metrics_db_vs_contract": asdict(metrics_db_vs_contract)
                 if metrics_db_vs_contract
                 else None,
+                "metrics_reducer_vs_enriched_truth": asdict(metrics_reducer_vs_enriched)
+                if metrics_reducer_vs_enriched
+                else None,
+                "metrics_db_vs_enriched_truth": asdict(metrics_db_vs_enriched)
+                if metrics_db_vs_enriched
+                else None,
+                "metrics_reducer_vs_expanded_high_conf": asdict(
+                    metrics_reducer_vs_expanded_high
+                )
+                if metrics_reducer_vs_expanded_high
+                else None,
+                "metrics_reducer_vs_expanded_full": asdict(
+                    metrics_reducer_vs_expanded_full
+                )
+                if metrics_reducer_vs_expanded_full
+                else None,
+                "metrics_db_vs_expanded_high_conf": asdict(metrics_db_vs_expanded_high)
+                if metrics_db_vs_expanded_high
+                else None,
+                "metrics_db_vs_expanded_full": asdict(metrics_db_vs_expanded_full)
+                if metrics_db_vs_expanded_full
+                else None,
                 "metrics_reducer_vs_contract_by_call_form": reducer_form_metrics,
                 "metrics_db_vs_contract_by_call_form": db_form_metrics,
                 "reducer_db_empty_set_mismatch": reducer_db_empty_set_mismatch,
                 "contract_truth_edges": [asdict(edge) for edge in expected_filtered],
                 "enrichment_edges": [asdict(edge) for edge in out_of_contract],
+                "enriched_truth_edges": [asdict(edge) for edge in expanded_full_truth],
+                "expanded_truth_edges_high_conf": [asdict(edge) for edge in expanded_high_truth],
+                "expanded_truth_edges_full": [asdict(edge) for edge in expanded_full_truth],
+                "excluded_out_of_scope_count": gt_diagnostics.get("excluded_out_of_scope_count", 0),
+                "included_limitation_count": gt_diagnostics.get("included_limitation_count", 0),
+                "excluded_out_of_scope_by_reason": gt_diagnostics.get(
+                    "excluded_out_of_scope_by_reason", {}
+                ),
+                "included_limitation_by_reason": gt_diagnostics.get(
+                    "included_limitation_by_reason", {}
+                ),
                 "ground_truth_parse_ok": file_result.parse_ok,
                 "ground_truth_error": file_result.error,
                 "class_truth_empty_while_parse_ok": (
@@ -782,11 +852,11 @@ def evaluate_entities(
                 "metrics_reducer_vs_independent_filtered": asdict(metrics_reducer_vs_contract)
                 if metrics_reducer_vs_contract
                 else None,
-                "metrics_reducer_vs_independent_full": asdict(metrics_reducer_vs_contract)
-                if metrics_reducer_vs_contract
+                "metrics_reducer_vs_independent_full": asdict(metrics_reducer_vs_enriched)
+                if metrics_reducer_vs_enriched
                 else None,
-                "metrics_db_vs_independent_full": asdict(metrics_db_vs_contract)
-                if metrics_db_vs_contract
+                "metrics_db_vs_independent_full": asdict(metrics_db_vs_enriched)
+                if metrics_db_vs_enriched
                 else None,
             }
         )

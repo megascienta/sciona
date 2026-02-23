@@ -49,12 +49,7 @@ def render_summary(payload: dict) -> List[str]:
         lines.append(f"- {item}")
     lines.append("")
 
-    lines.append("## Schema")
-    lines.append("")
-    lines.append(f"- report_schema_version: `{payload.get('report_schema_version')}`")
-    lines.append("")
-
-    lines.append("## Hard Invariants")
+    lines.append("## Run Verdict")
     lines.append("")
     invariants = payload.get("invariants", {})
     if invariants:
@@ -110,7 +105,7 @@ def render_summary(payload: dict) -> List[str]:
         )
     lines.append("")
 
-    lines.append("## Static Contract Alignment")
+    lines.append("## Contract Alignment (Strict)")
     lines.append("")
     static_alignment = payload.get("static_contract_alignment") or {}
     if not static_alignment:
@@ -125,7 +120,39 @@ def render_summary(payload: dict) -> List[str]:
             lines.append(f"- {key}: `{_format_value(static_alignment.get(key))}`")
     lines.append("")
 
-    lines.append("## Enrichment Practical (Diagnostics)")
+    lines.append("## Expanded Truth Alignment (Diagnostic)")
+    lines.append("")
+    expanded = payload.get("enriched_truth_alignment") or {}
+    if not expanded:
+        lines.append("- none")
+    else:
+        for key in (
+            "reducer_vs_enriched_truth_precision",
+            "reducer_vs_enriched_truth_recall",
+            "db_vs_enriched_truth_precision",
+            "db_vs_enriched_truth_recall",
+            "reducer_vs_enriched_truth_divergence_index",
+        ):
+            lines.append(f"- {key}: `{_format_value(expanded.get(key))}`")
+        policy = expanded.get("inclusion_policy") or {}
+        if policy:
+            lines.append(f"- inclusion_policy: `{policy}`")
+        tiers = expanded.get("tiers") or {}
+        if tiers:
+            for tier_name in ("high_conf", "full"):
+                tier = tiers.get(tier_name) or {}
+                lines.append(
+                    f"- tier.{tier_name}: reducer_p/r=`{_format_value(tier.get('reducer_precision'))}`/`{_format_value(tier.get('reducer_recall'))}`, db_p/r=`{_format_value(tier.get('db_precision'))}`/`{_format_value(tier.get('db_recall'))}`, divergence=`{_format_value(tier.get('divergence_index'))}`"
+                )
+        tier_counts = expanded.get("tier_edge_counts") or {}
+        if tier_counts:
+            lines.append(f"- tier_edge_counts: `{tier_counts}`")
+        scope_split = expanded.get("scope_split_counts") or {}
+        if scope_split:
+            lines.append(f"- scope_split_counts: `{scope_split}`")
+    lines.append("")
+
+    lines.append("## Prompt Reliability (Heuristic Diagnostics)")
     lines.append("")
     practical = payload.get("enrichment_practical") or {}
     if not practical:
@@ -137,58 +164,19 @@ def render_summary(payload: dict) -> List[str]:
             "coupling_stability_index",
         ):
             lines.append(f"- {key}: `{_format_value(practical.get(key))}`")
+        version = practical.get("prompt_reliability_version")
+        if version:
+            lines.append(f"- prompt_reliability_version: `{version}`")
         weights = practical.get("weights") or {}
         if weights:
             lines.append(f"- weights: `{weights}`")
+        components = practical.get("component_contributions") or {}
+        if components:
+            lines.append(f"- component_contributions: `{components}`")
         noise = practical.get("noise_signal") or {}
         if noise:
             lines.append(
                 f"- enrichment_noise_ratio: `{_format_value(noise.get('enrichment_noise_ratio'))}`"
-            )
-    lines.append("")
-
-    lines.append("## Core Metrics")
-    lines.append("")
-    if not core:
-        lines.append("- none")
-    else:
-        for key, value in core.items():
-            lines.append(f"- {key}: `{_format_value(value)}`")
-    lines.append("")
-
-    lines.append("## Metric Definitions")
-    lines.append("")
-    metric_defs = payload.get("metric_definitions") or {}
-    if not metric_defs:
-        lines.append("- none")
-    else:
-        for name in sorted(metric_defs.keys()):
-            meta = metric_defs.get(name) or {}
-            lines.append(
-                f"- {name}: layer=`{meta.get('layer')}`, source=`{meta.get('source')}`, formula=`{meta.get('formula')}`"
-            )
-    lines.append("")
-
-    lines.append("## Determinism")
-    lines.append("")
-    lines.append(f"- stability_score: `{_format_value(payload.get('stability_score'))}`")
-    hashes = payload.get("stability_hashes") or []
-    if hashes:
-        lines.append(f"- stability_hashes: `{hashes}`")
-    if payload.get("stability_error"):
-        lines.append(f"- stability_error: `{payload.get('stability_error')}`")
-    lines.append("")
-
-    lines.append("## Call Form Recall")
-    lines.append("")
-    call_form = (payload.get("call_form_recall") or {}).get("reducer_vs_contract_truth") or {}
-    if not call_form:
-        lines.append("- none")
-    else:
-        for form in ("direct", "member"):
-            bucket = call_form.get(form) or {}
-            lines.append(
-                f"- {form}: tp=`{bucket.get('tp')}`, fn=`{bucket.get('fn')}`, recall=`{_format_value(bucket.get('recall'))}`"
             )
     lines.append("")
 
@@ -203,12 +191,19 @@ def render_summary(payload: dict) -> List[str]:
     all_by_language_kind = payload.get("micro_metrics_by_language_and_kind") or {}
     by_language_projection = all_by_language.get("reducer_vs_db") or {}
     by_language_contract = all_by_language.get("reducer_vs_contract_truth") or {}
+    by_language_enriched = all_by_language.get("reducer_vs_expanded_full") or (
+        all_by_language.get("reducer_vs_enriched_truth") or {}
+    )
     by_language_kind = all_by_language_kind.get("reducer_vs_contract_truth") or {}
+    by_language_kind_enriched = all_by_language_kind.get("reducer_vs_expanded_full") or (
+        all_by_language_kind.get("reducer_vs_enriched_truth") or {}
+    )
     languages = sorted(
         set(pop_by_language.keys())
         | set(sampled_by_language.keys())
         | set(by_language_projection.keys())
         | set(by_language_contract.keys())
+        | set(by_language_enriched.keys())
     )
     if not languages:
         lines.append("- none")
@@ -223,8 +218,9 @@ def render_summary(payload: dict) -> List[str]:
             c_fp = contract.get("fp", 0) or 0
             c_fn = contract.get("fn", 0) or 0
             c_overreach = (c_fp / (c_tp + c_fp)) if (c_tp + c_fp) else None
+            enriched = by_language_enriched.get(language) or {}
             lines.append(
-                f"- {language}: sampled_nodes=`{sampled_by_language.get(language, 0)}`, population_nodes=`{pop_by_language.get(language, 0)}`, projection_p/r=`{_format_value(projection.get('precision'))}`/`{_format_value(projection.get('recall'))}`, contract_p/r=`{_format_value(contract.get('precision'))}`/`{_format_value(contract.get('recall'))}`, contract_overreach=`{_format_value(c_overreach)}`, projection_tp/fp/fn=`{p_tp}/{p_fp}/{p_fn}`, contract_tp/fp/fn=`{c_tp}/{c_fp}/{c_fn}`"
+                f"- {language}: sampled_nodes=`{sampled_by_language.get(language, 0)}`, population_nodes=`{pop_by_language.get(language, 0)}`, projection_p/r=`{_format_value(projection.get('precision'))}`/`{_format_value(projection.get('recall'))}`, contract_p/r=`{_format_value(contract.get('precision'))}`/`{_format_value(contract.get('recall'))}`, expanded_p/r=`{_format_value(enriched.get('precision'))}`/`{_format_value(enriched.get('recall'))}`, contract_overreach=`{_format_value(c_overreach)}`, projection_tp/fp/fn=`{p_tp}/{p_fp}/{p_fn}`, contract_tp/fp/fn=`{c_tp}/{c_fp}/{c_fn}`"
             )
             for kind in ("module", "class", "function", "method"):
                 k = ((by_language_kind.get(language) or {}).get(kind) or {})
@@ -234,9 +230,100 @@ def render_summary(payload: dict) -> List[str]:
                     f"- {language}:{kind}: recall=`{_format_value(k.get('recall'))}`, precision=`{_format_value(k.get('precision'))}`, tp/fp/fn=`{k.get('tp', 0)}/{k.get('fp', 0)}/{k.get('fn', 0)}`"
                 )
     lines.append("")
-
-    lines.append("## Independent Parser Totals")
+    lines.append("Expanded Alignment by language:kind")
+    if not languages:
+        lines.append("- none")
+    else:
+        for language in languages:
+            for kind in ("module", "class", "function", "method"):
+                strict_kind = ((by_language_kind.get(language) or {}).get(kind) or {})
+                expanded_kind = ((by_language_kind_enriched.get(language) or {}).get(kind) or {})
+                if not strict_kind and not expanded_kind:
+                    continue
+                lines.append(
+                    f"- {language}:{kind}: strict_p/r=`{_format_value(strict_kind.get('precision'))}`/`{_format_value(strict_kind.get('recall'))}`, expanded_p/r=`{_format_value(expanded_kind.get('precision'))}`/`{_format_value(expanded_kind.get('recall'))}`"
+                )
     lines.append("")
+    lines.append("Strict vs Expanded delta by kind (top-5 worst recall delta)")
+    delta_rows: list[tuple[float, str, str, float | None, float | None]] = []
+    for language in languages:
+        for kind in ("module", "class", "function", "method"):
+            strict_kind = ((by_language_kind.get(language) or {}).get(kind) or {})
+            expanded_kind = ((by_language_kind_enriched.get(language) or {}).get(kind) or {})
+            strict_r = strict_kind.get("recall")
+            expanded_r = expanded_kind.get("recall")
+            strict_p = strict_kind.get("precision")
+            expanded_p = expanded_kind.get("precision")
+            if strict_r is None or expanded_r is None:
+                continue
+            delta = float(strict_r) - float(expanded_r)
+            delta_rows.append((delta, language, kind, strict_p, expanded_p))
+    if not delta_rows:
+        lines.append("- none")
+    else:
+        for delta, language, kind, strict_p, expanded_p in sorted(delta_rows, reverse=True)[:5]:
+            lines.append(
+                f"- {language}:{kind}: delta_recall=`{_format_value(delta)}`, delta_precision=`{_format_value((strict_p - expanded_p) if (strict_p is not None and expanded_p is not None) else None)}`"
+            )
+    lines.append("")
+
+    lines.append("## Call Resolution Diagnostics")
+    lines.append("")
+    call_form = (payload.get("call_form_recall") or {}).get("reducer_vs_contract_truth") or {}
+    attribution = payload.get("mismatch_attribution_breakdown") or {}
+    if not call_form and not attribution:
+        lines.append("- none")
+    else:
+        if call_form:
+            for form in ("direct", "member"):
+                bucket = call_form.get(form) or {}
+                lines.append(
+                    f"- call_form.{form}: tp=`{bucket.get('tp')}`, fn=`{bucket.get('fn')}`, recall=`{_format_value(bucket.get('recall'))}`"
+                )
+        if attribution:
+            for key in (
+                "core_missed_resolution",
+                "core_overresolution",
+                "normalization_contract_mismatch",
+                "independent_overprojection",
+            ):
+                lines.append(f"- mismatch_attribution.{key}: `{attribution.get(key, 0)}`")
+    lines.append("")
+
+    lines.append("## Out-of-Contract Distribution")
+    lines.append("")
+    breakdown = payload.get("out_of_contract_breakdown", {}) or {}
+    if not breakdown:
+        lines.append("- none")
+    else:
+        by_edge_type: dict[str, int] = {}
+        for key, count in breakdown.items():
+            edge_type = key.split("::", 1)[0] if "::" in key else "unknown"
+            by_edge_type[edge_type] = by_edge_type.get(edge_type, 0) + int(count)
+        for edge_type in sorted(by_edge_type.keys()):
+            lines.append(f"- {edge_type}: `{by_edge_type[edge_type]}`")
+        lines.append("")
+        lines.append("Breakdown by `edge_type::language::reason`:")
+        for key in sorted(breakdown.keys()):
+            lines.append(f"- {key}: `{breakdown[key]}`")
+        lines.append("")
+        lines.append(
+            "Note: `enrichment_edges` includes only in-repo out-of-contract edges (unresolved, dynamic, standard-call filtered); external edges are excluded."
+        )
+    lines.append("")
+
+    lines.append("## Independent Parser Coverage & Totals")
+    lines.append("")
+    coverage = payload.get("independent_coverage_by_language") or {}
+    if coverage:
+        for language in sorted(coverage.keys()):
+            info = coverage.get(language) or {}
+            total = int(info.get("files_total") or 0)
+            parsed = int(info.get("files_parsed") or 0)
+            ratio = (parsed / total) if total else None
+            lines.append(
+                f"- coverage.{language}: files_parsed/files_total=`{parsed}/{total}` ({_format_value(ratio)})"
+            )
     independent_totals = payload.get("independent_totals", {})
     for key in [
         "raw_call_edges",
@@ -245,47 +332,33 @@ def render_summary(payload: dict) -> List[str]:
         "normalized_import_edges",
         "contract_truth_edges",
         "enrichment_edges",
+        "enriched_truth_edges",
     ]:
         if key in independent_totals:
             lines.append(f"- {key}: `{independent_totals[key]}`")
     lines.append("")
 
-    lines.append("## Mismatch Attribution")
+    lines.append("## Core Metrics")
     lines.append("")
-    attribution = payload.get("mismatch_attribution_breakdown") or {}
-    if not attribution:
+    if not core:
         lines.append("- none")
     else:
-        for key in (
-            "core_missed_resolution",
-            "core_overresolution",
-            "normalization_contract_mismatch",
-            "independent_overprojection",
-        ):
-            lines.append(f"- {key}: `{attribution.get(key, 0)}`")
+        for key, value in core.items():
+            lines.append(f"- {key}: `{_format_value(value)}`")
     lines.append("")
 
-    lines.append("## Out-of-Contract Distribution")
+    lines.append("## Metric Definitions & Schema")
     lines.append("")
-    breakdown = payload.get("out_of_contract_breakdown", {}) or {}
-    if not breakdown:
+    lines.append(f"- report_schema_version: `{payload.get('report_schema_version')}`")
+    metric_defs = payload.get("metric_definitions") or {}
+    if not metric_defs:
         lines.append("- none")
-        return lines
-
-    by_edge_type: dict[str, int] = {}
-    for key, count in breakdown.items():
-        edge_type = key.split("::", 1)[0] if "::" in key else "unknown"
-        by_edge_type[edge_type] = by_edge_type.get(edge_type, 0) + int(count)
-
-    for edge_type in sorted(by_edge_type.keys()):
-        lines.append(f"- {edge_type}: `{by_edge_type[edge_type]}`")
+    else:
+        for name in sorted(metric_defs.keys()):
+            meta = metric_defs.get(name) or {}
+            lines.append(
+                f"- {name}: layer=`{meta.get('layer')}`, source=`{meta.get('source')}`, formula=`{meta.get('formula')}`"
+            )
     lines.append("")
-    lines.append("Breakdown by `edge_type::language::reason`:")
-    for key in sorted(breakdown.keys()):
-        lines.append(f"- {key}: `{breakdown[key]}`")
-    lines.append("")
-    lines.append(
-        "Note: `enrichment_edges` includes only in-repo out-of-contract edges (unresolved, dynamic, standard-call filtered); external edges are excluded."
-    )
 
     return lines

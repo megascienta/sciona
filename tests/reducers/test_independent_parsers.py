@@ -402,6 +402,113 @@ def test_ground_truth_excludes_external_imports_from_enrichment() -> None:
     assert out_of_contract == []
 
 
+def test_ground_truth_excludes_standard_calls_from_enrichment() -> None:
+    file_result = FileParseResult(
+        language="python",
+        file_path="pkg/mod.py",
+        module_qualified_name="fixture.pkg.mod",
+        defs=[],
+        call_edges=[],
+        import_edges=[],
+        assignment_hints=[],
+        parse_ok=True,
+    )
+    normalized_calls = [
+        NormalizedCallEdge(
+            caller="fixture.pkg.mod.fn",
+            callee="print",
+            callee_qname=None,
+            dynamic=False,
+            callee_text="print(x)",
+        )
+    ]
+    entity = SimpleNamespace(
+        kind="function",
+        qualified_name="fixture.pkg.mod.fn",
+        module_qualified_name="fixture.pkg.mod",
+    )
+    expected, _, out_of_contract, out_meta, diagnostics = edge_records_from_ground_truth(
+        file_result=file_result,
+        normalized_calls=normalized_calls,
+        normalized_imports=[],
+        module_imports_by_prefix={},
+        entity=entity,
+        module_names={"fixture.pkg.mod"},
+        call_resolution={"symbol_index": {}},
+        contract={"out_of_contract": {"standard_calls": ["print"]}},
+        repo_root=FIXTURE_ROOT / "python",
+        repo_prefix="fixture",
+        local_packages={"fixture"},
+    )
+    assert expected == []
+    assert out_of_contract == []
+    assert out_meta == []
+    assert diagnostics["excluded_out_of_scope_by_reason"].get("standard_call") == 1
+
+
+def test_ground_truth_includes_dynamic_and_unresolved_in_expanded_tiers() -> None:
+    file_result = FileParseResult(
+        language="python",
+        file_path="pkg/mod.py",
+        module_qualified_name="fixture.pkg.mod",
+        defs=[],
+        call_edges=[],
+        import_edges=[],
+        assignment_hints=[],
+        parse_ok=True,
+    )
+    normalized_calls = [
+        NormalizedCallEdge(
+            caller="fixture.pkg.mod.fn",
+            callee="local_call",
+            callee_qname=None,
+            dynamic=False,
+            callee_text="local_call()",
+        ),
+        NormalizedCallEdge(
+            caller="fixture.pkg.mod.fn",
+            callee="dyn_call",
+            callee_qname=None,
+            dynamic=True,
+            callee_text="obj.dyn_call()",
+        ),
+    ]
+    entity = SimpleNamespace(
+        kind="function",
+        qualified_name="fixture.pkg.mod.fn",
+        module_qualified_name="fixture.pkg.mod",
+    )
+    expected, _, out_of_contract, out_meta, diagnostics = edge_records_from_ground_truth(
+        file_result=file_result,
+        normalized_calls=normalized_calls,
+        normalized_imports=[],
+        module_imports_by_prefix={},
+        entity=entity,
+        module_names={"fixture.pkg.mod"},
+        call_resolution={
+            "symbol_index": {
+                "local_call": [
+                    "fixture.pkg.mod.a.local_call",
+                    "fixture.pkg.mod.b.local_call",
+                ]
+            }
+        },
+        contract={"out_of_contract": {"standard_calls": []}},
+        repo_root=FIXTURE_ROOT / "python",
+        repo_prefix="fixture",
+        local_packages={"fixture"},
+    )
+    assert expected == []
+    assert len(out_of_contract) == 2
+    assert {m["reason"] for m in out_meta} == {"in_repo_unresolved", "dynamic"}
+    high = diagnostics["limitation_edges_high_conf"]
+    full = diagnostics["limitation_edges_full"]
+    assert len(high) == 1
+    assert len(full) == 2
+    assert diagnostics["included_limitation_by_reason"]["in_repo_unresolved"] == 1
+    assert diagnostics["included_limitation_by_reason"]["dynamic"] == 1
+
+
 def test_ground_truth_class_diagnostic_marks_no_method_class() -> None:
     file_result = FileParseResult(
         language="python",

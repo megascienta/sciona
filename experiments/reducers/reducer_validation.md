@@ -1,93 +1,108 @@
-# Reducer Validation Contract (Current)
+# Reducer Validation Workflow (Current)
 
 ## 1. Purpose
-Repository-independent validation of SCIONA reducer outputs against:
-- SCIONA DB projection (internal integrity), and
-- independent strict-contract truth (external static alignment oracle).
+Validation has two primary goals:
+- prove reducer-to-DB internal integrity,
+- measure reducer alignment against independent parser truth.
 
-Scope:
+Evaluated relation scope:
 - module imports,
 - class-defined methods,
 - callable neighbors.
 
 ## 2. Independence Boundary
-Validation truth must remain independent from SCIONA core analyzers.
-
 Required:
-- independent parsers and normalization in `experiments/reducers/validation/independent/*`.
-- no semantic import from `src/sciona/code_analysis/core/extract/languages/*`.
+- parser/normalization/call-resolution truth logic lives in `experiments/reducers/validation/independent/*` and validation modules,
+- no semantic reuse from SCIONA core language analyzers.
 
 Allowed shared utilities:
 - runtime/config/path helpers,
 - reducer/DB adapters,
 - generic dataclasses.
 
-## 3. Canonical Contract
-Authoritative machine-readable contract:
-- `experiments/reducers/validation/structural_contract.yaml`
+## 3. Truth Channels
 
-Contract truth rules:
-- calls: in-repo callable targets only,
-- imports: in-repo modules only,
-- excludes dynamic/unresolved/external and configured standard-call exclusions.
+### 3.1 Strict Contract Truth
+- in-repo resolvable edges only,
+- used for primary static contract alignment scoring.
+
+### 3.2 Limitation-Focused Expanded Truth
+Built from strict truth plus selected in-repo limitation edges.
+
+Policy (authoritative via config):
+- `scope_exclusions`: `standard_call`, `external`
+- `limitation_focus`: `dynamic`, `in_repo_unresolved`, `relative_unresolved`
+
+Confidence tiers:
+- high: `in_repo_unresolved`
+- low: `dynamic`, `relative_unresolved`
+- full expanded: high + low
+
+Rationale:
+- keep applicability-domain mismatch out,
+- isolate static-analysis limitation gap.
 
 ## 4. Pipeline
-1. Load modules/classes/functions/methods from artifacts DB.
+1. Load DB population (`module/class/function/method`).
 2. Stratified sample by language/kind/size buckets.
 3. Parse sampled files with independent parsers (PY/TS/Java).
-4. Canonicalize module names and normalize independent outputs.
-5. Apply scoped call normalization (language + module local).
-6. Build independent call-resolution context.
-7. Build two channels:
-- `contract_truth`: strict in-repo contract edges.
-- `enrichment`: out-of-contract diagnostics.
-8. Score per node:
+4. Normalize parser outputs and build independent call-resolution context.
+5. Build per-node edge channels:
+- `contract_truth_edges`
+- `enrichment_edges` (only limitation-focus reasons)
+- `expanded_truth_edges_high_conf`
+- `expanded_truth_edges_full`
+6. Score per node:
 - `reducer_vs_db`
 - `reducer_vs_contract_truth`
 - `db_vs_contract_truth`
-9. Evaluate invariants (hard vs diagnostic).
-10. Emit JSON + Markdown report.
+- `reducer_vs_expanded_high_conf`
+- `reducer_vs_expanded_full`
+- `db_vs_expanded_high_conf`
+- `db_vs_expanded_full`
+7. Evaluate invariants (hard + diagnostic).
+8. Emit JSON and markdown reports.
 
-## 5. Metric Layers
-Report schema version is emitted as `report_schema_version`.
+## 5. Report Order (Human-Readable)
+1. Run Verdict
+2. Internal Integrity (Hard Gates)
+3. Contract Alignment (Strict)
+4. Expanded Truth Alignment (Diagnostic)
+5. Prompt Reliability (Heuristic Diagnostics)
+6. Language Breakdown
+7. Expanded Alignment by language:kind
+8. Strict vs Expanded delta by kind (top-5 worst)
+9. Call Resolution Diagnostics
+10. Out-of-Contract Distribution
+11. Independent Parser Coverage & Totals
+12. Core Metrics
+13. Metric Definitions & Schema
 
-### 5.1 `internal_integrity` (hard-gated)
-Question: Is SCIONA internally exact and deterministic?
+## 6. Metric Layers
 
-Contains:
-- `projection.static_projection_precision` (reducer vs DB)
-- `projection.static_projection_recall` (reducer vs DB)
-- determinism fields (`parser_stability_score`, gate)
-- hard-gate statuses
+### 6.1 Internal Integrity (hard-gated)
+- reducer↔DB projection precision/recall,
+- parser determinism.
 
-Run validity (`internal_integrity.valid`) is based on hard gates only.
+### 6.2 Contract Alignment (strict)
+- strict precision/recall/overreach/divergence,
+- per-kind/edge/call-form diagnostics.
 
-### 5.2 `static_contract_alignment` (external static quality)
-Question: How well does reducer output match independent strict-contract truth?
+### 6.3 Expanded Truth Alignment (diagnostic)
+- reducer/db alignment vs expanded truth,
+- high/full tier precision/recall/divergence,
+- explicit scope policy and counts:
+- `excluded_out_of_scope_edges`
+- `included_limitation_edges`
 
-Contains:
-- `static_contract_precision`
-- `static_contract_recall`
-- `static_overreach_rate`
-- `static_divergence_index`
-- per-kind, per-edge-type, call-form breakdown
+### 6.4 Prompt Reliability (heuristic diagnostics)
+- navigation/reasoning/coupling signals,
+- explicit weights and `prompt_reliability_version`,
+- component contributions (tp/fp/fn penalties).
 
-This is primary external quality, but diagnostic (non-blocking by default).
+## 7. Gates
 
-### 5.3 `enrichment_practical` (LLM-usefulness diagnostics)
-Question: How stable is downstream prompt utility?
-
-Contains:
-- navigation/reasoning reliability
-- coupling stability
-- enrichment noise stats
-- edge mix
-- explicit reliability weights from config
-
-Purely diagnostic; never hard-gates run validity.
-
-## 6. Gates
-### 6.1 Hard gates (blocking)
+Hard gates (run validity):
 - `gate_reducer_db_exact`
 - `gate_aligned_scoring`
 - `gate_parse_coverage`
@@ -98,7 +113,7 @@ Purely diagnostic; never hard-gates run validity.
 - `gate_scoped_call_normalization`
 - `gate_equal_contract_metrics_when_exact`
 
-### 6.2 Diagnostic gates (non-blocking by default)
+Diagnostic gates (non-blocking by default):
 - `gate_typescript_relative_index_contract`
 - `gate_class_truth_nonempty_rate`
 - `gate_class_truth_match_rate`
@@ -106,19 +121,18 @@ Purely diagnostic; never hard-gates run validity.
 - `gate_overreach_rate_max`
 - `gate_member_call_recall_min`
 
-`invariants.passed` / `invariants.hard_passed` reflect hard gates.
-Diagnostic failures are reported separately.
+`invariants.passed` / `invariants.hard_passed` reflect hard gates only.
 
-## 7. Formulas
+## 8. Formulas
 - precision: `tp / (tp + fp)`
 - recall: `tp / (tp + fn)`
-- static overreach: `fp / (tp + fp)` from `reducer_vs_contract_truth`
+- strict overreach: `fp / (tp + fp)` on strict contract comparison
 - divergence: `(fp + fn) / (tp + fp + fn)`
-- weighted reliability: `tp / (tp + fp_w*fp + fn_w*fn)`
+- weighted heuristic reliability: `tp / (tp + fp_w*fp + fn_w*fn)`
 
-The emitted `metric_definitions` map is canonical for name -> source -> formula.
+Canonical metric source/formula mapping is emitted in `metric_definitions`.
 
-## 8. Output Keys (Top Level)
+## 9. Top-Level JSON Keys
 - `report_schema_version`
 - `summary`
 - `invariants`
@@ -126,12 +140,16 @@ The emitted `metric_definitions` map is canonical for name -> source -> formula.
 - `core_metrics`
 - `internal_integrity`
 - `static_contract_alignment`
+- `enriched_truth_alignment`
 - `enrichment_practical`
-- micro metrics (`micro_metrics`, `micro_metrics_by_kind`, `micro_metrics_by_language`, `micro_metrics_by_language_and_kind`)
-- diagnostics (`call_form_recall`, `edge_type_breakdown_reducer_vs_contract_truth`, `failure_examples_reducer_vs_contract_truth`, `out_of_contract_breakdown`, `mismatch_attribution_breakdown`)
-- parser/stability/population/per-node payload blocks
+- `micro_metrics`
+- `micro_metrics_by_kind`
+- `micro_metrics_by_language`
+- `micro_metrics_by_language_and_kind`
+- diagnostics blocks (`call_form_recall`, edge breakdowns, mismatch attribution, out-of-contract)
+- parser/stability/population/per-node blocks
 
-## 9. Run
+## 10. Run
 ```bash
 python experiments/reducers/reducer_validation.py \
   --repo-root /path/to/repo \
@@ -140,17 +158,23 @@ python experiments/reducers/reducer_validation.py \
   --stability-runs 2
 ```
 
-## 10. Interpretation Rules
-1. Validate `internal_integrity.valid` first.
-2. If valid and `gate_reducer_db_exact=True`, reducer and DB are equivalent projection for evaluated nodes.
-3. Use `static_contract_alignment` as external static quality verdict.
-4. Use `enrichment_practical` only for prompt/use-case suitability decisions.
-5. Use per-language and per-kind breakdowns before cross-repo conclusions.
-
-## 11. Rollup Policy
-Rollups are full rebuilt each run (correctness-first). Incremental rollup recompute is disabled by default.
+## 11. Interpretation
+1. Run Verdict first.
+2. If internal integrity is valid, reducer is faithful DB projection for evaluated nodes.
+3. Use strict contract alignment as primary external quality signal.
+4. Use expanded alignment to quantify static limitation gap only (without standard/external contamination).
+5. Use prompt reliability only as heuristic downstream risk.
 
 ## 12. Known Limits
-- Independent parsers are static; no runtime dispatch modeling.
-- Enrichment is best-effort diagnostics, outside strict contract scoring.
+- Independent parsing remains static and cannot model runtime behavior perfectly.
+- Expanded truth remains diagnostic; not a correctness gate.
 - Java fixture tests require `SCIONA_JAVAPARSER_JAR` + `java/javac`.
+
+## 13. Prompt Heuristic Calibration (Offline)
+Use:
+```bash
+python experiments/reducers/validation/calibrate_prompt_weights.py \
+  --labels-jsonl /path/to/labeled_prompt_tasks.jsonl \
+  --target-key task_success
+```
+This is offline-only; runtime validation never auto-updates weights.

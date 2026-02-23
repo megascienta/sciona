@@ -28,6 +28,17 @@ PROMPT_FITNESS_WEIGHTS = {
     "reasoning": {"fp_weight": 1.0, "fn_weight": 1.2},
 }
 
+PROMPT_RELIABILITY_VERSION = "v1"
+
+EXPANDED_TRUTH_POLICY = {
+    "scope_exclusions": ["standard_call", "external"],
+    "limitation_focus": ["dynamic", "in_repo_unresolved", "relative_unresolved"],
+    "confidence_tiers": {
+        "high": ["in_repo_unresolved"],
+        "low": ["dynamic", "relative_unresolved"],
+    },
+}
+
 LOC_BUCKETS = (
     (200, "small"),
     (800, "medium"),

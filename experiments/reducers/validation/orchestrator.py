@@ -204,6 +204,24 @@ def run_validation(
     scored_rows_db_vs_contract = [
         row for row in rows if row.get("metrics_db_vs_contract") is not None
     ]
+    scored_rows_reducer_vs_enriched = [
+        row for row in rows if row.get("metrics_reducer_vs_enriched_truth") is not None
+    ]
+    scored_rows_db_vs_enriched = [
+        row for row in rows if row.get("metrics_db_vs_enriched_truth") is not None
+    ]
+    scored_rows_reducer_vs_expanded_high = [
+        row for row in rows if row.get("metrics_reducer_vs_expanded_high_conf") is not None
+    ]
+    scored_rows_reducer_vs_expanded_full = [
+        row for row in rows if row.get("metrics_reducer_vs_expanded_full") is not None
+    ]
+    scored_rows_db_vs_expanded_high = [
+        row for row in rows if row.get("metrics_db_vs_expanded_high_conf") is not None
+    ]
+    scored_rows_db_vs_expanded_full = [
+        row for row in rows if row.get("metrics_db_vs_expanded_full") is not None
+    ]
 
     reducer_full_entities = {row["entity"] for row in scored_rows_reducer_vs_contract}
     db_full_entities = {row["entity"] for row in scored_rows_db_vs_contract}
@@ -213,6 +231,22 @@ def run_validation(
         scored_rows_reducer_vs_contract, "metrics_reducer_vs_contract"
     )
     db_vs_contract_micro = micro(scored_rows_db_vs_contract, "metrics_db_vs_contract")
+    reducer_vs_enriched_micro = micro(
+        scored_rows_reducer_vs_enriched, "metrics_reducer_vs_enriched_truth"
+    )
+    db_vs_enriched_micro = micro(scored_rows_db_vs_enriched, "metrics_db_vs_enriched_truth")
+    reducer_vs_expanded_high_micro = micro(
+        scored_rows_reducer_vs_expanded_high, "metrics_reducer_vs_expanded_high_conf"
+    )
+    reducer_vs_expanded_full_micro = micro(
+        scored_rows_reducer_vs_expanded_full, "metrics_reducer_vs_expanded_full"
+    )
+    db_vs_expanded_high_micro = micro(
+        scored_rows_db_vs_expanded_high, "metrics_db_vs_expanded_high_conf"
+    )
+    db_vs_expanded_full_micro = micro(
+        scored_rows_db_vs_expanded_full, "metrics_db_vs_expanded_full"
+    )
     contract_truth_pure_ok, contract_truth_resolved_ok, no_duplicate_contract_edges = (
         filter_contract_checks(rows)
     )
@@ -396,6 +430,7 @@ def run_validation(
     )
     calls_breakdown = edge_breakdown_contract.get("calls", {})
     imports_breakdown = edge_breakdown_contract.get("imports", {})
+    enriched_divergence_index = divergence_index(reducer_vs_enriched_micro)
 
     raw_call_total = sum(len(result.call_edges) for result in independent_results.values())
     raw_import_total = sum(len(result.import_edges) for result in independent_results.values())
@@ -413,6 +448,39 @@ def run_validation(
         len(row.get("enrichment_edges") or row.get("out_of_contract_edges") or [])
         for row in rows
     )
+    enriched_truth_total = sum(
+        len(row.get("enriched_truth_edges") or [])
+        for row in rows
+    )
+    expanded_high_total = sum(
+        len(row.get("expanded_truth_edges_high_conf") or [])
+        for row in rows
+    )
+    expanded_full_total = sum(
+        len(row.get("expanded_truth_edges_full") or [])
+        for row in rows
+    )
+    excluded_out_of_scope_total = sum(
+        int(row.get("excluded_out_of_scope_count") or 0)
+        for row in rows
+    )
+    included_limitation_total = sum(
+        int(row.get("included_limitation_count") or 0)
+        for row in rows
+    )
+    excluded_out_of_scope_by_reason: dict[str, int] = {}
+    included_limitation_by_reason: dict[str, int] = {}
+    for row in rows:
+        excluded = row.get("excluded_out_of_scope_by_reason") or {}
+        included = row.get("included_limitation_by_reason") or {}
+        for reason, count in excluded.items():
+            excluded_out_of_scope_by_reason[reason] = (
+                excluded_out_of_scope_by_reason.get(reason, 0) + int(count or 0)
+            )
+        for reason, count in included.items():
+            included_limitation_by_reason[reason] = (
+                included_limitation_by_reason.get(reason, 0) + int(count or 0)
+            )
     reducer_edge_total = sum(len(row.get("reducer_edges") or []) for row in rows)
     attribution_totals = {
         "independent_overprojection": 0,
@@ -475,6 +543,14 @@ def run_validation(
     coupling_stability_index = (
         (1.0 - static_overreach_rate) if static_overreach_rate is not None else None
     )
+    nav_fp_weight = float(navigation_weights["fp_weight"])
+    nav_fn_weight = float(navigation_weights["fn_weight"])
+    reason_fp_weight = float(reasoning_weights["fp_weight"])
+    reason_fn_weight = float(reasoning_weights["fn_weight"])
+    nav_penalty_fp = nav_fp_weight * int(module_metrics.get("fp") or 0)
+    nav_penalty_fn = nav_fn_weight * int(module_metrics.get("fn") or 0)
+    reason_penalty_fp = reason_fp_weight * reasoning_fp
+    reason_penalty_fn = reason_fn_weight * reasoning_fn
 
     payload = {
         "repo_root": str(repo_root),
@@ -513,9 +589,28 @@ def run_validation(
             "call_form_recall": call_form_reducer_vs_contract,
         },
         "enrichment_practical": {
+            "prompt_reliability_version": config.PROMPT_RELIABILITY_VERSION,
             "navigation_structural_reliability": navigation_reliability,
             "reasoning_structural_reliability": reasoning_reliability,
             "coupling_stability_index": coupling_stability_index,
+            "component_contributions": {
+                "navigation": {
+                    "tp": int(module_metrics.get("tp") or 0),
+                    "fp": int(module_metrics.get("fp") or 0),
+                    "fn": int(module_metrics.get("fn") or 0),
+                    "penalty_fp": nav_penalty_fp,
+                    "penalty_fn": nav_penalty_fn,
+                    "denominator": int(module_metrics.get("tp") or 0) + nav_penalty_fp + nav_penalty_fn,
+                },
+                "reasoning": {
+                    "tp": reasoning_tp,
+                    "fp": reasoning_fp,
+                    "fn": reasoning_fn,
+                    "penalty_fp": reason_penalty_fp,
+                    "penalty_fn": reason_penalty_fn,
+                    "denominator": reasoning_tp + reason_penalty_fp + reason_penalty_fn,
+                },
+            },
             "noise_signal": {
                 "dynamic_or_unresolved_enrichment_edges": out_of_contract_total,
                 "contract_edges": expected_total,
@@ -531,25 +626,93 @@ def run_validation(
             },
             "weights": config.PROMPT_FITNESS_WEIGHTS,
         },
+        "enriched_truth_alignment": {
+            "reducer_vs_enriched_truth_precision": reducer_vs_enriched_micro.get("precision"),
+            "reducer_vs_enriched_truth_recall": reducer_vs_enriched_micro.get("recall"),
+            "db_vs_enriched_truth_precision": db_vs_enriched_micro.get("precision"),
+            "db_vs_enriched_truth_recall": db_vs_enriched_micro.get("recall"),
+            "reducer_vs_enriched_truth_divergence_index": enriched_divergence_index,
+            "inclusion_policy": {
+                "base": "contract_truth_edges + limitation_edges",
+                "scope_exclusions": config.EXPANDED_TRUTH_POLICY.get("scope_exclusions"),
+                "limitation_focus": config.EXPANDED_TRUTH_POLICY.get("limitation_focus"),
+                "confidence_tiers": config.EXPANDED_TRUTH_POLICY.get("confidence_tiers"),
+                "notes": "Expanded truth is diagnostic-only and non-gating.",
+            },
+            "tiers": {
+                "high_conf": {
+                    "reducer_precision": reducer_vs_expanded_high_micro.get("precision"),
+                    "reducer_recall": reducer_vs_expanded_high_micro.get("recall"),
+                    "db_precision": db_vs_expanded_high_micro.get("precision"),
+                    "db_recall": db_vs_expanded_high_micro.get("recall"),
+                    "divergence_index": divergence_index(reducer_vs_expanded_high_micro),
+                },
+                "full": {
+                    "reducer_precision": reducer_vs_expanded_full_micro.get("precision"),
+                    "reducer_recall": reducer_vs_expanded_full_micro.get("recall"),
+                    "db_precision": db_vs_expanded_full_micro.get("precision"),
+                    "db_recall": db_vs_expanded_full_micro.get("recall"),
+                    "divergence_index": divergence_index(reducer_vs_expanded_full_micro),
+                },
+            },
+            "tier_edge_counts": {
+                "high_conf_edges": expanded_high_total,
+                "full_edges": expanded_full_total,
+            },
+            "scope_split_counts": {
+                "excluded_out_of_scope_edges": excluded_out_of_scope_total,
+                "included_limitation_edges": included_limitation_total,
+                "excluded_out_of_scope_by_reason": excluded_out_of_scope_by_reason,
+                "included_limitation_by_reason": included_limitation_by_reason,
+            },
+            "by_kind": _micro_by_kind("metrics_reducer_vs_enriched_truth"),
+            "by_edge_type": edge_type_breakdown(
+                scored_rows_reducer_vs_enriched, "metrics_reducer_vs_enriched_truth"
+            ),
+        },
         "micro_metrics": {
             "reducer_vs_db": reducer_vs_db_micro,
             "db_vs_contract_truth": db_vs_contract_micro,
             "reducer_vs_contract_truth": reducer_vs_contract_micro,
+            "reducer_vs_enriched_truth": reducer_vs_enriched_micro,
+            "db_vs_enriched_truth": db_vs_enriched_micro,
+            "reducer_vs_expanded_high_conf": reducer_vs_expanded_high_micro,
+            "reducer_vs_expanded_full": reducer_vs_expanded_full_micro,
+            "db_vs_expanded_high_conf": db_vs_expanded_high_micro,
+            "db_vs_expanded_full": db_vs_expanded_full_micro,
         },
         "micro_metrics_by_kind": {
             "reducer_vs_db": _micro_by_kind("metrics_reducer_vs_db"),
             "db_vs_contract_truth": _micro_by_kind("metrics_db_vs_contract"),
             "reducer_vs_contract_truth": _micro_by_kind("metrics_reducer_vs_contract"),
+            "reducer_vs_enriched_truth": _micro_by_kind("metrics_reducer_vs_enriched_truth"),
+            "db_vs_enriched_truth": _micro_by_kind("metrics_db_vs_enriched_truth"),
+            "reducer_vs_expanded_high_conf": _micro_by_kind("metrics_reducer_vs_expanded_high_conf"),
+            "reducer_vs_expanded_full": _micro_by_kind("metrics_reducer_vs_expanded_full"),
+            "db_vs_expanded_high_conf": _micro_by_kind("metrics_db_vs_expanded_high_conf"),
+            "db_vs_expanded_full": _micro_by_kind("metrics_db_vs_expanded_full"),
         },
         "micro_metrics_by_language": {
             "reducer_vs_db": _micro_by_language("metrics_reducer_vs_db"),
             "db_vs_contract_truth": _micro_by_language("metrics_db_vs_contract"),
             "reducer_vs_contract_truth": _micro_by_language("metrics_reducer_vs_contract"),
+            "reducer_vs_enriched_truth": _micro_by_language("metrics_reducer_vs_enriched_truth"),
+            "db_vs_enriched_truth": _micro_by_language("metrics_db_vs_enriched_truth"),
+            "reducer_vs_expanded_high_conf": _micro_by_language("metrics_reducer_vs_expanded_high_conf"),
+            "reducer_vs_expanded_full": _micro_by_language("metrics_reducer_vs_expanded_full"),
+            "db_vs_expanded_high_conf": _micro_by_language("metrics_db_vs_expanded_high_conf"),
+            "db_vs_expanded_full": _micro_by_language("metrics_db_vs_expanded_full"),
         },
         "micro_metrics_by_language_and_kind": {
             "reducer_vs_db": _micro_by_language_and_kind("metrics_reducer_vs_db"),
             "db_vs_contract_truth": _micro_by_language_and_kind("metrics_db_vs_contract"),
             "reducer_vs_contract_truth": _micro_by_language_and_kind("metrics_reducer_vs_contract"),
+            "reducer_vs_enriched_truth": _micro_by_language_and_kind("metrics_reducer_vs_enriched_truth"),
+            "db_vs_enriched_truth": _micro_by_language_and_kind("metrics_db_vs_enriched_truth"),
+            "reducer_vs_expanded_high_conf": _micro_by_language_and_kind("metrics_reducer_vs_expanded_high_conf"),
+            "reducer_vs_expanded_full": _micro_by_language_and_kind("metrics_reducer_vs_expanded_full"),
+            "db_vs_expanded_high_conf": _micro_by_language_and_kind("metrics_db_vs_expanded_high_conf"),
+            "db_vs_expanded_full": _micro_by_language_and_kind("metrics_db_vs_expanded_full"),
         },
         "call_form_recall": {
             "reducer_vs_contract_truth": call_form_reducer_vs_contract,
@@ -568,6 +731,11 @@ def run_validation(
             "normalized_import_edges": normalized_import_total,
             "contract_truth_edges": expected_total,
             "enrichment_edges": out_of_contract_total,
+            "enriched_truth_edges": enriched_truth_total,
+            "expanded_high_conf_edges": expanded_high_total,
+            "expanded_full_edges": expanded_full_total,
+            "excluded_out_of_scope_edges": excluded_out_of_scope_total,
+            "included_limitation_edges": included_limitation_total,
         },
         "independent_coverage_by_language": coverage,
         "population_by_language": sampling.population_by_language,

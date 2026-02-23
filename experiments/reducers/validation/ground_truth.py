@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from typing import Dict, List, Tuple
 
+from . import config
 from .call_contract import resolve_call_in_contract
 from .import_contract import resolve_import_contract
 from .independent.shared import EdgeRecord, FileParseResult, dedupe_edge_records
@@ -59,12 +60,36 @@ def edge_records_from_ground_truth(
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "class_truth_unreliable": None,
+        "excluded_out_of_scope_count": 0,
+        "included_limitation_count": 0,
+        "excluded_out_of_scope_by_reason": {},
+        "included_limitation_by_reason": {},
+        "limitation_edges_high_conf": [],
+        "limitation_edges_full": [],
     }
     standard_calls = standard_call_names(contract)
+    policy = config.EXPANDED_TRUTH_POLICY
+    excluded_reasons = set(policy.get("scope_exclusions") or [])
+    high_conf_reasons = set((policy.get("confidence_tiers") or {}).get("high") or [])
+    low_conf_reasons = set((policy.get("confidence_tiers") or {}).get("low") or [])
 
-    def _skip_external(reason: str) -> bool:
-        # External dependencies are outside SCIONA contract; exclude from truth/enrichment.
-        return reason == "external"
+    def _register_limitation_edge(reason: str, record: EdgeRecord) -> None:
+        if reason in excluded_reasons:
+            diagnostics["excluded_out_of_scope_count"] += 1
+            excluded = diagnostics.setdefault("excluded_out_of_scope_by_reason", {})
+            excluded[reason] = int(excluded.get(reason, 0)) + 1
+            return
+        diagnostics["included_limitation_count"] += 1
+        included = diagnostics.setdefault("included_limitation_by_reason", {})
+        included[reason] = int(included.get(reason, 0)) + 1
+        out_of_contract.append(record)
+        if reason in high_conf_reasons:
+            diagnostics["limitation_edges_high_conf"].append(record)
+            diagnostics["limitation_edges_full"].append(record)
+            return
+        if reason in low_conf_reasons:
+            diagnostics["limitation_edges_full"].append(record)
+            return
 
     if entity.kind == "module":
         entries = module_imports_by_prefix.get(entity.qualified_name, [])
@@ -94,16 +119,15 @@ def edge_records_from_ground_truth(
                     language=language,
                     repo_prefix=repo_prefix,
                 )
-                if _skip_external(reason):
-                    continue
-                out_of_contract.append(record)
-                out_of_contract_meta.append(
-                    {
-                        "edge_type": "import",
-                        "language": language,
-                        "reason": reason,
-                    }
-                )
+                _register_limitation_edge(reason, record)
+                if reason not in excluded_reasons:
+                    out_of_contract_meta.append(
+                        {
+                            "edge_type": "import",
+                            "language": language,
+                            "reason": reason,
+                        }
+                    )
             else:
                 expected_filtered.append(record)
                 full_truth.append(record)
@@ -134,19 +158,24 @@ def edge_records_from_ground_truth(
                         language=file_result.language,
                         repo_prefix=repo_prefix,
                     )
-                    if _skip_external(reason):
-                        continue
-                    out_of_contract.append(record)
-                    out_of_contract_meta.append(
-                        {
-                            "edge_type": "import",
-                            "language": file_result.language,
-                            "reason": reason,
-                        }
-                    )
+                    _register_limitation_edge(reason, record)
+                    if reason not in excluded_reasons:
+                        out_of_contract_meta.append(
+                            {
+                                "edge_type": "import",
+                                "language": file_result.language,
+                                "reason": reason,
+                            }
+                        )
                 else:
                     expected_filtered.append(record)
                     full_truth.append(record)
+        diagnostics["limitation_edges_high_conf"] = dedupe_edge_records(
+            diagnostics["limitation_edges_high_conf"]
+        )
+        diagnostics["limitation_edges_full"] = dedupe_edge_records(
+            diagnostics["limitation_edges_full"]
+        )
         return (
             dedupe_edge_records(expected_filtered),
             dedupe_edge_records(full_truth),
@@ -266,6 +295,12 @@ def edge_records_from_ground_truth(
             expected_filtered.append(record)
             full_truth.append(record)
         diagnostics["class_truth_method_count"] = len(expected_filtered)
+        diagnostics["limitation_edges_high_conf"] = dedupe_edge_records(
+            diagnostics["limitation_edges_high_conf"]
+        )
+        diagnostics["limitation_edges_full"] = dedupe_edge_records(
+            diagnostics["limitation_edges_full"]
+        )
         return (
             dedupe_edge_records(expected_filtered),
             dedupe_edge_records(full_truth),
@@ -308,16 +343,21 @@ def edge_records_from_ground_truth(
                 call_resolution=call_resolution,
                 contract=contract,
             )
-            if _skip_external(reason):
-                continue
-            out_of_contract.append(full_record)
-            out_of_contract_meta.append(
-                {
-                    "edge_type": "call",
-                    "language": file_result.language,
-                    "reason": reason,
-                }
-            )
+            _register_limitation_edge(reason, full_record)
+            if reason not in excluded_reasons:
+                out_of_contract_meta.append(
+                    {
+                        "edge_type": "call",
+                        "language": file_result.language,
+                        "reason": reason,
+                    }
+                )
+    diagnostics["limitation_edges_high_conf"] = dedupe_edge_records(
+        diagnostics["limitation_edges_high_conf"]
+    )
+    diagnostics["limitation_edges_full"] = dedupe_edge_records(
+        diagnostics["limitation_edges_full"]
+    )
     return (
         dedupe_edge_records(expected_filtered),
         dedupe_edge_records(full_truth),
