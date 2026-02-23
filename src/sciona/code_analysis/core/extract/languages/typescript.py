@@ -77,6 +77,7 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                 state.pending_class_aliases,
                 state.instance_map,
                 state.class_instance_map,
+                state.class_name_candidates,
                 state.class_name_map,
                 import_aliases,
                 member_aliases,
@@ -97,6 +98,7 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                     import_aliases,
                     member_aliases,
                     state.class_name_map,
+                    state.class_name_candidates,
                     state.instance_map,
                     state.class_instance_map,
                 )

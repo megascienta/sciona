@@ -17,6 +17,7 @@ class TypeScriptNodeState:
     module_functions: set[str] = field(default_factory=set)
     class_methods: dict[str, set[str]] = field(default_factory=dict)
     class_name_map: dict[str, str] = field(default_factory=dict)
+    class_name_candidates: dict[str, set[str]] = field(default_factory=dict)
     instance_map: dict[str, str] = field(default_factory=dict)
     class_instance_map: dict[str, dict[str, str]] = field(default_factory=dict)
     pending_instance_assignments: list[tuple[str, str]] = field(default_factory=list)
@@ -67,6 +68,7 @@ def walk_typescript_nodes(
             )
         )
         state.class_name_map.setdefault(class_name, qualified)
+        state.class_name_candidates.setdefault(class_name, set()).add(qualified)
         result.edges.append(
             EdgeRecord(
                 src_language=language,
@@ -201,6 +203,7 @@ def walk_typescript_nodes(
                 )
             )
             state.class_name_map.setdefault(class_name, qualified)
+            state.class_name_candidates.setdefault(class_name, set()).add(qualified)
             state.class_stack.append(qualified)
             state.class_methods.setdefault(qualified, set())
             body = value_node.child_by_field_name("body")

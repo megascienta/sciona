@@ -17,13 +17,14 @@ def node_text(node, content: bytes) -> str | None:
 def resolve_constructor_target(
     callee_text: str,
     terminal: str,
-    class_name_map: dict[str, str],
+    class_name_candidates: dict[str, set[str]],
     import_aliases: dict[str, str],
     member_aliases: dict[str, str],
     raw_module_map: dict[str, str],
 ) -> str | None:
-    if terminal in class_name_map:
-        return class_name_map[terminal]
+    class_match = unique_class_match(terminal, class_name_candidates)
+    if class_match:
+        return class_match
     if terminal in member_aliases:
         return member_aliases[terminal]
     if "." in callee_text:
@@ -40,7 +41,7 @@ def resolve_constructor_target(
 def collect_module_instance_map(
     root,
     snapshot: FileSnapshot,
-    class_name_map: dict[str, str],
+    class_name_candidates: dict[str, set[str]],
     import_aliases: dict[str, str],
     member_aliases: dict[str, str],
     raw_module_map: dict[str, str],
@@ -68,7 +69,7 @@ def collect_module_instance_map(
                 target = resolve_constructor_target(
                     callee_text,
                     terminal,
-                    class_name_map,
+                    class_name_candidates,
                     import_aliases,
                     member_aliases,
                     raw_module_map,
@@ -94,7 +95,7 @@ def collect_module_instance_map(
 def collect_callable_instance_map(
     body_node,
     snapshot: FileSnapshot,
-    class_name_map: dict[str, str],
+    class_name_candidates: dict[str, set[str]],
     import_aliases: dict[str, str],
     member_aliases: dict[str, str],
     raw_module_map: dict[str, str],
@@ -137,7 +138,7 @@ def collect_callable_instance_map(
                 target = resolve_constructor_target(
                     callee_text,
                     terminal,
-                    class_name_map,
+                    class_name_candidates,
                     import_aliases,
                     member_aliases,
                     raw_module_map,
@@ -172,7 +173,7 @@ def collect_callable_instance_map(
 def collect_class_instance_map(
     class_body_node,
     snapshot: FileSnapshot,
-    class_name_map: dict[str, str],
+    class_name_candidates: dict[str, set[str]],
     import_aliases: dict[str, str],
     member_aliases: dict[str, str],
     raw_module_map: dict[str, str],
@@ -210,7 +211,7 @@ def collect_class_instance_map(
                     target = resolve_constructor_target(
                         callee_text,
                         terminal,
-                        class_name_map,
+                        class_name_candidates,
                         import_aliases,
                         member_aliases,
                         raw_module_map,
@@ -252,4 +253,14 @@ def _resolve_alias_target(
             if len(parts) >= 2:
                 return known_instances.get(parts[1])
         return known_instances.get(base)
+    return None
+
+
+def unique_class_match(
+    simple_name: str,
+    class_name_candidates: dict[str, set[str]],
+) -> str | None:
+    candidates = class_name_candidates.get(simple_name) or set()
+    if len(candidates) == 1:
+        return next(iter(candidates))
     return None

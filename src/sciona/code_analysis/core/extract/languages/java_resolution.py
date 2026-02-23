@@ -65,15 +65,18 @@ def strip_type_decorations(type_text: str) -> str:
 def qualify_java_type(
     type_text: str,
     module_name: str,
-    class_name_map: dict[str, str],
+    class_name_candidates: dict[str, set[str]],
     import_class_map: dict[str, str],
     module_prefix: str | None,
 ) -> str | None:
     base = strip_type_decorations(type_text)
     if not base:
         return None
-    if base in class_name_map:
-        return class_name_map[base]
+    class_candidates = class_name_candidates.get(base) or set()
+    if len(class_candidates) == 1:
+        return next(iter(class_candidates))
+    if len(class_candidates) > 1:
+        return None
     if base in import_class_map:
         return import_class_map[base]
     if "." in base:

@@ -73,7 +73,7 @@ class PythonAnalyzer(ASTAnalyzer):
             module_instance_map = collect_module_instance_map(
                 root,
                 snapshot,
-                state.class_name_map,
+                state.class_name_candidates,
                 import_aliases,
                 member_aliases,
                 raw_module_map,
@@ -82,7 +82,7 @@ class PythonAnalyzer(ASTAnalyzer):
                 class_name: collect_class_instance_map(
                     class_body,
                     snapshot,
-                    state.class_name_map,
+                    state.class_name_candidates,
                     import_aliases,
                     member_aliases,
                     raw_module_map,
@@ -97,7 +97,7 @@ class PythonAnalyzer(ASTAnalyzer):
                     collect_callable_instance_map(
                         body_node,
                         snapshot,
-                        state.class_name_map,
+                        state.class_name_candidates,
                         import_aliases,
                         member_aliases,
                         raw_module_map,
@@ -119,6 +119,7 @@ class PythonAnalyzer(ASTAnalyzer):
                     member_aliases,
                     raw_module_map,
                     local_instance_map,
+                    state.class_name_candidates,
                 )
                 if resolved:
                     result.call_records.append(

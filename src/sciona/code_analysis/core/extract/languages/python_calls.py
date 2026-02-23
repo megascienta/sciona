@@ -34,6 +34,7 @@ def resolve_python_calls(
     member_aliases: dict[str, str],
     raw_module_map: dict[str, str],
     instance_map: dict[str, str],
+    class_name_candidates: dict[str, set[str]],
 ) -> List[str]:
     class_method_names = class_methods.get(class_name, set()) if class_name else set()
     requests = _to_requests(targets)
@@ -46,6 +47,7 @@ def resolve_python_calls(
         member_aliases=member_aliases,
         raw_module_map=raw_module_map,
         instance_map=instance_map,
+        class_name_candidates=class_name_candidates,
     )
 
     return resolve_with_mode(
@@ -63,6 +65,7 @@ class _PythonCallAdapter(CallResolutionAdapter):
     member_aliases: dict[str, str]
     raw_module_map: dict[str, str]
     instance_map: dict[str, str]
+    class_name_candidates: dict[str, set[str]]
 
     def resolve(self, request: CallResolutionRequest) -> List[str]:
         terminal = request.terminal
@@ -78,6 +81,11 @@ class _PythonCallAdapter(CallResolutionAdapter):
                     return [f"{self.instance_map[field]}.{terminal}"]
             if head in self.import_aliases:
                 return [f"{self.import_aliases[head]}.{rest}"]
+            class_candidates = self.class_name_candidates.get(head) or set()
+            if len(class_candidates) == 1:
+                return [f"{next(iter(class_candidates))}.{terminal}"]
+            if len(class_candidates) > 1:
+                return []
             for raw, normalized in self.raw_module_map.items():
                 if callee_text == raw or callee_text.startswith(f"{raw}."):
                     suffix = callee_text[len(raw) :].lstrip(".")

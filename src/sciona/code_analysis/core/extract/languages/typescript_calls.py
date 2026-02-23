@@ -26,6 +26,7 @@ def resolve_typescript_calls(
     import_aliases: dict[str, str],
     member_aliases: dict[str, str],
     class_name_map: dict[str, str],
+    class_name_candidates: dict[str, set[str]],
     instance_map: dict[str, str],
     class_instance_map: dict[str, dict[str, str]],
 ) -> List[str]:
@@ -39,6 +40,7 @@ def resolve_typescript_calls(
         import_aliases=import_aliases,
         member_aliases=member_aliases,
         class_name_map=class_name_map,
+        class_name_candidates=class_name_candidates,
         instance_map=instance_map,
         class_instance_map=class_instance_map,
     )
@@ -56,6 +58,7 @@ class _TypeScriptCallAdapter(CallResolutionAdapter):
     import_aliases: dict[str, str]
     member_aliases: dict[str, str]
     class_name_map: dict[str, str]
+    class_name_candidates: dict[str, set[str]]
     instance_map: dict[str, str]
     class_instance_map: dict[str, dict[str, str]]
 
@@ -67,8 +70,11 @@ class _TypeScriptCallAdapter(CallResolutionAdapter):
             head, rest = callee_text.split(".", 1)
             if head in self.instance_map:
                 return [f"{self.instance_map[head]}.{terminal}"]
-            if head in self.class_name_map:
-                return [f"{self.class_name_map[head]}.{terminal}"]
+            if head in self.class_name_map and head[:1].isupper():
+                candidates = self.class_name_candidates.get(head) or set()
+                if len(candidates) == 1:
+                    return [f"{next(iter(candidates))}.{terminal}"]
+                return []
             if self.class_name and (receiver == "this" or callee_text.startswith("this.")):
                 chain = request.receiver_chain
                 if len(chain) >= 2:

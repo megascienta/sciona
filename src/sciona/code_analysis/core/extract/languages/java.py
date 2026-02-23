@@ -139,6 +139,7 @@ class JavaAnalyzer(ASTAnalyzer):
                     state.module_functions,
                     state.class_methods,
                     state.class_name_map,
+                    state.class_name_candidates,
                     import_class_map,
                     class_name,
                     instance_types,

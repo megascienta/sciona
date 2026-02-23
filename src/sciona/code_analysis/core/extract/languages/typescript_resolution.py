@@ -8,13 +8,14 @@ from __future__ import annotations
 
 def resolve_ts_constructor_name(
     callee_text: str,
-    class_name_map: dict[str, str],
+    class_name_candidates: dict[str, set[str]],
     import_aliases: dict[str, str],
     member_aliases: dict[str, str],
 ) -> str | None:
     terminal = callee_text.split(".")[-1] if callee_text else ""
-    if terminal in class_name_map:
-        return class_name_map[terminal]
+    candidates = class_name_candidates.get(terminal) or set()
+    if len(candidates) == 1:
+        return next(iter(candidates))
     if terminal in member_aliases:
         return member_aliases[terminal]
     if "." in callee_text:
@@ -31,19 +32,20 @@ def resolve_pending_instances(
     pending_class_aliases: list[tuple[str, str, str]],
     instance_map: dict[str, str],
     class_instance_map: dict[str, dict[str, str]],
+    class_name_candidates: dict[str, set[str]],
     class_name_map: dict[str, str],
     import_aliases: dict[str, str],
     member_aliases: dict[str, str],
 ) -> None:
     for name, callee_text in pending_instance_assignments:
         target = resolve_ts_constructor_name(
-            callee_text, class_name_map, import_aliases, member_aliases
+            callee_text, class_name_candidates, import_aliases, member_aliases
         )
         if target:
             instance_map[name] = target
     for class_name, field, callee_text in pending_class_instances:
         target = resolve_ts_constructor_name(
-            callee_text, class_name_map, import_aliases, member_aliases
+            callee_text, class_name_candidates, import_aliases, member_aliases
         )
         if target:
             class_instance_map.setdefault(class_name, {})[field] = target
