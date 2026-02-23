@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import pytest
+
 from experiments.reducers.validation.orchestrator import (
     _bootstrap_micro_ci,
     _select_threshold_profile,
 )
-from experiments.reducers.validation.report import render_summary
+from experiments.reducers.validation.report import render_summary, write_json
 
 
 def test_select_threshold_profile_multi_language() -> None:
@@ -59,5 +61,47 @@ def test_render_summary_includes_action_and_reason_sections() -> None:
     }
     lines = render_summary(payload)
     text = "\n".join(lines)
-    assert "Reason-level expanded recall:" in text
+    assert "Reason-level expanded proxy recall:" in text
     assert "## Action Priority Board" in text
+
+
+def test_write_json_validates_minimum_payload_shape(tmp_path) -> None:
+    payload = {
+        "summary": ["repo=test", "sampled_nodes=1"],
+        "invariants": {"passed": True},
+        "quality_gates": {"threshold_profile": "single_language"},
+        "per_node": [
+            {
+                "entity": "fixture.sample.entry",
+                "language": "python",
+                "kind": "function",
+                "file_path": "sample.py",
+                "module_qualified_name": "fixture.sample",
+                "metrics_reducer_vs_db": {"tp": 1, "fp": 0, "fn": 0},
+            }
+        ],
+    }
+    out = tmp_path / "report.json"
+    write_json(out, payload)
+    assert out.exists()
+
+
+def test_write_json_rejects_invalid_row_kind(tmp_path) -> None:
+    payload = {
+        "summary": ["repo=test"],
+        "invariants": {"passed": True},
+        "quality_gates": {"threshold_profile": "single_language"},
+        "per_node": [
+            {
+                "entity": "fixture.sample.entry",
+                "language": "python",
+                "kind": "callable",
+                "file_path": "sample.py",
+                "module_qualified_name": "fixture.sample",
+            }
+        ],
+    }
+    out = tmp_path / "report.json"
+    with pytest.raises(ValueError) as exc:
+        write_json(out, payload)
+    assert "kind" in str(exc.value)

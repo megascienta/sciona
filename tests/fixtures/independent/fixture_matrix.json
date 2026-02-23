@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "fixtures": [
+    {
+      "id": "python_core_calls_imports",
+      "language": "python",
+      "root": "python",
+      "file_path": "sample.py",
+      "module_qualified_name": "fixture.sample",
+      "assert_mode": "subset",
+      "categories": ["core_calls", "imports", "assignment_hints"]
+    },
+    {
+      "id": "python_nested_classes",
+      "language": "python",
+      "root": "python_nested",
+      "file_path": "sample.py",
+      "module_qualified_name": "fixture.sample",
+      "assert_mode": "exact",
+      "categories": ["nested_classes"]
+    },
+    {
+      "id": "typescript_core_calls_imports",
+      "language": "typescript",
+      "root": "typescript",
+      "file_path": "sample.ts",
+      "module_qualified_name": "fixture.sample",
+      "assert_mode": "exact",
+      "requires": ["node"],
+      "categories": ["core_calls", "imports", "assignment_hints"]
+    },
+    {
+      "id": "typescript_nested_classes",
+      "language": "typescript",
+      "root": "typescript_nested",
+      "file_path": "sample.ts",
+      "module_qualified_name": "fixture.sample",
+      "assert_mode": "exact",
+      "requires": ["node"],
+      "categories": ["nested_classes"]
+    },
+    {
+      "id": "typescript_reexports",
+      "language": "typescript",
+      "root": "typescript_reexports",
+      "file_path": "barrel.ts",
+      "module_qualified_name": "fixture.barrel",
+      "assert_mode": "exact",
+      "requires": ["node"],
+      "categories": ["reexports", "imports"]
+    },
+    {
+      "id": "java_core_calls_imports",
+      "language": "java",
+      "root": "java",
+      "file_path": "Sample.java",
+      "module_qualified_name": "fixture.sample",
+      "assert_mode": "subset",
+      "requires": ["java_parser_toolchain"],
+      "categories": ["core_calls", "imports", "constructors"]
+    },
+    {
+      "id": "java_nested_classes",
+      "language": "java",
+      "root": "java_nested",
+      "file_path": "Sample.java",
+      "module_qualified_name": "fixture.sample",
+      "assert_mode": "subset",
+      "requires": ["java_parser_toolchain"],
+      "categories": ["nested_classes"]
+    }
+  ]
+}

@@ -7,8 +7,14 @@ import json
 from pathlib import Path
 from typing import List
 
+from .report_schema import validate_report_payload
+
 
 def write_json(path: Path, payload: dict) -> None:
+    errors = validate_report_payload(payload)
+    if errors:
+        joined = "; ".join(errors)
+        raise ValueError(f"report payload validation failed: {joined}")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
@@ -47,6 +53,9 @@ def render_summary(payload: dict) -> List[str]:
         if key and key in duplicated_summary_keys:
             continue
         lines.append(f"- {item}")
+    lines.append(
+        "- interpretation_note: independent truth is a deterministic static proxy, not absolute ground truth."
+    )
     lines.append("")
 
     lines.append("## Run Verdict")
@@ -108,7 +117,7 @@ def render_summary(payload: dict) -> List[str]:
         )
     lines.append("")
 
-    lines.append("## Contract Alignment (Strict)")
+    lines.append("## Contract Alignment (Strict Proxy)")
     lines.append("")
     static_alignment = payload.get("static_contract_alignment") or {}
     if not static_alignment:
@@ -126,7 +135,7 @@ def render_summary(payload: dict) -> List[str]:
             lines.append(f"- uncertainty_intervals: `{strict_ci}`")
     lines.append("")
 
-    lines.append("## Expanded Truth Alignment (Diagnostic)")
+    lines.append("## Expanded Proxy Alignment (Diagnostic)")
     lines.append("")
     expanded = payload.get("enriched_truth_alignment") or {}
     if not expanded:
@@ -158,7 +167,7 @@ def render_summary(payload: dict) -> List[str]:
             lines.append(f"- scope_split_counts: `{scope_split}`")
         reason_breakdown = expanded.get("reason_breakdown") or {}
         if reason_breakdown:
-            lines.append("Reason-level expanded recall:")
+            lines.append("Reason-level expanded proxy recall:")
             reducer_reason = reason_breakdown.get("reducer") or {}
             db_reason = reason_breakdown.get("db") or {}
             for reason in sorted(set(reducer_reason.keys()) | set(db_reason.keys())):
@@ -250,7 +259,7 @@ def render_summary(payload: dict) -> List[str]:
                     f"- {language}:{kind}: recall=`{_format_value(k.get('recall'))}`, precision=`{_format_value(k.get('precision'))}`, tp/fp/fn=`{k.get('tp', 0)}/{k.get('fp', 0)}/{k.get('fn', 0)}`"
                 )
     lines.append("")
-    lines.append("Expanded Alignment by language:kind")
+    lines.append("Expanded Proxy Alignment by language:kind")
     if not languages:
         lines.append("- none")
     else:

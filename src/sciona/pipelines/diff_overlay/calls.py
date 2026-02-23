@@ -215,12 +215,24 @@ def resolve_callees(
     resolved_ids: set[str] = set()
     resolved_names: set[str] = set()
     for identifier in identifiers:
-        candidates = symbol_index.get(identifier) or []
-        if len(candidates) == 1:
-            resolved_ids.add(candidates[0])
-            resolved_names.add(identifier)
+        direct_candidates = symbol_index.get(identifier) or []
+        candidates = direct_candidates
+        if not candidates and "." in identifier:
+            candidates = symbol_index.get(identifier.rsplit(".", 1)[-1]) or []
+        if not candidates:
             continue
-        if not candidates or not caller_module:
+        if len(candidates) == 1:
+            candidate = candidates[0]
+            candidate_module = module_lookup.get(candidate)
+            if direct_candidates and "." in identifier:
+                resolved_ids.add(candidate)
+                resolved_names.add(identifier)
+                continue
+            if caller_module and candidate_module == caller_module:
+                resolved_ids.add(candidate)
+                resolved_names.add(identifier)
+            continue
+        if not caller_module:
             continue
         allowed = set(import_targets.get(caller_module, set()))
         allowed.add(caller_module)

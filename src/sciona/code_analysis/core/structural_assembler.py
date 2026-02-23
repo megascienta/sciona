@@ -64,8 +64,8 @@ class StructuralAssembler:
             analysis.edges,
             key=lambda edge: (
                 edge.src_qualified_name,
-                edge.edge_type,
                 edge.dst_qualified_name,
+                edge.edge_type,
             ),
         )
         node_count = 0

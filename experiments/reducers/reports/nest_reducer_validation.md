@@ -36,106 +36,106 @@
 
 ## Contract Alignment (Strict)
 
-- static_contract_precision: `0.947046`
-- static_contract_recall: `0.977560`
-- static_overreach_rate: `0.052954`
-- static_divergence_index: `0.073104`
-- uncertainty_intervals: `{'micro': {'precision_ci95': [0.9247743229689067, 0.9649947753396029], 'recall_ci95': [0.9682642487046632, 0.9863874345549738], 'n': 500}, 'method': {'precision_ci95': [0.7311827956989247, 0.8524590163934426], 'recall_ci95': [0.7663043478260869, 0.8918918918918919], 'n': 125}}`
+- static_contract_precision: `0.947980`
+- static_contract_recall: `0.976625`
+- static_overreach_rate: `0.052020`
+- static_divergence_index: `0.073052`
+- uncertainty_intervals: `{'micro': {'precision_ci95': [0.925826028320971, 0.965711361310133], 'recall_ci95': [0.9658508821855435, 0.9844886088221038], 'n': 500}, 'method': {'precision_ci95': [0.7352941176470589, 0.903954802259887], 'recall_ci95': [0.7718120805369127, 0.880184331797235], 'n': 125}}`
 
 ## Expanded Truth Alignment (Diagnostic)
 
-- reducer_vs_enriched_truth_precision: `0.955964`
-- reducer_vs_enriched_truth_recall: `0.911265`
-- db_vs_enriched_truth_precision: `0.955964`
-- db_vs_enriched_truth_recall: `0.911265`
-- reducer_vs_enriched_truth_divergence_index: `0.125446`
+- reducer_vs_enriched_truth_precision: `0.954621`
+- reducer_vs_enriched_truth_recall: `0.905987`
+- db_vs_enriched_truth_precision: `0.954621`
+- db_vs_enriched_truth_recall: `0.905987`
+- reducer_vs_enriched_truth_divergence_index: `0.131420`
 - inclusion_policy: `{'base': 'contract_truth_edges + limitation_edges', 'scope_exclusions': ['standard_call', 'external'], 'limitation_focus': ['dynamic', 'in_repo_unresolved', 'relative_unresolved'], 'confidence_tiers': {'high': ['in_repo_unresolved'], 'low': ['dynamic', 'relative_unresolved']}, 'notes': 'Expanded truth is diagnostic-only and non-gating.'}`
-- tier.high_conf: reducer_p/r=`0.955964`/`0.920558`, db_p/r=`0.955964`/`0.920558`, divergence=`0.116890`
-- tier.full: reducer_p/r=`0.955964`/`0.911265`, db_p/r=`0.955964`/`0.911265`, divergence=`0.125446`
-- tier_edge_counts: `{'high_conf_edges': 1863, 'full_edges': 1882}`
-- scope_split_counts: `{'excluded_out_of_scope_edges': 839, 'included_limitation_edges': 170, 'excluded_out_of_scope_by_reason': {'external': 772, 'standard_call': 67}, 'included_limitation_by_reason': {'in_repo_unresolved': 150, 'dynamic': 20}}`
+- tier.high_conf: reducer_p/r=`0.954621`/`0.916091`, db_p/r=`0.954621`/`0.916091`, divergence=`0.122137`
+- tier.full: reducer_p/r=`0.954621`/`0.905987`, db_p/r=`0.954621`/`0.905987`, divergence=`0.131420`
+- tier_edge_counts: `{'high_conf_edges': 1883, 'full_edges': 1904}`
+- scope_split_counts: `{'excluded_out_of_scope_edges': 830, 'included_limitation_edges': 178, 'excluded_out_of_scope_by_reason': {'external': 756, 'standard_call': 74}, 'included_limitation_by_reason': {'in_repo_unresolved': 156, 'dynamic': 22}}`
 Reason-level expanded recall:
-- reason.dynamic: reducer_recall=`0.000000`, db_recall=`0.000000`, reducer_tp/fn=`0/19`
-- reason.in_repo_unresolved: reducer_recall=`0.128000`, db_recall=`0.128000`, reducer_tp/fn=`16/109`
-- uncertainty_intervals: `{'micro': {'precision_ci95': [0.9333991119881598, 0.971106412966878], 'recall_ci95': [0.8884416331224841, 0.9305423406279734], 'n': 500}}`
+- reason.dynamic: reducer_recall=`0.000000`, db_recall=`0.000000`, reducer_tp/fn=`0/21`
+- reason.in_repo_unresolved: reducer_recall=`0.093023`, db_recall=`0.093023`, reducer_tp/fn=`12/117`
+- uncertainty_intervals: `{'micro': {'precision_ci95': [0.9319727891156463, 0.9706780696395846], 'recall_ci95': [0.8832923832923832, 0.9256791389031266], 'n': 500}}`
 
 ## Prompt Reliability (Heuristic Diagnostics)
 
 - navigation_structural_reliability: `0.998008`
-- reasoning_structural_reliability: `0.725233`
-- coupling_stability_index: `0.947046`
+- reasoning_structural_reliability: `0.739061`
+- coupling_stability_index: `0.947980`
 - prompt_reliability_version: `v1`
 - weights: `{'navigation': {'fp_weight': 1.0, 'fn_weight': 1.0}, 'reasoning': {'fp_weight': 1.0, 'fn_weight': 1.2}}`
-- component_contributions: `{'navigation': {'tp': 501, 'fp': 1, 'fn': 0, 'penalty_fp': 1.0, 'penalty_fn': 0.0, 'denominator': 502.0}, 'reasoning': {'tp': 265, 'fp': 56, 'fn': 37, 'penalty_fp': 56.0, 'penalty_fn': 44.4, 'denominator': 365.4}}`
-- enrichment_noise_ratio: `0.076514`
+- component_contributions: `{'navigation': {'tp': 501, 'fp': 1, 'fn': 0, 'penalty_fp': 1.0, 'penalty_fn': 0.0, 'denominator': 502.0}, 'reasoning': {'tp': 277, 'fp': 51, 'fn': 39, 'penalty_fp': 51.0, 'penalty_fn': 46.8, 'denominator': 374.8}}`
+- enrichment_noise_ratio: `0.078782`
 
 ## Language Breakdown
 
-- typescript: sampled_nodes=`500`, population_nodes=`6033`, projection_p/r=`1.000000`/`1.000000`, contract_p/r=`0.947046`/`0.977560`, expanded_p/r=`0.955964`/`0.911265`, contract_overreach=`0.052954`, projection_tp/fp/fn=`1794/0/0`, contract_tp/fp/fn=`1699/95/39`
+- typescript: sampled_nodes=`500`, population_nodes=`6033`, projection_p/r=`1.000000`/`1.000000`, contract_p/r=`0.947980`/`0.976625`, expanded_p/r=`0.954621`/`0.905987`, contract_overreach=`0.052020`, projection_tp/fp/fn=`1807/0/0`, contract_tp/fp/fn=`1713/94/41`
 - typescript:module: recall=`1.000000`, precision=`0.998008`, tp/fp/fn=`501/1/0`
-- typescript:class: recall=`0.997861`, precision=`0.960865`, tp/fp/fn=`933/38/2`
-- typescript:function: recall=`0.937984`, precision=`0.864286`, tp/fp/fn=`121/19/8`
-- typescript:method: recall=`0.832370`, precision=`0.795580`, tp/fp/fn=`144/37/29`
+- typescript:class: recall=`0.997866`, precision=`0.957011`, tp/fp/fn=`935/42/2`
+- typescript:function: recall=`0.938462`, precision=`0.871429`, tp/fp/fn=`122/18/8`
+- typescript:method: recall=`0.833333`, precision=`0.824468`, tp/fp/fn=`155/33/31`
 
 Expanded Alignment by language:kind
 - typescript:module: strict_p/r=`0.998008`/`1.000000`, expanded_p/r=`0.998008`/`1.000000`
-- typescript:class: strict_p/r=`0.960865`/`0.997861`, expanded_p/r=`0.960865`/`0.997861`
-- typescript:function: strict_p/r=`0.864286`/`0.937984`, expanded_p/r=`0.871429`/`0.547085`
-- typescript:method: strict_p/r=`0.795580`/`0.832370`, expanded_p/r=`0.878453`/`0.713004`
+- typescript:class: strict_p/r=`0.957011`/`0.997866`, expanded_p/r=`0.957011`/`0.997866`
+- typescript:function: strict_p/r=`0.871429`/`0.938462`, expanded_p/r=`0.878571`/`0.549107`
+- typescript:method: strict_p/r=`0.824468`/`0.833333`, expanded_p/r=`0.882979`/`0.685950`
 
 Strict vs Expanded delta by kind (top-5 worst recall delta)
-- typescript:function: delta_recall=`0.390899`, delta_precision=`-0.007143`
-- typescript:method: delta_recall=`0.119365`, delta_precision=`-0.082873`
+- typescript:function: delta_recall=`0.389354`, delta_precision=`-0.007143`
+- typescript:method: delta_recall=`0.147383`, delta_precision=`-0.058511`
 - typescript:module: delta_recall=`0.000000`, delta_precision=`0.000000`
 - typescript:class: delta_recall=`0.000000`, delta_precision=`0.000000`
 
 ## Call Resolution Diagnostics
 
-- call_form.direct: tp=`1542`, fn=`19`, recall=`0.987828`
-- call_form.member: tp=`158`, fn=`19`, recall=`0.892655`
+- call_form.direct: tp=`1548`, fn=`18`, recall=`0.988506`
+- call_form.member: tp=`167`, fn=`21`, recall=`0.888298`
 - mismatch_attribution.core_missed_resolution: `0`
-- mismatch_attribution.core_overresolution: `125`
+- mismatch_attribution.core_overresolution: `111`
 - mismatch_attribution.normalization_contract_mismatch: `0`
-- mismatch_attribution.independent_overprojection: `67`
+- mismatch_attribution.independent_overprojection: `55`
 
 ## Out-of-Contract Distribution
 
-- call: `170`
+- call: `178`
 
 Breakdown by `edge_type::language::reason`:
-- call::typescript::dynamic: `20`
-- call::typescript::in_repo_unresolved: `150`
+- call::typescript::dynamic: `22`
+- call::typescript::in_repo_unresolved: `156`
 
 Note: `enrichment_edges` includes only in-repo out-of-contract edges (unresolved, dynamic, standard-call filtered); external edges are excluded.
 
 ## Independent Parser Coverage & Totals
 
-- coverage.typescript: files_parsed/files_total=`348/348` (1.000000)
-- raw_call_edges: `17353`
-- raw_import_edges: `1973`
-- normalized_call_edges: `17353`
-- normalized_import_edges: `1973`
-- contract_truth_edges: `1738`
-- enrichment_edges: `144`
-- enriched_truth_edges: `1882`
-- expanded_high_conf_edges: `1863`
-- expanded_full_edges: `1882`
-- excluded_out_of_scope_edges: `839`
-- included_limitation_edges: `170`
+- coverage.typescript: files_parsed/files_total=`357/357` (1.000000)
+- raw_call_edges: `17578`
+- raw_import_edges: `2040`
+- normalized_call_edges: `17578`
+- normalized_import_edges: `2040`
+- contract_truth_edges: `1754`
+- enrichment_edges: `150`
+- enriched_truth_edges: `1904`
+- expanded_high_conf_edges: `1883`
+- expanded_full_edges: `1904`
+- excluded_out_of_scope_edges: `830`
+- included_limitation_edges: `178`
 
 ## Core Metrics
 
-- static_contract_recall: `0.977560`
-- static_overreach_rate: `0.052954`
-- overreach_count: `95`
-- reducer_edge_total: `1794`
+- static_contract_recall: `0.976625`
+- static_overreach_rate: `0.052020`
+- overreach_count: `94`
+- reducer_edge_total: `1807`
 
 ## Action Priority Board
 
-- [high] core_analysis::method_recall_gap evidence=`{'method_recall': 0.8323699421965318}`
-- [high] core_analysis::method_precision_gap evidence=`{'method_precision': 0.7955801104972375}`
-- [high] core_analysis::strict_overreach_elevated evidence=`{'strict_overreach_rate': 0.052954292084726864}`
-- [medium] validation_workflow::strict_to_expanded_recall_drop evidence=`{'strict_recall': 0.977560414269275, 'expanded_full_recall': 0.9112646121147715, 'delta': 0.06629580215450348}`
+- [high] core_analysis::method_recall_gap evidence=`{'method_recall': 0.8333333333333334}`
+- [high] core_analysis::method_precision_gap evidence=`{'method_precision': 0.824468085106383}`
+- [high] core_analysis::strict_overreach_elevated evidence=`{'strict_overreach_rate': 0.05201992252351965}`
+- [medium] validation_workflow::strict_to_expanded_recall_drop evidence=`{'strict_recall': 0.9766248574686431, 'expanded_full_recall': 0.9059873949579832, 'delta': 0.07063746251065994}`
 
 ## Metric Definitions & Schema
 

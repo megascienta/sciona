@@ -18,14 +18,14 @@ from .evaluation import (
     DbEdgeSource,
     ReducerEdgeSource,
     ResolverCache,
-    build_independent_call_resolution,
     build_normalized_edge_maps,
     coverage_by_language,
     evaluate_entities,
-    parse_independent_files,
     prepare_parse_map,
     sample_entities_from_db,
 )
+from .evaluation_parse import parse_independent_files
+from .evaluation_resolution import build_independent_call_resolution
 from .invariants import evaluate_invariants, filter_contract_checks
 from .import_contract import resolve_import_contract
 from .out_of_contract import aggregate_breakdown

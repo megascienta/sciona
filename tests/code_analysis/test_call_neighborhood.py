@@ -285,3 +285,95 @@ def test_write_call_artifacts_skips_ambiguous_same_module_resolution(tmp_path: P
             artifact_conn.close()
     finally:
         core_conn.close()
+
+
+def test_write_call_artifacts_rejects_unique_without_provenance_and_reports_diagnostics(
+    tmp_path: Path,
+):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    prefix = runtime_paths.repo_name_prefix(repo_root)
+    core_conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
+    core_conn.row_factory = sqlite3.Row
+    try:
+        core_conn.execute(
+            """
+            INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
+            VALUES (?, ?, ?, ?)
+            """,
+            ("func_beta_task", "function", "python", snapshot_id),
+        )
+        core_conn.execute(
+            """
+            INSERT INTO node_instances(
+                instance_id, structural_id, snapshot_id, qualified_name, file_path, start_line, end_line, content_hash
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                f"{snapshot_id}:func_beta_task",
+                "func_beta_task",
+                snapshot_id,
+                f"{prefix}.pkg.beta.task",
+                "pkg/beta/task.py",
+                1,
+                10,
+                "hash-func_beta_task",
+            ),
+        )
+        core_conn.execute(
+            """
+            INSERT INTO edges(snapshot_id, src_structural_id, dst_structural_id, edge_type)
+            VALUES (?, ?, ?, ?)
+            """,
+            (snapshot_id, "mod_beta", "func_beta_task", "CONTAINS"),
+        )
+        core_conn.execute(
+            """
+            DELETE FROM edges
+            WHERE snapshot_id = ?
+              AND src_structural_id = ?
+              AND dst_structural_id = ?
+              AND edge_type = ?
+            """,
+            (snapshot_id, "mod_beta", "mod_alpha", "IMPORTS_DECLARED"),
+        )
+        core_conn.commit()
+
+        artifact_conn = artifact_connect(
+            get_artifact_db_path(repo_root), repo_root=repo_root
+        )
+        try:
+            diagnostics: dict[str, object] = {}
+            call_records = [
+                CallExtractionRecord(
+                    caller_structural_id="func_beta_task",
+                    caller_qualified_name=f"{prefix}.pkg.beta.task",
+                    caller_node_type="function",
+                    callee_identifiers=("helper",),
+                )
+            ]
+            write_call_artifacts(
+                artifact_conn=artifact_conn,
+                core_conn=core_conn,
+                snapshot_id=snapshot_id,
+                call_records=call_records,
+                eligible_callers={"func_beta_task"},
+                diagnostics=diagnostics,
+            )
+            rows = artifact_conn.execute(
+                "SELECT callee_id FROM node_calls WHERE caller_id = ? ORDER BY callee_id",
+                ("func_beta_task",),
+            ).fetchall()
+            assert rows == []
+
+            by_caller = diagnostics.get("by_caller") or {}
+            caller_diag = by_caller.get("func_beta_task") or {}
+            dropped = caller_diag.get("dropped_by_reason") or {}
+            assert dropped.get("unique_without_provenance") == 1
+            histogram = caller_diag.get("candidate_count_histogram") or {}
+            assert histogram.get("1") == 1
+            record_drops = caller_diag.get("record_drops") or {}
+            assert record_drops.get("no_resolved_callees") == 1
+        finally:
+            artifact_conn.close()
+    finally:
+        core_conn.close()

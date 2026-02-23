@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from collections import Counter, defaultdict
-from typing import Sequence
+from typing import Iterable, Sequence, cast
 
 from ..analysis.graph import module_id_for
 from ..config import CALLABLE_NODE_TYPES
@@ -122,6 +122,7 @@ def write_call_artifacts(
     snapshot_id: str,
     call_records: Sequence[CallExtractionRecord],
     eligible_callers: Iterable[str] | None = None,
+    diagnostics: dict[str, object] | None = None,
 ) -> None:
     """Write call artifacts for eligible callers."""
     core_read.validate_snapshot_for_read(core_conn, snapshot_id, require_committed=True)
@@ -138,22 +139,42 @@ def write_call_artifacts(
     module_lookup, import_targets = _build_module_context(core_conn, snapshot_id)
     node_hashes = _load_node_hashes(core_conn, snapshot_id, caller_set)
     processed_callers: set[str] = set()
+    diagnostics_totals = _ensure_rollup_diagnostics(diagnostics)
     for record in call_records:
         caller_id = record.caller_structural_id
         if caller_id not in caller_set:
             continue
+        caller_diag = _ensure_caller_diagnostics(diagnostics, record)
         caller_module_id = module_lookup.get(caller_id)
-        callee_ids, _ = _resolve_callees(
+        callee_ids, _, resolution_stats = _resolve_callees(
             record.callee_identifiers,
             symbol_index,
             caller_module_id=caller_module_id,
             module_lookup=module_lookup,
             import_targets=import_targets,
         )
-        if not callee_ids or caller_id in processed_callers:
+        _merge_resolution_stats(caller_diag, diagnostics_totals, resolution_stats)
+        if not callee_ids:
+            _record_resolution_drop(
+                caller_diag,
+                diagnostics_totals,
+                reason="no_resolved_callees",
+            )
+            continue
+        if caller_id in processed_callers:
+            _record_resolution_drop(
+                caller_diag,
+                diagnostics_totals,
+                reason="duplicate_caller_record",
+            )
             continue
         call_hash = node_hashes.get(caller_id)
         if not call_hash:
+            _record_resolution_drop(
+                caller_diag,
+                diagnostics_totals,
+                reason="missing_call_hash",
+            )
             continue
         processed_callers.add(caller_id)
         artifact_write.upsert_node_calls(
@@ -226,18 +247,47 @@ def _resolve_callees(
     caller_module_id: str | None,
     module_lookup: dict[str, str],
     import_targets: dict[str, set[str]],
-) -> tuple[set[str], set[str]]:
+) -> tuple[set[str], set[str], dict[str, object]]:
     resolved_ids: set[str] = set()
     resolved_names: set[str] = set()
+    stats: dict[str, object] = {
+        "identifiers_total": 0,
+        "accepted_by_provenance": Counter(),
+        "dropped_by_reason": Counter(),
+        "candidate_count_histogram": Counter(),
+    }
     for identifier in identifiers:
-        candidates = symbol_index.get(identifier) or []
+        stats["identifiers_total"] += 1
+        direct_candidates = symbol_index.get(identifier) or []
+        candidates = direct_candidates
         if not candidates and "." in identifier:
             candidates = symbol_index.get(identifier.rsplit(".", 1)[-1]) or []
-        if len(candidates) == 1:
-            resolved_ids.add(candidates[0])
-            resolved_names.add(identifier)
+        candidate_count = len(candidates)
+        cast(Counter[int], stats["candidate_count_histogram"])[candidate_count] += 1
+        if not candidates:
+            cast(Counter[str], stats["dropped_by_reason"])["no_candidates"] += 1
             continue
-        if not candidates or not caller_module_id:
+        if len(candidates) == 1:
+            candidate = candidates[0]
+            candidate_module = module_lookup.get(candidate)
+            if direct_candidates and "." in identifier:
+                resolved_ids.add(candidate)
+                resolved_names.add(identifier)
+                cast(Counter[str], stats["accepted_by_provenance"])["exact_qname"] += 1
+                continue
+            if caller_module_id and candidate_module == caller_module_id:
+                resolved_ids.add(candidate)
+                resolved_names.add(identifier)
+                cast(Counter[str], stats["accepted_by_provenance"])["module_scoped"] += 1
+                continue
+            cast(Counter[str], stats["dropped_by_reason"])[
+                "unique_without_provenance"
+            ] += 1
+            continue
+        if not caller_module_id:
+            cast(Counter[str], stats["dropped_by_reason"])[
+                "ambiguous_no_caller_module"
+            ] += 1
             continue
         allowed_modules = set(import_targets.get(caller_module_id, set()))
         allowed_modules.add(caller_module_id)
@@ -249,8 +299,135 @@ def _resolve_callees(
         if len(narrowed) == 1:
             resolved_ids.add(narrowed[0])
             resolved_names.add(identifier)
+            cast(Counter[str], stats["accepted_by_provenance"])["import_narrowed"] += 1
             continue
-    return resolved_ids, resolved_names
+        if not narrowed:
+            cast(Counter[str], stats["dropped_by_reason"])[
+                "ambiguous_no_in_scope_candidate"
+            ] += 1
+            continue
+        cast(Counter[str], stats["dropped_by_reason"])[
+            "ambiguous_multiple_in_scope_candidates"
+        ] += 1
+    return resolved_ids, resolved_names, stats
+
+
+def _ensure_rollup_diagnostics(diagnostics: dict[str, object] | None) -> dict[str, object]:
+    if diagnostics is None:
+        return {}
+    diagnostics.setdefault("version", 1)
+    diagnostics.setdefault("by_caller", {})
+    totals = diagnostics.setdefault(
+        "totals",
+        {
+            "identifiers_total": 0,
+            "accepted_identifiers": 0,
+            "dropped_identifiers": 0,
+            "accepted_by_provenance": {},
+            "dropped_by_reason": {},
+            "candidate_count_histogram": {},
+            "record_drops": {},
+        },
+    )
+    return cast(dict[str, object], totals)
+
+
+def _ensure_caller_diagnostics(
+    diagnostics: dict[str, object] | None,
+    record: CallExtractionRecord,
+) -> dict[str, object]:
+    if diagnostics is None:
+        return {}
+    by_caller = cast(dict[str, dict[str, object]], diagnostics.setdefault("by_caller", {}))
+    entry = by_caller.setdefault(
+        record.caller_structural_id,
+        {
+            "caller_qualified_name": record.caller_qualified_name,
+            "caller_node_type": record.caller_node_type,
+            "identifiers_total": 0,
+            "accepted_identifiers": 0,
+            "dropped_identifiers": 0,
+            "accepted_by_provenance": {},
+            "dropped_by_reason": {},
+            "candidate_count_histogram": {},
+            "record_drops": {},
+        },
+    )
+    return entry
+
+
+def _merge_resolution_stats(
+    caller_diag: dict[str, object],
+    totals_diag: dict[str, object],
+    stats: dict[str, object],
+) -> None:
+    identifiers_total = int(stats.get("identifiers_total", 0))
+    accepted = sum(cast(Counter[str], stats["accepted_by_provenance"]).values())
+    dropped = sum(cast(Counter[str], stats["dropped_by_reason"]).values())
+    _inc_scalar(caller_diag, "identifiers_total", identifiers_total)
+    _inc_scalar(caller_diag, "accepted_identifiers", accepted)
+    _inc_scalar(caller_diag, "dropped_identifiers", dropped)
+    _inc_scalar(totals_diag, "identifiers_total", identifiers_total)
+    _inc_scalar(totals_diag, "accepted_identifiers", accepted)
+    _inc_scalar(totals_diag, "dropped_identifiers", dropped)
+    _merge_counter_map(
+        caller_diag, "accepted_by_provenance", stats["accepted_by_provenance"]
+    )
+    _merge_counter_map(
+        caller_diag, "dropped_by_reason", stats["dropped_by_reason"]
+    )
+    _merge_counter_map(
+        caller_diag, "candidate_count_histogram", stats["candidate_count_histogram"]
+    )
+    _merge_counter_map(
+        totals_diag, "accepted_by_provenance", stats["accepted_by_provenance"]
+    )
+    _merge_counter_map(
+        totals_diag, "dropped_by_reason", stats["dropped_by_reason"]
+    )
+    _merge_counter_map(
+        totals_diag, "candidate_count_histogram", stats["candidate_count_histogram"]
+    )
+
+
+def _record_resolution_drop(
+    caller_diag: dict[str, object],
+    totals_diag: dict[str, object],
+    *,
+    reason: str,
+) -> None:
+    if caller_diag:
+        _inc_map(caller_diag, "record_drops", reason)
+    if totals_diag:
+        _inc_map(totals_diag, "record_drops", reason)
+
+
+def _merge_counter_map(
+    target: dict[str, object],
+    key: str,
+    counter_values: object,
+) -> None:
+    if not target:
+        return
+    target_map = cast(dict[str, int], target.setdefault(key, {}))
+    for bucket, count in cast(Counter[object], counter_values).items():
+        if not count:
+            continue
+        bucket_key = str(bucket)
+        target_map[bucket_key] = int(target_map.get(bucket_key, 0)) + int(count)
+
+
+def _inc_scalar(target: dict[str, object], key: str, amount: int) -> None:
+    if not target or not amount:
+        return
+    target[key] = int(target.get(key, 0)) + amount
+
+
+def _inc_map(target: dict[str, object], key: str, bucket: str) -> None:
+    if not target:
+        return
+    values = cast(dict[str, int], target.setdefault(key, {}))
+    values[bucket] = int(values.get(bucket, 0)) + 1
 
 
 def _simple_identifier(qualified_name: str) -> str | None:

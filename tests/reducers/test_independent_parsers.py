@@ -34,6 +34,7 @@ from experiments.reducers.validation.metrics import compute_metrics
 
 
 FIXTURE_ROOT = Path("tests/fixtures/independent")
+FIXTURE_MATRIX_PATH = FIXTURE_ROOT / "fixture_matrix.json"
 
 
 def _java_parser_ready() -> bool:
@@ -48,6 +49,32 @@ def _java_parser_ready() -> bool:
 
 def _load_expected(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _load_fixture_matrix() -> list[dict]:
+    payload = json.loads(FIXTURE_MATRIX_PATH.read_text(encoding="utf-8"))
+    fixtures = payload.get("fixtures")
+    assert isinstance(fixtures, list), "fixture_matrix.json must contain a fixtures list"
+    return fixtures
+
+
+def _parse_fixture(language: str, root: Path, file_path: str, module_qualified_name: str):
+    files = [{"file_path": file_path, "module_qualified_name": module_qualified_name}]
+    if language == "python":
+        return parse_python_files(root, files)
+    if language == "typescript":
+        return parse_typescript_files(root, files)
+    if language == "java":
+        return parse_java_files(root, files)
+    raise AssertionError(f"Unsupported fixture language: {language}")
+
+
+def _skip_if_fixture_requirements_missing(fixture: dict) -> None:
+    requirements = set(fixture.get("requires") or [])
+    if "node" in requirements and shutil.which("node") is None:
+        pytest.skip("node is required")
+    if "java_parser_toolchain" in requirements and not _java_parser_ready():
+        pytest.skip("java parser toolchain is not configured")
 
 
 def _assert_fixture(result, expected: dict) -> None:
@@ -68,6 +95,160 @@ def _assert_fixture_exact(result, expected: dict) -> None:
     assert defs == set(expected["defs"])
     assert call_callees == set(expected["call_callees"])
     assert import_targets == set(expected["import_targets"])
+
+
+def _normalized_calls_as_dicts(result) -> list[dict]:
+    calls, _imports = normalize_file_edges(
+        result.module_qualified_name,
+        result.call_edges,
+        result.import_edges,
+    )
+    rows = [
+        {
+            "caller": edge.caller,
+            "callee": edge.callee,
+            "callee_qname": edge.callee_qname,
+            "dynamic": edge.dynamic,
+            "callee_text": edge.callee_text,
+        }
+        for edge in calls
+    ]
+    rows.sort(
+        key=lambda item: (
+            item["caller"],
+            item["callee"],
+            str(item["callee_qname"]),
+            item["dynamic"],
+            str(item["callee_text"]),
+        )
+    )
+    return rows
+
+
+def _normalized_imports_as_dicts(result) -> list[dict]:
+    _calls, imports = normalize_file_edges(
+        result.module_qualified_name,
+        result.call_edges,
+        result.import_edges,
+    )
+    rows = [
+        {
+            "source_module": edge.source_module,
+            "target_module": edge.target_module,
+            "dynamic": edge.dynamic,
+        }
+        for edge in imports
+    ]
+    rows.sort(
+        key=lambda item: (item["source_module"], item["target_module"], item["dynamic"])
+    )
+    return rows
+
+
+def _assert_optional_normalized_expectations(
+    result,
+    expected: dict,
+    *,
+    mode: str,
+) -> None:
+    expected_calls = expected.get("expected_normalized_calls")
+    if expected_calls is not None:
+        actual_calls = _normalized_calls_as_dicts(result)
+        if mode == "subset":
+            assert all(entry in actual_calls for entry in expected_calls)
+        else:
+            assert actual_calls == expected_calls
+    expected_imports = expected.get("expected_normalized_imports")
+    if expected_imports is not None:
+        actual_imports = _normalized_imports_as_dicts(result)
+        if mode == "subset":
+            assert all(entry in actual_imports for entry in expected_imports)
+        else:
+            assert actual_imports == expected_imports
+
+
+def test_fixture_matrix_quality_gates() -> None:
+    fixtures = _load_fixture_matrix()
+    assert fixtures, "fixture matrix must not be empty"
+    ids = [fixture.get("id") for fixture in fixtures]
+    assert len(ids) == len(set(ids)), "fixture ids must be unique"
+    languages = {fixture.get("language") for fixture in fixtures}
+    assert {"python", "typescript", "java"}.issubset(languages)
+    expected_categories = {"core_calls", "imports", "nested_classes"}
+    covered_categories = set()
+    for fixture in fixtures:
+        fixture_id = fixture.get("id")
+        categories = fixture.get("categories") or []
+        assert categories, f"fixture {fixture_id} must define categories"
+        covered_categories.update(categories)
+        root = FIXTURE_ROOT / fixture["root"]
+        expected = _load_expected(root / "expected.json")
+        assert (
+            "expected_normalized_calls" in expected
+        ), f"fixture {fixture_id} must define expected_normalized_calls"
+        assert (
+            "expected_normalized_imports" in expected
+        ), f"fixture {fixture_id} must define expected_normalized_imports"
+    assert expected_categories.issubset(covered_categories)
+
+
+@pytest.mark.parametrize(
+    "fixture",
+    _load_fixture_matrix(),
+    ids=lambda item: item["id"],
+)
+def test_independent_parser_fixture_matrix_differential(fixture: dict) -> None:
+    _skip_if_fixture_requirements_missing(fixture)
+    root = FIXTURE_ROOT / fixture["root"]
+    results = _parse_fixture(
+        fixture["language"],
+        root,
+        fixture["file_path"],
+        fixture["module_qualified_name"],
+    )
+    assert len(results) == 1
+    result = results[0]
+    expected = _load_expected(root / "expected.json")
+    assert fixture.get("categories"), f"Fixture {fixture['id']} must define categories"
+    mode = fixture.get("assert_mode", "subset")
+    if mode == "exact":
+        _assert_fixture_exact(result, expected)
+    elif mode == "subset":
+        _assert_fixture(result, expected)
+    else:
+        raise AssertionError(f"Unknown assert_mode for fixture {fixture['id']}: {mode}")
+    _assert_optional_normalized_expectations(result, expected, mode=mode)
+
+
+@pytest.mark.parametrize(
+    "fixture",
+    _load_fixture_matrix(),
+    ids=lambda item: item["id"],
+)
+def test_independent_parser_fixture_matrix_hash_stability(fixture: dict) -> None:
+    _skip_if_fixture_requirements_missing(fixture)
+    root = FIXTURE_ROOT / fixture["root"]
+    file_path = fixture["file_path"]
+    module_qualified_name = fixture["module_qualified_name"]
+    results1_list = _parse_fixture(
+        fixture["language"], root, file_path, module_qualified_name
+    )
+    results2_list = _parse_fixture(
+        fixture["language"], root, file_path, module_qualified_name
+    )
+    results1 = {entry.file_path: entry for entry in results1_list}
+    results2 = {entry.file_path: entry for entry in results2_list}
+    normalized1 = {
+        path: normalize_file_edges(res.module_qualified_name, res.call_edges, res.import_edges)
+        for path, res in results1.items()
+    }
+    normalized2 = {
+        path: normalize_file_edges(res.module_qualified_name, res.call_edges, res.import_edges)
+        for path, res in results2.items()
+    }
+    assert _independent_results_hash(results1, normalized1) == _independent_results_hash(
+        results2, normalized2
+    )
 
 
 def test_python_parser_fixture() -> None:
@@ -723,3 +904,39 @@ def test_call_contract_resolves_receiver_binding() -> None:
         contract={"call_contract": {"require_callee_in_repo": True}},
     )
     assert resolved == "fixture.sample.Service.run"
+
+
+def test_call_contract_keeps_same_module_ambiguity_unresolved() -> None:
+    edge = NormalizedCallEdge(
+        caller="fixture.sample.entry",
+        callee="run",
+        callee_qname=None,
+        dynamic=False,
+        callee_text="run",
+    )
+    resolved = resolve_call_in_contract(
+        edge=edge,
+        caller_qname="fixture.sample.entry",
+        caller_module="fixture.sample",
+        call_resolution={
+            "symbol_index": {
+                "run": [
+                    "fixture.sample.Service.run",
+                    "fixture.sample.Other.run",
+                ]
+            },
+            "module_lookup": {
+                "fixture.sample.Service.run": "fixture.sample",
+                "fixture.sample.Other.run": "fixture.sample",
+            },
+            "import_targets": {"fixture.sample": set()},
+            "class_name_index": {},
+            "class_method_index": {},
+            "module_symbol_index": {},
+            "import_symbol_hints": {},
+            "namespace_aliases": {},
+            "receiver_bindings": {},
+        },
+        contract={"call_contract": {"require_callee_in_repo": True}},
+    )
+    assert resolved is None

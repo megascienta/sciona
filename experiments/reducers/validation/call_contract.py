@@ -186,9 +186,6 @@ def resolve_call_in_contract(
     hinted_narrowed = [candidate for candidate in hinted_direct if candidate in candidates]
     if len(hinted_narrowed) == 1:
         return hinted_narrowed[0]
-    if len(same_module) > 1:
-        same_module.sort()
-        return same_module[0]
     if len(narrowed) == 1:
         return narrowed[0]
     return None

@@ -7,5 +7,18 @@
   "import_targets": [
     "./a",
     "./b"
+  ],
+  "expected_normalized_calls": [],
+  "expected_normalized_imports": [
+    {
+      "source_module": "fixture.barrel",
+      "target_module": "./a",
+      "dynamic": false
+    },
+    {
+      "source_module": "fixture.barrel",
+      "target_module": "./b",
+      "dynamic": false
+    }
   ]
 }

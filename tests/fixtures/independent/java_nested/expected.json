@@ -8,5 +8,15 @@
   "call_callees": [
     "helper"
   ],
-  "import_targets": []
+  "import_targets": [],
+  "expected_normalized_calls": [
+    {
+      "caller": "fixture.sample.Outer.Inner.ping",
+      "callee": "helper",
+      "callee_qname": null,
+      "dynamic": false,
+      "callee_text": null
+    }
+  ],
+  "expected_normalized_imports": []
 }
