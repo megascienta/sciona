@@ -68,12 +68,12 @@ If your worktree is dirty, reducer outputs include an `_diff` payload describing
 
 ## Reducer Contract Validation
 
-SCIONA includes a repository-independent reducer validation workflow in `experiments/reducers/`. It validates reducer behavior against direct DB queries and independent parsers under a code-defined structural contract policy (`experiments/reducers/validation/contract_spec.py`) and shared strict acceptance semantics (`src/sciona/code_analysis/contracts/strict_call_contract.py`).
+SCIONA includes a repository-independent reducer validation workflow in `validations/reducers/`. It validates reducer behavior against direct DB queries and independent parsers under a code-defined structural contract policy (`validations/reducers/validation/contract_spec.py`) and shared strict acceptance semantics (`src/sciona/code_analysis/contracts/strict_call_contract.py`).
 
 Run:
 
 ```bash
-python experiments/reducers/reducer_validation.py \
+python validations/reducers/reducer_validation.py \
   --repo-root /path/to/repo \
   --nodes 500 \
   --seed 20260222 \
@@ -99,7 +99,7 @@ Interpretation:
   - `Enrichment Alignment (Non-Gating Diagnostics)`
   - `Independent Strict Contract Diagnostics`
 
-Detailed diagnostics and consolidated analysis are maintained in `experiments/reducers/reports/consolidated_validation_report.md`.
+Detailed diagnostics and consolidated analysis are maintained in `validations/reducers/reports/consolidated_validation_report.md`.
 
 ## Reducers usage
 

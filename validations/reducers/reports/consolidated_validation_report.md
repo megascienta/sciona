@@ -2,10 +2,10 @@
 
 Date: 2026-02-23
 Sources:
-- `experiments/reducers/reports/OpenLineage_reducer_validation.json`
-- `experiments/reducers/reports/commons_lang_reducer_validation.json`
-- `experiments/reducers/reports/fastapi_reducer_validation.json`
-- `experiments/reducers/reports/nest_reducer_validation.json`
+- `validations/reducers/reports/OpenLineage_reducer_validation.json`
+- `validations/reducers/reports/commons_lang_reducer_validation.json`
+- `validations/reducers/reports/fastapi_reducer_validation.json`
+- `validations/reducers/reports/nest_reducer_validation.json`
 
 ## Executive Verdict
 - Contract-constrained validation is substantially improved and now stable at the workflow level.

@@ -19,7 +19,7 @@ def _require_jar() -> str:
     jar = os.environ.get("SCIONA_JAVAPARSER_JAR")
     if not jar:
         try:
-            from experiments.reducers.validation import local_config
+            from validations.reducers.validation import local_config
         except Exception:
             local_config = None
         jar = getattr(local_config, "JAVAPARSER_JAR", None) if local_config else None

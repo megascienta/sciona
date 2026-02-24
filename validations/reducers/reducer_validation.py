@@ -12,10 +12,10 @@ from typing import Dict, List, Tuple
 if __package__ is None or __package__ == "":
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-from experiments.reducers.validation import config
-from experiments.reducers.validation.independent.shared import FileParseResult
-from experiments.reducers.validation.orchestrator import run_validation
-from experiments.reducers.validation.stability import independent_results_hash
+from validations.reducers.validation import config
+from validations.reducers.validation.independent.shared import FileParseResult
+from validations.reducers.validation.orchestrator import run_validation
+from validations.reducers.validation.stability import independent_results_hash
 
 
 def parse_args() -> argparse.Namespace:

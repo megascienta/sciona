@@ -10,13 +10,13 @@ from types import SimpleNamespace
 
 import pytest
 
-from experiments.reducers.reducer_validation import _independent_results_hash
-from experiments.reducers.validation.call_contract import resolve_call_in_contract
-from experiments.reducers.validation.call_contract import build_contract_call_candidates
-from experiments.reducers.validation.call_contract import resolve_call_in_contract_details
-from experiments.reducers.validation.ground_truth import edge_records_from_ground_truth
-from experiments.reducers.validation.import_contract import resolve_import_contract
-from experiments.reducers.validation.independent.contract_normalization import (
+from validations.reducers.reducer_validation import _independent_results_hash
+from validations.reducers.validation.call_contract import resolve_call_in_contract
+from validations.reducers.validation.call_contract import build_contract_call_candidates
+from validations.reducers.validation.call_contract import resolve_call_in_contract_details
+from validations.reducers.validation.ground_truth import edge_records_from_ground_truth
+from validations.reducers.validation.import_contract import resolve_import_contract
+from validations.reducers.validation.independent.contract_normalization import (
     module_name_from_file,
     normalize_scoped_calls,
 )
@@ -24,13 +24,13 @@ from sciona.code_analysis.core.extract.languages.typescript import (
     module_name as core_typescript_module_name,
 )
 from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
-from experiments.reducers.validation.independent.java_runner import _require_jar
-from experiments.reducers.validation.independent.normalize import normalize_file_edges
-from experiments.reducers.validation.independent.python_ast import parse_python_files
-from experiments.reducers.validation.independent.python_ast import _CallVisitor
-from experiments.reducers.validation.independent.ts_node import parse_typescript_files
-from experiments.reducers.validation.independent.java_runner import parse_java_files
-from experiments.reducers.validation.independent.shared import (
+from validations.reducers.validation.independent.java_runner import _require_jar
+from validations.reducers.validation.independent.normalize import normalize_file_edges
+from validations.reducers.validation.independent.python_ast import parse_python_files
+from validations.reducers.validation.independent.python_ast import _CallVisitor
+from validations.reducers.validation.independent.ts_node import parse_typescript_files
+from validations.reducers.validation.independent.java_runner import parse_java_files
+from validations.reducers.validation.independent.shared import (
     Definition,
     EdgeRecord,
     FileParseResult,
@@ -38,7 +38,7 @@ from experiments.reducers.validation.independent.shared import (
     NormalizedCallEdge,
 )
 from sciona.code_analysis.contracts import select_strict_call_candidate
-from experiments.reducers.validation.metrics import compute_metrics
+from validations.reducers.validation.metrics import compute_metrics
 
 
 FIXTURE_ROOT = Path("tests/fixtures/independent")

@@ -12,7 +12,7 @@ Evaluated relation scope:
 
 ## 2. Independence Boundary
 Required:
-- parser/normalization/call-resolution truth logic lives in `experiments/reducers/validation/independent/*` and validation modules,
+- parser/normalization/call-resolution truth logic lives in `validations/reducers/validation/independent/*` and validation modules,
 - no semantic reuse from SCIONA core language analyzers.
 - strict contract acceptance is shared and canonicalized via `src/sciona/code_analysis/contracts/strict_call_contract.py` (required parity path).
 
@@ -32,8 +32,8 @@ Allowed shared utilities:
 Built from strict proxy truth plus selected in-repo limitation edges.
 
 Policy (authoritative via code configuration):
-- `experiments/reducers/validation/contract_spec.py` (validation contract policy surface)
-- `experiments/reducers/validation/config.py` (thresholds and expanded-truth policy)
+- `validations/reducers/validation/contract_spec.py` (validation contract policy surface)
+- `validations/reducers/validation/config.py` (thresholds and expanded-truth policy)
 - `scope_exclusions`: `standard_call`, `external`
 - `limitation_focus`: `dynamic`, `in_repo_unresolved`, `relative_unresolved`
 
@@ -168,7 +168,7 @@ Canonical metric source/formula mapping is emitted in `metric_definitions`.
 
 ## 10. Run
 ```bash
-python experiments/reducers/reducer_validation.py \
+python validations/reducers/reducer_validation.py \
   --repo-root /path/to/repo \
   --nodes 500 \
   --seed 20260221 \

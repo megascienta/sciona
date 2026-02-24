@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 
-from experiments.reducers.validation.invariants import evaluate_invariants, filter_contract_checks
+from validations.reducers.validation.invariants import evaluate_invariants, filter_contract_checks
 
 
 def test_member_call_recall_gate_is_not_failing_when_not_applicable() -> None:

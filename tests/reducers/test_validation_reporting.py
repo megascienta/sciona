@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import pytest
 
-from experiments.reducers.validation.orchestrator import (
+from validations.reducers.validation.orchestrator import (
     _bootstrap_micro_ci,
     _select_threshold_profile,
 )
-from experiments.reducers.validation.report import render_summary, write_json
+from validations.reducers.validation.report import render_summary, write_json
 
 
 def test_select_threshold_profile_multi_language() -> None:
