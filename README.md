@@ -3,7 +3,7 @@
 </p>
 
 
-SCIONA builds a **deterministic structural index (SCI)** for a *git* repository. It captures what exists in the code (modules, classes, functions, methods) and how entities are structurally connected. SCIONA is **snapshot-based, reducer-driven, and LLM-agnostic**. It does not execute code or perform semantic inference. Instead, SCIONA produces  explicit structural representations derived from tree-sitter parsing. Analysis is static and source-only across supported languages. Reducers serve as the source of structural evidence, rendering reproducible  facts from a committed snapshot. **This deterministic representation can be used to stabilize tooling workflows, including LLM-assisted development.**
+SCIONA builds a **deterministic structural index (SCI)** for a *git* repository. It captures what exists in the code (modules, classes, functions, methods) and how entities are structurally connected. SCIONA is **snapshot-based, reducer-driven, and LLM-agnostic**. It does not execute code or perform semantic inference. Instead, SCIONA produces  explicit structural representations derived from [tree-sitter](https://tree-sitter.github.io/tree-sitter/) parsing. Analysis is static and source-only across supported languages. Reducers serve as the source of structural evidence, rendering reproducible  facts from a committed snapshot. **This deterministic representation can be used to stabilize tooling workflows, including LLM-assisted development.**
 
 ## Why SCIONA exists
 
@@ -68,7 +68,7 @@ If your worktree is dirty, reducer outputs include an `_diff` payload describing
 
 ## Reducer Contract Validation
 
-SCIONA includes a repository-independent reducer validation workflow in `validations/reducers/`. It validates reducer behavior against direct DB queries and independent parsers under a code-defined structural contract policy (`validations/reducers/validation/contract_spec.py`) and shared strict acceptance semantics (`src/sciona/code_analysis/contracts/strict_call_contract.py`).
+SCIONA includes a repository-independent reducer validation workflow in [`validations/reducers/`](validations/reducers/). It validates reducer behavior against direct DB queries and independent parsers under a code-defined structural contract policy ([`validations/reducers/validation/contract_spec.py`](validations/reducers/validation/contract_spec.py)) and shared strict acceptance semantics ([`src/sciona/code_analysis/contracts/strict_call_contract.py`](src/sciona/code_analysis/contracts/strict_call_contract.py)).
 
 Run:
 
@@ -99,7 +99,7 @@ Interpretation:
   - `Enrichment Alignment (Non-Gating Diagnostics)`
   - `Independent Strict Contract Diagnostics`
 
-Detailed diagnostics and consolidated analysis are maintained in `validations/reducers/reports/consolidated_validation_report.md`.
+Detailed diagnostics and consolidated analysis are maintained in [`validations/reducers/reports/consolidated_validation_report.md`](validations/reducers/reports/consolidated_validation_report.md).
 
 ## Reducers usage
 
