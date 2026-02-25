@@ -6,6 +6,7 @@ from pathlib import Path
 
 from sciona.code_analysis.core.normalize.model import (
     AnalysisResult,
+    CallRecord,
     EdgeRecord,
     FileRecord,
     FileSnapshot,
@@ -127,3 +128,164 @@ def test_persist_analysis_sorts_edges_by_source_target_edge_type(monkeypatch) ->
         ("pkg.mod.src", "pkg.mod.a", "ZZZ"),
         ("pkg.mod.src", "pkg.mod.b", "CONTAINS"),
     ]
+
+
+def test_normalize_call_records_strict_keeps_exact_qname() -> None:
+    assembler = StructuralAssembler(_DummyConn(), _DummyStore())
+    analysis = AnalysisResult(
+        nodes=[
+            SemanticNodeRecord(
+                language="python",
+                node_type="module",
+                qualified_name="pkg.mod",
+                display_name="mod",
+                file_path=Path("pkg/mod.py"),
+                start_line=1,
+                end_line=10,
+            ),
+            SemanticNodeRecord(
+                language="python",
+                node_type="function",
+                qualified_name="pkg.mod.entry",
+                display_name="entry",
+                file_path=Path("pkg/mod.py"),
+                start_line=1,
+                end_line=5,
+            ),
+        ],
+        edges=[],
+        call_records=[
+            CallRecord(
+                qualified_name="pkg.mod.entry",
+                node_type="function",
+                callee_identifiers=["pkg.other.service.run"],
+            )
+        ],
+    )
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=Path("pkg/mod.py"),
+            relative_path=Path("pkg/mod.py"),
+            language="python",
+        ),
+        file_id="f1",
+        blob_sha="hash",
+        size=0,
+        line_count=1,
+        content=b"",
+    )
+
+    normalized = assembler._normalize_call_records(analysis, snapshot)
+
+    assert len(normalized.call_records) == 1
+    assert normalized.call_records[0].callee_identifiers == ["pkg.other.service.run"]
+
+
+def test_normalize_call_records_strict_drops_terminal_without_provenance() -> None:
+    assembler = StructuralAssembler(_DummyConn(), _DummyStore())
+    analysis = AnalysisResult(
+        nodes=[
+            SemanticNodeRecord(
+                language="python",
+                node_type="module",
+                qualified_name="pkg.mod",
+                display_name="mod",
+                file_path=Path("pkg/mod.py"),
+                start_line=1,
+                end_line=10,
+            ),
+            SemanticNodeRecord(
+                language="python",
+                node_type="function",
+                qualified_name="pkg.mod.entry",
+                display_name="entry",
+                file_path=Path("pkg/mod.py"),
+                start_line=1,
+                end_line=5,
+            ),
+        ],
+        edges=[],
+        call_records=[
+            CallRecord(
+                qualified_name="pkg.mod.entry",
+                node_type="function",
+                callee_identifiers=["run"],
+            )
+        ],
+    )
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=Path("pkg/mod.py"),
+            relative_path=Path("pkg/mod.py"),
+            language="python",
+        ),
+        file_id="f1",
+        blob_sha="hash",
+        size=0,
+        line_count=1,
+        content=b"",
+    )
+
+    normalized = assembler._normalize_call_records(analysis, snapshot)
+
+    assert normalized.call_records == []
+
+
+def test_normalize_call_records_strict_accepts_module_scoped_terminal() -> None:
+    assembler = StructuralAssembler(_DummyConn(), _DummyStore())
+    analysis = AnalysisResult(
+        nodes=[
+            SemanticNodeRecord(
+                language="python",
+                node_type="module",
+                qualified_name="pkg.mod",
+                display_name="mod",
+                file_path=Path("pkg/mod.py"),
+                start_line=1,
+                end_line=10,
+            ),
+            SemanticNodeRecord(
+                language="python",
+                node_type="function",
+                qualified_name="pkg.mod.entry",
+                display_name="entry",
+                file_path=Path("pkg/mod.py"),
+                start_line=1,
+                end_line=5,
+            ),
+            SemanticNodeRecord(
+                language="python",
+                node_type="function",
+                qualified_name="pkg.mod.run",
+                display_name="run",
+                file_path=Path("pkg/mod.py"),
+                start_line=6,
+                end_line=8,
+            ),
+        ],
+        edges=[],
+        call_records=[
+            CallRecord(
+                qualified_name="pkg.mod.entry",
+                node_type="function",
+                callee_identifiers=["run"],
+            )
+        ],
+    )
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=Path("pkg/mod.py"),
+            relative_path=Path("pkg/mod.py"),
+            language="python",
+        ),
+        file_id="f1",
+        blob_sha="hash",
+        size=0,
+        line_count=1,
+        content=b"",
+    )
+
+    normalized = assembler._normalize_call_records(analysis, snapshot)
+
+    assert len(normalized.call_records) == 1
+    assert normalized.call_records[0].callee_identifiers == ["pkg.mod.run"]

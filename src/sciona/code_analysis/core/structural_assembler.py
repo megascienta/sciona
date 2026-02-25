@@ -6,11 +6,15 @@
 from __future__ import annotations
 
 import hashlib
+from collections import defaultdict
 from typing import Dict, Iterable, Optional, Tuple
 
 from typing import Protocol
 from ...runtime import identity as ids
 from ...runtime.text import canonical_span_bytes
+from ..analysis.graph import module_id_for
+from ..config import CALLABLE_NODE_TYPES
+from ..contracts import select_strict_call_candidate
 from ..tools.call_extraction import normalize_call_identifiers
 from .normalize.model import (
     AnalysisResult,
@@ -102,13 +106,48 @@ class StructuralAssembler:
             for record in analysis.call_records
         ]
         normalized = normalize_call_identifiers(resolved_calls)
+        module_names = {
+            node.qualified_name for node in analysis.nodes if node.node_type == "module"
+        }
+        symbol_index = _build_symbol_index(analysis.nodes)
+        module_lookup = _build_module_lookup(analysis.nodes, module_names)
+        import_targets = _build_import_targets(analysis.edges)
+        strict_normalized: list[tuple[str, str, str, list[str]]] = []
+        for language, qualified, node_type, identifiers in normalized:
+            caller_module = module_id_for(qualified, module_names)
+            accepted: list[str] = []
+            for identifier in identifiers:
+                direct_candidates: list[str]
+                if "." in identifier:
+                    direct_candidates = [identifier]
+                else:
+                    direct_candidates = list(symbol_index.get(identifier, ()))
+                fallback_candidates: list[str] = []
+                if not direct_candidates and "." in identifier:
+                    fallback_candidates = list(
+                        symbol_index.get(identifier.rsplit(".", 1)[-1], ())
+                    )
+                decision = select_strict_call_candidate(
+                    identifier=identifier,
+                    direct_candidates=direct_candidates,
+                    fallback_candidates=fallback_candidates,
+                    caller_module=caller_module,
+                    module_lookup=module_lookup,
+                    import_targets=import_targets,
+                )
+                if decision.accepted_candidate:
+                    accepted.append(decision.accepted_candidate)
+            if accepted:
+                strict_normalized.append(
+                    (language, qualified, node_type, list(dict.fromkeys(accepted)))
+                )
         analysis.call_records = [
             CallRecord(
                 qualified_name=qualified,
                 node_type=node_type,
                 callee_identifiers=callee_identifiers,
             )
-            for _language, qualified, node_type, callee_identifiers in normalized
+            for _language, qualified, node_type, callee_identifiers in strict_normalized
         ]
         return analysis
 
@@ -245,3 +284,45 @@ class StructuralAssembler:
                 if canonical:
                     return hashlib.sha1(canonical).hexdigest()
         return file_snapshot.blob_sha
+
+
+def _build_symbol_index(
+    nodes: Iterable[SemanticNodeRecord],
+) -> dict[str, list[str]]:
+    index_sets: dict[str, set[str]] = defaultdict(set)
+    for node in nodes:
+        if node.node_type not in CALLABLE_NODE_TYPES:
+            continue
+        qname = node.qualified_name
+        index_sets[qname].add(qname)
+        terminal = qname.rsplit(".", 1)[-1]
+        if terminal:
+            index_sets[terminal].add(qname)
+    return {key: sorted(values) for key, values in index_sets.items()}
+
+
+def _build_module_lookup(
+    nodes: Iterable[SemanticNodeRecord],
+    module_names: set[str],
+) -> dict[str, str]:
+    lookup: dict[str, str] = {}
+    for node in nodes:
+        if node.node_type not in CALLABLE_NODE_TYPES:
+            continue
+        lookup[node.qualified_name] = module_id_for(node.qualified_name, module_names)
+    return lookup
+
+
+def _build_import_targets(
+    edges: Iterable[EdgeRecord],
+) -> dict[str, set[str]]:
+    targets: dict[str, set[str]] = defaultdict(set)
+    for edge in edges:
+        if (
+            edge.edge_type != "IMPORTS_DECLARED"
+            or edge.src_node_type != "module"
+            or edge.dst_node_type != "module"
+        ):
+            continue
+        targets[edge.src_qualified_name].add(edge.dst_qualified_name)
+    return targets
