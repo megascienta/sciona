@@ -9,8 +9,14 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-from .tree_sitter import build_parser
+from .profile_query import find_profile_nodes_of_types
+from .profile_query_surface import (
+    PYTHON_PROFILE_BASE_NODE_TYPES,
+    PYTHON_PROFILE_DECORATOR_NODE_TYPES,
+    PYTHON_PROFILE_PARAMETER_NODE_TYPES,
+)
 from .profile_introspection_cache import _python_inspector_cached
+from .tree_sitter import build_parser
 
 @dataclass
 class _FunctionDetails:
@@ -38,10 +44,16 @@ class _PythonInspector:
     def function_details(
         self, start_line: int, end_line: int
     ) -> Optional[_FunctionDetails]:
-        return self.functions.get((start_line, end_line))
+        exact = self.functions.get((start_line, end_line))
+        if exact is not None:
+            return exact
+        return _fuzzy_span_lookup(self.functions, start_line, end_line)
 
     def class_details(self, start_line: int, end_line: int) -> Optional[_ClassDetails]:
-        return self.classes.get((start_line, end_line))
+        exact = self.classes.get((start_line, end_line))
+        if exact is not None:
+            return exact
+        return _fuzzy_span_lookup(self.classes, start_line, end_line)
 
     def _scan(self, node, *, decorators: tuple[str, ...]) -> None:
         node_type = getattr(node, "type", "")
@@ -84,14 +96,17 @@ class _PythonInspector:
 
     def _decorator_names(self, node) -> list[str]:
         decorators: list[str] = []
-        for child in getattr(node, "children", []):
-            if child.type != "decorator":
-                continue
+        for child in find_profile_nodes_of_types(
+            node,
+            language_name="python",
+            node_types=PYTHON_PROFILE_DECORATOR_NODE_TYPES,
+        ):
             text = _node_text(child, self._source).strip()
             if not text:
                 continue
             if text.startswith("@"):
                 text = text[1:].strip()
+            text = text.replace('"', "'")
             if text:
                 decorators.append(text)
         return decorators
@@ -140,62 +155,95 @@ def _python_inspector(
 def _collect_parameters(parameters_node, source: bytes) -> List[str]:
     if parameters_node is None:
         return []
-    fragment = _node_text(parameters_node, source).strip()
-    if not fragment.startswith("(") or not fragment.endswith(")"):
-        return []
-    inner = fragment[1:-1].strip()
-    if not inner:
-        return []
     params: List[str] = []
-    for entry in _split_comma_aware(inner):
-        token = entry.strip()
-        if not token or token in {"*", "/"}:
+    for child in find_profile_nodes_of_types(
+        parameters_node,
+        language_name="python",
+        node_types=PYTHON_PROFILE_PARAMETER_NODE_TYPES,
+    ):
+        if not _is_direct_child(child, parameters_node):
             continue
-        token = token.split("=", 1)[0].strip()
-        token = token.split(":", 1)[0].strip()
-        if not token:
-            continue
-        if token.startswith("**"):
-            value = token[2:].strip()
-            if value:
-                params.append(f"**{value}")
-            continue
-        if token.startswith("*"):
-            value = token[1:].strip()
-            if value:
-                params.append(f"*{value}")
-            continue
-        params.append(token)
+        value = _python_parameter_name(child, source)
+        if value:
+            params.append(value)
     return params
 
 def _collect_bases(superclasses_node, source: bytes) -> List[str]:
     if superclasses_node is None:
         return []
-    fragment = _node_text(superclasses_node, source).strip()
-    if not fragment.startswith("(") or not fragment.endswith(")"):
-        return []
-    inner = fragment[1:-1].strip()
-    if not inner:
-        return []
-    return [entry.strip() for entry in _split_comma_aware(inner) if entry.strip()]
-
-def _split_comma_aware(text: str) -> List[str]:
-    parts: List[str] = []
-    depth = 0
-    current: list[str] = []
-    for char in text:
-        if char in "([{":
-            depth += 1
-        elif char in ")]}" and depth > 0:
-            depth -= 1
-        if char == "," and depth == 0:
-            parts.append("".join(current))
-            current = []
+    bases: list[str] = []
+    for child in find_profile_nodes_of_types(
+        superclasses_node,
+        language_name="python",
+        node_types=PYTHON_PROFILE_BASE_NODE_TYPES,
+    ):
+        value = _node_text(child, source).strip()
+        if not value:
             continue
-        current.append(char)
-    if current:
-        parts.append("".join(current))
-    return parts
+        if value in {"(", ")", ","}:
+            continue
+        bases.append(value)
+    # Preserve stable order and remove duplicates.
+    return list(dict.fromkeys(bases))
 
 def _node_text(node, source: bytes) -> str:
     return source[node.start_byte : node.end_byte].decode("utf-8")
+
+
+def _python_parameter_name(node, source: bytes) -> str | None:
+    node_type = getattr(node, "type", "")
+    if node_type == "identifier":
+        value = _node_text(node, source).strip()
+        return value or None
+    if node_type in {"default_parameter", "typed_parameter", "typed_default_parameter"}:
+        name_node = node.child_by_field_name("name")
+        if name_node is None:
+            name_node = node.child_by_field_name("pattern")
+        if name_node is not None:
+            value = _node_text(name_node, source).strip()
+            return value or None
+    if node_type in {"list_splat_pattern", "dictionary_splat_pattern"}:
+        inner = next(
+            (child for child in getattr(node, "children", []) if child.type == "identifier"),
+            None,
+        )
+        if inner is None:
+            value = _node_text(node, source).strip()
+            if not value:
+                return None
+            if value.startswith("**"):
+                return value
+            if value.startswith("*"):
+                return value
+            return f"*{value}"
+        prefix = "**" if node_type == "dictionary_splat_pattern" else "*"
+        value = _node_text(inner, source).strip()
+        return f"{prefix}{value}" if value else None
+    return None
+
+
+def _is_direct_child(node, parent) -> bool:
+    owner = getattr(node, "parent", None)
+    if owner is None:
+        return False
+    return (
+        owner.type == getattr(parent, "type", None)
+        and owner.start_byte == getattr(parent, "start_byte", -1)
+        and owner.end_byte == getattr(parent, "end_byte", -1)
+    )
+
+
+def _fuzzy_span_lookup(mapping, start_line: int, end_line: int):
+    if not mapping:
+        return None
+    candidates = [
+        (span, value)
+        for span, value in mapping.items()
+        if span[0] == start_line and span[1] >= end_line
+    ]
+    if not candidates:
+        candidates = [(span, value) for span, value in mapping.items() if span[0] == start_line]
+    if not candidates:
+        return None
+    candidates.sort(key=lambda item: item[0][1])
+    return candidates[0][1]
