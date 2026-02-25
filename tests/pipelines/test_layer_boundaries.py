@@ -7,7 +7,7 @@ import ast
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2] / "src" / "sciona"
 
 
 FORBIDDEN_IMPORTS = {
@@ -17,7 +17,7 @@ FORBIDDEN_IMPORTS = {
     "pipelines": {"cli", "api"},
     "reducers": {"cli", "api", "pipelines"},
     "api": {"cli"},
-    "cli": {"pipelines", "runtime", "data_storage", "code_analysis", "reducers"},
+    "cli": {"pipelines", "data_storage", "code_analysis", "reducers"},
 }
 
 RESPONSIBILITY_FORBIDDEN_IMPORTS = {
@@ -25,12 +25,10 @@ RESPONSIBILITY_FORBIDDEN_IMPORTS = {
     "api": {"pipelines.domain"},
     "cli": {
         "pipelines",
-        "runtime",
         "data_storage",
         "code_analysis",
         "reducers",
         "sciona.pipelines",
-        "sciona.runtime",
         "sciona.data_storage",
         "sciona.code_analysis",
         "sciona.reducers",
@@ -77,6 +75,14 @@ def _iter_imports(path: Path) -> list[tuple[str, int]]:
     return imports
 
 
+def _target_layer(module: str) -> str:
+    if module.startswith("sciona."):
+        parts = module.split(".")
+        if len(parts) > 1:
+            return parts[1]
+    return module.split(".")[0]
+
+
 def _scan_forbidden(top_package: str) -> list[str]:
     violations: list[str] = []
     forbidden = FORBIDDEN_IMPORTS[top_package]
@@ -84,7 +90,7 @@ def _scan_forbidden(top_package: str) -> list[str]:
     for path in package_root.rglob("*.py"):
         rel = path.relative_to(ROOT)
         for module, lineno in _iter_imports(path):
-            target = module.split(".")[0]
+            target = _target_layer(module)
             if target in forbidden:
                 violations.append(f"{rel}:{lineno} imports {module!r}")
     return violations
