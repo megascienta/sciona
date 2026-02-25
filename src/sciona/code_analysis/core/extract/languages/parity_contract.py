@@ -36,6 +36,11 @@ def build_parity_contract() -> dict[str, object]:
                 "python": "yes",
                 "typescript": "yes",
             },
+            "walker_construct_capability_declarations": {
+                "java": "yes",
+                "python": "yes",
+                "typescript": "yes",
+            },
             "profile_function_extras_tree_sitter": {
                 "java": "yes",
                 "python": "yes",

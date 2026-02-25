@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from . import parity_contract
 from . import query_surface
+from . import walker_capabilities
 from ....tools import profile_query_surface
 
 
@@ -14,6 +15,7 @@ def build_capability_manifest() -> dict[str, object]:
     return {
         "version": 1,
         "queries": _build_query_surfaces(),
+        "walker_capabilities": walker_capabilities.build_walker_capabilities(),
         "parity_contract": parity_contract.build_parity_contract(),
     }
 
