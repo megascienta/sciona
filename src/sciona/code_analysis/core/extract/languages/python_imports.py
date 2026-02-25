@@ -11,6 +11,7 @@ from typing import Optional
 from .....runtime import packaging as runtime_packaging
 from .....runtime import paths as runtime_paths
 from ...normalize.model import FileSnapshot
+from ..utils import find_nodes_of_types_query
 from .shared import is_internal_module, repo_root_from_snapshot
 
 
@@ -29,7 +30,13 @@ def collect_python_imports(
     member_aliases: dict[str, str] = {}
     raw_module_map: dict[str, str] = {}
     is_package = snapshot.record.path.name == "__init__.py"
-    for child in root.children:
+    for child in find_nodes_of_types_query(
+        root,
+        language_name="python",
+        node_types=("import_statement", "import_from_statement"),
+    ):
+        if not _is_direct_child(child, root):
+            continue
         if child.type == "import_statement":
             extracted = extract_import_statement_from_node(child, snapshot.content)
             for module, alias in extracted:
@@ -168,3 +175,14 @@ def package_context(module_name: str, is_package: bool) -> Optional[str]:
     if "." in module_name:
         return module_name.rsplit(".", 1)[0]
     return None
+
+
+def _is_direct_child(node, root) -> bool:
+    parent = getattr(node, "parent", None)
+    if parent is None:
+        return False
+    return (
+        parent.start_byte == root.start_byte
+        and parent.end_byte == root.end_byte
+        and parent.type == root.type
+    )

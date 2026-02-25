@@ -21,7 +21,7 @@ from ...normalize.model import (
     SemanticNodeRecord,
 )
 from ..analyzer import ASTAnalyzer
-from ..utils import count_lines, find_nodes_of_type
+from ..utils import count_lines, find_nodes_of_types_query
 from .java_calls import callee_text, resolve_java_calls
 from .java_imports import (
     extract_package,
@@ -89,7 +89,11 @@ class JavaAnalyzer(ASTAnalyzer):
 
             imports: List[str] = []
             import_class_map: dict[str, str] = {}
-            for import_node in find_nodes_of_type(root, "import_declaration"):
+            for import_node in find_nodes_of_types_query(
+                root,
+                language_name="java",
+                node_types=("import_declaration",),
+            ):
                 normalized = normalize_import_node(
                     import_node,
                     snapshot.content,

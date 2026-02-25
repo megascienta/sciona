@@ -11,7 +11,7 @@ from typing import Optional
 from .....runtime import paths as runtime_paths
 from ...module_naming import module_name_from_path
 from ...normalize.model import FileSnapshot
-from ..utils import find_nodes_of_type
+from ..utils import find_nodes_of_types_query
 from .shared import is_internal_module, repo_root_from_snapshot
 
 
@@ -26,9 +26,11 @@ def collect_typescript_imports(
     import_aliases: dict[str, str] = {}
     member_aliases: dict[str, str] = {}
     repo_prefix = runtime_paths.repo_name_prefix(repo_root_from_snapshot(snapshot))
-    nodes = list(find_nodes_of_type(root, "import_statement"))
-    nodes.extend(list(find_nodes_of_type(root, "export_statement")))
-    nodes.extend(list(find_nodes_of_type(root, "import_equals_declaration")))
+    nodes = find_nodes_of_types_query(
+        root,
+        language_name="typescript",
+        node_types=("import_statement", "export_statement", "import_equals_declaration"),
+    )
     for node in nodes:
         module_spec = extract_module_spec_from_node(node, snapshot.content)
         if not module_spec:
@@ -56,7 +58,11 @@ def collect_typescript_imports(
             import_aliases,
             member_aliases,
         )
-    for node in find_nodes_of_type(root, "lexical_declaration"):
+    for node in find_nodes_of_types_query(
+        root,
+        language_name="typescript",
+        node_types=("lexical_declaration",),
+    ):
         alias, module_spec = extract_require_assignment_from_node(node, snapshot.content)
         if not alias or not module_spec:
             continue
@@ -84,7 +90,11 @@ def extract_module_spec_from_node(node, content: bytes) -> Optional[str]:
             for candidate in getattr(child, "children", []):
                 if candidate.type == "string":
                     return decode_string_literal(candidate, content)
-    string_nodes = list(find_nodes_of_type(node, "string"))
+    string_nodes = find_nodes_of_types_query(
+        node,
+        language_name="typescript",
+        node_types=("string",),
+    )
     if string_nodes:
         return decode_string_literal(string_nodes[0], content)
     return None
