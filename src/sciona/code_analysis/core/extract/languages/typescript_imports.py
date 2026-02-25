@@ -12,6 +12,7 @@ from .....runtime import paths as runtime_paths
 from ...module_naming import module_name_from_path
 from ...normalize.model import FileSnapshot
 from ..utils import find_nodes_of_types_query
+from .import_model import NormalizedImportModel
 from .query_surface import (
     TYPESCRIPT_IMPORT_EXPORT_NODE_TYPES,
     TYPESCRIPT_REQUIRE_DECLARATION_NODE_TYPES,
@@ -27,9 +28,24 @@ def collect_typescript_imports(
     *,
     module_index: set[str] | None,
 ) -> tuple[list[str], dict[str, str], dict[str, str]]:
-    imports: list[str] = []
-    import_aliases: dict[str, str] = {}
-    member_aliases: dict[str, str] = {}
+    model = collect_typescript_import_model(
+        root,
+        snapshot,
+        module_name,
+        module_index=module_index,
+    )
+    return model.modules, model.import_aliases, model.member_aliases
+
+
+def collect_typescript_import_model(
+    root,
+    snapshot: FileSnapshot,
+    module_name: str,
+    *,
+    module_index: set[str] | None,
+) -> NormalizedImportModel:
+    del module_name
+    model = NormalizedImportModel()
     repo_prefix = runtime_paths.repo_name_prefix(repo_root_from_snapshot(snapshot))
     nodes = find_nodes_of_types_query(
         root,
@@ -37,6 +53,7 @@ def collect_typescript_imports(
         node_types=TYPESCRIPT_IMPORT_EXPORT_NODE_TYPES,
     )
     for node in nodes:
+        model.imports_seen += 1
         module_spec = extract_module_spec_from_node(node, snapshot.content)
         if not module_spec:
             continue
@@ -53,21 +70,22 @@ def collect_typescript_imports(
         if repo_prefix and (
             normalized == repo_prefix or normalized.startswith(f"{repo_prefix}.")
         ):
-            imports.append(normalized)
+            model.modules.append(normalized)
         else:
-            imports.append(normalized)
+            model.modules.append(normalized)
         populate_ts_aliases_from_node(
             node,
             snapshot.content,
             normalized,
-            import_aliases,
-            member_aliases,
+            model.import_aliases,
+            model.member_aliases,
         )
     for node in find_nodes_of_types_query(
         root,
         language_name="typescript",
         node_types=TYPESCRIPT_REQUIRE_DECLARATION_NODE_TYPES,
     ):
+        model.imports_seen += 1
         alias, module_spec = extract_require_assignment_from_node(node, snapshot.content)
         if not alias or not module_spec:
             continue
@@ -81,9 +99,9 @@ def collect_typescript_imports(
                     continue
             else:
                 continue
-        imports.append(normalized)
-        import_aliases[alias] = normalized
-    return imports, import_aliases, member_aliases
+        model.modules.append(normalized)
+        model.import_aliases[alias] = normalized
+    return model
 
 
 def extract_module_spec_from_node(node, content: bytes) -> Optional[str]:

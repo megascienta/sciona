@@ -21,7 +21,7 @@ from ...normalize.model import (
 from ..analyzer import ASTAnalyzer
 from ..utils import count_lines
 from .python_calls import resolve_python_calls
-from .python_imports import collect_python_imports
+from .python_imports import collect_python_import_model
 from .python_nodes import PythonNodeState, walk_python_nodes
 from .query_surface import PYTHON_CALL_NODE_TYPES, PYTHON_SKIP_CALL_NODE_TYPES
 from .python_resolution import collect_callable_instance_map, collect_module_instance_map
@@ -76,12 +76,16 @@ class PythonAnalyzer(ASTAnalyzer):
                     result=result,
                     state=state,
                 )
-            imports, import_aliases, member_aliases, raw_module_map = collect_python_imports(
+            import_model = collect_python_import_model(
                 root,
                 snapshot,
                 module_name,
                 module_index=getattr(self, "module_index", None),
             )
+            imports = import_model.modules
+            import_aliases = import_model.import_aliases
+            member_aliases = import_model.member_aliases
+            raw_module_map = import_model.raw_module_map
             module_instance_map = collect_module_instance_map(
                 root,
                 snapshot,
@@ -170,6 +174,7 @@ class PythonAnalyzer(ASTAnalyzer):
                     )
                 )
             diagnostics = {
+                "imports_seen": import_model.imports_seen,
                 "imports_internal": len(set(imports)),
                 "import_aliases": len(import_aliases),
                 "member_aliases": len(member_aliases),

@@ -6,7 +6,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import List
 
 from tree_sitter import Parser
 from tree_sitter_languages import get_language
@@ -20,10 +19,10 @@ from ...normalize.model import (
     SemanticNodeRecord,
 )
 from ..analyzer import ASTAnalyzer
-from ..utils import count_lines, find_nodes_of_types_query
+from ..utils import count_lines
 from .java_calls import callee_text, resolve_java_calls
 from .java_imports import (
-    collect_java_import_bindings,
+    collect_java_import_model,
     extract_package,
     module_prefix_for_package,
 )
@@ -33,17 +32,13 @@ from .java_resolution import (
     collect_local_var_types,
     qualify_java_type,
 )
-from .query_surface import (
-    JAVA_CALL_NODE_TYPES,
-    JAVA_IMPORT_NODE_TYPES,
-    JAVA_SKIP_CALL_NODE_TYPES,
-)
+from .query_surface import JAVA_CALL_NODE_TYPES, JAVA_SKIP_CALL_NODE_TYPES
 from .analyzer_support import (
     assert_scope_resolver_parity,
     collect_targets_by_callable,
     scope_resolver_from_pending_calls,
 )
-from .shared import is_internal_module
+
 
 class JavaAnalyzer(ASTAnalyzer):
     language = "java"
@@ -99,39 +94,18 @@ class JavaAnalyzer(ASTAnalyzer):
                     collect_declared_vars=collect_declared_vars,
                 )
 
-            imports: List[str] = []
-            import_aliases: dict[str, str] = {}
-            member_aliases: dict[str, str] = {}
-            static_wildcard_targets: set[str] = set()
-            imports_seen = 0
-            for import_node in find_nodes_of_types_query(
+            import_model = collect_java_import_model(
                 root,
-                language_name="java",
-                node_types=JAVA_IMPORT_NODE_TYPES,
-            ):
-                imports_seen += 1
-                bindings = collect_java_import_bindings(
-                    import_node,
-                    snapshot.content,
-                    module_name,
-                    snapshot,
-                    module_prefix=module_prefix,
-                )
-                if bindings is None:
-                    continue
-                normalized = bindings.normalized_module
-                if not is_internal_module(normalized, getattr(self, "module_index", None)):
-                    continue
-                imports.append(normalized)
-                for alias, target in bindings.import_aliases:
-                    if alias and target:
-                        import_aliases.setdefault(alias, target)
-                for alias, target in bindings.member_aliases:
-                    if alias and target:
-                        member_aliases.setdefault(alias, target)
-                for target in bindings.static_wildcard_targets:
-                    if target:
-                        static_wildcard_targets.add(target)
+                snapshot.content,
+                module_name,
+                snapshot,
+                module_prefix=module_prefix,
+                module_index=getattr(self, "module_index", None),
+            )
+            imports = import_model.modules
+            import_aliases = import_model.import_aliases
+            member_aliases = import_model.member_aliases
+            static_wildcard_targets = import_model.static_wildcard_targets
 
             resolved_calls: list[tuple[str, str, str, list[str]]] = []
             scope_resolver = scope_resolver_from_pending_calls(state.pending_calls)
@@ -204,7 +178,7 @@ class JavaAnalyzer(ASTAnalyzer):
                     )
                 )
             diagnostics = {
-                "imports_seen": imports_seen,
+                "imports_seen": import_model.imports_seen,
                 "imports_internal": len(set(imports)),
                 "import_aliases": len(import_aliases),
                 "member_aliases": len(member_aliases),

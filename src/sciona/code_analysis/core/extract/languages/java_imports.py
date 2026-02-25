@@ -11,8 +11,9 @@ from typing import Optional
 from .....runtime import paths as runtime_paths
 from ...normalize.model import FileSnapshot
 from ..utils import find_nodes_of_types_query
-from .query_surface import JAVA_PACKAGE_NODE_TYPES
-from .shared import repo_root_from_snapshot
+from .import_model import NormalizedImportModel
+from .query_surface import JAVA_IMPORT_NODE_TYPES, JAVA_PACKAGE_NODE_TYPES
+from .shared import is_internal_module, repo_root_from_snapshot
 
 
 @dataclass(frozen=True)
@@ -126,6 +127,48 @@ def collect_java_import_bindings(
         normalized_module=normalized,
         import_aliases=((simple_name, normalized),),
     )
+
+
+def collect_java_import_model(
+    root,
+    content: bytes,
+    module_name: str,
+    snapshot: FileSnapshot,
+    *,
+    module_prefix: str | None,
+    module_index: set[str] | None,
+) -> NormalizedImportModel:
+    model = NormalizedImportModel()
+    for import_node in find_nodes_of_types_query(
+        root,
+        language_name="java",
+        node_types=JAVA_IMPORT_NODE_TYPES,
+    ):
+        model.imports_seen += 1
+        bindings = collect_java_import_bindings(
+            import_node,
+            content,
+            module_name,
+            snapshot,
+            module_prefix=module_prefix,
+        )
+        if bindings is None:
+            continue
+        normalized = bindings.normalized_module
+        if not is_internal_module(normalized, module_index):
+            continue
+        model.modules.append(normalized)
+        model.raw_module_map[normalized] = normalized
+        for alias, target in bindings.import_aliases:
+            if alias and target:
+                model.import_aliases.setdefault(alias, target)
+        for alias, target in bindings.member_aliases:
+            if alias and target:
+                model.member_aliases.setdefault(alias, target)
+        for target in bindings.static_wildcard_targets:
+            if target:
+                model.static_wildcard_targets.add(target)
+    return model
 
 
 def import_simple_name_node(node, content: bytes) -> str | None:

@@ -16,6 +16,11 @@
         "python": "yes",
         "typescript": "yes"
       },
+      "normalized_import_model_convergence": {
+        "java": "yes",
+        "python": "yes",
+        "typescript": "yes"
+      },
       "profile_class_extras_tree_sitter": {
         "java": "yes",
         "python": "yes",

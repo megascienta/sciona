@@ -26,6 +26,11 @@ def build_parity_contract() -> dict[str, object]:
                 "python": "yes",
                 "typescript": "yes",
             },
+            "normalized_import_model_convergence": {
+                "java": "yes",
+                "python": "yes",
+                "typescript": "yes",
+            },
             "call_extraction_and_attribution": {
                 "java": "yes",
                 "python": "yes",

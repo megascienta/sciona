@@ -21,7 +21,7 @@ from ...normalize.model import (
 from ..analyzer import ASTAnalyzer
 from ..utils import count_lines
 from .typescript_calls import resolve_typescript_calls
-from .typescript_imports import collect_typescript_imports
+from .typescript_imports import collect_typescript_import_model
 from .typescript_nodes import TypeScriptNodeState, walk_typescript_nodes
 from .query_surface import (
     TYPESCRIPT_CALL_NODE_TYPES,
@@ -79,12 +79,15 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                     state=state,
                     function_depth=0,
                 )
-            imports, import_aliases, member_aliases = collect_typescript_imports(
+            import_model = collect_typescript_import_model(
                 root,
                 snapshot,
                 module_name,
                 module_index=getattr(self, "module_index", None),
             )
+            imports = import_model.modules
+            import_aliases = import_model.import_aliases
+            member_aliases = import_model.member_aliases
             resolve_pending_instances(
                 state.pending_instance_assignments,
                 state.pending_class_instances,
@@ -154,6 +157,7 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                     )
                 )
             diagnostics = {
+                "imports_seen": import_model.imports_seen,
                 "imports_internal": len(set(imports)),
                 "import_aliases": len(import_aliases),
                 "member_aliases": len(member_aliases),

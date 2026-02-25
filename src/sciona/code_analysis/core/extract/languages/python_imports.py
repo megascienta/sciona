@@ -6,12 +6,13 @@
 from __future__ import annotations
 
 import importlib.util
-from typing import Optional
+from typing import List, Optional
 
 from .....runtime import packaging as runtime_packaging
 from .....runtime import paths as runtime_paths
 from ...normalize.model import FileSnapshot
 from ..utils import find_nodes_of_types_query
+from .import_model import NormalizedImportModel
 from .query_surface import PYTHON_IMPORT_NODE_TYPES
 from .shared import is_internal_module, repo_root_from_snapshot
 
@@ -23,19 +24,38 @@ def collect_python_imports(
     *,
     module_index: set[str] | None,
 ) -> tuple[list[str], dict[str, str], dict[str, str], dict[str, str]]:
+    model = collect_python_import_model(
+        root,
+        snapshot,
+        module_name,
+        module_index=module_index,
+    )
+    return (
+        model.modules,
+        model.import_aliases,
+        model.member_aliases,
+        model.raw_module_map,
+    )
+
+
+def collect_python_import_model(
+    root,
+    snapshot: FileSnapshot,
+    module_name: str,
+    *,
+    module_index: set[str] | None,
+) -> NormalizedImportModel:
     repo_root = repo_root_from_snapshot(snapshot)
     repo_prefix = runtime_paths.repo_name_prefix(repo_root)
     local_packages = set(runtime_packaging.local_package_names(repo_root))
-    imports: list[str] = []
-    import_aliases: dict[str, str] = {}
-    member_aliases: dict[str, str] = {}
-    raw_module_map: dict[str, str] = {}
+    model = NormalizedImportModel()
     is_package = snapshot.record.path.name == "__init__.py"
     for child in find_nodes_of_types_query(
         root,
         language_name="python",
         node_types=PYTHON_IMPORT_NODE_TYPES,
     ):
+        model.imports_seen += 1
         if not _is_direct_child(child, root):
             continue
         if child.type == "import_statement":
@@ -50,12 +70,12 @@ def collect_python_imports(
                 )
                 if not normalized or not is_internal_module(normalized, module_index):
                     continue
-                imports.append(normalized)
-                raw_module_map[module] = normalized
+                model.modules.append(normalized)
+                model.raw_module_map[module] = normalized
                 if alias:
-                    import_aliases[alias] = normalized
+                    model.import_aliases[alias] = normalized
                 elif "." not in module:
-                    import_aliases[module] = normalized
+                    model.import_aliases[module] = normalized
         elif child.type == "import_from_statement":
             module, names = extract_from_import_from_node(child, snapshot.content)
             if not module:
@@ -69,13 +89,13 @@ def collect_python_imports(
             )
             if not normalized or not is_internal_module(normalized, module_index):
                 continue
-            imports.append(normalized)
-            raw_module_map[module] = normalized
+            model.modules.append(normalized)
+            model.raw_module_map[module] = normalized
             for name, alias in names:
                 if name == "*":
                     continue
-                member_aliases[alias or name] = f"{normalized}.{name}"
-    return imports, import_aliases, member_aliases, raw_module_map
+                model.member_aliases[alias or name] = f"{normalized}.{name}"
+    return model
 
 
 def extract_import_statement_from_node(
