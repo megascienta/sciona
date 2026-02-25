@@ -19,6 +19,23 @@ def node_text(node, content: bytes) -> str | None:
     return content[node.start_byte : node.end_byte].decode("utf-8")
 
 
+def attribute_chain(node, content: bytes) -> tuple[str, ...]:
+    if node is None:
+        return ()
+    if node.type == "identifier":
+        value = node_text(node, content)
+        return (value,) if value else ()
+    if node.type != "attribute":
+        return ()
+    object_node = node.child_by_field_name("object")
+    attribute_node = node.child_by_field_name("attribute")
+    head = attribute_chain(object_node, content)
+    tail = node_text(attribute_node, content) if attribute_node is not None else None
+    if not tail:
+        return ()
+    return (*head, tail)
+
+
 def resolve_constructor_target(
     callee_text: str,
     terminal: str,
@@ -138,17 +155,9 @@ def collect_callable_instance_map(
                 if left.type == "identifier":
                     name = node_text(left, snapshot.content)
                 elif left.type == "attribute":
-                    object_node = left.child_by_field_name("object")
-                    attribute_node = left.child_by_field_name("attribute")
-                    object_name = node_text(object_node, snapshot.content) or ""
-                    if object_name in {"self", "cls"}:
-                        name = node_text(attribute_node, snapshot.content)
-                    if not name:
-                        left_text = node_text(left, snapshot.content) or ""
-                        if left_text.startswith("self.") or left_text.startswith("cls."):
-                            parts = left_text.split(".", 2)
-                            if len(parts) >= 2:
-                                name = parts[1]
+                    chain = attribute_chain(left, snapshot.content)
+                    if len(chain) >= 2 and chain[0] in {"self", "cls"}:
+                        name = chain[1]
                 callee = right.child_by_field_name("function")
                 callee_text = node_text(callee, snapshot.content) or ""
                 terminal = callee_text.split(".")[-1] if callee_text else ""
@@ -167,11 +176,9 @@ def collect_callable_instance_map(
                 if left.type == "identifier":
                     name = node_text(left, snapshot.content)
                 elif left.type == "attribute":
-                    object_node = left.child_by_field_name("object")
-                    attribute_node = left.child_by_field_name("attribute")
-                    object_name = node_text(object_node, snapshot.content) or ""
-                    if object_name in {"self", "cls"}:
-                        name = node_text(attribute_node, snapshot.content)
+                    chain = attribute_chain(left, snapshot.content)
+                    if len(chain) >= 2 and chain[0] in {"self", "cls"}:
+                        name = chain[1]
                 if name:
                     target = _resolve_alias_target(
                         right,
@@ -217,17 +224,9 @@ def collect_class_instance_map(
             if left is not None and right is not None and right.type == "call":
                 name = None
                 if left.type == "attribute":
-                    object_node = left.child_by_field_name("object")
-                    attribute_node = left.child_by_field_name("attribute")
-                    object_name = node_text(object_node, snapshot.content) or ""
-                    if object_name in {"self", "cls"}:
-                        name = node_text(attribute_node, snapshot.content)
-                    if not name:
-                        left_text = node_text(left, snapshot.content) or ""
-                        if left_text.startswith("self.") or left_text.startswith("cls."):
-                            parts = left_text.split(".", 2)
-                            if len(parts) >= 2:
-                                name = parts[1]
+                    chain = attribute_chain(left, snapshot.content)
+                    if len(chain) >= 2 and chain[0] in {"self", "cls"}:
+                        name = chain[1]
                 if name:
                     callee = right.child_by_field_name("function")
                     callee_text = node_text(callee, snapshot.content) or ""
@@ -243,11 +242,9 @@ def collect_class_instance_map(
                     if target:
                         instance_map[name] = target
             elif left is not None and right is not None and left.type == "attribute":
-                object_node = left.child_by_field_name("object")
-                attribute_node = left.child_by_field_name("attribute")
-                object_name = node_text(object_node, snapshot.content) or ""
-                if object_name in {"self", "cls"}:
-                    name = node_text(attribute_node, snapshot.content)
+                chain = attribute_chain(left, snapshot.content)
+                if len(chain) >= 2 and chain[0] in {"self", "cls"}:
+                    name = chain[1]
                     alias_scope = dict(instance_map)
                     alias_scope.update(
                         _typed_parameters_for_enclosing_callable(
@@ -280,12 +277,12 @@ def _resolve_alias_target(
         name = node_text(node, content)
         return resolve_alias(name or "", instance_map=known_instances)
     if node.type == "attribute":
-        base = node_text(node, content) or ""
-        if base.startswith("self.") or base.startswith("cls."):
-            parts = base.split(".", 2)
-            if len(parts) >= 2:
-                return resolve_alias(parts[1], instance_map=known_instances)
-        return resolve_alias(base, instance_map=known_instances)
+        chain = attribute_chain(node, content)
+        if not chain:
+            return None
+        if len(chain) >= 2 and chain[0] in {"self", "cls"}:
+            return resolve_alias(chain[1], instance_map=known_instances)
+        return resolve_alias(".".join(chain), instance_map=known_instances)
     return None
 
 

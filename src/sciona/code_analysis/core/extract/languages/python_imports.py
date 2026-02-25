@@ -108,18 +108,7 @@ def extract_from_import_from_node(
     node,
     content: bytes,
 ) -> tuple[str | None, List[tuple[str, str | None]]]:
-    module_node = node.child_by_field_name("module_name")
-    if module_node is None:
-        module_node = node.child_by_field_name("module")
-    module = (
-        content[module_node.start_byte : module_node.end_byte].decode("utf-8").strip()
-        if module_node is not None
-        else None
-    )
-    if not module:
-        fragment = content[node.start_byte : node.end_byte].decode("utf-8").strip()
-        if fragment.startswith("from ") and " import " in fragment:
-            module = fragment[len("from ") :].split(" import ", 1)[0].strip() or None
+    module = _module_from_import_from_node(node, content)
     names: list[tuple[str, str | None]] = []
     for child in getattr(node, "children", []):
         if child.type == "wildcard_import":
@@ -142,6 +131,24 @@ def extract_from_import_from_node(
             if name:
                 names.append((name, alias or None))
     return module or None, names
+
+
+def _module_from_import_from_node(node, content: bytes) -> str | None:
+    module_node = node.child_by_field_name("module_name")
+    if module_node is None:
+        module_node = node.child_by_field_name("module")
+    if module_node is not None:
+        value = content[module_node.start_byte : module_node.end_byte].decode("utf-8").strip()
+        return value or None
+    # `from . import x` and `from ..pkg import x` are represented as relative_import.
+    relative_node = next(
+        (child for child in getattr(node, "children", []) if child.type == "relative_import"),
+        None,
+    )
+    if relative_node is None:
+        return None
+    value = content[relative_node.start_byte : relative_node.end_byte].decode("utf-8").strip()
+    return value or None
 
 
 def normalize_import(

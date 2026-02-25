@@ -90,14 +90,6 @@ def import_name_from_node(node, content: bytes) -> str | None:
     if scoped is None:
         scoped = node.child_by_field_name("path")
     if scoped is None:
-        text = content[node.start_byte : node.end_byte].decode("utf-8").strip()
-        if text.startswith("import"):
-            text = text[len("import") :].strip()
-            if text.startswith("static"):
-                text = text[len("static") :].strip()
-            if text.endswith(";"):
-                text = text[:-1].strip()
-            return text or None
         return None
     return content[scoped.start_byte : scoped.end_byte].decode("utf-8").strip()
 
