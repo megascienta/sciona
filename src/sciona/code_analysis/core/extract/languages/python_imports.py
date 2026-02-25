@@ -116,6 +116,10 @@ def extract_from_import_from_node(
         if module_node is not None
         else None
     )
+    if not module:
+        fragment = content[node.start_byte : node.end_byte].decode("utf-8").strip()
+        if fragment.startswith("from ") and " import " in fragment:
+            module = fragment[len("from ") :].split(" import ", 1)[0].strip() or None
     names: list[tuple[str, str | None]] = []
     for child in getattr(node, "children", []):
         if child.type == "wildcard_import":

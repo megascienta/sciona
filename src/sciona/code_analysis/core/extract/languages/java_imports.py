@@ -57,7 +57,7 @@ def normalize_import_node(
         return None
     is_static = is_static_import(node, content)
     if text.endswith(".*"):
-        return None
+        text = text[:-2]
     if is_static and "." in text:
         text = text.rsplit(".", 1)[0]
     repo_root = repo_root_from_snapshot(snapshot)
@@ -74,8 +74,10 @@ def normalize_import_node(
 
 def import_simple_name_node(node, content: bytes) -> str | None:
     text = import_name_from_node(node, content)
-    if not text or text.endswith(".*"):
+    if not text:
         return None
+    if text.endswith(".*"):
+        text = text[:-2]
     if is_static_import(node, content) and "." in text:
         text = text.rsplit(".", 1)[0]
     return text.split(".")[-1] if text else None
