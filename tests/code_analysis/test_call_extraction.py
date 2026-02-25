@@ -3,6 +3,9 @@
 
 from pathlib import Path
 
+import pytest
+
+from sciona.code_analysis.tools import call_extraction
 from sciona.code_analysis.tools.call_extraction import (
     QualifiedCallIR,
     ReceiverCallIR,
@@ -87,3 +90,13 @@ class A {
     assert [(t.terminal, t.callee_text) for t in actual] == [
         (t.terminal, t.callee_text) for t in expected
     ]
+
+
+def test_call_query_compilation_fails_closed_when_query_api_unavailable(monkeypatch) -> None:
+    class _NoQueryLanguage:
+        pass
+
+    monkeypatch.setattr(call_extraction, "get_language", lambda _name: _NoQueryLanguage())
+    call_extraction._compile_call_query.cache_clear()
+    with pytest.raises(RuntimeError, match="Tree-sitter query API unavailable"):
+        call_extraction._compile_call_query("python", "(call) @call")

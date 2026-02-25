@@ -2,6 +2,8 @@
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
 from sciona.code_analysis.core.extract.utils import count_lines, find_nodes_of_type
+from sciona.code_analysis.core.extract import utils as extract_utils
+import pytest
 
 
 class _Node:
@@ -36,3 +38,13 @@ def test_find_nodes_of_type_preserves_document_order() -> None:
     )
     nodes = list(find_nodes_of_type(root, "target"))
     assert nodes == [first, second, third]
+
+
+def test_compile_query_source_fails_closed_when_query_api_unavailable(monkeypatch) -> None:
+    class _NoQueryLanguage:
+        pass
+
+    monkeypatch.setattr(extract_utils, "get_language", lambda _name: _NoQueryLanguage())
+    extract_utils._compile_query_source.cache_clear()
+    with pytest.raises(RuntimeError, match="Tree-sitter query API unavailable"):
+        extract_utils._compile_query_source("python", "(function_definition) @node")
