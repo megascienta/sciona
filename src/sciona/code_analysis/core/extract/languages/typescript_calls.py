@@ -125,6 +125,8 @@ def _to_requests(targets: List[CallTarget]) -> list[CallResolutionRequest]:
             receiver_chain=target.receiver_chain,
             callee_kind=target.callee_kind,
             ir=target.ir,
+            invocation_kind=target.invocation_kind,
+            type_arguments=target.type_arguments,
         )
         for target in targets
     ]
