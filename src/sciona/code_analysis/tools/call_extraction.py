@@ -5,105 +5,29 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from functools import lru_cache
 from typing import Callable, Sequence, Set
 
 from tree_sitter_languages import get_language
 
+from .call_extraction_queries import normalize_call_identifiers
+from .call_extraction_targets import (
+    _call_target_ir,
+    _callee_shape,
+    _callee_text,
+    _dedupe_targets,
+    _first_child,
+    _normalize_callee_text,
+)
+from .call_extraction_types import (
+    CallExtractionRecord,
+    CallTarget,
+    CallTargetIR,
+    QualifiedCallIR,
+    ReceiverCallIR,
+    TerminalCallIR,
+)
 from ..config import TERMINAL_IDENTIFIER_TYPES
-
-def normalize_call_identifiers(
-    resolved_calls: Sequence[tuple[str, str, str, Sequence[str]]],
-) -> list[tuple[str, str, str, list[str]]]:
-    terminal_map_by_scope: dict[tuple[str, str], dict[str, str | None]] = {}
-    for language, qualified, node_type, identifiers in resolved_calls:
-        scope = _module_scope_for_call(qualified, node_type)
-        bucket = terminal_map_by_scope.setdefault((language, scope), {})
-        for identifier in identifiers:
-            if "." not in identifier:
-                continue
-            terminal = identifier.rsplit(".", 1)[-1]
-            existing = bucket.get(terminal)
-            if existing is None and terminal in bucket:
-                continue
-            if existing is None:
-                bucket[terminal] = identifier
-            elif existing != identifier:
-                bucket[terminal] = None
-    normalized: list[tuple[str, str, str, list[str]]] = []
-    for language, qualified, node_type, identifiers in resolved_calls:
-        scope = _module_scope_for_call(qualified, node_type)
-        terminal_map = terminal_map_by_scope.get((language, scope), {})
-        updated: list[str] = []
-        for identifier in identifiers:
-            if "." in identifier:
-                updated.append(identifier)
-            else:
-                mapped = terminal_map.get(identifier)
-                if mapped:
-                    updated.append(mapped)
-                else:
-                    updated.append(identifier)
-        normalized.append((language, qualified, node_type, updated))
-    return normalized
-
-
-def _module_scope_for_call(qualified_name: str, node_type: str) -> str:
-    parts = qualified_name.split(".")
-    if node_type == "method":
-        if len(parts) > 2:
-            return ".".join(parts[:-2])
-        return qualified_name
-    if len(parts) > 1:
-        return ".".join(parts[:-1])
-    return qualified_name
-
-
-@dataclass(frozen=True)
-class CallExtractionRecord:
-    """Call extraction metadata produced during ingestion."""
-
-    caller_structural_id: str
-    caller_qualified_name: str
-    caller_node_type: str
-    callee_identifiers: Sequence[str]
-
-
-@dataclass(frozen=True)
-class TerminalCallIR:
-    terminal: str
-
-
-@dataclass(frozen=True)
-class QualifiedCallIR:
-    parts: tuple[str, ...]
-    terminal: str
-
-
-@dataclass(frozen=True)
-class ReceiverCallIR:
-    receiver_chain: tuple[str, ...]
-    terminal: str
-
-
-CallTargetIR = TerminalCallIR | QualifiedCallIR | ReceiverCallIR
-
-
-@dataclass(frozen=True)
-class CallTarget:
-    """Captured call target text with terminal identifier."""
-
-    terminal: str
-    callee_text: str | None
-    receiver: str | None = None
-    receiver_chain: tuple[str, ...] = ()
-    callee_kind: str = "unqualified"
-    ir: CallTargetIR | None = None
-    call_span: tuple[int, int] | None = None
-    invocation_kind: str | None = None
-    type_arguments: str | None = None
-
 
 def collect_call_identifiers(
     node,
@@ -175,61 +99,6 @@ def _terminal_identifier_query(node, content: bytes, *, query_language: str) -> 
     candidates.sort(key=lambda item: (item.start_byte, item.end_byte))
     terminal_node = candidates[-1]
     return content[terminal_node.start_byte : terminal_node.end_byte].decode("utf-8")
-
-
-def _callee_text(node, content: bytes) -> str | None:
-    if node is None:
-        return None
-    text = getattr(node, "text", None)
-    if text:
-        return text.decode("utf-8")
-    return content[node.start_byte : node.end_byte].decode("utf-8")
-
-
-def _normalize_callee_text(text: str | None) -> str | None:
-    if not text:
-        return text
-    normalized = text.strip()
-    normalized = normalized.replace("?.", ".")
-    normalized = normalized.replace("!.", ".")
-    normalized = normalized.replace("::", ".")
-    return normalized
-
-
-def _callee_shape(
-    callee_text: str | None,
-) -> tuple[str | None, tuple[str, ...], str]:
-    if not callee_text or "." not in callee_text:
-        return None, (), "unqualified"
-    head = callee_text.rsplit(".", 1)[0].strip()
-    chain = tuple(part for part in head.split(".") if part)
-    if not chain:
-        return None, (), "unqualified"
-    kind = "member"
-    if chain[0] in {"self", "cls", "this", "super"}:
-        kind = "receiver"
-    return chain[0], chain, kind
-
-
-def _call_target_ir(
-    terminal: str,
-    callee_text: str | None,
-    receiver_chain: tuple[str, ...],
-    callee_kind: str,
-) -> CallTargetIR:
-    if not callee_text or "." not in callee_text:
-        return TerminalCallIR(terminal=terminal)
-    parts = tuple(part for part in callee_text.split(".") if part)
-    if len(parts) < 2:
-        return TerminalCallIR(terminal=terminal)
-    if callee_kind == "receiver":
-        return ReceiverCallIR(receiver_chain=receiver_chain, terminal=terminal)
-    return QualifiedCallIR(parts=parts, terminal=terminal)
-
-
-def _first_child(node):
-    children = getattr(node, "children", [])
-    return children[0] if children else None
 
 
 def _collect_call_targets_query(
@@ -361,19 +230,6 @@ def _call_target_from_call_node(
         invocation_kind=getattr(call_node, "type", None),
         type_arguments=type_arguments.strip() if type_arguments else None,
     )
-
-
-def _dedupe_targets(targets: Sequence[CallTarget]) -> tuple[CallTarget, ...]:
-    seen: set[tuple[str, str | None]] = set()
-    ordered: list[CallTarget] = []
-    for target in targets:
-        key = (target.terminal, target.callee_text)
-        if key in seen:
-            continue
-        seen.add(key)
-        ordered.append(target)
-    return tuple(ordered)
-
 
 def _has_ancestor_in_set(node, root, node_types: Set[str]) -> bool:
     root_span = (root.start_byte, root.end_byte, root.type)
