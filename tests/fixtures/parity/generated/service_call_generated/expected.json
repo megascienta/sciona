@@ -1,0 +1,14 @@
+{
+  "call_assertions": [
+    {
+      "callee_suffix": "Service.run",
+      "caller_suffix": "Controller.handle"
+    }
+  ],
+  "node_suffixes": [
+    "Service",
+    "Service.run",
+    "Controller",
+    "Controller.handle"
+  ]
+}

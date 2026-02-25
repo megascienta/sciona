@@ -1,0 +1,26 @@
+{
+  "scenarios": [
+    {
+      "name": "service_call_generated",
+      "expected": {
+        "node_suffixes": [
+          "Service",
+          "Service.run",
+          "Controller",
+          "Controller.handle"
+        ],
+        "call_assertions": [
+          {
+            "caller_suffix": "Controller.handle",
+            "callee_suffix": "Service.run"
+          }
+        ]
+      },
+      "sources": {
+        "python": "class Service:\n    def run(self):\n        pass\n\nclass Controller:\n    def __init__(self):\n        self.svc = Service()\n\n    def handle(self):\n        self.svc.run()\n",
+        "typescript": "class Service {\n  run() {}\n}\n\nexport class Controller {\n  constructor() {\n    this.svc = new Service();\n  }\n\n  handle() {\n    this.svc.run();\n  }\n}\n",
+        "java": "class Service {\n  void run() {}\n}\n\nclass Controller {\n  Service svc = new Service();\n\n  void handle() {\n    svc.run();\n  }\n}\n"
+      }
+    }
+  ]
+}
