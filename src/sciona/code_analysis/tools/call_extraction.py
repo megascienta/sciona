@@ -198,6 +198,9 @@ def _terminal_identifier(node, content: bytes) -> str | None:
 def _callee_text(node, content: bytes) -> str | None:
     if node is None:
         return None
+    text = getattr(node, "text", None)
+    if text:
+        return text.decode("utf-8")
     return content[node.start_byte : node.end_byte].decode("utf-8")
 
 

@@ -190,6 +190,7 @@ def test_fixture_matrix_quality_gates() -> None:
         "chained_receivers",
         "constructor_injection",
         "namespace_aliases",
+        "typed_params",
     }
     covered_categories = set()
     for fixture in fixtures:

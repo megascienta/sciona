@@ -193,6 +193,9 @@ def is_receiver_call_request(request: CallResolutionRequest) -> bool:
 def node_text(node, content: bytes) -> str | None:
     if node is None:
         return None
+    text = getattr(node, "text", None)
+    if text:
+        return text.decode("utf-8")
     return content[node.start_byte : node.end_byte].decode("utf-8")
 
 
