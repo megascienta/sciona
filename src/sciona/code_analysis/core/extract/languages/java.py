@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from collections import defaultdict
 from typing import List
 
 from ....tools.call_extraction import (
@@ -115,40 +116,28 @@ class JavaAnalyzer(ASTAnalyzer):
 
             resolved_calls: list[tuple[str, str, str, list[str]]] = []
             scope_resolver = _scope_resolver_from_pending_calls(state.pending_calls)
-            for qualified, node_type, body_node, class_name in state.pending_calls:
+            pending_by_qualified = {
+                qualified: (node_type, body_node, class_name)
+                for qualified, node_type, body_node, class_name in state.pending_calls
+            }
+            call_targets_by_callable = _collect_targets_by_callable(
+                scope_resolver=scope_resolver,
+                pending_calls=state.pending_calls,
+                snapshot=snapshot,
+                language=self.language,
+            )
+            if _scope_resolver_strict_compare():
+                _assert_scope_resolver_parity(
+                    pending_callables=set(pending_by_qualified),
+                    call_targets_by_callable=call_targets_by_callable,
+                )
+            for qualified, (node_type, body_node, class_name) in pending_by_qualified.items():
                 local_types = collect_local_var_types(body_node, snapshot)
                 instance_types = {}
                 if class_name and state.class_field_types.get(class_name):
                     instance_types.update(state.class_field_types[class_name])
                 instance_types.update(local_types)
-                call_targets = collect_call_targets(
-                    body_node,
-                    snapshot.content,
-                    call_node_types={
-                        "method_invocation",
-                        "object_creation_expression",
-                        "explicit_constructor_invocation",
-                        "constructor_invocation",
-                        "super_constructor_invocation",
-                        "this_constructor_invocation",
-                    },
-                    skip_node_types={
-                        "class_declaration",
-                        "interface_declaration",
-                        "enum_declaration",
-                        "record_declaration",
-                    },
-                    callee_field_names=("name", "type", "function"),
-                    callee_renderer=callee_text,
-                    query_language=self.language,
-                )
-                if _scope_resolver_strict_compare():
-                    _assert_scope_resolver_parity(
-                        scope_resolver=scope_resolver,
-                        body_node=body_node,
-                        call_targets=call_targets,
-                        expected_callable=qualified,
-                    )
+                call_targets = call_targets_by_callable.get(qualified, ())
                 resolved = resolve_java_calls(
                     call_targets,
                     module_name,
@@ -231,20 +220,54 @@ def _scope_resolver_from_pending_calls(
 
 def _assert_scope_resolver_parity(
     *,
-    scope_resolver: ScopeResolver,
-    body_node,
-    call_targets,
-    expected_callable: str,
+    pending_callables: set[str],
+    call_targets_by_callable: dict[str, tuple[object, ...]],
 ) -> None:
-    for target in call_targets:
-        if target.call_span is None:
+    unknown = set(call_targets_by_callable) - pending_callables
+    if unknown:
+        raise RuntimeError(f"scope resolver mismatch: unknown callables {sorted(unknown)}")
+
+
+def _collect_targets_by_callable(
+    *,
+    scope_resolver: ScopeResolver,
+    pending_calls: list[tuple[str, str, object | None, str | None]],
+    snapshot: FileSnapshot,
+    language: str,
+) -> dict[str, tuple[object, ...]]:
+    grouped: dict[str, list[object]] = defaultdict(list)
+    for _qualified, _node_type, body_node, _class_name in pending_calls:
+        if body_node is None:
             continue
-        resolved = scope_resolver.enclosing_callable_for_span(
-            root=body_node,
-            call_span=target.call_span,
+        call_targets = collect_call_targets(
+            body_node,
+            snapshot.content,
+            call_node_types={
+                "method_invocation",
+                "object_creation_expression",
+                "explicit_constructor_invocation",
+                "constructor_invocation",
+                "super_constructor_invocation",
+                "this_constructor_invocation",
+            },
+            skip_node_types={
+                "class_declaration",
+                "interface_declaration",
+                "enum_declaration",
+                "record_declaration",
+            },
+            callee_field_names=("name", "type", "function"),
+            callee_renderer=callee_text,
+            query_language=language,
         )
-        if resolved not in {None, expected_callable}:
-            raise RuntimeError(
-                "scope resolver mismatch: "
-                f"expected={expected_callable}, resolved={resolved}"
+        for target in call_targets:
+            if target.call_span is None:
+                continue
+            caller = scope_resolver.enclosing_callable_for_span(
+                root=body_node,
+                call_span=target.call_span,
             )
+            if caller is None:
+                continue
+            grouped[caller].append(target)
+    return {qualified: tuple(targets) for qualified, targets in grouped.items()}

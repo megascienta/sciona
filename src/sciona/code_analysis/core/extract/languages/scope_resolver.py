@@ -36,7 +36,9 @@ class ScopeResolver:
         while current is not None:
             if current.type in STRUCTURAL_CALLABLE_NODE_TYPES:
                 key = (current.start_byte, current.end_byte)
-                return self.callable_qname_by_span.get(key)
+                resolved = self.callable_qname_by_span.get(key)
+                if resolved is not None:
+                    return resolved
             current = getattr(current, "parent", None)
         return None
 
