@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Iterable
 
 from ...code_analysis.config import CALLABLE_NODE_TYPES
+from ...code_analysis.contracts import select_strict_call_candidate
 from ...data_storage.core_db import read_ops as core_read
 
 
@@ -216,33 +217,19 @@ def resolve_callees(
     resolved_names: set[str] = set()
     for identifier in identifiers:
         direct_candidates = symbol_index.get(identifier) or []
-        candidates = direct_candidates
-        if not candidates and "." in identifier:
-            candidates = symbol_index.get(identifier.rsplit(".", 1)[-1]) or []
-        if not candidates:
-            continue
-        if len(candidates) == 1:
-            candidate = candidates[0]
-            candidate_module = module_lookup.get(candidate)
-            if direct_candidates and "." in identifier:
-                resolved_ids.add(candidate)
-                resolved_names.add(identifier)
-                continue
-            if caller_module and candidate_module == caller_module:
-                resolved_ids.add(candidate)
-                resolved_names.add(identifier)
-            continue
-        if not caller_module:
-            continue
-        allowed = set(import_targets.get(caller_module, set()))
-        allowed.add(caller_module)
-        narrowed = [
-            candidate
-            for candidate in candidates
-            if module_lookup.get(candidate) in allowed
-        ]
-        if len(narrowed) == 1:
-            resolved_ids.add(narrowed[0])
+        fallback_candidates = []
+        if not direct_candidates and "." in identifier:
+            fallback_candidates = symbol_index.get(identifier.rsplit(".", 1)[-1]) or []
+        decision = select_strict_call_candidate(
+            identifier=identifier,
+            direct_candidates=direct_candidates,
+            fallback_candidates=fallback_candidates,
+            caller_module=caller_module,
+            module_lookup=module_lookup,
+            import_targets=import_targets,
+        )
+        if decision.accepted_candidate:
+            resolved_ids.add(decision.accepted_candidate)
             resolved_names.add(identifier)
     return resolved_ids, resolved_names
 

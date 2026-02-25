@@ -132,6 +132,7 @@ class JavaAnalyzer(ASTAnalyzer):
                     },
                     callee_field_names=("name", "type", "function"),
                     callee_renderer=callee_text,
+                    query_language=self.language,
                 )
                 resolved = resolve_java_calls(
                     call_targets,

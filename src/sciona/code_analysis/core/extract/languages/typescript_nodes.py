@@ -88,7 +88,7 @@ def walk_typescript_nodes(
         state.class_stack.append(qualified)
         state.class_methods.setdefault(qualified, set())
         if body:
-            for child in body.children:
+            for child in body.named_children:
                 walk_typescript_nodes(
                     child,
                     language=language,
@@ -156,6 +156,9 @@ def walk_typescript_nodes(
             )
         )
         body_node = node.child_by_field_name("body")
+        if node.type == "method_definition" and func_name == "constructor" and state.class_stack:
+            for field_name, type_name in typed_constructor_parameters(node, snapshot.content):
+                state.pending_class_instances.append((state.class_stack[-1], field_name, type_name))
         if node.type not in {"method_signature", "abstract_method_signature"}:
             state.pending_calls.append(
                 (
@@ -218,7 +221,7 @@ def walk_typescript_nodes(
             state.class_methods.setdefault(qualified, set())
             body = value_node.child_by_field_name("body")
             if body:
-                for child in body.children:
+                for child in body.named_children:
                     walk_typescript_nodes(
                         child,
                         language=language,
@@ -298,7 +301,14 @@ def walk_typescript_nodes(
         value_node = node.child_by_field_name("value") or node.child_by_field_name(
             "initializer"
         )
-        if not name_node or not value_node:
+        if not name_node:
+            return
+        field = snapshot.content[name_node.start_byte : name_node.end_byte].decode("utf-8")
+        type_node = node.child_by_field_name("type")
+        type_name = parse_type_annotation(type_node, snapshot.content)
+        if type_name and field and (value_node is None or value_node.type != "new_expression"):
+            state.pending_class_instances.append((state.class_stack[-1], field, type_name))
+        if value_node is None:
             return
         if value_node.type == "new_expression":
             if name_node.type == "property_identifier":
@@ -306,9 +316,6 @@ def walk_typescript_nodes(
                     "function"
                 )
                 callee_text = node_text(callee, snapshot.content)
-                field = snapshot.content[name_node.start_byte : name_node.end_byte].decode(
-                    "utf-8"
-                )
                 if callee_text and field:
                     state.pending_class_instances.append(
                         (state.class_stack[-1], field, callee_text)
@@ -421,7 +428,7 @@ def walk_typescript_children(
         }
         else function_depth
     )
-    for child in getattr(node, "children", []):
+    for child in getattr(node, "named_children", []):
         walk_typescript_nodes(
             child,
             language=language,
@@ -443,3 +450,32 @@ def node_text(node, content: bytes) -> str | None:
     if node is None:
         return None
     return content[node.start_byte : node.end_byte].decode("utf-8")
+
+
+def parse_type_annotation(node, content: bytes) -> str | None:
+    text = node_text(node, content)
+    if not text:
+        return None
+    return text.lstrip(":").strip() or None
+
+
+def typed_constructor_parameters(node, content: bytes) -> list[tuple[str, str]]:
+    params = node.child_by_field_name("parameters")
+    if params is None:
+        return []
+    typed: list[tuple[str, str]] = []
+    for child in getattr(params, "children", []):
+        if child.type not in {"required_parameter", "optional_parameter"}:
+            continue
+        name_node = child.child_by_field_name("pattern") or child.child_by_field_name("name")
+        if name_node is None:
+            name_node = next(
+                (c for c in getattr(child, "children", []) if c.type == "identifier"),
+                None,
+            )
+        type_node = child.child_by_field_name("type")
+        name = node_text(name_node, content) if name_node else None
+        type_name = parse_type_annotation(type_node, content)
+        if name and type_name:
+            typed.append((name, type_name))
+    return typed

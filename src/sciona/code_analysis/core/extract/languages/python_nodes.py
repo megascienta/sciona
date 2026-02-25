@@ -36,7 +36,7 @@ def walk_python_nodes(
     if node.type == "decorated_definition":
         definition = node.child_by_field_name("definition")
         if definition is None:
-            for child in getattr(node, "children", []):
+            for child in getattr(node, "named_children", []):
                 if child.type in {"class_definition", "function_definition", "async_function_definition"}:
                     definition = child
                     break
@@ -98,7 +98,7 @@ def walk_python_nodes(
         if body is not None:
             state.class_body_map[qualified] = body
         if body:
-            for child in body.children:
+            for child in body.named_children:
                 walk_python_nodes(
                     child,
                     language=language,
@@ -166,7 +166,7 @@ def walk_python_nodes(
         )
         return
 
-    for child in getattr(node, "children", []):
+    for child in getattr(node, "named_children", []):
         walk_python_nodes(
             child,
             language=language,

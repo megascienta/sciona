@@ -5,10 +5,25 @@
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
+from functools import lru_cache
 from typing import Callable, Sequence, Set
 
+from tree_sitter_languages import get_language
+
 from ..config import TERMINAL_IDENTIFIER_TYPES
+
+CALL_QUERY_MODE_ENV = "SCIONA_CALL_QUERY_MODE"
+CALL_QUERY_STRICT_COMPARE_ENV = "SCIONA_CALL_QUERY_STRICT_COMPARE"
+CALL_QUERY_MODE_OFF = "off"
+CALL_QUERY_MODE_SHADOW = "shadow"
+CALL_QUERY_MODE_QUERY = "query"
+VALID_CALL_QUERY_MODES = {
+    CALL_QUERY_MODE_OFF,
+    CALL_QUERY_MODE_SHADOW,
+    CALL_QUERY_MODE_QUERY,
+}
 
 
 def normalize_call_identifiers(
@@ -69,6 +84,26 @@ class CallExtractionRecord:
 
 
 @dataclass(frozen=True)
+class TerminalCallIR:
+    terminal: str
+
+
+@dataclass(frozen=True)
+class QualifiedCallIR:
+    parts: tuple[str, ...]
+    terminal: str
+
+
+@dataclass(frozen=True)
+class ReceiverCallIR:
+    receiver_chain: tuple[str, ...]
+    terminal: str
+
+
+CallTargetIR = TerminalCallIR | QualifiedCallIR | ReceiverCallIR
+
+
+@dataclass(frozen=True)
 class CallTarget:
     """Captured call target text with terminal identifier."""
 
@@ -77,6 +112,7 @@ class CallTarget:
     receiver: str | None = None
     receiver_chain: tuple[str, ...] = ()
     callee_kind: str = "unqualified"
+    ir: CallTargetIR | None = None
 
 
 def collect_call_identifiers(
@@ -109,54 +145,36 @@ def collect_call_targets(
     skip_node_types: Set[str],
     callee_field_names: Sequence[str] = ("function",),
     callee_renderer: Callable[[object, object | None, bytes], str | None] | None = None,
+    query_language: str | None = None,
 ) -> Sequence[CallTarget]:
     """Return stable list of call targets found within the node."""
 
-    targets: list[CallTarget] = []
-
-    def walk(current) -> None:
-        if current is None:
-            return
-        if current.type in skip_node_types:
-            return
-        if current.type in call_node_types:
-            callee = None
-            for field_name in callee_field_names:
-                callee = current.child_by_field_name(field_name)
-                if callee is not None:
-                    break
-            if callee is None:
-                callee = _first_child(current)
-            terminal = _terminal_identifier(callee, content)
-            if terminal:
-                if callee_renderer is not None:
-                    callee_text = callee_renderer(current, callee, content)
-                else:
-                    callee_text = _callee_text(callee, content)
-                normalized_callee = _normalize_callee_text(callee_text)
-                receiver, receiver_chain, callee_kind = _callee_shape(normalized_callee)
-                targets.append(
-                    CallTarget(
-                        terminal=terminal,
-                        callee_text=normalized_callee,
-                        receiver=receiver,
-                        receiver_chain=receiver_chain,
-                        callee_kind=callee_kind,
-                    )
-                )
-        for child in getattr(current, "children", []):
-            walk(child)
-
-    walk(node)
-    seen: set[tuple[str, str | None]] = set()
-    ordered: list[CallTarget] = []
-    for target in targets:
-        key = (target.terminal, target.callee_text)
-        if key in seen:
-            continue
-        seen.add(key)
-        ordered.append(target)
-    return tuple(ordered)
+    mode = _call_query_mode()
+    dfs_targets = _collect_call_targets_dfs(
+        node,
+        content,
+        call_node_types=call_node_types,
+        skip_node_types=skip_node_types,
+        callee_field_names=callee_field_names,
+        callee_renderer=callee_renderer,
+    )
+    if mode == CALL_QUERY_MODE_OFF or not query_language:
+        return dfs_targets
+    query_targets = _collect_call_targets_query(
+        node,
+        content,
+        call_node_types=call_node_types,
+        skip_node_types=skip_node_types,
+        callee_field_names=callee_field_names,
+        callee_renderer=callee_renderer,
+        query_language=query_language,
+    )
+    if mode == CALL_QUERY_MODE_QUERY:
+        return query_targets
+    # Shadow mode keeps DFS behavior while allowing safe parity checks.
+    if _call_query_strict_compare() and _target_keys(dfs_targets) != _target_keys(query_targets):
+        raise RuntimeError("query call extraction mismatch against DFS")
+    return dfs_targets
 
 
 def _terminal_identifier(node, content: bytes) -> str | None:
@@ -208,6 +226,190 @@ def _callee_shape(
     return chain[0], chain, kind
 
 
+def _call_target_ir(
+    terminal: str,
+    callee_text: str | None,
+    receiver_chain: tuple[str, ...],
+    callee_kind: str,
+) -> CallTargetIR:
+    if not callee_text or "." not in callee_text:
+        return TerminalCallIR(terminal=terminal)
+    parts = tuple(part for part in callee_text.split(".") if part)
+    if len(parts) < 2:
+        return TerminalCallIR(terminal=terminal)
+    if callee_kind == "receiver":
+        return ReceiverCallIR(receiver_chain=receiver_chain, terminal=terminal)
+    return QualifiedCallIR(parts=parts, terminal=terminal)
+
+
 def _first_child(node):
     children = getattr(node, "children", [])
     return children[0] if children else None
+
+
+def _collect_call_targets_dfs(
+    node,
+    content: bytes,
+    *,
+    call_node_types: Set[str],
+    skip_node_types: Set[str],
+    callee_field_names: Sequence[str],
+    callee_renderer: Callable[[object, object | None, bytes], str | None] | None,
+) -> tuple[CallTarget, ...]:
+    targets: list[CallTarget] = []
+
+    def walk(current) -> None:
+        if current is None:
+            return
+        if current.type in skip_node_types:
+            return
+        if current.type in call_node_types:
+            target = _call_target_from_call_node(
+                current,
+                content,
+                callee_field_names=callee_field_names,
+                callee_renderer=callee_renderer,
+            )
+            if target is not None:
+                targets.append(target)
+        for child in getattr(current, "children", []):
+            walk(child)
+
+    walk(node)
+    return _dedupe_targets(targets)
+
+
+def _collect_call_targets_query(
+    node,
+    content: bytes,
+    *,
+    call_node_types: Set[str],
+    skip_node_types: Set[str],
+    callee_field_names: Sequence[str],
+    callee_renderer: Callable[[object, object | None, bytes], str | None] | None,
+    query_language: str,
+) -> tuple[CallTarget, ...]:
+    call_nodes = _query_call_nodes(node, query_language, call_node_types)
+    targets: list[CallTarget] = []
+    for call_node in call_nodes:
+        if _has_ancestor_in_set(call_node, node, skip_node_types):
+            continue
+        target = _call_target_from_call_node(
+            call_node,
+            content,
+            callee_field_names=callee_field_names,
+            callee_renderer=callee_renderer,
+        )
+        if target is not None:
+            targets.append(target)
+    return _dedupe_targets(targets)
+
+
+def _query_call_nodes(node, query_language: str, call_node_types: Set[str]) -> list[object]:
+    if not call_node_types:
+        return []
+    query_source = _call_query_source(tuple(sorted(call_node_types)))
+    query = _compile_call_query(query_language, query_source)
+    captures = query.captures(node)
+    nodes: list[object] = []
+    seen: set[tuple[int, int, str]] = set()
+    for capture in captures:
+        captured_node, capture_name = capture
+        if capture_name != "call":
+            continue
+        key = (captured_node.start_byte, captured_node.end_byte, captured_node.type)
+        if key in seen:
+            continue
+        seen.add(key)
+        nodes.append(captured_node)
+    nodes.sort(key=lambda item: (item.start_byte, item.end_byte))
+    return nodes
+
+
+@lru_cache(maxsize=32)
+def _compile_call_query(language_name: str, source: str):
+    language = get_language(language_name)
+    if hasattr(language, "query"):
+        return language.query(source)
+    raise RuntimeError(f"Tree-sitter query API unavailable for language: {language_name}")
+
+
+@lru_cache(maxsize=32)
+def _call_query_source(call_node_types: tuple[str, ...]) -> str:
+    return "\n".join(f"({node_type}) @call" for node_type in call_node_types)
+
+
+def _call_target_from_call_node(
+    call_node,
+    content: bytes,
+    *,
+    callee_field_names: Sequence[str],
+    callee_renderer: Callable[[object, object | None, bytes], str | None] | None,
+) -> CallTarget | None:
+    callee = None
+    for field_name in callee_field_names:
+        callee = call_node.child_by_field_name(field_name)
+        if callee is not None:
+            break
+    if callee is None:
+        callee = _first_child(call_node)
+    terminal = _terminal_identifier(callee, content)
+    if not terminal:
+        return None
+    if callee_renderer is not None:
+        callee_text = callee_renderer(call_node, callee, content)
+    else:
+        callee_text = _callee_text(callee, content)
+    normalized_callee = _normalize_callee_text(callee_text)
+    receiver, receiver_chain, callee_kind = _callee_shape(normalized_callee)
+    ir = _call_target_ir(
+        terminal,
+        normalized_callee,
+        receiver_chain,
+        callee_kind,
+    )
+    return CallTarget(
+        terminal=terminal,
+        callee_text=normalized_callee,
+        receiver=receiver,
+        receiver_chain=receiver_chain,
+        callee_kind=callee_kind,
+        ir=ir,
+    )
+
+
+def _dedupe_targets(targets: Sequence[CallTarget]) -> tuple[CallTarget, ...]:
+    seen: set[tuple[str, str | None]] = set()
+    ordered: list[CallTarget] = []
+    for target in targets:
+        key = (target.terminal, target.callee_text)
+        if key in seen:
+            continue
+        seen.add(key)
+        ordered.append(target)
+    return tuple(ordered)
+
+
+def _has_ancestor_in_set(node, root, node_types: Set[str]) -> bool:
+    current = getattr(node, "parent", None)
+    while current is not None and current is not root:
+        if current.type in node_types:
+            return True
+        current = getattr(current, "parent", None)
+    return False
+
+
+def _target_keys(targets: Sequence[CallTarget]) -> tuple[tuple[str, str | None], ...]:
+    return tuple((target.terminal, target.callee_text) for target in targets)
+
+
+def _call_query_mode() -> str:
+    mode = os.getenv(CALL_QUERY_MODE_ENV, CALL_QUERY_MODE_OFF).strip().lower()
+    if mode not in VALID_CALL_QUERY_MODES:
+        return CALL_QUERY_MODE_OFF
+    return mode
+
+
+def _call_query_strict_compare() -> bool:
+    value = os.getenv(CALL_QUERY_STRICT_COMPARE_ENV, "")
+    return value.strip().lower() in {"1", "true", "yes", "on"}

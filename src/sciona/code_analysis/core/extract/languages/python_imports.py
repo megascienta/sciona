@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 import importlib.util
-from typing import List, Optional
+from typing import Optional
 
 from .....runtime import packaging as runtime_packaging
 from .....runtime import paths as runtime_paths
@@ -32,9 +32,6 @@ def collect_python_imports(
     for child in root.children:
         if child.type == "import_statement":
             extracted = extract_import_statement_from_node(child, snapshot.content)
-            if not extracted:
-                segment = snapshot.content[child.start_byte : child.end_byte].decode("utf-8")
-                extracted = parse_import_statement(segment)
             for module, alias in extracted:
                 normalized = normalize_import(
                     module,
@@ -53,9 +50,6 @@ def collect_python_imports(
                     import_aliases[module] = normalized
         elif child.type == "import_from_statement":
             module, names = extract_from_import_from_node(child, snapshot.content)
-            if module is None:
-                segment = snapshot.content[child.start_byte : child.end_byte].decode("utf-8")
-                module, names = parse_from_import(segment)
             if not module:
                 continue
             normalized = normalize_import(
@@ -74,24 +68,6 @@ def collect_python_imports(
                     continue
                 member_aliases[alias or name] = f"{normalized}.{name}"
     return imports, import_aliases, member_aliases, raw_module_map
-
-
-def parse_import_statement(text: str) -> List[tuple[str, str | None]]:
-    fragment = text.strip()
-    if not fragment.startswith("import "):
-        return []
-    targets = fragment[len("import ") :].split(",")
-    parsed: list[tuple[str, str | None]] = []
-    for target in targets:
-        candidate = target.strip()
-        if not candidate:
-            continue
-        parts = candidate.split(" as ", 1)
-        module = parts[0].strip()
-        alias = parts[1].strip() if len(parts) == 2 else None
-        if module:
-            parsed.append((module, alias))
-    return parsed
 
 
 def extract_import_statement_from_node(
@@ -118,24 +94,6 @@ def extract_import_statement_from_node(
             if module:
                 extracted.append((module, alias or None))
     return extracted
-
-
-def parse_from_import(text: str) -> tuple[str | None, List[tuple[str, str | None]]]:
-    fragment = text.strip()
-    if not fragment.startswith("from ") or " import " not in fragment:
-        return None, []
-    prefix, rest = fragment.split(" import ", 1)
-    module = prefix[len("from ") :].strip()
-    names: list[tuple[str, str | None]] = []
-    for part in rest.split(","):
-        piece = part.strip()
-        if not piece:
-            continue
-        parts = piece.split(" as ", 1)
-        name = parts[0].strip()
-        alias = parts[1].strip() if len(parts) == 2 else None
-        names.append((name, alias))
-    return module or None, names
 
 
 def extract_from_import_from_node(

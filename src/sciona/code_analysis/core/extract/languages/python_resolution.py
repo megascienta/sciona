@@ -107,7 +107,14 @@ def collect_callable_instance_map(
 ) -> dict[str, str]:
     if body_node is None:
         return {}
-    instance_map: dict[str, str] = {}
+    instance_map: dict[str, str] = _typed_parameters_for_body_node(
+        body_node,
+        snapshot,
+        class_name_candidates,
+        import_aliases,
+        member_aliases,
+        raw_module_map,
+    )
 
     def walk(node) -> None:
         if node is None:
@@ -236,7 +243,18 @@ def collect_class_instance_map(
                 object_name = node_text(object_node, snapshot.content) or ""
                 if object_name in {"self", "cls"}:
                     name = node_text(attribute_node, snapshot.content)
-                    target = _resolve_alias_target(right, snapshot.content, instance_map)
+                    alias_scope = dict(instance_map)
+                    alias_scope.update(
+                        _typed_parameters_for_enclosing_callable(
+                            left,
+                            snapshot,
+                            class_name_candidates,
+                            import_aliases,
+                            member_aliases,
+                            raw_module_map,
+                        )
+                    )
+                    target = _resolve_alias_target(right, snapshot.content, alias_scope)
                     if name and target:
                         instance_map[name] = target
         for child in getattr(node, "children", []):
@@ -276,3 +294,90 @@ def unique_class_match(
     if len(candidates) == 1:
         return next(iter(candidates))
     return None
+
+
+def _typed_parameters_for_enclosing_callable(
+    node,
+    snapshot: FileSnapshot,
+    class_name_candidates: dict[str, set[str]],
+    import_aliases: dict[str, str],
+    member_aliases: dict[str, str],
+    raw_module_map: dict[str, str],
+) -> dict[str, str]:
+    current = getattr(node, "parent", None)
+    while current is not None:
+        if current.type in {"function_definition", "async_function_definition"}:
+            return _typed_parameters_for_callable_node(
+                current,
+                snapshot,
+                class_name_candidates,
+                import_aliases,
+                member_aliases,
+                raw_module_map,
+            )
+        current = getattr(current, "parent", None)
+    return {}
+
+
+def _typed_parameters_for_body_node(
+    body_node,
+    snapshot: FileSnapshot,
+    class_name_candidates: dict[str, set[str]],
+    import_aliases: dict[str, str],
+    member_aliases: dict[str, str],
+    raw_module_map: dict[str, str],
+) -> dict[str, str]:
+    callable_node = getattr(body_node, "parent", None)
+    if callable_node is None or callable_node.type not in {
+        "function_definition",
+        "async_function_definition",
+    }:
+        return {}
+    return _typed_parameters_for_callable_node(
+        callable_node,
+        snapshot,
+        class_name_candidates,
+        import_aliases,
+        member_aliases,
+        raw_module_map,
+    )
+
+
+def _typed_parameters_for_callable_node(
+    callable_node,
+    snapshot: FileSnapshot,
+    class_name_candidates: dict[str, set[str]],
+    import_aliases: dict[str, str],
+    member_aliases: dict[str, str],
+    raw_module_map: dict[str, str],
+) -> dict[str, str]:
+    params_node = callable_node.child_by_field_name("parameters")
+    if params_node is None:
+        return {}
+    typed: dict[str, str] = {}
+    for child in getattr(params_node, "children", []):
+        if child.type != "typed_parameter":
+            continue
+        name_node = child.child_by_field_name("name")
+        if name_node is None:
+            name_node = next(
+                (n for n in getattr(child, "children", []) if n.type == "identifier"),
+                None,
+            )
+        type_node = child.child_by_field_name("type")
+        name = node_text(name_node, snapshot.content) if name_node else None
+        type_text = node_text(type_node, snapshot.content) if type_node else None
+        if not name or name in {"self", "cls"} or not type_text:
+            continue
+        terminal = type_text.split(".")[-1]
+        target = resolve_constructor_target(
+            type_text,
+            terminal,
+            class_name_candidates,
+            import_aliases,
+            member_aliases,
+            raw_module_map,
+        )
+        if target:
+            typed[name] = target
+    return typed

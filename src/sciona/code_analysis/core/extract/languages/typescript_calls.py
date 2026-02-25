@@ -8,7 +8,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import List
 
-from ....tools.call_extraction import CallTarget
+from ....tools.call_extraction import (
+    CallTarget,
+    QualifiedCallIR,
+    ReceiverCallIR,
+    TerminalCallIR,
+)
 from .call_resolution_kernel import (
     CallResolutionAdapter,
     CallResolutionOutcome,
@@ -70,14 +75,14 @@ class _TypeScriptCallAdapter(CallResolutionAdapter):
         receiver = request.receiver
         chain_target = _resolve_receiver_chain_target(
             class_name=self.class_name,
-            receiver_chain=request.receiver_chain,
+            receiver_chain=receiver_chain_for_request(request),
             instance_map=self.instance_map,
             class_instance_map=self.class_instance_map,
         )
         if chain_target:
             return [_outcome(f"{chain_target}.{terminal}", "module_scoped")]
-        if "." in callee_text:
-            head, rest = callee_text.split(".", 1)
+        head, rest, dotted_text = _dotted_parts(request)
+        if head is not None and rest is not None and dotted_text is not None:
             if head in self.instance_map:
                 return [_outcome(f"{self.instance_map[head]}.{terminal}", "exact_qname")]
             if head in self.class_name_map and head[:1].isupper():
@@ -87,8 +92,8 @@ class _TypeScriptCallAdapter(CallResolutionAdapter):
                         _outcome(f"{next(iter(candidates))}.{terminal}", "exact_qname")
                     ]
                 return []
-            if self.class_name and (receiver == "this" or callee_text.startswith("this.")):
-                chain = request.receiver_chain
+            if self.class_name and (receiver == "this" or dotted_text.startswith("this.")):
+                chain = receiver_chain_for_request(request)
                 if len(chain) >= 2:
                     field = chain[1]
                     target_class = self.class_instance_map.get(self.class_name, {}).get(
@@ -102,11 +107,11 @@ class _TypeScriptCallAdapter(CallResolutionAdapter):
             return [_outcome(self.member_aliases[terminal], "import_narrowed")]
         if (
             self.class_name
-            and is_receiver_call(callee_text)
+            and is_receiver_call_request(request)
             and terminal in self.class_method_names
         ):
             return [_outcome(f"{self.class_name}.{terminal}", "module_scoped")]
-        if is_unqualified(callee_text) and terminal in self.module_functions:
+        if is_unqualified_request(request) and terminal in self.module_functions:
             return [_outcome(f"{self.module_name}.{terminal}", "module_scoped")]
         return []
 
@@ -119,6 +124,7 @@ def _to_requests(targets: List[CallTarget]) -> list[CallResolutionRequest]:
             receiver=target.receiver,
             receiver_chain=target.receiver_chain,
             callee_kind=target.callee_kind,
+            ir=target.ir,
         )
         for target in targets
     ]
@@ -130,6 +136,49 @@ def is_unqualified(callee_text: str) -> bool:
 
 def is_receiver_call(callee_text: str) -> bool:
     return callee_text.startswith("this.") or callee_text.startswith("super.")
+
+
+def is_unqualified_request(request: CallResolutionRequest) -> bool:
+    if isinstance(request.ir, TerminalCallIR):
+        return True
+    if isinstance(request.ir, (QualifiedCallIR, ReceiverCallIR)):
+        return False
+    return is_unqualified(request.callee_text)
+
+
+def is_receiver_call_request(request: CallResolutionRequest) -> bool:
+    if isinstance(request.ir, ReceiverCallIR):
+        chain = request.ir.receiver_chain
+        return bool(chain) and chain[0] in {"this", "super"}
+    return is_receiver_call(request.callee_text)
+
+
+def receiver_chain_for_request(request: CallResolutionRequest) -> tuple[str, ...]:
+    if isinstance(request.ir, ReceiverCallIR):
+        return request.ir.receiver_chain
+    return request.receiver_chain
+
+
+def _dotted_parts(
+    request: CallResolutionRequest,
+) -> tuple[str | None, str | None, str | None]:
+    if isinstance(request.ir, QualifiedCallIR):
+        if len(request.ir.parts) < 2:
+            return None, None, None
+        head = request.ir.parts[0]
+        rest = ".".join(request.ir.parts[1:])
+        return head, rest, ".".join(request.ir.parts)
+    if isinstance(request.ir, ReceiverCallIR):
+        chain = request.ir.receiver_chain
+        if not chain:
+            return None, None, None
+        head = chain[0]
+        rest = ".".join((*chain[1:], request.terminal))
+        return head, rest, ".".join((*chain, request.terminal))
+    if "." not in request.callee_text:
+        return None, None, None
+    head, rest = request.callee_text.split(".", 1)
+    return head, rest, request.callee_text
 
 
 def _resolve_receiver_chain_target(

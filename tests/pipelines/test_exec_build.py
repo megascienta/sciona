@@ -77,3 +77,36 @@ def test_build_repo_keeps_single_committed_snapshot_across_rebuilds(
         assert not read_snapshots.snapshot_exists(conn, first.snapshot_id)
     finally:
         conn.close()
+
+
+def test_build_repo_is_deterministic_across_three_runs(tmp_path: Path) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    init_git_repo(repo_root, commit=False)
+    (repo_root / "src").mkdir()
+    (repo_root / "src" / "mod.py").write_text("print('stable')\n", encoding="utf-8")
+    commit_all(repo_root)
+    _write_config(repo_root)
+
+    repo_state = RepoState.from_repo_root(repo_root)
+    policy = policy_build.resolve_build_policy(
+        repo_state, refresh_artifacts=False, refresh_calls=False
+    )
+
+    results = [build_repo(repo_state, policy) for _ in range(3)]
+    snapshot_ids = [result.snapshot_id for result in results]
+
+    conn = sqlite3.connect(repo_state.db_path)
+    conn.row_factory = sqlite3.Row
+    try:
+        hashes = [
+            conn.execute(
+                "SELECT structural_hash FROM snapshots WHERE snapshot_id = ?",
+                (snapshot_id,),
+            ).fetchone()["structural_hash"]
+            for snapshot_id in snapshot_ids
+        ]
+        assert len(set(snapshot_ids)) == 1
+        assert len(set(hashes)) == 1
+    finally:
+        conn.close()

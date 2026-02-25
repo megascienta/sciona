@@ -108,6 +108,7 @@ class PythonAnalyzer(ASTAnalyzer):
                     snapshot.content,
                     call_node_types={"call"},
                     skip_node_types={"class_definition"},
+                    query_language=self.language,
                 )
                 resolved = resolve_python_calls(
                     call_targets,

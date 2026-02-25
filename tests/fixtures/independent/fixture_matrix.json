@@ -33,6 +33,18 @@
       ]
     },
     {
+      "id": "python_typed_parameter",
+      "language": "python",
+      "root": "python_typed_param",
+      "file_path": "sample.py",
+      "module_qualified_name": "fixture.sample",
+      "assert_mode": "exact",
+      "categories": [
+        "constructor_injection",
+        "typed_params"
+      ]
+    },
+    {
       "id": "typescript_core_calls_imports",
       "language": "typescript",
       "root": "typescript",

@@ -30,10 +30,7 @@ def collect_typescript_imports(
     nodes.extend(list(find_nodes_of_type(root, "export_statement")))
     nodes.extend(list(find_nodes_of_type(root, "import_equals_declaration")))
     for node in nodes:
-        fragment = snapshot.content[node.start_byte : node.end_byte].decode("utf-8")
-        module_spec = extract_module_spec_from_node(node, snapshot.content) or extract_module_spec(
-            fragment
-        )
+        module_spec = extract_module_spec_from_node(node, snapshot.content)
         if not module_spec:
             continue
         normalized = normalize_import(module_spec, snapshot)
@@ -52,10 +49,15 @@ def collect_typescript_imports(
             imports.append(normalized)
         else:
             imports.append(normalized)
-        populate_ts_aliases(fragment, normalized, import_aliases, member_aliases)
+        populate_ts_aliases_from_node(
+            node,
+            snapshot.content,
+            normalized,
+            import_aliases,
+            member_aliases,
+        )
     for node in find_nodes_of_type(root, "lexical_declaration"):
-        fragment = snapshot.content[node.start_byte : node.end_byte].decode("utf-8")
-        alias, module_spec = extract_require_assignment(fragment)
+        alias, module_spec = extract_require_assignment_from_node(node, snapshot.content)
         if not alias or not module_spec:
             continue
         normalized = normalize_import(module_spec, snapshot)
@@ -73,99 +75,156 @@ def collect_typescript_imports(
     return imports, import_aliases, member_aliases
 
 
-def extract_module_spec(fragment: str) -> Optional[str]:
-    fragment = fragment.strip()
-    if "from" in fragment:
-        parts = fragment.split("from", 1)[1].strip()
-        return string_literal(parts)
-    if fragment.startswith("import"):
-        remainder = fragment[len("import") :].strip()
-        return string_literal(remainder)
-    if fragment.startswith("export"):
-        return string_literal(fragment)
-    return None
-
-
 def extract_module_spec_from_node(node, content: bytes) -> Optional[str]:
     source = node.child_by_field_name("source")
     if source is not None:
-        literal = content[source.start_byte : source.end_byte].decode("utf-8").strip()
-        return literal.strip("'\"")
+        return decode_string_literal(source, content)
+    for child in getattr(node, "children", []):
+        if child.type == "import_require_clause":
+            for candidate in getattr(child, "children", []):
+                if candidate.type == "string":
+                    return decode_string_literal(candidate, content)
     string_nodes = list(find_nodes_of_type(node, "string"))
     if string_nodes:
-        literal = content[
-            string_nodes[0].start_byte : string_nodes[0].end_byte
-        ].decode("utf-8")
-        return literal.strip().strip("'\"")
+        return decode_string_literal(string_nodes[0], content)
     return None
 
 
-def string_literal(text: str) -> Optional[str]:
-    for quote in ("'", '"'):
-        if quote in text:
-            start = text.find(quote)
-            end = text.find(quote, start + 1)
-            if start >= 0 and end > start:
-                return text[start + 1 : end]
-    return None
+def decode_string_literal(node, content: bytes) -> Optional[str]:
+    text = content[node.start_byte : node.end_byte].decode("utf-8").strip()
+    if not text:
+        return None
+    return text.strip("'\"")
 
 
-def populate_ts_aliases(
-    fragment: str,
+def populate_ts_aliases_from_node(
+    node,
+    content: bytes,
     normalized: str,
     import_aliases: dict[str, str],
     member_aliases: dict[str, str],
 ) -> None:
-    fragment = fragment.strip()
-    if fragment.startswith("import") and "from" in fragment:
-        head = fragment.split("from", 1)[0]
-        if "{" in head and "}" in head:
-            inner = head.split("{", 1)[1].rsplit("}", 1)[0]
-            for part in inner.split(","):
-                piece = part.strip()
-                if not piece:
-                    continue
-                parts = piece.split(" as ", 1)
-                name = parts[0].strip()
-                alias = parts[1].strip() if len(parts) == 2 else None
-                if name:
-                    member_aliases[alias or name] = f"{normalized}.{name}"
-        if "* as" in head:
-            parts = head.split("* as", 1)[1].strip().split(",", 1)
-            alias = parts[0].strip()
+    if node.type == "import_statement":
+        for child in getattr(node, "children", []):
+            if child.type == "import_clause":
+                _populate_import_clause_aliases(
+                    child, content, normalized, import_aliases, member_aliases
+                )
+            if child.type == "import_require_clause":
+                alias = _first_identifier(child, content)
+                if alias:
+                    import_aliases[alias] = normalized
+    if node.type == "export_statement":
+        for child in getattr(node, "children", []):
+            if child.type == "export_clause":
+                _populate_export_clause_aliases(child, content, normalized, member_aliases)
+
+
+def _populate_import_clause_aliases(
+    import_clause,
+    content: bytes,
+    normalized: str,
+    import_aliases: dict[str, str],
+    member_aliases: dict[str, str],
+) -> None:
+    for child in getattr(import_clause, "children", []):
+        if child.type == "identifier":
+            alias = content[child.start_byte : child.end_byte].decode("utf-8").strip()
             if alias:
                 import_aliases[alias] = normalized
-        if "{" not in head and "*" not in head:
-            parts = head.split()
-            if len(parts) >= 2:
-                alias = parts[1].strip().strip(",")
-                if alias and alias not in {"from", "{"}:
-                    import_aliases[alias] = normalized
-    if fragment.startswith("import") and "require" in fragment and "=" in fragment:
-        alias, _module = extract_require_assignment(fragment)
-        if alias:
-            import_aliases[alias] = normalized
-    if fragment.startswith("export") and "from" in fragment and "{" in fragment:
-        inner = fragment.split("{", 1)[1].rsplit("}", 1)[0]
-        for part in inner.split(","):
-            piece = part.strip()
-            if not piece:
-                continue
-            parts = piece.split(" as ", 1)
-            name = parts[0].strip()
-            alias = parts[1].strip() if len(parts) == 2 else None
-            if name:
-                member_aliases[alias or name] = f"{normalized}.{name}"
+        elif child.type == "namespace_import":
+            alias = _last_identifier(child, content)
+            if alias:
+                import_aliases[alias] = normalized
+        elif child.type == "named_imports":
+            for spec in getattr(child, "children", []):
+                if spec.type != "import_specifier":
+                    continue
+                name, alias = _specifier_name_alias(spec, content)
+                if name:
+                    member_aliases[alias or name] = f"{normalized}.{name}"
 
 
-def extract_require_assignment(fragment: str) -> tuple[str | None, str | None]:
-    fragment = fragment.strip()
-    if "require" not in fragment or "=" not in fragment:
+def _populate_export_clause_aliases(
+    export_clause,
+    content: bytes,
+    normalized: str,
+    member_aliases: dict[str, str],
+) -> None:
+    for child in getattr(export_clause, "children", []):
+        if child.type != "export_specifier":
+            continue
+        name, alias = _specifier_name_alias(child, content)
+        if name:
+            member_aliases[alias or name] = f"{normalized}.{name}"
+
+
+def _specifier_name_alias(node, content: bytes) -> tuple[str | None, str | None]:
+    identifiers = [
+        content[ch.start_byte : ch.end_byte].decode("utf-8").strip()
+        for ch in getattr(node, "children", [])
+        if ch.type == "identifier"
+    ]
+    if not identifiers:
         return None, None
-    left, right = fragment.split("=", 1)
-    alias = left.replace("const", "").replace("let", "").replace("var", "").strip()
-    module = string_literal(right)
-    return (alias or None, module)
+    if len(identifiers) == 1:
+        return identifiers[0], None
+    return identifiers[0], identifiers[-1]
+
+
+def _first_identifier(node, content: bytes) -> str | None:
+    for child in getattr(node, "children", []):
+        if child.type == "identifier":
+            alias = content[child.start_byte : child.end_byte].decode("utf-8").strip()
+            return alias or None
+    return None
+
+
+def _last_identifier(node, content: bytes) -> str | None:
+    identifiers = [
+        content[child.start_byte : child.end_byte].decode("utf-8").strip()
+        for child in getattr(node, "children", [])
+        if child.type == "identifier"
+    ]
+    if not identifiers:
+        return None
+    return identifiers[-1] or None
+
+
+def extract_require_assignment_from_node(
+    node,
+    content: bytes,
+) -> tuple[str | None, str | None]:
+    for child in getattr(node, "children", []):
+        if child.type != "variable_declarator":
+            continue
+        name_node = child.child_by_field_name("name")
+        value_node = child.child_by_field_name("value")
+        if (
+            name_node is None
+            or value_node is None
+            or value_node.type != "call_expression"
+        ):
+            continue
+        callee_node = value_node.child_by_field_name("function")
+        if callee_node is None:
+            continue
+        callee = content[callee_node.start_byte : callee_node.end_byte].decode("utf-8").strip()
+        if callee != "require":
+            continue
+        args = value_node.child_by_field_name("arguments")
+        if args is None:
+            continue
+        string_node = next(
+            (arg for arg in getattr(args, "children", []) if arg.type == "string"),
+            None,
+        )
+        if string_node is None:
+            continue
+        alias = content[name_node.start_byte : name_node.end_byte].decode("utf-8").strip()
+        module = decode_string_literal(string_node, content)
+        return (alias or None, module)
+    return None, None
 
 
 def normalize_import(specifier: Optional[str], snapshot: FileSnapshot) -> Optional[str]:

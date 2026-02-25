@@ -9,6 +9,8 @@ import os
 from dataclasses import dataclass
 from typing import Callable, Protocol, Sequence
 
+from ....tools.call_extraction import CallTargetIR
+
 
 CALL_RESOLUTION_MODE_ENV = "SCIONA_CALL_RESOLUTION_MODE"
 CALL_RESOLUTION_STRICT_COMPARE_ENV = "SCIONA_CALL_RESOLUTION_STRICT_COMPARE"
@@ -27,6 +29,7 @@ class CallResolutionRequest:
     receiver: str | None = None
     receiver_chain: tuple[str, ...] = ()
     callee_kind: str = "unqualified"
+    ir: CallTargetIR | None = None
 
 
 @dataclass(frozen=True)

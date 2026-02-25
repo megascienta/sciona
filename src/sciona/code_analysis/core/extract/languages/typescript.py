@@ -93,6 +93,7 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                         "class",
                         "class_expression",
                     },
+                    query_language=self.language,
                 )
                 resolved = resolve_typescript_calls(
                     call_targets,

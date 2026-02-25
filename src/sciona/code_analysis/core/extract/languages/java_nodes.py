@@ -84,7 +84,7 @@ def walk_java_nodes(
         state.class_name_map.setdefault(class_name, qualified)
         state.class_name_candidates.setdefault(class_name, set()).add(qualified)
         if body:
-            for child in body.children:
+            for child in body.named_children:
                 walk_java_nodes(
                     child,
                     language=language,
@@ -148,7 +148,7 @@ def walk_java_nodes(
             state.class_field_types.setdefault(class_name, {})[name] = type_text
         return
 
-    for child in getattr(node, "children", []):
+    for child in getattr(node, "named_children", []):
         walk_java_nodes(
             child,
             language=language,
