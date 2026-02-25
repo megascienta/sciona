@@ -4,8 +4,6 @@
 from pathlib import Path
 
 from sciona.code_analysis.tools.call_extraction import (
-    CALL_QUERY_MODE_ENV,
-    CALL_QUERY_MODE_QUERY,
     QualifiedCallIR,
     ReceiverCallIR,
     collect_call_targets,
@@ -29,6 +27,7 @@ class A {
         source,
         call_node_types={"call_expression"},
         skip_node_types=set(),
+        query_language="typescript",
     )
     assert targets
     target = targets[0]
@@ -52,6 +51,7 @@ def run():
         source,
         call_node_types={"call"},
         skip_node_types=set(),
+        query_language="python",
     )
     assert targets
     target = targets[0]
@@ -59,7 +59,7 @@ def run():
     assert target.ir.parts == ("pkg", "service", "do_work")
 
 
-def test_collect_call_targets_query_mode_matches_dfs(monkeypatch) -> None:
+def test_collect_call_targets_query_mode_is_deterministic() -> None:
     parser = build_parser("typescript")
     source = b"""
 class A {
@@ -77,7 +77,6 @@ class A {
         skip_node_types=set(),
         query_language="typescript",
     )
-    monkeypatch.setenv(CALL_QUERY_MODE_ENV, CALL_QUERY_MODE_QUERY)
     actual = collect_call_targets(
         root,
         source,

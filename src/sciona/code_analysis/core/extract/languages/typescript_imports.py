@@ -29,7 +29,7 @@ def collect_typescript_imports(
     nodes = find_nodes_of_types_query(
         root,
         language_name="typescript",
-        node_types=("import_statement", "export_statement", "import_equals_declaration"),
+        node_types=("import_statement", "export_statement"),
     )
     for node in nodes:
         module_spec = extract_module_spec_from_node(node, snapshot.content)

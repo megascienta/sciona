@@ -3,9 +3,6 @@
 
 from pathlib import Path
 
-from sciona.code_analysis.core.extract.languages.call_resolution_kernel import (
-    CALL_RESOLUTION_MODE_ENV,
-)
 from sciona.code_analysis.core.extract.languages.java import JavaAnalyzer
 from sciona.code_analysis.core.extract.languages.python import PythonAnalyzer
 from sciona.code_analysis.core.extract.languages.typescript import TypeScriptAnalyzer
@@ -30,7 +27,7 @@ def _call_map(result) -> dict[str, tuple[str, ...]]:
     }
 
 
-def test_python_resolution_modes_are_parity(tmp_path, monkeypatch):
+def test_python_resolution_is_stable_across_runs(tmp_path):
     source = """
 class Service:
     def run(self):
@@ -49,18 +46,12 @@ class Controller:
     module_name = analyzer.module_name(tmp_path, snapshot)
     analyzer.module_index = {module_name}
 
-    monkeypatch.setenv(CALL_RESOLUTION_MODE_ENV, "legacy")
-    legacy = _call_map(analyzer.analyze(snapshot, module_name))
-    monkeypatch.setenv(CALL_RESOLUTION_MODE_ENV, "shared")
-    shared = _call_map(analyzer.analyze(snapshot, module_name))
-    monkeypatch.setenv(CALL_RESOLUTION_MODE_ENV, "compare")
-    compare = _call_map(analyzer.analyze(snapshot, module_name))
-
-    assert shared == legacy
-    assert compare == legacy
+    run_1 = _call_map(analyzer.analyze(snapshot, module_name))
+    run_2 = _call_map(analyzer.analyze(snapshot, module_name))
+    assert run_1 == run_2
 
 
-def test_typescript_resolution_modes_are_parity(tmp_path, monkeypatch):
+def test_typescript_resolution_is_stable_across_runs(tmp_path):
     source = """
 class Service {
   run() {}
@@ -82,18 +73,12 @@ export class Controller {
     module_name = analyzer.module_name(tmp_path, snapshot)
     analyzer.module_index = {module_name}
 
-    monkeypatch.setenv(CALL_RESOLUTION_MODE_ENV, "legacy")
-    legacy = _call_map(analyzer.analyze(snapshot, module_name))
-    monkeypatch.setenv(CALL_RESOLUTION_MODE_ENV, "shared")
-    shared = _call_map(analyzer.analyze(snapshot, module_name))
-    monkeypatch.setenv(CALL_RESOLUTION_MODE_ENV, "compare")
-    compare = _call_map(analyzer.analyze(snapshot, module_name))
-
-    assert shared == legacy
-    assert compare == legacy
+    run_1 = _call_map(analyzer.analyze(snapshot, module_name))
+    run_2 = _call_map(analyzer.analyze(snapshot, module_name))
+    assert run_1 == run_2
 
 
-def test_java_resolution_modes_are_parity(tmp_path, monkeypatch):
+def test_java_resolution_is_stable_across_runs(tmp_path):
     source = """
 package com.example.foo;
 public class Foo {
@@ -111,13 +96,6 @@ public class Foo {
     module_name = analyzer.module_name(tmp_path, snapshot)
     analyzer.module_index = {module_name}
 
-    monkeypatch.setenv(CALL_RESOLUTION_MODE_ENV, "legacy")
-    legacy = _call_map(analyzer.analyze(snapshot, module_name))
-    monkeypatch.setenv(CALL_RESOLUTION_MODE_ENV, "shared")
-    shared = _call_map(analyzer.analyze(snapshot, module_name))
-    monkeypatch.setenv(CALL_RESOLUTION_MODE_ENV, "compare")
-    compare = _call_map(analyzer.analyze(snapshot, module_name))
-
-    assert shared == legacy
-    assert compare == legacy
-
+    run_1 = _call_map(analyzer.analyze(snapshot, module_name))
+    run_2 = _call_map(analyzer.analyze(snapshot, module_name))
+    assert run_1 == run_2

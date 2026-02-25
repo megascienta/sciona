@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from ...normalize.model import FileSnapshot
-from ..utils import find_nodes_of_type, find_nodes_of_types_query
+from ..utils import find_nodes_of_types_query
 
 
 def node_text(node, content: bytes) -> str | None:
@@ -27,7 +27,11 @@ def collect_declared_vars(
     if not type_text:
         return []
     declared: list[tuple[str, str]] = []
-    for decl in find_nodes_of_type(node, "variable_declarator"):
+    for decl in find_nodes_of_types_query(
+        node,
+        language_name="java",
+        node_types=("variable_declarator",),
+    ):
         name_node = decl.child_by_field_name("name")
         name = node_text(name_node, snapshot.content)
         if name:

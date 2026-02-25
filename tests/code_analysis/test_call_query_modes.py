@@ -7,11 +7,6 @@ from sciona.code_analysis.core.extract.languages.java import JavaAnalyzer
 from sciona.code_analysis.core.extract.languages.python import PythonAnalyzer
 from sciona.code_analysis.core.extract.languages.typescript import TypeScriptAnalyzer
 from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
-from sciona.code_analysis.tools.call_extraction import (
-    CALL_QUERY_MODE_ENV,
-    CALL_QUERY_MODE_OFF,
-    CALL_QUERY_MODE_QUERY,
-)
 
 
 def _snapshot(path: Path, rel: str, language: str, content: str) -> FileSnapshot:
@@ -32,7 +27,7 @@ def _call_map(result) -> dict[str, tuple[str, ...]]:
     }
 
 
-def test_python_query_and_dfs_call_extraction_are_parity(tmp_path, monkeypatch):
+def test_python_call_extraction_is_query_only_and_stable(tmp_path):
     source = """
 class Service:
     def run(self):
@@ -51,14 +46,12 @@ class Controller:
     module_name = analyzer.module_name(tmp_path, snapshot)
     analyzer.module_index = {module_name}
 
-    monkeypatch.setenv(CALL_QUERY_MODE_ENV, CALL_QUERY_MODE_OFF)
-    off_calls = _call_map(analyzer.analyze(snapshot, module_name))
-    monkeypatch.setenv(CALL_QUERY_MODE_ENV, CALL_QUERY_MODE_QUERY)
-    query_calls = _call_map(analyzer.analyze(snapshot, module_name))
-    assert query_calls == off_calls
+    calls_1 = _call_map(analyzer.analyze(snapshot, module_name))
+    calls_2 = _call_map(analyzer.analyze(snapshot, module_name))
+    assert calls_1 == calls_2
 
 
-def test_typescript_query_and_dfs_call_extraction_are_parity(tmp_path, monkeypatch):
+def test_typescript_call_extraction_is_query_only_and_stable(tmp_path):
     source = """
 class Service {
   run() {}
@@ -80,14 +73,12 @@ export class Controller {
     module_name = analyzer.module_name(tmp_path, snapshot)
     analyzer.module_index = {module_name}
 
-    monkeypatch.setenv(CALL_QUERY_MODE_ENV, CALL_QUERY_MODE_OFF)
-    off_calls = _call_map(analyzer.analyze(snapshot, module_name))
-    monkeypatch.setenv(CALL_QUERY_MODE_ENV, CALL_QUERY_MODE_QUERY)
-    query_calls = _call_map(analyzer.analyze(snapshot, module_name))
-    assert query_calls == off_calls
+    calls_1 = _call_map(analyzer.analyze(snapshot, module_name))
+    calls_2 = _call_map(analyzer.analyze(snapshot, module_name))
+    assert calls_1 == calls_2
 
 
-def test_java_query_and_dfs_call_extraction_are_parity(tmp_path, monkeypatch):
+def test_java_call_extraction_is_query_only_and_stable(tmp_path):
     source = """
 package com.example.foo;
 public class Foo {
@@ -105,8 +96,6 @@ public class Foo {
     module_name = analyzer.module_name(tmp_path, snapshot)
     analyzer.module_index = {module_name}
 
-    monkeypatch.setenv(CALL_QUERY_MODE_ENV, CALL_QUERY_MODE_OFF)
-    off_calls = _call_map(analyzer.analyze(snapshot, module_name))
-    monkeypatch.setenv(CALL_QUERY_MODE_ENV, CALL_QUERY_MODE_QUERY)
-    query_calls = _call_map(analyzer.analyze(snapshot, module_name))
-    assert query_calls == off_calls
+    calls_1 = _call_map(analyzer.analyze(snapshot, module_name))
+    calls_2 = _call_map(analyzer.analyze(snapshot, module_name))
+    assert calls_1 == calls_2

@@ -234,9 +234,6 @@ def _collect_targets_by_callable(
                 "method_invocation",
                 "object_creation_expression",
                 "explicit_constructor_invocation",
-                "constructor_invocation",
-                "super_constructor_invocation",
-                "this_constructor_invocation",
             },
             skip_node_types={
                 "class_declaration",

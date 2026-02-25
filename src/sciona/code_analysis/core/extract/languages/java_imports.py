@@ -9,12 +9,16 @@ from typing import Optional
 
 from .....runtime import paths as runtime_paths
 from ...normalize.model import FileSnapshot
-from ..utils import find_nodes_of_type
+from ..utils import find_nodes_of_types_query
 from .shared import repo_root_from_snapshot
 
 
 def extract_package(root, content: bytes) -> Optional[str]:
-    for node in find_nodes_of_type(root, "package_declaration"):
+    for node in find_nodes_of_types_query(
+        root,
+        language_name="java",
+        node_types=("package_declaration",),
+    ):
         fragment = content[node.start_byte : node.end_byte].decode("utf-8").strip()
         if not fragment.startswith("package"):
             continue
