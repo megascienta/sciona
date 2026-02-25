@@ -8,6 +8,7 @@ Authoritative references:
 - Contract: `docs/CONTRACT.md`
 - Compliance: `docs/COMPLIANCE_CHECKLIST.md`
 - Capability parity matrix: `docs/CAPABILITY_MATRIX.md`
+- Generated capability manifest: `docs/CAPABILITY_MANIFEST.json`
 
 If this guide conflicts with those files, contract/compliance wins.
 
@@ -158,6 +159,7 @@ Mandatory coverage themes:
 - Contract/compliance invariants
 - Determinism and stable ordering
 - Cross-language parity on shared fixtures (hand-authored + generated)
+- Parity score hard-gate (`tests/code_analysis/test_language_parity_score_gate.py`)
 - Build/reducer boundary correctness
 - Strict call-gate behavior for `CALLS` emission
 - Policy gates for tree-sitter-only extraction/profiling behavior
