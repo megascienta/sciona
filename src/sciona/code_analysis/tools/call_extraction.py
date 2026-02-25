@@ -308,13 +308,16 @@ def _collect_call_targets_query(
 def _query_call_nodes(node, query_language: str, call_node_types: Set[str]) -> list[object]:
     if not call_node_types:
         return []
-    query_source = _call_query_source(tuple(sorted(call_node_types)))
-    query = _compile_call_query(query_language, query_source)
+    query = _compile_call_query_for_types(query_language, tuple(sorted(call_node_types)))
+    if query is None:
+        return []
     captures = query.captures(node)
     nodes: list[object] = []
     seen: set[tuple[int, int, str]] = set()
     for capture in captures:
         captured_node, capture_name = capture
+        if isinstance(capture_name, bytes):
+            capture_name = capture_name.decode("utf-8")
         if capture_name != "call":
             continue
         key = (captured_node.start_byte, captured_node.end_byte, captured_node.type)
@@ -337,6 +340,28 @@ def _compile_call_query(language_name: str, source: str):
 @lru_cache(maxsize=32)
 def _call_query_source(call_node_types: tuple[str, ...]) -> str:
     return "\n".join(f"({node_type}) @call" for node_type in call_node_types)
+
+
+@lru_cache(maxsize=64)
+def _compile_call_query_for_types(language_name: str, call_node_types: tuple[str, ...]):
+    valid_types = [
+        node_type
+        for node_type in call_node_types
+        if _query_node_type_supported(language_name, node_type)
+    ]
+    if not valid_types:
+        return None
+    source = _call_query_source(tuple(valid_types))
+    return _compile_call_query(language_name, source)
+
+
+@lru_cache(maxsize=256)
+def _query_node_type_supported(language_name: str, node_type: str) -> bool:
+    try:
+        _compile_call_query(language_name, f"({node_type}) @call")
+    except Exception:
+        return False
+    return True
 
 
 def _call_target_from_call_node(
@@ -391,8 +416,12 @@ def _dedupe_targets(targets: Sequence[CallTarget]) -> tuple[CallTarget, ...]:
 
 
 def _has_ancestor_in_set(node, root, node_types: Set[str]) -> bool:
+    root_span = (root.start_byte, root.end_byte, root.type)
     current = getattr(node, "parent", None)
-    while current is not None and current is not root:
+    while current is not None:
+        current_span = (current.start_byte, current.end_byte, current.type)
+        if current_span == root_span:
+            break
         if current.type in node_types:
             return True
         current = getattr(current, "parent", None)
@@ -404,9 +433,9 @@ def _target_keys(targets: Sequence[CallTarget]) -> tuple[tuple[str, str | None],
 
 
 def _call_query_mode() -> str:
-    mode = os.getenv(CALL_QUERY_MODE_ENV, CALL_QUERY_MODE_OFF).strip().lower()
+    mode = os.getenv(CALL_QUERY_MODE_ENV, CALL_QUERY_MODE_QUERY).strip().lower()
     if mode not in VALID_CALL_QUERY_MODES:
-        return CALL_QUERY_MODE_OFF
+        return CALL_QUERY_MODE_QUERY
     return mode
 
 
