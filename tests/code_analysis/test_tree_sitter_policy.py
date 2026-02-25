@@ -17,9 +17,7 @@ _ALLOWLIST_AST_PARSE = {
     "tools/profile_introspection_python.py",
 }
 
-_ALLOWLIST_LINE_BASED_FALLBACK = {
-    "tools/profile_introspection_typescript.py",
-}
+_ALLOWLIST_LINE_BASED_FALLBACK: set[str] = set()
 
 
 def _python_files() -> list[Path]:

@@ -5,9 +5,7 @@
 
 from __future__ import annotations
 
-import ast
 from dataclasses import dataclass
-from functools import lru_cache
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -64,12 +62,6 @@ class _TypeScriptInspector:
         if params_node:
             text = self._slice(params_node.start_byte, params_node.end_byte)
             parameters = _parse_typescript_parameters(text)
-        else:
-            fragment = _find_parameter_fragment(
-                self._source, node.start_byte, node.end_byte
-            )
-            if fragment:
-                parameters = _parse_typescript_parameters(fragment)
         decorators = _collect_ts_decorators(node, self._source)
         self.functions[(lineno, end_lineno)] = _TypeScriptFunctionDetails(
             parameters=parameters, decorators=decorators
@@ -109,12 +101,6 @@ def typescript_function_extras(
         if details:
             parameters = details.parameters
             decorators = details.decorators
-    if not parameters:
-        fallback = _line_based_ts_parameters(
-            repo_root / file_path, start_line, end_line
-        )
-        if fallback:
-            parameters = fallback
     return parameters, decorators
 
 def typescript_class_extras(
@@ -179,26 +165,3 @@ def _collect_ts_decorators(node, source: str) -> List[str]:
             )
             decorators.append(text)
     return decorators
-
-def _find_parameter_fragment(
-    source: str, start_byte: int, end_byte: int
-) -> Optional[str]:
-    segment = source.encode("utf-8")[start_byte:end_byte].decode("utf-8")
-    start = segment.find("(")
-    end = segment.find(")", start + 1)
-    if start == -1 or end == -1:
-        return None
-    return segment[start : end + 1]
-
-def _line_based_ts_parameters(path: Path, start_line: int, end_line: int) -> List[str]:
-    try:
-        lines = path.read_text(encoding="utf-8").splitlines()
-    except OSError:
-        return []
-    snippet = "\n".join(lines[start_line - 1 : end_line])
-    start = snippet.find("(")
-    end = snippet.find(")", start + 1)
-    if start == -1 or end == -1:
-        return []
-    fragment = snippet[start : end + 1]
-    return _parse_typescript_parameters(fragment)
