@@ -9,8 +9,14 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-from .tree_sitter import build_parser
+from .profile_query import find_profile_nodes_of_types
+from .profile_query_surface import (
+    TYPESCRIPT_PROFILE_BASE_NODE_TYPES,
+    TYPESCRIPT_PROFILE_DECORATOR_NODE_TYPES,
+    TYPESCRIPT_PROFILE_PARAMETER_NODE_TYPES,
+)
 from .profile_introspection_cache import _typescript_inspector_cached
+from .tree_sitter import build_parser
 
 @dataclass
 class _TypeScriptFunctionDetails:
@@ -38,12 +44,18 @@ class _TypeScriptInspector:
     def function_details(
         self, start_line: int, end_line: int
     ) -> Optional[_TypeScriptFunctionDetails]:
-        return self.functions.get((start_line, end_line))
+        exact = self.functions.get((start_line, end_line))
+        if exact is not None:
+            return exact
+        return _fuzzy_span_lookup(self.functions, start_line, end_line)
 
     def class_details(
         self, start_line: int, end_line: int
     ) -> Optional[_TypeScriptClassDetails]:
-        return self.classes.get((start_line, end_line))
+        exact = self.classes.get((start_line, end_line))
+        if exact is not None:
+            return exact
+        return _fuzzy_span_lookup(self.classes, start_line, end_line)
 
     def _scan(self, node) -> None:
         node_type = getattr(node, "type", "")
@@ -58,10 +70,7 @@ class _TypeScriptInspector:
         lineno = node.start_point[0] + 1
         end_lineno = node.end_point[0] + 1
         params_node = node.child_by_field_name("parameters")
-        parameters: List[str] = []
-        if params_node:
-            text = self._slice(params_node.start_byte, params_node.end_byte)
-            parameters = _parse_typescript_parameters(text)
+        parameters = _collect_typescript_parameters(params_node, self._source)
         decorators = _collect_ts_decorators(node, self._source)
         self.functions[(lineno, end_lineno)] = _TypeScriptFunctionDetails(
             parameters=parameters, decorators=decorators
@@ -71,11 +80,8 @@ class _TypeScriptInspector:
         lineno = node.start_point[0] + 1
         end_lineno = node.end_point[0] + 1
         decorators = _collect_ts_decorators(node, self._source)
-        bases: List[str] = []
         heritage = node.child_by_field_name("heritage")
-        if heritage:
-            text = self._slice(heritage.start_byte, heritage.end_byte)
-            bases = _parse_typescript_bases(text)
+        bases = _collect_typescript_bases(heritage, self._source)
         self.classes[(lineno, end_lineno)] = _TypeScriptClassDetails(
             decorators=decorators, bases=bases
         )
@@ -126,42 +132,89 @@ def _typescript_inspector(
 ) -> Optional[_TypeScriptInspector]:
     return _typescript_inspector_cached(str(repo_root.resolve()), relative_path)
 
-def _parse_typescript_parameters(fragment: str) -> List[str]:
-    stripped = fragment.strip()
-    if not stripped.startswith("(") or not stripped.endswith(")"):
+def _collect_typescript_parameters(parameters_node, source: str) -> List[str]:
+    if parameters_node is None:
         return []
-    inner = stripped[1:-1].strip()
-    if not inner:
-        return []
+    source_bytes = source.encode("utf-8")
     params: List[str] = []
-    for raw in inner.split(","):
-        piece = raw.strip()
-        if not piece:
+    for child in find_profile_nodes_of_types(
+        parameters_node,
+        language_name="typescript",
+        node_types=TYPESCRIPT_PROFILE_PARAMETER_NODE_TYPES,
+    ):
+        if not _is_direct_child(child, parameters_node):
             continue
-        piece = piece.split("=")[0].strip()
-        piece = piece.split(":")[0].strip()
-        params.append(piece)
+        name = child.child_by_field_name("pattern") or child.child_by_field_name("name")
+        if name is None:
+            name = next(
+                (entry for entry in getattr(child, "children", []) if entry.type == "identifier"),
+                None,
+            )
+        if name is None:
+            continue
+        value = source_bytes[name.start_byte : name.end_byte].decode("utf-8").strip()
+        if not value:
+            continue
+        raw = source_bytes[child.start_byte : child.end_byte].decode("utf-8").strip()
+        if raw.startswith("...") and not value.startswith("..."):
+            value = f"...{value}"
+        params.append(value)
     return params
 
-def _parse_typescript_bases(heritage: str) -> List[str]:
+def _collect_typescript_bases(heritage_node, source: str) -> List[str]:
+    if heritage_node is None:
+        return []
+    source_bytes = source.encode("utf-8")
     bases: List[str] = []
-    fragments = heritage.replace("implements", ",").replace("extends", ",").split(",")
-    for fragment in fragments:
-        entry = fragment.strip().strip("{").strip("}")
-        if entry:
-            bases.append(entry)
-    return bases
+    for child in find_profile_nodes_of_types(
+        heritage_node,
+        language_name="typescript",
+        node_types=TYPESCRIPT_PROFILE_BASE_NODE_TYPES,
+    ):
+        value = source_bytes[child.start_byte : child.end_byte].decode("utf-8").strip()
+        if value and value not in {"extends", "implements"}:
+            bases.append(value)
+    return list(dict.fromkeys(bases))
 
 def _collect_ts_decorators(node, source: str) -> List[str]:
     decorators: List[str] = []
-    if not hasattr(node, "children"):
-        return decorators
-    for child in node.children:
-        if child.type == "decorator":
-            text = (
-                source.encode("utf-8")[child.start_byte : child.end_byte]
-                .decode("utf-8")
-                .strip()
-            )
+    for child in find_profile_nodes_of_types(
+        node,
+        language_name="typescript",
+        node_types=TYPESCRIPT_PROFILE_DECORATOR_NODE_TYPES,
+    ):
+        text = (
+            source.encode("utf-8")[child.start_byte : child.end_byte]
+            .decode("utf-8")
+            .strip()
+        )
+        if text:
             decorators.append(text)
     return decorators
+
+
+def _is_direct_child(node, parent) -> bool:
+    owner = getattr(node, "parent", None)
+    if owner is None:
+        return False
+    return (
+        owner.type == getattr(parent, "type", None)
+        and owner.start_byte == getattr(parent, "start_byte", -1)
+        and owner.end_byte == getattr(parent, "end_byte", -1)
+    )
+
+
+def _fuzzy_span_lookup(mapping, start_line: int, end_line: int):
+    if not mapping:
+        return None
+    candidates = [
+        (span, value)
+        for span, value in mapping.items()
+        if span[0] == start_line and span[1] >= end_line
+    ]
+    if not candidates:
+        candidates = [(span, value) for span, value in mapping.items() if span[0] == start_line]
+    if not candidates:
+        return None
+    candidates.sort(key=lambda item: item[0][1])
+    return candidates[0][1]
