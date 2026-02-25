@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from ...normalize.model import FileSnapshot
+from .type_names import type_base_name
 
 
 def node_text(node, content: bytes) -> str | None:
@@ -370,11 +371,12 @@ def _typed_parameters_for_callable_node(
         type_node = child.child_by_field_name("type")
         name = node_text(name_node, snapshot.content) if name_node else None
         type_text = node_text(type_node, snapshot.content) if type_node else None
-        if not name or name in {"self", "cls"} or not type_text:
+        normalized_type = type_base_name(type_text) if type_text else None
+        if not name or name in {"self", "cls"} or not normalized_type:
             continue
-        terminal = type_text.split(".")[-1]
+        terminal = normalized_type.split(".")[-1] if normalized_type else ""
         target = resolve_constructor_target(
-            type_text,
+            normalized_type or type_text,
             terminal,
             class_name_candidates,
             import_aliases,

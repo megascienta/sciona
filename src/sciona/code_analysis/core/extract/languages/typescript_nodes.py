@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 from typing import List
 
 from ...normalize.model import EdgeRecord, FileSnapshot, SemanticNodeRecord
+from .type_names import type_base_name
 
 
 @dataclass
@@ -459,7 +460,8 @@ def parse_type_annotation(node, content: bytes) -> str | None:
     text = node_text(node, content)
     if not text:
         return None
-    return text.lstrip(":").strip() or None
+    normalized = type_base_name(text)
+    return normalized or None
 
 
 def typed_constructor_parameters(node, content: bytes) -> list[tuple[str, str]]:
