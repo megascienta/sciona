@@ -113,6 +113,7 @@ class CallTarget:
     receiver_chain: tuple[str, ...] = ()
     callee_kind: str = "unqualified"
     ir: CallTargetIR | None = None
+    call_span: tuple[int, int] | None = None
 
 
 def collect_call_identifiers(
@@ -403,6 +404,7 @@ def _call_target_from_call_node(
         receiver_chain=receiver_chain,
         callee_kind=callee_kind,
         ir=ir,
+        call_span=(call_node.start_byte, call_node.end_byte),
     )
 
 

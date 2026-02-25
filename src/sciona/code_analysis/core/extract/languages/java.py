@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import List
 
@@ -35,8 +36,10 @@ from .java_resolution import (
     collect_local_var_types,
     qualify_java_type,
 )
+from .scope_resolver import ScopeResolver
 from .shared import is_internal_module
 
+SCOPE_RESOLVER_STRICT_COMPARE_ENV = "SCIONA_SCOPE_RESOLVER_STRICT_COMPARE"
 
 class JavaAnalyzer(ASTAnalyzer):
     language = "java"
@@ -111,6 +114,7 @@ class JavaAnalyzer(ASTAnalyzer):
                     import_class_map[simple_name] = normalized
 
             resolved_calls: list[tuple[str, str, str, list[str]]] = []
+            scope_resolver = _scope_resolver_from_pending_calls(state.pending_calls)
             for qualified, node_type, body_node, class_name in state.pending_calls:
                 local_types = collect_local_var_types(body_node, snapshot)
                 instance_types = {}
@@ -138,6 +142,13 @@ class JavaAnalyzer(ASTAnalyzer):
                     callee_renderer=callee_text,
                     query_language=self.language,
                 )
+                if _scope_resolver_strict_compare():
+                    _assert_scope_resolver_parity(
+                        scope_resolver=scope_resolver,
+                        body_node=body_node,
+                        call_targets=call_targets,
+                        expected_callable=qualified,
+                    )
                 resolved = resolve_java_calls(
                     call_targets,
                     module_name,
@@ -199,3 +210,41 @@ __all__ = [
     "JavaAnalyzer",
     "module_name",
 ]
+
+
+def _scope_resolver_strict_compare() -> bool:
+    value = os.getenv(SCOPE_RESOLVER_STRICT_COMPARE_ENV, "")
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _scope_resolver_from_pending_calls(
+    pending_calls: list[tuple[str, str, object | None, str | None]],
+) -> ScopeResolver:
+    spans: dict[tuple[int, int], str] = {}
+    for qualified, _node_type, body_node, _class_name in pending_calls:
+        callable_node = getattr(body_node, "parent", None)
+        if callable_node is None:
+            continue
+        spans[(callable_node.start_byte, callable_node.end_byte)] = qualified
+    return ScopeResolver(callable_qname_by_span=spans)
+
+
+def _assert_scope_resolver_parity(
+    *,
+    scope_resolver: ScopeResolver,
+    body_node,
+    call_targets,
+    expected_callable: str,
+) -> None:
+    for target in call_targets:
+        if target.call_span is None:
+            continue
+        resolved = scope_resolver.enclosing_callable_for_span(
+            root=body_node,
+            call_span=target.call_span,
+        )
+        if resolved not in {None, expected_callable}:
+            raise RuntimeError(
+                "scope resolver mismatch: "
+                f"expected={expected_callable}, resolved={resolved}"
+            )

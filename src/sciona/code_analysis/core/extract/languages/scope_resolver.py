@@ -40,5 +40,29 @@ class ScopeResolver:
             current = getattr(current, "parent", None)
         return None
 
+    def enclosing_callable_for_span(
+        self,
+        *,
+        root,
+        call_span: tuple[int, int],
+    ) -> str | None:
+        call_node = _find_node_by_span(root, call_span)
+        if call_node is None:
+            return None
+        return self.enclosing_callable(call_node)
+
+
+def _find_node_by_span(root, span: tuple[int, int]):
+    start_byte, end_byte = span
+    stack = [root]
+    while stack:
+        node = stack.pop()
+        if node.start_byte == start_byte and node.end_byte == end_byte:
+            return node
+        for child in getattr(node, "children", []):
+            if child.start_byte <= start_byte and child.end_byte >= end_byte:
+                stack.append(child)
+    return None
+
 
 __all__ = ["STRUCTURAL_CALLABLE_NODE_TYPES", "ScopeResolver"]
