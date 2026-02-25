@@ -1,0 +1,116 @@
+{
+  "queries": {
+    "java": {
+      "calls": [
+        "explicit_constructor_invocation",
+        "method_invocation",
+        "object_creation_expression"
+      ],
+      "imports": [
+        "import_declaration"
+      ],
+      "packages": [
+        "package_declaration"
+      ],
+      "profile": {
+        "bases": [
+          "identifier",
+          "scoped_type_identifier",
+          "type_identifier"
+        ],
+        "classes": [
+          "class_declaration"
+        ],
+        "functions": [
+          "constructor_declaration",
+          "method_declaration"
+        ],
+        "parameters": [
+          "formal_parameter",
+          "spread_parameter"
+        ]
+      },
+      "skip_calls": [
+        "class_declaration",
+        "enum_declaration",
+        "interface_declaration",
+        "record_declaration"
+      ]
+    },
+    "python": {
+      "calls": [
+        "call"
+      ],
+      "imports": [
+        "import_from_statement",
+        "import_statement"
+      ],
+      "profile": {
+        "bases": [
+          "attribute",
+          "identifier"
+        ],
+        "classes": [
+          "class_definition"
+        ],
+        "decorators": [
+          "decorator"
+        ],
+        "functions": [
+          "async_function_definition",
+          "function_definition"
+        ],
+        "parameters": [
+          "default_parameter",
+          "dictionary_splat_pattern",
+          "identifier",
+          "list_splat_pattern",
+          "typed_default_parameter",
+          "typed_parameter"
+        ]
+      },
+      "skip_calls": [
+        "class_definition"
+      ]
+    },
+    "typescript": {
+      "calls": [
+        "call_expression"
+      ],
+      "imports": [
+        "export_statement",
+        "import_statement"
+      ],
+      "profile": {
+        "bases": [
+          "identifier",
+          "type_identifier"
+        ],
+        "classes": [
+          "class_declaration"
+        ],
+        "decorators": [
+          "decorator"
+        ],
+        "functions": [
+          "function_declaration",
+          "method_definition"
+        ],
+        "parameters": [
+          "optional_parameter",
+          "required_parameter"
+        ]
+      },
+      "require_declarations": [
+        "lexical_declaration"
+      ],
+      "skip_calls": [
+        "abstract_class_declaration",
+        "class",
+        "class_declaration",
+        "class_expression"
+      ]
+    }
+  },
+  "version": 1
+}
