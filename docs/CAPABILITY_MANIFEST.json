@@ -1,4 +1,51 @@
 {
+  "parity_contract": {
+    "dimensions": {
+      "call_extraction_and_attribution": {
+        "java": "yes",
+        "python": "yes",
+        "typescript": "yes"
+      },
+      "imports_declared_and_aliasing": {
+        "java": "yes",
+        "python": "yes",
+        "typescript": "yes"
+      },
+      "profile_class_extras_tree_sitter": {
+        "java": "yes",
+        "python": "yes",
+        "typescript": "yes"
+      },
+      "profile_decorators_tree_sitter": {
+        "java": "partial",
+        "python": "yes",
+        "typescript": "yes"
+      },
+      "profile_function_extras_tree_sitter": {
+        "java": "yes",
+        "python": "yes",
+        "typescript": "yes"
+      },
+      "structural_nodes_edges_contract": {
+        "java": "yes",
+        "python": "yes",
+        "typescript": "yes"
+      }
+    },
+    "languages": [
+      "java",
+      "python",
+      "typescript"
+    ],
+    "objective": "full_factual_parity_depth_quality",
+    "required_resolution_stages": [
+      "receiver_typed_or_instance_mapped",
+      "import_or_member_alias_narrowing",
+      "class_scoped_fallback",
+      "module_scoped_fallback"
+    ],
+    "version": 1
+  },
   "queries": {
     "java": {
       "calls": [

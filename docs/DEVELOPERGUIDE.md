@@ -9,6 +9,7 @@ Authoritative references:
 - Compliance: `docs/COMPLIANCE_CHECKLIST.md`
 - Capability parity matrix: `docs/CAPABILITY_MATRIX.md`
 - Generated capability manifest: `docs/CAPABILITY_MANIFEST.json`
+- Executable parity contract: `src/sciona/code_analysis/core/extract/languages/parity_contract.py`
 
 If this guide conflicts with those files, contract/compliance wins.
 

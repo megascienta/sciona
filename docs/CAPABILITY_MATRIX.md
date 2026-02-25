@@ -4,6 +4,9 @@ This matrix tracks language-parity expectations for `src/sciona/code_analysis/`.
 It is scoped to static tree-sitter-driven extraction and contract-compatible
 normalization.
 
+Executable source of truth:
+- `src/sciona/code_analysis/core/extract/languages/parity_contract.py`
+
 Legend:
 - `yes`: implemented and test-covered
 - `partial`: implemented with scoped limitations documented below
@@ -26,6 +29,7 @@ Legend:
 | Partial-parse fail-closed metadata | yes | yes | yes | No heuristic traversal fallback |
 | Profile function extras via tree-sitter | yes | yes | yes | Python/TS/Java profile reducers |
 | Profile class extras via tree-sitter | yes | yes | yes | Python/TS/Java profile reducers |
+| Profile decorators/annotations via tree-sitter | yes | yes | partial | Java currently returns empty decorator/annotation extras |
 | Capability manifest generated from query surfaces | yes | yes | yes | `docs/CAPABILITY_MANIFEST.json` gate |
 | Parity quality threshold gate (nodes+calls) | yes | yes | yes | `test_language_parity_score_gate.py` |
 | Triplet parity fixture coverage | yes | yes | yes | `test_language_parity_triplets.py` |
@@ -36,7 +40,7 @@ Legend:
 - TypeScript import parsing supports the grammar surface available via
   `import_statement`, `export_statement`, and require-style lexical declarations.
 - Java import parsing supports class aliases, static member aliases, and static wildcard owners.
-- Profile introspection extras are implemented for Python/TypeScript/Java.
+- Java profile extras currently do not emit decorators/annotations (tracked parity gap).
 
 ## Gate Criteria
 
