@@ -36,4 +36,6 @@ jobs:
             tests/code_analysis/test_language_parity_triplets.py \
             tests/code_analysis/test_language_parity_generated.py \
             tests/code_analysis/test_language_parity_bench.py \
+            tests/code_analysis/test_language_parity_score_gate.py \
+            tests/code_analysis/test_capability_manifest.py \
             tests/code_analysis
