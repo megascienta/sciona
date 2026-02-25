@@ -87,7 +87,12 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                     body_node,
                     snapshot.content,
                     call_node_types={"call_expression"},
-                    skip_node_types={"class_declaration"},
+                    skip_node_types={
+                        "class_declaration",
+                        "abstract_class_declaration",
+                        "class",
+                        "class_expression",
+                    },
                 )
                 resolved = resolve_typescript_calls(
                     call_targets,

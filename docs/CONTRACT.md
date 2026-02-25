@@ -41,6 +41,7 @@ SCIONA MUST emit these edge types for all languages:
 CONTAINS:
 
 - `module` MUST contain `class` and `function` nodes only.
+- `class` MAY contain nested `class` nodes via `CONTAINS`.
 - `module` MUST NOT contain `method` nodes.
 
 DEFINES_METHOD:

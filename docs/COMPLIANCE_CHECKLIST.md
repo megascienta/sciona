@@ -10,6 +10,7 @@ Use this checklist to verify each language implementation against the structural
   navigation and are excluded from language compliance checks.
 - Emits edge types: `CONTAINS`, `DEFINES_METHOD`, `IMPORTS_DECLARED`, `CALLS`.
 - `module` MUST NOT contain `method` nodes (use `DEFINES_METHOD` from class).
+- Nested classes are allowed via `CONTAINS` from `class` → `class`.
 - Constructors are represented as `method` nodes.
 - Uses canonical module identity from repo-relative path.
 - Qualified names follow structural nesting:
@@ -24,6 +25,7 @@ Use this checklist to verify each language implementation against the structural
 
 ## Python
 
+- Nested classes are represented with nested qualified names and class → class `CONTAINS`.
 - `__init__.py` is treated as package module identity.
 - `function_definition` and `async_function_definition` at top level map to `function`.
 - `function_definition` and `async_function_definition` inside class map to `method`.
@@ -33,6 +35,7 @@ Use this checklist to verify each language implementation against the structural
 
 ## TypeScript
 
+- Nested classes are represented with nested qualified names and class → class `CONTAINS`.
 - Declarations and expressions produce structural callables (coverage parity).
 - Anonymous callables MUST NOT create `function` nodes.
 - Anonymous callables MAY create `method` nodes only when assigned to class members.
@@ -44,6 +47,7 @@ Use this checklist to verify each language implementation against the structural
 
 ## Java
 
+- Nested class types are represented with nested qualified names and class → class `CONTAINS`.
 - Class types include `class`, `interface`, `enum`, `record`.
 - Nested class types are represented with nested qualified names.
 - Constructors are treated as `method`.

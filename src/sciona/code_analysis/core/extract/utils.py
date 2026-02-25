@@ -20,4 +20,4 @@ def find_nodes_of_type(node, node_type: str) -> Iterator[object]:
         current = stack.pop()
         if current.type == node_type:
             yield current
-        stack.extend(getattr(current, "children", []))
+        stack.extend(reversed(getattr(current, "children", [])))

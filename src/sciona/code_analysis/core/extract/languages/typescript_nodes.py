@@ -39,7 +39,11 @@ def walk_typescript_nodes(
     state: TypeScriptNodeState,
     function_depth: int,
 ) -> None:
-    if node.type == "class_declaration":
+    if node.type in {
+        "class_declaration",
+        "abstract_class_declaration",
+        "interface_declaration",
+    }:
         name_node = node.child_by_field_name("name")
         if not name_node:
             return
@@ -97,14 +101,19 @@ def walk_typescript_nodes(
         state.class_stack.pop()
         return
 
-    if node.type in {"function_declaration", "method_definition"}:
+    if node.type in {
+        "function_declaration",
+        "method_definition",
+        "method_signature",
+        "abstract_method_signature",
+    }:
         name_node = node.child_by_field_name("name")
         if not name_node:
             return
         func_name = snapshot.content[name_node.start_byte : name_node.end_byte].decode(
             "utf-8"
         )
-        if node.type == "method_definition":
+        if node.type in {"method_definition", "method_signature", "abstract_method_signature"}:
             if not state.class_stack:
                 return
             node_type = "method"
@@ -147,14 +156,15 @@ def walk_typescript_nodes(
             )
         )
         body_node = node.child_by_field_name("body")
-        state.pending_calls.append(
-            (
-                qualified,
-                node_type,
-                body_node,
-                state.class_stack[-1] if state.class_stack else None,
+        if node.type not in {"method_signature", "abstract_method_signature"}:
+            state.pending_calls.append(
+                (
+                    qualified,
+                    node_type,
+                    body_node,
+                    state.class_stack[-1] if state.class_stack else None,
+                )
             )
-        )
         walk_typescript_children(
             node,
             language=language,
@@ -162,7 +172,7 @@ def walk_typescript_nodes(
             module_name=module_name,
             result=result,
             state=state,
-            function_depth=function_depth + 1,
+            function_depth=function_depth,
         )
         return
 

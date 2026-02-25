@@ -126,3 +126,59 @@ def test_java_analyzer_nested_class_qname(tmp_path):
     assert f"{module_name}.Outer" in qnames
     assert f"{module_name}.Outer.Inner" in qnames
     assert f"{module_name}.Outer.Inner.ping" in qnames
+
+
+def test_java_analyzer_resolves_for_each_catch_and_instanceof_bindings(tmp_path):
+    module = """
+    class Item {
+        void run() {}
+    }
+
+    class Err {
+        void handle() {}
+    }
+
+    class Holder {
+        void use(java.util.List<Item> items, Object obj) {
+            for (Item item : items) {
+                item.run();
+            }
+            try {
+                throw new Err();
+            } catch (Err e) {
+                e.handle();
+            }
+            if (obj instanceof Item match) {
+                match.run();
+            }
+        }
+    }
+    """
+    repo = tmp_path
+    src = repo / "src"
+    src.mkdir()
+    file_path = src / "Holder.java"
+    file_path.write_text(module, encoding="utf-8")
+    record = FileRecord(
+        path=file_path,
+        relative_path=Path("src/Holder.java"),
+        language="java",
+    )
+    snapshot = FileSnapshot(
+        record=record,
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = JavaAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+    call_records = {
+        rec.qualified_name: set(rec.callee_identifiers) for rec in result.call_records
+    }
+    use_calls = call_records[f"{module_name}.Holder.use"]
+    assert f"{module_name}.Item.run" in use_calls
+    assert f"{module_name}.Err.handle" in use_calls

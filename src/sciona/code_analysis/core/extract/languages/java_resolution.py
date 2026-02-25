@@ -49,6 +49,36 @@ def collect_local_var_types(
         name = node_text(name_node, snapshot.content) if name_node else None
         if type_text and name:
             collected[name] = type_text
+    for for_stmt in find_nodes_of_type(body_node, "enhanced_for_statement"):
+        type_node = for_stmt.child_by_field_name("type")
+        name_node = for_stmt.child_by_field_name("name")
+        type_text = node_text(type_node, snapshot.content) if type_node else None
+        name = node_text(name_node, snapshot.content) if name_node else None
+        if type_text and name:
+            collected[name] = type_text
+    for catch_param in find_nodes_of_type(body_node, "catch_formal_parameter"):
+        type_node = catch_param.child_by_field_name("type")
+        if type_node is None:
+            type_node = next(
+                (
+                    child
+                    for child in getattr(catch_param, "children", [])
+                    if child.type == "catch_type"
+                ),
+                None,
+            )
+        name_node = catch_param.child_by_field_name("name")
+        type_text = node_text(type_node, snapshot.content) if type_node else None
+        name = node_text(name_node, snapshot.content) if name_node else None
+        if type_text and name:
+            collected[name] = type_text
+    for instanceof_expr in find_nodes_of_type(body_node, "instanceof_expression"):
+        type_node = instanceof_expr.child_by_field_name("right")
+        name_node = instanceof_expr.child_by_field_name("name")
+        type_text = node_text(type_node, snapshot.content) if type_node else None
+        name = node_text(name_node, snapshot.content) if name_node else None
+        if type_text and name:
+            collected[name] = type_text
     return collected
 
 

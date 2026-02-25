@@ -39,41 +39,6 @@ def module_prefix_for_package(module_name: str, package_name: Optional[str]) -> 
     return None
 
 
-def normalize_import(
-    fragment: str,
-    module_name: str,
-    snapshot: FileSnapshot,
-    *,
-    module_prefix: str | None,
-) -> Optional[str]:
-    raw = fragment.strip()
-    if not raw.startswith("import"):
-        return None
-    is_static = raw.startswith("import static")
-    text = raw[len("import") :].strip()
-    if text.startswith("static"):
-        text = text[len("static") :].strip()
-    if text.endswith(";"):
-        text = text[:-1]
-    text = text.strip()
-    if text.endswith(".*"):
-        return None
-    if not text:
-        return None
-    if is_static and "." in text:
-        text = text.rsplit(".", 1)[0]
-    repo_root = repo_root_from_snapshot(snapshot)
-    repo_prefix = runtime_paths.repo_name_prefix(repo_root)
-    if repo_prefix and (text == repo_prefix or text.startswith(f"{repo_prefix}.")):
-        return text
-    top_package = top_level_package(module_name, repo_prefix)
-    if top_package and (text == top_package or text.startswith(f"{top_package}.")):
-        return f"{repo_prefix}.{text}" if repo_prefix else text
-    if module_prefix:
-        return f"{module_prefix}.{text}"
-    return text
-
-
 def normalize_import_node(
     node,
     content: bytes,
@@ -100,25 +65,6 @@ def normalize_import_node(
     if module_prefix:
         return f"{module_prefix}.{text}"
     return text
-
-
-def import_simple_name(fragment: str) -> str | None:
-    raw = fragment.strip()
-    if not raw.startswith("import"):
-        return None
-    is_static = raw.startswith("import static")
-    text = raw[len("import") :].strip()
-    if text.startswith("static"):
-        text = text[len("static") :].strip()
-    if text.endswith(";"):
-        text = text[:-1].strip()
-    if text.endswith(".*"):
-        return None
-    if is_static and "." in text:
-        text = text.rsplit(".", 1)[0]
-    if not text:
-        return None
-    return text.split(".")[-1]
 
 
 def import_simple_name_node(node, content: bytes) -> str | None:

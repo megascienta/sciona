@@ -51,7 +51,12 @@ def collect_module_instance_map(
     def walk(node) -> None:
         if node is None:
             return
-        if node.type in {"function_definition", "class_definition"}:
+        if node.type in {
+            "function_definition",
+            "async_function_definition",
+            "class_definition",
+            "lambda",
+        }:
             return
         if node.type == "assignment":
             left = node.child_by_field_name("left")
@@ -185,7 +190,14 @@ def collect_class_instance_map(
     def walk(node) -> None:
         if node is None:
             return
-        if node.type in {"class_definition", "lambda"}:
+        if node.type == "function_definition":
+            if any(child.type == "async" for child in getattr(node, "children", [])):
+                return
+        if node.type in {
+            "class_definition",
+            "async_function_definition",
+            "lambda",
+        }:
             return
         if node.type == "assignment":
             left = node.child_by_field_name("left")

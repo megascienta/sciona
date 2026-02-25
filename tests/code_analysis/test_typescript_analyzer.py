@@ -104,6 +104,11 @@ def test_typescript_nested_function_declaration_is_not_structural(tmp_path):
 
     call_records = {record.qualified_name for record in result.call_records}
     assert f"{module_name}.inner" not in call_records
+    by_caller = {
+        record.qualified_name: set(record.callee_identifiers)
+        for record in result.call_records
+    }
+    assert f"{module_name}.helper" in by_caller[f"{module_name}.outer"]
 
 
 def test_typescript_analyzer_collects_internal_imports_and_reexports(tmp_path):
@@ -300,3 +305,84 @@ def test_typescript_module_name_strips_d_ts_suffix(tmp_path):
     )
     analyzer = TypeScriptAnalyzer()
     assert analyzer.module_name(repo, snapshot) == f"{repo.name}.src.types"
+
+
+def test_typescript_analyzer_does_not_bleed_calls_from_nested_class_expression(tmp_path):
+    module = """
+    export function helper() {}
+    export class Controller {
+      handle() {
+        const Local = class {
+          run() { helper(); }
+        };
+        const l = new Local();
+        l.run();
+      }
+    }
+    """
+    repo = tmp_path
+    src = repo / "src"
+    src.mkdir()
+    file_path = src / "mod.ts"
+    file_path.write_text(module, encoding="utf-8")
+    record = FileRecord(
+        path=file_path,
+        relative_path=Path("src/mod.ts"),
+        language="typescript",
+    )
+    snapshot = FileSnapshot(
+        record=record,
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = TypeScriptAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+    call_records = {
+        record.qualified_name: set(record.callee_identifiers)
+        for record in result.call_records
+    }
+    handle_calls = call_records.get(f"{module_name}.Controller.handle", set())
+    assert f"{module_name}.helper" not in handle_calls
+
+
+def test_typescript_analyzer_extracts_abstract_class_and_interface(tmp_path):
+    module = """
+    export abstract class Service {
+      abstract process(): void;
+    }
+    export interface Repo {
+      find(): User;
+    }
+    """
+    repo = tmp_path
+    src = repo / "src"
+    src.mkdir()
+    file_path = src / "mod.ts"
+    file_path.write_text(module, encoding="utf-8")
+    record = FileRecord(
+        path=file_path,
+        relative_path=Path("src/mod.ts"),
+        language="typescript",
+    )
+    snapshot = FileSnapshot(
+        record=record,
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = TypeScriptAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+    qnames = {node.qualified_name for node in result.nodes}
+    assert f"{module_name}.Service" in qnames
+    assert f"{module_name}.Service.process" in qnames
+    assert f"{module_name}.Repo" in qnames
+    assert f"{module_name}.Repo.find" in qnames

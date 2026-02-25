@@ -21,3 +21,18 @@ def test_find_nodes_of_type_walks_children() -> None:
     root = _Node("root", children=[_Node("other"), leaf])
     nodes = list(find_nodes_of_type(root, "target"))
     assert nodes == [leaf]
+
+
+def test_find_nodes_of_type_preserves_document_order() -> None:
+    first = _Node("target")
+    second = _Node("target")
+    third = _Node("target")
+    root = _Node(
+        "root",
+        children=[
+            _Node("wrapper", children=[first, second]),
+            third,
+        ],
+    )
+    nodes = list(find_nodes_of_type(root, "target"))
+    assert nodes == [first, second, third]

@@ -36,14 +36,7 @@ def normalize_call_identifiers(
         updated: list[str] = []
         for identifier in identifiers:
             if "." in identifier:
-                terminal = identifier.rsplit(".", 1)[-1]
-                mapped = terminal_map.get(terminal)
-                if mapped is None and terminal in terminal_map:
-                    updated.append(terminal)
-                elif mapped:
-                    updated.append(mapped)
-                else:
-                    updated.append(identifier)
+                updated.append(identifier)
             else:
                 mapped = terminal_map.get(identifier)
                 if mapped:
