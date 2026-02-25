@@ -101,6 +101,8 @@ class CallTarget:
     callee_kind: str = "unqualified"
     ir: CallTargetIR | None = None
     call_span: tuple[int, int] | None = None
+    invocation_kind: str | None = None
+    type_arguments: str | None = None
 
 
 def collect_call_identifiers(
@@ -320,6 +322,8 @@ def _call_target_from_call_node(
         receiver_chain,
         callee_kind,
     )
+    type_arguments_node = call_node.child_by_field_name("type_arguments")
+    type_arguments = _callee_text(type_arguments_node, content)
     return CallTarget(
         terminal=terminal,
         callee_text=normalized_callee,
@@ -328,6 +332,8 @@ def _call_target_from_call_node(
         callee_kind=callee_kind,
         ir=ir,
         call_span=(call_node.start_byte, call_node.end_byte),
+        invocation_kind=getattr(call_node, "type", None),
+        type_arguments=type_arguments.strip() if type_arguments else None,
     )
 
 

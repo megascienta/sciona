@@ -24,6 +24,8 @@ class CallResolutionRequest:
     receiver_chain: tuple[str, ...] = ()
     callee_kind: str = "unqualified"
     ir: CallTargetIR | None = None
+    invocation_kind: str | None = None
+    type_arguments: str | None = None
 
 
 @dataclass(frozen=True)
