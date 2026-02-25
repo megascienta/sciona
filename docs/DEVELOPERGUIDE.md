@@ -7,6 +7,7 @@ Authoritative references:
 
 - Contract: `docs/CONTRACT.md`
 - Compliance: `docs/COMPLIANCE_CHECKLIST.md`
+- Capability parity matrix: `docs/CAPABILITY_MATRIX.md`
 
 If this guide conflicts with those files, contract/compliance wins.
 
@@ -32,6 +33,7 @@ Out of scope:
 - Structural extraction is tree-sitter query/field driven.
 - No heuristic fallback traversal for structural extraction.
 - Unsupported query node types fail closed (partial parse metadata), not fallback.
+- Code-analysis profiling helpers are tree-sitter driven; non-tree-sitter parser fallbacks are disallowed.
 
 ## Runtime Requirements
 
@@ -109,7 +111,7 @@ TypeScript:
 
 - Imports: `import_statement`, `export_statement`, `lexical_declaration` require-assignment patterns
 - Calls: `call_expression`
-- Note: `import_equals_declaration` is not in the current query node set
+- Note: `import ... = require(...)` is covered through `import_statement` / `import_require_clause` in the current grammar; there is no standalone `import_equals_declaration` node in this build.
 
 Java:
 
@@ -155,9 +157,10 @@ Mandatory coverage themes:
 
 - Contract/compliance invariants
 - Determinism and stable ordering
-- Cross-language parity on shared fixtures
+- Cross-language parity on shared fixtures (hand-authored + generated)
 - Build/reducer boundary correctness
 - Strict call-gate behavior for `CALLS` emission
+- Policy gates for tree-sitter-only extraction/profiling behavior
 
 Run baseline test suite:
 

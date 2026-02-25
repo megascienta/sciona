@@ -44,7 +44,7 @@ contract in `docs/CONTRACT.md`.
   - `import_statement`,
   - `export_statement`,
   - `lexical_declaration` require-assignment patterns.
-- `import_equals_declaration` is not part of current query node set.
+- `import ... = require(...)` is represented under `import_statement` with `import_require_clause` in the current grammar build.
 - Calls are collected from `call_expression` nodes and attributed by enclosing callable scope.
 
 ## Java Compliance
