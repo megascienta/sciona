@@ -11,6 +11,7 @@ from sciona.data_storage.core_db.schema import ensure_schema
 from sciona.data_storage.transactions import transaction
 from sciona.reducers.core import (
     callable_overview,
+    class_inheritance,
     class_overview,
     dependency_edges,
     file_outline,
@@ -748,6 +749,61 @@ def test_class_overview_reducer_exposes_methods_and_metadata(tmp_path):
         }
     ]
     assert "confidence" not in payload
+
+
+def test_class_inheritance_reducer_emits_base_edges(tmp_path):
+    repo = _build_profile_repo(tmp_path)
+    conn = sqlite3.connect(repo["db_path"])
+    conn.row_factory = sqlite3.Row
+    payload_text = class_inheritance.render(
+        repo["snapshot_id"],
+        conn=conn,
+        class_id=repo["ids"]["class_order"],
+        repo_root=repo["repo_root"],
+    )
+    conn.close()
+
+    payload = json.loads(_strip_json_fence(payload_text))
+    assert payload["payload_kind"] == "summary"
+    assert payload["class_id"] == repo["ids"]["class_order"]
+    assert payload["incoming"] == []
+    assert payload["incoming_count"] == 0
+    assert payload["outgoing_count"] == 2
+    assert payload["edge_source"] == "profile"
+    assert payload["outgoing"] == [
+        {
+            "edge_type": "INHERITS",
+            "related_structural_id": None,
+            "related_qualified_name": "BaseService",
+        },
+        {
+            "edge_type": "INHERITS",
+            "related_structural_id": None,
+            "related_qualified_name": "Mixin",
+        },
+    ]
+
+
+def test_class_inheritance_reducer_handles_no_bases(tmp_path):
+    repo = _build_profile_repo(tmp_path)
+    conn = sqlite3.connect(repo["db_path"])
+    conn.row_factory = sqlite3.Row
+    payload_text = class_inheritance.render(
+        repo["snapshot_id"],
+        conn=conn,
+        class_id=repo["ids"]["ts_class"],
+        repo_root=repo["repo_root"],
+    )
+    conn.close()
+
+    payload = json.loads(_strip_json_fence(payload_text))
+    assert payload["payload_kind"] == "summary"
+    assert payload["class_id"] == repo["ids"]["ts_class"]
+    assert payload["outgoing"] == []
+    assert payload["outgoing_count"] == 0
+    assert payload["incoming"] == []
+    assert payload["incoming_count"] == 0
+    assert payload["edge_source"] == "none"
 
 
 def test_module_overview_reducer_lists_children_and_imports(tmp_path):
