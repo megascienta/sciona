@@ -13,9 +13,7 @@ _CODE_ANALYSIS_ROOT = _REPO_ROOT / "src" / "sciona" / "code_analysis"
 
 
 # Temporary migration exceptions removed in follow-up PRs.
-_ALLOWLIST_AST_PARSE = {
-    "tools/profile_introspection_python.py",
-}
+_ALLOWLIST_AST_PARSE: set[str] = set()
 
 _ALLOWLIST_LINE_BASED_FALLBACK: set[str] = set()
 
@@ -45,6 +43,9 @@ def test_policy_no_line_based_parameter_fallback(path: Path) -> None:
         return
     assert "def _line_based_ts_parameters(" not in text
     assert "_line_based_ts_parameters(" not in text
+    assert "def _split_comma_aware(" not in text
+    assert "_parse_typescript_parameters(" not in text
+    assert "_parse_typescript_bases(" not in text
 
 
 @pytest.mark.parametrize("path", _python_files(), ids=lambda p: _rel(p))

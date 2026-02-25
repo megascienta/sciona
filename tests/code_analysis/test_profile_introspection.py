@@ -4,6 +4,8 @@
 from pathlib import Path
 
 from sciona.code_analysis.tools.profile_introspection import (
+    java_class_extras,
+    java_function_extras,
     python_class_extras,
     python_function_extras,
     typescript_class_extras,
@@ -92,3 +94,42 @@ export function makeWidget(name: string, ...args: string[]) {
     assert func_decorators == []
     assert "name" in params
     assert "...args" in params
+
+
+def test_java_introspection_extras(tmp_path: Path) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    file_path = repo_root / "pkg" / "Mod.java"
+    file_path.parent.mkdir(parents=True)
+    file_path.write_text(
+        """
+package pkg;
+class Base {}
+interface Role {}
+class Widget extends Base implements Role {
+  Widget() {}
+  void run(String userId, int retries) {}
+}
+""".lstrip(),
+        encoding="utf-8",
+    )
+    decorators, bases = java_class_extras(
+        "java",
+        repo_root,
+        "pkg/Mod.java",
+        start_line=4,
+        end_line=7,
+    )
+    assert decorators == []
+    assert "Base" in bases
+    assert "Role" in bases
+
+    params, func_decorators = java_function_extras(
+        "java",
+        repo_root,
+        "pkg/Mod.java",
+        start_line=6,
+        end_line=6,
+    )
+    assert func_decorators == []
+    assert params == ["userId", "retries"]
