@@ -5,9 +5,8 @@
 
 from __future__ import annotations
 
-import os
-from pathlib import Path
 from collections import defaultdict
+from pathlib import Path
 
 from ....tools.call_extraction import collect_call_targets
 from ....tools.tree_sitter import build_parser
@@ -26,9 +25,6 @@ from .typescript_imports import collect_typescript_imports
 from .typescript_nodes import TypeScriptNodeState, walk_typescript_nodes
 from .typescript_resolution import resolve_pending_instances
 from .scope_resolver import ScopeResolver
-
-
-SCOPE_RESOLVER_STRICT_COMPARE_ENV = "SCIONA_SCOPE_RESOLVER_STRICT_COMPARE"
 
 
 class TypeScriptAnalyzer(ASTAnalyzer):
@@ -99,11 +95,10 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                 snapshot=snapshot,
                 language=self.language,
             )
-            if _scope_resolver_strict_compare():
-                _assert_scope_resolver_parity(
-                    pending_callables=set(pending_by_qualified),
-                    call_targets_by_callable=call_targets_by_callable,
-                )
+            _assert_scope_resolver_parity(
+                pending_callables=set(pending_by_qualified),
+                call_targets_by_callable=call_targets_by_callable,
+            )
             for qualified, (node_type, class_name) in pending_by_qualified.items():
                 call_targets = call_targets_by_callable.get(qualified, ())
                 resolved = resolve_typescript_calls(
@@ -176,15 +171,7 @@ def _normalize_typescript_module_name(module_name: str) -> str:
     return module_name
 
 
-__all__ = [
-    "TypeScriptAnalyzer",
-    "module_name",
-]
-
-
-def _scope_resolver_strict_compare() -> bool:
-    value = os.getenv(SCOPE_RESOLVER_STRICT_COMPARE_ENV, "")
-    return value.strip().lower() in {"1", "true", "yes", "on"}
+__all__ = ["TypeScriptAnalyzer", "module_name"]
 
 
 def _scope_resolver_from_pending_calls(

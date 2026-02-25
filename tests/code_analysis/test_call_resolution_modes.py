@@ -121,27 +121,3 @@ public class Foo {
     assert shared == legacy
     assert compare == legacy
 
-
-def test_scope_resolver_strict_compare_does_not_raise_for_supported_calls(
-    tmp_path, monkeypatch
-):
-    source = """
-class Service:
-    def run(self):
-        pass
-class Controller:
-    def __init__(self):
-        self.svc = Service()
-    def handle(self):
-        self.svc.run()
-"""
-    file_path = tmp_path / "pkg" / "mod.py"
-    file_path.parent.mkdir()
-    file_path.write_text(source, encoding="utf-8")
-    analyzer = PythonAnalyzer()
-    snapshot = _snapshot(file_path, "pkg/mod.py", "python", source)
-    module_name = analyzer.module_name(tmp_path, snapshot)
-    analyzer.module_index = {module_name}
-
-    monkeypatch.setenv("SCIONA_SCOPE_RESOLVER_STRICT_COMPARE", "1")
-    _call_map(analyzer.analyze(snapshot, module_name))

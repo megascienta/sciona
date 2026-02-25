@@ -5,9 +5,8 @@
 
 from __future__ import annotations
 
-import os
-from pathlib import Path
 from collections import defaultdict
+from pathlib import Path
 from typing import List
 
 from ....tools.call_extraction import (
@@ -39,8 +38,6 @@ from .java_resolution import (
 )
 from .scope_resolver import ScopeResolver
 from .shared import is_internal_module
-
-SCOPE_RESOLVER_STRICT_COMPARE_ENV = "SCIONA_SCOPE_RESOLVER_STRICT_COMPARE"
 
 class JavaAnalyzer(ASTAnalyzer):
     language = "java"
@@ -126,11 +123,10 @@ class JavaAnalyzer(ASTAnalyzer):
                 snapshot=snapshot,
                 language=self.language,
             )
-            if _scope_resolver_strict_compare():
-                _assert_scope_resolver_parity(
-                    pending_callables=set(pending_by_qualified),
-                    call_targets_by_callable=call_targets_by_callable,
-                )
+            _assert_scope_resolver_parity(
+                pending_callables=set(pending_by_qualified),
+                call_targets_by_callable=call_targets_by_callable,
+            )
             for qualified, (node_type, body_node, class_name) in pending_by_qualified.items():
                 local_types = collect_local_var_types(body_node, snapshot)
                 instance_types = {}
@@ -195,15 +191,7 @@ def module_name(repo_root: Path, snapshot: FileSnapshot) -> str:
     )
 
 
-__all__ = [
-    "JavaAnalyzer",
-    "module_name",
-]
-
-
-def _scope_resolver_strict_compare() -> bool:
-    value = os.getenv(SCOPE_RESOLVER_STRICT_COMPARE_ENV, "")
-    return value.strip().lower() in {"1", "true", "yes", "on"}
+__all__ = ["JavaAnalyzer", "module_name"]
 
 
 def _scope_resolver_from_pending_calls(
