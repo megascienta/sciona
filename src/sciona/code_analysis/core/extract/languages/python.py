@@ -23,6 +23,7 @@ from ..utils import count_lines
 from .python_calls import resolve_python_calls
 from .python_imports import collect_python_imports
 from .python_nodes import PythonNodeState, walk_python_nodes
+from .query_surface import PYTHON_CALL_NODE_TYPES, PYTHON_SKIP_CALL_NODE_TYPES
 from .python_resolution import collect_callable_instance_map, collect_module_instance_map
 from .python_resolution import collect_class_instance_map
 from .scope_resolver import ScopeResolver
@@ -212,8 +213,8 @@ def _collect_targets_by_callable(
         call_targets = collect_call_targets(
             body_node,
             snapshot.content,
-            call_node_types={"call"},
-            skip_node_types={"class_definition"},
+            call_node_types=set(PYTHON_CALL_NODE_TYPES),
+            skip_node_types=set(PYTHON_SKIP_CALL_NODE_TYPES),
             query_language=language,
         )
         for target in call_targets:

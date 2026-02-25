@@ -45,3 +45,14 @@ def test_policy_no_line_based_parameter_fallback(path: Path) -> None:
         return
     assert "def _line_based_ts_parameters(" not in text
     assert "_line_based_ts_parameters(" not in text
+
+
+@pytest.mark.parametrize("path", _python_files(), ids=lambda p: _rel(p))
+def test_policy_structural_extraction_avoids_non_query_traversal(path: Path) -> None:
+    rel = _rel(path)
+    if not rel.startswith("core/extract/"):
+        return
+    if rel == "core/extract/utils.py":
+        return
+    text = path.read_text(encoding="utf-8")
+    assert "find_nodes_of_type(" not in text

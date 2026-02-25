@@ -12,6 +12,7 @@ from .....runtime import packaging as runtime_packaging
 from .....runtime import paths as runtime_paths
 from ...normalize.model import FileSnapshot
 from ..utils import find_nodes_of_types_query
+from .query_surface import PYTHON_IMPORT_NODE_TYPES
 from .shared import is_internal_module, repo_root_from_snapshot
 
 
@@ -33,7 +34,7 @@ def collect_python_imports(
     for child in find_nodes_of_types_query(
         root,
         language_name="python",
-        node_types=("import_statement", "import_from_statement"),
+        node_types=PYTHON_IMPORT_NODE_TYPES,
     ):
         if not _is_direct_child(child, root):
             continue

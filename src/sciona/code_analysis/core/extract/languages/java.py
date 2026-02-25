@@ -36,6 +36,11 @@ from .java_resolution import (
     collect_local_var_types,
     qualify_java_type,
 )
+from .query_surface import (
+    JAVA_CALL_NODE_TYPES,
+    JAVA_IMPORT_NODE_TYPES,
+    JAVA_SKIP_CALL_NODE_TYPES,
+)
 from .scope_resolver import ScopeResolver
 from .shared import is_internal_module
 
@@ -93,7 +98,7 @@ class JavaAnalyzer(ASTAnalyzer):
             for import_node in find_nodes_of_types_query(
                 root,
                 language_name="java",
-                node_types=("import_declaration",),
+                node_types=JAVA_IMPORT_NODE_TYPES,
             ):
                 normalized = normalize_import_node(
                     import_node,
@@ -230,17 +235,8 @@ def _collect_targets_by_callable(
         call_targets = collect_call_targets(
             body_node,
             snapshot.content,
-            call_node_types={
-                "method_invocation",
-                "object_creation_expression",
-                "explicit_constructor_invocation",
-            },
-            skip_node_types={
-                "class_declaration",
-                "interface_declaration",
-                "enum_declaration",
-                "record_declaration",
-            },
+            call_node_types=set(JAVA_CALL_NODE_TYPES),
+            skip_node_types=set(JAVA_SKIP_CALL_NODE_TYPES),
             callee_field_names=("name", "type", "function"),
             callee_renderer=callee_text,
             query_language=language,

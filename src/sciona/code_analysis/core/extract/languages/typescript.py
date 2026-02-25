@@ -23,6 +23,10 @@ from ..utils import count_lines
 from .typescript_calls import resolve_typescript_calls
 from .typescript_imports import collect_typescript_imports
 from .typescript_nodes import TypeScriptNodeState, walk_typescript_nodes
+from .query_surface import (
+    TYPESCRIPT_CALL_NODE_TYPES,
+    TYPESCRIPT_SKIP_CALL_NODE_TYPES,
+)
 from .typescript_resolution import resolve_pending_instances
 from .scope_resolver import ScopeResolver
 
@@ -210,13 +214,8 @@ def _collect_targets_by_callable(
         call_targets = collect_call_targets(
             body_node,
             snapshot.content,
-            call_node_types={"call_expression"},
-            skip_node_types={
-                "class_declaration",
-                "abstract_class_declaration",
-                "class",
-                "class_expression",
-            },
+            call_node_types=set(TYPESCRIPT_CALL_NODE_TYPES),
+            skip_node_types=set(TYPESCRIPT_SKIP_CALL_NODE_TYPES),
             query_language=language,
         )
         for target in call_targets:

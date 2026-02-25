@@ -12,6 +12,11 @@ from .....runtime import paths as runtime_paths
 from ...module_naming import module_name_from_path
 from ...normalize.model import FileSnapshot
 from ..utils import find_nodes_of_types_query
+from .query_surface import (
+    TYPESCRIPT_IMPORT_EXPORT_NODE_TYPES,
+    TYPESCRIPT_REQUIRE_DECLARATION_NODE_TYPES,
+    TYPESCRIPT_STRING_NODE_TYPES,
+)
 from .shared import is_internal_module, repo_root_from_snapshot
 
 
@@ -29,7 +34,7 @@ def collect_typescript_imports(
     nodes = find_nodes_of_types_query(
         root,
         language_name="typescript",
-        node_types=("import_statement", "export_statement"),
+        node_types=TYPESCRIPT_IMPORT_EXPORT_NODE_TYPES,
     )
     for node in nodes:
         module_spec = extract_module_spec_from_node(node, snapshot.content)
@@ -61,7 +66,7 @@ def collect_typescript_imports(
     for node in find_nodes_of_types_query(
         root,
         language_name="typescript",
-        node_types=("lexical_declaration",),
+        node_types=TYPESCRIPT_REQUIRE_DECLARATION_NODE_TYPES,
     ):
         alias, module_spec = extract_require_assignment_from_node(node, snapshot.content)
         if not alias or not module_spec:
@@ -93,7 +98,7 @@ def extract_module_spec_from_node(node, content: bytes) -> Optional[str]:
     string_nodes = find_nodes_of_types_query(
         node,
         language_name="typescript",
-        node_types=("string",),
+        node_types=TYPESCRIPT_STRING_NODE_TYPES,
     )
     if string_nodes:
         return decode_string_literal(string_nodes[0], content)
