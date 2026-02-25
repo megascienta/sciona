@@ -17,6 +17,7 @@ from .profile_query import find_profile_nodes_of_types
 from .profile_query_surface import (
     JAVA_PROFILE_BASE_NODE_TYPES,
     JAVA_PROFILE_CLASS_NODE_TYPES,
+    JAVA_PROFILE_DECORATOR_NODE_TYPES,
     JAVA_PROFILE_FUNCTION_NODE_TYPES,
     JAVA_PROFILE_PARAMETER_NODE_TYPES,
 )
@@ -79,14 +80,17 @@ class _JavaInspector:
         params_node = node.child_by_field_name("parameters")
         self.functions[(lineno, end_lineno)] = _JavaFunctionDetails(
             parameters=_collect_java_parameters(params_node, self._source),
-            decorators=[],
+            decorators=_collect_java_decorators(node, self._source),
         )
 
     def _record_class(self, node) -> None:
         lineno = node.start_point[0] + 1
         end_lineno = node.end_point[0] + 1
         bases = _collect_java_bases(node, self._source)
-        self.classes[(lineno, end_lineno)] = _JavaClassDetails(decorators=[], bases=bases)
+        self.classes[(lineno, end_lineno)] = _JavaClassDetails(
+            decorators=_collect_java_decorators(node, self._source),
+            bases=bases,
+        )
 
 
 def java_function_extras(
@@ -178,6 +182,25 @@ def _collect_java_bases(class_node, source: bytes) -> List[str]:
         if value:
             bases.append(value)
     return list(dict.fromkeys(bases))
+
+
+def _collect_java_decorators(node, source: bytes) -> List[str]:
+    modifiers_node = next(
+        (child for child in getattr(node, "children", []) if child.type == "modifiers"),
+        None,
+    )
+    if modifiers_node is None:
+        return []
+    decorators: list[str] = []
+    for child in find_profile_nodes_of_types(
+        modifiers_node,
+        language_name="java",
+        node_types=JAVA_PROFILE_DECORATOR_NODE_TYPES,
+    ):
+        value = source[child.start_byte : child.end_byte].decode("utf-8").strip()
+        if value:
+            decorators.append(value)
+    return list(dict.fromkeys(decorators))
 
 
 def _fuzzy_span_lookup(mapping, start_line: int, end_line: int):

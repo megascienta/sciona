@@ -63,6 +63,7 @@ def _build_query_surfaces() -> dict[str, dict[str, object]]:
                 "classes": sorted(profile_query_surface.JAVA_PROFILE_CLASS_NODE_TYPES),
                 "parameters": sorted(profile_query_surface.JAVA_PROFILE_PARAMETER_NODE_TYPES),
                 "bases": sorted(profile_query_surface.JAVA_PROFILE_BASE_NODE_TYPES),
+                "decorators": sorted(profile_query_surface.JAVA_PROFILE_DECORATOR_NODE_TYPES),
             },
         },
     }

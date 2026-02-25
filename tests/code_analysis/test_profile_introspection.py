@@ -106,8 +106,10 @@ def test_java_introspection_extras(tmp_path: Path) -> None:
 package pkg;
 class Base {}
 interface Role {}
+@Entity
 class Widget extends Base implements Role {
   Widget() {}
+  @Timed
   void run(String userId, int retries) {}
 }
 """.lstrip(),
@@ -118,9 +120,9 @@ class Widget extends Base implements Role {
         repo_root,
         "pkg/Mod.java",
         start_line=4,
-        end_line=7,
+        end_line=9,
     )
-    assert decorators == []
+    assert decorators == ["@Entity"]
     assert "Base" in bases
     assert "Role" in bases
 
@@ -128,8 +130,8 @@ class Widget extends Base implements Role {
         "java",
         repo_root,
         "pkg/Mod.java",
-        start_line=6,
-        end_line=6,
+        start_line=7,
+        end_line=8,
     )
-    assert func_decorators == []
+    assert func_decorators == ["@Timed"]
     assert params == ["userId", "retries"]

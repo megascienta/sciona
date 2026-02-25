@@ -34,3 +34,4 @@ JAVA_PROFILE_FUNCTION_NODE_TYPES = ("method_declaration", "constructor_declarati
 JAVA_PROFILE_CLASS_NODE_TYPES = ("class_declaration",)
 JAVA_PROFILE_PARAMETER_NODE_TYPES = ("formal_parameter", "spread_parameter")
 JAVA_PROFILE_BASE_NODE_TYPES = ("type_identifier", "identifier", "scoped_type_identifier")
+JAVA_PROFILE_DECORATOR_NODE_TYPES = ("annotation", "marker_annotation")

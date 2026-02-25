@@ -17,7 +17,7 @@
         "typescript": "yes"
       },
       "profile_decorators_tree_sitter": {
-        "java": "partial",
+        "java": "yes",
         "python": "yes",
         "typescript": "yes"
       },
@@ -67,6 +67,10 @@
         ],
         "classes": [
           "class_declaration"
+        ],
+        "decorators": [
+          "annotation",
+          "marker_annotation"
         ],
         "functions": [
           "constructor_declaration",

@@ -42,7 +42,7 @@ def build_parity_contract() -> dict[str, object]:
                 "typescript": "yes",
             },
             "profile_decorators_tree_sitter": {
-                "java": "partial",
+                "java": "yes",
                 "python": "yes",
                 "typescript": "yes",
             },
@@ -54,4 +54,3 @@ def build_parity_contract() -> dict[str, object]:
             "module_scoped_fallback",
         ],
     }
-

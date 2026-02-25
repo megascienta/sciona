@@ -29,7 +29,7 @@ Legend:
 | Partial-parse fail-closed metadata | yes | yes | yes | No heuristic traversal fallback |
 | Profile function extras via tree-sitter | yes | yes | yes | Python/TS/Java profile reducers |
 | Profile class extras via tree-sitter | yes | yes | yes | Python/TS/Java profile reducers |
-| Profile decorators/annotations via tree-sitter | yes | yes | partial | Java currently returns empty decorator/annotation extras |
+| Profile decorators/annotations via tree-sitter | yes | yes | yes | Python/TS/Java profile reducers |
 | Capability manifest generated from query surfaces | yes | yes | yes | `docs/CAPABILITY_MANIFEST.json` gate |
 | Parity quality threshold gate (nodes+calls) | yes | yes | yes | `test_language_parity_score_gate.py` |
 | Triplet parity fixture coverage | yes | yes | yes | `test_language_parity_triplets.py` |
@@ -40,7 +40,7 @@ Legend:
 - TypeScript import parsing supports the grammar surface available via
   `import_statement`, `export_statement`, and require-style lexical declarations.
 - Java import parsing supports class aliases, static member aliases, and static wildcard owners.
-- Java profile extras currently do not emit decorators/annotations (tracked parity gap).
+- Java profile extras include annotation extraction from declaration modifiers.
 
 ## Gate Criteria
 
