@@ -1,56 +1,69 @@
 # SCIONA Language Compliance Checklist
 
-Use this checklist to verify each language implementation against the structural contract.
+Use this checklist to verify each language implementation against the structural
+contract in `docs/CONTRACT.md`.
 
-## Common Requirements (All Languages)
+## Global Compliance Requirements
 
-- CoreDB retains exactly one committed snapshot (singleton authoritative state).
-- Emits node types: `module`, `class`, `function`, `method`.
-- Optional synthetic nodes (for example `entry_point`) are allowed for
-  navigation and are excluded from language compliance checks.
+- CoreDB retains exactly one authoritative committed snapshot.
+- Emits core node types: `module`, `class`, `function`, `method`.
+- Optional synthetic nodes are allowed but excluded from language compliance.
 - Emits edge types: `CONTAINS`, `DEFINES_METHOD`, `IMPORTS_DECLARED`, `CALLS`.
-- `module` MUST NOT contain `method` nodes (use `DEFINES_METHOD` from class).
-- Nested classes are allowed via `CONTAINS` from `class` → `class`.
-- Constructors are represented as `method` nodes.
-- Uses canonical module identity from repo-relative path.
-- Qualified names follow structural nesting:
-  - classes: `{module}.{class}` with nested classes extending scope (for example `{module}.{outer}.{inner}`),
+- `module` MUST NOT contain `method` nodes.
+- Nested classes are represented with class -> class `CONTAINS`.
+- Constructors are represented as `method`.
+- Canonical module identity is path-derived (not alias-derived).
+- Qualified naming follows:
+  - classes: `{module}.{class}` (nested classes extend scope),
   - functions: `{module}.{function}`,
   - methods: `{class}.{method}`.
 - Calls are attributed to nearest enclosing structural callable.
-- Nested callables are not emitted as structural nodes.
-- CALLS targets are in-repo callable ids only; unresolved/external targets are excluded.
-- Imports are syntax-only and normalized to module names.
-- Outputs are deterministic and stably ordered.
+- Nested non-structural callables are not emitted as structural nodes.
+- CALLS targets are in-repo callable IDs only.
+- Extraction is tree-sitter query/field driven.
+- Structural extraction fallback traversal is not allowed.
+- Unsupported query node types fail closed (partial parse metadata; no heuristic fallback).
+- Final CALLS emission passes strict candidate gate; non-accepted candidates are dropped.
 
-## Python
+## Python Compliance
 
-- Nested classes are represented with nested qualified names and class → class `CONTAINS`.
+- Top-level `function_definition` and `async_function_definition` map to `function`.
+- Class-member `function_definition` and `async_function_definition` map to `method`.
+- `decorated_definition` contributes wrapped class/function node; decorators do not add structural nodes.
 - `__init__.py` is treated as package module identity.
-- `function_definition` and `async_function_definition` at top level map to `function`.
-- `function_definition` and `async_function_definition` inside class map to `method`.
-- `decorated_definition` contributes its wrapped class/function node; decorators do not add structural nodes.
-- `import_statement` and `import_from_statement` emit `IMPORTS_DECLARED`.
-- Calls collected from `call` nodes and attributed to enclosing callable.
+- Imports come from `import_statement` and `import_from_statement`.
+- Calls are collected from `call` nodes and attributed by enclosing callable scope.
 
-## TypeScript
+## TypeScript Compliance
 
-- Nested classes are represented with nested qualified names and class → class `CONTAINS`.
-- Declarations and expressions produce structural callables (coverage parity).
-- Anonymous callables MUST NOT create `function` nodes.
-- Anonymous callables MAY create `method` nodes only when assigned to class members.
-- Nested classes are represented with nested qualified names.
-- `method_definition` inside class maps to `method`.
 - `function_declaration` maps to `function`.
-- Import extraction includes `import_statement`, re-exports, and `import=`/`require` forms if present.
-- Calls collected from `call_expression` nodes and attributed to enclosing callable.
+- `method_definition` inside class maps to `method`.
+- Anonymous callables do not create `function` nodes.
+- Anonymous callable class members may map to `method` when represented as class member callable forms.
+- Imports are extracted from:
+  - `import_statement`,
+  - `export_statement`,
+  - `lexical_declaration` require-assignment patterns.
+- `import_equals_declaration` is not part of current query node set.
+- Calls are collected from `call_expression` nodes and attributed by enclosing callable scope.
 
-## Java
+## Java Compliance
 
-- Nested class types are represented with nested qualified names and class → class `CONTAINS`.
-- Class types include `class`, `interface`, `enum`, `record`.
-- Nested class types are represented with nested qualified names.
-- Constructors are treated as `method`.
-- Imports extracted from `import_declaration`.
-- Module alias uses package name for import resolution, canonical identity remains path-based.
-- Calls collected from method invocations and constructor invocations.
+- Class-like types include class/interface/enum/record forms.
+- Constructors are represented as `method`.
+- Imports are extracted from `import_declaration`.
+- Package-derived alias may assist resolution, but canonical module identity remains path-based.
+- Calls are collected from:
+  - `method_invocation`,
+  - `object_creation_expression`,
+  - `explicit_constructor_invocation`.
+
+## Verification Guidance
+
+For each language implementation, verify:
+
+1. Node and edge type completeness against contract.
+2. Naming and canonical identity invariants.
+3. Query-only extraction behavior (no fallback path).
+4. Strict call-gate filtering behavior for CALLS materialization.
+5. Deterministic ordering across repeated runs on unchanged committed snapshot.

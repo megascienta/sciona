@@ -1,232 +1,169 @@
 # SCIONA Developer Guide
 
-This guide consolidates the required core, contracts, and addon rules for working on SCIONA. It is intentionally brief and self-contained and is the single source of truth for contributors.
+This guide defines current implementation boundaries, invariants, and workflow
+rules for contributors.
 
-## Purpose and invariants
+Authoritative references:
 
-SCIONA builds a deterministic structural index (SCI) for a git repository. It records *what exists* and *how entities relate* for a committed snapshot only. It does **not** execute code or infer semantics.
+- Contract: `docs/CONTRACT.md`
+- Compliance: `docs/COMPLIANCE_CHECKLIST.md`
 
-See `docs/CONTRACT.md` for the authoritative structural contract and
-`docs/COMPLIANCE_CHECKLIST.md` for per-language compliance requirements.
+If this guide conflicts with those files, contract/compliance wins.
 
-## Requirements
+## System Purpose
 
-Comment: SCIONA currently requires Python 3.11 or 3.12. Ensure `git` and `pip` are available on your PATH.
-Comment: Python 3.13 is not supported yet because `tree_sitter_languages` has no published wheels for 3.13.
+SCIONA builds a deterministic Structural Code Index (SCI) for a committed
+repository snapshot. It models static structure and relations only.
 
-Core invariants (all must hold):
-- Deterministic output for the same repo state, config, and version.
-- Snapshots are committed-only and logically immutable.
-- CoreDB keeps exactly one committed snapshot (latest clean-HEAD build).
-- Core is read-only with respect to the target repo except `sciona init` and `sciona build` writing under `.sciona/`, `sciona init` can optionally add post-commit hook.
-- Committed snapshot ids are deterministic (structural content + git metadata).
-- Derived artifacts live outside SCI and never modify it.
-- Public pipelines and CLI read the latest committed snapshot only.
-- ArtifactDB always reflects the latest committed snapshot.
-- Reducers must not expose wall-clock metadata (timestamps, UUIDs).
-- No network calls during analysis or reducers.
+Out of scope:
 
-## Repository layout and ownership boundaries
+- Runtime behavior
+- Dynamic dispatch certainty
+- Dependency-injection wiring certainty
+- Reflection/monkey-patching/runtime mutation
 
-Layer mapping (responsibility-first; no layer may reach “up” the stack):
-- `src/sciona/runtime/`: paths, config parsing, logging, git plumbing, error types.
-- `src/sciona/data_storage/`: CoreDB/ArtifactDB schemas and read/write helpers.
-- `src/sciona/code_analysis/`: discovery, parsing, node/edge extraction, normalization.
-- `src/sciona/pipelines/`: policy validation and build lifecycle orchestration.
-- `src/sciona/reducers/`: deterministic payload formatting and registry.
-- `src/sciona/api/`: stable public addon API surface (`sciona.api.addons`).
+## Core Invariants
 
-Dependency rule:
-- Upward imports are forbidden.
-- Exception (scoped): pipelines may import reducers modules only for reducer registry,
-  context helpers, and payload rendering. No other upward imports are allowed.
+- Deterministic output for the same committed repo state, config, and version.
+- Committed snapshot is authoritative.
+- CoreDB holds one authoritative committed snapshot.
+- ArtifactDB is derived from committed SCI and does not mutate SCI facts.
+- Reducers are deterministic and read-only.
+- Structural extraction is tree-sitter query/field driven.
+- No heuristic fallback traversal for structural extraction.
+- Unsupported query node types fail closed (partial parse metadata), not fallback.
 
-Internal boundaries: `sciona.api.cli`, `sciona.api.errors`.
+## Runtime Requirements
 
-If you change invariants, update this guide first, then align code and tests.
+- Python: 3.11 or 3.12
+- `tree_sitter_languages` required
+- Python 3.13 currently unsupported (upstream wheel availability)
 
-## Tests
+## Package Boundaries
 
-Tests are organized by layer under `tests/`. See `tests/README.md` for the
-current layout and scope expectations. Add or update tests within the owning
-layer package and avoid cross-layer assertions except through public APIs.
+- `src/sciona/runtime/`: runtime utilities (paths, identity, logging, git, errors)
+- `src/sciona/data_storage/`: CoreDB/ArtifactDB schemas and storage operations
+- `src/sciona/code_analysis/`: discovery, parse, extraction, normalization, assembly
+- `src/sciona/pipelines/`: build/reducer orchestration and policy enforcement
+- `src/sciona/reducers/`: deterministic reducer payload generation
+- `src/sciona/api/`: stable addon-facing API
 
-## Public API contract
+Dependency direction:
 
-The only stable API is `sciona.api.addons` and symbols exported from its `__all__`.
+- No upward imports across layers.
+- Exception: pipelines may import reducer registry/context/payload wiring.
 
-Stable namespace:
-- `sciona.api.addons`
+## Build Lifecycle
 
-CLI implementations must depend on `sciona.api.cli` (internal boundary) only.
+`pipelines.exec.build` high-level flow:
 
-## CLI and pipelines
+1. Validate repository and config policy.
+2. Discover tracked files for enabled languages.
+3. Parse and extract structural nodes/edges.
+4. Compute structural hash and decide snapshot reuse/new commit.
+5. Enforce single committed snapshot in CoreDB.
+6. Rebuild ArtifactDB as a pure derivative of committed snapshot.
 
-CLI entrypoint:
-- `sciona.cli.main:run` (registered in `pyproject.toml`).
+## Snapshot and Diff Overlay Policy
 
-CLI pipeline functions (from `sciona.api.cli`, internal):
-- `init`, `build`, `status`
-- `init_dialog_defaults`, `init_supported_languages`, `init_apply_languages`
-- `clean`, `clean_agents`
-- `emit`, `list_entries`, `get_entry` (reducers)
-- `identifier_for_repo`, `identifier`, `require_identifier` (resolution)
+- Authoritative evidence is committed snapshot data.
+- Dirty worktree overlays (`_diff`) are best-effort reducer hints only.
+- `_diff` does not replace SCI evidence.
+- Dirty checks apply to tracked files/languages in `.sciona/config.yaml` scope.
 
-Build lifecycle (implementation in `pipelines.exec.build`):
-1. Validate repo/config policy.
-2. Ingest snapshot and compute structural hash.
-3. Reuse baseline snapshot if structural hash matches; else commit a new snapshot.
-4. Enforce a single committed snapshot in CoreDB.
-5. Rebuild artifacts for the committed snapshot.
+## Extraction and Resolution Model
 
-## Snapshot and dirty-worktree policy
+Parsing and extraction:
 
-Authoritative data is always the latest committed snapshot. If the worktree is dirty:
-- Reducer payloads must not silently blend dirty changes.
-- Any overlay must be explicitly labeled (e.g., `_diff`) and treated as best-effort.
-- Addons and tooling must treat overlays as hints, never as authoritative truth.
+- Tree-sitter parser per language.
+- Query API for node capture and field-driven extraction.
+- No DFS fallback traversal for structural extraction.
 
-Clean-worktree enforcement is scoped to tracked files in enabled languages (honors `.sciona/config.yaml` and discovery excludes).
+Calls:
 
-## Parsing scope and limits
+- Call sites are syntax-derived and best-effort.
+- Attribution is based on nearest enclosing structural callable.
+- Resolution uses deterministic shared kernel path.
+- Final materialization is contract-gated via strict call candidate selection.
+- Only accepted in-repo callable targets become `CALLS` edges.
 
-Analysis is static and source-only across all supported languages. Analyzers parse source syntax using tree-sitter without importing, executing, or evaluating code. Edges (imports/calls) are syntax-based and are best-effort; partial parses are allowed and ambiguity is omitted rather than guessed.
+Imports:
 
-Call attribution is ancestry-based and deterministic: call spans are mapped to the nearest enclosing structural callable using scope resolution (not function-depth counters or runtime heuristics).
+- Syntax-only extraction and normalization.
+- External/unresolved imports are not emitted as internal structural edges.
 
-Syntactic constructs such as decorated/annotated declarations, constructor forms, class nesting, and re-export syntax are parsed and normalized where deterministic. Runtime behavior is not modeled: dynamic dispatch, reflection, dependency injection wiring, monkey patching, runtime registration, and build-time code generation remain out of scope.
-
-By contract, SCIONA does not:
-- Execute code, import modules, or run builds/tests.
-- Perform runtime symbol resolution, dataflow analysis, or type checking.
-- Guarantee complete call graphs or import resolution (edges are best-effort).
-- Analyze languages outside the supported list; non-tracked files are ignored.
-- Index generated artifacts unless they are committed, tracked files.
-- Discovery is git-tracked files only; no directory walking.
-- `.gitignore` affects tracked-file discovery when files are explicitly ignored.
-- Discovery applies `discovery.exclude_globs` after hard excludes (`.git/`, `.sciona/`).
-- Uncommitted changes outside tracked language files do not invalidate a snapshot.
-- Partial ASTs are allowed; ambiguity is omitted, not guessed.
-- Import edges are syntax hints, not full symbol resolution.
-- Call graphs are derived artifacts and may be incomplete.
-- Module names are derived from repo-relative paths only; packaging metadata is ignored.
-- Module names are prefixed with `repo_name_prefix` for global uniqueness across repos.
-
-## Supported languages
+## Supported Languages
 
 - Python
 - TypeScript
 - Java
 
-## Data model
+## Current Language Extraction Surface
 
-CoreDB (SCI):
-- `snapshots`, `structural_nodes`, `node_instances`, `edges`
+Python:
 
-ArtifactDB (derived, non-authoritative):
-- `node_status`, `node_calls`, `graph_nodes`, `graph_edges`
+- Imports: `import_statement`, `import_from_statement`
+- Calls: `call`
+
+TypeScript:
+
+- Imports: `import_statement`, `export_statement`, `lexical_declaration` require-assignment patterns
+- Calls: `call_expression`
+- Note: `import_equals_declaration` is not in the current query node set
+
+Java:
+
+- Imports: `import_declaration`
+- Calls: `method_invocation`, `object_creation_expression`, `explicit_constructor_invocation`
+
+## Data Model
+
+CoreDB (authoritative):
+
+- `snapshots`
+- `structural_nodes`
+- `node_instances`
+- `edges`
+
+ArtifactDB (derived):
+
+- `node_status`
+- `node_calls`
+- `graph_nodes`
+- `graph_edges`
 - Rollups: `module_call_edges`, `class_call_edges`, `node_fan_stats`
-- Optional `diff_overlay` tables for dirty-worktree payload augmentation
+- Optional overlay tables: `diff_overlay*`
 
-## DB schema summary (tables and responsibilities)
+## Reducer Rules
 
-CoreDB:
-- `snapshots`: committed snapshot metadata (single authoritative snapshot).
-- `structural_nodes`: stable identities for structural entities.
-- `node_instances`: snapshot-specific facts (names, paths, spans, hashes).
-- `edges`: structural relations within a snapshot.
+- Reducers are deterministic, read-only, and snapshot-bound.
+- Reducers may enrich representation of known nodes.
+- Reducers must not discover/define new structural entities.
+- Reducer pipeline validates diff mode and identifier resolution against committed SCI.
 
-ArtifactDB:
-- `node_status`: per-snapshot node state (added/modified/unchanged).
-- `node_calls`: derived call edges with `call_hash` from core node hashes (legacy; prefer `graph_edges`).
-- `graph_nodes` / `graph_edges`: consolidated structural + call graph index. `graph_edges` includes `IMPORTS_DECLARED`, `CONTAINS`, and `CALLS`.
-- `rebuild_status`: artifact rebuild lifecycle (`start` / `complete` / `failed`).
-- `diff_overlay*`: best-effort dirty-worktree overlays for reducer payloads.
+## Addon Rules
 
-## Reducers
+Core runtime does not dynamically discover/load addons.
 
-Reducers are deterministic renderers over SCI/ArtifactDB data and must be read-only.
-Rules:
-- Reducers share a single unified namespace.
-- Registry is frozen by default; mutation is a controlled exception.
-- Reducers may read source files only to enrich already-known nodes.
-- Reducers must not discover new nodes or infer semantics.
-- Reducer existence does not imply endorsement; CLI exposure may be restricted.
+- Stable addon API: `sciona.api.addons`
+- Addons may consume reducers and read storage through exposed APIs.
+- Addons must not mutate snapshot/artifact state directly.
 
-Reducer categories:
-- `core`: canonical structural entities and relations.
-- `grounding`: source/context renderers used for inspection.
-- `analytics`: derived summaries or rankings.
+## Testing Expectations
 
-Where to add reducers:
-- Implement under `src/sciona/reducers/`.
-- Add deterministic output tests.
+Mandatory coverage themes:
 
-Reducer execution is mediated by `src/sciona/pipelines/reducers.py`:
-- Validates diff mode (`full` or `summary`).
-- Resolves identifiers against the latest committed snapshot.
-- Applies diff overlays when available.
+- Contract/compliance invariants
+- Determinism and stable ordering
+- Cross-language parity on shared fixtures
+- Build/reducer boundary correctness
+- Strict call-gate behavior for `CALLS` emission
 
-## Diff overlay construction
+Run baseline test suite:
 
-When the worktree is dirty and the artifact DB is available, reducers attach a `_diff`
-overlay to payloads. The overlay is best-effort and must never replace the committed
-SCI evidence.
-
-How it is built:
-- Base commit is the snapshot commit; if it diverges from HEAD, a merge-base is used.
-- A worktree fingerprint is computed from git status + config + tool version.
-- Structural deltas are computed by re-parsing changed files and comparing to the
-  committed snapshot (nodes, edges, calls).
-- Overlay rows and summaries are cached in ArtifactDB keyed by worktree hash.
-
-Minimal `_diff` schema (current):
-- `overlay_available`, `base_commit`, `head_commit`, `projection`, `scope`
-- `affected`, `affected_by`, `warnings`
-
-Affected logic:
-- `affected` is true if scoped changes exist in the reducer’s `affected_by` categories.
-- If scope cannot be resolved, `affected` is null and a warning is emitted.
-
-Determinism:
-- Overlay contents are sorted and derived from snapshot + worktree state only.
-- Overlays are hints; committed SCI remains authoritative.
-
-## Addons
-
-Addons are separate products that use `sciona.api.addons`; core does not load, discover, or register them.
-- Allowed: consume reducers and read CoreDB/ArtifactDB via read-only helpers.
-- Forbidden: register reducers/prompts in core, mutate snapshots/artifacts, or rely on internal modules/schemas.
-- Compatibility: `REQUIRES_SCIONA_PLUGIN_API` (int, string major/minor, or range). Major bump breaks API; minor bump is additive.
-
-## Configuration and on-disk artifacts
-
-`.sciona/config.yaml` controls language enablement and runtime settings.
-Constants (filenames, schema version) are in `src/sciona/runtime/constants.py`.
-
-Typical `.sciona/` contents:
-- `sciona.db` (CoreDB)
-- `sciona.artifacts.db` (ArtifactDB)
-- `version.json`
-- `sciona.log`
-
-## Release process
-
-Releases are tag-based and use `setuptools_scm` for versioning.
-1. Ensure a clean working tree and passing tests.
-2. Create an annotated tag on the release commit (git tag -a vX.Y.Z -m "vX.Y.Z").
-3. Push the tag: `git push origin vX.Y.Z`.
-4. CI builds and publishes from the tag.
-
-## Tests
-
-Testing focuses on invariants and boundaries:
-- Public API boundary tests (`sciona.api.addons` only).
-- Pipeline lifecycle and artifact rebuild behavior.
-- Reducer determinism and ordering.
-- Storage schema invariants.
-
-Run tests:
 ```bash
 pytest -q
 ```
+
+Repository policy for this workspace requires running tests in conda env
+`multiphysics`.

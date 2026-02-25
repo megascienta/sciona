@@ -1,67 +1,67 @@
 # SCIONA Structural Contract
 
-This contract defines the minimal, language-agnostic structural model that all
-supported languages MUST produce. It is authoritative for analysis and
-validation.
+This contract defines the language-agnostic structural model SCIONA MUST emit.
+It is authoritative for analysis and validation.
 
 ## Scope
 
 - Applies to all supported languages.
 - Applies to the single committed snapshot retained in CoreDB.
-- Static, syntax-only analysis; no semantic inference or execution.
+- Static, syntax-only analysis; no execution, no runtime inference.
+- Extraction is tree-sitter query/field driven.
+- Structural extraction MUST fail closed for unsupported query node types.
+- No heuristic traversal fallback is allowed for structural extraction.
 
-## Node Types
+## Structural Nodes
 
-SCIONA MUST emit these structural node types for all languages:
+SCIONA MUST emit these structural node types:
 
 - `module`
 - `class`
 - `function` (top-level only)
-- `method` (class members only)
+- `method` (class members only; constructors are represented as methods)
 
-Non-core synthetic nodes:
+Synthetic nodes:
 
-- Implementations MAY emit synthetic navigation nodes (for example:
-  `entry_point`) for repository-level entry anchoring.
-- Synthetic nodes are out-of-contract for language compliance and MUST NOT be
-  interpreted as language structural entities.
-- A snapshot MAY contain multiple synthetic entry anchors.
+- Implementations MAY emit synthetic navigation nodes (for example `entry_point`).
+- Synthetic nodes are out-of-contract for language compliance.
+- Synthetic nodes MUST NOT be treated as language structural entities.
 
-## Edge Types
+## Structural Edges
 
-SCIONA MUST emit these edge types for all languages:
+SCIONA MUST emit these edge types:
 
-- `CONTAINS` (module → class/function)
-- `DEFINES_METHOD` (class → method)
-- `IMPORTS_DECLARED` (module → module)
-- `CALLS` (callable → callable, in-repo only, best-effort)
+- `CONTAINS` (module -> class/function; class -> nested class)
+- `DEFINES_METHOD` (class -> method)
+- `IMPORTS_DECLARED` (module -> module)
+- `CALLS` (callable -> callable, in-repo only)
 
 ## Edge Semantics
 
-CONTAINS:
+`CONTAINS`:
 
-- `module` MUST contain `class` and `function` nodes only.
-- `class` MAY contain nested `class` nodes via `CONTAINS`.
+- `module` MUST contain only `class` and `function` nodes.
 - `module` MUST NOT contain `method` nodes.
+- `class` MAY contain nested `class` nodes.
 
-DEFINES_METHOD:
+`DEFINES_METHOD`:
 
 - Constructors MUST be represented as `method` nodes.
-- Constructors MUST be linked via `DEFINES_METHOD`.
+- Constructor/member method ownership MUST be represented via `DEFINES_METHOD`.
 
-CALLS:
+`CALLS`:
 
-- CALLS edges MUST represent syntactic call expressions only.
-- CALLS MUST NOT represent attribute reads/writes or non-call expressions.
-- Targets MUST follow the rule in "CALLS Target Semantics".
+- MUST represent syntactic call expressions only.
+- MUST NOT represent attribute reads/writes or other non-call expressions.
+- MUST be emitted only when the final accepted target is an in-repo callable.
 
-## Naming Rules
+## Naming and Identity
 
 Module identity:
 
-- Canonical module identity is derived from repo-relative path:
+- Canonical module identity is path-derived via
   `module_name_from_path(repo_root, file_path)`.
-- This identity MUST be used for node identity and storage.
+- Canonical identity MUST be used for structural node identity and storage.
 
 Qualified names:
 
@@ -69,42 +69,44 @@ Qualified names:
 - `function`: `{module}.{function_name}`
 - `method`: `{class}.{method_name}`
 
-Optional alias:
+Alias usage:
 
-- A language MAY store a module alias for import resolution only.
-- Alias MUST NOT replace canonical module identity.
+- Language-specific module aliases MAY be used for resolution assistance.
+- Aliases MUST NOT replace canonical module identity.
 
-## CALLS Target Semantics
+## Call Attribution and Materialization
 
-- If a call target is structurally resolvable, the target MUST be emitted as a
-  qualified in-repo callable.
-- If not structurally resolvable to an in-repo callable, the target MUST NOT be
-  emitted as a `CALLS` edge.
-
-## Call Attribution
+Attribution:
 
 - Calls are attributed to the nearest enclosing structural callable.
-- Nested callables are treated as implementation detail; their calls MUST be
-  attributed to the enclosing structural callable.
+- Nested non-structural callables are implementation detail.
+- Nested callable calls MUST be attributed to enclosing structural callable.
 - Nested callables MUST NOT be emitted as structural nodes.
-- Calls are static, syntax-based, and resolved only against in-repo structural
-  callable nodes.
+
+Materialization gate:
+
+- Candidate resolution may produce provisional outcomes.
+- Final CALLS emission MUST pass strict candidate selection.
+- Non-accepted candidates (unresolved, ambiguous, external, disallowed provenance)
+  MUST be dropped.
 
 ## Import Handling
 
-- Syntax-only extraction.
-- Normalization maps import targets to module names (canonical or alias).
-- External or unresolved imports are out-of-contract.
+- Import extraction is syntax-only.
+- Import normalization maps syntax-level targets to module identities.
+- External/unresolved imports are out-of-contract.
 
 Optional metadata:
 
-- Implementations MAY tag imports with `import_scope` metadata
-  (`internal`, `external`, `unknown`) without changing edge types.
+- Implementations MAY attach import metadata (for example `import_scope`).
+- Metadata MUST NOT alter structural edge types or contract semantics.
 
 ## Determinism
 
-- Outputs MUST be deterministic, stably ordered, and snapshot-bound.
-- Ordering MUST be stable by:
-  1. module path lexical order
-  2. qualified name lexical order
-  3. edges sorted by (source, target, edge_type)
+Outputs MUST be deterministic, stably ordered, and snapshot-bound.
+
+Stable ordering MUST be:
+
+1. module path lexical order
+2. qualified name lexical order
+3. edges sorted by `(source, target, edge_type)`
