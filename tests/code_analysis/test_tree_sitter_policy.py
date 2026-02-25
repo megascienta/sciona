@@ -53,7 +53,9 @@ def test_policy_structural_extraction_avoids_non_query_traversal(path: Path) -> 
     rel = _rel(path)
     if not rel.startswith("core/extract/"):
         return
-    if rel == "core/extract/utils.py":
-        return
     text = path.read_text(encoding="utf-8")
+    if rel == "core/extract/utils.py":
+        assert "stack = [node]" not in text
+        assert "stack.pop()" not in text
+        return
     assert "find_nodes_of_type(" not in text

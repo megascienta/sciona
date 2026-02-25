@@ -153,22 +153,28 @@ def collect_call_targets(
     )
 
 
-def _terminal_identifier(node, content: bytes) -> str | None:
-    if node is None:
+def _terminal_identifier_query(node, content: bytes, *, query_language: str) -> str | None:
+    if node is None or not query_language:
         return None
-    result: str | None = None
-
-    def walk(current) -> None:
-        nonlocal result
-        if current is None:
-            return
-        if current.type in TERMINAL_IDENTIFIER_TYPES:
-            result = content[current.start_byte : current.end_byte].decode("utf-8")
-        for child in getattr(current, "children", []):
-            walk(child)
-
-    walk(node)
-    return result
+    query = _compile_terminal_identifier_query_for_language(query_language)
+    captures = query.captures(node)
+    candidates: list[object] = []
+    seen: set[tuple[int, int, str]] = set()
+    for captured_node, capture_name in captures:
+        if isinstance(capture_name, bytes):
+            capture_name = capture_name.decode("utf-8")
+        if capture_name != "terminal":
+            continue
+        key = (captured_node.start_byte, captured_node.end_byte, captured_node.type)
+        if key in seen:
+            continue
+        seen.add(key)
+        candidates.append(captured_node)
+    if not candidates:
+        return None
+    candidates.sort(key=lambda item: (item.start_byte, item.end_byte))
+    terminal_node = candidates[-1]
+    return content[terminal_node.start_byte : terminal_node.end_byte].decode("utf-8")
 
 
 def _callee_text(node, content: bytes) -> str | None:
@@ -246,6 +252,7 @@ def _collect_call_targets_query(
             content,
             callee_field_names=callee_field_names,
             callee_renderer=callee_renderer,
+            query_language=query_language,
         )
         if target is not None:
             targets.append(target)
@@ -293,12 +300,31 @@ def _compile_call_query_for_types(language_name: str, call_node_types: tuple[str
     return _compile_call_query(language_name, source)
 
 
+@lru_cache(maxsize=8)
+def _compile_terminal_identifier_query_for_language(language_name: str):
+    language = get_language(language_name)
+    supported_node_types: list[str] = []
+    for node_type in sorted(TERMINAL_IDENTIFIER_TYPES):
+        try:
+            language.query(f"({node_type}) @terminal")
+        except Exception:
+            continue
+        supported_node_types.append(node_type)
+    if not supported_node_types:
+        raise RuntimeError(
+            f"Tree-sitter terminal identifier query types unavailable for language: {language_name}"
+        )
+    source = "\n".join(f"({node_type}) @terminal" for node_type in supported_node_types)
+    return _compile_call_query(language_name, source)
+
+
 def _call_target_from_call_node(
     call_node,
     content: bytes,
     *,
     callee_field_names: Sequence[str],
     callee_renderer: Callable[[object, object | None, bytes], str | None] | None,
+    query_language: str,
 ) -> CallTarget | None:
     callee = None
     for field_name in callee_field_names:
@@ -307,7 +333,7 @@ def _call_target_from_call_node(
             break
     if callee is None:
         callee = _first_child(call_node)
-    terminal = _terminal_identifier(callee, content)
+    terminal = _terminal_identifier_query(callee, content, query_language=query_language)
     if not terminal:
         return None
     if callee_renderer is not None:

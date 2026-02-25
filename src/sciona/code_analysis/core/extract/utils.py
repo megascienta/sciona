@@ -6,7 +6,6 @@
 from __future__ import annotations
 
 from functools import lru_cache
-from typing import Iterator
 
 from tree_sitter_languages import get_language
 
@@ -15,18 +14,6 @@ def count_lines(content: bytes) -> int:
     if not content:
         return 1
     return content.count(b"\n") + (0 if content.endswith(b"\n") else 1)
-
-
-def find_nodes_of_type(node, node_type: str) -> Iterator[object]:
-    stack = [node]
-    while stack:
-        current = stack.pop()
-        if current.type == node_type:
-            yield current
-        children = getattr(current, "named_children", None)
-        if children is None:
-            children = getattr(current, "children", [])
-        stack.extend(reversed(children))
 
 
 def find_nodes_of_types_query(

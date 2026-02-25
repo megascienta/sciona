@@ -7,7 +7,7 @@ from sciona.code_analysis.core.extract.languages.python_resolution import (
     collect_class_instance_map,
     collect_module_instance_map,
 )
-from sciona.code_analysis.core.extract.utils import find_nodes_of_type
+from sciona.code_analysis.core.extract.utils import find_nodes_of_types_query
 from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
 from sciona.code_analysis.tools.tree_sitter import build_parser
 
@@ -65,7 +65,11 @@ class C:
 """
     snapshot = _snapshot(tmp_path, source)
     root = build_parser("python").parse(snapshot.content).root_node
-    class_nodes = list(find_nodes_of_type(root, "class_definition"))
+    class_nodes = find_nodes_of_types_query(
+        root,
+        language_name="python",
+        node_types=("class_definition",),
+    )
     class_body = class_nodes[1].child_by_field_name("body")
     class_map = collect_class_instance_map(
         class_body,
