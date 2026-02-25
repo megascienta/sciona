@@ -27,6 +27,7 @@ Legend:
 | Strict call-gate materialization | yes | yes | yes | `strict_call_contract` in assembler |
 | Deterministic edge ordering | yes | yes | yes | Contract + tests |
 | Partial-parse fail-closed metadata | yes | yes | yes | No heuristic traversal fallback |
+| Analyzer resolution diagnostics schema | yes | yes | yes | Shared metadata keys across language analyzers |
 | Profile function extras via tree-sitter | yes | yes | yes | Python/TS/Java profile reducers |
 | Profile class extras via tree-sitter | yes | yes | yes | Python/TS/Java profile reducers |
 | Profile decorators/annotations via tree-sitter | yes | yes | yes | Python/TS/Java profile reducers |

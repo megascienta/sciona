@@ -1,6 +1,11 @@
 {
   "parity_contract": {
     "dimensions": {
+      "analyzer_resolution_diagnostics_schema": {
+        "java": "yes",
+        "python": "yes",
+        "typescript": "yes"
+      },
       "call_extraction_and_attribution": {
         "java": "yes",
         "python": "yes",

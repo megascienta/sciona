@@ -60,6 +60,18 @@ def test_typescript_analyzer_extracts_structure(tmp_path):
     helper_name = f"{module_name}.helper"
     assert outer_name in call_records
     assert helper_name in call_records[outer_name]
+    module_node = next(node for node in result.nodes if node.node_type == "module")
+    diagnostics = (module_node.metadata or {}).get("resolution_diagnostics")
+    assert isinstance(diagnostics, dict)
+    for key in (
+        "imports_internal",
+        "import_aliases",
+        "member_aliases",
+        "call_targets",
+        "resolved_call_targets",
+        "unresolved_call_targets",
+    ):
+        assert key in diagnostics
 
 
 def test_typescript_nested_function_declaration_is_not_structural(tmp_path):

@@ -69,6 +69,18 @@ def helper():
     }
     assert f"{module_name}.inner" not in function_nodes
     assert f"{module_name}.inner" not in call_records
+    module_node = next(node for node in result.nodes if node.node_type == "module")
+    diagnostics = (module_node.metadata or {}).get("resolution_diagnostics")
+    assert isinstance(diagnostics, dict)
+    for key in (
+        "imports_internal",
+        "import_aliases",
+        "member_aliases",
+        "call_targets",
+        "resolved_call_targets",
+        "unresolved_call_targets",
+    ):
+        assert key in diagnostics
 
 
 def test_python_analyzer_resolves_instance_assignments_per_callable_scope(tmp_path):

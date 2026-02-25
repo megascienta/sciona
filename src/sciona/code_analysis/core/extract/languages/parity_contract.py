@@ -31,6 +31,11 @@ def build_parity_contract() -> dict[str, object]:
                 "python": "yes",
                 "typescript": "yes",
             },
+            "analyzer_resolution_diagnostics_schema": {
+                "java": "yes",
+                "python": "yes",
+                "typescript": "yes",
+            },
             "profile_function_extras_tree_sitter": {
                 "java": "yes",
                 "python": "yes",

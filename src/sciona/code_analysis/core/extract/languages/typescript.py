@@ -114,6 +114,8 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                 pending_callables=set(pending_by_qualified),
                 call_targets_by_callable=call_targets_by_callable,
             )
+            total_call_targets = sum(len(targets) for targets in call_targets_by_callable.values())
+            resolved_call_targets = 0
             for qualified, (node_type, class_name) in pending_by_qualified.items():
                 call_targets = call_targets_by_callable.get(qualified, ())
                 resolved = resolve_typescript_calls(
@@ -130,6 +132,7 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                     state.class_instance_map,
                 )
                 if resolved:
+                    resolved_call_targets += len(resolved)
                     result.call_records.append(
                         CallRecord(
                             qualified_name=qualified,
@@ -150,6 +153,17 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                         edge_type="IMPORTS_DECLARED",
                     )
                 )
+            diagnostics = {
+                "imports_internal": len(set(imports)),
+                "import_aliases": len(import_aliases),
+                "member_aliases": len(member_aliases),
+                "call_targets": total_call_targets,
+                "resolved_call_targets": resolved_call_targets,
+                "unresolved_call_targets": max(0, total_call_targets - resolved_call_targets),
+            }
+            metadata = dict(module_node.metadata or {})
+            metadata["resolution_diagnostics"] = diagnostics
+            module_node.metadata = metadata
         except Exception as exc:
             metadata = dict(module_node.metadata or {})
             metadata.update({"status": "partial_parse", "error": str(exc)})
