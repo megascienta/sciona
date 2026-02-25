@@ -12,8 +12,7 @@ from ..analysis.graph import module_id_for
 from ..contracts import select_strict_call_candidate
 from ..config import CALLABLE_NODE_TYPES
 from ..tools.call_extraction import CallExtractionRecord
-from ...data_storage.artifact_db import write_index as artifact_write
-from ...data_storage.artifact_db import store_rollups as artifact_rollups
+from ...data_storage.artifact_db import rollup_persistence as artifact_persistence
 from ...data_storage.core_db import read_ops as core_read
 
 
@@ -24,7 +23,7 @@ def rebuild_graph_rollups(
     snapshot_id: str,
 ) -> None:
     core_read.validate_snapshot_for_read(core_conn, snapshot_id, require_committed=True)
-    artifact_rollups.reset_graph_rollups(artifact_conn)
+    artifact_persistence.reset_graph_rollups(artifact_conn)
     node_rows = core_read.list_nodes_with_names(core_conn, snapshot_id)
     if not node_rows:
         return
@@ -54,19 +53,10 @@ def rebuild_graph_rollups(
     )
     method_to_class = {dst_id: src_id for src_id, dst_id in method_edges}
 
-    call_rows = artifact_conn.execute(
-        """
-        SELECT src_node_id, dst_node_id
-        FROM graph_edges
-        WHERE edge_kind = ?
-        """,
-        ("CALLS",),
-    ).fetchall()
+    call_rows = artifact_persistence.list_call_edges(artifact_conn)
     module_calls: Counter[tuple[str, str]] = Counter()
     class_calls: Counter[tuple[str, str]] = Counter()
-    for row in call_rows:
-        src_id = row["src_node_id"]
-        dst_id = row["dst_node_id"]
+    for src_id, dst_id in call_rows:
         src_module = module_lookup.get(src_id)
         dst_module = module_lookup.get(dst_id)
         if src_module and dst_module:
@@ -75,29 +65,19 @@ def rebuild_graph_rollups(
         dst_class = method_to_class.get(dst_id)
         if src_class and dst_class:
             class_calls[(src_class, dst_class)] += 1
-    if module_calls:
-        artifact_rollups.insert_module_call_edges(
-            artifact_conn,
-            rows=[(src, dst, count) for (src, dst), count in module_calls.items()],
-        )
-    if class_calls:
-        artifact_rollups.insert_class_call_edges(
-            artifact_conn,
-            rows=[(src, dst, count) for (src, dst), count in class_calls.items()],
-        )
+    artifact_persistence.write_module_call_edges(
+        artifact_conn,
+        rows=[(src, dst, count) for (src, dst), count in module_calls.items()],
+    )
+    artifact_persistence.write_class_call_edges(
+        artifact_conn,
+        rows=[(src, dst, count) for (src, dst), count in class_calls.items()],
+    )
 
     fan_in: dict[tuple[str, str], int] = defaultdict(int)
     fan_out: dict[tuple[str, str], int] = defaultdict(int)
-    edge_rows = artifact_conn.execute(
-        """
-        SELECT src_node_id, dst_node_id, edge_kind
-        FROM graph_edges
-        """,
-    ).fetchall()
-    for row in edge_rows:
-        src_id = row["src_node_id"]
-        dst_id = row["dst_node_id"]
-        edge_kind = row["edge_kind"]
+    edge_rows = artifact_persistence.list_graph_edges(artifact_conn)
+    for src_id, dst_id, edge_kind in edge_rows:
         fan_out[(src_id, edge_kind)] += 1
         fan_in[(dst_id, edge_kind)] += 1
     if fan_in or fan_out:
@@ -113,7 +93,7 @@ def rebuild_graph_rollups(
                     fan_out.get((node_id, edge_kind), 0),
                 )
             )
-        artifact_rollups.insert_node_fan_stats(artifact_conn, rows=stats_rows)
+        artifact_persistence.write_node_fan_stats(artifact_conn, rows=stats_rows)
 
 
 def write_call_artifacts(
@@ -178,11 +158,10 @@ def write_call_artifacts(
             )
             continue
         processed_callers.add(caller_id)
-        artifact_write.upsert_node_calls(
+        artifact_persistence.upsert_node_calls(
             artifact_conn,
             caller_id=caller_id,
             callee_ids=sorted(callee_ids),
-            valid=True,
             call_hash=call_hash,
         )
 
