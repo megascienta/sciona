@@ -107,7 +107,7 @@ class _TypeScriptCallAdapter(CallResolutionAdapter):
                         return [_outcome(f"{target_class}.{terminal}", "module_scoped")]
             if head in self.import_aliases:
                 return [_outcome(f"{self.import_aliases[head]}.{rest}", "import_narrowed")]
-        if terminal in self.member_aliases:
+        if is_unqualified_request(request) and terminal in self.member_aliases:
             return [_outcome(self.member_aliases[terminal], "import_narrowed")]
         if (
             self.class_name

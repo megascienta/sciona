@@ -115,7 +115,7 @@ class _PythonCallAdapter(CallResolutionAdapter):
                             "import_narrowed",
                         )
                     ]
-        if terminal in self.member_aliases:
+        if is_unqualified_request(request) and terminal in self.member_aliases:
             return [_outcome(self.member_aliases[terminal], "import_narrowed")]
         if (
             self.class_name

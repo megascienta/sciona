@@ -185,6 +185,41 @@ def test_java_resolves_unqualified_calls_from_static_member_aliases() -> None:
     assert resolved == ["repo.pkg.Service.run"]
 
 
+def test_python_member_alias_does_not_apply_to_receiver_calls() -> None:
+    targets = [CallTarget(terminal="run", callee_text="svc.run")]
+    resolved = resolve_python_calls(
+        targets=targets,
+        module_name="repo.pkg.mod",
+        module_functions=set(),
+        class_methods={},
+        class_name=None,
+        import_aliases={},
+        member_aliases={"run": "repo.pkg.Service.run"},
+        raw_module_map={},
+        instance_map={},
+        class_name_candidates={},
+    )
+    assert resolved == []
+
+
+def test_typescript_member_alias_does_not_apply_to_receiver_calls() -> None:
+    targets = [CallTarget(terminal="run", callee_text="svc.run")]
+    resolved = resolve_typescript_calls(
+        targets=targets,
+        module_name="repo.pkg.mod",
+        module_functions=set(),
+        class_methods={},
+        class_name=None,
+        import_aliases={},
+        member_aliases={"run": "repo.pkg.Service.run"},
+        class_name_map={},
+        class_name_candidates={},
+        instance_map={},
+        class_instance_map={},
+    )
+    assert resolved == []
+
+
 def test_java_resolves_unqualified_calls_from_single_static_wildcard() -> None:
     targets = [CallTarget(terminal="run", callee_text="run")]
     resolved = resolve_java_calls(
