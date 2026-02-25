@@ -5,16 +5,12 @@
 
 from __future__ import annotations
 
-import ast
 from dataclasses import dataclass
-from functools import lru_cache
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 from .tree_sitter import build_parser
 from .profile_introspection_cache import _python_inspector_cached
-
-_MAX_AST_DEPTH = 2000
 
 @dataclass
 class _FunctionDetails:
@@ -27,11 +23,17 @@ class _ClassDetails:
     bases: List[str]
 
 class _PythonInspector:
+    _PARSER = None
+
     def __init__(self, source: str) -> None:
-        self._tree = ast.parse(source)
+        if _PythonInspector._PARSER is None:
+            _PythonInspector._PARSER = build_parser("python")
+        assert _PythonInspector._PARSER is not None
+        self._source = source.encode("utf-8")
+        self._tree = _PythonInspector._PARSER.parse(self._source)
         self.functions: Dict[Tuple[int, int], _FunctionDetails] = {}
         self.classes: Dict[Tuple[int, int], _ClassDetails] = {}
-        self._scan(self._tree, 0)
+        self._scan(self._tree.root_node, decorators=())
 
     def function_details(
         self, start_line: int, end_line: int
@@ -41,46 +43,58 @@ class _PythonInspector:
     def class_details(self, start_line: int, end_line: int) -> Optional[_ClassDetails]:
         return self.classes.get((start_line, end_line))
 
-    def _scan(self, node: ast.AST, depth: int) -> None:
-        if depth > _MAX_AST_DEPTH:
+    def _scan(self, node, *, decorators: tuple[str, ...]) -> None:
+        node_type = getattr(node, "type", "")
+        if node_type == "decorated_definition":
+            decorated = self._decorated_target(node)
+            if decorated is None:
+                return
+            self._scan(decorated, decorators=tuple(self._decorator_names(node)))
             return
-        for child in ast.iter_child_nodes(node):
-            if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                self._record_function(child)
-            if isinstance(child, ast.ClassDef):
-                self._record_class(child)
-            self._scan(child, depth + 1)
+        if node_type in {"function_definition", "async_function_definition"}:
+            self._record_function(node, decorators=decorators)
+        elif node_type == "class_definition":
+            self._record_class(node, decorators=decorators)
+        for child in getattr(node, "children", []):
+            self._scan(child, decorators=())
 
-    def _record_function(self, node: ast.AST) -> None:
-        lineno = getattr(node, "lineno", None)
-        end_lineno = getattr(node, "end_lineno", None)
-        if lineno is None or end_lineno is None:
-            return
-        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            return
+    def _record_function(self, node, *, decorators: tuple[str, ...]) -> None:
+        lineno = node.start_point[0] + 1
+        end_lineno = node.end_point[0] + 1
+        params_node = node.child_by_field_name("parameters")
         self.functions[(lineno, end_lineno)] = _FunctionDetails(
-            parameters=_collect_parameters(node.args),
-            decorators=[
-                _safe_unparse(entry) for entry in getattr(node, "decorator_list", [])
-            ],
+            parameters=_collect_parameters(params_node, self._source),
+            decorators=list(decorators),
         )
 
-    def _record_class(self, node: ast.ClassDef) -> None:
-        lineno = getattr(node, "lineno", None)
-        end_lineno = getattr(node, "end_lineno", None)
-        if lineno is None or end_lineno is None:
-            return
-        bases = [_safe_unparse(entry) for entry in node.bases]
-        for keyword in node.keywords:
-            expr = _safe_unparse(keyword.value)
-            if keyword.arg:
-                bases.append(f"{keyword.arg}={expr}")
-            else:
-                bases.append(expr)
+    def _record_class(self, node, *, decorators: tuple[str, ...]) -> None:
+        lineno = node.start_point[0] + 1
+        end_lineno = node.end_point[0] + 1
+        superclasses_node = node.child_by_field_name("superclasses")
         self.classes[(lineno, end_lineno)] = _ClassDetails(
-            decorators=[_safe_unparse(entry) for entry in node.decorator_list],
-            bases=bases,
+            decorators=list(decorators),
+            bases=_collect_bases(superclasses_node, self._source),
         )
+
+    def _decorated_target(self, node):
+        for child in getattr(node, "children", []):
+            if child.type in {"function_definition", "async_function_definition", "class_definition"}:
+                return child
+        return None
+
+    def _decorator_names(self, node) -> list[str]:
+        decorators: list[str] = []
+        for child in getattr(node, "children", []):
+            if child.type != "decorator":
+                continue
+            text = _node_text(child, self._source).strip()
+            if not text:
+                continue
+            if text.startswith("@"):
+                text = text[1:].strip()
+            if text:
+                decorators.append(text)
+        return decorators
 
 def python_function_extras(
     language: str,
@@ -123,25 +137,65 @@ def _python_inspector(
 ) -> Optional[_PythonInspector]:
     return _python_inspector_cached(str(repo_root.resolve()), relative_path)
 
-def _collect_parameters(args: ast.arguments) -> List[str]:
+def _collect_parameters(parameters_node, source: bytes) -> List[str]:
+    if parameters_node is None:
+        return []
+    fragment = _node_text(parameters_node, source).strip()
+    if not fragment.startswith("(") or not fragment.endswith(")"):
+        return []
+    inner = fragment[1:-1].strip()
+    if not inner:
+        return []
     params: List[str] = []
-    for entry in getattr(args, "posonlyargs", []):
-        params.append(entry.arg)
-    for entry in args.args:
-        params.append(entry.arg)
-    if args.vararg:
-        params.append(f"*{args.vararg.arg}")
-    if getattr(args, "kwonlyargs", None):
-        for entry in args.kwonlyargs:
-            params.append(entry.arg)
-    if args.kwarg:
-        params.append(f"**{args.kwarg.arg}")
+    for entry in _split_comma_aware(inner):
+        token = entry.strip()
+        if not token or token in {"*", "/"}:
+            continue
+        token = token.split("=", 1)[0].strip()
+        token = token.split(":", 1)[0].strip()
+        if not token:
+            continue
+        if token.startswith("**"):
+            value = token[2:].strip()
+            if value:
+                params.append(f"**{value}")
+            continue
+        if token.startswith("*"):
+            value = token[1:].strip()
+            if value:
+                params.append(f"*{value}")
+            continue
+        params.append(token)
     return params
 
-def _safe_unparse(node: ast.AST) -> str:
-    try:
-        return ast.unparse(node).strip()
-    except AttributeError:
-        return ast.dump(node)
-    except ValueError:
-        return ""
+def _collect_bases(superclasses_node, source: bytes) -> List[str]:
+    if superclasses_node is None:
+        return []
+    fragment = _node_text(superclasses_node, source).strip()
+    if not fragment.startswith("(") or not fragment.endswith(")"):
+        return []
+    inner = fragment[1:-1].strip()
+    if not inner:
+        return []
+    return [entry.strip() for entry in _split_comma_aware(inner) if entry.strip()]
+
+def _split_comma_aware(text: str) -> List[str]:
+    parts: List[str] = []
+    depth = 0
+    current: list[str] = []
+    for char in text:
+        if char in "([{":
+            depth += 1
+        elif char in ")]}" and depth > 0:
+            depth -= 1
+        if char == "," and depth == 0:
+            parts.append("".join(current))
+            current = []
+            continue
+        current.append(char)
+    if current:
+        parts.append("".join(current))
+    return parts
+
+def _node_text(node, source: bytes) -> str:
+    return source[node.start_byte : node.end_byte].decode("utf-8")
