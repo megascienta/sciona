@@ -52,14 +52,13 @@ def normalize_import_node(
     *,
     module_prefix: str | None,
 ) -> Optional[str]:
-    text = import_name_from_node(node, content)
+    parts = import_name_parts(node, content)
+    if not parts:
+        return None
+    target_parts = parts[:-1] if is_static_import(node) and len(parts) > 1 else parts
+    text = ".".join(target_parts)
     if not text:
         return None
-    is_static = is_static_import(node, content)
-    if text.endswith(".*"):
-        text = text[:-2]
-    if is_static and "." in text:
-        text = text.rsplit(".", 1)[0]
     repo_root = repo_root_from_snapshot(snapshot)
     repo_prefix = runtime_paths.repo_name_prefix(repo_root)
     if repo_prefix and (text == repo_prefix or text.startswith(f"{repo_prefix}.")):
@@ -73,30 +72,53 @@ def normalize_import_node(
 
 
 def import_simple_name_node(node, content: bytes) -> str | None:
-    text = import_name_from_node(node, content)
-    if not text:
+    parts = import_name_parts(node, content)
+    if not parts:
         return None
-    if text.endswith(".*"):
-        text = text[:-2]
-    if is_static_import(node, content) and "." in text:
-        text = text.rsplit(".", 1)[0]
-    return text.split(".")[-1] if text else None
+    target_parts = parts[:-1] if is_static_import(node) and len(parts) > 1 else parts
+    return target_parts[-1] if target_parts else None
 
 
 def import_name_from_node(node, content: bytes) -> str | None:
-    if node is None:
+    parts = import_name_parts(node, content)
+    if not parts:
         return None
+    return ".".join(parts)
+
+
+def is_static_import(node) -> bool:
+    return any(child.type == "static" for child in getattr(node, "children", []))
+
+
+def import_name_parts(node, content: bytes) -> tuple[str, ...]:
+    if node is None:
+        return ()
     scoped = node.child_by_field_name("name")
     if scoped is None:
         scoped = node.child_by_field_name("path")
     if scoped is None:
-        return None
-    return content[scoped.start_byte : scoped.end_byte].decode("utf-8").strip()
+        scoped = next(
+            (child for child in getattr(node, "children", []) if child.type == "scoped_identifier"),
+            None,
+        )
+    if scoped is None:
+        return ()
+    return scoped_identifier_parts(scoped, content)
 
 
-def is_static_import(node, content: bytes) -> bool:
-    text = content[node.start_byte : node.end_byte].decode("utf-8").strip()
-    return text.startswith("import static")
+def scoped_identifier_parts(node, content: bytes) -> tuple[str, ...]:
+    if node is None:
+        return ()
+    if node.type == "identifier":
+        value = content[node.start_byte : node.end_byte].decode("utf-8").strip()
+        return (value,) if value else ()
+    if node.type != "scoped_identifier":
+        return ()
+    scope_node = node.child_by_field_name("scope")
+    name_node = node.child_by_field_name("name")
+    head = scoped_identifier_parts(scope_node, content) if scope_node is not None else ()
+    tail = scoped_identifier_parts(name_node, content) if name_node is not None else ()
+    return (*head, *tail)
 
 
 def top_level_package(module_name: str, repo_prefix: str) -> str | None:

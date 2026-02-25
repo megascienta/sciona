@@ -9,27 +9,29 @@ from .symbol_ir import resolve_alias
 
 
 def resolve_ts_constructor_name(
-    callee_text: str,
+    callee_chain: tuple[str, ...],
     class_name_candidates: dict[str, set[str]],
     import_aliases: dict[str, str],
     member_aliases: dict[str, str],
 ) -> str | None:
-    terminal = callee_text.split(".")[-1] if callee_text else ""
+    if not callee_chain:
+        return None
+    terminal = callee_chain[-1]
     candidates = class_name_candidates.get(terminal) or set()
     if len(candidates) == 1:
         return next(iter(candidates))
     if terminal in member_aliases:
         return member_aliases[terminal]
-    if "." in callee_text:
-        head, rest = callee_text.split(".", 1)
+    if len(callee_chain) > 1:
+        head = callee_chain[0]
         if head in import_aliases:
-            return f"{import_aliases[head]}.{rest}"
+            return f"{import_aliases[head]}.{'.'.join(callee_chain[1:])}"
     return None
 
 
 def resolve_pending_instances(
-    pending_instance_assignments: list[tuple[str, str]],
-    pending_class_instances: list[tuple[str, str, str]],
+    pending_instance_assignments: list[tuple[str, tuple[str, ...]]],
+    pending_class_instances: list[tuple[str, str, tuple[str, ...]]],
     pending_alias_assignments: list[tuple[str, str]],
     pending_class_aliases: list[tuple[str, str, str]],
     instance_map: dict[str, str],
@@ -39,15 +41,15 @@ def resolve_pending_instances(
     import_aliases: dict[str, str],
     member_aliases: dict[str, str],
 ) -> None:
-    for name, callee_text in pending_instance_assignments:
+    for name, callee_chain in pending_instance_assignments:
         target = resolve_ts_constructor_name(
-            callee_text, class_name_candidates, import_aliases, member_aliases
+            callee_chain, class_name_candidates, import_aliases, member_aliases
         )
         if target:
             instance_map[name] = target
-    for class_name, field, callee_text in pending_class_instances:
+    for class_name, field, callee_chain in pending_class_instances:
         target = resolve_ts_constructor_name(
-            callee_text, class_name_candidates, import_aliases, member_aliases
+            callee_chain, class_name_candidates, import_aliases, member_aliases
         )
         if target:
             class_instance_map.setdefault(class_name, {})[field] = target

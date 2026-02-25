@@ -37,26 +37,31 @@ def attribute_chain(node, content: bytes) -> tuple[str, ...]:
 
 
 def resolve_constructor_target(
-    callee_text: str,
-    terminal: str,
+    callee_chain: tuple[str, ...],
+    terminal_hint: str | None,
     class_name_candidates: dict[str, set[str]],
     import_aliases: dict[str, str],
     member_aliases: dict[str, str],
     raw_module_map: dict[str, str],
 ) -> str | None:
+    terminal = terminal_hint or (callee_chain[-1] if callee_chain else "")
     class_match = unique_class_match(terminal, class_name_candidates)
     if class_match:
         return class_match
     if terminal in member_aliases:
         return member_aliases[terminal]
-    if "." in callee_text:
-        head, rest = callee_text.split(".", 1)
+    if len(callee_chain) > 1:
+        head = callee_chain[0]
         if head in import_aliases:
-            return f"{import_aliases[head]}.{rest}"
-        for raw, normalized in raw_module_map.items():
-            if callee_text == raw or callee_text.startswith(f"{raw}."):
-                suffix = callee_text[len(raw) :].lstrip(".")
-                return f"{normalized}.{suffix}" if suffix else normalized
+            return f"{import_aliases[head]}.{'.'.join(callee_chain[1:])}"
+        for raw_chain, normalized in _raw_module_chain_map(raw_module_map).items():
+            if (
+                len(callee_chain) < len(raw_chain)
+                or callee_chain[: len(raw_chain)] != raw_chain
+            ):
+                continue
+            suffix = callee_chain[len(raw_chain) :]
+            return f"{normalized}.{'.'.join(suffix)}" if suffix else normalized
     return None
 
 
@@ -91,11 +96,10 @@ def collect_module_instance_map(
             ):
                 name = node_text(left, snapshot.content)
                 callee = right.child_by_field_name("function")
-                callee_text = node_text(callee, snapshot.content) or ""
-                terminal = callee_text.split(".")[-1] if callee_text else ""
+                callee_chain = _callable_chain(callee, snapshot.content)
                 target = resolve_constructor_target(
-                    callee_text,
-                    terminal,
+                    callee_chain,
+                    None,
                     class_name_candidates,
                     import_aliases,
                     member_aliases,
@@ -159,11 +163,10 @@ def collect_callable_instance_map(
                     if len(chain) >= 2 and chain[0] in {"self", "cls"}:
                         name = chain[1]
                 callee = right.child_by_field_name("function")
-                callee_text = node_text(callee, snapshot.content) or ""
-                terminal = callee_text.split(".")[-1] if callee_text else ""
+                callee_chain = _callable_chain(callee, snapshot.content)
                 target = resolve_constructor_target(
-                    callee_text,
-                    terminal,
+                    callee_chain,
+                    None,
                     class_name_candidates,
                     import_aliases,
                     member_aliases,
@@ -229,11 +232,10 @@ def collect_class_instance_map(
                         name = chain[1]
                 if name:
                     callee = right.child_by_field_name("function")
-                    callee_text = node_text(callee, snapshot.content) or ""
-                    terminal = callee_text.split(".")[-1] if callee_text else ""
+                    callee_chain = _callable_chain(callee, snapshot.content)
                     target = resolve_constructor_target(
-                        callee_text,
-                        terminal,
+                        callee_chain,
+                        None,
                         class_name_candidates,
                         import_aliases,
                         member_aliases,
@@ -374,9 +376,10 @@ def _typed_parameters_for_callable_node(
         normalized_type = type_base_name(type_text) if type_text else None
         if not name or name in {"self", "cls"} or not normalized_type:
             continue
+        type_chain = _type_annotation_chain(type_node, snapshot.content)
         terminal = normalized_type.split(".")[-1] if normalized_type else ""
         target = resolve_constructor_target(
-            normalized_type or type_text,
+            type_chain,
             terminal,
             class_name_candidates,
             import_aliases,
@@ -386,3 +389,33 @@ def _typed_parameters_for_callable_node(
         if target:
             typed[name] = target
     return typed
+
+
+def _callable_chain(node, content: bytes) -> tuple[str, ...]:
+    if node is None:
+        return ()
+    if node.type == "identifier":
+        value = node_text(node, content)
+        return (value,) if value else ()
+    return attribute_chain(node, content)
+
+
+def _type_annotation_chain(node, content: bytes) -> tuple[str, ...]:
+    if node is None:
+        return ()
+    if node.type in {"identifier", "attribute"}:
+        return _callable_chain(node, content)
+    for child in getattr(node, "named_children", []):
+        nested = _type_annotation_chain(child, content)
+        if nested:
+            return nested
+    return ()
+
+
+def _raw_module_chain_map(raw_module_map: dict[str, str]) -> dict[tuple[str, ...], str]:
+    chain_map: dict[tuple[str, ...], str] = {}
+    for raw, normalized in raw_module_map.items():
+        chain = tuple(part for part in raw.split(".") if part)
+        if chain:
+            chain_map[chain] = normalized
+    return chain_map

@@ -259,7 +259,7 @@ def normalize_import(specifier: Optional[str], snapshot: FileSnapshot) -> Option
             strip_suffix=False,
             treat_init_as_package=False,
         )
-    return spec.replace("/", ".")
+    return spec
 
 
 def normalize_relative_index(specifier: str, snapshot: FileSnapshot) -> Optional[str]:

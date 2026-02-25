@@ -9,7 +9,6 @@ from dataclasses import dataclass, field
 from typing import List
 
 from ...normalize.model import EdgeRecord, FileSnapshot, SemanticNodeRecord
-from .type_names import type_base_name
 
 
 @dataclass
@@ -21,8 +20,12 @@ class TypeScriptNodeState:
     class_name_candidates: dict[str, set[str]] = field(default_factory=dict)
     instance_map: dict[str, str] = field(default_factory=dict)
     class_instance_map: dict[str, dict[str, str]] = field(default_factory=dict)
-    pending_instance_assignments: list[tuple[str, str]] = field(default_factory=list)
-    pending_class_instances: list[tuple[str, str, str]] = field(default_factory=list)
+    pending_instance_assignments: list[tuple[str, tuple[str, ...]]] = field(
+        default_factory=list
+    )
+    pending_class_instances: list[tuple[str, str, tuple[str, ...]]] = field(
+        default_factory=list
+    )
     pending_alias_assignments: list[tuple[str, str]] = field(default_factory=list)
     pending_class_aliases: list[tuple[str, str, str]] = field(default_factory=list)
     pending_calls: list[tuple[str, str, object | None, str | None]] = field(
@@ -239,12 +242,12 @@ def walk_typescript_nodes(
                 callee = value_node.child_by_field_name("constructor") or value_node.child_by_field_name(
                     "function"
                 )
-                callee_text = node_text(callee, snapshot.content)
+                callee_chain = name_chain(callee, snapshot.content)
                 name = snapshot.content[name_node.start_byte : name_node.end_byte].decode(
                     "utf-8"
                 )
-                if callee_text and name:
-                    state.pending_instance_assignments.append((name, callee_text))
+                if callee_chain and name:
+                    state.pending_instance_assignments.append((name, callee_chain))
             return
         if value_node.type == "identifier" and name_node.type == "identifier":
             name = snapshot.content[name_node.start_byte : name_node.end_byte].decode(
@@ -316,10 +319,10 @@ def walk_typescript_nodes(
                 callee = value_node.child_by_field_name("constructor") or value_node.child_by_field_name(
                     "function"
                 )
-                callee_text = node_text(callee, snapshot.content)
-                if callee_text and field:
+                callee_chain = name_chain(callee, snapshot.content)
+                if callee_chain and field:
                     state.pending_class_instances.append(
-                        (state.class_stack[-1], field, callee_text)
+                        (state.class_stack[-1], field, callee_chain)
                     )
             return
         if value_node.type not in {"arrow_function", "function", "function_expression"}:
@@ -372,10 +375,10 @@ def walk_typescript_nodes(
                     callee = right.child_by_field_name(
                         "constructor"
                     ) or right.child_by_field_name("function")
-                    callee_text = node_text(callee, snapshot.content)
-                    if callee_text:
+                    callee_chain = name_chain(callee, snapshot.content)
+                    if callee_chain:
                         state.pending_class_instances.append(
-                            (state.class_stack[-1], field, callee_text)
+                            (state.class_stack[-1], field, callee_chain)
                         )
         elif (
             left is not None
@@ -455,19 +458,53 @@ def node_text(node, content: bytes) -> str | None:
     return content[node.start_byte : node.end_byte].decode("utf-8")
 
 
-def parse_type_annotation(node, content: bytes) -> str | None:
-    text = node_text(node, content)
-    if not text:
-        return None
-    normalized = type_base_name(text)
-    return normalized or None
+def name_chain(node, content: bytes) -> tuple[str, ...]:
+    if node is None:
+        return ()
+    if node.type in {"identifier", "property_identifier", "type_identifier"}:
+        value = node_text(node, content)
+        return (value,) if value else ()
+    if node.type in {"member_expression", "subscript_expression"}:
+        object_node = node.child_by_field_name("object")
+        property_node = node.child_by_field_name("property")
+        left = name_chain(object_node, content)
+        right = name_chain(property_node, content)
+        return (*left, *right)
+    if node.type == "this":
+        return ("this",)
+    if node.type == "super":
+        return ("super",)
+    named = getattr(node, "named_children", [])
+    if len(named) == 1:
+        return name_chain(named[0], content)
+    return ()
 
 
-def typed_constructor_parameters(node, content: bytes) -> list[tuple[str, str]]:
+def parse_type_annotation(node, content: bytes) -> tuple[str, ...]:
+    if node is None:
+        return ()
+    if node.type == "generic_type":
+        type_args = node.child_by_field_name("type_arguments")
+        if type_args is not None:
+            for child in getattr(type_args, "named_children", []):
+                nested = parse_type_annotation(child, content)
+                if nested:
+                    return nested
+    chain = name_chain(node, content)
+    if chain:
+        return chain
+    for child in getattr(node, "named_children", []):
+        nested = parse_type_annotation(child, content)
+        if nested:
+            return nested
+    return ()
+
+
+def typed_constructor_parameters(node, content: bytes) -> list[tuple[str, tuple[str, ...]]]:
     params = node.child_by_field_name("parameters")
     if params is None:
         return []
-    typed: list[tuple[str, str]] = []
+    typed: list[tuple[str, tuple[str, ...]]] = []
     for child in getattr(params, "children", []):
         if child.type not in {"required_parameter", "optional_parameter"}:
             continue
@@ -479,7 +516,7 @@ def typed_constructor_parameters(node, content: bytes) -> list[tuple[str, str]]:
             )
         type_node = child.child_by_field_name("type")
         name = node_text(name_node, content) if name_node else None
-        type_name = parse_type_annotation(type_node, content)
-        if name and type_name:
-            typed.append((name, type_name))
+        type_chain = parse_type_annotation(type_node, content)
+        if name and type_chain:
+            typed.append((name, type_chain))
     return typed
