@@ -7,7 +7,10 @@ from __future__ import annotations
 
 # Import query surfaces.
 PYTHON_IMPORT_NODE_TYPES = ("import_statement", "import_from_statement")
-TYPESCRIPT_IMPORT_EXPORT_NODE_TYPES = ("import_statement", "export_statement")
+TYPESCRIPT_IMPORT_EXPORT_NODE_TYPES = (
+    "import_statement",
+    "export_statement",
+)
 TYPESCRIPT_REQUIRE_DECLARATION_NODE_TYPES = ("lexical_declaration",)
 TYPESCRIPT_STRING_NODE_TYPES = ("string",)
 JAVA_PACKAGE_NODE_TYPES = ("package_declaration",)

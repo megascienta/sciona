@@ -164,6 +164,58 @@ def test_typescript_analyzer_collects_internal_imports_and_reexports(tmp_path):
     assert utils_module in import_targets
 
 
+def test_typescript_analyzer_collects_import_equals_declaration(tmp_path):
+    repo = tmp_path
+    src = repo / "src"
+    src.mkdir()
+    (src / "utils.ts").write_text("export const helper = () => 1;", encoding="utf-8")
+    module = """
+    import utilsAlias = require('./utils');
+    export function run() {
+      return utilsAlias.helper();
+    }
+    """
+    file_path = src / "mod.ts"
+    file_path.write_text(module, encoding="utf-8")
+    record = FileRecord(
+        path=file_path,
+        relative_path=Path("src/mod.ts"),
+        language="typescript",
+    )
+    snapshot = FileSnapshot(
+        record=record,
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = TypeScriptAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    utils_record = FileRecord(
+        path=src / "utils.ts",
+        relative_path=Path("src/utils.ts"),
+        language="typescript",
+    )
+    utils_snapshot = FileSnapshot(
+        record=utils_record,
+        file_id="file2",
+        blob_sha="hash2",
+        size=1,
+        line_count=1,
+        content=b" ",
+    )
+    utils_module = analyzer.module_name(repo, utils_snapshot)
+    analyzer.module_index = {module_name, utils_module}
+    result = analyzer.analyze(snapshot, module_name)
+    import_targets = {
+        edge.dst_qualified_name
+        for edge in result.edges
+        if edge.edge_type == "IMPORTS_DECLARED"
+    }
+    assert utils_module in import_targets
+
+
 def test_typescript_analyzer_resolves_this_field_constructor_assignments(tmp_path):
     module = """
     class Service {
