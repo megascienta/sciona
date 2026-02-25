@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from .symbol_ir import resolve_alias
+
 
 def resolve_ts_constructor_name(
     callee_text: str,
@@ -50,11 +52,12 @@ def resolve_pending_instances(
         if target:
             class_instance_map.setdefault(class_name, {})[field] = target
     for name, source in pending_alias_assignments:
-        target = (
-            instance_map.get(source)
-            or class_name_map.get(source)
-            or import_aliases.get(source)
-            or member_aliases.get(source)
+        target = resolve_alias(
+            source,
+            instance_map=instance_map,
+            class_name_map=class_name_map,
+            import_aliases=import_aliases,
+            member_aliases=member_aliases,
         )
         if target:
             instance_map[name] = target

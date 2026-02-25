@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from ...normalize.model import FileSnapshot
 from ..utils import find_nodes_of_types_query
+from .symbol_ir import TypedSymbolBinding
 
 
 def node_text(node, content: bytes) -> str | None:
@@ -95,6 +96,16 @@ def collect_local_var_types(
             if type_text and name:
                 collected[name] = type_text
     return collected
+
+
+def collect_local_bindings(
+    body_node,
+    snapshot: FileSnapshot,
+) -> list[TypedSymbolBinding]:
+    return [
+        TypedSymbolBinding(symbol=name, target_type=type_name, source="java_local")
+        for name, type_name in collect_local_var_types(body_node, snapshot).items()
+    ]
 
 
 def strip_type_decorations(type_text: str) -> str:

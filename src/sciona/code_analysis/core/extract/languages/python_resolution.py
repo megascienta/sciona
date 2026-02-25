@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from ...normalize.model import FileSnapshot
+from .symbol_ir import resolve_alias
 from .type_names import type_base_name
 
 
@@ -277,16 +278,14 @@ def _resolve_alias_target(
         return None
     if node.type == "identifier":
         name = node_text(node, content)
-        if name and name in known_instances:
-            return known_instances[name]
-        return None
+        return resolve_alias(name or "", instance_map=known_instances)
     if node.type == "attribute":
         base = node_text(node, content) or ""
         if base.startswith("self.") or base.startswith("cls."):
             parts = base.split(".", 2)
             if len(parts) >= 2:
-                return known_instances.get(parts[1])
-        return known_instances.get(base)
+                return resolve_alias(parts[1], instance_map=known_instances)
+        return resolve_alias(base, instance_map=known_instances)
     return None
 
 
