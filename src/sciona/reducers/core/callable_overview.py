@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Dict, List
 
 from ...code_analysis.tools.profile_introspection import (
+    java_function_extras,
     python_function_extras,
     typescript_function_extras,
 )
@@ -109,6 +110,14 @@ def run(snapshot_id: str, **params) -> CallableOverviewPayload:
         )
     elif row["language"] == "typescript":
         params_list, decorators = typescript_function_extras(
+            row["language"],
+            repo_path,
+            row["file_path"],
+            row["start_line"],
+            row["end_line"],
+        )
+    elif row["language"] == "java":
+        params_list, decorators = java_function_extras(
             row["language"],
             repo_path,
             row["file_path"],

@@ -6,6 +6,8 @@
 from __future__ import annotations
 
 from ...code_analysis.tools.profile_introspection import (
+    java_class_extras,
+    java_function_extras,
     python_class_extras,
     python_function_extras,
     typescript_class_extras,
@@ -44,6 +46,8 @@ def fetch_node_instance(conn, snapshot_id: str, structural_id: str) -> dict:
 
 __all__ = [
     "fetch_node_instance",
+    "java_class_extras",
+    "java_function_extras",
     "python_class_extras",
     "python_function_extras",
     "typescript_class_extras",
