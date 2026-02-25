@@ -52,4 +52,5 @@ Changes are expected to:
 
 1. preserve all `yes` capabilities;
 2. preserve `yes` parity with tests in `tests/code_analysis/`;
-3. never violate `docs/CONTRACT.md` or `docs/COMPLIANCE_CHECKLIST.md`.
+3. keep parity contract and kernel stage contract synchronized;
+4. never violate `docs/CONTRACT.md` or `docs/COMPLIANCE_CHECKLIST.md`.
