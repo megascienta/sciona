@@ -94,7 +94,7 @@ def collect_module_instance_map(
                 name = node_text(left, snapshot.content)
                 if name and target:
                     instance_map[name] = target
-        for child in getattr(node, "children", []):
+        for child in getattr(node, "named_children", []):
             walk(child)
 
     walk(root)
@@ -179,7 +179,7 @@ def collect_callable_instance_map(
                     )
                     if target:
                         instance_map[name] = target
-        for child in getattr(node, "children", []):
+        for child in getattr(node, "named_children", []):
             walk(child)
 
     walk(body_node)
@@ -261,7 +261,7 @@ def collect_class_instance_map(
                     target = _resolve_alias_target(right, snapshot.content, alias_scope)
                     if name and target:
                         instance_map[name] = target
-        for child in getattr(node, "children", []):
+        for child in getattr(node, "named_children", []):
             walk(child)
 
     walk(class_body_node)
@@ -359,13 +359,17 @@ def _typed_parameters_for_callable_node(
     if params_node is None:
         return {}
     typed: dict[str, str] = {}
-    for child in getattr(params_node, "children", []):
+    for child in getattr(params_node, "named_children", []):
         if child.type != "typed_parameter":
             continue
         name_node = child.child_by_field_name("name")
         if name_node is None:
             name_node = next(
-                (n for n in getattr(child, "children", []) if n.type == "identifier"),
+                (
+                    n
+                    for n in getattr(child, "named_children", [])
+                    if n.type == "identifier"
+                ),
                 None,
             )
         type_node = child.child_by_field_name("type")
