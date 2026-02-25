@@ -22,6 +22,7 @@ from .call_resolution_kernel import (
     materialize_outcomes,
     resolve_with_adapter,
     resolve_with_mode,
+    summarize_outcome_provenance,
     validate_stage_order,
 )
 
@@ -38,6 +39,8 @@ def resolve_typescript_calls(
     class_name_candidates: dict[str, set[str]],
     instance_map: dict[str, str],
     class_instance_map: dict[str, dict[str, str]],
+    *,
+    outcome_diagnostics: dict[str, int] | None = None,
 ) -> List[str]:
     class_method_names = class_methods.get(class_name, set()) if class_name else set()
     requests = _to_requests(targets)
@@ -54,8 +57,12 @@ def resolve_typescript_calls(
         class_instance_map=class_instance_map,
     )
     validate_stage_order(adapter.stage_order)
+    outcomes = resolve_with_adapter(requests, adapter)
+    if outcome_diagnostics is not None:
+        for provenance, count in summarize_outcome_provenance(outcomes).items():
+            outcome_diagnostics[provenance] = outcome_diagnostics.get(provenance, 0) + count
     return resolve_with_mode(
-        shared_resolver=lambda: materialize_outcomes(resolve_with_adapter(requests, adapter)),
+        shared_resolver=lambda: materialize_outcomes(outcomes),
     )
 
 
@@ -95,7 +102,7 @@ class _TypeScriptCallAdapter(CallResolutionAdapter):
                     return [
                         _outcome(f"{next(iter(candidates))}.{terminal}", "exact_qname")
                     ]
-                return []
+                return [_outcome(terminal, "ambiguous_candidate")]
             if self.class_name and (receiver == "this" or dotted_text.startswith("this.")):
                 chain = receiver_chain_for_request(request)
                 if len(chain) >= 2:

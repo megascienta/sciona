@@ -15,6 +15,7 @@ from sciona.code_analysis.tools.call_extraction import (
 
 def test_python_ambiguous_class_candidate_does_not_overresolve() -> None:
     targets = [CallTarget(terminal="run", callee_text="Service.run")]
+    outcome_diagnostics: dict[str, int] = {}
     resolved = resolve_python_calls(
         targets=targets,
         module_name="repo.pkg.mod",
@@ -26,12 +27,15 @@ def test_python_ambiguous_class_candidate_does_not_overresolve() -> None:
         raw_module_map={},
         instance_map={},
         class_name_candidates={"Service": {"repo.pkg.a.Service", "repo.pkg.b.Service"}},
+        outcome_diagnostics=outcome_diagnostics,
     )
     assert resolved == []
+    assert outcome_diagnostics.get("ambiguous_candidate") == 1
 
 
 def test_typescript_ambiguous_class_candidate_does_not_overresolve() -> None:
     targets = [CallTarget(terminal="run", callee_text="Service.run")]
+    outcome_diagnostics: dict[str, int] = {}
     resolved = resolve_typescript_calls(
         targets=targets,
         module_name="repo.pkg.mod",
@@ -44,8 +48,10 @@ def test_typescript_ambiguous_class_candidate_does_not_overresolve() -> None:
         class_name_candidates={"Service": {"repo.pkg.a.Service", "repo.pkg.b.Service"}},
         instance_map={},
         class_instance_map={},
+        outcome_diagnostics=outcome_diagnostics,
     )
     assert resolved == []
+    assert outcome_diagnostics.get("ambiguous_candidate") == 1
 
 
 def test_java_ambiguous_class_candidate_does_not_overresolve() -> None:

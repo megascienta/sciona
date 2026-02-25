@@ -49,6 +49,7 @@ class CallResolutionOutcome:
 ALLOWED_MATERIALIZATION_PROVENANCE = frozenset(
     {"exact_qname", "module_scoped", "import_narrowed"}
 )
+PROVENANCE_TERMINAL_FALLBACK = "terminal_fallback"
 
 
 class CallResolutionAdapter(Protocol):
@@ -73,7 +74,7 @@ def resolve_with_adapter(
         resolved.append(
             CallResolutionOutcome(
                 candidate_qname=request.terminal,
-                provenance="terminal_fallback",
+                provenance=PROVENANCE_TERMINAL_FALLBACK,
             )
         )
     return resolved
@@ -108,6 +109,15 @@ def resolve_with_mode(
     return shared_resolver()
 
 
+def summarize_outcome_provenance(
+    outcomes: Sequence[CallResolutionOutcome],
+) -> dict[str, int]:
+    summary: dict[str, int] = {}
+    for outcome in outcomes:
+        summary[outcome.provenance] = summary.get(outcome.provenance, 0) + 1
+    return summary
+
+
 def validate_stage_order(stage_order: Sequence[str]) -> None:
     """Fail fast when an adapter diverges from the shared stage contract."""
     if tuple(stage_order) != REQUIRED_RESOLUTION_STAGES:
@@ -123,6 +133,7 @@ __all__ = [
     "CallResolutionRequest",
     "MODE_SHARED",
     "REQUIRED_RESOLUTION_STAGES",
+    "PROVENANCE_TERMINAL_FALLBACK",
     "STAGE_ALIAS_NARROWING",
     "STAGE_CLASS_SCOPED",
     "STAGE_MODULE_SCOPED",
@@ -130,5 +141,6 @@ __all__ = [
     "materialize_outcomes",
     "resolve_with_adapter",
     "resolve_with_mode",
+    "summarize_outcome_provenance",
     "validate_stage_order",
 ]

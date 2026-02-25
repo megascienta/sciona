@@ -70,6 +70,7 @@ def test_typescript_analyzer_extracts_structure(tmp_path):
         "call_targets",
         "resolved_call_targets",
         "unresolved_call_targets",
+        "call_resolution_outcomes",
     ):
         assert key in diagnostics
 

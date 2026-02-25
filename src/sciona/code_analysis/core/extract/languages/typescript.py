@@ -119,6 +119,7 @@ class TypeScriptAnalyzer(ASTAnalyzer):
             )
             total_call_targets = sum(len(targets) for targets in call_targets_by_callable.values())
             resolved_call_targets = 0
+            outcome_diagnostics: dict[str, int] = {}
             for qualified, (node_type, class_name) in pending_by_qualified.items():
                 call_targets = call_targets_by_callable.get(qualified, ())
                 resolved = resolve_typescript_calls(
@@ -133,6 +134,7 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                     state.class_name_candidates,
                     state.instance_map,
                     state.class_instance_map,
+                    outcome_diagnostics=outcome_diagnostics,
                 )
                 if resolved:
                     resolved_call_targets += len(resolved)
@@ -164,6 +166,7 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                 "call_targets": total_call_targets,
                 "resolved_call_targets": resolved_call_targets,
                 "unresolved_call_targets": max(0, total_call_targets - resolved_call_targets),
+                "call_resolution_outcomes": dict(sorted(outcome_diagnostics.items())),
             }
             metadata = dict(module_node.metadata or {})
             metadata["resolution_diagnostics"] = diagnostics

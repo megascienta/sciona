@@ -262,3 +262,4 @@ def test_java_analyzer_resolves_static_member_and_wildcard_imports(tmp_path):
     assert isinstance(diagnostics, dict)
     assert diagnostics.get("member_aliases", 0) >= 1
     assert diagnostics.get("static_wildcard_targets", 0) >= 1
+    assert isinstance(diagnostics.get("call_resolution_outcomes"), dict)

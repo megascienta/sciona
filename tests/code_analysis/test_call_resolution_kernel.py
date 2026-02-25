@@ -6,9 +6,11 @@ import pytest
 from sciona.code_analysis.core.extract.languages.call_resolution_kernel import (
     CallResolutionOutcome,
     CallResolutionRequest,
+    PROVENANCE_TERMINAL_FALLBACK,
     REQUIRED_RESOLUTION_STAGES,
     materialize_outcomes,
     resolve_with_adapter,
+    summarize_outcome_provenance,
     validate_stage_order,
 )
 
@@ -52,3 +54,14 @@ def test_validate_stage_order_accepts_required_contract() -> None:
 def test_validate_stage_order_rejects_mismatched_contract() -> None:
     with pytest.raises(ValueError):
         validate_stage_order(("module_scoped_fallback",))
+
+
+def test_summarize_outcome_provenance_counts_all_outcomes() -> None:
+    summary = summarize_outcome_provenance(
+        [
+            CallResolutionOutcome("a.b.C.run", "exact_qname"),
+            CallResolutionOutcome("a.b.C.run", "exact_qname"),
+            CallResolutionOutcome("run", PROVENANCE_TERMINAL_FALLBACK),
+        ]
+    )
+    assert summary == {"exact_qname": 2, PROVENANCE_TERMINAL_FALLBACK: 1}

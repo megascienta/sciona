@@ -129,6 +129,7 @@ class JavaAnalyzer(ASTAnalyzer):
             )
             total_call_targets = sum(len(targets) for targets in call_targets_by_callable.values())
             resolved_call_targets = 0
+            outcome_diagnostics: dict[str, int] = {}
             for qualified, (node_type, body_node, class_name) in pending_by_qualified.items():
                 local_types = collect_local_var_types(body_node, snapshot)
                 instance_types = {}
@@ -150,6 +151,7 @@ class JavaAnalyzer(ASTAnalyzer):
                     instance_types,
                     module_prefix,
                     qualify_java_type,
+                    outcome_diagnostics=outcome_diagnostics,
                 )
                 if resolved:
                     resolved_calls.append((self.language, qualified, node_type, list(resolved)))
@@ -186,6 +188,7 @@ class JavaAnalyzer(ASTAnalyzer):
                 "call_targets": total_call_targets,
                 "resolved_call_targets": resolved_call_targets,
                 "unresolved_call_targets": max(0, total_call_targets - resolved_call_targets),
+                "call_resolution_outcomes": dict(sorted(outcome_diagnostics.items())),
             }
             metadata = dict(module_node.metadata or {})
             metadata["resolution_diagnostics"] = diagnostics

@@ -22,6 +22,7 @@ from .call_resolution_kernel import (
     materialize_outcomes,
     resolve_with_adapter,
     resolve_with_mode,
+    summarize_outcome_provenance,
     validate_stage_order,
 )
 
@@ -58,6 +59,8 @@ def resolve_java_calls(
     instance_types: dict[str, str],
     module_prefix: str | None,
     qualify_java_type,
+    *,
+    outcome_diagnostics: dict[str, int] | None = None,
 ) -> List[str]:
     class_method_names = class_methods.get(class_name, set()) if class_name else set()
     requests = _to_requests(targets)
@@ -77,8 +80,12 @@ def resolve_java_calls(
         qualify_java_type=qualify_java_type,
     )
     validate_stage_order(adapter.stage_order)
+    outcomes = resolve_with_adapter(requests, adapter)
+    if outcome_diagnostics is not None:
+        for provenance, count in summarize_outcome_provenance(outcomes).items():
+            outcome_diagnostics[provenance] = outcome_diagnostics.get(provenance, 0) + count
     return resolve_with_mode(
-        shared_resolver=lambda: materialize_outcomes(resolve_with_adapter(requests, adapter)),
+        shared_resolver=lambda: materialize_outcomes(outcomes),
     )
 
 

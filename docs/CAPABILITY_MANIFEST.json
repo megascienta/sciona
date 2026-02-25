@@ -11,6 +11,11 @@
         "python": "yes",
         "typescript": "yes"
       },
+      "call_resolution_outcome_telemetry": {
+        "java": "yes",
+        "python": "yes",
+        "typescript": "yes"
+      },
       "imports_declared_and_aliasing": {
         "java": "yes",
         "python": "yes",

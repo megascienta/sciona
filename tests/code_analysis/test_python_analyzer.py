@@ -79,6 +79,7 @@ def helper():
         "call_targets",
         "resolved_call_targets",
         "unresolved_call_targets",
+        "call_resolution_outcomes",
     ):
         assert key in diagnostics
 
