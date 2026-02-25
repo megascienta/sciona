@@ -5,17 +5,24 @@
 
 from __future__ import annotations
 
-import hashlib
-from collections import defaultdict
 from typing import Dict, Iterable, Optional, Tuple
 
 from typing import Protocol
 from ...runtime import identity as ids
-from ...runtime.text import canonical_span_bytes
 from ..analysis.graph import module_id_for
-from ..config import CALLABLE_NODE_TYPES
 from ..contracts import select_strict_call_candidate
 from ..tools.call_extraction import normalize_call_identifiers
+from .structural_assembler_emit import (
+    emit_edges,
+    emit_node_instances,
+    lookup_structural_id,
+)
+from .structural_assembler_hash import node_content_hash
+from .structural_assembler_index import (
+    build_import_targets,
+    build_module_lookup,
+    build_symbol_index,
+)
 from .normalize.model import (
     AnalysisResult,
     CallRecord,
@@ -109,9 +116,9 @@ class StructuralAssembler:
         module_names = {
             node.qualified_name for node in analysis.nodes if node.node_type == "module"
         }
-        symbol_index = _build_symbol_index(analysis.nodes)
-        module_lookup = _build_module_lookup(analysis.nodes, module_names)
-        import_targets = _build_import_targets(analysis.edges)
+        symbol_index = build_symbol_index(analysis.nodes)
+        module_lookup = build_module_lookup(analysis.nodes, module_names)
+        import_targets = build_import_targets(analysis.edges)
         strict_normalized: list[tuple[str, str, str, list[str]]] = []
         for language, qualified, node_type, identifiers in normalized:
             caller_module = module_id_for(qualified, module_names)
@@ -209,22 +216,15 @@ class StructuralAssembler:
         file_snapshot: FileSnapshot,
         node_id_map: Dict[str, Tuple[str, str]],
     ) -> None:
-        for node in nodes:
-            structural_id = node_id_map[node.qualified_name][0]
-            content_hash = self._node_content_hash(node, file_snapshot)
-            self._store.insert_node_instance(
-                self.conn,
-                instance_id=ids.instance_id(snapshot_id, structural_id),
-                structural_id=structural_id,
-                snapshot_id=snapshot_id,
-                qualified_name=node.qualified_name,
-                file_path=node.file_path.as_posix(),
-                start_line=node.start_line,
-                end_line=node.end_line,
-                start_byte=node.start_byte,
-                end_byte=node.end_byte,
-                content_hash=content_hash,
-            )
+        emit_node_instances(
+            self.conn,
+            self._store,
+            snapshot_id,
+            nodes,
+            file_snapshot,
+            node_id_map,
+            self._node_content_hash,
+        )
 
     def _emit_edges(
         self,
@@ -232,28 +232,14 @@ class StructuralAssembler:
         edges: Iterable[EdgeRecord],
         node_id_map: Dict[str, Tuple[str, str]],
     ) -> None:
-        for edge in edges:
-            src_id = self._lookup_structural_id(
-                edge.src_language,
-                edge.src_node_type,
-                edge.src_qualified_name,
-                node_id_map,
-            )
-            dst_id = self._lookup_structural_id(
-                edge.dst_language,
-                edge.dst_node_type,
-                edge.dst_qualified_name,
-                node_id_map,
-            )
-            if not src_id or not dst_id:
-                continue
-            self._store.insert_edge(
-                self.conn,
-                snapshot_id=snapshot_id,
-                src_structural_id=src_id,
-                dst_structural_id=dst_id,
-                edge_type=edge.edge_type,
-            )
+        emit_edges(
+            self.conn,
+            self._store,
+            snapshot_id,
+            edges,
+            node_id_map,
+            self.structural_cache,
+        )
 
     def _lookup_structural_id(
         self,
@@ -262,67 +248,15 @@ class StructuralAssembler:
         qualified_name: str,
         local_map: Dict[str, Tuple[str, str]],
     ) -> Optional[str]:
-        local = local_map.get(qualified_name)
-        if local and local[1] == node_type:
-            return local[0]
-        cache_key = (language, node_type, qualified_name)
-        return self.structural_cache.get(cache_key)
+        return lookup_structural_id(
+            language,
+            node_type,
+            qualified_name,
+            local_map,
+            self.structural_cache,
+        )
 
     def _node_content_hash(
         self, node: SemanticNodeRecord, file_snapshot: FileSnapshot
     ) -> str:
-        content = file_snapshot.content
-        if (
-            node.start_byte is not None
-            and node.end_byte is not None
-            and 0 <= node.start_byte <= node.end_byte
-            and node.end_byte <= len(content)
-        ):
-            segment = content[node.start_byte : node.end_byte]
-            if segment:
-                canonical = canonical_span_bytes(segment)
-                if canonical:
-                    return hashlib.sha1(canonical).hexdigest()
-        return file_snapshot.blob_sha
-
-
-def _build_symbol_index(
-    nodes: Iterable[SemanticNodeRecord],
-) -> dict[str, list[str]]:
-    index_sets: dict[str, set[str]] = defaultdict(set)
-    for node in nodes:
-        if node.node_type not in CALLABLE_NODE_TYPES:
-            continue
-        qname = node.qualified_name
-        index_sets[qname].add(qname)
-        terminal = qname.rsplit(".", 1)[-1]
-        if terminal:
-            index_sets[terminal].add(qname)
-    return {key: sorted(values) for key, values in index_sets.items()}
-
-
-def _build_module_lookup(
-    nodes: Iterable[SemanticNodeRecord],
-    module_names: set[str],
-) -> dict[str, str]:
-    lookup: dict[str, str] = {}
-    for node in nodes:
-        if node.node_type not in CALLABLE_NODE_TYPES:
-            continue
-        lookup[node.qualified_name] = module_id_for(node.qualified_name, module_names)
-    return lookup
-
-
-def _build_import_targets(
-    edges: Iterable[EdgeRecord],
-) -> dict[str, set[str]]:
-    targets: dict[str, set[str]] = defaultdict(set)
-    for edge in edges:
-        if (
-            edge.edge_type != "IMPORTS_DECLARED"
-            or edge.src_node_type != "module"
-            or edge.dst_node_type != "module"
-        ):
-            continue
-        targets[edge.src_qualified_name].add(edge.dst_qualified_name)
-    return targets
+        return node_content_hash(node, file_snapshot)
