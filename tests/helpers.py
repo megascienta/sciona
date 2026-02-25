@@ -53,6 +53,30 @@ def insert_snapshot(
     )
 
 
+def strip_json_fence(text: str) -> str:
+    trimmed = text.strip()
+    if trimmed.startswith("```json") and trimmed.endswith("```"):
+        lines = trimmed.splitlines()
+        return "\n".join(lines[1:-1])
+    return trimmed
+
+
+def parse_json_payload(text: str) -> dict:
+    import json
+
+    return json.loads(strip_json_fence(text))
+
+
+def core_conn(repo_root: Path) -> sqlite3.Connection:
+    conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def qualify_repo_name(repo_root: Path, name: str) -> str:
+    return f"{runtime_paths.repo_name_prefix(repo_root)}.{name}"
+
+
 def setup_structural_index_db(tmp_path: Path, *, repo_root: Path) -> Tuple[Path, str]:
     """Create a minimal database with one snapshot and module structure."""
     db_path = tmp_path / "structural_index.db"

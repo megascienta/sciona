@@ -3,18 +3,10 @@
 
 from __future__ import annotations
 
-import json
 from typing import Iterable
 
 from sciona import api
-from sciona.runtime import paths as runtime_paths
-
-
-def _parse_json_payload(text: str) -> dict:
-    stripped = text.strip()
-    assert stripped.startswith("```json")
-    body = stripped.split("\n", 1)[1].rsplit("```", 1)[0].strip()
-    return json.loads(body)
+from tests.helpers import parse_json_payload, qualify_repo_name
 
 
 def _find_forbidden_keys(payload: object, forbidden: Iterable[str]) -> set[str]:
@@ -35,12 +27,11 @@ def _find_forbidden_keys(payload: object, forbidden: Iterable[str]) -> set[str]:
 
 def test_reducer_payload_excludes_snapshot_metadata(repo_with_snapshot):
     repo_root, _snapshot_id = repo_with_snapshot
-    prefix = runtime_paths.repo_name_prefix(repo_root)
     text, _, _ = api.addons.emit(
         "module_overview",
         repo_root=repo_root,
-        module_id=f"{prefix}.pkg.alpha",
+        module_id=qualify_repo_name(repo_root, "pkg.alpha"),
     )
-    payload = _parse_json_payload(text)
+    payload = parse_json_payload(text)
     forbidden = {"snapshot_id", "created_at", "git_commit_time"}
     assert not _find_forbidden_keys(payload, forbidden)

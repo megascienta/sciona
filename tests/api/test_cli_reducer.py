@@ -4,6 +4,7 @@
 import json
 
 from sciona.runtime import paths as runtime_paths
+from tests.helpers import parse_json_payload
 
 
 def test_cli_reducer_renders_payload(cli_app, cli_runner):
@@ -29,7 +30,7 @@ def test_cli_reducer_callable_id_resolves_method(cli_app, cli_runner):
 
     assert result.exit_code == 0
     payload = json.loads(result.stdout)
-    reducer_payload = json.loads(_strip_json_fence(payload["payload"]))
+    reducer_payload = parse_json_payload(payload["payload"])
     assert reducer_payload["callable_id"] == "meth_alpha"
 
 
@@ -38,11 +39,3 @@ def test_cli_reducer_list_outputs_calls(cli_app, cli_runner):
 
     assert result.exit_code == 0
     assert "reducer --id structural_index" in result.stdout
-
-
-def _strip_json_fence(text: str) -> str:
-    trimmed = text.strip()
-    if trimmed.startswith("```json") and trimmed.endswith("```"):
-        lines = trimmed.splitlines()
-        return "\n".join(lines[1:-1])
-    return trimmed

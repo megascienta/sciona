@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-import json
 import sqlite3
 from pathlib import Path
 
@@ -25,25 +24,7 @@ from sciona.reducers.core import (
 from sciona.reducers.grounding import callable_source, concatenated_source
 from sciona.runtime import constants as setup_config
 from sciona.runtime import paths as runtime_paths
-from tests.helpers import insert_snapshot, seed_repo_with_snapshot
-
-
-def _strip_json_fence(text: str) -> str:
-    trimmed = text.strip()
-    if trimmed.startswith("```json") and trimmed.endswith("```"):
-        lines = trimmed.splitlines()
-        return "\n".join(lines[1:-1])
-    return trimmed
-
-
-def _core_conn(repo_root):
-    conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
-    conn.row_factory = sqlite3.Row
-    return conn
-
-
-def _q(repo_root, name: str) -> str:
-    return f"{runtime_paths.repo_name_prefix(repo_root)}.{name}"
+from tests.helpers import core_conn as _core_conn, insert_snapshot, parse_json_payload, qualify_repo_name as _q, seed_repo_with_snapshot
 
 
 def _build_profile_repo(tmp_path: Path):
@@ -277,7 +258,7 @@ def test_concatenated_source_codebase_scope(tmp_path):
         )
     finally:
         conn.close()
-    payload = json.loads(_strip_json_fence(payload_text))
+    payload = parse_json_payload(payload_text)
     paths = {entry["path"] for entry in payload["files"]}
     assert "pkg/alpha/service.py" in paths
     assert "pkg/beta/__init__.py" in paths
@@ -321,7 +302,7 @@ def test_concatenated_source_excludes_meta_modules(tmp_path):
         )
     finally:
         conn.close()
-    payload = json.loads(_strip_json_fence(payload_text))
+    payload = parse_json_payload(payload_text)
     paths = {entry["path"] for entry in payload["files"]}
     assert "meta_dir" not in paths
 
@@ -339,7 +320,7 @@ def test_concatenated_source_module_scope(tmp_path):
         )
     finally:
         conn.close()
-    payload = json.loads(_strip_json_fence(payload_text))
+    payload = parse_json_payload(payload_text)
     paths = {entry["path"] for entry in payload["files"]}
     assert "pkg/alpha/service.py" in paths
     assert "pkg/beta/__init__.py" not in paths
@@ -358,7 +339,7 @@ def test_concatenated_source_class_scope(tmp_path):
         )
     finally:
         conn.close()
-    payload = json.loads(_strip_json_fence(payload_text))
+    payload = parse_json_payload(payload_text)
     paths = {entry["path"] for entry in payload["files"]}
     assert "pkg/alpha/service.py" in paths
 
@@ -375,7 +356,7 @@ def test_callable_source_payload(tmp_path):
         )
     finally:
         conn.close()
-    payload = json.loads(_strip_json_fence(payload_text))
+    payload = parse_json_payload(payload_text)
     assert payload["file_path"]
     assert payload["source"]
 
@@ -418,7 +399,7 @@ def test_callable_source_skips_directory_path(tmp_path):
         )
     finally:
         conn.close()
-    payload = json.loads(_strip_json_fence(payload_text))
+    payload = parse_json_payload(payload_text)
     assert payload["file_path"] == "pkg/dir_func"
     assert payload["source"] is None
 
@@ -437,7 +418,7 @@ def test_symbol_lookup_reducer_returns_matches(tmp_path):
         )
     finally:
         conn.close()
-    payload = json.loads(_strip_json_fence(payload_text))
+    payload = parse_json_payload(payload_text)
     assert payload["matches"]
     assert any(
         match["qualified_name"] == _q(repo_root, "pkg.alpha")
@@ -459,7 +440,7 @@ def test_symbol_lookup_accepts_any_kind(tmp_path):
         )
     finally:
         conn.close()
-    payload = json.loads(_strip_json_fence(payload_text))
+    payload = parse_json_payload(payload_text)
     assert payload["matches"]
 
 
@@ -513,7 +494,7 @@ def test_symbol_lookup_deterministic_prelimit_with_duplicate_names(tmp_path):
         )
     finally:
         conn.close()
-    payload = json.loads(_strip_json_fence(payload_text))
+    payload = parse_json_payload(payload_text)
     assert payload["matches"]
     assert payload["matches"][0]["qualified_name"] == duplicate_name
     assert payload["matches"][0]["file_path"] == "pkg/a_first.py"
@@ -533,7 +514,7 @@ def test_symbol_references_returns_relationships(tmp_path):
         )
     finally:
         conn.close()
-    payload = json.loads(_strip_json_fence(payload_text))
+    payload = parse_json_payload(payload_text)
     assert payload["matches"]
     assert payload["references"]
 
@@ -550,7 +531,7 @@ def test_dependency_edges_reducer_returns_edges(tmp_path):
         )
     finally:
         conn.close()
-    payload = json.loads(_strip_json_fence(payload_text))
+    payload = parse_json_payload(payload_text)
     assert payload["edge_count"] >= 1
     edge = payload["edges"][0]
     assert "from_module_structural_id" in edge
@@ -572,7 +553,7 @@ def test_dependency_edges_filters_and_limit(tmp_path):
         )
     finally:
         conn.close()
-    payload = json.loads(_strip_json_fence(payload_text))
+    payload = parse_json_payload(payload_text)
     assert payload["edge_count"] == 1
     assert payload["edges"][0]["edge_type"] == "IMPORTS_DECLARED"
 
@@ -589,7 +570,7 @@ def test_dependency_edges_query_filters_sources(tmp_path):
         )
     finally:
         conn.close()
-    payload = json.loads(_strip_json_fence(payload_text))
+    payload = parse_json_payload(payload_text)
     assert payload["edges"]
     assert all(
         edge["from_module_qualified_name"].startswith(_q(repo_root, "pkg.alpha"))
@@ -609,7 +590,7 @@ def test_file_outline_returns_nodes(tmp_path):
         )
     finally:
         conn.close()
-    payload = json.loads(_strip_json_fence(payload_text))
+    payload = parse_json_payload(payload_text)
     assert payload["files"]
     assert any(entry["nodes"] for entry in payload["files"])
 
@@ -627,7 +608,7 @@ def test_dependency_edges_direction_filters(tmp_path):
         )
     finally:
         conn.close()
-    payload = json.loads(_strip_json_fence(payload_text))
+    payload = parse_json_payload(payload_text)
     assert payload["edges"]
     assert all(
         edge["from_module_qualified_name"].startswith(_q(repo_root, "pkg.alpha"))
@@ -644,7 +625,7 @@ def test_dependency_edges_direction_filters(tmp_path):
         )
     finally:
         conn.close()
-    payload = json.loads(_strip_json_fence(payload_text))
+    payload = parse_json_payload(payload_text)
     assert payload["edges"]
     assert all(
         edge["to_module_qualified_name"].startswith(_q(repo_root, "pkg.alpha"))
@@ -827,7 +808,7 @@ def test_class_inheritance_reducer_emits_base_edges(tmp_path):
     )
     conn.close()
 
-    payload = json.loads(_strip_json_fence(payload_text))
+    payload = parse_json_payload(payload_text)
     assert payload["payload_kind"] == "summary"
     assert payload["class_id"] == repo["ids"]["class_order"]
     assert payload["incoming"] == []
@@ -860,7 +841,7 @@ def test_class_inheritance_reducer_handles_no_bases(tmp_path):
     )
     conn.close()
 
-    payload = json.loads(_strip_json_fence(payload_text))
+    payload = parse_json_payload(payload_text)
     assert payload["payload_kind"] == "summary"
     assert payload["class_id"] == repo["ids"]["ts_class"]
     assert payload["outgoing"] == []
