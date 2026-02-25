@@ -3,13 +3,25 @@
 
 from pathlib import Path
 
+from tree_sitter import Parser
+from tree_sitter_languages import get_language
+
 from sciona.code_analysis.core.extract.languages.python_resolution import (
     collect_class_instance_map,
     collect_module_instance_map,
 )
 from sciona.code_analysis.core.extract.utils import find_nodes_of_types_query
 from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
-from sciona.code_analysis.tools.tree_sitter import build_parser
+
+
+def _parser(language_name: str) -> Parser:
+    parser = Parser()
+    language = get_language(language_name)
+    if hasattr(parser, "set_language"):
+        parser.set_language(language)
+    else:
+        parser.language = language
+    return parser
 
 
 def _snapshot(tmp_path, source: str) -> FileSnapshot:
@@ -42,7 +54,7 @@ fn = lambda: A()
 y = A()
 """
     snapshot = _snapshot(tmp_path, source)
-    root = build_parser("python").parse(snapshot.content).root_node
+    root = _parser("python").parse(snapshot.content).root_node
     module_map = collect_module_instance_map(
         root,
         snapshot,
@@ -64,7 +76,7 @@ class C:
         self.dep = A()
 """
     snapshot = _snapshot(tmp_path, source)
-    root = build_parser("python").parse(snapshot.content).root_node
+    root = _parser("python").parse(snapshot.content).root_node
     class_nodes = find_nodes_of_types_query(
         root,
         language_name="python",

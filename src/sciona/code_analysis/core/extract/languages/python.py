@@ -8,8 +8,10 @@ from __future__ import annotations
 from collections import defaultdict
 from pathlib import Path
 
+from tree_sitter import Parser
+from tree_sitter_languages import get_language
+
 from ....tools.call_extraction import collect_call_targets
-from ....tools.tree_sitter import build_parser
 from ...module_naming import module_name_from_path
 from ...normalize.model import (
     AnalysisResult,
@@ -33,7 +35,12 @@ class PythonAnalyzer(ASTAnalyzer):
     language = "python"
 
     def __init__(self) -> None:
-        self._parser = build_parser("python")
+        self._parser = Parser()
+        language = get_language("python")
+        if hasattr(self._parser, "set_language"):
+            self._parser.set_language(language)
+        else:
+            self._parser.language = language
 
     def analyze(self, snapshot: FileSnapshot, module_name: str) -> AnalysisResult:
         tree = self._parser.parse(snapshot.content)

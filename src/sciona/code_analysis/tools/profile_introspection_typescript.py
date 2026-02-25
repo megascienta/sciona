@@ -9,6 +9,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
+from tree_sitter import Parser
+from tree_sitter_languages import get_language
+
 from .profile_query import find_profile_nodes_of_types
 from .profile_query_surface import (
     TYPESCRIPT_PROFILE_BASE_NODE_TYPES,
@@ -16,7 +19,6 @@ from .profile_query_surface import (
     TYPESCRIPT_PROFILE_PARAMETER_NODE_TYPES,
 )
 from .profile_introspection_cache import _typescript_inspector_cached
-from .tree_sitter import build_parser
 
 @dataclass
 class _TypeScriptFunctionDetails:
@@ -33,7 +35,12 @@ class _TypeScriptInspector:
 
     def __init__(self, source: str) -> None:
         if _TypeScriptInspector._PARSER is None:
-            _TypeScriptInspector._PARSER = build_parser("typescript")
+            _TypeScriptInspector._PARSER = Parser()
+            language = get_language("typescript")
+            if hasattr(_TypeScriptInspector._PARSER, "set_language"):
+                _TypeScriptInspector._PARSER.set_language(language)
+            else:
+                _TypeScriptInspector._PARSER.language = language
         assert _TypeScriptInspector._PARSER is not None
         tree = _TypeScriptInspector._PARSER.parse(source.encode("utf-8"))
         self._source = source

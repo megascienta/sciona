@@ -26,6 +26,17 @@ def _rel(path: Path) -> str:
     return path.relative_to(_CODE_ANALYSIS_ROOT).as_posix()
 
 
+def test_policy_no_tree_sitter_wrapper_module() -> None:
+    assert not (_CODE_ANALYSIS_ROOT / "tools" / "tree_sitter.py").exists()
+
+
+@pytest.mark.parametrize("path", _python_files(), ids=lambda p: _rel(p))
+def test_policy_no_parser_factory_wrapper(path: Path) -> None:
+    text = path.read_text(encoding="utf-8")
+    assert "def build_parser(" not in text
+    assert "build_parser =" not in text
+
+
 @pytest.mark.parametrize("path", _python_files(), ids=lambda p: _rel(p))
 def test_policy_no_ast_parse_in_code_analysis(path: Path) -> None:
     rel = _rel(path)
@@ -33,6 +44,8 @@ def test_policy_no_ast_parse_in_code_analysis(path: Path) -> None:
     if rel in _ALLOWLIST_AST_PARSE:
         return
     assert "ast.parse(" not in text
+    assert "tools.tree_sitter" not in text
+    assert "from .tree_sitter import build_parser" not in text
 
 
 @pytest.mark.parametrize("path", _python_files(), ids=lambda p: _rel(p))

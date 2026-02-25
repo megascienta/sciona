@@ -4,6 +4,8 @@
 from pathlib import Path
 
 import pytest
+from tree_sitter import Parser
+from tree_sitter_languages import get_language
 
 from sciona.code_analysis.tools import call_extraction
 from sciona.code_analysis.tools.call_extraction import (
@@ -11,11 +13,20 @@ from sciona.code_analysis.tools.call_extraction import (
     ReceiverCallIR,
     collect_call_targets,
 )
-from sciona.code_analysis.tools.tree_sitter import build_parser
+
+
+def _parser(language_name: str) -> Parser:
+    parser = Parser()
+    language = get_language(language_name)
+    if hasattr(parser, "set_language"):
+        parser.set_language(language)
+    else:
+        parser.language = language
+    return parser
 
 
 def test_collect_call_targets_normalizes_optional_chain() -> None:
-    parser = build_parser("typescript")
+    parser = _parser("typescript")
     source = b"""
 class A {
   run() {
@@ -42,7 +53,7 @@ class A {
 
 
 def test_collect_call_targets_populates_qualified_ir() -> None:
-    parser = build_parser("python")
+    parser = _parser("python")
     source = b"""
 def run():
     pkg.service.do_work()
@@ -63,7 +74,7 @@ def run():
 
 
 def test_collect_call_targets_query_mode_is_deterministic() -> None:
-    parser = build_parser("typescript")
+    parser = _parser("typescript")
     source = b"""
 class A {
   run() {

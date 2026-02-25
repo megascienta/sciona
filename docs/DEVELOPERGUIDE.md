@@ -35,6 +35,8 @@ Out of scope:
 - No heuristic fallback traversal for structural extraction.
 - Unsupported query node types fail closed (partial parse metadata), not fallback.
 - Code-analysis profiling helpers are tree-sitter driven; non-tree-sitter parser fallbacks are disallowed.
+- Code-analysis parser setup uses direct `tree_sitter.Parser` +
+  `tree_sitter_languages.get_language`; parser wrapper/factory modules are disallowed.
 
 ## Runtime Requirements
 

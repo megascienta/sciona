@@ -9,6 +9,9 @@ It is authoritative for analysis and validation.
 - Applies to the single committed snapshot retained in CoreDB.
 - Static, syntax-only analysis; no execution, no runtime inference.
 - Extraction is tree-sitter query/field driven.
+- Tree-sitter parser setup MUST use direct `tree_sitter.Parser` +
+  `tree_sitter_languages.get_language` usage in code-analysis call sites.
+- Parser wrapper/factory abstractions are out-of-contract.
 - Structural extraction MUST fail closed for unsupported query node types.
 - No heuristic traversal fallback is allowed for structural extraction.
 

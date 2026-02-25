@@ -1,13 +1,25 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
+from tree_sitter import Parser
+from tree_sitter_languages import get_language
+
 from sciona.code_analysis.core.extract.utils import (
     count_lines,
     find_nodes_of_types_query,
 )
 from sciona.code_analysis.core.extract import utils as extract_utils
-from sciona.code_analysis.tools.tree_sitter import build_parser
 import pytest
+
+
+def _parser(language_name: str) -> Parser:
+    parser = Parser()
+    language = get_language(language_name)
+    if hasattr(parser, "set_language"):
+        parser.set_language(language)
+    else:
+        parser.language = language
+    return parser
 
 
 def test_count_lines_counts_non_empty() -> None:
@@ -18,7 +30,7 @@ def test_count_lines_counts_non_empty() -> None:
 
 def test_find_nodes_of_types_query_returns_tree_sitter_nodes() -> None:
     source = b"def a():\n    pass\n"
-    root = build_parser("python").parse(source).root_node
+    root = _parser("python").parse(source).root_node
     nodes = find_nodes_of_types_query(
         root,
         language_name="python",
@@ -38,7 +50,7 @@ def b():
 def c():
     pass
 """
-    root = build_parser("python").parse(source).root_node
+    root = _parser("python").parse(source).root_node
     nodes = find_nodes_of_types_query(
         root,
         language_name="python",

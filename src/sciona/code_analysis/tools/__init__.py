@@ -10,7 +10,6 @@ from . import (
     discovery,
     profile_introspection,
     snapshots,
-    tree_sitter,
     walker,
 )
 
@@ -19,6 +18,5 @@ __all__ = [
     "discovery",
     "profile_introspection",
     "snapshots",
-    "tree_sitter",
     "walker",
 ]

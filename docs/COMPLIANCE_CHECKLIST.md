@@ -21,6 +21,9 @@ contract in `docs/CONTRACT.md`.
 - Nested non-structural callables are not emitted as structural nodes.
 - CALLS targets are in-repo callable IDs only.
 - Extraction is tree-sitter query/field driven.
+- Parser setup uses direct `tree_sitter.Parser` +
+  `tree_sitter_languages.get_language` usage in code-analysis call sites.
+- Parser wrappers/factories are not used.
 - Structural extraction fallback traversal is not allowed.
 - Unsupported query node types fail closed (partial parse metadata; no heuristic fallback).
 - Final CALLS emission passes strict candidate gate; non-accepted candidates are dropped.
