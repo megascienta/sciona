@@ -4,6 +4,8 @@
 import json
 import sqlite3
 
+import pytest
+
 from sciona.reducers.analytics import (
     callsite_index,
     class_call_graph_summary,
@@ -133,3 +135,37 @@ def test_class_call_graph_summary_returns_payload(tmp_path):
     assert payload["class_id"] == f"{prefix}.pkg.alpha.Service"
     assert "outgoing" in payload
     assert "incoming" in payload
+
+
+def test_callsite_index_rejects_invalid_detail_level(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    prefix = runtime_paths.repo_name_prefix(repo_root)
+    conn = _core_conn(repo_root)
+    try:
+        with pytest.raises(ValueError, match="detail_level must be"):
+            callsite_index.render(
+                snapshot_id,
+                conn,
+                repo_root,
+                function_id=f"{prefix}.pkg.alpha.service.helper",
+                detail_level="verbose",
+            )
+    finally:
+        conn.close()
+
+
+def test_callsite_index_rejects_invalid_direction(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    prefix = runtime_paths.repo_name_prefix(repo_root)
+    conn = _core_conn(repo_root)
+    try:
+        with pytest.raises(ValueError, match="direction must be one of"):
+            callsite_index.render(
+                snapshot_id,
+                conn,
+                repo_root,
+                function_id=f"{prefix}.pkg.alpha.service.helper",
+                direction="up",
+            )
+    finally:
+        conn.close()

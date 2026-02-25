@@ -5,6 +5,8 @@ import json
 import sqlite3
 from pathlib import Path
 
+import pytest
+
 from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.data_storage.artifact_db.maintenance import rebuild_graph_index
 from sciona.data_storage.core_db.schema import ensure_schema
@@ -648,6 +650,68 @@ def test_dependency_edges_direction_filters(tmp_path):
         edge["to_module_qualified_name"].startswith(_q(repo_root, "pkg.alpha"))
         for edge in payload["edges"]
     )
+
+
+def test_dependency_edges_rejects_invalid_direction(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = _core_conn(repo_root)
+    try:
+        with pytest.raises(ValueError, match="direction must be one of"):
+            dependency_edges.render(
+                snapshot_id,
+                conn,
+                repo_root,
+                direction="sideways",
+            )
+    finally:
+        conn.close()
+
+
+def test_dependency_edges_rejects_non_positive_limit(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = _core_conn(repo_root)
+    try:
+        with pytest.raises(ValueError, match="limit must be positive"):
+            dependency_edges.render(
+                snapshot_id,
+                conn,
+                repo_root,
+                limit=0,
+            )
+    finally:
+        conn.close()
+
+
+def test_class_overview_requires_class_id(tmp_path):
+    repo = _build_profile_repo(tmp_path)
+    conn = sqlite3.connect(repo["db_path"])
+    conn.row_factory = sqlite3.Row
+    try:
+        with pytest.raises(ValueError, match="requires 'class_id'"):
+            class_overview.run(
+                repo["snapshot_id"],
+                conn=conn,
+                class_id=None,
+                repo_root=repo["repo_root"],
+            )
+    finally:
+        conn.close()
+
+
+def test_class_inheritance_requires_class_id(tmp_path):
+    repo = _build_profile_repo(tmp_path)
+    conn = sqlite3.connect(repo["db_path"])
+    conn.row_factory = sqlite3.Row
+    try:
+        with pytest.raises(ValueError, match="Class identifier is required"):
+            class_inheritance.render(
+                repo["snapshot_id"],
+                conn=conn,
+                class_id=None,
+                repo_root=repo["repo_root"],
+            )
+    finally:
+        conn.close()
 
 
 def test_structural_index_reducer_reports_modules_and_cycles(tmp_path):
