@@ -63,6 +63,8 @@ contract in `docs/CONTRACT.md`.
 For each language implementation, verify:
 
 1. Node and edge type completeness against contract.
+1. Capability manifest consistency against query surfaces (`docs/CAPABILITY_MANIFEST.json`).
+1. Language parity quality thresholds remain green for PY/TS/Java.
 2. Naming and canonical identity invariants.
 3. Query-only extraction behavior (no fallback path).
 4. Strict call-gate filtering behavior for CALLS materialization.
