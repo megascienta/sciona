@@ -24,8 +24,10 @@ Legend:
 | Strict call-gate materialization | yes | yes | yes | `strict_call_contract` in assembler |
 | Deterministic edge ordering | yes | yes | yes | Contract + tests |
 | Partial-parse fail-closed metadata | yes | yes | yes | No heuristic traversal fallback |
-| Profile function extras via tree-sitter | yes | yes | n/a | Python/TS profile reducers |
-| Profile class extras via tree-sitter | yes | yes | n/a | Python/TS profile reducers |
+| Profile function extras via tree-sitter | yes | yes | yes | Python/TS/Java profile reducers |
+| Profile class extras via tree-sitter | yes | yes | yes | Python/TS/Java profile reducers |
+| Capability manifest generated from query surfaces | yes | yes | yes | `docs/CAPABILITY_MANIFEST.json` gate |
+| Parity quality threshold gate (nodes+calls) | yes | yes | yes | `test_language_parity_score_gate.py` |
 | Triplet parity fixture coverage | yes | yes | yes | `test_language_parity_triplets.py` |
 | Service-call parity benchmark | yes | yes | yes | `test_language_parity_bench.py` |
 
@@ -34,8 +36,7 @@ Legend:
 - TypeScript import parsing supports the grammar surface available via
   `import_statement`, `export_statement`, and require-style lexical declarations.
 - Java import aliasing is reduced to simple-name class mapping for resolution.
-- Profile introspection extras are currently implemented for Python/TypeScript;
-  Java does not currently expose equivalent reducer extras.
+- Profile introspection extras are implemented for Python/TypeScript/Java.
 
 ## Gate Criteria
 
