@@ -182,3 +182,83 @@ def test_java_analyzer_resolves_for_each_catch_and_instanceof_bindings(tmp_path)
     use_calls = call_records[f"{module_name}.Holder.use"]
     assert f"{module_name}.Item.run" in use_calls
     assert f"{module_name}.Err.handle" in use_calls
+
+
+def test_java_analyzer_resolves_static_member_and_wildcard_imports(tmp_path):
+    service_module = """
+    package com.example;
+
+    public class Service {
+        public static void run() {}
+        public static void execute() {}
+    }
+    """
+    app_module = """
+    package com.example;
+
+    import static com.example.Service.run;
+    import static com.example.Service.*;
+
+    public class App {
+        public void handle() {
+            run();
+            execute();
+        }
+    }
+    """
+    repo = tmp_path
+    src = repo / "src"
+    src.mkdir()
+    service_path = src / "com" / "example" / "Service.java"
+    service_path.parent.mkdir(parents=True)
+    service_path.write_text(service_module, encoding="utf-8")
+    app_path = src / "com" / "example" / "App.java"
+    app_path.write_text(app_module, encoding="utf-8")
+
+    analyzer = JavaAnalyzer()
+
+    service_snapshot = FileSnapshot(
+        record=FileRecord(
+            path=service_path,
+            relative_path=Path("src/com/example/Service.java"),
+            language="java",
+        ),
+        file_id="service",
+        blob_sha="hash",
+        size=len(service_module.encode("utf-8")),
+        line_count=service_module.count("\n"),
+        content=service_module.encode("utf-8"),
+    )
+    app_snapshot = FileSnapshot(
+        record=FileRecord(
+            path=app_path,
+            relative_path=Path("src/com/example/App.java"),
+            language="java",
+        ),
+        file_id="app",
+        blob_sha="hash",
+        size=len(app_module.encode("utf-8")),
+        line_count=app_module.count("\n"),
+        content=app_module.encode("utf-8"),
+    )
+
+    service_module_name = analyzer.module_name(repo, service_snapshot)
+    app_module_name = analyzer.module_name(repo, app_snapshot)
+    analyzer.module_index = {service_module_name, app_module_name}
+
+    # Prime class method map with Service first; App resolution reuses same analyzer instance.
+    analyzer.analyze(service_snapshot, service_module_name)
+    app_result = analyzer.analyze(app_snapshot, app_module_name)
+
+    call_records = {
+        rec.qualified_name: set(rec.callee_identifiers) for rec in app_result.call_records
+    }
+    handle_calls = call_records[f"{app_module_name}.App.handle"]
+    assert f"{service_module_name}.run" in handle_calls
+    assert f"{service_module_name}.execute" in handle_calls
+
+    module_node = next(node for node in app_result.nodes if node.node_type == "module")
+    diagnostics = (module_node.metadata or {}).get("resolution_diagnostics")
+    assert isinstance(diagnostics, dict)
+    assert diagnostics.get("member_aliases", 0) >= 1
+    assert diagnostics.get("static_wildcard_targets", 0) >= 1

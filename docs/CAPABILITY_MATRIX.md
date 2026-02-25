@@ -18,7 +18,7 @@ Legend:
 | `CONTAINS` edges | yes | yes | yes | Deterministic ordering |
 | `DEFINES_METHOD` edges | yes | yes | yes | Contract baseline |
 | `IMPORTS_DECLARED` extraction | yes | yes | yes | Syntax-only, internal targets only |
-| Import aliases / member aliases | yes | yes | partial | Java class-map only |
+| Import aliases / member aliases | yes | yes | yes | Language-local alias/member alias parity |
 | Call-site extraction query-driven | yes | yes | yes | Query API required |
 | Call attribution to enclosing callable | yes | yes | yes | Scope resolver parity assertions |
 | Strict call-gate materialization | yes | yes | yes | `strict_call_contract` in assembler |
@@ -35,7 +35,7 @@ Legend:
 
 - TypeScript import parsing supports the grammar surface available via
   `import_statement`, `export_statement`, and require-style lexical declarations.
-- Java import aliasing is reduced to simple-name class mapping for resolution.
+- Java import parsing supports class aliases, static member aliases, and static wildcard owners.
 - Profile introspection extras are implemented for Python/TypeScript/Java.
 
 ## Gate Criteria
@@ -43,5 +43,5 @@ Legend:
 Changes are expected to:
 
 1. preserve all `yes` capabilities;
-2. convert `partial` to `yes` only with tests in `tests/code_analysis/`;
+2. preserve `yes` parity with tests in `tests/code_analysis/`;
 3. never violate `docs/CONTRACT.md` or `docs/COMPLIANCE_CHECKLIST.md`.

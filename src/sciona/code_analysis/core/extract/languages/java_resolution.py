@@ -122,7 +122,7 @@ def qualify_java_type(
     type_text: str,
     module_name: str,
     class_name_candidates: dict[str, set[str]],
-    import_class_map: dict[str, str],
+    import_aliases: dict[str, str],
     module_prefix: str | None,
 ) -> str | None:
     base = strip_type_decorations(type_text)
@@ -133,8 +133,8 @@ def qualify_java_type(
         return next(iter(class_candidates))
     if len(class_candidates) > 1:
         return None
-    if base in import_class_map:
-        return import_class_map[base]
+    if base in import_aliases:
+        return import_aliases[base]
     if "." in base:
         return f"{module_prefix}.{base}" if module_prefix else base
     if "." in module_name:

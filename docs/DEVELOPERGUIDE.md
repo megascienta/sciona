@@ -119,6 +119,7 @@ TypeScript:
 Java:
 
 - Imports: `import_declaration`
+- Java import normalization includes class aliases, static member aliases, and static wildcard owner targets.
 - Calls: `method_invocation`, `object_creation_expression`, `explicit_constructor_invocation`
 
 ## Data Model

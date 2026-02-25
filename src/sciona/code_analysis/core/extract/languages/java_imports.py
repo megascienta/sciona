@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Optional
 
 from .....runtime import paths as runtime_paths
@@ -12,6 +13,14 @@ from ...normalize.model import FileSnapshot
 from ..utils import find_nodes_of_types_query
 from .query_surface import JAVA_PACKAGE_NODE_TYPES
 from .shared import repo_root_from_snapshot
+
+
+@dataclass(frozen=True)
+class JavaImportBindings:
+    normalized_module: str
+    import_aliases: tuple[tuple[str, str], ...] = ()
+    member_aliases: tuple[tuple[str, str], ...] = ()
+    static_wildcard_targets: tuple[str, ...] = ()
 
 
 def extract_package(root, content: bytes) -> Optional[str]:
@@ -55,7 +64,11 @@ def normalize_import_node(
     parts = import_name_parts(node, content)
     if not parts:
         return None
-    target_parts = parts[:-1] if is_static_import(node) and len(parts) > 1 else parts
+    target_parts = (
+        parts[:-1]
+        if is_static_import(node) and not is_wildcard_import(node, content) and len(parts) > 1
+        else parts
+    )
     text = ".".join(target_parts)
     if not text:
         return None
@@ -69,6 +82,50 @@ def normalize_import_node(
     if module_prefix:
         return f"{module_prefix}.{text}"
     return text
+
+
+def collect_java_import_bindings(
+    node,
+    content: bytes,
+    module_name: str,
+    snapshot: FileSnapshot,
+    *,
+    module_prefix: str | None,
+) -> JavaImportBindings | None:
+    normalized = normalize_import_node(
+        node,
+        content,
+        module_name,
+        snapshot,
+        module_prefix=module_prefix,
+    )
+    if not normalized:
+        return None
+    parts = import_name_parts(node, content)
+    if not parts:
+        return JavaImportBindings(normalized_module=normalized)
+
+    if is_static_import(node):
+        if is_wildcard_import(node, content):
+            return JavaImportBindings(
+                normalized_module=normalized,
+                static_wildcard_targets=(normalized,),
+            )
+        member_name = parts[-1]
+        if not member_name:
+            return JavaImportBindings(normalized_module=normalized)
+        return JavaImportBindings(
+            normalized_module=normalized,
+            member_aliases=((member_name, f"{normalized}.{member_name}"),),
+        )
+
+    simple_name = parts[-1]
+    if not simple_name:
+        return JavaImportBindings(normalized_module=normalized)
+    return JavaImportBindings(
+        normalized_module=normalized,
+        import_aliases=((simple_name, normalized),),
+    )
 
 
 def import_simple_name_node(node, content: bytes) -> str | None:
@@ -88,6 +145,13 @@ def import_name_from_node(node, content: bytes) -> str | None:
 
 def is_static_import(node) -> bool:
     return any(child.type == "static" for child in getattr(node, "children", []))
+
+
+def is_wildcard_import(node, content: bytes) -> bool:
+    if any(getattr(child, "type", "") == "asterisk" for child in getattr(node, "children", [])):
+        return True
+    text = content[node.start_byte : node.end_byte].decode("utf-8")
+    return "*" in text
 
 
 def import_name_parts(node, content: bytes) -> tuple[str, ...]:

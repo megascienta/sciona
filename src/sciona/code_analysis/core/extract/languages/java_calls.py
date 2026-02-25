@@ -49,7 +49,9 @@ def resolve_java_calls(
     class_methods: dict[str, set[str]],
     class_name_map: dict[str, str],
     class_name_candidates: dict[str, set[str]],
-    import_class_map: dict[str, str],
+    import_aliases: dict[str, str],
+    member_aliases: dict[str, str],
+    static_wildcard_targets: set[str],
     class_name: str | None,
     instance_types: dict[str, str],
     module_prefix: str | None,
@@ -65,7 +67,9 @@ def resolve_java_calls(
         class_methods=class_methods,
         class_name_map=class_name_map,
         class_name_candidates=class_name_candidates,
-        import_class_map=import_class_map,
+        import_aliases=import_aliases,
+        member_aliases=member_aliases,
+        static_wildcard_targets=static_wildcard_targets,
         instance_types=instance_types,
         module_prefix=module_prefix,
         qualify_java_type=qualify_java_type,
@@ -84,7 +88,9 @@ class _JavaCallAdapter(CallResolutionAdapter):
     class_methods: dict[str, set[str]]
     class_name_map: dict[str, str]
     class_name_candidates: dict[str, set[str]]
-    import_class_map: dict[str, str]
+    import_aliases: dict[str, str]
+    member_aliases: dict[str, str]
+    static_wildcard_targets: set[str]
     instance_types: dict[str, str]
     module_prefix: str | None
     qualify_java_type: object
@@ -99,7 +105,7 @@ class _JavaCallAdapter(CallResolutionAdapter):
                 self.instance_types[receiver_symbol],
                 self.module_name,
                 self.class_name_candidates,
-                self.import_class_map,
+                self.import_aliases,
                 self.module_prefix,
             )
             if qualified_type:
@@ -114,13 +120,13 @@ class _JavaCallAdapter(CallResolutionAdapter):
                     instance_type,
                     self.module_name,
                     self.class_name_candidates,
-                    self.import_class_map,
+                    self.import_aliases,
                     self.module_prefix,
                 )
                 if qualified_type:
                     return [_outcome(f"{qualified_type}.{terminal}", "exact_qname")]
             if receiver_simple[:1].isupper():
-                import_target = self.import_class_map.get(receiver_simple)
+                import_target = self.import_aliases.get(receiver_simple)
                 local_class = _unique_class_candidate(
                     receiver_simple,
                     self.class_name_candidates,
@@ -130,7 +136,7 @@ class _JavaCallAdapter(CallResolutionAdapter):
                 if local_class:
                     return [_outcome(f"{local_class}.{terminal}", "exact_qname")]
         if is_unqualified_request(request):
-            import_target = self.import_class_map.get(terminal)
+            import_target = self.import_aliases.get(terminal)
             local_class = _unique_class_candidate(
                 terminal,
                 self.class_name_candidates,
@@ -139,6 +145,19 @@ class _JavaCallAdapter(CallResolutionAdapter):
                 return [_outcome(f"{import_target}.{terminal}", "import_narrowed")]
             if local_class:
                 return [_outcome(f"{local_class}.{terminal}", "exact_qname")]
+            if terminal in self.member_aliases:
+                return [_outcome(self.member_aliases[terminal], "import_narrowed")]
+            if self.static_wildcard_targets:
+                matched_targets = [
+                    class_qname
+                    for class_qname in sorted(self.static_wildcard_targets)
+                    if terminal in self.class_methods.get(class_qname, set())
+                ]
+                if len(matched_targets) == 1:
+                    return [_outcome(f"{matched_targets[0]}.{terminal}", "import_narrowed")]
+                if len(self.static_wildcard_targets) == 1 and not matched_targets:
+                    only = next(iter(self.static_wildcard_targets))
+                    return [_outcome(f"{only}.{terminal}", "import_narrowed")]
         if self.class_name and terminal in self.class_method_names:
             if is_receiver_call_request(request) or is_unqualified_request(request):
                 return [_outcome(f"{self.class_name}.{terminal}", "module_scoped")]

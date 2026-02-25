@@ -5,16 +5,12 @@
 
 from __future__ import annotations
 
-from collections import defaultdict
 from pathlib import Path
 from typing import List
 
 from tree_sitter import Parser
 from tree_sitter_languages import get_language
 
-from ....tools.call_extraction import (
-    collect_call_targets,
-)
 from ...module_naming import module_name_from_path
 from ...normalize.model import (
     AnalysisResult,
@@ -27,10 +23,9 @@ from ..analyzer import ASTAnalyzer
 from ..utils import count_lines, find_nodes_of_types_query
 from .java_calls import callee_text, resolve_java_calls
 from .java_imports import (
+    collect_java_import_bindings,
     extract_package,
-    import_simple_name_node,
     module_prefix_for_package,
-    normalize_import_node,
 )
 from .java_nodes import JavaNodeState, walk_java_nodes
 from .java_resolution import (
@@ -43,7 +38,11 @@ from .query_surface import (
     JAVA_IMPORT_NODE_TYPES,
     JAVA_SKIP_CALL_NODE_TYPES,
 )
-from .scope_resolver import ScopeResolver
+from .analyzer_support import (
+    assert_scope_resolver_parity,
+    collect_targets_by_callable,
+    scope_resolver_from_pending_calls,
+)
 from .shared import is_internal_module
 
 class JavaAnalyzer(ASTAnalyzer):
@@ -101,44 +100,61 @@ class JavaAnalyzer(ASTAnalyzer):
                 )
 
             imports: List[str] = []
-            import_class_map: dict[str, str] = {}
+            import_aliases: dict[str, str] = {}
+            member_aliases: dict[str, str] = {}
+            static_wildcard_targets: set[str] = set()
+            imports_seen = 0
             for import_node in find_nodes_of_types_query(
                 root,
                 language_name="java",
                 node_types=JAVA_IMPORT_NODE_TYPES,
             ):
-                normalized = normalize_import_node(
+                imports_seen += 1
+                bindings = collect_java_import_bindings(
                     import_node,
                     snapshot.content,
                     module_name,
                     snapshot,
                     module_prefix=module_prefix,
                 )
-                if not normalized:
+                if bindings is None:
                     continue
+                normalized = bindings.normalized_module
                 if not is_internal_module(normalized, getattr(self, "module_index", None)):
                     continue
                 imports.append(normalized)
-                simple_name = import_simple_name_node(import_node, snapshot.content)
-                if simple_name:
-                    import_class_map[simple_name] = normalized
+                for alias, target in bindings.import_aliases:
+                    if alias and target:
+                        import_aliases.setdefault(alias, target)
+                for alias, target in bindings.member_aliases:
+                    if alias and target:
+                        member_aliases.setdefault(alias, target)
+                for target in bindings.static_wildcard_targets:
+                    if target:
+                        static_wildcard_targets.add(target)
 
             resolved_calls: list[tuple[str, str, str, list[str]]] = []
-            scope_resolver = _scope_resolver_from_pending_calls(state.pending_calls)
+            scope_resolver = scope_resolver_from_pending_calls(state.pending_calls)
             pending_by_qualified = {
                 qualified: (node_type, body_node, class_name)
                 for qualified, node_type, body_node, class_name in state.pending_calls
             }
-            call_targets_by_callable = _collect_targets_by_callable(
+            call_targets_by_callable = collect_targets_by_callable(
                 scope_resolver=scope_resolver,
                 pending_calls=state.pending_calls,
                 snapshot=snapshot,
                 language=self.language,
+                call_node_types=set(JAVA_CALL_NODE_TYPES),
+                skip_node_types=set(JAVA_SKIP_CALL_NODE_TYPES),
+                callee_field_names=("name", "type", "function"),
+                callee_renderer=callee_text,
             )
-            _assert_scope_resolver_parity(
+            assert_scope_resolver_parity(
                 pending_callables=set(pending_by_qualified),
                 call_targets_by_callable=call_targets_by_callable,
             )
+            total_call_targets = sum(len(targets) for targets in call_targets_by_callable.values())
+            resolved_call_targets = 0
             for qualified, (node_type, body_node, class_name) in pending_by_qualified.items():
                 local_types = collect_local_var_types(body_node, snapshot)
                 instance_types = {}
@@ -153,7 +169,9 @@ class JavaAnalyzer(ASTAnalyzer):
                     state.class_methods,
                     state.class_name_map,
                     state.class_name_candidates,
-                    import_class_map,
+                    import_aliases,
+                    member_aliases,
+                    static_wildcard_targets,
                     class_name,
                     instance_types,
                     module_prefix,
@@ -161,6 +179,7 @@ class JavaAnalyzer(ASTAnalyzer):
                 )
                 if resolved:
                     resolved_calls.append((self.language, qualified, node_type, list(resolved)))
+                    resolved_call_targets += len(resolved)
 
             if resolved_calls:
                 for _language, qualified, node_type, callee_identifiers in resolved_calls:
@@ -184,6 +203,19 @@ class JavaAnalyzer(ASTAnalyzer):
                         edge_type="IMPORTS_DECLARED",
                     )
                 )
+            diagnostics = {
+                "imports_seen": imports_seen,
+                "imports_internal": len(set(imports)),
+                "import_aliases": len(import_aliases),
+                "member_aliases": len(member_aliases),
+                "static_wildcard_targets": len(static_wildcard_targets),
+                "call_targets": total_call_targets,
+                "resolved_call_targets": resolved_call_targets,
+                "unresolved_call_targets": max(0, total_call_targets - resolved_call_targets),
+            }
+            metadata = dict(module_node.metadata or {})
+            metadata["resolution_diagnostics"] = diagnostics
+            module_node.metadata = metadata
         except Exception as exc:
             metadata = dict(module_node.metadata or {})
             metadata.update({"status": "partial_parse", "error": str(exc)})
@@ -204,58 +236,3 @@ def module_name(repo_root: Path, snapshot: FileSnapshot) -> str:
 
 
 __all__ = ["JavaAnalyzer", "module_name"]
-
-
-def _scope_resolver_from_pending_calls(
-    pending_calls: list[tuple[str, str, object | None, str | None]],
-) -> ScopeResolver:
-    spans: dict[tuple[int, int], str] = {}
-    for qualified, _node_type, body_node, _class_name in pending_calls:
-        callable_node = getattr(body_node, "parent", None)
-        if callable_node is None:
-            continue
-        spans[(callable_node.start_byte, callable_node.end_byte)] = qualified
-    return ScopeResolver(callable_qname_by_span=spans)
-
-
-def _assert_scope_resolver_parity(
-    *,
-    pending_callables: set[str],
-    call_targets_by_callable: dict[str, tuple[object, ...]],
-) -> None:
-    unknown = set(call_targets_by_callable) - pending_callables
-    if unknown:
-        raise RuntimeError(f"scope resolver mismatch: unknown callables {sorted(unknown)}")
-
-
-def _collect_targets_by_callable(
-    *,
-    scope_resolver: ScopeResolver,
-    pending_calls: list[tuple[str, str, object | None, str | None]],
-    snapshot: FileSnapshot,
-    language: str,
-) -> dict[str, tuple[object, ...]]:
-    grouped: dict[str, list[object]] = defaultdict(list)
-    for _qualified, _node_type, body_node, _class_name in pending_calls:
-        if body_node is None:
-            continue
-        call_targets = collect_call_targets(
-            body_node,
-            snapshot.content,
-            call_node_types=set(JAVA_CALL_NODE_TYPES),
-            skip_node_types=set(JAVA_SKIP_CALL_NODE_TYPES),
-            callee_field_names=("name", "type", "function"),
-            callee_renderer=callee_text,
-            query_language=language,
-        )
-        for target in call_targets:
-            if target.call_span is None:
-                continue
-            caller = scope_resolver.enclosing_callable_for_span(
-                root=body_node,
-                call_span=target.call_span,
-            )
-            if caller is None:
-                continue
-            grouped[caller].append(target)
-    return {qualified: tuple(targets) for qualified, targets in grouped.items()}

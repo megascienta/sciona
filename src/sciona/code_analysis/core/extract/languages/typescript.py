@@ -5,13 +5,11 @@
 
 from __future__ import annotations
 
-from collections import defaultdict
 from pathlib import Path
 
 from tree_sitter import Parser
 from tree_sitter_languages import get_language
 
-from ....tools.call_extraction import collect_call_targets
 from ...module_naming import module_name_from_path
 from ...normalize.model import (
     AnalysisResult,
@@ -30,7 +28,11 @@ from .query_surface import (
     TYPESCRIPT_SKIP_CALL_NODE_TYPES,
 )
 from .typescript_resolution import resolve_pending_instances
-from .scope_resolver import ScopeResolver
+from .analyzer_support import (
+    assert_scope_resolver_parity,
+    collect_targets_by_callable,
+    scope_resolver_from_pending_calls,
+)
 
 
 class TypeScriptAnalyzer(ASTAnalyzer):
@@ -95,18 +97,20 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                 import_aliases,
                 member_aliases,
             )
-            scope_resolver = _scope_resolver_from_pending_calls(state.pending_calls)
+            scope_resolver = scope_resolver_from_pending_calls(state.pending_calls)
             pending_by_qualified = {
                 qualified: (node_type, class_name)
                 for qualified, node_type, _body_node, class_name in state.pending_calls
             }
-            call_targets_by_callable = _collect_targets_by_callable(
+            call_targets_by_callable = collect_targets_by_callable(
                 scope_resolver=scope_resolver,
                 pending_calls=state.pending_calls,
                 snapshot=snapshot,
                 language=self.language,
+                call_node_types=set(TYPESCRIPT_CALL_NODE_TYPES),
+                skip_node_types=set(TYPESCRIPT_SKIP_CALL_NODE_TYPES),
             )
-            _assert_scope_resolver_parity(
+            assert_scope_resolver_parity(
                 pending_callables=set(pending_by_qualified),
                 call_targets_by_callable=call_targets_by_callable,
             )
@@ -183,56 +187,3 @@ def _normalize_typescript_module_name(module_name: str) -> str:
 
 
 __all__ = ["TypeScriptAnalyzer", "module_name"]
-
-
-def _scope_resolver_from_pending_calls(
-    pending_calls: list[tuple[str, str, object | None, str | None]],
-) -> ScopeResolver:
-    spans: dict[tuple[int, int], str] = {}
-    for qualified, _node_type, body_node, _class_name in pending_calls:
-        callable_node = getattr(body_node, "parent", None)
-        if callable_node is None:
-            continue
-        spans[(callable_node.start_byte, callable_node.end_byte)] = qualified
-    return ScopeResolver(callable_qname_by_span=spans)
-
-
-def _assert_scope_resolver_parity(
-    *,
-    pending_callables: set[str],
-    call_targets_by_callable: dict[str, tuple[object, ...]],
-) -> None:
-    unknown = set(call_targets_by_callable) - pending_callables
-    if unknown:
-        raise RuntimeError(f"scope resolver mismatch: unknown callables {sorted(unknown)}")
-
-
-def _collect_targets_by_callable(
-    *,
-    scope_resolver: ScopeResolver,
-    pending_calls: list[tuple[str, str, object | None, str | None]],
-    snapshot: FileSnapshot,
-    language: str,
-) -> dict[str, tuple[object, ...]]:
-    grouped: dict[str, list[object]] = defaultdict(list)
-    for _qualified, _node_type, body_node, _class_name in pending_calls:
-        if body_node is None:
-            continue
-        call_targets = collect_call_targets(
-            body_node,
-            snapshot.content,
-            call_node_types=set(TYPESCRIPT_CALL_NODE_TYPES),
-            skip_node_types=set(TYPESCRIPT_SKIP_CALL_NODE_TYPES),
-            query_language=language,
-        )
-        for target in call_targets:
-            if target.call_span is None:
-                continue
-            caller = scope_resolver.enclosing_callable_for_span(
-                root=body_node,
-                call_span=target.call_span,
-            )
-            if caller is None:
-                continue
-            grouped[caller].append(target)
-    return {qualified: tuple(targets) for qualified, targets in grouped.items()}

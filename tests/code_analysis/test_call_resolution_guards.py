@@ -57,7 +57,9 @@ def test_java_ambiguous_class_candidate_does_not_overresolve() -> None:
         class_methods={},
         class_name_map={"Service": "repo.pkg.a.Service"},
         class_name_candidates={"Service": {"repo.pkg.a.Service", "repo.pkg.b.Service"}},
-        import_class_map={},
+        import_aliases={},
+        member_aliases={},
+        static_wildcard_targets=set(),
         class_name=None,
         instance_types={},
         module_prefix=None,
@@ -152,7 +154,49 @@ def test_java_resolves_using_ir_qualified_call_when_text_is_unqualified() -> Non
         class_methods={},
         class_name_map={"Service": "repo.pkg.Service"},
         class_name_candidates={"Service": {"repo.pkg.Service"}},
-        import_class_map={"Service": "repo.pkg.Service"},
+        import_aliases={"Service": "repo.pkg.Service"},
+        member_aliases={},
+        static_wildcard_targets=set(),
+        class_name=None,
+        instance_types={},
+        module_prefix=None,
+        qualify_java_type=lambda *_args: None,
+    )
+    assert resolved == ["repo.pkg.Service.run"]
+
+
+def test_java_resolves_unqualified_calls_from_static_member_aliases() -> None:
+    targets = [CallTarget(terminal="run", callee_text="run")]
+    resolved = resolve_java_calls(
+        targets=targets,
+        module_name="repo.pkg.mod",
+        module_functions=set(),
+        class_methods={},
+        class_name_map={},
+        class_name_candidates={},
+        import_aliases={},
+        member_aliases={"run": "repo.pkg.Service.run"},
+        static_wildcard_targets=set(),
+        class_name=None,
+        instance_types={},
+        module_prefix=None,
+        qualify_java_type=lambda *_args: None,
+    )
+    assert resolved == ["repo.pkg.Service.run"]
+
+
+def test_java_resolves_unqualified_calls_from_single_static_wildcard() -> None:
+    targets = [CallTarget(terminal="run", callee_text="run")]
+    resolved = resolve_java_calls(
+        targets=targets,
+        module_name="repo.pkg.mod",
+        module_functions=set(),
+        class_methods={"repo.pkg.Service": {"run"}},
+        class_name_map={},
+        class_name_candidates={},
+        import_aliases={},
+        member_aliases={},
+        static_wildcard_targets={"repo.pkg.Service"},
         class_name=None,
         instance_types={},
         module_prefix=None,
