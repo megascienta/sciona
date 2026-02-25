@@ -176,7 +176,7 @@ def walk_typescript_nodes(
             module_name=module_name,
             result=result,
             state=state,
-            function_depth=function_depth,
+            function_depth=function_depth + (1 if node.type == "function_declaration" else 0),
         )
         return
 
@@ -425,7 +425,6 @@ def walk_typescript_children(
             "function_expression",
             "arrow_function",
             "method_definition",
-            "function_declaration",
         }
         else function_depth
     )
