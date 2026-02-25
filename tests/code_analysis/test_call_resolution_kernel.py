@@ -1,11 +1,15 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
+import pytest
+
 from sciona.code_analysis.core.extract.languages.call_resolution_kernel import (
     CallResolutionOutcome,
     CallResolutionRequest,
+    REQUIRED_RESOLUTION_STAGES,
     materialize_outcomes,
     resolve_with_adapter,
+    validate_stage_order,
 )
 
 
@@ -39,3 +43,12 @@ def test_materialize_outcomes_filters_by_provenance_allowlist() -> None:
         "repo.pkg.Service.run",
         "repo.pkg.util.helper",
     ]
+
+
+def test_validate_stage_order_accepts_required_contract() -> None:
+    validate_stage_order(REQUIRED_RESOLUTION_STAGES)
+
+
+def test_validate_stage_order_rejects_mismatched_contract() -> None:
+    with pytest.raises(ValueError):
+        validate_stage_order(("module_scoped_fallback",))

@@ -12,6 +12,16 @@ from ....tools.call_extraction import CallTargetIR
 
 
 MODE_SHARED = "shared"
+STAGE_RECEIVER_TYPED = "receiver_typed_or_instance_mapped"
+STAGE_ALIAS_NARROWING = "import_or_member_alias_narrowing"
+STAGE_CLASS_SCOPED = "class_scoped_fallback"
+STAGE_MODULE_SCOPED = "module_scoped_fallback"
+REQUIRED_RESOLUTION_STAGES = (
+    STAGE_RECEIVER_TYPED,
+    STAGE_ALIAS_NARROWING,
+    STAGE_CLASS_SCOPED,
+    STAGE_MODULE_SCOPED,
+)
 
 
 @dataclass(frozen=True)
@@ -98,12 +108,27 @@ def resolve_with_mode(
     return shared_resolver()
 
 
+def validate_stage_order(stage_order: Sequence[str]) -> None:
+    """Fail fast when an adapter diverges from the shared stage contract."""
+    if tuple(stage_order) != REQUIRED_RESOLUTION_STAGES:
+        raise ValueError(
+            "call resolution stage order mismatch: "
+            f"expected={REQUIRED_RESOLUTION_STAGES} got={tuple(stage_order)}"
+        )
+
+
 __all__ = [
     "CallResolutionAdapter",
     "CallResolutionOutcome",
     "CallResolutionRequest",
     "MODE_SHARED",
+    "REQUIRED_RESOLUTION_STAGES",
+    "STAGE_ALIAS_NARROWING",
+    "STAGE_CLASS_SCOPED",
+    "STAGE_MODULE_SCOPED",
+    "STAGE_RECEIVER_TYPED",
     "materialize_outcomes",
     "resolve_with_adapter",
     "resolve_with_mode",
+    "validate_stage_order",
 ]

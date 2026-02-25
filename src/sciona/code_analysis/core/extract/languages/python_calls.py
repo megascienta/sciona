@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List
+from typing import ClassVar, List
 
 from ....tools.call_extraction import (
     CallTarget,
@@ -18,9 +18,11 @@ from .call_resolution_kernel import (
     CallResolutionAdapter,
     CallResolutionOutcome,
     CallResolutionRequest,
+    REQUIRED_RESOLUTION_STAGES,
     materialize_outcomes,
     resolve_with_adapter,
     resolve_with_mode,
+    validate_stage_order,
 )
 
 
@@ -56,6 +58,7 @@ def resolve_python_calls(
         instance_map=instance_map,
         class_name_candidates=class_name_candidates,
     )
+    validate_stage_order(adapter.stage_order)
 
     return resolve_with_mode(
         shared_resolver=lambda: materialize_outcomes(resolve_with_adapter(requests, adapter)),
@@ -64,6 +67,7 @@ def resolve_python_calls(
 
 @dataclass(frozen=True)
 class _PythonCallAdapter(CallResolutionAdapter):
+    stage_order: ClassVar[tuple[str, ...]] = REQUIRED_RESOLUTION_STAGES
     module_name: str
     module_functions: set[str]
     class_name: str | None

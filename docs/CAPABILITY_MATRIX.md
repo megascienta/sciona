@@ -24,6 +24,7 @@ Legend:
 | Import aliases / member aliases | yes | yes | yes | Language-local alias/member alias parity |
 | Call-site extraction query-driven | yes | yes | yes | Query API required |
 | Call attribution to enclosing callable | yes | yes | yes | Scope resolver parity assertions |
+| Shared call-resolution stage contract | yes | yes | yes | Enforced via kernel stage-order validator |
 | Strict call-gate materialization | yes | yes | yes | `strict_call_contract` in assembler |
 | Deterministic edge ordering | yes | yes | yes | Contract + tests |
 | Partial-parse fail-closed metadata | yes | yes | yes | No heuristic traversal fallback |
