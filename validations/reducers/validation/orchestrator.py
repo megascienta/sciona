@@ -13,6 +13,7 @@ from sciona.runtime.paths import repo_name_prefix
 
 from . import config
 from .contract_spec import get_validation_contract
+from .connections import open_core_db
 from .db_adapter import list_nodes_from_artifacts, open_artifact_db
 from .evaluation import (
     DbEdgeSource,
@@ -35,7 +36,7 @@ from .invariants import (
 from .import_contract import resolve_import_contract
 from .out_of_contract import aggregate_breakdown
 from .report import render_summary, write_json, write_markdown
-from .sciona_adapter import get_snapshot_id, open_core_db
+from .reducer_queries import get_snapshot_id
 from .stability import independent_results_hash
 from .stats import edge_type_breakdown, failure_examples, micro
 from .taxonomy import (

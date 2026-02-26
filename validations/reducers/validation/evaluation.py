@@ -26,7 +26,7 @@ from .independent.shared import EdgeRecord, FileParseResult
 from .independent.shared import dedupe_edge_records
 from .metrics import compare_edge_sets, compute_metrics
 from .sampling import build_entities_from_db, sample_entities
-from .sciona_adapter import (
+from .reducer_queries import (
     get_callsite_index_payload,
     get_class_overview,
     get_dependency_edges_payload,
