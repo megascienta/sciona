@@ -130,6 +130,13 @@ def edge_records_from_ground_truth(
             reason: dedupe_edge_records(edges)
             for reason, edges in contract_by_reason.items()
         }
+        diagnostics["excluded_out_of_scope_by_reason"] = {
+            reason: len(edges)
+            for reason, edges in diagnostics["contract_exclusion_edges_by_reason"].items()
+        }
+        diagnostics["excluded_out_of_scope_count"] = int(
+            sum(diagnostics["excluded_out_of_scope_by_reason"].values())
+        )
         diagnostics["independent_limitation_edges_full"] = dedupe_edge_records(
             diagnostics["independent_limitation_edges_full"]
         )
@@ -138,6 +145,13 @@ def edge_records_from_ground_truth(
             reason: dedupe_edge_records(edges)
             for reason, edges in independent_by_reason.items()
         }
+        diagnostics["included_limitation_by_reason"] = {
+            reason: len(edges)
+            for reason, edges in diagnostics["independent_limitation_edges_by_reason"].items()
+        }
+        diagnostics["included_limitation_count"] = int(
+            sum(diagnostics["included_limitation_by_reason"].values())
+        )
 
     if entity.kind == "module":
         entries = module_imports_by_prefix.get(entity.qualified_name, [])
