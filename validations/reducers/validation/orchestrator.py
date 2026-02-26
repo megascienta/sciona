@@ -1007,6 +1007,11 @@ def _build_report_payload(
         "report_schema_version": REPORT_SCHEMA_VERSION,
         "run_verdict": run_verdict,
         "summary": summary,
+        "validation_workflow_goals": {
+            "a": "check internal consistency across reducers, databases, and contract baskets",
+            "b": "measure strict-contract overlap between independent parsing and SCIONA output at near-100% target",
+            "c": "quantify beyond-contract static limits and enrichment envelope without reclassifying out-of-scope edges",
+        },
         "invariants": invariants,
         "metric_definitions": METRIC_DEFINITIONS,
         "core_metrics": {

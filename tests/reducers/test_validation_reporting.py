@@ -38,6 +38,11 @@ def test_bootstrap_micro_ci_shape() -> None:
 def test_render_summary_includes_action_and_reason_sections() -> None:
     payload = {
         "summary": ["repo=test", "sampled_nodes=1", "invariants_passed=True"],
+        "validation_workflow_goals": {
+            "a": "internal consistency",
+            "b": "strict overlap",
+            "c": "boundary envelope",
+        },
         "core_metrics": {"static_contract_recall": 1.0, "static_overreach_rate": 0.0},
         "invariants": {"passed": True, "hard_passed": True},
         "quality_gates": {"threshold_profile": "single_language"},
@@ -83,6 +88,7 @@ def test_render_summary_includes_action_and_reason_sections() -> None:
     }
     lines = render_summary(payload)
     text = "\n".join(lines)
+    assert "## Validation Goals" in text
     assert "## Run Verdict" in text
     assert "## Mismatch Source" in text
     assert "## Contract Boundary" in text

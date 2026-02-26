@@ -50,6 +50,17 @@ def render_summary(payload: dict) -> List[str]:
     parity = (payload.get("parity_attribution") or {}).get("repo_totals") or {}
     strict_diag = payload.get("strict_contract_diagnostics") or {}
     board = payload.get("action_priority_board") or []
+    goals = payload.get("validation_workflow_goals") or {}
+
+    lines.append("## Validation Goals")
+    lines.append("")
+    if goals:
+        lines.append(f"- a) internal_consistency: {goals.get('a', 'n/a')}")
+        lines.append(f"- b) contract_overlap_parity: {goals.get('b', 'n/a')}")
+        lines.append(f"- c) beyond_contract_envelope: {goals.get('c', 'n/a')}")
+    else:
+        lines.append("- n/a")
+    lines.append("")
 
     lines.append("## Run Verdict")
     lines.append("")
