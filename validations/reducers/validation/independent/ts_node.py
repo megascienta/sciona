@@ -10,7 +10,7 @@ from typing import List
 
 from .shared import AssignmentHint, CallEdge, Definition, FileParseResult, ImportEdge
 
-SCRIPT_PATH = Path(__file__).resolve().parent / "scripts" / "ts_parser.js"
+SCRIPT_PATH = Path(__file__).resolve().parent / "scripts" / "ts_parser.ts"
 
 
 def parse_typescript_files(repo_root: Path, files: List[dict]) -> List[FileParseResult]:
@@ -25,7 +25,7 @@ def parse_typescript_files(repo_root: Path, files: List[dict]) -> List[FileParse
         )
     payload = {"files": payload_files}
     result = subprocess.run(
-        ["node", str(SCRIPT_PATH)],
+        ["node", "--experimental-strip-types", str(SCRIPT_PATH)],
         input=json.dumps(payload),
         text=True,
         capture_output=True,
