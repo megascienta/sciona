@@ -133,10 +133,15 @@ function parseFile(entry) {
     if (
       ts.isVariableDeclaration(node) &&
       (currentScopeKind() === "function" || currentScopeKind() === "method") &&
-      ts.isIdentifier(node.name) &&
-      node.initializer
+      ts.isIdentifier(node.name)
     ) {
-      const valueText = expressionText(node.initializer);
+      let valueText = null;
+      if (node.type) {
+        valueText = typeHintText(node.type, sourceFile);
+      }
+      if (!valueText && node.initializer) {
+        valueText = expressionText(node.initializer);
+      }
       if (valueText) {
         assignment_hints.push({
           scope: currentScope(),
@@ -147,10 +152,25 @@ function parseFile(entry) {
     }
     if (
       ts.isParameter(node) &&
-      currentScopeKind() === "method" &&
-      currentScope().endsWith(".constructor") &&
       ts.isIdentifier(node.name)
     ) {
+      if (
+        (currentScopeKind() === "function" || currentScopeKind() === "method") &&
+        node.type
+      ) {
+        const valueText = typeHintText(node.type, sourceFile);
+        if (valueText) {
+          assignment_hints.push({
+            scope: currentScope(),
+            receiver: node.name.text,
+            value_text: valueText
+          });
+        }
+      }
+      if (
+        currentScopeKind() === "method" &&
+        currentScope().endsWith(".constructor")
+      ) {
       const modifiers = node.modifiers || [];
       const hasFieldModifier = modifiers.some(mod =>
         mod.kind === ts.SyntaxKind.PublicKeyword ||
@@ -167,6 +187,7 @@ function parseFile(entry) {
             value_text: valueText
           });
         }
+      }
       }
     }
     if (
@@ -332,10 +353,23 @@ function parseFile(entry) {
     if (
       ts.isPropertyDeclaration(node) &&
       currentScopeKind() === "class" &&
-      node.name &&
-      node.initializer &&
-      (ts.isArrowFunction(node.initializer) || ts.isFunctionExpression(node.initializer))
+      node.name
     ) {
+      if (node.type) {
+        const field = memberName(node.name, sourceFile);
+        const valueText = typeHintText(node.type, sourceFile);
+        if (field && valueText) {
+          assignment_hints.push({
+            scope: `${currentScope()}.constructor`,
+            receiver: `this.${field}`,
+            value_text: valueText
+          });
+        }
+      }
+      if (
+        node.initializer &&
+        (ts.isArrowFunction(node.initializer) || ts.isFunctionExpression(node.initializer))
+      ) {
       const classScope = currentScope();
       const name = memberName(node.name, sourceFile);
       if (!name) {
@@ -345,6 +379,7 @@ function parseFile(entry) {
       const qname = `${classScope}.${name}`;
       registerCallable("method", qname, node.initializer, () => ts.forEachChild(node.initializer, visit));
       return;
+      }
     }
 
     if (ts.isConstructorDeclaration(node) && currentScopeKind() === "class") {

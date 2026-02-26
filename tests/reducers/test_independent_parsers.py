@@ -1023,6 +1023,31 @@ def test_typescript_parser_collects_constructor_parameter_property_hints(
     ) in hints
 
 
+@pytest.mark.skipif(shutil.which("node") is None, reason="node is required")
+def test_typescript_parser_collects_type_annotation_assignment_hints(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "sample.ts"
+    source.write_text(
+        "class Service { run() {} }\n"
+        "class Controller {\n"
+        "  private service: Service;\n"
+        "  handle(svc: Service) {\n"
+        "    const local: Service = svc;\n"
+        "    return local.run();\n"
+        "  }\n"
+        "}\n",
+        encoding="utf-8",
+    )
+    result = parse_typescript_files(
+        tmp_path, [{"file_path": "sample.ts", "module_qualified_name": "fixture.sample"}]
+    )[0]
+    hints = {(h.scope, h.receiver, h.value_text) for h in result.assignment_hints}
+    assert ("fixture.sample.Controller.constructor", "this.service", "Service") in hints
+    assert ("fixture.sample.Controller.handle", "svc", "Service") in hints
+    assert ("fixture.sample.Controller.handle", "local", "Service") in hints
+
+
 def test_call_contract_resolves_receiver_binding() -> None:
     edge = NormalizedCallEdge(
         caller="fixture.sample.entry",
