@@ -921,6 +921,28 @@ def run_validation(
                 "micro": uncertainty_intervals["expanded_full_alignment"],
             },
         },
+        "contract_boundary": {
+            "description": "Diagnostic profile of strict-contract truncation boundaries. Descriptive-only and non-gating.",
+            "inclusion_policy": {
+                "base": "contract_truth_edges + limitation_edges",
+                "scope_exclusions": config.EXPANDED_TRUTH_POLICY.get("scope_exclusions"),
+                "limitation_focus": config.EXPANDED_TRUTH_POLICY.get("limitation_focus"),
+                "confidence_tiers": config.EXPANDED_TRUTH_POLICY.get("confidence_tiers"),
+            },
+            "limitation_edge_counts": {
+                "high_conf_edges": expanded_high_total,
+                "full_edges": expanded_full_total,
+                "excluded_out_of_scope_edges": excluded_out_of_scope_total,
+                "included_limitation_edges": included_limitation_total,
+                "excluded_out_of_scope_by_reason": excluded_out_of_scope_by_reason,
+                "included_limitation_by_reason": included_limitation_by_reason,
+            },
+            "overlap_diagnostics": {
+                "reducer": reason_recall_reducer,
+                "db": reason_recall_db,
+                "note": "Overlap is diagnostic and does not imply expected strict-contract recall of limitation edges.",
+            },
+        },
         "micro_metrics": {
             "reducer_vs_db": reducer_vs_db_micro,
             "db_vs_contract_truth": db_vs_contract_micro,

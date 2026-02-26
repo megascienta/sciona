@@ -138,6 +138,31 @@ def render_summary(payload: dict) -> List[str]:
 
     lines.append("## Enrichment Alignment (Non-Gating Diagnostics)")
     lines.append("")
+    boundary = payload.get("contract_boundary") or {}
+    if boundary:
+        lines.append("Contract boundary profile (descriptive):")
+        for key in ("description",):
+            if boundary.get(key):
+                lines.append(f"- {key}: {boundary.get(key)}")
+        for key in ("inclusion_policy", "limitation_edge_counts"):
+            value = boundary.get(key) or {}
+            if value:
+                lines.append(f"- {key}: `{value}`")
+        overlap = boundary.get("overlap_diagnostics") or {}
+        if overlap:
+            lines.append("Limitation overlap diagnostics:")
+            reducer_reason = overlap.get("reducer") or {}
+            db_reason = overlap.get("db") or {}
+            for reason in sorted(set(reducer_reason.keys()) | set(db_reason.keys())):
+                rr = reducer_reason.get(reason) or {}
+                dr = db_reason.get(reason) or {}
+                lines.append(
+                    f"- reason.{reason}: reducer_overlap=`{_format_value(rr.get('recall'))}`, db_overlap=`{_format_value(dr.get('recall'))}`, reducer_tp/fn=`{rr.get('tp',0)}/{rr.get('fn',0)}`"
+                )
+            if overlap.get("note"):
+                lines.append(f"- overlap_note: {overlap.get('note')}")
+        lines.append("")
+
     expanded = payload.get("enriched_truth_alignment") or {}
     if not expanded:
         lines.append("- none")
@@ -168,7 +193,7 @@ def render_summary(payload: dict) -> List[str]:
             lines.append(f"- scope_split_counts: `{scope_split}`")
         reason_breakdown = expanded.get("reason_breakdown") or {}
         if reason_breakdown:
-            lines.append("Reason-level expanded proxy recall:")
+            lines.append("Reason-level expanded overlap diagnostics (compatibility view):")
             reducer_reason = reason_breakdown.get("reducer") or {}
             db_reason = reason_breakdown.get("db") or {}
             for reason in sorted(set(reducer_reason.keys()) | set(db_reason.keys())):

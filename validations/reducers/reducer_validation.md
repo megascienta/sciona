@@ -72,18 +72,19 @@ Rationale:
 1. Run Verdict
 2. Internal Integrity (Hard Gates)
 3. Strict Contract Alignment (Gating)
-4. Enrichment Alignment (Non-Gating Diagnostics)
-5. Enrichment Reliability (Heuristic)
-6. Language Breakdown
-7. Expanded/Enrichment Alignment by language:kind
-8. Strict vs Expanded delta by kind (top-5 worst)
-9. Independent Strict Contract Diagnostics
-10. Call Resolution Diagnostics
-11. Out-of-Contract Distribution
-12. Independent Parser Coverage & Totals
-13. Core Metrics
-14. Metric Definitions & Schema
-15. Action Priority Board
+4. Contract Boundary Profile (Non-Gating, Descriptive)
+5. Enrichment Alignment (Non-Gating Diagnostics, compatibility)
+6. Enrichment Reliability (Heuristic)
+7. Language Breakdown
+8. Expanded/Enrichment Alignment by language:kind
+9. Strict vs Expanded delta by kind (top-5 worst)
+10. Independent Strict Contract Diagnostics
+11. Call Resolution Diagnostics
+12. Out-of-Contract Distribution
+13. Independent Parser Coverage & Totals
+14. Core Metrics
+15. Metric Definitions & Schema
+16. Action Priority Board
 
 ## 6. Metric Layers
 
@@ -102,8 +103,12 @@ Rationale:
 - explicit scope policy and counts:
 - `excluded_out_of_scope_edges`
 - `included_limitation_edges`
-- reason-level expanded proxy recall diagnostics (reducer/db).
+- reason-level expanded overlap diagnostics (reducer/db; compatibility view).
 - bootstrap uncertainty interval for expanded-full micro metrics.
+
+### 6.5 Contract Boundary Profile (non-gating, descriptive)
+- `contract_boundary` provides descriptive limitation volume and overlap diagnostics,
+- used to map where strict contract truncates coverage, not as a strict recall target.
 
 ### 6.4 Enrichment Reliability (heuristic diagnostics)
 - navigation/reasoning/coupling signals,
@@ -156,6 +161,7 @@ Canonical metric source/formula mapping is emitted in `metric_definitions`.
 - `core_metrics`
 - `internal_integrity`
 - `static_contract_alignment`
+- `contract_boundary`
 - `enriched_truth_alignment`
 - `enrichment_practical`
 - `micro_metrics`
