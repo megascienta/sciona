@@ -137,4 +137,10 @@ python validations/reducers/reducer_validation.py \
 - Independent parsing is static and cannot model runtime behavior fully.
 - Independent truth is deterministic proxy truth, not absolute truth.
 - Expanded channels are diagnostic and intentionally non-gating.
-- Java fixtures require `SCIONA_JAVAPARSER_JAR` plus `java/javac`.
+- Java fixtures require `SCIONA_JAVAPARSER_JAR` + `SCIONA_JAVAPARSER_RUNNER_JAR` plus `java`.
+- Build/update runner jar with:
+```bash
+bash validations/reducers/scripts/build_java_parser_runner.sh
+```
+- Legacy compile-on-run is disabled by default; enable only when needed with:
+`SCIONA_JAVA_COMPILE_FALLBACK=1`.
