@@ -89,14 +89,25 @@ def _build_report_payload(
 
     by_reason: dict[str, int] = {}
     by_edge_type: dict[str, int] = {}
+    by_semantic_type: dict[str, int] = {}
+    by_entity_kind: dict[str, int] = {}
     for key, value in breakdown.items():
         edge_type, _language, reason = key.split("::", 2)
         by_reason[reason] = by_reason.get(reason, 0) + int(value)
         by_edge_type[edge_type] = by_edge_type.get(edge_type, 0) + int(value)
+    for record in out_of_contract_meta:
+        semantic_type = str(record.get("semantic_type") or "unknown")
+        entity_kind = str(record.get("entity_kind") or "unknown")
+        by_semantic_type[semantic_type] = by_semantic_type.get(semantic_type, 0) + 1
+        by_entity_kind[entity_kind] = by_entity_kind.get(entity_kind, 0) + 1
 
     by_reason_percent = {
         reason: (count / out_of_contract_total) if out_of_contract_total else 0.0
         for reason, count in sorted(by_reason.items())
+    }
+    by_semantic_type_percent = {
+        semantic_type: (count / out_of_contract_total) if out_of_contract_total else 0.0
+        for semantic_type, count in sorted(by_semantic_type.items())
     }
     out_of_contract_uplift = (
         (out_of_contract_total / contract_truth_edges) if contract_truth_edges else None
@@ -172,6 +183,9 @@ def _build_report_payload(
                 "by_reason": dict(sorted(by_reason.items())),
                 "by_reason_percent": by_reason_percent,
                 "by_edge_type": dict(sorted(by_edge_type.items())),
+                "by_semantic_type": dict(sorted(by_semantic_type.items())),
+                "by_semantic_type_percent": by_semantic_type_percent,
+                "by_entity_kind": dict(sorted(by_entity_kind.items())),
             },
         },
     }

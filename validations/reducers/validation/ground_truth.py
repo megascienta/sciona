@@ -11,7 +11,9 @@ from .import_contract import resolve_import_contract
 from .independent.shared import EdgeRecord, FileParseResult, dedupe_edge_records
 from .out_of_contract import (
     classify_call_reason,
+    classify_call_semantic_type,
     classify_import_reason,
+    classify_import_semantic_type,
     standard_call_names,
 )
 
@@ -201,6 +203,57 @@ def edge_records_from_ground_truth(
             diagnostics["limitation_edges_full"].append(record)
             return
 
+    def _append_basket2_meta(
+        *,
+        record: EdgeRecord,
+        edge_type: str,
+        language: str,
+        reason: str,
+        semantic_type: str,
+        entity_qname: str,
+        entity_kind: str,
+    ) -> None:
+        if reason in excluded_reasons:
+            return
+        out_of_contract_meta.append(
+            {
+                "edge_type": edge_type,
+                "language": language,
+                "reason": reason,
+                "semantic_type": semantic_type,
+                "entity": entity_qname,
+                "entity_kind": entity_kind,
+                "caller": record.caller,
+                "callee": record.callee,
+                "callee_qname": record.callee_qname,
+            }
+        )
+
+    def _finalize_basket2_meta() -> None:
+        limitation_keys = {_edge_key(record) for record in out_of_contract}
+        filtered: list[dict] = []
+        seen: set[tuple[str, str, str | None, str]] = set()
+        for meta in out_of_contract_meta:
+            key = (
+                str(meta.get("caller") or ""),
+                str(meta.get("callee") or ""),
+                str(meta.get("callee_qname")) if meta.get("callee_qname") is not None else None,
+            )
+            if key not in limitation_keys:
+                continue
+            dedupe_key = (
+                key[0],
+                key[1],
+                key[2],
+                str(meta.get("reason") or ""),
+            )
+            if dedupe_key in seen:
+                continue
+            seen.add(dedupe_key)
+            filtered.append(meta)
+        out_of_contract_meta.clear()
+        out_of_contract_meta.extend(filtered)
+
     def _finalize_diagnostics() -> None:
         diagnostics["limitation_edges_high_conf"] = dedupe_edge_records(
             diagnostics["limitation_edges_high_conf"]
@@ -244,6 +297,7 @@ def edge_records_from_ground_truth(
             sum(diagnostics["included_limitation_by_reason"].values())
         )
         _apply_basket_partition()
+        _finalize_basket2_meta()
 
     if entity.kind == "module":
         entries = module_imports_by_prefix.get(entity.qualified_name, [])
@@ -273,14 +327,18 @@ def edge_records_from_ground_truth(
                     repo_prefix=repo_prefix,
                 )
                 _register_limitation_edge(reason, record)
-                if reason not in excluded_reasons:
-                    out_of_contract_meta.append(
-                        {
-                            "edge_type": "import",
-                            "language": language,
-                            "reason": reason,
-                        }
-                    )
+                _append_basket2_meta(
+                    record=record,
+                    edge_type="import",
+                    language=language,
+                    reason=reason,
+                    semantic_type=classify_import_semantic_type(
+                        raw_target=raw_target,
+                        reason=reason,
+                    ),
+                    entity_qname=entity.qualified_name,
+                    entity_kind=entity.kind,
+                )
             else:
                 expected_filtered.append(record)
                 full_truth.append(record)
@@ -311,14 +369,18 @@ def edge_records_from_ground_truth(
                         repo_prefix=repo_prefix,
                     )
                     _register_limitation_edge(reason, record)
-                    if reason not in excluded_reasons:
-                        out_of_contract_meta.append(
-                            {
-                                "edge_type": "import",
-                                "language": file_result.language,
-                                "reason": reason,
-                            }
-                        )
+                    _append_basket2_meta(
+                        record=record,
+                        edge_type="import",
+                        language=file_result.language,
+                        reason=reason,
+                        semantic_type=classify_import_semantic_type(
+                            raw_target=raw_target,
+                            reason=reason,
+                        ),
+                        entity_qname=entity.qualified_name,
+                        entity_kind=entity.kind,
+                    )
                 else:
                     expected_filtered.append(record)
                     full_truth.append(record)
@@ -504,14 +566,15 @@ def edge_records_from_ground_truth(
                 contract=contract,
             )
             _register_limitation_edge(reason, full_record)
-            if reason not in excluded_reasons:
-                out_of_contract_meta.append(
-                    {
-                        "edge_type": "call",
-                        "language": file_result.language,
-                        "reason": reason,
-                    }
-                )
+            _append_basket2_meta(
+                record=full_record,
+                edge_type="call",
+                language=file_result.language,
+                reason=reason,
+                semantic_type=classify_call_semantic_type(edge=edge, reason=reason),
+                entity_qname=entity.qualified_name,
+                entity_kind=entity.kind,
+            )
     _finalize_diagnostics()
     return (
         dedupe_edge_records(expected_filtered),

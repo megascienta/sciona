@@ -70,5 +70,10 @@ def render_summary(payload: dict) -> List[str]:
     lines.append(f"- by_reason: `{q3.get('by_reason')}`")
     lines.append(f"- by_reason_percent: `{q3.get('by_reason_percent')}`")
     lines.append(f"- by_edge_type: `{q3.get('by_edge_type')}`")
+    lines.append(f"- by_semantic_type: `{q3.get('by_semantic_type')}`")
+    lines.append(
+        f"- by_semantic_type_percent: `{q3.get('by_semantic_type_percent')}`"
+    )
+    lines.append(f"- by_entity_kind: `{q3.get('by_entity_kind')}`")
     lines.append("")
     return lines

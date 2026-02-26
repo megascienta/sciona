@@ -47,6 +47,22 @@ def classify_call_reason(
     return "external"
 
 
+def classify_call_semantic_type(*, edge, reason: str) -> str:
+    callee_text = (getattr(edge, "callee_text", None) or "").strip()
+    has_member_shape = "." in callee_text if callee_text else False
+    if reason == "dynamic":
+        return "dynamic_member_call" if has_member_shape else "dynamic_call"
+    if reason == "in_repo_unresolved":
+        return "member_call_unresolved" if has_member_shape else "direct_call_unresolved"
+    if reason == "unknown":
+        return "unknown_call_shape"
+    if reason == "external":
+        return "external_call"
+    if reason == "standard_call":
+        return "standard_call"
+    return "other_call_unresolved"
+
+
 def classify_import_reason(
     *,
     raw_target: str,
@@ -64,6 +80,21 @@ def classify_import_reason(
     ):
         return "in_repo_unresolved"
     return "external"
+
+
+def classify_import_semantic_type(*, raw_target: str, reason: str) -> str:
+    target = (raw_target or "").strip()
+    if reason == "relative_unresolved":
+        return "relative_import_unresolved"
+    if reason == "in_repo_unresolved":
+        if target.startswith("@"):
+            return "aliased_import_unresolved"
+        return "module_import_unresolved"
+    if reason == "external":
+        return "external_import"
+    if reason == "unknown":
+        return "unknown_import_shape"
+    return "other_import_unresolved"
 
 
 def aggregate_breakdown(records: Iterable[dict]) -> dict:

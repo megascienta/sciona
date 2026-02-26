@@ -751,7 +751,7 @@ def test_ground_truth_partitions_baskets_when_same_edge_has_conflicting_reasons(
     )
     assert expected == []
     assert out_of_contract == []
-    assert out_meta != []
+    assert out_meta == []
     assert len(diagnostics["contract_exclusion_edges_full"]) == 1
     assert diagnostics["excluded_out_of_scope_by_reason"].get("standard_call") == 1
     assert diagnostics["included_limitation_count"] == 0
