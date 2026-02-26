@@ -580,14 +580,8 @@ def run_validation(
     scored_rows_reducer_vs_expanded_high = [
         row for row in rows if row.get("metrics_reducer_vs_expanded_high_conf") is not None
     ]
-    scored_rows_reducer_vs_expanded_full = [
-        row for row in rows if row.get("metrics_reducer_vs_expanded_full") is not None
-    ]
     scored_rows_db_vs_expanded_high = [
         row for row in rows if row.get("metrics_db_vs_expanded_high_conf") is not None
-    ]
-    scored_rows_db_vs_expanded_full = [
-        row for row in rows if row.get("metrics_db_vs_expanded_full") is not None
     ]
 
     reducer_full_entities = {row["entity"] for row in scored_rows_reducer_vs_contract}
@@ -605,14 +599,8 @@ def run_validation(
     reducer_vs_expanded_high_micro = micro(
         scored_rows_reducer_vs_expanded_high, "metrics_reducer_vs_expanded_high_conf"
     )
-    reducer_vs_expanded_full_micro = micro(
-        scored_rows_reducer_vs_expanded_full, "metrics_reducer_vs_expanded_full"
-    )
     db_vs_expanded_high_micro = micro(
         scored_rows_db_vs_expanded_high, "metrics_db_vs_expanded_high_conf"
-    )
-    db_vs_expanded_full_micro = micro(
-        scored_rows_db_vs_expanded_full, "metrics_db_vs_expanded_full"
     )
     contract_truth_pure_ok, contract_truth_resolved_ok, no_duplicate_contract_edges = (
         filter_contract_checks(rows)
@@ -1056,15 +1044,15 @@ def run_validation(
         strict_by_kind=strict_by_kind,
         strict_overreach=static_overreach_rate,
         strict_recall=contract_recall,
-        expanded_full_recall=reducer_vs_expanded_full_micro.get("recall"),
+        expanded_full_recall=reducer_vs_enriched_micro.get("recall"),
         reasoning_reliability=reasoning_reliability,
     )
     uncertainty_intervals = {
         "strict_contract_alignment": _bootstrap_micro_ci(
             rows, "metrics_reducer_vs_contract", seed=seed
         ),
-        "expanded_full_alignment": _bootstrap_micro_ci(
-            rows, "metrics_reducer_vs_expanded_full", seed=seed + 1
+        "enriched_full_alignment": _bootstrap_micro_ci(
+            rows, "metrics_reducer_vs_enriched_truth", seed=seed + 1
         ),
         "method_strict_alignment": _bootstrap_micro_ci(
             [row for row in rows if row.get("kind") == "method"],
@@ -1173,11 +1161,11 @@ def run_validation(
                     "divergence_index": divergence_index(reducer_vs_expanded_high_micro),
                 },
                 "full": {
-                    "reducer_precision": reducer_vs_expanded_full_micro.get("precision"),
-                    "reducer_recall": reducer_vs_expanded_full_micro.get("recall"),
-                    "db_precision": db_vs_expanded_full_micro.get("precision"),
-                    "db_recall": db_vs_expanded_full_micro.get("recall"),
-                    "divergence_index": divergence_index(reducer_vs_expanded_full_micro),
+                    "reducer_precision": reducer_vs_enriched_micro.get("precision"),
+                    "reducer_recall": reducer_vs_enriched_micro.get("recall"),
+                    "db_precision": db_vs_enriched_micro.get("precision"),
+                    "db_recall": db_vs_enriched_micro.get("recall"),
+                    "divergence_index": divergence_index(reducer_vs_enriched_micro),
                 },
             },
             "tier_edge_counts": {
@@ -1195,7 +1183,7 @@ def run_validation(
                 scored_rows_reducer_vs_enriched, "metrics_reducer_vs_enriched_truth"
             ),
             "uncertainty_intervals": {
-                "micro": uncertainty_intervals["expanded_full_alignment"],
+                "micro": uncertainty_intervals["enriched_full_alignment"],
             },
         },
         "contract_boundary": {
@@ -1243,9 +1231,7 @@ def run_validation(
             "reducer_vs_enriched_truth": reducer_vs_enriched_micro,
             "db_vs_enriched_truth": db_vs_enriched_micro,
             "reducer_vs_expanded_high_conf": reducer_vs_expanded_high_micro,
-            "reducer_vs_expanded_full": reducer_vs_expanded_full_micro,
             "db_vs_expanded_high_conf": db_vs_expanded_high_micro,
-            "db_vs_expanded_full": db_vs_expanded_full_micro,
         },
         "micro_metrics_by_kind": {
             "reducer_vs_db": _micro_by_kind("metrics_reducer_vs_db"),
@@ -1254,9 +1240,7 @@ def run_validation(
             "reducer_vs_enriched_truth": _micro_by_kind("metrics_reducer_vs_enriched_truth"),
             "db_vs_enriched_truth": _micro_by_kind("metrics_db_vs_enriched_truth"),
             "reducer_vs_expanded_high_conf": _micro_by_kind("metrics_reducer_vs_expanded_high_conf"),
-            "reducer_vs_expanded_full": _micro_by_kind("metrics_reducer_vs_expanded_full"),
             "db_vs_expanded_high_conf": _micro_by_kind("metrics_db_vs_expanded_high_conf"),
-            "db_vs_expanded_full": _micro_by_kind("metrics_db_vs_expanded_full"),
         },
         "micro_metrics_by_language": {
             "reducer_vs_db": _micro_by_language("metrics_reducer_vs_db"),
@@ -1265,9 +1249,7 @@ def run_validation(
             "reducer_vs_enriched_truth": _micro_by_language("metrics_reducer_vs_enriched_truth"),
             "db_vs_enriched_truth": _micro_by_language("metrics_db_vs_enriched_truth"),
             "reducer_vs_expanded_high_conf": _micro_by_language("metrics_reducer_vs_expanded_high_conf"),
-            "reducer_vs_expanded_full": _micro_by_language("metrics_reducer_vs_expanded_full"),
             "db_vs_expanded_high_conf": _micro_by_language("metrics_db_vs_expanded_high_conf"),
-            "db_vs_expanded_full": _micro_by_language("metrics_db_vs_expanded_full"),
         },
         "micro_metrics_by_language_and_kind": {
             "reducer_vs_db": _micro_by_language_and_kind("metrics_reducer_vs_db"),
@@ -1276,9 +1258,7 @@ def run_validation(
             "reducer_vs_enriched_truth": _micro_by_language_and_kind("metrics_reducer_vs_enriched_truth"),
             "db_vs_enriched_truth": _micro_by_language_and_kind("metrics_db_vs_enriched_truth"),
             "reducer_vs_expanded_high_conf": _micro_by_language_and_kind("metrics_reducer_vs_expanded_high_conf"),
-            "reducer_vs_expanded_full": _micro_by_language_and_kind("metrics_reducer_vs_expanded_full"),
             "db_vs_expanded_high_conf": _micro_by_language_and_kind("metrics_db_vs_expanded_high_conf"),
-            "db_vs_expanded_full": _micro_by_language_and_kind("metrics_db_vs_expanded_full"),
         },
         "call_form_recall": {
             "reducer_vs_contract_truth": call_form_reducer_vs_contract,

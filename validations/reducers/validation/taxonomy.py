@@ -57,16 +57,6 @@ METRIC_DEFINITIONS: Dict[str, dict] = {
         "source": "reducer_vs_expanded_high_conf",
         "formula": "tp / (tp + fn)",
     },
-    "expanded_full_precision": {
-        "layer": SECTION_ENRICHMENT_PRACTICAL,
-        "source": "reducer_vs_expanded_full",
-        "formula": "tp / (tp + fp)",
-    },
-    "expanded_full_recall": {
-        "layer": SECTION_ENRICHMENT_PRACTICAL,
-        "source": "reducer_vs_expanded_full",
-        "formula": "tp / (tp + fn)",
-    },
 }
 
 

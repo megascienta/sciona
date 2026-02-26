@@ -59,7 +59,7 @@ def render_summary(payload: dict) -> List[str]:
     )
     full = (expanded.get("tiers") or {}).get("full") or {}
     lines.append(
-        f"- expanded_full_precision/recall: `{_format_value(full.get('reducer_precision'))}`/`{_format_value(full.get('reducer_recall'))}`"
+        f"- enriched_full_precision/recall: `{_format_value(full.get('reducer_precision'))}`/`{_format_value(full.get('reducer_recall'))}`"
     )
     hard_failures = invariants.get("hard_failures") or []
     diagnostic_failures = invariants.get("diagnostic_failures") or []

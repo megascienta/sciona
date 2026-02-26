@@ -529,9 +529,7 @@ def evaluate_entities(
         expanded_high_truth = dedupe_edge_records(expected_filtered + limitation_high)
         expanded_full_truth = dedupe_edge_records(expected_filtered + limitation_full)
         metrics_reducer_vs_expanded_high = None
-        metrics_reducer_vs_expanded_full = None
         metrics_db_vs_expanded_high = None
-        metrics_db_vs_expanded_full = None
         reducer_db_empty_set_mismatch = False
         class_truth_unreliable = bool(gt_diagnostics.get("class_truth_unreliable"))
         if not reducer_error and not db_error:
@@ -558,7 +556,6 @@ def evaluate_entities(
         ):
             metrics_db_vs_enriched = compute_metrics(expanded_full_truth, [], db_edges)
             metrics_db_vs_expanded_high = compute_metrics(expanded_high_truth, [], db_edges)
-            metrics_db_vs_expanded_full = compute_metrics(expanded_full_truth, [], db_edges)
         if (
             file_result.parse_ok
             and not reducer_error
@@ -569,9 +566,6 @@ def evaluate_entities(
             )
             metrics_reducer_vs_expanded_high = compute_metrics(
                 expanded_high_truth, [], reducer_edges
-            )
-            metrics_reducer_vs_expanded_full = compute_metrics(
-                expanded_full_truth, [], reducer_edges
             )
         expected_form_map = _expected_call_form_map(
             entity.qualified_name, normalized_calls, expected_filtered
@@ -622,16 +616,8 @@ def evaluate_entities(
                 )
                 if metrics_reducer_vs_expanded_high
                 else None,
-                "metrics_reducer_vs_expanded_full": asdict(
-                    metrics_reducer_vs_expanded_full
-                )
-                if metrics_reducer_vs_expanded_full
-                else None,
                 "metrics_db_vs_expanded_high_conf": asdict(metrics_db_vs_expanded_high)
                 if metrics_db_vs_expanded_high
-                else None,
-                "metrics_db_vs_expanded_full": asdict(metrics_db_vs_expanded_full)
-                if metrics_db_vs_expanded_full
                 else None,
                 "metrics_reducer_vs_contract_by_call_form": reducer_form_metrics,
                 "metrics_db_vs_contract_by_call_form": db_form_metrics,
