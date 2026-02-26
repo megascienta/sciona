@@ -31,6 +31,7 @@ def normalize_call_edges(
                 callee_qname=callee_qname,
                 dynamic=dynamic,
                 callee_text=edge.callee_text,
+                provenance=edge.provenance,
             )
         )
     return normalized
@@ -51,6 +52,7 @@ def normalize_import_edges(
                 source_module=source,
                 target_module=target,
                 dynamic=edge.dynamic,
+                provenance=edge.provenance,
             )
         )
     return normalized

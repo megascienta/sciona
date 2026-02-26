@@ -71,6 +71,7 @@ def _filter_core_edges_in_contract(
                 caller=edge.caller,
                 callee=resolved.split(".")[-1],
                 callee_qname=resolved,
+                provenance="core_contract",
             )
         )
     return dedupe_edge_records(filtered)
@@ -116,13 +117,23 @@ def edge_record_from_call(edge: dict, fallback_caller: str) -> EdgeRecord:
     callee = edge.get("callee_identifier") or edge.get("callee_name")
     if not callee and callee_qname:
         callee = callee_qname.split(".")[-1]
-    return EdgeRecord(caller=caller, callee=callee or "", callee_qname=callee_qname)
+    return EdgeRecord(
+        caller=caller,
+        callee=callee or "",
+        callee_qname=callee_qname,
+        provenance="sciona_reducer",
+    )
 
 
 def edge_record_from_import(edge: dict) -> EdgeRecord:
     caller = edge.get("from_module_qualified_name") or ""
     callee = edge.get("to_module_qualified_name") or ""
-    return EdgeRecord(caller=caller, callee=callee, callee_qname=callee)
+    return EdgeRecord(
+        caller=caller,
+        callee=callee,
+        callee_qname=callee,
+        provenance="sciona_reducer",
+    )
 
 
 def canonical_module_name(repo_root: Path, file_result: FileParseResult) -> str:
@@ -254,6 +265,7 @@ class ReducerEdgeSource:
                             caller=entity.qualified_name,
                             callee=method_qname.split(".")[-1],
                             callee_qname=method_qname,
+                            provenance="sciona_reducer",
                         )
                     )
                 payloads["class_overview"] = class_payload

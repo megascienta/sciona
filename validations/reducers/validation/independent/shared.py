@@ -25,6 +25,7 @@ class CallEdge:
     callee_qname: str | None
     dynamic: bool
     callee_text: str | None = None
+    provenance: str = "syntax_raw"
 
 
 @dataclass(frozen=True)
@@ -33,6 +34,7 @@ class ImportEdge:
     target_module: str
     dynamic: bool
     target_text: str | None = None
+    provenance: str = "syntax_raw"
 
 
 @dataclass(frozen=True)
@@ -49,6 +51,7 @@ class NormalizedCallEdge:
     callee_qname: str | None
     dynamic: bool
     callee_text: str | None = None
+    provenance: str = "syntax_raw"
 
 
 @dataclass(frozen=True)
@@ -56,6 +59,7 @@ class NormalizedImportEdge:
     source_module: str
     target_module: str
     dynamic: bool
+    provenance: str = "syntax_raw"
 
 
 @dataclass
@@ -84,6 +88,7 @@ class EdgeRecord:
     caller: str
     callee: str
     callee_qname: str | None
+    provenance: str = "unknown"
 
 
 def edge_record_key(edge: EdgeRecord) -> tuple[str, str, str | None]:

@@ -224,6 +224,7 @@ def edge_records_from_ground_truth(
                 "caller": record.caller,
                 "callee": record.callee,
                 "callee_qname": record.callee_qname,
+                "provenance": record.provenance,
             }
         )
 
@@ -316,6 +317,7 @@ def edge_records_from_ground_truth(
                 caller=caller,
                 callee=resolved or raw_target,
                 callee_qname=resolved,
+                provenance=getattr(edge, "provenance", "syntax_raw"),
             )
             if edge.dynamic or not resolved:
                 reason = classify_import_reason(
@@ -357,6 +359,7 @@ def edge_records_from_ground_truth(
                     caller=caller,
                     callee=resolved or raw_target,
                     callee_qname=resolved,
+                    provenance=getattr(edge, "provenance", "syntax_raw"),
                 )
                 if edge.dynamic or not resolved:
                     reason = classify_import_reason(
@@ -496,6 +499,7 @@ def edge_records_from_ground_truth(
                 caller=entity.qualified_name,
                 callee=callee_qname.split(".")[-1],
                 callee_qname=callee_qname,
+                provenance="syntax_raw",
             )
             expected_filtered.append(record)
             full_truth.append(record)
@@ -539,6 +543,7 @@ def edge_records_from_ground_truth(
             caller=edge.caller,
             callee=edge.callee,
             callee_qname=edge.callee_qname,
+            provenance=getattr(edge, "provenance", "syntax_raw"),
         )
         if (
             not edge.dynamic
@@ -548,6 +553,11 @@ def edge_records_from_ground_truth(
                 caller=edge.caller,
                 callee=edge.callee or resolved_callee_qname.split(".")[-1],
                 callee_qname=resolved_callee_qname,
+                provenance=(
+                    f"contract:{call_decision.accepted_provenance}"
+                    if call_decision.accepted_provenance
+                    else getattr(edge, "provenance", "syntax_raw")
+                ),
             )
             expected_filtered.append(resolved_record)
             full_truth.append(resolved_record)
