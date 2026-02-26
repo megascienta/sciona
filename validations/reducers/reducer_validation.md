@@ -1,123 +1,59 @@
-# Reducer Validation Workflow (Current)
+# Reducer Validation Workflow
 
 ## 1. Purpose
-Validation has two primary goals:
-- prove reducer-to-DB internal integrity,
-- measure reducer alignment against independent parser proxy truth.
+Validation answers two questions:
+- Is reducer output an exact projection of SCIONA artifacts/DB for evaluated entities?
+- Under strict shared contract, does independent evidence align with core output?
 
-Evaluated relation scope:
-- module imports,
-- class-defined methods,
-- callable neighbors.
+Primary use:
+- correctness-of-implementation checks,
+- controlled diagnostics for contract boundaries and ambiguity pressure.
 
 ## 2. Independence Boundary
 Required:
-- parser/normalization/call-resolution truth logic lives in `validations/reducers/validation/independent/*` and validation modules,
-- no semantic reuse from SCIONA core language analyzers.
-- strict contract acceptance is shared and canonicalized via `src/sciona/code_analysis/contracts/strict_call_contract.py` (required parity path).
+- Independent logic lives under `validations/reducers/validation/independent/*`.
+- No semantic reuse from SCIONA core language analyzers.
+- Strict call selection policy is shared with contract constraints (same acceptance/drop semantics).
 
 Allowed shared utilities:
 - runtime/config/path helpers,
 - reducer/DB adapters,
 - generic dataclasses.
 
-## 3. Truth Channels
+## 3. Canonical Baskets
+Per node, evidence is split into canonical baskets:
+- `contract_truth_edges`: in-contract resolvable truth.
+- `independent_static_limitation_edges`: in-repo out-of-contract limitation evidence.
+- `contract_exclusion_edges`: excluded by policy (`standard_call`, `external`).
 
-### 3.1 Strict Contract Truth (Gating)
-- in-repo resolvable edges only,
-- candidate-only independent evidence is accepted/rejected through shared strict contract rules,
-- used for primary static contract alignment scoring.
-
-### 3.2 Limitation-Focused Enrichment Truth (Non-Gating)
-Built from strict proxy truth plus selected in-repo limitation edges.
-
-Envelope split (authoritative in payload):
-- `independent_static_limitations`: independent-parser limitation candidates in-scope for diagnostics.
-- `contract_exclusions`: edges intentionally excluded by strict contract policy (`scope_exclusions`).
-
-Policy (authoritative via code configuration):
-- `validations/reducers/validation/contract_spec.py` (validation contract policy surface)
-- `validations/reducers/validation/config.py` (thresholds and expanded-truth policy)
-- `scope_exclusions`: `standard_call`, `external`
-- `limitation_focus`: `dynamic`, `in_repo_unresolved`, `relative_unresolved`
-
-Confidence tiers:
-- high: `in_repo_unresolved`
-- low: `dynamic`, `relative_unresolved`
-- full expanded: high + low
-
-Rationale:
-- keep applicability-domain mismatch out,
-- isolate static-analysis limitation gap.
+Hard invariants enforce:
+- basket partition (no overlap),
+- basket count reconciliation,
+- strict contract purity and resolvedness.
 
 ## 4. Pipeline
-1. Load DB population (`module/class/function/method`).
-2. Stratified sample by language/kind/size buckets.
-3. Parse sampled files with independent parsers (PY/TS/Java).
-4. Normalize parser outputs and build independent call-resolution context (candidate production only).
-5. Apply shared strict contract selector to independent candidates (`accept_if_single` + provenance rules).
-6. Build per-node edge channels:
-- `contract_truth_edges`
-- `independent_static_limitation_edges`
-- `contract_exclusion_edges`
-- `expanded_truth_edges_high_conf`
-- `expanded_truth_edges_full`
-7. Score per node:
-- `reducer_vs_db`
-- `reducer_vs_contract_truth`
-- `db_vs_contract_truth`
-- `reducer_vs_expanded_high_conf`
-- `reducer_vs_expanded_full`
-- `db_vs_expanded_high_conf`
-- `db_vs_expanded_full`
-8. Evaluate invariants (hard + diagnostic).
-9. Emit JSON and markdown reports.
+1. Load entities from artifacts/DB (`module/class/function/method`).
+2. Stratified sampling by language/kind/size buckets.
+3. Parse sampled files with independent parsers (Python/TypeScript/Java).
+4. Normalize calls/imports and build candidate-only resolution context.
+5. Apply strict shared contract selector.
+6. Build canonical baskets and expanded diagnostic truth.
+7. Score reducer/db vs strict and expanded channels.
+8. Evaluate hard + diagnostic gates.
+9. Emit machine JSON and compact human markdown.
 
-## 5. Report Order
-1. Run Verdict
-2. Mismatch Source
-3. Contract Boundary
-4. Top Risks
-5. Appendix
+## 5. Report Structure (Markdown)
+Human report is intentionally compact:
+1. `Run Verdict`
+2. `Mismatch Source`
+3. `Contract Boundary`
+4. `Top Risks`
+5. `Appendix`
 
-## 6. Metric Layers
+Full details remain in JSON.
 
-### 6.1 Internal Integrity (hard-gated)
-- reducer↔DB projection precision/recall,
-- parser determinism.
-
-### 6.2 Strict Contract Conformance (gating)
-- strict precision/recall/overreach/divergence,
-- per-kind/edge/call-form diagnostics.
-- bootstrap uncertainty intervals (micro + method scope).
-- interpreted as implementation conformance, not absolute capability scoring.
-
-### 6.3 Expanded Enrichment Diagnostics (non-gating)
-- reducer/db alignment vs expanded proxy truth,
-- high/full tier precision/recall/divergence,
-- explicit scope policy and counts:
-- `excluded_out_of_scope_edges`
-- `included_limitation_edges`
-- bootstrap uncertainty interval for expanded-full micro metrics.
-
-### 6.4 Contract Boundary Profile (non-gating, descriptive)
-- `contract_boundary` provides descriptive limitation volume and overlap diagnostics,
-- used to map where strict contract truncates coverage, not as a strict recall target.
-- explicitly separates `independent_static_limitations` vs `contract_exclusions`.
-- includes:
-- `limitation_edge_census` (volume by language/kind/reason),
-- `contract_truncation_profile` (top modules/classes/entities by limitation density),
-- `resolution_failure_taxonomy` (strict candidate/drop/accept distributions),
-- `contract_leakage_rate` (limitation overlap with strict-resolved core edges).
-
-### 6.5 Enrichment Reliability (heuristic diagnostics)
-- navigation/reasoning/coupling signals,
-- explicit weights and `prompt_reliability_version`,
-- component contributions (tp/fp/fn penalties).
-
-## 7. Gates
-
-Hard gates (run validity):
+## 6. Gate Model
+### 6.1 Hard gates (must pass)
 - `gate_reducer_db_exact`
 - `gate_aligned_scoring`
 - `gate_parse_coverage`
@@ -134,11 +70,7 @@ Hard gates (run validity):
 - `gate_strict_drop_taxonomy_stable`
 - `gate_equal_contract_metrics_when_exact`
 
-Policy guardrail:
-- strict policy is locked by `config.STRICT_CONTRACT_POLICY` (`mode`, allowed accepted provenance, allowed drop reasons).
-- any drift in strict mode/provenance/drop reasons must be an explicit contract change and update policy/tests.
-
-Diagnostic gates (non-blocking by default):
+### 6.2 Diagnostic gates (non-blocking)
 - `gate_typescript_relative_index_contract`
 - `gate_class_truth_nonempty_rate`
 - `gate_class_truth_match_rate`
@@ -147,40 +79,42 @@ Diagnostic gates (non-blocking by default):
 - `gate_member_call_recall_min`
 - `gate_kind_precision_floors`
 
-`invariants.passed` / `invariants.hard_passed` reflect hard gates only.
+`invariants.hard_passed` reflects hard-gate status.
 
-Threshold profile selection is automatic:
-- `single_language` profile for one-language samples,
-- `multi_language` profile otherwise.
-The active profile is emitted as `quality_gates.threshold_profile`.
+## 7. Key Diagnostics
+- `contract_boundary`: limitation census, truncation profile, failure taxonomy, leakage.
+- `parity_attribution`: separates pressure sources:
+  - independent candidate-set pressure,
+  - core selector pressure,
+  - final edge mismatch attribution.
+- `quality_gates.kind_precision_floors`: callable hotspot guardrail.
 
-## 8. Formulas
+## 8. Metric Notes
+Core formulas:
 - precision: `tp / (tp + fp)`
 - recall: `tp / (tp + fn)`
-- strict overreach: `fp / (tp + fp)` on strict contract comparison
+- strict overreach: `fp / (tp + fp)`
 - divergence: `(fp + fn) / (tp + fp + fn)`
-- weighted heuristic reliability: `tp / (tp + fp_w*fp + fn_w*fn)`
 
-Canonical metric source/formula mapping is emitted in `metric_definitions`.
+Interpretation:
+- strict metrics are conformance-oriented,
+- expanded/boundary metrics are descriptive diagnostics, not correctness targets.
 
-## 9. Top-Level JSON Keys
+## 9. JSON Surface (Top-Level)
 - `report_schema_version`
 - `summary`
 - `invariants`
-- `metric_definitions`
-- `core_metrics`
+- `quality_gates`
 - `internal_integrity`
 - `static_contract_alignment`
 - `contract_boundary`
+- `parity_attribution`
 - `enriched_truth_alignment`
 - `enrichment_practical`
-- `micro_metrics`
-- `micro_metrics_by_kind`
-- `micro_metrics_by_language`
-- `micro_metrics_by_language_and_kind`
-- diagnostics blocks (`call_form_recall`, edge breakdowns, mismatch attribution, out-of-contract)
+- `micro_metrics*`
 - `strict_contract_diagnostics`
-- parser/stability/population/per-node blocks
+- `call_resolution_diagnostics`
+- `per_node`
 
 ## 10. Run
 ```bash
@@ -192,23 +126,15 @@ python validations/reducers/reducer_validation.py \
   --stability-runs 2
 ```
 
-Consolidated multi-repo markdown:
-```bash
-conda run -n multiphysics \
-python validations/reducers/consolidate_reports.py \
-  --date 2026-02-26
-```
+## 11. Interpretation Order
+1. Check `hard_passed`.
+2. If hard-pass, inspect strict precision/recall/overreach.
+3. Use `Mismatch Source` and `parity_attribution` to localize root cause.
+4. Use `Contract Boundary` for applicability/limitation envelope.
+5. Use `Top Risks` for next actions.
 
-## 11. Interpretation
-1. Run Verdict first.
-2. If internal integrity is valid, reducer is faithful DB projection for evaluated nodes.
-3. Interpret strict contract conformance as correctness-of-implementation under the strict contract.
-4. Use contract boundary profile to map what strict contract intentionally excludes.
-5. Use expanded enrichment diagnostics as descriptive diagnostics, not as strict targets.
-6. Use enrichment reliability only as heuristic downstream risk.
-
-## 12. Known Limits
-- Independent parsing remains static and cannot model runtime behavior perfectly.
-- Independent truth is a deterministic static proxy, not absolute ground truth.
-- Expanded proxy truth remains diagnostic; not a correctness gate.
-- Java fixture tests require `SCIONA_JAVAPARSER_JAR` + `java/javac`.
+## 12. Limits
+- Independent parsing is static and cannot model runtime behavior fully.
+- Independent truth is deterministic proxy truth, not absolute truth.
+- Expanded channels are diagnostic and intentionally non-gating.
+- Java fixtures require `SCIONA_JAVAPARSER_JAR` plus `java/javac`.
