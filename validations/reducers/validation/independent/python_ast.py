@@ -45,7 +45,8 @@ class _CallVisitor(ast.NodeVisitor):
             qname = f"{self.module_qname}.{node.name}"
         self.defs.append(Definition(kind, qname, node.lineno, node.end_lineno or node.lineno))
         self._scope_stack.append((qname, kind))
-        self.generic_visit(node)
+        for statement in node.body:
+            self.visit(statement)
         self._scope_stack.pop()
 
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
@@ -61,7 +62,8 @@ class _CallVisitor(ast.NodeVisitor):
             qname = f"{self.module_qname}.{node.name}"
         self.defs.append(Definition(kind, qname, node.lineno, node.end_lineno or node.lineno))
         self._scope_stack.append((qname, kind))
-        self.generic_visit(node)
+        for statement in node.body:
+            self.visit(statement)
         self._scope_stack.pop()
 
     def visit_ClassDef(self, node: ast.ClassDef) -> None:
@@ -76,10 +78,14 @@ class _CallVisitor(ast.NodeVisitor):
             qname = f"{self.module_qname}.{node.name}"
         self.defs.append(Definition("class", qname, node.lineno, node.end_lineno or node.lineno))
         self._scope_stack.append((qname, "class"))
-        self.generic_visit(node)
+        for statement in node.body:
+            self.visit(statement)
         self._scope_stack.pop()
 
     def visit_Call(self, node: ast.Call) -> None:
+        if self._current_scope_kind() not in {"function", "method"}:
+            self.generic_visit(node)
+            return
         callee, callee_qname, dynamic = _callee_name(node.func)
         callee_text = None
         try:
@@ -133,7 +139,8 @@ class _CallVisitor(ast.NodeVisitor):
 
 
 class _ImportVisitor(ast.NodeVisitor):
-    def __init__(self) -> None:
+    def __init__(self, module_qname: str) -> None:
+        self.module_qname = module_qname
         self.imports: List[ImportEdge] = []
 
     def visit_Import(self, node: ast.Import) -> None:
@@ -143,7 +150,12 @@ class _ImportVisitor(ast.NodeVisitor):
                 if alias.asname:
                     target_text = f"{alias.name} as {alias.asname}"
                 self.imports.append(
-                    ImportEdge("", alias.name, dynamic=False, target_text=target_text)
+                    ImportEdge(
+                        self.module_qname,
+                        alias.name,
+                        dynamic=False,
+                        target_text=target_text,
+                    )
                 )
 
     def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
@@ -159,7 +171,12 @@ class _ImportVisitor(ast.NodeVisitor):
                 else:
                     target_text = f"from {prefix}{module} import {symbol}"
                 self.imports.append(
-                    ImportEdge("", f"{prefix}{module}", dynamic=False, target_text=target_text)
+                    ImportEdge(
+                        self.module_qname,
+                        f"{prefix}{module}",
+                        dynamic=False,
+                        target_text=target_text,
+                    )
                 )
         else:
             for alias in node.names:
@@ -169,7 +186,7 @@ class _ImportVisitor(ast.NodeVisitor):
                         target_text = f"{target_text} as {alias.asname}"
                     self.imports.append(
                         ImportEdge(
-                            "",
+                            self.module_qname,
                             f"{prefix}{alias.name}",
                             dynamic=False,
                             target_text=target_text,
@@ -218,7 +235,7 @@ def parse_python_file(repo_root: Path, file_path: str, module_qname: str) -> Fil
 
     call_visitor = _CallVisitor(module_qname)
     call_visitor.visit(tree)
-    import_visitor = _ImportVisitor()
+    import_visitor = _ImportVisitor(module_qname)
     import_visitor.visit(tree)
 
     return FileParseResult(
