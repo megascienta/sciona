@@ -5,12 +5,12 @@ from __future__ import annotations
 import json
 import ast
 import shutil
+import hashlib
 from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
 
-from validations.reducers.validation.stability import independent_results_hash
 from validations.reducers.validation.call_contract import resolve_call_in_contract
 from validations.reducers.validation.call_contract import build_contract_call_candidates
 from validations.reducers.validation.call_contract import resolve_call_in_contract_details
@@ -44,6 +44,36 @@ from validations.reducers.validation.metrics import compute_metrics
 
 FIXTURE_ROOT = Path("tests/fixtures/independent")
 FIXTURE_MATRIX_PATH = FIXTURE_ROOT / "fixture_matrix.json"
+
+
+def independent_results_hash(results: dict, normalized_map: dict) -> str:
+    serialized = []
+    for file_path in sorted(results.keys()):
+        result = results[file_path]
+        normalized_calls, normalized_imports = normalized_map.get(file_path, ([], []))
+        serialized.append(
+            {
+                "language": result.language,
+                "file_path": result.file_path,
+                "module_qualified_name": result.module_qualified_name,
+                "parse_ok": result.parse_ok,
+                "error": result.error,
+                "defs": [
+                    [definition.kind, definition.qualified_name, definition.start_line, definition.end_line]
+                    for definition in result.defs
+                ],
+                "normalized_call_edges": [
+                    [edge.caller, edge.callee, edge.callee_qname, edge.dynamic, edge.callee_text]
+                    for edge in normalized_calls
+                ],
+                "normalized_import_edges": [
+                    [edge.source_module, edge.target_module, edge.dynamic]
+                    for edge in normalized_imports
+                ],
+            }
+        )
+    payload = json.dumps(serialized, ensure_ascii=True, separators=(",", ":"), sort_keys=True)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def _java_parser_ready() -> bool:

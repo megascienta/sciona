@@ -270,7 +270,6 @@ def edge_records_from_ground_truth(
                 reason = classify_import_reason(
                     raw_target=raw_target,
                     resolved=resolved,
-                    language=language,
                     repo_prefix=repo_prefix,
                 )
                 _register_limitation_edge(reason, record)
@@ -309,7 +308,6 @@ def edge_records_from_ground_truth(
                     reason = classify_import_reason(
                         raw_target=raw_target,
                         resolved=resolved,
-                        language=file_result.language,
                         repo_prefix=repo_prefix,
                     )
                     _register_limitation_edge(reason, record)

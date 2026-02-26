@@ -51,7 +51,6 @@ def classify_import_reason(
     *,
     raw_target: str,
     resolved: str | None,
-    language: str,
     repo_prefix: str,
 ) -> str:
     if not raw_target:

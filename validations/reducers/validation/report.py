@@ -24,12 +24,6 @@ def write_markdown(path: Path, lines: List[str]) -> None:
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def _summary_key(item: str) -> str | None:
-    if "=" not in item:
-        return None
-    return item.split("=", 1)[0].strip()
-
-
 def _format_value(value) -> str:
     if isinstance(value, float):
         return f"{value:.6f}"

@@ -27,8 +27,18 @@ from .evaluation_resolution import build_independent_call_resolution
 from .out_of_contract import aggregate_breakdown
 from .report import render_summary, write_json, write_markdown
 from .reducer_queries import get_snapshot_id
-from .stats import micro
-from .taxonomy import REPORT_SCHEMA_VERSION
+
+
+REPORT_SCHEMA_VERSION = "2026-02-26"
+
+
+def _micro(metric_rows: list[dict], metric_key: str) -> dict:
+    tp = sum(row[metric_key]["tp"] for row in metric_rows if row.get(metric_key))
+    fp = sum(row[metric_key]["fp"] for row in metric_rows if row.get(metric_key))
+    fn = sum(row[metric_key]["fn"] for row in metric_rows if row.get(metric_key))
+    precision = (tp / (tp + fp)) if (tp + fp) else None
+    recall = (tp / (tp + fn)) if (tp + fn) else None
+    return {"tp": tp, "fp": fp, "fn": fn, "precision": precision, "recall": recall}
 
 
 def _build_report_payload(
@@ -43,8 +53,8 @@ def _build_report_payload(
     scored_rows_reducer_vs_db = [
         row for row in rows if row.get("metrics_reducer_vs_db") is not None
     ]
-    reducer_vs_db_micro = micro(scored_rows_reducer_vs_db, "metrics_reducer_vs_db")
-    reducer_vs_contract_micro = micro(
+    reducer_vs_db_micro = _micro(scored_rows_reducer_vs_db, "metrics_reducer_vs_db")
+    reducer_vs_contract_micro = _micro(
         scored_rows_reducer_vs_contract, "metrics_reducer_vs_contract"
     )
 
@@ -254,7 +264,7 @@ def run_validation(
             if progress_factory:
                 validation_progress = progress_factory("Validating nodes", len(sampled))
 
-            rows, out_of_contract_meta, _, _ = evaluate_entities(
+            rows, out_of_contract_meta = evaluate_entities(
                 sampled,
                 independent_results,
                 normalized_edge_map,

@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import List
 
 from .independent.shared import EdgeRecord, dedupe_edge_records, match_edge
 
