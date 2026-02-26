@@ -8,8 +8,92 @@ from typing import Callable, Dict, List
 
 from .independent.java_runner import parse_java_files
 from .independent.python_ast import parse_python_files
-from .independent.shared import FileParseResult
+from .independent.shared import (
+    AssignmentHint,
+    CallEdge,
+    Definition,
+    FileParseResult,
+    ImportEdge,
+)
 from .independent.ts_node import parse_typescript_files
+
+
+def _normalize_parse_result(result: FileParseResult) -> FileParseResult:
+    def _dedupe_defs(values: list[Definition]) -> list[Definition]:
+        seen: set[tuple[str, str, int, int]] = set()
+        out: list[Definition] = []
+        for item in sorted(
+            values,
+            key=lambda d: (d.start_line, d.end_line, d.kind, d.qualified_name),
+        ):
+            key = (item.kind, item.qualified_name, item.start_line, item.end_line)
+            if key in seen:
+                continue
+            seen.add(key)
+            out.append(item)
+        return out
+
+    def _dedupe_calls(values: list[CallEdge]) -> list[CallEdge]:
+        seen: set[tuple[str, str, str | None, bool, str | None]] = set()
+        out: list[CallEdge] = []
+        for item in sorted(
+            values,
+            key=lambda c: (
+                c.caller,
+                c.callee,
+                c.callee_qname or "",
+                c.dynamic,
+                c.callee_text or "",
+            ),
+        ):
+            key = (
+                item.caller,
+                item.callee,
+                item.callee_qname,
+                item.dynamic,
+                item.callee_text,
+            )
+            if key in seen:
+                continue
+            seen.add(key)
+            out.append(item)
+        return out
+
+    def _dedupe_imports(values: list[ImportEdge]) -> list[ImportEdge]:
+        seen: set[tuple[str, str, bool, str | None]] = set()
+        out: list[ImportEdge] = []
+        for item in sorted(
+            values,
+            key=lambda i: (
+                i.source_module,
+                i.target_module,
+                i.dynamic,
+                i.target_text or "",
+            ),
+        ):
+            key = (item.source_module, item.target_module, item.dynamic, item.target_text)
+            if key in seen:
+                continue
+            seen.add(key)
+            out.append(item)
+        return out
+
+    def _dedupe_hints(values: list[AssignmentHint]) -> list[AssignmentHint]:
+        seen: set[tuple[str, str, str]] = set()
+        out: list[AssignmentHint] = []
+        for item in sorted(values, key=lambda h: (h.scope, h.receiver, h.value_text)):
+            key = (item.scope, item.receiver, item.value_text)
+            if key in seen:
+                continue
+            seen.add(key)
+            out.append(item)
+        return out
+
+    result.defs = _dedupe_defs(result.defs)
+    result.call_edges = _dedupe_calls(result.call_edges)
+    result.import_edges = _dedupe_imports(result.import_edges)
+    result.assignment_hints = _dedupe_hints(result.assignment_hints)
+    return result
 
 
 def parse_independent(
@@ -33,6 +117,7 @@ def parse_independent(
         if not parser:
             continue
         for output in parser(repo_root, entries):
+            output = _normalize_parse_result(output)
             results[output.file_path] = output
             if on_file_parsed:
                 on_file_parsed(output.file_path)
