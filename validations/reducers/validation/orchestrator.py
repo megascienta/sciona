@@ -46,6 +46,18 @@ def _build_report_payload(
     rows: list[dict],
     out_of_contract_meta: list[dict],
 ) -> dict:
+    def _passes_q2_gate(tp: int, fp: int, fn: int, target: float) -> bool:
+        precision = (tp / (tp + fp)) if (tp + fp) else None
+        recall = (tp / (tp + fn)) if (tp + fn) else None
+        return bool(
+            precision is not None
+            and recall is not None
+            and float(precision) >= target
+            and float(recall) >= target
+            and fp == 0
+            and fn == 0
+        )
+
     scored_rows_reducer_vs_contract = [
         row for row in rows if row.get("metrics_reducer_vs_contract") is not None
     ]
@@ -82,6 +94,13 @@ def _build_report_payload(
         or int((row.get("metrics_reducer_vs_db") or {}).get("fn") or 0) > 0
     )
     reducer_output_edges = int(reducer_vs_db_micro.get("tp") or 0)
+    reducer_output_edges_by_language: dict[str, int] = {}
+    for row in scored_rows_reducer_vs_db:
+        language = str(row.get("language") or "unknown")
+        reducer_output_edges_by_language[language] = (
+            reducer_output_edges_by_language.get(language, 0)
+            + int((row.get("metrics_reducer_vs_db") or {}).get("tp") or 0)
+        )
 
     contract_truth_edges = sum(len(row.get("contract_truth_edges") or []) for row in rows)
     out_of_contract_total = len(out_of_contract_meta)
@@ -91,13 +110,20 @@ def _build_report_payload(
     by_edge_type: dict[str, int] = {}
     by_semantic_type: dict[str, int] = {}
     by_entity_kind: dict[str, int] = {}
+    by_language: dict[str, int] = {}
+    by_language_semantic: dict[str, dict[str, int]] = {}
     for key, value in breakdown.items():
         edge_type, _language, reason = key.split("::", 2)
         by_reason[reason] = by_reason.get(reason, 0) + int(value)
         by_edge_type[edge_type] = by_edge_type.get(edge_type, 0) + int(value)
     for record in out_of_contract_meta:
+        language = str(record.get("language") or "unknown")
         semantic_type = str(record.get("semantic_type") or "unknown")
         entity_kind = str(record.get("entity_kind") or "unknown")
+        by_language[language] = by_language.get(language, 0) + 1
+        by_language_semantic.setdefault(language, {})[semantic_type] = (
+            by_language_semantic.setdefault(language, {}).get(semantic_type, 0) + 1
+        )
         by_semantic_type[semantic_type] = by_semantic_type.get(semantic_type, 0) + 1
         by_entity_kind[entity_kind] = by_entity_kind.get(entity_kind, 0) + 1
 
@@ -117,12 +143,55 @@ def _build_report_payload(
         if reducer_output_edges
         else None
     )
+    out_of_contract_vs_reducer_output_by_language: dict[str, float | None] = {}
+    by_language_semantic_percent: dict[str, dict[str, float]] = {}
+    for language, count in sorted(by_language.items()):
+        base = int(reducer_output_edges_by_language.get(language) or 0)
+        out_of_contract_vs_reducer_output_by_language[language] = (
+            ((count / base) * 100.0) if base else None
+        )
+        per_type = by_language_semantic.get(language) or {}
+        by_language_semantic_percent[language] = {
+            semantic: ((value / count) * 100.0) if count else 0.0
+            for semantic, value in sorted(per_type.items())
+        }
+
+    q2_by_language_raw: dict[str, dict[str, float | int | bool | None]] = {}
+    for row in scored_rows_reducer_vs_contract:
+        language = str(row.get("language") or "unknown")
+        metrics = row.get("metrics_reducer_vs_contract") or {}
+        bucket = q2_by_language_raw.setdefault(
+            language,
+            {"tp": 0, "fp": 0, "fn": 0},
+        )
+        bucket["tp"] = int(bucket["tp"]) + int(metrics.get("tp") or 0)
+        bucket["fp"] = int(bucket["fp"]) + int(metrics.get("fp") or 0)
+        bucket["fn"] = int(bucket["fn"]) + int(metrics.get("fn") or 0)
+    q2_by_language: dict[str, dict[str, float | int | bool | None]] = {}
+    for language, bucket in sorted(q2_by_language_raw.items()):
+        tp = int(bucket["tp"])
+        fp = int(bucket["fp"])
+        fn = int(bucket["fn"])
+        precision = (tp / (tp + fp)) if (tp + fp) else None
+        recall = (tp / (tp + fn)) if (tp + fn) else None
+        q2_by_language[language] = {
+            "tp": tp,
+            "fp": fp,
+            "fn": fn,
+            "precision": precision,
+            "recall": recall,
+            "pass": _passes_q2_gate(tp, fp, fn, strict_target),
+        }
+    q2_language_pass = all(
+        bool(bucket.get("pass")) for bucket in q2_by_language.values()
+    ) if q2_by_language else False
 
     invariants = {
         "passed": bool(q1_pass and q2_pass),
         "hard_passed": bool(q1_pass and q2_pass),
         "q1_reducer_vs_db_exact": q1_pass,
         "q2_reducer_vs_contract_near_100": q2_pass,
+        "q2_per_language_near_100": q2_language_pass,
         "q3_descriptive_only": True,
     }
     quality_gates = {
@@ -179,6 +248,7 @@ def _build_report_payload(
                 "fp": strict_fp,
                 "fn": strict_fn,
                 "contract_truth_edges": contract_truth_edges,
+                "by_language": q2_by_language,
             },
             "q3": {
                 "title": "beyond static contract envelope",
@@ -192,6 +262,9 @@ def _build_report_payload(
                 "by_semantic_type": dict(sorted(by_semantic_type.items())),
                 "by_semantic_type_percent": by_semantic_type_percent,
                 "by_entity_kind": dict(sorted(by_entity_kind.items())),
+                "by_language_total": dict(sorted(by_language.items())),
+                "additional_vs_reducer_output_by_language": out_of_contract_vs_reducer_output_by_language,
+                "by_language_semantic_type_percent": by_language_semantic_percent,
             },
         },
     }

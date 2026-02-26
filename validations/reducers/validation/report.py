@@ -63,6 +63,7 @@ def render_summary(payload: dict) -> List[str]:
     )
     lines.append(f"- fp/fn: `{q2.get('fp')}`/`{q2.get('fn')}`")
     lines.append(f"- contract_truth_edges: `{q2.get('contract_truth_edges')}`")
+    lines.append(f"- by_language: `{q2.get('by_language')}`")
     lines.append("")
 
     q3 = questions.get("q3") or {}
@@ -76,5 +77,16 @@ def render_summary(payload: dict) -> List[str]:
         str(key): _format_percent(value) for key, value in percent_by_type.items()
     }
     lines.append(f"- percent_by_type: `{formatted_percent_by_type}`")
+    by_language = q3.get("additional_vs_reducer_output_by_language") or {}
+    formatted_by_language = {
+        str(key): _format_percent(value) if isinstance(value, float) else str(value)
+        for key, value in by_language.items()
+    }
+    lines.append(
+        f"- additional_vs_reducer_output_percent_by_language: `{formatted_by_language}`"
+    )
+    lines.append(
+        f"- percent_by_type_by_language: `{q3.get('by_language_semantic_type_percent')}`"
+    )
     lines.append("")
     return lines
