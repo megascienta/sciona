@@ -944,6 +944,33 @@ def run_validation(
         "repo_root": str(repo_root),
         "snapshot_id": snapshot_id,
         "report_schema_version": REPORT_SCHEMA_VERSION,
+        "compatibility": {
+            "deprecations": [
+                {
+                    "field": "enriched_truth_alignment.reason_breakdown",
+                    "status": "deprecated",
+                    "replacement": "contract_boundary.overlap_diagnostics",
+                },
+                {
+                    "field": "enrichment_edges",
+                    "status": "compatibility_alias",
+                    "replacement": "independent_static_limitation_edges",
+                },
+                {
+                    "field": "out_of_contract_edges",
+                    "status": "compatibility_alias",
+                    "replacement": "independent_static_limitation_edges",
+                },
+            ],
+            "removal_not_before_schema_version": "next schema bump after 2026-02-26",
+            "migration_map": {
+                "enriched_truth_alignment.reason_breakdown": "contract_boundary.overlap_diagnostics",
+                "enrichment_edges": "independent_static_limitation_edges",
+                "out_of_contract_edges": "independent_static_limitation_edges",
+                "excluded_out_of_scope_by_reason": "contract_exclusion_by_reason",
+                "included_limitation_by_reason": "independent_static_limitation_by_reason",
+            },
+        },
         "summary": summary,
         "invariants": invariants,
         "metric_definitions": METRIC_DEFINITIONS,

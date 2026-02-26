@@ -494,6 +494,9 @@ def render_summary(payload: dict) -> List[str]:
     lines.append("## Metric Definitions & Schema")
     lines.append("")
     lines.append(f"- report_schema_version: `{payload.get('report_schema_version')}`")
+    compatibility = payload.get("compatibility") or {}
+    if compatibility:
+        lines.append(f"- compatibility: `{compatibility}`")
     metric_defs = payload.get("metric_definitions") or {}
     if not metric_defs:
         lines.append("- none")

@@ -171,6 +171,7 @@ Canonical metric source/formula mapping is emitted in `metric_definitions`.
 
 ## 9. Top-Level JSON Keys
 - `report_schema_version`
+- `compatibility`
 - `summary`
 - `invariants`
 - `metric_definitions`
@@ -211,3 +212,11 @@ python validations/reducers/reducer_validation.py \
 - Independent truth is a deterministic static proxy, not absolute ground truth.
 - Expanded proxy truth remains diagnostic; not a correctness gate.
 - Java fixture tests require `SCIONA_JAVAPARSER_JAR` + `java/javac`.
+
+## 13. Compatibility & Migration
+- Legacy fields remain available during schema `2026-02-26` transition window.
+- Preferred mappings:
+- `enriched_truth_alignment.reason_breakdown` -> `contract_boundary.overlap_diagnostics`
+- `enrichment_edges` / `out_of_contract_edges` -> `independent_static_limitation_edges`
+- `included_limitation_by_reason` -> `independent_static_limitation_by_reason`
+- `excluded_out_of_scope_by_reason` -> `contract_exclusion_by_reason`

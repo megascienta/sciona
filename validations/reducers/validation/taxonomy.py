@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from typing import Dict
 
-REPORT_SCHEMA_VERSION = "2026-02-23"
+REPORT_SCHEMA_VERSION = "2026-02-26"
 
 SECTION_INTERNAL_INTEGRITY = "internal_integrity"
 SECTION_STATIC_CONTRACT_ALIGNMENT = "static_contract_alignment"
