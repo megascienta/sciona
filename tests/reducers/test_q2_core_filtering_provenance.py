@@ -45,3 +45,39 @@ def test_q2_filtering_pipeline_no_validation_contract_override() -> None:
     assert "core_normalize_typescript_import" in import_contract_text
     assert "get_validation_contract" not in orchestrator_text
     assert "def standard_call_names" not in out_of_contract_text
+
+
+def test_q3_payload_includes_provenance_breakdown(tmp_path: Path) -> None:
+    payload = _build_report_payload(
+        repo_root=tmp_path,
+        rows=[
+            {
+                "entity": "fixture.mod.fn",
+                "language": "python",
+                "kind": "function",
+                "file_path": "mod.py",
+                "module_qualified_name": "fixture.mod",
+                "metrics_reducer_vs_db": {"tp": 1, "fp": 0, "fn": 0},
+                "metrics_reducer_vs_contract": {"tp": 1, "fp": 0, "fn": 0},
+                "metrics_db_vs_contract": {"tp": 1, "fp": 0, "fn": 0},
+                "contract_truth_edges": [{"caller": "fixture.mod.fn", "callee": "helper"}],
+            }
+        ],
+        out_of_contract_meta=[
+            {
+                "edge_type": "call",
+                "language": "python",
+                "reason": "dynamic",
+                "semantic_type": "dynamic_call",
+                "entity": "fixture.mod.fn",
+                "entity_kind": "function",
+                "caller": "fixture.mod.fn",
+                "callee": "invoke",
+                "callee_qname": None,
+                "provenance": "syntax_raw",
+            }
+        ],
+    )
+    q3 = payload["questions"]["q3"]
+    assert q3["by_provenance"] == {"syntax_raw": 1}
+    assert q3["by_provenance_percent"] == {"syntax_raw": 100.0}

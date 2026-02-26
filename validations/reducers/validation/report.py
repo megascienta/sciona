@@ -80,6 +80,11 @@ def render_summary(payload: dict) -> List[str]:
         str(key): _format_percent(value) for key, value in percent_by_type.items()
     }
     lines.append(f"- percent_by_type: `{formatted_percent_by_type}`")
+    percent_by_provenance = q3.get("by_provenance_percent") or {}
+    formatted_percent_by_provenance = {
+        str(key): _format_percent(value) for key, value in percent_by_provenance.items()
+    }
+    lines.append(f"- percent_by_provenance: `{formatted_percent_by_provenance}`")
     by_language = q3.get("additional_vs_reducer_output_by_language") or {}
     formatted_by_language = {
         str(key): _format_percent(value) if isinstance(value, float) else str(value)

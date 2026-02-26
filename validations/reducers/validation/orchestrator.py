@@ -110,6 +110,7 @@ def _build_report_payload(
     by_reason: dict[str, int] = {}
     by_edge_type: dict[str, int] = {}
     by_semantic_type: dict[str, int] = {}
+    by_provenance: dict[str, int] = {}
     by_entity_kind: dict[str, int] = {}
     by_language: dict[str, int] = {}
     by_language_semantic: dict[str, dict[str, int]] = {}
@@ -120,12 +121,14 @@ def _build_report_payload(
     for record in out_of_contract_meta:
         language = str(record.get("language") or "unknown")
         semantic_type = str(record.get("semantic_type") or "unknown")
+        provenance = str(record.get("provenance") or "unknown")
         entity_kind = str(record.get("entity_kind") or "unknown")
         by_language[language] = by_language.get(language, 0) + 1
         by_language_semantic.setdefault(language, {})[semantic_type] = (
             by_language_semantic.setdefault(language, {}).get(semantic_type, 0) + 1
         )
         by_semantic_type[semantic_type] = by_semantic_type.get(semantic_type, 0) + 1
+        by_provenance[provenance] = by_provenance.get(provenance, 0) + 1
         by_entity_kind[entity_kind] = by_entity_kind.get(entity_kind, 0) + 1
 
     by_reason_percent = {
@@ -135,6 +138,10 @@ def _build_report_payload(
     by_semantic_type_percent = {
         semantic_type: ((count / out_of_contract_total) * 100.0) if out_of_contract_total else 0.0
         for semantic_type, count in sorted(by_semantic_type.items())
+    }
+    by_provenance_percent = {
+        provenance: ((count / out_of_contract_total) * 100.0) if out_of_contract_total else 0.0
+        for provenance, count in sorted(by_provenance.items())
     }
     out_of_contract_uplift = (
         (out_of_contract_total / contract_truth_edges) if contract_truth_edges else None
@@ -293,6 +300,8 @@ def _build_report_payload(
                 "by_edge_type": dict(sorted(by_edge_type.items())),
                 "by_semantic_type": dict(sorted(by_semantic_type.items())),
                 "by_semantic_type_percent": by_semantic_type_percent,
+                "by_provenance": dict(sorted(by_provenance.items())),
+                "by_provenance_percent": by_provenance_percent,
                 "by_entity_kind": dict(sorted(by_entity_kind.items())),
                 "by_language_total": dict(sorted(by_language.items())),
                 "additional_vs_reducer_output_by_language": out_of_contract_vs_reducer_output_by_language,
