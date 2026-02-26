@@ -4,21 +4,27 @@
 
 - pass: `True`
 - exact_required: `True`
-- tp/fp/fn: `1122`/`0`/`0`
+- reference/candidate/intersection: `1122`/`1122`/`1122`
+- missing/spillover: `0`/`0`
 - mismatch_nodes: `0`
 
 ## Q2. Reducers vs Independent Within Static Contract
 
 - pass: `False`
-- target: `0.990000`
-- precision/recall: `0.961609`/`0.987793`
-- fp/fn: `42`/`13`
-- contract_truth_edges: `1065`
+- target_mutual_accuracy_min: `0.990000`
+- target_missing_rate_max: `0.010000`
+- target_spillover_rate_max: `0.010000`
+- scored_nodes: `274`
+- avg_missing_rate/avg_spillover_rate: `0.083637`/`0.029197`
+- avg_mutual_accuracy: `0.902859`
+- reference/candidate/intersection: `1094`/`1065`/`1052`
+- missing/spillover: `42`/`13`
 - filtering_source: `core_only`
-- by_language: `{'java': {'tp': 573, 'fp': 34, 'fn': 6, 'precision': 0.943986820428336, 'recall': 0.9896373056994818, 'pass': False}, 'python': {'tp': 473, 'fp': 8, 'fn': 7, 'precision': 0.9833679833679834, 'recall': 0.9854166666666667, 'pass': False}, 'typescript': {'tp': 6, 'fp': 0, 'fn': 0, 'precision': 1.0, 'recall': 1.0, 'pass': True}}`
+- by_language: `{'java': {'scored_nodes': 133, 'avg_missing_rate': 0.11215538847117794, 'avg_spillover_rate': 0.02631578947368421, 'avg_mutual_accuracy': 0.8758145363408522, 'pass': False}, 'python': {'scored_nodes': 136, 'avg_missing_rate': 0.058823529411764705, 'avg_spillover_rate': 0.03308823529411765, 'avg_mutual_accuracy': 0.9257352941176471, 'pass': False}, 'typescript': {'scored_nodes': 5, 'avg_missing_rate': 0.0, 'avg_spillover_rate': 0.0, 'avg_mutual_accuracy': 1.0, 'pass': True}}`
 
 ## Q3. Beyond Static Contract Envelope
 
-- additional_vs_reducer_output_percent: `23.17%`
-- percent_by_type: `{'decorator_call': '13.46%', 'direct_call_unresolved': '58.46%', 'member_call_unresolved': '28.08%'}`
+- scored_nodes: `274`
+- avg_out_of_contract_rate_percent: `44.25%`
+- avg_percent_by_type: `{'decorator_call': '3.89%', 'direct_call_unresolved': '25.36%', 'member_call_unresolved': '14.99%'}`
 

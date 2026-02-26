@@ -4,21 +4,27 @@
 
 - pass: `True`
 - exact_required: `True`
-- tp/fp/fn: `4909`/`0`/`0`
+- reference/candidate/intersection: `4909`/`4909`/`4909`
+- missing/spillover: `0`/`0`
 - mismatch_nodes: `0`
 
 ## Q2. Reducers vs Independent Within Static Contract
 
 - pass: `False`
-- target: `0.990000`
-- precision/recall: `0.986732`/`0.992404`
-- fp/fn: `65`/`37`
-- contract_truth_edges: `4871`
+- target_mutual_accuracy_min: `0.990000`
+- target_missing_rate_max: `0.010000`
+- target_spillover_rate_max: `0.010000`
+- scored_nodes: `366`
+- avg_missing_rate/avg_spillover_rate: `0.117849`/`0.044275`
+- avg_mutual_accuracy: `0.863765`
+- reference/candidate/intersection: `4899`/`4871`/`4834`
+- missing/spillover: `65`/`37`
 - filtering_source: `core_only`
-- by_language: `{'java': {'tp': 4834, 'fp': 65, 'fn': 37, 'precision': 0.9867319861196162, 'recall': 0.9924040238144118, 'pass': False}}`
+- by_language: `{'java': {'scored_nodes': 366, 'avg_missing_rate': 0.11784856764364961, 'avg_spillover_rate': 0.044275493660279025, 'avg_mutual_accuracy': 0.8637651507699742, 'pass': False}}`
 
 ## Q3. Beyond Static Contract Envelope
 
-- additional_vs_reducer_output_percent: `4.93%`
-- percent_by_type: `{'direct_call_unresolved': '100.00%'}`
+- scored_nodes: `366`
+- avg_out_of_contract_rate_percent: `33.60%`
+- avg_percent_by_type: `{'direct_call_unresolved': '33.60%'}`
 
