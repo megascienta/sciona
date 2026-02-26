@@ -16,14 +16,16 @@ from .db_adapter import (
     resolve_node_instance,
 )
 from .ground_truth import build_module_imports_by_prefix, edge_records_from_ground_truth
+from .call_contract import resolve_call_in_contract
 from .independent.contract_normalization import (
     module_name_from_file,
     normalization_is_scoped_consistent,
     normalize_scoped_calls,
 )
 from .independent.normalize import normalize_file_edges
-from .independent.shared import EdgeRecord, FileParseResult
+from .independent.shared import EdgeRecord, FileParseResult, dedupe_edge_records
 from .metrics import compare_edge_sets, compute_metrics
+from .out_of_contract import standard_call_names
 from .sampling import build_entities_from_db, sample_entities
 from .reducer_queries import (
     get_callsite_index_payload,
@@ -32,88 +34,64 @@ from .reducer_queries import (
 )
 
 
-def _edge_key_tuple(edge: EdgeRecord) -> tuple[str, str, str | None]:
-    return (edge.caller, edge.callee, edge.callee_qname)
+def _filter_core_edges_in_contract(
+    *,
+    entity,
+    edges: list[EdgeRecord],
+    contract: dict,
+    call_resolution: dict,
+    module_names: set[str],
+) -> list[EdgeRecord]:
+    if not edges:
+        return []
+    if entity.kind == "module":
+        require_in_repo = bool(
+            (contract.get("imports") or {}).get("require_module_in_repo", True)
+        )
+        if not require_in_repo:
+            return dedupe_edge_records(edges)
+        return dedupe_edge_records(
+            [
+                edge
+                for edge in edges
+                if (edge.callee_qname or edge.callee) in module_names
+            ]
+        )
 
+    if entity.kind == "class":
+        module_lookup: dict[str, str] = call_resolution.get("module_lookup", {})
+        return dedupe_edge_records(
+            [
+                edge
+                for edge in edges
+                if edge.callee_qname and edge.callee_qname in module_lookup
+            ]
+        )
 
-def _expected_call_form_map(entity_qname: str, normalized_calls, expected_filtered) -> dict:
-    expected_keys = {_edge_key_tuple(edge) for edge in expected_filtered}
-    forms = {key: "direct" for key in expected_keys}
-    by_caller: dict[str, list] = {}
-    for edge in normalized_calls:
-        if edge.caller != entity_qname:
+    caller_qname = entity.qualified_name
+    caller_module = entity.module_qualified_name
+    standard = standard_call_names(contract, entity.language)
+    filtered: list[EdgeRecord] = []
+    for edge in edges:
+        if edge.callee and edge.callee in standard:
             continue
-        by_caller.setdefault(edge.caller, []).append(edge)
-    for key in expected_keys:
-        caller, callee, callee_qname = key
-        candidates = []
-        for candidate in by_caller.get(caller, []):
-            same_qname = callee_qname and candidate.callee_qname == callee_qname
-            same_terminal = (candidate.callee or "").strip() == (callee or "").strip()
-            if same_qname or same_terminal:
-                candidates.append(candidate)
-        if not candidates:
+        resolved = resolve_call_in_contract(
+            edge=edge,
+            caller_qname=caller_qname,
+            caller_module=caller_module,
+            call_resolution=call_resolution,
+            contract=contract,
+        )
+        if not resolved:
             continue
-        if any("." in (candidate.callee_text or "") for candidate in candidates):
-            forms[key] = "member"
-        else:
-            forms[key] = "direct"
-    return forms
-
-
-def _call_form_metrics(expected_filtered, sciona_edges, form_map: dict) -> dict:
-    from .independent.shared import match_edge
-
-    buckets = {"direct": {"tp": 0, "fn": 0}, "member": {"tp": 0, "fn": 0}}
-    for expected in expected_filtered:
-        key = _edge_key_tuple(expected)
-        form = form_map.get(key, "direct")
-        matched = False
-        for actual in sciona_edges:
-            if actual.caller != expected.caller:
-                continue
-            if match_edge(actual.callee, actual.callee_qname, expected.callee, expected.callee_qname):
-                matched = True
-                break
-        if matched:
-            buckets[form]["tp"] += 1
-        else:
-            buckets[form]["fn"] += 1
-    result: dict[str, dict] = {}
-    for form in ("direct", "member"):
-        tp = buckets[form]["tp"]
-        fn = buckets[form]["fn"]
-        den = tp + fn
-        result[form] = {
-            "tp": tp,
-            "fn": fn,
-            "recall": (tp / den) if den else None,
-        }
-    return result
-
-
-def _reason_recall_metrics(limitation_edges_by_reason: dict, sciona_edges) -> dict:
-    from .independent.shared import match_edge
-
-    result: dict[str, dict] = {}
-    for reason, edges in (limitation_edges_by_reason or {}).items():
-        tp = 0
-        fn = 0
-        for expected in edges:
-            matched = False
-            for actual in sciona_edges:
-                if actual.caller != expected.caller:
-                    continue
-                if match_edge(actual.callee, actual.callee_qname, expected.callee, expected.callee_qname):
-                    matched = True
-                    break
-            if matched:
-                tp += 1
-            else:
-                fn += 1
-        den = tp + fn
-        result[reason] = {"tp": tp, "fn": fn, "recall": (tp / den) if den else None}
-    return result
+        filtered.append(
+            EdgeRecord(
+                caller=edge.caller,
+                callee=resolved.split(".")[-1],
+                callee_qname=resolved,
+            )
+        )
+    return dedupe_edge_records(filtered)
 
 
 def module_qname_from_entity(entity) -> str:
@@ -452,17 +430,6 @@ def build_normalized_edge_maps(
     return normalized_edge_map, module_imports_by_prefix, scoped_normalization_ok
 
 
-def coverage_by_language(independent_results: Dict[str, FileParseResult]) -> Dict[str, dict]:
-    coverage: Dict[str, dict] = {}
-    for result in independent_results.values():
-        language = result.language or "unknown"
-        stats = coverage.setdefault(language, {"files_total": 0, "files_parsed": 0})
-        stats["files_total"] += 1
-        if result.parse_ok:
-            stats["files_parsed"] += 1
-    return coverage
-
-
 def evaluate_entities(
     sampled,
     independent_results: Dict[str, FileParseResult],
@@ -509,8 +476,22 @@ def evaluate_entities(
             local_packages,
         )
         out_of_contract_meta.extend(out_meta)
-        reducer_payloads, reducer_edges, reducer_error = reducer_source.get_edges(entity)
+        _, reducer_edges, reducer_error = reducer_source.get_edges(entity)
         _, db_edges, db_error = db_source.get_edges(entity)
+        reducer_edges_contract = _filter_core_edges_in_contract(
+            entity=entity,
+            edges=reducer_edges,
+            contract=contract,
+            call_resolution=call_resolution,
+            module_names=module_names,
+        )
+        db_edges_contract = _filter_core_edges_in_contract(
+            entity=entity,
+            edges=db_edges,
+            contract=contract,
+            call_resolution=call_resolution,
+            module_names=module_names,
+        )
 
         metrics_reducer_vs_db = None
         metrics_reducer_vs_contract = None
@@ -523,14 +504,14 @@ def evaluate_entities(
             and not db_error
             and not (entity.kind == "class" and class_truth_unreliable)
         ):
-            metrics_db_vs_contract = compute_metrics(expected_filtered, [], db_edges)
+            metrics_db_vs_contract = compute_metrics(expected_filtered, [], db_edges_contract)
         if (
             file_result.parse_ok
             and not reducer_error
             and not (entity.kind == "class" and class_truth_unreliable)
         ):
             metrics_reducer_vs_contract = compute_metrics(
-                expected_filtered, out_of_contract, reducer_edges
+                expected_filtered, out_of_contract, reducer_edges_contract
             )
         rows.append(
             {

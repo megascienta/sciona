@@ -12,6 +12,7 @@ This workflow produces one focused report answering exactly three questions:
 3. Parse sampled files with independent parsers.
 4. Build normalization/resolution context under shared static contract.
 5. Evaluate entities to produce per-node metrics and out-of-contract metadata.
+: Q2 compares only contract-filtered edges on both sides (independent truth and core/reducer edges).
 6. Emit one JSON report and one markdown summary (Q1/Q2/Q3 only).
 
 ## Report Surface
