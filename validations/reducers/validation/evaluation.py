@@ -52,14 +52,7 @@ def _filter_core_edges_in_contract(
         )
 
     if entity.kind == "class":
-        module_lookup: dict[str, str] = call_resolution.get("module_lookup", {})
-        return dedupe_edge_records(
-            [
-                edge
-                for edge in edges
-                if edge.callee_qname and edge.callee_qname in module_lookup
-            ]
-        )
+        return dedupe_edge_records(edges)
 
     caller_qname = entity.qualified_name
     caller_module = entity.module_qualified_name

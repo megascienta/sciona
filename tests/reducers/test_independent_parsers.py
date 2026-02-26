@@ -17,6 +17,7 @@ from validations.reducers.validation.call_contract import resolve_call_in_contra
 from validations.reducers.validation.evaluation_resolution import (
     build_independent_call_resolution,
 )
+from validations.reducers.validation.evaluation import _filter_core_edges_in_contract
 from validations.reducers.validation.ground_truth import edge_records_from_ground_truth
 from validations.reducers.validation.import_contract import resolve_import_contract
 from validations.reducers.validation.independent.contract_normalization import (
@@ -1103,6 +1104,34 @@ def test_call_resolution_propagates_constructor_bindings_to_methods() -> None:
     bindings = resolution["receiver_bindings"].get("fixture.sample.Controller.handle", {})
     assert "service" in bindings
     assert "fixture.sample.Service" in bindings["service"]
+
+
+def test_class_edge_filter_does_not_drop_valid_class_methods() -> None:
+    entity = SimpleNamespace(
+        kind="class",
+        qualified_name="fixture.sample.Controller",
+        module_qualified_name="fixture.sample",
+        language="typescript",
+    )
+    edges = [
+        EdgeRecord(
+            caller="fixture.sample.Controller",
+            callee="handle",
+            callee_qname="fixture.sample.Controller.handle",
+        ),
+        EdgeRecord(
+            caller="fixture.sample.Controller",
+            callee="constructor",
+            callee_qname="fixture.sample.Controller.constructor",
+        ),
+    ]
+    filtered = _filter_core_edges_in_contract(
+        entity=entity,
+        edges=edges,
+        call_resolution={},
+        module_names={"fixture.sample"},
+    )
+    assert len(filtered) == 2
 
 
 def test_call_contract_keeps_same_module_ambiguity_unresolved() -> None:
