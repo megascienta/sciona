@@ -33,11 +33,6 @@ def _require_core_jar() -> str:
     return str(jar_path)
 
 
-def _require_jar() -> str:
-    # Backward-compatible alias for older tests/callers.
-    return _require_core_jar()
-
-
 def _resolve_runner_jar() -> Path:
     runner = os.environ.get("SCIONA_JAVAPARSER_RUNNER_JAR")
     if not runner:
@@ -57,34 +52,29 @@ def _resolve_runner_jar() -> Path:
     return runner_path
 
 
-def _compile_and_run_java_parser(
-    *,
-    core_jar_path: str,
-    list_file: Path,
-) -> subprocess.CompletedProcess[str]:
+def parse_java_files(repo_root: Path, files: List[dict]) -> List[FileParseResult]:
+    core_jar_path = _require_core_jar()
+    runner_jar = _resolve_runner_jar()
+    if not runner_jar.is_file():
+        raise RuntimeError(
+            "Missing precompiled Java parser runner jar. "
+            f"Expected: {runner_jar}. "
+            "Build it with `bash validations/reducers/scripts/build_java_parser_runner.sh` "
+            "or set SCIONA_JAVAPARSER_RUNNER_JAR."
+        )
     with tempfile.TemporaryDirectory(prefix="sciona_javaparser_") as tmpdir:
         tmpdir_path = Path(tmpdir)
-        compile_result = subprocess.run(
-            [
-                "javac",
-                "-cp",
-                core_jar_path,
-                "-d",
-                tmpdir_path.as_posix(),
-                SCRIPT_PATH.as_posix(),
-            ],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        if compile_result.returncode != 0:
-            raise RuntimeError(compile_result.stderr.strip() or "javac failed")
-
+        list_file = tmpdir_path / "inputs.txt"
+        lines = []
+        for entry in files:
+            file_path = (repo_root / entry["file_path"]).resolve()
+            lines.append(f"{file_path.as_posix()}\t{entry['module_qualified_name']}")
+        list_file.write_text("\n".join(lines), encoding="utf-8")
         run_result = subprocess.run(
             [
                 "java",
                 "-cp",
-                f"{core_jar_path}{os.pathsep}{tmpdir_path.as_posix()}",
+                f"{core_jar_path}{os.pathsep}{runner_jar.as_posix()}",
                 "JavaParserRunner",
                 list_file.as_posix(),
             ],
@@ -94,54 +84,6 @@ def _compile_and_run_java_parser(
         )
         if run_result.returncode != 0:
             raise RuntimeError(run_result.stderr.strip() or "Java parser failed")
-        return run_result
-
-
-def parse_java_files(repo_root: Path, files: List[dict]) -> List[FileParseResult]:
-    core_jar_path = _require_core_jar()
-    runner_jar = _resolve_runner_jar()
-    allow_compile_fallback = (
-        str(os.environ.get("SCIONA_JAVA_COMPILE_FALLBACK", "0")).strip().lower()
-        in {"1", "true", "yes", "on"}
-    )
-    with tempfile.TemporaryDirectory(prefix="sciona_javaparser_") as tmpdir:
-        tmpdir_path = Path(tmpdir)
-        list_file = tmpdir_path / "inputs.txt"
-        lines = []
-        for entry in files:
-            file_path = (repo_root / entry["file_path"]).resolve()
-            lines.append(f"{file_path.as_posix()}\t{entry['module_qualified_name']}")
-        list_file.write_text("\n".join(lines), encoding="utf-8")
-
-        if runner_jar.is_file():
-            run_result = subprocess.run(
-                [
-                    "java",
-                    "-cp",
-                    f"{core_jar_path}{os.pathsep}{runner_jar.as_posix()}",
-                    "JavaParserRunner",
-                    list_file.as_posix(),
-                ],
-                capture_output=True,
-                text=True,
-                check=False,
-            )
-            if run_result.returncode != 0:
-                raise RuntimeError(run_result.stderr.strip() or "Java parser failed")
-        elif allow_compile_fallback:
-            run_result = _compile_and_run_java_parser(
-                core_jar_path=core_jar_path,
-                list_file=list_file,
-            )
-        else:
-            raise RuntimeError(
-                "Missing precompiled Java parser runner jar. "
-                f"Expected: {runner_jar}. "
-                "Build it with `bash validations/reducers/scripts/build_java_parser_runner.sh` "
-                "or set SCIONA_JAVAPARSER_RUNNER_JAR. "
-                "To allow legacy on-the-fly compilation, set SCIONA_JAVA_COMPILE_FALLBACK=1."
-            )
-
     data = json.loads(run_result.stdout)
     outputs: List[FileParseResult] = []
     for item in data.get("results", []):

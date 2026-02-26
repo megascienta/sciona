@@ -10,7 +10,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from validations.reducers.reducer_validation import _independent_results_hash
+from validations.reducers.validation.stability import independent_results_hash
 from validations.reducers.validation.call_contract import resolve_call_in_contract
 from validations.reducers.validation.call_contract import build_contract_call_candidates
 from validations.reducers.validation.call_contract import resolve_call_in_contract_details
@@ -24,7 +24,7 @@ from sciona.code_analysis.core.extract.languages.typescript import (
     module_name as core_typescript_module_name,
 )
 from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
-from validations.reducers.validation.independent.java_runner import _require_jar
+from validations.reducers.validation.independent.java_runner import _require_core_jar
 from validations.reducers.validation.independent.normalize import normalize_file_edges
 from validations.reducers.validation.independent.python_ast import parse_python_files
 from validations.reducers.validation.independent.python_ast import _CallVisitor
@@ -49,7 +49,7 @@ def _java_parser_ready() -> bool:
     if shutil.which("javac") is None or shutil.which("java") is None:
         return False
     try:
-        jar = Path(_require_jar())
+        jar = Path(_require_core_jar())
     except Exception:
         return False
     return jar.is_file()
@@ -263,7 +263,7 @@ def test_independent_parser_fixture_matrix_hash_stability(fixture: dict) -> None
         path: normalize_file_edges(res.module_qualified_name, res.call_edges, res.import_edges)
         for path, res in results2.items()
     }
-    assert _independent_results_hash(results1, normalized1) == _independent_results_hash(
+    assert independent_results_hash(results1, normalized1) == independent_results_hash(
         results2, normalized2
     )
 
@@ -497,7 +497,7 @@ def test_parser_hash_is_stable() -> None:
         path: normalize_file_edges(res.module_qualified_name, res.call_edges, res.import_edges)
         for path, res in results2.items()
     }
-    assert _independent_results_hash(results1, normalized1) == _independent_results_hash(
+    assert independent_results_hash(results1, normalized1) == independent_results_hash(
         results2, normalized2
     )
 

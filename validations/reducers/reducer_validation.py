@@ -7,15 +7,12 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
-from typing import Dict, List, Tuple
 
 if __package__ is None or __package__ == "":
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 from validations.reducers.validation import config
-from validations.reducers.validation.independent.shared import FileParseResult
 from validations.reducers.validation.orchestrator import run_validation
-from validations.reducers.validation.stability import independent_results_hash
 
 
 def parse_args() -> argparse.Namespace:
@@ -25,14 +22,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seed", type=int, default=config.DEFAULT_SEED)
     parser.add_argument("--stability-runs", type=int, default=2)
     return parser.parse_args()
-
-
-def _independent_results_hash(
-    independent_results: Dict[str, FileParseResult],
-    normalized_edge_map: Dict[str, Tuple[List[object], List[object]]],
-) -> str:
-    # Backward-compatibility shim for tests and external callers.
-    return independent_results_hash(independent_results, normalized_edge_map)
 
 
 def main() -> int:

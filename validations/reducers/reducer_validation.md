@@ -142,5 +142,3 @@ python validations/reducers/reducer_validation.py \
 ```bash
 bash validations/reducers/scripts/build_java_parser_runner.sh
 ```
-- Legacy compile-on-run is disabled by default; enable only when needed with:
-`SCIONA_JAVA_COMPILE_FALLBACK=1`.
