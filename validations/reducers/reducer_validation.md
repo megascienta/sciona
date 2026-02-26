@@ -75,21 +75,10 @@ Rationale:
 
 ## 5. Report Order
 1. Run Verdict
-2. Internal Integrity (Hard Gates)
-3. Strict Contract Alignment (Gating)
-4. Contract Boundary Profile (Non-Gating, Descriptive)
-5. Expanded Enrichment Diagnostics (Non-Gating)
-6. Enrichment Reliability (Heuristic)
-7. Language Breakdown
-8. Expanded/Enrichment Alignment by language:kind
-9. Strict vs Expanded delta by kind (top-5 worst)
-10. Independent Strict Contract Diagnostics
-11. Call Resolution Diagnostics
-12. Out-of-Contract Distribution
-13. Independent Parser Coverage & Totals
-14. Core Metrics
-15. Metric Definitions & Schema
-16. Action Priority Board
+2. Mismatch Source
+3. Contract Boundary
+4. Top Risks
+5. Appendix
 
 ## 6. Metric Layers
 

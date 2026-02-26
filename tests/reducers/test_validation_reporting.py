@@ -42,9 +42,30 @@ def test_render_summary_includes_action_and_reason_sections() -> None:
         "invariants": {"passed": True, "hard_passed": True},
         "quality_gates": {"threshold_profile": "single_language"},
         "internal_integrity": {"valid": True, "projection": {}, "determinism": {}},
-        "static_contract_alignment": {},
+        "static_contract_alignment": {
+            "static_contract_precision": 0.9,
+            "static_contract_recall": 0.95,
+            "static_overreach_rate": 0.1,
+        },
         "enriched_truth_alignment": {
-            "scope_split_counts": {"excluded_out_of_scope_edges": 1},
+            "tiers": {"full": {"reducer_precision": 0.8, "reducer_recall": 0.7}},
+        },
+        "contract_boundary": {
+            "limitation_edge_counts": {
+                "independent_static_limitation_edges": 2,
+                "contract_exclusion_edges": 3,
+                "included_limitation_edges": 2,
+                "excluded_out_of_scope_edges": 3,
+            },
+            "contract_leakage_rate": {"overall": 0.1, "by_reason": {"dynamic": 0.1}},
+        },
+        "parity_attribution": {
+            "repo_totals": {
+                "independent_candidate_set": {"candidate_pressure": 3},
+                "core_selector": {"selector_pressure": 1},
+                "final_edge_parity": {"core_overresolution": 2},
+                "row_dominant_cause": {"core_selector_gap_dominant": 1},
+            }
         },
         "enrichment_practical": {},
         "micro_metrics_by_language": {},
@@ -62,10 +83,11 @@ def test_render_summary_includes_action_and_reason_sections() -> None:
     }
     lines = render_summary(payload)
     text = "\n".join(lines)
-    assert "## Contract Boundary Profile (Non-Gating, Descriptive)" in text
-    assert "## Expanded Enrichment Diagnostics (Non-Gating)" in text
-    assert "## Independent Strict Contract Diagnostics" in text
-    assert "## Action Priority Board" in text
+    assert "## Run Verdict" in text
+    assert "## Mismatch Source" in text
+    assert "## Contract Boundary" in text
+    assert "## Top Risks" in text
+    assert "## Appendix" in text
 
 
 def test_strict_contract_policy_violations_detects_mode_and_key_drift() -> None:
