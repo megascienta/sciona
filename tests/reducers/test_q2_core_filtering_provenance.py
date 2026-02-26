@@ -32,11 +32,15 @@ def test_q2_payload_declares_core_only_filtering_source(tmp_path: Path) -> None:
 def test_q2_filtering_pipeline_no_validation_contract_override() -> None:
     base = Path("validations/reducers/validation")
     call_contract_text = (base / "call_contract.py").read_text(encoding="utf-8")
+    import_contract_text = (base / "import_contract.py").read_text(encoding="utf-8")
     orchestrator_text = (base / "orchestrator.py").read_text(encoding="utf-8")
     out_of_contract_text = (base / "out_of_contract.py").read_text(encoding="utf-8")
     assert (
         "from sciona.code_analysis.contracts import select_strict_call_candidate"
         in call_contract_text
     )
+    assert "from .independent.contract_normalization import" not in import_contract_text
+    assert "core_normalize_python_import" in import_contract_text
+    assert "core_normalize_typescript_import" in import_contract_text
     assert "get_validation_contract" not in orchestrator_text
     assert "def standard_call_names" not in out_of_contract_text
