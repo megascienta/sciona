@@ -26,7 +26,12 @@ from .evaluation import (
 )
 from .evaluation_parse import parse_independent_files
 from .evaluation_resolution import build_independent_call_resolution
-from .invariants import basket_split_checks, evaluate_invariants, filter_contract_checks
+from .invariants import (
+    basket_split_checks,
+    basket_split_diagnostics,
+    evaluate_invariants,
+    filter_contract_checks,
+)
 from .import_contract import resolve_import_contract
 from .out_of_contract import aggregate_breakdown
 from .report import render_summary, write_json, write_markdown
@@ -606,6 +611,7 @@ def run_validation(
         filter_contract_checks(rows)
     )
     basket_partition_ok, basket_counts_reconciled_ok = basket_split_checks(rows)
+    basket_diagnostics = basket_split_diagnostics(rows)
     class_rows_parse_ok = [
         row
         for row in rows
@@ -1060,11 +1066,21 @@ def run_validation(
             seed=seed + 2,
         ),
     }
+    hard_failures = invariants.get("hard_failures") or []
+    diagnostic_failures = invariants.get("diagnostic_failures") or []
+    run_verdict = {
+        "hard_passed": bool(invariants.get("hard_passed")),
+        "diagnostic_passed": len(diagnostic_failures) == 0,
+        "overall_passed": bool(invariants.get("hard_passed")) and len(diagnostic_failures) == 0,
+        "hard_failure_count": len(hard_failures),
+        "diagnostic_failure_count": len(diagnostic_failures),
+    }
 
     payload = {
         "repo_root": str(repo_root),
         "snapshot_id": snapshot_id,
         "report_schema_version": REPORT_SCHEMA_VERSION,
+        "run_verdict": run_verdict,
         "summary": summary,
         "invariants": invariants,
         "metric_definitions": METRIC_DEFINITIONS,
@@ -1221,6 +1237,7 @@ def run_validation(
             "overlap_diagnostics": {
                 "reducer": reason_recall_reducer,
                 "db": reason_recall_db,
+                "basket_split": basket_diagnostics,
                 "note": "Overlap is diagnostic and does not imply expected strict-contract recall of limitation edges.",
             },
         },

@@ -82,6 +82,89 @@ def basket_split_checks(rows: List[dict]) -> tuple[bool, bool]:
     return basket_partition_ok, basket_counts_reconciled_ok
 
 
+def basket_split_diagnostics(rows: List[dict], *, sample_limit: int = 10) -> dict:
+    overlap_counts = {
+        "contract_vs_limitation": 0,
+        "contract_vs_exclusion": 0,
+        "limitation_vs_exclusion": 0,
+    }
+    count_mismatches = {
+        "included_limitation_count_mismatch": 0,
+        "excluded_out_of_scope_count_mismatch": 0,
+    }
+    overlap_examples: list[dict] = []
+    count_examples: list[dict] = []
+
+    for row in rows:
+        contract_edges = row.get("contract_truth_edges") or []
+        limitation_edges = row.get("independent_static_limitation_edges") or []
+        exclusion_edges = row.get("contract_exclusion_edges") or []
+        contract_keys = edge_full_set(contract_edges)
+        limitation_keys = edge_full_set(limitation_edges)
+        exclusion_keys = edge_full_set(exclusion_edges)
+
+        overlap_cl = contract_keys & limitation_keys
+        overlap_ce = contract_keys & exclusion_keys
+        overlap_le = limitation_keys & exclusion_keys
+        if overlap_cl:
+            overlap_counts["contract_vs_limitation"] += len(overlap_cl)
+        if overlap_ce:
+            overlap_counts["contract_vs_exclusion"] += len(overlap_ce)
+        if overlap_le:
+            overlap_counts["limitation_vs_exclusion"] += len(overlap_le)
+        if (overlap_cl or overlap_ce or overlap_le) and len(overlap_examples) < sample_limit:
+            overlap_examples.append(
+                {
+                    "entity": row.get("entity"),
+                    "language": row.get("language"),
+                    "kind": row.get("kind"),
+                    "overlap_edge_counts": {
+                        "contract_vs_limitation": len(overlap_cl),
+                        "contract_vs_exclusion": len(overlap_ce),
+                        "limitation_vs_exclusion": len(overlap_le),
+                    },
+                }
+            )
+
+        included_expected = int(row.get("included_limitation_count") or 0)
+        excluded_expected = int(row.get("excluded_out_of_scope_count") or 0)
+        included_actual = len(limitation_keys)
+        excluded_actual = len(exclusion_keys)
+        included_mismatch = included_expected != included_actual
+        excluded_mismatch = excluded_expected != excluded_actual
+        if included_mismatch:
+            count_mismatches["included_limitation_count_mismatch"] += 1
+        if excluded_mismatch:
+            count_mismatches["excluded_out_of_scope_count_mismatch"] += 1
+        if (included_mismatch or excluded_mismatch) and len(count_examples) < sample_limit:
+            count_examples.append(
+                {
+                    "entity": row.get("entity"),
+                    "language": row.get("language"),
+                    "kind": row.get("kind"),
+                    "included_limitation_count": {
+                        "expected": included_expected,
+                        "actual": included_actual,
+                    },
+                    "excluded_out_of_scope_count": {
+                        "expected": excluded_expected,
+                        "actual": excluded_actual,
+                    },
+                }
+            )
+
+    partition_ok = all(value == 0 for value in overlap_counts.values())
+    counts_reconciled_ok = all(value == 0 for value in count_mismatches.values())
+    return {
+        "partition_ok": partition_ok,
+        "counts_reconciled_ok": counts_reconciled_ok,
+        "overlap_counts": overlap_counts,
+        "count_mismatches": count_mismatches,
+        "overlap_examples": overlap_examples,
+        "count_examples": count_examples,
+    }
+
+
 def evaluate_invariants(
     rows: List[dict],
     *,

@@ -42,6 +42,7 @@ def render_summary(payload: dict) -> List[str]:
     lines.append("")
 
     invariants = payload.get("invariants", {}) or {}
+    verdict = payload.get("run_verdict", {}) or {}
     quality = payload.get("quality_gates", {}) or {}
     strict = payload.get("static_contract_alignment", {}) or {}
     expanded = payload.get("enriched_truth_alignment", {}) or {}
@@ -52,7 +53,7 @@ def render_summary(payload: dict) -> List[str]:
 
     lines.append("## Run Verdict")
     lines.append("")
-    lines.append(f"- hard_passed: `{invariants.get('hard_passed')}`")
+    lines.append(f"- hard_passed: `{verdict.get('hard_passed', invariants.get('hard_passed'))}`")
     lines.append(f"- threshold_profile: `{quality.get('threshold_profile')}`")
     lines.append(
         f"- strict_precision/recall/overreach: `{_format_value(strict.get('static_contract_precision'))}`/`{_format_value(strict.get('static_contract_recall'))}`/`{_format_value(strict.get('static_overreach_rate'))}`"
@@ -63,8 +64,10 @@ def render_summary(payload: dict) -> List[str]:
     )
     hard_failures = invariants.get("hard_failures") or []
     diagnostic_failures = invariants.get("diagnostic_failures") or []
-    lines.append(f"- hard_failures: `{len(hard_failures)}`")
-    lines.append(f"- diagnostic_failures: `{len(diagnostic_failures)}`")
+    lines.append(f"- hard_failures: `{verdict.get('hard_failure_count', len(hard_failures))}`")
+    lines.append(
+        f"- diagnostic_failures: `{verdict.get('diagnostic_failure_count', len(diagnostic_failures))}`"
+    )
     if hard_failures:
         for item in hard_failures[:5]:
             lines.append(f"- hard_failure: {item}")
