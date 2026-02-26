@@ -31,6 +31,11 @@ Allowed shared utilities:
 ### 3.2 Limitation-Focused Enrichment Truth (Non-Gating)
 Built from strict proxy truth plus selected in-repo limitation edges.
 
+Envelope split (authoritative in payload):
+- `independent_static_limitations`: independent-parser limitation candidates in-scope for diagnostics.
+- `contract_exclusions`: edges intentionally excluded by strict contract policy (`scope_exclusions`).
+- `enrichment_edges`: backward-compatible alias for `independent_static_limitations` only.
+
 Policy (authoritative via code configuration):
 - `validations/reducers/validation/contract_spec.py` (validation contract policy surface)
 - `validations/reducers/validation/config.py` (thresholds and expanded-truth policy)
@@ -109,6 +114,7 @@ Rationale:
 ### 6.5 Contract Boundary Profile (non-gating, descriptive)
 - `contract_boundary` provides descriptive limitation volume and overlap diagnostics,
 - used to map where strict contract truncates coverage, not as a strict recall target.
+- explicitly separates `independent_static_limitations` vs `contract_exclusions`.
 - includes:
 - `limitation_edge_census` (volume by language/kind/reason),
 - `contract_truncation_profile` (top modules/classes/entities by limitation density),

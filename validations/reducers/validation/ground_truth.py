@@ -64,6 +64,10 @@ def edge_records_from_ground_truth(
         "included_limitation_count": 0,
         "excluded_out_of_scope_by_reason": {},
         "included_limitation_by_reason": {},
+        "contract_exclusion_edges_full": [],
+        "contract_exclusion_edges_by_reason": {},
+        "independent_limitation_edges_full": [],
+        "independent_limitation_edges_by_reason": {},
         "limitation_edges_high_conf": [],
         "limitation_edges_full": [],
         "limitation_edges_by_reason": {},
@@ -82,11 +86,19 @@ def edge_records_from_ground_truth(
             diagnostics["excluded_out_of_scope_count"] += 1
             excluded = diagnostics.setdefault("excluded_out_of_scope_by_reason", {})
             excluded[reason] = int(excluded.get(reason, 0)) + 1
+            diagnostics.setdefault("contract_exclusion_edges_full", []).append(record)
+            diagnostics.setdefault("contract_exclusion_edges_by_reason", {}).setdefault(
+                reason, []
+            ).append(record)
             return
         diagnostics["included_limitation_count"] += 1
         included = diagnostics.setdefault("included_limitation_by_reason", {})
         included[reason] = int(included.get(reason, 0)) + 1
         out_of_contract.append(record)
+        diagnostics.setdefault("independent_limitation_edges_full", []).append(record)
+        diagnostics.setdefault("independent_limitation_edges_by_reason", {}).setdefault(
+            reason, []
+        ).append(record)
         diagnostics.setdefault("limitation_edges_by_reason", {}).setdefault(reason, []).append(
             record
         )
@@ -109,6 +121,22 @@ def edge_records_from_ground_truth(
         diagnostics["limitation_edges_by_reason"] = {
             reason: dedupe_edge_records(edges)
             for reason, edges in by_reason.items()
+        }
+        diagnostics["contract_exclusion_edges_full"] = dedupe_edge_records(
+            diagnostics["contract_exclusion_edges_full"]
+        )
+        contract_by_reason = diagnostics.get("contract_exclusion_edges_by_reason") or {}
+        diagnostics["contract_exclusion_edges_by_reason"] = {
+            reason: dedupe_edge_records(edges)
+            for reason, edges in contract_by_reason.items()
+        }
+        diagnostics["independent_limitation_edges_full"] = dedupe_edge_records(
+            diagnostics["independent_limitation_edges_full"]
+        )
+        independent_by_reason = diagnostics.get("independent_limitation_edges_by_reason") or {}
+        diagnostics["independent_limitation_edges_by_reason"] = {
+            reason: dedupe_edge_records(edges)
+            for reason, edges in independent_by_reason.items()
         }
 
     if entity.kind == "module":

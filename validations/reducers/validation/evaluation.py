@@ -582,7 +582,11 @@ def evaluate_entities(
         db_form_metrics = _call_form_metrics(
             expected_filtered, db_edges, expected_form_map
         )
-        limitation_edges_by_reason = gt_diagnostics.get("limitation_edges_by_reason") or {}
+        limitation_edges_by_reason = (
+            gt_diagnostics.get("independent_limitation_edges_by_reason")
+            or gt_diagnostics.get("limitation_edges_by_reason")
+            or {}
+        )
         reducer_reason_metrics = _reason_recall_metrics(
             limitation_edges_by_reason, reducer_edges
         )
@@ -635,6 +639,26 @@ def evaluate_entities(
                 "metrics_db_vs_expanded_by_reason": db_reason_metrics,
                 "reducer_db_empty_set_mismatch": reducer_db_empty_set_mismatch,
                 "contract_truth_edges": [asdict(edge) for edge in expected_filtered],
+                "independent_static_limitation_edges": [
+                    asdict(edge)
+                    for edge in (gt_diagnostics.get("independent_limitation_edges_full") or out_of_contract)
+                ],
+                "contract_exclusion_edges": [
+                    asdict(edge)
+                    for edge in (gt_diagnostics.get("contract_exclusion_edges_full") or [])
+                ],
+                "independent_static_limitation_by_reason": {
+                    reason: [asdict(edge) for edge in edges]
+                    for reason, edges in (
+                        gt_diagnostics.get("independent_limitation_edges_by_reason") or {}
+                    ).items()
+                },
+                "contract_exclusion_by_reason": {
+                    reason: [asdict(edge) for edge in edges]
+                    for reason, edges in (
+                        gt_diagnostics.get("contract_exclusion_edges_by_reason") or {}
+                    ).items()
+                },
                 "enrichment_edges": [asdict(edge) for edge in out_of_contract],
                 "enriched_truth_edges": [asdict(edge) for edge in expanded_full_truth],
                 "expanded_truth_edges_high_conf": [asdict(edge) for edge in expanded_high_truth],

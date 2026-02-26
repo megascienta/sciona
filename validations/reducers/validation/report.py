@@ -151,6 +151,7 @@ def render_summary(payload: dict) -> List[str]:
             "contract_truncation_profile",
             "resolution_failure_taxonomy",
             "contract_leakage_rate",
+            "envelopes",
         ):
             value = boundary.get(key) or {}
             if value:

@@ -125,9 +125,14 @@ def _limitation_edge_census(rows: list[dict]) -> dict:
     for row in rows:
         language = row.get("language") or "unknown"
         kind = row.get("kind") or "unknown"
-        included = row.get("included_limitation_by_reason") or {}
-        for reason, raw_count in included.items():
-            count = int(raw_count or 0)
+        included_counts = row.get("included_limitation_by_reason") or {}
+        included_edges = row.get("independent_static_limitation_by_reason") or {}
+        reasons = set(included_counts) | set(included_edges)
+        for reason in reasons:
+            if reason in included_edges:
+                count = len(included_edges.get(reason) or [])
+            else:
+                count = int(included_counts.get(reason) or 0)
             if count <= 0:
                 continue
             by_reason[reason] = by_reason.get(reason, 0) + count
@@ -773,6 +778,14 @@ def run_validation(
         len(row.get("enrichment_edges") or row.get("out_of_contract_edges") or [])
         for row in rows
     )
+    independent_limitation_total = sum(
+        len(row.get("independent_static_limitation_edges") or [])
+        for row in rows
+    )
+    contract_exclusion_total = sum(
+        len(row.get("contract_exclusion_edges") or [])
+        for row in rows
+    )
     enriched_truth_total = sum(
         len(row.get("enriched_truth_edges") or [])
         for row in rows
@@ -796,13 +809,27 @@ def run_validation(
     excluded_out_of_scope_by_reason: dict[str, int] = {}
     included_limitation_by_reason: dict[str, int] = {}
     for row in rows:
-        excluded = row.get("excluded_out_of_scope_by_reason") or {}
-        included = row.get("included_limitation_by_reason") or {}
-        for reason, count in excluded.items():
+        excluded_counts = row.get("excluded_out_of_scope_by_reason") or {}
+        included_counts = row.get("included_limitation_by_reason") or {}
+        excluded_edges = row.get("contract_exclusion_by_reason") or {}
+        included_edges = row.get("independent_static_limitation_by_reason") or {}
+        excluded_reasons = set(excluded_counts) | set(excluded_edges)
+        included_reasons = set(included_counts) | set(included_edges)
+        for reason in excluded_reasons:
+            count = (
+                len(excluded_edges.get(reason) or [])
+                if reason in excluded_edges
+                else int(excluded_counts.get(reason) or 0)
+            )
             excluded_out_of_scope_by_reason[reason] = (
                 excluded_out_of_scope_by_reason.get(reason, 0) + int(count or 0)
             )
-        for reason, count in included.items():
+        for reason in included_reasons:
+            count = (
+                len(included_edges.get(reason) or [])
+                if reason in included_edges
+                else int(included_counts.get(reason) or 0)
+            )
             included_limitation_by_reason[reason] = (
                 included_limitation_by_reason.get(reason, 0) + int(count or 0)
             )
@@ -1041,8 +1068,24 @@ def run_validation(
                 "full_edges": expanded_full_total,
                 "excluded_out_of_scope_edges": excluded_out_of_scope_total,
                 "included_limitation_edges": included_limitation_total,
+                "independent_static_limitation_edges": independent_limitation_total,
+                "contract_exclusion_edges": contract_exclusion_total,
                 "excluded_out_of_scope_by_reason": excluded_out_of_scope_by_reason,
                 "included_limitation_by_reason": included_limitation_by_reason,
+            },
+            "envelopes": {
+                "independent_static_limitations": {
+                    "edge_count": independent_limitation_total,
+                    "by_reason": included_limitation_by_reason,
+                },
+                "contract_exclusions": {
+                    "edge_count": contract_exclusion_total,
+                    "by_reason": excluded_out_of_scope_by_reason,
+                },
+                "compatibility_projection": {
+                    "enrichment_edges": out_of_contract_total,
+                    "note": "enrichment_edges remains a backward-compatible alias for independent_static_limitations.",
+                },
             },
             "limitation_edge_census": limitation_edge_census,
             "contract_truncation_profile": contract_truncation_profile,
@@ -1120,6 +1163,8 @@ def run_validation(
             "expanded_full_edges": expanded_full_total,
             "excluded_out_of_scope_edges": excluded_out_of_scope_total,
             "included_limitation_edges": included_limitation_total,
+            "independent_static_limitation_edges": independent_limitation_total,
+            "contract_exclusion_edges": contract_exclusion_total,
         },
         "independent_coverage_by_language": coverage,
         "class_truth_mapping_quality": {
