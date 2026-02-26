@@ -192,6 +192,8 @@ def test_fixture_matrix_quality_gates() -> None:
         "constructor_injection",
         "namespace_aliases",
         "typed_params",
+        "member_resolution",
+        "relative_index_imports",
     }
     covered_categories = set()
     for fixture in fixtures:

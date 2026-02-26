@@ -29,7 +29,8 @@
       "categories": [
         "alias_imports",
         "chained_receivers",
-        "constructor_injection"
+        "constructor_injection",
+        "member_resolution"
       ]
     },
     {
@@ -85,7 +86,21 @@
       "categories": [
         "namespace_aliases",
         "chained_receivers",
-        "constructor_injection"
+        "constructor_injection",
+        "member_resolution"
+      ]
+    },
+    {
+      "id": "typescript_relative_index_import",
+      "language": "typescript",
+      "root": "typescript_relative_index",
+      "file_path": "sample.ts",
+      "module_qualified_name": "fixture.sample",
+      "assert_mode": "exact",
+      "requires": ["node"],
+      "categories": [
+        "imports",
+        "relative_index_imports"
       ]
     },
     {
@@ -118,7 +133,8 @@
       "requires": ["java_parser_toolchain"],
       "categories": [
         "constructor_injection",
-        "chained_receivers"
+        "chained_receivers",
+        "member_resolution"
       ]
     }
   ]
