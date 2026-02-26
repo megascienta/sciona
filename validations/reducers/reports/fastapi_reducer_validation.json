@@ -21794,6 +21794,12 @@
         "module_import_unresolved": 1.098901098901099,
         "relative_import_unresolved": 4.395604395604396
       },
+      "by_provenance": {
+        "syntax_raw": 91
+      },
+      "by_provenance_percent": {
+        "syntax_raw": 100.0
+      },
       "by_entity_kind": {
         "function": 67,
         "method": 19,

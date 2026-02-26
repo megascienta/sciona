@@ -24,7 +24,7 @@ from .independent.contract_normalization import (
 )
 from .independent.normalize import normalize_file_edges
 from .independent.shared import EdgeRecord, FileParseResult, dedupe_edge_records
-from .metrics import compare_edge_sets, compute_metrics
+from .metrics import compute_set_metrics
 from .sampling import build_entities_from_db, sample_entities
 from .reducer_queries import (
     get_callsite_index_payload,
@@ -476,32 +476,18 @@ def evaluate_entities(
             call_resolution=call_resolution,
             module_names=module_names,
         )
-        db_edges_contract = _filter_core_edges_in_contract(
-            entity=entity,
-            edges=db_edges,
-            call_resolution=call_resolution,
-            module_names=module_names,
-        )
-
-        metrics_reducer_vs_db = None
-        metrics_reducer_vs_contract = None
-        metrics_db_vs_contract = None
+        set_q1_reducer_vs_db = None
+        set_q2_reducer_vs_independent_contract = None
         class_truth_unreliable = bool(gt_diagnostics.get("class_truth_unreliable"))
         if not reducer_error and not db_error:
-            metrics_reducer_vs_db = compare_edge_sets(db_edges, reducer_edges)
-        if (
-            file_result.parse_ok
-            and not db_error
-            and not (entity.kind == "class" and class_truth_unreliable)
-        ):
-            metrics_db_vs_contract = compute_metrics(expected_filtered, [], db_edges_contract)
+            set_q1_reducer_vs_db = compute_set_metrics(db_edges, reducer_edges)
         if (
             file_result.parse_ok
             and not reducer_error
             and not (entity.kind == "class" and class_truth_unreliable)
         ):
-            metrics_reducer_vs_contract = compute_metrics(
-                expected_filtered, out_of_contract, reducer_edges_contract
+            set_q2_reducer_vs_independent_contract = compute_set_metrics(
+                reducer_edges_contract, expected_filtered
             )
         rows.append(
             {
@@ -510,18 +496,15 @@ def evaluate_entities(
                 "kind": entity.kind,
                 "file_path": entity.file_path,
                 "module_qualified_name": entity.module_qualified_name,
-                "metrics_reducer_vs_db": asdict(metrics_reducer_vs_db)
-                if metrics_reducer_vs_db
+                "set_q1_reducer_vs_db": asdict(set_q1_reducer_vs_db)
+                if set_q1_reducer_vs_db
                 else None,
-                "metrics_reducer_vs_contract": asdict(
-                    metrics_reducer_vs_contract
+                "set_q2_reducer_vs_independent_contract": asdict(
+                    set_q2_reducer_vs_independent_contract
                 )
-                if metrics_reducer_vs_contract
+                if set_q2_reducer_vs_independent_contract
                 else None,
-                "metrics_db_vs_contract": asdict(metrics_db_vs_contract)
-                if metrics_db_vs_contract
-                else None,
-                "contract_truth_edges": [asdict(edge) for edge in expected_filtered],
+                "basket2_edges": [asdict(edge) for edge in out_of_contract],
             }
         )
         if progress_handle:

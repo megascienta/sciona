@@ -43,7 +43,7 @@ from validations.reducers.validation.independent.shared import (
     NormalizedCallEdge,
 )
 from sciona.code_analysis.contracts import select_strict_call_candidate
-from validations.reducers.validation.metrics import compute_metrics
+from validations.reducers.validation.metrics import compute_set_metrics
 
 
 FIXTURE_ROOT = Path("tests/fixtures/independent")
@@ -520,10 +520,10 @@ def test_metrics_deduplicates_neighbor_edges() -> None:
         EdgeRecord(caller="a.mod.fn", callee="b", callee_qname="pkg.b"),
     ]
     actual = [EdgeRecord(caller="a.mod.fn", callee="b", callee_qname="pkg.b")]
-    metrics = compute_metrics(expected, [], actual)
-    assert metrics.tp == 1
-    assert metrics.fn == 0
-    assert metrics.in_contract_recall == 1.0
+    metrics = compute_set_metrics(expected, actual)
+    assert metrics.intersection_count == 1
+    assert metrics.missing_count == 0
+    assert metrics.coverage == 1.0
 
 
 def test_ground_truth_dedupes_duplicate_calls() -> None:

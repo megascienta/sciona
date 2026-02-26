@@ -12,9 +12,8 @@ class ReportRow(TypedDict, total=False):
     kind: Required[str]
     file_path: Required[str]
     module_qualified_name: Required[str]
-    metrics_reducer_vs_db: NotRequired[dict | None]
-    metrics_reducer_vs_contract: NotRequired[dict | None]
-    metrics_db_vs_contract: NotRequired[dict | None]
+    set_q1_reducer_vs_db: NotRequired[dict | None]
+    set_q2_reducer_vs_independent_contract: NotRequired[dict | None]
 
 
 class ReportPayload(TypedDict, total=False):
@@ -68,10 +67,17 @@ def _validate_row(row: Mapping[str, object], index: int) -> list[str]:
         errors.append(
             f"per_node[{index}].kind must be one of {sorted(_ALLOWED_KINDS)}"
         )
-    for metric_key in (
+    forbidden_legacy = (
         "metrics_reducer_vs_db",
         "metrics_reducer_vs_contract",
         "metrics_db_vs_contract",
+    )
+    for legacy_key in forbidden_legacy:
+        if legacy_key in row:
+            errors.append(f"per_node[{index}].{legacy_key} is not allowed in current schema")
+    for metric_key in (
+        "set_q1_reducer_vs_db",
+        "set_q2_reducer_vs_independent_contract",
     ):
         metric = row.get(metric_key)
         if metric is not None and not isinstance(metric, Mapping):

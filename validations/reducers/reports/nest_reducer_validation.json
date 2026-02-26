@@ -17,8 +17,8 @@
   },
   "quality_gates": {
     "q2_target": 0.99,
-    "q2_precision": 0.9585336538461539,
-    "q2_recall": 0.9809348093480935,
+    "q2_precision": 0.9783653846153846,
+    "q2_recall": 0.9813140446051839,
     "q2_filtering_source": "core_only"
   },
   "per_node": [
@@ -5459,27 +5459,27 @@
         "fn": 0
       },
       "metrics_reducer_vs_contract": {
-        "in_contract_expected_edges": 21,
+        "in_contract_expected_edges": 22,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.9545454545454546,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 21,
-        "fp": 1,
+        "tp": 22,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
-        "in_contract_expected_edges": 21,
+        "in_contract_expected_edges": 22,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.9545454545454546,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 21,
-        "fp": 1,
+        "tp": 22,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -5588,27 +5588,27 @@
         "fn": 0
       },
       "metrics_reducer_vs_contract": {
-        "in_contract_expected_edges": 58,
+        "in_contract_expected_edges": 59,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.9824561403508771,
-        "in_contract_recall": 0.9655172413793104,
-        "in_contract_coverage": 0.9655172413793104,
-        "in_contract_false_positive_count": 1,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.9661016949152542,
+        "in_contract_coverage": 0.9661016949152542,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 56,
-        "fp": 1,
+        "tp": 57,
+        "fp": 0,
         "fn": 2
       },
       "metrics_db_vs_contract": {
-        "in_contract_expected_edges": 58,
+        "in_contract_expected_edges": 59,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.9824561403508771,
-        "in_contract_recall": 0.9655172413793104,
-        "in_contract_coverage": 0.9655172413793104,
-        "in_contract_false_positive_count": 1,
+        "in_contract_precision": 1.0,
+        "in_contract_recall": 0.9661016949152542,
+        "in_contract_coverage": 0.9661016949152542,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 56,
-        "fp": 1,
+        "tp": 57,
+        "fp": 0,
         "fn": 2
       }
     },
@@ -6018,27 +6018,27 @@
         "fn": 0
       },
       "metrics_reducer_vs_contract": {
-        "in_contract_expected_edges": 38,
+        "in_contract_expected_edges": 53,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.6785714285714286,
+        "in_contract_precision": 0.9464285714285714,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 18,
+        "in_contract_false_positive_count": 3,
         "out_of_contract_missing_count": 0,
-        "tp": 38,
-        "fp": 18,
+        "tp": 53,
+        "fp": 3,
         "fn": 0
       },
       "metrics_db_vs_contract": {
-        "in_contract_expected_edges": 38,
+        "in_contract_expected_edges": 53,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.6785714285714286,
+        "in_contract_precision": 0.9464285714285714,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 18,
+        "in_contract_false_positive_count": 3,
         "out_of_contract_missing_count": 0,
-        "tp": 38,
-        "fp": 18,
+        "tp": 53,
+        "fp": 3,
         "fn": 0
       }
     },
@@ -6104,27 +6104,27 @@
         "fn": 0
       },
       "metrics_reducer_vs_contract": {
-        "in_contract_expected_edges": 15,
+        "in_contract_expected_edges": 16,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.9375,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 15,
-        "fp": 1,
+        "tp": 16,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
-        "in_contract_expected_edges": 15,
+        "in_contract_expected_edges": 16,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.9375,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 15,
-        "fp": 1,
+        "tp": 16,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -6168,27 +6168,27 @@
         "fn": 0
       },
       "metrics_reducer_vs_contract": {
-        "in_contract_expected_edges": 21,
+        "in_contract_expected_edges": 22,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.9545454545454546,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 21,
-        "fp": 1,
+        "tp": 22,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
-        "in_contract_expected_edges": 21,
+        "in_contract_expected_edges": 22,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.9545454545454546,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 21,
-        "fp": 1,
+        "tp": 22,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -6512,27 +6512,27 @@
         "fn": 0
       },
       "metrics_reducer_vs_contract": {
-        "in_contract_expected_edges": 19,
+        "in_contract_expected_edges": 20,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.95,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 19,
-        "fp": 1,
+        "tp": 20,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
-        "in_contract_expected_edges": 19,
+        "in_contract_expected_edges": 20,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.95,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 19,
-        "fp": 1,
+        "tp": 20,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -7908,27 +7908,27 @@
         "fn": 0
       },
       "metrics_reducer_vs_contract": {
-        "in_contract_expected_edges": 33,
+        "in_contract_expected_edges": 38,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.868421052631579,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 5,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 33,
-        "fp": 5,
+        "tp": 38,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
-        "in_contract_expected_edges": 33,
+        "in_contract_expected_edges": 38,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.868421052631579,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 5,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 33,
-        "fp": 5,
+        "tp": 38,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -7994,27 +7994,27 @@
         "fn": 0
       },
       "metrics_reducer_vs_contract": {
-        "in_contract_expected_edges": 22,
+        "in_contract_expected_edges": 24,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.9166666666666666,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 2,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 22,
-        "fp": 2,
+        "tp": 24,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
-        "in_contract_expected_edges": 22,
+        "in_contract_expected_edges": 24,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.9166666666666666,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 2,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 22,
-        "fp": 2,
+        "tp": 24,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -8596,27 +8596,27 @@
         "fn": 0
       },
       "metrics_reducer_vs_contract": {
-        "in_contract_expected_edges": 30,
+        "in_contract_expected_edges": 33,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.9090909090909091,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 3,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 30,
-        "fp": 3,
+        "tp": 33,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
-        "in_contract_expected_edges": 30,
+        "in_contract_expected_edges": 33,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.9090909090909091,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 3,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 30,
-        "fp": 3,
+        "tp": 33,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -8682,27 +8682,27 @@
         "fn": 0
       },
       "metrics_reducer_vs_contract": {
-        "in_contract_expected_edges": 27,
+        "in_contract_expected_edges": 28,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.84375,
+        "in_contract_precision": 0.875,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 5,
+        "in_contract_false_positive_count": 4,
         "out_of_contract_missing_count": 0,
-        "tp": 27,
-        "fp": 5,
+        "tp": 28,
+        "fp": 4,
         "fn": 0
       },
       "metrics_db_vs_contract": {
-        "in_contract_expected_edges": 27,
+        "in_contract_expected_edges": 28,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.84375,
+        "in_contract_precision": 0.875,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 5,
+        "in_contract_false_positive_count": 4,
         "out_of_contract_missing_count": 0,
-        "tp": 27,
-        "fp": 5,
+        "tp": 28,
+        "fp": 4,
         "fn": 0
       }
     },
@@ -8768,27 +8768,27 @@
         "fn": 0
       },
       "metrics_reducer_vs_contract": {
-        "in_contract_expected_edges": 23,
+        "in_contract_expected_edges": 24,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.9583333333333334,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 23,
-        "fp": 1,
+        "tp": 24,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
-        "in_contract_expected_edges": 23,
+        "in_contract_expected_edges": 24,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.9583333333333334,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 23,
-        "fp": 1,
+        "tp": 24,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -9110,27 +9110,27 @@
         "fn": 0
       },
       "metrics_reducer_vs_contract": {
-        "in_contract_expected_edges": 3,
+        "in_contract_expected_edges": 4,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.75,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 3,
-        "fp": 1,
+        "tp": 4,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
-        "in_contract_expected_edges": 3,
+        "in_contract_expected_edges": 4,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.75,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 3,
-        "fp": 1,
+        "tp": 4,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -21185,53 +21185,23 @@
       "title": "reducers vs independent within static contract",
       "pass": false,
       "target": 0.99,
-      "precision": 0.9585336538461539,
-      "recall": 0.9809348093480935,
-      "fp": 69,
+      "precision": 0.9783653846153846,
+      "recall": 0.9813140446051839,
+      "fp": 36,
       "fn": 31,
-      "contract_truth_edges": 1626,
+      "contract_truth_edges": 1659,
       "by_language": {
         "typescript": {
-          "tp": 1595,
-          "fp": 69,
+          "tp": 1628,
+          "fp": 36,
           "fn": 31,
-          "precision": 0.9585336538461539,
-          "recall": 0.9809348093480935,
+          "precision": 0.9783653846153846,
+          "recall": 0.9813140446051839,
           "pass": false
         }
       },
       "filtering_source": "core_only",
       "top_mismatch_signatures": [
-        {
-          "entity": "nest.packages.core.injector.module.Module",
-          "language": "typescript",
-          "kind": "class",
-          "file_path": "packages/core/injector/module.ts",
-          "module_qualified_name": "nest.packages.core.injector.module",
-          "fp": 18,
-          "fn": 0,
-          "total_mismatch": 18
-        },
-        {
-          "entity": "nest.packages.core.injector.instance-wrapper.InstanceWrapper",
-          "language": "typescript",
-          "kind": "class",
-          "file_path": "packages/core/injector/instance-wrapper.ts",
-          "module_qualified_name": "nest.packages.core.injector.instance-wrapper",
-          "fp": 5,
-          "fn": 0,
-          "total_mismatch": 5
-        },
-        {
-          "entity": "nest.packages.microservices.server.server-grpc.ServerGrpc",
-          "language": "typescript",
-          "kind": "class",
-          "file_path": "packages/microservices/server/server-grpc.ts",
-          "module_qualified_name": "nest.packages.microservices.server.server-grpc",
-          "fp": 5,
-          "fn": 0,
-          "total_mismatch": 5
-        },
         {
           "entity": "nest.packages.microservices.server.server-tcp.ServerTCP.handleMessage",
           "language": "typescript",
@@ -21253,21 +21223,21 @@
           "total_mismatch": 4
         },
         {
+          "entity": "nest.packages.microservices.server.server-grpc.ServerGrpc",
+          "language": "typescript",
+          "kind": "class",
+          "file_path": "packages/microservices/server/server-grpc.ts",
+          "module_qualified_name": "nest.packages.microservices.server.server-grpc",
+          "fp": 4,
+          "fn": 0,
+          "total_mismatch": 4
+        },
+        {
           "entity": "nest.packages.microservices.client.client-mqtt.ClientMqtt.constructor",
           "language": "typescript",
           "kind": "method",
           "file_path": "packages/microservices/client/client-mqtt.ts",
           "module_qualified_name": "nest.packages.microservices.client.client-mqtt",
-          "fp": 1,
-          "fn": 2,
-          "total_mismatch": 3
-        },
-        {
-          "entity": "nest.packages.platform-fastify.adapters.fastify-adapter.FastifyAdapter",
-          "language": "typescript",
-          "kind": "class",
-          "file_path": "packages/platform-fastify/adapters/fastify-adapter.ts",
-          "module_qualified_name": "nest.packages.platform-fastify.adapters.fastify-adapter",
           "fp": 1,
           "fn": 2,
           "total_mismatch": 3
@@ -21283,11 +21253,11 @@
           "total_mismatch": 3
         },
         {
-          "entity": "nest.packages.core.injector.container.NestContainer",
+          "entity": "nest.packages.core.injector.module.Module",
           "language": "typescript",
           "kind": "class",
-          "file_path": "packages/core/injector/container.ts",
-          "module_qualified_name": "nest.packages.core.injector.container",
+          "file_path": "packages/core/injector/module.ts",
+          "module_qualified_name": "nest.packages.core.injector.module",
           "fp": 3,
           "fn": 0,
           "total_mismatch": 3
@@ -21323,6 +21293,16 @@
           "total_mismatch": 2
         },
         {
+          "entity": "nest.packages.platform-fastify.adapters.fastify-adapter.FastifyAdapter",
+          "language": "typescript",
+          "kind": "class",
+          "file_path": "packages/platform-fastify/adapters/fastify-adapter.ts",
+          "module_qualified_name": "nest.packages.platform-fastify.adapters.fastify-adapter",
+          "fp": 0,
+          "fn": 2,
+          "total_mismatch": 2
+        },
+        {
           "entity": "nest.packages.microservices.client.client-mqtt.ClientMqtt.connect",
           "language": "typescript",
           "kind": "method",
@@ -21350,16 +21330,6 @@
           "module_qualified_name": "nest.packages.microservices.server.server-nats",
           "fp": 1,
           "fn": 1,
-          "total_mismatch": 2
-        },
-        {
-          "entity": "nest.packages.microservices.client.client-kafka.ClientKafka",
-          "language": "typescript",
-          "kind": "class",
-          "file_path": "packages/microservices/client/client-kafka.ts",
-          "module_qualified_name": "nest.packages.microservices.client.client-kafka",
-          "fp": 2,
-          "fn": 0,
           "total_mismatch": 2
         },
         {
@@ -21401,6 +21371,36 @@
           "fp": 0,
           "fn": 1,
           "total_mismatch": 1
+        },
+        {
+          "entity": "nest.packages.core.injector.module-ref.ModuleRef.instantiateClass",
+          "language": "typescript",
+          "kind": "method",
+          "file_path": "packages/core/injector/module-ref.ts",
+          "module_qualified_name": "nest.packages.core.injector.module-ref",
+          "fp": 0,
+          "fn": 1,
+          "total_mismatch": 1
+        },
+        {
+          "entity": "nest.packages.core.nest-application-context.NestApplicationContext.callDestroyHook",
+          "language": "typescript",
+          "kind": "method",
+          "file_path": "packages/core/nest-application-context.ts",
+          "module_qualified_name": "nest.packages.core.nest-application-context",
+          "fp": 0,
+          "fn": 1,
+          "total_mismatch": 1
+        },
+        {
+          "entity": "nest.packages.core.repl.repl.repl",
+          "language": "typescript",
+          "kind": "function",
+          "file_path": "packages/core/repl/repl.ts",
+          "module_qualified_name": "nest.packages.core.repl.repl",
+          "fp": 0,
+          "fn": 1,
+          "total_mismatch": 1
         }
       ]
     },
@@ -21408,7 +21408,7 @@
       "title": "beyond static contract envelope",
       "descriptive_only": true,
       "total_edges": 338,
-      "uplift_vs_contract_truth": 0.2078720787207872,
+      "uplift_vs_contract_truth": 0.20373719107896324,
       "additional_vs_reducer_output": 19.020821609454135,
       "by_reason": {
         "decorator": 5,
@@ -21436,6 +21436,12 @@
         "dynamic_call": 5.029585798816568,
         "dynamic_member_call": 1.183431952662722,
         "member_call_unresolved": 66.86390532544378
+      },
+      "by_provenance": {
+        "syntax_raw": 338
+      },
+      "by_provenance_percent": {
+        "syntax_raw": 100.0
       },
       "by_entity_kind": {
         "function": 176,

@@ -11,17 +11,14 @@
 
 - pass: `False`
 - target: `0.990000`
-- precision/recall: `0.958534`/`0.980935`
-- fp/fn: `69`/`31`
-- contract_truth_edges: `1626`
+- precision/recall: `0.978365`/`0.981314`
+- fp/fn: `36`/`31`
+- contract_truth_edges: `1659`
 - filtering_source: `core_only`
-- by_language: `{'typescript': {'tp': 1595, 'fp': 69, 'fn': 31, 'precision': 0.9585336538461539, 'recall': 0.9809348093480935, 'pass': False}}`
-- top_mismatch_signatures_count: `20`
+- by_language: `{'typescript': {'tp': 1628, 'fp': 36, 'fn': 31, 'precision': 0.9783653846153846, 'recall': 0.9813140446051839, 'pass': False}}`
 
 ## Q3. Beyond Static Contract Envelope
 
 - additional_vs_reducer_output_percent: `19.02%`
 - percent_by_type: `{'decorator_call': '1.48%', 'direct_call_unresolved': '25.44%', 'dynamic_call': '5.03%', 'dynamic_member_call': '1.18%', 'member_call_unresolved': '66.86%'}`
-- additional_vs_reducer_output_percent_by_language: `{'typescript': '19.02%'}`
-- percent_by_type_by_language: `{'typescript': {'decorator_call': 1.4792899408284024, 'direct_call_unresolved': 25.443786982248522, 'dynamic_call': 5.029585798816568, 'dynamic_member_call': 1.183431952662722, 'member_call_unresolved': 66.86390532544378}}`
 

@@ -17,10 +17,24 @@ def test_q2_payload_declares_core_only_filtering_source(tmp_path: Path) -> None:
                 "kind": "function",
                 "file_path": "mod.py",
                 "module_qualified_name": "fixture.mod",
-                "metrics_reducer_vs_db": {"tp": 1, "fp": 0, "fn": 0},
-                "metrics_reducer_vs_contract": {"tp": 1, "fp": 0, "fn": 0},
-                "metrics_db_vs_contract": {"tp": 1, "fp": 0, "fn": 0},
-                "contract_truth_edges": [{"caller": "fixture.mod.fn", "callee": "helper"}],
+                "set_q1_reducer_vs_db": {
+                    "reference_count": 1,
+                    "candidate_count": 1,
+                    "intersection_count": 1,
+                    "missing_count": 0,
+                    "spillover_count": 0,
+                    "coverage": 1.0,
+                    "spillover_ratio": 0.0,
+                },
+                "set_q2_reducer_vs_independent_contract": {
+                    "reference_count": 1,
+                    "candidate_count": 1,
+                    "intersection_count": 1,
+                    "missing_count": 0,
+                    "spillover_count": 0,
+                    "coverage": 1.0,
+                    "spillover_ratio": 0.0,
+                },
             }
         ],
         out_of_contract_meta=[],
@@ -57,10 +71,24 @@ def test_q3_payload_includes_provenance_breakdown(tmp_path: Path) -> None:
                 "kind": "function",
                 "file_path": "mod.py",
                 "module_qualified_name": "fixture.mod",
-                "metrics_reducer_vs_db": {"tp": 1, "fp": 0, "fn": 0},
-                "metrics_reducer_vs_contract": {"tp": 1, "fp": 0, "fn": 0},
-                "metrics_db_vs_contract": {"tp": 1, "fp": 0, "fn": 0},
-                "contract_truth_edges": [{"caller": "fixture.mod.fn", "callee": "helper"}],
+                "set_q1_reducer_vs_db": {
+                    "reference_count": 1,
+                    "candidate_count": 1,
+                    "intersection_count": 1,
+                    "missing_count": 0,
+                    "spillover_count": 0,
+                    "coverage": 1.0,
+                    "spillover_ratio": 0.0,
+                },
+                "set_q2_reducer_vs_independent_contract": {
+                    "reference_count": 1,
+                    "candidate_count": 1,
+                    "intersection_count": 1,
+                    "missing_count": 0,
+                    "spillover_count": 0,
+                    "coverage": 1.0,
+                    "spillover_ratio": 0.0,
+                },
             }
         ],
         out_of_contract_meta=[
@@ -79,5 +107,5 @@ def test_q3_payload_includes_provenance_breakdown(tmp_path: Path) -> None:
         ],
     )
     q3 = payload["questions"]["q3"]
-    assert q3["by_provenance"] == {"syntax_raw": 1}
-    assert q3["by_provenance_percent"] == {"syntax_raw": 100.0}
+    assert q3["by_semantic_type"] == {"dynamic_call": 1}
+    assert q3["by_semantic_type_percent"] == {"dynamic_call": 100.0}

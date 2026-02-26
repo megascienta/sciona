@@ -5,7 +5,7 @@
     "sampled_nodes=500",
     "q1_reducer_vs_db_exact=True",
     "q2_reducer_vs_contract_near_100=False",
-    "q3_out_of_contract_total=238"
+    "q3_out_of_contract_total=242"
   ],
   "invariants": {
     "passed": false,
@@ -18,7 +18,7 @@
   "quality_gates": {
     "q2_target": 0.99,
     "q2_precision": 0.9867319861196162,
-    "q2_recall": 0.9930156121610517,
+    "q2_recall": 0.9924040238144118,
     "q2_filtering_source": "core_only"
   },
   "per_node": [
@@ -7609,28 +7609,28 @@
         "fn": 0
       },
       "metrics_reducer_vs_contract": {
-        "in_contract_expected_edges": 1,
-        "out_of_contract_edges": 3,
+        "in_contract_expected_edges": 3,
+        "out_of_contract_edges": 4,
         "in_contract_precision": 0.5,
-        "in_contract_recall": 1.0,
-        "in_contract_coverage": 1.0,
+        "in_contract_recall": 0.3333333333333333,
+        "in_contract_coverage": 0.3333333333333333,
         "in_contract_false_positive_count": 1,
-        "out_of_contract_missing_count": 2,
+        "out_of_contract_missing_count": 3,
         "tp": 1,
         "fp": 1,
-        "fn": 0
+        "fn": 2
       },
       "metrics_db_vs_contract": {
-        "in_contract_expected_edges": 1,
+        "in_contract_expected_edges": 3,
         "out_of_contract_edges": 0,
         "in_contract_precision": 0.5,
-        "in_contract_recall": 1.0,
-        "in_contract_coverage": 1.0,
+        "in_contract_recall": 0.3333333333333333,
+        "in_contract_coverage": 0.3333333333333333,
         "in_contract_false_positive_count": 1,
         "out_of_contract_missing_count": 0,
         "tp": 1,
         "fp": 1,
-        "fn": 0
+        "fn": 2
       }
     },
     {
@@ -7781,28 +7781,28 @@
         "fn": 0
       },
       "metrics_reducer_vs_contract": {
-        "in_contract_expected_edges": 2,
+        "in_contract_expected_edges": 3,
         "out_of_contract_edges": 3,
         "in_contract_precision": 0.5,
-        "in_contract_recall": 1.0,
-        "in_contract_coverage": 1.0,
+        "in_contract_recall": 0.6666666666666666,
+        "in_contract_coverage": 0.6666666666666666,
         "in_contract_false_positive_count": 2,
         "out_of_contract_missing_count": 2,
         "tp": 2,
         "fp": 2,
-        "fn": 0
+        "fn": 1
       },
       "metrics_db_vs_contract": {
-        "in_contract_expected_edges": 2,
+        "in_contract_expected_edges": 3,
         "out_of_contract_edges": 0,
         "in_contract_precision": 0.5,
-        "in_contract_recall": 1.0,
-        "in_contract_coverage": 1.0,
+        "in_contract_recall": 0.6666666666666666,
+        "in_contract_coverage": 0.6666666666666666,
         "in_contract_false_positive_count": 2,
         "out_of_contract_missing_count": 0,
         "tp": 2,
         "fp": 2,
-        "fn": 0
+        "fn": 1
       }
     },
     {
@@ -7825,12 +7825,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 1,
-        "out_of_contract_edges": 4,
+        "out_of_contract_edges": 5,
         "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 4,
+        "out_of_contract_missing_count": 5,
         "tp": 1,
         "fp": 0,
         "fn": 0
@@ -9674,12 +9674,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 1,
-        "out_of_contract_edges": 3,
+        "out_of_contract_edges": 4,
         "in_contract_precision": 0.3333333333333333,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
         "in_contract_false_positive_count": 2,
-        "out_of_contract_missing_count": 2,
+        "out_of_contract_missing_count": 3,
         "tp": 1,
         "fp": 2,
         "fn": 0
@@ -10792,12 +10792,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
-        "out_of_contract_edges": 2,
+        "out_of_contract_edges": 3,
         "in_contract_precision": 0.0,
         "in_contract_recall": null,
         "in_contract_coverage": null,
         "in_contract_false_positive_count": 1,
-        "out_of_contract_missing_count": 2,
+        "out_of_contract_missing_count": 3,
         "tp": 0,
         "fp": 1,
         "fn": 0
@@ -21538,17 +21538,17 @@
       "pass": false,
       "target": 0.99,
       "precision": 0.9867319861196162,
-      "recall": 0.9930156121610517,
+      "recall": 0.9924040238144118,
       "fp": 65,
-      "fn": 34,
-      "contract_truth_edges": 4868,
+      "fn": 37,
+      "contract_truth_edges": 4871,
       "by_language": {
         "java": {
           "tp": 4834,
           "fp": 65,
-          "fn": 34,
+          "fn": 37,
           "precision": 0.9867319861196162,
-          "recall": 0.9930156121610517,
+          "recall": 0.9924040238144118,
           "pass": false
         }
       },
@@ -21563,6 +21563,26 @@
           "fp": 0,
           "fn": 5,
           "total_mismatch": 5
+        },
+        {
+          "entity": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testApplyNonNull2",
+          "language": "java",
+          "kind": "method",
+          "file_path": "src/test/java/org/apache/commons/lang3/function/FailableTest.java",
+          "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest",
+          "fp": 1,
+          "fn": 2,
+          "total_mismatch": 3
+        },
+        {
+          "entity": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testAcceptObjIntConsumer",
+          "language": "java",
+          "kind": "method",
+          "file_path": "src/test/java/org/apache/commons/lang3/function/FailableTest.java",
+          "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest",
+          "fp": 2,
+          "fn": 1,
+          "total_mismatch": 3
         },
         {
           "entity": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testByteConsumerAndThen",
@@ -21636,16 +21656,6 @@
         },
         {
           "entity": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testAcceptIntConsumer",
-          "language": "java",
-          "kind": "method",
-          "file_path": "src/test/java/org/apache/commons/lang3/function/FailableTest.java",
-          "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest",
-          "fp": 2,
-          "fn": 0,
-          "total_mismatch": 2
-        },
-        {
-          "entity": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testAcceptObjIntConsumer",
           "language": "java",
           "kind": "method",
           "file_path": "src/test/java/org/apache/commons/lang3/function/FailableTest.java",
@@ -21743,48 +21753,44 @@
           "fp": 0,
           "fn": 1,
           "total_mismatch": 1
-        },
-        {
-          "entity": "commons_lang.src.main.java.org.apache.commons.lang3.function.Failable.Failable.test",
-          "language": "java",
-          "kind": "method",
-          "file_path": "src/main/java/org/apache/commons/lang3/function/Failable.java",
-          "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.function.Failable",
-          "fp": 0,
-          "fn": 1,
-          "total_mismatch": 1
         }
       ]
     },
     "q3": {
       "title": "beyond static contract envelope",
       "descriptive_only": true,
-      "total_edges": 238,
-      "uplift_vs_contract_truth": 0.04889071487263763,
-      "additional_vs_reducer_output": 4.848237930332043,
+      "total_edges": 242,
+      "uplift_vs_contract_truth": 0.04968179018681995,
+      "additional_vs_reducer_output": 4.9297209207577914,
       "by_reason": {
-        "in_repo_unresolved": 238
+        "in_repo_unresolved": 242
       },
       "by_reason_percent": {
         "in_repo_unresolved": 100.0
       },
       "by_edge_type": {
-        "call": 238
+        "call": 242
       },
       "by_semantic_type": {
-        "direct_call_unresolved": 238
+        "direct_call_unresolved": 242
       },
       "by_semantic_type_percent": {
         "direct_call_unresolved": 100.0
       },
+      "by_provenance": {
+        "syntax_raw": 242
+      },
+      "by_provenance_percent": {
+        "syntax_raw": 100.0
+      },
       "by_entity_kind": {
-        "method": 238
+        "method": 242
       },
       "by_language_total": {
-        "java": 238
+        "java": 242
       },
       "additional_vs_reducer_output_by_language": {
-        "java": 4.848237930332043
+        "java": 4.9297209207577914
       },
       "by_language_semantic_type_percent": {
         "java": {

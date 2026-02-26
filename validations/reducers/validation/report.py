@@ -24,7 +24,7 @@ def write_markdown(path: Path, lines: List[str]) -> None:
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def _format_value(value) -> str:
+def _format_ratio(value) -> str:
     if isinstance(value, float):
         return f"{value:.6f}"
     return str(value)
@@ -48,7 +48,10 @@ def render_summary(payload: dict) -> List[str]:
     lines.append(f"- pass: `{q1.get('pass')}`")
     lines.append(f"- exact_required: `{q1.get('exact_required')}`")
     lines.append(
-        f"- tp/fp/fn: `{q1.get('tp')}`/`{q1.get('fp')}`/`{q1.get('fn')}`"
+        f"- reference/candidate/intersection: `{q1.get('reference_count')}`/`{q1.get('candidate_count')}`/`{q1.get('intersection_count')}`"
+    )
+    lines.append(
+        f"- missing/spillover: `{q1.get('missing_count')}`/`{q1.get('spillover_count')}`"
     )
     lines.append(f"- mismatch_nodes: `{q1.get('mismatch_nodes')}`")
     lines.append("")
@@ -57,12 +60,21 @@ def render_summary(payload: dict) -> List[str]:
     lines.append("## Q2. Reducers vs Independent Within Static Contract")
     lines.append("")
     lines.append(f"- pass: `{q2.get('pass')}`")
-    lines.append(f"- target: `{_format_value(q2.get('target'))}`")
     lines.append(
-        f"- precision/recall: `{_format_value(q2.get('precision'))}`/`{_format_value(q2.get('recall'))}`"
+        f"- target_coverage: `{_format_ratio(q2.get('target_coverage'))}`"
     )
-    lines.append(f"- fp/fn: `{q2.get('fp')}`/`{q2.get('fn')}`")
-    lines.append(f"- contract_truth_edges: `{q2.get('contract_truth_edges')}`")
+    lines.append(
+        f"- target_spillover_max: `{_format_ratio(q2.get('target_spillover_max'))}`"
+    )
+    lines.append(
+        f"- coverage/spillover_ratio: `{_format_ratio(q2.get('coverage'))}`/`{_format_ratio(q2.get('spillover_ratio'))}`"
+    )
+    lines.append(
+        f"- reference/candidate/intersection: `{q2.get('reference_count')}`/`{q2.get('candidate_count')}`/`{q2.get('intersection_count')}`"
+    )
+    lines.append(
+        f"- missing/spillover: `{q2.get('missing_count')}`/`{q2.get('spillover_count')}`"
+    )
     lines.append(f"- filtering_source: `{q2.get('filtering_source')}`")
     lines.append(f"- by_language: `{q2.get('by_language')}`")
     lines.append("")

@@ -5,7 +5,7 @@
     "sampled_nodes=500",
     "q1_reducer_vs_db_exact=True",
     "q2_reducer_vs_contract_near_100=False",
-    "q3_out_of_contract_total=258"
+    "q3_out_of_contract_total=260"
   ],
   "invariants": {
     "passed": false,
@@ -8039,12 +8039,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
-        "out_of_contract_edges": 2,
+        "out_of_contract_edges": 4,
         "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 2,
+        "out_of_contract_missing_count": 4,
         "tp": 0,
         "fp": 0,
         "fn": 0
@@ -21731,41 +21731,47 @@
     "q3": {
       "title": "beyond static contract envelope",
       "descriptive_only": true,
-      "total_edges": 258,
-      "uplift_vs_contract_truth": 0.24225352112676057,
-      "additional_vs_reducer_output": 22.994652406417114,
+      "total_edges": 260,
+      "uplift_vs_contract_truth": 0.24413145539906103,
+      "additional_vs_reducer_output": 23.1729055258467,
       "by_reason": {
         "decorator": 35,
-        "in_repo_unresolved": 223
+        "in_repo_unresolved": 225
       },
       "by_reason_percent": {
-        "decorator": 13.565891472868216,
-        "in_repo_unresolved": 86.43410852713178
+        "decorator": 13.461538461538462,
+        "in_repo_unresolved": 86.53846153846155
       },
       "by_edge_type": {
-        "call": 258
+        "call": 260
       },
       "by_semantic_type": {
         "decorator_call": 35,
-        "direct_call_unresolved": 150,
+        "direct_call_unresolved": 152,
         "member_call_unresolved": 73
       },
       "by_semantic_type_percent": {
-        "decorator_call": 13.565891472868216,
-        "direct_call_unresolved": 58.139534883720934,
-        "member_call_unresolved": 28.294573643410853
+        "decorator_call": 13.461538461538462,
+        "direct_call_unresolved": 58.46153846153847,
+        "member_call_unresolved": 28.076923076923077
+      },
+      "by_provenance": {
+        "syntax_raw": 260
+      },
+      "by_provenance_percent": {
+        "syntax_raw": 100.0
       },
       "by_entity_kind": {
         "function": 70,
-        "method": 188
+        "method": 190
       },
       "by_language_total": {
-        "java": 117,
+        "java": 119,
         "python": 138,
         "typescript": 3
       },
       "additional_vs_reducer_output_by_language": {
-        "java": 18.425196850393704,
+        "java": 18.740157480314963,
         "python": 28.690228690228693,
         "typescript": 50.0
       },
