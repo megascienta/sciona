@@ -104,6 +104,19 @@
       ]
     },
     {
+      "id": "typescript_constructor_member_binding",
+      "language": "typescript",
+      "root": "typescript_ctor_member",
+      "file_path": "sample.ts",
+      "module_qualified_name": "fixture.sample",
+      "assert_mode": "exact",
+      "requires": ["node"],
+      "categories": [
+        "constructor_injection",
+        "member_resolution"
+      ]
+    },
+    {
       "id": "java_core_calls_imports",
       "language": "java",
       "root": "java",
@@ -134,6 +147,19 @@
       "categories": [
         "constructor_injection",
         "chained_receivers",
+        "member_resolution"
+      ]
+    },
+    {
+      "id": "java_constructor_member_binding",
+      "language": "java",
+      "root": "java_ctor_member",
+      "file_path": "Sample.java",
+      "module_qualified_name": "fixture.sample",
+      "assert_mode": "subset",
+      "requires": ["java_parser_toolchain"],
+      "categories": [
+        "constructor_injection",
         "member_resolution"
       ]
     }
