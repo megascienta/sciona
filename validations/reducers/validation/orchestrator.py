@@ -102,18 +102,20 @@ def _build_report_payload(
         by_entity_kind[entity_kind] = by_entity_kind.get(entity_kind, 0) + 1
 
     by_reason_percent = {
-        reason: (count / out_of_contract_total) if out_of_contract_total else 0.0
+        reason: ((count / out_of_contract_total) * 100.0) if out_of_contract_total else 0.0
         for reason, count in sorted(by_reason.items())
     }
     by_semantic_type_percent = {
-        semantic_type: (count / out_of_contract_total) if out_of_contract_total else 0.0
+        semantic_type: ((count / out_of_contract_total) * 100.0) if out_of_contract_total else 0.0
         for semantic_type, count in sorted(by_semantic_type.items())
     }
     out_of_contract_uplift = (
         (out_of_contract_total / contract_truth_edges) if contract_truth_edges else None
     )
     out_of_contract_vs_reducer_output = (
-        (out_of_contract_total / reducer_output_edges) if reducer_output_edges else None
+        ((out_of_contract_total / reducer_output_edges) * 100.0)
+        if reducer_output_edges
+        else None
     )
 
     invariants = {

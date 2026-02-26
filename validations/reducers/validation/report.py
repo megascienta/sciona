@@ -30,6 +30,12 @@ def _format_value(value) -> str:
     return str(value)
 
 
+def _format_percent(value) -> str:
+    if isinstance(value, float):
+        return f"{value:.2f}%"
+    return str(value)
+
+
 def render_summary(payload: dict) -> List[str]:
     lines: List[str] = []
     lines.append("# SCIONA Reducer Validation Report")
@@ -63,8 +69,12 @@ def render_summary(payload: dict) -> List[str]:
     lines.append("## Q3. Beyond Static Contract Envelope")
     lines.append("")
     lines.append(
-        f"- additional_vs_reducer_output_percent: `{_format_value(q3.get('additional_vs_reducer_output'))}`"
+        f"- additional_vs_reducer_output_percent: `{_format_percent(q3.get('additional_vs_reducer_output'))}`"
     )
-    lines.append(f"- percent_by_type: `{q3.get('by_semantic_type_percent')}`")
+    percent_by_type = q3.get("by_semantic_type_percent") or {}
+    formatted_percent_by_type = {
+        str(key): _format_percent(value) for key, value in percent_by_type.items()
+    }
+    lines.append(f"- percent_by_type: `{formatted_percent_by_type}`")
     lines.append("")
     return lines
