@@ -136,6 +136,8 @@ Hard gates (run validity):
 - `gate_contract_truth_resolved`
 - `gate_parser_deterministic`
 - `gate_no_duplicate_contract_edges`
+- `gate_basket_partition`
+- `gate_basket_counts_reconciled`
 - `gate_scoped_call_normalization`
 - `gate_strict_contract_parity`
 - `gate_equal_contract_metrics_when_exact`

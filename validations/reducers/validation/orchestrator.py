@@ -26,7 +26,7 @@ from .evaluation import (
 )
 from .evaluation_parse import parse_independent_files
 from .evaluation_resolution import build_independent_call_resolution
-from .invariants import evaluate_invariants, filter_contract_checks
+from .invariants import basket_split_checks, evaluate_invariants, filter_contract_checks
 from .import_contract import resolve_import_contract
 from .out_of_contract import aggregate_breakdown
 from .report import render_summary, write_json, write_markdown
@@ -511,6 +511,7 @@ def run_validation(
     contract_truth_pure_ok, contract_truth_resolved_ok, no_duplicate_contract_edges = (
         filter_contract_checks(rows)
     )
+    basket_partition_ok, basket_counts_reconciled_ok = basket_split_checks(rows)
     class_rows_parse_ok = [
         row
         for row in rows
@@ -736,6 +737,8 @@ def run_validation(
         contract_truth_resolved_ok=contract_truth_resolved_ok,
         parser_deterministic=(stability_score == 1.0),
         no_duplicate_contract_edges=no_duplicate_contract_edges,
+        basket_partition_ok=basket_partition_ok,
+        basket_counts_reconciled_ok=basket_counts_reconciled_ok,
         typescript_relative_index_contract_ok=_typescript_relative_index_contract_check(contract),
         class_truth_nonempty_rate_ok=(
             class_truth_nonempty_rate >= thresholds["class_truth_nonempty_rate_min"]
@@ -872,6 +875,8 @@ def run_validation(
         "gate_contract_truth_resolved",
         "gate_parser_deterministic",
         "gate_no_duplicate_contract_edges",
+        "gate_basket_partition",
+        "gate_basket_counts_reconciled",
         "gate_scoped_call_normalization",
         "gate_strict_contract_parity",
         "gate_equal_contract_metrics_when_exact",

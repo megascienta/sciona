@@ -75,6 +75,8 @@ def render_summary(payload: dict) -> List[str]:
             "gate_contract_truth_resolved",
             "gate_parser_deterministic",
             "gate_no_duplicate_contract_edges",
+            "gate_basket_partition",
+            "gate_basket_counts_reconciled",
             "gate_typescript_relative_index_contract",
             "gate_class_truth_nonempty_rate",
             "gate_class_truth_match_rate",

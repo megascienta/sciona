@@ -54,6 +54,34 @@ def filter_contract_checks(rows: List[dict]) -> tuple[bool, bool, bool]:
     return contract_truth_pure_ok, contract_truth_resolved_ok, no_duplicate_contract_edges
 
 
+def basket_split_checks(rows: List[dict]) -> tuple[bool, bool]:
+    basket_partition_ok = True
+    basket_counts_reconciled_ok = True
+    for row in rows:
+        contract_edges = row.get("contract_truth_edges") or []
+        limitation_edges = row.get("independent_static_limitation_edges") or []
+        exclusion_edges = row.get("contract_exclusion_edges") or []
+        contract_keys = edge_full_set(contract_edges)
+        limitation_keys = edge_full_set(limitation_edges)
+        exclusion_keys = edge_full_set(exclusion_edges)
+        if contract_keys & limitation_keys:
+            basket_partition_ok = False
+            break
+        if contract_keys & exclusion_keys:
+            basket_partition_ok = False
+            break
+        if limitation_keys & exclusion_keys:
+            basket_partition_ok = False
+            break
+        if int(row.get("included_limitation_count") or 0) != len(limitation_keys):
+            basket_counts_reconciled_ok = False
+            break
+        if int(row.get("excluded_out_of_scope_count") or 0) != len(exclusion_keys):
+            basket_counts_reconciled_ok = False
+            break
+    return basket_partition_ok, basket_counts_reconciled_ok
+
+
 def evaluate_invariants(
     rows: List[dict],
     *,
@@ -67,6 +95,8 @@ def evaluate_invariants(
     contract_truth_resolved_ok: bool,
     parser_deterministic: bool,
     no_duplicate_contract_edges: bool,
+    basket_partition_ok: bool,
+    basket_counts_reconciled_ok: bool,
     typescript_relative_index_contract_ok: bool,
     class_truth_nonempty_rate_ok: bool,
     class_truth_match_rate_ok: bool,
@@ -121,6 +151,12 @@ def evaluate_invariants(
     gate_no_duplicate_contract_edges = no_duplicate_contract_edges
     if not gate_no_duplicate_contract_edges:
         hard_failures.append("duplicate edges detected in filtered or full independent truth")
+    gate_basket_partition = basket_partition_ok
+    if not gate_basket_partition:
+        hard_failures.append("basket partition violated: contract/limitation/exclusion overlap detected")
+    gate_basket_counts_reconciled = basket_counts_reconciled_ok
+    if not gate_basket_counts_reconciled:
+        hard_failures.append("basket count reconciliation failed for included/excluded limitation counts")
     gate_typescript_relative_index_contract = typescript_relative_index_contract_ok
     if not gate_typescript_relative_index_contract:
         diagnostic_failures.append(
@@ -182,6 +218,8 @@ def evaluate_invariants(
         "gate_contract_truth_resolved": gate_contract_truth_resolved,
         "gate_parser_deterministic": gate_parser_deterministic,
         "gate_no_duplicate_contract_edges": gate_no_duplicate_contract_edges,
+        "gate_basket_partition": gate_basket_partition,
+        "gate_basket_counts_reconciled": gate_basket_counts_reconciled,
         "gate_typescript_relative_index_contract": gate_typescript_relative_index_contract,
         "gate_class_truth_nonempty_rate": gate_class_truth_nonempty_rate,
         "gate_class_truth_match_rate": gate_class_truth_match_rate,
