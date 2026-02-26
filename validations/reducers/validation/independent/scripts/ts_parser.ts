@@ -67,6 +67,19 @@ function decoratorsOf(node) {
   return [];
 }
 
+function typeHintText(node, sourceFile) {
+  if (!node) return null;
+  if (ts.isTypeReferenceNode(node)) {
+    if (ts.isIdentifier(node.typeName)) return node.typeName.text;
+    return node.typeName.getText(sourceFile);
+  }
+  const raw = node.getText(sourceFile).trim();
+  if (!raw) return null;
+  const genericPos = raw.indexOf("<");
+  if (genericPos > 0) return raw.slice(0, genericPos).trim();
+  return raw;
+}
+
 function parseFile(entry) {
   const content = fs.readFileSync(entry.path, "utf8");
   const sourceFile = ts.createSourceFile(entry.path, content, ts.ScriptTarget.Latest, true);
@@ -130,6 +143,30 @@ function parseFile(entry) {
           receiver: node.name.text,
           value_text: valueText
         });
+      }
+    }
+    if (
+      ts.isParameter(node) &&
+      currentScopeKind() === "method" &&
+      currentScope().endsWith(".constructor") &&
+      ts.isIdentifier(node.name)
+    ) {
+      const modifiers = node.modifiers || [];
+      const hasFieldModifier = modifiers.some(mod =>
+        mod.kind === ts.SyntaxKind.PublicKeyword ||
+        mod.kind === ts.SyntaxKind.PrivateKeyword ||
+        mod.kind === ts.SyntaxKind.ProtectedKeyword ||
+        mod.kind === ts.SyntaxKind.ReadonlyKeyword
+      );
+      if (hasFieldModifier && node.type) {
+        const valueText = typeHintText(node.type, sourceFile);
+        if (valueText) {
+          assignment_hints.push({
+            scope: currentScope(),
+            receiver: `this.${node.name.text}`,
+            value_text: valueText
+          });
+        }
       }
     }
     if (
