@@ -40,111 +40,41 @@ def render_summary(payload: dict) -> List[str]:
     lines: List[str] = []
     lines.append("# SCIONA Reducer Validation Report")
     lines.append("")
+    questions = payload.get("questions") or {}
 
-    invariants = payload.get("invariants", {}) or {}
-    verdict = payload.get("run_verdict", {}) or {}
-    quality = payload.get("quality_gates", {}) or {}
-    strict = payload.get("static_contract_alignment", {}) or {}
-    expanded = payload.get("enriched_truth_alignment", {}) or {}
-    boundary = payload.get("contract_boundary", {}) or {}
-    parity = (payload.get("parity_attribution") or {}).get("repo_totals") or {}
-    strict_diag = payload.get("strict_contract_diagnostics") or {}
-    board = payload.get("action_priority_board") or []
-    goals = payload.get("validation_workflow_goals") or {}
-
-    lines.append("## Validation Goals")
+    q1 = questions.get("q1") or {}
+    lines.append("## Q1. Reducers vs DB Correctness")
     lines.append("")
-    if goals:
-        lines.append(f"- a) internal_consistency: {goals.get('a', 'n/a')}")
-        lines.append(f"- b) contract_overlap_parity: {goals.get('b', 'n/a')}")
-        lines.append(f"- c) beyond_contract_envelope: {goals.get('c', 'n/a')}")
-    else:
-        lines.append("- n/a")
-    lines.append("")
-
-    lines.append("## Run Verdict")
-    lines.append("")
-    lines.append(f"- hard_passed: `{verdict.get('hard_passed', invariants.get('hard_passed'))}`")
-    lines.append(f"- threshold_profile: `{quality.get('threshold_profile')}`")
+    lines.append(f"- pass: `{q1.get('pass')}`")
+    lines.append(f"- exact_required: `{q1.get('exact_required')}`")
     lines.append(
-        f"- strict_precision/recall/overreach: `{_format_value(strict.get('static_contract_precision'))}`/`{_format_value(strict.get('static_contract_recall'))}`/`{_format_value(strict.get('static_overreach_rate'))}`"
+        f"- tp/fp/fn: `{q1.get('tp')}`/`{q1.get('fp')}`/`{q1.get('fn')}`"
     )
-    full = (expanded.get("tiers") or {}).get("full") or {}
+    lines.append(f"- mismatch_nodes: `{q1.get('mismatch_nodes')}`")
+    lines.append("")
+
+    q2 = questions.get("q2") or {}
+    lines.append("## Q2. Reducers vs Independent Within Static Contract")
+    lines.append("")
+    lines.append(f"- pass: `{q2.get('pass')}`")
+    lines.append(f"- target: `{_format_value(q2.get('target'))}`")
     lines.append(
-        f"- enriched_full_precision/recall: `{_format_value(full.get('reducer_precision'))}`/`{_format_value(full.get('reducer_recall'))}`"
+        f"- precision/recall: `{_format_value(q2.get('precision'))}`/`{_format_value(q2.get('recall'))}`"
     )
-    hard_failures = invariants.get("hard_failures") or []
-    diagnostic_failures = invariants.get("diagnostic_failures") or []
-    lines.append(f"- hard_failures: `{verdict.get('hard_failure_count', len(hard_failures))}`")
+    lines.append(f"- fp/fn: `{q2.get('fp')}`/`{q2.get('fn')}`")
+    lines.append(f"- contract_truth_edges: `{q2.get('contract_truth_edges')}`")
+    lines.append("")
+
+    q3 = questions.get("q3") or {}
+    lines.append("## Q3. Beyond Static Contract Envelope")
+    lines.append("")
+    lines.append(f"- descriptive_only: `{q3.get('descriptive_only')}`")
+    lines.append(f"- total_edges: `{q3.get('total_edges')}`")
     lines.append(
-        f"- diagnostic_failures: `{verdict.get('diagnostic_failure_count', len(diagnostic_failures))}`"
+        f"- uplift_vs_contract_truth: `{_format_value(q3.get('uplift_vs_contract_truth'))}`"
     )
-    if hard_failures:
-        for item in hard_failures[:5]:
-            lines.append(f"- hard_failure: {item}")
-    if diagnostic_failures:
-        for item in diagnostic_failures[:5]:
-            lines.append(f"- diagnostic_failure: {item}")
-    lines.append("")
-
-    lines.append("## Mismatch Source")
-    lines.append("")
-    ind = parity.get("independent_candidate_set") or {}
-    core_sel = parity.get("core_selector") or {}
-    final = parity.get("final_edge_parity") or {}
-    cause = parity.get("row_dominant_cause") or {}
-    if parity:
-        lines.append(f"- independent_candidate_pressure: `{ind.get('candidate_pressure')}`")
-        lines.append(f"- core_selector_pressure: `{core_sel.get('selector_pressure')}`")
-        lines.append(f"- final_edge_parity: `{final}`")
-        lines.append(f"- row_dominant_cause: `{cause}`")
-    dropped = strict_diag.get("dropped_by_reason") or {}
-    if dropped:
-        top_dropped = sorted(dropped.items(), key=lambda item: int(item[1]), reverse=True)[:5]
-        lines.append(f"- top_strict_dropped_reasons: `{dict(top_dropped)}`")
-    lines.append("")
-
-    lines.append("## Contract Boundary")
-    lines.append("")
-    counts = boundary.get("limitation_edge_counts") or {}
-    leakage = boundary.get("contract_leakage_rate") or {}
-    if counts:
-        for key in (
-            "independent_static_limitation_edges",
-            "contract_exclusion_edges",
-            "included_limitation_edges",
-            "excluded_out_of_scope_edges",
-        ):
-            lines.append(f"- {key}: `{counts.get(key)}`")
-    if leakage:
-        lines.append(f"- contract_leakage_rate: `{_format_value(leakage.get('overall'))}`")
-        reason_rates = leakage.get("by_reason") or {}
-        if reason_rates:
-            lines.append(f"- leakage_by_reason: `{reason_rates}`")
-    lines.append("")
-
-    lines.append("## Top Risks")
-    lines.append("")
-    high_medium = [item for item in board if item.get("priority") in {"high", "medium"}]
-    if not high_medium:
-        lines.append("- none")
-    else:
-        for item in high_medium[:5]:
-            confidence = item.get("attribution_confidence")
-            lines.append(
-                f"- [{item.get('priority')}] {item.get('area')}::{item.get('issue')} confidence=`{confidence}` evidence=`{item.get('evidence')}`"
-            )
-    lines.append("")
-
-    lines.append("## Appendix")
-    lines.append("")
-    lines.append(f"- report_schema_version: `{payload.get('report_schema_version')}`")
-    call_form = (payload.get("call_form_recall") or {}).get("reducer_vs_contract_truth") or {}
-    if call_form:
-        for form in ("direct", "member"):
-            bucket = call_form.get(form) or {}
-            lines.append(
-                f"- call_form.{form}: tp=`{bucket.get('tp')}`, fn=`{bucket.get('fn')}`, recall=`{_format_value(bucket.get('recall'))}`"
-            )
+    lines.append(f"- by_reason: `{q3.get('by_reason')}`")
+    lines.append(f"- by_reason_percent: `{q3.get('by_reason_percent')}`")
+    lines.append(f"- by_edge_type: `{q3.get('by_edge_type')}`")
     lines.append("")
     return lines

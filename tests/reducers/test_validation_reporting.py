@@ -35,65 +35,48 @@ def test_bootstrap_micro_ci_shape() -> None:
     assert ci["recall_ci95"] is not None
 
 
-def test_render_summary_includes_action_and_reason_sections() -> None:
+def test_render_summary_includes_only_three_core_questions() -> None:
     payload = {
         "summary": ["repo=test", "sampled_nodes=1", "invariants_passed=True"],
-        "validation_workflow_goals": {
-            "a": "internal consistency",
-            "b": "strict overlap",
-            "c": "boundary envelope",
-        },
-        "core_metrics": {"static_contract_recall": 1.0, "static_overreach_rate": 0.0},
         "invariants": {"passed": True, "hard_passed": True},
         "quality_gates": {"threshold_profile": "single_language"},
-        "internal_integrity": {"valid": True, "projection": {}, "determinism": {}},
-        "static_contract_alignment": {
-            "static_contract_precision": 0.9,
-            "static_contract_recall": 0.95,
-            "static_overreach_rate": 0.1,
-        },
-        "enriched_truth_alignment": {
-            "tiers": {"full": {"reducer_precision": 0.8, "reducer_recall": 0.7}},
-        },
-        "contract_boundary": {
-            "limitation_edge_counts": {
-                "independent_static_limitation_edges": 2,
-                "contract_exclusion_edges": 3,
-                "included_limitation_edges": 2,
-                "excluded_out_of_scope_edges": 3,
+        "questions": {
+            "q1": {
+                "pass": True,
+                "exact_required": True,
+                "tp": 100,
+                "fp": 0,
+                "fn": 0,
+                "mismatch_nodes": 0,
             },
-            "contract_leakage_rate": {"overall": 0.1, "by_reason": {"dynamic": 0.1}},
+            "q2": {
+                "pass": True,
+                "target": 0.99,
+                "precision": 1.0,
+                "recall": 1.0,
+                "fp": 0,
+                "fn": 0,
+                "contract_truth_edges": 200,
+            },
+            "q3": {
+                "descriptive_only": True,
+                "total_edges": 20,
+                "uplift_vs_contract_truth": 0.1,
+                "by_reason": {"dynamic_call": 10, "decorator": 10},
+                "by_reason_percent": {"dynamic_call": 0.5, "decorator": 0.5},
+                "by_edge_type": {"call": 20},
+            },
         },
-        "parity_attribution": {
-            "repo_totals": {
-                "independent_candidate_set": {"candidate_pressure": 3},
-                "core_selector": {"selector_pressure": 1},
-                "final_edge_parity": {"core_overresolution": 2},
-                "row_dominant_cause": {"core_selector_gap_dominant": 1},
-            }
-        },
-        "enrichment_practical": {},
-        "micro_metrics_by_language": {},
-        "micro_metrics_by_language_and_kind": {},
         "per_node": [],
-        "population_by_language": {},
-        "independent_totals": {},
-        "out_of_contract_breakdown": {},
-        "call_form_recall": {},
-        "mismatch_attribution_breakdown": {},
-        "strict_contract_diagnostics": {"accepted_by_provenance": {"exact_qname": 1}},
-        "metric_definitions": {},
         "report_schema_version": "test",
-        "action_priority_board": [{"priority": "high", "area": "core", "issue": "x", "evidence": {}}],
     }
     lines = render_summary(payload)
     text = "\n".join(lines)
-    assert "## Validation Goals" in text
-    assert "## Run Verdict" in text
-    assert "## Mismatch Source" in text
-    assert "## Contract Boundary" in text
-    assert "## Top Risks" in text
-    assert "## Appendix" in text
+    assert "## Q1. Reducers vs DB Correctness" in text
+    assert "## Q2. Reducers vs Independent Within Static Contract" in text
+    assert "## Q3. Beyond Static Contract Envelope" in text
+    assert "## Validation Goals" not in text
+    assert "## Run Verdict" not in text
 
 
 def test_strict_contract_policy_violations_detects_mode_and_key_drift() -> None:
