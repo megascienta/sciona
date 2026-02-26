@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "overrides": [
+    {
+      "repo": "fastapi",
+      "kind": "method",
+      "min_precision": 0.25,
+      "expires_on": "2026-12-31",
+      "reason": "Temporary floor relaxation while method-level calibration stabilizes."
+    },
+    {
+      "repo": "nest",
+      "kind": "function",
+      "min_precision": 0.35,
+      "expires_on": "2026-12-31",
+      "reason": "Temporary floor relaxation while TypeScript function-call disambiguation improves."
+    }
+  ]
+}

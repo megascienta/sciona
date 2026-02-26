@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import json
+from datetime import date
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Tuple
@@ -81,11 +83,72 @@ KIND_PRECISION_FLOORS = {
     "method": 0.60,
 }
 
-REPO_KIND_PRECISION_OVERRIDES = {
-    # Known hotspots with temporarily relaxed floors while calibration improves.
-    "fastapi": {"method": 0.25},
-    "nest": {"function": 0.35},
-}
+CALIBRATION_OVERRIDES_PATH = Path(__file__).resolve().parent / "calibration_overrides.json"
+
+
+def _load_repo_kind_precision_overrides(
+    path: Path = CALIBRATION_OVERRIDES_PATH,
+) -> tuple[dict[str, dict[str, float]], list[dict]]:
+    if not path.is_file():
+        return {}, []
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    rows = payload.get("overrides") or []
+    loaded: dict[str, dict[str, float]] = {}
+    metadata: list[dict] = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        repo = str(row.get("repo") or "").strip()
+        kind = str(row.get("kind") or "").strip()
+        try:
+            minimum = float(row.get("min_precision"))
+        except Exception:
+            continue
+        if not repo or not kind:
+            continue
+        loaded.setdefault(repo, {})[kind] = minimum
+        metadata.append(
+            {
+                "repo": repo,
+                "kind": kind,
+                "min_precision": minimum,
+                "expires_on": row.get("expires_on"),
+                "reason": row.get("reason"),
+            }
+        )
+    return loaded, metadata
+
+
+def stale_repo_override_warnings(
+    *,
+    today: date | None = None,
+    metadata: list[dict] | None = None,
+) -> list[str]:
+    if today is None:
+        today = date.today()
+    rows = metadata if metadata is not None else REPO_KIND_PRECISION_OVERRIDES_METADATA
+    warnings: list[str] = []
+    for row in rows:
+        expires_raw = str(row.get("expires_on") or "").strip()
+        if not expires_raw:
+            continue
+        try:
+            expires_on = date.fromisoformat(expires_raw)
+        except ValueError:
+            warnings.append(
+                f"invalid precision override expiry date for {row.get('repo')}::{row.get('kind')}: {expires_raw}"
+            )
+            continue
+        if expires_on < today:
+            warnings.append(
+                f"precision override expired for {row.get('repo')}::{row.get('kind')} on {expires_on.isoformat()}"
+            )
+    return warnings
+
+
+REPO_KIND_PRECISION_OVERRIDES, REPO_KIND_PRECISION_OVERRIDES_METADATA = (
+    _load_repo_kind_precision_overrides()
+)
 
 LOC_BUCKETS = (
     (200, "small"),
