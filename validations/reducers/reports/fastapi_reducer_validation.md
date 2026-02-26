@@ -11,16 +11,17 @@
 
 - pass: `False`
 - target: `0.990000`
-- precision/recall: `0.979132`/`0.992494`
-- fp/fn: `62`/`22`
+- precision/recall: `0.979791`/`0.992494`
+- fp/fn: `60`/`22`
 - contract_truth_edges: `2931`
+- filtering_source: `core_only`
+- by_language: `{'python': {'tp': 2909, 'fp': 60, 'fn': 22, 'precision': 0.9797911754799595, 'recall': 0.9924940293415216, 'pass': False}}`
+- top_mismatch_signatures_count: `20`
 
 ## Q3. Beyond Static Contract Envelope
 
-- descriptive_only: `True`
-- total_edges: `96`
-- uplift_vs_contract_truth: `0.032753`
-- by_reason: `{'dynamic': 7, 'in_repo_unresolved': 83, 'relative_unresolved': 6}`
-- by_reason_percent: `{'dynamic': 0.07291666666666667, 'in_repo_unresolved': 0.8645833333333334, 'relative_unresolved': 0.0625}`
-- by_edge_type: `{'call': 89, 'import': 7}`
+- additional_vs_reducer_output_percent: `3.06%`
+- percent_by_type: `{'decorator_call': '42.86%', 'direct_call_unresolved': '4.40%', 'dynamic_call': '4.40%', 'member_call_unresolved': '42.86%', 'module_import_unresolved': '1.10%', 'relative_import_unresolved': '4.40%'}`
+- additional_vs_reducer_output_percent_by_language: `{'python': '3.06%'}`
+- percent_by_type_by_language: `{'python': {'decorator_call': 42.857142857142854, 'direct_call_unresolved': 4.395604395604396, 'dynamic_call': 4.395604395604396, 'member_call_unresolved': 42.857142857142854, 'module_import_unresolved': 1.098901098901099, 'relative_import_unresolved': 4.395604395604396}}`
 

@@ -11,16 +11,17 @@
 
 - pass: `False`
 - target: `0.990000`
-- precision/recall: `0.985333`/`0.993632`
-- fp/fn: `72`/`31`
+- precision/recall: `0.986732`/`0.993016`
+- fp/fn: `65`/`34`
 - contract_truth_edges: `4868`
+- filtering_source: `core_only`
+- by_language: `{'java': {'tp': 4834, 'fp': 65, 'fn': 34, 'precision': 0.9867319861196162, 'recall': 0.9930156121610517, 'pass': False}}`
+- top_mismatch_signatures_count: `20`
 
 ## Q3. Beyond Static Contract Envelope
 
-- descriptive_only: `True`
-- total_edges: `3494`
-- uplift_vs_contract_truth: `0.717749`
-- by_reason: `{'in_repo_unresolved': 3494}`
-- by_reason_percent: `{'in_repo_unresolved': 1.0}`
-- by_edge_type: `{'call': 3494}`
+- additional_vs_reducer_output_percent: `4.85%`
+- percent_by_type: `{'direct_call_unresolved': '100.00%'}`
+- additional_vs_reducer_output_percent_by_language: `{'java': '4.85%'}`
+- percent_by_type_by_language: `{'java': {'direct_call_unresolved': 100.0}}`
 

@@ -5,19 +5,21 @@
     "sampled_nodes=500",
     "q1_reducer_vs_db_exact=True",
     "q2_reducer_vs_contract_near_100=False",
-    "q3_out_of_contract_total=396"
+    "q3_out_of_contract_total=338"
   ],
   "invariants": {
     "passed": false,
     "hard_passed": false,
     "q1_reducer_vs_db_exact": true,
     "q2_reducer_vs_contract_near_100": false,
+    "q2_per_language_near_100": false,
     "q3_descriptive_only": true
   },
   "quality_gates": {
     "q2_target": 0.99,
-    "q2_precision": 0.919612314709236,
-    "q2_recall": 0.9920049200492005
+    "q2_precision": 0.9585336538461539,
+    "q2_recall": 0.9809348093480935,
+    "q2_filtering_source": "core_only"
   },
   "per_node": [
     {
@@ -84,25 +86,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 1,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
-        "out_of_contract_missing_count": 0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 1,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -214,25 +216,25 @@
         "in_contract_expected_edges": 3,
         "out_of_contract_edges": 1,
         "in_contract_precision": 1.0,
-        "in_contract_recall": 0.6666666666666666,
-        "in_contract_coverage": 0.6666666666666666,
+        "in_contract_recall": 0.3333333333333333,
+        "in_contract_coverage": 0.3333333333333333,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 1,
-        "tp": 2,
+        "tp": 1,
         "fp": 0,
-        "fn": 1
+        "fn": 2
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 3,
         "out_of_contract_edges": 0,
         "in_contract_precision": 1.0,
-        "in_contract_recall": 0.6666666666666666,
-        "in_contract_coverage": 0.6666666666666666,
+        "in_contract_recall": 0.3333333333333333,
+        "in_contract_coverage": 0.3333333333333333,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 2,
+        "tp": 1,
         "fp": 0,
-        "fn": 1
+        "fn": 2
       }
     },
     {
@@ -299,25 +301,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 1,
         "out_of_contract_edges": 8,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": 0.0,
         "in_contract_coverage": 0.0,
-        "in_contract_false_positive_count": 2,
-        "out_of_contract_missing_count": 6,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 8,
         "tp": 0,
-        "fp": 2,
+        "fp": 0,
         "fn": 1
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": 0.0,
         "in_contract_coverage": 0.0,
-        "in_contract_false_positive_count": 2,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 2,
+        "fp": 0,
         "fn": 1
       }
     },
@@ -342,25 +344,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -600,25 +602,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -729,25 +731,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 2,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
-        "out_of_contract_missing_count": 1,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 2,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -816,25 +818,25 @@
         "in_contract_expected_edges": 5,
         "out_of_contract_edges": 1,
         "in_contract_precision": 1.0,
-        "in_contract_recall": 1.0,
-        "in_contract_coverage": 1.0,
+        "in_contract_recall": 0.8,
+        "in_contract_coverage": 0.8,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 1,
-        "tp": 5,
+        "tp": 4,
         "fp": 0,
-        "fn": 0
+        "fn": 1
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 5,
         "out_of_contract_edges": 0,
         "in_contract_precision": 1.0,
-        "in_contract_recall": 1.0,
-        "in_contract_coverage": 1.0,
+        "in_contract_recall": 0.8,
+        "in_contract_coverage": 0.8,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 5,
+        "tp": 4,
         "fp": 0,
-        "fn": 0
+        "fn": 1
       }
     },
     {
@@ -944,25 +946,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 1,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 3,
-        "out_of_contract_missing_count": 0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 1,
         "tp": 0,
-        "fp": 3,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 3,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 3,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -1116,25 +1118,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 2,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
-        "out_of_contract_missing_count": 1,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 2,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -1374,25 +1376,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 1,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 3,
-        "out_of_contract_missing_count": 0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 1,
         "tp": 0,
-        "fp": 3,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 3,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 3,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -1460,25 +1462,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 2,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
-        "out_of_contract_missing_count": 1,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 2,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -1546,25 +1548,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 2,
         "out_of_contract_edges": 4,
-        "in_contract_precision": 0.5,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 2,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 4,
         "tp": 2,
-        "fp": 2,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 2,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.5,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 2,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 2,
-        "fp": 2,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -1589,25 +1591,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 2,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
-        "out_of_contract_missing_count": 1,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 2,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -1804,25 +1806,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 1,
         "out_of_contract_edges": 2,
-        "in_contract_precision": 0.3333333333333333,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 2,
-        "out_of_contract_missing_count": 0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 2,
         "tp": 1,
-        "fp": 2,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.3333333333333333,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 2,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 1,
-        "fp": 2,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -1976,25 +1978,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 1,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 1,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -2148,25 +2150,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 1,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 3,
-        "out_of_contract_missing_count": 0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 1,
         "tp": 0,
-        "fp": 3,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 3,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 3,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -2320,25 +2322,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 3,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 2,
-        "out_of_contract_missing_count": 1,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 3,
         "tp": 0,
-        "fp": 2,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 2,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 2,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -2406,25 +2408,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 1,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 3,
-        "out_of_contract_missing_count": 0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 1,
         "tp": 0,
-        "fp": 3,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 3,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 3,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -2664,25 +2666,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 2,
         "out_of_contract_edges": 4,
-        "in_contract_precision": 0.5,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 2,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 4,
         "tp": 2,
-        "fp": 2,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 2,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.5,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 2,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 2,
-        "fp": 2,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -2750,25 +2752,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 2,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
-        "out_of_contract_missing_count": 1,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 2,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -2836,25 +2838,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -3008,25 +3010,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 2,
         "out_of_contract_edges": 4,
-        "in_contract_precision": 0.5,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 2,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 4,
         "tp": 2,
-        "fp": 2,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 2,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.5,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 2,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 2,
-        "fp": 2,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -3180,25 +3182,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 2,
         "out_of_contract_edges": 4,
-        "in_contract_precision": 0.5,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 2,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 4,
         "tp": 2,
-        "fp": 2,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 2,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.5,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 2,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 2,
-        "fp": 2,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -3438,25 +3440,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 4,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 3,
-        "out_of_contract_missing_count": 2,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 4,
         "tp": 0,
-        "fp": 3,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 3,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 3,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -3524,25 +3526,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 2,
         "out_of_contract_edges": 4,
-        "in_contract_precision": 0.5,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 2,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 4,
         "tp": 2,
-        "fp": 2,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 2,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.5,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 2,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 2,
-        "fp": 2,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -3610,25 +3612,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 2,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 2,
-        "out_of_contract_missing_count": 0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 2,
         "tp": 0,
-        "fp": 2,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 2,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 2,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -16029,25 +16031,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 1,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 2,
-        "out_of_contract_missing_count": 0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 1,
         "tp": 0,
-        "fp": 2,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 2,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 2,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -16502,25 +16504,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 1,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
-        "out_of_contract_missing_count": 0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 1,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -16760,25 +16762,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 2,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 2,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -16889,26 +16891,26 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 5,
         "out_of_contract_edges": 6,
-        "in_contract_precision": 0.8333333333333334,
-        "in_contract_recall": 1.0,
-        "in_contract_coverage": 1.0,
+        "in_contract_precision": 0.6666666666666666,
+        "in_contract_recall": 0.4,
+        "in_contract_coverage": 0.4,
         "in_contract_false_positive_count": 1,
         "out_of_contract_missing_count": 5,
-        "tp": 5,
+        "tp": 2,
         "fp": 1,
-        "fn": 0
+        "fn": 3
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 5,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.8333333333333334,
-        "in_contract_recall": 1.0,
-        "in_contract_coverage": 1.0,
+        "in_contract_precision": 0.6666666666666666,
+        "in_contract_recall": 0.4,
+        "in_contract_coverage": 0.4,
         "in_contract_false_positive_count": 1,
         "out_of_contract_missing_count": 0,
-        "tp": 5,
+        "tp": 2,
         "fp": 1,
-        "fn": 0
+        "fn": 3
       }
     },
     {
@@ -17018,25 +17020,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 1,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
-        "out_of_contract_missing_count": 0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 1,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -17061,26 +17063,26 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 2,
         "out_of_contract_edges": 3,
-        "in_contract_precision": 0.6666666666666666,
-        "in_contract_recall": 1.0,
-        "in_contract_coverage": 1.0,
+        "in_contract_precision": 0.0,
+        "in_contract_recall": 0.0,
+        "in_contract_coverage": 0.0,
         "in_contract_false_positive_count": 1,
         "out_of_contract_missing_count": 2,
-        "tp": 2,
+        "tp": 0,
         "fp": 1,
-        "fn": 0
+        "fn": 2
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 2,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.6666666666666666,
-        "in_contract_recall": 1.0,
-        "in_contract_coverage": 1.0,
+        "in_contract_precision": 0.0,
+        "in_contract_recall": 0.0,
+        "in_contract_coverage": 0.0,
         "in_contract_false_positive_count": 1,
         "out_of_contract_missing_count": 0,
-        "tp": 2,
+        "tp": 0,
         "fp": 1,
-        "fn": 0
+        "fn": 2
       }
     },
     {
@@ -17190,26 +17192,26 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 2,
         "out_of_contract_edges": 1,
-        "in_contract_precision": 0.6666666666666666,
-        "in_contract_recall": 1.0,
-        "in_contract_coverage": 1.0,
+        "in_contract_precision": 0.5,
+        "in_contract_recall": 0.5,
+        "in_contract_coverage": 0.5,
         "in_contract_false_positive_count": 1,
         "out_of_contract_missing_count": 0,
-        "tp": 2,
+        "tp": 1,
         "fp": 1,
-        "fn": 0
+        "fn": 1
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 2,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.6666666666666666,
-        "in_contract_recall": 1.0,
-        "in_contract_coverage": 1.0,
+        "in_contract_precision": 0.5,
+        "in_contract_recall": 0.5,
+        "in_contract_coverage": 0.5,
         "in_contract_false_positive_count": 1,
         "out_of_contract_missing_count": 0,
-        "tp": 2,
+        "tp": 1,
         "fp": 1,
-        "fn": 0
+        "fn": 1
       }
     },
     {
@@ -17534,25 +17536,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 1,
         "out_of_contract_edges": 4,
-        "in_contract_precision": 0.5,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 1,
-        "out_of_contract_missing_count": 3,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 4,
         "tp": 1,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.5,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 1,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -17577,25 +17579,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 2,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
-        "out_of_contract_missing_count": 1,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 2,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -17792,25 +17794,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 2,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
-        "out_of_contract_missing_count": 1,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 2,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -17835,25 +17837,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 2,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
-        "out_of_contract_missing_count": 1,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 2,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -17964,25 +17966,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 3,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
-        "out_of_contract_missing_count": 2,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 3,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -18179,26 +18181,26 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 1,
         "out_of_contract_edges": 1,
-        "in_contract_precision": 1.0,
-        "in_contract_recall": 1.0,
-        "in_contract_coverage": 1.0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_coverage": 0.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 1,
-        "tp": 1,
+        "tp": 0,
         "fp": 0,
-        "fn": 0
+        "fn": 1
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 1.0,
-        "in_contract_recall": 1.0,
-        "in_contract_coverage": 1.0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_coverage": 0.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 1,
+        "tp": 0,
         "fp": 0,
-        "fn": 0
+        "fn": 1
       }
     },
     {
@@ -18394,25 +18396,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -18437,26 +18439,26 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 4,
         "out_of_contract_edges": 8,
-        "in_contract_precision": 1.0,
-        "in_contract_recall": 1.0,
-        "in_contract_coverage": 1.0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_coverage": 0.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 8,
-        "tp": 4,
+        "tp": 0,
         "fp": 0,
-        "fn": 0
+        "fn": 4
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 4,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 1.0,
-        "in_contract_recall": 1.0,
-        "in_contract_coverage": 1.0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_coverage": 0.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 4,
+        "tp": 0,
         "fp": 0,
-        "fn": 0
+        "fn": 4
       }
     },
     {
@@ -18480,25 +18482,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.5,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 1,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.5,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 1,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -18566,25 +18568,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 2,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
-        "out_of_contract_missing_count": 1,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 2,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -18609,25 +18611,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -18695,25 +18697,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -18824,25 +18826,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 2,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 2,
-        "out_of_contract_missing_count": 0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 2,
         "tp": 0,
-        "fp": 2,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 2,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 2,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -18953,26 +18955,26 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 2,
         "out_of_contract_edges": 1,
-        "in_contract_precision": 1.0,
-        "in_contract_recall": 1.0,
-        "in_contract_coverage": 1.0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_coverage": 0.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 1,
-        "tp": 2,
+        "tp": 0,
         "fp": 0,
-        "fn": 0
+        "fn": 2
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 2,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 1.0,
-        "in_contract_recall": 1.0,
-        "in_contract_coverage": 1.0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_coverage": 0.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 2,
+        "tp": 0,
         "fp": 0,
-        "fn": 0
+        "fn": 2
       }
     },
     {
@@ -18996,25 +18998,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -19469,25 +19471,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 1,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
-        "out_of_contract_missing_count": 0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 1,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -19512,25 +19514,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 5,
         "out_of_contract_edges": 1,
-        "in_contract_precision": 0.8333333333333334,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 1,
-        "out_of_contract_missing_count": 0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 1,
         "tp": 5,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 5,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.8333333333333334,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 5,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -19641,26 +19643,26 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 1,
         "out_of_contract_edges": 3,
-        "in_contract_precision": 0.3333333333333333,
-        "in_contract_recall": 1.0,
-        "in_contract_coverage": 1.0,
+        "in_contract_precision": 0.0,
+        "in_contract_recall": 0.0,
+        "in_contract_coverage": 0.0,
         "in_contract_false_positive_count": 2,
         "out_of_contract_missing_count": 1,
-        "tp": 1,
+        "tp": 0,
         "fp": 2,
-        "fn": 0
+        "fn": 1
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.3333333333333333,
-        "in_contract_recall": 1.0,
-        "in_contract_coverage": 1.0,
+        "in_contract_precision": 0.0,
+        "in_contract_recall": 0.0,
+        "in_contract_coverage": 0.0,
         "in_contract_false_positive_count": 2,
         "out_of_contract_missing_count": 0,
-        "tp": 1,
+        "tp": 0,
         "fp": 2,
-        "fn": 0
+        "fn": 1
       }
     },
     {
@@ -19856,25 +19858,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 1,
         "out_of_contract_edges": 3,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": 0.0,
         "in_contract_coverage": 0.0,
-        "in_contract_false_positive_count": 4,
-        "out_of_contract_missing_count": 1,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 3,
         "tp": 0,
-        "fp": 4,
+        "fp": 0,
         "fn": 1
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 1,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": 0.0,
         "in_contract_coverage": 0.0,
-        "in_contract_false_positive_count": 4,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 4,
+        "fp": 0,
         "fn": 1
       }
     },
@@ -20157,25 +20159,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 1,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
-        "out_of_contract_missing_count": 0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 1,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -20501,25 +20503,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 1,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
-        "out_of_contract_missing_count": 0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 1,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -20630,25 +20632,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 2,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
-        "out_of_contract_missing_count": 1,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 2,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -20802,25 +20804,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 3,
         "out_of_contract_edges": 1,
-        "in_contract_precision": 0.75,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 1,
-        "out_of_contract_missing_count": 0,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 1,
         "tp": 3,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 3,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.75,
+        "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 3,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -20888,25 +20890,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 2,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
-        "out_of_contract_missing_count": 1,
+        "in_contract_false_positive_count": 0,
+        "out_of_contract_missing_count": 2,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -20931,26 +20933,26 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 2,
         "out_of_contract_edges": 2,
-        "in_contract_precision": 1.0,
-        "in_contract_recall": 1.0,
-        "in_contract_coverage": 1.0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_coverage": 0.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 2,
-        "tp": 2,
+        "tp": 0,
         "fp": 0,
-        "fn": 0
+        "fn": 2
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 2,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 1.0,
-        "in_contract_recall": 1.0,
-        "in_contract_coverage": 1.0,
+        "in_contract_precision": null,
+        "in_contract_recall": 0.0,
+        "in_contract_coverage": 0.0,
         "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
-        "tp": 2,
+        "tp": 0,
         "fp": 0,
-        "fn": 0
+        "fn": 2
       }
     },
     {
@@ -21183,27 +21185,276 @@
       "title": "reducers vs independent within static contract",
       "pass": false,
       "target": 0.99,
-      "precision": 0.919612314709236,
-      "recall": 0.9920049200492005,
-      "fp": 141,
-      "fn": 13,
-      "contract_truth_edges": 1626
+      "precision": 0.9585336538461539,
+      "recall": 0.9809348093480935,
+      "fp": 69,
+      "fn": 31,
+      "contract_truth_edges": 1626,
+      "by_language": {
+        "typescript": {
+          "tp": 1595,
+          "fp": 69,
+          "fn": 31,
+          "precision": 0.9585336538461539,
+          "recall": 0.9809348093480935,
+          "pass": false
+        }
+      },
+      "filtering_source": "core_only",
+      "top_mismatch_signatures": [
+        {
+          "entity": "nest.packages.core.injector.module.Module",
+          "language": "typescript",
+          "kind": "class",
+          "file_path": "packages/core/injector/module.ts",
+          "module_qualified_name": "nest.packages.core.injector.module",
+          "fp": 18,
+          "fn": 0,
+          "total_mismatch": 18
+        },
+        {
+          "entity": "nest.packages.core.injector.instance-wrapper.InstanceWrapper",
+          "language": "typescript",
+          "kind": "class",
+          "file_path": "packages/core/injector/instance-wrapper.ts",
+          "module_qualified_name": "nest.packages.core.injector.instance-wrapper",
+          "fp": 5,
+          "fn": 0,
+          "total_mismatch": 5
+        },
+        {
+          "entity": "nest.packages.microservices.server.server-grpc.ServerGrpc",
+          "language": "typescript",
+          "kind": "class",
+          "file_path": "packages/microservices/server/server-grpc.ts",
+          "module_qualified_name": "nest.packages.microservices.server.server-grpc",
+          "fp": 5,
+          "fn": 0,
+          "total_mismatch": 5
+        },
+        {
+          "entity": "nest.packages.microservices.server.server-tcp.ServerTCP.handleMessage",
+          "language": "typescript",
+          "kind": "method",
+          "file_path": "packages/microservices/server/server-tcp.ts",
+          "module_qualified_name": "nest.packages.microservices.server.server-tcp",
+          "fp": 0,
+          "fn": 4,
+          "total_mismatch": 4
+        },
+        {
+          "entity": "nest.packages.microservices.server.server-kafka.ServerKafka.handleMessage",
+          "language": "typescript",
+          "kind": "method",
+          "file_path": "packages/microservices/server/server-kafka.ts",
+          "module_qualified_name": "nest.packages.microservices.server.server-kafka",
+          "fp": 1,
+          "fn": 3,
+          "total_mismatch": 4
+        },
+        {
+          "entity": "nest.packages.microservices.client.client-mqtt.ClientMqtt.constructor",
+          "language": "typescript",
+          "kind": "method",
+          "file_path": "packages/microservices/client/client-mqtt.ts",
+          "module_qualified_name": "nest.packages.microservices.client.client-mqtt",
+          "fp": 1,
+          "fn": 2,
+          "total_mismatch": 3
+        },
+        {
+          "entity": "nest.packages.platform-fastify.adapters.fastify-adapter.FastifyAdapter",
+          "language": "typescript",
+          "kind": "class",
+          "file_path": "packages/platform-fastify/adapters/fastify-adapter.ts",
+          "module_qualified_name": "nest.packages.platform-fastify.adapters.fastify-adapter",
+          "fp": 1,
+          "fn": 2,
+          "total_mismatch": 3
+        },
+        {
+          "entity": "nest.packages.microservices.server.server-nats.ServerNats.constructor",
+          "language": "typescript",
+          "kind": "method",
+          "file_path": "packages/microservices/server/server-nats.ts",
+          "module_qualified_name": "nest.packages.microservices.server.server-nats",
+          "fp": 2,
+          "fn": 1,
+          "total_mismatch": 3
+        },
+        {
+          "entity": "nest.packages.core.injector.container.NestContainer",
+          "language": "typescript",
+          "kind": "class",
+          "file_path": "packages/core/injector/container.ts",
+          "module_qualified_name": "nest.packages.core.injector.container",
+          "fp": 3,
+          "fn": 0,
+          "total_mismatch": 3
+        },
+        {
+          "entity": "nest.packages.common.utils.load-package.util.loadPackage",
+          "language": "typescript",
+          "kind": "function",
+          "file_path": "packages/common/utils/load-package.util.ts",
+          "module_qualified_name": "nest.packages.common.utils.load-package.util",
+          "fp": 0,
+          "fn": 2,
+          "total_mismatch": 2
+        },
+        {
+          "entity": "nest.packages.microservices.client.client-redis.ClientRedis.constructor",
+          "language": "typescript",
+          "kind": "method",
+          "file_path": "packages/microservices/client/client-redis.ts",
+          "module_qualified_name": "nest.packages.microservices.client.client-redis",
+          "fp": 0,
+          "fn": 2,
+          "total_mismatch": 2
+        },
+        {
+          "entity": "nest.packages.microservices.server.server-grpc.ServerGrpc.constructor",
+          "language": "typescript",
+          "kind": "method",
+          "file_path": "packages/microservices/server/server-grpc.ts",
+          "module_qualified_name": "nest.packages.microservices.server.server-grpc",
+          "fp": 0,
+          "fn": 2,
+          "total_mismatch": 2
+        },
+        {
+          "entity": "nest.packages.microservices.client.client-mqtt.ClientMqtt.connect",
+          "language": "typescript",
+          "kind": "method",
+          "file_path": "packages/microservices/client/client-mqtt.ts",
+          "module_qualified_name": "nest.packages.microservices.client.client-mqtt",
+          "fp": 1,
+          "fn": 1,
+          "total_mismatch": 2
+        },
+        {
+          "entity": "nest.packages.microservices.client.client-rmq.ClientRMQ.connect",
+          "language": "typescript",
+          "kind": "method",
+          "file_path": "packages/microservices/client/client-rmq.ts",
+          "module_qualified_name": "nest.packages.microservices.client.client-rmq",
+          "fp": 1,
+          "fn": 1,
+          "total_mismatch": 2
+        },
+        {
+          "entity": "nest.packages.microservices.server.server-nats.ServerNats.close",
+          "language": "typescript",
+          "kind": "method",
+          "file_path": "packages/microservices/server/server-nats.ts",
+          "module_qualified_name": "nest.packages.microservices.server.server-nats",
+          "fp": 1,
+          "fn": 1,
+          "total_mismatch": 2
+        },
+        {
+          "entity": "nest.packages.microservices.client.client-kafka.ClientKafka",
+          "language": "typescript",
+          "kind": "class",
+          "file_path": "packages/microservices/client/client-kafka.ts",
+          "module_qualified_name": "nest.packages.microservices.client.client-kafka",
+          "fp": 2,
+          "fn": 0,
+          "total_mismatch": 2
+        },
+        {
+          "entity": "nest.packages.microservices.decorators.message-pattern.decorator.GrpcMethod",
+          "language": "typescript",
+          "kind": "function",
+          "file_path": "packages/microservices/decorators/message-pattern.decorator.ts",
+          "module_qualified_name": "nest.packages.microservices.decorators.message-pattern.decorator",
+          "fp": 2,
+          "fn": 0,
+          "total_mismatch": 2
+        },
+        {
+          "entity": "nest.packages.microservices.decorators.message-pattern.decorator.GrpcStreamCall",
+          "language": "typescript",
+          "kind": "function",
+          "file_path": "packages/microservices/decorators/message-pattern.decorator.ts",
+          "module_qualified_name": "nest.packages.microservices.decorators.message-pattern.decorator",
+          "fp": 2,
+          "fn": 0,
+          "total_mismatch": 2
+        },
+        {
+          "entity": "nest.packages.common.utils.shared.utils.isPlainObject",
+          "language": "typescript",
+          "kind": "function",
+          "file_path": "packages/common/utils/shared.utils.ts",
+          "module_qualified_name": "nest.packages.common.utils.shared.utils",
+          "fp": 0,
+          "fn": 1,
+          "total_mismatch": 1
+        },
+        {
+          "entity": "nest.packages.core.injector.injector.Injector.resolveProperties",
+          "language": "typescript",
+          "kind": "method",
+          "file_path": "packages/core/injector/injector.ts",
+          "module_qualified_name": "nest.packages.core.injector.injector",
+          "fp": 0,
+          "fn": 1,
+          "total_mismatch": 1
+        }
+      ]
     },
     "q3": {
       "title": "beyond static contract envelope",
       "descriptive_only": true,
-      "total_edges": 396,
-      "uplift_vs_contract_truth": 0.24354243542435425,
+      "total_edges": 338,
+      "uplift_vs_contract_truth": 0.2078720787207872,
+      "additional_vs_reducer_output": 19.020821609454135,
       "by_reason": {
-        "dynamic": 24,
-        "in_repo_unresolved": 372
+        "decorator": 5,
+        "dynamic": 21,
+        "in_repo_unresolved": 312
       },
       "by_reason_percent": {
-        "dynamic": 0.06060606060606061,
-        "in_repo_unresolved": 0.9393939393939394
+        "decorator": 1.4792899408284024,
+        "dynamic": 6.21301775147929,
+        "in_repo_unresolved": 92.3076923076923
       },
       "by_edge_type": {
-        "call": 396
+        "call": 338
+      },
+      "by_semantic_type": {
+        "decorator_call": 5,
+        "direct_call_unresolved": 86,
+        "dynamic_call": 17,
+        "dynamic_member_call": 4,
+        "member_call_unresolved": 226
+      },
+      "by_semantic_type_percent": {
+        "decorator_call": 1.4792899408284024,
+        "direct_call_unresolved": 25.443786982248522,
+        "dynamic_call": 5.029585798816568,
+        "dynamic_member_call": 1.183431952662722,
+        "member_call_unresolved": 66.86390532544378
+      },
+      "by_entity_kind": {
+        "function": 176,
+        "method": 162
+      },
+      "by_language_total": {
+        "typescript": 338
+      },
+      "additional_vs_reducer_output_by_language": {
+        "typescript": 19.020821609454135
+      },
+      "by_language_semantic_type_percent": {
+        "typescript": {
+          "decorator_call": 1.4792899408284024,
+          "direct_call_unresolved": 25.443786982248522,
+          "dynamic_call": 5.029585798816568,
+          "dynamic_member_call": 1.183431952662722,
+          "member_call_unresolved": 66.86390532544378
+        }
       }
     }
   }

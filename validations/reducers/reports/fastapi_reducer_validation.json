@@ -5,19 +5,21 @@
     "sampled_nodes=500",
     "q1_reducer_vs_db_exact=True",
     "q2_reducer_vs_contract_near_100=False",
-    "q3_out_of_contract_total=96"
+    "q3_out_of_contract_total=91"
   ],
   "invariants": {
     "passed": false,
     "hard_passed": false,
     "q1_reducer_vs_db_exact": true,
     "q2_reducer_vs_contract_near_100": false,
+    "q2_per_language_near_100": false,
     "q3_descriptive_only": true
   },
   "quality_gates": {
     "q2_target": 0.99,
-    "q2_precision": 0.979131605520027,
-    "q2_recall": 0.9924940293415216
+    "q2_precision": 0.9797911754799595,
+    "q2_recall": 0.9924940293415216,
+    "q2_filtering_source": "core_only"
   },
   "per_node": [
     {
@@ -40,12 +42,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 2,
-        "out_of_contract_edges": 2,
+        "out_of_contract_edges": 1,
         "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 2,
+        "out_of_contract_missing_count": 1,
         "tp": 2,
         "fp": 0,
         "fn": 0
@@ -169,12 +171,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 1,
-        "out_of_contract_edges": 3,
+        "out_of_contract_edges": 2,
         "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 3,
+        "out_of_contract_missing_count": 2,
         "tp": 1,
         "fp": 0,
         "fn": 0
@@ -471,25 +473,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -642,12 +644,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
-        "out_of_contract_edges": 1,
+        "out_of_contract_edges": 2,
         "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 1,
+        "out_of_contract_missing_count": 2,
         "tp": 0,
         "fp": 0,
         "fn": 0
@@ -1459,12 +1461,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 2,
-        "out_of_contract_edges": 2,
+        "out_of_contract_edges": 1,
         "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 2,
+        "out_of_contract_missing_count": 1,
         "tp": 2,
         "fp": 0,
         "fn": 0
@@ -1545,12 +1547,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 1,
-        "out_of_contract_edges": 1,
+        "out_of_contract_edges": 2,
         "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 1,
+        "out_of_contract_missing_count": 2,
         "tp": 1,
         "fp": 0,
         "fn": 0
@@ -1760,12 +1762,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 1,
-        "out_of_contract_edges": 2,
+        "out_of_contract_edges": 1,
         "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 2,
+        "out_of_contract_missing_count": 1,
         "tp": 1,
         "fp": 0,
         "fn": 0
@@ -1803,12 +1805,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 1,
-        "out_of_contract_edges": 2,
+        "out_of_contract_edges": 1,
         "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 2,
+        "out_of_contract_missing_count": 1,
         "tp": 1,
         "fp": 0,
         "fn": 0
@@ -1890,25 +1892,25 @@
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       },
       "metrics_db_vs_contract": {
         "in_contract_expected_edges": 0,
         "out_of_contract_edges": 0,
-        "in_contract_precision": 0.0,
+        "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
-        "in_contract_false_positive_count": 1,
+        "in_contract_false_positive_count": 0,
         "out_of_contract_missing_count": 0,
         "tp": 0,
-        "fp": 1,
+        "fp": 0,
         "fn": 0
       }
     },
@@ -1932,12 +1934,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 1,
-        "out_of_contract_edges": 0,
+        "out_of_contract_edges": 1,
         "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 0,
+        "out_of_contract_missing_count": 1,
         "tp": 1,
         "fp": 0,
         "fn": 0
@@ -2061,12 +2063,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
-        "out_of_contract_edges": 1,
+        "out_of_contract_edges": 2,
         "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 1,
+        "out_of_contract_missing_count": 2,
         "tp": 0,
         "fp": 0,
         "fn": 0
@@ -2448,12 +2450,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 1,
-        "out_of_contract_edges": 2,
+        "out_of_contract_edges": 1,
         "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 2,
+        "out_of_contract_missing_count": 1,
         "tp": 1,
         "fp": 0,
         "fn": 0
@@ -2964,12 +2966,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
-        "out_of_contract_edges": 2,
+        "out_of_contract_edges": 1,
         "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 2,
+        "out_of_contract_missing_count": 1,
         "tp": 0,
         "fp": 0,
         "fn": 0
@@ -3308,12 +3310,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 1,
-        "out_of_contract_edges": 2,
+        "out_of_contract_edges": 1,
         "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 2,
+        "out_of_contract_missing_count": 1,
         "tp": 1,
         "fp": 0,
         "fn": 0
@@ -3351,12 +3353,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 1,
-        "out_of_contract_edges": 1,
+        "out_of_contract_edges": 0,
         "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 1,
+        "out_of_contract_missing_count": 0,
         "tp": 1,
         "fp": 0,
         "fn": 0
@@ -3566,12 +3568,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
-        "out_of_contract_edges": 1,
+        "out_of_contract_edges": 2,
         "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 1,
+        "out_of_contract_missing_count": 2,
         "tp": 0,
         "fp": 0,
         "fn": 0
@@ -3652,12 +3654,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 1,
-        "out_of_contract_edges": 0,
+        "out_of_contract_edges": 1,
         "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 0,
+        "out_of_contract_missing_count": 1,
         "tp": 1,
         "fp": 0,
         "fn": 0
@@ -4469,12 +4471,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
-        "out_of_contract_edges": 2,
+        "out_of_contract_edges": 1,
         "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 2,
+        "out_of_contract_missing_count": 1,
         "tp": 0,
         "fp": 0,
         "fn": 0
@@ -4555,12 +4557,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 2,
-        "out_of_contract_edges": 2,
+        "out_of_contract_edges": 1,
         "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 2,
+        "out_of_contract_missing_count": 1,
         "tp": 2,
         "fp": 0,
         "fn": 0
@@ -4856,12 +4858,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 1,
-        "out_of_contract_edges": 1,
+        "out_of_contract_edges": 0,
         "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 1,
+        "out_of_contract_missing_count": 0,
         "tp": 1,
         "fp": 0,
         "fn": 0
@@ -5200,12 +5202,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
-        "out_of_contract_edges": 2,
+        "out_of_contract_edges": 1,
         "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 2,
+        "out_of_contract_missing_count": 1,
         "tp": 0,
         "fp": 0,
         "fn": 0
@@ -5286,12 +5288,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 1,
-        "out_of_contract_edges": 1,
+        "out_of_contract_edges": 2,
         "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 1,
+        "out_of_contract_missing_count": 2,
         "tp": 1,
         "fp": 0,
         "fn": 0
@@ -10790,12 +10792,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 2,
-        "out_of_contract_edges": 1,
+        "out_of_contract_edges": 2,
         "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 1,
+        "out_of_contract_missing_count": 2,
         "tp": 2,
         "fp": 0,
         "fn": 0
@@ -11220,12 +11222,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 1,
-        "out_of_contract_edges": 0,
+        "out_of_contract_edges": 1,
         "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 0,
+        "out_of_contract_missing_count": 1,
         "tp": 1,
         "fp": 0,
         "fn": 0
@@ -11263,12 +11265,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 2,
-        "out_of_contract_edges": 1,
+        "out_of_contract_edges": 2,
         "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 1,
+        "out_of_contract_missing_count": 2,
         "tp": 2,
         "fp": 0,
         "fn": 0
@@ -11607,12 +11609,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 1,
-        "out_of_contract_edges": 0,
+        "out_of_contract_edges": 1,
         "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 0,
+        "out_of_contract_missing_count": 1,
         "tp": 1,
         "fp": 0,
         "fn": 0
@@ -11693,12 +11695,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 2,
-        "out_of_contract_edges": 1,
+        "out_of_contract_edges": 2,
         "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 1,
+        "out_of_contract_missing_count": 2,
         "tp": 2,
         "fp": 0,
         "fn": 0
@@ -11951,12 +11953,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
-        "out_of_contract_edges": 0,
+        "out_of_contract_edges": 1,
         "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 0,
+        "out_of_contract_missing_count": 1,
         "tp": 0,
         "fp": 0,
         "fn": 0
@@ -12080,12 +12082,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 1,
-        "out_of_contract_edges": 0,
+        "out_of_contract_edges": 1,
         "in_contract_precision": 1.0,
         "in_contract_recall": 1.0,
         "in_contract_coverage": 1.0,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 0,
+        "out_of_contract_missing_count": 1,
         "tp": 1,
         "fp": 0,
         "fn": 0
@@ -13026,12 +13028,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
-        "out_of_contract_edges": 0,
+        "out_of_contract_edges": 1,
         "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 0,
+        "out_of_contract_missing_count": 1,
         "tp": 0,
         "fp": 0,
         "fn": 0
@@ -13413,12 +13415,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
-        "out_of_contract_edges": 0,
+        "out_of_contract_edges": 1,
         "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 0,
+        "out_of_contract_missing_count": 1,
         "tp": 0,
         "fp": 0,
         "fn": 0
@@ -15434,12 +15436,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
-        "out_of_contract_edges": 0,
+        "out_of_contract_edges": 1,
         "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 0,
+        "out_of_contract_missing_count": 1,
         "tp": 0,
         "fp": 0,
         "fn": 0
@@ -15864,12 +15866,12 @@
       },
       "metrics_reducer_vs_contract": {
         "in_contract_expected_edges": 0,
-        "out_of_contract_edges": 0,
+        "out_of_contract_edges": 1,
         "in_contract_precision": null,
         "in_contract_recall": null,
         "in_contract_coverage": null,
         "in_contract_false_positive_count": 0,
-        "out_of_contract_missing_count": 0,
+        "out_of_contract_missing_count": 1,
         "tp": 0,
         "fp": 0,
         "fn": 0
@@ -21535,30 +21537,283 @@
       "title": "reducers vs independent within static contract",
       "pass": false,
       "target": 0.99,
-      "precision": 0.979131605520027,
+      "precision": 0.9797911754799595,
       "recall": 0.9924940293415216,
-      "fp": 62,
+      "fp": 60,
       "fn": 22,
-      "contract_truth_edges": 2931
+      "contract_truth_edges": 2931,
+      "by_language": {
+        "python": {
+          "tp": 2909,
+          "fp": 60,
+          "fn": 22,
+          "precision": 0.9797911754799595,
+          "recall": 0.9924940293415216,
+          "pass": false
+        }
+      },
+      "filtering_source": "core_only",
+      "top_mismatch_signatures": [
+        {
+          "entity": "fastapi",
+          "language": "python",
+          "kind": "module",
+          "file_path": "fastapi/__init__.py",
+          "module_qualified_name": "fastapi",
+          "fp": 5,
+          "fn": 13,
+          "total_mismatch": 18
+        },
+        {
+          "entity": "fastapi.security",
+          "language": "python",
+          "kind": "module",
+          "file_path": "fastapi/security/__init__.py",
+          "module_qualified_name": "fastapi",
+          "fp": 0,
+          "fn": 4,
+          "total_mismatch": 4
+        },
+        {
+          "entity": "fastapi.routing.APIRouter.include_router",
+          "language": "python",
+          "kind": "method",
+          "file_path": "fastapi/routing.py",
+          "module_qualified_name": "fastapi.routing",
+          "fp": 4,
+          "fn": 0,
+          "total_mismatch": 4
+        },
+        {
+          "entity": "fastapi.tests",
+          "language": "python",
+          "kind": "module",
+          "file_path": "tests/__init__.py",
+          "module_qualified_name": "fastapi",
+          "fp": 1,
+          "fn": 2,
+          "total_mismatch": 3
+        },
+        {
+          "entity": "fastapi.routing.APIWebSocketRoute.__init__",
+          "language": "python",
+          "kind": "method",
+          "file_path": "fastapi/routing.py",
+          "module_qualified_name": "fastapi.routing",
+          "fp": 2,
+          "fn": 0,
+          "total_mismatch": 2
+        },
+        {
+          "entity": "fastapi.scripts.docs.build_all",
+          "language": "python",
+          "kind": "function",
+          "file_path": "scripts/docs.py",
+          "module_qualified_name": "fastapi.scripts.docs",
+          "fp": 2,
+          "fn": 0,
+          "total_mismatch": 2
+        },
+        {
+          "entity": "fastapi.scripts.translate.update_and_add",
+          "language": "python",
+          "kind": "function",
+          "file_path": "scripts/translate.py",
+          "module_qualified_name": "fastapi.scripts.translate",
+          "fp": 2,
+          "fn": 0,
+          "total_mismatch": 2
+        },
+        {
+          "entity": "fastapi.scripts.translate.update_outdated",
+          "language": "python",
+          "kind": "function",
+          "file_path": "scripts/translate.py",
+          "module_qualified_name": "fastapi.scripts.translate",
+          "fp": 2,
+          "fn": 0,
+          "total_mismatch": 2
+        },
+        {
+          "entity": "fastapi._compat",
+          "language": "python",
+          "kind": "module",
+          "file_path": "fastapi/_compat/__init__.py",
+          "module_qualified_name": "fastapi",
+          "fp": 0,
+          "fn": 1,
+          "total_mismatch": 1
+        },
+        {
+          "entity": "fastapi.datastructures",
+          "language": "python",
+          "kind": "module",
+          "file_path": "fastapi/datastructures.py",
+          "module_qualified_name": "fastapi",
+          "fp": 0,
+          "fn": 1,
+          "total_mismatch": 1
+        },
+        {
+          "entity": "fastapi.utils",
+          "language": "python",
+          "kind": "module",
+          "file_path": "fastapi/utils.py",
+          "module_qualified_name": "fastapi",
+          "fp": 0,
+          "fn": 1,
+          "total_mismatch": 1
+        },
+        {
+          "entity": "fastapi.applications.FastAPI.__init__",
+          "language": "python",
+          "kind": "method",
+          "file_path": "fastapi/applications.py",
+          "module_qualified_name": "fastapi.applications",
+          "fp": 1,
+          "fn": 0,
+          "total_mismatch": 1
+        },
+        {
+          "entity": "fastapi.applications.FastAPI.add_api_route",
+          "language": "python",
+          "kind": "method",
+          "file_path": "fastapi/applications.py",
+          "module_qualified_name": "fastapi.applications",
+          "fp": 1,
+          "fn": 0,
+          "total_mismatch": 1
+        },
+        {
+          "entity": "fastapi.applications.FastAPI.add_api_websocket_route",
+          "language": "python",
+          "kind": "method",
+          "file_path": "fastapi/applications.py",
+          "module_qualified_name": "fastapi.applications",
+          "fp": 1,
+          "fn": 0,
+          "total_mismatch": 1
+        },
+        {
+          "entity": "fastapi.applications.FastAPI.api_route",
+          "language": "python",
+          "kind": "method",
+          "file_path": "fastapi/applications.py",
+          "module_qualified_name": "fastapi.applications",
+          "fp": 1,
+          "fn": 0,
+          "total_mismatch": 1
+        },
+        {
+          "entity": "fastapi.applications.FastAPI.delete",
+          "language": "python",
+          "kind": "method",
+          "file_path": "fastapi/applications.py",
+          "module_qualified_name": "fastapi.applications",
+          "fp": 1,
+          "fn": 0,
+          "total_mismatch": 1
+        },
+        {
+          "entity": "fastapi.applications.FastAPI.get",
+          "language": "python",
+          "kind": "method",
+          "file_path": "fastapi/applications.py",
+          "module_qualified_name": "fastapi.applications",
+          "fp": 1,
+          "fn": 0,
+          "total_mismatch": 1
+        },
+        {
+          "entity": "fastapi.applications.FastAPI.head",
+          "language": "python",
+          "kind": "method",
+          "file_path": "fastapi/applications.py",
+          "module_qualified_name": "fastapi.applications",
+          "fp": 1,
+          "fn": 0,
+          "total_mismatch": 1
+        },
+        {
+          "entity": "fastapi.applications.FastAPI.include_router",
+          "language": "python",
+          "kind": "method",
+          "file_path": "fastapi/applications.py",
+          "module_qualified_name": "fastapi.applications",
+          "fp": 1,
+          "fn": 0,
+          "total_mismatch": 1
+        },
+        {
+          "entity": "fastapi.applications.FastAPI.on_event",
+          "language": "python",
+          "kind": "method",
+          "file_path": "fastapi/applications.py",
+          "module_qualified_name": "fastapi.applications",
+          "fp": 1,
+          "fn": 0,
+          "total_mismatch": 1
+        }
+      ]
     },
     "q3": {
       "title": "beyond static contract envelope",
       "descriptive_only": true,
-      "total_edges": 96,
-      "uplift_vs_contract_truth": 0.032753326509723645,
+      "total_edges": 91,
+      "uplift_vs_contract_truth": 0.031047424087342203,
+      "additional_vs_reducer_output": 3.0629417704476607,
       "by_reason": {
-        "dynamic": 7,
-        "in_repo_unresolved": 83,
-        "relative_unresolved": 6
+        "decorator": 39,
+        "dynamic": 4,
+        "in_repo_unresolved": 44,
+        "relative_unresolved": 4
       },
       "by_reason_percent": {
-        "dynamic": 0.07291666666666667,
-        "in_repo_unresolved": 0.8645833333333334,
-        "relative_unresolved": 0.0625
+        "decorator": 42.857142857142854,
+        "dynamic": 4.395604395604396,
+        "in_repo_unresolved": 48.35164835164835,
+        "relative_unresolved": 4.395604395604396
       },
       "by_edge_type": {
-        "call": 89,
-        "import": 7
+        "call": 86,
+        "import": 5
+      },
+      "by_semantic_type": {
+        "decorator_call": 39,
+        "direct_call_unresolved": 4,
+        "dynamic_call": 4,
+        "member_call_unresolved": 39,
+        "module_import_unresolved": 1,
+        "relative_import_unresolved": 4
+      },
+      "by_semantic_type_percent": {
+        "decorator_call": 42.857142857142854,
+        "direct_call_unresolved": 4.395604395604396,
+        "dynamic_call": 4.395604395604396,
+        "member_call_unresolved": 42.857142857142854,
+        "module_import_unresolved": 1.098901098901099,
+        "relative_import_unresolved": 4.395604395604396
+      },
+      "by_entity_kind": {
+        "function": 67,
+        "method": 19,
+        "module": 5
+      },
+      "by_language_total": {
+        "python": 91
+      },
+      "additional_vs_reducer_output_by_language": {
+        "python": 3.0629417704476607
+      },
+      "by_language_semantic_type_percent": {
+        "python": {
+          "decorator_call": 42.857142857142854,
+          "direct_call_unresolved": 4.395604395604396,
+          "dynamic_call": 4.395604395604396,
+          "member_call_unresolved": 42.857142857142854,
+          "module_import_unresolved": 1.098901098901099,
+          "relative_import_unresolved": 4.395604395604396
+        }
       }
     }
   }
