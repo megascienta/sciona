@@ -109,6 +109,11 @@ Rationale:
 ### 6.5 Contract Boundary Profile (non-gating, descriptive)
 - `contract_boundary` provides descriptive limitation volume and overlap diagnostics,
 - used to map where strict contract truncates coverage, not as a strict recall target.
+- includes:
+- `limitation_edge_census` (volume by language/kind/reason),
+- `contract_truncation_profile` (top modules/classes/entities by limitation density),
+- `resolution_failure_taxonomy` (strict candidate/drop/accept distributions),
+- `contract_leakage_rate` (limitation overlap with strict-resolved core edges).
 
 ### 6.4 Enrichment Reliability (heuristic diagnostics)
 - navigation/reasoning/coupling signals,

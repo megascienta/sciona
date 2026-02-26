@@ -144,7 +144,14 @@ def render_summary(payload: dict) -> List[str]:
         for key in ("description",):
             if boundary.get(key):
                 lines.append(f"- {key}: {boundary.get(key)}")
-        for key in ("inclusion_policy", "limitation_edge_counts"):
+        for key in (
+            "inclusion_policy",
+            "limitation_edge_counts",
+            "limitation_edge_census",
+            "contract_truncation_profile",
+            "resolution_failure_taxonomy",
+            "contract_leakage_rate",
+        ):
             value = boundary.get(key) or {}
             if value:
                 lines.append(f"- {key}: `{value}`")

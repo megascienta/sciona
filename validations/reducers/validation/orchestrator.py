@@ -116,6 +116,109 @@ def _aggregate_reason_recall(rows: list[dict], metric_key: str) -> dict:
     return out
 
 
+def _limitation_edge_census(rows: list[dict]) -> dict:
+    by_reason: dict[str, int] = {}
+    by_language: dict[str, int] = {}
+    by_kind: dict[str, int] = {}
+    by_language_kind: dict[str, dict[str, int]] = {}
+    by_language_kind_reason: dict[str, dict[str, dict[str, int]]] = {}
+    for row in rows:
+        language = row.get("language") or "unknown"
+        kind = row.get("kind") or "unknown"
+        included = row.get("included_limitation_by_reason") or {}
+        for reason, raw_count in included.items():
+            count = int(raw_count or 0)
+            if count <= 0:
+                continue
+            by_reason[reason] = by_reason.get(reason, 0) + count
+            by_language[language] = by_language.get(language, 0) + count
+            by_kind[kind] = by_kind.get(kind, 0) + count
+            by_language_kind.setdefault(language, {})
+            by_language_kind[language][kind] = by_language_kind[language].get(kind, 0) + count
+            by_language_kind_reason.setdefault(language, {})
+            by_language_kind_reason[language].setdefault(kind, {})
+            by_language_kind_reason[language][kind][reason] = (
+                by_language_kind_reason[language][kind].get(reason, 0) + count
+            )
+    return {
+        "total": int(sum(by_reason.values())),
+        "by_reason": by_reason,
+        "by_language": by_language,
+        "by_kind": by_kind,
+        "by_language_and_kind": by_language_kind,
+        "by_language_kind_reason": by_language_kind_reason,
+    }
+
+
+def _contract_truncation_profile(rows: list[dict], *, top_k: int = 10) -> dict:
+    modules: dict[str, int] = {}
+    classes: dict[str, int] = {}
+    entities: dict[str, int] = {}
+    for row in rows:
+        count = int(row.get("included_limitation_count") or 0)
+        if count <= 0:
+            continue
+        entity = row.get("entity") or ""
+        module = row.get("module_qualified_name") or ""
+        kind = row.get("kind") or ""
+        entities[entity] = entities.get(entity, 0) + count
+        if module:
+            modules[module] = modules.get(module, 0) + count
+        if kind == "class" and entity:
+            classes[entity] = classes.get(entity, 0) + count
+
+    def _rank(counter: dict[str, int]) -> list[dict]:
+        return [
+            {"name": name, "limitation_edges": value}
+            for name, value in sorted(counter.items(), key=lambda item: (-item[1], item[0]))[:top_k]
+        ]
+
+    return {
+        "top_modules": _rank(modules),
+        "top_classes": _rank(classes),
+        "top_entities": _rank(entities),
+    }
+
+
+def _resolution_failure_taxonomy(rows: list[dict]) -> dict:
+    dropped: dict[str, int] = {}
+    accepted: dict[str, int] = {}
+    candidate_histogram: dict[str, int] = {}
+    for row in rows:
+        for reason, count in (row.get("strict_contract_dropped_by_reason") or {}).items():
+            dropped[reason] = dropped.get(reason, 0) + int(count or 0)
+        for provenance, count in (row.get("strict_contract_accepted_by_provenance") or {}).items():
+            accepted[provenance] = accepted.get(provenance, 0) + int(count or 0)
+        for bucket, count in (row.get("strict_contract_candidate_count_histogram") or {}).items():
+            candidate_histogram[bucket] = candidate_histogram.get(bucket, 0) + int(count or 0)
+    return {
+        "strict_contract_dropped_by_reason": dropped,
+        "strict_contract_accepted_by_provenance": accepted,
+        "strict_contract_candidate_count_histogram": candidate_histogram,
+    }
+
+
+def _contract_leakage_rate(reason_overlap: dict[str, dict]) -> dict:
+    by_reason: dict[str, float | None] = {}
+    tp_total = 0
+    fn_total = 0
+    for reason, bucket in reason_overlap.items():
+        tp = int(bucket.get("tp") or 0)
+        fn = int(bucket.get("fn") or 0)
+        den = tp + fn
+        by_reason[reason] = (tp / den) if den else None
+        tp_total += tp
+        fn_total += fn
+    den_total = tp_total + fn_total
+    return {
+        "overall": (tp_total / den_total) if den_total else None,
+        "tp": tp_total,
+        "fn": fn_total,
+        "by_reason": by_reason,
+        "note": "Represents limitation-edge overlap with strict-resolved core edges; non-zero values indicate boundary leakage/fuzziness.",
+    }
+
+
 def _build_action_priority_board(
     *,
     strict_by_kind: dict,
@@ -649,6 +752,10 @@ def run_validation(
         rows, "metrics_reducer_vs_expanded_by_reason"
     )
     reason_recall_db = _aggregate_reason_recall(rows, "metrics_db_vs_expanded_by_reason")
+    limitation_edge_census = _limitation_edge_census(rows)
+    contract_truncation_profile = _contract_truncation_profile(rows)
+    resolution_failure_taxonomy = _resolution_failure_taxonomy(rows)
+    contract_leakage_rate = _contract_leakage_rate(reason_recall_reducer)
 
     raw_call_total = sum(len(result.call_edges) for result in independent_results.values())
     raw_import_total = sum(len(result.import_edges) for result in independent_results.values())
@@ -937,6 +1044,10 @@ def run_validation(
                 "excluded_out_of_scope_by_reason": excluded_out_of_scope_by_reason,
                 "included_limitation_by_reason": included_limitation_by_reason,
             },
+            "limitation_edge_census": limitation_edge_census,
+            "contract_truncation_profile": contract_truncation_profile,
+            "resolution_failure_taxonomy": resolution_failure_taxonomy,
+            "contract_leakage_rate": contract_leakage_rate,
             "overlap_diagnostics": {
                 "reducer": reason_recall_reducer,
                 "db": reason_recall_db,
