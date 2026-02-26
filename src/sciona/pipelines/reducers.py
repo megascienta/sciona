@@ -106,17 +106,19 @@ def emit(
             else nullcontext(None)
         )
         try:
-            is_dirty = repo_state.git.is_worktree_dirty(repo_state.repo_root)
+            scoped_dirty = bool(policy_repo.dirty_worktree_warning(repo_state))
         except Exception:
-            is_dirty = False
+            scoped_dirty = False
         with artifact_scope as artifact_conn:
             with use_artifact_connection(artifact_conn):
-                overlay = diff_overlay.get_overlay(
-                    repo_root=repo_state.repo_root,
-                    snapshot_id=snapshot_id,
-                    core_conn=conn,
-                    artifact_conn=artifact_conn,
-                )
+                overlay = None
+                if scoped_dirty:
+                    overlay = diff_overlay.get_overlay(
+                        repo_root=repo_state.repo_root,
+                        snapshot_id=snapshot_id,
+                        core_conn=conn,
+                        artifact_conn=artifact_conn,
+                    )
                 try:
                     render_kwargs = dict(resolved_kwargs)
                     render_kwargs.pop("diff_mode", None)
@@ -140,7 +142,7 @@ def emit(
                     raise WorkflowError(
                         f"Reducer '{reducer_id}' must return JSON.", code="invalid_json"
                     ) from exc
-                if is_dirty and overlay is None:
+                if scoped_dirty and overlay is None:
                     warnings = ["dirty_worktree", "overlay_unavailable"]
                     if artifact_conn is None:
                         warnings.append("artifact_db_missing")

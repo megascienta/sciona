@@ -121,3 +121,33 @@ def test_dirty_overlay_hotspot_summary_size_updates(repo_with_snapshot):
     module_id = qualify_repo_name(repo_root, "pkg.alpha")
     baseline_count = baseline.get(module_id) or 0
     assert updated.get(module_id) == baseline_count - 1
+
+
+def test_non_indexed_dirty_does_not_attach_overlay_warning(repo_with_snapshot):
+    repo_root, _snapshot_id = repo_with_snapshot
+    (repo_root / "README.md").write_text("dirty docs\n", encoding="utf-8")
+
+    text, _, _ = api.addons.emit(
+        "module_overview",
+        repo_root=repo_root,
+        module_id=qualify_repo_name(repo_root, "pkg.alpha"),
+    )
+    payload = parse_json_payload(text)
+    assert payload.get("_diff") is None
+    assert payload.get("snapshot_warning") is None
+
+
+def test_out_of_scope_indexed_dirty_marks_diff_not_affected(repo_with_snapshot):
+    repo_root, _snapshot_id = repo_with_snapshot
+    (repo_root / "pkg/beta/__init__.py").write_text("x = 1\n", encoding="utf-8")
+
+    text, _, _ = api.addons.emit(
+        "module_overview",
+        repo_root=repo_root,
+        module_id=qualify_repo_name(repo_root, "pkg.alpha"),
+    )
+    payload = parse_json_payload(text)
+    diff = payload.get("_diff")
+    assert diff, "Expected diff overlay in reducer payload"
+    assert diff["overlay_available"] is True
+    assert diff.get("affected") is False

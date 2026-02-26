@@ -66,7 +66,7 @@ When worktree is dirty:
 - If `_diff.warnings` includes `projection_not_patched`, treat the payload as unpatched and rely on committed SCI.
  - Treat `_diff` as best-effort overlay evidence and not fully authoritative.
  - If `_diff` conflicts with SCI evidence, SCI remains authoritative; `_diff` is provisional.
- - If worktree is dirty and `_diff` is unavailable, warn that evidence may be stale and recommend commit + sciona build.
+ - If tracked language sources are dirty and `_diff` is unavailable, warn that evidence may be stale and recommend commit + sciona build.
 
 ---
 
