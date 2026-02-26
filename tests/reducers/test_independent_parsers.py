@@ -335,6 +335,19 @@ def test_java_parser_nested_class_fixture() -> None:
     _assert_fixture(result, expected)
 
 
+@pytest.mark.skipif(
+    not _java_parser_ready(),
+    reason="java parser toolchain is not configured",
+)
+def test_java_parser_emits_assignment_hints() -> None:
+    root = FIXTURE_ROOT / "java_constructor_field"
+    files = [{"file_path": "Sample.java", "module_qualified_name": "fixture.sample"}]
+    result = parse_java_files(root, files)[0]
+    assert result.parse_ok
+    assert any(hint.scope == "fixture.sample.Sample.Sample" for hint in result.assignment_hints)
+    assert any(hint.receiver == "service" for hint in result.assignment_hints)
+
+
 def test_scoped_call_normalization_is_module_and_language_local() -> None:
     alpha_calls = [
         NormalizedCallEdge(

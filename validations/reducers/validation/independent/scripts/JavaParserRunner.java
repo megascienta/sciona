@@ -17,6 +17,7 @@ import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -29,6 +30,7 @@ public class JavaParserRunner {
         List<String> defs = new ArrayList<>();
         List<String> callEdges = new ArrayList<>();
         List<String> importEdges = new ArrayList<>();
+        List<String> assignmentHints = new ArrayList<>();
         boolean parseOk = true;
         String error = null;
     }
@@ -161,6 +163,25 @@ public class JavaParserRunner {
             result.callEdges.add(String.format("%s|%s|%s|%s", caller, callee, calleeQname, false));
             super.visit(node, arg);
         }
+
+        @Override
+        public void visit(AssignExpr node, Void arg) {
+            String scopeKind = currentScopeKind();
+            if ("method".equals(scopeKind)) {
+                String targetText = node.getTarget().toString().trim();
+                String receiver = targetText;
+                if (receiver.contains(".")) {
+                    receiver = receiver.substring(receiver.lastIndexOf('.') + 1).trim();
+                }
+                String valueText = node.getValue().toString().trim();
+                if (!receiver.isEmpty() && !valueText.isEmpty()) {
+                    result.assignmentHints.add(
+                        String.format("%s|%s|%s", currentScope(), receiver, valueText)
+                    );
+                }
+            }
+            super.visit(node, arg);
+        }
     }
 
     public static void main(String[] args) throws Exception {
@@ -235,6 +256,12 @@ public class JavaParserRunner {
             for (int j = 0; j < r.importEdges.size(); j++) {
                 if (j > 0) out.append(",");
                 out.append("\"").append(escape(r.importEdges.get(j))).append("\"");
+            }
+            out.append("],");
+            out.append("\"assignment_hints\":[");
+            for (int j = 0; j < r.assignmentHints.size(); j++) {
+                if (j > 0) out.append(",");
+                out.append("\"").append(escape(r.assignmentHints.get(j))).append("\"");
             }
             out.append("],");
             out.append("\"parse_ok\":").append(r.parseOk ? "true" : "false");
