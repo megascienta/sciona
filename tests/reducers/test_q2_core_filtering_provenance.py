@@ -89,6 +89,7 @@ def test_q3_payload_includes_provenance_breakdown(tmp_path: Path) -> None:
                     "coverage": 1.0,
                     "spillover_ratio": 0.0,
                 },
+                "basket2_edges": [{"caller": "fixture.mod.fn", "callee": "invoke"}],
             }
         ],
         out_of_contract_meta=[
@@ -107,5 +108,5 @@ def test_q3_payload_includes_provenance_breakdown(tmp_path: Path) -> None:
         ],
     )
     q3 = payload["questions"]["q3"]
-    assert q3["by_semantic_type"] == {"dynamic_call": 1}
-    assert q3["by_semantic_type_percent"] == {"dynamic_call": 100.0}
+    assert q3["by_semantic_type_avg_rate"] == {"dynamic_call": 1.0}
+    assert q3["by_semantic_type_avg_percent"] == {"dynamic_call": 100.0}

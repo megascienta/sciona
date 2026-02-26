@@ -19,9 +19,10 @@ Definitions:
 - `intersection = |S1 ∩ S2|`
 - `missing = |S1 \ S2|`
 - `spillover = |S2 \ S1|`
-- `coverage = |S1 ∩ S2| / |S1|`
-- `spillover_ratio = |S2 \ S1| / |S1|`
-- `q3_uplift = |S3| / |S1|` (reported as percent)
+- `missing_rate_i = |S1_i \ S2_i| / |S1_i|`
+- `spillover_rate_i = |S2_i \ S1_i| / |S1_i|`
+- `mutual_accuracy_i = |S1_i ∩ S2_i| / |S1_i ∪ S2_i|`
+- `q3_rate_i = |S3_i| / |S1_i|`
 
 ## Questions
 ### Q1
@@ -33,18 +34,20 @@ Pass requires:
 ### Q2
 Overlap quality inside static contract.
 Primary metrics:
-- `coverage` (target close to `1.0`)
-- `spillover_ratio` (target close to `0.0`)
+- `avg_mutual_accuracy` (target close to `1.0`)
+- `avg_missing_rate` (target close to `0.0`)
+- `avg_spillover_rate` (target close to `0.0`)
 
 Default gate:
-- `coverage >= 0.99`
-- `spillover_ratio <= 0.01`
+- `avg_mutual_accuracy >= 0.99`
+- `avg_missing_rate <= 0.01`
+- `avg_spillover_rate <= 0.01`
 
 ### Q3
 Descriptive only.
 Report only:
-- `additional_vs_reducer_output` (percent; `|S3|/|S1| * 100`)
-- `by_semantic_type_percent` (type distribution within `S3`)
+- `avg_out_of_contract_rate_percent` (mean of per-node `|S3_i|/|S1_i| * 100`)
+- `by_semantic_type_avg_percent` (mean per-node type-specific out-of-contract rate)
 
 ## Pipeline
 1. Load entities from artifacts/DB (`module`, `class`, `function`, `method`).

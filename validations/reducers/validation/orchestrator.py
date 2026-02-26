@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from statistics import mean
 
 from sciona.pipelines.progress import make_progress_factory
 from sciona.runtime import packaging as runtime_packaging
@@ -27,7 +28,7 @@ from .report import render_summary, write_json, write_markdown
 from .reducer_queries import get_snapshot_id
 
 
-REPORT_SCHEMA_VERSION = "2026-02-26"
+REPORT_SCHEMA_VERSION = "2026-02-27"
 Q2_FILTERING_SOURCE = "core_only"
 
 
@@ -64,20 +65,56 @@ def _aggregate_set_metrics(rows: list[dict], key: str) -> dict:
     }
 
 
+def _safe_ratio(numerator: float | int, denominator: float | int) -> float | None:
+    if not denominator:
+        return None
+    return float(numerator) / float(denominator)
+
+
+def _build_q2_node_rates(metrics: dict | None) -> dict | None:
+    if not metrics:
+        return None
+    reference_count = int(metrics.get("reference_count") or 0)
+    if reference_count <= 0:
+        return None
+    missing_count = int(metrics.get("missing_count") or 0)
+    spillover_count = int(metrics.get("spillover_count") or 0)
+    intersection_count = int(metrics.get("intersection_count") or 0)
+    candidate_count = int(metrics.get("candidate_count") or 0)
+    union_count = reference_count + candidate_count - intersection_count
+    return {
+        "missing_rate": _safe_ratio(missing_count, reference_count),
+        "spillover_rate": _safe_ratio(spillover_count, reference_count),
+        "mutual_accuracy": _safe_ratio(intersection_count, union_count),
+    }
+
+
+def _passes_q2_gate(
+    *,
+    avg_missing_rate: float | None,
+    avg_spillover_rate: float | None,
+    avg_mutual_accuracy: float | None,
+    target: float,
+) -> bool:
+    if (
+        avg_missing_rate is None
+        or avg_spillover_rate is None
+        or avg_mutual_accuracy is None
+    ):
+        return False
+    return bool(
+        avg_missing_rate <= (1.0 - target)
+        and avg_spillover_rate <= (1.0 - target)
+        and avg_mutual_accuracy >= target
+    )
+
+
 def _build_report_payload(
     *,
     repo_root: Path,
     rows: list[dict],
     out_of_contract_meta: list[dict],
 ) -> dict:
-    def _passes_q2_gate(coverage: float | None, spillover_ratio: float | None, target: float) -> bool:
-        return bool(
-            coverage is not None
-            and float(coverage) >= target
-            and spillover_ratio is not None
-            and float(spillover_ratio) <= (1.0 - target)
-        )
-
     scored_rows_q2 = [
         row
         for row in rows
@@ -85,15 +122,36 @@ def _build_report_payload(
     ]
     scored_rows_q1 = [row for row in rows if row.get("set_q1_reducer_vs_db") is not None]
     q1_agg = _aggregate_set_metrics(scored_rows_q1, "set_q1_reducer_vs_db")
-    q2_agg = _aggregate_set_metrics(
-        scored_rows_q2, "set_q2_reducer_vs_independent_contract"
-    )
+    q2_agg = _aggregate_set_metrics(scored_rows_q2, "set_q2_reducer_vs_independent_contract")
 
     q2_target = 0.99
+    q2_node_rates: list[dict] = []
+    for row in scored_rows_q2:
+        rates = _build_q2_node_rates(row.get("set_q2_reducer_vs_independent_contract") or {})
+        if rates is None:
+            continue
+        q2_node_rates.append(
+            {
+                "entity": row["entity"],
+                "language": row["language"],
+                "kind": row["kind"],
+                "file_path": row["file_path"],
+                "module_qualified_name": row["module_qualified_name"],
+                **rates,
+            }
+        )
+    avg_missing_rate = mean(item["missing_rate"] for item in q2_node_rates) if q2_node_rates else None
+    avg_spillover_rate = mean(item["spillover_rate"] for item in q2_node_rates) if q2_node_rates else None
+    avg_mutual_accuracy = (
+        mean(item["mutual_accuracy"] for item in q2_node_rates if item["mutual_accuracy"] is not None)
+        if q2_node_rates
+        else None
+    )
     q2_pass = _passes_q2_gate(
-        q2_agg.get("coverage"),
-        q2_agg.get("spillover_ratio"),
-        q2_target,
+        avg_missing_rate=avg_missing_rate,
+        avg_spillover_rate=avg_spillover_rate,
+        avg_mutual_accuracy=avg_mutual_accuracy,
+        target=q2_target,
     )
     q1_pass = bool(
         int(q1_agg.get("missing_count") or 0) == 0
@@ -105,79 +163,99 @@ def _build_report_payload(
         if int((row.get("set_q1_reducer_vs_db") or {}).get("missing_count") or 0) > 0
         or int((row.get("set_q1_reducer_vs_db") or {}).get("spillover_count") or 0) > 0
     )
-    reducer_output_edges = int(q2_agg.get("reference_count") or 0)
-
-    out_of_contract_total = len(out_of_contract_meta)
-
-    by_semantic_type: dict[str, int] = {}
-    for record in out_of_contract_meta:
-        semantic_type = str(record.get("semantic_type") or "unknown")
-        by_semantic_type[semantic_type] = by_semantic_type.get(semantic_type, 0) + 1
-
-    by_semantic_type_percent = {
-        semantic_type: ((count / out_of_contract_total) * 100.0) if out_of_contract_total else 0.0
-        for semantic_type, count in sorted(by_semantic_type.items())
-    }
-    out_of_contract_vs_reducer_output = (
-        ((out_of_contract_total / reducer_output_edges) * 100.0)
-        if reducer_output_edges
-        else None
-    )
-
-    q2_by_language_raw: dict[str, dict[str, int]] = {}
-    for row in scored_rows_q2:
-        language = str(row.get("language") or "unknown")
-        metrics = row.get("set_q2_reducer_vs_independent_contract") or {}
-        bucket = q2_by_language_raw.setdefault(
-            language,
-            {
-                "reference_count": 0,
-                "candidate_count": 0,
-                "intersection_count": 0,
-                "missing_count": 0,
-                "spillover_count": 0,
-            },
-        )
-        for key in bucket:
-            bucket[key] = int(bucket[key]) + int(metrics.get(key) or 0)
+    q2_by_language_raw: dict[str, list[dict]] = {}
+    for rates in q2_node_rates:
+        language = str(rates.get("language") or "unknown")
+        q2_by_language_raw.setdefault(language, []).append(rates)
     q2_by_language: dict[str, dict[str, float | int | bool | None]] = {}
-    for language, bucket in sorted(q2_by_language_raw.items()):
-        reference_count = int(bucket["reference_count"])
-        intersection_count = int(bucket["intersection_count"])
-        missing_count = int(bucket["missing_count"])
-        spillover_count = int(bucket["spillover_count"])
-        candidate_count = int(bucket["candidate_count"])
-        coverage = (
-            (intersection_count / reference_count) if reference_count else None
-        )
-        spillover_ratio = (
-            (spillover_count / reference_count) if reference_count else None
+    for language, values in sorted(q2_by_language_raw.items()):
+        lang_avg_missing = mean(item["missing_rate"] for item in values) if values else None
+        lang_avg_spillover = mean(item["spillover_rate"] for item in values) if values else None
+        lang_avg_mutual = (
+            mean(item["mutual_accuracy"] for item in values if item["mutual_accuracy"] is not None)
+            if values
+            else None
         )
         q2_by_language[language] = {
-            "reference_count": reference_count,
-            "candidate_count": candidate_count,
-            "intersection_count": intersection_count,
-            "missing_count": missing_count,
-            "spillover_count": spillover_count,
-            "coverage": coverage,
-            "spillover_ratio": spillover_ratio,
-            "pass": _passes_q2_gate(coverage, spillover_ratio, q2_target),
+            "scored_nodes": len(values),
+            "avg_missing_rate": lang_avg_missing,
+            "avg_spillover_rate": lang_avg_spillover,
+            "avg_mutual_accuracy": lang_avg_mutual,
+            "pass": _passes_q2_gate(
+                avg_missing_rate=lang_avg_missing,
+                avg_spillover_rate=lang_avg_spillover,
+                avg_mutual_accuracy=lang_avg_mutual,
+                target=q2_target,
+            ),
         }
     q2_language_pass = all(
         bool(bucket.get("pass")) for bucket in q2_by_language.values()
     ) if q2_by_language else False
 
+    semantic_type_counts_by_entity: dict[str, dict[str, int]] = {}
+    for record in out_of_contract_meta:
+        entity_qname = str(record.get("entity") or "")
+        if not entity_qname:
+            continue
+        semantic_type = str(record.get("semantic_type") or "unknown")
+        per_entity = semantic_type_counts_by_entity.setdefault(entity_qname, {})
+        per_entity[semantic_type] = int(per_entity.get(semantic_type, 0)) + 1
+
+    q3_node_rates: list[dict] = []
+    for row in rows:
+        q2_metrics = row.get("set_q2_reducer_vs_independent_contract") or {}
+        reference_count = int(q2_metrics.get("reference_count") or 0)
+        if reference_count <= 0:
+            continue
+        basket2_count = len(row.get("basket2_edges") or [])
+        q3_node_rates.append(
+            {
+                "entity": row["entity"],
+                "reference_count": reference_count,
+                "out_of_contract_count": basket2_count,
+                "out_of_contract_rate": _safe_ratio(basket2_count, reference_count),
+            }
+        )
+    avg_q3_rate = (
+        mean(item["out_of_contract_rate"] for item in q3_node_rates if item["out_of_contract_rate"] is not None)
+        if q3_node_rates
+        else None
+    )
+    q3_by_semantic_type_rate: dict[str, float] = {}
+    for semantic_type in sorted(
+        {
+            semantic
+            for by_type in semantic_type_counts_by_entity.values()
+            for semantic in by_type
+        }
+    ):
+        per_node_rates: list[float] = []
+        for row in rows:
+            q2_metrics = row.get("set_q2_reducer_vs_independent_contract") or {}
+            reference_count = int(q2_metrics.get("reference_count") or 0)
+            if reference_count <= 0:
+                continue
+            entity_qname = str(row.get("entity") or "")
+            semantic_count = int(
+                (semantic_type_counts_by_entity.get(entity_qname) or {}).get(semantic_type) or 0
+            )
+            rate = _safe_ratio(semantic_count, reference_count)
+            if rate is not None:
+                per_node_rates.append(rate)
+        q3_by_semantic_type_rate[semantic_type] = mean(per_node_rates) if per_node_rates else 0.0
+
     invariants = {
         "passed": bool(q1_pass and q2_pass),
         "hard_passed": bool(q1_pass and q2_pass),
         "q1_reducer_vs_db_exact": q1_pass,
-        "q2_reducer_vs_independent_overlap": q2_pass,
+        "q2_reducer_vs_independent_overlap_macro": q2_pass,
         "q2_per_language_near_100": q2_language_pass,
         "q3_descriptive_only": True,
     }
     quality_gates = {
-        "q2_target_coverage": q2_target,
-        "q2_target_spillover_max": (1.0 - q2_target),
+        "q2_target_mutual_accuracy_min": q2_target,
+        "q2_target_missing_rate_max": (1.0 - q2_target),
+        "q2_target_spillover_rate_max": (1.0 - q2_target),
         "q2_filtering_source": Q2_FILTERING_SOURCE,
     }
 
@@ -194,6 +272,16 @@ def _build_report_payload(
                 "set_q2_reducer_vs_independent_contract": row.get(
                     "set_q2_reducer_vs_independent_contract"
                 ),
+                "basket2_edges": row.get("basket2_edges"),
+                "q2_node_rates": _build_q2_node_rates(
+                    row.get("set_q2_reducer_vs_independent_contract")
+                ),
+                "q3_out_of_contract_rate_percent": (
+                    (_safe_ratio(len(row.get("basket2_edges") or []), int((row.get("set_q2_reducer_vs_independent_contract") or {}).get("reference_count") or 0)) or 0.0)
+                    * 100.0
+                )
+                if int((row.get("set_q2_reducer_vs_independent_contract") or {}).get("reference_count") or 0) > 0
+                else None,
             }
         )
 
@@ -201,17 +289,20 @@ def _build_report_payload(
         f"repo={repo_name_prefix(repo_root)}",
         f"sampled_nodes={len(rows)}",
         f"q1_reducer_vs_db_exact={q1_pass}",
-        f"q2_reducer_vs_independent_overlap={q2_pass}",
-        f"q3_out_of_contract_total={out_of_contract_total}",
+        f"q2_reducer_vs_independent_overlap_macro={q2_pass}",
+        f"q3_avg_out_of_contract_percent={((avg_q3_rate or 0.0) * 100.0):.4f}" if avg_q3_rate is not None else "q3_avg_out_of_contract_percent=None",
     ]
     mismatch_candidates: list[tuple[int, int, int, str, dict]] = []
     for row in rows:
         metrics = row.get("set_q2_reducer_vs_independent_contract") or {}
         missing_count = int(metrics.get("missing_count") or 0)
         spillover_count = int(metrics.get("spillover_count") or 0)
+        reference_count = int(metrics.get("reference_count") or 0)
         total = missing_count + spillover_count
         if total <= 0:
             continue
+        missing_rate = _safe_ratio(missing_count, reference_count)
+        spillover_rate = _safe_ratio(spillover_count, reference_count)
         mismatch_candidates.append(
             (
                 total,
@@ -226,6 +317,9 @@ def _build_report_payload(
                     "module_qualified_name": row.get("module_qualified_name"),
                     "missing_count": missing_count,
                     "spillover_count": spillover_count,
+                    "reference_count": reference_count,
+                    "missing_rate": missing_rate,
+                    "spillover_rate": spillover_rate,
                     "total_mismatch": total,
                 },
             )
@@ -254,15 +348,18 @@ def _build_report_payload(
             "q2": {
                 "title": "reducers vs independent within static contract",
                 "pass": q2_pass,
-                "target_coverage": q2_target,
-                "target_spillover_max": (1.0 - q2_target),
+                "target_mutual_accuracy_min": q2_target,
+                "target_missing_rate_max": (1.0 - q2_target),
+                "target_spillover_rate_max": (1.0 - q2_target),
+                "scored_nodes": len(q2_node_rates),
+                "avg_missing_rate": avg_missing_rate,
+                "avg_spillover_rate": avg_spillover_rate,
+                "avg_mutual_accuracy": avg_mutual_accuracy,
                 "reference_count": q2_agg.get("reference_count"),
                 "candidate_count": q2_agg.get("candidate_count"),
                 "intersection_count": q2_agg.get("intersection_count"),
                 "missing_count": q2_agg.get("missing_count"),
                 "spillover_count": q2_agg.get("spillover_count"),
-                "coverage": q2_agg.get("coverage"),
-                "spillover_ratio": q2_agg.get("spillover_ratio"),
                 "by_language": q2_by_language,
                 "filtering_source": Q2_FILTERING_SOURCE,
                 "top_mismatch_signatures": top_mismatch_signatures,
@@ -270,10 +367,17 @@ def _build_report_payload(
             "q3": {
                 "title": "beyond static contract envelope",
                 "descriptive_only": True,
-                "total_edges": out_of_contract_total,  # |S3|
-                "additional_vs_reducer_output": out_of_contract_vs_reducer_output,
-                "by_semantic_type": dict(sorted(by_semantic_type.items())),
-                "by_semantic_type_percent": by_semantic_type_percent,
+                "scored_nodes": len(q3_node_rates),
+                "avg_out_of_contract_rate": avg_q3_rate,
+                "avg_out_of_contract_rate_percent": (
+                    (avg_q3_rate * 100.0) if avg_q3_rate is not None else None
+                ),
+                "total_edges": len(out_of_contract_meta),
+                "by_semantic_type_avg_rate": dict(sorted(q3_by_semantic_type_rate.items())),
+                "by_semantic_type_avg_percent": {
+                    key: value * 100.0
+                    for key, value in sorted(q3_by_semantic_type_rate.items())
+                },
             },
         },
     }

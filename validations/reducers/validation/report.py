@@ -61,13 +61,22 @@ def render_summary(payload: dict) -> List[str]:
     lines.append("")
     lines.append(f"- pass: `{q2.get('pass')}`")
     lines.append(
-        f"- target_coverage: `{_format_ratio(q2.get('target_coverage'))}`"
+        f"- target_mutual_accuracy_min: `{_format_ratio(q2.get('target_mutual_accuracy_min'))}`"
     )
     lines.append(
-        f"- target_spillover_max: `{_format_ratio(q2.get('target_spillover_max'))}`"
+        f"- target_missing_rate_max: `{_format_ratio(q2.get('target_missing_rate_max'))}`"
     )
     lines.append(
-        f"- coverage/spillover_ratio: `{_format_ratio(q2.get('coverage'))}`/`{_format_ratio(q2.get('spillover_ratio'))}`"
+        f"- target_spillover_rate_max: `{_format_ratio(q2.get('target_spillover_rate_max'))}`"
+    )
+    lines.append(
+        f"- scored_nodes: `{q2.get('scored_nodes')}`"
+    )
+    lines.append(
+        f"- avg_missing_rate/avg_spillover_rate: `{_format_ratio(q2.get('avg_missing_rate'))}`/`{_format_ratio(q2.get('avg_spillover_rate'))}`"
+    )
+    lines.append(
+        f"- avg_mutual_accuracy: `{_format_ratio(q2.get('avg_mutual_accuracy'))}`"
     )
     lines.append(
         f"- reference/candidate/intersection: `{q2.get('reference_count')}`/`{q2.get('candidate_count')}`/`{q2.get('intersection_count')}`"
@@ -83,12 +92,15 @@ def render_summary(payload: dict) -> List[str]:
     lines.append("## Q3. Beyond Static Contract Envelope")
     lines.append("")
     lines.append(
-        f"- additional_vs_reducer_output_percent: `{_format_percent(q3.get('additional_vs_reducer_output'))}`"
+        f"- scored_nodes: `{q3.get('scored_nodes')}`"
     )
-    percent_by_type = q3.get("by_semantic_type_percent") or {}
+    lines.append(
+        f"- avg_out_of_contract_rate_percent: `{_format_percent(q3.get('avg_out_of_contract_rate_percent'))}`"
+    )
+    percent_by_type = q3.get("by_semantic_type_avg_percent") or {}
     formatted_percent_by_type = {
         str(key): _format_percent(value) for key, value in percent_by_type.items()
     }
-    lines.append(f"- percent_by_type: `{formatted_percent_by_type}`")
+    lines.append(f"- avg_percent_by_type: `{formatted_percent_by_type}`")
     lines.append("")
     return lines

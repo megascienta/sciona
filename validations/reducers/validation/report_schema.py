@@ -14,6 +14,9 @@ class ReportRow(TypedDict, total=False):
     module_qualified_name: Required[str]
     set_q1_reducer_vs_db: NotRequired[dict | None]
     set_q2_reducer_vs_independent_contract: NotRequired[dict | None]
+    basket2_edges: NotRequired[list]
+    q2_node_rates: NotRequired[dict | None]
+    q3_out_of_contract_rate_percent: NotRequired[float | None]
 
 
 class ReportPayload(TypedDict, total=False):
@@ -78,10 +81,19 @@ def _validate_row(row: Mapping[str, object], index: int) -> list[str]:
     for metric_key in (
         "set_q1_reducer_vs_db",
         "set_q2_reducer_vs_independent_contract",
+        "q2_node_rates",
     ):
         metric = row.get(metric_key)
         if metric is not None and not isinstance(metric, Mapping):
             errors.append(f"per_node[{index}].{metric_key} must be a mapping or null")
+    basket2_edges = row.get("basket2_edges")
+    if basket2_edges is not None and not isinstance(basket2_edges, list):
+        errors.append(f"per_node[{index}].basket2_edges must be a list or null")
+    q3_percent = row.get("q3_out_of_contract_rate_percent")
+    if q3_percent is not None and not isinstance(q3_percent, (int, float)):
+        errors.append(
+            f"per_node[{index}].q3_out_of_contract_rate_percent must be numeric or null"
+        )
     return errors
 
 
