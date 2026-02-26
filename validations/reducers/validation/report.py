@@ -62,18 +62,9 @@ def render_summary(payload: dict) -> List[str]:
     q3 = questions.get("q3") or {}
     lines.append("## Q3. Beyond Static Contract Envelope")
     lines.append("")
-    lines.append(f"- descriptive_only: `{q3.get('descriptive_only')}`")
-    lines.append(f"- total_edges: `{q3.get('total_edges')}`")
     lines.append(
-        f"- uplift_vs_contract_truth: `{_format_value(q3.get('uplift_vs_contract_truth'))}`"
+        f"- additional_vs_reducer_output_percent: `{_format_value(q3.get('additional_vs_reducer_output'))}`"
     )
-    lines.append(f"- by_reason: `{q3.get('by_reason')}`")
-    lines.append(f"- by_reason_percent: `{q3.get('by_reason_percent')}`")
-    lines.append(f"- by_edge_type: `{q3.get('by_edge_type')}`")
-    lines.append(f"- by_semantic_type: `{q3.get('by_semantic_type')}`")
-    lines.append(
-        f"- by_semantic_type_percent: `{q3.get('by_semantic_type_percent')}`"
-    )
-    lines.append(f"- by_entity_kind: `{q3.get('by_entity_kind')}`")
+    lines.append(f"- percent_by_type: `{q3.get('by_semantic_type_percent')}`")
     lines.append("")
     return lines

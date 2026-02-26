@@ -82,6 +82,7 @@ def _build_report_payload(
         if int((row.get("metrics_reducer_vs_db") or {}).get("fp") or 0) > 0
         or int((row.get("metrics_reducer_vs_db") or {}).get("fn") or 0) > 0
     )
+    reducer_output_edges = int(reducer_vs_db_micro.get("tp") or 0)
 
     contract_truth_edges = sum(len(row.get("contract_truth_edges") or []) for row in rows)
     out_of_contract_total = len(out_of_contract_meta)
@@ -111,6 +112,9 @@ def _build_report_payload(
     }
     out_of_contract_uplift = (
         (out_of_contract_total / contract_truth_edges) if contract_truth_edges else None
+    )
+    out_of_contract_vs_reducer_output = (
+        (out_of_contract_total / reducer_output_edges) if reducer_output_edges else None
     )
 
     invariants = {
@@ -180,6 +184,7 @@ def _build_report_payload(
                 "descriptive_only": True,
                 "total_edges": out_of_contract_total,
                 "uplift_vs_contract_truth": out_of_contract_uplift,
+                "additional_vs_reducer_output": out_of_contract_vs_reducer_output,
                 "by_reason": dict(sorted(by_reason.items())),
                 "by_reason_percent": by_reason_percent,
                 "by_edge_type": dict(sorted(by_edge_type.items())),
