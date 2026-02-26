@@ -16,10 +16,13 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
+import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
+import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 public class JavaParserRunner {
@@ -62,6 +65,24 @@ public class JavaParserRunner {
 
         private String currentScopeKind() {
             return scope.peek().kind;
+        }
+
+        private String normalizeType(String rawType) {
+            if (rawType == null) {
+                return "";
+            }
+            String value = rawType.trim();
+            if (value.isEmpty()) {
+                return "";
+            }
+            int genericPos = value.indexOf('<');
+            if (genericPos > 0) {
+                value = value.substring(0, genericPos).trim();
+            }
+            if (value.endsWith("[]")) {
+                value = value.substring(0, value.length() - 2).trim();
+            }
+            return value;
         }
 
         @Override
@@ -132,6 +153,52 @@ public class JavaParserRunner {
             scope.push(new Scope(qname, "method"));
             super.visit(node, arg);
             scope.pop();
+        }
+
+        @Override
+        public void visit(FieldDeclaration node, Void arg) {
+            if ("class".equals(currentScopeKind())) {
+                String typeName = normalizeType(node.getElementType().asString());
+                if (!typeName.isEmpty()) {
+                    String constructorScope = currentScope() + ".constructor";
+                    for (VariableDeclarator variable : node.getVariables()) {
+                        String receiver = "this." + variable.getNameAsString().trim();
+                        result.assignmentHints.add(
+                            String.format("%s|%s|%s", constructorScope, receiver, typeName)
+                        );
+                    }
+                }
+            }
+            super.visit(node, arg);
+        }
+
+        @Override
+        public void visit(Parameter node, Void arg) {
+            String scopeKind = currentScopeKind();
+            if ("method".equals(scopeKind)) {
+                String typeName = normalizeType(node.getType().asString());
+                String receiver = node.getNameAsString().trim();
+                if (!receiver.isEmpty() && !typeName.isEmpty()) {
+                    result.assignmentHints.add(
+                        String.format("%s|%s|%s", currentScope(), receiver, typeName)
+                    );
+                }
+            }
+            super.visit(node, arg);
+        }
+
+        @Override
+        public void visit(VariableDeclarator node, Void arg) {
+            if ("method".equals(currentScopeKind())) {
+                String receiver = node.getNameAsString().trim();
+                String valueText = normalizeType(node.getType().asString());
+                if (!receiver.isEmpty() && !valueText.isEmpty()) {
+                    result.assignmentHints.add(
+                        String.format("%s|%s|%s", currentScope(), receiver, valueText)
+                    );
+                }
+            }
+            super.visit(node, arg);
         }
 
         @Override

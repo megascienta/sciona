@@ -385,6 +385,34 @@ def test_java_parser_emits_assignment_hints() -> None:
     assert any(hint.receiver == "service" for hint in result.assignment_hints)
 
 
+@pytest.mark.skipif(
+    not _java_parser_ready(),
+    reason="java parser toolchain is not configured",
+)
+def test_java_parser_collects_declared_type_assignment_hints(tmp_path: Path) -> None:
+    source = tmp_path / "Sample.java"
+    source.write_text(
+        "package fixture.sample;\n"
+        "class Service { void run() {} }\n"
+        "class Controller {\n"
+        "  private Service service;\n"
+        "  void handle(Service svc) {\n"
+        "    Service local = svc;\n"
+        "    local.run();\n"
+        "  }\n"
+        "}\n",
+        encoding="utf-8",
+    )
+    result = parse_java_files(
+        tmp_path, [{"file_path": "Sample.java", "module_qualified_name": "fixture.sample"}]
+    )[0]
+    assert result.parse_ok
+    hints = {(h.scope, h.receiver, h.value_text) for h in result.assignment_hints}
+    assert ("fixture.sample.Controller.constructor", "this.service", "Service") in hints
+    assert ("fixture.sample.Controller.handle", "svc", "Service") in hints
+    assert ("fixture.sample.Controller.handle", "local", "Service") in hints
+
+
 def test_scoped_call_normalization_is_module_and_language_local() -> None:
     alpha_calls = [
         NormalizedCallEdge(
