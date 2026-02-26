@@ -97,12 +97,13 @@ Rationale:
 - reducer↔DB projection precision/recall,
 - parser determinism.
 
-### 6.2 Strict Contract Alignment (gating)
+### 6.2 Strict Contract Conformance (gating)
 - strict precision/recall/overreach/divergence,
 - per-kind/edge/call-form diagnostics.
 - bootstrap uncertainty intervals (micro + method scope).
+- interpreted as implementation conformance, not absolute capability scoring.
 
-### 6.3 Enrichment Alignment (non-gating)
+### 6.3 Expanded Enrichment Diagnostics (non-gating, compatibility)
 - reducer/db alignment vs expanded proxy truth,
 - high/full tier precision/recall/divergence,
 - explicit scope policy and counts:
@@ -111,7 +112,7 @@ Rationale:
 - reason-level expanded overlap diagnostics (reducer/db; compatibility view).
 - bootstrap uncertainty interval for expanded-full micro metrics.
 
-### 6.5 Contract Boundary Profile (non-gating, descriptive)
+### 6.4 Contract Boundary Profile (non-gating, descriptive)
 - `contract_boundary` provides descriptive limitation volume and overlap diagnostics,
 - used to map where strict contract truncates coverage, not as a strict recall target.
 - explicitly separates `independent_static_limitations` vs `contract_exclusions`.
@@ -121,7 +122,7 @@ Rationale:
 - `resolution_failure_taxonomy` (strict candidate/drop/accept distributions),
 - `contract_leakage_rate` (limitation overlap with strict-resolved core edges).
 
-### 6.4 Enrichment Reliability (heuristic diagnostics)
+### 6.5 Enrichment Reliability (heuristic diagnostics)
 - navigation/reasoning/coupling signals,
 - explicit weights and `prompt_reliability_version`,
 - component contributions (tp/fp/fn penalties).
@@ -185,6 +186,7 @@ Canonical metric source/formula mapping is emitted in `metric_definitions`.
 
 ## 10. Run
 ```bash
+conda run -n multiphysics \
 python validations/reducers/reducer_validation.py \
   --repo-root /path/to/repo \
   --nodes 500 \
@@ -195,9 +197,10 @@ python validations/reducers/reducer_validation.py \
 ## 11. Interpretation
 1. Run Verdict first.
 2. If internal integrity is valid, reducer is faithful DB projection for evaluated nodes.
-3. Use strict contract alignment (gating) as primary external quality signal.
-4. Use enrichment alignment to quantify static limitation gap only (without standard/external contamination).
-5. Use enrichment reliability only as heuristic downstream risk.
+3. Interpret strict contract conformance as correctness-of-implementation under the strict contract.
+4. Use contract boundary profile to map what strict contract intentionally excludes.
+5. Use expanded enrichment diagnostics as compatibility/overlap diagnostics, not as strict targets.
+6. Use enrichment reliability only as heuristic downstream risk.
 
 ## 12. Known Limits
 - Independent parsing remains static and cannot model runtime behavior perfectly.

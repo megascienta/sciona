@@ -118,12 +118,15 @@ def render_summary(payload: dict) -> List[str]:
         )
     lines.append("")
 
-    lines.append("## Strict Contract Alignment (Gating)")
+    lines.append("## Strict Contract Conformance (Gating)")
     lines.append("")
     static_alignment = payload.get("static_contract_alignment") or {}
     if not static_alignment:
         lines.append("- none")
     else:
+        lines.append(
+            "- interpretation: conformance check against strict contract + DB projection, not absolute capability truth."
+        )
         for key in (
             "static_contract_precision",
             "static_contract_recall",
@@ -136,7 +139,7 @@ def render_summary(payload: dict) -> List[str]:
             lines.append(f"- uncertainty_intervals: `{strict_ci}`")
     lines.append("")
 
-    lines.append("## Enrichment Alignment (Non-Gating Diagnostics)")
+    lines.append("## Contract Boundary Profile (Non-Gating, Descriptive)")
     lines.append("")
     boundary = payload.get("contract_boundary") or {}
     if boundary:
@@ -171,6 +174,8 @@ def render_summary(payload: dict) -> List[str]:
                 lines.append(f"- overlap_note: {overlap.get('note')}")
         lines.append("")
 
+    lines.append("## Expanded Enrichment Diagnostics (Compatibility, Non-Gating)")
+    lines.append("")
     expanded = payload.get("enriched_truth_alignment") or {}
     if not expanded:
         lines.append("- none")
