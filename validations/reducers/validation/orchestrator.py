@@ -718,47 +718,56 @@ def run_validation(
             row.get("strict_contract_candidate_count_histogram"),
         )
 
+    def _micro_breakdown(metric_key: str, *dims: str):
+        rows_with_metric = [row for row in rows if row.get(metric_key)]
+        if not dims:
+            return micro(rows_with_metric, metric_key) if rows_with_metric else {}
+        if len(dims) == 1:
+            dim = dims[0]
+            if dim == "kind":
+                values = ("module", "class", "function", "method")
+            else:
+                values = tuple(
+                    sorted({row.get(dim) for row in rows_with_metric if row.get(dim)})
+                )
+            out: dict[str, dict] = {}
+            for value in values:
+                subset = [row for row in rows_with_metric if row.get(dim) == value]
+                out[str(value)] = micro(subset, metric_key) if subset else {}
+            return out
+        if len(dims) == 2:
+            first, second = dims
+            first_values = tuple(
+                sorted({row.get(first) for row in rows if row.get(first)})
+            )
+            if second == "kind":
+                second_values = ("module", "class", "function", "method")
+            else:
+                second_values = tuple(
+                    sorted({row.get(second) for row in rows_with_metric if row.get(second)})
+                )
+            out2: dict[str, dict[str, dict]] = {}
+            for first_value in first_values:
+                nested: dict[str, dict] = {}
+                for second_value in second_values:
+                    subset = [
+                        row
+                        for row in rows_with_metric
+                        if row.get(first) == first_value and row.get(second) == second_value
+                    ]
+                    nested[str(second_value)] = micro(subset, metric_key) if subset else {}
+                out2[str(first_value)] = nested
+            return out2
+        raise ValueError("unsupported micro breakdown dimensions")
+
     def _micro_by_kind(metric_key: str) -> dict[str, dict]:
-        by_kind: dict[str, dict] = {}
-        for kind in ("module", "class", "function", "method"):
-            subset = [row for row in rows if row.get("kind") == kind and row.get(metric_key)]
-            by_kind[kind] = micro(subset, metric_key) if subset else {}
-        return by_kind
+        return _micro_breakdown(metric_key, "kind")
 
     def _micro_by_language(metric_key: str) -> dict[str, dict]:
-        by_language: dict[str, dict] = {}
-        languages = sorted(
-            {
-                row.get("language")
-                for row in rows
-                if row.get("language") and row.get(metric_key)
-            }
-        )
-        for language in languages:
-            subset = [
-                row
-                for row in rows
-                if row.get("language") == language and row.get(metric_key)
-            ]
-            by_language[language] = micro(subset, metric_key) if subset else {}
-        return by_language
+        return _micro_breakdown(metric_key, "language")
 
     def _micro_by_language_and_kind(metric_key: str) -> dict[str, dict[str, dict]]:
-        by_language_kind: dict[str, dict[str, dict]] = {}
-        languages = sorted({row.get("language") for row in rows if row.get("language")})
-        for language in languages:
-            by_kind: dict[str, dict] = {}
-            for kind in ("module", "class", "function", "method"):
-                subset = [
-                    row
-                    for row in rows
-                    if row.get("language") == language
-                    and row.get("kind") == kind
-                    and row.get(metric_key)
-                ]
-                by_kind[kind] = micro(subset, metric_key) if subset else {}
-            by_language_kind[language] = by_kind
-        return by_language_kind
+        return _micro_breakdown(metric_key, "language", "kind")
 
     def _call_form_recall(metric_key: str) -> dict[str, dict]:
         totals = {
