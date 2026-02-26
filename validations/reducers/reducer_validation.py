@@ -20,7 +20,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--repo-root", type=Path, default=Path.cwd())
     parser.add_argument("--nodes", type=int, default=config.DEFAULT_SAMPLE_SIZE)
     parser.add_argument("--seed", type=int, default=config.DEFAULT_SEED)
-    parser.add_argument("--stability-runs", type=int, default=2)
     return parser.parse_args()
 
 
@@ -30,7 +29,6 @@ def main() -> int:
         repo_root=args.repo_root,
         nodes=args.nodes,
         seed=args.seed,
-        stability_runs=args.stability_runs,
     )
 
 

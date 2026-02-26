@@ -4,35 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from validations.reducers.validation.orchestrator import (
-    _bootstrap_micro_ci,
-    _select_threshold_profile,
-    _strict_contract_policy_violations,
-)
 from validations.reducers.validation.report import render_summary, write_json
-
-
-def test_select_threshold_profile_multi_language() -> None:
-    profile, thresholds = _select_threshold_profile(
-        [
-            {"language": "python"},
-            {"language": "java"},
-        ]
-    )
-    assert profile == "multi_language"
-    assert thresholds["contract_recall_min"] <= 0.95
-
-
-def test_bootstrap_micro_ci_shape() -> None:
-    rows = [
-        {"metrics_reducer_vs_contract": {"tp": 10, "fp": 2, "fn": 1}},
-        {"metrics_reducer_vs_contract": {"tp": 7, "fp": 1, "fn": 2}},
-        {"metrics_reducer_vs_contract": {"tp": 3, "fp": 1, "fn": 4}},
-    ]
-    ci = _bootstrap_micro_ci(rows, "metrics_reducer_vs_contract", seed=7, rounds=50)
-    assert ci["n"] == 3
-    assert ci["precision_ci95"] is not None
-    assert ci["recall_ci95"] is not None
 
 
 def test_render_summary_includes_only_three_core_questions() -> None:
@@ -77,44 +49,6 @@ def test_render_summary_includes_only_three_core_questions() -> None:
     assert "## Q3. Beyond Static Contract Envelope" in text
     assert "## Validation Goals" not in text
     assert "## Run Verdict" not in text
-
-
-def test_strict_contract_policy_violations_detects_mode_and_key_drift() -> None:
-    rows = [
-        {
-            "strict_contract_mode": "candidate_only_strict_contract_v2",
-            "strict_contract_accepted_by_provenance": {"exact_qname": 2, "new_source": 1},
-            "strict_contract_dropped_by_reason": {"no_candidates": 3, "new_reason": 4},
-        }
-    ]
-    violations = _strict_contract_policy_violations(
-        rows,
-        mode="candidate_only_strict_contract_v1",
-        allowed_acceptance={"exact_qname"},
-        allowed_drop_reasons={"no_candidates"},
-    )
-    assert violations["mode_mismatch_count"] == 1
-    assert violations["accepted_violations"] == {"new_source": 1}
-    assert violations["dropped_violations"] == {"new_reason": 4}
-
-
-def test_strict_contract_policy_violations_accepts_known_keys() -> None:
-    rows = [
-        {
-            "strict_contract_mode": "candidate_only_strict_contract_v1",
-            "strict_contract_accepted_by_provenance": {"exact_qname": 2},
-            "strict_contract_dropped_by_reason": {"no_candidates": 3},
-        }
-    ]
-    violations = _strict_contract_policy_violations(
-        rows,
-        mode="candidate_only_strict_contract_v1",
-        allowed_acceptance={"exact_qname"},
-        allowed_drop_reasons={"no_candidates"},
-    )
-    assert violations["mode_mismatch_count"] == 0
-    assert violations["accepted_violations"] == {}
-    assert violations["dropped_violations"] == {}
 
 
 def test_write_json_validates_minimum_payload_shape(tmp_path) -> None:
