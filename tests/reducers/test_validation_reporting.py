@@ -7,6 +7,7 @@ import pytest
 from validations.reducers.validation.orchestrator import (
     _bootstrap_micro_ci,
     _select_threshold_profile,
+    _strict_contract_policy_violations,
 )
 from validations.reducers.validation.report import render_summary, write_json
 
@@ -62,10 +63,49 @@ def test_render_summary_includes_action_and_reason_sections() -> None:
     }
     lines = render_summary(payload)
     text = "\n".join(lines)
-    assert "Reason-level expanded proxy recall:" in text
-    assert "## Enrichment Alignment (Non-Gating Diagnostics)" in text
+    assert "Reason-level expanded overlap diagnostics (compatibility view):" in text
+    assert "## Contract Boundary Profile (Non-Gating, Descriptive)" in text
+    assert "## Expanded Enrichment Diagnostics (Compatibility, Non-Gating)" in text
     assert "## Independent Strict Contract Diagnostics" in text
     assert "## Action Priority Board" in text
+
+
+def test_strict_contract_policy_violations_detects_mode_and_key_drift() -> None:
+    rows = [
+        {
+            "strict_contract_mode": "candidate_only_strict_contract_v2",
+            "strict_contract_accepted_by_provenance": {"exact_qname": 2, "new_source": 1},
+            "strict_contract_dropped_by_reason": {"no_candidates": 3, "new_reason": 4},
+        }
+    ]
+    violations = _strict_contract_policy_violations(
+        rows,
+        mode="candidate_only_strict_contract_v1",
+        allowed_acceptance={"exact_qname"},
+        allowed_drop_reasons={"no_candidates"},
+    )
+    assert violations["mode_mismatch_count"] == 1
+    assert violations["accepted_violations"] == {"new_source": 1}
+    assert violations["dropped_violations"] == {"new_reason": 4}
+
+
+def test_strict_contract_policy_violations_accepts_known_keys() -> None:
+    rows = [
+        {
+            "strict_contract_mode": "candidate_only_strict_contract_v1",
+            "strict_contract_accepted_by_provenance": {"exact_qname": 2},
+            "strict_contract_dropped_by_reason": {"no_candidates": 3},
+        }
+    ]
+    violations = _strict_contract_policy_violations(
+        rows,
+        mode="candidate_only_strict_contract_v1",
+        allowed_acceptance={"exact_qname"},
+        allowed_drop_reasons={"no_candidates"},
+    )
+    assert violations["mode_mismatch_count"] == 0
+    assert violations["accepted_violations"] == {}
+    assert violations["dropped_violations"] == {}
 
 
 def test_write_json_validates_minimum_payload_shape(tmp_path) -> None:

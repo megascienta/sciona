@@ -224,6 +224,34 @@ def _contract_leakage_rate(reason_overlap: dict[str, dict]) -> dict:
     }
 
 
+def _strict_contract_policy_violations(
+    rows: list[dict],
+    *,
+    mode: str,
+    allowed_acceptance: set[str],
+    allowed_drop_reasons: set[str],
+) -> dict:
+    mode_mismatch_count = 0
+    accepted_violations: dict[str, int] = {}
+    dropped_violations: dict[str, int] = {}
+    for row in rows:
+        if row.get("strict_contract_mode") != mode:
+            mode_mismatch_count += 1
+        accepted = row.get("strict_contract_accepted_by_provenance") or {}
+        dropped = row.get("strict_contract_dropped_by_reason") or {}
+        for key, value in accepted.items():
+            if key not in allowed_acceptance:
+                accepted_violations[key] = accepted_violations.get(key, 0) + int(value or 0)
+        for key, value in dropped.items():
+            if key not in allowed_drop_reasons:
+                dropped_violations[key] = dropped_violations.get(key, 0) + int(value or 0)
+    return {
+        "mode_mismatch_count": mode_mismatch_count,
+        "accepted_violations": accepted_violations,
+        "dropped_violations": dropped_violations,
+    }
+
+
 def _build_action_priority_board(
     *,
     strict_by_kind: dict,
@@ -683,32 +711,18 @@ def run_validation(
     member_call_recall_applicable = (
         int(member_call_bucket.get("tp") or 0) + int(member_call_bucket.get("fn") or 0)
     ) > 0
-    allowed_acceptance = {
-        "exact_qname",
-        "module_scoped",
-        "import_narrowed",
-        "contract_out_of_repo_allowed",
-    }
-    allowed_drop_reasons = {
-        "no_candidates",
-        "unique_without_provenance",
-        "ambiguous_no_caller_module",
-        "ambiguous_no_in_scope_candidate",
-        "ambiguous_multiple_in_scope_candidates",
-    }
-    strict_contract_parity_ok = True
-    for row in rows:
-        if row.get("strict_contract_mode") != "candidate_only_strict_contract_v1":
-            strict_contract_parity_ok = False
-            break
-        accepted = row.get("strict_contract_accepted_by_provenance") or {}
-        dropped = row.get("strict_contract_dropped_by_reason") or {}
-        if any(key not in allowed_acceptance for key in accepted):
-            strict_contract_parity_ok = False
-            break
-        if any(key not in allowed_drop_reasons for key in dropped):
-            strict_contract_parity_ok = False
-            break
+    strict_policy = config.STRICT_CONTRACT_POLICY
+    policy_violations = _strict_contract_policy_violations(
+        rows,
+        mode=str(strict_policy.get("mode") or config.STRICT_CONTRACT_MODE),
+        allowed_acceptance=set(strict_policy.get("allowed_acceptance") or []),
+        allowed_drop_reasons=set(strict_policy.get("allowed_drop_reasons") or []),
+    )
+    strict_contract_parity_ok = (
+        policy_violations["mode_mismatch_count"] == 0
+        and not policy_violations["accepted_violations"]
+        and not policy_violations["dropped_violations"]
+    )
     profile_name, thresholds = _select_threshold_profile(rows)
     invariants = evaluate_invariants(
         rows,
@@ -1185,6 +1199,8 @@ def run_validation(
             "accepted_by_provenance": strict_contract_accepted,
             "dropped_by_reason": strict_contract_dropped,
             "candidate_count_histogram": strict_contract_candidate_histogram,
+            "policy": strict_policy,
+            "policy_violations": policy_violations,
         },
         "population_by_language": sampling.population_by_language,
         "population_by_kind": sampling.population_by_kind,
@@ -1202,6 +1218,8 @@ def run_validation(
             "class_truth_match_rate_min": thresholds["class_truth_match_rate_min"],
             "scoped_call_normalization_ok": scoped_normalization_ok,
             "strict_contract_parity_ok": strict_contract_parity_ok,
+            "strict_contract_policy": strict_policy,
+            "strict_contract_policy_violations": policy_violations,
             "contract_recall": contract_recall,
             "contract_recall_min": thresholds["contract_recall_min"],
             "overreach_rate": static_overreach_rate,

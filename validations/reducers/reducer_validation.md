@@ -141,6 +141,10 @@ Hard gates (run validity):
 - `gate_strict_contract_parity`
 - `gate_equal_contract_metrics_when_exact`
 
+Policy guardrail:
+- strict policy is locked by `config.STRICT_CONTRACT_POLICY` (`mode`, allowed accepted provenance, allowed drop reasons).
+- any drift in strict mode/provenance/drop reasons must be an explicit contract change and update policy/tests.
+
 Diagnostic gates (non-blocking by default):
 - `gate_typescript_relative_index_contract`
 - `gate_class_truth_nonempty_rate`

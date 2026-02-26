@@ -30,6 +30,24 @@ PROMPT_FITNESS_WEIGHTS = {
 
 PROMPT_RELIABILITY_VERSION = "v1"
 
+STRICT_CONTRACT_MODE = "candidate_only_strict_contract_v1"
+STRICT_CONTRACT_POLICY = {
+    "mode": STRICT_CONTRACT_MODE,
+    "allowed_acceptance": [
+        "exact_qname",
+        "module_scoped",
+        "import_narrowed",
+        "contract_out_of_repo_allowed",
+    ],
+    "allowed_drop_reasons": [
+        "no_candidates",
+        "unique_without_provenance",
+        "ambiguous_no_caller_module",
+        "ambiguous_no_in_scope_candidate",
+        "ambiguous_multiple_in_scope_candidates",
+    ],
+}
+
 EXPANDED_TRUTH_POLICY = {
     "scope_exclusions": ["standard_call", "external"],
     "limitation_focus": ["dynamic", "in_repo_unresolved", "relative_unresolved"],
