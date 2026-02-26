@@ -21,8 +21,10 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.MethodReferenceExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.stmt.ExplicitConstructorInvocationStmt;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 public class JavaParserRunner {
@@ -226,6 +228,30 @@ public class JavaParserRunner {
         public void visit(ObjectCreationExpr node, Void arg) {
             String callee = node.getType().getNameAsString();
             String calleeQname = node.getType().toString();
+            String caller = currentScope();
+            result.callEdges.add(String.format("%s|%s|%s|%s", caller, callee, calleeQname, false));
+            super.visit(node, arg);
+        }
+
+        @Override
+        public void visit(MethodReferenceExpr node, Void arg) {
+            String callee = node.getIdentifier();
+            String calleeQname = "";
+            if (node.getScope() != null) {
+                String scopeText = node.getScope().toString();
+                if (scopeText != null && !scopeText.isBlank()) {
+                    calleeQname = scopeText + "." + callee;
+                }
+            }
+            String caller = currentScope();
+            result.callEdges.add(String.format("%s|%s|%s|%s", caller, callee, calleeQname, false));
+            super.visit(node, arg);
+        }
+
+        @Override
+        public void visit(ExplicitConstructorInvocationStmt node, Void arg) {
+            String callee = node.isThis() ? "this" : "super";
+            String calleeQname = callee;
             String caller = currentScope();
             result.callEdges.add(String.format("%s|%s|%s|%s", caller, callee, calleeQname, false));
             super.visit(node, arg);

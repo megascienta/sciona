@@ -401,6 +401,18 @@ function parseFile(entry) {
       return;
     }
 
+    if ((ts.isGetAccessor(node) || ts.isSetAccessor(node)) && currentScopeKind() === "class" && node.name) {
+      const classScope = currentScope();
+      const name = memberName(node.name, sourceFile);
+      if (!name) {
+        ts.forEachChild(node, visit);
+        return;
+      }
+      const qname = `${classScope}.${name}`;
+      registerCallable("method", qname, node, () => ts.forEachChild(node, visit));
+      return;
+    }
+
     ts.forEachChild(node, visit);
   }
 

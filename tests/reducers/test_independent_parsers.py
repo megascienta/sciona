@@ -413,6 +413,31 @@ def test_java_parser_collects_declared_type_assignment_hints(tmp_path: Path) -> 
     assert ("fixture.sample.Controller.handle", "local", "Service") in hints
 
 
+@pytest.mark.skipif(
+    not _java_parser_ready(),
+    reason="java parser toolchain is not configured",
+)
+def test_java_parser_collects_method_reference_calls(tmp_path: Path) -> None:
+    source = tmp_path / "Sample.java"
+    source.write_text(
+        "package fixture.sample;\n"
+        "import java.util.List;\n"
+        "class Controller {\n"
+        "  void run(String item) {}\n"
+        "  void handle(List<String> items) {\n"
+        "    items.forEach(this::run);\n"
+        "  }\n"
+        "}\n",
+        encoding="utf-8",
+    )
+    result = parse_java_files(
+        tmp_path, [{"file_path": "Sample.java", "module_qualified_name": "fixture.sample"}]
+    )[0]
+    assert result.parse_ok
+    edges = {(edge.caller, edge.callee) for edge in result.call_edges}
+    assert ("fixture.sample.Controller.handle", "run") in edges
+
+
 def test_scoped_call_normalization_is_module_and_language_local() -> None:
     alpha_calls = [
         NormalizedCallEdge(
@@ -1076,6 +1101,23 @@ def test_typescript_parser_collects_type_annotation_assignment_hints(
     assert ("fixture.sample.Controller.handle", "local", "Service") in hints
 
 
+@pytest.mark.skipif(shutil.which("node") is None, reason="node is required")
+def test_typescript_parser_collects_accessor_method_defs(tmp_path: Path) -> None:
+    source = tmp_path / "sample.ts"
+    source.write_text(
+        "class Controller {\n"
+        "  get value() { return 1; }\n"
+        "  set value(v: number) {}\n"
+        "}\n",
+        encoding="utf-8",
+    )
+    result = parse_typescript_files(
+        tmp_path, [{"file_path": "sample.ts", "module_qualified_name": "fixture.sample"}]
+    )[0]
+    defs = {entry.qualified_name for entry in result.defs if entry.kind == "method"}
+    assert "fixture.sample.Controller.value" in defs
+
+
 def test_call_contract_resolves_receiver_binding() -> None:
     edge = NormalizedCallEdge(
         caller="fixture.sample.entry",
@@ -1101,6 +1143,40 @@ def test_call_contract_resolves_receiver_binding() -> None:
         },
     )
     assert resolved == "fixture.sample.Service.run"
+
+
+def test_call_contract_does_not_guess_ambiguous_class_leaf() -> None:
+    edge = NormalizedCallEdge(
+        caller="fixture.sample.entry",
+        callee="run",
+        callee_qname=None,
+        dynamic=False,
+        callee_text="Service.run",
+    )
+    resolved = resolve_call_in_contract(
+        edge=edge,
+        caller_qname="fixture.sample.entry",
+        caller_module="fixture.sample",
+        call_resolution={
+            "symbol_index": {
+                "run": ["fixture.sample.alpha.Service.run", "fixture.sample.beta.Service.run"]
+            },
+            "module_lookup": {
+                "fixture.sample.alpha.Service.run": "fixture.sample.alpha",
+                "fixture.sample.beta.Service.run": "fixture.sample.beta",
+            },
+            "import_targets": {"fixture.sample": set()},
+            "class_name_index": {
+                "Service": ["fixture.sample.alpha.Service", "fixture.sample.beta.Service"]
+            },
+            "class_method_index": {},
+            "module_symbol_index": {},
+            "import_symbol_hints": {},
+            "namespace_aliases": {},
+            "receiver_bindings": {},
+        },
+    )
+    assert resolved is None
 
 
 def test_call_resolution_propagates_constructor_bindings_to_methods() -> None:

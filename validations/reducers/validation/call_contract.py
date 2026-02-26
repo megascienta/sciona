@@ -164,7 +164,7 @@ def build_contract_call_candidates(
     if identifier and qualifier_leaf:
         pooled.extend(import_symbol_hints.get(caller_module, {}).get(qualifier_leaf, []))
         class_candidates = class_name_index.get(qualifier_leaf) or []
-        if class_candidates:
+        if len(class_candidates) == 1:
             pooled.extend(_by_prefix(symbol_index.get(identifier) or [], f"{class_candidates[0]}."))
         namespace_target = namespace_aliases.get(caller_module, {}).get(qualifier_leaf)
         if namespace_target:
