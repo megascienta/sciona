@@ -5,7 +5,7 @@
 - hard_passed: `True`
 - threshold_profile: `multi_language`
 - strict_precision/recall/overreach: `0.939394`/`0.991533`/`0.060606`
-- expanded_full_precision/recall: `0.954545`/`0.836719`
+- enriched_full_precision/recall: `0.954545`/`0.836719`
 - hard_failures: `0`
 - diagnostic_failures: `0`
 
@@ -28,9 +28,9 @@
 
 ## Top Risks
 
-- [high] core_analysis::method_precision_gap evidence=`{'method_precision': 0.7243243243243244}`
-- [high] core_analysis::strict_overreach_elevated evidence=`{'strict_overreach_rate': 0.06060606060606061}`
-- [medium] validation_workflow::strict_to_expanded_recall_drop evidence=`{'strict_recall': 0.9915333960489181, 'expanded_full_recall': 0.83671875, 'delta': 0.15481464604891815}`
+- [high] core_analysis::method_precision_gap confidence=`high` evidence=`{'method_precision': 0.7243243243243244}`
+- [high] core_analysis::strict_overreach_elevated confidence=`high` evidence=`{'strict_overreach_rate': 0.06060606060606061}`
+- [medium] validation_workflow::strict_to_expanded_recall_drop confidence=`medium` evidence=`{'strict_recall': 0.9915333960489181, 'expanded_full_recall': 0.83671875, 'delta': 0.15481464604891815}`
 
 ## Appendix
 

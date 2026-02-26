@@ -5,7 +5,7 @@
 - hard_passed: `True`
 - threshold_profile: `single_language`
 - strict_precision/recall/overreach: `0.985129`/`0.993631`/`0.014871`
-- expanded_full_precision/recall: `0.988185`/`0.952297`
+- enriched_full_precision/recall: `0.988185`/`0.952297`
 - hard_failures: `0`
 - diagnostic_failures: `1`
 - diagnostic_failure: kind precision floor gate failed
@@ -29,10 +29,10 @@
 
 ## Top Risks
 
-- [high] core_analysis::method_recall_gap evidence=`{'method_recall': 0.847682119205298}`
-- [high] core_analysis::method_precision_gap evidence=`{'method_precision': 0.810126582278481}`
-- [medium] validation_workflow::strict_to_expanded_recall_drop evidence=`{'strict_recall': 0.9936305732484076, 'expanded_full_recall': 0.9522968197879859, 'delta': 0.041333753460421785}`
-- [medium] core_analysis::reasoning_reliability_low evidence=`{'reasoning_structural_reliability': 0.6896551724137931}`
+- [high] core_analysis::method_recall_gap confidence=`high` evidence=`{'method_recall': 0.847682119205298}`
+- [high] core_analysis::method_precision_gap confidence=`high` evidence=`{'method_precision': 0.810126582278481}`
+- [medium] validation_workflow::strict_to_expanded_recall_drop confidence=`medium` evidence=`{'strict_recall': 0.9936305732484076, 'expanded_full_recall': 0.9522968197879859, 'delta': 0.041333753460421785}`
+- [medium] core_analysis::reasoning_reliability_low confidence=`medium` evidence=`{'reasoning_structural_reliability': 0.6896551724137931}`
 
 ## Appendix
 

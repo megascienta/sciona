@@ -5,7 +5,7 @@
 - hard_passed: `True`
 - threshold_profile: `single_language`
 - strict_precision/recall/overreach: `0.979132`/`0.992494`/`0.020868`
-- expanded_full_precision/recall: `0.979132`/`0.964203`
+- enriched_full_precision/recall: `0.979132`/`0.964203`
 - hard_failures: `0`
 - diagnostic_failures: `0`
 
@@ -28,8 +28,8 @@
 
 ## Top Risks
 
-- [high] core_analysis::method_precision_gap evidence=`{'method_precision': 0.2708333333333333}`
-- [medium] core_analysis::reasoning_reliability_low evidence=`{'reasoning_structural_reliability': 0.6056338028169014}`
+- [high] core_analysis::method_precision_gap confidence=`high` evidence=`{'method_precision': 0.2708333333333333}`
+- [medium] core_analysis::reasoning_reliability_low confidence=`medium` evidence=`{'reasoning_structural_reliability': 0.6056338028169014}`
 
 ## Appendix
 

@@ -5,7 +5,7 @@
 - hard_passed: `False`
 - threshold_profile: `single_language`
 - strict_precision/recall/overreach: `0.919612`/`0.992615`/`0.080388`
-- expanded_full_precision/recall: `0.949829`/`0.861873`
+- enriched_full_precision/recall: `0.949829`/`0.861873`
 - hard_failures: `1`
 - diagnostic_failures: `0`
 - hard_failure: basket partition violated: contract/limitation/exclusion overlap detected
@@ -29,11 +29,11 @@
 
 ## Top Risks
 
-- [high] core_analysis::method_precision_gap evidence=`{'method_precision': 0.7267080745341615}`
-- [high] core_analysis::strict_overreach_elevated evidence=`{'strict_overreach_rate': 0.08038768529076397}`
-- [medium] core_analysis::function_recall_gap evidence=`{'function_recall': 0.8780487804878049}`
-- [medium] validation_workflow::strict_to_expanded_recall_drop evidence=`{'strict_recall': 0.9926153846153846, 'expanded_full_recall': 0.8618727366787378, 'delta': 0.1307426479366468}`
-- [medium] core_analysis::reasoning_reliability_low evidence=`{'reasoning_structural_reliability': 0.5773584905660377}`
+- [high] core_analysis::method_precision_gap confidence=`high` evidence=`{'method_precision': 0.7267080745341615}`
+- [high] core_analysis::strict_overreach_elevated confidence=`high` evidence=`{'strict_overreach_rate': 0.08038768529076397}`
+- [medium] core_analysis::function_recall_gap confidence=`medium` evidence=`{'function_recall': 0.8780487804878049}`
+- [medium] validation_workflow::strict_to_expanded_recall_drop confidence=`medium` evidence=`{'strict_recall': 0.9926153846153846, 'expanded_full_recall': 0.8618727366787378, 'delta': 0.1307426479366468}`
+- [medium] core_analysis::reasoning_reliability_low confidence=`medium` evidence=`{'reasoning_structural_reliability': 0.5773584905660377}`
 
 ## Appendix
 
