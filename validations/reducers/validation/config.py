@@ -18,10 +18,10 @@ STRICT_CONTRACT_MODE = "candidate_only_strict_contract_v1"
 
 EXPANDED_TRUTH_POLICY = {
     "scope_exclusions": ["external"],
-    "limitation_focus": ["dynamic", "in_repo_unresolved", "relative_unresolved"],
+    "limitation_focus": ["dynamic", "decorator", "in_repo_unresolved", "relative_unresolved"],
     "confidence_tiers": {
         "high": ["in_repo_unresolved"],
-        "low": ["dynamic", "relative_unresolved"],
+        "low": ["dynamic", "decorator", "relative_unresolved"],
     },
 }
 

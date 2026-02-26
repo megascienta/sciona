@@ -765,6 +765,50 @@ def test_ground_truth_includes_dynamic_and_unresolved_in_expanded_tiers() -> Non
     assert diagnostics["included_limitation_by_reason"]["dynamic"] == 1
 
 
+def test_ground_truth_classifies_decorator_edges_as_enrichment() -> None:
+    file_result = FileParseResult(
+        language="python",
+        file_path="pkg/mod.py",
+        module_qualified_name="fixture.pkg.mod",
+        defs=[],
+        call_edges=[],
+        import_edges=[],
+        assignment_hints=[],
+        parse_ok=True,
+    )
+    normalized_calls = [
+        NormalizedCallEdge(
+            caller="fixture.pkg.mod.fn",
+            callee="cache",
+            callee_qname=None,
+            dynamic=True,
+            callee_text="decorator:cache()",
+        ),
+    ]
+    entity = SimpleNamespace(
+        kind="function",
+        qualified_name="fixture.pkg.mod.fn",
+        module_qualified_name="fixture.pkg.mod",
+    )
+    expected, _, out_of_contract, out_meta, diagnostics = edge_records_from_ground_truth(
+        file_result=file_result,
+        normalized_calls=normalized_calls,
+        normalized_imports=[],
+        module_imports_by_prefix={},
+        entity=entity,
+        module_names={"fixture.pkg.mod"},
+        call_resolution={"symbol_index": {}},
+        repo_root=FIXTURE_ROOT / "python",
+        repo_prefix="fixture",
+        local_packages={"fixture"},
+    )
+    assert expected == []
+    assert len(out_of_contract) == 1
+    assert out_meta and out_meta[0]["reason"] == "decorator"
+    assert out_meta[0]["semantic_type"] == "decorator_call"
+    assert diagnostics["included_limitation_by_reason"]["decorator"] == 1
+
+
 def test_ground_truth_class_diagnostic_marks_no_method_class() -> None:
     file_result = FileParseResult(
         language="python",

@@ -58,6 +58,15 @@ function memberName(node, sourceFile) {
   return null;
 }
 
+function decoratorsOf(node) {
+  if (!node) return [];
+  if (typeof ts.canHaveDecorators === "function" && ts.canHaveDecorators(node)) {
+    const decorators = ts.getDecorators(node);
+    return decorators || [];
+  }
+  return [];
+}
+
 function parseFile(entry) {
   const content = fs.readFileSync(entry.path, "utf8");
   const sourceFile = ts.createSourceFile(entry.path, content, ts.ScriptTarget.Latest, true);
@@ -88,6 +97,20 @@ function parseFile(entry) {
   function registerCallable(kind, qname, node, visitNode) {
     const span = lineSpan(sourceFile, node);
     defs.push({ kind, qualified_name: qname, start_line: span.start_line, end_line: span.end_line });
+    const decorators = decoratorsOf(node);
+    for (const decorator of decorators) {
+      const expr = decorator.expression;
+      const callee = ts.isCallExpression(expr) ? calleeName(expr.expression) : calleeName(expr);
+      const qnameHint = ts.isCallExpression(expr) ? expressionText(expr.expression) : expressionText(expr);
+      const text = expr ? expr.getText(sourceFile) : "decorator";
+      call_edges.push({
+        caller: qname,
+        callee: callee || "",
+        callee_qname: qnameHint || "",
+        dynamic: true,
+        callee_text: `decorator:${text}`
+      });
+    }
     pushScope(qname, kind);
     visitNode();
     popScope();
