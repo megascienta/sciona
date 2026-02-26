@@ -31,6 +31,7 @@ def test_q2_payload_declares_core_only_filtering_source(tmp_path: Path) -> None:
 
 def test_q2_filtering_pipeline_no_validation_contract_override() -> None:
     base = Path("validations/reducers/validation")
+    assert not (base / "contract_spec.py").exists()
     call_contract_text = (base / "call_contract.py").read_text(encoding="utf-8")
     import_contract_text = (base / "import_contract.py").read_text(encoding="utf-8")
     orchestrator_text = (base / "orchestrator.py").read_text(encoding="utf-8")
