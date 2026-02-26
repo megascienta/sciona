@@ -25,7 +25,6 @@ from .independent.contract_normalization import (
 from .independent.normalize import normalize_file_edges
 from .independent.shared import EdgeRecord, FileParseResult, dedupe_edge_records
 from .metrics import compare_edge_sets, compute_metrics
-from .out_of_contract import standard_call_names
 from .sampling import build_entities_from_db, sample_entities
 from .reducer_queries import (
     get_callsite_index_payload,
@@ -38,18 +37,12 @@ def _filter_core_edges_in_contract(
     *,
     entity,
     edges: list[EdgeRecord],
-    contract: dict,
     call_resolution: dict,
     module_names: set[str],
 ) -> list[EdgeRecord]:
     if not edges:
         return []
     if entity.kind == "module":
-        require_in_repo = bool(
-            (contract.get("imports") or {}).get("require_module_in_repo", True)
-        )
-        if not require_in_repo:
-            return dedupe_edge_records(edges)
         return dedupe_edge_records(
             [
                 edge
@@ -70,17 +63,13 @@ def _filter_core_edges_in_contract(
 
     caller_qname = entity.qualified_name
     caller_module = entity.module_qualified_name
-    standard = standard_call_names(contract, entity.language)
     filtered: list[EdgeRecord] = []
     for edge in edges:
-        if edge.callee and edge.callee in standard:
-            continue
         resolved = resolve_call_in_contract(
             edge=edge,
             caller_qname=caller_qname,
             caller_module=caller_module,
             call_resolution=call_resolution,
-            contract=contract,
         )
         if not resolved:
             continue
@@ -437,7 +426,6 @@ def evaluate_entities(
     module_imports_by_prefix: dict,
     module_names: set[str],
     call_resolution: dict,
-    contract: dict,
     repo_root: Path,
     repo_prefix: str,
     local_packages: set[str],
@@ -470,7 +458,6 @@ def evaluate_entities(
             entity,
             module_names,
             call_resolution,
-            contract,
             repo_root,
             repo_prefix,
             local_packages,
@@ -481,14 +468,12 @@ def evaluate_entities(
         reducer_edges_contract = _filter_core_edges_in_contract(
             entity=entity,
             edges=reducer_edges,
-            contract=contract,
             call_resolution=call_resolution,
             module_names=module_names,
         )
         db_edges_contract = _filter_core_edges_in_contract(
             entity=entity,
             edges=db_edges,
-            contract=contract,
             call_resolution=call_resolution,
             module_names=module_names,
         )

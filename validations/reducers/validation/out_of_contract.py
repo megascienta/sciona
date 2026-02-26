@@ -6,36 +6,15 @@ from __future__ import annotations
 from typing import Iterable
 
 
-def standard_call_names(contract: dict, language: str | None = None) -> set[str]:
-    out = contract.get("out_of_contract", {}) or {}
-    by_language = out.get("standard_calls_by_language") or {}
-    if language:
-        block = by_language.get(language)
-        if block is None:
-            block = out.get("standard_calls", []) or []
-    else:
-        block = out.get("standard_calls", []) or []
-        if not block and isinstance(by_language, dict):
-            merged: list[str] = []
-            for values in by_language.values():
-                if isinstance(values, list):
-                    merged.extend(values)
-            block = merged
-    return {name for name in block if isinstance(name, str) and name}
-
-
 def classify_call_reason(
     *,
     edge,
     language: str,
     call_resolution: dict,
-    contract: dict,
 ) -> str:
+    del language
     if edge.dynamic:
         return "dynamic"
-    standard = standard_call_names(contract, language)
-    if edge.callee and edge.callee in standard:
-        return "standard_call"
     identifier = (edge.callee or "").strip()
     if not identifier and edge.callee_qname:
         identifier = edge.callee_qname.split(".")[-1]
@@ -58,8 +37,6 @@ def classify_call_semantic_type(*, edge, reason: str) -> str:
         return "unknown_call_shape"
     if reason == "external":
         return "external_call"
-    if reason == "standard_call":
-        return "standard_call"
     return "other_call_unresolved"
 
 

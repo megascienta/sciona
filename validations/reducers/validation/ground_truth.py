@@ -14,7 +14,6 @@ from .out_of_contract import (
     classify_call_semantic_type,
     classify_import_reason,
     classify_import_semantic_type,
-    standard_call_names,
 )
 
 
@@ -46,7 +45,6 @@ def edge_records_from_ground_truth(
     entity,
     module_names: set[str],
     call_resolution: dict,
-    contract: dict,
     repo_root,
     repo_prefix: str,
     local_packages: set[str],
@@ -309,7 +307,6 @@ def edge_records_from_ground_truth(
                 file_path,
                 module_name,
                 language,
-                contract,
                 module_names,
                 repo_root,
                 repo_prefix,
@@ -351,7 +348,6 @@ def edge_records_from_ground_truth(
                     file_result.file_path,
                     file_result.module_qualified_name,
                     file_result.language,
-                    contract,
                     module_names,
                     repo_root,
                     repo_prefix,
@@ -513,7 +509,6 @@ def edge_records_from_ground_truth(
             diagnostics,
         )
 
-    standard_calls = standard_call_names(contract, file_result.language)
     for edge in normalized_calls:
         if edge.caller != entity.qualified_name:
             continue
@@ -522,7 +517,6 @@ def edge_records_from_ground_truth(
             caller_qname=entity.qualified_name,
             caller_module=entity.module_qualified_name,
             call_resolution=call_resolution,
-            contract=contract,
         )
         resolved_callee_qname = call_decision.callee_qname
         if call_decision.accepted_provenance:
@@ -549,7 +543,6 @@ def edge_records_from_ground_truth(
         if (
             not edge.dynamic
             and resolved_callee_qname
-            and (edge.callee or "").strip() not in standard_calls
         ):
             resolved_record = EdgeRecord(
                 caller=edge.caller,
@@ -563,7 +556,6 @@ def edge_records_from_ground_truth(
                 edge=edge,
                 language=file_result.language,
                 call_resolution=call_resolution,
-                contract=contract,
             )
             _register_limitation_edge(reason, full_record)
             _append_basket2_meta(

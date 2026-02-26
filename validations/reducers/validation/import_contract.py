@@ -7,13 +7,20 @@ import json
 from pathlib import Path
 
 from sciona.runtime.paths import repo_name_prefix
+from sciona.code_analysis.core.extract.languages.python_imports import (
+    normalize_import as core_normalize_python_import,
+)
+from sciona.code_analysis.core.extract.languages.typescript_imports import (
+    normalize_import as core_normalize_typescript_import,
+    normalize_relative_index as core_normalize_typescript_relative_index,
+)
+from sciona.code_analysis.core.extract.languages.java_imports import (
+    module_prefix_for_package as core_module_prefix_for_package,
+)
+from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
 
 from .independent.contract_normalization import (
-    module_prefix_for_java_package,
     normalize_java_import,
-    normalize_python_import,
-    normalize_typescript_import,
-    normalize_typescript_relative_index,
 )
 
 def _java_package_name(content: bytes | None) -> str | None:
@@ -129,7 +136,6 @@ def resolve_import_contract(
     file_path: str,
     module_qname: str,
     language: str,
-    contract: dict,
     module_names: set[str],
     repo_root: Path,
     repo_prefix: str,
@@ -137,60 +143,67 @@ def resolve_import_contract(
 ) -> str | None:
     if not raw_target:
         return None
-    imports_spec = contract.get("imports", {})
-    require_in_repo = imports_spec.get("require_module_in_repo", True)
-    language_spec = (imports_spec.get("languages") or {}).get(language, {})
-    resolver = language_spec.get("resolver")
-    if not resolver:
-        return None
     resolved = None
-    if resolver == "python_resolve":
+    if language == "python":
         is_package = Path(file_path).name == "__init__.py"
-        resolved = normalize_python_import(
+        resolved = core_normalize_python_import(
             raw_target,
             module_qname,
             is_package,
             repo_prefix=repo_prefix,
             local_packages=local_packages,
         )
-    elif resolver == "typescript_normalize":
-        resolved = normalize_typescript_import(raw_target, file_path, repo_root)
+    elif language == "typescript":
+        snapshot = FileSnapshot(
+            record=FileRecord(
+                path=(repo_root / file_path),
+                relative_path=Path(file_path),
+                language="typescript",
+            )
+        )
+        resolved = core_normalize_typescript_import(raw_target, snapshot)
         if (
             (not resolved or resolved not in module_names)
             and raw_target.strip().startswith(".")
         ):
-            alt = normalize_typescript_relative_index(raw_target, file_path, repo_root)
+            alt = core_normalize_typescript_relative_index(raw_target, snapshot)
             if alt:
                 resolved = alt
         if (not resolved or resolved not in module_names) and not raw_target.strip().startswith("."):
             for alias_path in _ts_path_alias_candidates(raw_target.strip(), repo_root):
-                alias_resolved = normalize_typescript_import(
+                alias_snapshot = FileSnapshot(
+                    record=FileRecord(
+                        path=(repo_root / "__tsconfig_root__.ts"),
+                        relative_path=Path("__tsconfig_root__.ts"),
+                        language="typescript",
+                    )
+                )
+                alias_resolved = core_normalize_typescript_import(
                     f"./{alias_path}",
-                    file_path="__tsconfig_root__.ts",
-                    repo_root=repo_root,
+                    alias_snapshot,
                 )
                 alias_resolved = _rewrite_repo_prefix(alias_resolved, repo_root, repo_prefix)
                 if alias_resolved and alias_resolved in module_names:
                     resolved = alias_resolved
                     break
-    elif resolver == "java_normalize":
+    elif language == "java":
         abs_path = repo_root / Path(file_path)
         content = abs_path.read_bytes() if abs_path.exists() else None
         package_name = _java_package_name(content)
-        module_prefix = module_prefix_for_java_package(module_qname, package_name)
+        module_prefix = core_module_prefix_for_package(module_qname, package_name)
         fragment = raw_target
         if not raw_target.strip().startswith("import"):
             fragment = f"import {raw_target};"
         resolved = normalize_java_import(
             fragment,
             module_qname,
-            module_prefix=module_prefix,
-            repo_prefix=repo_prefix,
+                module_prefix=module_prefix,
+                repo_prefix=repo_prefix,
         )
+    else:
+        return None
     resolved = _rewrite_repo_prefix(resolved, repo_root, repo_prefix)
     if resolved:
         if resolved in module_names:
-            return resolved
-        if not require_in_repo:
             return resolved
     return None

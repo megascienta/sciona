@@ -17,7 +17,7 @@ DEFAULT_SEED = 20260219
 STRICT_CONTRACT_MODE = "candidate_only_strict_contract_v1"
 
 EXPANDED_TRUTH_POLICY = {
-    "scope_exclusions": ["standard_call", "external"],
+    "scope_exclusions": ["external"],
     "limitation_focus": ["dynamic", "in_repo_unresolved", "relative_unresolved"],
     "confidence_tiers": {
         "high": ["in_repo_unresolved"],

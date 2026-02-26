@@ -188,31 +188,8 @@ def resolve_call_in_contract_details(
     caller_qname: str,
     caller_module: str,
     call_resolution: dict,
-    contract: dict,
 ) -> ContractCallResolution:
-    require_in_repo = contract.get("call_contract", {}).get("require_callee_in_repo", True)
     candidates = build_contract_call_candidates(edge, caller_qname, caller_module, call_resolution)
-    if not require_in_repo:
-        if edge.callee_qname:
-            return ContractCallResolution(
-                callee_qname=edge.callee_qname,
-                accepted_provenance="contract_out_of_repo_allowed",
-                dropped_reason=None,
-                candidate_count=1,
-            )
-        if candidates.fallback_candidates:
-            return ContractCallResolution(
-                callee_qname=candidates.fallback_candidates[0],
-                accepted_provenance="contract_out_of_repo_allowed",
-                dropped_reason=None,
-                candidate_count=len(candidates.fallback_candidates),
-            )
-        return ContractCallResolution(
-            callee_qname=None,
-            accepted_provenance=None,
-            dropped_reason="no_candidates",
-            candidate_count=0,
-        )
     decision = select_strict_call_candidate(
         identifier=candidates.identifier,
         direct_candidates=candidates.direct_candidates,
@@ -234,14 +211,12 @@ def resolve_call_in_contract(
     caller_qname: str,
     caller_module: str,
     call_resolution: dict,
-    contract: dict,
 ) -> str | None:
     return resolve_call_in_contract_details(
         edge=edge,
         caller_qname=caller_qname,
         caller_module=caller_module,
         call_resolution=call_resolution,
-        contract=contract,
     ).callee_qname
 
 
@@ -250,11 +225,8 @@ def call_in_contract(
     caller_qname: str,
     caller_module: str,
     call_resolution: dict,
-    contract: dict,
 ) -> bool:
     return (
-        resolve_call_in_contract(
-            edge, caller_qname, caller_module, call_resolution, contract
-        )
+        resolve_call_in_contract(edge, caller_qname, caller_module, call_resolution)
         is not None
     )

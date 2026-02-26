@@ -16,7 +16,6 @@ from validations.reducers.validation.call_contract import build_contract_call_ca
 from validations.reducers.validation.call_contract import resolve_call_in_contract_details
 from validations.reducers.validation.ground_truth import edge_records_from_ground_truth
 from validations.reducers.validation.import_contract import resolve_import_contract
-from validations.reducers.validation.out_of_contract import standard_call_names
 from validations.reducers.validation.independent.contract_normalization import (
     module_name_from_file,
     normalize_scoped_calls,
@@ -418,12 +417,6 @@ def test_import_contract_typescript_relative_index_fallback() -> None:
         file_path="pkg/main.ts",
         module_qname="fixture.pkg.main",
         language="typescript",
-        contract={
-            "imports": {
-                "require_module_in_repo": True,
-                "languages": {"typescript": {"resolver": "typescript_normalize"}},
-            }
-        },
         module_names={"fixture.pkg.api.index"},
         repo_root=Path("/tmp/fixture"),
         repo_prefix="fixture",
@@ -438,12 +431,6 @@ def test_import_contract_python_relative_package_resolution() -> None:
         file_path="pkg/mod.py",
         module_qname="fixture.pkg.mod",
         language="python",
-        contract={
-            "imports": {
-                "require_module_in_repo": True,
-                "languages": {"python": {"resolver": "python_resolve"}},
-            }
-        },
         module_names={"fixture.pkg.utils"},
         repo_root=Path("/tmp/fixture"),
         repo_prefix="fixture",
@@ -461,12 +448,6 @@ def test_import_contract_java_package_prefix_resolution(tmp_path: Path) -> None:
         file_path="src/main/java/org/example/Main.java",
         module_qname="fixture.src.main.java.org.example.Main",
         language="java",
-        contract={
-            "imports": {
-                "require_module_in_repo": True,
-                "languages": {"java": {"resolver": "java_normalize"}},
-            }
-        },
         module_names={"fixture.src.main.java.org.example.dep.Type"},
         repo_root=tmp_path,
         repo_prefix="fixture",
@@ -519,7 +500,6 @@ def test_ground_truth_dedupes_duplicate_calls() -> None:
             "import_symbol_hints": {},
             "namespace_aliases": {},
         },
-        contract={"call_contract": {"require_callee_in_repo": True}},
         repo_root=FIXTURE_ROOT / "python",
         repo_prefix="fixture",
         local_packages={"fixture"},
@@ -553,18 +533,11 @@ def test_typescript_import_contract_resolves_relative_index() -> None:
         "fixture.pkg.api.index",
         "fixture.pkg.api.client",
     }
-    contract = {
-        "imports": {
-            "require_module_in_repo": True,
-            "languages": {"typescript": {"resolver": "typescript_normalize"}},
-        }
-    }
     resolved = resolve_import_contract(
         raw_target="./api",
         file_path="pkg/main.ts",
         module_qname="fixture.pkg.main",
         language="typescript",
-        contract=contract,
         module_names=module_names,
         repo_root=Path("/tmp/fixture"),
         repo_prefix="fixture",
@@ -585,18 +558,11 @@ def test_typescript_import_contract_resolves_tsconfig_path_alias(tmp_path: Path)
         ),
         encoding="utf-8",
     )
-    contract = {
-        "imports": {
-            "require_module_in_repo": True,
-            "languages": {"typescript": {"resolver": "typescript_normalize"}},
-        }
-    }
     resolved = resolve_import_contract(
         raw_target="@app/utils",
         file_path="src/main.ts",
         module_qname="fixture.src.main",
         language="typescript",
-        contract=contract,
         module_names={"fixture.src.utils"},
         repo_root=tmp_path,
         repo_prefix="fixture",
@@ -632,12 +598,6 @@ def test_ground_truth_excludes_external_imports_from_enrichment() -> None:
         entity=entity,
         module_names={"fixture.sample"},
         call_resolution={},
-        contract={
-            "imports": {
-                "require_module_in_repo": True,
-                "languages": {"python": {"resolver": "python_resolve"}},
-            }
-        },
         repo_root=FIXTURE_ROOT / "python",
         repo_prefix="fixture",
         local_packages={"fixture"},
@@ -646,7 +606,7 @@ def test_ground_truth_excludes_external_imports_from_enrichment() -> None:
     assert out_of_contract == []
 
 
-def test_ground_truth_excludes_standard_calls_from_enrichment() -> None:
+def test_ground_truth_excludes_out_of_repo_calls_from_enrichment() -> None:
     file_result = FileParseResult(
         language="python",
         file_path="pkg/mod.py",
@@ -679,7 +639,6 @@ def test_ground_truth_excludes_standard_calls_from_enrichment() -> None:
         entity=entity,
         module_names={"fixture.pkg.mod"},
         call_resolution={"symbol_index": {}},
-        contract={"out_of_contract": {"standard_calls": ["print"]}},
         repo_root=FIXTURE_ROOT / "python",
         repo_prefix="fixture",
         local_packages={"fixture"},
@@ -687,20 +646,7 @@ def test_ground_truth_excludes_standard_calls_from_enrichment() -> None:
     assert expected == []
     assert out_of_contract == []
     assert out_meta == []
-    assert diagnostics["excluded_out_of_scope_by_reason"].get("standard_call") == 1
-
-
-def test_standard_call_names_language_aware_with_legacy_fallback() -> None:
-    contract = {
-        "out_of_contract": {
-            "standard_calls_by_language": {"python": ["print"], "typescript": ["console"]},
-            "standard_calls": ["legacy_call"],
-        }
-    }
-    assert standard_call_names(contract, "python") == {"print"}
-    assert standard_call_names(contract, "typescript") == {"console"}
-    assert standard_call_names(contract, "java") == {"legacy_call"}
-    assert "legacy_call" in standard_call_names(contract)
+    assert diagnostics["excluded_out_of_scope_by_reason"].get("external") == 1
 
 
 def test_ground_truth_partitions_baskets_when_same_edge_has_conflicting_reasons() -> None:
@@ -715,7 +661,7 @@ def test_ground_truth_partitions_baskets_when_same_edge_has_conflicting_reasons(
         parse_ok=True,
     )
     normalized_calls = [
-        # Same caller/callee key appears first as dynamic, then as standard call.
+        # Same caller/callee key appears first as dynamic, then as external call.
         NormalizedCallEdge(
             caller="fixture.pkg.mod.fn",
             callee="print",
@@ -744,7 +690,6 @@ def test_ground_truth_partitions_baskets_when_same_edge_has_conflicting_reasons(
         entity=entity,
         module_names={"fixture.pkg.mod"},
         call_resolution={"symbol_index": {}},
-        contract={"out_of_contract": {"standard_calls": ["print"]}},
         repo_root=FIXTURE_ROOT / "python",
         repo_prefix="fixture",
         local_packages={"fixture"},
@@ -753,7 +698,7 @@ def test_ground_truth_partitions_baskets_when_same_edge_has_conflicting_reasons(
     assert out_of_contract == []
     assert out_meta == []
     assert len(diagnostics["contract_exclusion_edges_full"]) == 1
-    assert diagnostics["excluded_out_of_scope_by_reason"].get("standard_call") == 1
+    assert diagnostics["excluded_out_of_scope_by_reason"].get("external") == 1
     assert diagnostics["included_limitation_count"] == 0
     assert diagnostics["limitation_edges_full"] == []
 
@@ -805,7 +750,6 @@ def test_ground_truth_includes_dynamic_and_unresolved_in_expanded_tiers() -> Non
                 ]
             }
         },
-        contract={"out_of_contract": {"standard_calls": []}},
         repo_root=FIXTURE_ROOT / "python",
         repo_prefix="fixture",
         local_packages={"fixture"},
@@ -845,7 +789,6 @@ def test_ground_truth_class_diagnostic_marks_no_method_class() -> None:
         entity=entity,
         module_names={"fixture.pkg.mod"},
         call_resolution={},
-        contract={},
         repo_root=FIXTURE_ROOT / "python",
         repo_prefix="fixture",
         local_packages={"fixture"},
@@ -908,7 +851,6 @@ def test_ground_truth_class_uses_direct_method_ownership_only() -> None:
         entity=entity,
         module_names={"fixture.src.Sample"},
         call_resolution={},
-        contract={},
         repo_root=FIXTURE_ROOT / "java",
         repo_prefix="fixture",
         local_packages={"fixture"},
@@ -962,7 +904,6 @@ def test_ground_truth_class_marks_ambiguous_match_unreliable() -> None:
         entity=entity,
         module_names={"fixture.src.Sample"},
         call_resolution={},
-        contract={},
         repo_root=FIXTURE_ROOT / "java",
         repo_prefix="fixture",
         local_packages={"fixture"},
@@ -1032,7 +973,6 @@ def test_call_contract_resolves_receiver_binding() -> None:
             "namespace_aliases": {},
             "receiver_bindings": {"fixture.sample.entry": {"svc": ["fixture.sample.Service"]}},
         },
-        contract={"call_contract": {"require_callee_in_repo": True}},
     )
     assert resolved == "fixture.sample.Service.run"
 
@@ -1068,7 +1008,6 @@ def test_call_contract_keeps_same_module_ambiguity_unresolved() -> None:
             "namespace_aliases": {},
             "receiver_bindings": {},
         },
-        contract={"call_contract": {"require_callee_in_repo": True}},
     )
     assert resolved is None
 
@@ -1107,7 +1046,6 @@ def test_call_contract_details_use_shared_strict_selector() -> None:
         caller_qname="fixture.sample.entry",
         caller_module="fixture.sample",
         call_resolution=call_resolution,
-        contract={"call_contract": {"require_callee_in_repo": True}},
     )
     candidates = build_contract_call_candidates(
         edge=edge,

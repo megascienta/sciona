@@ -10,7 +10,6 @@ from sciona.runtime import packaging as runtime_packaging
 from sciona.runtime.paths import repo_name_prefix
 
 from . import config
-from .contract_spec import get_validation_contract
 from .connections import open_core_db
 from .db_adapter import list_nodes_from_artifacts, open_artifact_db
 from .evaluation import (
@@ -204,7 +203,6 @@ def run_validation(
 ) -> int:
     repo_root = repo_root.resolve()
     reports = config.report_paths(repo_root)
-    contract = get_validation_contract()
 
     with open_core_db(repo_root) as conn:
         snapshot_id = get_snapshot_id(conn)
@@ -271,7 +269,6 @@ def run_validation(
                 independent_results,
                 normalized_edge_map,
                 full_module_names,
-                contract,
                 repo_root,
                 repo_prefix,
                 local_packages,
@@ -290,7 +287,6 @@ def run_validation(
                 module_imports_by_prefix,
                 full_module_names,
                 call_resolution,
-                contract,
                 repo_root,
                 repo_prefix,
                 local_packages,
