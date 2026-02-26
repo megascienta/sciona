@@ -105,6 +105,7 @@ def evaluate_invariants(
     limitation_scope_clean_ok: bool,
     limitation_taxonomy_stable_ok: bool,
     strict_drop_taxonomy_stable_ok: bool,
+    kind_precision_floors_ok: bool,
     contract_recall_ok: bool,
     overreach_rate_ok: bool,
     member_call_recall_ok: bool | None,
@@ -194,6 +195,9 @@ def evaluate_invariants(
     gate_strict_drop_taxonomy_stable = strict_drop_taxonomy_stable_ok
     if not gate_strict_drop_taxonomy_stable:
         hard_failures.append("strict drop taxonomy gate failed: unknown dropped reasons detected")
+    gate_kind_precision_floors = kind_precision_floors_ok
+    if not gate_kind_precision_floors:
+        diagnostic_failures.append("kind precision floor gate failed")
     gate_contract_recall_min = contract_recall_ok
     if not gate_contract_recall_min:
         diagnostic_failures.append("contract recall quality gate failed")
@@ -240,6 +244,7 @@ def evaluate_invariants(
         "gate_limitation_scope_clean": gate_limitation_scope_clean,
         "gate_limitation_taxonomy_stable": gate_limitation_taxonomy_stable,
         "gate_strict_drop_taxonomy_stable": gate_strict_drop_taxonomy_stable,
+        "gate_kind_precision_floors": gate_kind_precision_floors,
         "gate_contract_recall_min": gate_contract_recall_min,
         "gate_overreach_rate_max": gate_overreach_rate_max,
         "gate_member_call_recall_min": gate_member_call_recall_min,

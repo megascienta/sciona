@@ -76,6 +76,17 @@ PROFILE_THRESHOLDS = {
     },
 }
 
+KIND_PRECISION_FLOORS = {
+    "function": 0.75,
+    "method": 0.60,
+}
+
+REPO_KIND_PRECISION_OVERRIDES = {
+    # Known hotspots with temporarily relaxed floors while calibration improves.
+    "fastapi": {"method": 0.25},
+    "nest": {"function": 0.35},
+}
+
 LOC_BUCKETS = (
     (200, "small"),
     (800, "medium"),

@@ -30,6 +30,7 @@ def test_member_call_recall_gate_is_not_failing_when_not_applicable() -> None:
         limitation_scope_clean_ok=True,
         limitation_taxonomy_stable_ok=True,
         strict_drop_taxonomy_stable_ok=True,
+        kind_precision_floors_ok=True,
         contract_recall_ok=True,
         overreach_rate_ok=True,
         member_call_recall_ok=None,
@@ -62,6 +63,7 @@ def test_strict_contract_parity_gate_fails_hard() -> None:
         limitation_scope_clean_ok=True,
         limitation_taxonomy_stable_ok=True,
         strict_drop_taxonomy_stable_ok=True,
+        kind_precision_floors_ok=True,
         contract_recall_ok=True,
         overreach_rate_ok=True,
         member_call_recall_ok=None,
@@ -93,6 +95,7 @@ def test_limitation_taxonomy_gate_fails_hard() -> None:
         limitation_scope_clean_ok=False,
         limitation_taxonomy_stable_ok=False,
         strict_drop_taxonomy_stable_ok=False,
+        kind_precision_floors_ok=True,
         contract_recall_ok=True,
         overreach_rate_ok=True,
         member_call_recall_ok=None,
@@ -101,6 +104,39 @@ def test_limitation_taxonomy_gate_fails_hard() -> None:
     assert inv["gate_limitation_taxonomy_stable"] is False
     assert inv["gate_strict_drop_taxonomy_stable"] is False
     assert inv["hard_passed"] is False
+
+
+def test_kind_precision_floor_gate_is_diagnostic() -> None:
+    inv = evaluate_invariants(
+        rows=[],
+        reducer_full_entities=set(),
+        db_full_entities=set(),
+        reducer_full_micro={"tp": 0, "fp": 0, "fn": 0},
+        db_full_micro={"tp": 0, "fp": 0, "fn": 0},
+        parse_ok_files=0,
+        total_files=0,
+        contract_truth_pure_ok=True,
+        contract_truth_resolved_ok=True,
+        parser_deterministic=True,
+        no_duplicate_contract_edges=True,
+        basket_partition_ok=True,
+        basket_counts_reconciled_ok=True,
+        typescript_relative_index_contract_ok=True,
+        class_truth_nonempty_rate_ok=True,
+        class_truth_match_rate_ok=True,
+        scoped_call_normalization_ok=True,
+        strict_contract_parity_ok=True,
+        limitation_scope_clean_ok=True,
+        limitation_taxonomy_stable_ok=True,
+        strict_drop_taxonomy_stable_ok=True,
+        kind_precision_floors_ok=False,
+        contract_recall_ok=True,
+        overreach_rate_ok=True,
+        member_call_recall_ok=None,
+    )
+    assert inv["gate_kind_precision_floors"] is False
+    assert inv["hard_passed"] is True
+    assert "kind precision floor gate failed" in (inv.get("diagnostic_failures") or [])
 
 
 def test_filter_contract_checks_rejects_unresolved_contract_edges() -> None:

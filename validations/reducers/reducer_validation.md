@@ -145,6 +145,7 @@ Diagnostic gates (non-blocking by default):
 - `gate_contract_recall_min`
 - `gate_overreach_rate_max`
 - `gate_member_call_recall_min`
+- `gate_kind_precision_floors`
 
 `invariants.passed` / `invariants.hard_passed` reflect hard gates only.
 

@@ -410,6 +410,32 @@ def _build_action_priority_board(
     return board
 
 
+def _kind_precision_floor_status(
+    *,
+    strict_by_kind: dict,
+    repo_name: str,
+) -> dict:
+    floors = dict(config.KIND_PRECISION_FLOORS)
+    floors.update(config.REPO_KIND_PRECISION_OVERRIDES.get(repo_name) or {})
+    by_kind: dict[str, dict] = {}
+    passed = True
+    for kind, minimum in floors.items():
+        metrics = strict_by_kind.get(kind) or {}
+        precision = metrics.get("precision")
+        ok = precision is not None and float(precision) >= float(minimum)
+        by_kind[kind] = {
+            "precision": precision,
+            "min": minimum,
+            "passed": ok,
+            "tp": metrics.get("tp"),
+            "fp": metrics.get("fp"),
+            "fn": metrics.get("fn"),
+        }
+        if not ok:
+            passed = False
+    return {"repo": repo_name, "floors": floors, "by_kind": by_kind, "passed": passed}
+
+
 def run_validation(
     *,
     repo_root: Path,
@@ -821,6 +847,11 @@ def run_validation(
         and not policy_violations["accepted_violations"]
         and not policy_violations["dropped_violations"]
     )
+    strict_by_kind = _micro_by_kind("metrics_reducer_vs_contract")
+    kind_precision_floor_status = _kind_precision_floor_status(
+        strict_by_kind=strict_by_kind,
+        repo_name=repo_name_prefix(repo_root),
+    )
     profile_name, thresholds = _select_threshold_profile(rows)
     invariants = evaluate_invariants(
         rows,
@@ -848,6 +879,7 @@ def run_validation(
         limitation_scope_clean_ok=limitation_scope_clean_ok,
         limitation_taxonomy_stable_ok=limitation_taxonomy_stable_ok,
         strict_drop_taxonomy_stable_ok=strict_drop_taxonomy_stable_ok,
+        kind_precision_floors_ok=bool(kind_precision_floor_status["passed"]),
         contract_recall_ok=(
             contract_recall is not None and contract_recall >= thresholds["contract_recall_min"]
         ),
@@ -1020,7 +1052,6 @@ def run_validation(
     nav_penalty_fn = nav_fn_weight * int(module_metrics.get("fn") or 0)
     reason_penalty_fp = reason_fp_weight * reasoning_fp
     reason_penalty_fn = reason_fn_weight * reasoning_fn
-    strict_by_kind = _micro_by_kind("metrics_reducer_vs_contract")
     action_priority_board = _build_action_priority_board(
         strict_by_kind=strict_by_kind,
         strict_overreach=static_overreach_rate,
@@ -1314,6 +1345,7 @@ def run_validation(
             "strict_contract_parity_ok": strict_contract_parity_ok,
             "strict_contract_policy": strict_policy,
             "strict_contract_policy_violations": policy_violations,
+            "kind_precision_floors": kind_precision_floor_status,
             "contract_recall": contract_recall,
             "contract_recall_min": thresholds["contract_recall_min"],
             "overreach_rate": static_overreach_rate,
