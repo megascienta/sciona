@@ -1106,6 +1106,68 @@ def test_call_resolution_propagates_constructor_bindings_to_methods() -> None:
     assert "fixture.sample.Service" in bindings["service"]
 
 
+def test_call_resolution_does_not_propagate_ambiguous_constructor_bindings() -> None:
+    file_result = FileParseResult(
+        language="typescript",
+        file_path="sample.ts",
+        module_qualified_name="fixture.sample",
+        defs=[
+            Definition(kind="class", qualified_name="fixture.sample.ServiceA", start_line=1, end_line=3),
+            Definition(
+                kind="method",
+                qualified_name="fixture.sample.ServiceA.run",
+                start_line=2,
+                end_line=2,
+            ),
+            Definition(kind="class", qualified_name="fixture.sample.ServiceB", start_line=5, end_line=7),
+            Definition(
+                kind="method",
+                qualified_name="fixture.sample.ServiceB.run",
+                start_line=6,
+                end_line=6,
+            ),
+            Definition(
+                kind="class",
+                qualified_name="fixture.sample.Controller",
+                start_line=9,
+                end_line=20,
+            ),
+            Definition(
+                kind="method",
+                qualified_name="fixture.sample.Controller.constructor",
+                start_line=10,
+                end_line=12,
+            ),
+            Definition(
+                kind="method",
+                qualified_name="fixture.sample.Controller.handle",
+                start_line=14,
+                end_line=16,
+            ),
+        ],
+        call_edges=[],
+        import_edges=[],
+        assignment_hints=[
+            AssignmentHint(
+                scope="fixture.sample.Controller.constructor",
+                receiver="this.service",
+                value_text="run",
+            )
+        ],
+        parse_ok=True,
+    )
+    resolution = build_independent_call_resolution(
+        independent_results={file_result.file_path: file_result},
+        normalized_edge_map={file_result.file_path: ([], [])},
+        module_names={"fixture.sample"},
+        repo_root=Path("/tmp/fixture"),
+        repo_prefix="fixture",
+        local_packages={"fixture"},
+    )
+    bindings = resolution["receiver_bindings"].get("fixture.sample.Controller.handle", {})
+    assert "service" not in bindings
+
+
 def test_class_edge_filter_does_not_drop_valid_class_methods() -> None:
     entity = SimpleNamespace(
         kind="class",

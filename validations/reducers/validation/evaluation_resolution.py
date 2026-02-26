@@ -162,12 +162,15 @@ def build_independent_call_resolution(
             for target in resolved_targets:
                 _register_receiver(assignment.scope, assignment.receiver, target)
             if assignment.scope.endswith(".constructor"):
+                # Propagate constructor receiver bindings to sibling methods only when
+                # target resolution is unique; ambiguous propagation creates false positives.
+                if len(resolved_targets) != 1:
+                    continue
                 class_scope = assignment.scope.rsplit(".", 1)[0]
                 for method_scope in sorted(class_methods.get(class_scope, set())):
                     if method_scope.endswith(".constructor"):
                         continue
-                    for target in resolved_targets:
-                        _register_receiver(method_scope, assignment.receiver, target)
+                    _register_receiver(method_scope, assignment.receiver, resolved_targets[0])
 
     return {
         "mode": config.STRICT_CONTRACT_MODE,
