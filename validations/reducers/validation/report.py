@@ -391,6 +391,23 @@ def render_summary(payload: dict) -> List[str]:
                     )
     lines.append("")
 
+    lines.append("## Parity Attribution")
+    lines.append("")
+    parity = payload.get("parity_attribution") or {}
+    repo_parity = parity.get("repo_totals") or {}
+    if not repo_parity:
+        lines.append("- none")
+    else:
+        ind = repo_parity.get("independent_candidate_set") or {}
+        core_sel = repo_parity.get("core_selector") or {}
+        final = repo_parity.get("final_edge_parity") or {}
+        cause = repo_parity.get("row_dominant_cause") or {}
+        lines.append(f"- independent_candidate_pressure: `{ind.get('candidate_pressure')}`")
+        lines.append(f"- core_selector_pressure: `{core_sel.get('selector_pressure')}`")
+        lines.append(f"- final_edge_parity: `{final}`")
+        lines.append(f"- row_dominant_cause: `{cause}`")
+    lines.append("")
+
     lines.append("## Class Mapping Reliability")
     lines.append("")
     class_quality = payload.get("class_truth_mapping_quality") or {}

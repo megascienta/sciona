@@ -224,6 +224,86 @@ def _contract_leakage_rate(reason_overlap: dict[str, dict]) -> dict:
     }
 
 
+def _merge_nested_counter(
+    target: dict[str, int], payload: dict[str, int] | None
+) -> None:
+    for key, value in (payload or {}).items():
+        target[key] = target.get(key, 0) + int(value or 0)
+
+
+def _parity_attribution(rows: list[dict]) -> dict:
+    def _block(subset: list[dict]) -> dict:
+        independent_dropped: dict[str, int] = {}
+        independent_accepted: dict[str, int] = {}
+        core_dropped: dict[str, int] = {}
+        core_accepted: dict[str, int] = {}
+        mismatch_totals = {
+            "independent_overprojection": 0,
+            "core_missed_resolution": 0,
+            "core_overresolution": 0,
+            "normalization_contract_mismatch": 0,
+        }
+        row_cause = {
+            "independent_candidate_gap_dominant": 0,
+            "core_selector_gap_dominant": 0,
+            "balanced_or_none": 0,
+        }
+        for row in subset:
+            _merge_nested_counter(
+                independent_dropped, row.get("strict_contract_dropped_by_reason")
+            )
+            _merge_nested_counter(
+                independent_accepted, row.get("strict_contract_accepted_by_provenance")
+            )
+            core_diag = row.get("core_call_resolution_diagnostics") or {}
+            _merge_nested_counter(core_dropped, core_diag.get("dropped_by_reason"))
+            _merge_nested_counter(core_accepted, core_diag.get("accepted_by_provenance"))
+            mismatch = row.get("mismatch_attribution") or {}
+            for key in mismatch_totals:
+                mismatch_totals[key] += int(mismatch.get(key) or 0)
+            independent_gap = int(mismatch.get("independent_overprojection") or 0)
+            core_gap = int(mismatch.get("core_overresolution") or 0)
+            if independent_gap > core_gap:
+                row_cause["independent_candidate_gap_dominant"] += 1
+            elif core_gap > independent_gap:
+                row_cause["core_selector_gap_dominant"] += 1
+            else:
+                row_cause["balanced_or_none"] += 1
+        independent_candidate_pressure = (
+            int(independent_dropped.get("no_candidates") or 0)
+            + int(independent_dropped.get("unique_without_provenance") or 0)
+        )
+        core_selector_pressure = sum(int(v or 0) for v in core_dropped.values())
+        return {
+            "independent_candidate_set": {
+                "accepted_by_provenance": independent_accepted,
+                "dropped_by_reason": independent_dropped,
+                "candidate_pressure": independent_candidate_pressure,
+            },
+            "core_selector": {
+                "accepted_by_provenance": core_accepted,
+                "dropped_by_reason": core_dropped,
+                "selector_pressure": core_selector_pressure,
+            },
+            "final_edge_parity": mismatch_totals,
+            "row_dominant_cause": row_cause,
+        }
+
+    out = {"repo_totals": _block(rows), "by_language_and_kind": {}}
+    languages = sorted({row.get("language") for row in rows if row.get("language")})
+    for language in languages:
+        by_kind: dict[str, dict] = {}
+        for kind in ("module", "class", "function", "method"):
+            subset = [
+                row
+                for row in rows
+                if row.get("language") == language and row.get("kind") == kind
+            ]
+            by_kind[kind] = _block(subset)
+        out["by_language_and_kind"][language] = by_kind
+    return out
+
+
 def _strict_contract_policy_violations(
     rows: list[dict],
     *,
@@ -859,6 +939,7 @@ def run_validation(
         }
         for key, value in mismatch["attribution"].items():
             attribution_totals[key] += int(value or 0)
+    parity_attribution = _parity_attribution(rows)
 
     summary = []
     summary.append(f"repo={repo_name_prefix(repo_root)}")
@@ -1155,6 +1236,7 @@ def run_validation(
         "failure_examples_reducer_vs_contract_truth": failure_examples_contract,
         "out_of_contract_breakdown": aggregate_breakdown(out_of_contract_meta),
         "mismatch_attribution_breakdown": attribution_totals,
+        "parity_attribution": parity_attribution,
         "independent_totals": {
             "raw_call_edges": raw_call_total,
             "raw_import_edges": raw_import_total,
