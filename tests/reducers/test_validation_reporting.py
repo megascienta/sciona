@@ -44,7 +44,6 @@ def test_render_summary_includes_action_and_reason_sections() -> None:
         "internal_integrity": {"valid": True, "projection": {}, "determinism": {}},
         "static_contract_alignment": {},
         "enriched_truth_alignment": {
-            "reason_breakdown": {"reducer": {"dynamic": {"tp": 1, "fn": 1, "recall": 0.5}}},
             "scope_split_counts": {"excluded_out_of_scope_edges": 1},
         },
         "enrichment_practical": {},
@@ -63,9 +62,8 @@ def test_render_summary_includes_action_and_reason_sections() -> None:
     }
     lines = render_summary(payload)
     text = "\n".join(lines)
-    assert "Reason-level expanded overlap diagnostics (compatibility view):" in text
     assert "## Contract Boundary Profile (Non-Gating, Descriptive)" in text
-    assert "## Expanded Enrichment Diagnostics (Compatibility, Non-Gating)" in text
+    assert "## Expanded Enrichment Diagnostics (Non-Gating)" in text
     assert "## Independent Strict Contract Diagnostics" in text
     assert "## Action Priority Board" in text
 

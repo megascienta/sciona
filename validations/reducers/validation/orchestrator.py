@@ -669,7 +669,7 @@ def run_validation(
         )
 
     def _classify_mismatches(row: dict) -> dict:
-        expected = row.get("contract_truth_edges") or row.get("expected_filtered_edges") or []
+        expected = row.get("contract_truth_edges") or []
         reducer = row.get("reducer_edges") or []
         db = row.get("db_edges") or []
         exp_set = {_edge_key(edge) for edge in expected}
@@ -784,14 +784,7 @@ def run_validation(
     normalized_import_total = sum(
         len(edges[1]) for edges in normalized_edge_map.values()
     )
-    expected_total = sum(
-        len(row.get("contract_truth_edges") or row.get("expected_filtered_edges") or [])
-        for row in rows
-    )
-    out_of_contract_total = sum(
-        len(row.get("enrichment_edges") or row.get("out_of_contract_edges") or [])
-        for row in rows
-    )
+    expected_total = sum(len(row.get("contract_truth_edges") or []) for row in rows)
     independent_limitation_total = sum(
         len(row.get("independent_static_limitation_edges") or [])
         for row in rows
@@ -944,33 +937,6 @@ def run_validation(
         "repo_root": str(repo_root),
         "snapshot_id": snapshot_id,
         "report_schema_version": REPORT_SCHEMA_VERSION,
-        "compatibility": {
-            "deprecations": [
-                {
-                    "field": "enriched_truth_alignment.reason_breakdown",
-                    "status": "deprecated",
-                    "replacement": "contract_boundary.overlap_diagnostics",
-                },
-                {
-                    "field": "enrichment_edges",
-                    "status": "compatibility_alias",
-                    "replacement": "independent_static_limitation_edges",
-                },
-                {
-                    "field": "out_of_contract_edges",
-                    "status": "compatibility_alias",
-                    "replacement": "independent_static_limitation_edges",
-                },
-            ],
-            "removal_not_before_schema_version": "next schema bump after 2026-02-26",
-            "migration_map": {
-                "enriched_truth_alignment.reason_breakdown": "contract_boundary.overlap_diagnostics",
-                "enrichment_edges": "independent_static_limitation_edges",
-                "out_of_contract_edges": "independent_static_limitation_edges",
-                "excluded_out_of_scope_by_reason": "contract_exclusion_by_reason",
-                "included_limitation_by_reason": "independent_static_limitation_by_reason",
-            },
-        },
         "summary": summary,
         "invariants": invariants,
         "metric_definitions": METRIC_DEFINITIONS,
@@ -1031,11 +997,11 @@ def run_validation(
                 },
             },
             "noise_signal": {
-                "dynamic_or_unresolved_enrichment_edges": out_of_contract_total,
+                "dynamic_or_unresolved_limitation_edges": independent_limitation_total,
                 "contract_edges": expected_total,
                 "enrichment_noise_ratio": (
-                    (out_of_contract_total / (expected_total + out_of_contract_total))
-                    if (expected_total + out_of_contract_total)
+                    (independent_limitation_total / (expected_total + independent_limitation_total))
+                    if (expected_total + independent_limitation_total)
                     else None
                 ),
             },
@@ -1084,10 +1050,6 @@ def run_validation(
                 "excluded_out_of_scope_by_reason": excluded_out_of_scope_by_reason,
                 "included_limitation_by_reason": included_limitation_by_reason,
             },
-            "reason_breakdown": {
-                "reducer": reason_recall_reducer,
-                "db": reason_recall_db,
-            },
             "by_kind": _micro_by_kind("metrics_reducer_vs_enriched_truth"),
             "by_edge_type": edge_type_breakdown(
                 scored_rows_reducer_vs_enriched, "metrics_reducer_vs_enriched_truth"
@@ -1122,10 +1084,6 @@ def run_validation(
                 "contract_exclusions": {
                     "edge_count": contract_exclusion_total,
                     "by_reason": excluded_out_of_scope_by_reason,
-                },
-                "compatibility_projection": {
-                    "enrichment_edges": out_of_contract_total,
-                    "note": "enrichment_edges remains a backward-compatible alias for independent_static_limitations.",
                 },
             },
             "limitation_edge_census": limitation_edge_census,
@@ -1198,7 +1156,6 @@ def run_validation(
             "normalized_call_edges": normalized_call_total,
             "normalized_import_edges": normalized_import_total,
             "contract_truth_edges": expected_total,
-            "enrichment_edges": out_of_contract_total,
             "enriched_truth_edges": enriched_truth_total,
             "expanded_high_conf_edges": expanded_high_total,
             "expanded_full_edges": expanded_full_total,

@@ -32,17 +32,17 @@ def filter_contract_checks(rows: List[dict]) -> tuple[bool, bool, bool]:
     contract_truth_resolved_ok = True
     no_duplicate_contract_edges = True
     for row in rows:
-        contract_edges = row.get("contract_truth_edges") or row.get("expected_filtered_edges") or []
-        enrichment_edges = row.get("enrichment_edges") or row.get("out_of_contract_edges") or []
+        contract_edges = row.get("contract_truth_edges") or []
+        limitation_edges = row.get("independent_static_limitation_edges") or []
         if len(edge_full_set(contract_edges)) != len(contract_edges):
             no_duplicate_contract_edges = False
             break
-        if len(edge_full_set(enrichment_edges)) != len(enrichment_edges):
+        if len(edge_full_set(limitation_edges)) != len(limitation_edges):
             no_duplicate_contract_edges = False
             break
         contract_keys = edge_full_set(contract_edges)
-        enrichment_keys = edge_full_set(enrichment_edges)
-        if contract_keys & enrichment_keys:
+        limitation_keys = edge_full_set(limitation_edges)
+        if contract_keys & limitation_keys:
             contract_truth_pure_ok = False
             break
         for edge in contract_edges:

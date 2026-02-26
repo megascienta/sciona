@@ -62,7 +62,7 @@ def test_filter_contract_checks_rejects_unresolved_contract_edges() -> None:
             "contract_truth_edges": [
                 {"caller": "a", "callee": "x", "callee_qname": None},
             ],
-            "enrichment_edges": [],
+            "independent_static_limitation_edges": [],
         }
     ]
     pure_ok, resolved_ok, dedupe_ok = filter_contract_checks(rows)
@@ -73,7 +73,7 @@ def test_filter_contract_checks_rejects_unresolved_contract_edges() -> None:
 
 def test_filter_contract_checks_rejects_contract_enrichment_overlap() -> None:
     edge = {"caller": "a", "callee": "x", "callee_qname": "pkg.x"}
-    rows = [{"contract_truth_edges": [edge], "enrichment_edges": [edge]}]
+    rows = [{"contract_truth_edges": [edge], "independent_static_limitation_edges": [edge]}]
     pure_ok, resolved_ok, dedupe_ok = filter_contract_checks(rows)
     assert pure_ok is False
     assert resolved_ok is True

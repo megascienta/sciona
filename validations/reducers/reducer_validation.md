@@ -34,7 +34,6 @@ Built from strict proxy truth plus selected in-repo limitation edges.
 Envelope split (authoritative in payload):
 - `independent_static_limitations`: independent-parser limitation candidates in-scope for diagnostics.
 - `contract_exclusions`: edges intentionally excluded by strict contract policy (`scope_exclusions`).
-- `enrichment_edges`: backward-compatible alias for `independent_static_limitations` only.
 
 Policy (authoritative via code configuration):
 - `validations/reducers/validation/contract_spec.py` (validation contract policy surface)
@@ -59,7 +58,8 @@ Rationale:
 5. Apply shared strict contract selector to independent candidates (`accept_if_single` + provenance rules).
 6. Build per-node edge channels:
 - `contract_truth_edges`
-- `enrichment_edges` (only limitation-focus reasons)
+- `independent_static_limitation_edges`
+- `contract_exclusion_edges`
 - `expanded_truth_edges_high_conf`
 - `expanded_truth_edges_full`
 7. Score per node:
@@ -78,7 +78,7 @@ Rationale:
 2. Internal Integrity (Hard Gates)
 3. Strict Contract Alignment (Gating)
 4. Contract Boundary Profile (Non-Gating, Descriptive)
-5. Enrichment Alignment (Non-Gating Diagnostics, compatibility)
+5. Expanded Enrichment Diagnostics (Non-Gating)
 6. Enrichment Reliability (Heuristic)
 7. Language Breakdown
 8. Expanded/Enrichment Alignment by language:kind
@@ -103,13 +103,12 @@ Rationale:
 - bootstrap uncertainty intervals (micro + method scope).
 - interpreted as implementation conformance, not absolute capability scoring.
 
-### 6.3 Expanded Enrichment Diagnostics (non-gating, compatibility)
+### 6.3 Expanded Enrichment Diagnostics (non-gating)
 - reducer/db alignment vs expanded proxy truth,
 - high/full tier precision/recall/divergence,
 - explicit scope policy and counts:
 - `excluded_out_of_scope_edges`
 - `included_limitation_edges`
-- reason-level expanded overlap diagnostics (reducer/db; compatibility view).
 - bootstrap uncertainty interval for expanded-full micro metrics.
 
 ### 6.4 Contract Boundary Profile (non-gating, descriptive)
@@ -171,7 +170,6 @@ Canonical metric source/formula mapping is emitted in `metric_definitions`.
 
 ## 9. Top-Level JSON Keys
 - `report_schema_version`
-- `compatibility`
 - `summary`
 - `invariants`
 - `metric_definitions`
@@ -204,7 +202,7 @@ python validations/reducers/reducer_validation.py \
 2. If internal integrity is valid, reducer is faithful DB projection for evaluated nodes.
 3. Interpret strict contract conformance as correctness-of-implementation under the strict contract.
 4. Use contract boundary profile to map what strict contract intentionally excludes.
-5. Use expanded enrichment diagnostics as compatibility/overlap diagnostics, not as strict targets.
+5. Use expanded enrichment diagnostics as descriptive diagnostics, not as strict targets.
 6. Use enrichment reliability only as heuristic downstream risk.
 
 ## 12. Known Limits
@@ -212,11 +210,3 @@ python validations/reducers/reducer_validation.py \
 - Independent truth is a deterministic static proxy, not absolute ground truth.
 - Expanded proxy truth remains diagnostic; not a correctness gate.
 - Java fixture tests require `SCIONA_JAVAPARSER_JAR` + `java/javac`.
-
-## 13. Compatibility & Migration
-- Legacy fields remain available during schema `2026-02-26` transition window.
-- Preferred mappings:
-- `enriched_truth_alignment.reason_breakdown` -> `contract_boundary.overlap_diagnostics`
-- `enrichment_edges` / `out_of_contract_edges` -> `independent_static_limitation_edges`
-- `included_limitation_by_reason` -> `independent_static_limitation_by_reason`
-- `excluded_out_of_scope_by_reason` -> `contract_exclusion_by_reason`

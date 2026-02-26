@@ -174,7 +174,7 @@ def render_summary(payload: dict) -> List[str]:
                 lines.append(f"- overlap_note: {overlap.get('note')}")
         lines.append("")
 
-    lines.append("## Expanded Enrichment Diagnostics (Compatibility, Non-Gating)")
+    lines.append("## Expanded Enrichment Diagnostics (Non-Gating)")
     lines.append("")
     expanded = payload.get("enriched_truth_alignment") or {}
     if not expanded:
@@ -204,17 +204,6 @@ def render_summary(payload: dict) -> List[str]:
         scope_split = expanded.get("scope_split_counts") or {}
         if scope_split:
             lines.append(f"- scope_split_counts: `{scope_split}`")
-        reason_breakdown = expanded.get("reason_breakdown") or {}
-        if reason_breakdown:
-            lines.append("Reason-level expanded overlap diagnostics (compatibility view):")
-            reducer_reason = reason_breakdown.get("reducer") or {}
-            db_reason = reason_breakdown.get("db") or {}
-            for reason in sorted(set(reducer_reason.keys()) | set(db_reason.keys())):
-                rr = reducer_reason.get(reason) or {}
-                dr = db_reason.get(reason) or {}
-                lines.append(
-                    f"- reason.{reason}: reducer_recall=`{_format_value(rr.get('recall'))}`, db_recall=`{_format_value(dr.get('recall'))}`, reducer_tp/fn=`{rr.get('tp',0)}/{rr.get('fn',0)}`"
-                )
         expanded_ci = expanded.get("uncertainty_intervals") or {}
         if expanded_ci:
             lines.append(f"- uncertainty_intervals: `{expanded_ci}`")
@@ -436,7 +425,7 @@ def render_summary(payload: dict) -> List[str]:
             lines.append(f"- {key}: `{breakdown[key]}`")
         lines.append("")
         lines.append(
-            "Note: `enrichment_edges` includes only in-repo out-of-contract edges (unresolved, dynamic, standard-call filtered); external edges are excluded."
+            "Note: `independent_static_limitation_edges` includes only in-repo out-of-contract edges (unresolved, dynamic, standard-call filtered); external edges are excluded."
         )
     lines.append("")
 
@@ -459,7 +448,7 @@ def render_summary(payload: dict) -> List[str]:
         "normalized_call_edges",
         "normalized_import_edges",
         "contract_truth_edges",
-        "enrichment_edges",
+        "independent_static_limitation_edges",
         "enriched_truth_edges",
         "expanded_high_conf_edges",
         "expanded_full_edges",
@@ -494,9 +483,6 @@ def render_summary(payload: dict) -> List[str]:
     lines.append("## Metric Definitions & Schema")
     lines.append("")
     lines.append(f"- report_schema_version: `{payload.get('report_schema_version')}`")
-    compatibility = payload.get("compatibility") or {}
-    if compatibility:
-        lines.append(f"- compatibility: `{compatibility}`")
     metric_defs = payload.get("metric_definitions") or {}
     if not metric_defs:
         lines.append("- none")

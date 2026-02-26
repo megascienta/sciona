@@ -659,7 +659,6 @@ def evaluate_entities(
                         gt_diagnostics.get("contract_exclusion_edges_by_reason") or {}
                     ).items()
                 },
-                "enrichment_edges": [asdict(edge) for edge in out_of_contract],
                 "enriched_truth_edges": [asdict(edge) for edge in expanded_full_truth],
                 "expanded_truth_edges_high_conf": [asdict(edge) for edge in expanded_high_truth],
                 "expanded_truth_edges_full": [asdict(edge) for edge in expanded_full_truth],
@@ -714,19 +713,6 @@ def evaluate_entities(
                 ),
                 "reducer_edges": [asdict(edge) for edge in reducer_edges],
                 "db_edges": [asdict(edge) for edge in db_edges],
-                # Backward-compatibility aliases (deprecated).
-                "expected_filtered_edges": [asdict(edge) for edge in expected_filtered],
-                "full_truth_edges": [asdict(edge) for edge in full_truth],
-                "out_of_contract_edges": [asdict(edge) for edge in out_of_contract],
-                "metrics_reducer_vs_independent_filtered": asdict(metrics_reducer_vs_contract)
-                if metrics_reducer_vs_contract
-                else None,
-                "metrics_reducer_vs_independent_full": asdict(metrics_reducer_vs_enriched)
-                if metrics_reducer_vs_enriched
-                else None,
-                "metrics_db_vs_independent_full": asdict(metrics_db_vs_enriched)
-                if metrics_db_vs_enriched
-                else None,
             }
         )
         if progress_handle:
