@@ -192,16 +192,18 @@ function parseFile(entry) {
         }
       }
 
-      const callee = calleeName(node.expression);
-      const calleeText = node.expression ? node.expression.getText(sourceFile) : "";
-      const qnameHint = expressionText(node.expression);
-      call_edges.push({
-        caller: currentScope(),
-        callee: callee || "",
-        callee_qname: qnameHint || "",
-        dynamic: dynamic || !callee,
-        callee_text: calleeText || null
-      });
+      if (currentScopeKind() === "function" || currentScopeKind() === "method") {
+        const callee = calleeName(node.expression);
+        const calleeText = node.expression ? node.expression.getText(sourceFile) : "";
+        const qnameHint = expressionText(node.expression);
+        call_edges.push({
+          caller: currentScope(),
+          callee: callee || "",
+          callee_qname: qnameHint || "",
+          dynamic: dynamic || !callee,
+          callee_text: calleeText || null
+        });
+      }
     }
 
     if (ts.isFunctionDeclaration(node) && node.name) {
@@ -228,16 +230,18 @@ function parseFile(entry) {
     }
 
     if (ts.isNewExpression(node)) {
-      const callee = calleeName(node.expression);
-      const calleeText = node.expression ? node.expression.getText(sourceFile) : "";
-      const qnameHint = expressionText(node.expression);
-      call_edges.push({
-        caller: currentScope(),
-        callee: callee || "",
-        callee_qname: qnameHint || "",
-        dynamic: !callee,
-        callee_text: calleeText || null
-      });
+      if (currentScopeKind() === "function" || currentScopeKind() === "method") {
+        const callee = calleeName(node.expression);
+        const calleeText = node.expression ? node.expression.getText(sourceFile) : "";
+        const qnameHint = expressionText(node.expression);
+        call_edges.push({
+          caller: currentScope(),
+          callee: callee || "",
+          callee_qname: qnameHint || "",
+          dynamic: !callee,
+          callee_text: calleeText || null
+        });
+      }
     }
 
     if (ts.isClassDeclaration(node) && node.name) {
