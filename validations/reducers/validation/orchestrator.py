@@ -793,6 +793,23 @@ def run_validation(
         int(member_call_bucket.get("tp") or 0) + int(member_call_bucket.get("fn") or 0)
     ) > 0
     strict_policy = config.STRICT_CONTRACT_POLICY
+    expanded_policy = config.EXPANDED_TRUTH_POLICY
+    scope_exclusions = set(expanded_policy.get("scope_exclusions") or [])
+    limitation_focus = set(expanded_policy.get("limitation_focus") or [])
+    limitation_scope_clean_ok = True
+    limitation_taxonomy_stable_ok = True
+    strict_drop_taxonomy_stable_ok = True
+    allowed_drop_reasons = set(strict_policy.get("allowed_drop_reasons") or [])
+    for row in rows:
+        included_reasons = set((row.get("included_limitation_by_reason") or {}).keys())
+        if included_reasons & scope_exclusions:
+            limitation_scope_clean_ok = False
+        if any(reason not in limitation_focus for reason in included_reasons):
+            limitation_taxonomy_stable_ok = False
+        dropped_reasons = set((row.get("strict_contract_dropped_by_reason") or {}).keys())
+        if any(reason not in allowed_drop_reasons for reason in dropped_reasons):
+            strict_drop_taxonomy_stable_ok = False
+
     policy_violations = _strict_contract_policy_violations(
         rows,
         mode=str(strict_policy.get("mode") or config.STRICT_CONTRACT_MODE),
@@ -828,6 +845,9 @@ def run_validation(
         ),
         scoped_call_normalization_ok=scoped_normalization_ok,
         strict_contract_parity_ok=strict_contract_parity_ok,
+        limitation_scope_clean_ok=limitation_scope_clean_ok,
+        limitation_taxonomy_stable_ok=limitation_taxonomy_stable_ok,
+        strict_drop_taxonomy_stable_ok=strict_drop_taxonomy_stable_ok,
         contract_recall_ok=(
             contract_recall is not None and contract_recall >= thresholds["contract_recall_min"]
         ),
@@ -960,6 +980,9 @@ def run_validation(
         "gate_basket_counts_reconciled",
         "gate_scoped_call_normalization",
         "gate_strict_contract_parity",
+        "gate_limitation_scope_clean",
+        "gate_limitation_taxonomy_stable",
+        "gate_strict_drop_taxonomy_stable",
         "gate_equal_contract_metrics_when_exact",
     ]
     internal_valid = all(bool(invariants.get(key)) for key in internal_hard_gate_keys)

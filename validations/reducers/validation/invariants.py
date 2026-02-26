@@ -102,6 +102,9 @@ def evaluate_invariants(
     class_truth_match_rate_ok: bool,
     scoped_call_normalization_ok: bool,
     strict_contract_parity_ok: bool,
+    limitation_scope_clean_ok: bool,
+    limitation_taxonomy_stable_ok: bool,
+    strict_drop_taxonomy_stable_ok: bool,
     contract_recall_ok: bool,
     overreach_rate_ok: bool,
     member_call_recall_ok: bool | None,
@@ -182,6 +185,15 @@ def evaluate_invariants(
         hard_failures.append(
             "strict contract parity gate failed: independent strict acceptance includes out-of-contract provenance/reasons"
         )
+    gate_limitation_scope_clean = limitation_scope_clean_ok
+    if not gate_limitation_scope_clean:
+        hard_failures.append("independent limitation scope gate failed: out-of-scope reasons leaked into limitation basket")
+    gate_limitation_taxonomy_stable = limitation_taxonomy_stable_ok
+    if not gate_limitation_taxonomy_stable:
+        hard_failures.append("independent limitation taxonomy gate failed: unknown limitation reasons detected")
+    gate_strict_drop_taxonomy_stable = strict_drop_taxonomy_stable_ok
+    if not gate_strict_drop_taxonomy_stable:
+        hard_failures.append("strict drop taxonomy gate failed: unknown dropped reasons detected")
     gate_contract_recall_min = contract_recall_ok
     if not gate_contract_recall_min:
         diagnostic_failures.append("contract recall quality gate failed")
@@ -225,6 +237,9 @@ def evaluate_invariants(
         "gate_class_truth_match_rate": gate_class_truth_match_rate,
         "gate_scoped_call_normalization": gate_scoped_call_normalization,
         "gate_strict_contract_parity": gate_strict_contract_parity,
+        "gate_limitation_scope_clean": gate_limitation_scope_clean,
+        "gate_limitation_taxonomy_stable": gate_limitation_taxonomy_stable,
+        "gate_strict_drop_taxonomy_stable": gate_strict_drop_taxonomy_stable,
         "gate_contract_recall_min": gate_contract_recall_min,
         "gate_overreach_rate_max": gate_overreach_rate_max,
         "gate_member_call_recall_min": gate_member_call_recall_min,

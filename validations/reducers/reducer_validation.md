@@ -129,6 +129,9 @@ Hard gates (run validity):
 - `gate_basket_counts_reconciled`
 - `gate_scoped_call_normalization`
 - `gate_strict_contract_parity`
+- `gate_limitation_scope_clean`
+- `gate_limitation_taxonomy_stable`
+- `gate_strict_drop_taxonomy_stable`
 - `gate_equal_contract_metrics_when_exact`
 
 Policy guardrail:
