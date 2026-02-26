@@ -146,6 +146,15 @@ def parse_java_files(repo_root: Path, files: List[dict]) -> List[FileParseResult
                     dynamic=dynamic == "true",
                 )
             )
+        callable_scopes = {
+            definition.qualified_name
+            for definition in defs
+            if definition.kind in {"function", "method"}
+        }
+        if callable_scopes:
+            call_edges = [
+                edge for edge in call_edges if edge.caller in callable_scopes
+            ]
         import_edges = []
         for entry in item.get("import_edges", []):
             parts = entry.split("|")
@@ -154,7 +163,7 @@ def parse_java_files(repo_root: Path, files: List[dict]) -> List[FileParseResult
             src, dst, dynamic = parts
             import_edges.append(
                 ImportEdge(
-                    source_module=src,
+                    source_module=src or (item.get("module_qualified_name") or ""),
                     target_module=dst,
                     dynamic=dynamic == "true",
                 )
