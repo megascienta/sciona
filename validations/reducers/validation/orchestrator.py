@@ -29,6 +29,7 @@ from .reducer_queries import get_snapshot_id
 
 
 REPORT_SCHEMA_VERSION = "2026-02-26"
+Q2_FILTERING_SOURCE = "core_only"
 
 
 def _micro(metric_rows: list[dict], metric_key: str) -> dict:
@@ -198,6 +199,7 @@ def _build_report_payload(
         "q2_target": strict_target,
         "q2_precision": strict_precision,
         "q2_recall": strict_recall,
+        "q2_filtering_source": Q2_FILTERING_SOURCE,
     }
 
     compact_rows: list[dict] = []
@@ -222,6 +224,34 @@ def _build_report_payload(
         f"q2_reducer_vs_contract_near_100={q2_pass}",
         f"q3_out_of_contract_total={out_of_contract_total}",
     ]
+    mismatch_candidates: list[tuple[int, int, int, str, dict]] = []
+    for row in rows:
+        metrics = row.get("metrics_reducer_vs_contract") or {}
+        fp = int(metrics.get("fp") or 0)
+        fn = int(metrics.get("fn") or 0)
+        total = fp + fn
+        if total <= 0:
+            continue
+        mismatch_candidates.append(
+            (
+                total,
+                fn,
+                fp,
+                str(row.get("entity") or ""),
+                {
+                    "entity": row.get("entity"),
+                    "language": row.get("language"),
+                    "kind": row.get("kind"),
+                    "file_path": row.get("file_path"),
+                    "module_qualified_name": row.get("module_qualified_name"),
+                    "fp": fp,
+                    "fn": fn,
+                    "total_mismatch": total,
+                },
+            )
+        )
+    mismatch_candidates.sort(key=lambda item: (-item[0], -item[1], -item[2], item[3]))
+    top_mismatch_signatures = [item[4] for item in mismatch_candidates[:20]]
 
     return {
         "report_schema_version": REPORT_SCHEMA_VERSION,
@@ -249,6 +279,8 @@ def _build_report_payload(
                 "fn": strict_fn,
                 "contract_truth_edges": contract_truth_edges,
                 "by_language": q2_by_language,
+                "filtering_source": Q2_FILTERING_SOURCE,
+                "top_mismatch_signatures": top_mismatch_signatures,
             },
             "q3": {
                 "title": "beyond static contract envelope",

@@ -16,12 +16,10 @@ from sciona.code_analysis.core.extract.languages.typescript_imports import (
 )
 from sciona.code_analysis.core.extract.languages.java_imports import (
     module_prefix_for_package as core_module_prefix_for_package,
+    top_level_package as core_java_top_level_package,
 )
 from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
 
-from .independent.contract_normalization import (
-    normalize_java_import,
-)
 
 def _java_package_name(content: bytes | None) -> str | None:
     if not content:
@@ -131,6 +129,39 @@ def _ts_path_alias_candidates(
     return deduped
 
 
+def _normalize_java_import(
+    fragment: str,
+    module_name: str,
+    *,
+    module_prefix: str | None,
+    repo_prefix: str,
+) -> str | None:
+    raw = (fragment or "").strip()
+    if not raw.startswith("import"):
+        return None
+    is_static = raw.startswith("import static")
+    text = raw[len("import") :].strip()
+    if text.startswith("static"):
+        text = text[len("static") :].strip()
+    if text.endswith(";"):
+        text = text[:-1]
+    text = text.strip()
+    if text.endswith(".*"):
+        return None
+    if not text:
+        return None
+    if is_static and "." in text:
+        text = text.rsplit(".", 1)[0]
+    if repo_prefix and (text == repo_prefix or text.startswith(f"{repo_prefix}.")):
+        return text
+    top_package = core_java_top_level_package(module_name, repo_prefix)
+    if top_package and (text == top_package or text.startswith(f"{top_package}.")):
+        return f"{repo_prefix}.{text}" if repo_prefix else text
+    if module_prefix:
+        return f"{module_prefix}.{text}"
+    return text
+
+
 def resolve_import_contract(
     raw_target: str,
     file_path: str,
@@ -194,11 +225,11 @@ def resolve_import_contract(
         fragment = raw_target
         if not raw_target.strip().startswith("import"):
             fragment = f"import {raw_target};"
-        resolved = normalize_java_import(
+        resolved = _normalize_java_import(
             fragment,
             module_qname,
-                module_prefix=module_prefix,
-                repo_prefix=repo_prefix,
+            module_prefix=module_prefix,
+            repo_prefix=repo_prefix,
         )
     else:
         return None

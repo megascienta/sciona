@@ -63,7 +63,10 @@ def render_summary(payload: dict) -> List[str]:
     )
     lines.append(f"- fp/fn: `{q2.get('fp')}`/`{q2.get('fn')}`")
     lines.append(f"- contract_truth_edges: `{q2.get('contract_truth_edges')}`")
+    lines.append(f"- filtering_source: `{q2.get('filtering_source')}`")
     lines.append(f"- by_language: `{q2.get('by_language')}`")
+    mismatch = q2.get("top_mismatch_signatures") or []
+    lines.append(f"- top_mismatch_signatures_count: `{len(mismatch)}`")
     lines.append("")
 
     q3 = questions.get("q3") or {}
