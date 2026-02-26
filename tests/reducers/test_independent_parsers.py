@@ -644,6 +644,61 @@ def test_ground_truth_excludes_standard_calls_from_enrichment() -> None:
     assert diagnostics["excluded_out_of_scope_by_reason"].get("standard_call") == 1
 
 
+def test_ground_truth_partitions_baskets_when_same_edge_has_conflicting_reasons() -> None:
+    file_result = FileParseResult(
+        language="python",
+        file_path="pkg/mod.py",
+        module_qualified_name="fixture.pkg.mod",
+        defs=[],
+        call_edges=[],
+        import_edges=[],
+        assignment_hints=[],
+        parse_ok=True,
+    )
+    normalized_calls = [
+        # Same caller/callee key appears first as dynamic, then as standard call.
+        NormalizedCallEdge(
+            caller="fixture.pkg.mod.fn",
+            callee="print",
+            callee_qname=None,
+            dynamic=True,
+            callee_text="obj.print()",
+        ),
+        NormalizedCallEdge(
+            caller="fixture.pkg.mod.fn",
+            callee="print",
+            callee_qname=None,
+            dynamic=False,
+            callee_text="print(x)",
+        ),
+    ]
+    entity = SimpleNamespace(
+        kind="function",
+        qualified_name="fixture.pkg.mod.fn",
+        module_qualified_name="fixture.pkg.mod",
+    )
+    expected, _, out_of_contract, out_meta, diagnostics = edge_records_from_ground_truth(
+        file_result=file_result,
+        normalized_calls=normalized_calls,
+        normalized_imports=[],
+        module_imports_by_prefix={},
+        entity=entity,
+        module_names={"fixture.pkg.mod"},
+        call_resolution={"symbol_index": {}},
+        contract={"out_of_contract": {"standard_calls": ["print"]}},
+        repo_root=FIXTURE_ROOT / "python",
+        repo_prefix="fixture",
+        local_packages={"fixture"},
+    )
+    assert expected == []
+    assert out_of_contract == []
+    assert out_meta != []
+    assert len(diagnostics["contract_exclusion_edges_full"]) == 1
+    assert diagnostics["excluded_out_of_scope_by_reason"].get("standard_call") == 1
+    assert diagnostics["included_limitation_count"] == 0
+    assert diagnostics["limitation_edges_full"] == []
+
+
 def test_ground_truth_includes_dynamic_and_unresolved_in_expanded_tiers() -> None:
     file_result = FileParseResult(
         language="python",

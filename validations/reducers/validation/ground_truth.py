@@ -81,6 +81,98 @@ def edge_records_from_ground_truth(
     high_conf_reasons = set((policy.get("confidence_tiers") or {}).get("high") or [])
     low_conf_reasons = set((policy.get("confidence_tiers") or {}).get("low") or [])
 
+    def _edge_key(record: EdgeRecord) -> tuple[str, str, str | None]:
+        return (record.caller, record.callee, record.callee_qname)
+
+    def _dedupe_preserve_order(edges: list[EdgeRecord]) -> list[EdgeRecord]:
+        seen: set[tuple[str, str, str | None]] = set()
+        ordered: list[EdgeRecord] = []
+        for record in edges:
+            key = _edge_key(record)
+            if key in seen:
+                continue
+            seen.add(key)
+            ordered.append(record)
+        return ordered
+
+    def _apply_basket_partition() -> None:
+        nonlocal out_of_contract
+        contract_keys = {_edge_key(record) for record in expected_filtered}
+        exclusion_edges = _dedupe_preserve_order(
+            diagnostics.get("contract_exclusion_edges_full") or []
+        )
+        exclusion_edges = [
+            record for record in exclusion_edges if _edge_key(record) not in contract_keys
+        ]
+        exclusion_keys = {_edge_key(record) for record in exclusion_edges}
+
+        limitation_edges = _dedupe_preserve_order(
+            diagnostics.get("independent_limitation_edges_full") or []
+        )
+        limitation_edges = [
+            record
+            for record in limitation_edges
+            if _edge_key(record) not in contract_keys
+            and _edge_key(record) not in exclusion_keys
+        ]
+        limitation_keys = {_edge_key(record) for record in limitation_edges}
+
+        diagnostics["contract_exclusion_edges_full"] = exclusion_edges
+        diagnostics["independent_limitation_edges_full"] = limitation_edges
+        out_of_contract = limitation_edges
+
+        contract_by_reason = diagnostics.get("contract_exclusion_edges_by_reason") or {}
+        diagnostics["contract_exclusion_edges_by_reason"] = {
+            reason: [
+                record for record in _dedupe_preserve_order(edges) if _edge_key(record) in exclusion_keys
+            ]
+            for reason, edges in contract_by_reason.items()
+        }
+        diagnostics["excluded_out_of_scope_by_reason"] = {
+            reason: len(edges)
+            for reason, edges in diagnostics["contract_exclusion_edges_by_reason"].items()
+            if edges
+        }
+        diagnostics["excluded_out_of_scope_count"] = int(
+            sum(diagnostics["excluded_out_of_scope_by_reason"].values())
+        )
+        independent_by_reason = diagnostics.get("independent_limitation_edges_by_reason") or {}
+        diagnostics["independent_limitation_edges_by_reason"] = {
+            reason: [
+                record for record in _dedupe_preserve_order(edges) if _edge_key(record) in limitation_keys
+            ]
+            for reason, edges in independent_by_reason.items()
+        }
+        diagnostics["included_limitation_by_reason"] = {
+            reason: len(edges)
+            for reason, edges in diagnostics["independent_limitation_edges_by_reason"].items()
+            if edges
+        }
+        diagnostics["included_limitation_count"] = int(
+            sum(diagnostics["included_limitation_by_reason"].values())
+        )
+        limitation_by_reason = diagnostics.get("limitation_edges_by_reason") or {}
+        diagnostics["limitation_edges_by_reason"] = {
+            reason: [
+                record for record in _dedupe_preserve_order(edges) if _edge_key(record) in limitation_keys
+            ]
+            for reason, edges in limitation_by_reason.items()
+        }
+        diagnostics["limitation_edges_high_conf"] = [
+            record
+            for record in _dedupe_preserve_order(
+                diagnostics.get("limitation_edges_high_conf") or []
+            )
+            if _edge_key(record) in limitation_keys
+        ]
+        diagnostics["limitation_edges_full"] = [
+            record
+            for record in _dedupe_preserve_order(
+                diagnostics.get("limitation_edges_full") or []
+            )
+            if _edge_key(record) in limitation_keys
+        ]
+
     def _register_limitation_edge(reason: str, record: EdgeRecord) -> None:
         if reason in excluded_reasons:
             diagnostics["excluded_out_of_scope_count"] += 1
@@ -152,6 +244,7 @@ def edge_records_from_ground_truth(
         diagnostics["included_limitation_count"] = int(
             sum(diagnostics["included_limitation_by_reason"].values())
         )
+        _apply_basket_partition()
 
     if entity.kind == "module":
         entries = module_imports_by_prefix.get(entity.qualified_name, [])
