@@ -119,8 +119,9 @@ def render_summary(payload: dict) -> List[str]:
         lines.append("- none")
     else:
         for item in high_medium[:5]:
+            confidence = item.get("attribution_confidence")
             lines.append(
-                f"- [{item.get('priority')}] {item.get('area')}::{item.get('issue')} evidence=`{item.get('evidence')}`"
+                f"- [{item.get('priority')}] {item.get('area')}::{item.get('issue')} confidence=`{confidence}` evidence=`{item.get('evidence')}`"
             )
     lines.append("")
 

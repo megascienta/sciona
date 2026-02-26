@@ -202,6 +202,7 @@ def _resolution_failure_taxonomy(rows: list[dict]) -> dict:
         for bucket, count in (row.get("strict_contract_candidate_count_histogram") or {}).items():
             candidate_histogram[bucket] = candidate_histogram.get(bucket, 0) + int(count or 0)
     return {
+        "counts": dropped,
         "strict_contract_dropped_by_reason": dropped,
         "strict_contract_accepted_by_provenance": accepted,
         "strict_contract_candidate_count_histogram": candidate_histogram,
@@ -348,67 +349,86 @@ def _build_action_priority_board(
     board: list[dict] = []
     method = strict_by_kind.get("method") or {}
     function = strict_by_kind.get("function") or {}
-    if method.get("recall") is not None and float(method["recall"]) < 0.85:
+    def _append(
+        *,
+        priority: str,
+        area: str,
+        issue: str,
+        evidence: dict,
+        attribution_confidence: str,
+        evidence_basis: str,
+    ) -> None:
         board.append(
             {
-                "priority": "high",
-                "area": "core_analysis",
-                "issue": "method_recall_gap",
-                "evidence": {"method_recall": method.get("recall")},
+                "priority": priority,
+                "area": area,
+                "issue": issue,
+                "evidence": evidence,
+                "attribution_confidence": attribution_confidence,
+                "evidence_basis": evidence_basis,
             }
+        )
+    if method.get("recall") is not None and float(method["recall"]) < 0.85:
+        _append(
+            priority="high",
+            area="core_analysis",
+            issue="method_recall_gap",
+            evidence={"method_recall": method.get("recall")},
+            attribution_confidence="high",
+            evidence_basis="strict_contract_by_kind",
         )
     if method.get("precision") is not None and float(method["precision"]) < 0.85:
-        board.append(
-            {
-                "priority": "high",
-                "area": "core_analysis",
-                "issue": "method_precision_gap",
-                "evidence": {"method_precision": method.get("precision")},
-            }
+        _append(
+            priority="high",
+            area="core_analysis",
+            issue="method_precision_gap",
+            evidence={"method_precision": method.get("precision")},
+            attribution_confidence="high",
+            evidence_basis="strict_contract_by_kind",
         )
     if function.get("recall") is not None and float(function["recall"]) < 0.90:
-        board.append(
-            {
-                "priority": "medium",
-                "area": "core_analysis",
-                "issue": "function_recall_gap",
-                "evidence": {"function_recall": function.get("recall")},
-            }
+        _append(
+            priority="medium",
+            area="core_analysis",
+            issue="function_recall_gap",
+            evidence={"function_recall": function.get("recall")},
+            attribution_confidence="medium",
+            evidence_basis="strict_contract_by_kind",
         )
     if strict_overreach is not None and strict_overreach > 0.05:
-        board.append(
-            {
-                "priority": "high",
-                "area": "core_analysis",
-                "issue": "strict_overreach_elevated",
-                "evidence": {"strict_overreach_rate": strict_overreach},
-            }
+        _append(
+            priority="high",
+            area="core_analysis",
+            issue="strict_overreach_elevated",
+            evidence={"strict_overreach_rate": strict_overreach},
+            attribution_confidence="high",
+            evidence_basis="strict_contract_micro",
         )
     if (
         strict_recall is not None
         and expanded_full_recall is not None
         and (strict_recall - expanded_full_recall) > 0.04
     ):
-        board.append(
-            {
-                "priority": "medium",
-                "area": "validation_workflow",
-                "issue": "strict_to_expanded_recall_drop",
-                "evidence": {
-                    "strict_recall": strict_recall,
-                    "expanded_full_recall": expanded_full_recall,
-                    "delta": strict_recall - expanded_full_recall,
-                },
-            }
+        _append(
+            priority="medium",
+            area="validation_workflow",
+            issue="strict_to_expanded_recall_drop",
+            evidence={
+                "strict_recall": strict_recall,
+                "expanded_full_recall": expanded_full_recall,
+                "delta": strict_recall - expanded_full_recall,
+            },
+            attribution_confidence="medium",
+            evidence_basis="strict_vs_enriched_delta",
         )
     if reasoning_reliability is not None and reasoning_reliability < 0.70:
-        board.append(
-            {
-                "priority": "medium",
-                "area": "core_analysis",
-                "issue": "reasoning_reliability_low",
-                "evidence": {"reasoning_structural_reliability": reasoning_reliability},
-            }
+        _append(
+            priority="medium",
+            area="core_analysis",
+            issue="reasoning_reliability_low",
+            evidence={"reasoning_structural_reliability": reasoning_reliability},
+            attribution_confidence="medium",
+            evidence_basis="prompt_reliability_reasoning_component",
         )
     rank = {"high": 0, "medium": 1, "low": 2}
     board.sort(key=lambda item: rank.get(item["priority"], 9))
