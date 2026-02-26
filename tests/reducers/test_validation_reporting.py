@@ -51,11 +51,16 @@ def test_render_summary_includes_only_three_core_questions() -> None:
             "q3": {
                 "descriptive_only": True,
                 "scored_nodes": 1,
-                "total_edges": 20,
-                "avg_out_of_contract_rate_percent": 10.0,
-                "by_semantic_type_avg_percent": {
+                "total_non_static_edges": 20,
+                "avg_non_static_rate_percent": 10.0,
+                "by_semantic_type_non_static_avg_percent": {
                     "dynamic_call": 50.0,
                     "decorator_call": 50.0,
+                },
+                "unresolved_static_defect": {
+                    "target_zero": True,
+                    "pass": True,
+                    "avg_rate_percent": 0.0,
                 },
             },
         },
@@ -94,7 +99,8 @@ def test_write_json_validates_minimum_payload_shape(tmp_path) -> None:
                 },
                 "basket2_edges": [],
                 "q2_node_rates": None,
-                "q3_out_of_contract_rate_percent": None,
+                "q3_non_static_rate_percent": None,
+                "unresolved_static_rate_percent": None,
             }
         ],
     }

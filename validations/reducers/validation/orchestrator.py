@@ -30,6 +30,8 @@ from .reducer_queries import get_snapshot_id
 
 REPORT_SCHEMA_VERSION = "2026-02-27"
 Q2_FILTERING_SOURCE = "core_only"
+NON_STATIC_REASONS = {"dynamic", "decorator"}
+UNRESOLVED_STATIC_REASONS = {"in_repo_unresolved", "relative_unresolved", "unknown"}
 
 
 def _aggregate_set_metrics(rows: list[dict], key: str) -> dict:
@@ -107,6 +109,83 @@ def _passes_q2_gate(
         and avg_spillover_rate <= (1.0 - target)
         and avg_mutual_accuracy >= target
     )
+
+
+def _build_reason_breakdown(
+    records: list[dict],
+) -> tuple[dict[str, int], dict[str, dict[str, int]]]:
+    counts_by_entity: dict[str, int] = {}
+    semantic_type_counts_by_entity: dict[str, dict[str, int]] = {}
+    for record in records:
+        entity_qname = str(record.get("entity") or "")
+        if not entity_qname:
+            continue
+        counts_by_entity[entity_qname] = int(counts_by_entity.get(entity_qname, 0)) + 1
+        semantic_type = str(record.get("semantic_type") or "unknown")
+        per_entity = semantic_type_counts_by_entity.setdefault(entity_qname, {})
+        per_entity[semantic_type] = int(per_entity.get(semantic_type, 0)) + 1
+    return counts_by_entity, semantic_type_counts_by_entity
+
+
+def _build_per_node_rate_payload(
+    *,
+    rows: list[dict],
+    counts_by_entity: dict[str, int],
+    semantic_type_counts_by_entity: dict[str, dict[str, int]],
+) -> dict:
+    node_rates: list[dict] = []
+    for row in rows:
+        q2_metrics = row.get("set_q2_reducer_vs_independent_contract") or {}
+        reference_count = int(q2_metrics.get("reference_count") or 0)
+        if reference_count <= 0:
+            continue
+        entity_qname = str(row.get("entity") or "")
+        count = int(counts_by_entity.get(entity_qname) or 0)
+        rate = _safe_ratio(count, reference_count)
+        node_rates.append(
+            {
+                "entity": entity_qname,
+                "reference_count": reference_count,
+                "edge_count": count,
+                "rate": rate,
+            }
+        )
+
+    avg_rate = (
+        mean(item["rate"] for item in node_rates if item["rate"] is not None)
+        if node_rates
+        else None
+    )
+    by_semantic_type_rate: dict[str, float] = {}
+    semantic_types = {
+        semantic for by_type in semantic_type_counts_by_entity.values() for semantic in by_type
+    }
+    for semantic_type in sorted(semantic_types):
+        per_node_rates: list[float] = []
+        for row in rows:
+            q2_metrics = row.get("set_q2_reducer_vs_independent_contract") or {}
+            reference_count = int(q2_metrics.get("reference_count") or 0)
+            if reference_count <= 0:
+                continue
+            entity_qname = str(row.get("entity") or "")
+            semantic_count = int(
+                (semantic_type_counts_by_entity.get(entity_qname) or {}).get(semantic_type) or 0
+            )
+            rate = _safe_ratio(semantic_count, reference_count)
+            if rate is not None:
+                per_node_rates.append(rate)
+        by_semantic_type_rate[semantic_type] = mean(per_node_rates) if per_node_rates else 0.0
+
+    return {
+        "scored_nodes": len(node_rates),
+        "avg_rate": avg_rate,
+        "avg_rate_percent": (avg_rate * 100.0) if avg_rate is not None else None,
+        "total_edges": sum(counts_by_entity.values()),
+        "by_semantic_type_avg_rate": dict(sorted(by_semantic_type_rate.items())),
+        "by_semantic_type_avg_percent": {
+            key: value * 100.0 for key, value in sorted(by_semantic_type_rate.items())
+        },
+    }
 
 
 def _build_report_payload(
@@ -192,57 +271,34 @@ def _build_report_payload(
         bool(bucket.get("pass")) for bucket in q2_by_language.values()
     ) if q2_by_language else False
 
-    semantic_type_counts_by_entity: dict[str, dict[str, int]] = {}
-    for record in out_of_contract_meta:
-        entity_qname = str(record.get("entity") or "")
-        if not entity_qname:
-            continue
-        semantic_type = str(record.get("semantic_type") or "unknown")
-        per_entity = semantic_type_counts_by_entity.setdefault(entity_qname, {})
-        per_entity[semantic_type] = int(per_entity.get(semantic_type, 0)) + 1
-
-    q3_node_rates: list[dict] = []
-    for row in rows:
-        q2_metrics = row.get("set_q2_reducer_vs_independent_contract") or {}
-        reference_count = int(q2_metrics.get("reference_count") or 0)
-        if reference_count <= 0:
-            continue
-        basket2_count = len(row.get("basket2_edges") or [])
-        q3_node_rates.append(
-            {
-                "entity": row["entity"],
-                "reference_count": reference_count,
-                "out_of_contract_count": basket2_count,
-                "out_of_contract_rate": _safe_ratio(basket2_count, reference_count),
-            }
-        )
-    avg_q3_rate = (
-        mean(item["out_of_contract_rate"] for item in q3_node_rates if item["out_of_contract_rate"] is not None)
-        if q3_node_rates
-        else None
+    non_static_records = [
+        record
+        for record in out_of_contract_meta
+        if str(record.get("reason") or "") in NON_STATIC_REASONS
+    ]
+    unresolved_static_records = [
+        record
+        for record in out_of_contract_meta
+        if str(record.get("reason") or "") in UNRESOLVED_STATIC_REASONS
+    ]
+    non_static_counts, non_static_semantic_counts = _build_reason_breakdown(non_static_records)
+    unresolved_counts, unresolved_semantic_counts = _build_reason_breakdown(
+        unresolved_static_records
     )
-    q3_by_semantic_type_rate: dict[str, float] = {}
-    for semantic_type in sorted(
-        {
-            semantic
-            for by_type in semantic_type_counts_by_entity.values()
-            for semantic in by_type
-        }
-    ):
-        per_node_rates: list[float] = []
-        for row in rows:
-            q2_metrics = row.get("set_q2_reducer_vs_independent_contract") or {}
-            reference_count = int(q2_metrics.get("reference_count") or 0)
-            if reference_count <= 0:
-                continue
-            entity_qname = str(row.get("entity") or "")
-            semantic_count = int(
-                (semantic_type_counts_by_entity.get(entity_qname) or {}).get(semantic_type) or 0
-            )
-            rate = _safe_ratio(semantic_count, reference_count)
-            if rate is not None:
-                per_node_rates.append(rate)
-        q3_by_semantic_type_rate[semantic_type] = mean(per_node_rates) if per_node_rates else 0.0
+    non_static_metrics = _build_per_node_rate_payload(
+        rows=rows,
+        counts_by_entity=non_static_counts,
+        semantic_type_counts_by_entity=non_static_semantic_counts,
+    )
+    unresolved_static_metrics = _build_per_node_rate_payload(
+        rows=rows,
+        counts_by_entity=unresolved_counts,
+        semantic_type_counts_by_entity=unresolved_semantic_counts,
+    )
+    unresolved_static_zero = bool(
+        (unresolved_static_metrics.get("avg_rate") or 0.0) == 0.0
+        and int(unresolved_static_metrics.get("total_edges") or 0) == 0
+    )
 
     invariants = {
         "passed": bool(q1_pass and q2_pass),
@@ -250,13 +306,15 @@ def _build_report_payload(
         "q1_reducer_vs_db_exact": q1_pass,
         "q2_reducer_vs_independent_overlap_macro": q2_pass,
         "q2_per_language_near_100": q2_language_pass,
-        "q3_descriptive_only": True,
+        "q3_non_static_descriptive_only": True,
+        "unresolved_static_zero": unresolved_static_zero,
     }
     quality_gates = {
         "q2_target_mutual_accuracy_min": q2_target,
         "q2_target_missing_rate_max": (1.0 - q2_target),
         "q2_target_spillover_rate_max": (1.0 - q2_target),
         "q2_filtering_source": Q2_FILTERING_SOURCE,
+        "unresolved_static_target_zero": True,
     }
 
     compact_rows: list[dict] = []
@@ -276,11 +334,41 @@ def _build_report_payload(
                 "q2_node_rates": _build_q2_node_rates(
                     row.get("set_q2_reducer_vs_independent_contract")
                 ),
-                "q3_out_of_contract_rate_percent": (
-                    (_safe_ratio(len(row.get("basket2_edges") or []), int((row.get("set_q2_reducer_vs_independent_contract") or {}).get("reference_count") or 0)) or 0.0)
+                "q3_non_static_rate_percent": (
+                    (
+                        _safe_ratio(
+                            int(non_static_counts.get(str(row.get("entity") or "")) or 0),
+                            int(
+                                (row.get("set_q2_reducer_vs_independent_contract") or {}).get(
+                                    "reference_count"
+                                )
+                                or 0
+                            ),
+                        )
+                        or 0.0
+                    )
                     * 100.0
                 )
-                if int((row.get("set_q2_reducer_vs_independent_contract") or {}).get("reference_count") or 0) > 0
+                if int((row.get("set_q2_reducer_vs_independent_contract") or {}).get("reference_count") or 0)
+                > 0
+                else None,
+                "unresolved_static_rate_percent": (
+                    (
+                        _safe_ratio(
+                            int(unresolved_counts.get(str(row.get("entity") or "")) or 0),
+                            int(
+                                (row.get("set_q2_reducer_vs_independent_contract") or {}).get(
+                                    "reference_count"
+                                )
+                                or 0
+                            ),
+                        )
+                        or 0.0
+                    )
+                    * 100.0
+                )
+                if int((row.get("set_q2_reducer_vs_independent_contract") or {}).get("reference_count") or 0)
+                > 0
                 else None,
             }
         )
@@ -290,7 +378,12 @@ def _build_report_payload(
         f"sampled_nodes={len(rows)}",
         f"q1_reducer_vs_db_exact={q1_pass}",
         f"q2_reducer_vs_independent_overlap_macro={q2_pass}",
-        f"q3_avg_out_of_contract_percent={((avg_q3_rate or 0.0) * 100.0):.4f}" if avg_q3_rate is not None else "q3_avg_out_of_contract_percent=None",
+        f"q3_avg_non_static_percent={((non_static_metrics.get('avg_rate') or 0.0) * 100.0):.4f}"
+        if non_static_metrics.get("avg_rate") is not None
+        else "q3_avg_non_static_percent=None",
+        f"unresolved_static_avg_percent={((unresolved_static_metrics.get('avg_rate') or 0.0) * 100.0):.4f}"
+        if unresolved_static_metrics.get("avg_rate") is not None
+        else "unresolved_static_avg_percent=None",
     ]
     mismatch_candidates: list[tuple[int, int, int, str, dict]] = []
     for row in rows:
@@ -365,18 +458,31 @@ def _build_report_payload(
                 "top_mismatch_signatures": top_mismatch_signatures,
             },
             "q3": {
-                "title": "beyond static contract envelope",
+                "title": "non-static edges beyond contract envelope",
                 "descriptive_only": True,
-                "scored_nodes": len(q3_node_rates),
-                "avg_out_of_contract_rate": avg_q3_rate,
-                "avg_out_of_contract_rate_percent": (
-                    (avg_q3_rate * 100.0) if avg_q3_rate is not None else None
+                "scored_nodes": non_static_metrics.get("scored_nodes"),
+                "avg_non_static_rate": non_static_metrics.get("avg_rate"),
+                "avg_non_static_rate_percent": non_static_metrics.get("avg_rate_percent"),
+                "total_non_static_edges": non_static_metrics.get("total_edges"),
+                "by_semantic_type_non_static_avg_rate": non_static_metrics.get(
+                    "by_semantic_type_avg_rate"
                 ),
-                "total_edges": len(out_of_contract_meta),
-                "by_semantic_type_avg_rate": dict(sorted(q3_by_semantic_type_rate.items())),
-                "by_semantic_type_avg_percent": {
-                    key: value * 100.0
-                    for key, value in sorted(q3_by_semantic_type_rate.items())
+                "by_semantic_type_non_static_avg_percent": non_static_metrics.get(
+                    "by_semantic_type_avg_percent"
+                ),
+                "unresolved_static_defect": {
+                    "target_zero": True,
+                    "pass": unresolved_static_zero,
+                    "scored_nodes": unresolved_static_metrics.get("scored_nodes"),
+                    "avg_rate": unresolved_static_metrics.get("avg_rate"),
+                    "avg_rate_percent": unresolved_static_metrics.get("avg_rate_percent"),
+                    "total_edges": unresolved_static_metrics.get("total_edges"),
+                    "by_semantic_type_avg_rate": unresolved_static_metrics.get(
+                        "by_semantic_type_avg_rate"
+                    ),
+                    "by_semantic_type_avg_percent": unresolved_static_metrics.get(
+                        "by_semantic_type_avg_percent"
+                    ),
                 },
             },
         },

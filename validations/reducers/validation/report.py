@@ -95,12 +95,22 @@ def render_summary(payload: dict) -> List[str]:
         f"- scored_nodes: `{q3.get('scored_nodes')}`"
     )
     lines.append(
-        f"- avg_out_of_contract_rate_percent: `{_format_percent(q3.get('avg_out_of_contract_rate_percent'))}`"
+        f"- avg_non_static_rate_percent: `{_format_percent(q3.get('avg_non_static_rate_percent'))}`"
     )
-    percent_by_type = q3.get("by_semantic_type_avg_percent") or {}
+    percent_by_type = q3.get("by_semantic_type_non_static_avg_percent") or {}
     formatted_percent_by_type = {
         str(key): _format_percent(value) for key, value in percent_by_type.items()
     }
-    lines.append(f"- avg_percent_by_type: `{formatted_percent_by_type}`")
+    lines.append(f"- avg_non_static_percent_by_type: `{formatted_percent_by_type}`")
+    unresolved = q3.get("unresolved_static_defect") or {}
+    lines.append(
+        f"- unresolved_static_target_zero: `{unresolved.get('target_zero')}`"
+    )
+    lines.append(
+        f"- unresolved_static_pass: `{unresolved.get('pass')}`"
+    )
+    lines.append(
+        f"- unresolved_static_avg_percent: `{_format_percent(unresolved.get('avg_rate_percent'))}`"
+    )
     lines.append("")
     return lines

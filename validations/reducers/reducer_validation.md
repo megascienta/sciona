@@ -4,7 +4,10 @@
 This workflow answers exactly three questions and nothing else:
 1. Q1: reducers vs DB consistency (must be exact).
 2. Q2: reducer contract set overlap with independent constrained set.
-3. Q3: independent enrichment beyond contract (basket 2) composition.
+3. Q3: non-static enrichment beyond contract.
+
+Resolution defect bucket (tracked separately):
+- unresolved-static edges (should trend to zero).
 
 No backward compatibility layer is maintained for legacy precision/recall report fields.
 
@@ -13,7 +16,8 @@ Edge sets are used (not node sets).
 
 - `S1`: reducer contract edge set (basket 1 reference).
 - `S2`: independent constrained edge set (basket 1 candidate).
-- `S3`: independent out-of-contract enrichment edge set (basket 2).
+- `S3_non_static`: non-static edge set (dynamic/decorator-driven).
+- `S_unresolved_static`: static-looking but unresolved edge set (defect bucket).
 
 Definitions:
 - `intersection = |S1 ∩ S2|`
@@ -22,7 +26,8 @@ Definitions:
 - `missing_rate_i = |S1_i \ S2_i| / |S1_i|`
 - `spillover_rate_i = |S2_i \ S1_i| / |S1_i|`
 - `mutual_accuracy_i = |S1_i ∩ S2_i| / |S1_i ∪ S2_i|`
-- `q3_rate_i = |S3_i| / |S1_i|`
+- `q3_non_static_rate_i = |S3_non_static_i| / |S1_i|`
+- `unresolved_static_rate_i = |S_unresolved_static_i| / |S1_i|`
 
 ## Questions
 ### Q1
@@ -46,8 +51,13 @@ Default gate:
 ### Q3
 Descriptive only.
 Report only:
-- `avg_out_of_contract_rate_percent` (mean of per-node `|S3_i|/|S1_i| * 100`)
-- `by_semantic_type_avg_percent` (mean per-node type-specific out-of-contract rate)
+- `avg_non_static_rate_percent` (mean of per-node `|S3_non_static_i|/|S1_i| * 100`)
+- `by_semantic_type_non_static_avg_percent` (mean per-node type-specific non-static rate)
+
+### Unresolved-Static Defect
+Quality defect metric (not Q3):
+- `unresolved_static_avg_percent` (mean per-node `|S_unresolved_static_i|/|S1_i| * 100`)
+- target: `0`
 
 ## Pipeline
 1. Load entities from artifacts/DB (`module`, `class`, `function`, `method`).
@@ -56,7 +66,8 @@ Report only:
 4. Normalize and impose contract using the core contract path.
 5. Build sets `S1`, `S2`, `S3` per entity.
 6. Aggregate Q1/Q2/Q3 set metrics.
-7. Emit one JSON and one markdown report.
+7. Compute unresolved-static defect metrics.
+8. Emit one JSON and one markdown report.
 
 ## Report Contract
 Top-level keys:

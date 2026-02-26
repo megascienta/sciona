@@ -108,5 +108,57 @@ def test_q3_payload_includes_provenance_breakdown(tmp_path: Path) -> None:
         ],
     )
     q3 = payload["questions"]["q3"]
-    assert q3["by_semantic_type_avg_rate"] == {"dynamic_call": 1.0}
-    assert q3["by_semantic_type_avg_percent"] == {"dynamic_call": 100.0}
+    assert q3["by_semantic_type_non_static_avg_rate"] == {"dynamic_call": 1.0}
+    assert q3["by_semantic_type_non_static_avg_percent"] == {"dynamic_call": 100.0}
+
+
+def test_unresolved_static_is_reported_as_separate_defect(tmp_path: Path) -> None:
+    payload = _build_report_payload(
+        repo_root=tmp_path,
+        rows=[
+            {
+                "entity": "fixture.mod.fn",
+                "language": "python",
+                "kind": "function",
+                "file_path": "mod.py",
+                "module_qualified_name": "fixture.mod",
+                "set_q1_reducer_vs_db": {
+                    "reference_count": 1,
+                    "candidate_count": 1,
+                    "intersection_count": 1,
+                    "missing_count": 0,
+                    "spillover_count": 0,
+                    "coverage": 1.0,
+                    "spillover_ratio": 0.0,
+                },
+                "set_q2_reducer_vs_independent_contract": {
+                    "reference_count": 2,
+                    "candidate_count": 1,
+                    "intersection_count": 1,
+                    "missing_count": 1,
+                    "spillover_count": 0,
+                    "coverage": 0.5,
+                    "spillover_ratio": 0.0,
+                },
+                "basket2_edges": [{"caller": "fixture.mod.fn", "callee": "helper"}],
+            }
+        ],
+        out_of_contract_meta=[
+            {
+                "edge_type": "call",
+                "language": "python",
+                "reason": "in_repo_unresolved",
+                "semantic_type": "direct_call_unresolved",
+                "entity": "fixture.mod.fn",
+                "entity_kind": "function",
+                "caller": "fixture.mod.fn",
+                "callee": "helper",
+                "callee_qname": None,
+                "provenance": "syntax_raw",
+            }
+        ],
+    )
+    unresolved = payload["questions"]["q3"]["unresolved_static_defect"]
+    assert unresolved["pass"] is False
+    assert unresolved["avg_rate_percent"] == 50.0
+    assert unresolved["by_semantic_type_avg_percent"] == {"direct_call_unresolved": 50.0}
