@@ -33,6 +33,9 @@ def build_independent_call_resolution(
         if not scope or not receiver or not target_qname:
             return
         receiver_bindings.setdefault(scope, {}).setdefault(receiver, set()).add(target_qname)
+        leaf = receiver.rsplit(".", 1)[-1].strip()
+        if leaf and leaf != receiver:
+            receiver_bindings.setdefault(scope, {}).setdefault(leaf, set()).add(target_qname)
 
     def _resolve_assignment_target(scope_module: str, value_text: str) -> list[str]:
         raw = (value_text or "").strip()
@@ -58,6 +61,7 @@ def build_independent_call_resolution(
 
     for file_result in independent_results.values():
         module_name = file_result.module_qualified_name
+        class_methods: Dict[str, set[str]] = {}
         for definition in file_result.defs:
             if definition.kind == "class":
                 class_name_index.setdefault(definition.qualified_name.split(".")[-1], set()).add(
@@ -74,6 +78,7 @@ def build_independent_call_resolution(
             class_scope = qname.rsplit(".", 1)[0] if "." in qname else ""
             if class_scope:
                 class_method_index.setdefault(class_scope, {})[identifier] = qname
+                class_methods.setdefault(class_scope, set()).add(qname)
 
         _, normalized_imports = normalized_edge_map.get(file_result.file_path, ([], []))
         for edge in normalized_imports:
@@ -153,8 +158,16 @@ def build_independent_call_resolution(
                             namespace_aliases.setdefault(module_name, {})[local] = resolved
 
         for assignment in file_result.assignment_hints:
-            for target in _resolve_assignment_target(module_name, assignment.value_text):
+            resolved_targets = _resolve_assignment_target(module_name, assignment.value_text)
+            for target in resolved_targets:
                 _register_receiver(assignment.scope, assignment.receiver, target)
+            if assignment.scope.endswith(".constructor"):
+                class_scope = assignment.scope.rsplit(".", 1)[0]
+                for method_scope in sorted(class_methods.get(class_scope, set())):
+                    if method_scope.endswith(".constructor"):
+                        continue
+                    for target in resolved_targets:
+                        _register_receiver(method_scope, assignment.receiver, target)
 
     return {
         "mode": config.STRICT_CONTRACT_MODE,

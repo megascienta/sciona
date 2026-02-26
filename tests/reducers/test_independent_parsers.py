@@ -14,6 +14,9 @@ import pytest
 from validations.reducers.validation.call_contract import resolve_call_in_contract
 from validations.reducers.validation.call_contract import build_contract_call_candidates
 from validations.reducers.validation.call_contract import resolve_call_in_contract_details
+from validations.reducers.validation.evaluation_resolution import (
+    build_independent_call_resolution,
+)
 from validations.reducers.validation.ground_truth import edge_records_from_ground_truth
 from validations.reducers.validation.import_contract import resolve_import_contract
 from validations.reducers.validation.independent.contract_normalization import (
@@ -31,6 +34,7 @@ from validations.reducers.validation.independent.python_ast import _CallVisitor
 from validations.reducers.validation.independent.ts_node import parse_typescript_files
 from validations.reducers.validation.independent.java_runner import parse_java_files
 from validations.reducers.validation.independent.shared import (
+    AssignmentHint,
     Definition,
     EdgeRecord,
     FileParseResult,
@@ -1043,6 +1047,62 @@ def test_call_contract_resolves_receiver_binding() -> None:
         },
     )
     assert resolved == "fixture.sample.Service.run"
+
+
+def test_call_resolution_propagates_constructor_bindings_to_methods() -> None:
+    file_result = FileParseResult(
+        language="typescript",
+        file_path="sample.ts",
+        module_qualified_name="fixture.sample",
+        defs=[
+            Definition(kind="class", qualified_name="fixture.sample.Service", start_line=1, end_line=3),
+            Definition(
+                kind="method",
+                qualified_name="fixture.sample.Service.run",
+                start_line=2,
+                end_line=2,
+            ),
+            Definition(
+                kind="class",
+                qualified_name="fixture.sample.Controller",
+                start_line=5,
+                end_line=15,
+            ),
+            Definition(
+                kind="method",
+                qualified_name="fixture.sample.Controller.constructor",
+                start_line=6,
+                end_line=8,
+            ),
+            Definition(
+                kind="method",
+                qualified_name="fixture.sample.Controller.handle",
+                start_line=10,
+                end_line=12,
+            ),
+        ],
+        call_edges=[],
+        import_edges=[],
+        assignment_hints=[
+            AssignmentHint(
+                scope="fixture.sample.Controller.constructor",
+                receiver="this.service",
+                value_text="Service",
+            )
+        ],
+        parse_ok=True,
+    )
+    resolution = build_independent_call_resolution(
+        independent_results={file_result.file_path: file_result},
+        normalized_edge_map={file_result.file_path: ([], [])},
+        module_names={"fixture.sample"},
+        repo_root=Path("/tmp/fixture"),
+        repo_prefix="fixture",
+        local_packages={"fixture"},
+    )
+    bindings = resolution["receiver_bindings"].get("fixture.sample.Controller.handle", {})
+    assert "service" in bindings
+    assert "fixture.sample.Service" in bindings["service"]
 
 
 def test_call_contract_keeps_same_module_ambiguity_unresolved() -> None:
