@@ -113,7 +113,8 @@
       "requires": ["node"],
       "categories": [
         "constructor_injection",
-        "member_resolution"
+        "member_resolution",
+        "typed_params"
       ]
     },
     {
@@ -160,7 +161,8 @@
       "requires": ["java_parser_toolchain"],
       "categories": [
         "constructor_injection",
-        "member_resolution"
+        "member_resolution",
+        "typed_params"
       ]
     }
   ]
