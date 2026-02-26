@@ -16,6 +16,7 @@ from validations.reducers.validation.call_contract import build_contract_call_ca
 from validations.reducers.validation.call_contract import resolve_call_in_contract_details
 from validations.reducers.validation.ground_truth import edge_records_from_ground_truth
 from validations.reducers.validation.import_contract import resolve_import_contract
+from validations.reducers.validation.out_of_contract import standard_call_names
 from validations.reducers.validation.independent.contract_normalization import (
     module_name_from_file,
     normalize_scoped_calls,
@@ -655,6 +656,19 @@ def test_ground_truth_excludes_standard_calls_from_enrichment() -> None:
     assert out_of_contract == []
     assert out_meta == []
     assert diagnostics["excluded_out_of_scope_by_reason"].get("standard_call") == 1
+
+
+def test_standard_call_names_language_aware_with_legacy_fallback() -> None:
+    contract = {
+        "out_of_contract": {
+            "standard_calls_by_language": {"python": ["print"], "typescript": ["console"]},
+            "standard_calls": ["legacy_call"],
+        }
+    }
+    assert standard_call_names(contract, "python") == {"print"}
+    assert standard_call_names(contract, "typescript") == {"console"}
+    assert standard_call_names(contract, "java") == {"legacy_call"}
+    assert "legacy_call" in standard_call_names(contract)
 
 
 def test_ground_truth_partitions_baskets_when_same_edge_has_conflicting_reasons() -> None:

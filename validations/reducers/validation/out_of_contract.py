@@ -6,8 +6,21 @@ from __future__ import annotations
 from typing import Iterable
 
 
-def standard_call_names(contract: dict) -> set[str]:
-    block = contract.get("out_of_contract", {}).get("standard_calls", []) or []
+def standard_call_names(contract: dict, language: str | None = None) -> set[str]:
+    out = contract.get("out_of_contract", {}) or {}
+    by_language = out.get("standard_calls_by_language") or {}
+    if language:
+        block = by_language.get(language)
+        if block is None:
+            block = out.get("standard_calls", []) or []
+    else:
+        block = out.get("standard_calls", []) or []
+        if not block and isinstance(by_language, dict):
+            merged: list[str] = []
+            for values in by_language.values():
+                if isinstance(values, list):
+                    merged.extend(values)
+            block = merged
     return {name for name in block if isinstance(name, str) and name}
 
 
@@ -20,7 +33,7 @@ def classify_call_reason(
 ) -> str:
     if edge.dynamic:
         return "dynamic"
-    standard = standard_call_names(contract)
+    standard = standard_call_names(contract, language)
     if edge.callee and edge.callee in standard:
         return "standard_call"
     identifier = (edge.callee or "").strip()

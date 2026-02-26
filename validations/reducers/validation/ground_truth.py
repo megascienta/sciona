@@ -75,7 +75,6 @@ def edge_records_from_ground_truth(
         "strict_contract_dropped_by_reason": {},
         "strict_contract_candidate_count_histogram": {},
     }
-    standard_calls = standard_call_names(contract)
     policy = config.EXPANDED_TRUTH_POLICY
     excluded_reasons = set(policy.get("scope_exclusions") or [])
     high_conf_reasons = set((policy.get("confidence_tiers") or {}).get("high") or [])
@@ -454,6 +453,7 @@ def edge_records_from_ground_truth(
             diagnostics,
         )
 
+    standard_calls = standard_call_names(contract, file_result.language)
     for edge in normalized_calls:
         if edge.caller != entity.qualified_name:
             continue
