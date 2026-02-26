@@ -192,6 +192,13 @@ python validations/reducers/reducer_validation.py \
   --stability-runs 2
 ```
 
+Consolidated multi-repo markdown:
+```bash
+conda run -n multiphysics \
+python validations/reducers/consolidate_reports.py \
+  --date 2026-02-26
+```
+
 ## 11. Interpretation
 1. Run Verdict first.
 2. If internal integrity is valid, reducer is faithful DB projection for evaluated nodes.
