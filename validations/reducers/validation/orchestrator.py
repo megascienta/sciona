@@ -462,132 +462,27 @@ def _kind_precision_floor_status(
     return {"repo": repo_name, "floors": floors, "by_kind": by_kind, "passed": passed}
 
 
-def run_validation(
+
+def _build_report_payload(
     *,
     repo_root: Path,
-    nodes: int,
+    snapshot_id: str,
+    rows: list[dict],
+    out_of_contract_meta: list[dict],
+    total_files: int,
+    parse_ok_files: int,
+    sampling,
+    overview_errors: list[str],
+    stability_score: float | None,
+    stability_hashes: List[str],
+    stability_error: str | None,
+    scoped_normalization_ok: bool,
+    contract: dict,
+    independent_results: dict,
+    normalized_edge_map: dict,
+    coverage: dict,
     seed: int,
-    stability_runs: int,
-) -> int:
-    repo_root = repo_root.resolve()
-    reports = config.report_paths(repo_root)
-    contract = get_validation_contract()
-
-    with open_core_db(repo_root) as conn:
-        snapshot_id = get_snapshot_id(conn)
-        resolver = ResolverCache(conn, snapshot_id)
-        with open_artifact_db(repo_root) as artifact_conn:
-            progress_factory = make_progress_factory()
-            print("Loading nodes... ", end="", flush=True)
-            nodes_data = list_nodes_from_artifacts(
-                artifact_conn,
-                conn,
-                snapshot_id,
-                node_kinds=["module", "class", "function", "method"],
-            )
-            print(f"done ({len(nodes_data)} nodes)")
-            module_entries = [
-                entry
-                for entry in nodes_data
-                if (entry.get("node_type") or entry.get("node_kind")) == "module"
-                and entry.get("file_path")
-                and entry.get("qualified_name")
-            ]
-            full_module_names = {
-                entry.get("qualified_name")
-                for entry in nodes_data
-                if (entry.get("node_type") or entry.get("node_kind")) == "module"
-                and entry.get("qualified_name")
-            }
-            repo_prefix = repo_name_prefix(repo_root)
-            local_packages = set(runtime_packaging.local_package_names(repo_root))
-
-            sampling = sample_entities_from_db(
-                nodes_data,
-                resolver,
-                artifact_conn,
-                nodes,
-                seed,
-                progress_factory=progress_factory,
-            )
-            sampled = sampling.sampled
-
-            print("Building file maps... ", end="", flush=True)
-            parse_file_map, overview_errors = prepare_parse_map(
-                sampled, module_entries, resolver
-            )
-            print("done")
-            parse_progress = None
-            if progress_factory:
-                parse_progress = progress_factory("Parsing files", len(parse_file_map))
-
-            def _on_file_parsed(_file_path: str) -> None:
-                if parse_progress:
-                    parse_progress.advance(1)
-
-            independent_results = parse_independent_files(
-                repo_root, parse_file_map, on_file_parsed=_on_file_parsed
-            )
-            if parse_progress:
-                parse_progress.close()
-
-            (
-                normalized_edge_map,
-                module_imports_by_prefix,
-                scoped_normalization_ok,
-            ) = build_normalized_edge_maps(repo_root, independent_results)
-            stability_score = None
-            stability_error = None
-            stability_hashes: List[str] = []
-            try:
-                runs = max(1, int(stability_runs))
-                stability_hashes.append(
-                    independent_results_hash(independent_results, normalized_edge_map)
-                )
-                for _ in range(1, runs):
-                    rerun_results = parse_independent_files(
-                        repo_root, parse_file_map, on_file_parsed=None
-                    )
-                    rerun_normalized_map, _, _ = build_normalized_edge_maps(
-                        repo_root, rerun_results
-                    )
-                    stability_hashes.append(
-                        independent_results_hash(rerun_results, rerun_normalized_map)
-                    )
-                stability_score = 1.0 if len(set(stability_hashes)) == 1 else 0.0
-            except Exception as exc:
-                stability_error = str(exc)
-            call_resolution = build_independent_call_resolution(
-                independent_results,
-                normalized_edge_map,
-                full_module_names,
-                contract,
-                repo_root,
-                repo_prefix,
-                local_packages,
-            )
-            coverage = coverage_by_language(independent_results)
-            reducer_source = ReducerEdgeSource(conn, repo_root, snapshot_id)
-            db_source = DbEdgeSource(conn, artifact_conn, snapshot_id, resolver)
-            validation_progress = None
-            if progress_factory:
-                validation_progress = progress_factory("Validating nodes", len(sampled))
-            rows, out_of_contract_meta, total_files, parse_ok_files = evaluate_entities(
-                sampled,
-                independent_results,
-                normalized_edge_map,
-                module_imports_by_prefix,
-                full_module_names,
-                call_resolution,
-                contract,
-                repo_root,
-                repo_prefix,
-                local_packages,
-                reducer_source,
-                db_source,
-                validation_progress,
-            )
-
+) -> dict:
     scored_rows_reducer_vs_contract = [
         row for row in rows if row.get("metrics_reducer_vs_contract") is not None
     ]
@@ -1383,6 +1278,156 @@ def run_validation(
         },
         "action_priority_board": action_priority_board,
     }
+
+
+    return payload
+
+
+def run_validation(
+    *,
+    repo_root: Path,
+    nodes: int,
+    seed: int,
+    stability_runs: int,
+) -> int:
+    repo_root = repo_root.resolve()
+    reports = config.report_paths(repo_root)
+    contract = get_validation_contract()
+
+    with open_core_db(repo_root) as conn:
+        snapshot_id = get_snapshot_id(conn)
+        resolver = ResolverCache(conn, snapshot_id)
+        with open_artifact_db(repo_root) as artifact_conn:
+            progress_factory = make_progress_factory()
+            print("Loading nodes... ", end="", flush=True)
+            nodes_data = list_nodes_from_artifacts(
+                artifact_conn,
+                conn,
+                snapshot_id,
+                node_kinds=["module", "class", "function", "method"],
+            )
+            print(f"done ({len(nodes_data)} nodes)")
+            module_entries = [
+                entry
+                for entry in nodes_data
+                if (entry.get("node_type") or entry.get("node_kind")) == "module"
+                and entry.get("file_path")
+                and entry.get("qualified_name")
+            ]
+            full_module_names = {
+                entry.get("qualified_name")
+                for entry in nodes_data
+                if (entry.get("node_type") or entry.get("node_kind")) == "module"
+                and entry.get("qualified_name")
+            }
+            repo_prefix = repo_name_prefix(repo_root)
+            local_packages = set(runtime_packaging.local_package_names(repo_root))
+
+            sampling = sample_entities_from_db(
+                nodes_data,
+                resolver,
+                artifact_conn,
+                nodes,
+                seed,
+                progress_factory=progress_factory,
+            )
+            sampled = sampling.sampled
+
+            print("Building file maps... ", end="", flush=True)
+            parse_file_map, overview_errors = prepare_parse_map(
+                sampled, module_entries, resolver
+            )
+            print("done")
+            parse_progress = None
+            if progress_factory:
+                parse_progress = progress_factory("Parsing files", len(parse_file_map))
+
+            def _on_file_parsed(_file_path: str) -> None:
+                if parse_progress:
+                    parse_progress.advance(1)
+
+            independent_results = parse_independent_files(
+                repo_root, parse_file_map, on_file_parsed=_on_file_parsed
+            )
+            if parse_progress:
+                parse_progress.close()
+
+            (
+                normalized_edge_map,
+                module_imports_by_prefix,
+                scoped_normalization_ok,
+            ) = build_normalized_edge_maps(repo_root, independent_results)
+            stability_score = None
+            stability_error = None
+            stability_hashes: List[str] = []
+            try:
+                runs = max(1, int(stability_runs))
+                stability_hashes.append(
+                    independent_results_hash(independent_results, normalized_edge_map)
+                )
+                for _ in range(1, runs):
+                    rerun_results = parse_independent_files(
+                        repo_root, parse_file_map, on_file_parsed=None
+                    )
+                    rerun_normalized_map, _, _ = build_normalized_edge_maps(
+                        repo_root, rerun_results
+                    )
+                    stability_hashes.append(
+                        independent_results_hash(rerun_results, rerun_normalized_map)
+                    )
+                stability_score = 1.0 if len(set(stability_hashes)) == 1 else 0.0
+            except Exception as exc:
+                stability_error = str(exc)
+            call_resolution = build_independent_call_resolution(
+                independent_results,
+                normalized_edge_map,
+                full_module_names,
+                contract,
+                repo_root,
+                repo_prefix,
+                local_packages,
+            )
+            coverage = coverage_by_language(independent_results)
+            reducer_source = ReducerEdgeSource(conn, repo_root, snapshot_id)
+            db_source = DbEdgeSource(conn, artifact_conn, snapshot_id, resolver)
+            validation_progress = None
+            if progress_factory:
+                validation_progress = progress_factory("Validating nodes", len(sampled))
+            rows, out_of_contract_meta, total_files, parse_ok_files = evaluate_entities(
+                sampled,
+                independent_results,
+                normalized_edge_map,
+                module_imports_by_prefix,
+                full_module_names,
+                call_resolution,
+                contract,
+                repo_root,
+                repo_prefix,
+                local_packages,
+                reducer_source,
+                db_source,
+                validation_progress,
+            )
+
+    payload = _build_report_payload(
+        repo_root=repo_root,
+        snapshot_id=snapshot_id,
+        rows=rows,
+        out_of_contract_meta=out_of_contract_meta,
+        total_files=total_files,
+        parse_ok_files=parse_ok_files,
+        sampling=sampling,
+        overview_errors=overview_errors,
+        stability_score=stability_score,
+        stability_hashes=stability_hashes,
+        stability_error=stability_error,
+        scoped_normalization_ok=scoped_normalization_ok,
+        contract=contract,
+        independent_results=independent_results,
+        normalized_edge_map=normalized_edge_map,
+        coverage=coverage,
+        seed=seed,
+    )
 
     write_json(reports.json_path, payload)
     write_markdown(reports.md_path, render_summary(payload))
