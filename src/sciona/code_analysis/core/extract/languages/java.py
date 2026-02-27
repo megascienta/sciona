@@ -25,6 +25,7 @@ from .java_imports import (
 )
 from .java_nodes import JavaNodeState, walk_java_nodes
 from .java_resolution import (
+    collect_constructor_field_types,
     collect_declared_vars,
     collect_local_var_types,
     qualify_java_type,
@@ -85,6 +86,7 @@ class JavaAnalyzer(ASTAnalyzer):
                     result=result,
                     state=state,
                     collect_declared_vars=collect_declared_vars,
+                    collect_constructor_field_types=collect_constructor_field_types,
                 )
 
             import_model = collect_java_import_model(

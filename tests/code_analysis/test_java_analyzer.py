@@ -301,3 +301,45 @@ def test_java_analyzer_emits_kind_metadata_for_class_like_and_methods(tmp_path):
     ctor_node = next(node for node in result.nodes if node.qualified_name.endswith(".Service.Service"))
     assert (ctor_node.metadata or {}).get("kind") == "constructor"
     assert (ctor_node.metadata or {}).get("declared_in_kind") == "class"
+
+
+def test_java_analyzer_resolves_constructor_new_assignment_on_this_field(tmp_path):
+    module = """
+    class Service {
+        void run() {}
+    }
+    class Controller {
+        Controller() {
+            this.svc = new Service();
+        }
+        void handle() {
+            this.svc.run();
+        }
+    }
+    """
+    repo = tmp_path
+    src = repo / "src"
+    src.mkdir()
+    file_path = src / "App.java"
+    file_path.write_text(module, encoding="utf-8")
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("src/App.java"),
+            language="java",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = JavaAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+    call_records = {
+        rec.qualified_name: set(rec.callee_identifiers) for rec in result.call_records
+    }
+    handle_calls = call_records[f"{module_name}.Controller.handle"]
+    assert f"{module_name}.Service.run" in handle_calls

@@ -108,6 +108,43 @@ def collect_local_bindings(
     ]
 
 
+def collect_constructor_field_types(
+    body_node,
+    snapshot: FileSnapshot,
+) -> dict[str, str]:
+    if body_node is None:
+        return {}
+    collected: dict[str, str] = {}
+    assignments = find_nodes_of_types_query(
+        body_node,
+        language_name="java",
+        node_types=("assignment_expression",),
+    )
+    for node in assignments:
+        left = node.child_by_field_name("left")
+        right = node.child_by_field_name("right")
+        if left is None or right is None or right.type != "object_creation_expression":
+            continue
+        type_node = right.child_by_field_name("type")
+        type_text = node_text(type_node, snapshot.content) if type_node else None
+        if not type_text:
+            continue
+        field_name = None
+        if left.type == "field_access":
+            object_node = left.child_by_field_name("object")
+            field_node = left.child_by_field_name("field") or left.child_by_field_name("name")
+            object_text = node_text(object_node, snapshot.content) if object_node else None
+            if object_text == "this":
+                field_name = node_text(field_node, snapshot.content) if field_node else None
+        if field_name is None:
+            left_text = node_text(left, snapshot.content) or ""
+            if left_text.startswith("this.") and "." in left_text:
+                field_name = left_text.split(".", 1)[1].strip()
+        if field_name:
+            collected[field_name] = type_text
+    return collected
+
+
 def strip_type_decorations(type_text: str) -> str:
     text = type_text.strip()
     if "<" in text:

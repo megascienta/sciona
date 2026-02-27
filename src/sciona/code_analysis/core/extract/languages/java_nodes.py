@@ -34,6 +34,7 @@ def walk_java_nodes(
     result,
     state: JavaNodeState,
     collect_declared_vars,
+    collect_constructor_field_types,
 ) -> None:
     class_kind_map = {
         "class_declaration": "class",
@@ -102,6 +103,7 @@ def walk_java_nodes(
                     result=result,
                     state=state,
                     collect_declared_vars=collect_declared_vars,
+                    collect_constructor_field_types=collect_constructor_field_types,
                 )
         state.class_stack.pop()
         return
@@ -158,6 +160,10 @@ def walk_java_nodes(
                 edge_type="DEFINES_METHOD",
             )
         )
+        if node.type in {"constructor_declaration", "compact_constructor_declaration"}:
+            constructor_fields = collect_constructor_field_types(body_node, snapshot)
+            for field_name, type_text in constructor_fields.items():
+                state.class_field_types.setdefault(parent, {})[field_name] = type_text
         state.pending_calls.append((qualified, node_type, body_node, parent))
         return
 
@@ -176,4 +182,5 @@ def walk_java_nodes(
             result=result,
             state=state,
             collect_declared_vars=collect_declared_vars,
+            collect_constructor_field_types=collect_constructor_field_types,
         )
