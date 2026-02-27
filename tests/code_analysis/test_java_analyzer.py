@@ -61,12 +61,6 @@ def test_java_analyzer_extracts_structure_and_calls(tmp_path):
     ]
     assert not import_edges
 
-    module_node = next(node for node in result.nodes if node.node_type == "module")
-    assert (
-        module_node.metadata
-        and module_node.metadata.get("package") == "com.example.foo"
-    )
-
     call_records = {
         record.qualified_name: set(record.callee_identifiers)
         for record in result.call_records
@@ -270,13 +264,6 @@ def test_java_analyzer_resolves_static_member_and_wildcard_imports(tmp_path):
         and edge.src_qualified_name == f"{app_module_name}.App.handle"
     }
     assert service_module_name in callable_import_targets
-
-    module_node = next(node for node in app_result.nodes if node.node_type == "module")
-    diagnostics = (module_node.metadata or {}).get("resolution_diagnostics")
-    assert isinstance(diagnostics, dict)
-    assert diagnostics.get("member_aliases", 0) >= 1
-    assert diagnostics.get("static_wildcard_targets", 0) >= 1
-    assert isinstance(diagnostics.get("call_resolution_outcomes"), dict)
 
 
 def test_java_analyzer_emits_kind_metadata_for_class_like_and_methods(tmp_path):

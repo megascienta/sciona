@@ -50,9 +50,6 @@ class JavaAnalyzer(ASTAnalyzer):
     def analyze(self, snapshot: FileSnapshot, module_name: str) -> AnalysisResult:
         tree = self._parser.parse(snapshot.content)
         result = AnalysisResult()
-        module_metadata: dict[str, object] | None = (
-            {"status": "partial_parse"} if tree.root_node.has_error else None
-        )
         module_node = SemanticNodeRecord(
             language=self.language,
             node_type="module",
@@ -63,7 +60,6 @@ class JavaAnalyzer(ASTAnalyzer):
             end_line=count_lines(snapshot.content),
             start_byte=0,
             end_byte=len(snapshot.content),
-            metadata=module_metadata,
         )
         result.nodes.append(module_node)
 
@@ -71,12 +67,6 @@ class JavaAnalyzer(ASTAnalyzer):
             root = tree.root_node
             package_name = extract_package(root, snapshot.content)
             module_prefix = module_prefix_for_package(module_name, package_name)
-            if package_name:
-                if module_metadata is None:
-                    module_metadata = {"package": package_name}
-                else:
-                    module_metadata["package"] = package_name
-                module_node.metadata = module_metadata
 
             state = JavaNodeState()
             for child in find_direct_children_query(root, language_name=self.language):
@@ -125,9 +115,6 @@ class JavaAnalyzer(ASTAnalyzer):
                 pending_callables=set(pending_by_qualified),
                 call_targets_by_callable=call_targets_by_callable,
             )
-            total_call_targets = sum(len(targets) for targets in call_targets_by_callable.values())
-            resolved_call_targets = 0
-            outcome_diagnostics: dict[str, int] = {}
             for qualified, (node_type, body_node, class_name) in pending_by_qualified.items():
                 local_types = collect_local_var_types(body_node, snapshot)
                 instance_types = {}
@@ -149,11 +136,9 @@ class JavaAnalyzer(ASTAnalyzer):
                     instance_types,
                     module_prefix,
                     qualify_java_type,
-                    outcome_diagnostics=outcome_diagnostics,
                 )
                 if resolved:
                     resolved_calls.append((self.language, qualified, node_type, list(resolved)))
-                    resolved_call_targets += len(resolved)
                     emit_callable_import_edges(
                         language=self.language,
                         caller_qname=qualified,
@@ -185,24 +170,8 @@ class JavaAnalyzer(ASTAnalyzer):
                         edge_type="IMPORTS_DECLARED",
                     )
                 )
-            diagnostics = {
-                "imports_seen": import_model.imports_seen,
-                "imports_internal": len(set(imports)),
-                "import_aliases": len(import_aliases),
-                "member_aliases": len(member_aliases),
-                "static_wildcard_targets": len(static_wildcard_targets),
-                "call_targets": total_call_targets,
-                "resolved_call_targets": resolved_call_targets,
-                "unresolved_call_targets": max(0, total_call_targets - resolved_call_targets),
-                "call_resolution_outcomes": dict(sorted(outcome_diagnostics.items())),
-            }
-            metadata = dict(module_node.metadata or {})
-            metadata["resolution_diagnostics"] = diagnostics
-            module_node.metadata = metadata
         except Exception as exc:
-            metadata = dict(module_node.metadata or {})
-            metadata.update({"status": "partial_parse", "error": str(exc)})
-            module_node.metadata = metadata
+            module_node.metadata = {"status": "partial_parse", "error": str(exc)}
         return result
 
     def module_name(self, repo_root: Path, snapshot: FileSnapshot) -> str:

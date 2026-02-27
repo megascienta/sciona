@@ -103,7 +103,6 @@ def _emit_decorator_edges(
                     end_line=1,
                     start_byte=0,
                     end_byte=0,
-                    metadata={"synthetic": "decorator"},
                 )
             )
         result.edges.append(

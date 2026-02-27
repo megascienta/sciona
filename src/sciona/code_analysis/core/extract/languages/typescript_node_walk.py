@@ -98,7 +98,6 @@ def _emit_decorator_edges(
                     end_line=1,
                     start_byte=0,
                     end_byte=0,
-                    metadata={"synthetic": "decorator"},
                 )
             )
         result.edges.append(
@@ -324,8 +323,6 @@ def walk_typescript_nodes(
             return
         if name_node.type == "identifier":
             binding = node_text(name_node, snapshot.content)
-            if binding:
-                state.module_bindings.add(binding)
         if value_node.type in {"class", "class_expression"} and name_node.type == "identifier":
             class_name = snapshot.content[
                 name_node.start_byte : name_node.end_byte

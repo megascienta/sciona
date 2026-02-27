@@ -69,20 +69,6 @@ def helper():
     }
     assert f"{module_name}.inner" not in function_nodes
     assert f"{module_name}.inner" not in call_records
-    module_node = next(node for node in result.nodes if node.node_type == "module")
-    diagnostics = (module_node.metadata or {}).get("resolution_diagnostics")
-    assert isinstance(diagnostics, dict)
-    assert isinstance((module_node.metadata or {}).get("module_bindings"), list)
-    for key in (
-        "imports_internal",
-        "import_aliases",
-        "member_aliases",
-        "call_targets",
-        "resolved_call_targets",
-        "unresolved_call_targets",
-        "call_resolution_outcomes",
-    ):
-        assert key in diagnostics
 
 
 def test_python_analyzer_resolves_instance_assignments_per_callable_scope(tmp_path):
@@ -323,40 +309,6 @@ class Service:
     assert f"{module_name}.UserRepo.find" in call_records[f"{module_name}.Service.fetch"]
 
 
-def test_python_analyzer_records_module_bindings_metadata(tmp_path):
-    module = """
-FOO = 1
-BAR, BAZ = 2, 3
-"""
-    repo = tmp_path
-    pkg = repo / "pkg"
-    pkg.mkdir()
-    file_path = pkg / "mod.py"
-    file_path.write_text(module, encoding="utf-8")
-    record = FileRecord(
-        path=file_path,
-        relative_path=Path("pkg/mod.py"),
-        language="python",
-    )
-    snapshot = FileSnapshot(
-        record=record,
-        file_id="file",
-        blob_sha="hash",
-        size=len(module.encode("utf-8")),
-        line_count=module.count("\n"),
-        content=module.encode("utf-8"),
-    )
-    analyzer = PythonAnalyzer()
-    module_name = analyzer.module_name(repo, snapshot)
-    analyzer.module_index = {module_name}
-    result = analyzer.analyze(snapshot, module_name)
-    module_node = next(node for node in result.nodes if node.node_type == "module")
-    bindings = (module_node.metadata or {}).get("module_bindings") or []
-    assert "FOO" in bindings
-    assert "BAR" in bindings
-    assert "BAZ" in bindings
-
-
 def test_python_analyzer_emits_local_inheritance_edges(tmp_path):
     module = """
 class Base:
@@ -433,44 +385,3 @@ def helper():
     assert f"{module_name}.inner" not in call_records
     assert f"{module_name}.helper" in call_records[f"{module_name}.outer"]
 
-
-def test_python_analyzer_surfaces_ambiguous_call_candidates_in_metadata(tmp_path):
-    module = """
-class Left:
-    class Repo:
-        def run(self):
-            pass
-
-class Right:
-    class Repo:
-        def run(self):
-            pass
-
-def caller():
-    Repo.run()
-"""
-    repo = tmp_path
-    pkg = repo / "pkg"
-    pkg.mkdir()
-    file_path = pkg / "mod.py"
-    file_path.write_text(module, encoding="utf-8")
-    record = FileRecord(
-        path=file_path,
-        relative_path=Path("pkg/mod.py"),
-        language="python",
-    )
-    snapshot = FileSnapshot(
-        record=record,
-        file_id="file",
-        blob_sha="hash",
-        size=len(module.encode("utf-8")),
-        line_count=module.count("\n"),
-        content=module.encode("utf-8"),
-    )
-    analyzer = PythonAnalyzer()
-    module_name = analyzer.module_name(repo, snapshot)
-    analyzer.module_index = {module_name}
-    result = analyzer.analyze(snapshot, module_name)
-    module_node = next(node for node in result.nodes if node.node_type == "module")
-    ambiguous = (module_node.metadata or {}).get("ambiguous_call_candidates") or []
-    assert "run" in ambiguous

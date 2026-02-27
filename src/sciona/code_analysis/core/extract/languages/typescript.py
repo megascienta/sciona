@@ -44,9 +44,6 @@ class TypeScriptAnalyzer(ASTAnalyzer):
     def analyze(self, snapshot: FileSnapshot, module_name: str) -> AnalysisResult:
         tree = self._parser.parse(snapshot.content)
         result = AnalysisResult()
-        module_metadata = (
-            {"status": "partial_parse"} if tree.root_node.has_error else None
-        )
         module_node = SemanticNodeRecord(
             language=self.language,
             node_type="module",
@@ -57,7 +54,6 @@ class TypeScriptAnalyzer(ASTAnalyzer):
             end_line=count_lines(snapshot.content),
             start_byte=0,
             end_byte=len(snapshot.content),
-            metadata=module_metadata,
         )
         result.nodes.append(module_node)
 
@@ -115,12 +111,7 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                 pending_callables=set(pending_by_qualified),
                 call_targets_by_callable=call_targets_by_callable,
             )
-            total_call_targets = sum(len(targets) for targets in call_targets_by_callable.values())
-            resolved_call_targets = 0
-            outcome_diagnostics: dict[str, int] = {}
-            ambiguous_candidates: set[str] = set()
             for qualified, (node_type, class_name) in pending_by_qualified.items():
-                local_ambiguous: set[str] = set()
                 call_targets = call_targets_by_callable.get(qualified, ())
                 resolved = resolve_typescript_calls(
                     call_targets,
@@ -134,12 +125,8 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                     state.class_name_candidates,
                     state.instance_map,
                     state.class_instance_map,
-                    outcome_diagnostics=outcome_diagnostics,
-                    ambiguous_candidates=local_ambiguous,
                 )
-                ambiguous_candidates.update(local_ambiguous)
                 if resolved:
-                    resolved_call_targets += len(resolved)
                     result.call_records.append(
                         CallRecord(
                             qualified_name=qualified,
@@ -168,25 +155,8 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                         edge_type="IMPORTS_DECLARED",
                     )
                 )
-            diagnostics = {
-                "imports_seen": import_model.imports_seen,
-                "imports_internal": len(set(imports)),
-                "import_aliases": len(import_aliases),
-                "member_aliases": len(member_aliases),
-                "call_targets": total_call_targets,
-                "resolved_call_targets": resolved_call_targets,
-                "unresolved_call_targets": max(0, total_call_targets - resolved_call_targets),
-                "call_resolution_outcomes": dict(sorted(outcome_diagnostics.items())),
-            }
-            metadata = dict(module_node.metadata or {})
-            metadata["resolution_diagnostics"] = diagnostics
-            metadata["module_bindings"] = sorted(state.module_bindings)
-            metadata["ambiguous_call_candidates"] = sorted(ambiguous_candidates)
-            module_node.metadata = metadata
         except Exception as exc:
-            metadata = dict(module_node.metadata or {})
-            metadata.update({"status": "partial_parse", "error": str(exc)})
-            module_node.metadata = metadata
+            module_node.metadata = {"status": "partial_parse", "error": str(exc)}
         return result
 
     def module_name(self, repo_root: Path, snapshot: FileSnapshot) -> str:

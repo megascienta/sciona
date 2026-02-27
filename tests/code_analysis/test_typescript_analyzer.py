@@ -60,54 +60,6 @@ def test_typescript_analyzer_extracts_structure(tmp_path):
     helper_name = f"{module_name}.helper"
     assert outer_name in call_records
     assert helper_name in call_records[outer_name]
-    module_node = next(node for node in result.nodes if node.node_type == "module")
-    diagnostics = (module_node.metadata or {}).get("resolution_diagnostics")
-    assert isinstance(diagnostics, dict)
-    assert isinstance((module_node.metadata or {}).get("module_bindings"), list)
-    for key in (
-        "imports_internal",
-        "import_aliases",
-        "member_aliases",
-        "call_targets",
-        "resolved_call_targets",
-        "unresolved_call_targets",
-        "call_resolution_outcomes",
-    ):
-        assert key in diagnostics
-
-
-def test_typescript_analyzer_records_module_bindings_metadata(tmp_path):
-    module = """
-    export const handler = async () => 1;
-    const worker = new Worker();
-    class Worker {}
-    """
-    repo = tmp_path
-    src = repo / "src"
-    src.mkdir()
-    file_path = src / "mod.ts"
-    file_path.write_text(module, encoding="utf-8")
-    record = FileRecord(
-        path=file_path,
-        relative_path=Path("src/mod.ts"),
-        language="typescript",
-    )
-    snapshot = FileSnapshot(
-        record=record,
-        file_id="file",
-        blob_sha="hash",
-        size=len(module.encode("utf-8")),
-        line_count=module.count("\n"),
-        content=module.encode("utf-8"),
-    )
-    analyzer = TypeScriptAnalyzer()
-    module_name = analyzer.module_name(repo, snapshot)
-    analyzer.module_index = {module_name}
-    result = analyzer.analyze(snapshot, module_name)
-    module_node = next(node for node in result.nodes if node.node_type == "module")
-    bindings = (module_node.metadata or {}).get("module_bindings") or []
-    assert "handler" in bindings
-    assert "worker" in bindings
 
 
 
