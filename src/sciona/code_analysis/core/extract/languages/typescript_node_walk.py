@@ -7,6 +7,7 @@ from __future__ import annotations
 import re
 
 from ...normalize.model import EdgeRecord, FileSnapshot, SemanticNodeRecord
+from ..utils import find_direct_children_query
 from .typescript_node_state import TypeScriptNodeState
 from .typescript_node_text import (
     function_body_node,
@@ -126,7 +127,7 @@ def walk_typescript_nodes(
         state.class_stack.append(qualified)
         state.class_methods.setdefault(qualified, set())
         if body:
-            for child in body.named_children:
+            for child in find_direct_children_query(body, language_name="typescript"):
                 walk_typescript_nodes(
                     child,
                     language=language,
@@ -275,7 +276,7 @@ def walk_typescript_nodes(
             state.class_methods.setdefault(qualified, set())
             body = value_node.child_by_field_name("body")
             if body:
-                for child in body.named_children:
+                for child in find_direct_children_query(body, language_name="typescript"):
                     walk_typescript_nodes(
                         child,
                         language=language,
@@ -481,7 +482,7 @@ def walk_typescript_children(
         }
         else function_depth
     )
-    for child in getattr(node, "named_children", []):
+    for child in find_direct_children_query(node, language_name="typescript"):
         walk_typescript_nodes(
             child,
             language=language,

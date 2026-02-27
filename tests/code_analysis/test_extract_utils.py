@@ -6,6 +6,7 @@ from tree_sitter import Parser
 from sciona.code_analysis.core.extract.utils import (
     bootstrap_tree_sitter_parser,
     count_lines,
+    find_direct_children_query,
     find_nodes_of_types_query,
 )
 from sciona.code_analysis.core.extract import utils as extract_utils
@@ -66,6 +67,18 @@ def c():
         assert name_node is not None
         names.append(source[name_node.start_byte : name_node.end_byte].decode("utf-8"))
     assert names == ["a", "b", "c"]
+
+
+def test_find_direct_children_query_returns_direct_nodes_only() -> None:
+    source = b"""
+class A:
+    def run(self):
+        pass
+"""
+    root = _parser("python").parse(source).root_node
+    children = find_direct_children_query(root, language_name="python")
+    assert children
+    assert any(child.type == "class_definition" for child in children)
 
 
 def test_compile_query_source_fails_closed_when_query_api_unavailable(monkeypatch) -> None:
