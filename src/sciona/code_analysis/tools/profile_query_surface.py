@@ -21,7 +21,12 @@ PYTHON_PROFILE_PARAMETER_NODE_TYPES = (
 PYTHON_PROFILE_BASE_NODE_TYPES = ("identifier", "attribute")
 PYTHON_PROFILE_DECORATOR_NODE_TYPES = ("decorator",)
 
-TYPESCRIPT_PROFILE_FUNCTION_NODE_TYPES = ("function_declaration", "method_definition")
+TYPESCRIPT_PROFILE_FUNCTION_NODE_TYPES = (
+    "function_declaration",
+    "method_definition",
+    "method_signature",
+    "abstract_method_signature",
+)
 TYPESCRIPT_PROFILE_CLASS_NODE_TYPES = ("class_declaration",)
 TYPESCRIPT_PROFILE_PARAMETER_NODE_TYPES = (
     "required_parameter",

@@ -62,14 +62,18 @@ def _java_module_namer(repo_root: Path, snapshot: "FileSnapshot") -> str:
 
 
 CALLABLE_NODE_TYPES = frozenset({"function", "method"})
-TERMINAL_IDENTIFIER_TYPES = frozenset(
-    {
-        "identifier",
-        "property_identifier",
-        "shorthand_property_identifier",
-        "type_identifier",
-    }
-)
+TERMINAL_IDENTIFIER_TYPES_BY_LANGUAGE = {
+    "python": frozenset({"identifier"}),
+    "typescript": frozenset(
+        {
+            "identifier",
+            "property_identifier",
+            "shorthand_property_identifier",
+            "type_identifier",
+        }
+    ),
+    "java": frozenset({"identifier", "type_identifier"}),
+}
 
 LANGUAGE_CONFIG: dict[str, LanguageConfig] = {
     "python": LanguageConfig(

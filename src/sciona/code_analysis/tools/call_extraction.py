@@ -27,7 +27,7 @@ from .call_extraction_types import (
     ReceiverCallIR,
     TerminalCallIR,
 )
-from ..config import TERMINAL_IDENTIFIER_TYPES
+from ..config import TERMINAL_IDENTIFIER_TYPES_BY_LANGUAGE
 
 def collect_call_identifiers(
     node,
@@ -171,19 +171,12 @@ def _compile_call_query_for_types(language_name: str, call_node_types: tuple[str
 
 @lru_cache(maxsize=8)
 def _compile_terminal_identifier_query_for_language(language_name: str):
-    language = get_language(language_name)
-    supported_node_types: list[str] = []
-    for node_type in sorted(TERMINAL_IDENTIFIER_TYPES):
-        try:
-            language.query(f"({node_type}) @terminal")
-        except Exception:
-            continue
-        supported_node_types.append(node_type)
-    if not supported_node_types:
+    node_types = TERMINAL_IDENTIFIER_TYPES_BY_LANGUAGE.get(language_name)
+    if not node_types:
         raise RuntimeError(
-            f"Tree-sitter terminal identifier query types unavailable for language: {language_name}"
+            f"Terminal identifier query surface unavailable for language: {language_name}"
         )
-    source = "\n".join(f"({node_type}) @terminal" for node_type in supported_node_types)
+    source = "\n".join(f"({node_type}) @terminal" for node_type in sorted(node_types))
     return _compile_call_query(language_name, source)
 
 

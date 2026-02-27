@@ -165,8 +165,10 @@
           "decorator"
         ],
         "functions": [
+          "abstract_method_signature",
           "function_declaration",
-          "method_definition"
+          "method_definition",
+          "method_signature"
         ],
         "parameters": [
           "optional_parameter",

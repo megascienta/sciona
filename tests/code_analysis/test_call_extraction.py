@@ -139,3 +139,9 @@ def test_call_query_compilation_fails_closed_when_query_api_unavailable(monkeypa
     call_extraction._compile_call_query.cache_clear()
     with pytest.raises(RuntimeError, match="Tree-sitter query API unavailable"):
         call_extraction._compile_call_query("python", "(call) @call")
+
+
+def test_terminal_identifier_query_surface_unknown_language_fails_closed() -> None:
+    call_extraction._compile_terminal_identifier_query_for_language.cache_clear()
+    with pytest.raises(RuntimeError, match="Terminal identifier query surface unavailable"):
+        call_extraction._compile_terminal_identifier_query_for_language("go")
