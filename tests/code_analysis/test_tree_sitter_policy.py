@@ -31,10 +31,15 @@ def test_policy_no_tree_sitter_wrapper_module() -> None:
 
 
 @pytest.mark.parametrize("path", _python_files(), ids=lambda p: _rel(p))
-def test_policy_no_parser_factory_wrapper(path: Path) -> None:
+def test_policy_only_narrow_parser_bootstrap_helper(path: Path) -> None:
+    rel = _rel(path)
     text = path.read_text(encoding="utf-8")
     assert "def build_parser(" not in text
     assert "build_parser =" not in text
+    assert "def parser_factory(" not in text
+    assert "def make_parser(" not in text
+    if "def bootstrap_tree_sitter_parser(" in text:
+        assert rel == "core/extract/utils.py"
 
 
 @pytest.mark.parametrize("path", _python_files(), ids=lambda p: _rel(p))

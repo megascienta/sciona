@@ -9,6 +9,7 @@ Authoritative references:
 - Compliance: `docs/COMPLIANCE_CHECKLIST.md`
 - Capability parity matrix: `docs/CAPABILITY_MATRIX.md`
 - Generated capability manifest: `docs/CAPABILITY_MANIFEST.json`
+- Parser bootstrap policy: `docs/PARSER_BOOTSTRAP_POLICY.md`
 - Executable parity contract: `src/sciona/code_analysis/core/extract/languages/parity_contract.py`
 
 If this guide conflicts with those files, contract/compliance wins.
@@ -36,8 +37,11 @@ Out of scope:
 - No heuristic fallback traversal for structural extraction.
 - Unsupported query node types fail closed (partial parse metadata), not fallback.
 - Code-analysis profiling helpers are tree-sitter driven; non-tree-sitter parser fallbacks are disallowed.
-- Code-analysis parser setup uses direct `tree_sitter.Parser` +
-  `tree_sitter_languages.get_language`; parser wrapper/factory modules are disallowed.
+- Code-analysis parser setup is deterministic and uses
+  `tree_sitter.Parser` + `tree_sitter_languages.get_language`.
+- A narrow parser bootstrap helper is allowed only for parser construction,
+  language binding, and parser/grammar diagnostics.
+- Parser wrapper/factory modules that alter behavior are disallowed.
 
 ## Runtime Requirements
 
