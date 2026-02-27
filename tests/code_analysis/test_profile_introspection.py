@@ -11,6 +11,13 @@ from sciona.code_analysis.tools.profile_introspection import (
     typescript_class_extras,
     typescript_function_extras,
 )
+from sciona.code_analysis.tools.profile_query_surface import (
+    JAVA_PROFILE_PARAMETER_NODE_TYPES,
+)
+
+
+def test_java_profile_parameter_surface_excludes_spread_parameter() -> None:
+    assert "spread_parameter" not in JAVA_PROFILE_PARAMETER_NODE_TYPES
 
 
 def test_python_introspection_extras(tmp_path: Path) -> None:

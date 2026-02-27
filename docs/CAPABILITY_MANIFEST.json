@@ -105,8 +105,7 @@
           "method_declaration"
         ],
         "parameters": [
-          "formal_parameter",
-          "spread_parameter"
+          "formal_parameter"
         ]
       },
       "skip_calls": [
