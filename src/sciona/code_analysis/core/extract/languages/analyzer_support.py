@@ -6,11 +6,10 @@
 from __future__ import annotations
 
 from collections import defaultdict
-import re
 from typing import Callable, Sequence
 
 from ....tools.call_extraction import collect_call_targets
-from ...normalize.model import EdgeRecord, FileSnapshot, SemanticNodeRecord
+from ...normalize.model import EdgeRecord, FileSnapshot
 from .scope_resolver import ScopeResolver
 
 
@@ -150,60 +149,11 @@ def emit_callable_import_edges(
         )
 
 
-def emit_unresolved_call_edges(
-    *,
-    language: str,
-    module_name: str,
-    caller_qname: str,
-    caller_node_type: str,
-    unresolved_candidates: Sequence[str],
-    file_path,
-    result,
-) -> None:
-    if not unresolved_candidates:
-        return
-    existing = {
-        node.qualified_name for node in result.nodes if node.node_type == "unresolved_call_target"
-    }
-    for candidate in sorted({candidate.strip() for candidate in unresolved_candidates if candidate.strip()}):
-        token = re.sub(r"[^A-Za-z0-9_]+", "_", candidate).strip("_") or "candidate"
-        unresolved_qname = f"{module_name}.__unresolved__.{token}"
-        if unresolved_qname not in existing:
-            existing.add(unresolved_qname)
-            result.nodes.append(
-                SemanticNodeRecord(
-                    language=language,
-                    node_type="unresolved_call_target",
-                    qualified_name=unresolved_qname,
-                    display_name=candidate,
-                    file_path=file_path,
-                    start_line=1,
-                    end_line=1,
-                    start_byte=0,
-                    end_byte=0,
-                    metadata={"kind": "ambiguous_candidate"},
-                )
-            )
-        result.edges.append(
-            EdgeRecord(
-                src_language=language,
-                src_node_type=caller_node_type,
-                src_qualified_name=caller_qname,
-                dst_language=language,
-                dst_node_type="unresolved_call_target",
-                dst_qualified_name=unresolved_qname,
-                edge_type="UNRESOLVED_CALL",
-                confidence=0.5,
-            )
-        )
-
-
 __all__ = [
     "PendingCall",
     "assert_scope_resolver_parity",
     "collect_targets_by_callable",
     "emit_callable_import_edges",
-    "emit_unresolved_call_edges",
     "emit_local_inheritance_edges",
     "scope_resolver_from_pending_calls",
 ]

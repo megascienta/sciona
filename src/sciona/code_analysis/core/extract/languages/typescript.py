@@ -30,7 +30,6 @@ from .analyzer_support import (
     collect_targets_by_callable,
     emit_callable_import_edges,
     emit_local_inheritance_edges,
-    emit_unresolved_call_edges,
     scope_resolver_from_pending_calls,
 )
 
@@ -139,15 +138,6 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                     ambiguous_candidates=local_ambiguous,
                 )
                 ambiguous_candidates.update(local_ambiguous)
-                emit_unresolved_call_edges(
-                    language=self.language,
-                    module_name=module_name,
-                    caller_qname=qualified,
-                    caller_node_type=node_type,
-                    unresolved_candidates=sorted(local_ambiguous),
-                    file_path=snapshot.record.relative_path,
-                    result=result,
-                )
                 if resolved:
                     resolved_call_targets += len(resolved)
                     result.call_records.append(
