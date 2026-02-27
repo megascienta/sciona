@@ -13,6 +13,7 @@ from sciona.code_analysis.tools.call_extraction import (
     ReceiverCallIR,
     collect_call_targets,
 )
+from sciona.code_analysis.tools.call_extraction_targets import _normalize_callee_text
 
 
 def _parser(language_name: str) -> Parser:
@@ -101,6 +102,33 @@ class A {
     assert [(t.terminal, t.callee_text) for t in actual] == [
         (t.terminal, t.callee_text) for t in expected
     ]
+
+
+def test_collect_call_targets_typescript_new_expression_support() -> None:
+    parser = _parser("typescript")
+    source = b"const value = new pkg.Service();"
+    tree = parser.parse(source)
+    root = tree.root_node
+    targets = collect_call_targets(
+        root,
+        source,
+        call_node_types={"new_expression"},
+        skip_node_types=set(),
+        callee_field_names=("constructor", "function", "type"),
+        query_language="typescript",
+    )
+    assert targets
+    assert targets[0].terminal == "Service"
+    assert targets[0].callee_text == "pkg.Service"
+
+
+def test_normalize_callee_text_is_language_aware() -> None:
+    assert _normalize_callee_text("Foo::bar", language_name="python") == "Foo::bar"
+    assert _normalize_callee_text("Foo::bar", language_name="java") == "Foo.bar"
+    assert (
+        _normalize_callee_text("this.service?.doWork", language_name="typescript")
+        == "this.service.doWork"
+    )
 
 
 def test_call_query_compilation_fails_closed_when_query_api_unavailable(monkeypatch) -> None:

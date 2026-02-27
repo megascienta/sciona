@@ -146,7 +146,8 @@
     },
     "typescript": {
       "calls": [
-        "call_expression"
+        "call_expression",
+        "new_expression"
       ],
       "imports": [
         "export_statement",

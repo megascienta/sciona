@@ -17,6 +17,9 @@ STRUCTURAL_CALLABLE_NODE_TYPES = frozenset(
         # TypeScript
         "method_definition",
         "function_declaration",
+        "arrow_function",
+        "function",
+        "function_expression",
         # Java
         "method_declaration",
         "constructor_declaration",

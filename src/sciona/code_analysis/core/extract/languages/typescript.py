@@ -17,7 +17,7 @@ from ...normalize.model import (
 )
 from ..analyzer import ASTAnalyzer
 from ..utils import bootstrap_tree_sitter_parser, count_lines
-from .typescript_calls import resolve_typescript_calls
+from .typescript_calls import callee_text, resolve_typescript_calls
 from .typescript_imports import collect_typescript_import_model
 from .typescript_nodes import TypeScriptNodeState, walk_typescript_nodes
 from .query_surface import (
@@ -105,6 +105,8 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                 language=self.language,
                 call_node_types=set(TYPESCRIPT_CALL_NODE_TYPES),
                 skip_node_types=set(TYPESCRIPT_SKIP_CALL_NODE_TYPES),
+                callee_field_names=("function", "constructor", "type"),
+                callee_renderer=callee_text,
             )
             assert_scope_resolver_parity(
                 pending_callables=set(pending_by_qualified),

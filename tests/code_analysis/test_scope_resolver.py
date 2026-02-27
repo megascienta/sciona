@@ -54,3 +54,30 @@ def test_scope_resolver_returns_none_when_no_callable_ancestor() -> None:
     )[0]
     resolver = ScopeResolver(callable_qname_by_span={})
     assert resolver.enclosing_callable(class_node) is None
+
+
+def test_scope_resolver_typescript_arrow_callable_span_supported() -> None:
+    source = b"""
+class C {
+  run = () => {
+    helper();
+  };
+}
+"""
+    root = _parser("typescript").parse(source).root_node
+    arrow_node = find_nodes_of_types_query(
+        root,
+        language_name="typescript",
+        node_types=("arrow_function",),
+    )[0]
+    call_node = find_nodes_of_types_query(
+        root,
+        language_name="typescript",
+        node_types=("call_expression",),
+    )[0]
+    resolver = ScopeResolver(
+        callable_qname_by_span={
+            (arrow_node.start_byte, arrow_node.end_byte): "repo.mod.C.run"
+        }
+    )
+    assert resolver.enclosing_callable(call_node) == "repo.mod.C.run"

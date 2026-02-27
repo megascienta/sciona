@@ -25,13 +25,15 @@ def _callee_text(node, content: bytes) -> str | None:
     return content[node.start_byte : node.end_byte].decode("utf-8")
 
 
-def _normalize_callee_text(text: str | None) -> str | None:
+def _normalize_callee_text(text: str | None, *, language_name: str | None = None) -> str | None:
     if not text:
         return text
     normalized = text.strip()
-    normalized = normalized.replace("?.", ".")
-    normalized = normalized.replace("!.", ".")
-    normalized = normalized.replace("::", ".")
+    if language_name in {"typescript", "javascript"}:
+        normalized = normalized.replace("?.", ".")
+        normalized = normalized.replace("!.", ".")
+    if language_name == "java":
+        normalized = normalized.replace("::", ".")
     return normalized
 
 

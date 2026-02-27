@@ -209,7 +209,7 @@ def _call_target_from_call_node(
         callee_text = callee_renderer(call_node, callee, content)
     else:
         callee_text = _callee_text(callee, content)
-    normalized_callee = _normalize_callee_text(callee_text)
+    normalized_callee = _normalize_callee_text(callee_text, language_name=query_language)
     receiver, receiver_chain, callee_kind = _callee_shape(normalized_callee)
     ir = _call_target_ir(
         terminal,

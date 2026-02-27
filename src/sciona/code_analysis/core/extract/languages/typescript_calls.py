@@ -26,6 +26,27 @@ from .call_resolution_kernel import (
     validate_stage_order,
 )
 
+def node_text(node, content: bytes) -> str | None:
+    if node is None:
+        return None
+    text = getattr(node, "text", None)
+    if text:
+        return text.decode("utf-8")
+    return content[node.start_byte : node.end_byte].decode("utf-8")
+
+
+def callee_text(call_node, callee_node, content: bytes) -> str | None:
+    if call_node is None:
+        return node_text(callee_node, content)
+    if call_node.type == "new_expression":
+        constructor = (
+            call_node.child_by_field_name("constructor")
+            or call_node.child_by_field_name("type")
+            or call_node.child_by_field_name("function")
+        )
+        return node_text(constructor or callee_node, content)
+    return node_text(callee_node, content)
+
 
 def resolve_typescript_calls(
     targets: List[CallTarget],

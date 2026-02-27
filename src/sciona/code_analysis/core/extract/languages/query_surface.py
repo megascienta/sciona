@@ -18,7 +18,7 @@ JAVA_IMPORT_NODE_TYPES = ("import_declaration",)
 
 # Call query surfaces.
 PYTHON_CALL_NODE_TYPES = frozenset({"call"})
-TYPESCRIPT_CALL_NODE_TYPES = frozenset({"call_expression"})
+TYPESCRIPT_CALL_NODE_TYPES = frozenset({"call_expression", "new_expression"})
 JAVA_CALL_NODE_TYPES = frozenset(
     {"method_invocation", "object_creation_expression", "explicit_constructor_invocation"}
 )
