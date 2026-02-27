@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 from typing import List
 
 from ...normalize.model import EdgeRecord, FileSnapshot, SemanticNodeRecord
+from ..utils import find_nodes_of_types_query
 
 
 @dataclass
@@ -60,6 +61,33 @@ def _java_bases(node, content: bytes) -> list[str]:
             if value:
                 bases.append(value)
     return bases
+
+
+def _java_structural_children(node) -> list[object]:
+    structural = find_nodes_of_types_query(
+        node,
+        language_name="java",
+        node_types=(
+            "class_declaration",
+            "interface_declaration",
+            "enum_declaration",
+            "record_declaration",
+            "method_declaration",
+            "constructor_declaration",
+            "compact_constructor_declaration",
+            "field_declaration",
+        ),
+    )
+    node_key = (node.start_byte, node.end_byte, node.type)
+    selected: list[object] = []
+    for child in structural:
+        parent = getattr(child, "parent", None)
+        if parent is None:
+            continue
+        parent_key = (parent.start_byte, parent.end_byte, parent.type)
+        if parent_key == node_key:
+            selected.append(child)
+    return selected
 
 
 def walk_java_nodes(
@@ -147,7 +175,7 @@ def walk_java_nodes(
         state.class_name_candidates.setdefault(class_name, set()).add(qualified)
         state.class_kind_map[qualified] = class_kind_map.get(node.type, "class")
         if body:
-            for child in body.named_children:
+            for child in _java_structural_children(body):
                 walk_java_nodes(
                     child,
                     language=language,
@@ -227,7 +255,7 @@ def walk_java_nodes(
             state.class_field_types.setdefault(class_name, {})[name] = type_text
         return
 
-    for child in getattr(node, "named_children", []):
+    for child in _java_structural_children(node):
         walk_java_nodes(
             child,
             language=language,

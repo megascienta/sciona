@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 from typing import List
 
 from ...normalize.model import EdgeRecord, FileSnapshot, SemanticNodeRecord
+from ..utils import find_nodes_of_types_query
 
 
 @dataclass
@@ -77,6 +78,30 @@ def _collect_assignment_targets(node, content: bytes) -> list[str]:
         for child in getattr(current, "named_children", []):
             stack.append(child)
     return targets
+
+
+def _python_structural_children(node) -> list[object]:
+    structural = find_nodes_of_types_query(
+        node,
+        language_name="python",
+        node_types=(
+            "decorated_definition",
+            "class_definition",
+            "function_definition",
+            "assignment",
+            "augmented_assignment",
+        ),
+    )
+    node_key = (node.start_byte, node.end_byte, node.type)
+    selected: list[object] = []
+    for child in structural:
+        parent = getattr(child, "parent", None)
+        if parent is None:
+            continue
+        parent_key = (parent.start_byte, parent.end_byte, parent.type)
+        if parent_key == node_key:
+            selected.append(child)
+    return selected
 
 
 def walk_python_nodes(
@@ -181,7 +206,7 @@ def walk_python_nodes(
         if body is not None:
             state.class_body_map[qualified] = body
         if body:
-            for child in body.named_children:
+            for child in _python_structural_children(body):
                 walk_python_nodes(
                     child,
                     language=language,
@@ -262,7 +287,7 @@ def walk_python_nodes(
         )
         return
 
-    for child in getattr(node, "named_children", []):
+    for child in _python_structural_children(node):
         walk_python_nodes(
             child,
             language=language,
