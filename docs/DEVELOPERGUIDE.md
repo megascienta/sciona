@@ -96,7 +96,7 @@ Calls:
 - Resolution uses deterministic shared kernel path.
 - Final materialization is contract-gated via strict call candidate selection.
 - Only accepted in-repo callable targets become `CALLS` edges.
-- Ambiguous provisional candidates are surfaced in module diagnostics metadata.
+- Ambiguous provisional candidates are dropped at materialization time.
 
 Imports:
 
@@ -119,7 +119,7 @@ Python:
 TypeScript:
 
 - Imports: `import_statement`, `export_statement`, `lexical_declaration` require-assignment patterns
-- Calls: `call_expression`
+- Calls: `call_expression`, `new_expression`
 - Note: `import ... = require(...)` is covered through `import_statement` / `import_require_clause` in the current grammar; there is no standalone `import_equals_declaration` node in this build.
 
 Java:

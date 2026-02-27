@@ -26,11 +26,9 @@ Legend:
 | Call-site extraction query-driven | yes | yes | yes | Query API required |
 | Call attribution to enclosing callable | yes | yes | yes | Scope resolver parity assertions |
 | Shared call-resolution stage contract | yes | yes | yes | Enforced via kernel stage-order validator |
-| Call-resolution outcome telemetry | yes | yes | yes | Outcome provenance summary in diagnostics |
 | Strict call-gate materialization | yes | yes | yes | `strict_call_contract` in assembler |
 | Deterministic edge ordering | yes | yes | yes | Contract + tests |
 | Partial-parse fail-closed metadata | yes | yes | yes | No heuristic traversal fallback |
-| Analyzer resolution diagnostics schema | yes | yes | yes | Shared metadata keys across language analyzers |
 | Walker construct capability declarations | yes | yes | yes | Explicit language construct->structural emission map |
 | Profile function extras via tree-sitter | yes | yes | yes | Python/TS/Java profile reducers |
 | Profile class extras via tree-sitter | yes | yes | yes | Python/TS/Java profile reducers |
