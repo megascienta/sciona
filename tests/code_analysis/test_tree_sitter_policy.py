@@ -30,6 +30,21 @@ def test_policy_no_tree_sitter_wrapper_module() -> None:
     assert not (_CODE_ANALYSIS_ROOT / "tools" / "tree_sitter.py").exists()
 
 
+def test_policy_profile_introspection_uses_bootstrap_helper() -> None:
+    tools_root = _CODE_ANALYSIS_ROOT / "tools"
+    paths = (
+        tools_root / "profile_introspection_python.py",
+        tools_root / "profile_introspection_typescript.py",
+        tools_root / "profile_introspection_java.py",
+    )
+    for path in paths:
+        text = path.read_text(encoding="utf-8")
+        assert "bootstrap_tree_sitter_parser(" in text
+        assert "Parser()" not in text
+        assert "get_language(" not in text
+        assert ".set_language(" not in text
+
+
 @pytest.mark.parametrize("path", _python_files(), ids=lambda p: _rel(p))
 def test_policy_only_narrow_parser_bootstrap_helper(path: Path) -> None:
     rel = _rel(path)

@@ -9,9 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-from tree_sitter import Parser
-from tree_sitter_languages import get_language
-
+from ..core.extract.utils import bootstrap_tree_sitter_parser
 from .profile_introspection_cache import _java_inspector_cached
 from .profile_query import find_profile_nodes_of_types
 from .profile_query_surface import (
@@ -40,12 +38,9 @@ class _JavaInspector:
 
     def __init__(self, source: str) -> None:
         if _JavaInspector._PARSER is None:
-            _JavaInspector._PARSER = Parser()
-            language = get_language("java")
-            if hasattr(_JavaInspector._PARSER, "set_language"):
-                _JavaInspector._PARSER.set_language(language)
-            else:
-                _JavaInspector._PARSER.language = language
+            _JavaInspector._PARSER, _language, _diagnostics = bootstrap_tree_sitter_parser(
+                "java"
+            )
         assert _JavaInspector._PARSER is not None
         self._source = source.encode("utf-8")
         tree = _JavaInspector._PARSER.parse(self._source)

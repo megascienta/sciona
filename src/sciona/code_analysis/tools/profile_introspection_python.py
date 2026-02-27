@@ -9,9 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-from tree_sitter import Parser
-from tree_sitter_languages import get_language
-
+from ..core.extract.utils import bootstrap_tree_sitter_parser
 from .profile_query import find_profile_nodes_of_types
 from .profile_query_surface import (
     PYTHON_PROFILE_BASE_NODE_TYPES,
@@ -35,12 +33,9 @@ class _PythonInspector:
 
     def __init__(self, source: str) -> None:
         if _PythonInspector._PARSER is None:
-            _PythonInspector._PARSER = Parser()
-            language = get_language("python")
-            if hasattr(_PythonInspector._PARSER, "set_language"):
-                _PythonInspector._PARSER.set_language(language)
-            else:
-                _PythonInspector._PARSER.language = language
+            _PythonInspector._PARSER, _language, _diagnostics = bootstrap_tree_sitter_parser(
+                "python"
+            )
         assert _PythonInspector._PARSER is not None
         self._source = source.encode("utf-8")
         self._tree = _PythonInspector._PARSER.parse(self._source)
