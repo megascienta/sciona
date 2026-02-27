@@ -225,6 +225,18 @@ async def handler():
     handler_node = next(node for node in result.nodes if node.qualified_name == f"{module_name}.handler")
     assert (handler_node.metadata or {}).get("kind") == "async_function"
     assert (handler_node.metadata or {}).get("decorators") == ["@deco"]
+    decorator_node = next(
+        node for node in result.nodes if node.qualified_name == f"{module_name}.__decorator__.deco"
+    )
+    assert decorator_node.node_type == "decorator"
+    decorator_edges = [
+        edge
+        for edge in result.edges
+        if edge.edge_type == "DECORATED_BY"
+        and edge.src_qualified_name == f"{module_name}.handler"
+        and edge.dst_qualified_name == decorator_node.qualified_name
+    ]
+    assert decorator_edges
 
 
 def test_python_analyzer_resolves_typed_constructor_param_alias_for_self_field(tmp_path):

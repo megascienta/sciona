@@ -273,6 +273,55 @@ def test_typescript_analyzer_collects_import_equals_declaration(tmp_path):
     assert utils_module in import_targets
 
 
+def test_typescript_analyzer_emits_decorator_edges(tmp_path):
+    module = """
+    function sealed(target: object) { return target; }
+    function logged(target: object, key: string, descriptor: PropertyDescriptor) { return descriptor; }
+    @sealed
+    export class Service {
+      @logged
+      run() {}
+    }
+    """
+    repo = tmp_path
+    src = repo / "src"
+    src.mkdir()
+    file_path = src / "mod.ts"
+    file_path.write_text(module, encoding="utf-8")
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("src/mod.ts"),
+            language="typescript",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = TypeScriptAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+    decorator_nodes = {node.qualified_name for node in result.nodes if node.node_type == "decorator"}
+    assert f"{module_name}.__decorator__.sealed" in decorator_nodes
+    assert f"{module_name}.__decorator__.logged" in decorator_nodes
+    decorated_edges = {
+        (edge.src_qualified_name, edge.dst_qualified_name)
+        for edge in result.edges
+        if edge.edge_type == "DECORATED_BY"
+    }
+    assert (
+        f"{module_name}.Service",
+        f"{module_name}.__decorator__.sealed",
+    ) in decorated_edges
+    assert (
+        f"{module_name}.Service.run",
+        f"{module_name}.__decorator__.logged",
+    ) in decorated_edges
+
+
 def test_typescript_analyzer_resolves_this_field_constructor_assignments(tmp_path):
     module = """
     class Service {

@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+import re
 from typing import List
 
 from ...normalize.model import EdgeRecord, FileSnapshot, SemanticNodeRecord
@@ -36,6 +37,11 @@ def _java_annotations(node, content: bytes) -> list[str]:
     annotations: list[str] = []
     modifiers = node.child_by_field_name("modifiers")
     if modifiers is None:
+        for child in getattr(node, "named_children", []):
+            if child.type == "modifiers":
+                modifiers = child
+                break
+    if modifiers is None:
         return annotations
     for child in getattr(modifiers, "named_children", []):
         if child.type not in {"annotation", "marker_annotation"}:
@@ -61,6 +67,55 @@ def _java_bases(node, content: bytes) -> list[str]:
             if value:
                 bases.append(value)
     return bases
+
+
+def _decorator_qname(module_name: str, annotation_text: str) -> str:
+    token = re.sub(r"[^A-Za-z0-9_]+", "_", annotation_text).strip("_") or "decorator"
+    return f"{module_name}.__decorator__.{token}"
+
+
+def _emit_decorator_edges(
+    *,
+    language: str,
+    snapshot: FileSnapshot,
+    module_name: str,
+    result,
+    owner_qname: str,
+    owner_type: str,
+    decorators: list[str],
+) -> None:
+    if not decorators:
+        return
+    existing = {node.qualified_name for node in result.nodes if node.node_type == "decorator"}
+    for decorator in decorators:
+        decorator_qname = _decorator_qname(module_name, decorator)
+        if decorator_qname not in existing:
+            existing.add(decorator_qname)
+            result.nodes.append(
+                SemanticNodeRecord(
+                    language=language,
+                    node_type="decorator",
+                    qualified_name=decorator_qname,
+                    display_name=decorator,
+                    file_path=snapshot.record.relative_path,
+                    start_line=1,
+                    end_line=1,
+                    start_byte=0,
+                    end_byte=0,
+                    metadata={"synthetic": "decorator"},
+                )
+            )
+        result.edges.append(
+            EdgeRecord(
+                src_language=language,
+                src_node_type=owner_type,
+                src_qualified_name=owner_qname,
+                dst_language=language,
+                dst_node_type="decorator",
+                dst_qualified_name=decorator_qname,
+                edge_type="DECORATED_BY",
+            )
+        )
 
 
 def _java_structural_children(node) -> list[object]:
@@ -144,6 +199,15 @@ def walk_java_nodes(
                     "annotations": _java_annotations(node, snapshot.content),
                 },
             )
+        )
+        _emit_decorator_edges(
+            language=language,
+            snapshot=snapshot,
+            module_name=module_name,
+            result=result,
+            owner_qname=qualified,
+            owner_type="class",
+            decorators=_java_annotations(node, snapshot.content),
         )
         result.edges.append(
             EdgeRecord(
@@ -230,6 +294,15 @@ def walk_java_nodes(
                     "annotations": _java_annotations(node, snapshot.content),
                 },
             )
+        )
+        _emit_decorator_edges(
+            language=language,
+            snapshot=snapshot,
+            module_name=module_name,
+            result=result,
+            owner_qname=qualified,
+            owner_type="method",
+            decorators=_java_annotations(node, snapshot.content),
         )
         result.edges.append(
             EdgeRecord(

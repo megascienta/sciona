@@ -19,6 +19,25 @@ from .typescript_node_text import (
 
 
 def _decorator_names(node, content: bytes) -> list[str]:
+    parent = getattr(node, "parent", None)
+    if parent is None:
+        return []
+    siblings = list(getattr(parent, "named_children", []))
+    decorators: list[str] = []
+    node_key = (node.start_byte, node.end_byte, node.type)
+    for index, child in enumerate(siblings):
+        child_key = (child.start_byte, child.end_byte, child.type)
+        if child_key != node_key:
+            continue
+        for candidate in reversed(siblings[:index]):
+            if candidate.type != "decorator":
+                break
+            text = node_text(candidate, content)
+            if text:
+                decorators.append(text)
+        decorators.reverse()
+        return decorators
+    # Fallback for nodes where decorators are direct children.
     decorators: list[str] = []
     for child in getattr(node, "named_children", []):
         if child.type != "decorator":
@@ -44,6 +63,55 @@ def _typescript_bases(node, content: bytes) -> list[str]:
         if match:
             bases.append(match.group(1))
     return bases
+
+
+def _decorator_qname(module_name: str, decorator_text: str) -> str:
+    token = re.sub(r"[^A-Za-z0-9_]+", "_", decorator_text).strip("_") or "decorator"
+    return f"{module_name}.__decorator__.{token}"
+
+
+def _emit_decorator_edges(
+    *,
+    language: str,
+    snapshot: FileSnapshot,
+    module_name: str,
+    result,
+    owner_qname: str,
+    owner_type: str,
+    decorators: list[str],
+) -> None:
+    if not decorators:
+        return
+    existing = {node.qualified_name for node in result.nodes if node.node_type == "decorator"}
+    for decorator in decorators:
+        decorator_qname = _decorator_qname(module_name, decorator)
+        if decorator_qname not in existing:
+            existing.add(decorator_qname)
+            result.nodes.append(
+                SemanticNodeRecord(
+                    language=language,
+                    node_type="decorator",
+                    qualified_name=decorator_qname,
+                    display_name=decorator,
+                    file_path=snapshot.record.relative_path,
+                    start_line=1,
+                    end_line=1,
+                    start_byte=0,
+                    end_byte=0,
+                    metadata={"synthetic": "decorator"},
+                )
+            )
+        result.edges.append(
+            EdgeRecord(
+                src_language=language,
+                src_node_type=owner_type,
+                src_qualified_name=owner_qname,
+                dst_language=language,
+                dst_node_type="decorator",
+                dst_qualified_name=decorator_qname,
+                edge_type="DECORATED_BY",
+            )
+        )
 
 
 def walk_typescript_nodes(
@@ -97,6 +165,15 @@ def walk_typescript_nodes(
                     "decorators": _decorator_names(node, snapshot.content),
                 },
             )
+        )
+        _emit_decorator_edges(
+            language=language,
+            snapshot=snapshot,
+            module_name=module_name,
+            result=result,
+            owner_qname=qualified,
+            owner_type="class",
+            decorators=_decorator_names(node, snapshot.content),
         )
         state.class_name_map.setdefault(class_name, qualified)
         state.class_name_candidates.setdefault(class_name, set()).add(qualified)
@@ -193,6 +270,15 @@ def walk_typescript_nodes(
                     }
                 ),
             )
+        )
+        _emit_decorator_edges(
+            language=language,
+            snapshot=snapshot,
+            module_name=module_name,
+            result=result,
+            owner_qname=qualified,
+            owner_type=node_type,
+            decorators=_decorator_names(node, snapshot.content),
         )
         result.edges.append(
             EdgeRecord(
