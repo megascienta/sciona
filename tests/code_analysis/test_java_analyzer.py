@@ -368,37 +368,6 @@ def test_java_analyzer_resolves_constructor_new_assignment_on_this_field(tmp_pat
     assert f"{module_name}.Service.run" in handle_calls
 
 
-def test_java_analyzer_emits_static_field_variable_nodes(tmp_path):
-    module = """
-    class Constants {
-        static String NAME = "x";
-        int nonStatic = 1;
-    }
-    """
-    repo = tmp_path
-    src = repo / "src"
-    src.mkdir()
-    file_path = src / "Constants.java"
-    file_path.write_text(module, encoding="utf-8")
-    snapshot = FileSnapshot(
-        record=FileRecord(
-            path=file_path,
-            relative_path=Path("src/Constants.java"),
-            language="java",
-        ),
-        file_id="file",
-        blob_sha="hash",
-        size=len(module.encode("utf-8")),
-        line_count=module.count("\n"),
-        content=module.encode("utf-8"),
-    )
-    analyzer = JavaAnalyzer()
-    module_name = analyzer.module_name(repo, snapshot)
-    analyzer.module_index = {module_name}
-    result = analyzer.analyze(snapshot, module_name)
-    variable_nodes = {node.qualified_name for node in result.nodes if node.node_type == "variable"}
-    assert f"{module_name}.Constants.NAME" in variable_nodes
-    assert f"{module_name}.Constants.nonStatic" not in variable_nodes
 
 
 def test_java_analyzer_emits_local_implements_edges(tmp_path):

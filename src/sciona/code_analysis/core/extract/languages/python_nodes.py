@@ -22,7 +22,6 @@ class PythonNodeState:
     class_name_map: dict[str, str] = field(default_factory=dict)
     class_name_candidates: dict[str, set[str]] = field(default_factory=dict)
     module_bindings: set[str] = field(default_factory=set)
-    module_variable_nodes: set[str] = field(default_factory=set)
     class_body_map: dict[str, object] = field(default_factory=dict)
     pending_calls: list[tuple[str, str, object | None, str | None]] = field(
         default_factory=list
@@ -132,48 +131,6 @@ def _emit_decorator_edges(
         )
 
 
-def _emit_module_binding_node(
-    *,
-    language: str,
-    snapshot: FileSnapshot,
-    module_name: str,
-    result,
-    state: PythonNodeState,
-    binding: str,
-) -> None:
-    if not binding:
-        return
-    qualified = f"{module_name}.{binding}"
-    if qualified in state.module_variable_nodes:
-        return
-    state.module_variable_nodes.add(qualified)
-    result.nodes.append(
-        SemanticNodeRecord(
-            language=language,
-            node_type="variable",
-            qualified_name=qualified,
-            display_name=binding,
-            file_path=snapshot.record.relative_path,
-            start_line=1,
-            end_line=1,
-            start_byte=0,
-            end_byte=0,
-            metadata={"kind": "module_binding"},
-        )
-    )
-    result.edges.append(
-        EdgeRecord(
-            src_language=language,
-            src_node_type="module",
-            src_qualified_name=module_name,
-            dst_language=language,
-            dst_node_type="variable",
-            dst_qualified_name=qualified,
-            edge_type="CONTAINS",
-        )
-    )
-
-
 def _python_structural_children(node) -> list[object]:
     structural = find_nodes_of_types_query(
         node,
@@ -209,14 +166,6 @@ def walk_python_nodes(
     }:
         for binding in _collect_assignment_targets(node, snapshot.content):
             state.module_bindings.add(binding)
-            _emit_module_binding_node(
-                language=language,
-                snapshot=snapshot,
-                module_name=module_name,
-                result=result,
-                state=state,
-                binding=binding,
-            )
 
     if node.type == "decorated_definition":
         collected_decorators = _decorator_names(node, snapshot.content)

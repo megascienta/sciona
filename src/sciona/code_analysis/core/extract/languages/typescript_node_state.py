@@ -15,7 +15,6 @@ class TypeScriptNodeState:
     module_functions: set[str] = field(default_factory=set)
     class_methods: dict[str, set[str]] = field(default_factory=dict)
     module_bindings: set[str] = field(default_factory=set)
-    module_variable_nodes: set[str] = field(default_factory=set)
     class_name_map: dict[str, str] = field(default_factory=dict)
     class_name_candidates: dict[str, set[str]] = field(default_factory=dict)
     instance_map: dict[str, str] = field(default_factory=dict)

@@ -355,10 +355,6 @@ BAR, BAZ = 2, 3
     assert "FOO" in bindings
     assert "BAR" in bindings
     assert "BAZ" in bindings
-    variable_qnames = {node.qualified_name for node in result.nodes if node.node_type == "variable"}
-    assert f"{module_name}.FOO" in variable_qnames
-    assert f"{module_name}.BAR" in variable_qnames
-    assert f"{module_name}.BAZ" in variable_qnames
 
 
 def test_python_analyzer_emits_local_inheritance_edges(tmp_path):

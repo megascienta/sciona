@@ -23,7 +23,6 @@ class JavaNodeState:
     class_name_candidates: dict[str, set[str]] = field(default_factory=dict)
     class_kind_map: dict[str, str] = field(default_factory=dict)
     class_field_types: dict[str, dict[str, str]] = field(default_factory=dict)
-    static_field_nodes: set[str] = field(default_factory=set)
     pending_calls: list[tuple[str, str, object | None, str | None]] = field(
         default_factory=list
     )
@@ -118,61 +117,6 @@ def _emit_decorator_edges(
                 edge_type="DECORATED_BY",
             )
         )
-
-
-def _is_static_field(node, content: bytes) -> bool:
-    modifiers = node.child_by_field_name("modifiers")
-    if modifiers is None:
-        for child in getattr(node, "named_children", []):
-            if child.type == "modifiers":
-                modifiers = child
-                break
-    if modifiers is not None:
-        for child in getattr(modifiers, "named_children", []):
-            if child.type == "static":
-                return True
-    text = _node_text(node, content) or ""
-    return " static " in f" {text} "
-
-
-def _emit_static_field_node(
-    *,
-    language: str,
-    snapshot: FileSnapshot,
-    result,
-    state: JavaNodeState,
-    class_name: str,
-    field_name: str,
-) -> None:
-    qualified = f"{class_name}.{field_name}"
-    if qualified in state.static_field_nodes:
-        return
-    state.static_field_nodes.add(qualified)
-    result.nodes.append(
-        SemanticNodeRecord(
-            language=language,
-            node_type="variable",
-            qualified_name=qualified,
-            display_name=field_name,
-            file_path=snapshot.record.relative_path,
-            start_line=1,
-            end_line=1,
-            start_byte=0,
-            end_byte=0,
-            metadata={"kind": "static_field"},
-        )
-    )
-    result.edges.append(
-        EdgeRecord(
-            src_language=language,
-            src_node_type="class",
-            src_qualified_name=class_name,
-            dst_language=language,
-            dst_node_type="variable",
-            dst_qualified_name=qualified,
-            edge_type="CONTAINS",
-        )
-    )
 
 
 def _java_structural_children(node) -> list[object]:
@@ -372,18 +316,8 @@ def walk_java_nodes(
 
     if node.type == "field_declaration" and state.class_stack:
         class_name = state.class_stack[-1]
-        is_static = _is_static_field(node, snapshot.content)
         for name, type_text in collect_declared_vars(node, snapshot):
             state.class_field_types.setdefault(class_name, {})[name] = type_text
-            if is_static:
-                _emit_static_field_node(
-                    language=language,
-                    snapshot=snapshot,
-                    result=result,
-                    state=state,
-                    class_name=class_name,
-                    field_name=name,
-                )
         return
 
     for child in _java_structural_children(node):
