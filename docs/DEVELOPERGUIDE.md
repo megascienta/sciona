@@ -96,6 +96,7 @@ Calls:
 - Resolution uses deterministic shared kernel path.
 - Final materialization is contract-gated via strict call candidate selection.
 - Only accepted in-repo callable targets become `CALLS` edges.
+- Ambiguous provisional candidates are surfaced in module diagnostics metadata.
 
 Imports:
 
@@ -135,6 +136,12 @@ CoreDB (authoritative):
 - `structural_nodes`
 - `node_instances`
 - `edges`
+
+Optional enrichment semantics currently emitted:
+
+- `NESTS` for nested class containment disambiguation.
+- `EXTENDS` / `IMPLEMENTS` for local syntactic inheritance.
+- `CALLABLE_IMPORTS_DECLARED` for callable-level import dependency hints.
 
 ArtifactDB (derived):
 

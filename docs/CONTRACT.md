@@ -44,6 +44,13 @@ SCIONA MUST emit these edge types:
 - `IMPORTS_DECLARED` (module -> module)
 - `CALLS` (callable -> callable, in-repo only)
 
+Optional enrichment edges (MAY be emitted; not required for baseline compliance):
+
+- `NESTS` (class -> nested class, disambiguates nested containment)
+- `EXTENDS` (class-like -> class-like, local syntactic inheritance)
+- `IMPLEMENTS` (class/record -> interface, local syntactic implementation)
+- `CALLABLE_IMPORTS_DECLARED` (callable -> module, import usage derived from resolved calls)
+
 ## Edge Semantics
 
 `CONTAINS`:
@@ -108,6 +115,12 @@ Optional metadata:
 
 - Implementations MAY attach import metadata (for example `import_scope`).
 - Metadata MUST NOT alter structural edge types or contract semantics.
+- Implementations MAY attach structural enrichment metadata, including:
+  - class/method kind hints,
+  - local base/interface names,
+  - decorator/annotation names,
+  - module-level binding names,
+  - ambiguous call candidate diagnostics.
 
 ## Determinism
 

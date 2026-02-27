@@ -9,6 +9,8 @@ contract in `docs/CONTRACT.md`.
 - Emits core node types: `module`, `class`, `function`, `method`.
 - Optional synthetic nodes are allowed but excluded from language compliance.
 - Emits edge types: `CONTAINS`, `DEFINES_METHOD`, `IMPORTS_DECLARED`, `CALLS`.
+- Optional enrichment edges may be present:
+  `NESTS`, `EXTENDS`, `IMPLEMENTS`, `CALLABLE_IMPORTS_DECLARED`.
 - `module` MUST NOT contain `method` nodes.
 - Nested classes are represented with class -> class `CONTAINS`.
 - Constructors are represented as `method`.
@@ -20,6 +22,8 @@ contract in `docs/CONTRACT.md`.
 - Calls are attributed to nearest enclosing structural callable.
 - Nested non-structural callables are not emitted as structural nodes.
 - CALLS targets are in-repo callable IDs only.
+- Optional enrichment metadata may be present on nodes/modules
+  (for example kind/decorator/base/module-binding diagnostics).
 - Extraction is tree-sitter query/field driven.
 - Parser setup is deterministic and uses `tree_sitter.Parser` +
   `tree_sitter_languages.get_language`.
