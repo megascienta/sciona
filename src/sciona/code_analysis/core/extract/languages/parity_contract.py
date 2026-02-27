@@ -73,4 +73,10 @@ def build_parity_contract() -> dict[str, object]:
             "class_scoped_fallback",
             "module_scoped_fallback",
         ],
+        "documented_asymmetries": {
+            "java": {
+                "callable_types": ["method"],
+                "reason": "java has no module-level function declarations",
+            }
+        },
     }

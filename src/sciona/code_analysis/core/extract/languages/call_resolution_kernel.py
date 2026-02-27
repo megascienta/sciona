@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Callable, Protocol, Sequence
+from typing import Protocol, Sequence
 
 from ....tools.call_extraction import CallTargetIR
 
@@ -101,14 +101,6 @@ def materialize_outcomes(
     return materialized
 
 
-def resolve_with_mode(
-    *,
-    shared_resolver: Callable[[], list[str]],
-) -> list[str]:
-    """Resolve calls using the shared deterministic resolver path."""
-    return shared_resolver()
-
-
 def summarize_outcome_provenance(
     outcomes: Sequence[CallResolutionOutcome],
 ) -> dict[str, int]:
@@ -140,7 +132,6 @@ __all__ = [
     "STAGE_RECEIVER_TYPED",
     "materialize_outcomes",
     "resolve_with_adapter",
-    "resolve_with_mode",
     "summarize_outcome_provenance",
     "validate_stage_order",
 ]

@@ -21,7 +21,6 @@ from .call_resolution_kernel import (
     REQUIRED_RESOLUTION_STAGES,
     materialize_outcomes,
     resolve_with_adapter,
-    resolve_with_mode,
     summarize_outcome_provenance,
     validate_stage_order,
 )
@@ -67,9 +66,7 @@ def resolve_python_calls(
     if outcome_diagnostics is not None:
         for provenance, count in summarize_outcome_provenance(outcomes).items():
             outcome_diagnostics[provenance] = outcome_diagnostics.get(provenance, 0) + count
-    return resolve_with_mode(
-        shared_resolver=lambda: materialize_outcomes(outcomes),
-    )
+    return materialize_outcomes(outcomes)
 
 
 @dataclass(frozen=True)

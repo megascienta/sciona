@@ -52,6 +52,14 @@
         "typescript": "yes"
       }
     },
+    "documented_asymmetries": {
+      "java": {
+        "callable_types": [
+          "method"
+        ],
+        "reason": "java has no module-level function declarations"
+      }
+    },
     "languages": [
       "java",
       "python",
