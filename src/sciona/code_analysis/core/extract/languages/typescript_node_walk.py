@@ -114,6 +114,48 @@ def _emit_decorator_edges(
         )
 
 
+def _emit_module_binding_node(
+    *,
+    language: str,
+    snapshot: FileSnapshot,
+    module_name: str,
+    result,
+    state: TypeScriptNodeState,
+    binding: str,
+) -> None:
+    if not binding:
+        return
+    qualified = f"{module_name}.{binding}"
+    if qualified in state.module_variable_nodes:
+        return
+    state.module_variable_nodes.add(qualified)
+    result.nodes.append(
+        SemanticNodeRecord(
+            language=language,
+            node_type="variable",
+            qualified_name=qualified,
+            display_name=binding,
+            file_path=snapshot.record.relative_path,
+            start_line=1,
+            end_line=1,
+            start_byte=0,
+            end_byte=0,
+            metadata={"kind": "module_binding"},
+        )
+    )
+    result.edges.append(
+        EdgeRecord(
+            src_language=language,
+            src_node_type="module",
+            src_qualified_name=module_name,
+            dst_language=language,
+            dst_node_type="variable",
+            dst_qualified_name=qualified,
+            edge_type="CONTAINS",
+        )
+    )
+
+
 def walk_typescript_nodes(
     node,
     *,
@@ -326,6 +368,14 @@ def walk_typescript_nodes(
             binding = node_text(name_node, snapshot.content)
             if binding:
                 state.module_bindings.add(binding)
+                _emit_module_binding_node(
+                    language=language,
+                    snapshot=snapshot,
+                    module_name=module_name,
+                    result=result,
+                    state=state,
+                    binding=binding,
+                )
         if value_node.type in {"class", "class_expression"} and name_node.type == "identifier":
             class_name = snapshot.content[
                 name_node.start_byte : name_node.end_byte

@@ -108,6 +108,9 @@ def test_typescript_analyzer_records_module_bindings_metadata(tmp_path):
     bindings = (module_node.metadata or {}).get("module_bindings") or []
     assert "handler" in bindings
     assert "worker" in bindings
+    variable_qnames = {node.qualified_name for node in result.nodes if node.node_type == "variable"}
+    assert f"{module_name}.handler" in variable_qnames
+    assert f"{module_name}.worker" in variable_qnames
 
 
 
