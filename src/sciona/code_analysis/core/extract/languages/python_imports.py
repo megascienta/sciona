@@ -133,6 +133,10 @@ def extract_from_import_from_node(
     for child in getattr(node, "children", []):
         if child.type == "wildcard_import":
             names.append(("*", None))
+        elif child.type == "dotted_name":
+            name = content[child.start_byte : child.end_byte].decode("utf-8").strip()
+            if name:
+                names.append((name, None))
         elif child.type == "identifier":
             name = content[child.start_byte : child.end_byte].decode("utf-8").strip()
             if name not in {"from", "import"}:

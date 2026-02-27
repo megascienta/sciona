@@ -116,6 +116,48 @@ def other():
     assert service_run in call_records[f"{module_name}.other"]
 
 
+def test_python_analyzer_resolves_from_imported_member_calls(tmp_path):
+    helpers = """
+def helper():
+    return 1
+"""
+    module = """
+from .helpers import helper
+
+def top():
+    helper()
+"""
+    repo = tmp_path
+    pkg = repo / "pkg"
+    pkg.mkdir()
+    (pkg / "helpers.py").write_text(helpers, encoding="utf-8")
+    file_path = pkg / "mod.py"
+    file_path.write_text(module, encoding="utf-8")
+    record = FileRecord(
+        path=file_path,
+        relative_path=Path("pkg/mod.py"),
+        language="python",
+    )
+    snapshot = FileSnapshot(
+        record=record,
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = PythonAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    helper_module = f"{module_name.rsplit('.', 1)[0]}.helpers"
+    analyzer.module_index = {module_name, helper_module}
+    result = analyzer.analyze(snapshot, module_name)
+    call_records = {
+        record.qualified_name: set(record.callee_identifiers)
+        for record in result.call_records
+    }
+    assert f"{helper_module}.helper" in call_records[f"{module_name}.top"]
+
+
 def test_python_analyzer_resolves_self_field_constructor_assignments(tmp_path):
     module = """
 class Service:
@@ -384,4 +426,3 @@ def helper():
     }
     assert f"{module_name}.inner" not in call_records
     assert f"{module_name}.helper" in call_records[f"{module_name}.outer"]
-
