@@ -11,6 +11,7 @@ from typing import List
 
 from ...normalize.model import EdgeRecord, FileSnapshot, SemanticNodeRecord
 from ..utils import find_nodes_of_types_query
+from .query_surface import JAVA_STRUCTURAL_NODE_TYPES
 
 
 @dataclass
@@ -122,16 +123,7 @@ def _java_structural_children(node) -> list[object]:
     structural = find_nodes_of_types_query(
         node,
         language_name="java",
-        node_types=(
-            "class_declaration",
-            "interface_declaration",
-            "enum_declaration",
-            "record_declaration",
-            "method_declaration",
-            "constructor_declaration",
-            "compact_constructor_declaration",
-            "field_declaration",
-        ),
+        node_types=tuple(sorted(JAVA_STRUCTURAL_NODE_TYPES)),
     )
     node_key = (node.start_byte, node.end_byte, node.type)
     selected: list[object] = []

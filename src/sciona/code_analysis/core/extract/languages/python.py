@@ -16,7 +16,7 @@ from ...normalize.model import (
     SemanticNodeRecord,
 )
 from ..analyzer import ASTAnalyzer
-from ..utils import bootstrap_tree_sitter_parser, count_lines
+from ..utils import bootstrap_tree_sitter_parser, count_lines, find_direct_children_query
 from .python_calls import resolve_python_calls
 from .python_imports import collect_python_import_model
 from .python_nodes import PythonNodeState, walk_python_nodes
@@ -62,7 +62,7 @@ class PythonAnalyzer(ASTAnalyzer):
         try:
             root = tree.root_node
             state = PythonNodeState()
-            for child in root.children:
+            for child in find_direct_children_query(root, language_name=self.language):
                 walk_python_nodes(
                     child,
                     language=self.language,

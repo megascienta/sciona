@@ -16,7 +16,7 @@ from ...normalize.model import (
     SemanticNodeRecord,
 )
 from ..analyzer import ASTAnalyzer
-from ..utils import bootstrap_tree_sitter_parser, count_lines
+from ..utils import bootstrap_tree_sitter_parser, count_lines, find_direct_children_query
 from .java_calls import callee_text, resolve_java_calls
 from .java_imports import (
     collect_java_import_model,
@@ -79,7 +79,7 @@ class JavaAnalyzer(ASTAnalyzer):
                 module_node.metadata = module_metadata
 
             state = JavaNodeState()
-            for child in root.children:
+            for child in find_direct_children_query(root, language_name=self.language):
                 walk_java_nodes(
                     child,
                     language=self.language,

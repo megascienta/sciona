@@ -11,6 +11,7 @@ from typing import List
 
 from ...normalize.model import EdgeRecord, FileSnapshot, SemanticNodeRecord
 from ..utils import find_nodes_of_types_query
+from .query_surface import PYTHON_STRUCTURAL_NODE_TYPES
 
 
 @dataclass
@@ -134,13 +135,7 @@ def _python_structural_children(node) -> list[object]:
     structural = find_nodes_of_types_query(
         node,
         language_name="python",
-        node_types=(
-            "decorated_definition",
-            "class_definition",
-            "function_definition",
-            "assignment",
-            "augmented_assignment",
-        ),
+        node_types=tuple(sorted(PYTHON_STRUCTURAL_NODE_TYPES)),
     )
     node_key = (node.start_byte, node.end_byte, node.type)
     selected: list[object] = []

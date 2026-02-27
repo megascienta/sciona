@@ -16,7 +16,7 @@ from ...normalize.model import (
     SemanticNodeRecord,
 )
 from ..analyzer import ASTAnalyzer
-from ..utils import bootstrap_tree_sitter_parser, count_lines
+from ..utils import bootstrap_tree_sitter_parser, count_lines, find_direct_children_query
 from .typescript_calls import callee_text, resolve_typescript_calls
 from .typescript_imports import collect_typescript_import_model
 from .typescript_nodes import TypeScriptNodeState, walk_typescript_nodes
@@ -64,7 +64,7 @@ class TypeScriptAnalyzer(ASTAnalyzer):
         try:
             root = tree.root_node
             state = TypeScriptNodeState()
-            for child in root.children:
+            for child in find_direct_children_query(root, language_name=self.language):
                 walk_typescript_nodes(
                     child,
                     language=self.language,
