@@ -351,3 +351,42 @@ def test_java_analyzer_resolves_constructor_new_assignment_on_this_field(tmp_pat
     }
     handle_calls = call_records[f"{module_name}.Controller.handle"]
     assert f"{module_name}.Service.run" in handle_calls
+
+
+def test_java_analyzer_emits_local_implements_edges(tmp_path):
+    module = """
+    interface Repo {
+        void find();
+    }
+    class Service implements Repo {
+        public void find() {}
+    }
+    """
+    repo = tmp_path
+    src = repo / "src"
+    src.mkdir()
+    file_path = src / "App.java"
+    file_path.write_text(module, encoding="utf-8")
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("src/App.java"),
+            language="java",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = JavaAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+    edge_types = {
+        edge.edge_type
+        for edge in result.edges
+        if edge.src_qualified_name == f"{module_name}.Service"
+        and edge.dst_qualified_name == f"{module_name}.Repo"
+    }
+    assert "IMPLEMENTS" in edge_types

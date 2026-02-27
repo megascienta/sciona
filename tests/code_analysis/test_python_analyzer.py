@@ -343,3 +343,42 @@ BAR, BAZ = 2, 3
     assert "FOO" in bindings
     assert "BAR" in bindings
     assert "BAZ" in bindings
+
+
+def test_python_analyzer_emits_local_inheritance_edges(tmp_path):
+    module = """
+class Base:
+    pass
+
+class Child(Base):
+    pass
+"""
+    repo = tmp_path
+    pkg = repo / "pkg"
+    pkg.mkdir()
+    file_path = pkg / "mod.py"
+    file_path.write_text(module, encoding="utf-8")
+    record = FileRecord(
+        path=file_path,
+        relative_path=Path("pkg/mod.py"),
+        language="python",
+    )
+    snapshot = FileSnapshot(
+        record=record,
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = PythonAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+    edge_types = {
+        edge.edge_type
+        for edge in result.edges
+        if edge.src_qualified_name == f"{module_name}.Child"
+        and edge.dst_qualified_name == f"{module_name}.Base"
+    }
+    assert "EXTENDS" in edge_types

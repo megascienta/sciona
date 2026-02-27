@@ -26,6 +26,7 @@ from .python_resolution import collect_class_instance_map
 from .analyzer_support import (
     assert_scope_resolver_parity,
     collect_targets_by_callable,
+    emit_local_inheritance_edges,
     scope_resolver_from_pending_calls,
 )
 
@@ -69,6 +70,7 @@ class PythonAnalyzer(ASTAnalyzer):
                     result=result,
                     state=state,
                 )
+            emit_local_inheritance_edges(language=self.language, result=result)
             import_model = collect_python_import_model(
                 root,
                 snapshot,

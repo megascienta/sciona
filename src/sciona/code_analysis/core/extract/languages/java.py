@@ -34,6 +34,7 @@ from .query_surface import JAVA_CALL_NODE_TYPES, JAVA_SKIP_CALL_NODE_TYPES
 from .analyzer_support import (
     assert_scope_resolver_parity,
     collect_targets_by_callable,
+    emit_local_inheritance_edges,
     scope_resolver_from_pending_calls,
 )
 
@@ -89,6 +90,7 @@ class JavaAnalyzer(ASTAnalyzer):
                     collect_constructor_field_types=collect_constructor_field_types,
                 )
 
+            emit_local_inheritance_edges(language=self.language, result=result)
             import_model = collect_java_import_model(
                 root,
                 snapshot.content,

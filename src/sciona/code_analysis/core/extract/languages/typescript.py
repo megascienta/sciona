@@ -28,6 +28,7 @@ from .typescript_resolution import resolve_pending_instances
 from .analyzer_support import (
     assert_scope_resolver_parity,
     collect_targets_by_callable,
+    emit_local_inheritance_edges,
     scope_resolver_from_pending_calls,
 )
 
@@ -72,6 +73,7 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                     state=state,
                     function_depth=0,
                 )
+            emit_local_inheritance_edges(language=self.language, result=result)
             import_model = collect_typescript_import_model(
                 root,
                 snapshot,
