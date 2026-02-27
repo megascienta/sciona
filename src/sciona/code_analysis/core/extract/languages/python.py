@@ -28,6 +28,7 @@ from .analyzer_support import (
     collect_targets_by_callable,
     emit_callable_import_edges,
     emit_local_inheritance_edges,
+    emit_unresolved_call_edges,
     scope_resolver_from_pending_calls,
 )
 
@@ -123,6 +124,7 @@ class PythonAnalyzer(ASTAnalyzer):
             outcome_diagnostics: dict[str, int] = {}
             ambiguous_candidates: set[str] = set()
             for qualified, (node_type, body_node, class_name) in pending_by_qualified.items():
+                local_ambiguous: set[str] = set()
                 local_instance_map = dict(module_instance_map)
                 if class_name:
                     local_instance_map.update(class_instance_maps.get(class_name, {}))
@@ -149,7 +151,17 @@ class PythonAnalyzer(ASTAnalyzer):
                     local_instance_map,
                     state.class_name_candidates,
                     outcome_diagnostics=outcome_diagnostics,
-                    ambiguous_candidates=ambiguous_candidates,
+                    ambiguous_candidates=local_ambiguous,
+                )
+                ambiguous_candidates.update(local_ambiguous)
+                emit_unresolved_call_edges(
+                    language=self.language,
+                    module_name=module_name,
+                    caller_qname=qualified,
+                    caller_node_type=node_type,
+                    unresolved_candidates=sorted(local_ambiguous),
+                    file_path=snapshot.record.relative_path,
+                    result=result,
                 )
                 if resolved:
                     resolved_call_targets += len(resolved)

@@ -30,6 +30,7 @@ from .analyzer_support import (
     collect_targets_by_callable,
     emit_callable_import_edges,
     emit_local_inheritance_edges,
+    emit_unresolved_call_edges,
     scope_resolver_from_pending_calls,
 )
 
@@ -120,6 +121,7 @@ class TypeScriptAnalyzer(ASTAnalyzer):
             outcome_diagnostics: dict[str, int] = {}
             ambiguous_candidates: set[str] = set()
             for qualified, (node_type, class_name) in pending_by_qualified.items():
+                local_ambiguous: set[str] = set()
                 call_targets = call_targets_by_callable.get(qualified, ())
                 resolved = resolve_typescript_calls(
                     call_targets,
@@ -134,7 +136,17 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                     state.instance_map,
                     state.class_instance_map,
                     outcome_diagnostics=outcome_diagnostics,
-                    ambiguous_candidates=ambiguous_candidates,
+                    ambiguous_candidates=local_ambiguous,
+                )
+                ambiguous_candidates.update(local_ambiguous)
+                emit_unresolved_call_edges(
+                    language=self.language,
+                    module_name=module_name,
+                    caller_qname=qualified,
+                    caller_node_type=node_type,
+                    unresolved_candidates=sorted(local_ambiguous),
+                    file_path=snapshot.record.relative_path,
+                    result=result,
                 )
                 if resolved:
                     resolved_call_targets += len(resolved)

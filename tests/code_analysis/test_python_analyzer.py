@@ -478,3 +478,17 @@ def caller():
     module_node = next(node for node in result.nodes if node.node_type == "module")
     ambiguous = (module_node.metadata or {}).get("ambiguous_call_candidates") or []
     assert "run" in ambiguous
+    unresolved_nodes = {
+        node.qualified_name for node in result.nodes if node.node_type == "unresolved_call_target"
+    }
+    unresolved_qname = f"{module_name}.__unresolved__.run"
+    assert unresolved_qname in unresolved_nodes
+    unresolved_edges = [
+        edge
+        for edge in result.edges
+        if edge.edge_type == "UNRESOLVED_CALL"
+        and edge.src_qualified_name == f"{module_name}.caller"
+        and edge.dst_qualified_name == unresolved_qname
+    ]
+    assert unresolved_edges
+    assert unresolved_edges[0].confidence < 1.0
