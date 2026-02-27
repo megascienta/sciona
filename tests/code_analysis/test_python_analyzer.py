@@ -384,6 +384,44 @@ class Child(Base):
     assert "EXTENDS" in edge_types
 
 
+def test_python_nested_function_calls_are_attributed_to_outer_callable(tmp_path):
+    module = """
+def outer():
+    def inner():
+        helper()
+    inner()
+
+def helper():
+    pass
+"""
+    repo = tmp_path
+    pkg = repo / "pkg"
+    pkg.mkdir()
+    file_path = pkg / "mod.py"
+    file_path.write_text(module, encoding="utf-8")
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("pkg/mod.py"),
+            language="python",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = PythonAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+    call_records = {
+        rec.qualified_name: set(rec.callee_identifiers) for rec in result.call_records
+    }
+    assert f"{module_name}.inner" not in call_records
+    assert f"{module_name}.helper" in call_records[f"{module_name}.outer"]
+
+
 def test_python_analyzer_surfaces_ambiguous_call_candidates_in_metadata(tmp_path):
     module = """
 class Left:

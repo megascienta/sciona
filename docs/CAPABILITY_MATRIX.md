@@ -42,6 +42,9 @@ Legend:
 
 ## Declared Language-Specific Differences
 
+- Nested named/non-structural callables are intentionally not emitted as
+  structural nodes; calls inside them are attributed to nearest enclosing
+  structural callable (contract behavior, not a leakage defect).
 - TypeScript import parsing supports the grammar surface available via
   `import_statement`, `export_statement`, and require-style lexical declarations.
 - Java import parsing supports class aliases, static member aliases, and static wildcard owners.
