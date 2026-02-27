@@ -263,6 +263,13 @@ def test_java_analyzer_resolves_static_member_and_wildcard_imports(tmp_path):
     handle_calls = call_records[f"{app_module_name}.App.handle"]
     assert f"{service_module_name}.run" in handle_calls
     assert f"{service_module_name}.execute" in handle_calls
+    callable_import_targets = {
+        edge.dst_qualified_name
+        for edge in app_result.edges
+        if edge.edge_type == "CALLABLE_IMPORTS_DECLARED"
+        and edge.src_qualified_name == f"{app_module_name}.App.handle"
+    }
+    assert service_module_name in callable_import_targets
 
     module_node = next(node for node in app_result.nodes if node.node_type == "module")
     diagnostics = (module_node.metadata or {}).get("resolution_diagnostics")

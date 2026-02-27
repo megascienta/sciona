@@ -26,6 +26,7 @@ from .python_resolution import collect_class_instance_map
 from .analyzer_support import (
     assert_scope_resolver_parity,
     collect_targets_by_callable,
+    emit_callable_import_edges,
     emit_local_inheritance_edges,
     scope_resolver_from_pending_calls,
 )
@@ -120,6 +121,7 @@ class PythonAnalyzer(ASTAnalyzer):
             total_call_targets = sum(len(targets) for targets in call_targets_by_callable.values())
             resolved_call_targets = 0
             outcome_diagnostics: dict[str, int] = {}
+            ambiguous_candidates: set[str] = set()
             for qualified, (node_type, body_node, class_name) in pending_by_qualified.items():
                 local_instance_map = dict(module_instance_map)
                 if class_name:
@@ -147,6 +149,7 @@ class PythonAnalyzer(ASTAnalyzer):
                     local_instance_map,
                     state.class_name_candidates,
                     outcome_diagnostics=outcome_diagnostics,
+                    ambiguous_candidates=ambiguous_candidates,
                 )
                 if resolved:
                     resolved_call_targets += len(resolved)
@@ -156,6 +159,14 @@ class PythonAnalyzer(ASTAnalyzer):
                             node_type=node_type,
                             callee_identifiers=list(resolved),
                         )
+                    )
+                    emit_callable_import_edges(
+                        language=self.language,
+                        caller_qname=qualified,
+                        caller_node_type=node_type,
+                        resolved_identifiers=list(resolved),
+                        import_modules=set(imports),
+                        result=result,
                     )
 
             for module in sorted(set(imports)):
@@ -183,6 +194,7 @@ class PythonAnalyzer(ASTAnalyzer):
             metadata = dict(module_node.metadata or {})
             metadata["resolution_diagnostics"] = diagnostics
             metadata["module_bindings"] = sorted(state.module_bindings)
+            metadata["ambiguous_call_candidates"] = sorted(ambiguous_candidates)
             module_node.metadata = metadata
         except Exception as exc:
             metadata = dict(module_node.metadata or {})

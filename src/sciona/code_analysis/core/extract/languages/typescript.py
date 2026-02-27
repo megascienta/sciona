@@ -28,6 +28,7 @@ from .typescript_resolution import resolve_pending_instances
 from .analyzer_support import (
     assert_scope_resolver_parity,
     collect_targets_by_callable,
+    emit_callable_import_edges,
     emit_local_inheritance_edges,
     scope_resolver_from_pending_calls,
 )
@@ -117,6 +118,7 @@ class TypeScriptAnalyzer(ASTAnalyzer):
             total_call_targets = sum(len(targets) for targets in call_targets_by_callable.values())
             resolved_call_targets = 0
             outcome_diagnostics: dict[str, int] = {}
+            ambiguous_candidates: set[str] = set()
             for qualified, (node_type, class_name) in pending_by_qualified.items():
                 call_targets = call_targets_by_callable.get(qualified, ())
                 resolved = resolve_typescript_calls(
@@ -132,6 +134,7 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                     state.instance_map,
                     state.class_instance_map,
                     outcome_diagnostics=outcome_diagnostics,
+                    ambiguous_candidates=ambiguous_candidates,
                 )
                 if resolved:
                     resolved_call_targets += len(resolved)
@@ -141,6 +144,14 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                             node_type=node_type,
                             callee_identifiers=list(resolved),
                         )
+                    )
+                    emit_callable_import_edges(
+                        language=self.language,
+                        caller_qname=qualified,
+                        caller_node_type=node_type,
+                        resolved_identifiers=list(resolved),
+                        import_modules=set(imports),
+                        result=result,
                     )
 
             for module in sorted(set(imports)):
@@ -168,6 +179,7 @@ class TypeScriptAnalyzer(ASTAnalyzer):
             metadata = dict(module_node.metadata or {})
             metadata["resolution_diagnostics"] = diagnostics
             metadata["module_bindings"] = sorted(state.module_bindings)
+            metadata["ambiguous_call_candidates"] = sorted(ambiguous_candidates)
             module_node.metadata = metadata
         except Exception as exc:
             metadata = dict(module_node.metadata or {})

@@ -34,6 +34,7 @@ from .query_surface import JAVA_CALL_NODE_TYPES, JAVA_SKIP_CALL_NODE_TYPES
 from .analyzer_support import (
     assert_scope_resolver_parity,
     collect_targets_by_callable,
+    emit_callable_import_edges,
     emit_local_inheritance_edges,
     scope_resolver_from_pending_calls,
 )
@@ -153,6 +154,14 @@ class JavaAnalyzer(ASTAnalyzer):
                 if resolved:
                     resolved_calls.append((self.language, qualified, node_type, list(resolved)))
                     resolved_call_targets += len(resolved)
+                    emit_callable_import_edges(
+                        language=self.language,
+                        caller_qname=qualified,
+                        caller_node_type=node_type,
+                        resolved_identifiers=list(resolved),
+                        import_modules=set(imports),
+                        result=result,
+                    )
 
             if resolved_calls:
                 for _language, qualified, node_type, callee_identifiers in resolved_calls:

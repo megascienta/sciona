@@ -46,6 +46,7 @@ def resolve_python_calls(
     class_name_candidates: dict[str, set[str]],
     *,
     outcome_diagnostics: dict[str, int] | None = None,
+    ambiguous_candidates: set[str] | None = None,
 ) -> List[str]:
     class_method_names = class_methods.get(class_name, set()) if class_name else set()
     requests = _to_requests(targets)
@@ -63,6 +64,10 @@ def resolve_python_calls(
     validate_stage_order(adapter.stage_order)
 
     outcomes = resolve_with_adapter(requests, adapter)
+    if ambiguous_candidates is not None:
+        for outcome in outcomes:
+            if outcome.provenance == "ambiguous_candidate" and outcome.candidate_qname:
+                ambiguous_candidates.add(outcome.candidate_qname)
     if outcome_diagnostics is not None:
         for provenance, count in summarize_outcome_provenance(outcomes).items():
             outcome_diagnostics[provenance] = outcome_diagnostics.get(provenance, 0) + count
