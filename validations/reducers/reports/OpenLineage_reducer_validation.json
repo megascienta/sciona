@@ -5,7 +5,8 @@
     "sampled_nodes=500",
     "q1_reducer_vs_db_exact=True",
     "q2_reducer_vs_independent_overlap_macro=False",
-    "q3_avg_out_of_contract_percent=44.2518"
+    "q3_avg_non_static_percent=3.8929",
+    "unresolved_static_avg_percent=40.3589"
   ],
   "invariants": {
     "passed": false,
@@ -13,13 +14,15 @@
     "q1_reducer_vs_db_exact": true,
     "q2_reducer_vs_independent_overlap_macro": false,
     "q2_per_language_near_100": false,
-    "q3_descriptive_only": true
+    "q3_non_static_descriptive_only": true,
+    "unresolved_static_zero": false
   },
   "quality_gates": {
     "q2_target_mutual_accuracy_min": 0.99,
     "q2_target_missing_rate_max": 0.010000000000000009,
     "q2_target_spillover_rate_max": 0.010000000000000009,
-    "q2_filtering_source": "core_only"
+    "q2_filtering_source": "core_only",
+    "unresolved_static_target_zero": true
   },
   "per_node": [
     {
@@ -52,7 +55,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.website.argos.utils",
@@ -80,7 +84,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.website.src.pages.community",
@@ -112,7 +117,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.website.static.talks.talkStrings",
@@ -140,7 +146,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.website.src.pages.home",
@@ -172,7 +179,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.website.static.ecosystem.consumers",
@@ -200,7 +208,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.website.argos.screenshot.spec",
@@ -228,7 +237,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.website.src.components.ui",
@@ -260,7 +270,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.website.src.components.addevent",
@@ -288,7 +299,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.website.src.pages.ecosystem",
@@ -320,7 +332,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.website.static.meetups.meetupStrings",
@@ -348,7 +361,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.website.src.components.utils",
@@ -376,7 +390,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.website.src.components.footer",
@@ -404,7 +419,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.website.static.ecosystem.producers",
@@ -432,7 +448,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.website.argos.playwright.config",
@@ -460,7 +477,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.test_file",
@@ -488,7 +506,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.dev.filter_approvals",
@@ -516,7 +535,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.dev.get_contributor_stats",
@@ -544,7 +564,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.generator.header",
@@ -572,7 +593,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.tests.dbt.test_processor",
@@ -600,7 +622,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.test_datadog",
@@ -628,7 +651,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.dev.get_changes",
@@ -656,7 +680,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.jar_compare",
@@ -684,7 +709,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.schema",
@@ -712,7 +738,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.dataset",
@@ -740,7 +767,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.test_async_http",
@@ -768,7 +796,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.dev.filter_matrix",
@@ -796,7 +825,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.great_expectations.facets",
@@ -824,7 +854,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.kafka",
@@ -852,7 +883,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.test_client",
@@ -880,7 +912,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests",
@@ -908,7 +941,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.test_uuid",
@@ -936,7 +970,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.gcplineage",
@@ -964,7 +999,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.dbt.structured_logs",
@@ -992,7 +1028,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.dev.create_release_doc",
@@ -1020,7 +1057,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.resources.databricks_notebooks.wide_transformation",
@@ -1048,7 +1086,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.test_kafka",
@@ -1076,7 +1115,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.tests.dbt.structured_logs.test_structured_logs",
@@ -1104,7 +1144,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage..pre_commit.check-redactions",
@@ -1132,7 +1173,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.generated.storage_dataset",
@@ -1160,7 +1202,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.generator.base",
@@ -1188,7 +1231,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.dbt.processor",
@@ -1216,7 +1260,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.tests.redshift_data.test_redshift_data",
@@ -1244,7 +1289,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.test_http",
@@ -1272,7 +1318,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.composite",
@@ -1300,7 +1347,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.test_dataset",
@@ -1328,7 +1376,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.resources.spark_scripts.spark_create_table",
@@ -1356,7 +1405,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.test_jwt_token_provider",
@@ -1384,7 +1434,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.dbt.tests.integration.utils.test_server_client",
@@ -1412,7 +1463,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.transform.test_transform",
@@ -1440,7 +1492,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.filter",
@@ -1468,7 +1521,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.conftest",
@@ -1496,7 +1550,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.tests.dbt.test_dbt",
@@ -1524,7 +1579,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.generated.base",
@@ -1552,7 +1608,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.redshift_data",
@@ -1580,7 +1637,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.tests.dbt.test_dbt_local",
@@ -1608,7 +1666,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.amazon_datazone",
@@ -1636,7 +1695,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.dbt.tests.integration.test_integration",
@@ -1664,7 +1724,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.resources.spark_scripts.spark_cll",
@@ -1692,7 +1753,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.tests.bigquery.test_bigquery",
@@ -1720,7 +1782,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.generated.datasource_dataset",
@@ -1748,7 +1811,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.integration.test_server.test_server",
@@ -1776,7 +1840,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.dbt.cloud",
@@ -1804,7 +1869,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.async_http",
@@ -1832,7 +1898,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.resources.spark_scripts.spark_test_failures",
@@ -1860,7 +1927,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.test_gcplineage.TestGCPLineageTransportMethods.test_emit_sync_error",
@@ -1911,7 +1979,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 300.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 300.0
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.bigquery.BigQueryDatasetsProvider._get_table_safely",
@@ -1943,7 +2012,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.tests.test_datadog.TestDatadogTransportRouting.test_routing_event_with_empty_facets_to_http",
@@ -1990,7 +2060,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.great_expectations.action.OpenLineageValidationAction.results_facet",
@@ -2022,7 +2093,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.dev.create_release_doc.DocRelease.get_release",
@@ -2054,7 +2126,8 @@
         "spillover_rate": 1.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.tests.integration.test_server.test_server.Dataset.validate_not_empty",
@@ -2095,7 +2168,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.dbt.processor.DbtArtifactProcessor.extract_adapter_type",
@@ -2127,7 +2201,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.http.HttpTransport._auth_headers",
@@ -2166,7 +2241,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "OpenLineage.client.python.tests.test_gcplineage.TestGCPLineageTransportRouting.test_routing_custom_async_rules",
@@ -2217,7 +2293,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 300.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 300.0
     },
     {
       "entity": "OpenLineage.client.python.tests.test_async_http.TestAsyncHttpTransport.test_async_transport_mark_failed",
@@ -2268,7 +2345,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 300.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 300.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.http.JwtTokenProvider.get_bearer",
@@ -2300,7 +2378,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.naming.dataset.OceanBase.get_name",
@@ -2328,7 +2407,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.client.OpenLineageClient.update_event_tags_facets",
@@ -2367,7 +2447,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.facet.BaseFacet.__attrs_post_init__",
@@ -2406,7 +2487,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.facet.DataQualityAssertionsDatasetFacet._get_schema",
@@ -2441,7 +2523,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.jar_compare.JarComparator.compare",
@@ -2473,7 +2556,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.kafka.KafkaTransport.close",
@@ -2505,7 +2589,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.client.OpenLineageClient._run_tags",
@@ -2540,7 +2625,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.dbt.structured_logs.DbtStructuredLogsProcessor.parse",
@@ -2585,7 +2671,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 66.66666666666666
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 66.66666666666666
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.datadog.DatadogTransport.emit",
@@ -2617,7 +2704,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.redshift_data.RedshiftDataDatasetsProvider._get_output_statistics",
@@ -2652,7 +2740,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.dbt.tests.integration.utils.test_server_client.TestServerClient.wait_for_server",
@@ -2684,7 +2773,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.tests.test_file.MockFile.__exit__",
@@ -2716,7 +2806,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.dbt.local.DbtLocalArtifactProcessor.load_yaml",
@@ -2757,7 +2848,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.dbt.structured_logs.DbtStructuredLogsProcessor._get_attached_dataset",
@@ -2802,7 +2894,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 200.0
+      "q3_non_static_rate_percent": 100.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.http.HttpTransport.close",
@@ -2834,7 +2927,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.http.JwtTokenProvider.__init__",
@@ -2875,7 +2969,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.test_async_http.TestAsyncHttpTransport.test_async_transport_all_processed",
@@ -2926,7 +3021,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 300.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 300.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.amazon_datazone.AmazonDataZoneTransport.close",
@@ -2958,7 +3054,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.client.OpenLineageClient._get_config_file_content",
@@ -2999,7 +3096,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.test_async_http.TestAsyncHttpTransport.test_async_transport_add_pending_completion_event",
@@ -3038,7 +3136,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "OpenLineage.integration.common.tests.dbt.test_dbt_local.TestDbtMetadataExceptions.test_key_error",
@@ -3070,7 +3169,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.tests.test_datadog.TestDatadogTransportIntegration.test_datadog_transport_factory_registration",
@@ -3098,7 +3198,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.async_http.AsyncHttpTransport.close",
@@ -3130,7 +3231,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.transform.transform.TransformTransport.close",
@@ -3162,7 +3264,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.tests.test_jwt_token_provider.TestJwtTokenProvider.test_get_bearer_with_special_characters_in_api_key",
@@ -3203,7 +3306,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.redshift_data.RedshiftDataDatasetsProvider._get_dataset_from_tables",
@@ -3254,7 +3358,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 300.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 300.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.kafka.KafkaTransport.emit",
@@ -3293,7 +3398,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 25.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 25.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.naming.dataset.ABFSS.get_namespace",
@@ -3321,7 +3427,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.http.HttpTransport.emit",
@@ -3360,7 +3467,8 @@
         "spillover_rate": 1.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.gcplineage.GCPLineageTransport.emit",
@@ -3392,7 +3500,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.naming.dataset.Redshift.get_namespace",
@@ -3420,7 +3529,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.dbt.structured_logs.DbtStructuredLogsProcessor._parse_command_completed_event",
@@ -3483,7 +3593,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 166.66666666666669
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 166.66666666666669
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.bigquery.BigQueryDatasetsProvider._get_input_from_bq",
@@ -3534,7 +3645,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.utils.IncrementalFileReader.__init__",
@@ -3562,7 +3674,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.test_async_http.TestAsyncHttpTransportErrorHandling.test_event_loop_worker_queue_empty_exception",
@@ -3601,7 +3714,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "OpenLineage.integration.dbt.tests.integration.utils.test_server_client.TestServerClient.get_events_count",
@@ -3633,7 +3747,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.tests.test_async_http.TestAsyncHttpTransportErrorHandling.test_close_with_thread_already_dead",
@@ -3668,7 +3783,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.test_async_http.TestAsyncHttpTransportErrorHandling.test_wait_for_completion_with_default_timeout",
@@ -3707,7 +3823,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.async_http.AsyncHttpTransport._setup_loop",
@@ -3739,7 +3856,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.generated.base.RunFacet",
@@ -3771,7 +3889,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.dev.get_contributor_stats.ContributorStats",
@@ -3803,7 +3922,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.dev.get_changes.GetChanges",
@@ -3835,7 +3955,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.tests.test_datadog.TestDatadogTransportRouting",
@@ -3867,7 +3988,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.dbt.structured_logs.DbtStructuredLogsProcessor",
@@ -3899,7 +4021,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.great_expectations.results.ValuesNotNullColumnExpectationParser",
@@ -3931,7 +4054,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.dev.create_release_doc.DocRelease",
@@ -3963,7 +4087,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.transform.transformers.job_namespace_replace_transformer.JobNamespaceReplaceTransformer",
@@ -3995,7 +4120,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.tests.test_datadog.TestDatadogTransportAsyncRules",
@@ -4027,7 +4153,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.generated.base_subset_dataset.LocationSubsetCondition",
@@ -4059,7 +4186,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.bigquery.BigQueryDatasetsProvider",
@@ -4091,7 +4219,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.facet.LifecycleStateChange",
@@ -4119,7 +4248,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.async_http.AsyncHttpTransport",
@@ -4151,7 +4281,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.generated.storage_dataset.StorageDatasetFacet",
@@ -4183,7 +4314,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.tests.test_async_http.TestAsyncHttpTransportErrorHandling",
@@ -4215,7 +4347,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.generated.documentation_job.DocumentationJobFacet",
@@ -4247,7 +4380,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.tests.test_jwt_token_provider.TestJwtTokenProvider",
@@ -4279,7 +4413,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.facet.StorageDatasetFacet",
@@ -4311,7 +4446,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.great_expectations.action.OpenLineageValidationAction",
@@ -4343,7 +4479,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.file.FileConfig",
@@ -4375,7 +4512,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.tests.test_http.TestHttpMock",
@@ -4407,7 +4545,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.generated.catalog_dataset.CatalogDatasetFacet",
@@ -4439,7 +4578,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.tests.integration.test_server.test_server.OpenLineageTestServer",
@@ -4471,7 +4611,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.tests.transform.test_transform.SampleEventTransformer",
@@ -4503,7 +4644,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.dbt.processor.DbtArtifactProcessor",
@@ -4535,7 +4677,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.naming.dataset.OceanBase",
@@ -4567,7 +4710,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.tests.test_http.TestHttpConfig",
@@ -4599,7 +4743,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.run.RunEvent",
@@ -4631,7 +4776,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.jar_compare.JarComparator",
@@ -4663,7 +4809,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.tests.test_async_http.TestAsyncHttpConfig",
@@ -4695,7 +4842,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.http.JwtTokenProvider",
@@ -4727,7 +4875,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.generated.data_quality_metrics_input_dataset.ColumnMetrics",
@@ -4755,7 +4904,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.dbt.tests.integration.test_integration.TestDbtIntegration",
@@ -4787,7 +4937,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.dbt.processor.DbtRunContext",
@@ -4815,7 +4966,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.client.OpenLineageClient",
@@ -4847,7 +4999,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.great_expectations.results.EqualRowCountExpectationsParser",
@@ -4875,7 +5028,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.dbt.local.DbtLocalArtifactProcessor",
@@ -4907,7 +5061,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.facet.OwnershipJobFacetOwners",
@@ -4935,7 +5090,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.test_async_http.TestAsyncHttpTransport",
@@ -4967,7 +5123,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.dbt.facets.DbtNodeJobFacet",
@@ -4999,7 +5156,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.generated.output_statistics_output_dataset.OutputStatisticsOutputDatasetFacet",
@@ -5031,7 +5189,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.file.FsspecFileHandler",
@@ -5063,7 +5222,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.dataset.Dataset",
@@ -5095,7 +5255,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.facet.SqlJobFacet",
@@ -5127,7 +5288,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.facet.ColumnMetric",
@@ -5155,7 +5317,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.naming.dataset.AzureDataExplorer",
@@ -5187,7 +5350,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.facet.LifecycleStateChangeDatasetFacetPreviousIdentifier",
@@ -5215,7 +5379,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.generated.base.Dataset",
@@ -5247,7 +5412,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.tests.integration.test_server.test_server.JobEvent",
@@ -5279,7 +5445,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.tests.test_dataset.TestAzureDataExplorer",
@@ -5311,7 +5478,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.website.src.pages.community.ExpandMoreProps",
@@ -5331,7 +5499,8 @@
       "set_q2_reducer_vs_independent_contract": null,
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.website.src.pages.ecosystem.ExpandMoreProps",
@@ -5351,7 +5520,8 @@
       "set_q2_reducer_vs_independent_contract": null,
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
@@ -5480,7 +5650,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 1600.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 1600.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.test.java.io.openlineage.spark.api.naming.ApplicationJobNameResolverTest.ApplicationJobNameResolverTest.TestApplicationJobNameProvider.getJobName",
@@ -5508,7 +5679,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.vendor.snowflake.src.test.java.io.openlineage.spark.agent.vendor.snowflake.lifecycle.plan.column.ColumnLevelLineageSnowflakeTest.ColumnLevelLineageSnowflakeTest.testSnowflakeQueryFromNonDefaultSchema",
@@ -5540,7 +5712,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.flink.flink1.src.main.java.io.openlineage.flink.visitor.lifecycle.FlinkExecutionContext.FlinkExecutionContext.onJobCompleted",
@@ -5572,7 +5745,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.SparkIcebergIntegrationTest.SparkIcebergIntegrationTest.testAppend",
@@ -5604,7 +5778,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.testutils.KafkaTestBase.KafkaTestBase.formatElements",
@@ -5632,7 +5807,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.java.src.main.java.io.openlineage.client.OpenLineageClientUtils.OpenLineageClientUtils.newObjectMapper",
@@ -5664,7 +5840,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.flink.shared.src.main.java.io.openlineage.flink.api.DatasetFactory.DatasetFactory.getDataset",
@@ -5721,7 +5898,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.6666666666666666
       },
-      "q3_out_of_contract_rate_percent": 133.33333333333331
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 133.33333333333331
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.facets.builder.CustomEnvironmentFacetBuilder.CustomEnvironmentFacetBuilder.CustomEnvironmentFacetBuilder",
@@ -5749,7 +5927,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.FlinkContainerUtils.FlinkContainerUtils.makeGenerateEventsContainer",
@@ -5788,7 +5967,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "OpenLineage.integration.hive.hive-openlineage-hook.src.test.java.io.openlineage.hive.InMemoryHiveTestBase.InMemoryHiveTestBase.createAndSetDirectoryProperty",
@@ -5827,7 +6007,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "OpenLineage.client.java.src.test.java.io.openlineage.client.ConfigTest.ConfigTest.testLoadConfigCompositeFromEnvVars",
@@ -5874,7 +6055,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.sql.iface-java.src.main.java.io.openlineage.sql.SqlMeta.SqlMeta.equals",
@@ -5906,7 +6088,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.main.java.io.openlineage.spark.agent.lifecycle.RddExecutionContext.RddExecutionContext.printRDDs",
@@ -5938,7 +6121,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.lifecycle.plan.column.TransformedInput.TransformedInput.getName",
@@ -5966,7 +6150,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.SparkContainerIntegrationTest.SparkContainerIntegrationTest.testCreateAsSelectAndLoad",
@@ -5994,7 +6179,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.flink.flink1.src.test.java.io.openlineage.flink.ContainerTest.ContainerTest.testOpenLineageEventSentForIcebergSourceJob",
@@ -6026,7 +6212,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.main.java.io.openlineage.spark.agent.lifecycle.SparkSQLExecutionContext.SparkSQLExecutionContext.buildApplicationParentFacet",
@@ -6061,7 +6248,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.hive.hive-openlineage-hook.src.main.java.io.openlineage.hive.parsing.Parsing.Parsing.extractOrderByColumn",
@@ -6100,7 +6288,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "OpenLineage.integration.flink.shared.src.main.java.io.openlineage.flink.client.EventEmitter.EventEmitter.getUri",
@@ -6139,7 +6328,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.test.java.io.openlineage.spark.agent.util.RddDatasetInfoExtractorTest.RddDatasetInfoExtractorTest.testNewHadoopRDDExtractor",
@@ -6192,7 +6382,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.spark3.src.test.java.io.openlineage.spark3.agent.lifecycle.plan.column.visitors.operator.JoinVisitorTest.JoinVisitorTest.testApply",
@@ -6251,7 +6442,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.hive.hive-openlineage-hook.src.main.java.io.openlineage.hive.parsing.Parsing.Parsing.parseQueryExpressions",
@@ -6283,7 +6475,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.test.java.io.openlineage.spark.api.AbstractQueryPlanDatasetBuilderTest.AbstractQueryPlanDatasetBuilderTest.createContext",
@@ -6311,7 +6504,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.listener.OpenlineageListenerIntegrationTest.OpenlineageListenerIntegrationTest.TestingKafkaRecordDeserializationSchema.deserialize",
@@ -6339,7 +6533,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.java.src.main.java.io.openlineage.client.transports.TokenProviderTypeIdResolver.TokenProviderTypeIdResolver.idFromValue",
@@ -6371,7 +6566,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.facets.IcebergScanReportInputDatasetFacet.IcebergScanReportInputDatasetFacet.get_schemaURL",
@@ -6399,7 +6595,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.java.generator.src.main.java.io.openlineage.client.JavaPoetGenerator.JavaPoetGenerator.modelClass",
@@ -6431,7 +6628,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.util.RunEventVerifier.RunEventVerifier.ofStrings",
@@ -6463,7 +6661,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.hive.hive-openlineage-hook.src.main.java.io.openlineage.hive.client.HiveOpenLineageConfigParser.HiveOpenLineageConfigParser.getJsonPath",
@@ -6498,7 +6697,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.spark3.src.main.java.io.openlineage.spark3.agent.lifecycle.plan.SparkExtensionV1OutputDatasetBuilder.SparkExtensionV1OutputDatasetBuilder.apply",
@@ -6537,7 +6737,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "OpenLineage.integration.spark.spark3.src.test.java.io.openlineage.spark3.agent.lifecycle.plan.TableContentChangeDatasetBuilderTest.TableContentChangeDatasetBuilderTest.testApplyForDeleteFromTable",
@@ -6569,7 +6770,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.flink.examples.flink2-test-apps.src.main.java.io.openlineage.flink.util.StateUtils.StateUtils.value",
@@ -6597,7 +6799,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.SparkContainerIntegrationTest.SparkContainerIntegrationTest.testPysparkRddToTable",
@@ -6625,7 +6828,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.spark3.src.test.java.io.openlineage.spark3.agent.lifecycle.plan.column.visitors.operator.SortVisitorTest.SortVisitorTest.testApply",
@@ -6684,7 +6888,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageClientTest.OpenLineageClientTest.testCircuitBreakerForEmitDatasetEvent",
@@ -6725,7 +6930,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.spark3.src.test.java.io.openlineage.spark3.agent.lifecycle.plan.CreateReplaceDatasetBuilderTest.CreateReplaceDatasetBuilderTest.testApplyForCreateV2Table",
@@ -6764,7 +6970,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "OpenLineage.client.java.transports-s3.src.main.java.io.openlineage.client.transports.s3.S3Transport.S3Transport.S3Transport",
@@ -6796,7 +7003,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.vendor.snowflake.src.test.java.io.openlineage.spark.agent.vendor.snowflake.lifecycle.plan.column.ColumnLevelLineageSnowflakeTest.ColumnLevelLineageSnowflakeTest.anOutputSchemaWith",
@@ -6824,7 +7032,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.spark3.src.main.java.io.openlineage.spark3.agent.lifecycle.plan.catalog.DeltaHandler.DeltaHandler.getDatasetVersion",
@@ -6875,7 +7084,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 300.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 300.0
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.main.java.io.openlineage.spark.agent.OpenLineageSparkListener.OpenLineageSparkListener.clear",
@@ -6907,7 +7117,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.java.src.main.java.io.openlineage.client.dataset.Naming.Naming.Teradata.getNamespace",
@@ -6935,7 +7146,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.flink.flink1.src.test.java.io.openlineage.flink.FlinkContainerUtils.FlinkContainerUtils.makeSchemaRegistryContainer",
@@ -6967,7 +7179,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.flink.shared.src.main.java.io.openlineage.flink.visitor.IcebergSourceVisitor.IcebergSourceVisitor.apply",
@@ -7012,7 +7225,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 200.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 200.0
     },
     {
       "entity": "OpenLineage.integration.spark.spark3.src.test.java.io.openlineage.spark3.agent.lifecycle.plan.column.visitors.expression.WindowVisitorTest.WindowVisitorTest.testSkipsTraversingWhenRowNumberLike",
@@ -7059,7 +7273,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.flink.shared.src.main.java.io.openlineage.flink.visitor.KafkaSourceVisitor.KafkaSourceVisitor.apply",
@@ -7124,7 +7339,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.java.src.main.java.io.openlineage.client.utils.jdbc.MySqlJdbcExtractor.MySqlJdbcExtractor.extract",
@@ -7156,7 +7372,8 @@
         "spillover_rate": 1.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.test.java.io.openlineage.spark.agent.filters.AdaptivePlanEventFilterTest.AdaptivePlanEventFilterTest.testOtherSparkPlan",
@@ -7191,7 +7408,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.flink.flink1.src.main.java.io.openlineage.flink.visitor.lifecycle.FlinkExecutionContextFactory.FlinkExecutionContextFactory.getContext",
@@ -7248,7 +7466,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 400.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 400.0
     },
     {
       "entity": "OpenLineage.client.java.src.main.java.io.openlineage.client.MergeConfig.MergeConfig.mergeWith",
@@ -7280,7 +7499,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.common.tests.dbt.test_dbt_local.test_jinja_undefined_variable",
@@ -7315,7 +7535,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.dev.get_contributor_stats.main",
@@ -7366,7 +7587,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 33.33333333333333
+      "q3_non_static_rate_percent": 33.33333333333333,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.generator.base.deep_merge_dicts",
@@ -7411,7 +7633,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 200.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 200.0
     },
     {
       "entity": "OpenLineage.client.python.tests.integration.test_server.test_server.receive_event",
@@ -7450,7 +7673,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 100.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.tests.integration.test_server.test_server.configure_error_sequence",
@@ -7485,7 +7709,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.dev.create_release_doc.main",
@@ -7530,7 +7755,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 100.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.generator.cli.main",
@@ -7617,7 +7843,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 900.0
+      "q3_non_static_rate_percent": 300.0,
+      "unresolved_static_rate_percent": 600.0
     },
     {
       "entity": "OpenLineage.client.python.tests.fixtures.mock_responses.create_client_error_response",
@@ -7649,7 +7876,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.common.tests.dbt.structured_logs.test_structured_logs.test_run_dbt_command",
@@ -7690,7 +7918,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.dev.get_changes.main",
@@ -7735,7 +7964,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 33.33333333333333
+      "q3_non_static_rate_percent": 33.33333333333333,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.dbt.src.openlineage.dbt.dbt_run_event_failed",
@@ -7767,7 +7997,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.utils.get_from_multiple_chains",
@@ -7799,7 +8030,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.tests.test_client.test_init_with_openlineage_url_env_var_warning",
@@ -7840,7 +8072,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.integration.test_server.test_server.reset_server",
@@ -7879,7 +8112,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 100.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.common.tests.sql.test_parser.test_parse_simple_select_into",
@@ -7907,7 +8141,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.test_file.test_client_with_file_transport_append_emits",
@@ -7946,7 +8181,8 @@
         "spillover_rate": 1.5,
         "mutual_accuracy": 0.4
       },
-      "q3_out_of_contract_rate_percent": 50.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 50.0
     },
     {
       "entity": "OpenLineage.integration.spark.jar_compare.print_comparison_report",
@@ -7978,7 +8214,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage..pre_commit.check-redactions.get_class_names",
@@ -8013,7 +8250,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.dbt.src.openlineage.dbt.main",
@@ -8070,7 +8308,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 133.33333333333331
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 133.33333333333331
     },
     {
       "entity": "OpenLineage.client.python.docs.convert.bs4_to_mdx",
@@ -8102,7 +8341,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.common.tests.sql.test_parser.test_parse_simple_select_with_table_schema_prefix_and_extra_whitespace",
@@ -8130,7 +8370,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.dbt.utils.get_dbt_log_path",
@@ -8169,7 +8410,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "OpenLineage.client.python.tests.fixtures.mock_responses.create_server_error_response",
@@ -8201,7 +8443,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.common.tests.test_utils.test_parse_single_arg_default",
@@ -8236,7 +8479,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.dbt.src.openlineage.dbt.dbt_run_event_start",
@@ -8268,7 +8512,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.tests.test_events.test_nominal_time_facet_does_not_require_end_time",
@@ -8300,7 +8545,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.tests.test_facet.test_facet_copy_serialization_base_facet",
@@ -8335,7 +8581,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.test_file.test_client_with_file_transport_write_emits",
@@ -8374,7 +8621,8 @@
         "spillover_rate": 1.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 50.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 50.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.utils.try_import_from_string",
@@ -8406,7 +8654,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.common.tests.dbt.structured_logs.test_structured_logs.test_manifest_integrity_return_values",
@@ -8447,7 +8696,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.fixtures.events.create_multiple_runs",
@@ -8479,7 +8729,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.tests.fixtures.mock_responses.create_success_response",
@@ -8511,7 +8762,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.common.tests.dbt.test_dbt_local.test_logging_handler_warns",
@@ -8546,7 +8798,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.generator.base.load_specs",
@@ -8578,7 +8831,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.utils.add_command_line_args",
@@ -8610,7 +8864,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.common.tests.sql.test_parser.test_multiple_ctes",
@@ -8638,7 +8893,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.fixtures.events.create_run_lifecycle_events",
@@ -8670,7 +8926,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.common.script.match.compare_mockserver",
@@ -8715,7 +8972,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 200.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 200.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.generator.base.format_and_save_output",
@@ -8754,7 +9012,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.utils.deep_merge_dicts",
@@ -8799,7 +9058,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 200.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 200.0
     },
     {
       "entity": "OpenLineage.integration.common.tests.sql.test_parser.test_parse_simple_left_join",
@@ -8827,7 +9087,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.tests.dbt.structured_logs.test_structured_logs.test_parent_run_metadata",
@@ -8884,7 +9145,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 400.0
+      "q3_non_static_rate_percent": 100.0,
+      "unresolved_static_rate_percent": 300.0
     },
     {
       "entity": "OpenLineage.integration.common.tests.dbt.structured_logs.test_structured_logs.test_validate_manifest_integrity_missing_sections",
@@ -8925,7 +9187,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.dbt.src.openlineage.dbt.dbt_run_event_end",
@@ -8957,7 +9220,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.common.tests.dbt.structured_logs.test_structured_logs.test_manifest_integrity_deduplication",
@@ -8992,7 +9256,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.docs.convert.main",
@@ -9024,7 +9289,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.tests.test_uuid.test_generate_static_uuid_returns_uuidv7",
@@ -9052,7 +9318,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.sql.iface-py.tests.python.sql_tester.print_meta",
@@ -9084,7 +9351,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.tests.test_client.test_client_with_url_and_options",
@@ -9131,7 +9399,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.test_facet_v2.test_with_additional_properties_isinstance_works",
@@ -9166,7 +9435,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.java.generator.src.main.java.io.openlineage.client.JavaPoetGenerator",
@@ -9198,7 +9468,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.util.TimeUtils",
@@ -9226,7 +9497,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.spark3.src.test.java.io.openlineage.spark3.agent.lifecycle.plan.column.InputFieldsCollectorTest",
@@ -9254,7 +9526,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.java.src.main.java.io.openlineage.client.dataset.Naming",
@@ -9282,7 +9555,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.java.src.main.java.io.openlineage.client.circuitBreaker.TimeoutCircuitBreakerBuilder",
@@ -9310,7 +9584,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.Flink2ContainerTest",
@@ -9338,7 +9613,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.SparkIcebergIntegrationTest",
@@ -9370,7 +9646,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.Templating",
@@ -9398,7 +9675,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.java.src.main.java.io.openlineage.client.utils.TransformationInfo",
@@ -9426,7 +9704,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.flink.shared.src.main.java.io.openlineage.flink.utils.JobTypeUtils",
@@ -9454,7 +9733,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.ConfigurableTestConfig",
@@ -9486,7 +9766,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.java.src.main.java.io.openlineage.client.circuitBreaker.StaticCircuitBreakerConfig",
@@ -9518,7 +9799,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.spark33.src.test.java.io.openlineage.spark33.agent.util.RddDatasetInfoExtractorTest",
@@ -9546,7 +9828,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.MetastoreHive3Test",
@@ -9578,7 +9861,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.facets.builder.DebugRunFacetBuilderDelegate",
@@ -9610,7 +9894,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.flink.shared.src.main.java.io.openlineage.flink.visitor.HybridSourceVisitor",
@@ -9642,7 +9927,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.api.OpenLineageEventHandlerFactory",
@@ -9674,7 +9960,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.spark3.src.test.java.io.openlineage.spark3.agent.lifecycle.plan.column.visitors.expression.CaseWhenVisitorTest",
@@ -9706,7 +9993,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.ConfigurableIntegrationTest",
@@ -9738,7 +10026,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.25
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.java.src.test.java.io.openlineage.client.circuitBreaker.CommonCircuitBreakerTest",
@@ -9766,7 +10055,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.spark35.src.main.java.io.openlineage.spark35.agent.lifecycle.plan.CreateReplaceOutputDatasetBuilder",
@@ -9794,7 +10084,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.SparkContainerProperties",
@@ -9822,7 +10113,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.GoogleCloudIntegrationTest",
@@ -9854,7 +10146,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.flink.shared.src.test.java.io.openlineage.flink.pojo.Event",
@@ -9882,7 +10175,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.util.PathUtils",
@@ -9910,7 +10204,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.filters.DeltaEventFilter",
@@ -9942,7 +10237,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.testScala213.java.io.openlineage.spark.agent.lifecycle.LogicalPlanSerializer213Test",
@@ -9970,7 +10266,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.java.transports-s3.src.main.java.io.openlineage.client.transports.s3.S3TransportBuilder",
@@ -9998,7 +10295,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.OpenLineageSparkListenerTest",
@@ -10030,7 +10328,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.hive.hive-openlineage-hook.src.main.java.io.openlineage.hive.util.HiveUtils",
@@ -10058,7 +10357,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.flink.flink1.src.main.java.io.openlineage.flink.visitor.lifecycle.FlinkExecutionContext",
@@ -10086,7 +10386,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.flink.examples.flink1-test-apps.src.main.java.io.openlineage.flink.StreamEnvironment",
@@ -10114,7 +10415,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.testScala212.java.io.openlineage.spark.agent.lifecycle.LogicalPlanSerializer212Test",
@@ -10142,7 +10444,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.hive.hive-openlineage-hook.src.main.java.io.openlineage.hive.parsing.BaseExpr",
@@ -10170,7 +10473,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.main.java.io.openlineage.spark.agent.lifecycle.SparkSQLExecutionContext",
@@ -10202,7 +10506,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.util.AwsUtils",
@@ -10230,7 +10535,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.flink.flink1.src.test.java.io.openlineage.flink.FlinkContainerUtils",
@@ -10258,7 +10564,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.spark3.src.main.java.io.openlineage.spark3.agent.lifecycle.plan.column.visitors.expression.CoalesceVisitor",
@@ -10290,7 +10597,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.lifecycle.plan.SaveIntoDataSourceCommandVisitor",
@@ -10322,7 +10630,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.spark3.src.test.java.io.openlineage.spark3.agent.utils.PlanUtils3Test",
@@ -10350,7 +10659,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.api.DatasetFactory",
@@ -10382,7 +10692,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.api.DebugConfig",
@@ -10410,7 +10721,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.java.src.test.java.io.openlineage.client.dataset.NamingTest",
@@ -10438,7 +10750,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.flink.shared.src.main.java.io.openlineage.flink.visitor.FlinkKafkaProducerVisitor",
@@ -10470,7 +10783,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.test.java.io.openlineage.spark.agent.facets.builder.DebugRunFacetBuilderDelegateTest",
@@ -10498,7 +10812,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.java.src.main.java.io.openlineage.client.utils.jdbc.JdbcDatasetUtils",
@@ -10530,7 +10845,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.column.ColumnLineageWithTransformationTypesOnlyFieldDependenciesTest",
@@ -10562,7 +10878,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.spark34.src.test.java.io.openlineage.spark34.agent.lifecycle.plan.WriteIcebergDeltaDatasetBuilderTest",
@@ -10590,7 +10907,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.flink.flink1.src.main.java.io.openlineage.flink.OpenLineageFlinkJobListener",
@@ -10622,7 +10940,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.java.transports-s3.src.test.java.io.openlineage.client.transports.s3.S3TransportTest",
@@ -10650,7 +10969,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.java.transports-gcs.src.main.java.io.openlineage.client.transports.gcs.GcsTransportBuilder.GcsTransportBuilder",
@@ -10682,7 +11002,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.java.src.main.java.io.openlineage.client.dataset.Naming.Naming",
@@ -10714,7 +11035,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.util.PlanUtils.PlanUtils",
@@ -10746,7 +11068,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.main.java.io.openlineage.spark.agent.EventEmitter.EventEmitter",
@@ -10778,7 +11101,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.lifecycle.plan.KafkaRelationVisitor.KafkaRelationVisitor",
@@ -10810,7 +11134,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.test.java.io.openlineage.spark.api.AbstractQueryPlanDatasetBuilderTest.AbstractQueryPlanDatasetBuilderTest.MyNonGenericInputDatasetBuilder",
@@ -10842,7 +11167,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.java.generator.src.main.java.io.openlineage.client.SchemaParser.SchemaParser",
@@ -10874,7 +11200,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.flink.examples.flink1-test-apps.src.main.java.io.openlineage.flink.MultiTopicSerializationSchema.MultiTopicSerializationSchema",
@@ -10906,7 +11233,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.spark35.src.test.java.io.openlineage.spark35.agent.lifecycle.plan.CreateReplaceDatasetBuilderTest.CreateReplaceDatasetBuilderTest",
@@ -10938,7 +11266,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.java.src.main.java.io.openlineage.client.transports.TransportConfig.TransportConfig",
@@ -10970,7 +11299,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.java.src.test.java.io.openlineage.client.utils.UUIDUtilsTest.UUIDUtilsTest",
@@ -11002,7 +11332,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.flink.flink2.src.main.java.io.openlineage.flink.util.KafkaDatasetFacetUtil.KafkaDatasetFacetUtil",
@@ -11034,7 +11365,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.main.java.io.openlineage.spark.agent.lifecycle.RddExecutionContext.RddExecutionContext",
@@ -11066,7 +11398,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.flink.flink115.src.test.java.io.openlineage.flink.visitor.JdbcSourceVisitorTest.JdbcSourceVisitorTest",
@@ -11098,7 +11431,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.api.DatasetFactory.DatasetFactory",
@@ -11130,7 +11464,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.util.TestOpenLineageEventHandlerFactory.TestOpenLineageEventHandlerFactory.TestRunFacet",
@@ -11162,7 +11497,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.test.java.io.openlineage.spark.agent.lifecycle.SparkOpenLineageExtensionVisitorWrapperTest.SparkOpenLineageExtensionVisitorWrapperTest",
@@ -11194,7 +11530,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.facets.builder.SparkJobDetailsFacetBuilder.SparkJobDetailsFacetBuilder",
@@ -11226,7 +11563,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.testutils.KafkaTestEnvironmentImpl.KafkaTestEnvironmentImpl",
@@ -11258,7 +11596,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.main.java.io.openlineage.spark.agent.lifecycle.Spark3VisitorFactoryImpl.Spark3VisitorFactoryImpl",
@@ -11290,7 +11629,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.GoogleCloudIntegrationTest.GoogleCloudIntegrationTest",
@@ -11322,7 +11662,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.flink.examples.flink1-test-apps.src.main.java.io.openlineage.flink.FlinkIcebergSourceApplication.FlinkIcebergSourceApplication",
@@ -11354,7 +11695,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.lifecycle.SparkSQLExecutionContextTest.SparkSQLExecutionContextTest",
@@ -11386,7 +11728,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark-extension-interfaces.src.main.java.io.openlineage.spark.shade.extension.v1.InputDatasetWithDelegate.InputDatasetWithDelegate",
@@ -11418,7 +11761,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest",
@@ -11450,7 +11794,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.java.src.test.java.io.openlineage.client.transports.JwtTokenProviderTest.JwtTokenProviderTest.TestableJwtTokenProvider",
@@ -11482,7 +11827,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.hive.hive-openlineage-hook.src.main.java.io.openlineage.hive.parsing.ColumnLineageCollector.ColumnLineageCollector",
@@ -11514,7 +11860,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.java.src.test.java.io.openlineage.client.utils.filesystem.FilesystemDatasetUtilsTestForHDFS.FilesystemDatasetUtilsTestForHDFS",
@@ -11546,7 +11893,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.java.src.main.java.io.openlineage.client.OpenLineageClient.OpenLineageClient",
@@ -11578,7 +11926,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.facets.DebugRunFacet.DebugRunFacet",
@@ -11610,7 +11959,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.lifecycle.OpenLineageRunEventBuilder.OpenLineageRunEventBuilder",
@@ -11642,7 +11992,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.facets.builder.SparkProcessingEngineRunFacetBuilderDelegate.SparkProcessingEngineRunFacetBuilderDelegate",
@@ -11674,7 +12025,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.FlinkContainerUtils.FlinkContainerUtils",
@@ -11706,7 +12058,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.hive.hive-openlineage-hook.src.main.java.io.openlineage.hive.facets.HivePropertiesFacet.HivePropertiesFacet",
@@ -11738,7 +12091,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.spark3.src.test.java.io.openlineage.spark3.agent.lifecycle.plan.catalog.DeltaHandlerTest.DeltaHandlerTest",
@@ -11770,7 +12124,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.filters.DatabricksEventFilter.DatabricksEventFilter",
@@ -11802,7 +12157,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.test.java.io.openlineage.spark.agent.util.RemovePathPatternUtilsTest.RemovePathPatternUtilsTest",
@@ -11834,7 +12190,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.java.src.main.java.io.openlineage.client.dataset.partition.trimmer.YearMonthTrimmer.YearMonthTrimmer",
@@ -11866,7 +12223,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.SparkStreamingTest.SparkStreamingTest",
@@ -11898,7 +12256,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.java.transports-kinesis.src.main.java.io.openlineage.client.transports.kinesis.KinesisTransport.KinesisTransport",
@@ -11930,7 +12289,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.ArgumentParserTest.ArgumentParserTest",
@@ -11962,7 +12322,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.java.transports-s3.src.main.java.io.openlineage.client.transports.s3.S3Transport.S3Transport",
@@ -11994,7 +12355,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.spark3.src.main.java.io.openlineage.spark3.agent.lifecycle.plan.catalog.iceberg.IcebergHandler.IcebergHandler",
@@ -12026,7 +12388,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.spark33.src.test.java.io.openlineage.spark33.agent.lifecycle.plan.ReplaceIcebergDataDatasetBuilderTest.ReplaceIcebergDataDatasetBuilderTest",
@@ -12058,7 +12421,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.main.java.io.openlineage.spark.agent.OpenLineageSparkListener.OpenLineageSparkListener",
@@ -12090,7 +12454,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.lifecycle.plan.InsertIntoHiveDirVisitor.InsertIntoHiveDirVisitor",
@@ -12122,7 +12487,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.column.ColumnLineageWithTransformationTypesOnlyFieldDependenciesTest.ColumnLineageWithTransformationTypesOnlyFieldDependenciesTest",
@@ -12154,7 +12520,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.java.src.main.java.io.openlineage.client.utils.jdbc.Db2JdbcExtractor.Db2JdbcExtractor",
@@ -12186,7 +12553,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.flink.flink1.src.main.java.io.openlineage.flink.OpenLineageFlinkJobListener.OpenLineageFlinkJobListener",
@@ -12218,7 +12586,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.util.BigQueryUtils.BigQueryUtils",
@@ -12250,7 +12619,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.website.argos.utils.pathnameToArgosName",
@@ -12278,7 +12648,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.website.src.components.utils.Link",
@@ -12306,7 +12677,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.website.src.components.utils.getDate",
@@ -12334,7 +12706,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.website.src.pages.home.Participate",
@@ -12362,7 +12735,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.website.argos.screenshot.spec.waitForDocusaurusHydration",
@@ -12390,7 +12764,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.website.argos.utils.extractSitemapPathnames",
@@ -12431,7 +12806,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.website.src.pages.community.MeetupCard",
@@ -12459,7 +12835,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.website.src.pages.home.UseAnimationFrame",
@@ -12487,7 +12864,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.website.src.components.utils.getPageData",
@@ -12515,7 +12893,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.website.argos.screenshot.spec.screenshotPathname",
@@ -12550,7 +12929,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.website.src.pages.home.Deploy",
@@ -12578,7 +12958,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.website.src.pages.community.handleExpandClick",
@@ -12606,7 +12987,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.website.src.components.ui.Button",
@@ -12634,7 +13016,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.website.src.pages.ecosystem.handleExpandClick",
@@ -12662,7 +13045,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.test.java.io.openlineage.spark.api.naming.NameNormalizerTest.NameNormalizerTest",
@@ -12694,7 +13078,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.spark3.src.main.java.io.openlineage.spark3.agent.lifecycle.plan.CreateReplaceDatasetBuilder",
@@ -12726,7 +13111,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.spark3.src.main.java.io.openlineage.spark3.agent.lifecycle.plan.column.visitors.operator.SortVisitor.SortVisitor.apply",
@@ -12773,7 +13159,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.lifecycle.plan.column.ColumnLevelLineageBuilder.ColumnLevelLineageBuilder.getInputsUsedFor",
@@ -12818,7 +13205,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "OpenLineage.integration.flink.shared.src.test.java.io.openlineage.flink.utils.AvroSchemaUtilsTest",
@@ -12846,7 +13234,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.conftest._setup_producer",
@@ -12887,7 +13276,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.naming.dataset.HDFS",
@@ -12919,7 +13309,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.resources.databricks_notebooks.narrow_transformation",
@@ -12947,7 +13338,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.bigquery",
@@ -12975,7 +13367,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.test_async_http.TestAsyncHttpTransportErrorHandling.test_response_body_reading_failure",
@@ -13020,7 +13413,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 200.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 200.0
     },
     {
       "entity": "OpenLineage.integration.flink.examples.flink1-test-apps.src.main.java.io.openlineage.flink.MultiTopicSerializationSchema.MultiTopicSerializationSchema.getTopic",
@@ -13055,7 +13449,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.java.src.test.java.io.openlineage.client.dataset.namespace.resolver.DatasetNamespaceCombinedResolverTest.DatasetNamespaceCombinedResolverTest",
@@ -13087,7 +13482,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.lifecycle.plan.column.TransformedInput",
@@ -13115,7 +13511,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.flink.shared.src.main.java.io.openlineage.flink.visitor.IcebergSinkVisitor.IcebergSinkVisitor.getDataset",
@@ -13180,7 +13577,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.lifecycle.plan.KafkaMicroBatchStreamStrategy.KafkaMicroBatchStreamStrategy.getBootstrapServers",
@@ -13219,7 +13617,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "OpenLineage.client.java.transports-gcplineage.src.test.java.io.openlineage.client.transports.gcplineage.GcpLineageTransportTest",
@@ -13247,7 +13646,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.lifecycle.plan.SQLDWDatabricksVisitorTest.SQLDWDatabricksVisitorTest",
@@ -13279,7 +13679,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.generated.job_dependencies_run.JobDependency",
@@ -13311,7 +13712,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.tests.test_gcplineage.TestGCPLineageTransportRouting.test_routing_non_dbt_event_to_sync",
@@ -13362,7 +13764,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 300.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 300.0
     },
     {
       "entity": "OpenLineage.integration.spark.jar_compare.JarComparator.compare_files",
@@ -13394,7 +13797,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.spark3.src.main.java.io.openlineage.spark3.agent.lifecycle.plan.column.visitors.expression.WindowVisitor.WindowVisitor",
@@ -13426,7 +13830,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.lifecycle.plan.CreateHiveTableAsSelectCommandVisitor",
@@ -13458,7 +13863,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.testutils.KafkaTestBase.KafkaTestBase.shutdownClusters",
@@ -13509,7 +13915,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 300.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 300.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.util.AwsUtils.AwsUtils.getGlueArn",
@@ -13541,7 +13948,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.test.java.io.openlineage.spark.agent.facets.builder.SparkApplicationDetailsFacetBuilderTest",
@@ -13569,7 +13977,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.vendor.snowflake.src.test.java.io.openlineage.spark.agent.vendor.snowflake.lifecycle.plan.SnowflakeRelationVisitorTest.SnowflakeRelationVisitorTest",
@@ -13601,7 +14010,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.jar_compare._print_unique_files",
@@ -13629,7 +14039,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.dataset.Dataset.__repr__",
@@ -13657,7 +14068,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.test_dataset.TestAWSGlue",
@@ -13689,7 +14101,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.resources.spark_scripts.spark_rdd_to_table",
@@ -13717,7 +14130,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.test_amazon_datazone",
@@ -13745,7 +14159,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.gcplineage.GCPLineageTransport.close",
@@ -13777,7 +14192,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.serde.Serde.to_dict",
@@ -13816,7 +14232,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 100.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.java.src.main.java.io.openlineage.client.transports.FileConfig.FileConfig",
@@ -13844,7 +14261,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.flink.examples.flink1-test-apps.src.main.java.io.openlineage.flink.FlinkCassandraApplication",
@@ -13876,7 +14294,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.6666666666666666
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.java.transports-datazone.src.test.java.io.openlineage.client.transports.datazone.AmazonDataZoneTransportTest.AmazonDataZoneTransportTests.clientEmitsJobEventDataZoneTransport",
@@ -13917,7 +14336,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.flink.shared.src.main.java.io.openlineage.flink.api.OpenLineageContextFactory.OpenLineageContextFactory.fromConfig",
@@ -13980,7 +14400,8 @@
         "spillover_rate": 1.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 500.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 500.0
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.lifecycle.LogicalPlanSerializerTest",
@@ -14008,7 +14429,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.main.java.io.openlineage.spark.agent.lifecycle.SparkSQLExecutionContext.SparkSQLExecutionContext",
@@ -14040,7 +14462,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.tests.test_factory.test_factory_create_transport_invalid_transport_class",
@@ -14068,7 +14491,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.transport.FakeTransport.emit",
@@ -14096,7 +14520,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.generated.documentation_dataset.DocumentationDatasetFacet",
@@ -14128,7 +14553,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.generated",
@@ -14156,7 +14582,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.http",
@@ -14184,7 +14611,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.dbt.structured_logs.DbtStructuredLogsProcessor._get_sql_job_name",
@@ -14223,7 +14651,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.redshift_data.RedshiftDataDatasetsProvider._get_table_schemas",
@@ -14255,7 +14684,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.spark3.src.main.java.io.openlineage.spark3.agent.lifecycle.plan.DataSourceV2RelationOutputDatasetBuilder.DataSourceV2RelationOutputDatasetBuilder.apply",
@@ -14296,7 +14726,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.flink.examples.flink1-test-apps.src.main.java.io.openlineage.flink.FlinkCrashingLineageProviderApplication.FlinkCrashingLineageProviderApplication.main",
@@ -14341,7 +14772,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 66.66666666666666
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 66.66666666666666
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.DatabricksEnvironment",
@@ -14369,7 +14801,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.java.src.test.java.io.openlineage.client.transports.KafkaTransportTest.KafkaTransportTest",
@@ -14401,7 +14834,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.tests.test_uuid.test_generate_static_uuid_result_prefix_depends_on_instant_milliseconds",
@@ -14436,7 +14870,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.great_expectations.results.ValuesMinExpectationParser.parse_expectation_result",
@@ -14477,7 +14912,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.generated.source_code_job.SourceCodeJobFacet",
@@ -14509,7 +14945,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.generated.documentation_dataset",
@@ -14537,7 +14974,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.tests.sql.test_parser",
@@ -14565,7 +15003,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.dataset.Dataset.from_table",
@@ -14604,7 +15043,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 100.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.dbt.tests.integration.utils.test_server_client.TestServerClient.get_events_by_job",
@@ -14649,7 +15089,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 200.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 200.0
     },
     {
       "entity": "OpenLineage.client.java.src.test.java.io.openlineage.client.transports.CompositeTransportTest",
@@ -14681,7 +15122,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.java.src.test.java.io.openlineage.client.transports.TransformTransportTest.TransformTransportTest",
@@ -14713,7 +15155,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.tests.test_kafka.job_event_v2",
@@ -14748,7 +15191,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.models.DbTableSchema.__eq__",
@@ -14776,7 +15220,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.generated.base.DatasetFacet",
@@ -14808,7 +15253,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.generated.sql_job",
@@ -14836,7 +15282,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.file",
@@ -14864,7 +15311,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.client.OpenLineageClient.close",
@@ -14896,7 +15344,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.file.FsspecFileHandler.__init__",
@@ -14928,7 +15377,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.java.src.main.java.io.openlineage.client.dataset.Naming.Naming.Trino.getName",
@@ -14956,7 +15406,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.spark32.src.main.java.io.openlineage.spark32.agent.lifecycle.plan.RepairTableCommandVisitor.RepairTableCommandVisitor",
@@ -14988,7 +15439,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.spark3.src.main.java.io.openlineage.spark3.agent.lifecycle.plan.catalog.AbstractDatabricksHandler",
@@ -15016,7 +15468,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.column.ColumnLineageWithTransformationTypesTest.ColumnLineageWithTransformationTypesTest.complexQueryCTEJoinsFilter",
@@ -15067,7 +15520,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.column.ColumnLineageWithTransformationTypesTest.ColumnLineageWithTransformationTypesTest.simpleQueryWithCaseWhenConditional",
@@ -15130,7 +15584,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 166.66666666666669
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 166.66666666666669
     },
     {
       "entity": "OpenLineage.client.java.src.test.java.io.openlineage.client.utils.jdbc.JdbcDatasetUtilsTestForMySql",
@@ -15158,7 +15613,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.lifecycle.SparkReadWriteIntegTest.SparkReadWriteIntegTest",
@@ -15190,7 +15646,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.common.tests.bigquery.test_bigquery.test_get_statistics_dataset_facet_with_stats",
@@ -15225,7 +15682,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.dbt.tests.integration.test_integration.TestDbtIntegration.test_job_name_local_artifacts_mode",
@@ -15266,7 +15724,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.test_dataset.TestDB2",
@@ -15298,7 +15757,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.resources.spark_scripts.spark_kafka",
@@ -15326,7 +15786,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.dbt.tests.integration.conftest",
@@ -15354,7 +15815,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.http.JwtTokenProvider._fetch_token",
@@ -15386,7 +15848,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.bigquery.BigQueryDatasetsProvider._get_output_from_bq",
@@ -15437,7 +15900,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "OpenLineage.client.java.src.test.java.io.openlineage.client.dataset.DatasetConfigTest.DatasetConfigTest.testGetDatasetNameTrimmers",
@@ -15465,7 +15929,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.spark3.src.test.java.io.openlineage.spark3.agent.lifecycle.plan.column.visitors.operator.CreateTableAsSelectVisitorTest.CreateTableAsSelectVisitorTest",
@@ -15497,7 +15962,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.filters.EventFilter",
@@ -15525,7 +15991,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.GoogleCloudIntegrationTest.GoogleCloudIntegrationTest.testReadAndWriteFromBigqueryUsingQuery",
@@ -15576,7 +16043,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 150.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 150.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.util.DatabricksUtils.DatabricksUtils.isRunOnDatabricksPlatform",
@@ -15608,7 +16076,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.flink.shared.src.test.java.io.openlineage.flink.visitor.wrapper.KafkaSourceWrapperTest",
@@ -15636,7 +16105,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.test.java.io.openlineage.spark.agent.facets.builder.SparkApplicationDetailsFacetBuilderTest.SparkApplicationDetailsFacetBuilderTest",
@@ -15668,7 +16138,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.tests.test_file.test_file_config_from_dict_with_fsspec_options",
@@ -15703,7 +16174,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.dbt.processor.DbtArtifactProcessor._format_dataset_name",
@@ -15731,7 +16203,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.test_datadog.TestDatadogTransportMethods",
@@ -15763,7 +16236,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.docs.conf",
@@ -15791,7 +16265,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.utils",
@@ -15819,7 +16294,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.kafka.KafkaTransport._get_run_message_key",
@@ -15858,7 +16334,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 50.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 50.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.http.HttpTransport._prepare_session",
@@ -15890,7 +16367,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.testScala212.java.io.openlineage.spark.agent.lifecycle.LogicalPlanSerializer212Test.LogicalPlanSerializer212Test.testSerializeSlicesExcessivePayload",
@@ -15925,7 +16403,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.flink.examples.flink1-test-apps.src.main.java.io.openlineage.flink.FlinkProtobufApplication.FlinkProtobufApplication",
@@ -15957,7 +16436,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.lifecycle.SparkSQLQueryParserTest",
@@ -15985,7 +16465,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.hive.hive-openlineage-hook.src.main.java.io.openlineage.hive.parsing.Parsing.Parsing.handleGenericExpression",
@@ -16030,7 +16511,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 200.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 200.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.util.PathUtils.PathUtils.fromPath",
@@ -16069,7 +16551,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "OpenLineage.integration.flink.flink1.src.test.java.io.openlineage.flink.ContainerTest",
@@ -16101,7 +16584,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.test.java.io.openlineage.spark.agent.lifecycle.OpenLineageRunEventTimeoutExecutorTest.OpenLineageRunEventTimeoutExecutorTest",
@@ -16133,7 +16617,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.tests.transform.test_transform.test_client_with_transform_transport_fails_initialization_if_transformer_is_not_proper_class",
@@ -16168,7 +16653,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.dbt.tests.integration.test_integration.TestDbtIntegration.test_event_ordering",
@@ -16203,7 +16689,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.transport.AccumulatingTransport",
@@ -16235,7 +16722,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.resources.spark_scripts.spark_facets_disable",
@@ -16263,7 +16751,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.test_events",
@@ -16291,7 +16780,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.dbt.processor.DbtArtifactProcessor.node_to_dataset",
@@ -16323,7 +16813,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.datadog.DatadogTransport.close",
@@ -16355,7 +16846,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.test.java.io.openlineage.spark.agent.facets.builder.SparkJobDetailsFacetBuilderTest.SparkJobDetailsFacetBuilderTest.testBuild",
@@ -16390,7 +16882,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.lifecycle.LogicalPlanSerializer.LogicalPlanSerializer.ChildMixIn",
@@ -16418,7 +16911,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.flink.examples.flink1-test-apps.src.main.java.io.openlineage.util.OpenLineageFlinkJobListenerBuilder",
@@ -16446,7 +16940,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.lifecycle.OpenLineageRunEventBuilder.OpenLineageRunEventBuilder.buildOutputDatasets",
@@ -16539,7 +17034,8 @@
         "spillover_rate": 1.5,
         "mutual_accuracy": 0.4
       },
-      "q3_out_of_contract_rate_percent": 500.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 500.0
     },
     {
       "entity": "OpenLineage.integration.flink.flink1.src.test.java.io.openlineage.flink.ContainerTest.ContainerTest.testOpenLineageEventSentForLegacyKafkaJob",
@@ -16571,7 +17067,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.spark.vendor.snowflake.src.test.java.io.openlineage.spark.agent.vendor.snowflake.lifecycle.plan.column.ColumnLevelLineageSnowflakeTest",
@@ -16599,7 +17096,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.java.generator.src.main.java.io.openlineage.client.TypeResolver.TypeResolver",
@@ -16631,7 +17129,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "OpenLineage.integration.common.tests.dbt.test_dbt_local.test_dbt_parse_and_compare_event",
@@ -16690,7 +17189,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.dev.get_contributor_stats.ContributorStats.collect_committers",
@@ -16718,7 +17218,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.facet.ExtractionError",
@@ -16746,7 +17247,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "OpenLineage.client.python.tests.generator.test_cli",
@@ -16774,7 +17276,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     }
   ],
   "questions": {
@@ -17092,21 +17595,33 @@
       ]
     },
     "q3": {
-      "title": "beyond static contract envelope",
+      "title": "non-static edges beyond contract envelope",
       "descriptive_only": true,
       "scored_nodes": 274,
-      "avg_out_of_contract_rate": 0.4425182481751825,
-      "avg_out_of_contract_rate_percent": 44.25182481751825,
-      "total_edges": 260,
-      "by_semantic_type_avg_rate": {
-        "decorator_call": 0.038929440389294405,
-        "direct_call_unresolved": 0.25364963503649635,
-        "member_call_unresolved": 0.14993917274939172
+      "avg_non_static_rate": 0.038929440389294405,
+      "avg_non_static_rate_percent": 3.8929440389294405,
+      "total_non_static_edges": 35,
+      "by_semantic_type_non_static_avg_rate": {
+        "decorator_call": 0.038929440389294405
       },
-      "by_semantic_type_avg_percent": {
-        "decorator_call": 3.8929440389294405,
-        "direct_call_unresolved": 25.364963503649633,
-        "member_call_unresolved": 14.993917274939172
+      "by_semantic_type_non_static_avg_percent": {
+        "decorator_call": 3.8929440389294405
+      },
+      "unresolved_static_defect": {
+        "target_zero": true,
+        "pass": false,
+        "scored_nodes": 274,
+        "avg_rate": 0.40358880778588807,
+        "avg_rate_percent": 40.358880778588805,
+        "total_edges": 225,
+        "by_semantic_type_avg_rate": {
+          "direct_call_unresolved": 0.25364963503649635,
+          "member_call_unresolved": 0.14993917274939172
+        },
+        "by_semantic_type_avg_percent": {
+          "direct_call_unresolved": 25.364963503649633,
+          "member_call_unresolved": 14.993917274939172
+        }
       }
     }
   }

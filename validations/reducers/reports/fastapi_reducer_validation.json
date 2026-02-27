@@ -5,7 +5,8 @@
     "sampled_nodes=500",
     "q1_reducer_vs_db_exact=True",
     "q2_reducer_vs_independent_overlap_macro=False",
-    "q3_avg_out_of_contract_percent=15.5327"
+    "q3_avg_non_static_percent=8.0851",
+    "unresolved_static_avg_percent=7.4476"
   ],
   "invariants": {
     "passed": false,
@@ -13,13 +14,15 @@
     "q1_reducer_vs_db_exact": true,
     "q2_reducer_vs_independent_overlap_macro": false,
     "q2_per_language_near_100": false,
-    "q3_descriptive_only": true
+    "q3_non_static_descriptive_only": true,
+    "unresolved_static_zero": false
   },
   "quality_gates": {
     "q2_target_mutual_accuracy_min": 0.99,
     "q2_target_missing_rate_max": 0.010000000000000009,
     "q2_target_spillover_rate_max": 0.010000000000000009,
-    "q2_filtering_source": "core_only"
+    "q2_filtering_source": "core_only",
+    "unresolved_static_target_zero": true
   },
   "per_node": [
     {
@@ -59,7 +62,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 50.0
+      "q3_non_static_rate_percent": 50.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi._compat.shared.annotation_is_pydantic_v1",
@@ -91,7 +95,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_dependency_contextmanager.test_sync_async_raise_other",
@@ -126,7 +131,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.security.tutorial003_py310.login",
@@ -171,7 +177,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 200.0
+      "q3_non_static_rate_percent": 100.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "fastapi.tests.test_include_router_defaults_overrides.test_openapi",
@@ -199,7 +206,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.sql_databases.tutorial001_py310.get_session",
@@ -227,7 +235,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_security.test_tutorial005.test_openapi_schema",
@@ -262,7 +271,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.scripts.notify_translations.get_graphql_translation_discussion_comments",
@@ -294,7 +304,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_schema_extra_examples.create_app",
@@ -322,7 +333,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.benchmarks.test_general_performance.test_async_return_large_model_with_response_model",
@@ -354,7 +366,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.scripts.sponsors.get_graphql_sponsor_edges",
@@ -382,7 +395,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_skip_defaults.get_exclude_none",
@@ -417,7 +431,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_security.test_tutorial005.test_token_no_scope",
@@ -456,7 +471,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "fastapi.tests.test_application.test_openapi_schema",
@@ -484,7 +500,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_request_params.test_cookie.test_optional_str.test_optional_alias_by_name",
@@ -525,7 +542,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_bigger_applications.test_main.test_openapi_schema",
@@ -553,7 +571,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.scripts.mkdocs_hooks.resolve_files",
@@ -585,7 +604,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.param_functions.Path",
@@ -613,7 +633,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.benchmarks.test_general_performance.test_sync_return_large_dict_without_response_model",
@@ -645,7 +666,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_validation_error_context.websocket_validation_handler",
@@ -684,7 +706,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 100.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_path.test_path_param_le_ge_int_1",
@@ -719,7 +742,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.benchmarks.test_general_performance.test_async_receiving_validated_pydantic_model",
@@ -751,7 +775,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_sql_databases.test_tutorial002.test_openapi_schema",
@@ -786,7 +811,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.scripts.playwright.separate_openapi_schemas.image05.run",
@@ -821,7 +847,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.benchmarks.test_general_performance.test_sync_return_dict_without_response_model",
@@ -853,7 +880,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.benchmarks.test_general_performance.test_async_receiving_large_payload",
@@ -885,7 +913,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi._compat.shared.lenient_issubclass",
@@ -913,7 +942,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.scripts.translation_fixer.get_all_paths",
@@ -952,7 +982,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "fastapi._compat.v2.get_flat_models_from_fields",
@@ -984,7 +1015,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_generate_unique_id_function.test_router_path_operation_overrides_generate_unique_id",
@@ -1012,7 +1044,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_generate_clients.test_tutorial004.test_remove_tags",
@@ -1053,7 +1086,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.first_steps.tutorial003_py310.root",
@@ -1088,7 +1122,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.benchmarks.test_general_performance.test_async_return_dict_with_response_model",
@@ -1120,7 +1155,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.security.tutorial004_py310.login_for_access_token",
@@ -1159,7 +1195,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 50.0
+      "q3_non_static_rate_percent": 50.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_response_model_data_filter_no_inheritance.test_filter_second_level_model",
@@ -1194,7 +1231,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_regex_deprecated_body.test_query_nonregexquery",
@@ -1239,7 +1277,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 200.0
+      "q3_non_static_rate_percent": 100.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "fastapi._compat.shared.field_annotation_is_sequence",
@@ -1271,7 +1310,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_generate_unique_id_function.test_subrouter_top_level_include_overrides_generate_unique_id",
@@ -1299,7 +1339,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_sql_databases.test_tutorial001.test_openapi_schema",
@@ -1334,7 +1375,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.pydantic_v1_in_v2.tutorial003_an_py310.create_item",
@@ -1369,7 +1411,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.dependencies.tutorial013_an_py310.generate",
@@ -1408,7 +1451,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 100.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.security.tutorial004_py310.get_current_user",
@@ -1447,7 +1491,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "fastapi.tests.test_additional_responses_bad.test_openapi_schema",
@@ -1482,7 +1527,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.scripts.notify_translations.update_comment",
@@ -1510,7 +1556,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi._compat.v2.get_cached_model_fields",
@@ -1549,7 +1596,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 100.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_generate_unique_id_function.test_router_overrides_generate_unique_id",
@@ -1577,7 +1625,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.param_functions.Query",
@@ -1605,7 +1654,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_request_params.test_body.test_list.test_required_list_validation_alias_by_name",
@@ -1646,7 +1696,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.websockets.tutorial003_py39.websocket_endpoint",
@@ -1685,7 +1736,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 25.0
+      "q3_non_static_rate_percent": 25.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_security.test_tutorial005.test_token",
@@ -1724,7 +1776,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "fastapi.tests.test_dependency_partial.async_function_dependency",
@@ -1752,7 +1805,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.scripts.people.get_discussion_nodes",
@@ -1784,7 +1838,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_dependency_after_yield_websockets.dep_session",
@@ -1816,7 +1871,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_generate_unique_id_function.test_router_include_overrides_generate_unique_id",
@@ -1844,7 +1900,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.separate_openapi_schemas.tutorial001_py310.create_item",
@@ -1879,7 +1936,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.websockets.tutorial003_py310.websocket_endpoint",
@@ -1918,7 +1976,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 25.0
+      "q3_non_static_rate_percent": 25.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.security.tutorial004_an_py310.get_current_user",
@@ -1957,7 +2016,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "fastapi.tests.test_params_repr.test_cookie_repr_ellipsis",
@@ -1992,7 +2052,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.scripts.docs.new_lang",
@@ -2024,7 +2085,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_dependency_paramless.test_call_get_parameterless_without_scopes_for_coverage",
@@ -2056,7 +2118,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.param_functions.Body",
@@ -2084,7 +2147,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_additional_responses.test_tutorial001.test_path_operation_not_found",
@@ -2119,7 +2183,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.security.tutorial003_py310.fake_decode_token",
@@ -2151,7 +2216,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_security.test_tutorial004.test_token",
@@ -2190,7 +2256,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "fastapi._compat.v2.get_missing_field_error",
@@ -2225,7 +2292,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.scripts.contributors.get_pr_nodes",
@@ -2257,7 +2325,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.scripts.translate.update_outdated",
@@ -2289,7 +2358,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.encoders.jsonable_encoder",
@@ -2321,7 +2391,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.dependencies.tutorial008e_py310.get_user_me",
@@ -2356,7 +2427,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.benchmarks.test_general_performance.test_sync_return_large_model_without_response_model",
@@ -2388,7 +2460,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_security.test_tutorial005.test_read_system_status",
@@ -2427,7 +2500,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "fastapi.tests.utils.skip_module_if_py_gte_314",
@@ -2455,7 +2529,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi._compat.v2.get_flat_models_from_annotation",
@@ -2494,7 +2569,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 50.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 50.0
     },
     {
       "entity": "fastapi._compat.v2.get_flat_models_from_model",
@@ -2526,7 +2602,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_openapi_separate_input_output_schemas.test_openapi_schema_no_separate",
@@ -2558,7 +2635,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.events.tutorial003_py310.predict",
@@ -2599,7 +2677,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.dependencies.tutorial014_an_py310.generate",
@@ -2638,7 +2717,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 100.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.security.tutorial003_an_py310.get_current_user",
@@ -2670,7 +2750,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_exception_handlers.test_override_request_validation_exception",
@@ -2705,7 +2786,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.scripts.docs.generate_readme",
@@ -2737,7 +2819,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.scripts.mkdocs_hooks.on_files",
@@ -2769,7 +2852,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.param_functions.File",
@@ -2797,7 +2881,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_query_params_str_validations.test_tutorial006c.test_query_params_str_validations_no_query",
@@ -2838,7 +2923,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.sql_databases.tutorial001_py310.on_startup",
@@ -2877,7 +2963,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 100.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_sql_databases.test_tutorial002.get_client",
@@ -2916,7 +3003,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 100.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_response_code_no_body.b",
@@ -2951,7 +3039,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi._compat.shared.is_uploadfile_or_nonable_uploadfile_annotation",
@@ -2983,7 +3072,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.scripts.contributors.get_graphql_pr_edges",
@@ -3015,7 +3105,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_generate_unique_id_function.test_callback_override_generate_unique_id",
@@ -3043,7 +3134,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_path_operation_advanced_configurations.test_tutorial004.test_openapi_schema",
@@ -3078,7 +3170,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.extra_models.tutorial001_py310.fake_save_user",
@@ -3110,7 +3203,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_security.test_tutorial005.test_token_inactive_user",
@@ -3149,7 +3243,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "fastapi.tests.test_dependency_wrapped.get_wrapped_gen_dependency_async_wrapper",
@@ -3177,7 +3272,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.scripts.docs.generate_docs_src_versions",
@@ -3209,7 +3305,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_validation_error_context.response_validation_handler",
@@ -3248,7 +3345,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 100.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_generate_unique_id_function.test_app_path_operation_overrides_generate_unique_id",
@@ -3276,7 +3374,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.scripts.playwright.sql_databases.image02.run",
@@ -3311,7 +3410,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.path_operation_advanced_configuration.tutorial006_py310.create_item",
@@ -3356,7 +3456,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 200.0
+      "q3_non_static_rate_percent": 100.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_security.test_tutorial004.test_token_inactive_user",
@@ -3401,7 +3502,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 200.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 200.0
     },
     {
       "entity": "fastapi.tests.test_default_response_class_router.test_router_a_override",
@@ -3436,7 +3538,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.scripts.sponsors.get_individual_sponsors",
@@ -3468,7 +3571,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.scripts.translate.iter_en_paths_to_translate",
@@ -3500,7 +3604,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.param_functions.Cookie",
@@ -3528,7 +3633,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.security.tutorial001_py39.read_items",
@@ -3563,7 +3669,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.benchmarks.test_general_performance.test_async_return_large_dict_without_response_model",
@@ -3595,7 +3702,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.security.tutorial004_an_py310.login_for_access_token",
@@ -3634,7 +3742,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 50.0
+      "q3_non_static_rate_percent": 50.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_query.test_query_param_required",
@@ -3662,7 +3771,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_openapi_separate_input_output_schemas.test_create_item_with_sub",
@@ -3694,7 +3804,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.scripts.mkdocs_hooks.on_nav",
@@ -3726,7 +3837,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_response_model_as_return_annotation.test_openapi_schema",
@@ -3754,7 +3866,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_request_params.test_body.test_required_str.test_required_alias_and_validation_alias_by_name",
@@ -3782,7 +3895,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.benchmarks.test_general_performance.test_sync_return_model_with_response_model",
@@ -3814,7 +3928,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.security.tutorial003_py310.get_current_user",
@@ -3846,7 +3961,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_default_response_class.test_router_a_a_override",
@@ -3881,7 +3997,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.scripts.docs.build_all",
@@ -3913,7 +4030,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.scripts.translate.update_and_add",
@@ -3945,7 +4063,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_openapi_separate_input_output_schemas.test_openapi_schema",
@@ -3977,7 +4096,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_query_params_str_validations.test_tutorial006.test_query_params_str_validations_no_query",
@@ -4012,7 +4132,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.benchmarks.test_general_performance.test_sync_return_large_dict_with_response_model",
@@ -4044,7 +4165,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.benchmarks.test_general_performance.test_sync_receiving_large_payload",
@@ -4076,7 +4198,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tuples.hello",
@@ -4111,7 +4234,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi._compat.shared.is_pydantic_v1_model_class",
@@ -4143,7 +4267,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_regex_deprecated_body.test_no_query",
@@ -4188,7 +4313,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 200.0
+      "q3_non_static_rate_percent": 100.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "fastapi.tests.test_openapi_examples.test_openapi_schema",
@@ -4223,7 +4349,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_request_params.test_header.test_list.read_model_required_list_alias",
@@ -4251,7 +4378,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.applications.FastAPI",
@@ -4283,7 +4411,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.generate_clients.tutorial001_py39.Item",
@@ -4311,7 +4440,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_security_api_key_query_optional.User",
@@ -4339,7 +4469,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.routing.APIRouter",
@@ -4371,7 +4502,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.cookie_param_models.tutorial001_py310.Cookies",
@@ -4399,7 +4531,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_multi_body_errors.Item",
@@ -4427,7 +4560,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_dependency_wrapped.ClassInstanceWrappedDep",
@@ -4459,7 +4593,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.path_operation_configuration.tutorial003_py310.Item",
@@ -4487,7 +4622,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_response_model_data_filter.PetOut",
@@ -4515,7 +4651,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.cookie_param_models.tutorial002_py310.Cookies",
@@ -4543,7 +4680,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_dependency_wrapped.ClassDep",
@@ -4575,7 +4713,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_request_params.test_header.test_optional_list.HeaderModelOptionalListValidationAlias",
@@ -4603,7 +4742,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.openapi.models.Server",
@@ -4631,7 +4771,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.generate_clients.tutorial001_py310.Item",
@@ -4659,7 +4800,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.scripts.contributors.PRsResponse",
@@ -4687,7 +4829,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.request_form_models.tutorial002_py39.FormData",
@@ -4715,7 +4858,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.scripts.topic_repos.Repo",
@@ -4743,7 +4887,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.benchmarks.test_general_performance.LargeIn",
@@ -4771,7 +4916,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.openapi.models.OAuthFlowImplicit",
@@ -4799,7 +4945,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.response_model.tutorial002_py310.UserIn",
@@ -4827,7 +4974,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_include_router_defaults_overrides.ResponseLevel3",
@@ -4855,7 +5003,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.body_multiple_params.tutorial002_py310.User",
@@ -4883,7 +5032,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_additional_responses_union_duplicate_anyof.ModelA",
@@ -4911,7 +5061,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_request_params.test_body.test_optional_list.BodyModelOptionalListAlias",
@@ -4939,7 +5090,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_response_model_data_filter_no_inheritance.User",
@@ -4967,7 +5119,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.body.tutorial001_py310.Item",
@@ -4995,7 +5148,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_sub_callbacks.InvoiceEvent",
@@ -5023,7 +5177,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.body_nested_models.tutorial005_py310.Image",
@@ -5051,7 +5206,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_response_by_alias.ModelNoAlias",
@@ -5079,7 +5235,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.websockets.tutorial003_py39.ConnectionManager",
@@ -5111,7 +5268,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_dependency_class.AsyncCallableDependency",
@@ -5143,7 +5301,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.extra_models.tutorial002_py310.UserBase",
@@ -5171,7 +5330,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.security.oauth2.SecurityScopes",
@@ -5203,7 +5363,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_request_params.test_form.test_required_str.FormModelRequiredValidationAlias",
@@ -5231,7 +5392,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.openapi.models.MediaType",
@@ -5259,7 +5421,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.path_operation_configuration.tutorial002b_py39.Tags",
@@ -5287,7 +5450,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.scripts.notify_translations.Comment",
@@ -5315,7 +5479,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_request_params.test_body.test_optional_str.BodyModelOptionalAlias",
@@ -5343,7 +5508,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_pydanticv2_dataclasses_uuid_stringified_annotations.Item",
@@ -5371,7 +5537,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.dependencies.tutorial008d_py310.InternalError",
@@ -5399,7 +5566,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.scripts.notify_translations.AllDiscussionsData",
@@ -5427,7 +5595,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.settings.app02_an_py310.config.Settings",
@@ -5455,7 +5624,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.openapi.models.ParameterInType",
@@ -5483,7 +5653,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.security.tutorial004_an_py310.UserInDB",
@@ -5511,7 +5682,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_dependency_after_yield_websockets.Session",
@@ -5543,7 +5715,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.dependencies.tutorial011_py310.FixedContentQueryChecker",
@@ -5575,7 +5748,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.datastructures.DefaultPlaceholder",
@@ -5607,7 +5781,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.extra_models.tutorial003_py310.BaseItem",
@@ -5635,7 +5810,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.openapi.models.Contact",
@@ -5663,7 +5839,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.security.tutorial004_py310.User",
@@ -5691,7 +5868,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.routing._DefaultLifespan",
@@ -5723,7 +5901,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.benchmarks.test_general_performance.LargeOut",
@@ -5751,7 +5930,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_dependency_class.CallableGenDependency",
@@ -5783,7 +5963,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_request_params.test_query.test_optional_str.QueryModelOptionalStr",
@@ -5811,7 +5992,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.scripts.doc_parsing_utils.HTMLLinkAttribute",
@@ -5839,7 +6021,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.extra_models.tutorial002_py310.UserOut",
@@ -5867,7 +6050,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_additional_responses_response_class.JsonApiResponse",
@@ -5895,7 +6079,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.schema_extra_example.tutorial003_py310.Item",
@@ -5923,7 +6108,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.dependencies.utils.ParamDetails",
@@ -5951,7 +6137,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.custom_request_and_route.tutorial001_an_py310.GzipRoute",
@@ -5983,7 +6170,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_response_class_no_mediatype.JsonApiError",
@@ -6011,7 +6199,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_request_params.test_form.test_required_str.FormModelRequiredAlias",
@@ -6039,7 +6228,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.scripts.people.DiscussionsCommentsNode",
@@ -6067,7 +6257,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.generate_clients.tutorial002_py310.Item",
@@ -6095,7 +6286,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.exceptions.DependencyScopeError",
@@ -6123,7 +6315,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.openapi_webhooks.tutorial001_py39.Subscription",
@@ -6151,7 +6344,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.openapi.models.SecuritySchemeType",
@@ -6179,7 +6373,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.header_param_models.tutorial002_py310.CommonHeaders",
@@ -6207,7 +6402,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_duplicate_models_openapi.Model2",
@@ -6235,7 +6431,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.extra_models.tutorial002_py310.UserInDB",
@@ -6263,7 +6460,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.routing._AsyncLiftContextManager",
@@ -6295,7 +6493,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.response_model.tutorial001_py310.Item",
@@ -6323,7 +6522,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_dependency_wrapped.ClassInstanceWrappedGenDep",
@@ -6355,7 +6555,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_request_params.test_form.test_optional_list.FormModelOptionalListAliasAndValidationAlias",
@@ -6383,7 +6584,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_security_api_key_header_optional.User",
@@ -6411,7 +6613,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.dependencies.tutorial008c_an_py39.InternalError",
@@ -6439,7 +6642,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.openapi.models.HTTPBearer",
@@ -6467,7 +6671,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.request_form_models.tutorial001_py39.FormData",
@@ -6495,7 +6700,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_additional_properties.Items",
@@ -6523,7 +6729,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.benchmarks.test_general_performance.ItemIn",
@@ -6551,7 +6758,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.scripts.notify_translations.AllDiscussionsLabelsEdge",
@@ -6579,7 +6787,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.body_multiple_params.tutorial004_an_py310.User",
@@ -6607,7 +6816,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_dependency_wrapped.ClassInstanceAsyncGenDep",
@@ -6639,7 +6849,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_request_params.test_cookie.test_required_str.CookieModelRequiredValidationAlias",
@@ -6667,7 +6878,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_response_model_data_filter.UserDB",
@@ -6695,7 +6907,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.custom_request_and_route.tutorial002_py310.ValidationErrorLoggingRoute",
@@ -6727,7 +6940,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_response_model_as_return_annotation.User",
@@ -6755,7 +6969,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.dependencies.tutorial008b_an_py39.OwnerError",
@@ -6783,7 +6998,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.params.Header",
@@ -6815,7 +7031,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.response_model.tutorial003_py310.UserOut",
@@ -6843,7 +7060,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.params.Param",
@@ -6875,7 +7093,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.request_form_models.tutorial002_an_py310.FormData",
@@ -6903,7 +7122,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_security_api_key_header.User",
@@ -6931,7 +7151,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.extra_models.tutorial001_py310.UserInDB",
@@ -6959,7 +7180,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.openapi.models.RequestBody",
@@ -6987,7 +7209,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.extra_models.tutorial003_py310.PlaneItem",
@@ -7015,7 +7238,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_dependency_after_yield_raise.CustomError",
@@ -7043,7 +7267,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.body_nested_models.tutorial007_py310.Image",
@@ -7071,7 +7296,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_dependency_partial.CallableGenDependency",
@@ -7103,7 +7329,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.handling_errors.tutorial003_py39.UnicornException",
@@ -7135,7 +7362,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.scripts.docs.VisibleTextExtractor",
@@ -7167,7 +7395,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.security.tutorial003_an_py310.User",
@@ -7195,7 +7424,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_dependency_wrapped.ClassInstanceWrappedAsyncDep",
@@ -7227,7 +7457,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.settings.app03_an_py310.config.Settings",
@@ -7255,7 +7486,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_openapi_separate_input_output_schemas.SubItem",
@@ -7283,7 +7515,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.extra_models.tutorial004_py39.Item",
@@ -7311,7 +7544,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_dependency_partial.AsyncCallableGenDependency",
@@ -7343,7 +7577,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.response_model.tutorial003_py310.UserIn",
@@ -7371,7 +7606,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.exceptions.WebSocketRequestValidationError",
@@ -7403,7 +7639,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.settings.app02_py310.config.Settings",
@@ -7431,7 +7668,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_additional_responses_custom_validationerror.JsonApiError",
@@ -7459,7 +7697,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.body_nested_models.tutorial003_py310.Item",
@@ -7487,7 +7726,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_additional_responses_custom_validationerror.Error",
@@ -7515,7 +7755,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_request_params.test_header.test_list.HeaderModelRequiredListStr",
@@ -7543,7 +7784,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.scripts.notify_translations.AllDiscussionsDiscussionNode",
@@ -7571,7 +7813,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.path_params.tutorial005_py310.ModelName",
@@ -7599,7 +7842,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.responses.ORJSONResponse",
@@ -7631,7 +7875,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.path_params.tutorial005_py39.ModelName",
@@ -7659,7 +7904,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.openapi.models.SecurityBase",
@@ -7687,7 +7933,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.schema_extra_example.tutorial001_py310.Item",
@@ -7715,7 +7962,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_dependency_after_yield_streaming.Session",
@@ -7747,7 +7995,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.security.tutorial005_an_py310.User",
@@ -7775,7 +8024,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.security.base.SecurityBase",
@@ -7803,7 +8053,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_request_params.test_body.test_list.BodyModelRequiredListAlias",
@@ -7831,7 +8082,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_duplicate_models_openapi.Model3",
@@ -7859,7 +8111,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.dependencies.models.Dependant.is_coroutine_callable",
@@ -7904,7 +8157,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 100.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.routing.APIRoute.get_route_handler",
@@ -7936,7 +8190,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.exceptions.ValidationException.__str__",
@@ -7968,7 +8223,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi._compat.v2.ModelField.get_default",
@@ -8000,7 +8256,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.applications.FastAPI.__init__",
@@ -8032,7 +8289,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.background.BackgroundTasks.add_task",
@@ -8060,7 +8318,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_dependency_wrapped.ClassInstanceGenDep.__call__",
@@ -8088,7 +8347,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.applications.FastAPI.post",
@@ -8120,7 +8380,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_custom_middleware_exception.ContentSizeLimitMiddleware.__call__",
@@ -8152,7 +8413,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.routing.APIWebSocketRoute.__init__",
@@ -8184,7 +8446,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.dependencies.models.Dependant._is_security_scheme",
@@ -8223,7 +8486,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 100.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.dependencies.models.Dependant.is_gen_callable",
@@ -8268,7 +8532,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 100.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.applications.FastAPI.add_api_websocket_route",
@@ -8300,7 +8565,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.handling_errors.tutorial003_py39.UnicornException.__init__",
@@ -8328,7 +8594,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.applications.FastAPI.add_api_route",
@@ -8360,7 +8627,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.routing.APIRouter.options",
@@ -8392,7 +8660,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.dependencies.tutorial011_py310.FixedContentQueryChecker.__call__",
@@ -8420,7 +8689,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.applications.FastAPI.on_event",
@@ -8452,7 +8722,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.applications.FastAPI.delete",
@@ -8484,7 +8755,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi._compat.v2.ModelField.default",
@@ -8523,7 +8795,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 100.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.security.oauth2.OAuth2.__call__",
@@ -8555,7 +8828,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.dependencies.models.Dependant.is_async_gen_callable",
@@ -8600,7 +8874,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 100.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.custom_request_and_route.tutorial001_py310.GzipRequest.body",
@@ -8628,7 +8903,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.routing._AsyncLiftContextManager.__aexit__",
@@ -8656,7 +8932,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.applications.FastAPI.options",
@@ -8688,7 +8965,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.security.api_key.APIKeyBase.check_api_key",
@@ -8720,7 +8998,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.security.open_id_connect_url.OpenIdConnect.__call__",
@@ -8759,7 +9038,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "fastapi.dependencies.models.Dependant.computed_scope",
@@ -8794,7 +9074,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.applications.FastAPI.openapi",
@@ -8822,7 +9103,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.applications.FastAPI.get",
@@ -8854,7 +9136,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.dependencies.models.Dependant._security_scheme",
@@ -8893,7 +9176,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 100.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi._compat.v2.ModelField.validate",
@@ -8932,7 +9216,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "fastapi.security.oauth2.OAuth2.__init__",
@@ -8960,7 +9245,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.datastructures.UploadFile.close",
@@ -8988,7 +9274,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.applications.FastAPI.trace",
@@ -9020,7 +9307,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.datastructures.UploadFile.write",
@@ -9048,7 +9336,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.applications.FastAPI.patch",
@@ -9080,7 +9369,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.security.oauth2.OAuth2AuthorizationCodeBearer.__call__",
@@ -9108,7 +9398,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.datastructures.UploadFile.__get_pydantic_json_schema__",
@@ -9136,7 +9427,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.routing.APIRouter.include_router",
@@ -9168,7 +9460,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.websockets.tutorial003_py39.ConnectionManager.broadcast",
@@ -9196,7 +9489,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.routing._AsyncLiftContextManager.__aenter__",
@@ -9224,7 +9518,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.routing.APIRouter.get",
@@ -9256,7 +9551,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi._compat.v2.ModelField.__hash__",
@@ -9284,7 +9580,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.routing.APIRouter._startup",
@@ -9312,7 +9609,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.routing.APIRouter.delete",
@@ -9344,7 +9642,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.dependencies.tutorial002_py310.CommonQueryParams.__init__",
@@ -9372,7 +9671,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.routing.APIRoute.matches",
@@ -9400,7 +9700,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.routing.APIRouter.__init__",
@@ -9432,7 +9733,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_dependency_class.MethodsDependency.synchronous",
@@ -9460,7 +9762,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.routing.APIWebSocketRoute.matches",
@@ -9488,7 +9791,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.routing.APIRouter.trace",
@@ -9520,7 +9824,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.openapi.models.EmailStr._validate",
@@ -9555,7 +9860,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.routing.APIRouter.add_api_route",
@@ -9583,7 +9889,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.applications.FastAPI.put",
@@ -9615,7 +9922,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_dependency_class.MethodsDependency.synchronous_gen",
@@ -9643,7 +9951,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.params.Param.__repr__",
@@ -9671,7 +9980,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.routing.APIRouter.post",
@@ -9703,7 +10013,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.dependencies.tutorial002_an_py310.CommonQueryParams.__init__",
@@ -9731,7 +10042,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.exceptions.ValidationException.__init__",
@@ -9759,7 +10071,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.routing.APIRouter.head",
@@ -9791,7 +10104,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.openapi.models.EmailStr.__get_pydantic_json_schema__",
@@ -9826,7 +10140,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.routing.APIRouter.add_api_websocket_route",
@@ -9854,7 +10169,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.applications.FastAPI.head",
@@ -9886,7 +10202,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_dependency_class.AsyncCallableGenDependency.__call__",
@@ -9914,7 +10231,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.routing.APIRouter.websocket_route",
@@ -9942,7 +10260,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.routing.APIRouter.patch",
@@ -9974,7 +10293,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_dependency_after_yield_streaming.Session.__init__",
@@ -10002,7 +10322,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.datastructures.UploadFile._validate",
@@ -10030,7 +10351,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.applications.FastAPI.include_router",
@@ -10062,7 +10384,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.dependencies.tutorial011_an_py310.FixedContentQueryChecker.__init__",
@@ -10090,7 +10413,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.routing._DefaultLifespan.__init__",
@@ -10118,7 +10442,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.routing.APIRouter.put",
@@ -10150,7 +10475,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.security.api_key.APIKeyBase.make_not_authenticated_error",
@@ -10178,7 +10504,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.applications.FastAPI.__call__",
@@ -10206,7 +10533,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.applications.FastAPI.api_route",
@@ -10238,7 +10566,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.websockets.tutorial003_py310.ConnectionManager.__init__",
@@ -10266,7 +10595,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.exceptions.WebSocketRequestValidationError.__init__",
@@ -10294,7 +10624,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_dependency_yield_scope.NamedSession.__init__",
@@ -10322,7 +10653,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.applications.FastAPI.build_middleware_stack",
@@ -10350,7 +10682,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_dependency_class.MethodsDependency.asynchronous_gen",
@@ -10378,7 +10711,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.params.Body.__init__",
@@ -10406,7 +10740,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.custom_request_and_route.tutorial002_py310.ValidationErrorLoggingRoute.get_route_handler",
@@ -10453,7 +10788,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.exceptions.HTTPException.__init__",
@@ -10481,7 +10817,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.websockets.tutorial003_py310.ConnectionManager.connect",
@@ -10509,7 +10846,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.datastructures.DefaultPlaceholder.__bool__",
@@ -10537,7 +10875,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_jsonable_encoder.Person.__init__",
@@ -10565,7 +10904,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.params.Path.__init__",
@@ -10593,7 +10933,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_openapi_separate_input_output_schemas.WithComputedField.computed_field",
@@ -10621,7 +10962,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.params.Param.__init__",
@@ -10649,7 +10991,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.security.oauth2.OAuth2PasswordBearer.__init__",
@@ -10677,7 +11020,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.datastructures.DefaultPlaceholder.__init__",
@@ -10705,7 +11049,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_dependency_wrapped.ClassInstanceWrappedGenDep.__call__",
@@ -10733,7 +11078,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.datastructures.UploadFile.read",
@@ -10761,7 +11107,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.dependencies.tutorial011_an_py39.FixedContentQueryChecker.__call__",
@@ -10789,7 +11136,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.applications.FastAPI.middleware",
@@ -10817,7 +11165,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.security.oauth2.SecurityScopes.__init__",
@@ -10845,7 +11194,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.responses.ORJSONResponse.render",
@@ -10873,7 +11223,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_dependency_yield_scope_websockets.NamedSession.__init__",
@@ -10901,7 +11252,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.exceptions.RequestValidationError.__init__",
@@ -10929,7 +11281,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.dependencies.tutorial003_py310.CommonQueryParams.__init__",
@@ -10957,7 +11310,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.exceptions.ResponseValidationError.__init__",
@@ -10985,7 +11339,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.security.api_key.APIKeyHeader.__init__",
@@ -11013,7 +11368,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.datastructures.UploadFile.__get_pydantic_core_schema__",
@@ -11041,7 +11397,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_custom_middleware_exception.ContentSizeLimitMiddleware.__init__",
@@ -11069,7 +11426,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.responses.UJSONResponse.render",
@@ -11097,7 +11455,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.websockets.tutorial003_py310.ConnectionManager.send_personal_message",
@@ -11125,7 +11484,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.routing._AsyncLiftContextManager.__init__",
@@ -11153,7 +11513,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.openapi.models.EmailStr.__get_validators__",
@@ -11188,7 +11549,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.routing.APIRouter.api_route",
@@ -11220,7 +11582,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_dependency_partial.MethodsDependency.synchronous",
@@ -11248,7 +11611,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.routing.APIRouter._shutdown",
@@ -11276,7 +11640,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.scripts.docs.VisibleTextExtractor.__init__",
@@ -11304,7 +11669,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.routing._DefaultLifespan.__aexit__",
@@ -11332,7 +11698,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.middleware.asyncexitstack.AsyncExitStackMiddleware.__init__",
@@ -11360,7 +11727,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.routing._DefaultLifespan.__call__",
@@ -11388,7 +11756,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_default_response_class.ORJSONResponse.render",
@@ -11416,7 +11785,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.applications.FastAPI.exception_handler",
@@ -11444,7 +11814,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.dependencies.models.Dependant._security_dependencies",
@@ -11479,7 +11850,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.applications.FastAPI.setup",
@@ -11511,7 +11883,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_dependency_wrapped.ClassInstanceWrappedAsyncGenDep.__call__",
@@ -11539,7 +11912,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.applications.FastAPI.websocket_route",
@@ -11567,7 +11941,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.authentication_error_status_code.tutorial001_an_py310.HTTPBearer403.make_not_authenticated_error",
@@ -11595,7 +11970,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.exceptions.WebSocketException.__init__",
@@ -11623,7 +11999,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.dependencies.tutorial004_an_py310.CommonQueryParams.__init__",
@@ -11651,7 +12028,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.logger",
@@ -11679,7 +12057,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_union_body_discriminator_annotated",
@@ -11711,7 +12090,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.exceptions",
@@ -11739,7 +12119,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.routing",
@@ -11771,7 +12152,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_response_model.test_tutorial006",
@@ -11803,7 +12185,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.dependencies.utils",
@@ -11835,7 +12218,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_request_params.test_query.test_list",
@@ -11867,7 +12251,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_security_oauth2_password_bearer_optional_description",
@@ -11899,7 +12284,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.cli",
@@ -11927,7 +12313,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.main",
@@ -11959,7 +12346,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.params",
@@ -11991,7 +12379,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.param_functions",
@@ -12023,7 +12412,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_testing_dependencies.test_tutorial001",
@@ -12055,7 +12445,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_schema_extra_examples",
@@ -12087,7 +12478,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_query_param_models.test_tutorial002",
@@ -12119,7 +12511,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.response_model.tutorial003_04_py310",
@@ -12151,7 +12544,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.requests",
@@ -12179,7 +12573,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_jsonable_encoder",
@@ -12211,7 +12606,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.encoders",
@@ -12243,7 +12639,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.applications",
@@ -12275,7 +12672,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_custom_response.test_tutorial002_tutorial003_tutorial004",
@@ -12307,7 +12705,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_include_router_defaults_overrides",
@@ -12339,7 +12738,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_request_params.test_header.test_optional_list",
@@ -12371,7 +12771,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.openapi_callbacks.tutorial001_py310",
@@ -12403,7 +12804,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.dependencies",
@@ -12435,7 +12837,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.scripts.doc_parsing_utils",
@@ -12463,7 +12866,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_request_params.test_body.test_optional_list",
@@ -12495,7 +12899,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.custom_request_and_route.tutorial001_py310",
@@ -12527,7 +12932,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.app_testing.app_a_py39.main",
@@ -12559,7 +12965,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.utils",
@@ -12591,7 +12998,8 @@
         "spillover_rate": 0.25,
         "mutual_accuracy": 0.8
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_security_oauth2_optional",
@@ -12623,7 +13031,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_application",
@@ -12655,7 +13064,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_generate_unique_id_function",
@@ -12687,7 +13097,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_bigger_applications.test_main",
@@ -12719,7 +13130,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.cookie_param_models",
@@ -12751,7 +13163,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.bigger_applications.app_py39.main",
@@ -12796,7 +13209,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "fastapi.datastructures",
@@ -12824,7 +13238,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_response_by_alias",
@@ -12856,7 +13271,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_response_model_as_return_annotation",
@@ -12888,7 +13304,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_header_param_models.test_tutorial002",
@@ -12920,7 +13337,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.static_files.tutorial001_py39",
@@ -12952,7 +13370,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_handling_errors.test_tutorial004",
@@ -12984,7 +13403,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.testclient",
@@ -13012,7 +13432,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.openapi.docs",
@@ -13044,7 +13465,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.types",
@@ -13072,7 +13494,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_param_include_in_schema",
@@ -13104,7 +13527,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_path_params_numeric_validations.test_tutorial006",
@@ -13136,7 +13560,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_query_params_str_validations",
@@ -13168,7 +13593,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.settings.app02_an_py39.main",
@@ -13200,7 +13626,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.openapi",
@@ -13232,7 +13659,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_sub_callbacks",
@@ -13264,7 +13692,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_header_param_models.test_tutorial003",
@@ -13296,7 +13725,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_async_tests",
@@ -13324,7 +13754,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_path_params_numeric_validations.test_tutorial004",
@@ -13356,7 +13787,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.concurrency",
@@ -13384,7 +13816,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.scripts.notify_translations",
@@ -13412,7 +13845,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_request_params.test_body.test_required_str",
@@ -13444,7 +13878,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.response_status_code.tutorial002_py39",
@@ -13476,7 +13911,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_settings.test_app02",
@@ -13504,7 +13940,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.responses",
@@ -13532,7 +13969,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_dependency_overrides",
@@ -13564,7 +14002,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_path_operation_configurations.test_tutorial002",
@@ -13596,7 +14035,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.response_change_status_code",
@@ -13628,7 +14068,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_response_model.test_tutorial003_04",
@@ -13660,7 +14101,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests",
@@ -13692,7 +14134,8 @@
         "spillover_rate": 0.0023923444976076554,
         "mutual_accuracy": 0.9964200477326969
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_starlette_exception",
@@ -13724,7 +14167,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_request_params.test_file.test_optional",
@@ -13756,7 +14200,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.security.tutorial002_an_py310",
@@ -13788,7 +14233,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_additional_responses.test_tutorial004",
@@ -13820,7 +14266,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi._compat",
@@ -13852,7 +14299,8 @@
         "spillover_rate": 0.16666666666666666,
         "mutual_accuracy": 0.8571428571428571
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.security.oauth2",
@@ -13884,7 +14332,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_request_params.test_header.test_list",
@@ -13916,7 +14365,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.first_steps.tutorial001_py310",
@@ -13948,7 +14398,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_handling_errors.test_tutorial002",
@@ -13980,7 +14431,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.templating",
@@ -14008,7 +14460,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_query",
@@ -14040,7 +14493,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_request_params.test_form.test_optional_list",
@@ -14072,7 +14526,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.response_status_code",
@@ -14104,7 +14559,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_configure_swagger_ui.test_tutorial003",
@@ -14136,7 +14592,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.middleware",
@@ -14164,7 +14621,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_dependency_yield_scope",
@@ -14196,7 +14654,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_request_params.test_header.test_required_str",
@@ -14228,7 +14687,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_response_cookies",
@@ -14260,7 +14720,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_query_params_str_validations.test_tutorial013",
@@ -14292,7 +14753,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.websockets",
@@ -14320,7 +14782,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_openapi_separate_input_output_schemas",
@@ -14352,7 +14815,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_body_updates.test_tutorial002",
@@ -14384,7 +14848,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.custom_response.tutorial008_py310",
@@ -14416,7 +14881,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_schema_extra_example.test_tutorial001",
@@ -14448,7 +14914,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.security",
@@ -14480,7 +14947,8 @@
         "spillover_rate": 0.2857142857142857,
         "mutual_accuracy": 0.7777777777777778
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.scripts.docs",
@@ -14508,7 +14976,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_request_params.test_file.test_list",
@@ -14540,7 +15009,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.path_params_numeric_validations.tutorial004_py310",
@@ -14572,7 +15042,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_security.test_tutorial006",
@@ -14604,7 +15075,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.exception_handlers",
@@ -14636,7 +15108,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.scripts.sponsors",
@@ -14664,7 +15137,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_body_multiple_params.test_tutorial003",
@@ -14696,7 +15170,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.request_files.tutorial002_an_py39",
@@ -14728,7 +15203,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_query_params.test_tutorial003",
@@ -14760,7 +15236,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.pdm_build",
@@ -14788,7 +15265,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.scripts.contributors",
@@ -14816,7 +15294,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_dependencies.test_tutorial012",
@@ -14848,7 +15327,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.python_types.tutorial008_py39",
@@ -14876,7 +15356,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.settings.app03_py39.config",
@@ -14904,7 +15385,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.staticfiles",
@@ -14932,7 +15414,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.scripts.people",
@@ -14960,7 +15443,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_body_nested_models.test_tutorial006",
@@ -14992,7 +15476,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.header_param_models.tutorial001_an_py310",
@@ -15024,7 +15509,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_path_params.test_tutorial003",
@@ -15056,7 +15542,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.background",
@@ -15084,7 +15571,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_dependency_wrapped",
@@ -15116,7 +15604,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_request_params.test_header.test_optional_str",
@@ -15148,7 +15637,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_put_no_body",
@@ -15180,7 +15670,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_metadata.test_tutorial004",
@@ -15212,7 +15703,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.__main__",
@@ -15244,7 +15736,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.security.api_key",
@@ -15276,7 +15769,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_security.test_tutorial003",
@@ -15308,7 +15802,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_modules_same_name_body.test_main",
@@ -15340,7 +15835,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_path_operation_configurations.test_tutorial001",
@@ -15372,7 +15868,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi",
@@ -15423,7 +15920,8 @@
         "spillover_rate": 0.008019740900678593,
         "mutual_accuracy": 0.988984088127295
       },
-      "q3_out_of_contract_rate_percent": 0.1850709438618137
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.1850709438618137
     },
     {
       "entity": "fastapi.scripts.translate",
@@ -15451,7 +15949,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_request_params.test_query.test_optional_str",
@@ -15483,7 +15982,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.docs_src.path_params_numeric_validations.tutorial005_an_py310",
@@ -15515,7 +16015,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_path_operation_advanced_configurations.test_tutorial001",
@@ -15547,7 +16048,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi.tests.test_list_bytes_file_order_preserved_issue_14811",
@@ -15579,7 +16081,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     }
   ],
   "questions": {
@@ -15883,27 +16386,39 @@
       ]
     },
     "q3": {
-      "title": "beyond static contract envelope",
+      "title": "non-static edges beyond contract envelope",
       "descriptive_only": true,
       "scored_nodes": 235,
-      "avg_out_of_contract_rate": 0.15532702429548348,
-      "avg_out_of_contract_rate_percent": 15.532702429548348,
-      "total_edges": 91,
-      "by_semantic_type_avg_rate": {
+      "avg_non_static_rate": 0.08085106382978724,
+      "avg_non_static_rate_percent": 8.085106382978724,
+      "total_non_static_edges": 43,
+      "by_semantic_type_non_static_avg_rate": {
         "decorator_call": 0.07446808510638298,
-        "direct_call_unresolved": 0.006382978723404255,
-        "dynamic_call": 0.006382978723404255,
-        "member_call_unresolved": 0.06382978723404255,
-        "module_import_unresolved": 2.625119771089556e-06,
-        "relative_import_unresolved": 0.004260569388478349
+        "dynamic_call": 0.006382978723404255
       },
-      "by_semantic_type_avg_percent": {
+      "by_semantic_type_non_static_avg_percent": {
         "decorator_call": 7.446808510638298,
-        "direct_call_unresolved": 0.6382978723404255,
-        "dynamic_call": 0.6382978723404255,
-        "member_call_unresolved": 6.382978723404255,
-        "module_import_unresolved": 0.0002625119771089556,
-        "relative_import_unresolved": 0.4260569388478349
+        "dynamic_call": 0.6382978723404255
+      },
+      "unresolved_static_defect": {
+        "target_zero": true,
+        "pass": false,
+        "scored_nodes": 235,
+        "avg_rate": 0.07447596046569625,
+        "avg_rate_percent": 7.447596046569625,
+        "total_edges": 48,
+        "by_semantic_type_avg_rate": {
+          "direct_call_unresolved": 0.006382978723404255,
+          "member_call_unresolved": 0.06382978723404255,
+          "module_import_unresolved": 2.625119771089556e-06,
+          "relative_import_unresolved": 0.004260569388478349
+        },
+        "by_semantic_type_avg_percent": {
+          "direct_call_unresolved": 0.6382978723404255,
+          "member_call_unresolved": 6.382978723404255,
+          "module_import_unresolved": 0.0002625119771089556,
+          "relative_import_unresolved": 0.4260569388478349
+        }
       }
     }
   }

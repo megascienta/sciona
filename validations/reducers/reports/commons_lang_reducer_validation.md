@@ -25,6 +25,9 @@
 ## Q3. Beyond Static Contract Envelope
 
 - scored_nodes: `366`
-- avg_out_of_contract_rate_percent: `33.60%`
-- avg_percent_by_type: `{'direct_call_unresolved': '33.60%'}`
+- avg_non_static_rate_percent: `0.00%`
+- avg_non_static_percent_by_type: `{}`
+- unresolved_static_target_zero: `True`
+- unresolved_static_pass: `False`
+- unresolved_static_avg_percent: `33.60%`
 

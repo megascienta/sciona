@@ -5,7 +5,8 @@
     "sampled_nodes=500",
     "q1_reducer_vs_db_exact=True",
     "q2_reducer_vs_independent_overlap_macro=False",
-    "q3_avg_out_of_contract_percent=33.6003"
+    "q3_avg_non_static_percent=0.0000",
+    "unresolved_static_avg_percent=33.6003"
   ],
   "invariants": {
     "passed": false,
@@ -13,13 +14,15 @@
     "q1_reducer_vs_db_exact": true,
     "q2_reducer_vs_independent_overlap_macro": false,
     "q2_per_language_near_100": false,
-    "q3_descriptive_only": true
+    "q3_non_static_descriptive_only": true,
+    "unresolved_static_zero": false
   },
   "quality_gates": {
     "q2_target_mutual_accuracy_min": 0.99,
     "q2_target_missing_rate_max": 0.010000000000000009,
     "q2_target_spillover_rate_max": 0.010000000000000009,
-    "q2_filtering_source": "core_only"
+    "q2_filtering_source": "core_only",
+    "unresolved_static_target_zero": true
   },
   "per_node": [
     {
@@ -48,7 +51,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.math.Fraction",
@@ -76,7 +80,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.function.FailableIntUnaryOperator",
@@ -104,7 +109,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.StringEscapeUtilsTest",
@@ -136,7 +142,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.MethodUtils",
@@ -168,7 +175,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.text.package-info",
@@ -196,7 +204,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.Functions",
@@ -228,7 +237,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils",
@@ -260,7 +270,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.ConcurrentExceptionTest",
@@ -292,7 +303,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.ConstructorUtilsTest",
@@ -324,7 +336,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SystemUtils",
@@ -352,7 +365,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.function.FailableObjLongConsumer",
@@ -380,7 +394,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.AnnotationUtils",
@@ -412,7 +427,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.builder.HashCodeBuilder",
@@ -444,7 +460,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.testbed.Ambig",
@@ -472,7 +489,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.Streams",
@@ -500,7 +518,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.TypeUtils",
@@ -532,7 +551,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.NotImplementedException",
@@ -560,7 +580,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.BasicThreadFactory",
@@ -588,7 +609,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.time.DateUtilsTest",
@@ -620,7 +642,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.text.translate.OctalUnescaperTest",
@@ -652,7 +675,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.StringUtilsTrimStripTest",
@@ -680,7 +704,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.EqualsBuilderTest",
@@ -712,7 +737,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.time.FastDateParserJava15BugTest",
@@ -744,7 +770,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.AppendableJoiner",
@@ -776,7 +803,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.ClassUtils",
@@ -804,7 +832,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.builder.Builder",
@@ -832,7 +861,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.LongRangeTest",
@@ -864,7 +894,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.builder.ToStringStyle",
@@ -896,7 +927,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.function.FailableObjIntConsumer",
@@ -924,7 +956,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.time.FastDateFormat",
@@ -952,7 +985,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ConversionTest",
@@ -984,7 +1018,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.math.IEEE754rUtilsTest",
@@ -1016,7 +1051,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ArchUtilsTest",
@@ -1044,7 +1080,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.text.StrTokenizer",
@@ -1076,7 +1113,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.function.SuppliersTest",
@@ -1108,7 +1146,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.time.AbstractFormatCache",
@@ -1140,7 +1179,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.text.StrBuilder",
@@ -1172,7 +1212,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.testbed.AnotherChild",
@@ -1200,7 +1241,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.math.IEEE754rUtils",
@@ -1232,7 +1274,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.Validate",
@@ -1260,7 +1303,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.PublicSubBean",
@@ -1288,7 +1332,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ThreadUtilsTest",
@@ -1320,7 +1365,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.stream.Streams",
@@ -1352,7 +1398,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.ConcurrentRuntimeException",
@@ -1380,7 +1427,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.text.WordUtilsTest",
@@ -1412,7 +1460,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.text.StrBuilderAppendInsertTest",
@@ -1444,7 +1493,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.function.FailableToLongBiFunction",
@@ -1472,7 +1522,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.compare.ComparableUtils",
@@ -1504,7 +1555,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.text.StrTokenizerTest",
@@ -1536,7 +1588,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.ClassLoaderUtils",
@@ -1564,7 +1617,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.CharSet",
@@ -1592,7 +1646,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.time.FastDateParser",
@@ -1624,7 +1679,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.time.GmtTimeZoneTest",
@@ -1656,7 +1712,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.TimedSemaphore",
@@ -1688,7 +1745,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.StringEscapeUtils",
@@ -1720,7 +1778,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.PackageBean",
@@ -1748,7 +1807,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.locks.LockingVisitorsTest",
@@ -1780,7 +1840,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.TypeUtilsTest",
@@ -1812,7 +1873,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.8333333333333334
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.AccessibleObjects",
@@ -1840,7 +1902,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.builder.MultilineRecursiveToStringStyle",
@@ -1872,7 +1935,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.math.FractionTest",
@@ -1904,7 +1968,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.CachedRandomBits",
@@ -1932,7 +1997,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionToStringBuilderIncludeTest",
@@ -1964,7 +2030,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.builder.ToStringBuilder",
@@ -1996,7 +2063,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.function.FailableDoubleBinaryOperator",
@@ -2024,7 +2092,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.StringUtilsAbbreviateTest",
@@ -2056,7 +2125,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.SystemPropertiesTest",
@@ -2084,7 +2154,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.function.FailableLongBinaryOperator",
@@ -2112,7 +2183,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.time.DurationUtils",
@@ -2144,7 +2216,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.FunctionsTest",
@@ -2172,7 +2245,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.mutable.MutableObject",
@@ -2200,7 +2274,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.text.StrMatcher",
@@ -2232,7 +2307,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.Conversion",
@@ -2260,7 +2336,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionToStringBuilderSummaryTest",
@@ -2292,7 +2369,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.builder.DiffBuilder",
@@ -2324,7 +2402,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.FieldUtilsTest",
@@ -2356,7 +2435,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.9090909090909091
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.builder.HashCodeExclude",
@@ -2384,7 +2464,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.locks.LockingVisitors",
@@ -2416,7 +2497,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.exception.ExceptionUtils",
@@ -2448,7 +2530,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.CircuitBreakingExceptionTest",
@@ -2480,7 +2563,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.EnumUtils",
@@ -2512,7 +2596,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ValidateTest",
@@ -2544,7 +2629,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.CharEncodingTest",
@@ -2572,7 +2658,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.time.FastDateParserSDFTest",
@@ -2604,7 +2691,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.CompareToBuilderTest",
@@ -2636,7 +2724,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.function.FailableLongToDoubleFunction",
@@ -2664,7 +2753,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.SerializationUtilsTest",
@@ -2696,7 +2786,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ArrayUtilsRemoveMultipleTest",
@@ -2728,7 +2819,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.NotImplementedExceptionTest",
@@ -2756,7 +2848,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.StringUtilsContainsTest",
@@ -2788,7 +2881,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.exception.ExceptionUtilsTest",
@@ -2820,7 +2914,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.6666666666666666
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.function.FailableDoubleToIntFunction",
@@ -2848,7 +2943,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.tuple.ImmutableTripleTest",
@@ -2880,7 +2976,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.ObjectUtils",
@@ -2912,7 +3009,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.CallableBackgroundInitializerTest",
@@ -2944,7 +3042,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.text.StrSubstitutorTest",
@@ -2976,7 +3075,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.Strings",
@@ -3008,7 +3108,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.6666666666666666
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.Supplementary",
@@ -3036,7 +3137,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.MultiBackgroundInitializerTest",
@@ -3068,7 +3170,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.util.FluentBitSetTest",
@@ -3100,7 +3203,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.function.FailableLongUnaryOperator",
@@ -3128,7 +3232,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.event.EventListenerSupport",
@@ -3160,7 +3265,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.SystemUtilsTest",
@@ -3188,7 +3294,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.text.StrLookup",
@@ -3220,7 +3327,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.text.StrMatcherTest",
@@ -3252,7 +3360,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest",
@@ -3284,7 +3393,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.StringsTest",
@@ -3312,7 +3422,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.time.DurationFormatUtilsTest",
@@ -3344,7 +3455,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.text.StrSubstitutor",
@@ -3376,7 +3488,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.builder.DiffExclude",
@@ -3404,7 +3517,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.builder.ReflectionDiffBuilder",
@@ -3436,7 +3550,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.BooleanUtils",
@@ -3468,7 +3583,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.MultiLineToStringStyleTest",
@@ -3500,7 +3616,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.ThreadUtils",
@@ -3532,7 +3649,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.StringUtils",
@@ -3564,7 +3682,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.stream.package-info",
@@ -3592,7 +3711,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.StandardToStringStyleTest",
@@ -3624,7 +3744,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ClassUtilsTest",
@@ -3656,7 +3777,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.75
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.text.translate.NumericEntityUnescaperTest",
@@ -3688,7 +3810,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.stream.LangCollectorsTest",
@@ -3716,7 +3839,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.MethodUtilsTest",
@@ -3748,7 +3872,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.875
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.Lang1703Test",
@@ -3776,7 +3901,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.time.DateUtilsRoundingTest",
@@ -3808,7 +3934,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.time.DurationFormatUtils",
@@ -3840,7 +3967,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.ShortPrefixToStringStyleTest",
@@ -3872,7 +4000,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.JsonToStringStyleTest",
@@ -3904,7 +4033,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.text.StrBuilderTest",
@@ -3936,7 +4066,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.ConstantInitializerTest",
@@ -3968,7 +4099,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.mutable.MutableByte",
@@ -3996,7 +4128,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.math.NumberUtils",
@@ -4028,7 +4161,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.text.FormattableUtilsTest",
@@ -4060,7 +4194,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.MultiBackgroundInitializerSupplierTest",
@@ -4088,7 +4223,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.BooleanUtilsTest",
@@ -4120,7 +4256,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.time.FastTimeZoneTest",
@@ -4152,7 +4289,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.compare.ComparableUtilsTest",
@@ -4184,7 +4322,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties",
@@ -4216,7 +4355,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionToStringBuilderTest",
@@ -4248,7 +4388,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.mutable.MutableByteTest",
@@ -4280,7 +4421,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.FieldUtils",
@@ -4312,7 +4454,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ObjectToStringRuntimeException",
@@ -4340,7 +4483,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.text.ExtendedMessageFormat",
@@ -4372,7 +4516,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ObjectUtilsTest",
@@ -4404,7 +4549,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.CircuitBreaker",
@@ -4432,7 +4578,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.time.CalendarUtils",
@@ -4460,7 +4607,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.StringUtilsEqualsIndexOfTest",
@@ -4492,7 +4640,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.function.FailableToBooleanFunction",
@@ -4520,7 +4669,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.tuple.PairTest",
@@ -4552,7 +4702,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.StringUtilsTest",
@@ -4584,7 +4735,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.exception.UncheckedInterruptedExceptionTest",
@@ -4616,7 +4768,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.StringUtilsSubstringTest",
@@ -4644,7 +4797,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.builder.CompareToBuilder",
@@ -4676,7 +4830,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.exception.UncheckedReflectiveOperationException",
@@ -4704,7 +4859,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.time.DateFormatUtilsTest",
@@ -4736,7 +4892,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ArrayUtilsTest",
@@ -4768,7 +4925,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.testbed.Foo",
@@ -4796,7 +4954,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.CharSetUtils",
@@ -4828,7 +4987,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.time.StopWatch",
@@ -4860,7 +5020,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.ConcurrentException",
@@ -4888,7 +5049,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.EventCountCircuitBreaker",
@@ -4916,7 +5078,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.builder.EqualsBuilder",
@@ -4948,7 +5111,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.time.TimeZones",
@@ -4980,7 +5144,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.TimedSemaphoreTest",
@@ -5012,7 +5177,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.RandomStringUtilsTest",
@@ -5044,7 +5210,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.text.translate.CodePointTranslator",
@@ -5072,7 +5239,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.DoubleRangeTest",
@@ -5104,7 +5272,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.time.FastDatePrinter",
@@ -5136,7 +5305,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.SystemUtilsTest.SystemUtilsTest.testIsJavaVersionAtLeast",
@@ -5171,7 +5341,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.ClassUtils.ClassUtils.getAbbreviatedName",
@@ -5216,7 +5387,8 @@
         "spillover_rate": 0.5,
         "mutual_accuracy": 0.6666666666666666
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties.SystemProperties.getJavaUtilLoggingSimpleFormatterFormat",
@@ -5248,7 +5420,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.math.NumberUtilsTest.NumberUtilsTest.testCreateNumberMagnitude",
@@ -5295,7 +5468,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ArrayUtilsTest.ArrayUtilsTest.testSameLengthAll",
@@ -5330,7 +5504,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.SystemUtilsTest.SystemUtilsTest.testJavaVersionMatches",
@@ -5365,7 +5540,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.time.DurationFormatUtilsTest.DurationFormatUtilsTest.assertEqualDuration",
@@ -5422,7 +5598,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 400.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 400.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.MultiBackgroundInitializerSupplierTest.MultiBackgroundInitializerSupplierTest.createChildBackgroundInitializer",
@@ -5454,7 +5631,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.tuple.ImmutablePairTest.ImmutablePairTest.testEmptyArrayGenerics",
@@ -5489,7 +5667,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testApplyNonNull2",
@@ -5546,7 +5725,8 @@
         "spillover_rate": 1.0,
         "mutual_accuracy": 0.25
       },
-      "q3_out_of_contract_rate_percent": 200.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 200.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.SystemUtilsTest.SystemUtilsTest.testIsJavaVersionAtMost",
@@ -5581,7 +5761,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.MethodUtilsTest.MethodUtilsTest.TestBeanWithInterfaces.foo",
@@ -5609,7 +5790,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.text.StrSubstitutorTest.StrSubstitutorTest.testReplaceIncompletePrefix",
@@ -5641,7 +5823,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testAcceptObjIntConsumer",
@@ -5692,7 +5875,8 @@
         "spillover_rate": 0.25,
         "mutual_accuracy": 0.4
       },
-      "q3_out_of_contract_rate_percent": 75.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 75.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.exception.DefaultExceptionContext.DefaultExceptionContext.getFirstContextValue",
@@ -5755,7 +5939,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 500.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 500.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.EqualsBuilderTest.EqualsBuilderTest.testBigDecimal",
@@ -5794,7 +5979,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.text.StrBuilderAppendInsertTest.StrBuilderAppendInsertTest.testAppendAll_Iterator",
@@ -5847,7 +6033,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.text.StrTokenizer.StrTokenizer.getTokenArray",
@@ -5886,7 +6073,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.time.FastDatePrinter.FastDatePrinter.parsePattern",
@@ -5967,7 +6155,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 72.72727272727273
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 72.72727272727273
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.math.NumberUtilsTest.NumberUtilsTest.testCreateNumberFailure_2",
@@ -6002,7 +6191,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.UncheckedFutureTest.UncheckedFutureTest.testGetLongExecutionException",
@@ -6047,7 +6237,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 200.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 200.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.StringUtils.StringUtils.capitalize",
@@ -6086,7 +6277,8 @@
         "spillover_rate": 1.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.text.StrBuilder.StrBuilder.toString",
@@ -6114,7 +6306,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.BitField.BitField.setBoolean",
@@ -6146,7 +6339,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.time.FastDateParser.FastDateParser.CopyQuotedStrategy.parse",
@@ -6174,7 +6368,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.mutable.MutableBooleanTest.MutableBooleanTest.testHashCode",
@@ -6215,7 +6410,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.text.translate.JavaUnicodeEscaper.JavaUnicodeEscaper.between",
@@ -6247,7 +6443,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils.ArrayUtils.shift",
@@ -6286,7 +6483,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 33.33333333333333
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 33.33333333333333
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ArrayUtilsTest.ArrayUtilsTest.testIndexOfInt",
@@ -6321,7 +6519,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.BooleanUtils.BooleanUtils.oneHot",
@@ -6372,7 +6571,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 300.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 300.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.function.Failable.Failable.get",
@@ -6411,7 +6611,8 @@
         "spillover_rate": 1.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ArrayUtilsRemoveTest.ArrayUtilsRemoveTest.testRemoveLongArray",
@@ -6464,7 +6665,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.Validate.Validate.matchesPattern",
@@ -6509,7 +6711,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 200.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 200.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ThreadUtilsTest.ThreadUtilsTest.testSleepQuietlyInterruptDuringSleep",
@@ -6572,7 +6775,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 500.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 500.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ArrayUtilsTest.ArrayUtilsTest.testSwapFloat",
@@ -6607,7 +6811,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.Testable.testAsIntPrimitive",
@@ -6642,7 +6847,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.MultiBackgroundInitializerTest.MultiBackgroundInitializerTest.testAddInitializerAfterStart",
@@ -6687,7 +6893,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 200.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 200.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.IntegerRangeTest.IntegerRangeTest.testFitNull",
@@ -6722,7 +6929,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testByteConsumerAndThen",
@@ -6785,7 +6993,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 166.66666666666669
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 166.66666666666669
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.StringUtils.StringUtils.getCommonPrefix",
@@ -6817,7 +7026,8 @@
         "spillover_rate": 2.0,
         "mutual_accuracy": 0.3333333333333333
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.mutable.MutableDoubleTest.MutableDoubleTest.testToString",
@@ -6852,7 +7062,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.DiffResultTest.DiffResultTest.testNullRhs",
@@ -6884,7 +7095,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.event.EventListenerSupportTest.EventListenerSupportTest.testRemoveListenerDuringEvent",
@@ -6941,7 +7153,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 400.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 400.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.TypeUtilsTest.Test1.m1",
@@ -6969,7 +7182,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.EnumUtils.EnumUtils.processBitVector",
@@ -7001,7 +7215,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.HashCodeBuilderTest.HashCodeBuilderTest.testReflectionHierarchyHashCode",
@@ -7040,7 +7255,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.StreamsTest.StreamsTest.asIntConsumer",
@@ -7068,7 +7284,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.exception.ContextedRuntimeException.ContextedRuntimeException.getRawMessage",
@@ -7100,7 +7317,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.ClassUtils.ClassUtils.getAllInterfaces",
@@ -7139,7 +7357,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ArrayUtilsTest.ArrayUtilsTest.testIndexOfFloat",
@@ -7174,7 +7393,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties.SystemProperties.getUserScript",
@@ -7206,7 +7426,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.function.MethodInvokers.MethodInvokers.unreflectUnchecked",
@@ -7238,7 +7459,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.IDKeyTest.IDKeyTest.testEquals",
@@ -7266,7 +7488,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.TypeUtils.TypeUtils.unrollBounds",
@@ -7298,7 +7521,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.Range.Range.isOverlappedBy",
@@ -7330,7 +7554,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ClassUtilsTest.ClassUtilsTest.testWrapperToPrimitiveNull",
@@ -7365,7 +7590,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.Functions.Functions.accept",
@@ -7393,7 +7619,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testAcceptIntConsumer",
@@ -7450,7 +7677,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.3333333333333333
       },
-      "q3_out_of_contract_rate_percent": 133.33333333333331
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 133.33333333333331
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.SomeException.setThrowable",
@@ -7478,7 +7706,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.time.DateUtils.DateUtils.addMonths",
@@ -7510,7 +7739,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.text.StrTokenizer.StrTokenizer.next",
@@ -7542,7 +7772,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ObjectUtilsTest.ObjectUtilsTest.testComparatorMedian_emptyItems",
@@ -7577,7 +7808,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.text.translate.NumericEntityEscaper.NumericEntityEscaper.outsideOf",
@@ -7609,7 +7841,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.DiffBuilderTest.DiffBuilderTest.testNestedDiffableYesNestedYes",
@@ -7666,7 +7899,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 400.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 400.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.ConstructorUtilsTest.ConstructorUtilsTest.PrivateClass.PublicInnerClass.PublicInnerClass",
@@ -7694,7 +7928,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.Testable.testLong",
@@ -7729,7 +7964,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.text.StrBuilder.StrBuilder.appendPadding",
@@ -7761,7 +7997,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ArrayUtilsTest.ArrayUtilsTest.testNullToEmptyIntEmptyArray",
@@ -7796,7 +8033,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.time.DateUtilsRoundingTest.DateUtilsRoundingTest.testTruncateDate",
@@ -7835,7 +8073,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.BackgroundInitializerTest.BackgroundInitializerTest.AbstractBackgroundInitializerTestImpl.initializeInternal",
@@ -7863,7 +8102,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ValidateTest.ValidateTest.IsInstanceOf.WithMessage.shouldNotThrowExceptionWhenValueIsInstanceOfClass",
@@ -7898,7 +8138,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties.SystemProperties.getJdkXmlCdataChunkSize",
@@ -7930,7 +8171,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.ToStringBuilderTest.ToStringBuilderTest.testAppendAsObjectToString",
@@ -7981,7 +8223,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 300.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 300.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ConversionTest.ConversionTest.testHexToByte",
@@ -8022,7 +8265,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.Range.Range.is",
@@ -8054,7 +8298,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.LazyInitializerAnonClassTest.LazyInitializerAnonClassTest.testIsInitialized",
@@ -8099,7 +8344,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 200.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 200.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.StringUtilsTrimStripTest.StringUtilsTrimStripTest.testStripAccentsUWithBar",
@@ -8134,7 +8380,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.builder.StandardToStringStyle.StandardToStringStyle.setArrayEnd",
@@ -8166,7 +8413,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ClassUtilsTest.ClassUtilsTest.testGetClassWithArrayClasses",
@@ -8198,7 +8446,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.CharSequenceUtils.CharSequenceUtils.checkLaterThan1",
@@ -8233,7 +8482,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.ToStringBuilderTest.ToStringBuilderTest.testInnerClassReflection",
@@ -8272,7 +8522,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 50.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 50.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.AtomicInitializer.AtomicInitializer.get",
@@ -8317,7 +8568,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 200.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 200.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.event.EventListenerSupportTest.EventListenerSupportTest.testAddListenerNoDuplicates",
@@ -8382,7 +8634,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.UncheckedFutureTest.UncheckedFutureTest.testMap",
@@ -8433,7 +8686,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 300.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 300.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.text.StrBuilder.StrBuilder.replaceImpl",
@@ -8484,7 +8738,8 @@
         "spillover_rate": 0.5,
         "mutual_accuracy": 0.6666666666666666
       },
-      "q3_out_of_contract_rate_percent": 150.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 150.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ValidateTest.ValidateTest.InclusiveBetween.WithLong.WithoutMessage.shouldThrowIllegalArgumentExceptionWithDefaultMessageWhenValueIsAboveUpperBound",
@@ -8525,7 +8780,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.FieldUtils.FieldUtils.readDeclaredField",
@@ -8564,7 +8820,8 @@
         "spillover_rate": 0.6666666666666666,
         "mutual_accuracy": 0.6
       },
-      "q3_out_of_contract_rate_percent": 33.33333333333333
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 33.33333333333333
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.FieldUtilsTest.FieldUtilsTest.testRemoveFinalModifierWithoutAccess",
@@ -8615,7 +8872,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 300.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 300.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.BooleanUtilsTest.BooleanUtilsTest.test_toIntegerObject_Boolean",
@@ -8656,7 +8914,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.FieldUtils.FieldUtils.writeField",
@@ -8707,7 +8966,8 @@
         "spillover_rate": 0.6666666666666666,
         "mutual_accuracy": 0.6
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.StringUtils.StringUtils.countMatches",
@@ -8746,7 +9006,8 @@
         "spillover_rate": 2.0,
         "mutual_accuracy": 0.3333333333333333
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.ClassPathUtils.ClassPathUtils.pathToPackage",
@@ -8787,7 +9048,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.mutable.MutableBoolean.MutableBoolean.MutableBoolean",
@@ -8819,7 +9081,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testAsRunnable",
@@ -8876,7 +9139,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 400.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 400.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.DiffTest.DiffTest.testCannotModify",
@@ -8911,7 +9175,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties.SystemProperties.getJdkNetUrlClassPathShowIgnoredClassPathEntries",
@@ -8943,7 +9208,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.BasicThreadFactoryTest.BasicThreadFactoryTest.testBuilderResetAfterBuild",
@@ -9000,7 +9266,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 400.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 400.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ValidateTest.ValidateTest.ExclusiveBetween.WithLong.WithMessage.shouldThrowIllegalArgumentExceptionWithGivenMessageWhenValueIsUpperBound",
@@ -9041,7 +9308,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.RandomStringUtils.RandomStringUtils.next",
@@ -9080,7 +9348,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 50.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 50.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.UncheckedFutureImpl.UncheckedFutureImpl.get",
@@ -9119,7 +9388,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.text.StrBuilderAppendInsertTest.StrBuilderAppendInsertTest.testAppendSeparator_char",
@@ -9166,7 +9436,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.ClassUtils.ClassUtils.getSimpleName",
@@ -9198,7 +9469,8 @@
         "spillover_rate": 1.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testFunction",
@@ -9261,7 +9533,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.3333333333333333
       },
-      "q3_out_of_contract_rate_percent": 166.66666666666669
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 166.66666666666669
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.StringUtilsEqualsIndexOfTest.StringUtilsEqualsIndexOfTest.testCompareIgnoreCase_StringStringBoolean",
@@ -9296,7 +9569,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.time.DateUtils.DateUtils.addHours",
@@ -9328,7 +9602,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.time.FastDateParserJava15BugTest.FastDateParserJava15BugTest.testJava15BuggyLocaleTest",
@@ -9379,7 +9654,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 300.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 300.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.Range.Range.isNaturalOrdering",
@@ -9407,7 +9683,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.function.Failable.Failable.test",
@@ -9439,7 +9716,8 @@
         "spillover_rate": 1.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.LazyInitializerFailableCloserTest.LazyInitializerFailableCloserTest.testIsInitialized",
@@ -9490,7 +9768,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 300.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 300.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.stream.LangCollectors.LangCollectors.SimpleCollector.finisher",
@@ -9518,7 +9797,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.CharSequenceUtilsBenchmark.CharSequenceUtilsBenchmark.benchmarkToCharArrayNew",
@@ -9550,7 +9830,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils.ArrayUtils.insert",
@@ -9582,7 +9863,8 @@
         "spillover_rate": 0.25,
         "mutual_accuracy": 0.8
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.ConcurrentUtilsTest.ConcurrentUtilsTest.testCreateIfAbsentKeyNotPresent",
@@ -9629,7 +9911,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.CharRange.CharRange.isNot",
@@ -9661,7 +9944,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.DiffBuilderTest.DiffBuilderTest.testShort",
@@ -9724,7 +10008,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 500.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 500.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ArrayUtilsRemoveMultipleTest.ArrayUtilsRemoveMultipleTest.testRemoveElementByteArray",
@@ -9777,7 +10062,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.TypeUtils.TypeUtils.getImplicitUpperBounds",
@@ -9809,7 +10095,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.time.DateUtilsTest.DateUtilsTest.testSetDays",
@@ -9848,7 +10135,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.BitField.BitField.set",
@@ -9876,7 +10164,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils.ArrayUtils.removeElement",
@@ -9908,7 +10197,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.StringUtils.StringUtils.rotate",
@@ -9947,7 +10237,8 @@
         "spillover_rate": 0.5,
         "mutual_accuracy": 0.6666666666666666
       },
-      "q3_out_of_contract_rate_percent": 50.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 50.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.FieldUtilsTest.FieldUtilsTest.testGetDeclaredFieldAccessIllegalArgumentException3",
@@ -9982,7 +10273,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.compare.ComparableUtils.ComparableUtils.max",
@@ -10010,7 +10302,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.exception.ExceptionUtilsTest.ExceptionUtilsTest.testStream_recursiveCause",
@@ -10067,7 +10360,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 400.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 400.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.StringUtilsTest.StringUtilsTest.testGetJaroWinklerDistance_StringNull",
@@ -10102,7 +10396,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.ThresholdCircuitBreaker.ThresholdCircuitBreaker.close",
@@ -10141,7 +10436,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.time.DateUtilsRoundingTest.DateUtilsRoundingTest.testRoundDayOfMonth",
@@ -10180,7 +10476,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 50.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 50.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.tuple.MutableTripleTest.MutableTripleTest.testEmptyArrayGenerics",
@@ -10215,7 +10512,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.ArchUtils.ArchUtils.getProcessor",
@@ -10260,7 +10558,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 200.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 200.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.text.StrBuilder.StrBuilder.appendNewLine",
@@ -10292,7 +10591,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.function.FailableDoubleToIntFunction.FailableDoubleToIntFunction.applyAsInt",
@@ -10320,7 +10620,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.ToStringBuilderTest.ToStringBuilderTest.testReflectionFloatArray",
@@ -10359,7 +10660,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 50.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 50.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.util.FluentBitSetTest.FluentBitSetTest.test_ConstructorInt",
@@ -10404,7 +10706,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 200.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 200.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ValidateTest.ValidateTest.ValidState.WitMessage.shouldThrowExceptionForTrueExpression",
@@ -10439,7 +10742,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.builder.EqualsBuilder.EqualsBuilder.reflectionEquals",
@@ -10484,7 +10788,8 @@
         "spillover_rate": 2.5,
         "mutual_accuracy": 0.2857142857142857
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.function.ByteConsumer.ByteConsumer.andThen",
@@ -10523,7 +10828,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.FieldUtilsTest.FieldUtilsTest.testConstructor",
@@ -10564,7 +10870,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties.SystemProperties.getJavaUtilPrefsPreferencesFactory",
@@ -10596,7 +10903,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.time.FastDatePrinter.FastDatePrinter.TwoDigitNumberField.appendTo",
@@ -10649,7 +10957,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ClassPathUtilsTest.ClassPathUtilsTest.testToFullyQualifiedPathPackageNull",
@@ -10684,7 +10993,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ClassUtilsTest.ClassUtilsTest.testGetClassInvalidArguments",
@@ -10716,7 +11026,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.exception.ExceptionUtilsTest.ExceptionUtilsTest.testGetThrowableList_Throwable_recursiveCause",
@@ -10767,7 +11078,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 300.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 300.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.EqualsBuilderTest.EqualsBuilderTest.TestRecursiveObject.getB",
@@ -10795,7 +11107,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.LocaleUtils.LocaleUtils.languagesByCountry",
@@ -10834,7 +11147,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 50.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 50.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.math.NumberUtils.NumberUtils.toByte",
@@ -10866,7 +11180,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.SystemPropertiesTest.SystemPropertiesTest.testGetLineSeparator",
@@ -10901,7 +11216,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.BooleanUtils.BooleanUtils.toStringTrueFalse",
@@ -10933,7 +11249,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.ObjectUtils.ObjectUtils.min",
@@ -10965,7 +11282,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.text.StrBuilderTest.StrBuilderTest.testReadFromCharBuffer",
@@ -11024,7 +11342,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.StringUtils.StringUtils.joinWith",
@@ -11056,7 +11375,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.AppendableJoinerTest.AppendableJoinerTest.testToCharSequenceStringBuilder2",
@@ -11125,7 +11445,8 @@
         "spillover_rate": 1.0,
         "mutual_accuracy": 0.5
       },
-      "q3_out_of_contract_rate_percent": 600.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 600.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.time.DurationFormatUtilsTest.DurationFormatUtilsTest.testFormatPeriodISOMethod",
@@ -11160,7 +11481,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.RuntimeEnvironmentTest.RuntimeEnvironmentTest.testIsContainer",
@@ -11199,7 +11521,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.time.FastDatePrinterTest.FastDatePrinterTest.testWeekYear",
@@ -11238,7 +11561,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.HashCodeBuilderTest.HashCodeBuilderTest.testBooleanArrayAsObject",
@@ -11285,7 +11609,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.StringUtils.StringUtils.stripAll",
@@ -11330,7 +11655,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.DiffBuilderTest.DiffBuilderTest.testCharArray",
@@ -11399,7 +11725,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 600.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 600.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.StringUtils.StringUtils.isEmpty",
@@ -11427,7 +11754,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties.SystemProperties.getOsVersion",
@@ -11459,7 +11787,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ObjectUtilsTest.ObjectUtilsTest.testIdentityToStringStrBuilder",
@@ -11510,7 +11839,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 300.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 300.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ArrayUtilsTest.ArrayUtilsTest.testReverseFloatRange",
@@ -11545,7 +11875,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.builder.ToStringStyle.ToStringStyle.appendFieldSeparator",
@@ -11584,7 +11915,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 100.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.LocaleUtils.LocaleUtils.parseLocale",
@@ -11647,7 +11979,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 166.66666666666669
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 166.66666666666669
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ArrayUtilsTest.ArrayUtilsTest.testShiftRangeNoElemInt",
@@ -11682,7 +12015,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.builder.StandardToStringStyle.StandardToStringStyle.setUseShortClassName",
@@ -11714,7 +12048,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionDiffBuilderTest.ReflectionDiffBuilderTest.testGetDiffFloatWrapperEquals",
@@ -11746,7 +12081,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.FieldUtilsTest.FieldUtilsTest.testGetDeclaredFieldForceAccessIllegalArgumentException3",
@@ -11781,7 +12117,8 @@
         }
       ],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.time.DateFormatUtils.DateFormatUtils",
@@ -11813,7 +12150,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.time.FastDatePrinter.FastDatePrinter.PaddedNumberField",
@@ -11845,7 +12183,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ArrayUtilsTest.ArrayUtilsTest",
@@ -11877,7 +12216,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.AnnotationUtils.AnnotationUtils",
@@ -11909,7 +12249,8 @@
         "spillover_rate": 0.2,
         "mutual_accuracy": 0.8333333333333334
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.HashCodeBuilderAndEqualsBuilderTest.HashCodeBuilderAndEqualsBuilderTest.SubTestFixture",
@@ -11941,7 +12282,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.text.StrBuilder.StrBuilder",
@@ -11973,7 +12315,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.RangeTest.RangeTest",
@@ -12005,7 +12348,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.MultilineRecursiveToStringStyleTest.MultilineRecursiveToStringStyleTest.WithArrays",
@@ -12033,7 +12377,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ClassUtilsTest.ClassUtilsTest",
@@ -12065,7 +12410,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.Streams.Streams",
@@ -12097,7 +12443,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.AbstractConcurrentInitializerCloseAndExceptionsTest.AbstractConcurrentInitializerCloseAndExceptionsTest.CloseableObject",
@@ -12129,7 +12476,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.Validate.Validate",
@@ -12161,7 +12509,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.math.IEEE754rUtils.IEEE754rUtils",
@@ -12193,7 +12542,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.testbed.StaticContainerChild.StaticContainerChild",
@@ -12221,7 +12571,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.text.StrTokenizer.StrTokenizer",
@@ -12253,7 +12604,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.CharUtils.CharUtils",
@@ -12285,7 +12637,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.DiffResultTest.DiffResultTest.SimpleClass",
@@ -12317,7 +12670,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils.ArrayUtils",
@@ -12349,7 +12703,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.mutable.MutableByte.MutableByte",
@@ -12381,7 +12736,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.MethodUtilsTest.MethodUtilsTest.ParentObject",
@@ -12409,7 +12765,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.builder.EqualsBuilder.EqualsBuilder",
@@ -12441,7 +12798,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ValidateTest.ValidateTest.ExclusiveBetween",
@@ -12469,7 +12827,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.function.BooleanConsumerTest.BooleanConsumerTest",
@@ -12501,7 +12860,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.time.DateUtilsTest.DateUtilsTest",
@@ -12533,7 +12893,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.text.translate.EntityArrays.EntityArrays",
@@ -12565,7 +12926,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.MethodUtilsTest.MethodUtilsTest.MethodDescriptor",
@@ -12597,7 +12959,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties.SystemProperties",
@@ -12629,7 +12992,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.time.DurationFormatUtils.DurationFormatUtils",
@@ -12661,7 +13025,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.StringUtilsValueOfTest.StringUtilsValueOfTest",
@@ -12693,7 +13058,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.FieldUtilsTest.FieldUtilsTest",
@@ -12725,7 +13091,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.ConcurrentUtils.ConcurrentUtils",
@@ -12757,7 +13124,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.function.FailableLongUnaryOperator.FailableLongUnaryOperator",
@@ -12789,7 +13157,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.util.FluentBitSetTest.FluentBitSetTest",
@@ -12821,7 +13190,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.util.FluentBitSet.FluentBitSet",
@@ -12853,7 +13223,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.NumberRange.NumberRange",
@@ -12885,7 +13256,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.Conversion.Conversion",
@@ -12917,7 +13289,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.EnumUtils.EnumUtils",
@@ -12949,7 +13322,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.InheritanceUtilsTest.InheritanceUtilsTest",
@@ -12981,7 +13355,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.CompareToBuilderTest.CompareToBuilderTest",
@@ -13013,7 +13388,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.mutable.MutableInt.MutableInt",
@@ -13045,7 +13421,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ValidateTest.ValidateTest.IsTrue.WithMessage",
@@ -13077,7 +13454,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.text.StrBuilderAppendInsertTest.StrBuilderAppendInsertTest",
@@ -13109,7 +13487,8 @@
         "spillover_rate": 0.0196078431372549,
         "mutual_accuracy": 0.9807692307692307
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.EqualsBuilderReflectJreImplementationTest.EqualsBuilderReflectJreImplementationTest",
@@ -13141,7 +13520,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.TypeUtilsTest.TypeUtilsTest.TestImpl2",
@@ -13169,7 +13549,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.StringUtilsTest.StringUtilsTest",
@@ -13201,7 +13582,8 @@
         "spillover_rate": 0.006329113924050633,
         "mutual_accuracy": 0.9937106918238994
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.StringUtilsTrimStripTest.StringUtilsTrimStripTest",
@@ -13233,7 +13615,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.StringUtilsJoinBenchmark.StringUtilsJoinBenchmark.ByteArrayBenchmark",
@@ -13265,7 +13648,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.builder.ToStringBuilder.ToStringBuilder",
@@ -13297,7 +13681,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.ConcurrentUtilsTest.ConcurrentUtilsTest",
@@ -13329,7 +13714,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ValidateTest.ValidateTest.MatchesPattern",
@@ -13357,7 +13743,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.BooleanUtils.BooleanUtils",
@@ -13389,7 +13776,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.StringEscapeUtilsTest.StringEscapeUtilsTest",
@@ -13421,7 +13809,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.function.MethodInvokersFailableBiConsumerTest.MethodInvokersFailableBiConsumerTest",
@@ -13453,7 +13842,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ConversionTest.ConversionTest",
@@ -13485,7 +13875,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.time.DurationUtils.DurationUtils",
@@ -13517,7 +13908,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.tuple.MutablePair.MutablePair",
@@ -13549,7 +13941,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.builder.CompareToBuilder.CompareToBuilder",
@@ -13581,7 +13974,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.Range.Range",
@@ -13613,7 +14007,8 @@
         "spillover_rate": 0.043478260869565216,
         "mutual_accuracy": 0.9583333333333334
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.TimedSemaphore.TimedSemaphore.Builder",
@@ -13645,7 +14040,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.exception.ExceptionUtilsTest.ExceptionUtilsTest",
@@ -13677,7 +14073,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.IntegerRangeTest.IntegerRangeTest",
@@ -13709,7 +14106,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.text.translate.UnicodeUnpairedSurrogateRemover.UnicodeUnpairedSurrogateRemover",
@@ -13741,7 +14139,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.text.StrTokenizerTest.StrTokenizerTest",
@@ -13773,7 +14172,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.BitFieldTest.BitFieldTest",
@@ -13805,7 +14205,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.builder.RecursiveToStringStyle.RecursiveToStringStyle",
@@ -13837,7 +14238,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.ToStringBuilderTest.ToStringBuilderTest",
@@ -13869,7 +14271,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.mutable.MutableFloat.MutableFloat",
@@ -13901,7 +14304,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.TypeUtilsTest.TypeUtilsTest.TestImpl",
@@ -13929,7 +14333,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.time.DateUtils.DateUtils",
@@ -13961,7 +14366,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.compare.ComparableUtilsTest.ComparableUtilsTest.A_is_1",
@@ -13989,7 +14395,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.EqualsBuilderReflectJreImplementationTest.EqualsBuilderReflectJreImplementationTest.MyTemporalAccessor",
@@ -14021,7 +14428,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.builder.HashCodeBuilder.HashCodeBuilder",
@@ -14053,7 +14461,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.event.EventListenerSupport.EventListenerSupport",
@@ -14085,7 +14494,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.time.CalendarUtilsTest.CalendarUtilsTest",
@@ -14117,7 +14527,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.builder.ToStringStyle.ToStringStyle",
@@ -14149,7 +14560,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.locks.LockingVisitors.LockingVisitors",
@@ -14181,7 +14593,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.TypeUtilsTest.AClass.CClass",
@@ -14209,7 +14622,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.Strings.Strings",
@@ -14241,7 +14655,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.function.Failable.Failable",
@@ -14273,7 +14688,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.TypeUtilsTest.AAAAClass.BBBBClass",
@@ -14301,7 +14717,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.StringUtils.StringUtils",
@@ -14333,7 +14750,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.ConstructorUtilsTest.ConstructorUtilsTest",
@@ -14365,7 +14783,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ValidateTest.ValidateTest.ExclusiveBetween.WithLong",
@@ -14393,7 +14812,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.FunctionsTest.FunctionsTest",
@@ -14425,7 +14845,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.mutable.MutableLongTest.MutableLongTest",
@@ -14457,7 +14878,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.BasicThreadFactory.BasicThreadFactory.Builder",
@@ -14489,7 +14911,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.EqualsBuilderTest.EqualsBuilderTest",
@@ -14521,7 +14944,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.CharSetTest.CharSetTest",
@@ -14553,7 +14977,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.exception.DefaultExceptionContextTest.DefaultExceptionContextTest",
@@ -14585,7 +15010,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.StringUtilsEqualsIndexOfTest.StringUtilsEqualsIndexOfTest",
@@ -14617,7 +15043,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.MultiBackgroundInitializerTest.MultiBackgroundInitializerTest",
@@ -14649,7 +15076,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.HashCodeBuilderAndEqualsBuilderTest.HashCodeBuilderAndEqualsBuilderTest.SubAllTransientFixture",
@@ -14681,7 +15109,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.math.Fraction.Fraction",
@@ -14713,7 +15142,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.Functions.Functions",
@@ -14745,7 +15175,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.builder.Diffable.Diffable",
@@ -14777,7 +15208,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.math.NumberUtilsTest.NumberUtilsTest",
@@ -14809,7 +15241,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.BasicThreadFactoryTest.BasicThreadFactoryTest",
@@ -14841,7 +15274,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.mutable.PrintAtomicVsMutable.PrintAtomicVsMutable",
@@ -14873,7 +15307,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SystemUtils.SystemUtils",
@@ -14905,7 +15340,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.time.DateUtilsFragmentTest.DateUtilsFragmentTest",
@@ -14937,7 +15373,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ValidateTest.ValidateTest.UtilClassConventions",
@@ -14969,7 +15406,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.text.StrBuilderTest.StrBuilderTest",
@@ -15001,7 +15439,8 @@
         "spillover_rate": 0.01098901098901099,
         "mutual_accuracy": 0.9891304347826086
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.text.ExtendedMessageFormatTest.ExtendedMessageFormatTest",
@@ -15033,7 +15472,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.time.FastDateParser.FastDateParser.Strategy",
@@ -15065,7 +15505,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.TypeUtils.TypeUtils",
@@ -15097,7 +15538,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.RegExUtils.RegExUtils",
@@ -15129,7 +15571,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.ClassPathUtils.ClassPathUtils",
@@ -15161,7 +15604,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.FieldUtils.FieldUtils",
@@ -15193,7 +15637,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SerializationUtils.SerializationUtils",
@@ -15225,7 +15670,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.compare.ComparableUtilsTest.ComparableUtilsTest.A_is_1.B_is_0.C_is_10",
@@ -15257,7 +15703,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.math.NumberUtils.NumberUtils",
@@ -15289,7 +15736,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ArrayUtilsAddTest.ArrayUtilsAddTest",
@@ -15321,7 +15769,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.HashCodeBuilderTest.HashCodeBuilderTest.ReflectionTestCycleA",
@@ -15353,7 +15802,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.math.FractionTest.FractionTest",
@@ -15385,7 +15835,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.CharSet.CharSet",
@@ -15417,7 +15868,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.TypeLiteralTest.TypeLiteralTest",
@@ -15449,7 +15901,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.MethodUtils.MethodUtils",
@@ -15481,7 +15934,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ArrayUtilsInsertTest.ArrayUtilsInsertTest",
@@ -15513,7 +15967,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.text.translate.LookupTranslator.LookupTranslator",
@@ -15545,7 +16000,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.TypeUtilsTest.TypeUtilsTest",
@@ -15577,7 +16033,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.locks.LockingVisitorsTest.LockingVisitorsTest",
@@ -15609,7 +16066,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.exception.AbstractExceptionTest.AbstractExceptionTest",
@@ -15641,7 +16099,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.SystemUtilsTest.SystemUtilsTest",
@@ -15673,7 +16132,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.HashCodeBuilderTest.HashCodeBuilderTest",
@@ -15705,7 +16165,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionToStringBuilderMutateInspectConcurrencyTest.ReflectionToStringBuilderMutateInspectConcurrencyTest.InspectingClient",
@@ -15737,7 +16198,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.time.FastDatePrinter.FastDatePrinter",
@@ -15769,7 +16231,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.TimedSemaphoreTest.TimedSemaphoreTest",
@@ -15801,7 +16264,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.CachedRandomBitsTest.CachedRandomBitsTest.MockRandom",
@@ -15833,7 +16297,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest",
@@ -15865,7 +16330,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.RandomUtilsTest.RandomUtilsTest",
@@ -15897,7 +16363,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.LazyInitializerSupplierTest.LazyInitializerSupplierTest",
@@ -15929,7 +16396,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.time.FastDateParser.FastDateParser",
@@ -15961,7 +16429,8 @@
         "spillover_rate": 0.05263157894736842,
         "mutual_accuracy": 0.95
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.event.EventListenerSupportTest.EventListenerSupportTest",
@@ -15993,7 +16462,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.UncheckedFuture.UncheckedFuture",
@@ -16025,7 +16495,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.ObjectUtils.ObjectUtils",
@@ -16057,7 +16528,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.CharSequenceUtils.CharSequenceUtils",
@@ -16089,7 +16561,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.text.ExtendedMessageFormatTest.ExtendedMessageFormatTest.LowerCaseFormatFactory",
@@ -16121,7 +16594,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.exception.ExceptionUtils.ExceptionUtils",
@@ -16153,7 +16627,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.locks.LockingVisitors.LockingVisitors.LockVisitor",
@@ -16185,7 +16660,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.TimedSemaphoreTest.TimedSemaphoreTest.TimedSemaphoreTestImpl",
@@ -16217,7 +16693,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ValidateTest.ValidateTest",
@@ -16245,7 +16722,8 @@
       },
       "basket2_edges": [],
       "q2_node_rates": null,
-      "q3_out_of_contract_rate_percent": null
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.TimedSemaphore.TimedSemaphore",
@@ -16277,7 +16755,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.time.FastDateParser.FastDateParser.StrategyAndWidth",
@@ -16309,7 +16788,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.ClassUtils.ClassUtils",
@@ -16341,7 +16821,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.builder.ReflectionToStringBuilder.ReflectionToStringBuilder",
@@ -16373,7 +16854,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.TypeUtilsTest.TypeUtilsTest.ClassWithSuperClassWithGenericType",
@@ -16405,7 +16887,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.RandomStringUtils.RandomStringUtils",
@@ -16437,7 +16920,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.EventCountCircuitBreakerTest.EventCountCircuitBreakerTest",
@@ -16469,7 +16953,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.TypeUtils.TypeUtils.ParameterizedTypeImpl",
@@ -16501,7 +16986,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.MethodUtilsTest.MethodUtilsTest",
@@ -16533,7 +17019,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.mutable.MutableFloatTest.MutableFloatTest",
@@ -16565,7 +17052,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.Functions.Functions.FailableBiFunction",
@@ -16597,7 +17085,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ObjectUtilsTest.ObjectUtilsTest",
@@ -16629,7 +17118,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionDiffBuilderTest.ReflectionDiffBuilderTest",
@@ -16661,7 +17151,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.text.CompositeFormat.CompositeFormat",
@@ -16693,7 +17184,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.SystemPropertiesTest.SystemPropertiesTest",
@@ -16725,7 +17217,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.CharSequenceUtilsTest.CharSequenceUtilsTest",
@@ -16757,7 +17250,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.function.Suppliers.Suppliers",
@@ -16789,7 +17283,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.BooleanUtilsTest.BooleanUtilsTest",
@@ -16821,7 +17316,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.time.FastDatePrinterTest.FastDatePrinterTest",
@@ -16853,7 +17349,8 @@
         "spillover_rate": 0.038461538461538464,
         "mutual_accuracy": 0.9629629629629629
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionDiffBuilderTest.ReflectionDiffBuilderTest.FloatWrapperWrapperDeepEquals",
@@ -16885,7 +17382,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ArrayUtilsRemoveMultipleTest.ArrayUtilsRemoveMultipleTest",
@@ -16917,7 +17415,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.builder.StandardToStringStyle.StandardToStringStyle",
@@ -16949,7 +17448,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.UncheckedTimeoutException.UncheckedTimeoutException",
@@ -16981,7 +17481,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.text.StrSubstitutor.StrSubstitutor",
@@ -17013,7 +17514,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.EnumUtilsTest.EnumUtilsTest",
@@ -17045,7 +17547,8 @@
         "spillover_rate": 0.0,
         "mutual_accuracy": 1.0
       },
-      "q3_out_of_contract_rate_percent": 0.0
+      "q3_non_static_rate_percent": 0.0,
+      "unresolved_static_rate_percent": 0.0
     }
   ],
   "questions": {
@@ -17349,17 +17852,27 @@
       ]
     },
     "q3": {
-      "title": "beyond static contract envelope",
+      "title": "non-static edges beyond contract envelope",
       "descriptive_only": true,
       "scored_nodes": 366,
-      "avg_out_of_contract_rate": 0.33600347739692005,
-      "avg_out_of_contract_rate_percent": 33.600347739692005,
-      "total_edges": 242,
-      "by_semantic_type_avg_rate": {
-        "direct_call_unresolved": 0.33600347739692005
-      },
-      "by_semantic_type_avg_percent": {
-        "direct_call_unresolved": 33.600347739692005
+      "avg_non_static_rate": 0.0,
+      "avg_non_static_rate_percent": 0.0,
+      "total_non_static_edges": 0,
+      "by_semantic_type_non_static_avg_rate": {},
+      "by_semantic_type_non_static_avg_percent": {},
+      "unresolved_static_defect": {
+        "target_zero": true,
+        "pass": false,
+        "scored_nodes": 366,
+        "avg_rate": 0.33600347739692005,
+        "avg_rate_percent": 33.600347739692005,
+        "total_edges": 242,
+        "by_semantic_type_avg_rate": {
+          "direct_call_unresolved": 0.33600347739692005
+        },
+        "by_semantic_type_avg_percent": {
+          "direct_call_unresolved": 33.600347739692005
+        }
       }
     }
   }
