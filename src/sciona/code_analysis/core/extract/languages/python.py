@@ -7,9 +7,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from tree_sitter import Parser
-from tree_sitter_languages import get_language
-
 from ...module_naming import module_name_from_path
 from ...normalize.model import (
     AnalysisResult,
@@ -19,7 +16,7 @@ from ...normalize.model import (
     SemanticNodeRecord,
 )
 from ..analyzer import ASTAnalyzer
-from ..utils import count_lines
+from ..utils import bootstrap_tree_sitter_parser, count_lines
 from .python_calls import resolve_python_calls
 from .python_imports import collect_python_import_model
 from .python_nodes import PythonNodeState, walk_python_nodes
@@ -37,12 +34,8 @@ class PythonAnalyzer(ASTAnalyzer):
     language = "python"
 
     def __init__(self) -> None:
-        self._parser = Parser()
-        language = get_language("python")
-        if hasattr(self._parser, "set_language"):
-            self._parser.set_language(language)
-        else:
-            self._parser.language = language
+        self._parser, _language, diagnostics = bootstrap_tree_sitter_parser("python")
+        self._parser_bootstrap_diagnostics = diagnostics
 
     def analyze(self, snapshot: FileSnapshot, module_name: str) -> AnalysisResult:
         tree = self._parser.parse(snapshot.content)

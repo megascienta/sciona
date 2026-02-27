@@ -2,9 +2,9 @@
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
 from tree_sitter import Parser
-from tree_sitter_languages import get_language
 
 from sciona.code_analysis.core.extract.utils import (
+    bootstrap_tree_sitter_parser,
     count_lines,
     find_nodes_of_types_query,
 )
@@ -13,13 +13,17 @@ import pytest
 
 
 def _parser(language_name: str) -> Parser:
-    parser = Parser()
-    language = get_language(language_name)
-    if hasattr(parser, "set_language"):
-        parser.set_language(language)
-    else:
-        parser.language = language
+    parser, _language, _diagnostics = bootstrap_tree_sitter_parser(language_name)
     return parser
+
+
+def test_bootstrap_tree_sitter_parser_returns_diagnostics() -> None:
+    parser, language, diagnostics = bootstrap_tree_sitter_parser("python")
+    assert isinstance(parser, Parser)
+    assert language is not None
+    assert diagnostics["language_name"] == "python"
+    assert diagnostics["binding_api"] in {"set_language", "language_attr"}
+    assert diagnostics["query_api_available"] is True
 
 
 def test_count_lines_counts_non_empty() -> None:
