@@ -263,3 +263,41 @@ def test_java_analyzer_resolves_static_member_and_wildcard_imports(tmp_path):
     assert diagnostics.get("member_aliases", 0) >= 1
     assert diagnostics.get("static_wildcard_targets", 0) >= 1
     assert isinstance(diagnostics.get("call_resolution_outcomes"), dict)
+
+
+def test_java_analyzer_emits_kind_metadata_for_class_like_and_methods(tmp_path):
+    module = """
+    interface Repo {
+        void find();
+    }
+    class Service {
+        Service() {}
+        void run() {}
+    }
+    """
+    repo = tmp_path
+    src = repo / "src"
+    src.mkdir()
+    file_path = src / "Mod.java"
+    file_path.write_text(module, encoding="utf-8")
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("src/Mod.java"),
+            language="java",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = JavaAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+    interface_node = next(node for node in result.nodes if node.qualified_name.endswith(".Repo"))
+    assert (interface_node.metadata or {}).get("kind") == "interface"
+    ctor_node = next(node for node in result.nodes if node.qualified_name.endswith(".Service.Service"))
+    assert (ctor_node.metadata or {}).get("kind") == "constructor"
+    assert (ctor_node.metadata or {}).get("declared_in_kind") == "class"

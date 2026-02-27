@@ -18,6 +18,7 @@ class JavaNodeState:
     class_methods: dict[str, set[str]] = field(default_factory=dict)
     class_name_map: dict[str, str] = field(default_factory=dict)
     class_name_candidates: dict[str, set[str]] = field(default_factory=dict)
+    class_kind_map: dict[str, str] = field(default_factory=dict)
     class_field_types: dict[str, dict[str, str]] = field(default_factory=dict)
     pending_calls: list[tuple[str, str, object | None, str | None]] = field(
         default_factory=list
@@ -34,6 +35,12 @@ def walk_java_nodes(
     state: JavaNodeState,
     collect_declared_vars,
 ) -> None:
+    class_kind_map = {
+        "class_declaration": "class",
+        "interface_declaration": "interface",
+        "enum_declaration": "enum",
+        "record_declaration": "record",
+    }
     if node.type in {
         "class_declaration",
         "interface_declaration",
@@ -65,6 +72,7 @@ def walk_java_nodes(
                 end_line=node.end_point[0] + 1,
                 start_byte=node.start_byte,
                 end_byte=node.end_byte,
+                metadata={"kind": class_kind_map.get(node.type, "class")},
             )
         )
         result.edges.append(
@@ -83,6 +91,7 @@ def walk_java_nodes(
         state.class_methods.setdefault(qualified, set())
         state.class_name_map.setdefault(class_name, qualified)
         state.class_name_candidates.setdefault(class_name, set()).add(qualified)
+        state.class_kind_map[qualified] = class_kind_map.get(node.type, "class")
         if body:
             for child in body.named_children:
                 walk_java_nodes(
@@ -114,6 +123,12 @@ def walk_java_nodes(
         parent = state.class_stack[-1]
         state.class_methods.setdefault(parent, set()).add(func_name)
         qualified = f"{parent}.{func_name}"
+        callable_kind = {
+            "constructor_declaration": "constructor",
+            "compact_constructor_declaration": "compact_constructor",
+            "method_declaration": "method",
+        }.get(node.type, "method")
+        body_node = node.child_by_field_name("body")
         result.nodes.append(
             SemanticNodeRecord(
                 language=language,
@@ -125,6 +140,11 @@ def walk_java_nodes(
                 end_line=node.end_point[0] + 1,
                 start_byte=node.start_byte,
                 end_byte=node.end_byte,
+                metadata={
+                    "kind": callable_kind,
+                    "declared_in_kind": state.class_kind_map.get(parent, "class"),
+                    "abstract": node.type == "method_declaration" and body_node is None,
+                },
             )
         )
         result.edges.append(
@@ -138,7 +158,6 @@ def walk_java_nodes(
                 edge_type="DEFINES_METHOD",
             )
         )
-        body_node = node.child_by_field_name("body")
         state.pending_calls.append((qualified, node_type, body_node, parent))
         return
 

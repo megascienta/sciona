@@ -26,6 +26,11 @@ def walk_typescript_nodes(
     state: TypeScriptNodeState,
     function_depth: int,
 ) -> None:
+    class_kind_map = {
+        "class_declaration": "class",
+        "abstract_class_declaration": "class",
+        "interface_declaration": "interface",
+    }
     if node.type in {
         "class_declaration",
         "abstract_class_declaration",
@@ -56,6 +61,7 @@ def walk_typescript_nodes(
                 end_line=node.end_point[0] + 1,
                 start_byte=node.start_byte,
                 end_byte=node.end_byte,
+                metadata={"kind": class_kind_map.get(node.type, "class")},
             )
         )
         state.class_name_map.setdefault(class_name, qualified)
@@ -129,6 +135,16 @@ def walk_typescript_nodes(
                 end_line=node.end_point[0] + 1,
                 start_byte=node.start_byte,
                 end_byte=node.end_byte,
+                metadata=(
+                    None
+                    if node_type != "method"
+                    else {
+                        "kind": "method",
+                        "signature_only": node.type
+                        in {"method_signature", "abstract_method_signature"},
+                        "abstract": node.type == "abstract_method_signature",
+                    }
+                ),
             )
         )
         result.edges.append(
