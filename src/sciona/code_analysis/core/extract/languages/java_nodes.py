@@ -25,6 +25,43 @@ class JavaNodeState:
     )
 
 
+def _node_text(node, content: bytes) -> str | None:
+    if node is None:
+        return None
+    return content[node.start_byte : node.end_byte].decode("utf-8")
+
+
+def _java_annotations(node, content: bytes) -> list[str]:
+    annotations: list[str] = []
+    modifiers = node.child_by_field_name("modifiers")
+    if modifiers is None:
+        return annotations
+    for child in getattr(modifiers, "named_children", []):
+        if child.type not in {"annotation", "marker_annotation"}:
+            continue
+        value = _node_text(child, content)
+        if value:
+            annotations.append(value)
+    return annotations
+
+
+def _java_bases(node, content: bytes) -> list[str]:
+    bases: list[str] = []
+    superclass = node.child_by_field_name("superclass")
+    if superclass is not None:
+        for child in getattr(superclass, "named_children", []):
+            value = _node_text(child, content)
+            if value:
+                bases.append(value)
+    interfaces = node.child_by_field_name("interfaces")
+    if interfaces is not None:
+        for child in getattr(interfaces, "named_children", []):
+            value = _node_text(child, content)
+            if value:
+                bases.append(value)
+    return bases
+
+
 def walk_java_nodes(
     node,
     *,
@@ -73,7 +110,11 @@ def walk_java_nodes(
                 end_line=node.end_point[0] + 1,
                 start_byte=node.start_byte,
                 end_byte=node.end_byte,
-                metadata={"kind": class_kind_map.get(node.type, "class")},
+                metadata={
+                    "kind": class_kind_map.get(node.type, "class"),
+                    "bases": _java_bases(node, snapshot.content),
+                    "annotations": _java_annotations(node, snapshot.content),
+                },
             )
         )
         result.edges.append(
@@ -87,6 +128,18 @@ def walk_java_nodes(
                 edge_type="CONTAINS",
             )
         )
+        if parent_node_type == "class":
+            result.edges.append(
+                EdgeRecord(
+                    src_language=language,
+                    src_node_type=parent_node_type,
+                    src_qualified_name=parent,
+                    dst_language=language,
+                    dst_node_type="class",
+                    dst_qualified_name=qualified,
+                    edge_type="NESTS",
+                )
+            )
         body = node.child_by_field_name("body")
         state.class_stack.append(qualified)
         state.class_methods.setdefault(qualified, set())
@@ -146,6 +199,7 @@ def walk_java_nodes(
                     "kind": callable_kind,
                     "declared_in_kind": state.class_kind_map.get(parent, "class"),
                     "abstract": node.type == "method_declaration" and body_node is None,
+                    "annotations": _java_annotations(node, snapshot.content),
                 },
             )
         )

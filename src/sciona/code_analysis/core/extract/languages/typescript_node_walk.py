@@ -4,6 +4,7 @@
 """Walker implementation for TypeScript node extraction."""
 
 from __future__ import annotations
+import re
 
 from ...normalize.model import EdgeRecord, FileSnapshot, SemanticNodeRecord
 from .typescript_node_state import TypeScriptNodeState
@@ -14,6 +15,34 @@ from .typescript_node_text import (
     parse_type_annotation,
     typed_constructor_parameters,
 )
+
+
+def _decorator_names(node, content: bytes) -> list[str]:
+    decorators: list[str] = []
+    for child in getattr(node, "named_children", []):
+        if child.type != "decorator":
+            continue
+        text = node_text(child, content)
+        if text:
+            decorators.append(text)
+    return decorators
+
+
+def _typescript_bases(node, content: bytes) -> list[str]:
+    heritage = node.child_by_field_name("heritage")
+    if heritage is None:
+        return []
+    bases: list[str] = []
+    for child in getattr(heritage, "named_children", []):
+        value = node_text(child, content)
+        if value:
+            bases.append(value)
+    if not bases:
+        declaration = node_text(node, content) or ""
+        match = re.search(r"\bextends\s+([A-Za-z0-9_\.]+)", declaration)
+        if match:
+            bases.append(match.group(1))
+    return bases
 
 
 def walk_typescript_nodes(
@@ -61,7 +90,11 @@ def walk_typescript_nodes(
                 end_line=node.end_point[0] + 1,
                 start_byte=node.start_byte,
                 end_byte=node.end_byte,
-                metadata={"kind": class_kind_map.get(node.type, "class")},
+                metadata={
+                    "kind": class_kind_map.get(node.type, "class"),
+                    "bases": _typescript_bases(node, snapshot.content),
+                    "decorators": _decorator_names(node, snapshot.content),
+                },
             )
         )
         state.class_name_map.setdefault(class_name, qualified)
@@ -77,6 +110,18 @@ def walk_typescript_nodes(
                 edge_type="CONTAINS",
             )
         )
+        if parent_node_type == "class":
+            result.edges.append(
+                EdgeRecord(
+                    src_language=language,
+                    src_node_type=parent_node_type,
+                    src_qualified_name=parent,
+                    dst_language=language,
+                    dst_node_type="class",
+                    dst_qualified_name=qualified,
+                    edge_type="NESTS",
+                )
+            )
         body = node.child_by_field_name("body")
         state.class_stack.append(qualified)
         state.class_methods.setdefault(qualified, set())
@@ -143,6 +188,7 @@ def walk_typescript_nodes(
                         "signature_only": node.type
                         in {"method_signature", "abstract_method_signature"},
                         "abstract": node.type == "abstract_method_signature",
+                        "decorators": _decorator_names(node, snapshot.content),
                     }
                 ),
             )
@@ -205,6 +251,7 @@ def walk_typescript_nodes(
                     end_line=value_node.end_point[0] + 1,
                     start_byte=value_node.start_byte,
                     end_byte=value_node.end_byte,
+                    metadata={"kind": "class", "bases": [], "decorators": []},
                 )
             )
             result.edges.append(

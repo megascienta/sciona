@@ -126,6 +126,13 @@ def test_java_analyzer_nested_class_qname(tmp_path):
     assert f"{module_name}.Outer" in qnames
     assert f"{module_name}.Outer.Inner" in qnames
     assert f"{module_name}.Outer.Inner.ping" in qnames
+    edge_types = {
+        edge.edge_type
+        for edge in result.edges
+        if edge.src_qualified_name == f"{module_name}.Outer"
+        and edge.dst_qualified_name == f"{module_name}.Outer.Inner"
+    }
+    assert {"CONTAINS", "NESTS"}.issubset(edge_types)
 
 
 def test_java_analyzer_resolves_for_each_catch_and_instanceof_bindings(tmp_path):
@@ -267,6 +274,7 @@ def test_java_analyzer_resolves_static_member_and_wildcard_imports(tmp_path):
 
 def test_java_analyzer_emits_kind_metadata_for_class_like_and_methods(tmp_path):
     module = """
+    @Entity
     interface Repo {
         void find();
     }

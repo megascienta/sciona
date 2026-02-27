@@ -24,6 +24,42 @@ class PythonNodeState:
     )
 
 
+def _node_text(node, content: bytes) -> str | None:
+    if node is None:
+        return None
+    return content[node.start_byte : node.end_byte].decode("utf-8")
+
+
+def _decorator_names(node, content: bytes) -> tuple[str, ...]:
+    decorators: list[str] = []
+    for child in getattr(node, "named_children", []):
+        if child.type != "decorator":
+            continue
+        text = _node_text(child, content)
+        if text:
+            decorators.append(text)
+    return tuple(decorators)
+
+
+def _python_bases(node, content: bytes) -> tuple[str, ...]:
+    superclasses = node.child_by_field_name("superclasses")
+    if superclasses is None:
+        return ()
+    bases: list[str] = []
+    for child in getattr(superclasses, "named_children", []):
+        text = _node_text(child, content)
+        if text:
+            bases.append(text)
+    return tuple(bases)
+
+
+def _is_async_callable(node, content: bytes) -> bool:
+    if node.type == "async_function_definition":
+        return True
+    text = (_node_text(node, content) or "").lstrip()
+    return text.startswith("async ")
+
+
 def walk_python_nodes(
     node,
     *,
@@ -32,8 +68,10 @@ def walk_python_nodes(
     module_name: str,
     result,
     state: PythonNodeState,
+    decorators: tuple[str, ...] = (),
 ) -> None:
     if node.type == "decorated_definition":
+        collected_decorators = _decorator_names(node, snapshot.content)
         definition = node.child_by_field_name("definition")
         if definition is None:
             for child in getattr(node, "named_children", []):
@@ -48,6 +86,7 @@ def walk_python_nodes(
                 module_name=module_name,
                 result=result,
                 state=state,
+                decorators=collected_decorators,
             )
         return
 
@@ -77,6 +116,11 @@ def walk_python_nodes(
                 end_line=node.end_point[0] + 1,
                 start_byte=node.start_byte,
                 end_byte=node.end_byte,
+                metadata={
+                    "kind": "class",
+                    "bases": list(_python_bases(node, snapshot.content)),
+                    "decorators": list(decorators),
+                },
             )
         )
         state.class_name_map.setdefault(class_name, qualified)
@@ -92,6 +136,18 @@ def walk_python_nodes(
                 edge_type="CONTAINS",
             )
         )
+        if parent_node_type == "class":
+            result.edges.append(
+                EdgeRecord(
+                    src_language=language,
+                    src_node_type=parent_node_type,
+                    src_qualified_name=parent,
+                    dst_language=language,
+                    dst_node_type="class",
+                    dst_qualified_name=qualified,
+                    edge_type="NESTS",
+                )
+            )
         state.class_methods.setdefault(qualified, set())
         state.class_stack.append(qualified)
         body = node.child_by_field_name("body")
@@ -106,6 +162,7 @@ def walk_python_nodes(
                     module_name=module_name,
                     result=result,
                     state=state,
+                    decorators=(),
                 )
         state.class_stack.pop()
         return
@@ -142,6 +199,18 @@ def walk_python_nodes(
                 end_line=node.end_point[0] + 1,
                 start_byte=node.start_byte,
                 end_byte=node.end_byte,
+                metadata=(
+                    {
+                        "kind": (
+                            "async_function"
+                            if _is_async_callable(node, snapshot.content)
+                            else "function"
+                        ),
+                        "decorators": list(decorators),
+                    }
+                    if decorators or _is_async_callable(node, snapshot.content)
+                    else None
+                ),
             )
         )
         result.edges.append(
@@ -174,4 +243,5 @@ def walk_python_nodes(
             module_name=module_name,
             result=result,
             state=state,
+            decorators=(),
         )

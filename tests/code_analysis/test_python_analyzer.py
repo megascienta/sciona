@@ -212,6 +212,18 @@ async def handler():
     assert f"{module_name}.Outer.Inner" in qnames
     assert f"{module_name}.Outer.Inner.ping" in qnames
     assert f"{module_name}.handler" in qnames
+    outer_node = next(node for node in result.nodes if node.qualified_name == f"{module_name}.Outer")
+    assert (outer_node.metadata or {}).get("kind") == "class"
+    inner_edge_types = {
+        edge.edge_type
+        for edge in result.edges
+        if edge.src_qualified_name == f"{module_name}.Outer"
+        and edge.dst_qualified_name == f"{module_name}.Outer.Inner"
+    }
+    assert {"CONTAINS", "NESTS"}.issubset(inner_edge_types)
+    handler_node = next(node for node in result.nodes if node.qualified_name == f"{module_name}.handler")
+    assert (handler_node.metadata or {}).get("kind") == "async_function"
+    assert (handler_node.metadata or {}).get("decorators") == ["@deco"]
 
 
 def test_python_analyzer_resolves_typed_constructor_param_alias_for_self_field(tmp_path):

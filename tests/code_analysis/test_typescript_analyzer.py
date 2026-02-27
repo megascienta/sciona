@@ -618,10 +618,12 @@ def test_typescript_analyzer_keeps_method_in_class_declared_inside_function(tmp_
 
 def test_typescript_analyzer_emits_kind_metadata_for_interface_and_signatures(tmp_path):
     module = """
+    export class Base {}
     export interface IWorker {
       execute(): void;
     }
-    export class Worker {
+    @sealed
+    export class Worker extends Base {
       execute() {}
     }
     """
@@ -657,3 +659,7 @@ def test_typescript_analyzer_emits_kind_metadata_for_interface_and_signatures(tm
         if node.qualified_name == f"{module_name}.IWorker.execute"
     )
     assert (signature_node.metadata or {}).get("signature_only") is True
+    worker_node = next(
+        node for node in result.nodes if node.qualified_name == f"{module_name}.Worker"
+    )
+    assert isinstance((worker_node.metadata or {}).get("bases"), list)
