@@ -72,6 +72,7 @@ def helper():
     module_node = next(node for node in result.nodes if node.node_type == "module")
     diagnostics = (module_node.metadata or {}).get("resolution_diagnostics")
     assert isinstance(diagnostics, dict)
+    assert isinstance((module_node.metadata or {}).get("module_bindings"), list)
     for key in (
         "imports_internal",
         "import_aliases",
@@ -308,3 +309,37 @@ class Service:
         rec.qualified_name: set(rec.callee_identifiers) for rec in result.call_records
     }
     assert f"{module_name}.UserRepo.find" in call_records[f"{module_name}.Service.fetch"]
+
+
+def test_python_analyzer_records_module_bindings_metadata(tmp_path):
+    module = """
+FOO = 1
+BAR, BAZ = 2, 3
+"""
+    repo = tmp_path
+    pkg = repo / "pkg"
+    pkg.mkdir()
+    file_path = pkg / "mod.py"
+    file_path.write_text(module, encoding="utf-8")
+    record = FileRecord(
+        path=file_path,
+        relative_path=Path("pkg/mod.py"),
+        language="python",
+    )
+    snapshot = FileSnapshot(
+        record=record,
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = PythonAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+    module_node = next(node for node in result.nodes if node.node_type == "module")
+    bindings = (module_node.metadata or {}).get("module_bindings") or []
+    assert "FOO" in bindings
+    assert "BAR" in bindings
+    assert "BAZ" in bindings

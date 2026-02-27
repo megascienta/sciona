@@ -18,6 +18,7 @@ class PythonNodeState:
     class_methods: dict[str, set[str]] = field(default_factory=dict)
     class_name_map: dict[str, str] = field(default_factory=dict)
     class_name_candidates: dict[str, set[str]] = field(default_factory=dict)
+    module_bindings: set[str] = field(default_factory=set)
     class_body_map: dict[str, object] = field(default_factory=dict)
     pending_calls: list[tuple[str, str, object | None, str | None]] = field(
         default_factory=list
@@ -60,6 +61,24 @@ def _is_async_callable(node, content: bytes) -> bool:
     return text.startswith("async ")
 
 
+def _collect_assignment_targets(node, content: bytes) -> list[str]:
+    targets: list[str] = []
+    left = node.child_by_field_name("left")
+    if left is None:
+        return targets
+    stack = [left]
+    while stack:
+        current = stack.pop()
+        if current.type == "identifier":
+            value = _node_text(current, content)
+            if value:
+                targets.append(value)
+            continue
+        for child in getattr(current, "named_children", []):
+            stack.append(child)
+    return targets
+
+
 def walk_python_nodes(
     node,
     *,
@@ -70,6 +89,14 @@ def walk_python_nodes(
     state: PythonNodeState,
     decorators: tuple[str, ...] = (),
 ) -> None:
+    if not state.class_stack and node.type in {
+        "assignment",
+        "annotated_assignment",
+        "augmented_assignment",
+    }:
+        for binding in _collect_assignment_targets(node, snapshot.content):
+            state.module_bindings.add(binding)
+
     if node.type == "decorated_definition":
         collected_decorators = _decorator_names(node, snapshot.content)
         definition = node.child_by_field_name("definition")

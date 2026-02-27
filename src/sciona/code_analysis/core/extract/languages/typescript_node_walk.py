@@ -235,6 +235,10 @@ def walk_typescript_nodes(
         )
         if not name_node or not value_node:
             return
+        if name_node.type == "identifier":
+            binding = node_text(name_node, snapshot.content)
+            if binding:
+                state.module_bindings.add(binding)
         if value_node.type in {"class", "class_expression"} and name_node.type == "identifier":
             class_name = snapshot.content[
                 name_node.start_byte : name_node.end_byte

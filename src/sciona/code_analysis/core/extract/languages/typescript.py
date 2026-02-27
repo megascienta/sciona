@@ -165,6 +165,7 @@ class TypeScriptAnalyzer(ASTAnalyzer):
             }
             metadata = dict(module_node.metadata or {})
             metadata["resolution_diagnostics"] = diagnostics
+            metadata["module_bindings"] = sorted(state.module_bindings)
             module_node.metadata = metadata
         except Exception as exc:
             metadata = dict(module_node.metadata or {})
