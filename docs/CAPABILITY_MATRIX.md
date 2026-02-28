@@ -16,7 +16,7 @@ Legend:
 |---|---|---|---|---|
 | Module node emission | yes | yes | yes | Contract baseline |
 | Class node emission | yes | yes | yes | Includes nested classes |
-| Function node emission (top-level only) | yes | yes | yes | Nested functions non-structural |
+| Function node emission (top-level only) | yes | yes | n/a | Java has no module-level functions; see `parity_contract.documented_asymmetries.java` |
 | Method node emission | yes | yes | yes | Constructors as methods |
 | `CONTAINS` edges | yes | yes | yes | Deterministic ordering |
 | `DEFINES_METHOD` edges | yes | yes | yes | Contract baseline |
