@@ -209,6 +209,24 @@ def test_python_member_alias_does_not_apply_to_receiver_calls() -> None:
     assert resolved == []
 
 
+def test_python_module_fallback_respects_local_binding_shadowing() -> None:
+    targets = [CallTarget(terminal="helper", callee_text="helper")]
+    resolved = resolve_python_calls(
+        targets=targets,
+        module_name="repo.pkg.mod",
+        module_functions={"helper"},
+        class_methods={},
+        class_name=None,
+        import_aliases={},
+        member_aliases={},
+        raw_module_map={},
+        instance_map={},
+        class_name_candidates={},
+        local_binding_names={"helper"},
+    )
+    assert resolved == []
+
+
 def test_typescript_member_alias_does_not_apply_to_receiver_calls() -> None:
     targets = [CallTarget(terminal="run", callee_text="svc.run")]
     resolved = resolve_typescript_calls(

@@ -15,6 +15,7 @@ from .python_resolution_aliases import (
     unique_class_match,
 )
 from .python_resolution_instances import (
+    collect_callable_local_bindings,
     collect_callable_instance_map,
     collect_class_instance_map,
     collect_module_instance_map,
@@ -35,6 +36,7 @@ __all__ = [
     "_typed_parameters_for_body_node",
     "_typed_parameters_for_callable_node",
     "_typed_parameters_for_enclosing_callable",
+    "collect_callable_local_bindings",
     "attribute_chain",
     "collect_callable_instance_map",
     "collect_class_instance_map",

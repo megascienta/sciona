@@ -499,3 +499,38 @@ def helper():
     }
     assert f"{module_name}.inner" not in call_records
     assert f"{module_name}.helper" in call_records[f"{module_name}.outer"]
+
+
+def test_python_analyzer_does_not_module_resolve_shadowed_param_call(tmp_path):
+    module = """
+def helper():
+    pass
+
+def outer(helper):
+    helper()
+"""
+    repo = tmp_path
+    pkg = repo / "pkg"
+    pkg.mkdir()
+    file_path = pkg / "mod.py"
+    file_path.write_text(module, encoding="utf-8")
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("pkg/mod.py"),
+            language="python",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = PythonAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+    call_records = {
+        rec.qualified_name: set(rec.callee_identifiers) for rec in result.call_records
+    }
+    assert f"{module_name}.helper" not in call_records.get(f"{module_name}.outer", set())

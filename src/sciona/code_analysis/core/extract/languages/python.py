@@ -22,7 +22,11 @@ from .python_calls import resolve_python_calls
 from .python_imports import collect_python_import_model
 from .python_nodes import PythonNodeState, walk_python_nodes
 from .query_surface import PYTHON_CALL_NODE_TYPES, PYTHON_SKIP_CALL_NODE_TYPES
-from .python_resolution import collect_callable_instance_map, collect_module_instance_map
+from .python_resolution import (
+    collect_callable_instance_map,
+    collect_callable_local_bindings,
+    collect_module_instance_map,
+)
 from .python_resolution import collect_class_instance_map
 from .analyzer_support import (
     assert_scope_resolver_parity,
@@ -127,6 +131,7 @@ class PythonAnalyzer(ASTAnalyzer):
                     raw_module_map,
                 )
             )
+            local_binding_names = collect_callable_local_bindings(body_node, snapshot)
             call_targets = call_targets_by_callable.get(qualified, ())
             resolved = resolve_python_calls(
                 call_targets,
@@ -139,6 +144,7 @@ class PythonAnalyzer(ASTAnalyzer):
                 raw_module_map,
                 local_instance_map,
                 state.class_name_candidates,
+                local_binding_names,
             )
             if resolved:
                 result.call_records.append(

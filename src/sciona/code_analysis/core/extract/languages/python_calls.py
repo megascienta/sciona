@@ -44,6 +44,7 @@ def resolve_python_calls(
     raw_module_map: dict[str, str],
     instance_map: dict[str, str],
     class_name_candidates: dict[str, set[str]],
+    local_binding_names: set[str] | None = None,
     *,
     outcome_diagnostics: dict[str, int] | None = None,
     ambiguous_candidates: set[str] | None = None,
@@ -60,6 +61,7 @@ def resolve_python_calls(
         raw_module_map=raw_module_map,
         instance_map=instance_map,
         class_name_candidates=class_name_candidates,
+        local_binding_names=set(local_binding_names or ()),
     )
     validate_stage_order(adapter.stage_order)
 
@@ -86,6 +88,7 @@ class _PythonCallAdapter(CallResolutionAdapter):
     raw_module_map: dict[str, str]
     instance_map: dict[str, str]
     class_name_candidates: dict[str, set[str]]
+    local_binding_names: set[str]
 
     def resolve(self, request: CallResolutionRequest) -> List[CallResolutionOutcome]:
         terminal = request.terminal
@@ -132,7 +135,11 @@ class _PythonCallAdapter(CallResolutionAdapter):
             and terminal in self.class_method_names
         ):
             return [_outcome(f"{self.class_name}.{terminal}", "module_scoped")]
-        if is_unqualified_request(request) and terminal in self.module_functions:
+        if (
+            is_unqualified_request(request)
+            and terminal in self.module_functions
+            and terminal not in self.local_binding_names
+        ):
             return [_outcome(f"{self.module_name}.{terminal}", "module_scoped")]
         return []
 

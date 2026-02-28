@@ -19,6 +19,63 @@ from .python_resolution_types import (
 )
 
 
+def _collect_identifier_names(node, content: bytes) -> set[str]:
+    names: set[str] = set()
+    if node is None:
+        return names
+    if node.type == "identifier":
+        value = node_text(node, content)
+        if value:
+            names.add(value)
+        return names
+    for child in getattr(node, "named_children", []):
+        names.update(_collect_identifier_names(child, content))
+    return names
+
+
+def collect_callable_local_bindings(
+    body_node,
+    snapshot: FileSnapshot,
+) -> set[str]:
+    """Collect local binding names that can shadow module-level callables."""
+
+    if body_node is None:
+        return set()
+    names: set[str] = set()
+    callable_node = getattr(body_node, "parent", None)
+    if callable_node is not None and callable_node.type in {
+        "function_definition",
+        "async_function_definition",
+    }:
+        params_node = callable_node.child_by_field_name("parameters")
+        for child in getattr(params_node, "named_children", []) if params_node else []:
+            name_node = child.child_by_field_name("name")
+            if name_node is None and child.type == "identifier":
+                name_node = child
+            if name_node is not None:
+                value = node_text(name_node, snapshot.content)
+                if value and value not in {"self", "cls"}:
+                    names.add(value)
+
+    def walk(node) -> None:
+        if node is None:
+            return
+        if node.type in {"function_definition", "class_definition", "lambda"}:
+            return
+        if node.type in {"assignment", "for_statement", "with_item"}:
+            left = node.child_by_field_name("left") or node.child_by_field_name("pattern")
+            if left is None and node.type == "with_item":
+                left = node.child_by_field_name("alias")
+            names.update(_collect_identifier_names(left, snapshot.content))
+        for child in getattr(node, "named_children", []):
+            walk(child)
+
+    walk(body_node)
+    names.discard("self")
+    names.discard("cls")
+    return names
+
+
 def collect_module_instance_map(
     root,
     snapshot: FileSnapshot,
@@ -223,6 +280,7 @@ def collect_class_instance_map(
 
 
 __all__ = [
+    "collect_callable_local_bindings",
     "collect_callable_instance_map",
     "collect_class_instance_map",
     "collect_module_instance_map",
