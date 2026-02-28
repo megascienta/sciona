@@ -57,11 +57,6 @@ def _typescript_bases(node, content: bytes) -> list[str]:
         value = node_text(child, content)
         if value:
             bases.append(value)
-    if not bases:
-        declaration = node_text(node, content) or ""
-        match = re.search(r"\bextends\s+([A-Za-z0-9_\.]+)", declaration)
-        if match:
-            bases.append(match.group(1))
     return bases
 
 

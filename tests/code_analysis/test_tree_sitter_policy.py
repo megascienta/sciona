@@ -30,6 +30,18 @@ def test_policy_no_tree_sitter_wrapper_module() -> None:
     assert not (_CODE_ANALYSIS_ROOT / "tools" / "tree_sitter.py").exists()
 
 
+def test_policy_no_typescript_structural_regex_fallback() -> None:
+    path = (
+        _CODE_ANALYSIS_ROOT
+        / "core"
+        / "extract"
+        / "languages"
+        / "typescript_node_walk.py"
+    )
+    text = path.read_text(encoding="utf-8")
+    assert 're.search(r"\\bextends\\s+([A-Za-z0-9_\\.]+)",' not in text
+
+
 def test_policy_profile_introspection_uses_bootstrap_helper() -> None:
     tools_root = _CODE_ANALYSIS_ROOT / "tools"
     paths = (
