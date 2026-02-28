@@ -72,6 +72,23 @@ def insert_structural_node(
     )
 
 
+def insert_synthetic_node(
+    conn: sqlite3.Connection,
+    *,
+    synthetic_id: str,
+    node_type: str,
+    created_snapshot_id: str,
+) -> None:
+    conn.execute(
+        """
+        INSERT OR IGNORE INTO synthetic_nodes(
+            synthetic_id, node_type, created_snapshot_id
+        ) VALUES (?, ?, ?)
+        """,
+        (synthetic_id, node_type, created_snapshot_id),
+    )
+
+
 def upsert_node_instance(
     conn: sqlite3.Connection,
     *,
@@ -145,6 +162,79 @@ def insert_node_instance(
     )
 
 
+def upsert_synthetic_node_instance(
+    conn: sqlite3.Connection,
+    *,
+    instance_id: str,
+    synthetic_id: str,
+    snapshot_id: str,
+    qualified_name: str,
+    file_path: str,
+    start_line: int,
+    end_line: int,
+    start_byte: int | None = None,
+    end_byte: int | None = None,
+    content_hash: str,
+) -> None:
+    conn.execute(
+        """
+        INSERT OR REPLACE INTO synthetic_node_instances(
+            instance_id,
+            synthetic_id,
+            snapshot_id,
+            qualified_name,
+            file_path,
+            start_line,
+            end_line,
+            start_byte,
+            end_byte,
+            content_hash
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            instance_id,
+            synthetic_id,
+            snapshot_id,
+            qualified_name,
+            file_path,
+            start_line,
+            end_line,
+            start_byte,
+            end_byte,
+            content_hash,
+        ),
+    )
+
+
+def insert_synthetic_node_instance(
+    conn: sqlite3.Connection,
+    *,
+    instance_id: str,
+    synthetic_id: str,
+    snapshot_id: str,
+    qualified_name: str,
+    file_path: str,
+    start_line: int,
+    end_line: int,
+    start_byte: int | None = None,
+    end_byte: int | None = None,
+    content_hash: str,
+) -> None:
+    upsert_synthetic_node_instance(
+        conn,
+        instance_id=instance_id,
+        synthetic_id=synthetic_id,
+        snapshot_id=snapshot_id,
+        qualified_name=qualified_name,
+        file_path=file_path,
+        start_line=start_line,
+        end_line=end_line,
+        start_byte=start_byte,
+        end_byte=end_byte,
+        content_hash=content_hash,
+    )
+
+
 def insert_edge(
     conn: sqlite3.Connection,
     *,
@@ -176,6 +266,10 @@ def insert_edge(
 
 def delete_snapshot_tree(conn: sqlite3.Connection, snapshot_id: str) -> None:
     """Remove a snapshot and all derived artifacts."""
+    conn.execute(
+        "DELETE FROM synthetic_node_instances WHERE snapshot_id = ?",
+        (snapshot_id,),
+    )
     conn.execute("DELETE FROM node_instances WHERE snapshot_id = ?", (snapshot_id,))
     conn.execute("DELETE FROM edges WHERE snapshot_id = ?", (snapshot_id,))
     conn.execute("DELETE FROM snapshots WHERE snapshot_id = ?", (snapshot_id,))
@@ -204,6 +298,14 @@ def rekey_snapshot_id(
     )
     conn.execute(
         "UPDATE structural_nodes SET created_snapshot_id = ? WHERE created_snapshot_id = ?",
+        (to_snapshot_id, from_snapshot_id),
+    )
+    conn.execute(
+        "UPDATE synthetic_nodes SET created_snapshot_id = ? WHERE created_snapshot_id = ?",
+        (to_snapshot_id, from_snapshot_id),
+    )
+    conn.execute(
+        "UPDATE synthetic_node_instances SET snapshot_id = ? WHERE snapshot_id = ?",
         (to_snapshot_id, from_snapshot_id),
     )
 
@@ -254,6 +356,20 @@ def prune_orphan_structural_nodes(conn: sqlite3.Connection) -> int:
         WHERE structural_id NOT IN (
             SELECT DISTINCT structural_id
             FROM node_instances
+        )
+        """
+    )
+    return int(cursor.rowcount or 0)
+
+
+def prune_orphan_synthetic_nodes(conn: sqlite3.Connection) -> int:
+    """Drop synthetic nodes that have no synthetic_node_instances."""
+    cursor = conn.execute(
+        """
+        DELETE FROM synthetic_nodes
+        WHERE synthetic_id NOT IN (
+            SELECT DISTINCT synthetic_id
+            FROM synthetic_node_instances
         )
         """
     )

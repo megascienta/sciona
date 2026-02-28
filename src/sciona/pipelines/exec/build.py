@@ -109,6 +109,7 @@ def build_repo(
                     committed_snapshot_id = canonical_snapshot_id
                 core_write.delete_committed_snapshots_except(conn, committed_snapshot_id)
                 core_write.prune_orphan_structural_nodes(conn)
+                core_write.prune_orphan_synthetic_nodes(conn)
                 status = decision.lifecycle.value
             else:
                 # CoreDB keeps a singleton committed snapshot. Remove older committed
@@ -132,6 +133,7 @@ def build_repo(
                 )
                 core_write.delete_committed_snapshots_except(conn, snapshot.snapshot_id)
                 core_write.prune_orphan_structural_nodes(conn)
+                core_write.prune_orphan_synthetic_nodes(conn)
             conn.commit()
             call_artifacts: Sequence[CallExtractionRecord] = []
             artifact_warnings: Sequence[str] = []

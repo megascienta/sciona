@@ -35,6 +35,8 @@ from .normalize.model import (
 class CoreStore(Protocol):
     def insert_structural_node(self, conn, **kwargs) -> None: ...
     def insert_node_instance(self, conn, **kwargs) -> None: ...
+    def insert_synthetic_node(self, conn, **kwargs) -> None: ...
+    def insert_synthetic_node_instance(self, conn, **kwargs) -> None: ...
     def insert_edge(self, conn, **kwargs) -> None: ...
 
 
@@ -221,6 +223,51 @@ class StructuralAssembler:
         structural_id = self._emit_structural_node(module_node, snapshot_id)
         node_map = {module_node.qualified_name: (structural_id, module_node.node_type)}
         self._emit_node_instances(snapshot_id, [module_node], file_snapshot, node_map)
+        return 1
+
+    def register_synthetic_module_node(
+        self,
+        snapshot_id: str,
+        file_snapshot: FileSnapshot,
+        module_name: str,
+        node_type: str = "entry_point",
+    ) -> int:
+        if not module_name:
+            return 0
+        synthetic_id = ids.structural_id(node_type, "synthetic", module_name)
+        self._store.insert_synthetic_node(
+            self.conn,
+            synthetic_id=synthetic_id,
+            node_type=node_type,
+            created_snapshot_id=snapshot_id,
+        )
+        self._store.insert_synthetic_node_instance(
+            self.conn,
+            instance_id=ids.instance_id(snapshot_id, synthetic_id),
+            synthetic_id=synthetic_id,
+            snapshot_id=snapshot_id,
+            qualified_name=module_name,
+            file_path=file_snapshot.record.relative_path.as_posix(),
+            start_line=1,
+            end_line=max(1, file_snapshot.line_count),
+            start_byte=0,
+            end_byte=file_snapshot.size,
+            content_hash=node_content_hash(
+                SemanticNodeRecord(
+                    language="synthetic",
+                    node_type=node_type,
+                    qualified_name=module_name,
+                    display_name=module_name.split(".")[-1] or module_name,
+                    file_path=file_snapshot.record.relative_path,
+                    start_line=1,
+                    end_line=max(1, file_snapshot.line_count),
+                    start_byte=0,
+                    end_byte=file_snapshot.size,
+                    metadata=None,
+                ),
+                file_snapshot,
+            ),
+        )
         return 1
 
     def _emit_structural_node(self, node: SemanticNodeRecord, snapshot_id: str) -> str:

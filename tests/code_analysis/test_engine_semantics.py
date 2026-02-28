@@ -7,6 +7,7 @@ from pathlib import Path
 from sciona.data_storage.core_db.schema import ensure_schema
 from sciona.code_analysis.core.extract.analyzer import ASTAnalyzer
 from sciona.code_analysis.core.engine import BuildEngine
+from sciona.code_analysis.core.normalize.model import AnalysisResult
 from sciona.data_storage.core_db import write_ops as core_write
 from sciona.runtime import config as core_config
 from sciona.code_analysis.core.extract import registry
@@ -160,3 +161,98 @@ def test_engine_warns_on_empty_language_matches(tmp_path, monkeypatch):
     warning_text = "\n".join(engine.warnings)
     assert "Discovery warning:" in warning_text
     assert "python: 1 tracked by extension, 0 discovered" in warning_text
+
+
+def test_entry_points_are_written_to_synthetic_tables(tmp_path, monkeypatch):
+    class MinimalAnalyzer(ASTAnalyzer):
+        language = "python"
+
+        def analyze(self, snapshot, module_name):
+            return AnalysisResult(nodes=[], edges=[], call_records=[])
+
+        def module_name(self, repo_root, snapshot):
+            return "pkg.sub.mod"
+
+    repo_root = tmp_path
+    (repo_root / "pkg" / "sub").mkdir(parents=True)
+    file_path = repo_root / "pkg" / "sub" / "mod.py"
+    file_path.write_text("pass\n", encoding="utf-8")
+
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    ensure_schema(conn)
+    snapshot_id = "snap"
+    conn.execute(
+        """
+        INSERT INTO snapshots(snapshot_id, created_at, source, is_committed, structural_hash)
+        VALUES (?, ?, ?, ?, ?)
+        """,
+        (snapshot_id, "2024-01-01T00:00:00Z", "scan", 0, "hash"),
+    )
+    conn.commit()
+
+    languages = {
+        "python": core_config.LanguageSettings(
+            name="python",
+            enabled=True,
+        )
+    }
+    monkeypatch.setattr(registry, "get_analyzer", lambda language: MinimalAnalyzer())
+    monkeypatch.setattr(
+        registry,
+        "get_analyzer_for_path",
+        lambda path, analyzers: analyzers.get("python"),
+    )
+    monkeypatch.setattr(
+        "sciona.runtime.git.tracked_paths",
+        lambda _root: {Path("pkg/sub/mod.py").as_posix()},
+    )
+    monkeypatch.setattr(
+        "sciona.runtime.git.ignored_tracked_paths",
+        lambda _root: set(),
+    )
+    monkeypatch.setattr(
+        "sciona.runtime.git.blob_sha_batch",
+        lambda _root, paths: {path: "hash" for path in paths},
+    )
+    monkeypatch.setattr(
+        "sciona.runtime.git.blob_sha",
+        lambda _root, _path: "hash",
+    )
+    discovery = core_config.DiscoverySettings(exclude_globs=[])
+    engine = BuildEngine(
+        repo_root, conn, core_write, languages=languages, discovery=discovery
+    )
+    conn.execute("BEGIN")
+    engine.run(
+        snapshot=Snapshot(
+            snapshot_id=snapshot_id,
+            created_at="2024-01-01T00:00:00Z",
+            source="scan",
+            git_commit_sha="",
+            git_commit_time="",
+            git_branch="",
+        )
+    )
+    conn.commit()
+
+    synthetic_rows = conn.execute(
+        """
+        SELECT qualified_name
+        FROM synthetic_node_instances
+        WHERE snapshot_id = ?
+        ORDER BY qualified_name
+        """,
+        (snapshot_id,),
+    ).fetchall()
+    names = [row["qualified_name"] for row in synthetic_rows]
+    assert len(names) == 2
+    assert names[0].endswith(".pkg")
+    assert names[1].endswith(".pkg.sub")
+
+    entry_point_rows = conn.execute(
+        "SELECT COUNT(*) AS count FROM structural_nodes WHERE node_type = 'entry_point'"
+    ).fetchone()
+    assert entry_point_rows is not None
+    assert entry_point_rows["count"] == 0
+    conn.close()

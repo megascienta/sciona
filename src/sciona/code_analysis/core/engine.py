@@ -256,11 +256,10 @@ class BuildEngine:
                 line_count=1,
                 content=b"",
             )
-            inserted += self.assembler.register_module_node(
+            inserted += self.assembler.register_synthetic_module_node(
                 snapshot_id,
                 snapshot,
                 module_name,
                 node_type="entry_point",
-                metadata={"synthetic": "entry_point"},
             )
         return inserted

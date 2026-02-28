@@ -271,15 +271,15 @@ def test_concatenated_source_excludes_meta_modules(tmp_path):
     try:
         conn.execute(
             """
-            INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO synthetic_nodes(synthetic_id, node_type, created_snapshot_id)
+            VALUES (?, ?, ?)
             """,
-            ("mod_meta", "entry_point", "synthetic", snapshot_id),
+            ("mod_meta", "entry_point", snapshot_id),
         )
         conn.execute(
             """
-            INSERT INTO node_instances(
-                instance_id, structural_id, snapshot_id, qualified_name, file_path, start_line, end_line, content_hash
+            INSERT INTO synthetic_node_instances(
+                instance_id, synthetic_id, snapshot_id, qualified_name, file_path, start_line, end_line, content_hash
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (

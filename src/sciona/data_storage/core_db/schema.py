@@ -85,6 +85,33 @@ SCHEMA_STATEMENTS: list[str] = [
     CREATE INDEX IF NOT EXISTS idx_edges_dst
     ON edges(dst_structural_id)
     """,
+    """
+    CREATE TABLE IF NOT EXISTS synthetic_nodes (
+        synthetic_id TEXT PRIMARY KEY,
+        node_type TEXT NOT NULL,
+        created_snapshot_id TEXT NOT NULL
+    )
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS synthetic_node_instances (
+        instance_id TEXT PRIMARY KEY,
+        synthetic_id TEXT NOT NULL,
+        snapshot_id TEXT NOT NULL,
+        qualified_name TEXT NOT NULL,
+        file_path TEXT NOT NULL,
+        start_line INTEGER NOT NULL,
+        end_line INTEGER NOT NULL,
+        start_byte INTEGER,
+        end_byte INTEGER,
+        content_hash TEXT NOT NULL,
+        UNIQUE (synthetic_id, snapshot_id),
+        FOREIGN KEY (synthetic_id) REFERENCES synthetic_nodes(synthetic_id) ON DELETE CASCADE
+    )
+    """,
+    """
+    CREATE INDEX IF NOT EXISTS idx_synth_instances_snapshot
+    ON synthetic_node_instances(snapshot_id)
+    """,
 ]
 
 
