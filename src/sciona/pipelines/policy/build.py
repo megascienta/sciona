@@ -14,6 +14,7 @@ def resolve_build_policy(
     *,
     refresh_artifacts: bool = True,
     refresh_calls: bool = True,
+    force_rebuild: bool = False,
 ) -> BuildPolicy:
     if repo_state.config is None:
         raise ValueError("Build policy requires repository configuration.")
@@ -25,7 +26,11 @@ def resolve_build_policy(
         refresh_artifacts=refresh_artifacts,
         refresh_calls=refresh_calls,
     )
-    return BuildPolicy(analysis=analysis, artifacts=artifacts)
+    return BuildPolicy(
+        analysis=analysis,
+        artifacts=artifacts,
+        force_rebuild=force_rebuild,
+    )
 
 
 __all__ = ["resolve_build_policy"]

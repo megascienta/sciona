@@ -26,6 +26,7 @@ class ArtifactPolicy:
 class BuildPolicy:
     analysis: AnalysisPolicy
     artifacts: ArtifactPolicy
+    force_rebuild: bool = False
 
 
 __all__ = ["AnalysisPolicy", "ArtifactPolicy", "BuildPolicy"]

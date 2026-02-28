@@ -2,6 +2,7 @@
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
 from pathlib import Path
+import hashlib
 
 from sciona.pipelines.domain.repository import RepoState
 from sciona.pipelines.exec.build import build_repo
@@ -21,6 +22,10 @@ def _write_config(repo_root: Path) -> None:
         repo_root,
         """languages:\n  python:\n    enabled: true\n\ndiscovery:\n  exclude_globs: []\n""",
     )
+
+
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def test_build_repo_creates_committed_snapshot(tmp_path: Path) -> None:
@@ -110,3 +115,62 @@ def test_build_repo_is_deterministic_across_three_runs(tmp_path: Path) -> None:
         assert len(set(hashes)) == 1
     finally:
         conn.close()
+
+
+def test_build_repo_skips_reindex_when_fingerprint_matches(tmp_path: Path) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    init_git_repo(repo_root, commit=False)
+    (repo_root / "src").mkdir()
+    (repo_root / "src" / "mod.py").write_text("print('stable')\n", encoding="utf-8")
+    commit_all(repo_root)
+    _write_config(repo_root)
+
+    repo_state = RepoState.from_repo_root(repo_root)
+    policy = policy_build.resolve_build_policy(
+        repo_state, refresh_artifacts=False, refresh_calls=False
+    )
+
+    first = build_repo(repo_state, policy)
+    core_hash_before = _sha256(repo_state.db_path)
+    cache_path = repo_state.sciona_dir / ".build_fingerprint.json"
+    cache_before = cache_path.read_text(encoding="utf-8")
+
+    second = build_repo(repo_state, policy)
+    core_hash_after = _sha256(repo_state.db_path)
+    cache_after = cache_path.read_text(encoding="utf-8")
+
+    assert first.snapshot_id == second.snapshot_id
+    assert second.status == "reused"
+    assert core_hash_before == core_hash_after
+    assert cache_before == cache_after
+
+
+def test_build_repo_force_rebuild_bypasses_fingerprint_fast_path(tmp_path: Path) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    init_git_repo(repo_root, commit=False)
+    (repo_root / "src").mkdir()
+    (repo_root / "src" / "mod.py").write_text("print('stable')\n", encoding="utf-8")
+    commit_all(repo_root)
+    _write_config(repo_root)
+
+    repo_state = RepoState.from_repo_root(repo_root)
+    base_policy = policy_build.resolve_build_policy(
+        repo_state, refresh_artifacts=False, refresh_calls=False
+    )
+    build_repo(repo_state, base_policy)
+    cache_path = repo_state.sciona_dir / ".build_fingerprint.json"
+    cache_before = cache_path.read_text(encoding="utf-8")
+
+    force_policy = policy_build.resolve_build_policy(
+        repo_state,
+        refresh_artifacts=False,
+        refresh_calls=False,
+        force_rebuild=True,
+    )
+    forced = build_repo(repo_state, force_policy)
+    cache_after = cache_path.read_text(encoding="utf-8")
+
+    assert forced.status == "reused"
+    assert cache_before != cache_after

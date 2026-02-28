@@ -6,6 +6,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from dataclasses import replace
+import sqlite3
 from pathlib import Path
 from typing import Optional, Sequence
 
@@ -17,11 +19,18 @@ from ...code_analysis.core.engine import BuildEngine
 from ..domain.policies import BuildPolicy
 from ..domain.repository import RepoState
 from ..domain.snapshots import SnapshotDecision, SnapshotLifecycle
-from ...data_storage.connections import core
+from ...data_storage.connections import artifact_readonly, core, core_readonly
+from ...data_storage.artifact_db import read_status as artifact_read
 from ...data_storage.core_db import read_ops as core_read
 from ...data_storage.core_db import write_ops as core_write
 from ..build_artifacts import build_artifacts_for_snapshot
 from ..progress import make_progress_factory
+from .build_fingerprint import (
+    compute_build_fingerprint,
+    load_cached_build_result_payload,
+    load_fingerprint_cache,
+    write_fingerprint_cache,
+)
 
 _LOGGER = get_logger("pipelines.exec.build")
 
@@ -53,13 +62,28 @@ def build_repo(
 ) -> BuildResult:
     workspace = workspace_root or repo_state.repo_root
     languages = policy.analysis.languages
+    snapshot = snapshot_ingest.create_snapshot(workspace, source=source)
+    fingerprint = compute_build_fingerprint(
+        repo_state=repo_state,
+        policy=policy,
+        source=source,
+        git_commit_sha=snapshot.git_commit_sha,
+    )
+    if not policy.force_rebuild:
+        cached_result = _build_result_from_fingerprint_cache(
+            repo_state=repo_state,
+            policy=policy,
+            fingerprint_hash=fingerprint.fingerprint_hash,
+        )
+        if cached_result is not None:
+            return cached_result
+
     with core(repo_state.db_path, repo_root=repo_state.repo_root) as conn:
         try:
             conn.execute("BEGIN IMMEDIATE")
             core_write.purge_uncommitted_snapshots(conn)
             baseline_meta = core_read.latest_committed_snapshot(conn)
 
-            snapshot = snapshot_ingest.create_snapshot(workspace, source=source)
             engine = BuildEngine(
                 workspace,
                 conn,
@@ -145,7 +169,7 @@ def build_repo(
                     snapshot_id=committed_snapshot_id,
                     languages=languages,
                 )
-            return BuildResult(
+            result = BuildResult(
                 files_processed,
                 node_count,
                 committed_snapshot_id,
@@ -161,6 +185,13 @@ def build_repo(
                 analysis_warnings=list(engine.warnings),
                 artifact_warnings=list(artifact_warnings),
             )
+            write_fingerprint_cache(
+                repo_state=repo_state,
+                fingerprint=fingerprint,
+                structural_hash=structural_hash,
+                result_payload=_build_result_payload(result),
+            )
+            return result
         except Exception:
             if conn.in_transaction:
                 conn.rollback()
@@ -190,6 +221,106 @@ def _decide_snapshot(
         structural_hash=structural_hash,
         reason="new_snapshot",
     )
+
+
+def _build_result_from_fingerprint_cache(
+    *,
+    repo_state: RepoState,
+    policy: BuildPolicy,
+    fingerprint_hash: str,
+) -> BuildResult | None:
+    cached = load_fingerprint_cache(repo_state)
+    if not cached:
+        return None
+    if cached.get("fingerprint_hash") != fingerprint_hash:
+        return None
+    cached_snapshot_id = cached.get("snapshot_id")
+    cached_structural_hash = cached.get("structural_hash")
+    if not isinstance(cached_snapshot_id, str) or not cached_snapshot_id:
+        return None
+    if not isinstance(cached_structural_hash, str) or not cached_structural_hash:
+        return None
+    core_meta = _latest_committed_snapshot(repo_state)
+    if not core_meta:
+        return None
+    if core_meta.get("snapshot_id") != cached_snapshot_id:
+        return None
+    if core_meta.get("structural_hash") != cached_structural_hash:
+        return None
+    if policy.artifacts.refresh_artifacts and not _artifacts_ready_for_snapshot(
+        repo_state, cached_snapshot_id
+    ):
+        return None
+    result_payload = load_cached_build_result_payload(cached)
+    if not isinstance(result_payload, dict):
+        return None
+    hydrated = _hydrate_result_payload(result_payload)
+    if hydrated is None:
+        return None
+    return replace(hydrated, status=SnapshotLifecycle.REUSED.value)
+
+
+def _latest_committed_snapshot(repo_state: RepoState) -> dict[str, str] | None:
+    try:
+        with core_readonly(repo_state.db_path, repo_root=repo_state.repo_root) as conn:
+            baseline = core_read.latest_committed_snapshot(conn)
+            if baseline is None:
+                return None
+            return dict(baseline)
+    except sqlite3.Error:
+        return None
+
+
+def _artifacts_ready_for_snapshot(repo_state: RepoState, snapshot_id: str) -> bool:
+    try:
+        with artifact_readonly(
+            repo_state.artifact_db_path, repo_root=repo_state.repo_root
+        ) as conn:
+            return artifact_read.rebuild_consistent_for_snapshot(
+                conn, snapshot_id=snapshot_id
+            )
+    except sqlite3.Error:
+        return False
+
+
+def _hydrate_result_payload(payload: dict[str, object]) -> BuildResult | None:
+    try:
+        return BuildResult(
+            files_processed=int(payload["files_processed"]),
+            nodes_recorded=int(payload["nodes_recorded"]),
+            snapshot_id=str(payload["snapshot_id"]),
+            status=str(payload["status"]),
+            call_artifacts=[],
+            enabled_languages=list(payload.get("enabled_languages", [])),
+            discovery_counts=dict(payload.get("discovery_counts", {})),
+            discovery_candidates=dict(payload.get("discovery_candidates", {})),
+            discovery_excluded_by_glob=dict(payload.get("discovery_excluded_by_glob", {})),
+            discovery_excluded_total=int(payload.get("discovery_excluded_total", 0)),
+            exclude_globs=list(payload.get("exclude_globs", [])),
+            parse_failures=int(payload.get("parse_failures", 0)),
+            analysis_warnings=list(payload.get("analysis_warnings", [])),
+            artifact_warnings=list(payload.get("artifact_warnings", [])),
+        )
+    except Exception:
+        return None
+
+
+def _build_result_payload(result: BuildResult) -> dict[str, object]:
+    return {
+        "files_processed": result.files_processed,
+        "nodes_recorded": result.nodes_recorded,
+        "snapshot_id": result.snapshot_id,
+        "status": result.status,
+        "enabled_languages": list(result.enabled_languages),
+        "discovery_counts": dict(result.discovery_counts),
+        "discovery_candidates": dict(result.discovery_candidates),
+        "discovery_excluded_by_glob": dict(result.discovery_excluded_by_glob),
+        "discovery_excluded_total": result.discovery_excluded_total,
+        "exclude_globs": list(result.exclude_globs),
+        "parse_failures": result.parse_failures,
+        "analysis_warnings": list(result.analysis_warnings),
+        "artifact_warnings": list(result.artifact_warnings),
+    }
 
 
 __all__ = [

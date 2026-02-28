@@ -33,3 +33,21 @@ def test_resolve_build_policy_uses_repo_config(tmp_path: Path) -> None:
     assert policy.analysis.languages["python"].enabled is True
     assert policy.artifacts.refresh_artifacts is False
     assert policy.artifacts.refresh_calls is False
+    assert policy.force_rebuild is False
+
+
+def test_resolve_build_policy_can_force_rebuild(tmp_path: Path) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    init_git_repo(repo_root, commit=True)
+    _write_config(repo_root)
+
+    repo_state = RepoState.from_repo_root(repo_root)
+    policy = policy_build.resolve_build_policy(
+        repo_state,
+        refresh_artifacts=False,
+        refresh_calls=False,
+        force_rebuild=True,
+    )
+
+    assert policy.force_rebuild is True
