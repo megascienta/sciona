@@ -25,7 +25,10 @@ from .query_surface import (
     TYPESCRIPT_CALL_NODE_TYPES,
     TYPESCRIPT_SKIP_CALL_NODE_TYPES,
 )
-from .typescript_resolution import resolve_pending_instances
+from .typescript_resolution import (
+    collect_callable_typed_binding_instance_map,
+    resolve_pending_instances,
+)
 from .analyzer_support import (
     assert_scope_resolver_parity,
     collect_targets_by_callable,
@@ -93,8 +96,8 @@ class TypeScriptAnalyzer(ASTAnalyzer):
         )
         scope_resolver = scope_resolver_from_pending_calls(state.pending_calls)
         pending_by_qualified = {
-            qualified: (node_type, class_name)
-            for qualified, node_type, _body_node, class_name in state.pending_calls
+            qualified: (node_type, body_node, class_name)
+            for qualified, node_type, body_node, class_name in state.pending_calls
         }
         call_targets_by_callable = collect_targets_by_callable(
             scope_resolver=scope_resolver,
@@ -110,8 +113,19 @@ class TypeScriptAnalyzer(ASTAnalyzer):
             pending_callables=set(pending_by_qualified),
             call_targets_by_callable=call_targets_by_callable,
         )
-        for qualified, (node_type, class_name) in pending_by_qualified.items():
+        for qualified, (node_type, body_node, class_name) in pending_by_qualified.items():
             call_targets = call_targets_by_callable.get(qualified, ())
+            callable_instance_map = collect_callable_typed_binding_instance_map(
+                body_node,
+                content=snapshot.content,
+                class_name_candidates=state.class_name_candidates,
+                import_aliases=import_aliases,
+                member_aliases=member_aliases,
+            )
+            effective_instance_map = {
+                **state.instance_map,
+                **callable_instance_map,
+            }
             resolved = resolve_typescript_calls(
                 call_targets,
                 module_name,
@@ -122,7 +136,7 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                 member_aliases,
                 state.class_name_map,
                 state.class_name_candidates,
-                state.instance_map,
+                effective_instance_map,
                 state.class_instance_map,
             )
             if resolved:

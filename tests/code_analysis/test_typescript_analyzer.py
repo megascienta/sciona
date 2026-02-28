@@ -911,3 +911,78 @@ def test_typescript_analyzer_emits_class_expression_bases_metadata(tmp_path):
         node for node in result.nodes if node.qualified_name == f"{module_name}.Derived"
     )
     assert "Base" in ((derived_node.metadata or {}).get("bases") or [])
+
+
+def test_typescript_analyzer_resolves_typed_method_parameter_receiver(tmp_path):
+    module = """
+    class Module {
+      run() {}
+    }
+    export class Controller {
+      handle(mod: Module) {
+        mod.run();
+      }
+    }
+    """
+    repo = tmp_path
+    src = repo / "src"
+    src.mkdir()
+    file_path = src / "mod.ts"
+    file_path.write_text(module, encoding="utf-8")
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("src/mod.ts"),
+            language="typescript",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = TypeScriptAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+    call_records = {
+        rec.qualified_name: set(rec.callee_identifiers) for rec in result.call_records
+    }
+    assert f"{module_name}.Module.run" in call_records[f"{module_name}.Controller.handle"]
+
+
+def test_typescript_analyzer_resolves_typed_local_declaration_receiver(tmp_path):
+    module = """
+    class ServerGrpc {
+      start() {}
+    }
+    export function boot() {
+      let server: ServerGrpc;
+      server.start();
+    }
+    """
+    repo = tmp_path
+    src = repo / "src"
+    src.mkdir()
+    file_path = src / "mod.ts"
+    file_path.write_text(module, encoding="utf-8")
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("src/mod.ts"),
+            language="typescript",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = TypeScriptAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+    call_records = {
+        rec.qualified_name: set(rec.callee_identifiers) for rec in result.call_records
+    }
+    assert f"{module_name}.ServerGrpc.start" in call_records[f"{module_name}.boot"]

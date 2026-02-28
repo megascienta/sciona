@@ -6,6 +6,14 @@
 from __future__ import annotations
 
 from .symbol_ir import resolve_alias
+from .typescript_node_text import node_text, parse_type_annotation, typed_constructor_parameters
+
+_NESTED_FUNCTION_NODE_TYPES = {
+    "arrow_function",
+    "function",
+    "function_expression",
+    "function_declaration",
+}
 
 
 def resolve_ts_constructor_name(
@@ -67,3 +75,62 @@ def resolve_pending_instances(
         source_target = class_instance_map.get(class_name, {}).get(source_field)
         if source_target:
             class_instance_map.setdefault(class_name, {})[field] = source_target
+
+
+def collect_callable_typed_binding_instance_map(
+    body_node,
+    *,
+    content: bytes,
+    class_name_candidates: dict[str, set[str]],
+    import_aliases: dict[str, str],
+    member_aliases: dict[str, str],
+) -> dict[str, str]:
+    """Resolve callable-scoped typed bindings (params + local declarators)."""
+
+    if body_node is None:
+        return {}
+
+    resolved: dict[str, str] = {}
+    callable_node = getattr(body_node, "parent", None)
+    for param_name, type_chain in typed_constructor_parameters(callable_node, content):
+        target = resolve_ts_constructor_name(
+            type_chain,
+            class_name_candidates,
+            import_aliases,
+            member_aliases,
+        )
+        if target:
+            resolved[param_name] = target
+
+    stack: list[object] = [body_node]
+    while stack:
+        node = stack.pop()
+        node_type = getattr(node, "type", None)
+        if node_type in _NESTED_FUNCTION_NODE_TYPES:
+            continue
+        if node_type in {"class", "class_expression", "class_declaration"}:
+            continue
+        if node_type == "variable_declarator":
+            name_node = node.child_by_field_name("name")
+            type_node = node.child_by_field_name("type")
+            if (
+                name_node is not None
+                and getattr(name_node, "type", None) == "identifier"
+                and type_node is not None
+            ):
+                var_name = node_text(name_node, content)
+                type_chain = parse_type_annotation(type_node, content)
+                target = resolve_ts_constructor_name(
+                    type_chain,
+                    class_name_candidates,
+                    import_aliases,
+                    member_aliases,
+                )
+                if var_name and target:
+                    resolved[var_name] = target
+        named_children = getattr(node, "named_children", None)
+        if named_children is None:
+            named_children = getattr(node, "children", [])
+        stack.extend(reversed(list(named_children)))
+
+    return resolved
