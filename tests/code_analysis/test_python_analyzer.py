@@ -252,7 +252,7 @@ async def handler():
     assert {"CONTAINS", "NESTS"}.issubset(inner_edge_types)
     handler_node = next(node for node in result.nodes if node.qualified_name == f"{module_name}.handler")
     assert (handler_node.metadata or {}).get("kind") == "async_function"
-    assert (handler_node.metadata or {}).get("decorators") == ["@deco"]
+    assert "decorators" not in (handler_node.metadata or {})
     assert not [node for node in result.nodes if node.node_type == "decorator"]
     assert not [edge for edge in result.edges if edge.edge_type == "DECORATED_BY"]
 

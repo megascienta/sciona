@@ -17,36 +17,6 @@ from .typescript_node_text import (
 )
 
 
-def _decorator_names(node, content: bytes) -> list[str]:
-    parent = getattr(node, "parent", None)
-    if parent is None:
-        return []
-    siblings = list(getattr(parent, "named_children", []))
-    decorators: list[str] = []
-    node_key = (node.start_byte, node.end_byte, node.type)
-    for index, child in enumerate(siblings):
-        child_key = (child.start_byte, child.end_byte, child.type)
-        if child_key != node_key:
-            continue
-        for candidate in reversed(siblings[:index]):
-            if candidate.type != "decorator":
-                break
-            text = node_text(candidate, content)
-            if text:
-                decorators.append(text)
-        decorators.reverse()
-        return decorators
-    # Fallback for nodes where decorators are direct children.
-    decorators: list[str] = []
-    for child in getattr(node, "named_children", []):
-        if child.type != "decorator":
-            continue
-        text = node_text(child, content)
-        if text:
-            decorators.append(text)
-    return decorators
-
-
 def _typescript_bases(node, content: bytes) -> list[str]:
     heritage = node.child_by_field_name("heritage")
     if heritage is None:
@@ -130,7 +100,6 @@ def walk_typescript_nodes(
                 metadata={
                     "kind": class_kind_map.get(node.type, "class"),
                     "bases": _typescript_bases(node, snapshot.content),
-                    "decorators": _decorator_names(node, snapshot.content),
                 },
             )
         )
@@ -206,19 +175,16 @@ def walk_typescript_nodes(
             qualified = f"{module_name}.{func_name}"
             edge_type = "CONTAINS"
             state.module_functions.add(func_name)
-        decorators = _decorator_names(node, snapshot.content)
         is_async = _is_async_callable(node, snapshot.content)
         metadata = (
             {
                 "kind": "async_function" if is_async else "function",
-                "decorators": decorators,
             }
             if node_type == "function"
             else {
                 "kind": "async_method" if is_async else "method",
                 "signature_only": node.type in {"method_signature", "abstract_method_signature"},
                 "abstract": node.type == "abstract_method_signature",
-                "decorators": decorators,
             }
         )
         result.nodes.append(
@@ -296,7 +262,6 @@ def walk_typescript_nodes(
                     metadata={
                         "kind": "class",
                         "bases": _typescript_bases(value_node, snapshot.content),
-                        "decorators": _decorator_names(value_node, snapshot.content),
                     },
                 )
             )
@@ -369,7 +334,6 @@ def walk_typescript_nodes(
                     "kind": "async_function"
                     if _is_async_callable(value_node, snapshot.content)
                     else "function",
-                    "decorators": [],
                 },
             )
         )
@@ -444,7 +408,6 @@ def walk_typescript_nodes(
                     "kind": "async_method"
                     if _is_async_callable(value_node, snapshot.content)
                     else "method",
-                    "decorators": [],
                 },
             )
         )

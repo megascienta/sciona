@@ -52,25 +52,6 @@ def _query_direct_type_names(node, content: bytes) -> list[str]:
     return names
 
 
-def _java_annotations(node, content: bytes) -> list[str]:
-    annotations: list[str] = []
-    modifiers = node.child_by_field_name("modifiers")
-    if modifiers is None:
-        for child in getattr(node, "named_children", []):
-            if child.type == "modifiers":
-                modifiers = child
-                break
-    if modifiers is None:
-        return annotations
-    for child in getattr(modifiers, "named_children", []):
-        if child.type not in {"annotation", "marker_annotation"}:
-            continue
-        value = _node_text(child, content)
-        if value:
-            annotations.append(value)
-    return annotations
-
-
 def _java_bases(node, content: bytes) -> list[str]:
     bases: list[str] = []
     superclass = node.child_by_field_name("superclass")
@@ -141,7 +122,6 @@ def walk_java_nodes(
                 metadata={
                     "kind": class_kind_map.get(node.type, "class"),
                     "bases": _java_bases(node, snapshot.content),
-                    "annotations": _java_annotations(node, snapshot.content),
                 },
             )
         )
@@ -227,7 +207,6 @@ def walk_java_nodes(
                     "kind": callable_kind,
                     "declared_in_kind": state.class_kind_map.get(parent, "class"),
                     "abstract": node.type == "method_declaration" and body_node is None,
-                    "annotations": _java_annotations(node, snapshot.content),
                 },
             )
         )

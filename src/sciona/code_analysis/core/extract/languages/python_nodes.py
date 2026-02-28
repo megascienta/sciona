@@ -30,17 +30,6 @@ def _node_text(node, content: bytes) -> str | None:
     return shared_node_text(node, content)
 
 
-def _decorator_names(node, content: bytes) -> tuple[str, ...]:
-    decorators: list[str] = []
-    for child in getattr(node, "named_children", []):
-        if child.type != "decorator":
-            continue
-        text = _node_text(child, content)
-        if text:
-            decorators.append(text)
-    return tuple(decorators)
-
-
 def _python_bases(node, content: bytes) -> tuple[str, ...]:
     superclasses = node.child_by_field_name("superclasses")
     if superclasses is None:
@@ -76,10 +65,8 @@ def walk_python_nodes(
     module_name: str,
     result,
     state: PythonNodeState,
-    decorators: tuple[str, ...] = (),
 ) -> None:
     if node.type == "decorated_definition":
-        collected_decorators = _decorator_names(node, snapshot.content)
         definition = node.child_by_field_name("definition")
         if definition is None:
             for child in getattr(node, "named_children", []):
@@ -94,7 +81,6 @@ def walk_python_nodes(
                 module_name=module_name,
                 result=result,
                 state=state,
-                decorators=collected_decorators,
             )
         return
 
@@ -127,7 +113,6 @@ def walk_python_nodes(
                 metadata={
                     "kind": "class",
                     "bases": list(_python_bases(node, snapshot.content)),
-                    "decorators": list(decorators),
                 },
             )
         )
@@ -170,7 +155,6 @@ def walk_python_nodes(
                     module_name=module_name,
                     result=result,
                     state=state,
-                    decorators=(),
                 )
         state.class_stack.pop()
         return
@@ -214,9 +198,8 @@ def walk_python_nodes(
                             if _is_async_callable(node, snapshot.content)
                             else "function"
                         ),
-                        "decorators": list(decorators),
                     }
-                    if decorators or _is_async_callable(node, snapshot.content)
+                    if _is_async_callable(node, snapshot.content)
                     else None
                 ),
             )
@@ -251,5 +234,4 @@ def walk_python_nodes(
             module_name=module_name,
             result=result,
             state=state,
-            decorators=(),
         )
