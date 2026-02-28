@@ -44,7 +44,14 @@ class _TypeScriptInspector:
         self._source = source
         self.functions: Dict[Tuple[int, int], _TypeScriptFunctionDetails] = {}
         self.classes: Dict[Tuple[int, int], _TypeScriptClassDetails] = {}
+        self._function_span_index: Dict[
+            int, List[Tuple[Tuple[int, int], _TypeScriptFunctionDetails]]
+        ] = {}
+        self._class_span_index: Dict[
+            int, List[Tuple[Tuple[int, int], _TypeScriptClassDetails]]
+        ] = {}
         self._scan(tree.root_node)
+        self._finalize_span_indexes()
 
     def function_details(
         self, start_line: int, end_line: int
@@ -52,7 +59,7 @@ class _TypeScriptInspector:
         exact = self.functions.get((start_line, end_line))
         if exact is not None:
             return exact
-        return _fuzzy_span_lookup(self.functions, start_line, end_line)
+        return _fuzzy_span_lookup(self._function_span_index, start_line, end_line)
 
     def class_details(
         self, start_line: int, end_line: int
@@ -60,7 +67,7 @@ class _TypeScriptInspector:
         exact = self.classes.get((start_line, end_line))
         if exact is not None:
             return exact
-        return _fuzzy_span_lookup(self.classes, start_line, end_line)
+        return _fuzzy_span_lookup(self._class_span_index, start_line, end_line)
 
     def _scan(self, node) -> None:
         node_type = getattr(node, "type", "")
@@ -81,6 +88,9 @@ class _TypeScriptInspector:
         self.functions[(lineno, end_lineno)] = _TypeScriptFunctionDetails(
             parameters=parameters
         )
+        self._function_span_index.setdefault(lineno, []).append(
+            ((lineno, end_lineno), self.functions[(lineno, end_lineno)])
+        )
 
     def _record_class(self, node) -> None:
         lineno = node.start_point[0] + 1
@@ -89,6 +99,9 @@ class _TypeScriptInspector:
         bases = _collect_typescript_bases(heritage, self._source)
         self.classes[(lineno, end_lineno)] = _TypeScriptClassDetails(
             bases=bases
+        )
+        self._class_span_index.setdefault(lineno, []).append(
+            ((lineno, end_lineno), self.classes[(lineno, end_lineno)])
         )
 
     def _record_expression_callable(self, node) -> None:
@@ -133,6 +146,12 @@ class _TypeScriptInspector:
 
     def _slice(self, start: int, end: int) -> str:
         return self._source.encode("utf-8")[start:end].decode("utf-8")
+
+    def _finalize_span_indexes(self) -> None:
+        for entries in self._function_span_index.values():
+            entries.sort(key=lambda item: item[0][1])
+        for entries in self._class_span_index.values():
+            entries.sort(key=lambda item: item[0][1])
 
 def typescript_function_extras(
     language: str,
@@ -230,10 +249,10 @@ def _is_direct_child(node, parent) -> bool:
     )
 
 
-def _fuzzy_span_lookup(mapping, start_line: int, end_line: int):
-    if not mapping:
+def _fuzzy_span_lookup(span_index, start_line: int, end_line: int):
+    if not span_index:
         return None
-    candidates = [(span, value) for span, value in mapping.items() if span[0] == start_line]
+    candidates = list(span_index.get(start_line, ()))
     if not candidates:
         return None
     candidates.sort(
