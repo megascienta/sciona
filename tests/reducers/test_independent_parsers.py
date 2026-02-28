@@ -37,7 +37,6 @@ from validations.reducers.validation.independent.python_ast import _CallVisitor
 from validations.reducers.validation.independent.ts_node import parse_typescript_files
 from validations.reducers.validation.independent.java_runner import parse_java_files
 from validations.reducers.validation.independent.shared import (
-    AssignmentHint,
     Definition,
     EdgeRecord,
     FileParseResult,
@@ -554,11 +553,6 @@ def test_ground_truth_dedupes_duplicate_calls() -> None:
             "symbol_index": {"run": ["fixture.sample.Service.run"]},
             "module_lookup": {"fixture.sample.Service.run": "fixture.sample"},
             "import_targets": {"fixture.sample": set()},
-            "class_name_index": {"Service": ["fixture.sample.Service"]},
-            "class_method_index": {"fixture.sample.Service": {"run": "fixture.sample.Service.run"}},
-            "module_symbol_index": {"fixture.sample": {"run": ["fixture.sample.Service.run"]}},
-            "import_symbol_hints": {},
-            "namespace_aliases": {},
         },
         repo_root=FIXTURE_ROOT / "python",
         repo_prefix="fixture",
@@ -1002,12 +996,6 @@ def test_ground_truth_nest_hook_like_partition_is_deterministic() -> None:
                 "nest.packages.core.injector.instance-wrapper",
             }
         },
-        "class_name_index": {},
-        "class_method_index": {},
-        "module_symbol_index": {},
-        "import_symbol_hints": {},
-        "namespace_aliases": {},
-        "receiver_bindings": {},
     }
     expected, _, out_of_contract, out_meta, diagnostics = edge_records_from_ground_truth(
         file_result=file_result,
@@ -1391,7 +1379,7 @@ def test_typescript_parser_collects_accessor_method_defs(tmp_path: Path) -> None
     assert "fixture.sample.Controller.value" in defs
 
 
-def test_call_contract_resolves_receiver_binding() -> None:
+def test_call_contract_resolves_module_scoped_symbol() -> None:
     edge = NormalizedCallEdge(
         caller="fixture.sample.entry",
         callee="run",
@@ -1407,12 +1395,6 @@ def test_call_contract_resolves_receiver_binding() -> None:
             "symbol_index": {"run": ["fixture.sample.Service.run"]},
             "module_lookup": {"fixture.sample.Service.run": "fixture.sample"},
             "import_targets": {"fixture.sample": set()},
-            "class_name_index": {"Service": ["fixture.sample.Service"]},
-            "class_method_index": {"fixture.sample.Service": {"run": "fixture.sample.Service.run"}},
-            "module_symbol_index": {"fixture.sample": {"run": ["fixture.sample.Service.run"]}},
-            "import_symbol_hints": {},
-            "namespace_aliases": {},
-            "receiver_bindings": {"fixture.sample.entry": {"svc": ["fixture.sample.Service"]}},
         },
     )
     assert resolved == "fixture.sample.Service.run"
@@ -1439,20 +1421,12 @@ def test_call_contract_does_not_guess_ambiguous_class_leaf() -> None:
                 "fixture.sample.beta.Service.run": "fixture.sample.beta",
             },
             "import_targets": {"fixture.sample": set()},
-            "class_name_index": {
-                "Service": ["fixture.sample.alpha.Service", "fixture.sample.beta.Service"]
-            },
-            "class_method_index": {},
-            "module_symbol_index": {},
-            "import_symbol_hints": {},
-            "namespace_aliases": {},
-            "receiver_bindings": {},
         },
     )
     assert resolved is None
 
 
-def test_call_resolution_propagates_constructor_bindings_to_methods() -> None:
+def test_call_resolution_output_is_core_contract_minimal() -> None:
     file_result = FileParseResult(
         language="typescript",
         file_path="sample.ts",
@@ -1486,13 +1460,7 @@ def test_call_resolution_propagates_constructor_bindings_to_methods() -> None:
         ],
         call_edges=[],
         import_edges=[],
-        assignment_hints=[
-            AssignmentHint(
-                scope="fixture.sample.Controller.constructor",
-                receiver="this.service",
-                value_text="Service",
-            )
-        ],
+        assignment_hints=[],
         parse_ok=True,
     )
     resolution = build_independent_call_resolution(
@@ -1503,123 +1471,7 @@ def test_call_resolution_propagates_constructor_bindings_to_methods() -> None:
         repo_prefix="fixture",
         local_packages={"fixture"},
     )
-    bindings = resolution["receiver_bindings"].get("fixture.sample.Controller.handle", {})
-    assert "service" in bindings
-    assert "fixture.sample.Service" in bindings["service"]
-
-
-def test_call_resolution_uses_python_parameter_annotations(tmp_path: Path) -> None:
-    websocket_src = tmp_path / "websocket.py"
-    websocket_src.write_text(
-        "class WebSocket:\n"
-        "    def accept(self):\n"
-        "        return None\n",
-        encoding="utf-8",
-    )
-    sample_src = tmp_path / "sample.py"
-    sample_src.write_text(
-        "from fixture.websocket import WebSocket\n"
-        "def endpoint(websocket: WebSocket):\n"
-        "    return websocket.accept()\n",
-        encoding="utf-8",
-    )
-    parsed = parse_python_files(
-        tmp_path,
-        [
-            {"file_path": "websocket.py", "module_qualified_name": "fixture.websocket"},
-            {"file_path": "sample.py", "module_qualified_name": "fixture.sample"},
-        ],
-    )
-    results = {entry.file_path: entry for entry in parsed}
-    normalized_map = {
-        path: normalize_file_edges(result.module_qualified_name, result.call_edges, result.import_edges)
-        for path, result in results.items()
-    }
-    resolution = build_independent_call_resolution(
-        independent_results=results,
-        normalized_edge_map=normalized_map,
-        module_names={"fixture.websocket", "fixture.sample"},
-        repo_root=tmp_path,
-        repo_prefix="fixture",
-        local_packages={"fixture"},
-    )
-    sample_result = results["sample.py"]
-    normalized_calls, _imports = normalized_map["sample.py"]
-    edge = next(call for call in normalized_calls if call.caller == "fixture.sample.endpoint")
-    resolved = resolve_call_in_contract(
-        edge=EdgeRecord(
-            caller=edge.caller,
-            callee=edge.callee,
-            callee_qname=edge.callee_qname,
-            provenance="syntax_raw",
-        ),
-        caller_qname="fixture.sample.endpoint",
-        caller_module=sample_result.module_qualified_name,
-        call_resolution=resolution,
-    )
-    assert resolved == "fixture.websocket.WebSocket.accept"
-
-
-def test_call_resolution_does_not_propagate_ambiguous_constructor_bindings() -> None:
-    file_result = FileParseResult(
-        language="typescript",
-        file_path="sample.ts",
-        module_qualified_name="fixture.sample",
-        defs=[
-            Definition(kind="class", qualified_name="fixture.sample.ServiceA", start_line=1, end_line=3),
-            Definition(
-                kind="method",
-                qualified_name="fixture.sample.ServiceA.run",
-                start_line=2,
-                end_line=2,
-            ),
-            Definition(kind="class", qualified_name="fixture.sample.ServiceB", start_line=5, end_line=7),
-            Definition(
-                kind="method",
-                qualified_name="fixture.sample.ServiceB.run",
-                start_line=6,
-                end_line=6,
-            ),
-            Definition(
-                kind="class",
-                qualified_name="fixture.sample.Controller",
-                start_line=9,
-                end_line=20,
-            ),
-            Definition(
-                kind="method",
-                qualified_name="fixture.sample.Controller.constructor",
-                start_line=10,
-                end_line=12,
-            ),
-            Definition(
-                kind="method",
-                qualified_name="fixture.sample.Controller.handle",
-                start_line=14,
-                end_line=16,
-            ),
-        ],
-        call_edges=[],
-        import_edges=[],
-        assignment_hints=[
-            AssignmentHint(
-                scope="fixture.sample.Controller.constructor",
-                receiver="this.service",
-                value_text="run",
-            )
-        ],
-        parse_ok=True,
-    )
-    resolution = build_independent_call_resolution(
-        independent_results={file_result.file_path: file_result},
-        normalized_edge_map={file_result.file_path: ([], [])},
-        module_names={"fixture.sample"},
-        repo_root=Path("/tmp/fixture"),
-        repo_prefix="fixture",
-        local_packages={"fixture"},
-    )
-    bindings = resolution["receiver_bindings"].get("fixture.sample.Controller.handle", {})
-    assert "service" not in bindings
+    assert set(resolution.keys()) == {"mode", "symbol_index", "module_lookup", "import_targets"}
 
 
 def test_class_edge_filter_does_not_drop_valid_class_methods() -> None:
@@ -1740,12 +1592,6 @@ def test_call_contract_keeps_same_module_ambiguity_unresolved() -> None:
                 "fixture.sample.Other.run": "fixture.sample",
             },
             "import_targets": {"fixture.sample": set()},
-            "class_name_index": {},
-            "class_method_index": {},
-            "module_symbol_index": {},
-            "import_symbol_hints": {},
-            "namespace_aliases": {},
-            "receiver_bindings": {},
         },
     )
     assert resolved is None
@@ -1771,14 +1617,6 @@ def test_call_contract_details_use_shared_strict_selector() -> None:
             "fixture.sample.Other.run": "fixture.sample",
         },
         "import_targets": {"fixture.sample": set()},
-        "class_name_index": {},
-        "class_method_index": {},
-        "module_symbol_index": {},
-        "import_symbol_hints": {},
-        "namespace_aliases": {},
-        "receiver_bindings": {
-            "fixture.sample.entry": {"svc": ["fixture.sample.Service"]},
-        },
     }
     details = resolve_call_in_contract_details(
         edge=edge,
@@ -1822,12 +1660,6 @@ def test_call_contract_accepts_placeholder_member_qname_via_core_candidates() ->
             "fixture.pkg.injector.module.Module.getNonAliasProviders": "fixture.pkg.injector.module"
         },
         "import_targets": {"fixture.pkg.hook": {"fixture.pkg.injector.module"}},
-        "class_name_index": {},
-        "class_method_index": {},
-        "module_symbol_index": {},
-        "import_symbol_hints": {},
-        "namespace_aliases": {},
-        "receiver_bindings": {},
     }
     details = resolve_call_in_contract_details(
         edge=edge,

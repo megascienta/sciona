@@ -6,7 +6,7 @@
     "q1_reducer_vs_db_exact=True",
     "q2_reducer_vs_independent_overlap_macro=False",
     "q3_avg_non_static_percent=0.3663",
-    "unresolved_static_avg_percent=140.1343"
+    "unresolved_static_avg_percent=140.5006"
   ],
   "invariants": {
     "passed": false,
@@ -15668,9 +15668,10 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "0": 6,
-          "1": 2,
+          "2": 1,
+          "1": 1,
           "6": 1,
-          "7": 1
+          "8": 1
         }
       },
       "q2_node_rates": {
@@ -16885,9 +16886,9 @@
         "strict_contract_candidate_count_histogram": {
           "0": 2,
           "3": 1,
-          "1": 1,
+          "2": 1,
           "6": 1,
-          "7": 1
+          "8": 1
         }
       },
       "q2_node_rates": null,
@@ -17403,7 +17404,7 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "1": 1,
-          "7": 1
+          "8": 1
         }
       },
       "q2_node_rates": null,
@@ -25770,7 +25771,7 @@
         "strict_contract_candidate_count_histogram": {
           "0": 2,
           "3": 3,
-          "7": 1
+          "8": 1
         }
       },
       "q2_node_rates": {
@@ -28530,7 +28531,7 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "0": 4,
-          "7": 1
+          "8": 1
         }
       },
       "q2_node_rates": null,
@@ -31274,6 +31275,12 @@
         },
         {
           "caller": "OpenLineage.integration.spark.spark3.src.test.java.io.openlineage.spark3.agent.lifecycle.plan.column.visitors.expression.AggregateExpressionVisitorTest.AggregateExpressionVisitorTest.testApplyWithResultIdMethod",
+          "callee": "any",
+          "callee_qname": null,
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.spark.spark3.src.test.java.io.openlineage.spark3.agent.lifecycle.plan.column.visitors.expression.AggregateExpressionVisitorTest.AggregateExpressionVisitorTest.testApplyWithResultIdMethod",
           "callee": "apply",
           "callee_qname": "visitor.apply",
           "provenance": "syntax_raw"
@@ -31311,14 +31318,14 @@
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 5,
-        "excluded_limitation_count": 8,
+        "excluded_out_of_scope_count": 4,
+        "excluded_limitation_count": 9,
         "excluded_total_count": 13,
         "excluded_out_of_scope_by_reason": {
-          "external": 5
+          "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 8
+          "in_repo_unresolved": 9
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -31327,9 +31334,9 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 5,
+          "0": 4,
           "2": 1,
-          "1": 5,
+          "1": 6,
           "121": 1,
           "3": 2
         }
@@ -31340,7 +31347,7 @@
         "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 800.0
+      "unresolved_static_rate_percent": 900.0
     },
     {
       "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.column.ColumnLevelLineageIcebergTest",
@@ -31586,18 +31593,30 @@
           "callee": "get_events",
           "callee_qname": "dbt_runner.get_events",
           "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.dbt.tests.integration.test_integration.TestDbtIntegration.test_basic_seed_to_staging_pipeline",
+          "callee": "validate_event_schema",
+          "callee_qname": null,
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.dbt.tests.integration.test_integration.TestDbtIntegration.test_basic_seed_to_staging_pipeline",
+          "callee": "validate_lineage_chain",
+          "callee_qname": null,
+          "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 5,
-        "excluded_limitation_count": 1,
+        "excluded_out_of_scope_count": 3,
+        "excluded_limitation_count": 3,
         "excluded_total_count": 6,
         "excluded_out_of_scope_by_reason": {
-          "external": 5
+          "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -31607,7 +31626,8 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "3": 1,
-          "0": 5
+          "0": 3,
+          "1": 2
         }
       },
       "q2_node_rates": null,
@@ -33500,7 +33520,8 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "0": 1,
-          "1": 2
+          "1": 1,
+          "2": 1
         }
       },
       "q2_node_rates": {
@@ -36354,20 +36375,20 @@
       "filtering_source": "core_only",
       "envelope_reference_count": 1197,
       "envelope_excluded_count": 4319,
-      "envelope_excluded_out_of_scope_count": 3676,
-      "envelope_excluded_limitation_count": 643,
+      "envelope_excluded_out_of_scope_count": 3673,
+      "envelope_excluded_limitation_count": 646,
       "envelope_total_count": 5516,
       "contract_filtered_out_ratio": 0.7829949238578681,
       "envelope_excluded_by_reason": {
         "dynamic": 1,
-        "external": 3676,
-        "in_repo_unresolved": 642
+        "external": 3673,
+        "in_repo_unresolved": 645
       },
       "match_provenance_breakdown": {
         "qname_exact": 1074
       },
       "strict_contract_candidate_count_histogram": {
-        "0": 845,
+        "0": 842,
         "1": 376,
         "10": 4,
         "102": 2,
@@ -36378,7 +36399,7 @@
         "13": 3,
         "14": 8,
         "18": 1,
-        "2": 59,
+        "2": 62,
         "27": 1,
         "28": 1,
         "29": 2,
@@ -36393,8 +36414,8 @@
         "5": 5,
         "54": 64,
         "6": 19,
-        "7": 11,
-        "8": 18
+        "7": 6,
+        "8": 23
       },
       "class_truth_unreliable_count": 2,
       "class_truth_unreliable_scored_excluded_count": 2,
@@ -36413,14 +36434,14 @@
         "avg_mutual_accuracy": 0.7510989010989011
       },
       "contract_plus_resolution_hints": {
-        "reference_count": 1840,
+        "reference_count": 1843,
         "candidate_count": 1077,
         "intersection_count": 1074,
-        "missing_count": 766,
+        "missing_count": 769,
         "spillover_count": 3,
-        "avg_missing_rate": 0.4682656841413032,
+        "avg_missing_rate": 0.4682996630743647,
         "avg_spillover_rate": 0.001834862385321101,
-        "avg_mutual_accuracy": 0.5311809446631237
+        "avg_mutual_accuracy": 0.5311469657300623
       },
       "top_mismatch_signatures": [
         {
@@ -36718,15 +36739,15 @@
         "target_zero": true,
         "pass": false,
         "scored_nodes": 273,
-        "avg_rate": 1.4013431013431012,
-        "avg_rate_percent": 140.1343101343101,
-        "total_edges": 642,
+        "avg_rate": 1.405006105006105,
+        "avg_rate_percent": 140.5006105006105,
+        "total_edges": 645,
         "by_semantic_type_avg_rate": {
-          "direct_call_unresolved": 1.0728937728937729,
+          "direct_call_unresolved": 1.0765567765567765,
           "member_call_unresolved": 0.32844932844932845
         },
         "by_semantic_type_avg_percent": {
-          "direct_call_unresolved": 107.28937728937728,
+          "direct_call_unresolved": 107.65567765567765,
           "member_call_unresolved": 32.84493284493284
         }
       }

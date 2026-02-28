@@ -36,9 +36,9 @@
 - class_truth_unreliable_scored_excluded_count: `2`
 - class_match_strategy_breakdown: `{'exact_qname': 127, 'none': 2}`
 - match_provenance_breakdown: `{'qname_exact': 1074}`
-- strict_contract_candidate_count_histogram: `{'0': 845, '1': 376, '10': 4, '102': 2, '11': 1, '12': 7, '121': 8, '127': 2, '13': 3, '14': 8, '18': 1, '2': 59, '27': 1, '28': 1, '29': 2, '3': 72, '32': 2, '33': 2, '35': 13, '36': 8, '4': 58, '40': 10, '41': 3, '5': 5, '54': 64, '6': 19, '7': 11, '8': 18}`
+- strict_contract_candidate_count_histogram: `{'0': 842, '1': 376, '10': 4, '102': 2, '11': 1, '12': 7, '121': 8, '127': 2, '13': 3, '14': 8, '18': 1, '2': 62, '27': 1, '28': 1, '29': 2, '3': 72, '32': 2, '33': 2, '35': 13, '36': 8, '4': 58, '40': 10, '41': 3, '5': 5, '54': 64, '6': 19, '7': 6, '8': 23}`
 - core_contract_overlap: `{'reference_count': 1197, 'candidate_count': 1077, 'intersection_count': 1074, 'missing_count': 123, 'spillover_count': 3, 'avg_missing_rate': 0.24584859584859584, 'avg_spillover_rate': 0.005494505494505495, 'avg_mutual_accuracy': 0.7510989010989011}`
-- contract_plus_resolution_hints: `{'reference_count': 1840, 'candidate_count': 1077, 'intersection_count': 1074, 'missing_count': 766, 'spillover_count': 3, 'avg_missing_rate': 0.4682656841413032, 'avg_spillover_rate': 0.001834862385321101, 'avg_mutual_accuracy': 0.5311809446631237}`
+- contract_plus_resolution_hints: `{'reference_count': 1843, 'candidate_count': 1077, 'intersection_count': 1074, 'missing_count': 769, 'spillover_count': 3, 'avg_missing_rate': 0.4682996630743647, 'avg_spillover_rate': 0.001834862385321101, 'avg_mutual_accuracy': 0.5311469657300623}`
 - by_language: `{'java': {'scored_nodes': 133, 'avg_missing_rate': 0.1324561403508772, 'avg_spillover_rate': 0.0, 'avg_mutual_accuracy': 0.8675438596491228, 'pass': False}, 'python': {'scored_nodes': 135, 'avg_missing_rate': 0.36666666666666664, 'avg_spillover_rate': 0.011111111111111112, 'avg_mutual_accuracy': 0.6271604938271605, 'pass': False}, 'typescript': {'scored_nodes': 5, 'avg_missing_rate': 0.0, 'avg_spillover_rate': 0.0, 'avg_mutual_accuracy': 1.0, 'pass': True}}`
 
 ## Q2a. Reducers vs Independent Syntax Baseline
@@ -57,5 +57,5 @@
 - avg_non_static_percent_by_type: `{'dynamic_call': '0.37%'}`
 - unresolved_static_target_zero: `True`
 - unresolved_static_pass: `False`
-- unresolved_static_avg_percent: `140.13%`
+- unresolved_static_avg_percent: `140.50%`
 

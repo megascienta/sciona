@@ -36,7 +36,7 @@
 - class_truth_unreliable_scored_excluded_count: `0`
 - class_match_strategy_breakdown: `{'exact_qname': 125}`
 - match_provenance_breakdown: `{'qname_exact': 2934}`
-- strict_contract_candidate_count_histogram: `{'0': 376, '1': 146, '138': 2, '2': 53, '3': 30, '4': 4, '40': 1, '6': 8, '68': 12, '9': 49}`
+- strict_contract_candidate_count_histogram: `{'0': 376, '1': 146, '138': 2, '2': 53, '3': 30, '4': 4, '41': 1, '6': 8, '69': 12, '9': 49}`
 - core_contract_overlap: `{'reference_count': 2998, 'candidate_count': 2958, 'intersection_count': 2934, 'missing_count': 64, 'spillover_count': 24, 'avg_missing_rate': 0.18125, 'avg_spillover_rate': 0.011250120747555216, 'avg_mutual_accuracy': 0.8114810088177135}`
 - contract_plus_resolution_hints: `{'reference_count': 3192, 'candidate_count': 2958, 'intersection_count': 2934, 'missing_count': 258, 'spillover_count': 24, 'avg_missing_rate': 0.3855352959797404, 'avg_spillover_rate': 0.005586092919426252, 'avg_mutual_accuracy': 0.6109042464434621}`
 - by_language: `{'python': {'scored_nodes': 248, 'avg_missing_rate': 0.18125, 'avg_spillover_rate': 0.011250120747555216, 'avg_mutual_accuracy': 0.8114810088177135, 'pass': False}}`

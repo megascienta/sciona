@@ -10705,7 +10705,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "68": 1,
+          "69": 1,
           "0": 1
         }
       },
@@ -10775,7 +10775,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "68": 1,
+          "69": 1,
           "0": 1
         }
       },
@@ -11062,7 +11062,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "68": 1,
+          "69": 1,
           "0": 1
         }
       },
@@ -11290,7 +11290,7 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "0": 3,
-          "68": 1
+          "69": 1
         }
       },
       "q2_node_rates": null,
@@ -11359,7 +11359,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "40": 1,
+          "41": 1,
           "0": 1
         }
       },
@@ -12207,7 +12207,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "68": 1,
+          "69": 1,
           "0": 1
         }
       },
@@ -12486,7 +12486,7 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "0": 8,
-          "68": 1,
+          "69": 1,
           "1": 1
         }
       },
@@ -13129,7 +13129,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "68": 1,
+          "69": 1,
           "0": 1
         }
       },
@@ -13788,7 +13788,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "68": 1,
+          "69": 1,
           "0": 1
         }
       },
@@ -14649,7 +14649,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "68": 1,
+          "69": 1,
           "0": 1
         }
       },
@@ -15025,7 +15025,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "68": 1,
+          "69": 1,
           "0": 1
         }
       },
@@ -15882,7 +15882,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "68": 1,
+          "69": 1,
           "0": 1
         }
       },
@@ -16258,7 +16258,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "68": 1,
+          "69": 1,
           "0": 1
         }
       },
@@ -33146,9 +33146,9 @@
         "2": 53,
         "3": 30,
         "4": 4,
-        "40": 1,
+        "41": 1,
         "6": 8,
-        "68": 12,
+        "69": 12,
         "9": 49
       },
       "class_truth_unreliable_count": 0,
