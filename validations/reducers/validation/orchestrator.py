@@ -30,7 +30,7 @@ from .reducer_queries import get_snapshot_id
 
 REPORT_SCHEMA_VERSION = "2026-02-27"
 Q2_FILTERING_SOURCE = "core_only"
-NON_STATIC_REASONS = {"dynamic", "decorator"}
+NON_STATIC_REASONS = {"dynamic"}
 UNRESOLVED_STATIC_REASONS = {"in_repo_unresolved", "relative_unresolved", "unknown"}
 
 

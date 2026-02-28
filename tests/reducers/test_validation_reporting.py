@@ -55,7 +55,7 @@ def test_render_summary_includes_only_three_core_questions() -> None:
                 "avg_non_static_rate_percent": 10.0,
                 "by_semantic_type_non_static_avg_percent": {
                     "dynamic_call": 50.0,
-                    "decorator_call": 50.0,
+                    "dynamic_member_call": 50.0,
                 },
                 "unresolved_static_defect": {
                     "target_zero": True,

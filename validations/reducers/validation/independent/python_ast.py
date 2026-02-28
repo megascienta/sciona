@@ -44,7 +44,6 @@ class _CallVisitor(ast.NodeVisitor):
             kind = "function"
             qname = f"{self.module_qname}.{node.name}"
         self.defs.append(Definition(kind, qname, node.lineno, node.end_lineno or node.lineno))
-        self._record_decorator_calls(qname, node.decorator_list)
         self._scope_stack.append((qname, kind))
         for statement in node.body:
             self.visit(statement)
@@ -62,7 +61,6 @@ class _CallVisitor(ast.NodeVisitor):
             kind = "function"
             qname = f"{self.module_qname}.{node.name}"
         self.defs.append(Definition(kind, qname, node.lineno, node.end_lineno or node.lineno))
-        self._record_decorator_calls(qname, node.decorator_list)
         self._scope_stack.append((qname, kind))
         for statement in node.body:
             self.visit(statement)
@@ -79,7 +77,6 @@ class _CallVisitor(ast.NodeVisitor):
         else:
             qname = f"{self.module_qname}.{node.name}"
         self.defs.append(Definition("class", qname, node.lineno, node.end_lineno or node.lineno))
-        self._record_decorator_calls(qname, node.decorator_list)
         self._scope_stack.append((qname, "class"))
         for statement in node.body:
             self.visit(statement)
@@ -115,25 +112,6 @@ class _CallVisitor(ast.NodeVisitor):
         if isinstance(node, ast.Attribute):
             return _expr_name(node)
         return None
-
-    def _record_decorator_calls(self, owner_qname: str, decorators: list[ast.AST]) -> None:
-        for decorator in decorators:
-            target = decorator.func if isinstance(decorator, ast.Call) else decorator
-            callee, callee_qname, dynamic = _callee_name(target)
-            callee_text = None
-            try:
-                callee_text = f"decorator:{ast.unparse(decorator)}"
-            except Exception:
-                callee_text = "decorator"
-            self.call_edges.append(
-                CallEdge(
-                    caller=owner_qname,
-                    callee=callee or "",
-                    callee_qname=callee_qname,
-                    dynamic=True if not callee else (dynamic or True),
-                    callee_text=callee_text,
-                )
-            )
 
     def _record_assignment_target(self, target: ast.AST, value_text: str) -> None:
         receiver = None
