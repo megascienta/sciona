@@ -202,6 +202,31 @@ def _build_report_payload(
     scored_rows_q1 = [row for row in rows if row.get("set_q1_reducer_vs_db") is not None]
     q1_agg = _aggregate_set_metrics(scored_rows_q1, "set_q1_reducer_vs_db")
     q2_agg = _aggregate_set_metrics(scored_rows_q2, "set_q2_reducer_vs_independent_contract")
+    q2_excluded_total = sum(
+        int((row.get("q2_filtering_stats") or {}).get("excluded_total_count") or 0)
+        for row in rows
+    )
+    q2_excluded_out_of_scope = sum(
+        int((row.get("q2_filtering_stats") or {}).get("excluded_out_of_scope_count") or 0)
+        for row in rows
+    )
+    q2_excluded_limitation = sum(
+        int((row.get("q2_filtering_stats") or {}).get("excluded_limitation_count") or 0)
+        for row in rows
+    )
+    q2_excluded_by_reason: dict[str, int] = {}
+    for row in rows:
+        stats = row.get("q2_filtering_stats") or {}
+        by_reason = {}
+        by_reason.update(stats.get("excluded_out_of_scope_by_reason") or {})
+        by_reason.update(stats.get("excluded_limitation_by_reason") or {})
+        for reason, count in by_reason.items():
+            q2_excluded_by_reason[str(reason)] = (
+                int(q2_excluded_by_reason.get(str(reason), 0)) + int(count or 0)
+            )
+    q2_reference_total = int(q2_agg.get("reference_count") or 0)
+    q2_envelope_total = q2_reference_total + q2_excluded_total
+    q2_contract_filtered_out_ratio = _safe_ratio(q2_excluded_total, q2_envelope_total)
 
     q2_target = 0.99
     q2_node_rates: list[dict] = []
@@ -301,7 +326,9 @@ def _build_report_payload(
     )
 
     invariants = {
-        "passed": bool(q1_pass and q2_pass),
+        "passed": bool(q2_pass),
+        "pipeline_self_consistent": bool(q1_pass),
+        "independently_verified": bool(q2_pass),
         "hard_passed": bool(q1_pass and q2_pass),
         "q1_reducer_vs_db_exact": q1_pass,
         "q2_reducer_vs_independent_overlap_macro": q2_pass,
@@ -331,6 +358,7 @@ def _build_report_payload(
                     "set_q2_reducer_vs_independent_contract"
                 ),
                 "basket2_edges": row.get("basket2_edges"),
+                "q2_filtering_stats": row.get("q2_filtering_stats"),
                 "q2_node_rates": _build_q2_node_rates(
                     row.get("set_q2_reducer_vs_independent_contract")
                 ),
@@ -455,6 +483,13 @@ def _build_report_payload(
                 "spillover_count": q2_agg.get("spillover_count"),
                 "by_language": q2_by_language,
                 "filtering_source": Q2_FILTERING_SOURCE,
+                "envelope_reference_count": q2_reference_total,
+                "envelope_excluded_count": q2_excluded_total,
+                "envelope_excluded_out_of_scope_count": q2_excluded_out_of_scope,
+                "envelope_excluded_limitation_count": q2_excluded_limitation,
+                "envelope_total_count": q2_envelope_total,
+                "contract_filtered_out_ratio": q2_contract_filtered_out_ratio,
+                "envelope_excluded_by_reason": dict(sorted(q2_excluded_by_reason.items())),
                 "top_mismatch_signatures": top_mismatch_signatures,
             },
             "q3": {

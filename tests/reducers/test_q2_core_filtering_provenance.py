@@ -41,6 +41,13 @@ def test_q2_payload_declares_core_only_filtering_source(tmp_path: Path) -> None:
     )
     assert payload["questions"]["q2"]["filtering_source"] == "core_only"
     assert payload["quality_gates"]["q2_filtering_source"] == "core_only"
+    assert payload["invariants"]["pipeline_self_consistent"] is True
+    assert payload["invariants"]["independently_verified"] is True
+    assert payload["invariants"]["passed"] is True
+    assert payload["questions"]["q2"]["envelope_reference_count"] == 1
+    assert payload["questions"]["q2"]["envelope_excluded_count"] == 0
+    assert payload["questions"]["q2"]["envelope_total_count"] == 1
+    assert payload["questions"]["q2"]["contract_filtered_out_ratio"] == 0.0
 
 
 def test_q2_filtering_pipeline_no_validation_contract_override() -> None:
@@ -162,3 +169,55 @@ def test_unresolved_static_is_reported_as_separate_defect(tmp_path: Path) -> Non
     assert unresolved["pass"] is False
     assert unresolved["avg_rate_percent"] == 50.0
     assert unresolved["by_semantic_type_avg_percent"] == {"direct_call_unresolved": 50.0}
+    q2 = payload["questions"]["q2"]
+    assert q2["envelope_reference_count"] == 2
+    assert q2["envelope_excluded_count"] == 0
+    assert q2["contract_filtered_out_ratio"] == 0.0
+
+
+def test_q2_payload_reports_contract_filtered_out_ratio(tmp_path: Path) -> None:
+    payload = _build_report_payload(
+        repo_root=tmp_path,
+        rows=[
+            {
+                "entity": "fixture.mod.fn",
+                "language": "python",
+                "kind": "function",
+                "file_path": "mod.py",
+                "module_qualified_name": "fixture.mod",
+                "set_q1_reducer_vs_db": {
+                    "reference_count": 1,
+                    "candidate_count": 1,
+                    "intersection_count": 1,
+                    "missing_count": 0,
+                    "spillover_count": 0,
+                    "coverage": 1.0,
+                    "spillover_ratio": 0.0,
+                },
+                "set_q2_reducer_vs_independent_contract": {
+                    "reference_count": 3,
+                    "candidate_count": 3,
+                    "intersection_count": 3,
+                    "missing_count": 0,
+                    "spillover_count": 0,
+                    "coverage": 1.0,
+                    "spillover_ratio": 0.0,
+                },
+                "q2_filtering_stats": {
+                    "reference_in_contract_count": 3,
+                    "excluded_out_of_scope_count": 2,
+                    "excluded_limitation_count": 1,
+                    "excluded_total_count": 3,
+                    "excluded_out_of_scope_by_reason": {"external": 2},
+                    "excluded_limitation_by_reason": {"dynamic": 1},
+                },
+            }
+        ],
+        out_of_contract_meta=[],
+    )
+    q2 = payload["questions"]["q2"]
+    assert q2["envelope_reference_count"] == 3
+    assert q2["envelope_excluded_count"] == 3
+    assert q2["envelope_total_count"] == 6
+    assert q2["contract_filtered_out_ratio"] == 0.5
+    assert q2["envelope_excluded_by_reason"] == {"dynamic": 1, "external": 2}

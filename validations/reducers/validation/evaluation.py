@@ -505,6 +505,25 @@ def evaluate_entities(
                 if set_q2_reducer_vs_independent_contract
                 else None,
                 "basket2_edges": [asdict(edge) for edge in out_of_contract],
+                "q2_filtering_stats": {
+                    "reference_in_contract_count": len(expected_filtered),
+                    "excluded_out_of_scope_count": int(
+                        gt_diagnostics.get("excluded_out_of_scope_count") or 0
+                    ),
+                    "excluded_limitation_count": int(
+                        gt_diagnostics.get("included_limitation_count") or 0
+                    ),
+                    "excluded_total_count": int(
+                        (gt_diagnostics.get("excluded_out_of_scope_count") or 0)
+                        + (gt_diagnostics.get("included_limitation_count") or 0)
+                    ),
+                    "excluded_out_of_scope_by_reason": dict(
+                        gt_diagnostics.get("excluded_out_of_scope_by_reason") or {}
+                    ),
+                    "excluded_limitation_by_reason": dict(
+                        gt_diagnostics.get("included_limitation_by_reason") or {}
+                    ),
+                },
             }
         )
         if progress_handle:

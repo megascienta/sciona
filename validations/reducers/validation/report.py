@@ -85,6 +85,12 @@ def render_summary(payload: dict) -> List[str]:
         f"- missing/spillover: `{q2.get('missing_count')}`/`{q2.get('spillover_count')}`"
     )
     lines.append(f"- filtering_source: `{q2.get('filtering_source')}`")
+    lines.append(
+        f"- envelope_reference/excluded/total: `{q2.get('envelope_reference_count')}`/`{q2.get('envelope_excluded_count')}`/`{q2.get('envelope_total_count')}`"
+    )
+    lines.append(
+        f"- contract_filtered_out_ratio: `{_format_ratio(q2.get('contract_filtered_out_ratio'))}`"
+    )
     lines.append(f"- by_language: `{q2.get('by_language')}`")
     lines.append("")
 
