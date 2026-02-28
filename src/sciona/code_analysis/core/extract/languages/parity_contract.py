@@ -33,7 +33,7 @@ def build_parity_contract() -> dict[str, object]:
             },
             "core_implements_edges": {
                 "java": "yes",
-                "python": "yes",
+                "python": "n/a",
                 "typescript": "yes",
             },
             "imports_declared_and_aliasing": {
@@ -74,6 +74,12 @@ def build_parity_contract() -> dict[str, object]:
             "module_scoped_fallback",
         ],
         "documented_asymmetries": {
+            "python": {
+                "implements_edges": {
+                    "present": False,
+                    "reason": "python has no dedicated interface-implementation syntax token",
+                },
+            },
             "java": {
                 "callable_types": ["method"],
                 "reason": "java has no module-level function declarations",

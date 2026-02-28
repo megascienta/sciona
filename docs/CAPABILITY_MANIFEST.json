@@ -329,7 +329,7 @@
       },
       "core_implements_edges": {
         "java": "yes",
-        "python": "yes",
+        "python": "n/a",
         "typescript": "yes"
       },
       "imports_declared_and_aliasing": {
@@ -370,6 +370,12 @@
       "module_scoped_fallback"
     ],
     "documented_asymmetries": {
+      "python": {
+        "implements_edges": {
+          "present": false,
+          "reason": "python has no dedicated interface-implementation syntax token"
+        }
+      },
       "java": {
         "callable_types": [
           "method"

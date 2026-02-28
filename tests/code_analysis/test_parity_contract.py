@@ -13,15 +13,19 @@ from sciona.code_analysis.core.extract.languages.walker_capabilities import (
 from sciona.code_analysis.config import LANGUAGE_CONFIG
 
 
-def test_parity_contract_is_yes_for_all_declared_dimensions() -> None:
+def test_parity_contract_declared_dimensions_match_expected_matrix() -> None:
     contract = build_parity_contract()
     dimensions = contract["dimensions"]
-    for language_claims in dimensions.values():
-        assert language_claims == {
-            "java": "yes",
-            "python": "yes",
-            "typescript": "yes",
-        }
+    expected = {
+        key: {"java": "yes", "python": "yes", "typescript": "yes"}
+        for key in dimensions
+    }
+    expected["core_implements_edges"] = {
+        "java": "yes",
+        "python": "n/a",
+        "typescript": "yes",
+    }
+    assert dimensions == expected
 
 
 def test_parity_contract_stage_order_matches_kernel_contract() -> None:
@@ -42,3 +46,11 @@ def test_parity_contract_documents_java_callable_asymmetry() -> None:
     java = asymmetries.get("java")
     assert java is not None
     assert tuple(java["callable_types"]) == LANGUAGE_CONFIG["java"].callable_types
+
+
+def test_parity_contract_documents_python_implements_asymmetry() -> None:
+    contract = build_parity_contract()
+    asymmetries = contract.get("documented_asymmetries", {})
+    python = asymmetries.get("python")
+    assert python is not None
+    assert python["implements_edges"]["present"] is False

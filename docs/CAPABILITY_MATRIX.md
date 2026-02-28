@@ -51,6 +51,8 @@ Legend:
 - Python and TypeScript use different instance-map strategies:
   Python resolves module/class/callable scopes eagerly; TypeScript resolves pending
   instance/alias assignments in a deferred pass before call resolution.
+- Python does not emit `IMPLEMENTS` edges because there is no dedicated
+  interface-implementation syntax token; this is tracked as `n/a` parity, not a defect.
 
 ## Gate Criteria
 
