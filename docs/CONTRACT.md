@@ -46,9 +46,6 @@ SCIONA MUST emit these edge types:
 - `DEFINES_METHOD` (class -> method)
 - `IMPORTS_DECLARED` (module -> module)
 - `CALLS` (callable -> callable, in-repo only)
-
-Optional enrichment edges (MAY be emitted; not required for baseline compliance):
-
 - `NESTS` (class -> nested class, disambiguates nested containment)
 - `EXTENDS` (class-like -> class-like, local syntactic inheritance)
 - `IMPLEMENTS` (class/record -> interface, local syntactic implementation)
@@ -71,6 +68,22 @@ Optional enrichment edges (MAY be emitted; not required for baseline compliance)
 - MUST represent syntactic call expressions only.
 - MUST NOT represent attribute reads/writes or other non-call expressions.
 - MUST be emitted only when the final accepted target is an in-repo callable.
+
+`NESTS`:
+
+- MUST represent lexical class nesting only.
+- MUST be emitted only for class-like -> nested class-like declarations.
+- MUST NOT be emitted for nested function/method scopes.
+
+`EXTENDS`:
+
+- MUST represent direct syntax-level base declarations only.
+- MUST NOT require cross-file semantic inference.
+
+`IMPLEMENTS`:
+
+- MUST represent direct syntax-level interface implementation declarations only.
+- MUST NOT be inferred from structural similarity or method matching.
 
 ## Naming and Identity
 

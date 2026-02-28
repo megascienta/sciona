@@ -122,7 +122,8 @@
           "class"
         ],
         "emits_edges": [
-          "CONTAINS"
+          "CONTAINS",
+          "NESTS"
         ]
       },
       {
@@ -147,6 +148,19 @@
         ],
         "emits_nodes": [],
         "emits_edges": []
+      },
+      {
+        "construct": "local_inheritance_edges",
+        "node_types": [
+          "class_definition"
+        ],
+        "emits_nodes": [],
+        "emits_edges": [
+          "EXTENDS"
+        ],
+        "constraints": [
+          "syntax-local base references only"
+        ]
       }
     ],
     "typescript": [
@@ -161,7 +175,8 @@
           "class"
         ],
         "emits_edges": [
-          "CONTAINS"
+          "CONTAINS",
+          "NESTS"
         ]
       },
       {
@@ -196,7 +211,8 @@
         ],
         "emits_edges": [
           "CONTAINS",
-          "DEFINES_METHOD"
+          "DEFINES_METHOD",
+          "NESTS"
         ],
         "constraints": [
           "function/method emission only for module-level bindings or class member fields; nested expressions are non-structural"
@@ -211,6 +227,22 @@
         ],
         "emits_nodes": [],
         "emits_edges": []
+      },
+      {
+        "construct": "local_inheritance_edges",
+        "node_types": [
+          "class_declaration",
+          "class_expression",
+          "interface_declaration"
+        ],
+        "emits_nodes": [],
+        "emits_edges": [
+          "EXTENDS",
+          "IMPLEMENTS"
+        ],
+        "constraints": [
+          "syntax-local base/interface references only"
+        ]
       }
     ],
     "java": [
@@ -226,7 +258,8 @@
           "class"
         ],
         "emits_edges": [
-          "CONTAINS"
+          "CONTAINS",
+          "NESTS"
         ]
       },
       {
@@ -250,11 +283,28 @@
         ],
         "emits_nodes": [],
         "emits_edges": []
+      },
+      {
+        "construct": "local_inheritance_edges",
+        "node_types": [
+          "class_declaration",
+          "interface_declaration",
+          "enum_declaration",
+          "record_declaration"
+        ],
+        "emits_nodes": [],
+        "emits_edges": [
+          "EXTENDS",
+          "IMPLEMENTS"
+        ],
+        "constraints": [
+          "syntax-local base/interface references only"
+        ]
       }
     ]
   },
   "parity_contract": {
-    "version": 2,
+    "version": 3,
     "languages": [
       "java",
       "python",
@@ -263,6 +313,21 @@
     "objective": "full_factual_parity_depth_quality",
     "dimensions": {
       "structural_nodes_edges_contract": {
+        "java": "yes",
+        "python": "yes",
+        "typescript": "yes"
+      },
+      "core_nests_edges": {
+        "java": "yes",
+        "python": "yes",
+        "typescript": "yes"
+      },
+      "core_extends_edges": {
+        "java": "yes",
+        "python": "yes",
+        "typescript": "yes"
+      },
+      "core_implements_edges": {
         "java": "yes",
         "python": "yes",
         "typescript": "yes"

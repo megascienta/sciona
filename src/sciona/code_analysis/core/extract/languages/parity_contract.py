@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 
-PARITY_CONTRACT_VERSION = 2
+PARITY_CONTRACT_VERSION = 3
 
 
 def build_parity_contract() -> dict[str, object]:
@@ -17,6 +17,21 @@ def build_parity_contract() -> dict[str, object]:
         "objective": "full_factual_parity_depth_quality",
         "dimensions": {
             "structural_nodes_edges_contract": {
+                "java": "yes",
+                "python": "yes",
+                "typescript": "yes",
+            },
+            "core_nests_edges": {
+                "java": "yes",
+                "python": "yes",
+                "typescript": "yes",
+            },
+            "core_extends_edges": {
+                "java": "yes",
+                "python": "yes",
+                "typescript": "yes",
+            },
+            "core_implements_edges": {
                 "java": "yes",
                 "python": "yes",
                 "typescript": "yes",

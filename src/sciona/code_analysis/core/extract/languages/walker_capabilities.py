@@ -14,7 +14,7 @@ def build_walker_capabilities() -> dict[str, list[dict[str, object]]]:
                 "construct": "class_declaration",
                 "node_types": ["class_definition"],
                 "emits_nodes": ["class"],
-                "emits_edges": ["CONTAINS"],
+                "emits_edges": ["CONTAINS", "NESTS"],
             },
             {
                 "construct": "function_declaration",
@@ -28,6 +28,13 @@ def build_walker_capabilities() -> dict[str, list[dict[str, object]]]:
                 "emits_nodes": [],
                 "emits_edges": [],
             },
+            {
+                "construct": "local_inheritance_edges",
+                "node_types": ["class_definition"],
+                "emits_nodes": [],
+                "emits_edges": ["EXTENDS"],
+                "constraints": ["syntax-local base references only"],
+            },
         ],
         "typescript": [
             {
@@ -38,7 +45,7 @@ def build_walker_capabilities() -> dict[str, list[dict[str, object]]]:
                     "interface_declaration",
                 ],
                 "emits_nodes": ["class"],
-                "emits_edges": ["CONTAINS"],
+                "emits_edges": ["CONTAINS", "NESTS"],
             },
             {
                 "construct": "callable_declaration",
@@ -60,7 +67,7 @@ def build_walker_capabilities() -> dict[str, list[dict[str, object]]]:
                     "function_expression",
                 ],
                 "emits_nodes": ["class", "function", "method"],
-                "emits_edges": ["CONTAINS", "DEFINES_METHOD"],
+                "emits_edges": ["CONTAINS", "DEFINES_METHOD", "NESTS"],
                 "constraints": [
                     "function/method emission only for module-level bindings or class member fields; nested expressions are non-structural"
                 ],
@@ -70,6 +77,13 @@ def build_walker_capabilities() -> dict[str, list[dict[str, object]]]:
                 "node_types": ["new_expression", "assignment_expression", "variable_declarator"],
                 "emits_nodes": [],
                 "emits_edges": [],
+            },
+            {
+                "construct": "local_inheritance_edges",
+                "node_types": ["class_declaration", "class_expression", "interface_declaration"],
+                "emits_nodes": [],
+                "emits_edges": ["EXTENDS", "IMPLEMENTS"],
+                "constraints": ["syntax-local base/interface references only"],
             },
         ],
         "java": [
@@ -82,7 +96,7 @@ def build_walker_capabilities() -> dict[str, list[dict[str, object]]]:
                     "record_declaration",
                 ],
                 "emits_nodes": ["class"],
-                "emits_edges": ["CONTAINS"],
+                "emits_edges": ["CONTAINS", "NESTS"],
             },
             {
                 "construct": "method_like_declaration",
@@ -99,6 +113,18 @@ def build_walker_capabilities() -> dict[str, list[dict[str, object]]]:
                 "node_types": ["field_declaration"],
                 "emits_nodes": [],
                 "emits_edges": [],
+            },
+            {
+                "construct": "local_inheritance_edges",
+                "node_types": [
+                    "class_declaration",
+                    "interface_declaration",
+                    "enum_declaration",
+                    "record_declaration",
+                ],
+                "emits_nodes": [],
+                "emits_edges": ["EXTENDS", "IMPLEMENTS"],
+                "constraints": ["syntax-local base/interface references only"],
             },
         ],
     }

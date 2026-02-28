@@ -143,7 +143,7 @@ CoreDB (authoritative):
 - `node_instances`
 - `edges`
 
-Optional enrichment semantics currently emitted:
+Core structural edge semantics currently emitted:
 
 - `NESTS` for nested class containment disambiguation.
 - `EXTENDS` / `IMPLEMENTS` for local syntactic inheritance.

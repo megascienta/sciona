@@ -20,6 +20,9 @@ Legend:
 | Method node emission | yes | yes | yes | Constructors as methods |
 | `CONTAINS` edges | yes | yes | yes | Deterministic ordering |
 | `DEFINES_METHOD` edges | yes | yes | yes | Contract baseline |
+| `NESTS` edges | yes | yes | yes | Lexical class nesting only |
+| `EXTENDS` edges | yes | yes | yes | Direct syntax-level inheritance only |
+| `IMPLEMENTS` edges | n/a | yes | yes | Direct syntax-level interface implementation only |
 | `IMPORTS_DECLARED` extraction | yes | yes | yes | Syntax-only, internal targets only |
 | Import aliases / member aliases | yes | yes | yes | Language-local alias/member alias parity |
 | Normalized import model convergence | yes | yes | yes | Shared import model across language import collectors |
