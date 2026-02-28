@@ -663,6 +663,21 @@ def test_dependency_edges_rejects_non_positive_limit(tmp_path):
         conn.close()
 
 
+def test_dependency_edges_rejects_unsupported_edge_type(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = _core_conn(repo_root)
+    try:
+        with pytest.raises(ValueError, match="edge_type must be one of"):
+            dependency_edges.render(
+                snapshot_id,
+                conn,
+                repo_root,
+                edge_type="CALLABLE_IMPORTS_DECLARED",
+            )
+    finally:
+        conn.close()
+
+
 def test_class_overview_requires_class_id(tmp_path):
     repo = _build_profile_repo(tmp_path)
     conn = sqlite3.connect(repo["db_path"])
@@ -846,6 +861,57 @@ def test_class_inheritance_reducer_handles_no_bases(tmp_path):
     assert payload["incoming"] == []
     assert payload["incoming_count"] == 0
     assert payload["edge_source"] == "none"
+
+
+def test_class_inheritance_prefers_core_edges_when_available(tmp_path):
+    repo = _build_profile_repo(tmp_path)
+    conn = sqlite3.connect(repo["db_path"])
+    conn.row_factory = sqlite3.Row
+    conn.execute(
+        """
+        INSERT INTO edges(snapshot_id, src_structural_id, dst_structural_id, edge_type)
+        VALUES (?, ?, ?, ?)
+        """,
+        (
+            repo["snapshot_id"],
+            repo["ids"]["class_order"],
+            repo["ids"]["ts_class"],
+            "EXTENDS",
+        ),
+    )
+    conn.commit()
+    artifact_db_path = (
+        repo["repo_root"] / setup_config.SCIONA_DIR_NAME / setup_config.ARTIFACT_DB_FILENAME
+    )
+    artifact_conn = artifact_connect(artifact_db_path)
+    try:
+        with transaction(artifact_conn):
+            rebuild_graph_index(
+                artifact_conn,
+                core_conn=conn,
+                snapshot_id=repo["snapshot_id"],
+            )
+    finally:
+        artifact_conn.close()
+
+    payload_text = class_inheritance.render(
+        repo["snapshot_id"],
+        conn=conn,
+        class_id=repo["ids"]["class_order"],
+        repo_root=repo["repo_root"],
+    )
+    conn.close()
+
+    payload = parse_json_payload(payload_text)
+    assert payload["edge_source"] == "sci"
+    assert payload["outgoing"] == [
+        {
+            "edge_type": "EXTENDS",
+            "related_structural_id": repo["ids"]["ts_class"],
+            "related_qualified_name": _q(repo["repo_root"], "pkg.ts.service.WidgetService"),
+        }
+    ]
+    assert payload["incoming"] == []
 
 
 def test_module_overview_reducer_lists_children_and_imports(tmp_path):

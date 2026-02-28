@@ -10,6 +10,7 @@ from typing import Dict, List, Optional
 from ...helpers.render import render_json_payload, require_connection
 from ...helpers.utils import require_latest_committed_snapshot
 from ...metadata import ReducerMeta
+from ....runtime.edge_types import MODULE_DEPENDENCY_EDGE_TYPES
 
 def _normalize_edge_type(edge_type: str | None) -> str | None:
     if edge_type is None:
@@ -19,6 +20,11 @@ def _normalize_edge_type(edge_type: str | None) -> str | None:
         return "IMPORTS_DECLARED"
     if normalized.lower() in {"any", "*"}:
         return None
+    if normalized not in MODULE_DEPENDENCY_EDGE_TYPES:
+        allowed = ", ".join(sorted(MODULE_DEPENDENCY_EDGE_TYPES))
+        raise ValueError(
+            f"dependency_edges edge_type must be one of: {allowed}, any, *."
+        )
     return normalized
 
 def _normalize_direction(direction: str | None) -> str:

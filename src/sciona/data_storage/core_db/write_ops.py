@@ -8,6 +8,7 @@ from __future__ import annotations
 import sqlite3
 
 from ..encoding import bool_to_int
+from ...runtime.edge_types import CORE_STRUCTURAL_EDGE_TYPES
 
 
 def insert_snapshot(
@@ -152,6 +153,12 @@ def insert_edge(
     dst_structural_id: str,
     edge_type: str,
 ) -> None:
+    normalized_edge_type = str(edge_type).strip()
+    if normalized_edge_type not in CORE_STRUCTURAL_EDGE_TYPES:
+        allowed = ", ".join(sorted(CORE_STRUCTURAL_EDGE_TYPES))
+        raise ValueError(
+            f"Unsupported edge_type '{edge_type}'. Allowed edge types: {allowed}."
+        )
     conn.execute(
         """
         INSERT OR IGNORE INTO edges(
@@ -162,7 +169,7 @@ def insert_edge(
             snapshot_id,
             src_structural_id,
             dst_structural_id,
-            edge_type,
+            normalized_edge_type,
         ),
     )
 
