@@ -16,6 +16,8 @@ from .out_of_contract import (
     classify_import_semantic_type,
 )
 
+UNRESOLVED_STATIC_CALL_REASONS = {"in_repo_unresolved", "unknown"}
+
 
 def build_module_imports_by_prefix(
     independent_results: Dict[str, FileParseResult],
@@ -545,9 +547,15 @@ def edge_records_from_ground_truth(
             callee_qname=edge.callee_qname,
             provenance=getattr(edge, "provenance", "syntax_raw"),
         )
+        call_reason = classify_call_reason(
+            edge=edge,
+            language=file_result.language,
+            call_resolution=call_resolution,
+        )
         if (
             not edge.dynamic
             and resolved_callee_qname
+            and call_reason not in UNRESOLVED_STATIC_CALL_REASONS
         ):
             resolved_record = EdgeRecord(
                 caller=edge.caller,
@@ -562,18 +570,13 @@ def edge_records_from_ground_truth(
             expected_filtered.append(resolved_record)
             full_truth.append(resolved_record)
         else:
-            reason = classify_call_reason(
-                edge=edge,
-                language=file_result.language,
-                call_resolution=call_resolution,
-            )
-            _register_limitation_edge(reason, full_record)
+            _register_limitation_edge(call_reason, full_record)
             _append_basket2_meta(
                 record=full_record,
                 edge_type="call",
                 language=file_result.language,
-                reason=reason,
-                semantic_type=classify_call_semantic_type(edge=edge, reason=reason),
+                reason=call_reason,
+                semantic_type=classify_call_semantic_type(edge=edge, reason=call_reason),
                 entity_qname=entity.qualified_name,
                 entity_kind=entity.kind,
             )

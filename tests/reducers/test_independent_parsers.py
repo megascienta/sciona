@@ -842,6 +842,61 @@ def test_ground_truth_includes_dynamic_and_unresolved_in_expanded_tiers() -> Non
     assert diagnostics["included_limitation_by_reason"]["dynamic"] == 1
 
 
+def test_ground_truth_excludes_resolved_unresolved_static_from_q2_reference() -> None:
+    file_result = FileParseResult(
+        language="typescript",
+        file_path="pkg/hook.ts",
+        module_qualified_name="fixture.pkg.hook",
+        defs=[],
+        call_edges=[],
+        import_edges=[],
+        assignment_hints=[],
+        parse_ok=True,
+    )
+    normalized_calls = [
+        NormalizedCallEdge(
+            caller="fixture.pkg.hook.callHook",
+            callee="getNonAliasProviders",
+            callee_qname="module.getNonAliasProviders",
+            dynamic=False,
+            callee_text="module.getNonAliasProviders()",
+        )
+    ]
+    entity = SimpleNamespace(
+        kind="function",
+        qualified_name="fixture.pkg.hook.callHook",
+        module_qualified_name="fixture.pkg.hook",
+    )
+    call_resolution = {
+        "symbol_index": {
+            "getNonAliasProviders": [
+                "fixture.pkg.injector.module.Module.getNonAliasProviders"
+            ]
+        },
+        "module_lookup": {
+            "fixture.pkg.injector.module.Module.getNonAliasProviders": "fixture.pkg.injector.module"
+        },
+        "import_targets": {"fixture.pkg.hook": {"fixture.pkg.injector.module"}},
+    }
+    expected, _, out_of_contract, out_meta, diagnostics = edge_records_from_ground_truth(
+        file_result=file_result,
+        normalized_calls=normalized_calls,
+        normalized_imports=[],
+        module_imports_by_prefix={},
+        entity=entity,
+        module_names={"fixture.pkg.hook", "fixture.pkg.injector.module"},
+        call_resolution=call_resolution,
+        repo_root=FIXTURE_ROOT / "typescript",
+        repo_prefix="fixture",
+        local_packages={"fixture"},
+    )
+    assert expected == []
+    assert len(out_of_contract) == 1
+    assert out_of_contract[0].callee_qname == "module.getNonAliasProviders"
+    assert out_meta and out_meta[0]["reason"] == "in_repo_unresolved"
+    assert diagnostics["included_limitation_by_reason"]["in_repo_unresolved"] == 1
+
+
 def test_ground_truth_treats_decorator_shaped_calls_as_dynamic() -> None:
     file_result = FileParseResult(
         language="python",
