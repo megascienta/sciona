@@ -10,7 +10,6 @@ from typing import List
 
 from ...normalize.model import EdgeRecord, FileSnapshot, SemanticNodeRecord
 from ..query_helpers import find_nodes_of_types_query
-from .analyzer_support import emit_decorator_edges
 from .query_surface import JAVA_STRUCTURAL_NODE_TYPES
 from .shared import node_text as shared_node_text
 
@@ -146,15 +145,6 @@ def walk_java_nodes(
                 },
             )
         )
-        emit_decorator_edges(
-            language=language,
-            snapshot=snapshot,
-            module_name=module_name,
-            result=result,
-            owner_qname=qualified,
-            owner_type="class",
-            decorators=_java_annotations(node, snapshot.content),
-        )
         result.edges.append(
             EdgeRecord(
                 src_language=language,
@@ -240,15 +230,6 @@ def walk_java_nodes(
                     "annotations": _java_annotations(node, snapshot.content),
                 },
             )
-        )
-        emit_decorator_edges(
-            language=language,
-            snapshot=snapshot,
-            module_name=module_name,
-            result=result,
-            owner_qname=qualified,
-            owner_type="method",
-            decorators=_java_annotations(node, snapshot.content),
         )
         result.edges.append(
             EdgeRecord(

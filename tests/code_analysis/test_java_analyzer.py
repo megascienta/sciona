@@ -303,14 +303,8 @@ def test_java_analyzer_emits_kind_metadata_for_class_like_and_methods(tmp_path):
     ctor_node = next(node for node in result.nodes if node.qualified_name.endswith(".Service.Service"))
     assert (ctor_node.metadata or {}).get("kind") == "constructor"
     assert (ctor_node.metadata or {}).get("declared_in_kind") == "class"
-    decorator_nodes = {node.qualified_name for node in result.nodes if node.node_type == "decorator"}
-    assert f"{module_name}.__decorator__.Entity" in decorator_nodes
-    decorated_edges = {
-        (edge.src_qualified_name, edge.dst_qualified_name)
-        for edge in result.edges
-        if edge.edge_type == "DECORATED_BY"
-    }
-    assert (f"{module_name}.Repo", f"{module_name}.__decorator__.Entity") in decorated_edges
+    assert not [node for node in result.nodes if node.node_type == "decorator"]
+    assert not [edge for edge in result.edges if edge.edge_type == "DECORATED_BY"]
 
 
 def test_java_analyzer_resolves_constructor_new_assignment_on_this_field(tmp_path):

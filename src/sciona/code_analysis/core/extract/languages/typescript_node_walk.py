@@ -7,7 +7,6 @@ from __future__ import annotations
 
 from ...normalize.model import EdgeRecord, FileSnapshot, SemanticNodeRecord
 from ..query_helpers import find_direct_children_query
-from .analyzer_support import emit_decorator_edges
 from .typescript_node_state import TypeScriptNodeState
 from .typescript_node_text import (
     function_body_node,
@@ -135,15 +134,6 @@ def walk_typescript_nodes(
                 },
             )
         )
-        emit_decorator_edges(
-            language=language,
-            snapshot=snapshot,
-            module_name=module_name,
-            result=result,
-            owner_qname=qualified,
-            owner_type="class",
-            decorators=_decorator_names(node, snapshot.content),
-        )
         state.class_name_map.setdefault(class_name, qualified)
         state.class_name_candidates.setdefault(class_name, set()).add(qualified)
         result.edges.append(
@@ -245,15 +235,6 @@ def walk_typescript_nodes(
                 metadata=metadata,
             )
         )
-        emit_decorator_edges(
-            language=language,
-            snapshot=snapshot,
-            module_name=module_name,
-            result=result,
-            owner_qname=qualified,
-            owner_type=node_type,
-            decorators=decorators,
-        )
         result.edges.append(
             EdgeRecord(
                 src_language=language,
@@ -318,15 +299,6 @@ def walk_typescript_nodes(
                         "decorators": _decorator_names(value_node, snapshot.content),
                     },
                 )
-            )
-            emit_decorator_edges(
-                language=language,
-                snapshot=snapshot,
-                module_name=module_name,
-                result=result,
-                owner_qname=qualified,
-                owner_type="class",
-                decorators=_decorator_names(value_node, snapshot.content),
             )
             result.edges.append(
                 EdgeRecord(

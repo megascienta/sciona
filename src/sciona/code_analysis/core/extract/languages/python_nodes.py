@@ -9,7 +9,6 @@ from dataclasses import dataclass, field
 from typing import List
 
 from ...normalize.model import EdgeRecord, FileSnapshot, SemanticNodeRecord
-from .analyzer_support import emit_decorator_edges
 from .query_surface import PYTHON_STRUCTURAL_NODE_TYPES
 from .shared import node_text as shared_node_text
 
@@ -132,15 +131,6 @@ def walk_python_nodes(
                 },
             )
         )
-        emit_decorator_edges(
-            language=language,
-            snapshot=snapshot,
-            module_name=module_name,
-            result=result,
-            owner_qname=qualified,
-            owner_type="class",
-            decorators=list(decorators),
-        )
         state.class_name_map.setdefault(class_name, qualified)
         state.class_name_candidates.setdefault(class_name, set()).add(qualified)
         result.edges.append(
@@ -230,15 +220,6 @@ def walk_python_nodes(
                     else None
                 ),
             )
-        )
-        emit_decorator_edges(
-            language=language,
-            snapshot=snapshot,
-            module_name=module_name,
-            result=result,
-            owner_qname=qualified,
-            owner_type=node_type,
-            decorators=list(decorators),
         )
         result.edges.append(
             EdgeRecord(
