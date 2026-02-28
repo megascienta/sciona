@@ -165,7 +165,4 @@ def qualify_java_type(
         return import_aliases[base]
     if "." in base:
         return f"{module_prefix}.{base}" if module_prefix else base
-    if "." in module_name:
-        package = module_name.rsplit(".", 1)[0]
-        return f"{package}.{base}" if package else base
-    return base
+    return None

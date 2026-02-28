@@ -2,6 +2,7 @@
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
 from sciona.code_analysis.core.extract.languages.java_calls import resolve_java_calls
+from sciona.code_analysis.core.extract.languages.java_resolution import qualify_java_type
 from sciona.code_analysis.core.extract.languages.python_calls import resolve_python_calls
 from sciona.code_analysis.core.extract.languages.typescript_calls import (
     resolve_typescript_calls,
@@ -244,3 +245,25 @@ def test_java_resolves_unqualified_calls_from_single_static_wildcard() -> None:
         qualify_java_type=lambda *_args: None,
     )
     assert resolved == ["repo.pkg.Service.run"]
+
+
+def test_java_qualify_type_returns_none_for_unresolved_bare_name() -> None:
+    resolved = qualify_java_type(
+        "Service",
+        module_name="repo.pkg.mod",
+        class_name_candidates={},
+        import_aliases={},
+        module_prefix=None,
+    )
+    assert resolved is None
+
+
+def test_java_qualify_type_keeps_dotted_types() -> None:
+    resolved = qualify_java_type(
+        "java.util.List",
+        module_name="repo.pkg.mod",
+        class_name_candidates={},
+        import_aliases={},
+        module_prefix=None,
+    )
+    assert resolved == "java.util.List"
