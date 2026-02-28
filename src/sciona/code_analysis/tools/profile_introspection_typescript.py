@@ -13,7 +13,9 @@ from ..core.extract.utils import bootstrap_tree_sitter_parser
 from .profile_query import find_profile_nodes_of_types
 from .profile_query_surface import (
     TYPESCRIPT_PROFILE_BASE_NODE_TYPES,
+    TYPESCRIPT_PROFILE_CLASS_NODE_TYPES,
     TYPESCRIPT_PROFILE_DECORATOR_NODE_TYPES,
+    TYPESCRIPT_PROFILE_FUNCTION_NODE_TYPES,
     TYPESCRIPT_PROFILE_PARAMETER_NODE_TYPES,
 )
 from .profile_introspection_cache import _typescript_inspector_cached
@@ -61,10 +63,12 @@ class _TypeScriptInspector:
 
     def _scan(self, node) -> None:
         node_type = getattr(node, "type", "")
-        if node_type in {"function_declaration", "method_definition"}:
+        if node_type in TYPESCRIPT_PROFILE_FUNCTION_NODE_TYPES:
             self._record_function(node)
-        if node_type == "class_declaration":
+        if node_type in TYPESCRIPT_PROFILE_CLASS_NODE_TYPES:
             self._record_class(node)
+        self._record_expression_callable(node)
+        self._record_expression_class(node)
         for child in getattr(node, "children", []):
             self._scan(child)
 
@@ -87,6 +91,46 @@ class _TypeScriptInspector:
         self.classes[(lineno, end_lineno)] = _TypeScriptClassDetails(
             decorators=decorators, bases=bases
         )
+
+    def _record_expression_callable(self, node) -> None:
+        node_type = getattr(node, "type", "")
+        if node_type == "variable_declarator":
+            value_node = node.child_by_field_name("value") or node.child_by_field_name(
+                "initializer"
+            )
+            if value_node is not None and value_node.type in {
+                "arrow_function",
+                "function",
+                "function_expression",
+            }:
+                self._record_function(value_node)
+            return
+        if node_type not in {
+            "public_field_definition",
+            "private_field_definition",
+            "property_definition",
+            "field_definition",
+        }:
+            return
+        value_node = node.child_by_field_name("value") or node.child_by_field_name(
+            "initializer"
+        )
+        if value_node is not None and value_node.type in {
+            "arrow_function",
+            "function",
+            "function_expression",
+        }:
+            self._record_function(value_node)
+
+    def _record_expression_class(self, node) -> None:
+        if getattr(node, "type", "") != "variable_declarator":
+            return
+        value_node = node.child_by_field_name("value") or node.child_by_field_name(
+            "initializer"
+        )
+        if value_node is None or value_node.type not in {"class", "class_expression"}:
+            return
+        self._record_class(value_node)
 
     def _slice(self, start: int, end: int) -> str:
         return self._source.encode("utf-8")[start:end].decode("utf-8")

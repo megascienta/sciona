@@ -11,13 +11,21 @@ from sciona.code_analysis.tools.profile_introspection import (
     typescript_class_extras,
     typescript_function_extras,
 )
+from sciona.code_analysis.tools.profile_introspection_typescript import _TypeScriptInspector
 from sciona.code_analysis.tools.profile_query_surface import (
+    JAVA_PROFILE_FUNCTION_NODE_TYPES,
     JAVA_PROFILE_PARAMETER_NODE_TYPES,
+    TYPESCRIPT_PROFILE_CLASS_NODE_TYPES,
 )
 
 
 def test_java_profile_parameter_surface_excludes_spread_parameter() -> None:
     assert "spread_parameter" not in JAVA_PROFILE_PARAMETER_NODE_TYPES
+
+
+def test_profile_surfaces_include_parity_nodes() -> None:
+    assert "compact_constructor_declaration" in JAVA_PROFILE_FUNCTION_NODE_TYPES
+    assert "class_expression" in TYPESCRIPT_PROFILE_CLASS_NODE_TYPES
 
 
 def test_python_introspection_extras(tmp_path: Path) -> None:
@@ -101,6 +109,53 @@ export function makeWidget(name: string, ...args: string[]) {
     assert func_decorators == []
     assert "name" in params
     assert "...args" in params
+
+
+def test_typescript_introspection_expression_extras(tmp_path: Path) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    file_path = repo_root / "pkg" / "mod.ts"
+    file_path.parent.mkdir(parents=True)
+    file_path.write_text(
+        """
+class Base {}
+const build = (name: string) => name;
+class Holder {
+  runner = (arg: string) => arg;
+}
+const Local = class extends Base {};
+""".lstrip(),
+        encoding="utf-8",
+    )
+    params, decorators = typescript_function_extras(
+        "typescript",
+        repo_root,
+        "pkg/mod.ts",
+        start_line=2,
+        end_line=2,
+    )
+    assert decorators == []
+    assert params == ["name"]
+    member_params, member_decorators = typescript_function_extras(
+        "typescript",
+        repo_root,
+        "pkg/mod.ts",
+        start_line=4,
+        end_line=4,
+    )
+    assert member_decorators == []
+    assert member_params == ["arg"]
+    class_decorators, class_bases = typescript_class_extras(
+        "typescript",
+        repo_root,
+        "pkg/mod.ts",
+        start_line=6,
+        end_line=6,
+    )
+    assert class_decorators == []
+    assert class_bases == []
+    inspector = _TypeScriptInspector(file_path.read_text(encoding="utf-8"))
+    assert (6, 6) in inspector.classes
 
 
 def test_java_introspection_extras(tmp_path: Path) -> None:
