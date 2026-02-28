@@ -46,24 +46,22 @@ def helper(x, *args, **kwargs):
 """.lstrip(),
         encoding="utf-8",
     )
-    decorators, bases = python_class_extras(
+    bases = python_class_extras(
         "python",
         repo_root,
         "pkg/mod.py",
         start_line=2,
         end_line=4,
     )
-    assert decorators == []
     assert bases == ["Base"]
 
-    params, func_decorators = python_function_extras(
+    params = python_function_extras(
         "python",
         repo_root,
         "pkg/mod.py",
         start_line=7,
         end_line=8,
     )
-    assert func_decorators == []
     assert params == ["x", "*args", "**kwargs"]
 
 
@@ -87,25 +85,23 @@ export function makeWidget(name: string, ...args: string[]) {
 """.lstrip(),
         encoding="utf-8",
     )
-    decorators, bases = typescript_class_extras(
+    bases = typescript_class_extras(
         "typescript",
         repo_root,
         "pkg/mod.ts",
         start_line=2,
         end_line=6,
     )
-    assert decorators == []
     if bases:
         assert bases == ["Base"]
 
-    params, func_decorators = typescript_function_extras(
+    params = typescript_function_extras(
         "typescript",
         repo_root,
         "pkg/mod.ts",
         start_line=8,
         end_line=10,
     )
-    assert func_decorators == []
     assert "name" in params
     assert "...args" in params
 
@@ -126,32 +122,29 @@ const Local = class extends Base {};
 """.lstrip(),
         encoding="utf-8",
     )
-    params, decorators = typescript_function_extras(
+    params = typescript_function_extras(
         "typescript",
         repo_root,
         "pkg/mod.ts",
         start_line=2,
         end_line=2,
     )
-    assert decorators == []
     assert params == ["name"]
-    member_params, member_decorators = typescript_function_extras(
+    member_params = typescript_function_extras(
         "typescript",
         repo_root,
         "pkg/mod.ts",
         start_line=4,
         end_line=4,
     )
-    assert member_decorators == []
     assert member_params == ["arg"]
-    class_decorators, class_bases = typescript_class_extras(
+    class_bases = typescript_class_extras(
         "typescript",
         repo_root,
         "pkg/mod.ts",
         start_line=6,
         end_line=6,
     )
-    assert class_decorators == []
     assert class_bases == []
     inspector = _TypeScriptInspector(file_path.read_text(encoding="utf-8"))
     assert (6, 6) in inspector.classes
@@ -176,23 +169,21 @@ class Widget extends Base implements Role {
 """.lstrip(),
         encoding="utf-8",
     )
-    decorators, bases = java_class_extras(
+    bases = java_class_extras(
         "java",
         repo_root,
         "pkg/Mod.java",
         start_line=4,
         end_line=9,
     )
-    assert decorators == []
     assert "Base" in bases
     assert "Role" in bases
 
-    params, func_decorators = java_function_extras(
+    params = java_function_extras(
         "java",
         repo_root,
         "pkg/Mod.java",
         start_line=7,
         end_line=8,
     )
-    assert func_decorators == []
     assert params == ["userId", "retries"]

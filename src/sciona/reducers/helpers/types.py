@@ -47,7 +47,6 @@ class ClassOverviewPayload(TypedDict, total=False):
     end_byte: int
     content_hash: str
     methods: List[Dict[str, str]]
-    decorators: List[str]
     bases: List[str]
     artifact_available: bool
     edge_source: str
@@ -69,7 +68,6 @@ class CallableOverviewPayload(TypedDict, total=False):
     content_hash: str
     parameters: List[str]
     signature: str
-    decorators: List[str]
     parent_structural_id: str | None
     parent_type: str | None
     parent_qualified_name: str | None

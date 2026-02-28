@@ -92,10 +92,9 @@ def run(snapshot_id: str, **params) -> ClassOverviewPayload:
     repo_path = Path(repo_root) if repo_root else None
     module_name = queries.module_id_for_structural(conn, snapshot_id, class_id)
     artifact_available = artifact_db_available(repo_path) if repo_path else False
-    decorators: List[str] = []
     bases: List[str] = []
     if row["language"] == "python":
-        decorators, bases = python_class_extras(
+        bases = python_class_extras(
             row["language"],
             repo_path,
             row["file_path"],
@@ -103,7 +102,7 @@ def run(snapshot_id: str, **params) -> ClassOverviewPayload:
             row["end_line"],
         )
     elif row["language"] == "typescript":
-        decorators, bases = typescript_class_extras(
+        bases = typescript_class_extras(
             row["language"],
             repo_path,
             row["file_path"],
@@ -111,7 +110,7 @@ def run(snapshot_id: str, **params) -> ClassOverviewPayload:
             row["end_line"],
         )
     elif row["language"] == "java":
-        decorators, bases = java_class_extras(
+        bases = java_class_extras(
             row["language"],
             repo_path,
             row["file_path"],
@@ -134,7 +133,6 @@ def run(snapshot_id: str, **params) -> ClassOverviewPayload:
         "end_byte": row["end_byte"],
         "content_hash": row["content_hash"],
         "line_span_hash": line_span_hash(repo_path, row["file_path"], line_span),
-        "decorators": decorators,
         "bases": bases,
         "methods": methods,
         "artifact_available": artifact_available,

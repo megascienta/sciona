@@ -747,7 +747,6 @@ def test_callable_overview_reducer_returns_python_metadata(tmp_path):
     assert payload["parameters"] == ["user_id", "*args", "**kwargs"]
     assert payload["signature"].startswith("helper(")
     assert payload["parent_structural_id"] == repo["ids"]["module_alpha"]
-    assert payload["decorators"] == []
     assert "confidence" not in payload
 
 
@@ -765,7 +764,6 @@ def test_callable_overview_reducer_returns_typescript_metadata(tmp_path):
 
     assert payload["language"] == "typescript"
     assert payload["parameters"] == ["name"]
-    assert payload["decorators"] == []
     assert payload["signature"].startswith("createWidget(name")
     assert "confidence" not in payload
 
@@ -783,7 +781,6 @@ def test_class_overview_reducer_exposes_methods_and_metadata(tmp_path):
     conn.close()
 
     assert payload["module_qualified_name"] == _q(repo["repo_root"], "pkg.alpha.service")
-    assert payload["decorators"] == []
     assert payload["bases"] == ["BaseService", "Mixin"]
     assert payload["methods"] == [
         {

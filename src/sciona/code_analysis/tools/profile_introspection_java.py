@@ -93,16 +93,16 @@ def java_function_extras(
     file_path: str,
     start_line: int,
     end_line: int,
-) -> Tuple[List[str], List[str]]:
+) -> List[str]:
     if language != "java" or repo_root is None:
-        return [], []
+        return []
     inspector = _java_inspector(repo_root, file_path)
     if not inspector:
-        return [], []
+        return []
     details = inspector.function_details(start_line, end_line)
     if not details:
-        return [], []
-    return details.parameters, []
+        return []
+    return details.parameters
 
 
 def java_class_extras(
@@ -111,16 +111,16 @@ def java_class_extras(
     file_path: str,
     start_line: int,
     end_line: int,
-) -> Tuple[List[str], List[str]]:
+) -> List[str]:
     if language != "java" or repo_root is None:
-        return [], []
+        return []
     inspector = _java_inspector(repo_root, file_path)
     if not inspector:
-        return [], []
+        return []
     details = inspector.class_details(start_line, end_line)
     if not details:
-        return [], []
-    return [], details.bases
+        return []
+    return details.bases
 
 
 def _java_inspector(repo_root: Path, relative_path: str) -> Optional[_JavaInspector]:

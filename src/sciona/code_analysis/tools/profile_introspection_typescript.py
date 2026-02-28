@@ -140,17 +140,17 @@ def typescript_function_extras(
     file_path: str,
     start_line: int,
     end_line: int,
-) -> Tuple[List[str], List[str]]:
-    """Return parameter names and decorators for TypeScript functions."""
+) -> List[str]:
+    """Return parameter names for TypeScript functions."""
     if language != "typescript" or repo_root is None:
-        return [], []
+        return []
     inspector = _typescript_inspector(repo_root, file_path)
     parameters: List[str] = []
     if inspector:
         details = inspector.function_details(start_line, end_line)
         if details:
             parameters = details.parameters
-    return parameters, []
+    return parameters
 
 def typescript_class_extras(
     language: str,
@@ -158,17 +158,17 @@ def typescript_class_extras(
     file_path: str,
     start_line: int,
     end_line: int,
-) -> Tuple[List[str], List[str]]:
-    """Return decorators + base clauses for TypeScript classes."""
+) -> List[str]:
+    """Return base clauses for TypeScript classes."""
     if language != "typescript" or repo_root is None:
-        return [], []
+        return []
     inspector = _typescript_inspector(repo_root, file_path)
     if not inspector:
-        return [], []
+        return []
     details = inspector.class_details(start_line, end_line)
     if not details:
-        return [], []
-    return [], details.bases
+        return []
+    return details.bases
 
 def _typescript_inspector(
     repo_root: Path, relative_path: str

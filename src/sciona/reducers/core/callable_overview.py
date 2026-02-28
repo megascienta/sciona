@@ -99,9 +99,8 @@ def run(snapshot_id: str, **params) -> CallableOverviewPayload:
     module_identity = _resolve_module_identity(conn, snapshot_id, module_name)
     artifact_available = artifact_db_available(repo_path) if repo_path else False
     params_list: List[str] = []
-    decorators: List[str] = []
     if row["language"] == "python":
-        params_list, decorators = python_function_extras(
+        params_list = python_function_extras(
             row["language"],
             repo_path,
             row["file_path"],
@@ -109,7 +108,7 @@ def run(snapshot_id: str, **params) -> CallableOverviewPayload:
             row["end_line"],
         )
     elif row["language"] == "typescript":
-        params_list, decorators = typescript_function_extras(
+        params_list = typescript_function_extras(
             row["language"],
             repo_path,
             row["file_path"],
@@ -117,7 +116,7 @@ def run(snapshot_id: str, **params) -> CallableOverviewPayload:
             row["end_line"],
         )
     elif row["language"] == "java":
-        params_list, decorators = java_function_extras(
+        params_list = java_function_extras(
             row["language"],
             repo_path,
             row["file_path"],
@@ -151,7 +150,6 @@ def run(snapshot_id: str, **params) -> CallableOverviewPayload:
         "line_span_hash": line_span_hash(repo_path, row["file_path"], line_span),
         "parameters": params_list,
         "signature": signature,
-        "decorators": decorators,
         "parent_structural_id": parent.get("structural_id"),
         "parent_type": parent.get("node_type"),
         "parent_qualified_name": parent.get("qualified_name"),

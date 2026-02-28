@@ -101,17 +101,17 @@ def python_function_extras(
     file_path: str,
     start_line: int,
     end_line: int,
-) -> Tuple[List[str], List[str]]:
-    """Return parameters and decorators for Python functions."""
+) -> List[str]:
+    """Return parameters for Python functions."""
     if language != "python" or repo_root is None:
-        return [], []
+        return []
     inspector = _python_inspector(repo_root, file_path)
     if not inspector:
-        return [], []
+        return []
     details = inspector.function_details(start_line, end_line)
     if not details:
-        return [], []
-    return details.parameters, []
+        return []
+    return details.parameters
 
 def python_class_extras(
     language: str,
@@ -119,17 +119,17 @@ def python_class_extras(
     file_path: str,
     start_line: int,
     end_line: int,
-) -> Tuple[List[str], List[str]]:
-    """Return decorator/base metadata for Python classes."""
+) -> List[str]:
+    """Return base metadata for Python classes."""
     if language != "python" or repo_root is None:
-        return [], []
+        return []
     inspector = _python_inspector(repo_root, file_path)
     if not inspector:
-        return [], []
+        return []
     details = inspector.class_details(start_line, end_line)
     if not details:
-        return [], []
-    return [], details.bases
+        return []
+    return details.bases
 
 def _python_inspector(
     repo_root: Path, relative_path: str
