@@ -16,8 +16,6 @@ from .out_of_contract import (
     classify_import_semantic_type,
 )
 
-UNRESOLVED_STATIC_CALL_REASONS = {"in_repo_unresolved", "unknown"}
-
 
 def build_module_imports_by_prefix(
     independent_results: Dict[str, FileParseResult],
@@ -547,15 +545,17 @@ def edge_records_from_ground_truth(
             callee_qname=edge.callee_qname,
             provenance=getattr(edge, "provenance", "syntax_raw"),
         )
-        call_reason = classify_call_reason(
-            edge=edge,
-            language=file_result.language,
-            call_resolution=call_resolution,
+        module_lookup: dict[str, str] = call_resolution.get("module_lookup", {})
+        raw_callee_qname = (edge.callee_qname or "").strip()
+        unresolved_placeholder_hint = bool(
+            raw_callee_qname
+            and raw_callee_qname not in module_lookup
+            and "." in raw_callee_qname
         )
         if (
             not edge.dynamic
             and resolved_callee_qname
-            and call_reason not in UNRESOLVED_STATIC_CALL_REASONS
+            and not unresolved_placeholder_hint
         ):
             resolved_record = EdgeRecord(
                 caller=edge.caller,
@@ -570,6 +570,11 @@ def edge_records_from_ground_truth(
             expected_filtered.append(resolved_record)
             full_truth.append(resolved_record)
         else:
+            call_reason = classify_call_reason(
+                edge=edge,
+                language=file_result.language,
+                call_resolution=call_resolution,
+            )
             _register_limitation_edge(call_reason, full_record)
             _append_basket2_meta(
                 record=full_record,

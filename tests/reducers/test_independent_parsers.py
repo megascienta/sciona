@@ -897,6 +897,126 @@ def test_ground_truth_excludes_resolved_unresolved_static_from_q2_reference() ->
     assert diagnostics["included_limitation_by_reason"]["in_repo_unresolved"] == 1
 
 
+def test_ground_truth_nest_hook_like_partition_is_deterministic() -> None:
+    file_result = FileParseResult(
+        language="typescript",
+        file_path="packages/core/hooks/on-app-shutdown.hook.ts",
+        module_qualified_name="nest.packages.core.hooks.on-app-shutdown.hook",
+        defs=[],
+        call_edges=[],
+        import_edges=[],
+        assignment_hints=[],
+        parse_ok=True,
+    )
+    caller = "nest.packages.core.hooks.on-app-shutdown.hook.callAppShutdownHook"
+    normalized_calls = [
+        NormalizedCallEdge(
+            caller=caller,
+            callee="callOperator",
+            callee_qname="nest.packages.core.hooks.on-app-shutdown.hook.callOperator",
+            dynamic=False,
+            callee_text="callOperator()",
+        ),
+        NormalizedCallEdge(
+            caller=caller,
+            callee="hasOnAppShutdownHook",
+            callee_qname="nest.packages.core.hooks.on-app-shutdown.hook.hasOnAppShutdownHook",
+            dynamic=False,
+            callee_text="hasOnAppShutdownHook()",
+        ),
+        NormalizedCallEdge(
+            caller=caller,
+            callee="getNonAliasProviders",
+            callee_qname="module.getNonAliasProviders",
+            dynamic=False,
+            callee_text="module.getNonAliasProviders()",
+        ),
+        NormalizedCallEdge(
+            caller=caller,
+            callee="isDependencyTreeStatic",
+            callee_qname="moduleClassHost.isDependencyTreeStatic",
+            dynamic=False,
+            callee_text="moduleClassHost.isDependencyTreeStatic()",
+        ),
+        NormalizedCallEdge(
+            caller=caller,
+            callee="all",
+            callee_qname="Promise.all",
+            dynamic=False,
+            callee_text="Promise.all()",
+        ),
+    ]
+    entity = SimpleNamespace(
+        kind="function",
+        qualified_name=caller,
+        module_qualified_name="nest.packages.core.hooks.on-app-shutdown.hook",
+    )
+    call_resolution = {
+        "symbol_index": {
+            "callOperator": [
+                "nest.packages.core.hooks.on-app-shutdown.hook.callOperator"
+            ],
+            "hasOnAppShutdownHook": [
+                "nest.packages.core.hooks.on-app-shutdown.hook.hasOnAppShutdownHook"
+            ],
+            "getNonAliasProviders": [
+                "nest.packages.core.injector.module.Module.getNonAliasProviders"
+            ],
+            "isDependencyTreeStatic": [
+                "nest.packages.core.injector.instance-wrapper.InstanceWrapper.isDependencyTreeStatic"
+            ],
+        },
+        "module_lookup": {
+            "nest.packages.core.hooks.on-app-shutdown.hook.callOperator": "nest.packages.core.hooks.on-app-shutdown.hook",
+            "nest.packages.core.hooks.on-app-shutdown.hook.hasOnAppShutdownHook": "nest.packages.core.hooks.on-app-shutdown.hook",
+            "nest.packages.core.injector.module.Module.getNonAliasProviders": "nest.packages.core.injector.module",
+            "nest.packages.core.injector.instance-wrapper.InstanceWrapper.isDependencyTreeStatic": "nest.packages.core.injector.instance-wrapper",
+        },
+        "import_targets": {
+            "nest.packages.core.hooks.on-app-shutdown.hook": {
+                "nest.packages.core.injector.module",
+                "nest.packages.core.injector.instance-wrapper",
+            }
+        },
+        "class_name_index": {},
+        "class_method_index": {},
+        "module_symbol_index": {},
+        "import_symbol_hints": {},
+        "namespace_aliases": {},
+        "receiver_bindings": {},
+    }
+    expected, _, out_of_contract, out_meta, diagnostics = edge_records_from_ground_truth(
+        file_result=file_result,
+        normalized_calls=normalized_calls,
+        normalized_imports=[],
+        module_imports_by_prefix={},
+        entity=entity,
+        module_names={
+            "nest.packages.core.hooks.on-app-shutdown.hook",
+            "nest.packages.core.injector.module",
+            "nest.packages.core.injector.instance-wrapper",
+        },
+        call_resolution=call_resolution,
+        repo_root=FIXTURE_ROOT / "typescript",
+        repo_prefix="nest",
+        local_packages={"nest"},
+    )
+    assert {
+        edge.callee_qname
+        for edge in expected
+    } == {
+        "nest.packages.core.hooks.on-app-shutdown.hook.callOperator",
+        "nest.packages.core.hooks.on-app-shutdown.hook.hasOnAppShutdownHook",
+    }
+    assert {edge.callee_qname for edge in out_of_contract} == {
+        "module.getNonAliasProviders",
+        "moduleClassHost.isDependencyTreeStatic",
+    }
+    assert {item["reason"] for item in out_meta} == {"in_repo_unresolved"}
+    assert diagnostics["included_limitation_by_reason"]["in_repo_unresolved"] == 2
+    assert diagnostics["excluded_out_of_scope_by_reason"]["external"] == 1
+
+
 def test_ground_truth_treats_decorator_shaped_calls_as_dynamic() -> None:
     file_result = FileParseResult(
         language="python",
