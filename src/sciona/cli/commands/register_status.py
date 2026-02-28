@@ -62,32 +62,56 @@ def register_status(app: typer.Typer) -> None:
 
     @app.command()
     def clean(
+        hooks: bool = typer.Option(
+            True,
+            "--hooks/--no-hooks",
+            help="Remove the managed SCIONA post-commit hook block.",
+        ),
         agents: bool = typer.Option(
-            False,
-            "--agents",
-            help="Remove the managed SCIONA block from AGENTS.md.",
+            True,
+            "--agents/--no-agents",
+            help="Remove SCIONA-managed content from AGENTS.md.",
         ),
     ) -> None:
-        """Remove the SCIONA state directory for the current repository."""
+        """Remove SCIONA state and managed integrations for the current repository."""
         repo_root = cli_call(api_cli.get_repo_root)
         sciona_dir = api_cli.get_sciona_dir(repo_root)
         removed = cli_call(api_cli.clean, repo_root)
-        if not removed:
+        cleaned_any = False
+        if removed:
+            typer.echo(f"Removed {sciona_dir}")
+            cleaned_any = True
+        else:
             typer.secho(
-                ".sciona directory not found; nothing to clean.", fg=typer.colors.YELLOW
+                ".sciona directory not found; nothing to clean there.",
+                fg=typer.colors.YELLOW,
             )
-            if not agents:
-                raise typer.Exit(code=0)
-        typer.echo(f"Removed {sciona_dir}")
+
+        if hooks:
+            hook_before = cli_call(api_cli.commit_hook_status, repo_root)
+            cli_call(api_cli.remove_commit_hook, repo_root)
+            if hook_before.installed:
+                typer.echo(f"Removed managed SCIONA post-commit hook block from {hook_before.hook_path}")
+                cleaned_any = True
+            else:
+                typer.secho(
+                    "No managed SCIONA post-commit hook block found.",
+                    fg=typer.colors.YELLOW,
+                )
+
         if agents:
             removed_agents = cli_call(api_cli.clean_agents, repo_root)
             if removed_agents:
-                typer.echo("Removed managed SCIONA block from AGENTS.md")
+                typer.echo("Removed SCIONA-managed AGENTS.md content")
+                cleaned_any = True
             else:
                 typer.secho(
                     "No managed SCIONA block found in AGENTS.md.",
                     fg=typer.colors.YELLOW,
                 )
+
+        if not cleaned_any:
+            typer.secho("No SCIONA-managed artifacts found to clean.", fg=typer.colors.YELLOW)
 
 
 __all__ = ["register_status"]
