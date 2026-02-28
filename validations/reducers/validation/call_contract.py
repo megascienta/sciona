@@ -132,6 +132,19 @@ def build_contract_call_candidates(
 
     identifiers = _candidate_identifiers(edge)
     identifier = identifiers[0] if identifiers else ""
+
+    # Treat non-canonical member-style qname hints as unresolved placeholders and
+    # avoid deriving strict-contract candidates from them.
+    raw_qname = (edge.callee_qname or "").strip()
+    if raw_qname and raw_qname not in module_lookup and "." in raw_qname:
+        qualifier = _qualifier_from_text(edge)
+        if qualifier and qualifier.split(".", 1)[0] not in {"self", "cls", "this", "super"}:
+            return ContractCallCandidates(
+                identifier=identifier,
+                direct_candidates=[],
+                fallback_candidates=[],
+            )
+
     direct_candidates: list[str] = []
     if edge.callee_qname and edge.callee_qname in module_lookup:
         direct_candidates = [edge.callee_qname]
