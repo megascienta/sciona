@@ -204,15 +204,6 @@ def test_typescript_analyzer_collects_internal_imports_and_reexports(tmp_path):
         if edge.edge_type == "IMPORTS_DECLARED"
     }
     assert utils_module in import_targets
-    callable_import_targets = {
-        edge.dst_qualified_name
-        for edge in result.edges
-        if edge.edge_type == "CALLABLE_IMPORTS_DECLARED"
-        and edge.src_qualified_name == f"{module_name}.run"
-    }
-    assert utils_module in callable_import_targets
-
-
 def test_typescript_analyzer_collects_import_equals_declaration(tmp_path):
     repo = tmp_path
     src = repo / "src"

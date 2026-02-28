@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import Callable, Sequence
+from typing import Callable
 
 from ....tools.call_extraction import collect_call_targets
 from ...normalize.model import EdgeRecord, FileSnapshot
@@ -117,43 +117,10 @@ def emit_local_inheritance_edges(*, language: str, result) -> None:
             )
 
 
-def emit_callable_import_edges(
-    *,
-    language: str,
-    caller_qname: str,
-    caller_node_type: str,
-    resolved_identifiers: Sequence[str],
-    import_modules: set[str],
-    result,
-) -> None:
-    if not import_modules:
-        return
-    for identifier in resolved_identifiers:
-        module_match = None
-        for module in import_modules:
-            if identifier == module or identifier.startswith(f"{module}."):
-                if module_match is None or len(module) > len(module_match):
-                    module_match = module
-        if module_match is None:
-            continue
-        result.edges.append(
-            EdgeRecord(
-                src_language=language,
-                src_node_type=caller_node_type,
-                src_qualified_name=caller_qname,
-                dst_language=language,
-                dst_node_type="module",
-                dst_qualified_name=module_match,
-                edge_type="CALLABLE_IMPORTS_DECLARED",
-            )
-        )
-
-
 __all__ = [
     "PendingCall",
     "assert_scope_resolver_parity",
     "collect_targets_by_callable",
-    "emit_callable_import_edges",
     "emit_local_inheritance_edges",
     "scope_resolver_from_pending_calls",
 ]

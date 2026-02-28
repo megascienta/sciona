@@ -29,7 +29,6 @@ from .typescript_resolution import resolve_pending_instances
 from .analyzer_support import (
     assert_scope_resolver_parity,
     collect_targets_by_callable,
-    emit_callable_import_edges,
     emit_local_inheritance_edges,
     scope_resolver_from_pending_calls,
 )
@@ -134,14 +133,6 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                             node_type=node_type,
                             callee_identifiers=list(resolved),
                         )
-                    )
-                    emit_callable_import_edges(
-                        language=self.language,
-                        caller_qname=qualified,
-                        caller_node_type=node_type,
-                        resolved_identifiers=list(resolved),
-                        import_modules=set(imports),
-                        result=result,
                     )
 
             for module in sorted(set(imports)):

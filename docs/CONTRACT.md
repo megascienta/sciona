@@ -52,7 +52,6 @@ Optional enrichment edges (MAY be emitted; not required for baseline compliance)
 - `NESTS` (class -> nested class, disambiguates nested containment)
 - `EXTENDS` (class-like -> class-like, local syntactic inheritance)
 - `IMPLEMENTS` (class/record -> interface, local syntactic implementation)
-- `CALLABLE_IMPORTS_DECLARED` (callable -> module, import usage derived from resolved calls)
 
 ## Edge Semantics
 

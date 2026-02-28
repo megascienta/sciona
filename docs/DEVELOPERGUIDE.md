@@ -147,7 +147,6 @@ Optional enrichment semantics currently emitted:
 
 - `NESTS` for nested class containment disambiguation.
 - `EXTENDS` / `IMPLEMENTS` for local syntactic inheritance.
-- `CALLABLE_IMPORTS_DECLARED` for callable-level import dependency hints.
 
 ArtifactDB (derived):
 

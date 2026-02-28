@@ -10,7 +10,7 @@ contract in `docs/CONTRACT.md`.
 - Optional synthetic nodes are allowed but excluded from language compliance.
 - Emits edge types: `CONTAINS`, `DEFINES_METHOD`, `IMPORTS_DECLARED`, `CALLS`.
 - Optional enrichment edges may be present:
-  `NESTS`, `EXTENDS`, `IMPLEMENTS`, `CALLABLE_IMPORTS_DECLARED`.
+  `NESTS`, `EXTENDS`, `IMPLEMENTS`.
 - `module` MUST NOT contain `method` nodes.
 - Nested classes are represented with class -> class `CONTAINS`.
 - Constructors are represented as `method`.
