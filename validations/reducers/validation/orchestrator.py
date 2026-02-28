@@ -210,9 +210,17 @@ def _build_report_payload(
         for row in rows
         if row.get("set_q2_reducer_vs_independent_contract") is not None
     ]
+    scored_rows_q2_syntax = [
+        row
+        for row in rows
+        if row.get("set_q2_reducer_vs_independent_syntax") is not None
+    ]
     scored_rows_q1 = [row for row in rows if row.get("set_q1_reducer_vs_db") is not None]
     q1_agg = _aggregate_set_metrics(scored_rows_q1, "set_q1_reducer_vs_db")
     q2_agg = _aggregate_set_metrics(scored_rows_q2, "set_q2_reducer_vs_independent_contract")
+    q2_syntax_agg = _aggregate_set_metrics(
+        scored_rows_q2_syntax, "set_q2_reducer_vs_independent_syntax"
+    )
     q2_excluded_total = sum(
         int((row.get("q2_filtering_stats") or {}).get("excluded_total_count") or 0)
         for row in rows
@@ -418,6 +426,9 @@ def _build_report_payload(
                 "set_q2_reducer_vs_independent_contract": row.get(
                     "set_q2_reducer_vs_independent_contract"
                 ),
+                "set_q2_reducer_vs_independent_syntax": row.get(
+                    "set_q2_reducer_vs_independent_syntax"
+                ),
                 "basket2_edges": row.get("basket2_edges"),
                 "q2_filtering_stats": row.get("q2_filtering_stats"),
                 "q2_ground_truth_diagnostics": row.get("q2_ground_truth_diagnostics"),
@@ -564,6 +575,18 @@ def _build_report_payload(
                     sorted(class_match_strategy_breakdown.items())
                 ),
                 "top_mismatch_signatures": top_mismatch_signatures,
+            },
+            "q2_syntax": {
+                "title": "reducers vs independent syntax-only baseline",
+                "scored_nodes": len(scored_rows_q2_syntax),
+                "reference_count": q2_syntax_agg.get("reference_count"),
+                "candidate_count": q2_syntax_agg.get("candidate_count"),
+                "intersection_count": q2_syntax_agg.get("intersection_count"),
+                "missing_count": q2_syntax_agg.get("missing_count"),
+                "spillover_count": q2_syntax_agg.get("spillover_count"),
+                "coverage": q2_syntax_agg.get("coverage"),
+                "spillover_ratio": q2_syntax_agg.get("spillover_ratio"),
+                "match_provenance_breakdown": q2_syntax_agg.get("match_provenance_breakdown"),
             },
             "q3": {
                 "title": "non-static edges beyond contract envelope",

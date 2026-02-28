@@ -7,7 +7,7 @@ import pytest
 from validations.reducers.validation.report import render_summary, write_json
 
 
-def test_render_summary_includes_only_three_core_questions() -> None:
+def test_render_summary_includes_core_questions_and_syntax_baseline() -> None:
     payload = {
         "summary": ["repo=test", "sampled_nodes=1", "invariants_passed=True"],
         "invariants": {"passed": True, "hard_passed": True},
@@ -63,6 +63,16 @@ def test_render_summary_includes_only_three_core_questions() -> None:
                     "avg_rate_percent": 0.0,
                 },
             },
+            "q2_syntax": {
+                "scored_nodes": 1,
+                "reference_count": 200,
+                "candidate_count": 200,
+                "intersection_count": 200,
+                "missing_count": 0,
+                "spillover_count": 0,
+                "coverage": 1.0,
+                "spillover_ratio": 0.0,
+            },
         },
         "per_node": [],
         "report_schema_version": "test",
@@ -71,6 +81,7 @@ def test_render_summary_includes_only_three_core_questions() -> None:
     text = "\n".join(lines)
     assert "## Q1. Reducers vs DB Correctness" in text
     assert "## Q2. Reducers vs Independent Within Static Contract" in text
+    assert "## Q2a. Reducers vs Independent Syntax Baseline" in text
     assert "## Q3. Beyond Static Contract Envelope" in text
     assert "## Validation Goals" not in text
     assert "## Run Verdict" not in text

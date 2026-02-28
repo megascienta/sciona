@@ -394,6 +394,85 @@ def prepare_parse_map(sampled, module_entries, resolver) -> Tuple[Dict[str, dict
     return parse_file_map, overview_errors
 
 
+def _build_syntax_reference_edges(
+    *,
+    entity,
+    file_result: FileParseResult,
+    normalized_calls: List[object],
+    normalized_imports: List[object],
+    module_imports_by_prefix: dict[str, list[tuple[str, str, str, object]]],
+) -> List[EdgeRecord]:
+    syntax_edges: List[EdgeRecord] = []
+    if entity.kind in {"function", "method"}:
+        for edge in normalized_calls:
+            if edge.caller != entity.qualified_name or edge.dynamic:
+                continue
+            if not edge.callee:
+                continue
+            syntax_edges.append(
+                EdgeRecord(
+                    caller=edge.caller,
+                    callee=edge.callee,
+                    callee_qname=None,
+                    provenance="syntax_only",
+                )
+            )
+        return dedupe_edge_records(syntax_edges)
+    if entity.kind == "class":
+        class_qname = entity.qualified_name
+        for definition in file_result.defs:
+            if definition.kind != "method":
+                continue
+            if "." not in definition.qualified_name:
+                continue
+            owner = definition.qualified_name.rsplit(".", 1)[0]
+            if owner != class_qname:
+                continue
+            syntax_edges.append(
+                EdgeRecord(
+                    caller=class_qname,
+                    callee=definition.qualified_name.rsplit(".", 1)[-1],
+                    callee_qname=None,
+                    provenance="syntax_only",
+                )
+            )
+        return dedupe_edge_records(syntax_edges)
+    if entity.kind == "module":
+        entries = module_imports_by_prefix.get(entity.qualified_name, [])
+        if entries:
+            for module_name, _file_path, _language, edge in entries:
+                if edge.dynamic:
+                    continue
+                target = (edge.target_module or "").strip()
+                if not target:
+                    continue
+                syntax_edges.append(
+                    EdgeRecord(
+                        caller=module_name,
+                        callee=target,
+                        callee_qname=None,
+                        provenance="syntax_only",
+                    )
+                )
+            return dedupe_edge_records(syntax_edges)
+        for edge in normalized_imports:
+            if edge.dynamic:
+                continue
+            target = (edge.target_module or "").strip()
+            if not target:
+                continue
+            syntax_edges.append(
+                EdgeRecord(
+                    caller=file_result.module_qualified_name,
+                    callee=target,
+                    callee_qname=None,
+                    provenance="syntax_only",
+                )
+            )
+        return dedupe_edge_records(syntax_edges)
+    return []
+
+
 def build_normalized_edge_maps(
     repo_root: Path,
     independent_results: Dict[str, FileParseResult],
@@ -478,7 +557,15 @@ def evaluate_entities(
         )
         set_q1_reducer_vs_db = None
         set_q2_reducer_vs_independent_contract = None
+        set_q2_reducer_vs_independent_syntax = None
         class_truth_unreliable = bool(gt_diagnostics.get("class_truth_unreliable"))
+        syntax_reference_edges = _build_syntax_reference_edges(
+            entity=entity,
+            file_result=file_result,
+            normalized_calls=normalized_calls,
+            normalized_imports=normalized_imports,
+            module_imports_by_prefix=module_imports_by_prefix,
+        )
         if not reducer_error and not db_error:
             set_q1_reducer_vs_db = compute_set_metrics(db_edges, reducer_edges)
         if (
@@ -488,6 +575,10 @@ def evaluate_entities(
         ):
             set_q2_reducer_vs_independent_contract = compute_set_metrics(
                 reducer_edges_contract, expected_filtered
+            )
+        if file_result.parse_ok and not reducer_error:
+            set_q2_reducer_vs_independent_syntax = compute_set_metrics(
+                reducer_edges_contract, syntax_reference_edges
             )
         rows.append(
             {
@@ -503,6 +594,11 @@ def evaluate_entities(
                     set_q2_reducer_vs_independent_contract
                 )
                 if set_q2_reducer_vs_independent_contract
+                else None,
+                "set_q2_reducer_vs_independent_syntax": asdict(
+                    set_q2_reducer_vs_independent_syntax
+                )
+                if set_q2_reducer_vs_independent_syntax
                 else None,
                 "basket2_edges": [asdict(edge) for edge in out_of_contract],
                 "q2_filtering_stats": {

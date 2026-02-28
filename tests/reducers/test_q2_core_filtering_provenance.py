@@ -51,6 +51,7 @@ def test_q2_payload_declares_core_only_filtering_source(tmp_path: Path) -> None:
     assert payload["questions"]["q2"]["contract_filtered_out_ratio"] == 0.0
     assert payload["questions"]["q2"]["match_provenance_breakdown"] == {"qname_exact": 1}
     assert payload["questions"]["q2"]["strict_contract_candidate_count_histogram"] == {}
+    assert payload["questions"]["q2_syntax"]["scored_nodes"] == 0
 
 
 def test_q2_filtering_pipeline_no_validation_contract_override() -> None:

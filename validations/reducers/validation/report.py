@@ -121,6 +121,21 @@ def render_summary(payload: dict) -> List[str]:
     lines.append(f"- by_language: `{q2.get('by_language')}`")
     lines.append("")
 
+    q2_syntax = questions.get("q2_syntax") or {}
+    lines.append("## Q2a. Reducers vs Independent Syntax Baseline")
+    lines.append("")
+    lines.append(f"- scored_nodes: `{q2_syntax.get('scored_nodes')}`")
+    lines.append(
+        f"- reference/candidate/intersection: `{q2_syntax.get('reference_count')}`/`{q2_syntax.get('candidate_count')}`/`{q2_syntax.get('intersection_count')}`"
+    )
+    lines.append(
+        f"- missing/spillover: `{q2_syntax.get('missing_count')}`/`{q2_syntax.get('spillover_count')}`"
+    )
+    lines.append(
+        f"- coverage/spillover_ratio: `{_format_ratio(q2_syntax.get('coverage'))}`/`{_format_ratio(q2_syntax.get('spillover_ratio'))}`"
+    )
+    lines.append("")
+
     q3 = questions.get("q3") or {}
     lines.append("## Q3. Beyond Static Contract Envelope")
     lines.append("")
