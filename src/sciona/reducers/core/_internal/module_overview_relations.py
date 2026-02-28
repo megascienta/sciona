@@ -175,3 +175,57 @@ def _list_methods(
     ]
     order_nodes(entries, key="qualified_name")
     return entries
+
+
+def _list_nested_classes(
+    conn, snapshot_id: str, module_ids: List[str], repo_root: Path
+) -> List[Dict[str, str]]:
+    container_edges = load_artifact_edges(
+        repo_root,
+        edge_kinds=["CONTAINS"],
+        src_ids=module_ids,
+    )
+    class_ids = sorted({dst for _, dst, _ in container_edges})
+    if not class_ids:
+        return []
+    nests_edges = load_artifact_edges(
+        repo_root,
+        edge_kinds=["NESTS"],
+        src_ids=class_ids,
+    )
+    if not nests_edges:
+        return []
+    all_ids = sorted({src for src, _, _ in nests_edges} | {dst for _, dst, _ in nests_edges})
+    placeholders = ",".join("?" for _ in all_ids)
+    rows = conn.execute(
+        f"""
+        SELECT ni.structural_id, ni.qualified_name
+        FROM node_instances ni
+        WHERE ni.snapshot_id = ?
+          AND ni.structural_id IN ({placeholders})
+        """,
+        (snapshot_id, *all_ids),
+    ).fetchall()
+    names = {
+        row["structural_id"]: row["qualified_name"]
+        for row in rows
+        if row["qualified_name"]
+    }
+    entries = [
+        {
+            "parent_structural_id": src_id,
+            "parent_qualified_name": names.get(src_id, ""),
+            "child_structural_id": dst_id,
+            "child_qualified_name": names.get(dst_id, ""),
+        }
+        for src_id, dst_id, _ in nests_edges
+        if names.get(src_id) and names.get(dst_id)
+    ]
+    order_nodes(
+        entries,
+        key=lambda item: (
+            item["parent_qualified_name"],
+            item["child_qualified_name"],
+        ),
+    )
+    return entries

@@ -21,6 +21,7 @@ from .module_overview_relations import (
     _list_children,
     _list_imports,
     _list_methods,
+    _list_nested_classes,
 )
 from .module_overview_resolve import (
     _list_module_files,
@@ -128,6 +129,7 @@ def run(snapshot_id: str, **params) -> ModuleOverviewPayload:
     classes = _list_children(conn, snapshot_id, module_ids, "class", repo_path)
     functions = _list_children(conn, snapshot_id, module_ids, "function", repo_path)
     methods = _list_methods(conn, snapshot_id, module_ids, repo_path)
+    nested_classes = _list_nested_classes(conn, snapshot_id, module_ids, repo_path)
     imports = _list_imports(conn, snapshot_id, module_ids, repo_path)
     language_breakdown = _language_breakdown(conn, snapshot_id, module_ids, repo_path)
 
@@ -151,6 +153,7 @@ def run(snapshot_id: str, **params) -> ModuleOverviewPayload:
         "classes": classes,
         "functions": functions,
         "methods": methods,
+        "nested_classes": nested_classes,
         "node_counts": {
             "classes": len(classes),
             "functions": len(functions),

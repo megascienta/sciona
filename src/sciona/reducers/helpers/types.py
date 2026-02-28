@@ -27,6 +27,7 @@ class ModuleOverviewPayload(TypedDict, total=False):
     classes: List[Dict[str, str]]
     functions: List[Dict[str, str]]
     methods: List[Dict[str, str]]
+    nested_classes: List[Dict[str, str]]
     node_counts: Dict[str, int]
     language_breakdown: Dict[str, int]
     imports: List[Dict[str, str]]

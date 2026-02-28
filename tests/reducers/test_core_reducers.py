@@ -944,6 +944,7 @@ def test_module_overview_reducer_lists_children_and_imports(tmp_path):
             "module_qualified_name": _q(repo["repo_root"], "pkg.beta.worker"),
         }
     ]
+    assert payload["nested_classes"] == []
     assert "confidence" not in payload
 
 
@@ -996,3 +997,116 @@ def test_module_overview_include_file_map(tmp_path):
         entry["module_qualified_name"].startswith(_q(repo["repo_root"], "pkg.alpha"))
         for entry in payload["module_files"]
     )
+
+
+def test_module_overview_reducer_exposes_nests_edges(tmp_path):
+    repo = _build_profile_repo(tmp_path)
+    conn = sqlite3.connect(repo["db_path"])
+    conn.row_factory = sqlite3.Row
+    repo_root = repo["repo_root"]
+    snapshot_id = repo["snapshot_id"]
+    outer_id = "cls_outer"
+    inner_id = "cls_inner"
+    outer_q = _q(repo_root, "pkg.alpha.service.Outer")
+    inner_q = _q(repo_root, "pkg.alpha.service.Outer.Inner")
+    module_alpha = repo["ids"]["module_alpha"]
+    try:
+        conn.execute(
+            """
+            INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
+            VALUES (?, ?, ?, ?)
+            """,
+            (outer_id, "class", "python", snapshot_id),
+        )
+        conn.execute(
+            """
+            INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
+            VALUES (?, ?, ?, ?)
+            """,
+            (inner_id, "class", "python", snapshot_id),
+        )
+        conn.execute(
+            """
+            INSERT INTO node_instances(
+                instance_id, structural_id, snapshot_id, qualified_name, file_path, start_line, end_line, content_hash
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                f"{snapshot_id}:{outer_id}",
+                outer_id,
+                snapshot_id,
+                outer_q,
+                "pkg/alpha/service.py",
+                20,
+                25,
+                f"hash-{outer_id}",
+            ),
+        )
+        conn.execute(
+            """
+            INSERT INTO node_instances(
+                instance_id, structural_id, snapshot_id, qualified_name, file_path, start_line, end_line, content_hash
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                f"{snapshot_id}:{inner_id}",
+                inner_id,
+                snapshot_id,
+                inner_q,
+                "pkg/alpha/service.py",
+                21,
+                24,
+                f"hash-{inner_id}",
+            ),
+        )
+        conn.execute(
+            """
+            INSERT INTO edges(snapshot_id, src_structural_id, dst_structural_id, edge_type)
+            VALUES (?, ?, ?, ?)
+            """,
+            (snapshot_id, module_alpha, outer_id, "CONTAINS"),
+        )
+        conn.execute(
+            """
+            INSERT INTO edges(snapshot_id, src_structural_id, dst_structural_id, edge_type)
+            VALUES (?, ?, ?, ?)
+            """,
+            (snapshot_id, outer_id, inner_id, "CONTAINS"),
+        )
+        conn.execute(
+            """
+            INSERT INTO edges(snapshot_id, src_structural_id, dst_structural_id, edge_type)
+            VALUES (?, ?, ?, ?)
+            """,
+            (snapshot_id, outer_id, inner_id, "NESTS"),
+        )
+        conn.commit()
+        artifact_conn = artifact_connect(
+            repo_root / ".sciona" / setup_config.ARTIFACT_DB_FILENAME
+        )
+        try:
+            with transaction(artifact_conn):
+                rebuild_graph_index(
+                    artifact_conn,
+                    core_conn=conn,
+                    snapshot_id=snapshot_id,
+                )
+        finally:
+            artifact_conn.close()
+        payload = module_overview.run(
+            snapshot_id,
+            conn=conn,
+            module_id=_q(repo_root, "pkg.alpha.service"),
+            repo_root=repo_root,
+        )
+    finally:
+        conn.close()
+
+    assert payload["nested_classes"] == [
+        {
+            "parent_structural_id": outer_id,
+            "parent_qualified_name": outer_q,
+            "child_structural_id": inner_id,
+            "child_qualified_name": inner_q,
+        }
+    ]
