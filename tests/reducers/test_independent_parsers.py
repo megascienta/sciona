@@ -1804,7 +1804,7 @@ def test_call_contract_details_use_shared_strict_selector() -> None:
     assert details.accepted_provenance == expected.accepted_provenance
 
 
-def test_call_contract_drops_placeholder_member_qname_hints() -> None:
+def test_call_contract_accepts_placeholder_member_qname_via_core_candidates() -> None:
     edge = NormalizedCallEdge(
         caller="fixture.pkg.hook.callHook",
         callee="getNonAliasProviders",
@@ -1835,8 +1835,8 @@ def test_call_contract_drops_placeholder_member_qname_hints() -> None:
         caller_module="fixture.pkg.hook",
         call_resolution=call_resolution,
     )
-    assert details.callee_qname is None
-    assert details.accepted_provenance is None
+    assert details.callee_qname == "fixture.pkg.injector.module.Module.getNonAliasProviders"
+    assert details.accepted_provenance == "import_narrowed"
 
 
 def test_typescript_module_name_parity_for_d_ts_and_tsx(tmp_path: Path) -> None:

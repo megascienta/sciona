@@ -36,7 +36,7 @@
 - class_truth_unreliable_scored_excluded_count: `1`
 - class_match_strategy_breakdown: `{'exact_qname': 166, 'none': 1}`
 - match_provenance_breakdown: `{'qname_exact': 4815}`
-- strict_contract_candidate_count_histogram: `{'0': 342, '1': 169, '10': 4, '11': 4, '12': 1, '13': 1, '17': 4, '2': 27, '20': 5, '26': 1, '28': 6, '3': 19, '34': 1, '38': 6, '4': 11, '47': 8, '5': 11, '56': 3, '6': 9, '60': 1, '7': 13, '8': 3, '89': 9, '9': 2}`
+- strict_contract_candidate_count_histogram: `{'0': 169, '1': 216, '10': 5, '11': 4, '12': 6, '13': 3, '17': 6, '2': 43, '20': 13, '26': 2, '28': 7, '3': 46, '34': 1, '38': 11, '4': 13, '47': 8, '5': 29, '56': 3, '6': 19, '60': 1, '7': 30, '8': 8, '89': 14, '9': 3}`
 - core_contract_overlap: `{'reference_count': 4905, 'candidate_count': 4821, 'intersection_count': 4815, 'missing_count': 90, 'spillover_count': 6, 'avg_missing_rate': 0.18940037771482532, 'avg_spillover_rate': 0.0005292991922690881, 'avg_mutual_accuracy': 0.8100925904573649}`
 - contract_plus_resolution_hints: `{'reference_count': 5297, 'candidate_count': 4821, 'intersection_count': 4815, 'missing_count': 482, 'spillover_count': 6, 'avg_missing_rate': 0.37596382885904944, 'avg_spillover_rate': 0.000449140901132183, 'avg_mutual_accuracy': 0.6236059253832177}`
 - by_language: `{'java': {'scored_nodes': 353, 'avg_missing_rate': 0.18940037771482532, 'avg_spillover_rate': 0.0005292991922690881, 'avg_mutual_accuracy': 0.8100925904573649, 'pass': False}}`

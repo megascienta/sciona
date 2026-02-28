@@ -117,46 +117,9 @@ def build_contract_call_candidates(
 ) -> ContractCallCandidates:
     symbol_index: dict[str, list[str]] = call_resolution.get("symbol_index", {})
     module_lookup: dict[str, str] = call_resolution.get("module_lookup", {})
-    class_name_index: dict[str, list[str]] = call_resolution.get("class_name_index", {})
-    class_method_index: dict[str, dict[str, str]] = call_resolution.get("class_method_index", {})
-    module_symbol_index: dict[str, dict[str, list[str]]] = call_resolution.get(
-        "module_symbol_index", {}
-    )
-    import_symbol_hints: dict[str, dict[str, list[str]]] = call_resolution.get(
-        "import_symbol_hints", {}
-    )
-    namespace_aliases: dict[str, dict[str, str]] = call_resolution.get("namespace_aliases", {})
-    receiver_bindings: dict[str, dict[str, list[str]]] = call_resolution.get(
-        "receiver_bindings", {}
-    )
 
     identifiers = _candidate_identifiers(edge)
     identifier = identifiers[0] if identifiers else ""
-
-    # Treat non-canonical member-style qname hints as unresolved placeholders and
-    # avoid deriving strict-contract candidates from them.
-    raw_qname = (edge.callee_qname or "").strip()
-    if raw_qname and raw_qname not in module_lookup and "." in raw_qname:
-        qualifier = _qualifier_from_text(edge)
-        if qualifier and qualifier.split(".", 1)[0] not in {"self", "cls", "this", "super"}:
-            qualifier_leaf = qualifier.split(".")[-1]
-            scope_bindings = receiver_bindings.get(caller_qname, {})
-            has_receiver_binding = bool(scope_bindings.get(qualifier_leaf))
-            has_receiver_import_hint = bool(
-                (import_symbol_hints.get(caller_module, {}).get(qualifier_leaf))
-                or (namespace_aliases.get(caller_module, {}).get(qualifier_leaf))
-                or (class_name_index.get(qualifier_leaf))
-            )
-            if has_receiver_binding or has_receiver_import_hint:
-                # Keep resolution path open for typed receiver/member calls
-                # (for example: websocket.accept()).
-                pass
-            else:
-                return ContractCallCandidates(
-                    identifier=identifier,
-                    direct_candidates=[],
-                    fallback_candidates=[],
-                )
 
     direct_candidates: list[str] = []
     if edge.callee_qname and edge.callee_qname in module_lookup:
@@ -167,39 +130,6 @@ def build_contract_call_candidates(
         pooled.extend(symbol_index.get(identifier) or [])
     for alternate in identifiers[1:]:
         pooled.extend(symbol_index.get(alternate) or [])
-
-    class_qname = caller_qname.rsplit(".", 1)[0] if "." in caller_qname else ""
-    class_methods = class_method_index.get(class_qname, {})
-    if identifier:
-        local_method = class_methods.get(identifier)
-        if local_method:
-            pooled.append(local_method)
-
-    qualifier_tokens = _qualifier_tokens(edge)
-    if identifier and qualifier_tokens:
-        scope_bindings = receiver_bindings.get(caller_qname, {})
-        receiver_name = qualifier_tokens[-1]
-        bound = scope_bindings.get(receiver_name, [])
-        if len(bound) == 1:
-            pooled.extend(_by_prefix(symbol_index.get(identifier) or [], f"{bound[0]}."))
-
-    if identifier:
-        pooled.extend(module_symbol_index.get(caller_module, {}).get(identifier, []))
-
-    qualifier_leaf = _qualifier_leaf(edge)
-    if identifier and qualifier_leaf:
-        pooled.extend(import_symbol_hints.get(caller_module, {}).get(qualifier_leaf, []))
-        class_candidates = class_name_index.get(qualifier_leaf) or []
-        if len(class_candidates) == 1:
-            pooled.extend(_by_prefix(symbol_index.get(identifier) or [], f"{class_candidates[0]}."))
-        namespace_target = namespace_aliases.get(caller_module, {}).get(qualifier_leaf)
-        if namespace_target:
-            pooled.extend(module_symbol_index.get(namespace_target, {}).get(identifier, []))
-
-    if identifier:
-        pooled.extend(import_symbol_hints.get(caller_module, {}).get(identifier, []))
-    if identifier and caller_module:
-        pooled.extend(_by_module(symbol_index.get(identifier) or [], module_lookup, caller_module))
 
     fallback_candidates = _dedupe(pooled)
     return ContractCallCandidates(
