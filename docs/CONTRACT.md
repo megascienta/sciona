@@ -121,7 +121,6 @@ Optional metadata:
 - Implementations MAY attach structural enrichment metadata, including:
   - class/method kind hints,
   - local base/interface names,
-  - decorator/annotation names,
   - module-level binding names,
   - ambiguous call candidate diagnostics.
 

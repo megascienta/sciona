@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 
-PARITY_CONTRACT_VERSION = 1
+PARITY_CONTRACT_VERSION = 2
 
 
 def build_parity_contract() -> dict[str, object]:
@@ -47,11 +47,6 @@ def build_parity_contract() -> dict[str, object]:
                 "typescript": "yes",
             },
             "profile_class_extras_tree_sitter": {
-                "java": "yes",
-                "python": "yes",
-                "typescript": "yes",
-            },
-            "profile_decorators_tree_sitter": {
                 "java": "yes",
                 "python": "yes",
                 "typescript": "yes",

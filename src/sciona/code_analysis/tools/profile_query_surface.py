@@ -19,7 +19,6 @@ PYTHON_PROFILE_PARAMETER_NODE_TYPES = (
     "dictionary_splat_pattern",
 )
 PYTHON_PROFILE_BASE_NODE_TYPES = ("identifier", "attribute")
-PYTHON_PROFILE_DECORATOR_NODE_TYPES = ("decorator",)
 
 TYPESCRIPT_PROFILE_FUNCTION_NODE_TYPES = (
     "function_declaration",
@@ -33,7 +32,6 @@ TYPESCRIPT_PROFILE_PARAMETER_NODE_TYPES = (
     "optional_parameter",
 )
 TYPESCRIPT_PROFILE_BASE_NODE_TYPES = ("identifier", "type_identifier")
-TYPESCRIPT_PROFILE_DECORATOR_NODE_TYPES = ("decorator",)
 
 JAVA_PROFILE_FUNCTION_NODE_TYPES = (
     "method_declaration",
@@ -43,4 +41,3 @@ JAVA_PROFILE_FUNCTION_NODE_TYPES = (
 JAVA_PROFILE_CLASS_NODE_TYPES = ("class_declaration",)
 JAVA_PROFILE_PARAMETER_NODE_TYPES = ("formal_parameter",)
 JAVA_PROFILE_BASE_NODE_TYPES = ("type_identifier", "identifier", "scoped_type_identifier")
-JAVA_PROFILE_DECORATOR_NODE_TYPES = ("annotation", "marker_annotation")

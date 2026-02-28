@@ -23,7 +23,7 @@ contract in `docs/CONTRACT.md`.
 - Nested non-structural callables are not emitted as structural nodes.
 - CALLS targets are in-repo callable IDs only.
 - Optional enrichment metadata may be present on nodes/modules
-  (for example kind/decorator/base/module-binding diagnostics).
+  (for example kind/base/module-binding diagnostics).
 - Extraction is tree-sitter query/field driven.
 - Parser setup is deterministic and uses `tree_sitter.Parser` +
   `tree_sitter_languages.get_language`.
@@ -38,7 +38,7 @@ contract in `docs/CONTRACT.md`.
 
 - Top-level `function_definition` and `async_function_definition` map to `function`.
 - Class-member `function_definition` and `async_function_definition` map to `method`.
-- `decorated_definition` contributes wrapped class/function node; decorators do not add structural nodes.
+- `decorated_definition` contributes wrapped class/function node.
 - `__init__.py` is treated as package module identity.
 - Imports come from `import_statement` and `import_from_statement`.
 - Calls are collected from `call` nodes and attributed by enclosing callable scope.

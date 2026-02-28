@@ -31,7 +31,6 @@ def _build_query_surfaces() -> dict[str, dict[str, object]]:
                 "classes": sorted(profile_query_surface.PYTHON_PROFILE_CLASS_NODE_TYPES),
                 "parameters": sorted(profile_query_surface.PYTHON_PROFILE_PARAMETER_NODE_TYPES),
                 "bases": sorted(profile_query_surface.PYTHON_PROFILE_BASE_NODE_TYPES),
-                "decorators": sorted(profile_query_surface.PYTHON_PROFILE_DECORATOR_NODE_TYPES),
             },
         },
         "typescript": {
@@ -50,9 +49,6 @@ def _build_query_surfaces() -> dict[str, dict[str, object]]:
                     profile_query_surface.TYPESCRIPT_PROFILE_PARAMETER_NODE_TYPES
                 ),
                 "bases": sorted(profile_query_surface.TYPESCRIPT_PROFILE_BASE_NODE_TYPES),
-                "decorators": sorted(
-                    profile_query_surface.TYPESCRIPT_PROFILE_DECORATOR_NODE_TYPES
-                ),
             },
         },
         "java": {
@@ -65,7 +61,6 @@ def _build_query_surfaces() -> dict[str, dict[str, object]]:
                 "classes": sorted(profile_query_surface.JAVA_PROFILE_CLASS_NODE_TYPES),
                 "parameters": sorted(profile_query_surface.JAVA_PROFILE_PARAMETER_NODE_TYPES),
                 "bases": sorted(profile_query_surface.JAVA_PROFILE_BASE_NODE_TYPES),
-                "decorators": sorted(profile_query_surface.JAVA_PROFILE_DECORATOR_NODE_TYPES),
             },
         },
     }

@@ -31,9 +31,6 @@
         "bases": [
           "attribute",
           "identifier"
-        ],
-        "decorators": [
-          "decorator"
         ]
       }
     },
@@ -73,9 +70,6 @@
         "bases": [
           "identifier",
           "type_identifier"
-        ],
-        "decorators": [
-          "decorator"
         ]
       }
     },
@@ -113,10 +107,6 @@
           "identifier",
           "scoped_type_identifier",
           "type_identifier"
-        ],
-        "decorators": [
-          "annotation",
-          "marker_annotation"
         ]
       }
     }
@@ -264,7 +254,7 @@
     ]
   },
   "parity_contract": {
-    "version": 1,
+    "version": 2,
     "languages": [
       "java",
       "python",
@@ -303,11 +293,6 @@
         "typescript": "yes"
       },
       "profile_class_extras_tree_sitter": {
-        "java": "yes",
-        "python": "yes",
-        "typescript": "yes"
-      },
-      "profile_decorators_tree_sitter": {
         "java": "yes",
         "python": "yes",
         "typescript": "yes"
