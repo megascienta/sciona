@@ -6,7 +6,7 @@
     "q1_reducer_vs_db_exact=True",
     "q2_reducer_vs_independent_overlap_macro=False",
     "q3_avg_non_static_percent=0.9288",
-    "unresolved_static_avg_percent=34.2234"
+    "unresolved_static_avg_percent=36.5454"
   ],
   "invariants": {
     "passed": false,
@@ -7707,7 +7707,7 @@
         {
           "caller": "nest.packages.core.hooks.before-app-shutdown.hook.callBeforeAppShutdownHook",
           "callee": "beforeApplicationShutdown",
-          "callee_qname": null,
+          "callee_qname": "moduleClassInstance.beforeApplicationShutdown",
           "provenance": "syntax_raw"
         },
         {
@@ -7800,19 +7800,19 @@
         {
           "caller": "nest.packages.microservices.utils.transform-pattern.utils.transformPatternToRoute",
           "callee": "isNumber",
-          "callee_qname": "isNumber",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "nest.packages.microservices.utils.transform-pattern.utils.transformPatternToRoute",
           "callee": "isObject",
-          "callee_qname": "isObject",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "nest.packages.microservices.utils.transform-pattern.utils.transformPatternToRoute",
           "callee": "isString",
-          "callee_qname": "isString",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -8890,7 +8890,7 @@
         {
           "caller": "nest.packages.microservices.test.json-socket.helpers.createServerAndClient",
           "callee": "callback",
-          "callee_qname": "callback",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -9040,7 +9040,7 @@
         {
           "caller": "nest.packages.platform-fastify.adapters.middie.fastify-middie.fastifyMiddie",
           "callee": "next",
-          "callee_qname": "next",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -9052,20 +9052,26 @@
         {
           "caller": "nest.packages.platform-fastify.adapters.middie.fastify-middie.fastifyMiddie",
           "callee": "use",
-          "callee_qname": null,
+          "callee_qname": "instance.use",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "nest.packages.platform-fastify.adapters.middie.fastify-middie.fastifyMiddie",
+          "callee": "use",
+          "callee_qname": "kMiddie.use",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 7,
-        "excluded_limitation_count": 3,
-        "excluded_total_count": 10,
+        "excluded_out_of_scope_count": 10,
+        "excluded_limitation_count": 4,
+        "excluded_total_count": 14,
         "excluded_out_of_scope_by_reason": {
-          "external": 7
+          "external": 10
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved": 4
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -9074,9 +9080,9 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 10,
+          "0": 11,
           "1": 3,
-          "5": 2
+          "5": 1
         }
       },
       "q2_node_rates": {
@@ -9085,7 +9091,7 @@
         "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 300.0
+      "unresolved_static_rate_percent": 400.0
     },
     {
       "entity": "nest.packages.core.errors.messages.INVALID_MODULE_MESSAGE",
@@ -9580,20 +9586,26 @@
         {
           "caller": "nest.packages.common.utils.shared.utils.isPlainObject",
           "callee": "call",
-          "callee_qname": null,
+          "callee_qname": "Function.prototype.toString.call",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "nest.packages.common.utils.shared.utils.isPlainObject",
+          "callee": "call",
+          "callee_qname": "Object.prototype.hasOwnProperty.call",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 1,
         "excluded_out_of_scope_count": 1,
-        "excluded_limitation_count": 1,
-        "excluded_total_count": 2,
+        "excluded_limitation_count": 2,
+        "excluded_total_count": 3,
         "excluded_out_of_scope_by_reason": {
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -9602,8 +9614,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "2": 2,
-          "0": 1,
+          "0": 3,
           "1": 1
         }
       },
@@ -9613,7 +9624,7 @@
         "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 100.0
+      "unresolved_static_rate_percent": 200.0
     },
     {
       "entity": "nest.tools.gulp.util.task-helpers.getDirs",
@@ -10076,7 +10087,7 @@
         {
           "caller": "nest.packages.common.utils.load-package.util.loadPackage",
           "callee": "require",
-          "callee_qname": "require",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -10305,7 +10316,7 @@
         {
           "caller": "nest.packages.core.hooks.on-app-bootstrap.hook.callModuleBootstrapHook",
           "callee": "onApplicationBootstrap",
-          "callee_qname": null,
+          "callee_qname": "moduleClassInstance.onApplicationBootstrap",
           "provenance": "syntax_raw"
         }
       ],
@@ -10453,7 +10464,7 @@
         {
           "caller": "nest.tools.benchmarks.src.main.runOne",
           "callee": "run",
-          "callee_qname": "run",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -10742,7 +10753,7 @@
         {
           "caller": "nest.packages.core.hooks.on-app-shutdown.hook.callAppShutdownHook",
           "callee": "onApplicationShutdown",
-          "callee_qname": null,
+          "callee_qname": "moduleClassInstance.onApplicationShutdown",
           "provenance": "syntax_raw"
         }
       ],
@@ -11095,7 +11106,7 @@
         {
           "caller": "nest.packages.core.router.sse-stream.toDataString",
           "callee": "isObject",
-          "callee_qname": "isObject",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -11441,25 +11452,25 @@
         {
           "caller": "nest.packages.microservices.decorators.event-pattern.decorator.EventPattern",
           "callee": "isNil",
-          "callee_qname": "isNil",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "nest.packages.microservices.decorators.event-pattern.decorator.EventPattern",
           "callee": "isNumber",
-          "callee_qname": "isNumber",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "nest.packages.microservices.decorators.event-pattern.decorator.EventPattern",
           "callee": "isObject",
-          "callee_qname": "isObject",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "nest.packages.microservices.decorators.event-pattern.decorator.EventPattern",
           "callee": "isSymbol",
-          "callee_qname": "isSymbol",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -11621,7 +11632,7 @@
         {
           "caller": "nest.packages.core.hooks.on-module-init.hook.callModuleInitHook",
           "callee": "onModuleInit",
-          "callee_qname": null,
+          "callee_qname": "moduleClassInstance.onModuleInit",
           "provenance": "syntax_raw"
         }
       ],
@@ -11697,18 +11708,24 @@
         {
           "caller": "nest.packages.core.test.utils.string.cleaner.stringCleaner",
           "callee": "replace",
-          "callee_qname": null,
+          "callee_qname": "str.replace",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "nest.packages.core.test.utils.string.cleaner.stringCleaner",
+          "callee": "replace",
+          "callee_qname": "str.replace.replace",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 0,
-        "excluded_limitation_count": 1,
-        "excluded_total_count": 1,
+        "excluded_limitation_count": 2,
+        "excluded_total_count": 2,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -11717,7 +11734,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "2": 2
+          "0": 2
         }
       },
       "q2_node_rates": null,
@@ -11912,7 +11929,7 @@
         {
           "caller": "nest.packages.core.hooks.on-module-destroy.hook.hasOnModuleDestroyHook",
           "callee": "isFunction",
-          "callee_qname": "isFunction",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -12712,7 +12729,7 @@
         {
           "caller": "nest.packages.core.router.utils.exclude-route.util.isRouteExcluded",
           "callee": "addLeadingSlash",
-          "callee_qname": "addLeadingSlash",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -12852,13 +12869,13 @@
         {
           "caller": "nest.packages.core.errors.messages.getDependencyName",
           "callee": "isSymbol",
-          "callee_qname": "isSymbol",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "nest.packages.core.errors.messages.getDependencyName",
           "callee": "toString",
-          "callee_qname": null,
+          "callee_qname": "dependency.toString",
           "provenance": "syntax_raw"
         }
       ],
@@ -12879,7 +12896,7 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "1": 2,
-          "3": 1
+          "0": 1
         }
       },
       "q2_node_rates": {
@@ -12930,7 +12947,7 @@
         {
           "caller": "nest.packages.microservices.test.json-socket.helpers.createServer",
           "callee": "callback",
-          "callee_qname": "callback",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -12942,7 +12959,7 @@
         {
           "caller": "nest.packages.microservices.test.json-socket.helpers.createServer",
           "callee": "on",
-          "callee_qname": null,
+          "callee_qname": "server.on",
           "provenance": "syntax_raw"
         }
       ],
@@ -13713,7 +13730,7 @@
         {
           "caller": "nest.tools.gulp.tasks.move.moveToSamples",
           "callee": "pipe",
-          "callee_qname": null,
+          "callee_qname": "distFile.pipe",
           "provenance": "syntax_raw"
         }
       ],
@@ -13735,8 +13752,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "1": 3,
-          "0": 4
+          "1": 2,
+          "0": 5
         }
       },
       "q2_node_rates": {
@@ -13787,13 +13804,13 @@
         {
           "caller": "nest.packages.platform-express.multer.interceptors.no-files.interceptor.NoFilesInterceptor",
           "callee": "Inject",
-          "callee_qname": "Inject",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "nest.packages.platform-express.multer.interceptors.no-files.interceptor.NoFilesInterceptor",
           "callee": "Optional",
-          "callee_qname": "Optional",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -13811,13 +13828,13 @@
         {
           "caller": "nest.packages.platform-express.multer.interceptors.no-files.interceptor.NoFilesInterceptor",
           "callee": "mixin",
-          "callee_qname": "mixin",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "nest.packages.platform-express.multer.interceptors.no-files.interceptor.NoFilesInterceptor",
           "callee": "resolve",
-          "callee_qname": "resolve",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -14375,7 +14392,7 @@
         {
           "caller": "nest.packages.core.hooks.on-app-bootstrap.hook.hasOnAppBootstrapHook",
           "callee": "isFunction",
-          "callee_qname": "isFunction",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -14882,7 +14899,7 @@
         {
           "caller": "nest.packages.core.helpers.load-adapter.loadAdapter",
           "callee": "require",
-          "callee_qname": "require",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -15023,7 +15040,7 @@
         {
           "caller": "nest.packages.common.decorators.http.create-route-param-metadata.decorator.createParamDecorator",
           "callee": "fn",
-          "callee_qname": "fn",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -15371,13 +15388,13 @@
         {
           "caller": "nest.packages.platform-express.multer.interceptors.files.interceptor.FilesInterceptor",
           "callee": "Inject",
-          "callee_qname": "Inject",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "nest.packages.platform-express.multer.interceptors.files.interceptor.FilesInterceptor",
           "callee": "Optional",
-          "callee_qname": "Optional",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -15395,13 +15412,13 @@
         {
           "caller": "nest.packages.platform-express.multer.interceptors.files.interceptor.FilesInterceptor",
           "callee": "mixin",
-          "callee_qname": "mixin",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "nest.packages.platform-express.multer.interceptors.files.interceptor.FilesInterceptor",
           "callee": "resolve",
-          "callee_qname": "resolve",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -15874,26 +15891,32 @@
         {
           "caller": "nest.packages.core.errors.messages.UNKNOWN_DEPENDENCIES_MESSAGE",
           "callee": "isNil",
-          "callee_qname": "isNil",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "nest.packages.core.errors.messages.UNKNOWN_DEPENDENCIES_MESSAGE",
           "callee": "toString",
-          "callee_qname": null,
+          "callee_qname": "key.toString",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "nest.packages.core.errors.messages.UNKNOWN_DEPENDENCIES_MESSAGE",
+          "callee": "toString",
+          "callee_qname": "type.toString",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 2,
         "excluded_out_of_scope_count": 2,
-        "excluded_limitation_count": 2,
-        "excluded_total_count": 4,
+        "excluded_limitation_count": 3,
+        "excluded_total_count": 5,
         "excluded_out_of_scope_by_reason": {
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -15903,8 +15926,7 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "1": 3,
-          "0": 2,
-          "3": 2
+          "0": 4
         }
       },
       "q2_node_rates": {
@@ -15913,7 +15935,7 @@
         "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 100.0
+      "unresolved_static_rate_percent": 150.0
     },
     {
       "entity": "nest.packages.core.hooks.on-app-shutdown.hook.callOperator",
@@ -15955,23 +15977,23 @@
         {
           "caller": "nest.packages.core.hooks.on-app-shutdown.hook.callOperator",
           "callee": "isNil",
-          "callee_qname": "isNil",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "nest.packages.core.hooks.on-app-shutdown.hook.callOperator",
           "callee": "onApplicationShutdown",
-          "callee_qname": null,
+          "callee_qname": "instance.onApplicationShutdown",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 4,
+        "excluded_out_of_scope_count": 5,
         "excluded_limitation_count": 2,
-        "excluded_total_count": 6,
+        "excluded_total_count": 7,
         "excluded_out_of_scope_by_reason": {
-          "external": 4
+          "external": 5
         },
         "excluded_limitation_by_reason": {
           "in_repo_unresolved": 2
@@ -15983,9 +16005,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 5,
-          "1": 1,
-          "2": 1
+          "0": 6,
+          "1": 1
         }
       },
       "q2_node_rates": null,
@@ -16398,25 +16419,25 @@
         {
           "caller": "nest.packages.microservices.decorators.message-pattern.decorator.MessagePattern",
           "callee": "isNil",
-          "callee_qname": "isNil",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "nest.packages.microservices.decorators.message-pattern.decorator.MessagePattern",
           "callee": "isNumber",
-          "callee_qname": "isNumber",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "nest.packages.microservices.decorators.message-pattern.decorator.MessagePattern",
           "callee": "isObject",
-          "callee_qname": "isObject",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "nest.packages.microservices.decorators.message-pattern.decorator.MessagePattern",
           "callee": "isSymbol",
-          "callee_qname": "isSymbol",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -16778,7 +16799,7 @@
         {
           "caller": "nest.integration.repl.src.repl.bootstrap",
           "callee": "repl",
-          "callee_qname": "repl",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -16845,17 +16866,17 @@
         {
           "caller": "nest.packages.core.hooks.on-module-destroy.hook.callOperator",
           "callee": "isNil",
-          "callee_qname": "isNil",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 5,
+        "excluded_out_of_scope_count": 6,
         "excluded_limitation_count": 1,
-        "excluded_total_count": 6,
+        "excluded_total_count": 7,
         "excluded_out_of_scope_by_reason": {
-          "external": 5
+          "external": 6
         },
         "excluded_limitation_by_reason": {
           "in_repo_unresolved": 1
@@ -17261,13 +17282,13 @@
         {
           "caller": "nest.packages.core.router.router-execution-context.RouterExecutionContext.getParamValue",
           "callee": "apply",
-          "callee_qname": null,
+          "callee_qname": "pipesConsumer.apply",
           "provenance": "syntax_raw"
         },
         {
           "caller": "nest.packages.core.router.router-execution-context.RouterExecutionContext.getParamValue",
           "callee": "isEmpty",
-          "callee_qname": "isEmpty",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -17487,13 +17508,13 @@
         {
           "caller": "nest.packages.core.injector.module.Module.addCustomExportedProvider",
           "callee": "isString",
-          "callee_qname": "isString",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "nest.packages.core.injector.module.Module.addCustomExportedProvider",
           "callee": "isSymbol",
-          "callee_qname": "isSymbol",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -17903,14 +17924,14 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 2,
-        "candidate_count": 2,
-        "intersection_count": 2,
-        "missing_count": 0,
+        "candidate_count": 1,
+        "intersection_count": 1,
+        "missing_count": 1,
         "spillover_count": 0,
-        "coverage": 1.0,
+        "coverage": 0.5,
         "spillover_ratio": 0.0,
         "match_provenance_breakdown": {
-          "qname_exact": 2
+          "qname_exact": 1
         }
       },
       "set_q2_reducer_vs_independent_syntax": {
@@ -17929,7 +17950,7 @@
         {
           "caller": "nest.packages.microservices.nest-microservice.NestMicroservice.constructor",
           "callee": "super",
-          "callee_qname": "super",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -17946,22 +17967,28 @@
         },
         {
           "caller": "nest.packages.microservices.nest-microservice.NestMicroservice.constructor",
+          "callee": "register",
+          "callee_qname": "microservicesModule.register",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "nest.packages.microservices.nest-microservice.NestMicroservice.constructor",
           "callee": "selectContextModule",
-          "callee_qname": "selectContextModule",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 2,
+        "reference_in_contract_count": 1,
         "excluded_out_of_scope_count": 1,
-        "excluded_limitation_count": 4,
-        "excluded_total_count": 5,
+        "excluded_limitation_count": 5,
+        "excluded_total_count": 6,
         "excluded_out_of_scope_by_reason": {
           "external": 1
         },
         "excluded_limitation_by_reason": {
           "dynamic": 1,
-          "in_repo_unresolved": 3
+          "in_repo_unresolved": 4
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -17977,12 +18004,12 @@
         }
       },
       "q2_node_rates": {
-        "missing_rate": 0.0,
+        "missing_rate": 0.5,
         "spillover_rate": 0.0,
-        "mutual_accuracy": 1.0
+        "mutual_accuracy": 0.5
       },
       "q3_non_static_rate_percent": 50.0,
-      "unresolved_static_rate_percent": 150.0
+      "unresolved_static_rate_percent": 200.0
     },
     {
       "entity": "nest.packages.core.helpers.external-context-creator.ExternalContextCreator.constructor",
@@ -18213,7 +18240,7 @@
         {
           "caller": "nest.packages.core.errors.exceptions.circular-dependency.exception.CircularDependencyException.constructor",
           "callee": "super",
-          "callee_qname": "super",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -18432,19 +18459,19 @@
         {
           "caller": "nest.packages.platform-express.adapters.express-adapter.ExpressAdapter.reply",
           "callee": "isNil",
-          "callee_qname": "isNil",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "nest.packages.platform-express.adapters.express-adapter.ExpressAdapter.reply",
           "callee": "isObject",
-          "callee_qname": "isObject",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "nest.packages.platform-express.adapters.express-adapter.ExpressAdapter.reply",
           "callee": "on",
-          "callee_qname": null,
+          "callee_qname": "stream.pipe.on",
           "provenance": "syntax_raw"
         },
         {
@@ -18502,9 +18529,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 13,
+          "0": 14,
           "1": 2,
-          "18": 1,
           "5": 1
         }
       },
@@ -18556,7 +18582,7 @@
         {
           "caller": "nest.integration.repl.src.users.users.controller.UsersController.remove",
           "callee": "Param",
-          "callee_qname": "Param",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -18643,7 +18669,7 @@
         {
           "caller": "nest.packages.core.injector.instance-wrapper.InstanceWrapper.printIntrospectedAsRequestScoped",
           "callee": "isString",
-          "callee_qname": "isString",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -18891,7 +18917,7 @@
         {
           "caller": "nest.packages.core.nest-application.NestApplication.constructor",
           "callee": "super",
-          "callee_qname": "super",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -18965,7 +18991,7 @@
         {
           "caller": "nest.packages.microservices.errors.invalid-message.exception.InvalidMessageException.constructor",
           "callee": "super",
-          "callee_qname": "super",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -19036,13 +19062,13 @@
         {
           "caller": "nest.integration.repl.src.users.users.controller.UsersController.update",
           "callee": "Body",
-          "callee_qname": "Body",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "nest.integration.repl.src.users.users.controller.UsersController.update",
           "callee": "Param",
-          "callee_qname": "Param",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -19145,11 +19171,11 @@
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 5,
+        "excluded_out_of_scope_count": 6,
         "excluded_limitation_count": 3,
-        "excluded_total_count": 8,
+        "excluded_total_count": 9,
         "excluded_out_of_scope_by_reason": {
-          "external": 5
+          "external": 6
         },
         "excluded_limitation_by_reason": {
           "in_repo_unresolved": 3
@@ -19213,7 +19239,7 @@
         {
           "caller": "nest.sample.03-microservices.src.common.strategies.nats.strategy.NatsStrategy.bindEvents",
           "callee": "getMessageHandler",
-          "callee_qname": "getMessageHandler",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -19513,13 +19539,13 @@
         {
           "caller": "nest.packages.microservices.server.server-redis.ServerRedis.listen",
           "callee": "callback",
-          "callee_qname": "callback",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "nest.packages.microservices.server.server-redis.ServerRedis.listen",
           "callee": "on",
-          "callee_qname": null,
+          "callee_qname": "client.on",
           "provenance": "syntax_raw"
         }
       ],
@@ -19543,8 +19569,7 @@
         "strict_contract_candidate_count_histogram": {
           "4": 2,
           "1": 1,
-          "0": 2,
-          "18": 1,
+          "0": 3,
           "2": 2,
           "7": 1,
           "6": 1
@@ -19578,12 +19603,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 2,
-        "candidate_count": 3,
+        "candidate_count": 2,
         "intersection_count": 2,
         "missing_count": 0,
-        "spillover_count": 1,
+        "spillover_count": 0,
         "coverage": 1.0,
-        "spillover_ratio": 0.5,
+        "spillover_ratio": 0.0,
         "match_provenance_breakdown": {
           "qname_exact": 2
         }
@@ -19603,21 +19628,27 @@
       "basket2_edges": [
         {
           "caller": "nest.packages.core.injector.instance-wrapper.InstanceWrapper.isDependencyTreeStatic",
+          "callee": "isDependencyTreeStatic",
+          "callee_qname": "item.isDependencyTreeStatic",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "nest.packages.core.injector.instance-wrapper.InstanceWrapper.isDependencyTreeStatic",
           "callee": "isUndefined",
-          "callee_qname": "isUndefined",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 3,
+        "reference_in_contract_count": 2,
         "excluded_out_of_scope_count": 1,
-        "excluded_limitation_count": 1,
-        "excluded_total_count": 2,
+        "excluded_limitation_count": 2,
+        "excluded_total_count": 3,
         "excluded_out_of_scope_by_reason": {
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -19632,11 +19663,11 @@
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 0.5,
-        "mutual_accuracy": 0.6666666666666666
+        "spillover_rate": 0.0,
+        "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 50.0
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "nest.packages.microservices.interfaces.request-context.interface.RequestContext.getData",
@@ -19738,7 +19769,7 @@
         {
           "caller": "nest.integration.inspector.src.database.database.controller.DatabaseController.create",
           "callee": "Body",
-          "callee_qname": "Body",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -19831,7 +19862,13 @@
         {
           "caller": "nest.packages.websockets.socket-server-provider.SocketServerProvider.createSocketServer",
           "callee": "create",
-          "callee_qname": null,
+          "callee_qname": "ServerAndEventStreamsFactory.create",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "nest.packages.websockets.socket-server-provider.SocketServerProvider.createSocketServer",
+          "callee": "create",
+          "callee_qname": "adapter.create",
           "provenance": "syntax_raw"
         },
         {
@@ -19844,11 +19881,11 @@
       "q2_filtering_stats": {
         "reference_in_contract_count": 1,
         "excluded_out_of_scope_count": 0,
-        "excluded_limitation_count": 3,
-        "excluded_total_count": 3,
+        "excluded_limitation_count": 4,
+        "excluded_total_count": 4,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved": 4
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -19859,7 +19896,7 @@
         "strict_contract_candidate_count_histogram": {
           "1": 3,
           "20": 1,
-          "19": 1
+          "0": 1
         }
       },
       "q2_node_rates": {
@@ -19868,7 +19905,7 @@
         "mutual_accuracy": 0.5
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 150.0
+      "unresolved_static_rate_percent": 200.0
     },
     {
       "entity": "nest.packages.core.adapters.http-adapter.AbstractHttpAdapter.reply",
@@ -20172,7 +20209,7 @@
         {
           "caller": "nest.integration.hello-world.src.hello.hello.controller.HelloController.greeting",
           "callee": "Header",
-          "callee_qname": "Header",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -20259,26 +20296,32 @@
         {
           "caller": "nest.packages.core.injector.instance-wrapper.InstanceWrapper.getInstanceByInquirerId",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "collectionPerContext.get",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "nest.packages.core.injector.instance-wrapper.InstanceWrapper.getInstanceByInquirerId",
+          "callee": "get",
+          "callee_qname": "transientMap.get",
           "provenance": "syntax_raw"
         },
         {
           "caller": "nest.packages.core.injector.instance-wrapper.InstanceWrapper.getInstanceByInquirerId",
           "callee": "set",
-          "callee_qname": null,
+          "callee_qname": "transientMap.set",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 1,
         "excluded_out_of_scope_count": 1,
-        "excluded_limitation_count": 2,
-        "excluded_total_count": 3,
+        "excluded_limitation_count": 3,
+        "excluded_total_count": 4,
         "excluded_out_of_scope_by_reason": {
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -20299,7 +20342,7 @@
         "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 200.0
+      "unresolved_static_rate_percent": 300.0
     },
     {
       "entity": "nest.integration.versioning.src.override-partial.controller.OverridePartialController.overridePartialV2",
@@ -20602,13 +20645,13 @@
         {
           "caller": "nest.integration.hello-world.src.host-array.host-array.controller.HostArrayController.greeting",
           "callee": "Header",
-          "callee_qname": "Header",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "nest.integration.hello-world.src.host-array.host-array.controller.HostArrayController.greeting",
           "callee": "HostParam",
-          "callee_qname": "HostParam",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -20835,7 +20878,7 @@
         {
           "caller": "nest.packages.core.nest-application.NestApplication.registerRouter",
           "callee": "addLeadingSlash",
-          "callee_qname": "addLeadingSlash",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -20927,26 +20970,32 @@
         {
           "caller": "nest.packages.core.middleware.route-info-path-extractor.RouteInfoPathExtractor.extractVersionPathFrom",
           "callee": "addLeadingSlash",
-          "callee_qname": "addLeadingSlash",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "nest.packages.core.middleware.route-info-path-extractor.RouteInfoPathExtractor.extractVersionPathFrom",
           "callee": "toString",
-          "callee_qname": null,
+          "callee_qname": "version.toString",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "nest.packages.core.middleware.route-info-path-extractor.RouteInfoPathExtractor.extractVersionPathFrom",
+          "callee": "toString",
+          "callee_qname": "versionValue.toString",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 3,
-        "excluded_limitation_count": 2,
-        "excluded_total_count": 5,
+        "excluded_limitation_count": 3,
+        "excluded_total_count": 6,
         "excluded_out_of_scope_by_reason": {
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -20956,8 +21005,7 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "1": 1,
-          "0": 3,
-          "3": 2
+          "0": 5
         }
       },
       "q2_node_rates": null,
@@ -21066,7 +21114,7 @@
         {
           "caller": "nest.packages.microservices.server.server-mqtt.ServerMqtt.listen",
           "callee": "callback",
-          "callee_qname": "callback",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -21781,7 +21829,13 @@
         {
           "caller": "nest.packages.microservices.client.client-redis.ClientRedis.registerReadyListener",
           "callee": "on",
-          "callee_qname": null,
+          "callee_qname": "client.on",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "nest.packages.microservices.client.client-redis.ClientRedis.registerReadyListener",
+          "callee": "on",
+          "callee_qname": "subClient.on",
           "provenance": "syntax_raw"
         },
         {
@@ -21794,11 +21848,11 @@
       "q2_filtering_stats": {
         "reference_in_contract_count": 1,
         "excluded_out_of_scope_count": 0,
-        "excluded_limitation_count": 4,
-        "excluded_total_count": 4,
+        "excluded_limitation_count": 5,
+        "excluded_total_count": 5,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved": 5
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -21810,8 +21864,8 @@
           "3": 1,
           "6": 1,
           "1": 1,
-          "18": 2,
-          "0": 1
+          "0": 2,
+          "18": 1
         }
       },
       "q2_node_rates": {
@@ -21820,7 +21874,7 @@
         "mutual_accuracy": 0.5
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 200.0
+      "unresolved_static_rate_percent": 250.0
     },
     {
       "entity": "nest.packages.common.interfaces.http.http-server.interface.HttpServer.proppatch",
@@ -21922,7 +21976,7 @@
         {
           "caller": "nest.packages.core.middleware.route-info-path-extractor.RouteInfoPathExtractor.constructor",
           "callee": "addLeadingSlash",
-          "callee_qname": "addLeadingSlash",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -21946,7 +22000,7 @@
         {
           "caller": "nest.packages.core.middleware.route-info-path-extractor.RouteInfoPathExtractor.constructor",
           "callee": "stripEndSlash",
-          "callee_qname": "stripEndSlash",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -22237,7 +22291,7 @@
         {
           "caller": "nest.packages.core.injector.injector.Injector.lookupComponent",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "providers.get",
           "provenance": "syntax_raw"
         }
       ],
@@ -22260,8 +22314,7 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "1": 4,
-          "7": 1,
-          "0": 1
+          "0": 2
         }
       },
       "q2_node_rates": {
@@ -22380,13 +22433,13 @@
         {
           "caller": "nest.packages.microservices.client.client-proxy.ClientProxy.send",
           "callee": "isNil",
-          "callee_qname": "isNil",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "nest.packages.microservices.client.client-proxy.ClientProxy.send",
           "callee": "pipe",
-          "callee_qname": null,
+          "callee_qname": "defer.pipe",
           "provenance": "syntax_raw"
         }
       ],
@@ -22408,8 +22461,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "1": 4,
-          "0": 4,
+          "1": 3,
+          "0": 5,
           "9": 1,
           "8": 1
         }
@@ -22466,26 +22519,32 @@
         {
           "caller": "nest.packages.microservices.server.server-redis.ServerRedis.on",
           "callee": "callback",
-          "callee_qname": "callback",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "nest.packages.microservices.server.server-redis.ServerRedis.on",
           "callee": "on",
-          "callee_qname": null,
+          "callee_qname": "pubClient.on",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "nest.packages.microservices.server.server-redis.ServerRedis.on",
+          "callee": "on",
+          "callee_qname": "subClient.on",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 1,
-        "excluded_limitation_count": 2,
-        "excluded_total_count": 3,
+        "excluded_limitation_count": 3,
+        "excluded_total_count": 4,
         "excluded_out_of_scope_by_reason": {
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -22505,7 +22564,7 @@
         "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 200.0
+      "unresolved_static_rate_percent": 300.0
     },
     {
       "entity": "nest.integration.microservices.src.mqtt.mqtt.controller.MqttController.sendWildcardEvent",
@@ -22597,12 +22656,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 2,
+        "candidate_count": 1,
         "intersection_count": 1,
         "missing_count": 0,
-        "spillover_count": 1,
+        "spillover_count": 0,
         "coverage": 1.0,
-        "spillover_ratio": 1.0,
+        "spillover_ratio": 0.0,
         "match_provenance_breakdown": {
           "qname_exact": 1
         }
@@ -22625,18 +22684,24 @@
           "callee": "all",
           "callee_qname": "Promise.all",
           "provenance": "syntax_raw"
+        },
+        {
+          "caller": "nest.packages.core.nest-application.NestApplication.startAllMicroservices",
+          "callee": "listen",
+          "callee_qname": "msvc.listen",
+          "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 2,
+        "reference_in_contract_count": 1,
         "excluded_out_of_scope_count": 1,
-        "excluded_limitation_count": 1,
-        "excluded_total_count": 2,
+        "excluded_limitation_count": 2,
+        "excluded_total_count": 3,
         "excluded_out_of_scope_by_reason": {
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -22645,18 +22710,17 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 2,
-          "1": 1,
-          "13": 1
+          "0": 3,
+          "1": 1
         }
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 1.0,
-        "mutual_accuracy": 0.5
+        "spillover_rate": 0.0,
+        "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 100.0
+      "unresolved_static_rate_percent": 200.0
     },
     {
       "entity": "nest.packages.core.injector.module.Module.addModuleRef",
@@ -22704,7 +22768,7 @@
         {
           "caller": "nest.packages.core.injector.module.Module.addModuleRef",
           "callee": "set",
-          "callee_qname": null,
+          "callee_qname": "_providers.set",
           "provenance": "syntax_raw"
         }
       ],
@@ -22779,7 +22843,7 @@
         {
           "caller": "nest.packages.microservices.serializers.mqtt-record.serializer.MqttRecordSerializer.serialize",
           "callee": "isObject",
-          "callee_qname": "isObject",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -22861,7 +22925,7 @@
         {
           "caller": "nest.packages.microservices.server.server-tcp.ServerTCP.registerCloseListener",
           "callee": "on",
-          "callee_qname": null,
+          "callee_qname": "socket.on",
           "provenance": "syntax_raw"
         }
       ],
@@ -22946,11 +23010,11 @@
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 1,
+        "excluded_out_of_scope_count": 2,
         "excluded_limitation_count": 1,
-        "excluded_total_count": 2,
+        "excluded_total_count": 3,
         "excluded_out_of_scope_by_reason": {
-          "external": 1
+          "external": 2
         },
         "excluded_limitation_by_reason": {
           "in_repo_unresolved": 1
@@ -23014,7 +23078,7 @@
         {
           "caller": "nest.integration.injector.src.circular-modules.input.service.InputService.constructor",
           "callee": "Inject",
-          "callee_qname": "Inject",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -23251,7 +23315,7 @@
         {
           "caller": "nest.integration.microservices.src.kafka.kafka.messages.controller.KafkaMessagesController.mathSumSyncArray",
           "callee": "MessagePattern",
-          "callee_qname": "MessagePattern",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -23749,13 +23813,13 @@
         {
           "caller": "nest.integration.inspector.src.external-svc.external-svc.controller.ExternalSvcController.update",
           "callee": "MessagePattern",
-          "callee_qname": "MessagePattern",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "nest.integration.inspector.src.external-svc.external-svc.controller.ExternalSvcController.update",
           "callee": "Payload",
-          "callee_qname": "Payload",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -23851,11 +23915,11 @@
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 4,
+        "excluded_out_of_scope_count": 5,
         "excluded_limitation_count": 2,
-        "excluded_total_count": 6,
+        "excluded_total_count": 7,
         "excluded_out_of_scope_by_reason": {
-          "external": 4
+          "external": 5
         },
         "excluded_limitation_by_reason": {
           "in_repo_unresolved": 2
@@ -24043,7 +24107,7 @@
         {
           "caller": "nest.packages.microservices.client.client-rmq.ClientRMQ.dispatchEvent",
           "callee": "isString",
-          "callee_qname": "isString",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -24544,7 +24608,7 @@
         {
           "caller": "nest.packages.core.scanner.DependenciesScanner.insertInjectable",
           "callee": "isFunction",
-          "callee_qname": "isFunction",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -24874,7 +24938,7 @@
         {
           "caller": "nest.integration.inspector.src.users.users.controller.UsersController.remove",
           "callee": "Param",
-          "callee_qname": "Param",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -24957,7 +25021,7 @@
         {
           "caller": "nest.packages.core.errors.exceptions-zone.ExceptionsZone.run",
           "callee": "callback",
-          "callee_qname": "callback",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -25185,7 +25249,7 @@
         {
           "caller": "nest.packages.core.injector.container.NestContainer.addDynamicMetadata",
           "callee": "set",
-          "callee_qname": null,
+          "callee_qname": "dynamicModulesMetadata.set",
           "provenance": "syntax_raw"
         }
       ],
@@ -25257,13 +25321,13 @@
         {
           "caller": "nest.packages.websockets.errors.ws-exception.WsException.initMessage",
           "callee": "isObject",
-          "callee_qname": "isObject",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "nest.packages.websockets.errors.ws-exception.WsException.initMessage",
           "callee": "isString",
-          "callee_qname": "isString",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -25697,7 +25761,7 @@
         {
           "caller": "nest.integration.nest-application.sse.src.app.controller.AppController.sse",
           "callee": "Sse",
-          "callee_qname": "Sse",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -34287,53 +34351,53 @@
       "target_missing_rate_max": 0.010000000000000009,
       "target_spillover_rate_max": 0.010000000000000009,
       "scored_nodes": 323,
-      "avg_missing_rate": 0.11933510246203745,
-      "avg_spillover_rate": 0.004752593558198903,
-      "avg_mutual_accuracy": 0.8779799698648416,
+      "avg_missing_rate": 0.12088309007813652,
+      "avg_spillover_rate": 0.0001086307099016892,
+      "avg_mutual_accuracy": 0.8790119616089076,
       "reference_count": 1775,
-      "candidate_count": 1715,
-      "intersection_count": 1709,
-      "missing_count": 66,
-      "spillover_count": 6,
+      "candidate_count": 1712,
+      "intersection_count": 1708,
+      "missing_count": 67,
+      "spillover_count": 4,
       "by_language": {
         "typescript": {
           "scored_nodes": 323,
-          "avg_missing_rate": 0.11933510246203745,
-          "avg_spillover_rate": 0.004752593558198903,
-          "avg_mutual_accuracy": 0.8779799698648416,
+          "avg_missing_rate": 0.12088309007813652,
+          "avg_spillover_rate": 0.0001086307099016892,
+          "avg_mutual_accuracy": 0.8790119616089076,
           "pass": false
         }
       },
       "filtering_source": "core_only",
       "envelope_reference_count": 1775,
-      "envelope_excluded_count": 1028,
-      "envelope_excluded_out_of_scope_count": 723,
-      "envelope_excluded_limitation_count": 305,
-      "envelope_total_count": 2803,
-      "contract_filtered_out_ratio": 0.3667499108098466,
+      "envelope_excluded_count": 1048,
+      "envelope_excluded_out_of_scope_count": 731,
+      "envelope_excluded_limitation_count": 317,
+      "envelope_total_count": 2823,
+      "contract_filtered_out_ratio": 0.3712362734679419,
       "envelope_excluded_by_reason": {
         "dynamic": 8,
-        "external": 723,
-        "in_repo_unresolved": 297
+        "external": 731,
+        "in_repo_unresolved": 309
       },
       "match_provenance_breakdown": {
-        "qname_exact": 1709
+        "qname_exact": 1708
       },
       "strict_contract_candidate_count_histogram": {
-        "0": 401,
-        "1": 294,
+        "0": 420,
+        "1": 292,
         "11": 1,
-        "13": 3,
+        "13": 2,
         "17": 1,
-        "18": 9,
-        "19": 4,
-        "2": 46,
+        "18": 6,
+        "19": 3,
+        "2": 41,
         "20": 1,
-        "3": 20,
+        "3": 15,
         "4": 10,
-        "5": 11,
+        "5": 10,
         "6": 8,
-        "7": 11,
+        "7": 10,
         "8": 2,
         "9": 3
       },
@@ -34345,23 +34409,23 @@
       },
       "core_contract_overlap": {
         "reference_count": 1775,
-        "candidate_count": 1715,
-        "intersection_count": 1709,
-        "missing_count": 66,
-        "spillover_count": 6,
-        "avg_missing_rate": 0.11933510246203745,
-        "avg_spillover_rate": 0.004752593558198903,
-        "avg_mutual_accuracy": 0.8779799698648416
+        "candidate_count": 1712,
+        "intersection_count": 1708,
+        "missing_count": 67,
+        "spillover_count": 4,
+        "avg_missing_rate": 0.12088309007813652,
+        "avg_spillover_rate": 0.0001086307099016892,
+        "avg_mutual_accuracy": 0.8790119616089076
       },
       "contract_plus_resolution_hints": {
-        "reference_count": 2080,
-        "candidate_count": 1715,
-        "intersection_count": 1709,
-        "missing_count": 371,
-        "spillover_count": 6,
-        "avg_missing_rate": 0.3104208625599,
-        "avg_spillover_rate": 0.0023219814241486067,
-        "avg_mutual_accuracy": 0.688597234663581
+        "reference_count": 2092,
+        "candidate_count": 1712,
+        "intersection_count": 1708,
+        "missing_count": 384,
+        "spillover_count": 4,
+        "avg_missing_rate": 0.31304372988864965,
+        "avg_spillover_rate": 9.381743127873159e-05,
+        "avg_mutual_accuracy": 0.6868656329319793
       },
       "top_mismatch_signatures": [
         {
@@ -34659,16 +34723,16 @@
         "target_zero": true,
         "pass": false,
         "scored_nodes": 323,
-        "avg_rate": 0.34223426212590297,
-        "avg_rate_percent": 34.2234262125903,
-        "total_edges": 297,
+        "avg_rate": 0.3654540763673891,
+        "avg_rate_percent": 36.54540763673891,
+        "total_edges": 309,
         "by_semantic_type_avg_rate": {
           "direct_call_unresolved": 0.08952528379772962,
-          "member_call_unresolved": 0.25270897832817335
+          "member_call_unresolved": 0.27592879256965946
         },
         "by_semantic_type_avg_percent": {
           "direct_call_unresolved": 8.95252837977296,
-          "member_call_unresolved": 25.270897832817337
+          "member_call_unresolved": 27.592879256965947
         }
       }
     }

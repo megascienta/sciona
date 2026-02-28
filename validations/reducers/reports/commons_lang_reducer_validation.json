@@ -6,7 +6,7 @@
     "q1_reducer_vs_db_exact=True",
     "q2_reducer_vs_independent_overlap_macro=False",
     "q3_avg_non_static_percent=0.0000",
-    "unresolved_static_avg_percent=37.9556"
+    "unresolved_static_avg_percent=53.7323"
   ],
   "invariants": {
     "passed": false,
@@ -218,13 +218,13 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.ArrayUtilsRemoveTest.ArrayUtilsRemoveTest.testRemoveElementObjectArray",
           "callee": "getClass",
-          "callee_qname": null,
+          "callee_qname": "array.getClass",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.ArrayUtilsRemoveTest.ArrayUtilsRemoveTest.testRemoveElementObjectArray",
           "callee": "getComponentType",
-          "callee_qname": null,
+          "callee_qname": "array.getClass().getComponentType",
           "provenance": "syntax_raw"
         },
         {
@@ -253,8 +253,7 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "1": 2,
-          "0": 2,
-          "2": 2
+          "0": 4
         }
       },
       "q2_node_rates": null,
@@ -319,13 +318,25 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.StreamsTest.StreamsTest.simpleStreamForEachFailing",
           "callee": "getCause",
-          "callee_qname": null,
+          "callee_qname": "seThrown.getCause",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.StreamsTest.StreamsTest.simpleStreamForEachFailing",
           "callee": "getMessage",
-          "callee_qname": null,
+          "callee_qname": "oomeThrown.getMessage",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.StreamsTest.StreamsTest.simpleStreamForEachFailing",
+          "callee": "getMessage",
+          "callee_qname": "seThrown.getMessage",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.StreamsTest.StreamsTest.simpleStreamForEachFailing",
+          "callee": "getMessage",
+          "callee_qname": "thrown.getMessage",
           "provenance": "syntax_raw"
         },
         {
@@ -337,20 +348,20 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.StreamsTest.StreamsTest.simpleStreamForEachFailing",
           "callee": "stream",
-          "callee_qname": null,
+          "callee_qname": "Functions.stream",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 1,
         "excluded_out_of_scope_count": 8,
-        "excluded_limitation_count": 6,
-        "excluded_total_count": 14,
+        "excluded_limitation_count": 8,
+        "excluded_total_count": 16,
         "excluded_out_of_scope_by_reason": {
           "external": 8
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 6
+          "in_repo_unresolved": 8
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -359,12 +370,10 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 9,
+          "0": 13,
           "2": 1,
           "1": 1,
           "4": 1,
-          "3": 1,
-          "5": 3,
           "10": 1
         }
       },
@@ -374,7 +383,7 @@
         "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 600.0
+      "unresolved_static_rate_percent": 800.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ArrayUtilsTest.ArrayUtilsTest.testSameLengthAll",
@@ -637,20 +646,26 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.ArrayUtilsTest.ArrayUtilsTest.testArrayCreationWithDifferentTypes",
           "callee": "valueOf",
-          "callee_qname": null,
+          "callee_qname": "Double.valueOf",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.ArrayUtilsTest.ArrayUtilsTest.testArrayCreationWithDifferentTypes",
+          "callee": "valueOf",
+          "callee_qname": "Integer.valueOf",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 1,
-        "excluded_limitation_count": 2,
-        "excluded_total_count": 3,
+        "excluded_limitation_count": 3,
+        "excluded_total_count": 4,
         "excluded_out_of_scope_by_reason": {
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -659,9 +674,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 1,
-          "5": 1,
-          "1": 2
+          "0": 3,
+          "5": 1
         }
       },
       "q2_node_rates": null,
@@ -808,20 +822,32 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.exception.ExceptionUtilsTest.ExceptionUtilsTest.testGetCause_Throwable",
           "callee": "getCause",
-          "callee_qname": null,
+          "callee_qname": "ExceptionUtils.getCause",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.exception.ExceptionUtilsTest.ExceptionUtilsTest.testGetCause_Throwable",
+          "callee": "getCause",
+          "callee_qname": "cyclicCause.getCause",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.exception.ExceptionUtilsTest.ExceptionUtilsTest.testGetCause_Throwable",
+          "callee": "getCause",
+          "callee_qname": "cyclicCause.getCause().getCause",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 1,
-        "excluded_limitation_count": 1,
-        "excluded_total_count": 2,
+        "excluded_limitation_count": 3,
+        "excluded_total_count": 4,
         "excluded_out_of_scope_by_reason": {
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -830,8 +856,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 1,
-          "3": 3
+          "0": 3,
+          "3": 1
         }
       },
       "q2_node_rates": {
@@ -840,7 +866,7 @@
         "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 100.0
+      "unresolved_static_rate_percent": 300.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.SystemUtilsTest.SystemUtilsTest.testIsJavaVersionAtLeast",
@@ -999,12 +1025,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 1,
+        "candidate_count": 0,
         "intersection_count": 0,
         "missing_count": 1,
-        "spillover_count": 1,
+        "spillover_count": 0,
         "coverage": 0.0,
-        "spillover_ratio": 1.0,
+        "spillover_ratio": 0.0,
         "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
@@ -1023,7 +1049,7 @@
         {
           "caller": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils.ArrayUtils.arraycopy",
           "callee": "apply",
-          "callee_qname": null,
+          "callee_qname": "allocator.apply",
           "provenance": "syntax_raw"
         },
         {
@@ -1031,16 +1057,22 @@
           "callee": "arraycopy",
           "callee_qname": "System.arraycopy",
           "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils.ArrayUtils.arraycopy",
+          "callee": "get",
+          "callee_qname": "allocator.get",
+          "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
+        "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 0,
-        "excluded_limitation_count": 2,
-        "excluded_total_count": 2,
+        "excluded_limitation_count": 3,
+        "excluded_total_count": 3,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -1049,18 +1081,16 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "26": 1,
-          "0": 2,
-          "38": 1
+          "0": 4
         }
       },
       "q2_node_rates": {
         "missing_rate": 1.0,
-        "spillover_rate": 1.0,
+        "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 200.0
+      "unresolved_static_rate_percent": 300.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.text.ExtendedMessageFormat.ExtendedMessageFormat.insertFormats",
@@ -1082,12 +1112,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 4,
-        "candidate_count": 6,
+        "candidate_count": 4,
         "intersection_count": 4,
         "missing_count": 0,
-        "spillover_count": 2,
+        "spillover_count": 0,
         "coverage": 1.0,
-        "spillover_ratio": 0.5,
+        "spillover_ratio": 0.0,
         "match_provenance_breakdown": {
           "qname_exact": 4
         }
@@ -1108,7 +1138,19 @@
         {
           "caller": "commons_lang.src.main.java.org.apache.commons.lang3.text.ExtendedMessageFormat.ExtendedMessageFormat.insertFormats",
           "callee": "append",
-          "callee_qname": null,
+          "callee_qname": "sb.append",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.text.ExtendedMessageFormat.ExtendedMessageFormat.insertFormats",
+          "callee": "append",
+          "callee_qname": "sb.append(START_FE).append",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.text.ExtendedMessageFormat.ExtendedMessageFormat.insertFormats",
+          "callee": "append",
+          "callee_qname": "sb.append(START_FMT).append",
           "provenance": "syntax_raw"
         },
         {
@@ -1120,20 +1162,32 @@
         {
           "caller": "commons_lang.src.main.java.org.apache.commons.lang3.text.ExtendedMessageFormat.ExtendedMessageFormat.insertFormats",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "customPatterns.get",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.text.ExtendedMessageFormat.ExtendedMessageFormat.insertFormats",
+          "callee": "length",
+          "callee_qname": "pattern.length",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.text.ExtendedMessageFormat.ExtendedMessageFormat.insertFormats",
+          "callee": "toString",
+          "callee_qname": "sb.toString",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 6,
+        "reference_in_contract_count": 4,
         "excluded_out_of_scope_count": 3,
-        "excluded_limitation_count": 3,
-        "excluded_total_count": 6,
+        "excluded_limitation_count": 7,
+        "excluded_total_count": 10,
         "excluded_out_of_scope_by_reason": {
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved": 7
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -1142,21 +1196,18 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 4,
-          "20": 3,
+          "0": 10,
           "1": 3,
-          "38": 1,
-          "7": 2,
-          "89": 1
+          "7": 1
         }
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 0.5,
-        "mutual_accuracy": 0.6666666666666666
+        "spillover_rate": 0.0,
+        "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 75.0
+      "unresolved_static_rate_percent": 175.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.exception.ContextedException.ContextedException.getMessage",
@@ -1511,12 +1562,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 2,
+        "candidate_count": 1,
         "intersection_count": 1,
         "missing_count": 0,
-        "spillover_count": 1,
+        "spillover_count": 0,
         "coverage": 1.0,
-        "spillover_ratio": 1.0,
+        "spillover_ratio": 0.0,
         "match_provenance_breakdown": {
           "qname_exact": 1
         }
@@ -1537,20 +1588,26 @@
         {
           "caller": "commons_lang.src.main.java.org.apache.commons.lang3.StringUtils.StringUtils.getDigits",
           "callee": "charAt",
-          "callee_qname": null,
+          "callee_qname": "str.charAt",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.StringUtils.StringUtils.getDigits",
+          "callee": "length",
+          "callee_qname": "str.length",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 2,
+        "reference_in_contract_count": 1,
         "excluded_out_of_scope_count": 2,
-        "excluded_limitation_count": 1,
-        "excluded_total_count": 3,
+        "excluded_limitation_count": 2,
+        "excluded_total_count": 4,
         "excluded_out_of_scope_by_reason": {
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -1559,19 +1616,17 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 2,
-          "5": 1,
-          "6": 1,
-          "7": 1
+          "0": 4,
+          "6": 1
         }
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 1.0,
-        "mutual_accuracy": 0.5
+        "spillover_rate": 0.0,
+        "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 100.0
+      "unresolved_static_rate_percent": 200.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.time.FastDateFormat_PrinterTest.FastDateFormat_PrinterTest.getInstance",
@@ -1686,7 +1741,7 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.BackgroundInitializerTest.BackgroundInitializerTest.testStartMultipleTimes",
           "callee": "start",
-          "callee_qname": null,
+          "callee_qname": "init.start",
           "provenance": "syntax_raw"
         }
       ],
@@ -1741,12 +1796,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 2,
-        "candidate_count": 1,
+        "candidate_count": 0,
         "intersection_count": 0,
         "missing_count": 2,
-        "spillover_count": 1,
+        "spillover_count": 0,
         "coverage": 0.0,
-        "spillover_ratio": 0.5,
+        "spillover_ratio": 0.0,
         "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
@@ -1765,44 +1820,56 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testGetSupplier",
           "callee": "apply",
-          "callee_qname": null,
+          "callee_qname": "Failable.apply",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testGetSupplier",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "Failable.get",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testGetSupplier",
           "callee": "getCause",
-          "callee_qname": null,
+          "callee_qname": "e.getCause",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testGetSupplier",
           "callee": "intValue",
-          "callee_qname": null,
+          "callee_qname": "i.intValue",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testGetSupplier",
           "callee": "setThrowable",
-          "callee_qname": null,
+          "callee_qname": "testable.setThrowable",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testGetSupplier",
+          "callee": "testAsInteger",
+          "callee_qname": "Testable.testAsInteger",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testGetSupplier",
+          "callee": "testAsInteger",
+          "callee_qname": "testable.testAsInteger",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
+        "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 6,
-        "excluded_limitation_count": 5,
-        "excluded_total_count": 11,
+        "excluded_limitation_count": 7,
+        "excluded_total_count": 13,
         "excluded_out_of_scope_by_reason": {
           "external": 6
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 5
+          "in_repo_unresolved": 7
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -1811,22 +1878,20 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 6,
+          "0": 8,
           "26": 1,
           "38": 1,
-          "3": 1,
-          "7": 1,
           "4": 1,
           "2": 2
         }
       },
       "q2_node_rates": {
         "missing_rate": 1.0,
-        "spillover_rate": 0.5,
+        "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 250.0
+      "unresolved_static_rate_percent": 350.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.Conversion.Conversion.byteToHex",
@@ -2055,13 +2120,13 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.ArrayUtilsRemoveTest.ArrayUtilsRemoveTest.testRemoveLongArray",
           "callee": "getClass",
-          "callee_qname": null,
+          "callee_qname": "array.getClass",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.ArrayUtilsRemoveTest.ArrayUtilsRemoveTest.testRemoveLongArray",
           "callee": "getComponentType",
-          "callee_qname": null,
+          "callee_qname": "array.getClass().getComponentType",
           "provenance": "syntax_raw"
         },
         {
@@ -2090,8 +2155,7 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "1": 2,
-          "0": 1,
-          "2": 2,
+          "0": 3,
           "7": 1
         }
       },
@@ -2139,7 +2203,7 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.RandomStringUtilsTest.RandomStringUtilsTest.testRandomAlphaNumeric",
           "callee": "indexOf",
-          "callee_qname": null,
+          "callee_qname": "randString.indexOf",
           "provenance": "syntax_raw"
         },
         {
@@ -2173,8 +2237,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 1,
-          "8": 1,
+          "0": 2,
           "1": 2
         }
       },
@@ -2310,7 +2373,7 @@
         {
           "caller": "commons_lang.src.main.java.org.apache.commons.lang3.AppendableJoiner.AppendableJoiner.joinIterable",
           "callee": "append",
-          "callee_qname": null,
+          "callee_qname": "appendable.append",
           "provenance": "syntax_raw"
         },
         {
@@ -2349,8 +2412,7 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "47": 1,
-          "20": 1,
-          "0": 3
+          "0": 4
         }
       },
       "q2_node_rates": null,
@@ -2543,7 +2605,7 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.DiffBuilderTest.DiffBuilderTest.testStylePassedToDiffResult",
           "callee": "diff",
-          "callee_qname": null,
+          "callee_qname": "class1.diff",
           "provenance": "syntax_raw"
         },
         {
@@ -2763,25 +2825,25 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testAcceptConsumer",
           "callee": "accept",
-          "callee_qname": null,
+          "callee_qname": "Failable.accept",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testAcceptConsumer",
           "callee": "getCause",
-          "callee_qname": null,
+          "callee_qname": "e.getCause",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testAcceptConsumer",
           "callee": "setThrowable",
-          "callee_qname": null,
+          "callee_qname": "testable.setThrowable",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testAcceptConsumer",
           "callee": "test",
-          "callee_qname": null,
+          "callee_qname": "Testable.test",
           "provenance": "syntax_raw"
         }
       ],
@@ -2803,9 +2865,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 5,
+          "0": 6,
           "47": 1,
-          "3": 1,
           "4": 1,
           "28": 1
         }
@@ -2995,12 +3056,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 3,
+        "candidate_count": 1,
         "intersection_count": 1,
         "missing_count": 0,
-        "spillover_count": 2,
+        "spillover_count": 0,
         "coverage": 1.0,
-        "spillover_ratio": 2.0,
+        "spillover_ratio": 0.0,
         "match_provenance_breakdown": {
           "qname_exact": 1
         }
@@ -3020,33 +3081,45 @@
       "basket2_edges": [
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.time.FastDateParserTest.FastDateParserTest.testShortDateStyleWithLocales",
+          "callee": "clear",
+          "callee_qname": "cal.clear",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.time.FastDateParserTest.FastDateParserTest.testShortDateStyleWithLocales",
+          "callee": "getInstance",
+          "callee_qname": "Calendar.getInstance",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.time.FastDateParserTest.FastDateParserTest.testShortDateStyleWithLocales",
           "callee": "getTime",
-          "callee_qname": null,
+          "callee_qname": "cal.getTime",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.time.FastDateParserTest.FastDateParserTest.testShortDateStyleWithLocales",
           "callee": "parse",
-          "callee_qname": null,
+          "callee_qname": "fdf.parse",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.time.FastDateParserTest.FastDateParserTest.testShortDateStyleWithLocales",
           "callee": "set",
-          "callee_qname": null,
+          "callee_qname": "cal.set",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 3,
+        "reference_in_contract_count": 1,
         "excluded_out_of_scope_count": 1,
-        "excluded_limitation_count": 3,
-        "excluded_total_count": 4,
+        "excluded_limitation_count": 5,
+        "excluded_total_count": 6,
         "excluded_out_of_scope_by_reason": {
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved": 5
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -3055,21 +3128,18 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 1,
-          "8": 1,
+          "0": 5,
           "4": 1,
-          "7": 2,
-          "1": 1,
-          "6": 1
+          "7": 1
         }
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 2.0,
-        "mutual_accuracy": 0.3333333333333333
+        "spillover_rate": 0.0,
+        "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 300.0
+      "unresolved_static_rate_percent": 500.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.StandardToStringStyleTest.StandardToStringStyleTest.testLongArray",
@@ -3111,32 +3181,38 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.StandardToStringStyleTest.StandardToStringStyleTest.testLongArray",
           "callee": "ToStringBuilder",
-          "callee_qname": "ToStringBuilder",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.StandardToStringStyleTest.StandardToStringStyleTest.testLongArray",
           "callee": "append",
-          "callee_qname": null,
+          "callee_qname": "new ToStringBuilder(base).append",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.StandardToStringStyleTest.StandardToStringStyleTest.testLongArray",
           "callee": "toString",
-          "callee_qname": null,
+          "callee_qname": "new ToStringBuilder(base).append((Object) array).toString",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.StandardToStringStyleTest.StandardToStringStyleTest.testLongArray",
+          "callee": "toString",
+          "callee_qname": "new ToStringBuilder(base).append(array).toString",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 1,
-        "excluded_limitation_count": 3,
-        "excluded_total_count": 4,
+        "excluded_limitation_count": 4,
+        "excluded_total_count": 5,
         "excluded_out_of_scope_by_reason": {
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved": 4
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -3175,12 +3251,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 3,
-        "candidate_count": 4,
+        "candidate_count": 3,
         "intersection_count": 3,
         "missing_count": 0,
-        "spillover_count": 1,
+        "spillover_count": 0,
         "coverage": 1.0,
-        "spillover_ratio": 0.3333333333333333,
+        "spillover_ratio": 0.0,
         "match_provenance_breakdown": {
           "qname_exact": 3
         }
@@ -3197,14 +3273,29 @@
           "name_only": 3
         }
       },
-      "basket2_edges": [],
+      "basket2_edges": [
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.ClassUtils.ClassUtils.getShortCanonicalName",
+          "callee": "getCanonicalName",
+          "callee_qname": "cls.getCanonicalName",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.ClassUtils.ClassUtils.getShortCanonicalName",
+          "callee": "getClass",
+          "callee_qname": "object.getClass",
+          "provenance": "syntax_raw"
+        }
+      ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 4,
+        "reference_in_contract_count": 3,
         "excluded_out_of_scope_count": 0,
-        "excluded_limitation_count": 0,
-        "excluded_total_count": 0,
+        "excluded_limitation_count": 2,
+        "excluded_total_count": 2,
         "excluded_out_of_scope_by_reason": {},
-        "excluded_limitation_by_reason": {}
+        "excluded_limitation_by_reason": {
+          "in_repo_unresolved": 2
+        }
       },
       "q2_ground_truth_diagnostics": {
         "class_truth_unreliable": null,
@@ -3213,17 +3304,17 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "1": 3,
-          "2": 1,
+          "0": 1,
           "3": 1
         }
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 0.3333333333333333,
-        "mutual_accuracy": 0.75
+        "spillover_rate": 0.0,
+        "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 0.0
+      "unresolved_static_rate_percent": 66.66666666666666
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.EnumUtils.EnumUtils.generateBitVectors",
@@ -3245,12 +3336,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 2,
+        "candidate_count": 1,
         "intersection_count": 1,
         "missing_count": 0,
-        "spillover_count": 1,
+        "spillover_count": 0,
         "coverage": 1.0,
-        "spillover_ratio": 1.0,
+        "spillover_ratio": 0.0,
         "match_provenance_breakdown": {
           "qname_exact": 1
         }
@@ -3271,13 +3362,19 @@
         {
           "caller": "commons_lang.src.main.java.org.apache.commons.lang3.EnumUtils.EnumUtils.generateBitVectors",
           "callee": "add",
-          "callee_qname": null,
+          "callee_qname": "condensed.add",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.main.java.org.apache.commons.lang3.EnumUtils.EnumUtils.generateBitVectors",
           "callee": "addAll",
           "callee_qname": "Collections.addAll",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.EnumUtils.EnumUtils.generateBitVectors",
+          "callee": "forEach",
+          "callee_qname": "values.forEach",
           "provenance": "syntax_raw"
         },
         {
@@ -3300,15 +3397,15 @@
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 2,
+        "reference_in_contract_count": 1,
         "excluded_out_of_scope_count": 3,
-        "excluded_limitation_count": 5,
-        "excluded_total_count": 8,
+        "excluded_limitation_count": 6,
+        "excluded_total_count": 9,
         "excluded_out_of_scope_by_reason": {
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 5
+          "in_repo_unresolved": 6
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -3317,20 +3414,18 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "13": 1,
-          "0": 5,
+          "0": 7,
           "1": 2,
-          "4": 1,
           "3": 1
         }
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 1.0,
-        "mutual_accuracy": 0.5
+        "spillover_rate": 0.0,
+        "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 500.0
+      "unresolved_static_rate_percent": 600.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.CharRangeTest.CharRangeTest.testClass",
@@ -3507,12 +3602,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 2,
+        "candidate_count": 1,
         "intersection_count": 1,
         "missing_count": 0,
-        "spillover_count": 1,
+        "spillover_count": 0,
         "coverage": 1.0,
-        "spillover_ratio": 1.0,
+        "spillover_ratio": 0.0,
         "match_provenance_breakdown": {
           "qname_exact": 1
         }
@@ -3529,14 +3624,23 @@
           "name_only": 1
         }
       },
-      "basket2_edges": [],
+      "basket2_edges": [
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.StringUtils.StringUtils.stripToNull",
+          "callee": "isEmpty",
+          "callee_qname": "str.isEmpty",
+          "provenance": "syntax_raw"
+        }
+      ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 2,
+        "reference_in_contract_count": 1,
         "excluded_out_of_scope_count": 0,
-        "excluded_limitation_count": 0,
-        "excluded_total_count": 0,
+        "excluded_limitation_count": 1,
+        "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
-        "excluded_limitation_by_reason": {}
+        "excluded_limitation_by_reason": {
+          "in_repo_unresolved": 1
+        }
       },
       "q2_ground_truth_diagnostics": {
         "class_truth_unreliable": null,
@@ -3544,17 +3648,17 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "6": 1,
+          "0": 1,
           "1": 1
         }
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 1.0,
-        "mutual_accuracy": 0.5
+        "spillover_rate": 0.0,
+        "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 0.0
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ClassLoaderUtilsTest.ClassLoaderUtilsTest.testGetThreadURLs",
@@ -3672,7 +3776,7 @@
         {
           "caller": "commons_lang.src.main.java.org.apache.commons.lang3.mutable.MutableByte.MutableByte.toByte",
           "callee": "valueOf",
-          "callee_qname": null,
+          "callee_qname": "Byte.valueOf",
           "provenance": "syntax_raw"
         }
       ],
@@ -3692,7 +3796,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "1": 2
+          "1": 1,
+          "0": 1
         }
       },
       "q2_node_rates": {
@@ -3934,10 +4039,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 1,
+        "candidate_count": 0,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 1,
+        "spillover_count": 0,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -3967,21 +4072,27 @@
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.ObjectUtilsTest.ObjectUtilsTest.testIdentityToStringStringBuffer",
+          "callee": "toString",
+          "callee_qname": "buffer.toString",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.ObjectUtilsTest.ObjectUtilsTest.testIdentityToStringStringBuffer",
           "callee": "valueOf",
           "callee_qname": "Integer.valueOf",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
+        "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 4,
-        "excluded_limitation_count": 3,
-        "excluded_total_count": 7,
+        "excluded_limitation_count": 4,
+        "excluded_total_count": 8,
         "excluded_out_of_scope_by_reason": {
           "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved": 4
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -3990,9 +4101,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 5,
-          "1": 2,
-          "89": 1
+          "0": 6,
+          "1": 2
         }
       },
       "q2_node_rates": null,
@@ -4157,12 +4267,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 3,
+        "candidate_count": 1,
         "intersection_count": 1,
         "missing_count": 0,
-        "spillover_count": 2,
+        "spillover_count": 0,
         "coverage": 1.0,
-        "spillover_ratio": 2.0,
+        "spillover_ratio": 0.0,
         "match_provenance_breakdown": {
           "qname_exact": 1
         }
@@ -4179,14 +4289,29 @@
           "name_only": 1
         }
       },
-      "basket2_edges": [],
+      "basket2_edges": [
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.StringUtils.StringUtils.getCommonPrefix",
+          "callee": "isEmpty",
+          "callee_qname": "ArrayUtils.isEmpty",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.StringUtils.StringUtils.getCommonPrefix",
+          "callee": "substring",
+          "callee_qname": "strs[0].substring",
+          "provenance": "syntax_raw"
+        }
+      ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 3,
+        "reference_in_contract_count": 1,
         "excluded_out_of_scope_count": 0,
-        "excluded_limitation_count": 0,
-        "excluded_total_count": 0,
+        "excluded_limitation_count": 2,
+        "excluded_total_count": 2,
         "excluded_out_of_scope_by_reason": {},
-        "excluded_limitation_by_reason": {}
+        "excluded_limitation_by_reason": {
+          "in_repo_unresolved": 2
+        }
       },
       "q2_ground_truth_diagnostics": {
         "class_truth_unreliable": null,
@@ -4196,16 +4321,16 @@
         "strict_contract_candidate_count_histogram": {
           "1": 1,
           "6": 1,
-          "2": 1
+          "0": 1
         }
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 2.0,
-        "mutual_accuracy": 0.3333333333333333
+        "spillover_rate": 0.0,
+        "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 0.0
+      "unresolved_static_rate_percent": 200.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ArrayUtilsTest.ArrayUtilsTest.testReverseByteRange",
@@ -4508,12 +4633,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 2,
-        "candidate_count": 3,
+        "candidate_count": 2,
         "intersection_count": 2,
         "missing_count": 0,
-        "spillover_count": 1,
+        "spillover_count": 0,
         "coverage": 1.0,
-        "spillover_ratio": 0.5,
+        "spillover_ratio": 0.0,
         "match_provenance_breakdown": {
           "qname_exact": 2
         }
@@ -4530,14 +4655,23 @@
           "name_only": 2
         }
       },
-      "basket2_edges": [],
+      "basket2_edges": [
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.time.StopWatch.StopWatch.getT",
+          "callee": "get",
+          "callee_qname": "supplier.get",
+          "provenance": "syntax_raw"
+        }
+      ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 3,
+        "reference_in_contract_count": 2,
         "excluded_out_of_scope_count": 0,
-        "excluded_limitation_count": 0,
-        "excluded_total_count": 0,
+        "excluded_limitation_count": 1,
+        "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
-        "excluded_limitation_by_reason": {}
+        "excluded_limitation_by_reason": {
+          "in_repo_unresolved": 1
+        }
       },
       "q2_ground_truth_diagnostics": {
         "class_truth_unreliable": null,
@@ -4551,11 +4685,11 @@
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 0.5,
-        "mutual_accuracy": 0.6666666666666666
+        "spillover_rate": 0.0,
+        "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 0.0
+      "unresolved_static_rate_percent": 50.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.HashCodeBuilderTest.HashCodeBuilderTest.testReflectionObjectCycle",
@@ -4607,7 +4741,13 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.HashCodeBuilderTest.HashCodeBuilderTest.testReflectionObjectCycle",
           "callee": "hashCode",
-          "callee_qname": null,
+          "callee_qname": "a.hashCode",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.HashCodeBuilderTest.HashCodeBuilderTest.testReflectionObjectCycle",
+          "callee": "hashCode",
+          "callee_qname": "b.hashCode",
           "provenance": "syntax_raw"
         },
         {
@@ -4620,13 +4760,13 @@
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 3,
-        "excluded_limitation_count": 3,
-        "excluded_total_count": 6,
+        "excluded_limitation_count": 4,
+        "excluded_total_count": 7,
         "excluded_out_of_scope_by_reason": {
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved": 4
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -4647,7 +4787,7 @@
         "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 150.0
+      "unresolved_static_rate_percent": 200.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.HashCodeBuilderTest.HashCodeBuilderTest.TestObject.getA",
@@ -4847,7 +4987,19 @@
         {
           "caller": "commons_lang.src.main.java.org.apache.commons.lang3.text.StrTokenizer.StrTokenizer.readWithQuotes",
           "callee": "isMatch",
-          "callee_qname": null,
+          "callee_qname": "getDelimiterMatcher().isMatch",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.text.StrTokenizer.StrTokenizer.readWithQuotes",
+          "callee": "isMatch",
+          "callee_qname": "getIgnoredMatcher().isMatch",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.text.StrTokenizer.StrTokenizer.readWithQuotes",
+          "callee": "isMatch",
+          "callee_qname": "getTrimmerMatcher().isMatch",
           "provenance": "syntax_raw"
         },
         {
@@ -4866,11 +5018,11 @@
       "q2_filtering_stats": {
         "reference_in_contract_count": 5,
         "excluded_out_of_scope_count": 0,
-        "excluded_limitation_count": 5,
-        "excluded_total_count": 5,
+        "excluded_limitation_count": 7,
+        "excluded_total_count": 7,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 5
+          "in_repo_unresolved": 7
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -4893,7 +5045,7 @@
         "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 100.0
+      "unresolved_static_rate_percent": 140.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.NoClassNameToStringStyleTest.NoClassNameToStringStyleTest.testLongArrayArray",
@@ -4935,32 +5087,38 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.NoClassNameToStringStyleTest.NoClassNameToStringStyleTest.testLongArrayArray",
           "callee": "ToStringBuilder",
-          "callee_qname": "ToStringBuilder",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.NoClassNameToStringStyleTest.NoClassNameToStringStyleTest.testLongArrayArray",
           "callee": "append",
-          "callee_qname": null,
+          "callee_qname": "new ToStringBuilder(base).append",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.NoClassNameToStringStyleTest.NoClassNameToStringStyleTest.testLongArrayArray",
           "callee": "toString",
-          "callee_qname": null,
+          "callee_qname": "new ToStringBuilder(base).append((Object) array).toString",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.NoClassNameToStringStyleTest.NoClassNameToStringStyleTest.testLongArrayArray",
+          "callee": "toString",
+          "callee_qname": "new ToStringBuilder(base).append(array).toString",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 1,
-        "excluded_limitation_count": 3,
-        "excluded_total_count": 4,
+        "excluded_limitation_count": 4,
+        "excluded_total_count": 5,
         "excluded_out_of_scope_by_reason": {
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved": 4
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -5193,13 +5351,13 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.ArrayUtilsRemoveMultipleTest.ArrayUtilsRemoveMultipleTest.testRemoveElementFloatArray",
           "callee": "getClass",
-          "callee_qname": null,
+          "callee_qname": "array.getClass",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.ArrayUtilsRemoveMultipleTest.ArrayUtilsRemoveMultipleTest.testRemoveElementFloatArray",
           "callee": "getComponentType",
-          "callee_qname": null,
+          "callee_qname": "array.getClass().getComponentType",
           "provenance": "syntax_raw"
         },
         {
@@ -5228,8 +5386,7 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "1": 2,
-          "0": 2,
-          "2": 2
+          "0": 4
         }
       },
       "q2_node_rates": null,
@@ -5966,12 +6123,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 3,
+        "candidate_count": 1,
         "intersection_count": 1,
         "missing_count": 0,
-        "spillover_count": 2,
+        "spillover_count": 0,
         "coverage": 1.0,
-        "spillover_ratio": 2.0,
+        "spillover_ratio": 0.0,
         "match_provenance_breakdown": {
           "qname_exact": 1
         }
@@ -5992,18 +6149,36 @@
         {
           "caller": "commons_lang.src.main.java.org.apache.commons.lang3.StringUtils.StringUtils.countMatches",
           "callee": "charAt",
-          "callee_qname": null,
+          "callee_qname": "str.charAt",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.StringUtils.StringUtils.countMatches",
+          "callee": "indexOf",
+          "callee_qname": "CharSequenceUtils.indexOf",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.StringUtils.StringUtils.countMatches",
+          "callee": "length",
+          "callee_qname": "str.length",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.StringUtils.StringUtils.countMatches",
+          "callee": "length",
+          "callee_qname": "sub.length",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 3,
+        "reference_in_contract_count": 1,
         "excluded_out_of_scope_count": 0,
-        "excluded_limitation_count": 1,
-        "excluded_total_count": 1,
+        "excluded_limitation_count": 4,
+        "excluded_total_count": 4,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved": 4
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -6012,19 +6187,18 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "5": 1,
+          "0": 3,
           "8": 1,
-          "6": 1,
-          "7": 2
+          "6": 1
         }
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 2.0,
-        "mutual_accuracy": 0.3333333333333333
+        "spillover_rate": 0.0,
+        "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 100.0
+      "unresolved_static_rate_percent": 400.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.function.MethodFixtures.MethodFixtures.getStringChecked",
@@ -6424,7 +6598,7 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.StringEscapeUtilsTest.StringEscapeUtilsTest.testUnescapeEcmaScript",
           "callee": "translate",
-          "callee_qname": null,
+          "callee_qname": "StringEscapeUtils.UNESCAPE_ECMASCRIPT.translate",
           "provenance": "syntax_raw"
         },
         {
@@ -6452,9 +6626,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 2,
-          "1": 3,
-          "12": 1
+          "0": 3,
+          "1": 3
         }
       },
       "q2_node_rates": null,
@@ -6479,10 +6652,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 1,
+        "candidate_count": 0,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 1,
+        "spillover_count": 0,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -6500,19 +6673,25 @@
       "basket2_edges": [
         {
           "caller": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.TypeUtils.TypeUtils.getImplicitLowerBounds",
+          "callee": "getLowerBounds",
+          "callee_qname": "wildcardType.getLowerBounds",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.TypeUtils.TypeUtils.getImplicitLowerBounds",
           "callee": "requireNonNull",
           "callee_qname": "Objects.requireNonNull",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
+        "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 0,
-        "excluded_limitation_count": 1,
-        "excluded_total_count": 1,
+        "excluded_limitation_count": 2,
+        "excluded_total_count": 2,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -6521,8 +6700,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "1": 1,
-          "0": 1
+          "0": 2
         }
       },
       "q2_node_rates": null,
@@ -6651,7 +6829,7 @@
         {
           "caller": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.AtomicSafeInitializer.AtomicSafeInitializer.get",
           "callee": "ConcurrentException",
-          "callee_qname": "ConcurrentException",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -6669,7 +6847,13 @@
         {
           "caller": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.AtomicSafeInitializer.AtomicSafeInitializer.get",
           "callee": "set",
-          "callee_qname": null,
+          "callee_qname": "factory.set",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.AtomicSafeInitializer.AtomicSafeInitializer.get",
+          "callee": "set",
+          "callee_qname": "reference.set",
           "provenance": "syntax_raw"
         },
         {
@@ -6682,13 +6866,13 @@
       "q2_filtering_stats": {
         "reference_in_contract_count": 1,
         "excluded_out_of_scope_count": 1,
-        "excluded_limitation_count": 5,
-        "excluded_total_count": 6,
+        "excluded_limitation_count": 6,
+        "excluded_total_count": 7,
         "excluded_out_of_scope_by_reason": {
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 5
+          "in_repo_unresolved": 6
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -6698,10 +6882,9 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "1": 2,
-          "0": 2,
+          "0": 4,
           "2": 1,
-          "10": 1,
-          "6": 2
+          "10": 1
         }
       },
       "q2_node_rates": {
@@ -6710,7 +6893,7 @@
         "mutual_accuracy": 0.5
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 250.0
+      "unresolved_static_rate_percent": 300.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ArrayUtilsTest.ArrayUtilsTest.testNullToEmptyDoubleObjectNull",
@@ -6893,12 +7076,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 3,
+        "candidate_count": 1,
         "intersection_count": 1,
         "missing_count": 0,
-        "spillover_count": 2,
+        "spillover_count": 0,
         "coverage": 1.0,
-        "spillover_ratio": 2.0,
+        "spillover_ratio": 0.0,
         "match_provenance_breakdown": {
           "qname_exact": 1
         }
@@ -6915,14 +7098,29 @@
           "name_only": 1
         }
       },
-      "basket2_edges": [],
+      "basket2_edges": [
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.StringUtils.StringUtils.substringBeforeLast",
+          "callee": "lastIndexOf",
+          "callee_qname": "str.lastIndexOf",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.StringUtils.StringUtils.substringBeforeLast",
+          "callee": "substring",
+          "callee_qname": "str.substring",
+          "provenance": "syntax_raw"
+        }
+      ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 3,
+        "reference_in_contract_count": 1,
         "excluded_out_of_scope_count": 0,
-        "excluded_limitation_count": 0,
-        "excluded_total_count": 0,
+        "excluded_limitation_count": 2,
+        "excluded_total_count": 2,
         "excluded_out_of_scope_by_reason": {},
-        "excluded_limitation_by_reason": {}
+        "excluded_limitation_by_reason": {
+          "in_repo_unresolved": 2
+        }
       },
       "q2_ground_truth_diagnostics": {
         "class_truth_unreliable": null,
@@ -6931,17 +7129,16 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "6": 1,
-          "7": 1,
-          "2": 1
+          "0": 2
         }
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 2.0,
-        "mutual_accuracy": 0.3333333333333333
+        "spillover_rate": 0.0,
+        "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 0.0
+      "unresolved_static_rate_percent": 200.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.time.AbstractFormatCache.AbstractFormatCache.ArrayKey.ArrayKey",
@@ -7049,7 +7246,7 @@
         {
           "caller": "commons_lang.src.main.java.org.apache.commons.lang3.builder.ToStringStyle.ToStringStyle.appendFieldStart",
           "callee": "append",
-          "callee_qname": null,
+          "callee_qname": "buffer.append",
           "provenance": "syntax_raw"
         }
       ],
@@ -7069,7 +7266,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "20": 1,
+          "0": 1,
           "2": 2
         }
       },
@@ -7137,7 +7334,7 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.FunctionsTest.FunctionsTest.testBiPredicate",
           "callee": "getCause",
-          "callee_qname": null,
+          "callee_qname": "e.getCause",
           "provenance": "syntax_raw"
         },
         {
@@ -7149,7 +7346,7 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.FunctionsTest.FunctionsTest.testBiPredicate",
           "callee": "test",
-          "callee_qname": null,
+          "callee_qname": "predicate.test",
           "provenance": "syntax_raw"
         }
       ],
@@ -7172,10 +7369,8 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "2": 1,
-          "0": 5,
-          "1": 1,
-          "3": 1,
-          "28": 1
+          "0": 7,
+          "1": 1
         }
       },
       "q2_node_rates": {
@@ -7262,12 +7457,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 2,
+        "candidate_count": 1,
         "intersection_count": 1,
         "missing_count": 0,
-        "spillover_count": 1,
+        "spillover_count": 0,
         "coverage": 1.0,
-        "spillover_ratio": 1.0,
+        "spillover_ratio": 0.0,
         "match_provenance_breakdown": {
           "qname_exact": 1
         }
@@ -7284,14 +7479,23 @@
           "name_only": 1
         }
       },
-      "basket2_edges": [],
+      "basket2_edges": [
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.exception.ExceptionUtils.ExceptionUtils.getRootCauseStackTrace",
+          "callee": "toArray",
+          "callee_qname": "getRootCauseStackTraceList(throwable).toArray",
+          "provenance": "syntax_raw"
+        }
+      ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 2,
+        "reference_in_contract_count": 1,
         "excluded_out_of_scope_count": 0,
-        "excluded_limitation_count": 0,
-        "excluded_total_count": 0,
+        "excluded_limitation_count": 1,
+        "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
-        "excluded_limitation_by_reason": {}
+        "excluded_limitation_by_reason": {
+          "in_repo_unresolved": 1
+        }
       },
       "q2_ground_truth_diagnostics": {
         "class_truth_unreliable": null,
@@ -7305,11 +7509,11 @@
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 1.0,
-        "mutual_accuracy": 0.5
+        "spillover_rate": 0.0,
+        "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 0.0
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ClassUtilsTest.ClassUtilsTest.testGetClassWithArrayClasses2D",
@@ -7455,12 +7659,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 2,
+        "candidate_count": 1,
         "intersection_count": 1,
         "missing_count": 0,
-        "spillover_count": 1,
+        "spillover_count": 0,
         "coverage": 1.0,
-        "spillover_ratio": 1.0,
+        "spillover_ratio": 0.0,
         "match_provenance_breakdown": {
           "qname_exact": 1
         }
@@ -7477,14 +7681,23 @@
           "name_only": 1
         }
       },
-      "basket2_edges": [],
+      "basket2_edges": [
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.FieldUtils.FieldUtils.getFieldsWithAnnotation",
+          "callee": "toArray",
+          "callee_qname": "getFieldsListWithAnnotation(cls, annotationCls).toArray",
+          "provenance": "syntax_raw"
+        }
+      ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 2,
+        "reference_in_contract_count": 1,
         "excluded_out_of_scope_count": 0,
-        "excluded_limitation_count": 0,
-        "excluded_total_count": 0,
+        "excluded_limitation_count": 1,
+        "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
-        "excluded_limitation_by_reason": {}
+        "excluded_limitation_by_reason": {
+          "in_repo_unresolved": 1
+        }
       },
       "q2_ground_truth_diagnostics": {
         "class_truth_unreliable": null,
@@ -7498,11 +7711,11 @@
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 1.0,
-        "mutual_accuracy": 0.5
+        "spillover_rate": 0.0,
+        "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 0.0
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.DiffBuilderTest.DiffBuilderTest.testObjectArrayEqual",
@@ -7548,13 +7761,13 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.DiffBuilderTest.DiffBuilderTest.testObjectArrayEqual",
           "callee": "diff",
-          "callee_qname": null,
+          "callee_qname": "class1.diff",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.DiffBuilderTest.DiffBuilderTest.testObjectArrayEqual",
           "callee": "getNumberOfDiffs",
-          "callee_qname": null,
+          "callee_qname": "list.getNumberOfDiffs",
           "provenance": "syntax_raw"
         }
       ],
@@ -7695,7 +7908,7 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionToStringBuilderIncludeTest.ReflectionToStringBuilderIncludeTest.test_toStringDefaultBehavior",
           "callee": "ReflectionToStringBuilder",
-          "callee_qname": "ReflectionToStringBuilder",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -7858,7 +8071,7 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.mutable.MutableDoubleTest.MutableDoubleTest.testEquals",
           "callee": "MutableDouble",
-          "callee_qname": "MutableDouble",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -8090,7 +8303,7 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.text.StrSubstitutorTest.StrSubstitutorTest.testSubstitutePreserveEscape",
           "callee": "StrSubstitutor",
-          "callee_qname": "StrSubstitutor",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -8102,7 +8315,7 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.text.StrSubstitutorTest.StrSubstitutorTest.testSubstitutePreserveEscape",
           "callee": "replace",
-          "callee_qname": null,
+          "callee_qname": "sub.replace",
           "provenance": "syntax_raw"
         },
         {
@@ -8181,7 +8394,7 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.UncheckedFutureTest.UncheckedFutureTest.testGetInterruptedException",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "UncheckedFuture.on(new TestFuture<>(e)).get",
           "provenance": "syntax_raw"
         },
         {
@@ -8280,18 +8493,24 @@
         {
           "caller": "commons_lang.src.main.java.org.apache.commons.lang3.builder.ToStringStyle.ToStringStyle.appendInternal",
           "callee": "size",
-          "callee_qname": null,
+          "callee_qname": "((Collection<?>) value).size",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.builder.ToStringStyle.ToStringStyle.appendInternal",
+          "callee": "size",
+          "callee_qname": "((Map<?, ?>) value).size",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 6,
         "excluded_out_of_scope_count": 0,
-        "excluded_limitation_count": 3,
-        "excluded_total_count": 3,
+        "excluded_limitation_count": 4,
+        "excluded_total_count": 4,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved": 4
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -8311,7 +8530,7 @@
         "mutual_accuracy": 0.75
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 37.5
+      "unresolved_static_rate_percent": 50.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.HashCodeBuilderTest.HashCodeBuilderTest.TestObjectHashCodeExclude.getA",
@@ -8508,7 +8727,7 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.time.DurationFormatUtilsTest.DurationFormatUtilsTest.testFourYears",
           "callee": "set",
-          "callee_qname": null,
+          "callee_qname": "c.set",
           "provenance": "syntax_raw"
         }
       ],
@@ -8528,9 +8747,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 3,
-          "1": 1,
-          "6": 1
+          "0": 4,
+          "1": 1
         }
       },
       "q2_node_rates": {
@@ -8848,7 +9066,13 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testDoubleUnaryOperatorCompose",
           "callee": "applyAsDouble",
-          "callee_qname": null,
+          "callee_qname": "failing.compose(nop).applyAsDouble",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testDoubleUnaryOperatorCompose",
+          "callee": "applyAsDouble",
+          "callee_qname": "nop.compose(failing).applyAsDouble",
           "provenance": "syntax_raw"
         },
         {
@@ -8860,38 +9084,44 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testDoubleUnaryOperatorCompose",
           "callee": "compose",
-          "callee_qname": null,
+          "callee_qname": "failing.compose",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testDoubleUnaryOperatorCompose",
+          "callee": "compose",
+          "callee_qname": "nop.compose",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testDoubleUnaryOperatorCompose",
           "callee": "nop",
-          "callee_qname": null,
+          "callee_qname": "FailableDoubleUnaryOperator.nop",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testDoubleUnaryOperatorCompose",
           "callee": "setThrowable",
-          "callee_qname": null,
+          "callee_qname": "testable.setThrowable",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testDoubleUnaryOperatorCompose",
           "callee": "test",
-          "callee_qname": null,
+          "callee_qname": "testable.test",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 3,
-        "excluded_limitation_count": 6,
-        "excluded_total_count": 9,
+        "excluded_limitation_count": 8,
+        "excluded_total_count": 11,
         "excluded_out_of_scope_by_reason": {
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 6
+          "in_repo_unresolved": 8
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -8914,7 +9144,7 @@
         "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 200.0
+      "unresolved_static_rate_percent": 266.66666666666663
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ThreadUtilsTest.ThreadUtilsTest.testThreads",
@@ -8936,12 +9166,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 2,
+        "candidate_count": 1,
         "intersection_count": 1,
         "missing_count": 0,
-        "spillover_count": 1,
+        "spillover_count": 0,
         "coverage": 1.0,
-        "spillover_ratio": 1.0,
+        "spillover_ratio": 0.0,
         "match_provenance_breakdown": {
           "qname_exact": 1
         }
@@ -8968,26 +9198,44 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.ThreadUtilsTest.ThreadUtilsTest.testThreads",
           "callee": "join",
-          "callee_qname": null,
+          "callee_qname": "t1.join",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.ThreadUtilsTest.ThreadUtilsTest.testThreads",
+          "callee": "join",
+          "callee_qname": "t2.join",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.ThreadUtilsTest.ThreadUtilsTest.testThreads",
           "callee": "size",
-          "callee_qname": null,
+          "callee_qname": "ThreadUtils.findThreadsByName(\"thread2_XXOOLL__\").size",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.ThreadUtilsTest.ThreadUtilsTest.testThreads",
+          "callee": "start",
+          "callee_qname": "t1.start",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.ThreadUtilsTest.ThreadUtilsTest.testThreads",
+          "callee": "start",
+          "callee_qname": "t2.start",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 2,
-        "excluded_out_of_scope_count": 2,
-        "excluded_limitation_count": 3,
-        "excluded_total_count": 5,
+        "reference_in_contract_count": 1,
+        "excluded_out_of_scope_count": 3,
+        "excluded_limitation_count": 6,
+        "excluded_total_count": 9,
         "excluded_out_of_scope_by_reason": {
-          "external": 2
+          "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved": 6
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -8997,18 +9245,17 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "1": 2,
-          "0": 3,
-          "5": 2,
-          "3": 3
+          "0": 7,
+          "3": 1
         }
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 1.0,
-        "mutual_accuracy": 0.5
+        "spillover_rate": 0.0,
+        "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 300.0
+      "unresolved_static_rate_percent": 600.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.CharSequenceUtils.CharSequenceUtils.lastIndexOf",
@@ -9030,12 +9277,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 2,
+        "candidate_count": 1,
         "intersection_count": 1,
         "missing_count": 0,
-        "spillover_count": 1,
+        "spillover_count": 0,
         "coverage": 1.0,
-        "spillover_ratio": 1.0,
+        "spillover_ratio": 0.0,
         "match_provenance_breakdown": {
           "qname_exact": 1
         }
@@ -9056,32 +9303,62 @@
         {
           "caller": "commons_lang.src.main.java.org.apache.commons.lang3.CharSequenceUtils.CharSequenceUtils.lastIndexOf",
           "callee": "charAt",
-          "callee_qname": null,
+          "callee_qname": "cs.charAt",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.CharSequenceUtils.CharSequenceUtils.lastIndexOf",
+          "callee": "charAt",
+          "callee_qname": "searchChar.charAt",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.CharSequenceUtils.CharSequenceUtils.lastIndexOf",
+          "callee": "lastIndexOf",
+          "callee_qname": "((String) cs).lastIndexOf",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.CharSequenceUtils.CharSequenceUtils.lastIndexOf",
+          "callee": "lastIndexOf",
+          "callee_qname": "((StringBuffer) cs).lastIndexOf",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.CharSequenceUtils.CharSequenceUtils.lastIndexOf",
+          "callee": "lastIndexOf",
+          "callee_qname": "((StringBuilder) cs).lastIndexOf",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.main.java.org.apache.commons.lang3.CharSequenceUtils.CharSequenceUtils.lastIndexOf",
           "callee": "length",
-          "callee_qname": null,
+          "callee_qname": "cs.length",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.CharSequenceUtils.CharSequenceUtils.lastIndexOf",
+          "callee": "length",
+          "callee_qname": "searchChar.length",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.main.java.org.apache.commons.lang3.CharSequenceUtils.CharSequenceUtils.lastIndexOf",
           "callee": "toString",
-          "callee_qname": null,
+          "callee_qname": "searchChar.toString",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 2,
+        "reference_in_contract_count": 1,
         "excluded_out_of_scope_count": 1,
-        "excluded_limitation_count": 3,
-        "excluded_total_count": 4,
+        "excluded_limitation_count": 8,
+        "excluded_total_count": 9,
         "excluded_out_of_scope_by_reason": {
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved": 8
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -9090,20 +9367,18 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "5": 2,
+          "0": 6,
           "1": 1,
-          "7": 5,
-          "0": 1,
-          "89": 1
+          "7": 3
         }
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 1.0,
-        "mutual_accuracy": 0.5
+        "spillover_rate": 0.0,
+        "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 300.0
+      "unresolved_static_rate_percent": 800.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ValidateTest.ValidateTest.NotEmpty.WithCollection.WithMessage.shouldThrowIllegalArgumentExceptionWithGivenMessageForEmptyCollection",
@@ -9305,7 +9580,7 @@
         {
           "caller": "commons_lang.src.main.java.org.apache.commons.lang3.builder.ToStringStyle.ToStringStyle.setSummaryObjectStartText",
           "callee": "toString",
-          "callee_qname": null,
+          "callee_qname": "ObjectUtils.toString",
           "provenance": "syntax_raw"
         }
       ],
@@ -9460,7 +9735,7 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.AbstractConcurrentInitializerTest.AbstractConcurrentInitializerTest.testGetConcurrent",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "initializer.get",
           "provenance": "syntax_raw"
         },
         {
@@ -9700,7 +9975,85 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.stream.LangCollectorsTest.LangCollectorsTest.testJoiningNonStrings1Arg",
           "callee": "collect",
-          "callee_qname": null,
+          "callee_qname": "Arrays.stream(new AtomicLong[] { new AtomicLong(1), new AtomicLong(2) }).collect",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.stream.LangCollectorsTest.LangCollectorsTest.testJoiningNonStrings1Arg",
+          "callee": "collect",
+          "callee_qname": "Arrays.stream(new Fixture[] { new Fixture(1), new Fixture(2) }).collect",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.stream.LangCollectorsTest.LangCollectorsTest.testJoiningNonStrings1Arg",
+          "callee": "collect",
+          "callee_qname": "Arrays.stream(new Long[] { _1L }).collect",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.stream.LangCollectorsTest.LangCollectorsTest.testJoiningNonStrings1Arg",
+          "callee": "collect",
+          "callee_qname": "Arrays.stream(new Long[] { _1L, _2L }).collect",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.stream.LangCollectorsTest.LangCollectorsTest.testJoiningNonStrings1Arg",
+          "callee": "collect",
+          "callee_qname": "Arrays.stream(new Long[] { _1L, _2L, _3L }).collect",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.stream.LangCollectorsTest.LangCollectorsTest.testJoiningNonStrings1Arg",
+          "callee": "collect",
+          "callee_qname": "Arrays.stream(new Long[] { _1L, null, _3L }).collect",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.stream.LangCollectorsTest.LangCollectorsTest.testJoiningNonStrings1Arg",
+          "callee": "collect",
+          "callee_qname": "Arrays.stream(new Object[] {}).collect",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.stream.LangCollectorsTest.LangCollectorsTest.testJoiningNonStrings1Arg",
+          "callee": "collect",
+          "callee_qname": "Stream.of().collect",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.stream.LangCollectorsTest.LangCollectorsTest.testJoiningNonStrings1Arg",
+          "callee": "collect",
+          "callee_qname": "Stream.of(_1L).collect",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.stream.LangCollectorsTest.LangCollectorsTest.testJoiningNonStrings1Arg",
+          "callee": "collect",
+          "callee_qname": "Stream.of(_1L, _2L).collect",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.stream.LangCollectorsTest.LangCollectorsTest.testJoiningNonStrings1Arg",
+          "callee": "collect",
+          "callee_qname": "Stream.of(_1L, _2L, _3L).collect",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.stream.LangCollectorsTest.LangCollectorsTest.testJoiningNonStrings1Arg",
+          "callee": "collect",
+          "callee_qname": "Stream.of(_1L, null, _3L).collect",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.stream.LangCollectorsTest.LangCollectorsTest.testJoiningNonStrings1Arg",
+          "callee": "collect",
+          "callee_qname": "Stream.of(new AtomicLong(1), new AtomicLong(2)).collect",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.stream.LangCollectorsTest.LangCollectorsTest.testJoiningNonStrings1Arg",
+          "callee": "collect",
+          "callee_qname": "Stream.of(new Fixture(1), new Fixture(2)).collect",
           "provenance": "syntax_raw"
         },
         {
@@ -9719,13 +10072,13 @@
       "q2_filtering_stats": {
         "reference_in_contract_count": 1,
         "excluded_out_of_scope_count": 2,
-        "excluded_limitation_count": 3,
-        "excluded_total_count": 5,
+        "excluded_limitation_count": 16,
+        "excluded_total_count": 18,
         "excluded_out_of_scope_by_reason": {
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved": 16
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -9734,9 +10087,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 4,
-          "2": 1,
-          "3": 14
+          "0": 18,
+          "2": 1
         }
       },
       "q2_node_rates": {
@@ -9745,7 +10097,7 @@
         "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 300.0
+      "unresolved_static_rate_percent": 1600.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.math.NumberUtilsTest.NumberUtilsTest.assertCreateNumberZero",
@@ -9912,12 +10264,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 2,
-        "candidate_count": 3,
+        "candidate_count": 1,
         "intersection_count": 1,
         "missing_count": 1,
-        "spillover_count": 2,
+        "spillover_count": 0,
         "coverage": 0.5,
-        "spillover_ratio": 1.0,
+        "spillover_ratio": 0.0,
         "match_provenance_breakdown": {
           "qname_exact": 1
         }
@@ -9937,8 +10289,14 @@
       "basket2_edges": [
         {
           "caller": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.FieldUtils.FieldUtils.removeFinalModifier",
+          "callee": "getDeclaredField",
+          "callee_qname": "Field.class.getDeclaredField",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.FieldUtils.FieldUtils.removeFinalModifier",
           "callee": "isAccessible",
-          "callee_qname": null,
+          "callee_qname": "modifiersField.isAccessible",
           "provenance": "syntax_raw"
         },
         {
@@ -9952,18 +10310,24 @@
           "callee": "requireNonNull",
           "callee_qname": "Objects.requireNonNull",
           "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.FieldUtils.FieldUtils.removeFinalModifier",
+          "callee": "setAccessible",
+          "callee_qname": "modifiersField.setAccessible",
+          "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 3,
+        "reference_in_contract_count": 1,
         "excluded_out_of_scope_count": 4,
-        "excluded_limitation_count": 3,
-        "excluded_total_count": 7,
+        "excluded_limitation_count": 5,
+        "excluded_total_count": 9,
         "excluded_out_of_scope_by_reason": {
           "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved": 5
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -9972,19 +10336,17 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 5,
-          "1": 3,
-          "3": 1,
-          "2": 1
+          "0": 8,
+          "1": 2
         }
       },
       "q2_node_rates": {
         "missing_rate": 0.5,
-        "spillover_rate": 1.0,
-        "mutual_accuracy": 0.25
+        "spillover_rate": 0.0,
+        "mutual_accuracy": 0.5
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 150.0
+      "unresolved_static_rate_percent": 250.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.compare.ComparableUtilsTest.ComparableUtilsTest.A_is_1.B_is_0.C_is_10.static_between_returns_true",
@@ -10026,13 +10388,13 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.compare.ComparableUtilsTest.ComparableUtilsTest.A_is_1.B_is_0.C_is_10.static_between_returns_true",
           "callee": "between",
-          "callee_qname": null,
+          "callee_qname": "ComparableUtils.between",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.compare.ComparableUtilsTest.ComparableUtilsTest.A_is_1.B_is_0.C_is_10.static_between_returns_true",
           "callee": "test",
-          "callee_qname": null,
+          "callee_qname": "ComparableUtils.between(b, c).test",
           "provenance": "syntax_raw"
         }
       ],
@@ -10177,7 +10539,7 @@
         {
           "caller": "commons_lang.src.main.java.org.apache.commons.lang3.LocaleUtils.LocaleUtils.parseLocale",
           "callee": "contains",
-          "callee_qname": null,
+          "callee_qname": "ArrayUtils.contains",
           "provenance": "syntax_raw"
         },
         {
@@ -10189,7 +10551,13 @@
         {
           "caller": "commons_lang.src.main.java.org.apache.commons.lang3.LocaleUtils.LocaleUtils.parseLocale",
           "callee": "isEmpty",
-          "callee_qname": null,
+          "callee_qname": "country.isEmpty",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.LocaleUtils.LocaleUtils.parseLocale",
+          "callee": "isEmpty",
+          "callee_qname": "variant.isEmpty",
           "provenance": "syntax_raw"
         },
         {
@@ -10208,13 +10576,13 @@
       "q2_filtering_stats": {
         "reference_in_contract_count": 3,
         "excluded_out_of_scope_count": 3,
-        "excluded_limitation_count": 5,
-        "excluded_total_count": 8,
+        "excluded_limitation_count": 6,
+        "excluded_total_count": 9,
         "excluded_out_of_scope_by_reason": {
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 5
+          "in_repo_unresolved": 6
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -10223,9 +10591,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 6,
+          "0": 8,
           "9": 1,
-          "6": 2,
           "1": 3
         }
       },
@@ -10235,7 +10602,7 @@
         "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 166.66666666666669
+      "unresolved_static_rate_percent": 200.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.testbed.GenericConsumer.GenericConsumer.consume",
@@ -10313,12 +10680,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 1,
+        "candidate_count": 0,
         "intersection_count": 0,
         "missing_count": 1,
-        "spillover_count": 1,
+        "spillover_count": 0,
         "coverage": 0.0,
-        "spillover_ratio": 1.0,
+        "spillover_ratio": 0.0,
         "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
@@ -10336,19 +10703,25 @@
       "basket2_edges": [
         {
           "caller": "commons_lang.src.main.java.org.apache.commons.lang3.exception.ExceptionUtils.ExceptionUtils.forEach",
+          "callee": "forEach",
+          "callee_qname": "stream(throwable).forEach",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.exception.ExceptionUtils.ExceptionUtils.forEach",
           "callee": "stream",
           "callee_qname": "getThrowableList(throwable).stream",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
+        "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 0,
-        "excluded_limitation_count": 1,
-        "excluded_total_count": 1,
+        "excluded_limitation_count": 2,
+        "excluded_total_count": 2,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -10363,11 +10736,11 @@
       },
       "q2_node_rates": {
         "missing_rate": 1.0,
-        "spillover_rate": 1.0,
+        "spillover_rate": 0.0,
         "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 100.0
+      "unresolved_static_rate_percent": 200.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.EqualsBuilderTest.EqualsBuilderTest.testObjectArrayHiddenByObject",
@@ -10389,12 +10762,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 2,
+        "candidate_count": 1,
         "intersection_count": 1,
         "missing_count": 0,
-        "spillover_count": 1,
+        "spillover_count": 0,
         "coverage": 1.0,
-        "spillover_ratio": 1.0,
+        "spillover_ratio": 0.0,
         "match_provenance_breakdown": {
           "qname_exact": 1
         }
@@ -10415,32 +10788,56 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.EqualsBuilderTest.EqualsBuilderTest.testObjectArrayHiddenByObject",
           "callee": "EqualsBuilder",
-          "callee_qname": "EqualsBuilder",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.EqualsBuilderTest.EqualsBuilderTest.testObjectArrayHiddenByObject",
           "callee": "append",
-          "callee_qname": null,
+          "callee_qname": "new EqualsBuilder().append",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.EqualsBuilderTest.EqualsBuilderTest.testObjectArrayHiddenByObject",
           "callee": "isEquals",
-          "callee_qname": null,
+          "callee_qname": "new EqualsBuilder().append(obj1, array1).isEquals",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.EqualsBuilderTest.EqualsBuilderTest.testObjectArrayHiddenByObject",
+          "callee": "isEquals",
+          "callee_qname": "new EqualsBuilder().append(obj1, array2).isEquals",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.EqualsBuilderTest.EqualsBuilderTest.testObjectArrayHiddenByObject",
+          "callee": "isEquals",
+          "callee_qname": "new EqualsBuilder().append(obj1, obj1).isEquals",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.EqualsBuilderTest.EqualsBuilderTest.testObjectArrayHiddenByObject",
+          "callee": "isEquals",
+          "callee_qname": "new EqualsBuilder().append(obj1, obj2).isEquals",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.EqualsBuilderTest.EqualsBuilderTest.testObjectArrayHiddenByObject",
+          "callee": "setA",
+          "callee_qname": "array1[1].setA",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 2,
+        "reference_in_contract_count": 1,
         "excluded_out_of_scope_count": 2,
-        "excluded_limitation_count": 3,
-        "excluded_total_count": 5,
+        "excluded_limitation_count": 7,
+        "excluded_total_count": 9,
         "excluded_out_of_scope_by_reason": {
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved": 7
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -10450,19 +10847,19 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "1": 1,
-          "3": 2,
+          "3": 1,
           "20": 1,
-          "0": 2,
+          "0": 3,
           "2": 4
         }
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 1.0,
-        "mutual_accuracy": 0.5
+        "spillover_rate": 0.0,
+        "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 300.0
+      "unresolved_static_rate_percent": 700.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ArrayUtilsTest.ArrayUtilsTest.testNullToEmptyByteObject",
@@ -10583,38 +10980,50 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.text.ExtendedMessageFormatTest.ExtendedMessageFormatTest.checkBuiltInFormat",
           "callee": "ExtendedMessageFormat",
-          "callee_qname": "ExtendedMessageFormat",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.text.ExtendedMessageFormatTest.ExtendedMessageFormatTest.checkBuiltInFormat",
           "callee": "append",
-          "callee_qname": null,
+          "callee_qname": "buffer.append",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.text.ExtendedMessageFormatTest.ExtendedMessageFormatTest.checkBuiltInFormat",
           "callee": "format",
-          "callee_qname": null,
+          "callee_qname": "emf.format",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.text.ExtendedMessageFormatTest.ExtendedMessageFormatTest.checkBuiltInFormat",
+          "callee": "format",
+          "callee_qname": "mf.format",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.text.ExtendedMessageFormatTest.ExtendedMessageFormatTest.checkBuiltInFormat",
           "callee": "toPattern",
-          "callee_qname": null,
+          "callee_qname": "emf.toPattern",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.text.ExtendedMessageFormatTest.ExtendedMessageFormatTest.checkBuiltInFormat",
+          "callee": "toPattern",
+          "callee_qname": "mf.toPattern",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 2,
         "excluded_out_of_scope_count": 2,
-        "excluded_limitation_count": 4,
-        "excluded_total_count": 6,
+        "excluded_limitation_count": 6,
+        "excluded_total_count": 8,
         "excluded_out_of_scope_by_reason": {
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved": 6
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -10623,10 +11032,9 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "1": 5,
-          "0": 2,
-          "20": 1,
-          "9": 2
+          "1": 4,
+          "0": 5,
+          "9": 1
         }
       },
       "q2_node_rates": {
@@ -10635,7 +11043,7 @@
         "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 200.0
+      "unresolved_static_rate_percent": 300.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ObjectUtilsTest.ObjectUtilsTest.testIdentityToStringAppendable",
@@ -10657,10 +11065,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 1,
+        "candidate_count": 0,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 1,
+        "spillover_count": 0,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -10690,21 +11098,27 @@
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.ObjectUtilsTest.ObjectUtilsTest.testIdentityToStringAppendable",
+          "callee": "toString",
+          "callee_qname": "appendable.toString",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.ObjectUtilsTest.ObjectUtilsTest.testIdentityToStringAppendable",
           "callee": "valueOf",
           "callee_qname": "Integer.valueOf",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
+        "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 4,
-        "excluded_limitation_count": 3,
-        "excluded_total_count": 7,
+        "excluded_limitation_count": 4,
+        "excluded_total_count": 8,
         "excluded_out_of_scope_by_reason": {
           "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved": 4
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -10713,9 +11127,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 5,
-          "1": 2,
-          "89": 1
+          "0": 6,
+          "1": 2
         }
       },
       "q2_node_rates": null,
@@ -10740,10 +11153,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 1,
+        "candidate_count": 0,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 1,
+        "spillover_count": 0,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -10761,19 +11174,25 @@
       "basket2_edges": [
         {
           "caller": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils.ArrayUtils.setAll",
+          "callee": "get",
+          "callee_qname": "generator.get",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils.ArrayUtils.setAll",
           "callee": "setAll",
           "callee_qname": "Arrays.setAll",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
+        "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 0,
-        "excluded_limitation_count": 1,
-        "excluded_total_count": 1,
+        "excluded_limitation_count": 2,
+        "excluded_total_count": 2,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -10782,8 +11201,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "38": 1,
-          "0": 1
+          "0": 2
         }
       },
       "q2_node_rates": null,
@@ -10916,38 +11334,44 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.BasicThreadFactoryTest.BasicThreadFactoryTest.testBuilderResetAfterBuild",
           "callee": "build",
-          "callee_qname": null,
+          "callee_qname": "builder.build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.BasicThreadFactoryTest.BasicThreadFactoryTest.testBuilderResetAfterBuild",
+          "callee": "build",
+          "callee_qname": "builder.wrappedFactory(EasyMock.createNiceMock(ThreadFactory.class)).namingPattern(PATTERN).daemon(true).build",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.BasicThreadFactoryTest.BasicThreadFactoryTest.testBuilderResetAfterBuild",
           "callee": "daemon",
-          "callee_qname": null,
+          "callee_qname": "builder.wrappedFactory(EasyMock.createNiceMock(ThreadFactory.class)).namingPattern(PATTERN).daemon",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.BasicThreadFactoryTest.BasicThreadFactoryTest.testBuilderResetAfterBuild",
           "callee": "namingPattern",
-          "callee_qname": null,
+          "callee_qname": "builder.wrappedFactory(EasyMock.createNiceMock(ThreadFactory.class)).namingPattern",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.BasicThreadFactoryTest.BasicThreadFactoryTest.testBuilderResetAfterBuild",
           "callee": "wrappedFactory",
-          "callee_qname": null,
+          "callee_qname": "builder.wrappedFactory",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 1,
         "excluded_out_of_scope_count": 1,
-        "excluded_limitation_count": 4,
-        "excluded_total_count": 5,
+        "excluded_limitation_count": 5,
+        "excluded_total_count": 6,
         "excluded_out_of_scope_by_reason": {
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved": 5
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -10956,9 +11380,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "12": 2,
-          "1": 4,
-          "0": 1
+          "0": 6,
+          "1": 1
         }
       },
       "q2_node_rates": {
@@ -10967,7 +11390,7 @@
         "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 400.0
+      "unresolved_static_rate_percent": 500.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.CircuitBreakingExceptionTest.CircuitBreakingExceptionTest.testWithoutMessage",
@@ -11009,7 +11432,7 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.CircuitBreakingExceptionTest.CircuitBreakingExceptionTest.testWithoutMessage",
           "callee": "CircuitBreakingException",
-          "callee_qname": "CircuitBreakingException",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -11027,20 +11450,26 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.CircuitBreakingExceptionTest.CircuitBreakingExceptionTest.testWithoutMessage",
           "callee": "getMessage",
-          "callee_qname": null,
+          "callee_qname": "cause.getMessage",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.CircuitBreakingExceptionTest.CircuitBreakingExceptionTest.testWithoutMessage",
+          "callee": "getMessage",
+          "callee_qname": "exception.getMessage",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 2,
-        "excluded_limitation_count": 4,
-        "excluded_total_count": 6,
+        "excluded_limitation_count": 5,
+        "excluded_total_count": 7,
         "excluded_out_of_scope_by_reason": {
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved": 5
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -11050,8 +11479,7 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "1": 2,
-          "0": 3,
-          "5": 2
+          "0": 5
         }
       },
       "q2_node_rates": null,
@@ -11177,7 +11605,7 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.DiffBuilderTest.DiffBuilderTest.testNestedDiffableNo",
           "callee": "diff",
-          "callee_qname": null,
+          "callee_qname": "class1.diff",
           "provenance": "syntax_raw"
         },
         {
@@ -11189,13 +11617,13 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.DiffBuilderTest.DiffBuilderTest.testNestedDiffableNo",
           "callee": "getNumberOfDiffs",
-          "callee_qname": null,
+          "callee_qname": "list.getNumberOfDiffs",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.DiffBuilderTest.DiffBuilderTest.testNestedDiffableNo",
           "callee": "isEmpty",
-          "callee_qname": null,
+          "callee_qname": "diff.isEmpty",
           "provenance": "syntax_raw"
         }
       ],
@@ -11217,10 +11645,9 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 3,
+          "0": 4,
           "5": 1,
-          "1": 2,
-          "6": 1
+          "1": 2
         }
       },
       "q2_node_rates": {
@@ -11557,7 +11984,7 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.EqualsBuilderTest.EqualsBuilderTest.TestSubObject.hashCode",
           "callee": "hashCode",
-          "callee_qname": null,
+          "callee_qname": "super.hashCode",
           "provenance": "syntax_raw"
         }
       ],
@@ -11604,12 +12031,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 2,
+        "candidate_count": 1,
         "intersection_count": 1,
         "missing_count": 0,
-        "spillover_count": 1,
+        "spillover_count": 0,
         "coverage": 1.0,
-        "spillover_ratio": 1.0,
+        "spillover_ratio": 0.0,
         "match_provenance_breakdown": {
           "qname_exact": 1
         }
@@ -11629,33 +12056,45 @@
       "basket2_edges": [
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.time.FastDateParserTest.FastDateParserTest.testDayOf",
+          "callee": "clear",
+          "callee_qname": "cal.clear",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.time.FastDateParserTest.FastDateParserTest.testDayOf",
+          "callee": "getInstance",
+          "callee_qname": "Calendar.getInstance",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.time.FastDateParserTest.FastDateParserTest.testDayOf",
           "callee": "getTime",
-          "callee_qname": null,
+          "callee_qname": "cal.getTime",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.time.FastDateParserTest.FastDateParserTest.testDayOf",
           "callee": "parse",
-          "callee_qname": null,
+          "callee_qname": "fdf.parse",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.time.FastDateParserTest.FastDateParserTest.testDayOf",
           "callee": "set",
-          "callee_qname": null,
+          "callee_qname": "cal.set",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 2,
+        "reference_in_contract_count": 1,
         "excluded_out_of_scope_count": 1,
-        "excluded_limitation_count": 3,
-        "excluded_total_count": 4,
+        "excluded_limitation_count": 5,
+        "excluded_total_count": 6,
         "excluded_out_of_scope_by_reason": {
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved": 5
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -11664,20 +12103,17 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 1,
-          "8": 1,
-          "7": 3,
-          "1": 1,
-          "6": 1
+          "0": 5,
+          "7": 2
         }
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 1.0,
-        "mutual_accuracy": 0.5
+        "spillover_rate": 0.0,
+        "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 300.0
+      "unresolved_static_rate_percent": 500.0
     },
     {
       "entity": "commons_lang.src.test.java.org.apache.commons.lang3.function.MethodFixtures.MethodFixtures.getString2",
@@ -12087,7 +12523,13 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.FieldUtilsTest.FieldUtilsTest.testWriteDeclaredNamedFieldForceAccess",
           "callee": "valueOf",
-          "callee_qname": null,
+          "callee_qname": "Double.valueOf",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.FieldUtilsTest.FieldUtilsTest.testWriteDeclaredNamedFieldForceAccess",
+          "callee": "valueOf",
+          "callee_qname": "Integer.valueOf",
           "provenance": "syntax_raw"
         },
         {
@@ -12100,13 +12542,13 @@
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 1,
-        "excluded_limitation_count": 5,
-        "excluded_total_count": 6,
+        "excluded_limitation_count": 6,
+        "excluded_total_count": 7,
         "excluded_out_of_scope_by_reason": {
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 5
+          "in_repo_unresolved": 6
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -12115,8 +12557,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 1,
-          "1": 6
+          "0": 3,
+          "1": 4
         }
       },
       "q2_node_rates": null,
@@ -12163,7 +12605,7 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.text.StrBuilderTest.StrBuilderTest.testLang412Left",
           "callee": "StrBuilder",
-          "callee_qname": "StrBuilder",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -12175,7 +12617,7 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.text.StrBuilderTest.StrBuilderTest.testLang412Left",
           "callee": "toString",
-          "callee_qname": null,
+          "callee_qname": "sb.toString",
           "provenance": "syntax_raw"
         }
       ],
@@ -12342,7 +12784,7 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.StringEscapeUtilsTest.StringEscapeUtilsTest.testUnescapeJava",
           "callee": "translate",
-          "callee_qname": null,
+          "callee_qname": "StringEscapeUtils.UNESCAPE_JAVA.translate",
           "provenance": "syntax_raw"
         },
         {
@@ -12370,9 +12812,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 2,
-          "1": 3,
-          "12": 1
+          "0": 3,
+          "1": 3
         }
       },
       "q2_node_rates": {
@@ -12423,7 +12864,7 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.AppendableJoinerTest.AppendableJoinerTest.testDelimiterStringBuilder",
           "callee": "append",
-          "callee_qname": null,
+          "callee_qname": "sbuilder.append",
           "provenance": "syntax_raw"
         },
         {
@@ -12435,7 +12876,7 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.AppendableJoinerTest.AppendableJoinerTest.testDelimiterStringBuilder",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "AppendableJoiner.builder().setDelimiter(\".\").get",
           "provenance": "syntax_raw"
         },
         {
@@ -12447,26 +12888,32 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.AppendableJoinerTest.AppendableJoinerTest.testDelimiterStringBuilder",
           "callee": "setDelimiter",
-          "callee_qname": null,
+          "callee_qname": "AppendableJoiner.builder().setDelimiter",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.AppendableJoinerTest.AppendableJoinerTest.testDelimiterStringBuilder",
           "callee": "toString",
-          "callee_qname": null,
+          "callee_qname": "joiner.join(sbuilder, \"B\", \"C\").toString",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.AppendableJoinerTest.AppendableJoinerTest.testDelimiterStringBuilder",
+          "callee": "toString",
+          "callee_qname": "joiner.join(sbuilder, Arrays.asList(\"D\", \"E\")).toString",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 3,
-        "excluded_limitation_count": 6,
-        "excluded_total_count": 9,
+        "excluded_limitation_count": 7,
+        "excluded_total_count": 10,
         "excluded_out_of_scope_by_reason": {
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 6
+          "in_repo_unresolved": 7
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -12475,8 +12922,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 3,
-          "20": 1,
+          "0": 4,
           "13": 1,
           "38": 1,
           "5": 1,
@@ -12607,7 +13053,7 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.DiffBuilderTest.DiffBuilderTest.testDouble",
           "callee": "diff",
-          "callee_qname": null,
+          "callee_qname": "class1.diff",
           "provenance": "syntax_raw"
         },
         {
@@ -12625,25 +13071,25 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.DiffBuilderTest.DiffBuilderTest.testDouble",
           "callee": "getLeft",
-          "callee_qname": null,
+          "callee_qname": "diff.getLeft",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.DiffBuilderTest.DiffBuilderTest.testDouble",
           "callee": "getNumberOfDiffs",
-          "callee_qname": null,
+          "callee_qname": "list.getNumberOfDiffs",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.DiffBuilderTest.DiffBuilderTest.testDouble",
           "callee": "getRight",
-          "callee_qname": null,
+          "callee_qname": "diff.getRight",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.DiffBuilderTest.DiffBuilderTest.testDouble",
           "callee": "valueOf",
-          "callee_qname": null,
+          "callee_qname": "Double.valueOf",
           "provenance": "syntax_raw"
         }
       ],
@@ -12665,10 +13111,10 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 2,
+          "0": 3,
           "5": 1,
           "38": 1,
-          "1": 3,
+          "1": 2,
           "11": 2
         }
       },
@@ -12720,7 +13166,7 @@
         {
           "caller": "commons_lang.src.main.java.org.apache.commons.lang3.StringEscapeUtils.StringEscapeUtils.unescapeEcmaScript",
           "callee": "translate",
-          "callee_qname": null,
+          "callee_qname": "UNESCAPE_ECMASCRIPT.translate",
           "provenance": "syntax_raw"
         }
       ],
@@ -12740,7 +13186,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "12": 1
+          "0": 1
         }
       },
       "q2_node_rates": null,
@@ -13169,32 +13615,56 @@
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.CompareToBuilderTest.CompareToBuilderTest.testCharArrayHiddenByObject",
           "callee": "CompareToBuilder",
-          "callee_qname": "CompareToBuilder",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.CompareToBuilderTest.CompareToBuilderTest.testCharArrayHiddenByObject",
           "callee": "append",
-          "callee_qname": null,
+          "callee_qname": "new CompareToBuilder().append",
           "provenance": "syntax_raw"
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.CompareToBuilderTest.CompareToBuilderTest.testCharArrayHiddenByObject",
           "callee": "toComparison",
-          "callee_qname": null,
+          "callee_qname": "new CompareToBuilder().append(obj1, obj1).toComparison",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.CompareToBuilderTest.CompareToBuilderTest.testCharArrayHiddenByObject",
+          "callee": "toComparison",
+          "callee_qname": "new CompareToBuilder().append(obj1, obj2).toComparison",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.CompareToBuilderTest.CompareToBuilderTest.testCharArrayHiddenByObject",
+          "callee": "toComparison",
+          "callee_qname": "new CompareToBuilder().append(obj1, obj3).toComparison",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.CompareToBuilderTest.CompareToBuilderTest.testCharArrayHiddenByObject",
+          "callee": "toComparison",
+          "callee_qname": "new CompareToBuilder().append(obj2, obj1).toComparison",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.builder.CompareToBuilderTest.CompareToBuilderTest.testCharArrayHiddenByObject",
+          "callee": "toComparison",
+          "callee_qname": "new CompareToBuilder().append(obj3, obj1).toComparison",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 2,
-        "excluded_limitation_count": 3,
-        "excluded_total_count": 5,
+        "excluded_limitation_count": 7,
+        "excluded_total_count": 9,
         "excluded_out_of_scope_by_reason": {
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved": 7
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -34546,61 +35016,61 @@
       "target_spillover_rate_max": 0.010000000000000009,
       "scored_nodes": 353,
       "avg_missing_rate": 0.18940037771482532,
-      "avg_spillover_rate": 0.062380101836272864,
-      "avg_mutual_accuracy": 0.786485413875684,
+      "avg_spillover_rate": 0.0005292991922690881,
+      "avg_mutual_accuracy": 0.8100925904573649,
       "reference_count": 4905,
-      "candidate_count": 4851,
+      "candidate_count": 4821,
       "intersection_count": 4815,
       "missing_count": 90,
-      "spillover_count": 36,
+      "spillover_count": 6,
       "by_language": {
         "java": {
           "scored_nodes": 353,
           "avg_missing_rate": 0.18940037771482532,
-          "avg_spillover_rate": 0.062380101836272864,
-          "avg_mutual_accuracy": 0.786485413875684,
+          "avg_spillover_rate": 0.0005292991922690881,
+          "avg_mutual_accuracy": 0.8100925904573649,
           "pass": false
         }
       },
       "filtering_source": "core_only",
       "envelope_reference_count": 4905,
-      "envelope_excluded_count": 1987,
-      "envelope_excluded_out_of_scope_count": 1678,
-      "envelope_excluded_limitation_count": 309,
-      "envelope_total_count": 6892,
-      "contract_filtered_out_ratio": 0.2883052814857806,
+      "envelope_excluded_count": 2071,
+      "envelope_excluded_out_of_scope_count": 1679,
+      "envelope_excluded_limitation_count": 392,
+      "envelope_total_count": 6976,
+      "contract_filtered_out_ratio": 0.296875,
       "envelope_excluded_by_reason": {
-        "external": 1678,
-        "in_repo_unresolved": 309
+        "external": 1679,
+        "in_repo_unresolved": 392
       },
       "match_provenance_breakdown": {
         "qname_exact": 4815
       },
       "strict_contract_candidate_count_histogram": {
-        "0": 237,
-        "1": 183,
+        "0": 342,
+        "1": 169,
         "10": 4,
         "11": 4,
-        "12": 6,
-        "13": 2,
+        "12": 1,
+        "13": 1,
         "17": 4,
-        "2": 37,
-        "20": 12,
-        "26": 2,
-        "28": 7,
-        "3": 43,
+        "2": 27,
+        "20": 5,
+        "26": 1,
+        "28": 6,
+        "3": 19,
         "34": 1,
-        "38": 9,
-        "4": 12,
+        "38": 6,
+        "4": 11,
         "47": 8,
-        "5": 22,
+        "5": 11,
         "56": 3,
-        "6": 18,
+        "6": 9,
         "60": 1,
-        "7": 23,
-        "8": 6,
-        "89": 13,
-        "9": 3
+        "7": 13,
+        "8": 3,
+        "89": 9,
+        "9": 2
       },
       "class_truth_unreliable_count": 1,
       "class_truth_unreliable_scored_excluded_count": 1,
@@ -34610,23 +35080,23 @@
       },
       "core_contract_overlap": {
         "reference_count": 4905,
-        "candidate_count": 4851,
+        "candidate_count": 4821,
         "intersection_count": 4815,
         "missing_count": 90,
-        "spillover_count": 36,
+        "spillover_count": 6,
         "avg_missing_rate": 0.18940037771482532,
-        "avg_spillover_rate": 0.062380101836272864,
-        "avg_mutual_accuracy": 0.786485413875684
+        "avg_spillover_rate": 0.0005292991922690881,
+        "avg_mutual_accuracy": 0.8100925904573649
       },
       "contract_plus_resolution_hints": {
-        "reference_count": 5214,
-        "candidate_count": 4851,
+        "reference_count": 5297,
+        "candidate_count": 4821,
         "intersection_count": 4815,
-        "missing_count": 399,
-        "spillover_count": 36,
-        "avg_missing_rate": 0.36301268176268175,
-        "avg_spillover_rate": 0.03729666837365966,
-        "avg_mutual_accuracy": 0.6261613917714047
+        "missing_count": 482,
+        "spillover_count": 6,
+        "avg_missing_rate": 0.37596382885904944,
+        "avg_spillover_rate": 0.000449140901132183,
+        "avg_mutual_accuracy": 0.6236059253832177
       },
       "top_mismatch_signatures": [
         {
@@ -34640,32 +35110,6 @@
           "reference_count": 3,
           "missing_rate": 1.0,
           "spillover_rate": 0.0,
-          "total_mismatch": 3
-        },
-        {
-          "entity": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testGetSupplier",
-          "language": "java",
-          "kind": "method",
-          "file_path": "src/test/java/org/apache/commons/lang3/function/FailableTest.java",
-          "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest",
-          "missing_count": 2,
-          "spillover_count": 1,
-          "reference_count": 2,
-          "missing_rate": 1.0,
-          "spillover_rate": 0.5,
-          "total_mismatch": 3
-        },
-        {
-          "entity": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.FieldUtils.FieldUtils.removeFinalModifier",
-          "language": "java",
-          "kind": "method",
-          "file_path": "src/main/java/org/apache/commons/lang3/reflect/FieldUtils.java",
-          "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.FieldUtils",
-          "missing_count": 1,
-          "spillover_count": 2,
-          "reference_count": 2,
-          "missing_rate": 0.5,
-          "spillover_rate": 1.0,
           "total_mismatch": 3
         },
         {
@@ -34734,95 +35178,30 @@
           "total_mismatch": 2
         },
         {
+          "entity": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testGetSupplier",
+          "language": "java",
+          "kind": "method",
+          "file_path": "src/test/java/org/apache/commons/lang3/function/FailableTest.java",
+          "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest",
+          "missing_count": 2,
+          "spillover_count": 0,
+          "reference_count": 2,
+          "missing_rate": 1.0,
+          "spillover_rate": 0.0,
+          "total_mismatch": 2
+        },
+        {
           "entity": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils.ArrayUtils.arraycopy",
           "language": "java",
           "kind": "method",
           "file_path": "src/main/java/org/apache/commons/lang3/ArrayUtils.java",
           "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils",
           "missing_count": 1,
-          "spillover_count": 1,
+          "spillover_count": 0,
           "reference_count": 1,
           "missing_rate": 1.0,
-          "spillover_rate": 1.0,
-          "total_mismatch": 2
-        },
-        {
-          "entity": "commons_lang.src.main.java.org.apache.commons.lang3.exception.ExceptionUtils.ExceptionUtils.forEach",
-          "language": "java",
-          "kind": "method",
-          "file_path": "src/main/java/org/apache/commons/lang3/exception/ExceptionUtils.java",
-          "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.exception.ExceptionUtils",
-          "missing_count": 1,
-          "spillover_count": 1,
-          "reference_count": 1,
-          "missing_rate": 1.0,
-          "spillover_rate": 1.0,
-          "total_mismatch": 2
-        },
-        {
-          "entity": "commons_lang.src.main.java.org.apache.commons.lang3.StringUtils.StringUtils.countMatches",
-          "language": "java",
-          "kind": "method",
-          "file_path": "src/main/java/org/apache/commons/lang3/StringUtils.java",
-          "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.StringUtils",
-          "missing_count": 0,
-          "spillover_count": 2,
-          "reference_count": 1,
-          "missing_rate": 0.0,
-          "spillover_rate": 2.0,
-          "total_mismatch": 2
-        },
-        {
-          "entity": "commons_lang.src.main.java.org.apache.commons.lang3.StringUtils.StringUtils.getCommonPrefix",
-          "language": "java",
-          "kind": "method",
-          "file_path": "src/main/java/org/apache/commons/lang3/StringUtils.java",
-          "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.StringUtils",
-          "missing_count": 0,
-          "spillover_count": 2,
-          "reference_count": 1,
-          "missing_rate": 0.0,
-          "spillover_rate": 2.0,
-          "total_mismatch": 2
-        },
-        {
-          "entity": "commons_lang.src.main.java.org.apache.commons.lang3.StringUtils.StringUtils.substringBeforeLast",
-          "language": "java",
-          "kind": "method",
-          "file_path": "src/main/java/org/apache/commons/lang3/StringUtils.java",
-          "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.StringUtils",
-          "missing_count": 0,
-          "spillover_count": 2,
-          "reference_count": 1,
-          "missing_rate": 0.0,
-          "spillover_rate": 2.0,
-          "total_mismatch": 2
-        },
-        {
-          "entity": "commons_lang.src.main.java.org.apache.commons.lang3.text.ExtendedMessageFormat.ExtendedMessageFormat.insertFormats",
-          "language": "java",
-          "kind": "method",
-          "file_path": "src/main/java/org/apache/commons/lang3/text/ExtendedMessageFormat.java",
-          "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.text.ExtendedMessageFormat",
-          "missing_count": 0,
-          "spillover_count": 2,
-          "reference_count": 4,
-          "missing_rate": 0.0,
-          "spillover_rate": 0.5,
-          "total_mismatch": 2
-        },
-        {
-          "entity": "commons_lang.src.test.java.org.apache.commons.lang3.time.FastDateParserTest.FastDateParserTest.testShortDateStyleWithLocales",
-          "language": "java",
-          "kind": "method",
-          "file_path": "src/test/java/org/apache/commons/lang3/time/FastDateParserTest.java",
-          "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.time.FastDateParserTest",
-          "missing_count": 0,
-          "spillover_count": 2,
-          "reference_count": 1,
-          "missing_rate": 0.0,
-          "spillover_rate": 2.0,
-          "total_mismatch": 2
+          "spillover_rate": 0.0,
+          "total_mismatch": 1
         },
         {
           "entity": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils.ArrayUtils.isArrayEmpty",
@@ -34888,6 +35267,97 @@
           "missing_rate": 1.0,
           "spillover_rate": 0.0,
           "total_mismatch": 1
+        },
+        {
+          "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties.SystemProperties.getOrgJcpXmlDsigSecureValidation",
+          "language": "java",
+          "kind": "method",
+          "file_path": "src/main/java/org/apache/commons/lang3/SystemProperties.java",
+          "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties",
+          "missing_count": 1,
+          "spillover_count": 0,
+          "reference_count": 1,
+          "missing_rate": 1.0,
+          "spillover_rate": 0.0,
+          "total_mismatch": 1
+        },
+        {
+          "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties.SystemProperties.getOsVersion",
+          "language": "java",
+          "kind": "method",
+          "file_path": "src/main/java/org/apache/commons/lang3/SystemProperties.java",
+          "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties",
+          "missing_count": 1,
+          "spillover_count": 0,
+          "reference_count": 1,
+          "missing_rate": 1.0,
+          "spillover_rate": 0.0,
+          "total_mismatch": 1
+        },
+        {
+          "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties.SystemProperties.getSunNetHttpServerMaxIdleConnections",
+          "language": "java",
+          "kind": "method",
+          "file_path": "src/main/java/org/apache/commons/lang3/SystemProperties.java",
+          "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties",
+          "missing_count": 1,
+          "spillover_count": 0,
+          "reference_count": 1,
+          "missing_rate": 1.0,
+          "spillover_rate": 0.0,
+          "total_mismatch": 1
+        },
+        {
+          "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties.SystemProperties.getSunNetHttpServerMaxReqHeaders",
+          "language": "java",
+          "kind": "method",
+          "file_path": "src/main/java/org/apache/commons/lang3/SystemProperties.java",
+          "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties",
+          "missing_count": 1,
+          "spillover_count": 0,
+          "reference_count": 1,
+          "missing_rate": 1.0,
+          "spillover_rate": 0.0,
+          "total_mismatch": 1
+        },
+        {
+          "entity": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.AtomicSafeInitializer.AtomicSafeInitializer.get",
+          "language": "java",
+          "kind": "method",
+          "file_path": "src/main/java/org/apache/commons/lang3/concurrent/AtomicSafeInitializer.java",
+          "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.AtomicSafeInitializer",
+          "missing_count": 1,
+          "spillover_count": 0,
+          "reference_count": 2,
+          "missing_rate": 0.5,
+          "spillover_rate": 0.0,
+          "total_mismatch": 1
+        },
+        {
+          "entity": "commons_lang.src.main.java.org.apache.commons.lang3.exception.ContextedException.ContextedException.getContextEntries",
+          "language": "java",
+          "kind": "method",
+          "file_path": "src/main/java/org/apache/commons/lang3/exception/ContextedException.java",
+          "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.exception.ContextedException",
+          "missing_count": 1,
+          "spillover_count": 0,
+          "reference_count": 1,
+          "missing_rate": 1.0,
+          "spillover_rate": 0.0,
+          "total_mismatch": 1
+        },
+        {
+          "entity": "commons_lang.src.main.java.org.apache.commons.lang3.exception.ExceptionUtils.ExceptionUtils.forEach",
+          "language": "java",
+          "kind": "method",
+          "file_path": "src/main/java/org/apache/commons/lang3/exception/ExceptionUtils.java",
+          "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.exception.ExceptionUtils",
+          "missing_count": 1,
+          "spillover_count": 0,
+          "reference_count": 1,
+          "missing_rate": 1.0,
+          "spillover_rate": 0.0,
+          "total_mismatch": 1
         }
       ]
     },
@@ -34920,14 +35390,14 @@
         "target_zero": true,
         "pass": false,
         "scored_nodes": 353,
-        "avg_rate": 0.3795561850802644,
-        "avg_rate_percent": 37.95561850802644,
-        "total_edges": 309,
+        "avg_rate": 0.5373229461756374,
+        "avg_rate_percent": 53.73229461756374,
+        "total_edges": 392,
         "by_semantic_type_avg_rate": {
-          "direct_call_unresolved": 0.3795561850802644
+          "direct_call_unresolved": 0.5373229461756374
         },
         "by_semantic_type_avg_percent": {
-          "direct_call_unresolved": 37.95561850802644
+          "direct_call_unresolved": 53.73229461756374
         }
       }
     }

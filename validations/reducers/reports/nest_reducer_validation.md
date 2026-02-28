@@ -25,21 +25,21 @@
 - target_missing_rate_max: `0.010000`
 - target_spillover_rate_max: `0.010000`
 - scored_nodes: `323`
-- avg_missing_rate/avg_spillover_rate: `0.119335`/`0.004753`
-- avg_mutual_accuracy: `0.877980`
-- reference/candidate/intersection: `1775`/`1715`/`1709`
-- missing/spillover: `66`/`6`
+- avg_missing_rate/avg_spillover_rate: `0.120883`/`0.000109`
+- avg_mutual_accuracy: `0.879012`
+- reference/candidate/intersection: `1775`/`1712`/`1708`
+- missing/spillover: `67`/`4`
 - filtering_source: `core_only`
-- envelope_reference/excluded/total: `1775`/`1028`/`2803`
-- contract_filtered_out_ratio: `0.366750`
+- envelope_reference/excluded/total: `1775`/`1048`/`2823`
+- contract_filtered_out_ratio: `0.371236`
 - class_truth_unreliable_count: `18`
 - class_truth_unreliable_scored_excluded_count: `18`
 - class_match_strategy_breakdown: `{'exact_qname': 107, 'none': 18}`
-- match_provenance_breakdown: `{'qname_exact': 1709}`
-- strict_contract_candidate_count_histogram: `{'0': 401, '1': 294, '11': 1, '13': 3, '17': 1, '18': 9, '19': 4, '2': 46, '20': 1, '3': 20, '4': 10, '5': 11, '6': 8, '7': 11, '8': 2, '9': 3}`
-- core_contract_overlap: `{'reference_count': 1775, 'candidate_count': 1715, 'intersection_count': 1709, 'missing_count': 66, 'spillover_count': 6, 'avg_missing_rate': 0.11933510246203745, 'avg_spillover_rate': 0.004752593558198903, 'avg_mutual_accuracy': 0.8779799698648416}`
-- contract_plus_resolution_hints: `{'reference_count': 2080, 'candidate_count': 1715, 'intersection_count': 1709, 'missing_count': 371, 'spillover_count': 6, 'avg_missing_rate': 0.3104208625599, 'avg_spillover_rate': 0.0023219814241486067, 'avg_mutual_accuracy': 0.688597234663581}`
-- by_language: `{'typescript': {'scored_nodes': 323, 'avg_missing_rate': 0.11933510246203745, 'avg_spillover_rate': 0.004752593558198903, 'avg_mutual_accuracy': 0.8779799698648416, 'pass': False}}`
+- match_provenance_breakdown: `{'qname_exact': 1708}`
+- strict_contract_candidate_count_histogram: `{'0': 420, '1': 292, '11': 1, '13': 2, '17': 1, '18': 6, '19': 3, '2': 41, '20': 1, '3': 15, '4': 10, '5': 10, '6': 8, '7': 10, '8': 2, '9': 3}`
+- core_contract_overlap: `{'reference_count': 1775, 'candidate_count': 1712, 'intersection_count': 1708, 'missing_count': 67, 'spillover_count': 4, 'avg_missing_rate': 0.12088309007813652, 'avg_spillover_rate': 0.0001086307099016892, 'avg_mutual_accuracy': 0.8790119616089076}`
+- contract_plus_resolution_hints: `{'reference_count': 2092, 'candidate_count': 1712, 'intersection_count': 1708, 'missing_count': 384, 'spillover_count': 4, 'avg_missing_rate': 0.31304372988864965, 'avg_spillover_rate': 9.381743127873159e-05, 'avg_mutual_accuracy': 0.6868656329319793}`
+- by_language: `{'typescript': {'scored_nodes': 323, 'avg_missing_rate': 0.12088309007813652, 'avg_spillover_rate': 0.0001086307099016892, 'avg_mutual_accuracy': 0.8790119616089076, 'pass': False}}`
 
 ## Q2a. Reducers vs Independent Syntax Baseline
 
@@ -57,5 +57,5 @@
 - avg_non_static_percent_by_type: `{'dynamic_call': '0.93%'}`
 - unresolved_static_target_zero: `True`
 - unresolved_static_pass: `False`
-- unresolved_static_avg_percent: `34.22%`
+- unresolved_static_avg_percent: `36.55%`
 

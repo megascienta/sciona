@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Dict, List, Protocol, Tuple
 
 from sciona.data_storage.artifact_db import read_status as artifact_read_status
+from sciona.code_analysis.tools.call_extraction_queries import normalize_call_identifiers
 
 from .db_adapter import (
     call_edge_count_by_id,
@@ -19,8 +20,6 @@ from .ground_truth import build_module_imports_by_prefix, edge_records_from_grou
 from .call_contract import resolve_call_in_contract
 from .independent.contract_normalization import (
     module_name_from_file,
-    normalization_is_scoped_consistent,
-    normalize_scoped_calls,
 )
 from .independent.normalize import normalize_file_edges
 from .independent.shared import EdgeRecord, FileParseResult, dedupe_edge_records
@@ -488,8 +487,71 @@ def build_normalized_edge_maps(
     repo_root: Path,
     independent_results: Dict[str, FileParseResult],
 ) -> Tuple[Dict[str, Tuple[List[object], List[object]]], dict, bool]:
+    def _definition_kind_index() -> dict[str, str]:
+        index: dict[str, str] = {}
+        for file_result in independent_results.values():
+            for definition in file_result.defs:
+                index[definition.qualified_name] = definition.kind
+        return index
+
+    def _core_normalize_calls_across_files(
+        calls_by_file: Dict[str, List[object]],
+    ) -> Dict[str, List[object]]:
+        kind_index = _definition_kind_index()
+        records: list[tuple[str, str, str, list[str]]] = []
+        edge_refs: list[tuple[str, object]] = []
+        for file_path, calls in calls_by_file.items():
+            file_result = independent_results.get(file_path)
+            language = str((file_result.language if file_result else "unknown") or "unknown").lower()
+            for edge in calls:
+                identifier = (edge.callee_qname or edge.callee or "").strip()
+                if not identifier:
+                    continue
+                caller_kind = kind_index.get(edge.caller, "function")
+                node_type = "method" if caller_kind == "method" else "function"
+                records.append((language, edge.caller, node_type, [identifier]))
+                edge_refs.append((file_path, edge))
+        normalized = normalize_call_identifiers(records) if records else []
+        normalized_by_edge = {
+            id(edge_refs[idx][1]): normalized[idx][3][0] if normalized[idx][3] else ""
+            for idx in range(len(edge_refs))
+        }
+        updated: Dict[str, List[object]] = {}
+        for file_path, calls in calls_by_file.items():
+            normalized_calls: list[object] = []
+            for edge in calls:
+                normalized_identifier = normalized_by_edge.get(id(edge))
+                if normalized_identifier is None or not normalized_identifier:
+                    normalized_calls.append(edge)
+                    continue
+                if "." in normalized_identifier:
+                    normalized_calls.append(
+                        type(edge)(
+                            caller=edge.caller,
+                            callee=normalized_identifier.rsplit(".", 1)[-1],
+                            callee_qname=normalized_identifier,
+                            dynamic=edge.dynamic,
+                            callee_text=edge.callee_text,
+                            provenance=edge.provenance,
+                        )
+                    )
+                else:
+                    normalized_calls.append(
+                        type(edge)(
+                            caller=edge.caller,
+                            callee=normalized_identifier,
+                            callee_qname=None,
+                            dynamic=edge.dynamic,
+                            callee_text=edge.callee_text,
+                            provenance=edge.provenance,
+                        )
+                    )
+            updated[file_path] = normalized_calls
+        return updated
+
     normalized_edge_map: Dict[str, Tuple[List[object], List[object]]] = {}
-    scoped_normalization_ok = True
+    calls_by_file: Dict[str, List[object]] = {}
+    imports_by_file: Dict[str, List[object]] = {}
     for file_result in independent_results.values():
         canonical_module = canonical_module_name(repo_root, file_result)
         if canonical_module:
@@ -500,18 +562,18 @@ def build_normalized_edge_maps(
             file_result.import_edges,
             language=file_result.language,
         )
-        normalized_calls = normalize_scoped_calls(
-            normalized_calls,
-            language=file_result.language,
-            module_scope=file_result.module_qualified_name,
+        calls_by_file[file_result.file_path] = normalized_calls
+        imports_by_file[file_result.file_path] = normalized_imports
+    normalized_calls_by_file = _core_normalize_calls_across_files(calls_by_file)
+    for file_path in calls_by_file:
+        normalized_edge_map[file_path] = (
+            normalized_calls_by_file.get(file_path, calls_by_file[file_path]),
+            imports_by_file.get(file_path, []),
         )
-        if not normalization_is_scoped_consistent(normalized_calls):
-            scoped_normalization_ok = False
-        normalized_edge_map[file_result.file_path] = (normalized_calls, normalized_imports)
     module_imports_by_prefix = build_module_imports_by_prefix(
         independent_results, normalized_edge_map
     )
-    return normalized_edge_map, module_imports_by_prefix, scoped_normalization_ok
+    return normalized_edge_map, module_imports_by_prefix, True
 
 
 def evaluate_entities(

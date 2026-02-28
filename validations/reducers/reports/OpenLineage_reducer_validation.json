@@ -6,7 +6,7 @@
     "q1_reducer_vs_db_exact=True",
     "q2_reducer_vs_independent_overlap_macro=False",
     "q3_avg_non_static_percent=0.3663",
-    "unresolved_static_avg_percent=100.5637"
+    "unresolved_static_avg_percent=140.1343"
   ],
   "invariants": {
     "passed": false,
@@ -9731,7 +9731,7 @@
         {
           "caller": "OpenLineage.client.python.tests.test_async_http.TestAsyncHttpTransport.test_async_transport_mark_success_regular_event",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "transport.events.get",
           "provenance": "syntax_raw"
         }
       ],
@@ -9753,9 +9753,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 4,
-          "1": 3,
-          "3": 1
+          "0": 5,
+          "1": 3
         }
       },
       "q2_node_rates": {
@@ -10057,15 +10056,13 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 1,
-        "intersection_count": 1,
-        "missing_count": 0,
+        "candidate_count": 0,
+        "intersection_count": 0,
+        "missing_count": 1,
         "spillover_count": 0,
-        "coverage": 1.0,
+        "coverage": 0.0,
         "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 1
-        }
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
         "reference_count": 1,
@@ -10079,14 +10076,23 @@
           "name_only": 1
         }
       },
-      "basket2_edges": [],
+      "basket2_edges": [
+        {
+          "caller": "OpenLineage.client.python.src.openlineage.client.transport.http.HttpTransport.close",
+          "callee": "close",
+          "callee_qname": "self._session.close",
+          "provenance": "syntax_raw"
+        }
+      ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
+        "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 0,
-        "excluded_limitation_count": 0,
-        "excluded_total_count": 0,
+        "excluded_limitation_count": 1,
+        "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
-        "excluded_limitation_by_reason": {}
+        "excluded_limitation_by_reason": {
+          "in_repo_unresolved": 1
+        }
       },
       "q2_ground_truth_diagnostics": {
         "class_truth_unreliable": null,
@@ -10098,12 +10104,12 @@
         }
       },
       "q2_node_rates": {
-        "missing_rate": 0.0,
+        "missing_rate": 1.0,
         "spillover_rate": 0.0,
-        "mutual_accuracy": 1.0
+        "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 0.0
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "OpenLineage.client.python.tests.test_gcplineage.TestGCPLineageTransportRouting.test_routing_non_dbt_event_to_sync",
@@ -10417,7 +10423,7 @@
         {
           "caller": "OpenLineage.integration.common.src.openlineage.common.provider.redshift_data.RedshiftDataDatasetsProvider._get_dataset_from_tables",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "self.connection_details.get",
           "provenance": "syntax_raw"
         }
       ],
@@ -11237,24 +11243,36 @@
         {
           "caller": "OpenLineage.dev.get_changes.GetChanges.update_changelog",
           "callee": "read",
-          "callee_qname": null,
+          "callee_qname": "contents.read",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.dev.get_changes.GetChanges.update_changelog",
+          "callee": "read",
+          "callee_qname": "f.read",
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.dev.get_changes.GetChanges.update_changelog",
           "callee": "write",
-          "callee_qname": null,
+          "callee_qname": "contents.write",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.dev.get_changes.GetChanges.update_changelog",
+          "callee": "write",
+          "callee_qname": "f.write",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 0,
-        "excluded_limitation_count": 4,
-        "excluded_total_count": 4,
+        "excluded_limitation_count": 6,
+        "excluded_total_count": 6,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved": 6
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -11263,9 +11281,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 1,
-          "6": 1,
-          "1": 4
+          "0": 5,
+          "6": 1
         }
       },
       "q2_node_rates": null,
@@ -11729,13 +11746,13 @@
         {
           "caller": "OpenLineage.client.python.tests.test_dataset.TestRemoteFileSystem.test_remote_file_system_naming",
           "callee": "get_name",
-          "callee_qname": null,
+          "callee_qname": "remote_fs.get_name",
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.client.python.tests.test_dataset.TestRemoteFileSystem.test_remote_file_system_naming",
           "callee": "get_namespace",
-          "callee_qname": null,
+          "callee_qname": "remote_fs.get_namespace",
           "provenance": "syntax_raw"
         }
       ],
@@ -12054,11 +12071,11 @@
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 1,
+        "excluded_out_of_scope_count": 2,
         "excluded_limitation_count": 4,
-        "excluded_total_count": 5,
+        "excluded_total_count": 6,
         "excluded_out_of_scope_by_reason": {
-          "external": 1
+          "external": 2
         },
         "excluded_limitation_by_reason": {
           "in_repo_unresolved": 4
@@ -12433,7 +12450,7 @@
         {
           "caller": "OpenLineage.integration.common.src.openlineage.common.provider.great_expectations.action.OpenLineageValidationAction._fetch_datasets_from_pandas_source",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "batch.batch_request.options.get",
           "provenance": "syntax_raw"
         },
         {
@@ -12445,7 +12462,7 @@
         {
           "caller": "OpenLineage.integration.common.src.openlineage.common.provider.great_expectations.action.OpenLineageValidationAction._fetch_datasets_from_pandas_source",
           "callee": "to_openlineage_dataset",
-          "callee_qname": "to_openlineage_dataset",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -12467,10 +12484,9 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 8,
+          "0": 9,
           "1": 4,
-          "2": 1,
-          "3": 1
+          "2": 1
         }
       },
       "q2_node_rates": {
@@ -12945,11 +12961,11 @@
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 4,
+        "excluded_out_of_scope_count": 6,
         "excluded_limitation_count": 1,
-        "excluded_total_count": 5,
+        "excluded_total_count": 7,
         "excluded_out_of_scope_by_reason": {
-          "external": 4
+          "external": 6
         },
         "excluded_limitation_by_reason": {
           "in_repo_unresolved": 1
@@ -13222,15 +13238,13 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 4,
-        "candidate_count": 1,
-        "intersection_count": 1,
-        "missing_count": 3,
+        "candidate_count": 0,
+        "intersection_count": 0,
+        "missing_count": 4,
         "spillover_count": 0,
-        "coverage": 0.25,
+        "coverage": 0.0,
         "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 1
-        }
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
         "reference_count": 4,
@@ -13259,6 +13273,12 @@
         },
         {
           "caller": "OpenLineage.client.python.src.openlineage.client.client.OpenLineageClient.emit",
+          "callee": "filter_event",
+          "callee_qname": "self.filter_event",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.python.src.openlineage.client.client.OpenLineageClient.emit",
           "callee": "to_json",
           "callee_qname": "Serde.to_json",
           "provenance": "syntax_raw"
@@ -13277,15 +13297,15 @@
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
+        "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 6,
-        "excluded_limitation_count": 5,
-        "excluded_total_count": 11,
+        "excluded_limitation_count": 6,
+        "excluded_total_count": 12,
         "excluded_out_of_scope_by_reason": {
           "external": 6
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 5
+          "in_repo_unresolved": 6
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -13301,12 +13321,12 @@
         }
       },
       "q2_node_rates": {
-        "missing_rate": 0.75,
+        "missing_rate": 1.0,
         "spillover_rate": 0.0,
-        "mutual_accuracy": 0.25
+        "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 125.0
+      "unresolved_static_rate_percent": 150.0
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.dbt.local.DbtLocalArtifactProcessor.get_dbt_metadata",
@@ -13479,15 +13499,13 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 1,
-        "intersection_count": 1,
-        "missing_count": 0,
+        "candidate_count": 0,
+        "intersection_count": 0,
+        "missing_count": 1,
         "spillover_count": 0,
-        "coverage": 1.0,
+        "coverage": 0.0,
         "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 1
-        }
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
         "reference_count": 1,
@@ -13501,16 +13519,25 @@
           "name_only": 1
         }
       },
-      "basket2_edges": [],
+      "basket2_edges": [
+        {
+          "caller": "OpenLineage.dev.create_release_doc.DocRelease.get_release",
+          "callee": "get_release",
+          "callee_qname": "self.repo.get_release",
+          "provenance": "syntax_raw"
+        }
+      ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
+        "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 1,
-        "excluded_limitation_count": 0,
-        "excluded_total_count": 1,
+        "excluded_limitation_count": 1,
+        "excluded_total_count": 2,
         "excluded_out_of_scope_by_reason": {
           "external": 1
         },
-        "excluded_limitation_by_reason": {}
+        "excluded_limitation_by_reason": {
+          "in_repo_unresolved": 1
+        }
       },
       "q2_ground_truth_diagnostics": {
         "class_truth_unreliable": null,
@@ -13522,12 +13549,12 @@
         }
       },
       "q2_node_rates": {
-        "missing_rate": 0.0,
+        "missing_rate": 1.0,
         "spillover_rate": 0.0,
-        "mutual_accuracy": 1.0
+        "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 0.0
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.transport.gcplineage.GCPLineageTransport.close",
@@ -13549,15 +13576,13 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 2,
-        "candidate_count": 1,
-        "intersection_count": 1,
-        "missing_count": 1,
+        "candidate_count": 0,
+        "intersection_count": 0,
+        "missing_count": 2,
         "spillover_count": 0,
-        "coverage": 0.5,
+        "coverage": 0.0,
         "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 1
-        }
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
         "reference_count": 2,
@@ -13577,18 +13602,30 @@
           "callee": "_run_async_safely",
           "callee_qname": "self._run_async_safely",
           "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.python.src.openlineage.client.transport.gcplineage.GCPLineageTransport.close",
+          "callee": "close",
+          "callee_qname": "self.async_client.transport.close",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.python.src.openlineage.client.transport.gcplineage.GCPLineageTransport.close",
+          "callee": "close",
+          "callee_qname": "self.client.transport.close",
+          "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
+        "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 2,
-        "excluded_limitation_count": 1,
-        "excluded_total_count": 3,
+        "excluded_limitation_count": 3,
+        "excluded_total_count": 5,
         "excluded_out_of_scope_by_reason": {
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -13603,12 +13640,12 @@
         }
       },
       "q2_node_rates": {
-        "missing_rate": 0.5,
+        "missing_rate": 1.0,
         "spillover_rate": 0.0,
-        "mutual_accuracy": 0.5
+        "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 50.0
+      "unresolved_static_rate_percent": 150.0
     },
     {
       "entity": "OpenLineage.client.python.src.openlineage.client.client.OpenLineageClient.filter_event",
@@ -13628,10 +13665,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 1,
+        "candidate_count": 0,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 1,
+        "spillover_count": 0,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -13646,16 +13683,25 @@
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
       },
-      "basket2_edges": [],
+      "basket2_edges": [
+        {
+          "caller": "OpenLineage.client.python.src.openlineage.client.client.OpenLineageClient.filter_event",
+          "callee": "filter_event",
+          "callee_qname": "_filter.filter_event",
+          "provenance": "syntax_raw"
+        }
+      ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
+        "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 1,
-        "excluded_limitation_count": 0,
-        "excluded_total_count": 1,
+        "excluded_limitation_count": 1,
+        "excluded_total_count": 2,
         "excluded_out_of_scope_by_reason": {
           "external": 1
         },
-        "excluded_limitation_by_reason": {}
+        "excluded_limitation_by_reason": {
+          "in_repo_unresolved": 1
+        }
       },
       "q2_ground_truth_diagnostics": {
         "class_truth_unreliable": null,
@@ -13663,8 +13709,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "4": 1,
-          "0": 1
+          "0": 2
         }
       },
       "q2_node_rates": null,
@@ -13889,7 +13934,7 @@
         {
           "caller": "OpenLineage.client.python.tests.test_client.test_client_updates_existing_job_tags_facet",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "transport.event.job.facets.get",
           "provenance": "syntax_raw"
         }
       ],
@@ -13912,9 +13957,8 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "1": 1,
-          "0": 4,
-          "36": 1,
-          "3": 1
+          "0": 5,
+          "36": 1
         }
       },
       "q2_node_rates": null,
@@ -13941,15 +13985,13 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 6,
-        "candidate_count": 1,
-        "intersection_count": 1,
-        "missing_count": 5,
+        "candidate_count": 0,
+        "intersection_count": 0,
+        "missing_count": 6,
         "spillover_count": 0,
-        "coverage": 0.16666666666666666,
+        "coverage": 0.0,
         "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 1
-        }
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
         "reference_count": 6,
@@ -13978,6 +14020,12 @@
         },
         {
           "caller": "OpenLineage.dev.get_changes.main",
+          "callee": "get_pulls",
+          "callee_qname": "c.get_pulls",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.dev.get_changes.main",
           "callee": "print_new_contributors",
           "callee_qname": "c.print_new_contributors",
           "provenance": "syntax_raw"
@@ -13996,15 +14044,15 @@
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
+        "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 2,
-        "excluded_limitation_count": 5,
-        "excluded_total_count": 7,
+        "excluded_limitation_count": 6,
+        "excluded_total_count": 8,
         "excluded_out_of_scope_by_reason": {
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 5
+          "in_repo_unresolved": 6
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -14019,12 +14067,12 @@
         }
       },
       "q2_node_rates": {
-        "missing_rate": 0.8333333333333334,
+        "missing_rate": 1.0,
         "spillover_rate": 0.0,
-        "mutual_accuracy": 0.16666666666666666
+        "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 83.33333333333334
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "OpenLineage.client.python.tests.fixtures.mock_responses.create_server_error_response",
@@ -14252,15 +14300,13 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 2,
-        "candidate_count": 1,
-        "intersection_count": 1,
-        "missing_count": 1,
+        "candidate_count": 0,
+        "intersection_count": 0,
+        "missing_count": 2,
         "spillover_count": 0,
-        "coverage": 0.5,
+        "coverage": 0.0,
         "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 1
-        }
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
         "reference_count": 2,
@@ -14280,18 +14326,24 @@
           "callee": "create_doc",
           "callee_qname": "c.create_doc",
           "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.dev.create_release_doc.main",
+          "callee": "get_release",
+          "callee_qname": "c.get_release",
+          "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
+        "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 3,
-        "excluded_limitation_count": 1,
-        "excluded_total_count": 4,
+        "excluded_limitation_count": 2,
+        "excluded_total_count": 5,
         "excluded_out_of_scope_by_reason": {
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -14305,12 +14357,12 @@
         }
       },
       "q2_node_rates": {
-        "missing_rate": 0.5,
+        "missing_rate": 1.0,
         "spillover_rate": 0.0,
-        "mutual_accuracy": 0.5
+        "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 50.0
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "OpenLineage.client.python.tests.fixtures.mock_responses.create_client_error_response",
@@ -14547,15 +14599,13 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 9,
-        "candidate_count": 1,
-        "intersection_count": 1,
-        "missing_count": 8,
+        "candidate_count": 0,
+        "intersection_count": 0,
+        "missing_count": 9,
         "spillover_count": 0,
-        "coverage": 0.1111111111111111,
+        "coverage": 0.0,
         "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 1
-        }
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
         "reference_count": 9,
@@ -14596,6 +14646,12 @@
         },
         {
           "caller": "OpenLineage.dev.get_contributor_stats.main",
+          "callee": "get_pulls",
+          "callee_qname": "stats.get_pulls",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.dev.get_contributor_stats.main",
           "callee": "get_stats",
           "callee_qname": "stats.get_stats",
           "provenance": "syntax_raw"
@@ -14620,15 +14676,15 @@
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
+        "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 7,
-        "excluded_limitation_count": 8,
-        "excluded_total_count": 15,
+        "excluded_limitation_count": 9,
+        "excluded_total_count": 16,
         "excluded_out_of_scope_by_reason": {
           "external": 7
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 8
+          "in_repo_unresolved": 9
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -14644,12 +14700,12 @@
         }
       },
       "q2_node_rates": {
-        "missing_rate": 0.8888888888888888,
+        "missing_rate": 1.0,
         "spillover_rate": 0.0,
-        "mutual_accuracy": 0.1111111111111111
+        "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 88.88888888888889
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "OpenLineage.client.python.tests.integration.test_server.test_server.reset_server",
@@ -14911,11 +14967,11 @@
       "basket2_edges": [],
       "q2_filtering_stats": {
         "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 6,
+        "excluded_out_of_scope_count": 7,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 6,
+        "excluded_total_count": 7,
         "excluded_out_of_scope_by_reason": {
-          "external": 6
+          "external": 7
         },
         "excluded_limitation_by_reason": {}
       },
@@ -15113,12 +15169,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 2,
-        "candidate_count": 4,
+        "candidate_count": 3,
         "intersection_count": 2,
         "missing_count": 0,
-        "spillover_count": 2,
+        "spillover_count": 1,
         "coverage": 1.0,
-        "spillover_ratio": 1.0,
+        "spillover_ratio": 0.5,
         "match_provenance_breakdown": {
           "qname_exact": 2
         }
@@ -15147,18 +15203,24 @@
           "callee": "OpenLineageClient",
           "callee_qname": null,
           "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.python.tests.test_file.test_client_with_file_transport_write_emits",
+          "callee": "read",
+          "callee_qname": "log_file_handle.read",
+          "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 4,
+        "reference_in_contract_count": 3,
         "excluded_out_of_scope_count": 8,
-        "excluded_limitation_count": 2,
-        "excluded_total_count": 10,
+        "excluded_limitation_count": 3,
+        "excluded_total_count": 11,
         "excluded_out_of_scope_by_reason": {
           "external": 8
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -15167,18 +15229,18 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 8,
-          "1": 5,
+          "0": 9,
+          "1": 4,
           "6": 1
         }
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 1.0,
-        "mutual_accuracy": 0.5
+        "spillover_rate": 0.5,
+        "mutual_accuracy": 0.6666666666666666
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 100.0
+      "unresolved_static_rate_percent": 150.0
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.utils.get_from_multiple_chains",
@@ -15288,7 +15350,7 @@
         {
           "caller": "OpenLineage.client.python.tests.test_facet_v2.test_with_additional_properties_isinstance_works",
           "callee": "with_additional_properties",
-          "callee_qname": null,
+          "callee_qname": "documentation_facet.with_additional_properties",
           "provenance": "syntax_raw"
         }
       ],
@@ -15956,7 +16018,7 @@
         {
           "caller": "OpenLineage.client.python.tests.test_file.test_file_transport_emit_with_explicit_filesystem",
           "callee": "emit",
-          "callee_qname": null,
+          "callee_qname": "transport.emit",
           "provenance": "syntax_raw"
         },
         {
@@ -16995,12 +17057,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 2,
-        "candidate_count": 5,
+        "candidate_count": 4,
         "intersection_count": 2,
         "missing_count": 0,
-        "spillover_count": 3,
+        "spillover_count": 2,
         "coverage": 1.0,
-        "spillover_ratio": 1.5,
+        "spillover_ratio": 1.0,
         "match_provenance_breakdown": {
           "qname_exact": 2
         }
@@ -17029,18 +17091,24 @@
           "callee": "OpenLineageClient",
           "callee_qname": null,
           "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.python.tests.test_file.test_client_with_file_transport_append_emits",
+          "callee": "read",
+          "callee_qname": "log_file_handle.read",
+          "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 5,
+        "reference_in_contract_count": 4,
         "excluded_out_of_scope_count": 5,
-        "excluded_limitation_count": 2,
-        "excluded_total_count": 7,
+        "excluded_limitation_count": 3,
+        "excluded_total_count": 8,
         "excluded_out_of_scope_by_reason": {
           "external": 5
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -17049,18 +17117,18 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 5,
-          "1": 6,
+          "0": 6,
+          "1": 5,
           "6": 1
         }
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 1.5,
-        "mutual_accuracy": 0.4
+        "spillover_rate": 1.0,
+        "mutual_accuracy": 0.5
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 100.0
+      "unresolved_static_rate_percent": 150.0
     },
     {
       "entity": "OpenLineage.client.python.tests.test_composite.test_emit_continue_combinations",
@@ -17227,11 +17295,11 @@
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 9,
+        "excluded_out_of_scope_count": 10,
         "excluded_limitation_count": 6,
-        "excluded_total_count": 15,
+        "excluded_total_count": 16,
         "excluded_out_of_scope_by_reason": {
-          "external": 9
+          "external": 10
         },
         "excluded_limitation_by_reason": {
           "in_repo_unresolved": 6
@@ -18950,7 +19018,7 @@
         {
           "caller": "OpenLineage.website.argos.screenshot.spec.screenshotPathname",
           "callee": "pathnameToArgosName",
-          "callee_qname": "pathnameToArgosName",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -22220,7 +22288,7 @@
         {
           "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.AwsUtils.AwsUtils.fetchEventsEmitted",
           "callee": "map",
-          "callee_qname": null,
+          "callee_qname": "readAllFilesInPath(s3Client, bucketName, location).map",
           "provenance": "syntax_raw"
         },
         {
@@ -22309,19 +22377,43 @@
         {
           "caller": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.listener.OpenlineageListenerIntegrationTest.OpenlineageListenerIntegrationTest.KafkaSpecificTests.testKafkaJob",
           "callee": "TestingKafkaRecordDeserializationSchema",
-          "callee_qname": "TestingKafkaRecordDeserializationSchema",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.listener.OpenlineageListenerIntegrationTest.OpenlineageListenerIntegrationTest.KafkaSpecificTests.testKafkaJob",
           "callee": "build",
-          "callee_qname": null,
+          "callee_qname": "KafkaRecordSerializationSchema.builder().setValueSerializationSchema(new TestingKafkaRecordSerializationSchema()).setTopic(OUTPUT_TOPIC).build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.listener.OpenlineageListenerIntegrationTest.OpenlineageListenerIntegrationTest.KafkaSpecificTests.testKafkaJob",
+          "callee": "build",
+          "callee_qname": "KafkaSink.<PartitionAndValue>builder().setBootstrapServers(KafkaSourceTestEnv.brokerConnectionStrings).setRecordSerializer(KafkaRecordSerializationSchema.builder().setValueSerializationSchema(new TestingKafkaRecordSerializationSchema()).setTopic(OUTPUT_TOPIC).build()).build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.listener.OpenlineageListenerIntegrationTest.OpenlineageListenerIntegrationTest.KafkaSpecificTests.testKafkaJob",
+          "callee": "build",
+          "callee_qname": "KafkaSource.<PartitionAndValue>builder().setBootstrapServers(KafkaSourceTestEnv.brokerConnectionStrings).setGroupId(\"testBasicRead\").setTopics(Arrays.asList(TOPIC1, TOPIC2)).setDeserializer(new TestingKafkaRecordDeserializationSchema(false)).setStartingOffsets(OffsetsInitializer.earliest()).setBounded(OffsetsInitializer.latest()).build",
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.listener.OpenlineageListenerIntegrationTest.OpenlineageListenerIntegrationTest.KafkaSpecificTests.testKafkaJob",
           "callee": "builder",
-          "callee_qname": null,
+          "callee_qname": "KafkaRecordSerializationSchema.builder",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.listener.OpenlineageListenerIntegrationTest.OpenlineageListenerIntegrationTest.KafkaSpecificTests.testKafkaJob",
+          "callee": "builder",
+          "callee_qname": "KafkaSink.builder",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.listener.OpenlineageListenerIntegrationTest.OpenlineageListenerIntegrationTest.KafkaSpecificTests.testKafkaJob",
+          "callee": "builder",
+          "callee_qname": "KafkaSource.builder",
           "provenance": "syntax_raw"
         },
         {
@@ -22345,7 +22437,25 @@
         {
           "caller": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.listener.OpenlineageListenerIntegrationTest.OpenlineageListenerIntegrationTest.KafkaSpecificTests.testKafkaJob",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "LineageTestUtils.getInputDatasets(events).get",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.listener.OpenlineageListenerIntegrationTest.OpenlineageListenerIntegrationTest.KafkaSpecificTests.testKafkaJob",
+          "callee": "get",
+          "callee_qname": "LineageTestUtils.getOutputDatasets(events).get",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.listener.OpenlineageListenerIntegrationTest.OpenlineageListenerIntegrationTest.KafkaSpecificTests.testKafkaJob",
+          "callee": "get",
+          "callee_qname": "inputDataset.getFacets().getSchema().getFields().get",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.listener.OpenlineageListenerIntegrationTest.OpenlineageListenerIntegrationTest.KafkaSpecificTests.testKafkaJob",
+          "callee": "get",
+          "callee_qname": "outputDateset.getFacets().getSchema().getFields().get",
           "provenance": "syntax_raw"
         },
         {
@@ -22357,13 +22467,25 @@
         {
           "caller": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.listener.OpenlineageListenerIntegrationTest.OpenlineageListenerIntegrationTest.KafkaSpecificTests.testKafkaJob",
           "callee": "getName",
-          "callee_qname": null,
+          "callee_qname": "inputDataset.getName",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.listener.OpenlineageListenerIntegrationTest.OpenlineageListenerIntegrationTest.KafkaSpecificTests.testKafkaJob",
+          "callee": "getName",
+          "callee_qname": "outputDateset.getName",
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.listener.OpenlineageListenerIntegrationTest.OpenlineageListenerIntegrationTest.KafkaSpecificTests.testKafkaJob",
           "callee": "getNamespace",
-          "callee_qname": null,
+          "callee_qname": "inputDataset.getNamespace",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.listener.OpenlineageListenerIntegrationTest.OpenlineageListenerIntegrationTest.KafkaSpecificTests.testKafkaJob",
+          "callee": "getNamespace",
+          "callee_qname": "outputDateset.getNamespace",
           "provenance": "syntax_raw"
         },
         {
@@ -22375,20 +22497,26 @@
         {
           "caller": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.listener.OpenlineageListenerIntegrationTest.OpenlineageListenerIntegrationTest.KafkaSpecificTests.testKafkaJob",
           "callee": "getSchema",
-          "callee_qname": null,
+          "callee_qname": "inputDataset.getFacets().getSchema",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.listener.OpenlineageListenerIntegrationTest.OpenlineageListenerIntegrationTest.KafkaSpecificTests.testKafkaJob",
+          "callee": "getSchema",
+          "callee_qname": "outputDateset.getFacets().getSchema",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 25,
-        "excluded_limitation_count": 12,
-        "excluded_total_count": 37,
+        "excluded_out_of_scope_count": 39,
+        "excluded_limitation_count": 22,
+        "excluded_total_count": 61,
         "excluded_out_of_scope_by_reason": {
-          "external": 25
+          "external": 39
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 12
+          "in_repo_unresolved": 22
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -22398,12 +22526,9 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "1": 3,
-          "0": 40,
-          "54": 5,
-          "4": 5,
-          "3": 5,
-          "8": 1,
-          "35": 2
+          "0": 54,
+          "3": 3,
+          "8": 1
         }
       },
       "q2_node_rates": null,
@@ -22456,7 +22581,211 @@
         {
           "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
           "callee": "build",
-          "callee_qname": null,
+          "callee_qname": "ol.newDataQualityMetricsInputDatasetFacetBuilder().rowCount(10L).bytes(20L).fileCount(5L).columnMetrics(ol.newDataQualityMetricsInputDatasetFacetColumnMetricsBuilder().put(\"mycol\", ol.newDataQualityMetricsInputDatasetFacetColumnMetricsAdditionalBuilder().count(10D).distinctCount(10L).max(30D).min(5D).nullCount(1L).sum(3000D).quantiles(ol.newDataQualityMetricsInputDatasetFacetColumnMetricsAdditionalQuantilesBuilder().put(\"25\", 52D).build()).build()).build()).build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newDataQualityMetricsInputDatasetFacetColumnMetricsAdditionalBuilder().count(10D).distinctCount(10L).max(30D).min(5D).nullCount(1L).sum(3000D).quantiles(ol.newDataQualityMetricsInputDatasetFacetColumnMetricsAdditionalQuantilesBuilder().put(\"25\", 52D).build()).build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newDataQualityMetricsInputDatasetFacetColumnMetricsAdditionalQuantilesBuilder().put(\"25\", 52D).build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newDataQualityMetricsInputDatasetFacetColumnMetricsBuilder().put(\"mycol\", ol.newDataQualityMetricsInputDatasetFacetColumnMetricsAdditionalBuilder().count(10D).distinctCount(10L).max(30D).min(5D).nullCount(1L).sum(3000D).quantiles(ol.newDataQualityMetricsInputDatasetFacetColumnMetricsAdditionalQuantilesBuilder().put(\"25\", 52D).build()).build()).build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newDatasetFacetsBuilder().version(ol.newDatasetVersionDatasetFacet(\"input-version\")).build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newDatasetFacetsBuilder().version(ol.newDatasetVersionDatasetFacet(\"output-version\")).schema(schemaFacet).build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newInputDatasetBuilder().namespace(\"ins\").name(\"input\").facets(ol.newDatasetFacetsBuilder().version(ol.newDatasetVersionDatasetFacet(\"input-version\")).build()).inputFacets(ol.newInputDatasetInputFacetsBuilder().put(\"subset\", ol.newInputSubsetInputDatasetFacetBuilder().inputCondition(ol.newLocationSubsetConditionBuilder().locations(Arrays.asList(\"s3://bucket/key1\", \"s3://bucket/key2\")).build()).build()).dataQualityMetrics(ol.newDataQualityMetricsInputDatasetFacetBuilder().rowCount(10L).bytes(20L).fileCount(5L).columnMetrics(ol.newDataQualityMetricsInputDatasetFacetColumnMetricsBuilder().put(\"mycol\", ol.newDataQualityMetricsInputDatasetFacetColumnMetricsAdditionalBuilder().count(10D).distinctCount(10L).max(30D).min(5D).nullCount(1L).sum(3000D).quantiles(ol.newDataQualityMetricsInputDatasetFacetColumnMetricsAdditionalQuantilesBuilder().put(\"25\", 52D).build()).build()).build()).build()).build()).build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newInputDatasetInputFacetsBuilder().put(\"subset\", ol.newInputSubsetInputDatasetFacetBuilder().inputCondition(ol.newLocationSubsetConditionBuilder().locations(Arrays.asList(\"s3://bucket/key1\", \"s3://bucket/key2\")).build()).build()).dataQualityMetrics(ol.newDataQualityMetricsInputDatasetFacetBuilder().rowCount(10L).bytes(20L).fileCount(5L).columnMetrics(ol.newDataQualityMetricsInputDatasetFacetColumnMetricsBuilder().put(\"mycol\", ol.newDataQualityMetricsInputDatasetFacetColumnMetricsAdditionalBuilder().count(10D).distinctCount(10L).max(30D).min(5D).nullCount(1L).sum(3000D).quantiles(ol.newDataQualityMetricsInputDatasetFacetColumnMetricsAdditionalQuantilesBuilder().put(\"25\", 52D).build()).build()).build()).build()).build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newInputSubsetInputDatasetFacetBuilder().inputCondition(ol.newLocationSubsetConditionBuilder().locations(Arrays.asList(\"s3://bucket/key1\", \"s3://bucket/key2\")).build()).build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newJobBuilder().namespace(namespace).name(name).facets(jobFacets).build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newJobFacetsBuilder().build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newLocationSubsetConditionBuilder().locations(Arrays.asList(\"s3://bucket/key1\", \"s3://bucket/key2\")).build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newNominalTimeRunFacetBuilder().nominalStartTime(now).nominalEndTime(now).build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newOutputDatasetBuilder().namespace(\"ons\").name(\"output\").facets(ol.newDatasetFacetsBuilder().version(ol.newDatasetVersionDatasetFacet(\"output-version\")).schema(schemaFacet).build()).outputFacets(ol.newOutputDatasetOutputFacetsBuilder().outputStatistics(ol.newOutputStatisticsOutputDatasetFacetBuilder().rowCount(10L).size(20L).fileCount(5L).build()).build()).build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newOutputDatasetOutputFacetsBuilder().outputStatistics(ol.newOutputStatisticsOutputDatasetFacetBuilder().rowCount(10L).size(20L).fileCount(5L).build()).build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newOutputStatisticsOutputDatasetFacetBuilder().rowCount(10L).size(20L).fileCount(5L).build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newParentRunFacetBuilder().job(ol.newParentRunFacetJob(\"parent-namespace\", \"parent-name\")).run(ol.newParentRunFacetRun(parentId)).root(ol.newParentRunFacetRoot(ol.newRootRun(rootParentId), ol.newRootJob(\"root-namespace\", \"root-job-name\"))).build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newRunBuilder().runId(runId).facets(runFacets).build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newRunEventBuilder().eventType(OpenLineage.RunEvent.EventType.START).eventTime(now).run(run).job(job).inputs(inputs).outputs(outputs).build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newRunFacetsBuilder().nominalTime(ol.newNominalTimeRunFacetBuilder().nominalStartTime(now).nominalEndTime(now).build()).parent(ol.newParentRunFacetBuilder().job(ol.newParentRunFacetJob(\"parent-namespace\", \"parent-name\")).run(ol.newParentRunFacetRun(parentId)).root(ol.newParentRunFacetRoot(ol.newRootRun(rootParentId), ol.newRootJob(\"root-namespace\", \"root-job-name\"))).build()).build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newSchemaDatasetFacetBuilder().fields(Arrays.asList(ol.newSchemaDatasetFacetFieldsBuilder().name(\"user_id\").type(\"int64\").build(), ol.newSchemaDatasetFacetFieldsBuilder().name(\"phones\").type(\"array\").description(\"List of phone numbers\").fields(Arrays.asList(ol.newSchemaDatasetFacetFieldsBuilder().name(\"_element\").type(\"string\").build())).build(), ol.newSchemaDatasetFacetFieldsBuilder().name(\"addresses\").type(\"struct\").description(\"Has customer completed activation process\").fields(Arrays.asList(ol.newSchemaDatasetFacetFieldsBuilder().name(\"type\").type(\"string\").description(\"Address type, g.e. home, work, etc.\").build(), ol.newSchemaDatasetFacetFieldsBuilder().name(\"country\").type(\"string\").description(\"Country name\").build(), ol.newSchemaDatasetFacetFieldsBuilder().name(\"zip\").type(\"string\").description(\"Zip code\").build(), ol.newSchemaDatasetFacetFieldsBuilder().name(\"state\").type(\"string\").description(\"State name\").build(), ol.newSchemaDatasetFacetFieldsBuilder().name(\"street\").type(\"string\").description(\"Street name\").build())).build(), ol.newSchemaDatasetFacetFieldsBuilder().name(\"custom_properties\").type(\"map\").fields(Arrays.asList(ol.newSchemaDatasetFacetFieldsBuilder().name(\"key\").type(\"string\").build(), ol.newSchemaDatasetFacetFieldsBuilder().name(\"value\").type(\"union\").fields(Arrays.asList(ol.newSchemaDatasetFacetFieldsBuilder().name(\"_0\").type(\"string\").build(), ol.newSchemaDatasetFacetFieldsBuilder().name(\"_1\").type(\"int64\").build())).build())).build())).build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newSchemaDatasetFacetFieldsBuilder().name(\"_0\").type(\"string\").build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newSchemaDatasetFacetFieldsBuilder().name(\"_1\").type(\"int64\").build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newSchemaDatasetFacetFieldsBuilder().name(\"_element\").type(\"string\").build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newSchemaDatasetFacetFieldsBuilder().name(\"addresses\").type(\"struct\").description(\"Has customer completed activation process\").fields(Arrays.asList(ol.newSchemaDatasetFacetFieldsBuilder().name(\"type\").type(\"string\").description(\"Address type, g.e. home, work, etc.\").build(), ol.newSchemaDatasetFacetFieldsBuilder().name(\"country\").type(\"string\").description(\"Country name\").build(), ol.newSchemaDatasetFacetFieldsBuilder().name(\"zip\").type(\"string\").description(\"Zip code\").build(), ol.newSchemaDatasetFacetFieldsBuilder().name(\"state\").type(\"string\").description(\"State name\").build(), ol.newSchemaDatasetFacetFieldsBuilder().name(\"street\").type(\"string\").description(\"Street name\").build())).build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newSchemaDatasetFacetFieldsBuilder().name(\"country\").type(\"string\").description(\"Country name\").build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newSchemaDatasetFacetFieldsBuilder().name(\"custom_properties\").type(\"map\").fields(Arrays.asList(ol.newSchemaDatasetFacetFieldsBuilder().name(\"key\").type(\"string\").build(), ol.newSchemaDatasetFacetFieldsBuilder().name(\"value\").type(\"union\").fields(Arrays.asList(ol.newSchemaDatasetFacetFieldsBuilder().name(\"_0\").type(\"string\").build(), ol.newSchemaDatasetFacetFieldsBuilder().name(\"_1\").type(\"int64\").build())).build())).build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newSchemaDatasetFacetFieldsBuilder().name(\"key\").type(\"string\").build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newSchemaDatasetFacetFieldsBuilder().name(\"phones\").type(\"array\").description(\"List of phone numbers\").fields(Arrays.asList(ol.newSchemaDatasetFacetFieldsBuilder().name(\"_element\").type(\"string\").build())).build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newSchemaDatasetFacetFieldsBuilder().name(\"state\").type(\"string\").description(\"State name\").build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newSchemaDatasetFacetFieldsBuilder().name(\"street\").type(\"string\").description(\"Street name\").build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newSchemaDatasetFacetFieldsBuilder().name(\"type\").type(\"string\").description(\"Address type, g.e. home, work, etc.\").build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newSchemaDatasetFacetFieldsBuilder().name(\"user_id\").type(\"int64\").build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newSchemaDatasetFacetFieldsBuilder().name(\"value\").type(\"union\").fields(Arrays.asList(ol.newSchemaDatasetFacetFieldsBuilder().name(\"_0\").type(\"string\").build(), ol.newSchemaDatasetFacetFieldsBuilder().name(\"_1\").type(\"int64\").build())).build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "build",
+          "callee_qname": "ol.newSchemaDatasetFacetFieldsBuilder().name(\"zip\").type(\"string\").description(\"Zip code\").build",
           "provenance": "syntax_raw"
         },
         {
@@ -22480,55 +22809,199 @@
         {
           "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
           "callee": "facets",
-          "callee_qname": null,
+          "callee_qname": "ol.newInputDatasetBuilder().namespace(\"ins\").name(\"input\").facets",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "facets",
+          "callee_qname": "ol.newJobBuilder().namespace(namespace).name(name).facets",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "facets",
+          "callee_qname": "ol.newOutputDatasetBuilder().namespace(\"ons\").name(\"output\").facets",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "facets",
+          "callee_qname": "ol.newRunBuilder().runId(runId).facets",
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "colMetrics.getQuantiles().getAdditionalProperties().get",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "get",
+          "callee_qname": "dq.getColumnMetrics().getAdditionalProperties().get",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "get",
+          "callee_qname": "readServer.getOutputs().get",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "get",
+          "callee_qname": "readServer.getOutputs().get(0).getOutputFacets().getAdditionalProperties().get",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "get",
+          "callee_qname": "runStateUpdate.getInputs().get",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "get",
+          "callee_qname": "runStateUpdate.getOutputs().get",
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
           "callee": "getAdditionalProperties",
-          "callee_qname": null,
+          "callee_qname": "colMetrics.getQuantiles().getAdditionalProperties",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "getAdditionalProperties",
+          "callee_qname": "dq.getColumnMetrics().getAdditionalProperties",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "getAdditionalProperties",
+          "callee_qname": "readServer.getOutputs().get(0).getOutputFacets().getAdditionalProperties",
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
           "callee": "getDatasetVersion",
-          "callee_qname": null,
+          "callee_qname": "inputDataset.getFacets().getVersion().getDatasetVersion",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "getDatasetVersion",
+          "callee_qname": "outputDataset.getFacets().getVersion().getDatasetVersion",
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
           "callee": "getEventType",
-          "callee_qname": null,
+          "callee_qname": "read.getEventType",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "getEventType",
+          "callee_qname": "readServer.getEventType",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "getEventType",
+          "callee_qname": "runStateUpdate.getEventType",
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
           "callee": "getInputs",
-          "callee_qname": null,
+          "callee_qname": "runStateUpdate.getInputs",
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
           "callee": "getName",
-          "callee_qname": null,
+          "callee_qname": "inputDataset.getName",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "getName",
+          "callee_qname": "outputDataset.getName",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "getName",
+          "callee_qname": "parentRun.getJob().getName",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "getName",
+          "callee_qname": "parentRun.getRoot().getJob().getName",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "getName",
+          "callee_qname": "read.getJob().getName",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "getName",
+          "callee_qname": "readServer.getJob().getName",
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
           "callee": "getNamespace",
-          "callee_qname": null,
+          "callee_qname": "inputDataset.getNamespace",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "getNamespace",
+          "callee_qname": "outputDataset.getNamespace",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "getNamespace",
+          "callee_qname": "parentRun.getJob().getNamespace",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "getNamespace",
+          "callee_qname": "parentRun.getRoot().getJob().getNamespace",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "getNamespace",
+          "callee_qname": "read.getJob().getNamespace",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "getNamespace",
+          "callee_qname": "readServer.getJob().getNamespace",
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
           "callee": "getOutputs",
-          "callee_qname": null,
+          "callee_qname": "readServer.getOutputs",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "getOutputs",
+          "callee_qname": "runStateUpdate.getOutputs",
           "provenance": "syntax_raw"
         },
         {
@@ -22540,7 +23013,25 @@
         {
           "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
           "callee": "getRunId",
-          "callee_qname": null,
+          "callee_qname": "parentRun.getRoot().getRun().getRunId",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "getRunId",
+          "callee_qname": "parentRun.getRun().getRunId",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "getRunId",
+          "callee_qname": "read.getRun().getRunId",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "getRunId",
+          "callee_qname": "readServer.getRun().getRunId",
           "provenance": "syntax_raw"
         },
         {
@@ -22552,37 +23043,97 @@
         {
           "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
           "callee": "getVersion",
-          "callee_qname": null,
+          "callee_qname": "inputDataset.getFacets().getVersion",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "getVersion",
+          "callee_qname": "outputDataset.getFacets().getVersion",
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
           "callee": "inputs",
-          "callee_qname": null,
+          "callee_qname": "ol.newRunEventBuilder().eventType(OpenLineage.RunEvent.EventType.START).eventTime(now).run(run).job(job).inputs",
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
           "callee": "name",
-          "callee_qname": null,
+          "callee_qname": "ol.newInputDatasetBuilder().namespace(\"ins\").name",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "name",
+          "callee_qname": "ol.newJobBuilder().namespace(namespace).name",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "name",
+          "callee_qname": "ol.newOutputDatasetBuilder().namespace(\"ons\").name",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "name",
+          "callee_qname": "ol.newSchemaDatasetFacetFieldsBuilder().name",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "name",
+          "callee_qname": "readServer.getEventType().name",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "name",
+          "callee_qname": "runStateUpdate.getEventType().name",
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
           "callee": "namespace",
-          "callee_qname": null,
+          "callee_qname": "ol.newInputDatasetBuilder().namespace",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "namespace",
+          "callee_qname": "ol.newJobBuilder().namespace",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "namespace",
+          "callee_qname": "ol.newOutputDatasetBuilder().namespace",
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
           "callee": "outputs",
-          "callee_qname": null,
+          "callee_qname": "ol.newRunEventBuilder().eventType(OpenLineage.RunEvent.EventType.START).eventTime(now).run(run).job(job).inputs(inputs).outputs",
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
           "callee": "put",
-          "callee_qname": null,
+          "callee_qname": "ol.newDataQualityMetricsInputDatasetFacetColumnMetricsAdditionalQuantilesBuilder().put",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "put",
+          "callee_qname": "ol.newDataQualityMetricsInputDatasetFacetColumnMetricsBuilder().put",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "put",
+          "callee_qname": "ol.newInputDatasetInputFacetsBuilder().put",
           "provenance": "syntax_raw"
         },
         {
@@ -22594,7 +23145,13 @@
         {
           "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
           "callee": "run",
-          "callee_qname": null,
+          "callee_qname": "ol.newParentRunFacetBuilder().job(ol.newParentRunFacetJob(\"parent-namespace\", \"parent-name\")).run",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "run",
+          "callee_qname": "ol.newRunEventBuilder().eventType(OpenLineage.RunEvent.EventType.START).eventTime(now).run",
           "provenance": "syntax_raw"
         },
         {
@@ -22606,7 +23163,85 @@
         {
           "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
           "callee": "type",
-          "callee_qname": null,
+          "callee_qname": "ol.newSchemaDatasetFacetFieldsBuilder().name(\"_0\").type",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "type",
+          "callee_qname": "ol.newSchemaDatasetFacetFieldsBuilder().name(\"_1\").type",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "type",
+          "callee_qname": "ol.newSchemaDatasetFacetFieldsBuilder().name(\"_element\").type",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "type",
+          "callee_qname": "ol.newSchemaDatasetFacetFieldsBuilder().name(\"addresses\").type",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "type",
+          "callee_qname": "ol.newSchemaDatasetFacetFieldsBuilder().name(\"country\").type",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "type",
+          "callee_qname": "ol.newSchemaDatasetFacetFieldsBuilder().name(\"custom_properties\").type",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "type",
+          "callee_qname": "ol.newSchemaDatasetFacetFieldsBuilder().name(\"key\").type",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "type",
+          "callee_qname": "ol.newSchemaDatasetFacetFieldsBuilder().name(\"phones\").type",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "type",
+          "callee_qname": "ol.newSchemaDatasetFacetFieldsBuilder().name(\"state\").type",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "type",
+          "callee_qname": "ol.newSchemaDatasetFacetFieldsBuilder().name(\"street\").type",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "type",
+          "callee_qname": "ol.newSchemaDatasetFacetFieldsBuilder().name(\"type\").type",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "type",
+          "callee_qname": "ol.newSchemaDatasetFacetFieldsBuilder().name(\"user_id\").type",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "type",
+          "callee_qname": "ol.newSchemaDatasetFacetFieldsBuilder().name(\"value\").type",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+          "callee": "type",
+          "callee_qname": "ol.newSchemaDatasetFacetFieldsBuilder().name(\"zip\").type",
           "provenance": "syntax_raw"
         },
         {
@@ -22618,14 +23253,14 @@
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 89,
-        "excluded_limitation_count": 27,
-        "excluded_total_count": 116,
+        "excluded_out_of_scope_count": 121,
+        "excluded_limitation_count": 112,
+        "excluded_total_count": 233,
         "excluded_out_of_scope_by_reason": {
-          "external": 89
+          "external": 121
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 27
+          "in_repo_unresolved": 112
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -22634,17 +23269,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 129,
-          "54": 41,
-          "1": 17,
-          "3": 6,
-          "4": 17,
-          "6": 2,
-          "2": 6,
-          "35": 6,
-          "7": 2,
-          "8": 6,
-          "10": 2
+          "0": 233,
+          "1": 1
         }
       },
       "q2_node_rates": {
@@ -22653,7 +23279,7 @@
         "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 2700.0
+      "unresolved_static_rate_percent": 11200.0
     },
     {
       "entity": "OpenLineage.client.java.src.main.java.io.openlineage.client.utils.TransformationInfo.TransformationInfo.toInputFieldsTransformations",
@@ -22707,7 +23333,13 @@
         {
           "caller": "OpenLineage.client.java.src.main.java.io.openlineage.client.utils.TransformationInfo.TransformationInfo.toInputFieldsTransformations",
           "callee": "name",
-          "callee_qname": null,
+          "callee_qname": "subType.name",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.main.java.io.openlineage.client.utils.TransformationInfo.TransformationInfo.toInputFieldsTransformations",
+          "callee": "name",
+          "callee_qname": "type.name",
           "provenance": "syntax_raw"
         },
         {
@@ -22720,13 +23352,13 @@
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 3,
-        "excluded_limitation_count": 4,
-        "excluded_total_count": 7,
+        "excluded_limitation_count": 5,
+        "excluded_total_count": 8,
         "excluded_out_of_scope_by_reason": {
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved": 5
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -22843,15 +23475,13 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 1,
-        "intersection_count": 1,
-        "missing_count": 0,
+        "candidate_count": 0,
+        "intersection_count": 0,
+        "missing_count": 1,
         "spillover_count": 0,
-        "coverage": 1.0,
+        "coverage": 0.0,
         "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 1
-        }
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
         "reference_count": 1,
@@ -22865,16 +23495,25 @@
           "name_only": 1
         }
       },
-      "basket2_edges": [],
+      "basket2_edges": [
+        {
+          "caller": "OpenLineage.client.java.src.main.java.io.openlineage.client.dataset.namespace.resolver.DatasetNamespaceResolverLoader.DatasetNamespaceResolverLoader.getDatasetNamespaceResolverBuilder",
+          "callee": "load",
+          "callee_qname": "DatasetNamespaceResolverServiceLoader.load",
+          "provenance": "syntax_raw"
+        }
+      ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 5,
-        "excluded_limitation_count": 0,
-        "excluded_total_count": 5,
+        "reference_in_contract_count": 0,
+        "excluded_out_of_scope_count": 6,
+        "excluded_limitation_count": 1,
+        "excluded_total_count": 7,
         "excluded_out_of_scope_by_reason": {
-          "external": 5
+          "external": 6
         },
-        "excluded_limitation_by_reason": {}
+        "excluded_limitation_by_reason": {
+          "in_repo_unresolved": 1
+        }
       },
       "q2_ground_truth_diagnostics": {
         "class_truth_unreliable": null,
@@ -22887,12 +23526,12 @@
         }
       },
       "q2_node_rates": {
-        "missing_rate": 0.0,
+        "missing_rate": 1.0,
         "spillover_rate": 0.0,
-        "mutual_accuracy": 1.0
+        "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 0.0
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "OpenLineage.client.java.src.test.java.io.openlineage.client.ConfigTest.ConfigTest.testSimpleMemoryCircuitBreakerConfigFromYaml",
@@ -22940,13 +23579,13 @@
         {
           "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.ConfigTest.ConfigTest.testSimpleMemoryCircuitBreakerConfigFromYaml",
           "callee": "SimpleMemoryCircuitBreakerConfig",
-          "callee_qname": "SimpleMemoryCircuitBreakerConfig",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.ConfigTest.ConfigTest.testSimpleMemoryCircuitBreakerConfigFromYaml",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "client.circuitBreaker.get",
           "provenance": "syntax_raw"
         },
         {
@@ -22993,8 +23632,7 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "1": 4,
-          "0": 5,
-          "3": 1,
+          "0": 6,
           "5": 1
         }
       },
@@ -23052,7 +23690,7 @@
         {
           "caller": "OpenLineage.integration.spark.spark3.src.test.java.io.openlineage.spark3.agent.lifecycle.plan.column.ExpressionTraverserTest.ExpressionTraverserTest.transformationDefaultsToIdentity",
           "callee": "addDependency",
-          "callee_qname": null,
+          "callee_qname": "verify(builder).addDependency",
           "provenance": "syntax_raw"
         },
         {
@@ -23064,7 +23702,7 @@
         {
           "caller": "OpenLineage.integration.spark.spark3.src.test.java.io.openlineage.spark3.agent.lifecycle.plan.column.ExpressionTraverserTest.ExpressionTraverserTest.transformationDefaultsToIdentity",
           "callee": "traverse",
-          "callee_qname": null,
+          "callee_qname": "aTraverser(LEAF_NODE_1, OUTPUT_EXPRESSION_ID).traverse",
           "provenance": "syntax_raw"
         },
         {
@@ -23155,13 +23793,31 @@
         {
           "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.lifecycle.plan.SaveIntoDataSourceCommandVisitorTest.SaveIntoDataSourceCommandVisitorTest.testJdbcRelationProviderAsDatasource",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "result.get",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.lifecycle.plan.SaveIntoDataSourceCommandVisitorTest.SaveIntoDataSourceCommandVisitorTest.testJdbcRelationProviderAsDatasource",
+          "callee": "get",
+          "callee_qname": "result.get(0).getFacets().getSchema().getFields().get",
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.lifecycle.plan.SaveIntoDataSourceCommandVisitorTest.SaveIntoDataSourceCommandVisitorTest.testJdbcRelationProviderAsDatasource",
           "callee": "getName",
-          "callee_qname": null,
+          "callee_qname": "result.get(0).getFacets().getSchema().getFields().get(0).getName",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.lifecycle.plan.SaveIntoDataSourceCommandVisitorTest.SaveIntoDataSourceCommandVisitorTest.testJdbcRelationProviderAsDatasource",
+          "callee": "getName",
+          "callee_qname": "result.get(0).getFacets().getSchema().getFields().get(1).getName",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.lifecycle.plan.SaveIntoDataSourceCommandVisitorTest.SaveIntoDataSourceCommandVisitorTest.testJdbcRelationProviderAsDatasource",
+          "callee": "getName",
+          "callee_qname": "result.get(0).getName",
           "provenance": "syntax_raw"
         },
         {
@@ -23173,13 +23829,19 @@
         {
           "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.lifecycle.plan.SaveIntoDataSourceCommandVisitorTest.SaveIntoDataSourceCommandVisitorTest.testJdbcRelationProviderAsDatasource",
           "callee": "getSchema",
-          "callee_qname": null,
+          "callee_qname": "result.get(0).getFacets().getSchema",
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.lifecycle.plan.SaveIntoDataSourceCommandVisitorTest.SaveIntoDataSourceCommandVisitorTest.testJdbcRelationProviderAsDatasource",
           "callee": "getType",
-          "callee_qname": null,
+          "callee_qname": "result.get(0).getFacets().getSchema().getFields().get(0).getType",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.lifecycle.plan.SaveIntoDataSourceCommandVisitorTest.SaveIntoDataSourceCommandVisitorTest.testJdbcRelationProviderAsDatasource",
+          "callee": "getType",
+          "callee_qname": "result.get(0).getFacets().getSchema().getFields().get(1).getType",
           "provenance": "syntax_raw"
         },
         {
@@ -23197,14 +23859,14 @@
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 10,
-        "excluded_limitation_count": 9,
-        "excluded_total_count": 19,
+        "excluded_out_of_scope_count": 12,
+        "excluded_limitation_count": 13,
+        "excluded_total_count": 25,
         "excluded_out_of_scope_by_reason": {
-          "external": 10
+          "external": 12
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 9
+          "in_repo_unresolved": 13
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -23213,12 +23875,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 16,
-          "1": 1,
-          "3": 2,
-          "54": 3,
-          "4": 1,
-          "32": 2
+          "0": 24,
+          "1": 1
         }
       },
       "q2_node_rates": null,
@@ -23275,7 +23933,13 @@
         {
           "caller": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.lifecycle.plan.InsertIntoDataSourceVisitor.InsertIntoDataSourceVisitor.apply",
           "callee": "build",
-          "callee_qname": null,
+          "callee_qname": "DatasetFacetsUtils.copyToBuilder(context, ds.getFacets()).lifecycleStateChange(context.getOpenLineage().newLifecycleStateChangeDatasetFacet(OpenLineage.LifecycleStateChangeDatasetFacet.LifecycleStateChange.OVERWRITE, null)).build",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.lifecycle.plan.InsertIntoDataSourceVisitor.InsertIntoDataSourceVisitor.apply",
+          "callee": "build",
+          "callee_qname": "facetsMap.build",
           "provenance": "syntax_raw"
         },
         {
@@ -23335,14 +23999,14 @@
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 13,
-        "excluded_limitation_count": 11,
-        "excluded_total_count": 24,
+        "excluded_out_of_scope_count": 14,
+        "excluded_limitation_count": 12,
+        "excluded_total_count": 26,
         "excluded_out_of_scope_by_reason": {
-          "external": 13
+          "external": 14
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 11
+          "in_repo_unresolved": 12
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -23365,7 +24029,7 @@
         "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 550.0
+      "unresolved_static_rate_percent": 600.0
     },
     {
       "entity": "OpenLineage.integration.flink.shared.src.main.java.io.openlineage.flink.visitor.wrapper.FlinkKafkaConsumerWrapper.FlinkKafkaConsumerWrapper.getDeserializationSchema",
@@ -23481,7 +24145,7 @@
         {
           "caller": "OpenLineage.integration.spark.spark3.src.test.java.io.openlineage.spark3.agent.lifecycle.plan.column.InputFieldsCollectorTest.InputFieldsCollectorTest.collectWhenGrandChildNodeIsDataSourceV2ScanRelation",
           "callee": "addInput",
-          "callee_qname": null,
+          "callee_qname": "verify(builder, times(1)).addInput",
           "provenance": "syntax_raw"
         },
         {
@@ -23499,7 +24163,7 @@
         {
           "caller": "OpenLineage.integration.spark.spark3.src.test.java.io.openlineage.spark3.agent.lifecycle.plan.column.InputFieldsCollectorTest.InputFieldsCollectorTest.collectWhenGrandChildNodeIsDataSourceV2ScanRelation",
           "callee": "output",
-          "callee_qname": null,
+          "callee_qname": "scanRelation.output",
           "provenance": "syntax_raw"
         },
         {
@@ -23511,11 +24175,11 @@
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 12,
+        "excluded_out_of_scope_count": 14,
         "excluded_limitation_count": 5,
-        "excluded_total_count": 17,
+        "excluded_total_count": 19,
         "excluded_out_of_scope_by_reason": {
-          "external": 12
+          "external": 14
         },
         "excluded_limitation_by_reason": {
           "in_repo_unresolved": 5
@@ -23528,9 +24192,8 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "1": 3,
-          "0": 14,
+          "0": 15,
           "4": 1,
-          "6": 1,
           "3": 1
         }
       },
@@ -23596,7 +24259,13 @@
         {
           "caller": "OpenLineage.integration.spark.spark3.src.test.java.io.openlineage.spark3.agent.lifecycle.plan.column.visitors.operator.FilterVisitorTest.FilterVisitorTest.testApply",
           "callee": "apply",
-          "callee_qname": null,
+          "callee_qname": "ExprId.apply",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.spark.spark3.src.test.java.io.openlineage.spark3.agent.lifecycle.plan.column.visitors.operator.FilterVisitorTest.FilterVisitorTest.testApply",
+          "callee": "apply",
+          "callee_qname": "visitor.apply",
           "provenance": "syntax_raw"
         },
         {
@@ -23639,13 +24308,13 @@
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 6,
-        "excluded_limitation_count": 9,
-        "excluded_total_count": 15,
+        "excluded_limitation_count": 10,
+        "excluded_total_count": 16,
         "excluded_out_of_scope_by_reason": {
           "external": 6
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 9
+          "in_repo_unresolved": 10
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -23654,10 +24323,10 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 8,
+          "0": 9,
           "1": 4,
           "2": 2,
-          "121": 2,
+          "121": 1,
           "3": 1
         }
       },
@@ -23782,7 +24451,7 @@
         {
           "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.PostgresJDBCSparkQueryTest.PostgresJDBCSparkQueryTest.testColumnLevelLineageWhenLoadingJDBC",
           "callee": "collect",
-          "callee_qname": null,
+          "callee_qname": "events.stream().filter(event -> !event.getInputs().isEmpty()).flatMap(e -> e.getOutputs().stream()).map(OutputDataset::getFacets).map(DatasetFacets::getColumnLineage).filter(Objects::nonNull).collect",
           "provenance": "syntax_raw"
         },
         {
@@ -23800,7 +24469,19 @@
         {
           "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.PostgresJDBCSparkQueryTest.PostgresJDBCSparkQueryTest.testColumnLevelLineageWhenLoadingJDBC",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "columnLineageFacets.get",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.PostgresJDBCSparkQueryTest.PostgresJDBCSparkQueryTest.testColumnLevelLineageWhenLoadingJDBC",
+          "callee": "get",
+          "callee_qname": "columnLineageFacets.get(0).getFields().getAdditionalProperties().get",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.PostgresJDBCSparkQueryTest.PostgresJDBCSparkQueryTest.testColumnLevelLineageWhenLoadingJDBC",
+          "callee": "get",
+          "callee_qname": "inputFields.get",
           "provenance": "syntax_raw"
         },
         {
@@ -23830,7 +24511,7 @@
         {
           "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.PostgresJDBCSparkQueryTest.PostgresJDBCSparkQueryTest.testColumnLevelLineageWhenLoadingJDBC",
           "callee": "getInputs",
-          "callee_qname": null,
+          "callee_qname": "event.getInputs",
           "provenance": "syntax_raw"
         },
         {
@@ -23842,7 +24523,7 @@
         {
           "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.PostgresJDBCSparkQueryTest.PostgresJDBCSparkQueryTest.testColumnLevelLineageWhenLoadingJDBC",
           "callee": "getName",
-          "callee_qname": null,
+          "callee_qname": "inputFields.get(0).getName",
           "provenance": "syntax_raw"
         },
         {
@@ -23866,19 +24547,25 @@
         {
           "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.PostgresJDBCSparkQueryTest.PostgresJDBCSparkQueryTest.testColumnLevelLineageWhenLoadingJDBC",
           "callee": "isEmpty",
-          "callee_qname": null,
+          "callee_qname": "event.getInputs().isEmpty",
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.PostgresJDBCSparkQueryTest.PostgresJDBCSparkQueryTest.testColumnLevelLineageWhenLoadingJDBC",
           "callee": "load",
-          "callee_qname": null,
+          "callee_qname": "spark.read().format(\"jdbc\").option(\"url\", postgres.getPostgres().getJdbcUrl()).option(\"driver\", \"org.postgresql.Driver\").option(option, value).option(\"user\", postgres.getPostgres().getUsername()).option(\"password\", postgres.getPostgres().getPassword()).load",
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.PostgresJDBCSparkQueryTest.PostgresJDBCSparkQueryTest.testColumnLevelLineageWhenLoadingJDBC",
           "callee": "map",
-          "callee_qname": null,
+          "callee_qname": "events.stream().filter(event -> !event.getInputs().isEmpty()).flatMap(e -> e.getOutputs().stream()).map",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.PostgresJDBCSparkQueryTest.PostgresJDBCSparkQueryTest.testColumnLevelLineageWhenLoadingJDBC",
+          "callee": "map",
+          "callee_qname": "events.stream().filter(event -> !event.getInputs().isEmpty()).flatMap(e -> e.getOutputs().stream()).map(OutputDataset::getFacets).map",
           "provenance": "syntax_raw"
         },
         {
@@ -23890,7 +24577,13 @@
         {
           "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.PostgresJDBCSparkQueryTest.PostgresJDBCSparkQueryTest.testColumnLevelLineageWhenLoadingJDBC",
           "callee": "stop",
-          "callee_qname": null,
+          "callee_qname": "postgres.stop",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.PostgresJDBCSparkQueryTest.PostgresJDBCSparkQueryTest.testColumnLevelLineageWhenLoadingJDBC",
+          "callee": "stop",
+          "callee_qname": "spark.stop",
           "provenance": "syntax_raw"
         },
         {
@@ -23902,14 +24595,14 @@
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 21,
-        "excluded_limitation_count": 20,
-        "excluded_total_count": 41,
+        "excluded_out_of_scope_count": 29,
+        "excluded_limitation_count": 24,
+        "excluded_total_count": 53,
         "excluded_out_of_scope_by_reason": {
-          "external": 21
+          "external": 29
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 20
+          "in_repo_unresolved": 24
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -23918,12 +24611,10 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 38,
-          "4": 3,
-          "1": 6,
-          "3": 4,
-          "2": 2,
-          "54": 1
+          "0": 49,
+          "1": 3,
+          "2": 1,
+          "4": 1
         }
       },
       "q2_node_rates": {
@@ -23932,7 +24623,7 @@
         "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 2000.0
+      "unresolved_static_rate_percent": 2400.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.lifecycle.plan.CreateTableCommandVisitor.CreateTableCommandVisitor.jobNameSuffix",
@@ -23996,7 +24687,13 @@
         {
           "caller": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.lifecycle.plan.CreateTableCommandVisitor.CreateTableCommandVisitor.jobNameSuffix",
           "callee": "map",
-          "callee_qname": null,
+          "callee_qname": "context.getSparkSession().map",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.lifecycle.plan.CreateTableCommandVisitor.CreateTableCommandVisitor.jobNameSuffix",
+          "callee": "map",
+          "callee_qname": "context.getSparkSession().map(session -> PathUtils.fromCatalogTable(command.table(), session)).map",
           "provenance": "syntax_raw"
         },
         {
@@ -24009,13 +24706,13 @@
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 1,
-        "excluded_limitation_count": 5,
-        "excluded_total_count": 6,
+        "excluded_limitation_count": 6,
+        "excluded_total_count": 7,
         "excluded_out_of_scope_by_reason": {
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 5
+          "in_repo_unresolved": 6
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -24024,8 +24721,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "1": 4,
-          "0": 3
+          "1": 2,
+          "0": 5
         }
       },
       "q2_node_rates": {
@@ -24034,7 +24731,7 @@
         "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 500.0
+      "unresolved_static_rate_percent": 600.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.facets.builder.DebugRunFacetBuilderDelegate.DebugRunFacetBuilderDelegate.getDeployMode",
@@ -24086,7 +24783,7 @@
         {
           "caller": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.facets.builder.DebugRunFacetBuilderDelegate.DebugRunFacetBuilderDelegate.getDeployMode",
           "callee": "map",
-          "callee_qname": null,
+          "callee_qname": "olContext.getSparkContext().map",
           "provenance": "syntax_raw"
         }
       ],
@@ -24108,8 +24805,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 3,
-          "1": 1
+          "0": 4
         }
       },
       "q2_node_rates": {
@@ -24345,7 +25041,7 @@
         {
           "caller": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.api.DatasetFactory.DatasetFactory.datasetFacetBuilder",
           "callee": "schema",
-          "callee_qname": null,
+          "callee_qname": "builder.getFacets().schema",
           "provenance": "syntax_raw"
         },
         {
@@ -24357,11 +25053,11 @@
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 3,
+        "excluded_out_of_scope_count": 4,
         "excluded_limitation_count": 4,
-        "excluded_total_count": 7,
+        "excluded_total_count": 8,
         "excluded_out_of_scope_by_reason": {
-          "external": 3
+          "external": 4
         },
         "excluded_limitation_by_reason": {
           "in_repo_unresolved": 4
@@ -24501,7 +25197,7 @@
         {
           "caller": "OpenLineage.client.java.src.main.java.io.openlineage.client.transports.FacetsConfig.FacetsConfig.flattenMapHelper",
           "callee": "getValue",
-          "callee_qname": null,
+          "callee_qname": "entry.getValue",
           "provenance": "syntax_raw"
         },
         {
@@ -24513,7 +25209,7 @@
         {
           "caller": "OpenLineage.client.java.src.main.java.io.openlineage.client.transports.FacetsConfig.FacetsConfig.flattenMapHelper",
           "callee": "put",
-          "callee_qname": null,
+          "callee_qname": "flattenedMap.put",
           "provenance": "syntax_raw"
         }
       ],
@@ -24535,8 +25231,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 3,
-          "1": 3
+          "0": 5,
+          "1": 1
         }
       },
       "q2_node_rates": {
@@ -24634,10 +25330,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 1,
+        "candidate_count": 0,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 1,
+        "spillover_count": 0,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -24652,16 +25348,25 @@
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
       },
-      "basket2_edges": [],
+      "basket2_edges": [
+        {
+          "caller": "OpenLineage.client.java.src.main.java.io.openlineage.client.utils.TransformationInfo.TransformationInfo.equals",
+          "callee": "equals",
+          "callee_qname": "Objects.equals",
+          "provenance": "syntax_raw"
+        }
+      ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
+        "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 1,
-        "excluded_limitation_count": 0,
-        "excluded_total_count": 1,
+        "excluded_limitation_count": 1,
+        "excluded_total_count": 2,
         "excluded_out_of_scope_by_reason": {
           "external": 1
         },
-        "excluded_limitation_by_reason": {}
+        "excluded_limitation_by_reason": {
+          "in_repo_unresolved": 1
+        }
       },
       "q2_ground_truth_diagnostics": {
         "class_truth_unreliable": null,
@@ -24669,8 +25374,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "27": 1,
-          "0": 2
+          "0": 3
         }
       },
       "q2_node_rates": null,
@@ -24862,13 +25566,13 @@
         {
           "caller": "OpenLineage.integration.spark.spark40.src.test.java.io.openlineage.spark40.agent.lifecycle.plan.AlterTableCommandDatasetBuilderTest.AlterTableCommandDatasetBuilderTest.testApplyDatasetVersionIncluded",
           "callee": "empty",
-          "callee_qname": null,
+          "callee_qname": "Option.empty",
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.integration.spark.spark40.src.test.java.io.openlineage.spark40.agent.lifecycle.plan.AlterTableCommandDatasetBuilderTest.AlterTableCommandDatasetBuilderTest.testApplyDatasetVersionIncluded",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "outputDatasets.get",
           "provenance": "syntax_raw"
         },
         {
@@ -24880,7 +25584,13 @@
         {
           "caller": "OpenLineage.integration.spark.spark40.src.test.java.io.openlineage.spark40.agent.lifecycle.plan.AlterTableCommandDatasetBuilderTest.AlterTableCommandDatasetBuilderTest.testApplyDatasetVersionIncluded",
           "callee": "getDatasetVersion",
-          "callee_qname": null,
+          "callee_qname": "CatalogUtils3.getDatasetVersion",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.spark.spark40.src.test.java.io.openlineage.spark40.agent.lifecycle.plan.AlterTableCommandDatasetBuilderTest.AlterTableCommandDatasetBuilderTest.testApplyDatasetVersionIncluded",
+          "callee": "getDatasetVersion",
+          "callee_qname": "outputDatasets.get(0).getFacets().getVersion().getDatasetVersion",
           "provenance": "syntax_raw"
         },
         {
@@ -24892,20 +25602,20 @@
         {
           "caller": "OpenLineage.integration.spark.spark40.src.test.java.io.openlineage.spark40.agent.lifecycle.plan.AlterTableCommandDatasetBuilderTest.AlterTableCommandDatasetBuilderTest.testApplyDatasetVersionIncluded",
           "callee": "of",
-          "callee_qname": null,
+          "callee_qname": "Optional.of",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 8,
-        "excluded_limitation_count": 7,
-        "excluded_total_count": 15,
+        "excluded_out_of_scope_count": 10,
+        "excluded_limitation_count": 8,
+        "excluded_total_count": 18,
         "excluded_out_of_scope_by_reason": {
-          "external": 8
+          "external": 10
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 7
+          "in_repo_unresolved": 8
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -24914,12 +25624,9 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 12,
-          "1": 1,
-          "3": 1,
+          "0": 16,
           "18": 1,
-          "6": 2,
-          "14": 1
+          "6": 1
         }
       },
       "q2_node_rates": null,
@@ -24976,7 +25683,7 @@
         {
           "caller": "OpenLineage.integration.sql.iface-java.src.test.java.io.openlineage.sql.OpenLineageSqlTest.OpenLineageSqlTest.columnLevelLineageRename",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "OpenLineageSql.parse(Arrays.asList(\"SELECT t1.a, t2.c as d\\n\" + \"FROM table1 t1\\n\" + \"INNER JOIN (SELECT t2.a, t2.b as c FROM table2 t2) t2\")).get",
           "provenance": "syntax_raw"
         },
         {
@@ -25349,7 +26056,7 @@
         {
           "caller": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.converter.LineageGraphConverterTest.LineageGraphConverterTest.TestingDatasetIdentifierVisitor.apply",
           "callee": "DatasetIdentifier",
-          "callee_qname": "DatasetIdentifier",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -25425,13 +26132,13 @@
         {
           "caller": "OpenLineage.integration.hive.hive-openlineage-hook.src.main.java.io.openlineage.hive.hooks.Faceting.Faceting.getParentRunFacet",
           "callee": "build",
-          "callee_qname": null,
+          "callee_qname": "olContext.getOpenLineage().newParentRunFacetBuilder().run(olContext.getOpenLineage().newParentRunFacetRun(uuid.get())).job(olContext.getOpenLineage().newParentRunFacetJob(olContext.getOpenLineageConfig().getParentJobNamespace(), olContext.getOpenLineageConfig().getParentJobName())).build",
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.integration.hive.hive-openlineage-hook.src.main.java.io.openlineage.hive.hooks.Faceting.Faceting.getParentRunFacet",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "uuid.get",
           "provenance": "syntax_raw"
         },
         {
@@ -25443,7 +26150,7 @@
         {
           "caller": "OpenLineage.integration.hive.hive-openlineage-hook.src.main.java.io.openlineage.hive.hooks.Faceting.Faceting.getParentRunFacet",
           "callee": "run",
-          "callee_qname": null,
+          "callee_qname": "olContext.getOpenLineage().newParentRunFacetBuilder().run",
           "provenance": "syntax_raw"
         }
       ],
@@ -25467,8 +26174,7 @@
         "strict_contract_candidate_count_histogram": {
           "54": 1,
           "2": 1,
-          "3": 1,
-          "0": 9,
+          "0": 10,
           "1": 1,
           "10": 1
         }
@@ -25527,7 +26233,7 @@
         {
           "caller": "OpenLineage.client.java.src.main.java.io.openlineage.client.utils.filesystem.ObjectStorageDatasetExtractor.ObjectStorageDatasetExtractor.extract",
           "callee": "DatasetIdentifier",
-          "callee_qname": "DatasetIdentifier",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -25539,7 +26245,19 @@
         {
           "caller": "OpenLineage.client.java.src.main.java.io.openlineage.client.utils.filesystem.ObjectStorageDatasetExtractor.ObjectStorageDatasetExtractor.extract",
           "callee": "map",
-          "callee_qname": null,
+          "callee_qname": "Optional.of(rawName).map",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.main.java.io.openlineage.client.utils.filesystem.ObjectStorageDatasetExtractor.ObjectStorageDatasetExtractor.extract",
+          "callee": "map",
+          "callee_qname": "Optional.of(rawName).map(FilesystemUriSanitizer::removeFirstSlash).map",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.java.src.main.java.io.openlineage.client.utils.filesystem.ObjectStorageDatasetExtractor.ObjectStorageDatasetExtractor.extract",
+          "callee": "map",
+          "callee_qname": "Optional.of(rawName).map(FilesystemUriSanitizer::removeFirstSlash).map(FilesystemUriSanitizer::removeLastSlash).map",
           "provenance": "syntax_raw"
         },
         {
@@ -25576,13 +26294,13 @@
       "q2_filtering_stats": {
         "reference_in_contract_count": 1,
         "excluded_out_of_scope_count": 4,
-        "excluded_limitation_count": 8,
-        "excluded_total_count": 12,
+        "excluded_limitation_count": 10,
+        "excluded_total_count": 14,
         "excluded_out_of_scope_by_reason": {
           "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 8
+          "in_repo_unresolved": 10
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -25591,8 +26309,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "1": 7,
-          "0": 7,
+          "1": 4,
+          "0": 10,
           "33": 1
         }
       },
@@ -25602,7 +26320,7 @@
         "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 800.0
+      "unresolved_static_rate_percent": 1000.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.api.QueryPlanVisitor.QueryPlanVisitor.toString",
@@ -25656,7 +26374,7 @@
         {
           "caller": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.api.QueryPlanVisitor.QueryPlanVisitor.toString",
           "callee": "getName",
-          "callee_qname": null,
+          "callee_qname": "getClass().getName",
           "provenance": "syntax_raw"
         },
         {
@@ -25668,26 +26386,38 @@
         {
           "caller": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.api.QueryPlanVisitor.QueryPlanVisitor.toString",
           "callee": "map",
-          "callee_qname": null,
+          "callee_qname": "Arrays.stream(actualArgs).map",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.api.QueryPlanVisitor.QueryPlanVisitor.toString",
+          "callee": "map",
+          "callee_qname": "Optional.ofNullable(arg).map",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.api.QueryPlanVisitor.QueryPlanVisitor.toString",
+          "callee": "map",
+          "callee_qname": "typeArgs.map",
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.api.QueryPlanVisitor.QueryPlanVisitor.toString",
           "callee": "of",
-          "callee_qname": null,
+          "callee_qname": "Stream.of",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 7,
-        "excluded_limitation_count": 6,
-        "excluded_total_count": 13,
+        "excluded_limitation_count": 8,
+        "excluded_total_count": 15,
         "excluded_out_of_scope_by_reason": {
           "external": 7
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 6
+          "in_repo_unresolved": 8
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -25696,10 +26426,9 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 9,
+          "0": 13,
           "54": 1,
-          "1": 4,
-          "14": 1
+          "1": 1
         }
       },
       "q2_node_rates": null,
@@ -25853,7 +26582,7 @@
         {
           "caller": "OpenLineage.integration.flink.shared.src.main.java.io.openlineage.flink.visitor.wrapper.FlinkKafkaProducerWrapper.FlinkKafkaProducerWrapper.getAvroSchema",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "keyedSchema.get",
           "provenance": "syntax_raw"
         },
         {
@@ -25881,9 +26610,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "3": 1,
-          "1": 3,
-          "0": 1
+          "0": 2,
+          "1": 3
         }
       },
       "q2_node_rates": {
@@ -25999,11 +26727,11 @@
       "basket2_edges": [],
       "q2_filtering_stats": {
         "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 3,
+        "excluded_out_of_scope_count": 8,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 3,
+        "excluded_total_count": 8,
         "excluded_out_of_scope_by_reason": {
-          "external": 3
+          "external": 8
         },
         "excluded_limitation_by_reason": {}
       },
@@ -26218,7 +26946,7 @@
         {
           "caller": "OpenLineage.client.java.generator.src.main.java.io.openlineage.client.JavaPoetGenerator.JavaPoetGenerator.generateTypes",
           "callee": "build",
-          "callee_qname": null,
+          "callee_qname": "MethodSpec.methodBuilder(\"new\" + type.getName() + \"Builder\").addModifiers(PUBLIC).addJavadoc(\"Creates a builder for $N\\n\", type.getName()).addJavadoc(\"@return a new builder for $N\\n\", type.getName()).returns(ClassName.get(containerClass, type.getName() + \"Builder\")).addCode(\"return new $N();\", type.getName() + \"Builder\").build",
           "provenance": "syntax_raw"
         },
         {
@@ -26230,7 +26958,7 @@
         {
           "caller": "OpenLineage.client.java.generator.src.main.java.io.openlineage.client.JavaPoetGenerator.JavaPoetGenerator.generateTypes",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "ClassName.get",
           "provenance": "syntax_raw"
         },
         {
@@ -26242,7 +26970,7 @@
         {
           "caller": "OpenLineage.client.java.generator.src.main.java.io.openlineage.client.JavaPoetGenerator.JavaPoetGenerator.generateTypes",
           "callee": "getName",
-          "callee_qname": null,
+          "callee_qname": "type.getName",
           "provenance": "syntax_raw"
         },
         {
@@ -26254,11 +26982,11 @@
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 4,
-        "excluded_out_of_scope_count": 8,
+        "excluded_out_of_scope_count": 9,
         "excluded_limitation_count": 6,
-        "excluded_total_count": 14,
+        "excluded_total_count": 15,
         "excluded_out_of_scope_by_reason": {
-          "external": 8
+          "external": 9
         },
         "excluded_limitation_by_reason": {
           "in_repo_unresolved": 6
@@ -26270,10 +26998,9 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 12,
-          "54": 2,
+          "0": 14,
           "1": 4,
-          "3": 1
+          "54": 1
         }
       },
       "q2_node_rates": {
@@ -26328,7 +27055,7 @@
         {
           "caller": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.api.AbstractQueryPlanDatasetBuilder.AbstractQueryPlanDatasetBuilder.apply",
           "callee": "apply",
-          "callee_qname": "builder.apply",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -26340,7 +27067,13 @@
         {
           "caller": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.api.AbstractQueryPlanDatasetBuilder.AbstractQueryPlanDatasetBuilder.apply",
           "callee": "collect",
-          "callee_qname": null,
+          "callee_qname": "ScalaConversionUtils.fromSeq(qe.optimizedPlan().collect(visitor)).stream().flatMap(Collection::stream).collect",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.api.AbstractQueryPlanDatasetBuilder.AbstractQueryPlanDatasetBuilder.apply",
+          "callee": "collect",
+          "callee_qname": "qe.optimizedPlan().collect",
           "provenance": "syntax_raw"
         },
         {
@@ -26358,7 +27091,7 @@
         {
           "caller": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.api.AbstractQueryPlanDatasetBuilder.AbstractQueryPlanDatasetBuilder.apply",
           "callee": "map",
-          "callee_qname": null,
+          "callee_qname": "context.getQueryExecution().map",
           "provenance": "syntax_raw"
         },
         {
@@ -26376,14 +27109,14 @@
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 7,
-        "excluded_limitation_count": 8,
-        "excluded_total_count": 15,
+        "excluded_out_of_scope_count": 8,
+        "excluded_limitation_count": 9,
+        "excluded_total_count": 17,
         "excluded_out_of_scope_by_reason": {
-          "external": 7
+          "external": 8
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 8
+          "in_repo_unresolved": 9
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -26392,9 +27125,10 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 10,
-          "1": 5,
-          "4": 2
+          "0": 11,
+          "121": 1,
+          "1": 4,
+          "4": 1
         }
       },
       "q2_node_rates": {
@@ -26403,7 +27137,7 @@
         "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 400.0
+      "unresolved_static_rate_percent": 450.0
     },
     {
       "entity": "OpenLineage.integration.flink.shared.src.test.java.io.openlineage.flink.utils.ProtobufUtilsTest.ProtobufUtilsTest.NonProtoDeserializationSchema.deserialize",
@@ -26756,13 +27490,13 @@
         {
           "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.PostgresJDBCSparkQueryTest.PostgresJDBCSparkQueryTest.testPostgresWhenOnlyOneTableIsLoadedDirectly",
           "callee": "SchemaRecord",
-          "callee_qname": "SchemaRecord",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.PostgresJDBCSparkQueryTest.PostgresJDBCSparkQueryTest.testPostgresWhenOnlyOneTableIsLoadedDirectly",
           "callee": "collect",
-          "callee_qname": null,
+          "callee_qname": "handler.getEvents(\"test_postgres_when_only_one_table_is_loaded_directly\").stream().filter(event -> !event.getInputs().isEmpty()).collect",
           "provenance": "syntax_raw"
         },
         {
@@ -26780,7 +27514,7 @@
         {
           "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.PostgresJDBCSparkQueryTest.PostgresJDBCSparkQueryTest.testPostgresWhenOnlyOneTableIsLoadedDirectly",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "inputs.get",
           "provenance": "syntax_raw"
         },
         {
@@ -26792,7 +27526,7 @@
         {
           "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.PostgresJDBCSparkQueryTest.PostgresJDBCSparkQueryTest.testPostgresWhenOnlyOneTableIsLoadedDirectly",
           "callee": "getInputs",
-          "callee_qname": null,
+          "callee_qname": "event.getInputs",
           "provenance": "syntax_raw"
         },
         {
@@ -26804,7 +27538,7 @@
         {
           "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.PostgresJDBCSparkQueryTest.PostgresJDBCSparkQueryTest.testPostgresWhenOnlyOneTableIsLoadedDirectly",
           "callee": "getName",
-          "callee_qname": null,
+          "callee_qname": "input.getName",
           "provenance": "syntax_raw"
         },
         {
@@ -26816,19 +27550,19 @@
         {
           "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.PostgresJDBCSparkQueryTest.PostgresJDBCSparkQueryTest.testPostgresWhenOnlyOneTableIsLoadedDirectly",
           "callee": "getSchema",
-          "callee_qname": null,
+          "callee_qname": "input.getFacets().getSchema",
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.PostgresJDBCSparkQueryTest.PostgresJDBCSparkQueryTest.testPostgresWhenOnlyOneTableIsLoadedDirectly",
           "callee": "isEmpty",
-          "callee_qname": null,
+          "callee_qname": "event.getInputs().isEmpty",
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.PostgresJDBCSparkQueryTest.PostgresJDBCSparkQueryTest.testPostgresWhenOnlyOneTableIsLoadedDirectly",
           "callee": "load",
-          "callee_qname": null,
+          "callee_qname": "spark.read().format(\"jdbc\").option(\"url\", postgres.getPostgres().getJdbcUrl()).option(\"driver\", \"org.postgresql.Driver\").option(\"dbtable\", \"authors\").option(\"user\", postgres.getPostgres().getUsername()).option(\"password\", postgres.getPostgres().getPassword()).load",
           "provenance": "syntax_raw"
         },
         {
@@ -26846,20 +27580,26 @@
         {
           "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.PostgresJDBCSparkQueryTest.PostgresJDBCSparkQueryTest.testPostgresWhenOnlyOneTableIsLoadedDirectly",
           "callee": "stop",
-          "callee_qname": null,
+          "callee_qname": "postgres.stop",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.PostgresJDBCSparkQueryTest.PostgresJDBCSparkQueryTest.testPostgresWhenOnlyOneTableIsLoadedDirectly",
+          "callee": "stop",
+          "callee_qname": "spark.stop",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 18,
-        "excluded_limitation_count": 16,
-        "excluded_total_count": 34,
+        "excluded_out_of_scope_count": 22,
+        "excluded_limitation_count": 17,
+        "excluded_total_count": 39,
         "excluded_out_of_scope_by_reason": {
-          "external": 18
+          "external": 22
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 16
+          "in_repo_unresolved": 17
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -26868,12 +27608,10 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "1": 6,
-          "0": 25,
-          "4": 4,
-          "3": 2,
-          "2": 2,
-          "54": 1
+          "1": 5,
+          "0": 33,
+          "2": 1,
+          "4": 1
         }
       },
       "q2_node_rates": {
@@ -26882,7 +27620,7 @@
         "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 1600.0
+      "unresolved_static_rate_percent": 1700.0
     },
     {
       "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.api.AbstractQueryPlanInputDatasetBuilder.AbstractQueryPlanInputDatasetBuilder.delegate",
@@ -27152,20 +27890,26 @@
         {
           "caller": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.facets.builder.DebugRunFacetBuilderDelegate.DebugRunFacetBuilderDelegate.getSparkConfOrNull",
           "callee": "map",
-          "callee_qname": null,
+          "callee_qname": "olContext.getSparkContext().map",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.facets.builder.DebugRunFacetBuilderDelegate.DebugRunFacetBuilderDelegate.getSparkConfOrNull",
+          "callee": "map",
+          "callee_qname": "olContext.getSparkContext().map(sc -> sc.conf()).map",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 2,
-        "excluded_limitation_count": 3,
-        "excluded_total_count": 5,
+        "excluded_limitation_count": 4,
+        "excluded_total_count": 6,
         "excluded_out_of_scope_by_reason": {
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved": 4
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -27174,8 +27918,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 4,
-          "1": 2
+          "0": 6
         }
       },
       "q2_node_rates": {
@@ -27184,7 +27927,7 @@
         "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 300.0
+      "unresolved_static_rate_percent": 400.0
     },
     {
       "entity": "OpenLineage.integration.spark.spark3.src.main.java.io.openlineage.spark3.agent.lifecycle.plan.column.visitors.operator.DataSourceV2RelationVisitor.DataSourceV2RelationVisitor.isDefinedAt",
@@ -27359,7 +28102,7 @@
         {
           "caller": "OpenLineage.client.python.tests.test_client.test_config",
           "callee": "from_dict",
-          "callee_qname": null,
+          "callee_qname": "OpenLineageConfig.from_dict",
           "provenance": "syntax_raw"
         }
       ],
@@ -27913,7 +28656,7 @@
         {
           "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.SparkDeltaIntegrationTest.SparkDeltaIntegrationTest.testGroupByQuery",
           "callee": "write",
-          "callee_qname": null,
+          "callee_qname": "dataset.write",
           "provenance": "syntax_raw"
         }
       ],
@@ -27935,9 +28678,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 10,
-          "3": 2,
-          "1": 1
+          "0": 11,
+          "3": 2
         }
       },
       "q2_node_rates": {
@@ -28649,7 +29391,13 @@
         {
           "caller": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.api.AbstractQueryPlanOutputDatasetBuilder.AbstractQueryPlanOutputDatasetBuilder.jobNameSuffixFromLogicalPlan",
           "callee": "map",
-          "callee_qname": null,
+          "callee_qname": "Optional.of(p).filter(plan -> this.isDefinedAtLogicalPlan(plan)).map",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.api.AbstractQueryPlanOutputDatasetBuilder.AbstractQueryPlanOutputDatasetBuilder.jobNameSuffixFromLogicalPlan",
+          "callee": "map",
+          "callee_qname": "Optional.of(p).filter(plan -> this.isDefinedAtLogicalPlan(plan)).map(plan -> jobNameSuffix((P) plan)).filter(Optional::isPresent).map",
           "provenance": "syntax_raw"
         },
         {
@@ -28661,14 +29409,14 @@
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 2,
-        "excluded_limitation_count": 4,
-        "excluded_total_count": 6,
+        "excluded_out_of_scope_count": 3,
+        "excluded_limitation_count": 5,
+        "excluded_total_count": 8,
         "excluded_out_of_scope_by_reason": {
-          "external": 2
+          "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved": 5
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -28677,10 +29425,9 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 5,
+          "0": 7,
           "35": 1,
-          "28": 1,
-          "1": 2
+          "28": 1
         }
       },
       "q2_node_rates": {
@@ -28689,7 +29436,7 @@
         "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 400.0
+      "unresolved_static_rate_percent": 500.0
     },
     {
       "entity": "OpenLineage.integration.flink.shared.src.main.java.io.openlineage.flink.visitor.wrapper.JdbcSourceWrapper.JdbcSourceWrapper.of",
@@ -28935,7 +29682,7 @@
         {
           "caller": "OpenLineage.client.python.tests.test_client.test_client_creates_new_run_tags_facet",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "transport.event.run.facets.get",
           "provenance": "syntax_raw"
         }
       ],
@@ -28958,9 +29705,8 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "1": 1,
-          "0": 3,
-          "36": 1,
-          "3": 1
+          "0": 4,
+          "36": 1
         }
       },
       "q2_node_rates": null,
@@ -29007,7 +29753,7 @@
         {
           "caller": "OpenLineage.client.python.tests.conftest.TestServerHelper.get_run_sequence",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "self.client.get",
           "provenance": "syntax_raw"
         }
       ],
@@ -29560,32 +30306,44 @@
         {
           "caller": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.testutils.KafkaTestEnvironmentImpl.KafkaTestEnvironmentImpl.startKafkaContainerCluster",
           "callee": "map",
-          "callee_qname": null,
+          "callee_qname": "brokers.values().stream().map",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.testutils.KafkaTestEnvironmentImpl.KafkaTestEnvironmentImpl.startKafkaContainerCluster",
+          "callee": "map",
+          "callee_qname": "brokers.values().stream().map(KafkaContainer::getBootstrapServers).map",
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.testutils.KafkaTestEnvironmentImpl.KafkaTestEnvironmentImpl.startKafkaContainerCluster",
           "callee": "put",
-          "callee_qname": null,
+          "callee_qname": "brokers.put",
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.testutils.KafkaTestEnvironmentImpl.KafkaTestEnvironmentImpl.startKafkaContainerCluster",
           "callee": "start",
-          "callee_qname": null,
+          "callee_qname": "GenericContainer.start",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.testutils.KafkaTestEnvironmentImpl.KafkaTestEnvironmentImpl.startKafkaContainerCluster",
+          "callee": "start",
+          "callee_qname": "zookeeper.start",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 1,
         "excluded_out_of_scope_count": 9,
-        "excluded_limitation_count": 6,
-        "excluded_total_count": 15,
+        "excluded_limitation_count": 8,
+        "excluded_total_count": 17,
         "excluded_out_of_scope_by_reason": {
           "external": 9
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 6
+          "in_repo_unresolved": 8
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -29594,10 +30352,9 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 11,
+          "0": 16,
           "2": 1,
-          "1": 4,
-          "8": 2
+          "1": 1
         }
       },
       "q2_node_rates": {
@@ -29606,7 +30363,7 @@
         "mutual_accuracy": 0.5
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 300.0
+      "unresolved_static_rate_percent": 400.0
     },
     {
       "entity": "OpenLineage.integration.spark.vendor.gcp.src.main.java.io.openlineage.spark.agent.vendor.gcp.util.GCPUtils.GCPUtils.getDataprocRunFacetMap",
@@ -29654,17 +30411,17 @@
         {
           "caller": "OpenLineage.integration.spark.vendor.gcp.src.main.java.io.openlineage.spark.agent.vendor.gcp.util.GCPUtils.GCPUtils.getDataprocRunFacetMap",
           "callee": "put",
-          "callee_qname": null,
+          "callee_qname": "dataprocProperties.put",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 12,
-        "excluded_out_of_scope_count": 2,
+        "excluded_out_of_scope_count": 12,
         "excluded_limitation_count": 1,
-        "excluded_total_count": 3,
+        "excluded_total_count": 13,
         "excluded_out_of_scope_by_reason": {
-          "external": 2
+          "external": 12
         },
         "excluded_limitation_by_reason": {
           "in_repo_unresolved": 1
@@ -29676,8 +30433,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 12,
-          "1": 13
+          "0": 13,
+          "1": 12
         }
       },
       "q2_node_rates": {
@@ -29857,11 +30614,11 @@
       "basket2_edges": [],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 5,
+        "excluded_out_of_scope_count": 6,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 5,
+        "excluded_total_count": 6,
         "excluded_out_of_scope_by_reason": {
-          "external": 5
+          "external": 6
         },
         "excluded_limitation_by_reason": {}
       },
@@ -30170,20 +30927,26 @@
         {
           "caller": "OpenLineage.client.python.src.openlineage.client.client.OpenLineageClient.update_event_tags_facets",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "event.job.facets.get",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.python.src.openlineage.client.client.OpenLineageClient.update_event_tags_facets",
+          "callee": "get",
+          "callee_qname": "event.run.facets.get",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 3,
-        "excluded_limitation_count": 2,
-        "excluded_total_count": 5,
+        "excluded_limitation_count": 3,
+        "excluded_total_count": 6,
         "excluded_out_of_scope_by_reason": {
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -30192,9 +30955,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 3,
-          "1": 1,
-          "3": 2
+          "0": 5,
+          "1": 1
         }
       },
       "q2_node_rates": {
@@ -30203,7 +30965,7 @@
         "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 200.0
+      "unresolved_static_rate_percent": 300.0
     },
     {
       "entity": "OpenLineage.integration.common.src.openlineage.common.provider.bigquery.BigQueryDatasetsProvider._get_table_safely",
@@ -30329,13 +31091,13 @@
         {
           "caller": "OpenLineage.integration.hive.hive-openlineage-hook.src.main.java.io.openlineage.hive.parsing.Parsing.Parsing.parseWhereExpressions",
           "callee": "add",
-          "callee_qname": null,
+          "callee_qname": "expressions.add",
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.integration.hive.hive-openlineage-hook.src.main.java.io.openlineage.hive.parsing.Parsing.Parsing.parseWhereExpressions",
           "callee": "getChildren",
-          "callee_qname": null,
+          "callee_qname": "whereNode.getChildren",
           "provenance": "syntax_raw"
         }
       ],
@@ -30357,8 +31119,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 3,
-          "2": 2,
+          "0": 5,
           "1": 1
         }
       },
@@ -31662,15 +32423,13 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 1,
-        "intersection_count": 1,
-        "missing_count": 0,
+        "candidate_count": 0,
+        "intersection_count": 0,
+        "missing_count": 1,
         "spillover_count": 0,
-        "coverage": 1.0,
+        "coverage": 0.0,
         "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 1
-        }
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
         "reference_count": 1,
@@ -31684,14 +32443,29 @@
           "name_only": 1
         }
       },
-      "basket2_edges": [],
+      "basket2_edges": [
+        {
+          "caller": "OpenLineage.client.python.src.openlineage.client.transport.datadog.DatadogTransport.close",
+          "callee": "close",
+          "callee_qname": "self.async_http.close",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.client.python.src.openlineage.client.transport.datadog.DatadogTransport.close",
+          "callee": "close",
+          "callee_qname": "self.http.close",
+          "provenance": "syntax_raw"
+        }
+      ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
+        "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 0,
-        "excluded_limitation_count": 0,
-        "excluded_total_count": 0,
+        "excluded_limitation_count": 2,
+        "excluded_total_count": 2,
         "excluded_out_of_scope_by_reason": {},
-        "excluded_limitation_by_reason": {}
+        "excluded_limitation_by_reason": {
+          "in_repo_unresolved": 2
+        }
       },
       "q2_ground_truth_diagnostics": {
         "class_truth_unreliable": null,
@@ -31703,12 +32477,12 @@
         }
       },
       "q2_node_rates": {
-        "missing_rate": 0.0,
+        "missing_rate": 1.0,
         "spillover_rate": 0.0,
-        "mutual_accuracy": 1.0
+        "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 0.0
+      "unresolved_static_rate_percent": 200.0
     },
     {
       "entity": "OpenLineage.client.java.src.main.java.io.openlineage.client.dataset.Naming.Naming.ABFSS.ABFSS",
@@ -32039,11 +32813,11 @@
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 6,
+        "excluded_out_of_scope_count": 7,
         "excluded_limitation_count": 2,
-        "excluded_total_count": 8,
+        "excluded_total_count": 9,
         "excluded_out_of_scope_by_reason": {
-          "external": 6
+          "external": 7
         },
         "excluded_limitation_by_reason": {
           "in_repo_unresolved": 2
@@ -32689,13 +33463,13 @@
         {
           "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.dataset.NamingTest.NamingTest.testLocalFsNaming",
           "callee": "build",
-          "callee_qname": null,
+          "callee_qname": "Naming.LocalFileSystem.builder().path(\"/local/path\").build",
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.client.java.src.test.java.io.openlineage.client.dataset.NamingTest.NamingTest.testLocalFsNaming",
           "callee": "builder",
-          "callee_qname": null,
+          "callee_qname": "Naming.LocalFileSystem.builder",
           "provenance": "syntax_raw"
         },
         {
@@ -32915,7 +33689,7 @@
         {
           "caller": "OpenLineage.integration.spark.spark3.src.test.java.io.openlineage.spark3.agent.lifecycle.plan.column.ExpressionDependencyCollectorTest.ExpressionDependencyCollectorTest.testCollectMultipleDirectTransformationsForOneInput",
           "callee": "collect",
-          "callee_qname": null,
+          "callee_qname": "ExpressionDependencyCollector.collect",
           "provenance": "syntax_raw"
         },
         {
@@ -33867,7 +34641,7 @@
         {
           "caller": "OpenLineage.client.java.transports-gcplineage.src.test.java.io.openlineage.client.transports.gcplineage.GcpLineageTransportTest.GcpLineageTransportTest.testAsyncClientWithGracefulShutdownDuration",
           "callee": "GcpLineageTransport",
-          "callee_qname": "GcpLineageTransport",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -34639,11 +35413,11 @@
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 9,
+        "excluded_out_of_scope_count": 10,
         "excluded_limitation_count": 1,
-        "excluded_total_count": 10,
+        "excluded_total_count": 11,
         "excluded_out_of_scope_by_reason": {
-          "external": 9
+          "external": 10
         },
         "excluded_limitation_by_reason": {
           "in_repo_unresolved": 1
@@ -34832,7 +35606,13 @@
         {
           "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.SparkSqlQueryRecordingTest.SparkSqlQueryRecordingTest.testReadingSqlQuery",
           "callee": "add",
-          "callee_qname": null,
+          "callee_qname": "nums.add",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.SparkSqlQueryRecordingTest.SparkSqlQueryRecordingTest.testReadingSqlQuery",
+          "callee": "add",
+          "callee_qname": "structType.add",
           "provenance": "syntax_raw"
         },
         {
@@ -34844,7 +35624,7 @@
         {
           "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.SparkSqlQueryRecordingTest.SparkSqlQueryRecordingTest.testReadingSqlQuery",
           "callee": "contains",
-          "callee_qname": null,
+          "callee_qname": "assertThat(registeredQueries).contains",
           "provenance": "syntax_raw"
         },
         {
@@ -34880,20 +35660,26 @@
         {
           "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.SparkSqlQueryRecordingTest.SparkSqlQueryRecordingTest.testReadingSqlQuery",
           "callee": "write",
-          "callee_qname": null,
+          "callee_qname": "spark.sql(queryA).write",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.SparkSqlQueryRecordingTest.SparkSqlQueryRecordingTest.testReadingSqlQuery",
+          "callee": "write",
+          "callee_qname": "spark.sql(queryB).write",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 16,
-        "excluded_limitation_count": 9,
-        "excluded_total_count": 25,
+        "excluded_out_of_scope_count": 19,
+        "excluded_limitation_count": 11,
+        "excluded_total_count": 30,
         "excluded_out_of_scope_by_reason": {
-          "external": 16
+          "external": 19
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 9
+          "in_repo_unresolved": 11
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -34902,10 +35688,9 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 22,
-          "2": 2,
+          "0": 26,
           "3": 1,
-          "1": 6
+          "1": 4
         }
       },
       "q2_node_rates": {
@@ -34914,7 +35699,7 @@
         "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 900.0
+      "unresolved_static_rate_percent": 1100.0
     },
     {
       "entity": "OpenLineage.integration.flink.shared.src.main.java.io.openlineage.flink.visitor.VisitorFactoryImpl.VisitorFactoryImpl.getOutputVisitors",
@@ -34958,31 +35743,31 @@
         {
           "caller": "OpenLineage.integration.flink.shared.src.main.java.io.openlineage.flink.visitor.VisitorFactoryImpl.VisitorFactoryImpl.getOutputVisitors",
           "callee": "CassandraSinkVisitor",
-          "callee_qname": "CassandraSinkVisitor",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.integration.flink.shared.src.main.java.io.openlineage.flink.visitor.VisitorFactoryImpl.VisitorFactoryImpl.getOutputVisitors",
           "callee": "FlinkKafkaProducerVisitor",
-          "callee_qname": "FlinkKafkaProducerVisitor",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.integration.flink.shared.src.main.java.io.openlineage.flink.visitor.VisitorFactoryImpl.VisitorFactoryImpl.getOutputVisitors",
           "callee": "IcebergSinkVisitor",
-          "callee_qname": "IcebergSinkVisitor",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.integration.flink.shared.src.main.java.io.openlineage.flink.visitor.VisitorFactoryImpl.VisitorFactoryImpl.getOutputVisitors",
           "callee": "JdbcSinkVisitor",
-          "callee_qname": "JdbcSinkVisitor",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
           "caller": "OpenLineage.integration.flink.shared.src.main.java.io.openlineage.flink.visitor.VisitorFactoryImpl.VisitorFactoryImpl.getOutputVisitors",
           "callee": "KafkaSinkVisitor",
-          "callee_qname": "KafkaSinkVisitor",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         },
         {
@@ -35441,27 +36226,27 @@
       "target_missing_rate_max": 0.010000000000000009,
       "target_spillover_rate_max": 0.010000000000000009,
       "scored_nodes": 273,
-      "avg_missing_rate": 0.2256003256003256,
-      "avg_spillover_rate": 0.009157509157509158,
-      "avg_mutual_accuracy": 0.7703703703703704,
+      "avg_missing_rate": 0.24584859584859584,
+      "avg_spillover_rate": 0.005494505494505495,
+      "avg_mutual_accuracy": 0.7510989010989011,
       "reference_count": 1197,
-      "candidate_count": 1090,
-      "intersection_count": 1083,
-      "missing_count": 114,
-      "spillover_count": 7,
+      "candidate_count": 1077,
+      "intersection_count": 1074,
+      "missing_count": 123,
+      "spillover_count": 3,
       "by_language": {
         "java": {
           "scored_nodes": 133,
-          "avg_missing_rate": 0.12493734335839599,
+          "avg_missing_rate": 0.1324561403508772,
           "avg_spillover_rate": 0.0,
-          "avg_mutual_accuracy": 0.875062656641604,
+          "avg_mutual_accuracy": 0.8675438596491228,
           "pass": false
         },
         "python": {
           "scored_nodes": 135,
-          "avg_missing_rate": 0.3331275720164609,
-          "avg_spillover_rate": 0.018518518518518517,
-          "avg_mutual_accuracy": 0.658724279835391,
+          "avg_missing_rate": 0.36666666666666664,
+          "avg_spillover_rate": 0.011111111111111112,
+          "avg_mutual_accuracy": 0.6271604938271605,
           "pass": false
         },
         "typescript": {
@@ -35474,46 +36259,44 @@
       },
       "filtering_source": "core_only",
       "envelope_reference_count": 1197,
-      "envelope_excluded_count": 4085,
-      "envelope_excluded_out_of_scope_count": 3580,
-      "envelope_excluded_limitation_count": 505,
-      "envelope_total_count": 5282,
-      "contract_filtered_out_ratio": 0.7733812949640287,
+      "envelope_excluded_count": 4319,
+      "envelope_excluded_out_of_scope_count": 3676,
+      "envelope_excluded_limitation_count": 643,
+      "envelope_total_count": 5516,
+      "contract_filtered_out_ratio": 0.7829949238578681,
       "envelope_excluded_by_reason": {
         "dynamic": 1,
-        "external": 3580,
-        "in_repo_unresolved": 504
+        "external": 3676,
+        "in_repo_unresolved": 642
       },
       "match_provenance_breakdown": {
-        "qname_exact": 1083
+        "qname_exact": 1074
       },
       "strict_contract_candidate_count_histogram": {
-        "0": 943,
-        "1": 341,
-        "10": 3,
+        "0": 1143,
+        "1": 291,
+        "10": 1,
         "102": 2,
         "12": 7,
         "121": 5,
         "127": 1,
         "13": 3,
-        "14": 3,
+        "14": 1,
         "18": 1,
-        "2": 54,
-        "27": 1,
+        "2": 42,
         "28": 1,
         "29": 2,
-        "3": 59,
-        "32": 2,
+        "3": 32,
         "33": 2,
-        "35": 10,
+        "35": 2,
         "36": 8,
-        "4": 48,
+        "4": 18,
         "40": 9,
         "5": 3,
-        "54": 61,
-        "6": 16,
-        "7": 8,
-        "8": 12
+        "54": 9,
+        "6": 12,
+        "7": 6,
+        "8": 4
       },
       "class_truth_unreliable_count": 2,
       "class_truth_unreliable_scored_excluded_count": 2,
@@ -35523,23 +36306,23 @@
       },
       "core_contract_overlap": {
         "reference_count": 1197,
-        "candidate_count": 1090,
-        "intersection_count": 1083,
-        "missing_count": 114,
-        "spillover_count": 7,
-        "avg_missing_rate": 0.2256003256003256,
-        "avg_spillover_rate": 0.009157509157509158,
-        "avg_mutual_accuracy": 0.7703703703703704
+        "candidate_count": 1077,
+        "intersection_count": 1074,
+        "missing_count": 123,
+        "spillover_count": 3,
+        "avg_missing_rate": 0.24584859584859584,
+        "avg_spillover_rate": 0.005494505494505495,
+        "avg_mutual_accuracy": 0.7510989010989011
       },
       "contract_plus_resolution_hints": {
-        "reference_count": 1702,
-        "candidate_count": 1090,
-        "intersection_count": 1083,
-        "missing_count": 619,
-        "spillover_count": 7,
-        "avg_missing_rate": 0.44880742937304025,
-        "avg_spillover_rate": 0.0038461538461538464,
-        "avg_mutual_accuracy": 0.5500204094547986
+        "reference_count": 1840,
+        "candidate_count": 1077,
+        "intersection_count": 1074,
+        "missing_count": 766,
+        "spillover_count": 3,
+        "avg_missing_rate": 0.4682656841413032,
+        "avg_spillover_rate": 0.001834862385321101,
+        "avg_mutual_accuracy": 0.5311809446631237
       },
       "top_mismatch_signatures": [
         {
@@ -35548,12 +36331,12 @@
           "kind": "function",
           "file_path": "dev/get_contributor_stats.py",
           "module_qualified_name": "OpenLineage.dev.get_contributor_stats",
-          "missing_count": 8,
+          "missing_count": 9,
           "spillover_count": 0,
           "reference_count": 9,
-          "missing_rate": 0.8888888888888888,
+          "missing_rate": 1.0,
           "spillover_rate": 0.0,
-          "total_mismatch": 8
+          "total_mismatch": 9
         },
         {
           "entity": "OpenLineage.dev.get_changes.main",
@@ -35561,12 +36344,12 @@
           "kind": "function",
           "file_path": "dev/get_changes.py",
           "module_qualified_name": "OpenLineage.dev.get_changes",
-          "missing_count": 5,
+          "missing_count": 6,
           "spillover_count": 0,
           "reference_count": 6,
-          "missing_rate": 0.8333333333333334,
+          "missing_rate": 1.0,
           "spillover_rate": 0.0,
-          "total_mismatch": 5
+          "total_mismatch": 6
         },
         {
           "entity": "OpenLineage.integration.flink.shared.src.main.java.io.openlineage.flink.visitor.FlinkKafkaProducerVisitor.FlinkKafkaProducerVisitor.apply",
@@ -35580,6 +36363,19 @@
           "missing_rate": 1.0,
           "spillover_rate": 0.0,
           "total_mismatch": 5
+        },
+        {
+          "entity": "OpenLineage.client.python.src.openlineage.client.client.OpenLineageClient.emit",
+          "language": "python",
+          "kind": "method",
+          "file_path": "client/python/src/openlineage/client/client.py",
+          "module_qualified_name": "OpenLineage.client.python.src.openlineage.client.client",
+          "missing_count": 4,
+          "spillover_count": 0,
+          "reference_count": 4,
+          "missing_rate": 1.0,
+          "spillover_rate": 0.0,
+          "total_mismatch": 4
         },
         {
           "entity": "OpenLineage.client.python.src.openlineage.client.transport.async_http.AsyncHttpTransport.emit",
@@ -35619,19 +36415,6 @@
           "missing_rate": 1.0,
           "spillover_rate": 0.0,
           "total_mismatch": 4
-        },
-        {
-          "entity": "OpenLineage.client.python.src.openlineage.client.client.OpenLineageClient.emit",
-          "language": "python",
-          "kind": "method",
-          "file_path": "client/python/src/openlineage/client/client.py",
-          "module_qualified_name": "OpenLineage.client.python.src.openlineage.client.client",
-          "missing_count": 3,
-          "spillover_count": 0,
-          "reference_count": 4,
-          "missing_rate": 0.75,
-          "spillover_rate": 0.0,
-          "total_mismatch": 3
         },
         {
           "entity": "OpenLineage.integration.common.src.openlineage.common.provider.bigquery.BigQueryDatasetsProvider._get_input_from_bq",
@@ -35725,17 +36508,17 @@
           "total_mismatch": 3
         },
         {
-          "entity": "OpenLineage.client.python.tests.test_file.test_client_with_file_transport_append_emits",
+          "entity": "OpenLineage.client.python.src.openlineage.client.transport.gcplineage.GCPLineageTransport.close",
           "language": "python",
-          "kind": "function",
-          "file_path": "client/python/tests/test_file.py",
-          "module_qualified_name": "OpenLineage.client.python.tests.test_file",
-          "missing_count": 0,
-          "spillover_count": 3,
+          "kind": "method",
+          "file_path": "client/python/src/openlineage/client/transport/gcplineage.py",
+          "module_qualified_name": "OpenLineage.client.python.src.openlineage.client.transport.gcplineage",
+          "missing_count": 2,
+          "spillover_count": 0,
           "reference_count": 2,
-          "missing_rate": 0.0,
-          "spillover_rate": 1.5,
-          "total_mismatch": 3
+          "missing_rate": 1.0,
+          "spillover_rate": 0.0,
+          "total_mismatch": 2
         },
         {
           "entity": "OpenLineage.client.python.src.openlineage.client.transport.http.JwtTokenProvider.get_bearer",
@@ -35743,6 +36526,19 @@
           "kind": "method",
           "file_path": "client/python/src/openlineage/client/transport/http.py",
           "module_qualified_name": "OpenLineage.client.python.src.openlineage.client.transport.http",
+          "missing_count": 2,
+          "spillover_count": 0,
+          "reference_count": 2,
+          "missing_rate": 1.0,
+          "spillover_rate": 0.0,
+          "total_mismatch": 2
+        },
+        {
+          "entity": "OpenLineage.dev.create_release_doc.main",
+          "language": "python",
+          "kind": "function",
+          "file_path": "dev/create_release_doc.py",
+          "module_qualified_name": "OpenLineage.dev.create_release_doc",
           "missing_count": 2,
           "spillover_count": 0,
           "reference_count": 2,
@@ -35788,19 +36584,6 @@
           "missing_rate": 1.0,
           "spillover_rate": 0.0,
           "total_mismatch": 2
-        },
-        {
-          "entity": "OpenLineage.integration.flink.flink1.src.test.java.io.openlineage.flink.ContainerTest.ContainerTest.testOpenLineageEventSentForCassandraJob",
-          "language": "java",
-          "kind": "method",
-          "file_path": "integration/flink/flink1/src/test/java/io/openlineage/flink/ContainerTest.java",
-          "module_qualified_name": "OpenLineage.integration.flink.flink1.src.test.java.io.openlineage.flink.ContainerTest",
-          "missing_count": 2,
-          "spillover_count": 0,
-          "reference_count": 3,
-          "missing_rate": 0.6666666666666666,
-          "spillover_rate": 0.0,
-          "total_mismatch": 2
         }
       ]
     },
@@ -35837,16 +36620,16 @@
         "target_zero": true,
         "pass": false,
         "scored_nodes": 273,
-        "avg_rate": 1.0056369556369555,
-        "avg_rate_percent": 100.56369556369556,
-        "total_edges": 504,
+        "avg_rate": 1.4013431013431012,
+        "avg_rate_percent": 140.1343101343101,
+        "total_edges": 642,
         "by_semantic_type_avg_rate": {
-          "direct_call_unresolved": 0.7065934065934066,
-          "member_call_unresolved": 0.299043549043549
+          "direct_call_unresolved": 1.0728937728937729,
+          "member_call_unresolved": 0.32844932844932845
         },
         "by_semantic_type_avg_percent": {
-          "direct_call_unresolved": 70.65934065934066,
-          "member_call_unresolved": 29.904354904354904
+          "direct_call_unresolved": 107.28937728937728,
+          "member_call_unresolved": 32.84493284493284
         }
       }
     }

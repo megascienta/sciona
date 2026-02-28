@@ -6,7 +6,7 @@
     "q1_reducer_vs_db_exact=True",
     "q2_reducer_vs_independent_overlap_macro=False",
     "q3_avg_non_static_percent=1.6935",
-    "unresolved_static_avg_percent=31.7413"
+    "unresolved_static_avg_percent=37.2924"
   ],
   "invariants": {
     "passed": false,
@@ -8401,12 +8401,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 4,
-        "candidate_count": 5,
+        "candidate_count": 4,
         "intersection_count": 3,
         "missing_count": 1,
-        "spillover_count": 2,
+        "spillover_count": 1,
         "coverage": 0.75,
-        "spillover_ratio": 0.5,
+        "spillover_ratio": 0.25,
         "match_provenance_breakdown": {
           "qname_exact": 3
         }
@@ -8426,21 +8426,33 @@
       "basket2_edges": [
         {
           "caller": "fastapi.applications.FastAPI.setup",
+          "callee": "get",
+          "callee_qname": "req.scope.get",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "fastapi.applications.FastAPI.setup",
+          "callee": "get",
+          "callee_qname": "server_data.get",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "fastapi.applications.FastAPI.setup",
           "callee": "openapi",
           "callee_qname": "self.openapi",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 5,
+        "reference_in_contract_count": 4,
         "excluded_out_of_scope_count": 4,
-        "excluded_limitation_count": 1,
-        "excluded_total_count": 5,
+        "excluded_limitation_count": 3,
+        "excluded_total_count": 7,
         "excluded_out_of_scope_by_reason": {
           "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -8449,18 +8461,18 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 4,
-          "9": 3,
-          "1": 4
+          "0": 6,
+          "1": 4,
+          "9": 1
         }
       },
       "q2_node_rates": {
         "missing_rate": 0.25,
-        "spillover_rate": 0.5,
-        "mutual_accuracy": 0.5
+        "spillover_rate": 0.25,
+        "mutual_accuracy": 0.6
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 25.0
+      "unresolved_static_rate_percent": 75.0
     },
     {
       "entity": "fastapi.exceptions.ValidationException.__init__",
@@ -8549,15 +8561,13 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 1,
-        "intersection_count": 1,
-        "missing_count": 0,
+        "candidate_count": 0,
+        "intersection_count": 0,
+        "missing_count": 1,
         "spillover_count": 0,
-        "coverage": 1.0,
+        "coverage": 0.0,
         "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 1
-        }
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
         "reference_count": 1,
@@ -8571,16 +8581,25 @@
           "name_only": 1
         }
       },
-      "basket2_edges": [],
+      "basket2_edges": [
+        {
+          "caller": "fastapi._compat.v2.ModelField.get_default",
+          "callee": "get_default",
+          "callee_qname": "self.field_info.get_default",
+          "provenance": "syntax_raw"
+        }
+      ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
+        "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 1,
-        "excluded_limitation_count": 0,
-        "excluded_total_count": 1,
+        "excluded_limitation_count": 1,
+        "excluded_total_count": 2,
         "excluded_out_of_scope_by_reason": {
           "external": 1
         },
-        "excluded_limitation_by_reason": {}
+        "excluded_limitation_by_reason": {
+          "in_repo_unresolved": 1
+        }
       },
       "q2_ground_truth_diagnostics": {
         "class_truth_unreliable": null,
@@ -8593,12 +8612,12 @@
         }
       },
       "q2_node_rates": {
-        "missing_rate": 0.0,
+        "missing_rate": 1.0,
         "spillover_rate": 0.0,
-        "mutual_accuracy": 1.0
+        "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 0.0
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "fastapi.routing.APIWebSocketRoute.__init__",
@@ -8987,15 +9006,13 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 1,
-        "intersection_count": 1,
-        "missing_count": 0,
+        "candidate_count": 0,
+        "intersection_count": 0,
+        "missing_count": 1,
         "spillover_count": 0,
-        "coverage": 1.0,
+        "coverage": 0.0,
         "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 1
-        }
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
         "reference_count": 1,
@@ -9009,14 +9026,23 @@
           "name_only": 1
         }
       },
-      "basket2_edges": [],
+      "basket2_edges": [
+        {
+          "caller": "fastapi.applications.FastAPI.add_api_websocket_route",
+          "callee": "add_api_websocket_route",
+          "callee_qname": "self.router.add_api_websocket_route",
+          "provenance": "syntax_raw"
+        }
+      ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
+        "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 0,
-        "excluded_limitation_count": 0,
-        "excluded_total_count": 0,
+        "excluded_limitation_count": 1,
+        "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
-        "excluded_limitation_by_reason": {}
+        "excluded_limitation_by_reason": {
+          "in_repo_unresolved": 1
+        }
       },
       "q2_ground_truth_diagnostics": {
         "class_truth_unreliable": null,
@@ -9028,12 +9054,12 @@
         }
       },
       "q2_node_rates": {
-        "missing_rate": 0.0,
+        "missing_rate": 1.0,
         "spillover_rate": 0.0,
-        "mutual_accuracy": 1.0
+        "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 0.0
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "fastapi.routing.APIRouter.route",
@@ -9555,12 +9581,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 10,
-        "candidate_count": 10,
+        "candidate_count": 9,
         "intersection_count": 9,
         "missing_count": 1,
-        "spillover_count": 1,
+        "spillover_count": 0,
         "coverage": 0.9,
-        "spillover_ratio": 0.1,
+        "spillover_ratio": 0.0,
         "match_provenance_breakdown": {
           "qname_exact": 9
         }
@@ -9580,6 +9606,12 @@
       "basket2_edges": [
         {
           "caller": "fastapi.routing.APIRoute.__init__",
+          "callee": "get",
+          "callee_qname": "response.get",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "fastapi.routing.APIRoute.__init__",
           "callee": "get_route_handler",
           "callee_qname": "self.get_route_handler",
           "provenance": "syntax_raw"
@@ -9592,15 +9624,15 @@
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 10,
+        "reference_in_contract_count": 9,
         "excluded_out_of_scope_count": 13,
-        "excluded_limitation_count": 2,
-        "excluded_total_count": 15,
+        "excluded_limitation_count": 3,
+        "excluded_total_count": 16,
         "excluded_out_of_scope_by_reason": {
           "external": 13
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -9610,19 +9642,18 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "1": 9,
-          "0": 13,
-          "9": 1,
+          "0": 14,
           "6": 1,
           "2": 1
         }
       },
       "q2_node_rates": {
         "missing_rate": 0.1,
-        "spillover_rate": 0.1,
-        "mutual_accuracy": 0.8181818181818182
+        "spillover_rate": 0.0,
+        "mutual_accuracy": 0.9
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 20.0
+      "unresolved_static_rate_percent": 30.0
     },
     {
       "entity": "fastapi.dependencies.models.Dependant.is_async_gen_callable",
@@ -9724,15 +9755,13 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 1,
-        "intersection_count": 1,
-        "missing_count": 0,
+        "candidate_count": 0,
+        "intersection_count": 0,
+        "missing_count": 1,
         "spillover_count": 0,
-        "coverage": 1.0,
+        "coverage": 0.0,
         "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 1
-        }
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
         "reference_count": 1,
@@ -9746,14 +9775,23 @@
           "name_only": 1
         }
       },
-      "basket2_edges": [],
+      "basket2_edges": [
+        {
+          "caller": "fastapi._compat.v2.ModelField.default",
+          "callee": "get_default",
+          "callee_qname": "self.get_default",
+          "provenance": "syntax_raw"
+        }
+      ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
+        "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 0,
-        "excluded_limitation_count": 0,
-        "excluded_total_count": 0,
+        "excluded_limitation_count": 1,
+        "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
-        "excluded_limitation_by_reason": {}
+        "excluded_limitation_by_reason": {
+          "in_repo_unresolved": 1
+        }
       },
       "q2_ground_truth_diagnostics": {
         "class_truth_unreliable": null,
@@ -9765,12 +9803,12 @@
         }
       },
       "q2_node_rates": {
-        "missing_rate": 0.0,
+        "missing_rate": 1.0,
         "spillover_rate": 0.0,
-        "mutual_accuracy": 1.0
+        "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 0.0
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "fastapi.routing.APIRoute.get_route_handler",
@@ -10052,15 +10090,13 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 1,
-        "intersection_count": 1,
-        "missing_count": 0,
+        "candidate_count": 0,
+        "intersection_count": 0,
+        "missing_count": 1,
         "spillover_count": 0,
-        "coverage": 1.0,
+        "coverage": 0.0,
         "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 1
-        }
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
         "reference_count": 1,
@@ -10074,14 +10110,23 @@
           "name_only": 1
         }
       },
-      "basket2_edges": [],
+      "basket2_edges": [
+        {
+          "caller": "fastapi.applications.FastAPI.get",
+          "callee": "get",
+          "callee_qname": "self.router.get",
+          "provenance": "syntax_raw"
+        }
+      ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
+        "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 0,
-        "excluded_limitation_count": 0,
-        "excluded_total_count": 0,
+        "excluded_limitation_count": 1,
+        "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
-        "excluded_limitation_by_reason": {}
+        "excluded_limitation_by_reason": {
+          "in_repo_unresolved": 1
+        }
       },
       "q2_ground_truth_diagnostics": {
         "class_truth_unreliable": null,
@@ -10093,12 +10138,12 @@
         }
       },
       "q2_node_rates": {
-        "missing_rate": 0.0,
+        "missing_rate": 1.0,
         "spillover_rate": 0.0,
-        "mutual_accuracy": 1.0
+        "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 0.0
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "fastapi.dependencies.models.Dependant._security_scheme",
@@ -10706,7 +10751,7 @@
         {
           "caller": "fastapi.params.Header.__init__",
           "callee": "__init__",
-          "callee_qname": "__init__",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -10993,7 +11038,7 @@
         {
           "caller": "fastapi.exceptions.WebSocketRequestValidationError.__init__",
           "callee": "__init__",
-          "callee_qname": "__init__",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -11220,7 +11265,7 @@
         {
           "caller": "fastapi.security.oauth2.OAuth2AuthorizationCodeBearer.__init__",
           "callee": "__init__",
-          "callee_qname": "__init__",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -11291,7 +11336,7 @@
         {
           "caller": "fastapi.applications.FastAPI.__call__",
           "callee": "__call__",
-          "callee_qname": "__call__",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -11664,11 +11709,11 @@
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 2,
-        "excluded_out_of_scope_count": 9,
+        "excluded_out_of_scope_count": 11,
         "excluded_limitation_count": 4,
-        "excluded_total_count": 13,
+        "excluded_total_count": 15,
         "excluded_out_of_scope_by_reason": {
-          "external": 9
+          "external": 11
         },
         "excluded_limitation_by_reason": {
           "in_repo_unresolved": 3,
@@ -12139,7 +12184,7 @@
         {
           "caller": "fastapi.params.Form.__init__",
           "callee": "__init__",
-          "callee_qname": "__init__",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -12417,7 +12462,7 @@
         {
           "caller": "fastapi.routing.APIRouter.__init__",
           "callee": "__init__",
-          "callee_qname": "__init__",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -13061,7 +13106,7 @@
         {
           "caller": "fastapi.security.api_key.APIKeyHeader.__init__",
           "callee": "__init__",
-          "callee_qname": "__init__",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -13720,7 +13765,7 @@
         {
           "caller": "fastapi.exceptions.ResponseValidationError.__init__",
           "callee": "__init__",
-          "callee_qname": "__init__",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -13980,11 +14025,11 @@
       "basket2_edges": [],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 1,
+        "excluded_out_of_scope_count": 2,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 1,
+        "excluded_total_count": 2,
         "excluded_out_of_scope_by_reason": {
-          "external": 1
+          "external": 2
         },
         "excluded_limitation_by_reason": {}
       },
@@ -14455,11 +14500,11 @@
       "basket2_edges": [],
       "q2_filtering_stats": {
         "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 4,
+        "excluded_out_of_scope_count": 8,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 4,
+        "excluded_total_count": 8,
         "excluded_out_of_scope_by_reason": {
-          "external": 4
+          "external": 8
         },
         "excluded_limitation_by_reason": {}
       },
@@ -14581,7 +14626,7 @@
         {
           "caller": "fastapi.exceptions.HTTPException.__init__",
           "callee": "__init__",
-          "callee_qname": "__init__",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -14887,7 +14932,7 @@
         {
           "caller": "fastapi.docs_src.custom_request_and_route.tutorial001_an_py310.GzipRoute.get_route_handler",
           "callee": "get_route_handler",
-          "callee_qname": "get_route_handler",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -14957,7 +15002,7 @@
         {
           "caller": "fastapi.exceptions.WebSocketException.__init__",
           "callee": "__init__",
-          "callee_qname": "__init__",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -15659,15 +15704,13 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 1,
-        "intersection_count": 1,
-        "missing_count": 0,
+        "candidate_count": 0,
+        "intersection_count": 0,
+        "missing_count": 1,
         "spillover_count": 0,
-        "coverage": 1.0,
+        "coverage": 0.0,
         "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 1
-        }
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
         "reference_count": 1,
@@ -15681,14 +15724,23 @@
           "name_only": 1
         }
       },
-      "basket2_edges": [],
+      "basket2_edges": [
+        {
+          "caller": "fastapi.applications.FastAPI.websocket",
+          "callee": "add_api_websocket_route",
+          "callee_qname": "self.add_api_websocket_route",
+          "provenance": "syntax_raw"
+        }
+      ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
+        "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 0,
-        "excluded_limitation_count": 0,
-        "excluded_total_count": 0,
+        "excluded_limitation_count": 1,
+        "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
-        "excluded_limitation_by_reason": {}
+        "excluded_limitation_by_reason": {
+          "in_repo_unresolved": 1
+        }
       },
       "q2_ground_truth_diagnostics": {
         "class_truth_unreliable": null,
@@ -15700,12 +15752,12 @@
         }
       },
       "q2_node_rates": {
-        "missing_rate": 0.0,
+        "missing_rate": 1.0,
         "spillover_rate": 0.0,
-        "mutual_accuracy": 1.0
+        "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 0.0
+      "unresolved_static_rate_percent": 100.0
     },
     {
       "entity": "fastapi.dependencies.models.Dependant.cache_key",
@@ -15807,7 +15859,7 @@
         {
           "caller": "fastapi.exceptions.RequestValidationError.__init__",
           "callee": "__init__",
-          "callee_qname": "__init__",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -16053,7 +16105,7 @@
         {
           "caller": "fastapi.routing.APIWebSocketRoute.matches",
           "callee": "matches",
-          "callee_qname": "matches",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -16183,7 +16235,7 @@
         {
           "caller": "fastapi.params.Path.__init__",
           "callee": "__init__",
-          "callee_qname": "__init__",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -16609,7 +16661,7 @@
         {
           "caller": "fastapi.docs_src.custom_request_and_route.tutorial002_py310.ValidationErrorLoggingRoute.get_route_handler",
           "callee": "get_route_handler",
-          "callee_qname": "get_route_handler",
+          "callee_qname": null,
           "provenance": "syntax_raw"
         }
       ],
@@ -16748,7 +16800,7 @@
         {
           "caller": "fastapi.tests.test_response_model_as_return_annotation.test_response_model_filtering_model_annotation_submodel_return_submodel",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "client.get",
           "provenance": "syntax_raw"
         }
       ],
@@ -16770,8 +16822,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "9": 1,
-          "0": 1
+          "0": 2
         }
       },
       "q2_node_rates": null,
@@ -16798,15 +16849,13 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 3,
-        "candidate_count": 2,
-        "intersection_count": 2,
-        "missing_count": 1,
+        "candidate_count": 0,
+        "intersection_count": 0,
+        "missing_count": 3,
         "spillover_count": 0,
-        "coverage": 0.6666666666666666,
+        "coverage": 0.0,
         "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 2
-        }
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
         "reference_count": 3,
@@ -16826,18 +16875,48 @@
           "callee": "get",
           "callee_qname": "client.get",
           "provenance": "syntax_raw"
+        },
+        {
+          "caller": "fastapi.tests.test_generate_unique_id_function.test_subrouter_top_level_include_overrides_generate_unique_id",
+          "callee": "include_router",
+          "callee_qname": "app.include_router",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "fastapi.tests.test_generate_unique_id_function.test_subrouter_top_level_include_overrides_generate_unique_id",
+          "callee": "include_router",
+          "callee_qname": "router.include_router",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "fastapi.tests.test_generate_unique_id_function.test_subrouter_top_level_include_overrides_generate_unique_id",
+          "callee": "post",
+          "callee_qname": "app.post",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "fastapi.tests.test_generate_unique_id_function.test_subrouter_top_level_include_overrides_generate_unique_id",
+          "callee": "post",
+          "callee_qname": "router.post",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "fastapi.tests.test_generate_unique_id_function.test_subrouter_top_level_include_overrides_generate_unique_id",
+          "callee": "post",
+          "callee_qname": "sub_router.post",
+          "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 2,
+        "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 5,
-        "excluded_limitation_count": 1,
-        "excluded_total_count": 6,
+        "excluded_limitation_count": 6,
+        "excluded_total_count": 11,
         "excluded_out_of_scope_by_reason": {
           "external": 5
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved": 6
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -16854,12 +16933,12 @@
         }
       },
       "q2_node_rates": {
-        "missing_rate": 0.3333333333333333,
+        "missing_rate": 1.0,
         "spillover_rate": 0.0,
-        "mutual_accuracy": 0.6666666666666666
+        "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 33.33333333333333
+      "unresolved_static_rate_percent": 200.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_sql_databases.test_tutorial001.test_openapi_schema",
@@ -17057,7 +17136,7 @@
         {
           "caller": "fastapi.tests.test_regex_deprecated_params.test_query_params_str_validations_no_query",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "client.get",
           "provenance": "syntax_raw"
         }
       ],
@@ -17463,7 +17542,7 @@
         {
           "caller": "fastapi.tests.test_response_model_as_return_annotation.test_openapi_schema",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "client.get",
           "provenance": "syntax_raw"
         }
       ],
@@ -17485,8 +17564,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "9": 1,
-          "0": 2
+          "0": 3
         }
       },
       "q2_node_rates": null,
@@ -18138,13 +18216,13 @@
         {
           "caller": "fastapi.tests.test_schema_extra_examples.create_app",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "app.get",
           "provenance": "syntax_raw"
         },
         {
           "caller": "fastapi.tests.test_schema_extra_examples.create_app",
           "callee": "post",
-          "callee_qname": null,
+          "callee_qname": "app.post",
           "provenance": "syntax_raw"
         }
       ],
@@ -18659,11 +18737,11 @@
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 6,
+        "excluded_out_of_scope_count": 7,
         "excluded_limitation_count": 1,
-        "excluded_total_count": 7,
+        "excluded_total_count": 8,
         "excluded_out_of_scope_by_reason": {
-          "external": 6
+          "external": 7
         },
         "excluded_limitation_by_reason": {
           "in_repo_unresolved": 1
@@ -18828,11 +18906,11 @@
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 16,
+        "excluded_out_of_scope_count": 19,
         "excluded_limitation_count": 3,
-        "excluded_total_count": 19,
+        "excluded_total_count": 22,
         "excluded_out_of_scope_by_reason": {
-          "external": 16
+          "external": 19
         },
         "excluded_limitation_by_reason": {
           "dynamic": 1,
@@ -18898,7 +18976,7 @@
         {
           "caller": "fastapi.tests.test_tutorial.test_security.test_tutorial005.test_openapi_schema",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "client.get",
           "provenance": "syntax_raw"
         }
       ],
@@ -19355,15 +19433,13 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 2,
-        "candidate_count": 1,
-        "intersection_count": 1,
-        "missing_count": 1,
+        "candidate_count": 0,
+        "intersection_count": 0,
+        "missing_count": 2,
         "spillover_count": 0,
-        "coverage": 0.5,
+        "coverage": 0.0,
         "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 1
-        }
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
         "reference_count": 2,
@@ -19383,18 +19459,30 @@
           "callee": "get",
           "callee_qname": "client.get",
           "provenance": "syntax_raw"
+        },
+        {
+          "caller": "fastapi.tests.test_generate_unique_id_function.test_callback_override_generate_unique_id",
+          "callee": "post",
+          "callee_qname": "app.post",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "fastapi.tests.test_generate_unique_id_function.test_callback_override_generate_unique_id",
+          "callee": "post",
+          "callee_qname": "callback_router.post",
+          "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
+        "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 5,
-        "excluded_limitation_count": 1,
-        "excluded_total_count": 6,
+        "excluded_limitation_count": 3,
+        "excluded_total_count": 8,
         "excluded_out_of_scope_by_reason": {
           "external": 5
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -19410,12 +19498,12 @@
         }
       },
       "q2_node_rates": {
-        "missing_rate": 0.5,
+        "missing_rate": 1.0,
         "spillover_rate": 0.0,
-        "mutual_accuracy": 0.5
+        "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 50.0
+      "unresolved_static_rate_percent": 150.0
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_sql_databases.test_tutorial002.test_openapi_schema",
@@ -19657,7 +19745,7 @@
         {
           "caller": "fastapi.tests.test_tutorial.test_security.test_tutorial005.test_token",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "client.get",
           "provenance": "syntax_raw"
         }
       ],
@@ -19963,7 +20051,7 @@
         {
           "caller": "fastapi.tests.test_schema_extra_examples.test_openapi_schema",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "client.get",
           "provenance": "syntax_raw"
         }
       ],
@@ -20018,15 +20106,13 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 3,
-        "candidate_count": 2,
-        "intersection_count": 2,
-        "missing_count": 1,
+        "candidate_count": 0,
+        "intersection_count": 0,
+        "missing_count": 3,
         "spillover_count": 0,
-        "coverage": 0.6666666666666666,
+        "coverage": 0.0,
         "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 2
-        }
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
         "reference_count": 3,
@@ -20046,18 +20132,36 @@
           "callee": "get",
           "callee_qname": "client.get",
           "provenance": "syntax_raw"
+        },
+        {
+          "caller": "fastapi.tests.test_generate_unique_id_function.test_router_overrides_generate_unique_id",
+          "callee": "include_router",
+          "callee_qname": "app.include_router",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "fastapi.tests.test_generate_unique_id_function.test_router_overrides_generate_unique_id",
+          "callee": "post",
+          "callee_qname": "app.post",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "fastapi.tests.test_generate_unique_id_function.test_router_overrides_generate_unique_id",
+          "callee": "post",
+          "callee_qname": "router.post",
+          "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 2,
+        "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 5,
-        "excluded_limitation_count": 1,
-        "excluded_total_count": 6,
+        "excluded_limitation_count": 4,
+        "excluded_total_count": 9,
         "excluded_out_of_scope_by_reason": {
           "external": 5
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved": 4
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -20074,12 +20178,12 @@
         }
       },
       "q2_node_rates": {
-        "missing_rate": 0.3333333333333333,
+        "missing_rate": 1.0,
         "spillover_rate": 0.0,
-        "mutual_accuracy": 0.6666666666666666
+        "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 33.33333333333333
+      "unresolved_static_rate_percent": 133.33333333333331
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_body.test_tutorial003.test_put_only_required",
@@ -20388,12 +20492,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 2,
-        "candidate_count": 4,
+        "candidate_count": 3,
         "intersection_count": 2,
         "missing_count": 0,
-        "spillover_count": 2,
+        "spillover_count": 1,
         "coverage": 1.0,
-        "spillover_ratio": 1.0,
+        "spillover_ratio": 0.5,
         "match_provenance_breakdown": {
           "qname_exact": 2
         }
@@ -20410,16 +20514,25 @@
           "name_only": 2
         }
       },
-      "basket2_edges": [],
+      "basket2_edges": [
+        {
+          "caller": "fastapi.routing.get_websocket_app",
+          "callee": "get",
+          "callee_qname": "websocket.scope.get",
+          "provenance": "syntax_raw"
+        }
+      ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 4,
+        "reference_in_contract_count": 3,
         "excluded_out_of_scope_count": 4,
-        "excluded_limitation_count": 0,
-        "excluded_total_count": 4,
+        "excluded_limitation_count": 1,
+        "excluded_total_count": 5,
         "excluded_out_of_scope_by_reason": {
           "external": 4
         },
-        "excluded_limitation_by_reason": {}
+        "excluded_limitation_by_reason": {
+          "in_repo_unresolved": 1
+        }
       },
       "q2_ground_truth_diagnostics": {
         "class_truth_unreliable": null,
@@ -20428,17 +20541,17 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "1": 4,
-          "0": 2,
-          "9": 2
+          "0": 3,
+          "9": 1
         }
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 1.0,
-        "mutual_accuracy": 0.5
+        "spillover_rate": 0.5,
+        "mutual_accuracy": 0.6666666666666666
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 0.0
+      "unresolved_static_rate_percent": 50.0
     },
     {
       "entity": "fastapi.scripts.docs.langs_json",
@@ -20770,7 +20883,7 @@
         {
           "caller": "fastapi.tests.test_tutorial.test_security.test_tutorial005.test_read_items",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "client.get",
           "provenance": "syntax_raw"
         }
       ],
@@ -20846,7 +20959,7 @@
         {
           "caller": "fastapi.tests.test_arbitrary_types.test_get",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "client.get",
           "provenance": "syntax_raw"
         }
       ],
@@ -20922,7 +21035,7 @@
         {
           "caller": "fastapi.dependencies.utils.request_body_to_args",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "body_to_process.get",
           "provenance": "syntax_raw"
         },
         {
@@ -20963,8 +21076,7 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "1": 3,
-          "0": 4,
-          "9": 1,
+          "0": 5,
           "2": 3
         }
       },
@@ -21446,20 +21558,26 @@
         {
           "caller": "fastapi.tests.test_openapi_separate_input_output_schemas.test_create_item",
           "callee": "post",
-          "callee_qname": null,
+          "callee_qname": "client.post",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "fastapi.tests.test_openapi_separate_input_output_schemas.test_create_item",
+          "callee": "post",
+          "callee_qname": "client_no.post",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 1,
-        "excluded_limitation_count": 1,
-        "excluded_total_count": 2,
+        "excluded_out_of_scope_count": 2,
+        "excluded_limitation_count": 2,
+        "excluded_total_count": 4,
         "excluded_out_of_scope_by_reason": {
-          "external": 1
+          "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -21479,7 +21597,7 @@
         "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 100.0
+      "unresolved_static_rate_percent": 200.0
     },
     {
       "entity": "fastapi.tests.test_jsonable_encoder.test_encode_model_with_alias",
@@ -23012,15 +23130,13 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 3,
-        "candidate_count": 2,
-        "intersection_count": 2,
-        "missing_count": 1,
+        "candidate_count": 0,
+        "intersection_count": 0,
+        "missing_count": 3,
         "spillover_count": 0,
-        "coverage": 0.6666666666666666,
+        "coverage": 0.0,
         "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 2
-        }
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
         "reference_count": 3,
@@ -23040,18 +23156,36 @@
           "callee": "get",
           "callee_qname": "client.get",
           "provenance": "syntax_raw"
+        },
+        {
+          "caller": "fastapi.tests.test_generate_unique_id_function.test_app_path_operation_overrides_generate_unique_id",
+          "callee": "include_router",
+          "callee_qname": "app.include_router",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "fastapi.tests.test_generate_unique_id_function.test_app_path_operation_overrides_generate_unique_id",
+          "callee": "post",
+          "callee_qname": "app.post",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "fastapi.tests.test_generate_unique_id_function.test_app_path_operation_overrides_generate_unique_id",
+          "callee": "post",
+          "callee_qname": "router.post",
+          "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 2,
+        "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 5,
-        "excluded_limitation_count": 1,
-        "excluded_total_count": 6,
+        "excluded_limitation_count": 4,
+        "excluded_total_count": 9,
         "excluded_out_of_scope_by_reason": {
           "external": 5
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved": 4
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -23068,12 +23202,12 @@
         }
       },
       "q2_node_rates": {
-        "missing_rate": 0.3333333333333333,
+        "missing_rate": 1.0,
         "spillover_rate": 0.0,
-        "mutual_accuracy": 0.6666666666666666
+        "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 33.33333333333333
+      "unresolved_static_rate_percent": 133.33333333333331
     },
     {
       "entity": "fastapi.tests.test_request_params.test_form.test_list.read_required_list_alias",
@@ -23329,7 +23463,13 @@
         {
           "caller": "fastapi.dependencies.utils._extract_form_body",
           "callee": "read",
-          "callee_qname": null,
+          "callee_qname": "sub_value.read",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "fastapi.dependencies.utils._extract_form_body",
+          "callee": "read",
+          "callee_qname": "value.read",
           "provenance": "syntax_raw"
         },
         {
@@ -23348,13 +23488,13 @@
       "q2_filtering_stats": {
         "reference_in_contract_count": 2,
         "excluded_out_of_scope_count": 5,
-        "excluded_limitation_count": 5,
-        "excluded_total_count": 10,
+        "excluded_limitation_count": 6,
+        "excluded_total_count": 11,
         "excluded_out_of_scope_by_reason": {
           "external": 5
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 5
+          "in_repo_unresolved": 6
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -23363,8 +23503,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "1": 4,
-          "0": 5,
+          "1": 3,
+          "0": 6,
           "2": 4
         }
       },
@@ -23374,7 +23514,7 @@
         "mutual_accuracy": 0.5
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 500.0
+      "unresolved_static_rate_percent": 600.0
     },
     {
       "entity": "fastapi.scripts.translate.translate_lang",
@@ -23421,11 +23561,11 @@
       "basket2_edges": [],
       "q2_filtering_stats": {
         "reference_in_contract_count": 3,
-        "excluded_out_of_scope_count": 5,
+        "excluded_out_of_scope_count": 6,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 5,
+        "excluded_total_count": 6,
         "excluded_out_of_scope_by_reason": {
-          "external": 5
+          "external": 6
         },
         "excluded_limitation_by_reason": {}
       },
@@ -23916,7 +24056,7 @@
         {
           "caller": "fastapi.tests.test_regex_deprecated_params.test_query_params_str_validations_item_query_nonregexquery",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "client.get",
           "provenance": "syntax_raw"
         }
       ],
@@ -24042,15 +24182,13 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 3,
-        "candidate_count": 2,
-        "intersection_count": 2,
-        "missing_count": 1,
+        "candidate_count": 0,
+        "intersection_count": 0,
+        "missing_count": 3,
         "spillover_count": 0,
-        "coverage": 0.6666666666666666,
+        "coverage": 0.0,
         "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 2
-        }
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
         "reference_count": 3,
@@ -24070,18 +24208,36 @@
           "callee": "get",
           "callee_qname": "client.get",
           "provenance": "syntax_raw"
+        },
+        {
+          "caller": "fastapi.tests.test_generate_unique_id_function.test_router_path_operation_overrides_generate_unique_id",
+          "callee": "include_router",
+          "callee_qname": "app.include_router",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "fastapi.tests.test_generate_unique_id_function.test_router_path_operation_overrides_generate_unique_id",
+          "callee": "post",
+          "callee_qname": "app.post",
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "fastapi.tests.test_generate_unique_id_function.test_router_path_operation_overrides_generate_unique_id",
+          "callee": "post",
+          "callee_qname": "router.post",
+          "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 2,
+        "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 5,
-        "excluded_limitation_count": 1,
-        "excluded_total_count": 6,
+        "excluded_limitation_count": 4,
+        "excluded_total_count": 9,
         "excluded_out_of_scope_by_reason": {
           "external": 5
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved": 4
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -24098,12 +24254,12 @@
         }
       },
       "q2_node_rates": {
-        "missing_rate": 0.3333333333333333,
+        "missing_rate": 1.0,
         "spillover_rate": 0.0,
-        "mutual_accuracy": 0.6666666666666666
+        "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 33.33333333333333
+      "unresolved_static_rate_percent": 133.33333333333331
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_request_files.test_tutorial002.test_post_form_no_body",
@@ -24361,7 +24517,7 @@
         {
           "caller": "fastapi.tests.test_response_model_as_return_annotation.test_no_response_model_annotation_return_exact_dict",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "client.get",
           "provenance": "syntax_raw"
         }
       ],
@@ -24383,8 +24539,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "9": 1,
-          "0": 1
+          "0": 2
         }
       },
       "q2_node_rates": null,
@@ -25072,7 +25227,7 @@
         {
           "caller": "fastapi.tests.test_openapi_separate_input_output_schemas.test_openapi_schema",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "client.get",
           "provenance": "syntax_raw"
         }
       ],
@@ -25464,11 +25619,11 @@
       ],
       "q2_filtering_stats": {
         "reference_in_contract_count": 2,
-        "excluded_out_of_scope_count": 5,
+        "excluded_out_of_scope_count": 8,
         "excluded_limitation_count": 1,
-        "excluded_total_count": 6,
+        "excluded_total_count": 9,
         "excluded_out_of_scope_by_reason": {
-          "external": 5
+          "external": 8
         },
         "excluded_limitation_by_reason": {
           "dynamic": 1
@@ -25613,7 +25768,7 @@
         {
           "caller": "fastapi.tests.test_openapi_separate_input_output_schemas.test_openapi_schema_no_separate",
           "callee": "get",
-          "callee_qname": null,
+          "callee_qname": "client.get",
           "provenance": "syntax_raw"
         }
       ],
@@ -32954,42 +33109,42 @@
       "target_missing_rate_max": 0.010000000000000009,
       "target_spillover_rate_max": 0.010000000000000009,
       "scored_nodes": 248,
-      "avg_missing_rate": 0.14831989247311828,
-      "avg_spillover_rate": 0.014677540102393926,
-      "avg_mutual_accuracy": 0.8430059355039305,
+      "avg_missing_rate": 0.18125,
+      "avg_spillover_rate": 0.011250120747555216,
+      "avg_mutual_accuracy": 0.8114810088177135,
       "reference_count": 2998,
-      "candidate_count": 2975,
-      "intersection_count": 2948,
-      "missing_count": 50,
-      "spillover_count": 27,
+      "candidate_count": 2958,
+      "intersection_count": 2934,
+      "missing_count": 64,
+      "spillover_count": 24,
       "by_language": {
         "python": {
           "scored_nodes": 248,
-          "avg_missing_rate": 0.14831989247311828,
-          "avg_spillover_rate": 0.014677540102393926,
-          "avg_mutual_accuracy": 0.8430059355039305,
+          "avg_missing_rate": 0.18125,
+          "avg_spillover_rate": 0.011250120747555216,
+          "avg_mutual_accuracy": 0.8114810088177135,
           "pass": false
         }
       },
       "filtering_source": "core_only",
       "envelope_reference_count": 2998,
-      "envelope_excluded_count": 4229,
-      "envelope_excluded_out_of_scope_count": 4062,
-      "envelope_excluded_limitation_count": 167,
-      "envelope_total_count": 7227,
-      "contract_filtered_out_ratio": 0.5851667358516673,
+      "envelope_excluded_count": 4272,
+      "envelope_excluded_out_of_scope_count": 4078,
+      "envelope_excluded_limitation_count": 194,
+      "envelope_total_count": 7270,
+      "contract_filtered_out_ratio": 0.5876203576341128,
       "envelope_excluded_by_reason": {
         "dynamic": 7,
-        "external": 4062,
-        "in_repo_unresolved": 156,
+        "external": 4078,
+        "in_repo_unresolved": 183,
         "relative_unresolved": 4
       },
       "match_provenance_breakdown": {
-        "qname_exact": 2948
+        "qname_exact": 2934
       },
       "strict_contract_candidate_count_histogram": {
-        "0": 370,
-        "1": 158,
+        "0": 379,
+        "1": 157,
         "138": 2,
         "2": 63,
         "3": 28,
@@ -32997,7 +33152,7 @@
         "40": 1,
         "6": 8,
         "68": 12,
-        "9": 35
+        "9": 27
       },
       "class_truth_unreliable_count": 0,
       "class_truth_unreliable_scored_excluded_count": 0,
@@ -33006,23 +33161,23 @@
       },
       "core_contract_overlap": {
         "reference_count": 2998,
-        "candidate_count": 2975,
-        "intersection_count": 2948,
-        "missing_count": 50,
-        "spillover_count": 27,
-        "avg_missing_rate": 0.14831989247311828,
-        "avg_spillover_rate": 0.014677540102393926,
-        "avg_mutual_accuracy": 0.8430059355039305
+        "candidate_count": 2958,
+        "intersection_count": 2934,
+        "missing_count": 64,
+        "spillover_count": 24,
+        "avg_missing_rate": 0.18125,
+        "avg_spillover_rate": 0.011250120747555216,
+        "avg_mutual_accuracy": 0.8114810088177135
       },
       "contract_plus_resolution_hints": {
-        "reference_count": 3165,
-        "candidate_count": 2975,
-        "intersection_count": 2948,
-        "missing_count": 217,
-        "spillover_count": 27,
-        "avg_missing_rate": 0.3583088187532632,
-        "avg_spillover_rate": 0.009057313057313058,
-        "avg_mutual_accuracy": 0.6363972719364877
+        "reference_count": 3192,
+        "candidate_count": 2958,
+        "intersection_count": 2934,
+        "missing_count": 258,
+        "spillover_count": 24,
+        "avg_missing_rate": 0.3855352959797404,
+        "avg_spillover_rate": 0.005586092919426252,
+        "avg_mutual_accuracy": 0.6109042464434621
       },
       "top_mismatch_signatures": [
         {
@@ -33091,43 +33246,108 @@
           "total_mismatch": 3
         },
         {
+          "entity": "fastapi.tests.test_generate_unique_id_function.test_app_path_operation_overrides_generate_unique_id",
+          "language": "python",
+          "kind": "function",
+          "file_path": "tests/test_generate_unique_id_function.py",
+          "module_qualified_name": "fastapi.tests.test_generate_unique_id_function",
+          "missing_count": 3,
+          "spillover_count": 0,
+          "reference_count": 3,
+          "missing_rate": 1.0,
+          "spillover_rate": 0.0,
+          "total_mismatch": 3
+        },
+        {
+          "entity": "fastapi.tests.test_generate_unique_id_function.test_router_overrides_generate_unique_id",
+          "language": "python",
+          "kind": "function",
+          "file_path": "tests/test_generate_unique_id_function.py",
+          "module_qualified_name": "fastapi.tests.test_generate_unique_id_function",
+          "missing_count": 3,
+          "spillover_count": 0,
+          "reference_count": 3,
+          "missing_rate": 1.0,
+          "spillover_rate": 0.0,
+          "total_mismatch": 3
+        },
+        {
+          "entity": "fastapi.tests.test_generate_unique_id_function.test_router_path_operation_overrides_generate_unique_id",
+          "language": "python",
+          "kind": "function",
+          "file_path": "tests/test_generate_unique_id_function.py",
+          "module_qualified_name": "fastapi.tests.test_generate_unique_id_function",
+          "missing_count": 3,
+          "spillover_count": 0,
+          "reference_count": 3,
+          "missing_rate": 1.0,
+          "spillover_rate": 0.0,
+          "total_mismatch": 3
+        },
+        {
+          "entity": "fastapi.tests.test_generate_unique_id_function.test_subrouter_top_level_include_overrides_generate_unique_id",
+          "language": "python",
+          "kind": "function",
+          "file_path": "tests/test_generate_unique_id_function.py",
+          "module_qualified_name": "fastapi.tests.test_generate_unique_id_function",
+          "missing_count": 3,
+          "spillover_count": 0,
+          "reference_count": 3,
+          "missing_rate": 1.0,
+          "spillover_rate": 0.0,
+          "total_mismatch": 3
+        },
+        {
+          "entity": "fastapi.tests.test_generate_unique_id_function.test_callback_override_generate_unique_id",
+          "language": "python",
+          "kind": "function",
+          "file_path": "tests/test_generate_unique_id_function.py",
+          "module_qualified_name": "fastapi.tests.test_generate_unique_id_function",
+          "missing_count": 2,
+          "spillover_count": 0,
+          "reference_count": 2,
+          "missing_rate": 1.0,
+          "spillover_rate": 0.0,
+          "total_mismatch": 2
+        },
+        {
           "entity": "fastapi.applications.FastAPI.setup",
           "language": "python",
           "kind": "method",
           "file_path": "fastapi/applications.py",
           "module_qualified_name": "fastapi.applications",
           "missing_count": 1,
-          "spillover_count": 2,
+          "spillover_count": 1,
           "reference_count": 4,
           "missing_rate": 0.25,
-          "spillover_rate": 0.5,
-          "total_mismatch": 3
+          "spillover_rate": 0.25,
+          "total_mismatch": 2
         },
         {
-          "entity": "fastapi.routing.APIRoute.__init__",
+          "entity": "fastapi._compat.v2.ModelField.default",
           "language": "python",
           "kind": "method",
-          "file_path": "fastapi/routing.py",
-          "module_qualified_name": "fastapi.routing",
+          "file_path": "fastapi/_compat/v2.py",
+          "module_qualified_name": "fastapi._compat.v2",
           "missing_count": 1,
-          "spillover_count": 1,
-          "reference_count": 10,
-          "missing_rate": 0.1,
-          "spillover_rate": 0.1,
-          "total_mismatch": 2
+          "spillover_count": 0,
+          "reference_count": 1,
+          "missing_rate": 1.0,
+          "spillover_rate": 0.0,
+          "total_mismatch": 1
         },
         {
-          "entity": "fastapi.routing.get_websocket_app",
+          "entity": "fastapi._compat.v2.ModelField.get_default",
           "language": "python",
-          "kind": "function",
-          "file_path": "fastapi/routing.py",
-          "module_qualified_name": "fastapi.routing",
-          "missing_count": 0,
-          "spillover_count": 2,
-          "reference_count": 2,
-          "missing_rate": 0.0,
-          "spillover_rate": 1.0,
-          "total_mismatch": 2
+          "kind": "method",
+          "file_path": "fastapi/_compat/v2.py",
+          "module_qualified_name": "fastapi._compat.v2",
+          "missing_count": 1,
+          "spillover_count": 0,
+          "reference_count": 1,
+          "missing_rate": 1.0,
+          "spillover_rate": 0.0,
+          "total_mismatch": 1
         },
         {
           "entity": "fastapi.applications.FastAPI.__init__",
@@ -33144,6 +33364,19 @@
         },
         {
           "entity": "fastapi.applications.FastAPI.add_api_route",
+          "language": "python",
+          "kind": "method",
+          "file_path": "fastapi/applications.py",
+          "module_qualified_name": "fastapi.applications",
+          "missing_count": 1,
+          "spillover_count": 0,
+          "reference_count": 1,
+          "missing_rate": 1.0,
+          "spillover_rate": 0.0,
+          "total_mismatch": 1
+        },
+        {
+          "entity": "fastapi.applications.FastAPI.add_api_websocket_route",
           "language": "python",
           "kind": "method",
           "file_path": "fastapi/applications.py",
@@ -33182,102 +33415,24 @@
           "total_mismatch": 1
         },
         {
+          "entity": "fastapi.applications.FastAPI.get",
+          "language": "python",
+          "kind": "method",
+          "file_path": "fastapi/applications.py",
+          "module_qualified_name": "fastapi.applications",
+          "missing_count": 1,
+          "spillover_count": 0,
+          "reference_count": 1,
+          "missing_rate": 1.0,
+          "spillover_rate": 0.0,
+          "total_mismatch": 1
+        },
+        {
           "entity": "fastapi.applications.FastAPI.head",
           "language": "python",
           "kind": "method",
           "file_path": "fastapi/applications.py",
           "module_qualified_name": "fastapi.applications",
-          "missing_count": 1,
-          "spillover_count": 0,
-          "reference_count": 1,
-          "missing_rate": 1.0,
-          "spillover_rate": 0.0,
-          "total_mismatch": 1
-        },
-        {
-          "entity": "fastapi.applications.FastAPI.include_router",
-          "language": "python",
-          "kind": "method",
-          "file_path": "fastapi/applications.py",
-          "module_qualified_name": "fastapi.applications",
-          "missing_count": 1,
-          "spillover_count": 0,
-          "reference_count": 1,
-          "missing_rate": 1.0,
-          "spillover_rate": 0.0,
-          "total_mismatch": 1
-        },
-        {
-          "entity": "fastapi.applications.FastAPI.options",
-          "language": "python",
-          "kind": "method",
-          "file_path": "fastapi/applications.py",
-          "module_qualified_name": "fastapi.applications",
-          "missing_count": 1,
-          "spillover_count": 0,
-          "reference_count": 1,
-          "missing_rate": 1.0,
-          "spillover_rate": 0.0,
-          "total_mismatch": 1
-        },
-        {
-          "entity": "fastapi.applications.FastAPI.patch",
-          "language": "python",
-          "kind": "method",
-          "file_path": "fastapi/applications.py",
-          "module_qualified_name": "fastapi.applications",
-          "missing_count": 1,
-          "spillover_count": 0,
-          "reference_count": 1,
-          "missing_rate": 1.0,
-          "spillover_rate": 0.0,
-          "total_mismatch": 1
-        },
-        {
-          "entity": "fastapi.applications.FastAPI.post",
-          "language": "python",
-          "kind": "method",
-          "file_path": "fastapi/applications.py",
-          "module_qualified_name": "fastapi.applications",
-          "missing_count": 1,
-          "spillover_count": 0,
-          "reference_count": 1,
-          "missing_rate": 1.0,
-          "spillover_rate": 0.0,
-          "total_mismatch": 1
-        },
-        {
-          "entity": "fastapi.applications.FastAPI.put",
-          "language": "python",
-          "kind": "method",
-          "file_path": "fastapi/applications.py",
-          "module_qualified_name": "fastapi.applications",
-          "missing_count": 1,
-          "spillover_count": 0,
-          "reference_count": 1,
-          "missing_rate": 1.0,
-          "spillover_rate": 0.0,
-          "total_mismatch": 1
-        },
-        {
-          "entity": "fastapi.applications.FastAPI.trace",
-          "language": "python",
-          "kind": "method",
-          "file_path": "fastapi/applications.py",
-          "module_qualified_name": "fastapi.applications",
-          "missing_count": 1,
-          "spillover_count": 0,
-          "reference_count": 1,
-          "missing_rate": 1.0,
-          "spillover_rate": 0.0,
-          "total_mismatch": 1
-        },
-        {
-          "entity": "fastapi.docs_src.handling_errors.tutorial004_py310.validation_exception_handler",
-          "language": "python",
-          "kind": "function",
-          "file_path": "docs_src/handling_errors/tutorial004_py310.py",
-          "module_qualified_name": "fastapi.docs_src.handling_errors.tutorial004_py310",
           "missing_count": 1,
           "spillover_count": 0,
           "reference_count": 1,
@@ -33322,18 +33477,18 @@
         "target_zero": true,
         "pass": false,
         "scored_nodes": 248,
-        "avg_rate": 0.3174133719157286,
-        "avg_rate_percent": 31.74133719157286,
-        "total_edges": 160,
+        "avg_rate": 0.3729241246039007,
+        "avg_rate_percent": 37.29241246039007,
+        "total_edges": 187,
         "by_semantic_type_avg_rate": {
           "direct_call_unresolved": 0.03870967741935484,
-          "member_call_unresolved": 0.27466397849462365,
+          "member_call_unresolved": 0.3301747311827957,
           "module_import_unresolved": 2.4859790780000797e-06,
           "relative_import_unresolved": 0.004037230022672129
         },
         "by_semantic_type_avg_percent": {
           "direct_call_unresolved": 3.870967741935484,
-          "member_call_unresolved": 27.466397849462364,
+          "member_call_unresolved": 33.017473118279575,
           "module_import_unresolved": 0.000248597907800008,
           "relative_import_unresolved": 0.4037230022672129
         }
