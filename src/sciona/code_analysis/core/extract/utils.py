@@ -22,18 +22,25 @@ def find_nodes_of_types_query(
     *,
     language_name: str,
     node_types: tuple[str, ...],
+    capture_name: str = "node",
 ) -> list[object]:
     """Return document-ordered nodes for any of the requested types using Query API."""
     if not node_types:
         return []
-    query = _compile_type_query(language_name, tuple(sorted(node_types)))
+    expected_capture_name = capture_name
+    query = _compile_type_query(
+        language_name, tuple(sorted(node_types)), expected_capture_name
+    )
     captures = query.captures(node)
     results: list[object] = []
     seen: set[tuple[int, int, str]] = set()
-    for captured_node, capture_name in captures:
-        if isinstance(capture_name, bytes):
-            capture_name = capture_name.decode("utf-8")
-        if capture_name != "node":
+    for captured_node, raw_capture_name in captures:
+        resolved_name = (
+            raw_capture_name.decode("utf-8")
+            if isinstance(raw_capture_name, bytes)
+            else raw_capture_name
+        )
+        if resolved_name != expected_capture_name:
             continue
         key = (captured_node.start_byte, captured_node.end_byte, captured_node.type)
         if key in seen:
@@ -45,8 +52,10 @@ def find_nodes_of_types_query(
 
 
 @lru_cache(maxsize=64)
-def _compile_type_query(language_name: str, node_types: tuple[str, ...]):
-    source = "\n".join(f"({node_type}) @node" for node_type in node_types)
+def _compile_type_query(
+    language_name: str, node_types: tuple[str, ...], capture_name: str = "node"
+):
+    source = "\n".join(f"({node_type}) @{capture_name}" for node_type in node_types)
     return _compile_query_source(language_name, source)
 
 
