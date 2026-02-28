@@ -1271,6 +1271,49 @@ def test_typescript_parser_collects_constructor_parameter_property_hints(
 
 
 @pytest.mark.skipif(shutil.which("node") is None, reason="node is required")
+def test_typescript_parser_preserves_curried_call_callee_identity(tmp_path: Path) -> None:
+    source = tmp_path / "sample.ts"
+    source.write_text(
+        "enum RouteParamtypes { FILE }\n"
+        "const createPipesRouteParamDecorator = (paramtype: RouteParamtypes) =>\n"
+        "  (data?: any) => data;\n"
+        "export function UploadedFile(fileKey?: string) {\n"
+        "  return createPipesRouteParamDecorator(RouteParamtypes.FILE)(fileKey);\n"
+        "}\n",
+        encoding="utf-8",
+    )
+    result = parse_typescript_files(
+        tmp_path, [{"file_path": "sample.ts", "module_qualified_name": "fixture.sample"}]
+    )[0]
+    assert result.parse_ok
+    uploaded_edges = [
+        edge for edge in result.call_edges if edge.caller == "fixture.sample.UploadedFile"
+    ]
+    assert any(edge.callee == "createPipesRouteParamDecorator" for edge in uploaded_edges)
+    assert not any(edge.callee == "FILE" for edge in uploaded_edges)
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="node is required")
+def test_typescript_parser_unwraps_casted_receiver_calls(tmp_path: Path) -> None:
+    source = tmp_path / "sample.ts"
+    source.write_text(
+        "type Ref = { forwardRef?: () => { name?: string } };\n"
+        "export const getName = (instance: unknown): string | undefined => {\n"
+        "  return (instance as Ref)?.forwardRef?.()?.name;\n"
+        "};\n",
+        encoding="utf-8",
+    )
+    result = parse_typescript_files(
+        tmp_path, [{"file_path": "sample.ts", "module_qualified_name": "fixture.sample"}]
+    )[0]
+    assert result.parse_ok
+    edges = [edge for edge in result.call_edges if edge.caller == "fixture.sample.getName"]
+    assert edges
+    assert any(edge.callee == "forwardRef" for edge in edges)
+    assert any((edge.callee_text or "").endswith("forwardRef") for edge in edges)
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="node is required")
 def test_typescript_parser_collects_type_annotation_assignment_hints(
     tmp_path: Path,
 ) -> None:

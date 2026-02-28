@@ -26,20 +26,55 @@ function isStringLiteral(node) {
 function calleeName(expr) {
   if (!expr) return null;
   if (ts.isIdentifier(expr)) return expr.text;
+  if (ts.isParenthesizedExpression(expr)) return calleeName(expr.expression);
+  if (ts.isAsExpression(expr)) return calleeName(expr.expression);
+  if (ts.isTypeAssertionExpression(expr)) return calleeName(expr.expression);
+  if (ts.isNonNullExpression(expr)) return calleeName(expr.expression);
+  if (ts.isCallExpression(expr)) return calleeName(expr.expression);
+  if (ts.isNewExpression(expr)) return calleeName(expr.expression);
   if (ts.isPropertyAccessExpression(expr)) return expr.name.text;
+  if (ts.isElementAccessExpression(expr) && expr.argumentExpression) {
+    const arg = expr.argumentExpression;
+    if (ts.isIdentifier(arg)) return arg.text;
+    if (ts.isStringLiteral(arg) || ts.isNumericLiteral(arg)) return arg.text;
+  }
   return null;
 }
 
 function expressionText(expr) {
   if (!expr) return null;
+  if (expr.kind === ts.SyntaxKind.ThisKeyword) return "this";
+  if (expr.kind === ts.SyntaxKind.SuperKeyword) return "super";
   if (ts.isIdentifier(expr)) return expr.text;
+  if (ts.isParenthesizedExpression(expr)) return expressionText(expr.expression);
+  if (ts.isAsExpression(expr)) return expressionText(expr.expression);
+  if (ts.isTypeAssertionExpression(expr)) return expressionText(expr.expression);
+  if (ts.isNonNullExpression(expr)) return expressionText(expr.expression);
   if (ts.isNewExpression(expr)) return expressionText(expr.expression);
+  if (ts.isCallExpression(expr)) return expressionText(expr.expression);
   if (ts.isPropertyAccessExpression(expr)) {
     const left = expressionText(expr.expression);
     if (left) return `${left}.${expr.name.text}`;
     return expr.name.text;
   }
+  if (ts.isElementAccessExpression(expr)) {
+    const left = expressionText(expr.expression);
+    const arg = expr.argumentExpression;
+    if (left && arg) {
+      const right = expressionText(arg) || arg.getText();
+      if (right) return `${left}.${right}`;
+    }
+    return left;
+  }
   return null;
+}
+
+function qnameHintText(expr) {
+  const raw = expressionText(expr);
+  if (!raw) return raw;
+  if (raw.startsWith("this.")) return raw.slice("this.".length);
+  if (raw.startsWith("super.")) return raw.slice("super.".length);
+  return raw;
 }
 
 function memberName(node, sourceFile) {
@@ -252,8 +287,8 @@ function parseFile(entry) {
 
       if (currentScopeKind() === "function" || currentScopeKind() === "method") {
         const callee = calleeName(node.expression);
-        const calleeText = node.expression ? node.expression.getText(sourceFile) : "";
-        const qnameHint = expressionText(node.expression);
+        const calleeText = expressionText(node.expression) || (node.expression ? node.expression.getText(sourceFile) : "");
+        const qnameHint = qnameHintText(node.expression);
         call_edges.push({
           caller: currentScope(),
           callee: callee || "",
@@ -290,8 +325,8 @@ function parseFile(entry) {
     if (ts.isNewExpression(node)) {
       if (currentScopeKind() === "function" || currentScopeKind() === "method") {
         const callee = calleeName(node.expression);
-        const calleeText = node.expression ? node.expression.getText(sourceFile) : "";
-        const qnameHint = expressionText(node.expression);
+        const calleeText = expressionText(node.expression) || (node.expression ? node.expression.getText(sourceFile) : "");
+        const qnameHint = qnameHintText(node.expression);
         call_edges.push({
           caller: currentScope(),
           callee: callee || "",
