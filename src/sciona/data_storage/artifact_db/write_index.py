@@ -12,8 +12,6 @@ from ...runtime.time import utc_now
 from ..encoding import bool_to_int
 from ..sql_utils import temp_id_table
 
-NODE_STATUS_PRODUCER = "node_status_v1"
-
 
 def upsert_node_calls(
     conn: sqlite3.Connection,
@@ -45,44 +43,15 @@ def upsert_node_calls(
     )
 
 
-def set_node_status(conn: sqlite3.Connection, node_id: str, status: str) -> None:
-    ts = utc_now()
-    conn.execute(
-        """
-        INSERT INTO node_status(node_id, status, updated_at)
-        VALUES (?, ?, ?)
-        ON CONFLICT(node_id) DO UPDATE SET
-            status=excluded.status,
-            updated_at=excluded.updated_at
-        """,
-        (node_id, status, ts),
-    )
-
-
-def rewrite_node_status(
-    conn: sqlite3.Connection,
-    *,
-    statuses: Sequence[tuple[str, str]],
-    producer_id: str,
-) -> None:
-    conn.execute("DELETE FROM node_status")
-    for node_id, status in statuses:
-        set_node_status(conn, node_id, status)
-
-
 def cleanup_removed_nodes(
     conn: sqlite3.Connection,
     current_node_ids: Iterable[str],
 ) -> None:
     ids = list(current_node_ids)
     if not ids:
-        conn.execute("DELETE FROM node_status")
         conn.execute("DELETE FROM node_calls")
         return
     with temp_id_table(conn, ids, column="node_id", prefix="current_nodes") as table:
-        conn.execute(
-            f"DELETE FROM node_status WHERE node_id NOT IN (SELECT node_id FROM {table})",
-        )
         conn.execute(
             f"DELETE FROM node_calls WHERE caller_id NOT IN (SELECT node_id FROM {table})",
         )

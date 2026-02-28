@@ -152,7 +152,6 @@ Core structural edge semantics currently emitted:
 
 ArtifactDB (derived):
 
-- `node_status`
 - `node_calls`
 - `graph_nodes`
 - `graph_edges`

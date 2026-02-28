@@ -6,57 +6,6 @@
 from __future__ import annotations
 
 import sqlite3
-from typing import Iterable
-
-from ..sql_utils import SQLITE_MAX_VARS, chunked
-
-
-def get_node_status(
-    conn: sqlite3.Connection,
-    node_ids: Iterable[str] | None = None,
-) -> dict[str, str]:
-    params: list[str] = []
-    clauses = []
-    node_ids_list: list[str] | None = None
-    if node_ids is not None:
-        node_ids_list = list(node_ids)
-        if not node_ids_list:
-            return {}
-        if len(node_ids_list) <= SQLITE_MAX_VARS:
-            placeholders = ",".join("?" for _ in node_ids_list)
-            clauses.append(f"node_id IN ({placeholders})")
-            params.extend(node_ids_list)
-    where_clause = f"WHERE {' AND '.join(clauses)}" if clauses else ""
-    statuses: dict[str, str] = {}
-    if node_ids_list is not None and len(node_ids_list) > SQLITE_MAX_VARS:
-        for batch in chunked(node_ids_list, SQLITE_MAX_VARS):
-            placeholders = ",".join("?" for _ in batch)
-            rows = conn.execute(
-                f"""
-                SELECT node_id, status
-                FROM node_status
-                WHERE node_id IN ({placeholders})
-                """,
-                tuple(batch),
-            ).fetchall()
-            for row in rows:
-                status = row["status"]
-                if isinstance(status, str):
-                    statuses[row["node_id"]] = status
-        return statuses
-    rows = conn.execute(
-        f"""
-        SELECT node_id, status
-        FROM node_status
-        {where_clause}
-        """,
-        tuple(params),
-    ).fetchall()
-    for row in rows:
-        status = row["status"]
-        if isinstance(status, str):
-            statuses[row["node_id"]] = status
-    return statuses
 
 
 def rebuild_consistent_for_snapshot(

@@ -4,7 +4,6 @@
 from pathlib import Path
 
 from sciona.data_storage.artifact_db import connect as artifact_connect
-from sciona.data_storage.artifact_db import read_status as artifact_read
 from sciona.data_storage.artifact_db import write_index as artifact_write
 from sciona.data_storage.transactions import transaction
 from sciona.runtime.paths import get_artifact_db_path
@@ -17,25 +16,6 @@ def _artifact_db_conn(tmp_path: Path):
     sciona_dir.mkdir()
     conn = artifact_connect(get_artifact_db_path(repo_root), repo_root=repo_root)
     return conn, repo_root
-
-
-def test_node_status_rewrite_and_update(tmp_path: Path):
-    conn, _ = _artifact_db_conn(tmp_path)
-    try:
-        with transaction(conn):
-            artifact_write.rewrite_node_status(
-                conn,
-                statuses=[("alpha", "added"), ("beta", "modified")],
-                producer_id=artifact_write.NODE_STATUS_PRODUCER,
-            )
-        statuses = artifact_read.get_node_status(conn)
-        assert statuses == {"alpha": "added", "beta": "modified"}
-
-        with transaction(conn):
-            artifact_write.set_node_status(conn, "beta", "valid")
-        assert artifact_read.get_node_status(conn)["beta"] == "valid"
-    finally:
-        conn.close()
 
 
 def test_node_calls_and_cleanup(tmp_path: Path):
@@ -65,16 +45,5 @@ def test_node_calls_and_cleanup(tmp_path: Path):
         assert [(row["caller_id"], row["callee_id"]) for row in remaining] == [
             ("node-alpha", "node-beta")
         ]
-    finally:
-        conn.close()
-
-
-def test_get_node_status_empty_filter_returns_empty(tmp_path: Path):
-    conn, _ = _artifact_db_conn(tmp_path)
-    try:
-        with transaction(conn):
-            artifact_write.set_node_status(conn, "alpha", "added")
-            artifact_write.set_node_status(conn, "beta", "modified")
-        assert artifact_read.get_node_status(conn, []) == {}
     finally:
         conn.close()

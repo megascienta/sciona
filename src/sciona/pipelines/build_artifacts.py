@@ -7,12 +7,11 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Dict, List, Sequence, Set, Tuple
+from typing import Sequence, Set
 
 from ..code_analysis import artifacts as artifact_derivation
 from ..code_analysis.tools.call_extraction import CallExtractionRecord
 from ..code_analysis.artifacts.engine import ArtifactEngine
-from ..code_analysis.core.annotate import diff as annotate_diff
 from ..data_storage.connections import artifact
 from ..data_storage.transactions import transaction
 from ..data_storage.artifact_db import diff_overlay as overlay_store
@@ -60,13 +59,8 @@ def refresh_artifact_state(
     snapshot_id: str,
     call_artifacts: Sequence[CallExtractionRecord],
 ) -> None:
-    statuses, current_node_ids = _snapshot_nodes_status(conn, snapshot_id)
-    current_statuses = [
-        (node_id, status) for node_id, status in statuses if status != "removed"
-    ]
-    eligible_callers: Set[str] = {
-        node_id for node_id, status in statuses if status in {"added", "modified"}
-    }
+    current_node_ids = set(core_read.snapshot_node_hashes(conn, snapshot_id).keys())
+    eligible_callers: Set[str] = set(current_node_ids)
     artifact_path = get_artifact_db_path(repo_root)
     with artifact(artifact_path, repo_root=repo_root) as artifact_conn:
         artifact_write.mark_rebuild_started(artifact_conn, snapshot_id=snapshot_id)
@@ -78,11 +72,6 @@ def refresh_artifact_state(
             with transaction(artifact_conn):
                 call_resolution_diagnostics: dict[str, object] = {}
                 artifact_write.cleanup_removed_nodes(artifact_conn, current_node_ids)
-                artifact_write.rewrite_node_status(
-                    artifact_conn,
-                    statuses=current_statuses,
-                    producer_id=artifact_write.NODE_STATUS_PRODUCER,
-                )
                 artifact_derivation.write_call_artifacts(
                     artifact_conn=artifact_conn,
                     core_conn=conn,
@@ -119,39 +108,3 @@ def refresh_artifact_state(
             artifact_write.mark_rebuild_failed(artifact_conn, snapshot_id=snapshot_id)
             artifact_conn.commit()
             raise
-
-
-def _snapshot_nodes_status(
-    conn, snapshot_id: str
-) -> Tuple[List[Tuple[str, str]], Set[str]]:
-    current_hashes = core_read.snapshot_node_hashes(conn, snapshot_id)
-    previous_snapshot_id = annotate_diff.previous_snapshot_id(conn, snapshot_id)
-    previous_hashes = previous_node_hashes(conn, previous_snapshot_id)
-    statuses: List[Tuple[str, str]] = []
-    current_ids: Set[str] = set()
-    for structural_id, content_hash in current_hashes.items():
-        current_ids.add(structural_id)
-        statuses.append(
-            (
-                structural_id,
-                classify_status(content_hash, previous_hashes.get(structural_id)),
-            )
-        )
-    removed_ids = set(previous_hashes.keys()) - current_ids
-    for structural_id in sorted(removed_ids):
-        statuses.append((structural_id, "removed"))
-    return statuses, current_ids
-
-
-def previous_node_hashes(conn, snapshot_id: str | None) -> Dict[str, str]:
-    if not snapshot_id:
-        return {}
-    return core_read.snapshot_node_hashes(conn, snapshot_id)
-
-
-def classify_status(current_hash: str, previous_hash: str | None) -> str:
-    if previous_hash is None:
-        return "added"
-    if previous_hash != current_hash:
-        return "modified"
-    return "unchanged"
