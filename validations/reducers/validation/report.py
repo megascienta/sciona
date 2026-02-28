@@ -118,6 +118,12 @@ def render_summary(payload: dict) -> List[str]:
     lines.append(
         f"- strict_contract_candidate_count_histogram: `{q2.get('strict_contract_candidate_count_histogram')}`"
     )
+    core_view = q2.get("core_contract_overlap") or {}
+    hints_view = q2.get("contract_plus_resolution_hints") or {}
+    if core_view:
+        lines.append(f"- core_contract_overlap: `{core_view}`")
+    if hints_view:
+        lines.append(f"- contract_plus_resolution_hints: `{hints_view}`")
     lines.append(f"- by_language: `{q2.get('by_language')}`")
     lines.append("")
 

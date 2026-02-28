@@ -101,6 +101,30 @@ def _build_q2_node_rates(metrics: dict | None) -> dict | None:
     }
 
 
+def _build_q2_hints_augmented_rates(
+    *,
+    metrics: dict | None,
+    excluded_limitation_count: int,
+) -> dict | None:
+    if not metrics:
+        return None
+    reference_count = int(metrics.get("reference_count") or 0) + int(
+        excluded_limitation_count or 0
+    )
+    if reference_count <= 0:
+        return None
+    missing_count = int(metrics.get("missing_count") or 0) + int(excluded_limitation_count or 0)
+    spillover_count = int(metrics.get("spillover_count") or 0)
+    intersection_count = int(metrics.get("intersection_count") or 0)
+    candidate_count = int(metrics.get("candidate_count") or 0)
+    union_count = reference_count + candidate_count - intersection_count
+    return {
+        "missing_rate": _safe_ratio(missing_count, reference_count),
+        "spillover_rate": _safe_ratio(spillover_count, reference_count),
+        "mutual_accuracy": _safe_ratio(intersection_count, union_count),
+    }
+
+
 def _passes_q2_gate(
     *,
     avg_missing_rate: float | None,
@@ -294,6 +318,43 @@ def _build_report_payload(
     avg_mutual_accuracy = (
         mean(item["mutual_accuracy"] for item in q2_node_rates if item["mutual_accuracy"] is not None)
         if q2_node_rates
+        else None
+    )
+    q2_hints_node_rates: list[dict] = []
+    for row in scored_rows_q2:
+        rates = _build_q2_hints_augmented_rates(
+            metrics=row.get("set_q2_reducer_vs_independent_contract") or {},
+            excluded_limitation_count=int(
+                (row.get("q2_filtering_stats") or {}).get("excluded_limitation_count") or 0
+            ),
+        )
+        if rates is None:
+            continue
+        q2_hints_node_rates.append(
+            {
+                "entity": row["entity"],
+                "language": row["language"],
+                "kind": row["kind"],
+                "file_path": row["file_path"],
+                "module_qualified_name": row["module_qualified_name"],
+                **rates,
+            }
+        )
+    avg_missing_rate_hints = (
+        mean(item["missing_rate"] for item in q2_hints_node_rates) if q2_hints_node_rates else None
+    )
+    avg_spillover_rate_hints = (
+        mean(item["spillover_rate"] for item in q2_hints_node_rates)
+        if q2_hints_node_rates
+        else None
+    )
+    avg_mutual_accuracy_hints = (
+        mean(
+            item["mutual_accuracy"]
+            for item in q2_hints_node_rates
+            if item["mutual_accuracy"] is not None
+        )
+        if q2_hints_node_rates
         else None
     )
     q2_pass = _passes_q2_gate(
@@ -574,6 +635,27 @@ def _build_report_payload(
                 "class_match_strategy_breakdown": dict(
                     sorted(class_match_strategy_breakdown.items())
                 ),
+                "core_contract_overlap": {
+                    "reference_count": q2_reference_total,
+                    "candidate_count": q2_agg.get("candidate_count"),
+                    "intersection_count": q2_agg.get("intersection_count"),
+                    "missing_count": q2_agg.get("missing_count"),
+                    "spillover_count": q2_agg.get("spillover_count"),
+                    "avg_missing_rate": avg_missing_rate,
+                    "avg_spillover_rate": avg_spillover_rate,
+                    "avg_mutual_accuracy": avg_mutual_accuracy,
+                },
+                "contract_plus_resolution_hints": {
+                    "reference_count": q2_reference_total + q2_excluded_limitation,
+                    "candidate_count": q2_agg.get("candidate_count"),
+                    "intersection_count": q2_agg.get("intersection_count"),
+                    "missing_count": int(q2_agg.get("missing_count") or 0)
+                    + q2_excluded_limitation,
+                    "spillover_count": q2_agg.get("spillover_count"),
+                    "avg_missing_rate": avg_missing_rate_hints,
+                    "avg_spillover_rate": avg_spillover_rate_hints,
+                    "avg_mutual_accuracy": avg_mutual_accuracy_hints,
+                },
                 "top_mismatch_signatures": top_mismatch_signatures,
             },
             "q2_syntax": {
