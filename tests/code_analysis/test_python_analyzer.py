@@ -158,6 +158,53 @@ def top():
     assert f"{helper_module}.helper" in call_records[f"{module_name}.top"]
 
 
+def test_python_analyzer_tracks_from_import_submodules(tmp_path):
+    repo = tmp_path
+    pkg = repo / "pkg"
+    app = pkg / "app"
+    pkg.mkdir()
+    app.mkdir()
+    (pkg / "__init__.py").write_text("", encoding="utf-8")
+    (pkg / "config.py").write_text("VALUE = 1\n", encoding="utf-8")
+    (app / "__init__.py").write_text("", encoding="utf-8")
+    (app / "a.py").write_text("A = 1\n", encoding="utf-8")
+    (app / "b.py").write_text("B = 1\n", encoding="utf-8")
+    file_path = pkg / "main.py"
+    file_path.write_text("from . import config\nfrom .app import a, b\n", encoding="utf-8")
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("pkg/main.py"),
+            language="python",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=file_path.stat().st_size,
+        line_count=2,
+        content=file_path.read_bytes(),
+    )
+    analyzer = PythonAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    package_prefix = module_name.rsplit(".", 1)[0]
+    analyzer.module_index = {
+        module_name,
+        package_prefix,
+        f"{package_prefix}.config",
+        f"{package_prefix}.app",
+        f"{package_prefix}.app.a",
+        f"{package_prefix}.app.b",
+    }
+    result = analyzer.analyze(snapshot, module_name)
+    imports = {
+        edge.dst_qualified_name
+        for edge in result.edges
+        if edge.edge_type == "IMPORTS_DECLARED"
+    }
+    assert f"{package_prefix}.config" in imports
+    assert f"{package_prefix}.app" in imports
+    assert package_prefix not in imports
+
+
 def test_python_analyzer_resolves_self_field_constructor_assignments(tmp_path):
     module = """
 class Service:

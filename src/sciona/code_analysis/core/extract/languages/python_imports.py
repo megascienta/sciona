@@ -84,7 +84,19 @@ def collect_python_import_model(
             )
             if not normalized or not is_internal_module(normalized, module_index):
                 continue
-            model.modules.append(normalized)
+            is_bare_relative = module.startswith(".") and not module.strip(".")
+            resolved_submodules: list[str] = []
+            if is_bare_relative:
+                for name, _alias in names:
+                    if name == "*":
+                        continue
+                    candidate_module = f"{normalized}.{name}"
+                    if is_internal_module(candidate_module, module_index):
+                        resolved_submodules.append(candidate_module)
+            if resolved_submodules:
+                model.modules.extend(resolved_submodules)
+            else:
+                model.modules.append(normalized)
             model.raw_module_map[module] = normalized
             for name, alias in names:
                 if name == "*":
