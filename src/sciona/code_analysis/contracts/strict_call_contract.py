@@ -52,6 +52,16 @@ def select_strict_call_candidate(
                 dropped_reason=None,
                 candidate_count=candidate_count,
             )
+        if caller_module and candidate_module:
+            allowed_modules = set(import_targets.get(caller_module, set()))
+            allowed_modules.add(caller_module)
+            if candidate_module in allowed_modules:
+                return StrictCallDecision(
+                    accepted_candidate=candidate,
+                    accepted_provenance="import_narrowed",
+                    dropped_reason=None,
+                    candidate_count=candidate_count,
+                )
         return StrictCallDecision(
             accepted_candidate=None,
             accepted_provenance=None,

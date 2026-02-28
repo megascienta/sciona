@@ -51,13 +51,36 @@ def _decorator_names(node, content: bytes) -> list[str]:
 def _typescript_bases(node, content: bytes) -> list[str]:
     heritage = node.child_by_field_name("heritage")
     if heritage is None:
+        heritage = next(
+            (
+                child
+                for child in getattr(node, "named_children", [])
+                if child.type in {"class_heritage", "extends_clause", "implements_clause"}
+            ),
+            None,
+        )
+    if heritage is None:
         return []
     bases: list[str] = []
     for child in getattr(heritage, "named_children", []):
         value = node_text(child, content)
-        if value:
-            bases.append(value)
+        if not value:
+            continue
+        value = value.strip()
+        if value.startswith("extends "):
+            value = value[len("extends ") :].strip()
+        elif value.startswith("implements "):
+            value = value[len("implements ") :].strip()
+        for part in value.split(","):
+            cleaned = part.strip()
+            if cleaned:
+                bases.append(cleaned)
     return bases
+
+
+def _is_async_callable(node, content: bytes) -> bool:
+    text = (node_text(node, content) or "").lstrip()
+    return text.startswith("async ")
 
 
 def walk_typescript_nodes(
@@ -193,6 +216,21 @@ def walk_typescript_nodes(
             qualified = f"{module_name}.{func_name}"
             edge_type = "CONTAINS"
             state.module_functions.add(func_name)
+        decorators = _decorator_names(node, snapshot.content)
+        is_async = _is_async_callable(node, snapshot.content)
+        metadata = (
+            {
+                "kind": "async_function" if is_async else "function",
+                "decorators": decorators,
+            }
+            if node_type == "function"
+            else {
+                "kind": "async_method" if is_async else "method",
+                "signature_only": node.type in {"method_signature", "abstract_method_signature"},
+                "abstract": node.type == "abstract_method_signature",
+                "decorators": decorators,
+            }
+        )
         result.nodes.append(
             SemanticNodeRecord(
                 language=language,
@@ -204,17 +242,7 @@ def walk_typescript_nodes(
                 end_line=node.end_point[0] + 1,
                 start_byte=node.start_byte,
                 end_byte=node.end_byte,
-                metadata=(
-                    None
-                    if node_type != "method"
-                    else {
-                        "kind": "method",
-                        "signature_only": node.type
-                        in {"method_signature", "abstract_method_signature"},
-                        "abstract": node.type == "abstract_method_signature",
-                        "decorators": _decorator_names(node, snapshot.content),
-                    }
-                ),
+                metadata=metadata,
             )
         )
         emit_decorator_edges(
@@ -224,7 +252,7 @@ def walk_typescript_nodes(
             result=result,
             owner_qname=qualified,
             owner_type=node_type,
-            decorators=_decorator_names(node, snapshot.content),
+            decorators=decorators,
         )
         result.edges.append(
             EdgeRecord(
@@ -286,8 +314,21 @@ def walk_typescript_nodes(
                     end_line=value_node.end_point[0] + 1,
                     start_byte=value_node.start_byte,
                     end_byte=value_node.end_byte,
-                    metadata={"kind": "class", "bases": [], "decorators": []},
+                    metadata={
+                        "kind": "class",
+                        "bases": _typescript_bases(value_node, snapshot.content),
+                        "decorators": _decorator_names(value_node, snapshot.content),
+                    },
                 )
+            )
+            emit_decorator_edges(
+                language=language,
+                snapshot=snapshot,
+                module_name=module_name,
+                result=result,
+                owner_qname=qualified,
+                owner_type="class",
+                decorators=_decorator_names(value_node, snapshot.content),
             )
             result.edges.append(
                 EdgeRecord(
@@ -360,6 +401,12 @@ def walk_typescript_nodes(
                 end_line=value_node.end_point[0] + 1,
                 start_byte=value_node.start_byte,
                 end_byte=value_node.end_byte,
+                metadata={
+                    "kind": "async_function"
+                    if _is_async_callable(value_node, snapshot.content)
+                    else "function",
+                    "decorators": [],
+                },
             )
         )
         result.edges.append(
@@ -427,6 +474,12 @@ def walk_typescript_nodes(
                 end_line=value_node.end_point[0] + 1,
                 start_byte=value_node.start_byte,
                 end_byte=value_node.end_byte,
+                metadata={
+                    "kind": "async_method"
+                    if _is_async_callable(value_node, snapshot.content)
+                    else "method",
+                    "decorators": [],
+                },
             )
         )
         result.edges.append(

@@ -12,6 +12,7 @@ from ...normalize.model import EdgeRecord, FileSnapshot, SemanticNodeRecord
 from ..utils import find_nodes_of_types_query
 from .analyzer_support import emit_decorator_edges
 from .query_surface import PYTHON_STRUCTURAL_NODE_TYPES
+from .shared import node_text as shared_node_text
 
 
 @dataclass
@@ -28,9 +29,7 @@ class PythonNodeState:
 
 
 def _node_text(node, content: bytes) -> str | None:
-    if node is None:
-        return None
-    return content[node.start_byte : node.end_byte].decode("utf-8")
+    return shared_node_text(node, content)
 
 
 def _decorator_names(node, content: bytes) -> tuple[str, ...]:
@@ -115,9 +114,9 @@ def walk_python_nodes(
         name_node = node.child_by_field_name("name")
         if not name_node:
             return
-        class_name = snapshot.content[name_node.start_byte : name_node.end_byte].decode(
-            "utf-8"
-        )
+        class_name = _node_text(name_node, snapshot.content)
+        if not class_name:
+            return
         if state.class_stack:
             parent = state.class_stack[-1]
             parent_node_type = "class"
@@ -201,9 +200,9 @@ def walk_python_nodes(
         name_node = node.child_by_field_name("name")
         if not name_node:
             return
-        func_name = snapshot.content[name_node.start_byte : name_node.end_byte].decode(
-            "utf-8"
-        )
+        func_name = _node_text(name_node, snapshot.content)
+        if not func_name:
+            return
         if state.class_stack:
             node_type = "method"
             parent = state.class_stack[-1]

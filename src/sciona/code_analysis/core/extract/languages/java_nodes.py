@@ -12,6 +12,7 @@ from ...normalize.model import EdgeRecord, FileSnapshot, SemanticNodeRecord
 from ..utils import find_nodes_of_types_query
 from .analyzer_support import emit_decorator_edges
 from .query_surface import JAVA_STRUCTURAL_NODE_TYPES
+from .shared import node_text as shared_node_text
 
 
 @dataclass
@@ -29,9 +30,27 @@ class JavaNodeState:
 
 
 def _node_text(node, content: bytes) -> str | None:
+    return shared_node_text(node, content)
+
+
+def _query_direct_type_names(node, content: bytes) -> list[str]:
     if node is None:
-        return None
-    return content[node.start_byte : node.end_byte].decode("utf-8")
+        return []
+    captured = find_nodes_of_types_query(
+        node,
+        language_name="java",
+        node_types=("type_identifier", "scoped_type_identifier", "generic_type"),
+    )
+    names: list[str] = []
+    seen: set[str] = set()
+    for child in captured:
+        value = _node_text(child, content)
+        if value:
+            if value in seen:
+                continue
+            seen.add(value)
+            names.append(value)
+    return names
 
 
 def _java_annotations(node, content: bytes) -> list[str]:
@@ -57,16 +76,10 @@ def _java_bases(node, content: bytes) -> list[str]:
     bases: list[str] = []
     superclass = node.child_by_field_name("superclass")
     if superclass is not None:
-        for child in getattr(superclass, "named_children", []):
-            value = _node_text(child, content)
-            if value:
-                bases.append(value)
+        bases.extend(_query_direct_type_names(superclass, content))
     interfaces = node.child_by_field_name("interfaces")
     if interfaces is not None:
-        for child in getattr(interfaces, "named_children", []):
-            value = _node_text(child, content)
-            if value:
-                bases.append(value)
+        bases.extend(_query_direct_type_names(interfaces, content))
     return bases
 
 
@@ -114,9 +127,9 @@ def walk_java_nodes(
         name_node = node.child_by_field_name("name")
         if not name_node:
             return
-        class_name = snapshot.content[name_node.start_byte : name_node.end_byte].decode(
-            "utf-8"
-        )
+        class_name = _node_text(name_node, snapshot.content)
+        if not class_name:
+            return
         if state.class_stack:
             parent = state.class_stack[-1]
             parent_node_type = "class"
@@ -204,9 +217,9 @@ def walk_java_nodes(
         name_node = node.child_by_field_name("name")
         if not name_node:
             return
-        func_name = snapshot.content[name_node.start_byte : name_node.end_byte].decode(
-            "utf-8"
-        )
+        func_name = _node_text(name_node, snapshot.content)
+        if not func_name:
+            return
         if not state.class_stack:
             return
         node_type = "method"

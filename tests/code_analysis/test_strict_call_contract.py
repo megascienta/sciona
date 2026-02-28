@@ -41,3 +41,16 @@ def test_strict_call_contract_accepts_import_narrowed_from_ambiguous() -> None:
     )
     assert decision.accepted_candidate == "a.mod.S.run"
     assert decision.accepted_provenance == "import_narrowed"
+
+
+def test_strict_call_contract_accepts_unique_import_scoped_candidate() -> None:
+    decision = select_strict_call_candidate(
+        identifier="run",
+        direct_candidates=[],
+        fallback_candidates=["deps.mod.S.run"],
+        caller_module="app.mod",
+        module_lookup={"deps.mod.S.run": "deps.mod"},
+        import_targets={"app.mod": {"deps.mod"}},
+    )
+    assert decision.accepted_candidate == "deps.mod.S.run"
+    assert decision.accepted_provenance == "import_narrowed"

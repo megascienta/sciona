@@ -191,10 +191,8 @@ def is_static_import(node) -> bool:
 
 
 def is_wildcard_import(node, content: bytes) -> bool:
-    if any(getattr(child, "type", "") == "asterisk" for child in getattr(node, "children", [])):
-        return True
-    text = content[node.start_byte : node.end_byte].decode("utf-8")
-    return "*" in text
+    _ = content
+    return any(getattr(child, "type", "") == "asterisk" for child in getattr(node, "children", []))
 
 
 def import_name_parts(node, content: bytes) -> tuple[str, ...]:

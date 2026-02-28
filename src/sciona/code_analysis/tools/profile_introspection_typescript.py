@@ -257,14 +257,14 @@ def _is_direct_child(node, parent) -> bool:
 def _fuzzy_span_lookup(mapping, start_line: int, end_line: int):
     if not mapping:
         return None
-    candidates = [
-        (span, value)
-        for span, value in mapping.items()
-        if span[0] == start_line and span[1] >= end_line
-    ]
-    if not candidates:
-        candidates = [(span, value) for span, value in mapping.items() if span[0] == start_line]
+    candidates = [(span, value) for span, value in mapping.items() if span[0] == start_line]
     if not candidates:
         return None
-    candidates.sort(key=lambda item: item[0][1])
+    candidates.sort(
+        key=lambda item: (
+            0 if item[0][1] >= end_line else 1,
+            abs(item[0][1] - end_line),
+            item[0][1],
+        )
+    )
     return candidates[0][1]

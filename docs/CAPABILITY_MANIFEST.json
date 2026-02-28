@@ -63,7 +63,8 @@
           "method_signature"
         ],
         "classes": [
-          "class_declaration"
+          "class_declaration",
+          "class_expression"
         ],
         "parameters": [
           "optional_parameter",
@@ -98,6 +99,7 @@
       ],
       "profile": {
         "functions": [
+          "compact_constructor_declaration",
           "constructor_declaration",
           "method_declaration"
         ],
@@ -205,6 +207,9 @@
         "emits_edges": [
           "CONTAINS",
           "DEFINES_METHOD"
+        ],
+        "constraints": [
+          "function/method emission only for module-level bindings or class member fields; nested expressions are non-structural"
         ]
       },
       {

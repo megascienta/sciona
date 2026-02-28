@@ -59,14 +59,14 @@ class ScopeResolver:
 
 def _find_node_by_span(root, span: tuple[int, int]):
     start_byte, end_byte = span
-    stack = [root]
-    while stack:
-        node = stack.pop()
+    descendant_for_range = getattr(root, "descendant_for_byte_range", None)
+    if not callable(descendant_for_range):
+        return None
+    node = descendant_for_range(start_byte, end_byte)
+    while node is not None:
         if node.start_byte == start_byte and node.end_byte == end_byte:
             return node
-        for child in getattr(node, "children", []):
-            if child.start_byte <= start_byte and child.end_byte >= end_byte:
-                stack.append(child)
+        node = getattr(node, "parent", None)
     return None
 
 
