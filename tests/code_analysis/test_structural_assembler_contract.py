@@ -233,7 +233,8 @@ def test_normalize_call_records_strict_drops_terminal_without_provenance() -> No
     assert diagnostics.get("identifiers_total") == 1
     assert diagnostics.get("accepted_identifiers") == 0
     assert diagnostics.get("dropped_identifiers") == 1
-    assert diagnostics.get("resolver_accepted_assembler_dropped") == 1
+    assert diagnostics.get("dropped_by_resolver") == 1
+    assert diagnostics.get("resolver_accepted_assembler_dropped") == 0
     dropped = diagnostics.get("dropped_by_reason") or {}
     assert dropped.get("no_candidates") == 1
 

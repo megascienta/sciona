@@ -49,6 +49,7 @@ class StructuralAssembler:
             "dropped_identifiers": 0,
             "accepted_by_provenance": {},
             "dropped_by_reason": {},
+            "dropped_by_resolver": 0,
             "resolver_accepted_assembler_dropped": 0,
         }
 
@@ -134,6 +135,7 @@ class StructuralAssembler:
             "dropped_identifiers": 0,
             "accepted_by_provenance": {},
             "dropped_by_reason": {},
+            "dropped_by_resolver": 0,
             "resolver_accepted_assembler_dropped": 0,
         }
         for language, qualified, node_type, identifiers in normalized:
@@ -173,8 +175,8 @@ class StructuralAssembler:
                     local_totals["dropped_identifiers"] = (
                         int(local_totals["dropped_identifiers"]) + 1
                     )
-                    local_totals["resolver_accepted_assembler_dropped"] = (
-                        int(local_totals["resolver_accepted_assembler_dropped"]) + 1
+                    local_totals["dropped_by_resolver"] = (
+                        int(local_totals["dropped_by_resolver"]) + 1
                     )
                     self._inc_counter_map(
                         local_totals, "dropped_by_reason", decision.dropped_reason
@@ -310,6 +312,9 @@ class StructuralAssembler:
         self.call_gate_diagnostics["resolver_accepted_assembler_dropped"] = int(
             self.call_gate_diagnostics.get("resolver_accepted_assembler_dropped", 0)
         ) + int(stats.get("resolver_accepted_assembler_dropped", 0))
+        self.call_gate_diagnostics["dropped_by_resolver"] = int(
+            self.call_gate_diagnostics.get("dropped_by_resolver", 0)
+        ) + int(stats.get("dropped_by_resolver", 0))
         self._merge_counter_map(
             self.call_gate_diagnostics, "accepted_by_provenance", stats.get("accepted_by_provenance")
         )

@@ -85,16 +85,13 @@ def resolve_with_adapter(
 
 def materialize_outcomes(
     outcomes: Sequence[CallResolutionOutcome],
-    *,
-    allowed_provenance: Sequence[str] = tuple(ALLOWED_MATERIALIZATION_PROVENANCE),
 ) -> list[str]:
     """Return stable identifier list for outcomes that pass provenance allow-list."""
 
-    allowed = set(allowed_provenance)
     materialized: list[str] = []
     seen: set[str] = set()
     for outcome in outcomes:
-        if outcome.provenance not in allowed:
+        if outcome.provenance not in ALLOWED_MATERIALIZATION_PROVENANCE:
             continue
         candidate = (outcome.candidate_qname or "").strip()
         if not candidate or candidate in seen:
