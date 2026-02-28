@@ -1,23 +1,25 @@
 # Reducer Validation Workflow
 
-## Scope
-This workflow answers exactly three questions and nothing else:
-1. Q1: reducers vs DB consistency (must be exact).
-2. Q2: reducer contract set overlap with independent constrained set.
-3. Q3: non-static enrichment beyond contract.
+## Purpose
+This workflow validates reducer behavior against two independent references:
+1. Core/artifact DB parity (`Q1`, exactness required).
+2. Independent parser overlap inside strict static contract (`Q2`, quality gate).
 
-Resolution defect bucket (tracked separately):
-- unresolved-static edges (should trend to zero).
+It also reports descriptive out-of-contract behavior (`Q3`) and unresolved-static defect rates.
 
-No backward compatibility layer is maintained for legacy precision/recall report fields.
+## Non-Goals
+- No legacy precision/recall report model.
+- No validator-owned contract semantics.
+- No validator-owned call-candidate narrowing heuristics.
 
-## Set Model
-Edge sets are used (not node sets).
+## Canonical Set Model
+All metrics are edge-set metrics (not node-set metrics).
 
-- `S1`: reducer contract edge set (basket 1 reference).
-- `S2`: independent constrained edge set (basket 1 candidate).
-- `S3_non_static`: non-static edge set (dynamic/decorator-driven).
-- `S_unresolved_static`: static-looking but unresolved edge set (defect bucket).
+- `S1`: reducer contract edge set (reference in Q2).
+- `S2`: independent constrained edge set (candidate in Q2).
+- `S2_syntax`: independent syntax-only baseline set (diagnostic).
+- `S3_non_static`: non-static edges beyond contract (descriptive).
+- `S_unresolved_static`: unresolved static-looking edges (defect bucket).
 
 Definitions:
 - `intersection = |S1 ∩ S2|`
@@ -30,60 +32,76 @@ Definitions:
 - `unresolved_static_rate_i = |S_unresolved_static_i| / |S1_i|`
 
 ## Questions
-### Q1
-Exactness check between reducer edges and DB edges.
-Pass requires:
+
+### Q1: Reducers vs DB (Exact)
+Pass requires per aggregate:
 - `missing_count == 0`
 - `spillover_count == 0`
 
-### Q2
-Overlap quality inside static contract.
-Primary metrics:
-- `avg_mutual_accuracy` (target close to `1.0`)
-- `avg_missing_rate` (target close to `0.0`)
-- `avg_spillover_rate` (target close to `0.0`)
-
-Default gate:
+### Q2: Reducers vs Independent (In-Contract)
+Primary gate metrics:
 - `avg_mutual_accuracy >= 0.99`
 - `avg_missing_rate <= 0.01`
 - `avg_spillover_rate <= 0.01`
 
-### Q3
-Descriptive only.
-Report only:
-- `avg_non_static_rate_percent` (mean of per-node `|S3_non_static_i|/|S1_i| * 100`)
-- `by_semantic_type_non_static_avg_percent` (mean per-node type-specific non-static rate)
+Q2 is evaluated only on scored nodes with non-null contract-set metrics.
 
-### Unresolved-Static Defect
-Quality defect metric (not Q3):
-- `unresolved_static_avg_percent` (mean per-node `|S_unresolved_static_i|/|S1_i| * 100`)
+### Q2 Syntax Baseline (Diagnostic)
+`set_q2_reducer_vs_independent_syntax` is emitted for comparison only and is not the gate.
+
+### Q3: Beyond Contract Envelope (Descriptive)
+Reported only:
+- `avg_non_static_rate_percent`
+- `by_semantic_type_non_static_avg_percent`
+- `decorator_rate_percent`
+- `dynamic_dispatch_rate_percent`
+
+### Unresolved-Static Defect (Quality Defect, Not Q3 Gate)
+- `unresolved_static_avg_percent`
 - target: `0`
 
-## Pipeline
-1. Load entities from artifacts/DB (`module`, `class`, `function`, `method`).
-2. Sample entities by language/kind.
-3. Parse files via independent parsers.
-4. Normalize and impose contract using the core contract path.
-5. Build sets `S1`, `S2`, `S3` per entity.
-6. Aggregate Q1/Q2/Q3 set metrics.
-7. Compute unresolved-static defect metrics.
-8. Emit one JSON and one markdown report.
+## Core-First Pipeline (Current)
+1. Load entities (`module`, `class`, `function`, `method`) from artifact/core DB.
+2. Stratified sample by language/kind.
+3. Parse sampled files with independent parsers (Python/TS/Java) to raw syntax facts.
+4. Normalize calls via core call-identifier normalization pipeline.
+5. Normalize imports via core language import normalization adapters.
+6. Build minimal call-resolution context:
+   - `symbol_index`
+   - `module_lookup`
+   - `import_targets`
+7. Apply strict contract acceptance through core strict selector (`select_strict_call_candidate`).
+8. Build per-entity sets (`Q1`, `Q2`, `Q2_syntax`, `Q3`, unresolved-static).
+9. Aggregate and emit JSON + Markdown reports.
 
-## Report Contract
+## Important Invariants
+- Validator does not redefine contract semantics.
+- Call acceptance semantics are delegated to core strict contract selector.
+- Validator-specific resolution artifacts (`receiver_bindings`, alias maps, class/method side indexes) are removed from call-resolution payload and do not affect Q2 contract overlap.
+- Q3 is descriptive and must not be interpreted as pass/fail for contract parity.
+
+## Report Contract (Current)
 Top-level keys:
 - `report_schema_version`
 - `summary`
+- `sampling`
 - `invariants`
 - `quality_gates`
 - `per_node`
 - `questions`
 
-Per-node metric keys:
+Per-node keys (current):
 - `set_q1_reducer_vs_db`
 - `set_q2_reducer_vs_independent_contract`
+- `set_q2_reducer_vs_independent_syntax`
 - `basket2_edges`
+- `q2_filtering_stats`
+- `q2_ground_truth_diagnostics`
+- `q2_node_rates`
+- `q3_non_static_rate_percent`
+- `unresolved_static_rate_percent`
 
-Legacy keys removed and rejected:
+Legacy keys forbidden:
 - `metrics_reducer_vs_db`
 - `metrics_reducer_vs_contract`
 - `metrics_db_vs_contract`
@@ -94,5 +112,10 @@ conda run -n multiphysics \
 python validations/reducers/reducer_validation.py \
   --repo-root /path/to/repo \
   --nodes 500 \
-  --seed 20260221
+  --seed 20260219
 ```
+
+## Interpretation Guidance
+- `Q1 pass + Q2 fail` usually means reducers/DB are internally consistent but independent parser overlap (within contract) is still incomplete.
+- High unresolved-static defect implies genuine static-resolution gaps or unresolved normalization boundaries.
+- Use `top_mismatch_signatures` and per-node diagnostics first; do not infer architectural defects from aggregate metrics alone.
