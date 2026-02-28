@@ -705,6 +705,7 @@ def run_validation(
                 repo_root,
                 repo_prefix,
                 local_packages,
+                nodes_data,
             )
             reducer_source = ReducerEdgeSource(conn, repo_root, snapshot_id)
             db_source = DbEdgeSource(conn, artifact_conn, snapshot_id, resolver)

@@ -18,6 +18,7 @@ def build_independent_call_resolution(
     repo_root: Path,
     repo_prefix: str,
     local_packages: set[str],
+    all_nodes: List[dict] | None = None,
 ) -> dict:
     symbol_index: Dict[str, set[str]] = {}
     module_lookup: Dict[str, str] = {}
@@ -28,6 +29,28 @@ def build_independent_call_resolution(
     import_symbol_hints: Dict[str, Dict[str, set[str]]] = {}
     namespace_aliases: Dict[str, Dict[str, str]] = {}
     receiver_bindings: Dict[str, Dict[str, set[str]]] = {}
+
+    for entry in all_nodes or []:
+        node_type = entry.get("node_type") or entry.get("node_kind")
+        qname = entry.get("qualified_name")
+        if not isinstance(qname, str) or not qname:
+            continue
+        if node_type == "class":
+            class_name_index.setdefault(qname.split(".")[-1], set()).add(qname)
+            continue
+        if node_type not in {"function", "method"}:
+            continue
+        identifier = qname.split(".")[-1]
+        symbol_index.setdefault(identifier, set()).add(qname)
+        module_name = entry.get("module_qualified_name")
+        if not module_name:
+            parts = qname.split(".")
+            module_name = ".".join(parts[:-1]) if len(parts) > 1 else qname
+        module_lookup[qname] = module_name
+        module_symbol_index.setdefault(module_name, {}).setdefault(identifier, set()).add(qname)
+        class_scope = qname.rsplit(".", 1)[0] if "." in qname else ""
+        if class_scope:
+            class_method_index.setdefault(class_scope, {})[identifier] = qname
 
     def _register_receiver(scope: str, receiver: str, target_qname: str) -> None:
         if not scope or not receiver or not target_qname:

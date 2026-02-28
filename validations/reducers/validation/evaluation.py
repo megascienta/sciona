@@ -57,7 +57,12 @@ def _filter_core_edges_in_contract(
     caller_qname = entity.qualified_name
     caller_module = entity.module_qualified_name
     filtered: list[EdgeRecord] = []
+    module_lookup = call_resolution.get("module_lookup", {}) if call_resolution else {}
     for edge in edges:
+        # If reducer already provides a qualified target, require that target to be in
+        # the known callable universe instead of falling back to looser name matching.
+        if edge.callee_qname and edge.callee_qname not in module_lookup:
+            continue
         resolved = resolve_call_in_contract(
             edge=edge,
             caller_qname=caller_qname,

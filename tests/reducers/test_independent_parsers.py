@@ -1344,6 +1344,69 @@ def test_class_edge_filter_does_not_drop_valid_class_methods() -> None:
     assert len(filtered) == 2
 
 
+def test_callable_edge_filter_drops_unknown_reducer_qname_targets() -> None:
+    entity = SimpleNamespace(
+        kind="function",
+        qualified_name="fixture.sample.fn",
+        module_qualified_name="fixture.sample",
+        language="python",
+    )
+    edges = [
+        EdgeRecord(
+            caller="fixture.sample.fn",
+            callee="run",
+            callee_qname="fixture.unknown.Service.run",
+        )
+    ]
+    filtered = _filter_core_edges_in_contract(
+        entity=entity,
+        edges=edges,
+        call_resolution={
+            "module_lookup": {"fixture.sample.Service.run": "fixture.sample"},
+            "symbol_index": {"run": ["fixture.sample.Service.run"]},
+            "import_targets": {"fixture.sample": set()},
+        },
+        module_names={"fixture.sample"},
+    )
+    assert filtered == []
+
+
+def test_call_resolution_seeds_callable_index_from_all_nodes() -> None:
+    file_result = FileParseResult(
+        language="python",
+        file_path="sample.py",
+        module_qualified_name="fixture.sample",
+        defs=[],
+        call_edges=[],
+        import_edges=[],
+        assignment_hints=[],
+        parse_ok=True,
+    )
+    resolution = build_independent_call_resolution(
+        independent_results={file_result.file_path: file_result},
+        normalized_edge_map={file_result.file_path: ([], [])},
+        module_names={"fixture.sample"},
+        repo_root=Path("/tmp/fixture"),
+        repo_prefix="fixture",
+        local_packages={"fixture"},
+        all_nodes=[
+            {
+                "node_type": "function",
+                "qualified_name": "fixture.sample.helper",
+                "module_qualified_name": "fixture.sample",
+            },
+            {
+                "node_type": "method",
+                "qualified_name": "fixture.sample.Service.run",
+                "module_qualified_name": "fixture.sample",
+            },
+        ],
+    )
+    assert "helper" in resolution["symbol_index"]
+    assert "fixture.sample.helper" in resolution["symbol_index"]["helper"]
+    assert resolution["module_lookup"]["fixture.sample.Service.run"] == "fixture.sample"
+
+
 def test_call_contract_keeps_same_module_ambiguity_unresolved() -> None:
     edge = NormalizedCallEdge(
         caller="fixture.sample.entry",
