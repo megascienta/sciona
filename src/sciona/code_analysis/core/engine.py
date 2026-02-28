@@ -55,6 +55,7 @@ class BuildEngine:
         self.warnings: list[str] = []
         self.analyzers = select_analyzers(self.languages)
         self.assembler = StructuralAssembler(conn, store)
+        self.call_gate_diagnostics = self.assembler.call_gate_diagnostics
         self._progress_factory = progress_factory
         self._warning_sink = warning_sink
 

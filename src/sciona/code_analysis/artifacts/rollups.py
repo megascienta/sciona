@@ -277,6 +277,7 @@ def _ensure_rollup_diagnostics(diagnostics: dict[str, object] | None) -> dict[st
             "dropped_by_reason": {},
             "candidate_count_histogram": {},
             "record_drops": {},
+            "assembler_accepted_artifact_dropped": 0,
         },
     )
     return cast(dict[str, object], totals)
@@ -301,6 +302,7 @@ def _ensure_caller_diagnostics(
             "dropped_by_reason": {},
             "candidate_count_histogram": {},
             "record_drops": {},
+            "assembler_accepted_artifact_dropped": 0,
         },
     )
     return entry
@@ -348,8 +350,10 @@ def _record_resolution_drop(
 ) -> None:
     if caller_diag:
         _inc_map(caller_diag, "record_drops", reason)
+        _inc_scalar(caller_diag, "assembler_accepted_artifact_dropped", 1)
     if totals_diag:
         _inc_map(totals_diag, "record_drops", reason)
+        _inc_scalar(totals_diag, "assembler_accepted_artifact_dropped", 1)
 
 
 def _merge_counter_map(

@@ -229,6 +229,13 @@ def test_normalize_call_records_strict_drops_terminal_without_provenance() -> No
     normalized = assembler._normalize_call_records(analysis, snapshot)
 
     assert normalized.call_records == []
+    diagnostics = assembler.call_gate_diagnostics
+    assert diagnostics.get("identifiers_total") == 1
+    assert diagnostics.get("accepted_identifiers") == 0
+    assert diagnostics.get("dropped_identifiers") == 1
+    assert diagnostics.get("resolver_accepted_assembler_dropped") == 1
+    dropped = diagnostics.get("dropped_by_reason") or {}
+    assert dropped.get("no_candidates") == 1
 
 
 def test_normalize_call_records_strict_accepts_module_scoped_terminal() -> None:

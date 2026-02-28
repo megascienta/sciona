@@ -373,6 +373,9 @@ def test_write_call_artifacts_rejects_unique_without_provenance_and_reports_diag
             assert histogram.get("1") == 1
             record_drops = caller_diag.get("record_drops") or {}
             assert record_drops.get("no_resolved_callees") == 1
+            assert caller_diag.get("assembler_accepted_artifact_dropped") == 1
+            totals = diagnostics.get("totals") or {}
+            assert totals.get("assembler_accepted_artifact_dropped") == 1
         finally:
             artifact_conn.close()
     finally:
