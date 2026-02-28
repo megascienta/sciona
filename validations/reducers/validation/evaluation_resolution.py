@@ -31,6 +31,8 @@ def build_independent_call_resolution(
     receiver_bindings: Dict[str, Dict[str, set[str]]] = {}
 
     for entry in all_nodes or []:
+        if str(entry.get("language") or "").lower() != "java":
+            continue
         node_type = entry.get("node_type") or entry.get("node_kind")
         qname = entry.get("qualified_name")
         if not isinstance(qname, str) or not qname:

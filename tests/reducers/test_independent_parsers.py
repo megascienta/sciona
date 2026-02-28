@@ -1344,7 +1344,7 @@ def test_class_edge_filter_does_not_drop_valid_class_methods() -> None:
     assert len(filtered) == 2
 
 
-def test_callable_edge_filter_drops_unknown_reducer_qname_targets() -> None:
+def test_callable_edge_filter_ignores_unknown_reducer_qname_hint() -> None:
     entity = SimpleNamespace(
         kind="function",
         qualified_name="fixture.sample.fn",
@@ -1368,12 +1368,13 @@ def test_callable_edge_filter_drops_unknown_reducer_qname_targets() -> None:
         },
         module_names={"fixture.sample"},
     )
-    assert filtered == []
+    assert len(filtered) == 1
+    assert filtered[0].callee_qname == "fixture.sample.Service.run"
 
 
-def test_call_resolution_seeds_callable_index_from_all_nodes() -> None:
+def test_call_resolution_seeds_java_callable_index_from_all_nodes() -> None:
     file_result = FileParseResult(
-        language="python",
+        language="java",
         file_path="sample.py",
         module_qualified_name="fixture.sample",
         defs=[],
@@ -1394,11 +1395,13 @@ def test_call_resolution_seeds_callable_index_from_all_nodes() -> None:
                 "node_type": "function",
                 "qualified_name": "fixture.sample.helper",
                 "module_qualified_name": "fixture.sample",
+                "language": "java",
             },
             {
                 "node_type": "method",
                 "qualified_name": "fixture.sample.Service.run",
                 "module_qualified_name": "fixture.sample",
+                "language": "java",
             },
         ],
     )
