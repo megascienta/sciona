@@ -63,107 +63,104 @@ class JavaAnalyzer(ASTAnalyzer):
         )
         result.nodes.append(module_node)
 
-        try:
-            root = tree.root_node
-            package_name = extract_package(root, snapshot.content)
-            module_prefix = module_prefix_for_package(module_name, package_name)
+        root = tree.root_node
+        package_name = extract_package(root, snapshot.content)
+        module_prefix = module_prefix_for_package(module_name, package_name)
 
-            state = JavaNodeState()
-            for child in find_direct_children_query(root, language_name=self.language):
-                walk_java_nodes(
-                    child,
-                    language=self.language,
-                    snapshot=snapshot,
-                    module_name=module_name,
-                    result=result,
-                    state=state,
-                    collect_declared_vars=collect_declared_vars,
-                    collect_constructor_field_types=collect_constructor_field_types,
-                )
-
-            emit_local_inheritance_edges(language=self.language, result=result)
-            import_model = collect_java_import_model(
-                root,
-                snapshot.content,
-                module_name,
-                snapshot,
-                module_prefix=module_prefix,
-                module_index=getattr(self, "module_index", None),
-            )
-            imports = import_model.modules
-            import_aliases = import_model.import_aliases
-            member_aliases = import_model.member_aliases
-            static_wildcard_targets = import_model.static_wildcard_targets
-
-            resolved_calls: list[tuple[str, str, str, list[str]]] = []
-            scope_resolver = scope_resolver_from_pending_calls(state.pending_calls)
-            pending_by_qualified = {
-                qualified: (node_type, body_node, class_name)
-                for qualified, node_type, body_node, class_name in state.pending_calls
-            }
-            call_targets_by_callable = collect_targets_by_callable(
-                scope_resolver=scope_resolver,
-                pending_calls=state.pending_calls,
-                snapshot=snapshot,
+        state = JavaNodeState()
+        for child in find_direct_children_query(root, language_name=self.language):
+            walk_java_nodes(
+                child,
                 language=self.language,
-                call_node_types=set(JAVA_CALL_NODE_TYPES),
-                skip_node_types=set(JAVA_SKIP_CALL_NODE_TYPES),
-                callee_field_names=("name", "type", "function"),
-                callee_renderer=callee_text,
+                snapshot=snapshot,
+                module_name=module_name,
+                result=result,
+                state=state,
+                collect_declared_vars=collect_declared_vars,
+                collect_constructor_field_types=collect_constructor_field_types,
             )
-            assert_scope_resolver_parity(
-                pending_callables=set(pending_by_qualified),
-                call_targets_by_callable=call_targets_by_callable,
+
+        emit_local_inheritance_edges(language=self.language, result=result)
+        import_model = collect_java_import_model(
+            root,
+            snapshot.content,
+            module_name,
+            snapshot,
+            module_prefix=module_prefix,
+            module_index=getattr(self, "module_index", None),
+        )
+        imports = import_model.modules
+        import_aliases = import_model.import_aliases
+        member_aliases = import_model.member_aliases
+        static_wildcard_targets = import_model.static_wildcard_targets
+
+        resolved_calls: list[tuple[str, str, str, list[str]]] = []
+        scope_resolver = scope_resolver_from_pending_calls(state.pending_calls)
+        pending_by_qualified = {
+            qualified: (node_type, body_node, class_name)
+            for qualified, node_type, body_node, class_name in state.pending_calls
+        }
+        call_targets_by_callable = collect_targets_by_callable(
+            scope_resolver=scope_resolver,
+            pending_calls=state.pending_calls,
+            snapshot=snapshot,
+            language=self.language,
+            call_node_types=set(JAVA_CALL_NODE_TYPES),
+            skip_node_types=set(JAVA_SKIP_CALL_NODE_TYPES),
+            callee_field_names=("name", "type", "function"),
+            callee_renderer=callee_text,
+        )
+        assert_scope_resolver_parity(
+            pending_callables=set(pending_by_qualified),
+            call_targets_by_callable=call_targets_by_callable,
+        )
+        for qualified, (node_type, body_node, class_name) in pending_by_qualified.items():
+            local_types = collect_local_var_types(body_node, snapshot)
+            instance_types = {}
+            if class_name and state.class_field_types.get(class_name):
+                instance_types.update(state.class_field_types[class_name])
+            instance_types.update(local_types)
+            call_targets = call_targets_by_callable.get(qualified, ())
+            resolved = resolve_java_calls(
+                call_targets,
+                module_name,
+                state.module_functions,
+                state.class_methods,
+                state.class_name_map,
+                state.class_name_candidates,
+                import_aliases,
+                member_aliases,
+                static_wildcard_targets,
+                class_name,
+                instance_types,
+                module_prefix,
+                qualify_java_type,
             )
-            for qualified, (node_type, body_node, class_name) in pending_by_qualified.items():
-                local_types = collect_local_var_types(body_node, snapshot)
-                instance_types = {}
-                if class_name and state.class_field_types.get(class_name):
-                    instance_types.update(state.class_field_types[class_name])
-                instance_types.update(local_types)
-                call_targets = call_targets_by_callable.get(qualified, ())
-                resolved = resolve_java_calls(
-                    call_targets,
-                    module_name,
-                    state.module_functions,
-                    state.class_methods,
-                    state.class_name_map,
-                    state.class_name_candidates,
-                    import_aliases,
-                    member_aliases,
-                    static_wildcard_targets,
-                    class_name,
-                    instance_types,
-                    module_prefix,
-                    qualify_java_type,
-                )
-                if resolved:
-                    resolved_calls.append((self.language, qualified, node_type, list(resolved)))
+            if resolved:
+                resolved_calls.append((self.language, qualified, node_type, list(resolved)))
 
-            if resolved_calls:
-                for _language, qualified, node_type, callee_identifiers in resolved_calls:
-                    result.call_records.append(
-                        CallRecord(
-                            qualified_name=qualified,
-                            node_type=node_type,
-                            callee_identifiers=callee_identifiers,
-                        )
-                    )
-
-            for module in sorted(set(imports)):
-                result.edges.append(
-                    EdgeRecord(
-                        src_language=self.language,
-                        src_node_type="module",
-                        src_qualified_name=module_name,
-                        dst_language=self.language,
-                        dst_node_type="module",
-                        dst_qualified_name=module,
-                        edge_type="IMPORTS_DECLARED",
+        if resolved_calls:
+            for _language, qualified, node_type, callee_identifiers in resolved_calls:
+                result.call_records.append(
+                    CallRecord(
+                        qualified_name=qualified,
+                        node_type=node_type,
+                        callee_identifiers=callee_identifiers,
                     )
                 )
-        except Exception as exc:
-            module_node.metadata = {"status": "partial_parse", "error": str(exc)}
+
+        for module in sorted(set(imports)):
+            result.edges.append(
+                EdgeRecord(
+                    src_language=self.language,
+                    src_node_type="module",
+                    src_qualified_name=module_name,
+                    dst_language=self.language,
+                    dst_node_type="module",
+                    dst_qualified_name=module,
+                    edge_type="IMPORTS_DECLARED",
+                )
+            )
         return result
 
     def module_name(self, repo_root: Path, snapshot: FileSnapshot) -> str:

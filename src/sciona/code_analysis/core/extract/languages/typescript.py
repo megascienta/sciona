@@ -57,98 +57,95 @@ class TypeScriptAnalyzer(ASTAnalyzer):
         )
         result.nodes.append(module_node)
 
-        try:
-            root = tree.root_node
-            state = TypeScriptNodeState()
-            for child in find_direct_children_query(root, language_name=self.language):
-                walk_typescript_nodes(
-                    child,
-                    language=self.language,
-                    snapshot=snapshot,
-                    module_name=module_name,
-                    result=result,
-                    state=state,
-                    function_depth=0,
-                )
-            emit_local_inheritance_edges(language=self.language, result=result)
-            import_model = collect_typescript_import_model(
-                root,
-                snapshot,
-                module_name,
-                module_index=getattr(self, "module_index", None),
+        root = tree.root_node
+        state = TypeScriptNodeState()
+        for child in find_direct_children_query(root, language_name=self.language):
+            walk_typescript_nodes(
+                child,
+                language=self.language,
+                snapshot=snapshot,
+                module_name=module_name,
+                result=result,
+                state=state,
+                function_depth=0,
             )
-            imports = import_model.modules
-            import_aliases = import_model.import_aliases
-            member_aliases = import_model.member_aliases
-            resolve_pending_instances(
-                state.pending_instance_assignments,
-                state.pending_class_instances,
-                state.pending_alias_assignments,
-                state.pending_class_aliases,
-                state.instance_map,
-                state.class_instance_map,
-                state.class_name_candidates,
-                state.class_name_map,
+        emit_local_inheritance_edges(language=self.language, result=result)
+        import_model = collect_typescript_import_model(
+            root,
+            snapshot,
+            module_name,
+            module_index=getattr(self, "module_index", None),
+        )
+        imports = import_model.modules
+        import_aliases = import_model.import_aliases
+        member_aliases = import_model.member_aliases
+        resolve_pending_instances(
+            state.pending_instance_assignments,
+            state.pending_class_instances,
+            state.pending_alias_assignments,
+            state.pending_class_aliases,
+            state.instance_map,
+            state.class_instance_map,
+            state.class_name_candidates,
+            state.class_name_map,
+            import_aliases,
+            member_aliases,
+        )
+        scope_resolver = scope_resolver_from_pending_calls(state.pending_calls)
+        pending_by_qualified = {
+            qualified: (node_type, class_name)
+            for qualified, node_type, _body_node, class_name in state.pending_calls
+        }
+        call_targets_by_callable = collect_targets_by_callable(
+            scope_resolver=scope_resolver,
+            pending_calls=state.pending_calls,
+            snapshot=snapshot,
+            language=self.language,
+            call_node_types=set(TYPESCRIPT_CALL_NODE_TYPES),
+            skip_node_types=set(TYPESCRIPT_SKIP_CALL_NODE_TYPES),
+            callee_field_names=("function", "constructor", "type"),
+            callee_renderer=callee_text,
+        )
+        assert_scope_resolver_parity(
+            pending_callables=set(pending_by_qualified),
+            call_targets_by_callable=call_targets_by_callable,
+        )
+        for qualified, (node_type, class_name) in pending_by_qualified.items():
+            call_targets = call_targets_by_callable.get(qualified, ())
+            resolved = resolve_typescript_calls(
+                call_targets,
+                module_name,
+                state.module_functions,
+                state.class_methods,
+                class_name,
                 import_aliases,
                 member_aliases,
+                state.class_name_map,
+                state.class_name_candidates,
+                state.instance_map,
+                state.class_instance_map,
             )
-            scope_resolver = scope_resolver_from_pending_calls(state.pending_calls)
-            pending_by_qualified = {
-                qualified: (node_type, class_name)
-                for qualified, node_type, _body_node, class_name in state.pending_calls
-            }
-            call_targets_by_callable = collect_targets_by_callable(
-                scope_resolver=scope_resolver,
-                pending_calls=state.pending_calls,
-                snapshot=snapshot,
-                language=self.language,
-                call_node_types=set(TYPESCRIPT_CALL_NODE_TYPES),
-                skip_node_types=set(TYPESCRIPT_SKIP_CALL_NODE_TYPES),
-                callee_field_names=("function", "constructor", "type"),
-                callee_renderer=callee_text,
-            )
-            assert_scope_resolver_parity(
-                pending_callables=set(pending_by_qualified),
-                call_targets_by_callable=call_targets_by_callable,
-            )
-            for qualified, (node_type, class_name) in pending_by_qualified.items():
-                call_targets = call_targets_by_callable.get(qualified, ())
-                resolved = resolve_typescript_calls(
-                    call_targets,
-                    module_name,
-                    state.module_functions,
-                    state.class_methods,
-                    class_name,
-                    import_aliases,
-                    member_aliases,
-                    state.class_name_map,
-                    state.class_name_candidates,
-                    state.instance_map,
-                    state.class_instance_map,
-                )
-                if resolved:
-                    result.call_records.append(
-                        CallRecord(
-                            qualified_name=qualified,
-                            node_type=node_type,
-                            callee_identifiers=list(resolved),
-                        )
+            if resolved:
+                result.call_records.append(
+                    CallRecord(
+                        qualified_name=qualified,
+                        node_type=node_type,
+                        callee_identifiers=list(resolved),
                     )
+                )
 
-            for module in sorted(set(imports)):
-                result.edges.append(
-                    EdgeRecord(
-                        src_language=self.language,
-                        src_node_type="module",
-                        src_qualified_name=module_name,
-                        dst_language=self.language,
-                        dst_node_type="module",
-                        dst_qualified_name=module,
-                        edge_type="IMPORTS_DECLARED",
-                    )
+        for module in sorted(set(imports)):
+            result.edges.append(
+                EdgeRecord(
+                    src_language=self.language,
+                    src_node_type="module",
+                    src_qualified_name=module_name,
+                    dst_language=self.language,
+                    dst_node_type="module",
+                    dst_qualified_name=module,
+                    edge_type="IMPORTS_DECLARED",
                 )
-        except Exception as exc:
-            module_node.metadata = {"status": "partial_parse", "error": str(exc)}
+            )
         return result
 
     def module_name(self, repo_root: Path, snapshot: FileSnapshot) -> str:
