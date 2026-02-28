@@ -221,3 +221,70 @@ def test_q2_payload_reports_contract_filtered_out_ratio(tmp_path: Path) -> None:
     assert q2["envelope_total_count"] == 6
     assert q2["contract_filtered_out_ratio"] == 0.5
     assert q2["envelope_excluded_by_reason"] == {"dynamic": 1, "external": 2}
+
+
+def test_q2_reports_class_truth_reliability_breakdown(tmp_path: Path) -> None:
+    payload = _build_report_payload(
+        repo_root=tmp_path,
+        rows=[
+            {
+                "entity": "fixture.mod.A",
+                "language": "python",
+                "kind": "class",
+                "file_path": "mod.py",
+                "module_qualified_name": "fixture.mod",
+                "set_q1_reducer_vs_db": {
+                    "reference_count": 0,
+                    "candidate_count": 0,
+                    "intersection_count": 0,
+                    "missing_count": 0,
+                    "spillover_count": 0,
+                    "coverage": None,
+                    "spillover_ratio": None,
+                },
+                "set_q2_reducer_vs_independent_contract": {
+                    "reference_count": 1,
+                    "candidate_count": 1,
+                    "intersection_count": 1,
+                    "missing_count": 0,
+                    "spillover_count": 0,
+                    "coverage": 1.0,
+                    "spillover_ratio": 0.0,
+                },
+                "q2_ground_truth_diagnostics": {
+                    "class_truth_unreliable": False,
+                    "class_match_strategy": "exact_qname",
+                    "class_candidate_count": 1,
+                    "class_truth_method_count": 1,
+                },
+            },
+            {
+                "entity": "fixture.mod.B",
+                "language": "python",
+                "kind": "class",
+                "file_path": "mod.py",
+                "module_qualified_name": "fixture.mod",
+                "set_q1_reducer_vs_db": {
+                    "reference_count": 0,
+                    "candidate_count": 0,
+                    "intersection_count": 0,
+                    "missing_count": 0,
+                    "spillover_count": 0,
+                    "coverage": None,
+                    "spillover_ratio": None,
+                },
+                "set_q2_reducer_vs_independent_contract": None,
+                "q2_ground_truth_diagnostics": {
+                    "class_truth_unreliable": True,
+                    "class_match_strategy": "ambiguous",
+                    "class_candidate_count": 2,
+                    "class_truth_method_count": 0,
+                },
+            },
+        ],
+        out_of_contract_meta=[],
+    )
+    q2 = payload["questions"]["q2"]
+    assert q2["class_truth_unreliable_count"] == 1
+    assert q2["class_truth_unreliable_scored_excluded_count"] == 1
+    assert q2["class_match_strategy_breakdown"] == {"ambiguous": 1, "exact_qname": 1}

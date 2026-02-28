@@ -524,6 +524,16 @@ def evaluate_entities(
                         gt_diagnostics.get("included_limitation_by_reason") or {}
                     ),
                 },
+                "q2_ground_truth_diagnostics": {
+                    "class_truth_unreliable": (
+                        bool(gt_diagnostics.get("class_truth_unreliable"))
+                        if gt_diagnostics.get("class_truth_unreliable") is not None
+                        else None
+                    ),
+                    "class_match_strategy": gt_diagnostics.get("class_match_strategy"),
+                    "class_candidate_count": int(gt_diagnostics.get("class_candidate_count") or 0),
+                    "class_truth_method_count": int(gt_diagnostics.get("class_truth_method_count") or 0),
+                },
             }
         )
         if progress_handle:

@@ -91,6 +91,15 @@ def render_summary(payload: dict) -> List[str]:
     lines.append(
         f"- contract_filtered_out_ratio: `{_format_ratio(q2.get('contract_filtered_out_ratio'))}`"
     )
+    lines.append(
+        f"- class_truth_unreliable_count: `{q2.get('class_truth_unreliable_count')}`"
+    )
+    lines.append(
+        f"- class_truth_unreliable_scored_excluded_count: `{q2.get('class_truth_unreliable_scored_excluded_count')}`"
+    )
+    lines.append(
+        f"- class_match_strategy_breakdown: `{q2.get('class_match_strategy_breakdown')}`"
+    )
     lines.append(f"- by_language: `{q2.get('by_language')}`")
     lines.append("")
 

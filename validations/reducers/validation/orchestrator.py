@@ -227,6 +227,23 @@ def _build_report_payload(
     q2_reference_total = int(q2_agg.get("reference_count") or 0)
     q2_envelope_total = q2_reference_total + q2_excluded_total
     q2_contract_filtered_out_ratio = _safe_ratio(q2_excluded_total, q2_envelope_total)
+    class_truth_unreliable_count = 0
+    class_truth_unreliable_scored_excluded_count = 0
+    class_match_strategy_breakdown: dict[str, int] = {}
+    for row in rows:
+        if str(row.get("kind") or "") != "class":
+            continue
+        diagnostics = row.get("q2_ground_truth_diagnostics") or {}
+        strategy = str(diagnostics.get("class_match_strategy") or "none")
+        class_match_strategy_breakdown[strategy] = (
+            int(class_match_strategy_breakdown.get(strategy, 0)) + 1
+        )
+        is_unreliable = bool(diagnostics.get("class_truth_unreliable"))
+        if not is_unreliable:
+            continue
+        class_truth_unreliable_count += 1
+        if row.get("set_q2_reducer_vs_independent_contract") is None:
+            class_truth_unreliable_scored_excluded_count += 1
 
     q2_target = 0.99
     q2_node_rates: list[dict] = []
@@ -359,6 +376,7 @@ def _build_report_payload(
                 ),
                 "basket2_edges": row.get("basket2_edges"),
                 "q2_filtering_stats": row.get("q2_filtering_stats"),
+                "q2_ground_truth_diagnostics": row.get("q2_ground_truth_diagnostics"),
                 "q2_node_rates": _build_q2_node_rates(
                     row.get("set_q2_reducer_vs_independent_contract")
                 ),
@@ -490,6 +508,13 @@ def _build_report_payload(
                 "envelope_total_count": q2_envelope_total,
                 "contract_filtered_out_ratio": q2_contract_filtered_out_ratio,
                 "envelope_excluded_by_reason": dict(sorted(q2_excluded_by_reason.items())),
+                "class_truth_unreliable_count": class_truth_unreliable_count,
+                "class_truth_unreliable_scored_excluded_count": (
+                    class_truth_unreliable_scored_excluded_count
+                ),
+                "class_match_strategy_breakdown": dict(
+                    sorted(class_match_strategy_breakdown.items())
+                ),
                 "top_mismatch_signatures": top_mismatch_signatures,
             },
             "q3": {
