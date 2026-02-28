@@ -61,6 +61,9 @@ def build_walker_capabilities() -> dict[str, list[dict[str, object]]]:
                 ],
                 "emits_nodes": ["class", "function", "method"],
                 "emits_edges": ["CONTAINS", "DEFINES_METHOD"],
+                "constraints": [
+                    "function/method emission only for module-level bindings or class member fields; nested expressions are non-structural"
+                ],
             },
             {
                 "construct": "instance_and_alias_tracking",
@@ -99,4 +102,3 @@ def build_walker_capabilities() -> dict[str, list[dict[str, object]]]:
             },
         ],
     }
-

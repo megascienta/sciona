@@ -16,14 +16,17 @@ def test_walker_capability_entries_have_structural_mapping_shape() -> None:
     for entries in capabilities.values():
         assert entries
         for entry in entries:
-            assert set(entry) == {
+            assert set(entry).issuperset(
+                {
                 "construct",
                 "node_types",
                 "emits_nodes",
                 "emits_edges",
-            }
+                }
+            )
             assert isinstance(entry["construct"], str) and entry["construct"]
             assert isinstance(entry["node_types"], list)
             assert isinstance(entry["emits_nodes"], list)
             assert isinstance(entry["emits_edges"], list)
-
+            if "constraints" in entry:
+                assert isinstance(entry["constraints"], list)
