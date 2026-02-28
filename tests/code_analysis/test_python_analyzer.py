@@ -205,6 +205,79 @@ def test_python_analyzer_tracks_from_import_submodules(tmp_path):
     assert package_prefix not in imports
 
 
+def test_python_analyzer_tracks_bare_relative_import_alias_submodule(tmp_path):
+    repo = tmp_path
+    pkg = repo / "pkg"
+    pkg.mkdir()
+    (pkg / "__init__.py").write_text("", encoding="utf-8")
+    (pkg / "config.py").write_text("VALUE = 1\n", encoding="utf-8")
+    file_path = pkg / "main.py"
+    file_path.write_text("from . import config as cfg\n", encoding="utf-8")
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("pkg/main.py"),
+            language="python",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=file_path.stat().st_size,
+        line_count=1,
+        content=file_path.read_bytes(),
+    )
+    analyzer = PythonAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    package_prefix = module_name.rsplit(".", 1)[0]
+    analyzer.module_index = {
+        module_name,
+        package_prefix,
+        f"{package_prefix}.config",
+    }
+    result = analyzer.analyze(snapshot, module_name)
+    imports = {
+        edge.dst_qualified_name
+        for edge in result.edges
+        if edge.edge_type == "IMPORTS_DECLARED"
+    }
+    assert f"{package_prefix}.config" in imports
+    assert package_prefix not in imports
+
+
+def test_python_analyzer_bare_relative_import_falls_back_to_package_when_not_module(tmp_path):
+    repo = tmp_path
+    pkg = repo / "pkg"
+    pkg.mkdir()
+    (pkg / "__init__.py").write_text("", encoding="utf-8")
+    file_path = pkg / "main.py"
+    file_path.write_text("from . import VERSION\n", encoding="utf-8")
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("pkg/main.py"),
+            language="python",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=file_path.stat().st_size,
+        line_count=1,
+        content=file_path.read_bytes(),
+    )
+    analyzer = PythonAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    package_prefix = module_name.rsplit(".", 1)[0]
+    analyzer.module_index = {
+        module_name,
+        package_prefix,
+    }
+    result = analyzer.analyze(snapshot, module_name)
+    imports = {
+        edge.dst_qualified_name
+        for edge in result.edges
+        if edge.edge_type == "IMPORTS_DECLARED"
+    }
+    assert package_prefix in imports
+
+
 def test_python_analyzer_resolves_self_field_constructor_assignments(tmp_path):
     module = """
 class Service:
