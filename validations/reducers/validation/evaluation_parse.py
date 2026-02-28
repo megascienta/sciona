@@ -6,6 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Callable, Dict, List
 
+from .independent.contract_normalization import module_name_from_file
 from .independent.java_runner import parse_java_files
 from .independent.python_ast import parse_python_files
 from .independent.shared import (
@@ -103,7 +104,19 @@ def parse_independent(
 ) -> Dict[str, FileParseResult]:
     by_language: Dict[str, List[dict]] = {}
     for entry in file_entries.values():
-        by_language.setdefault(entry["language"], []).append(entry)
+        language = str(entry.get("language") or "").lower()
+        normalized_entry = dict(entry)
+        file_path = str(entry.get("file_path") or "")
+        if language and file_path:
+            try:
+                normalized_entry["module_qualified_name"] = module_name_from_file(
+                    repo_root,
+                    file_path,
+                    language,
+                )
+            except Exception:
+                pass
+        by_language.setdefault(language, []).append(normalized_entry)
 
     parsers = {
         "python": parse_python_files,

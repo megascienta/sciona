@@ -17,6 +17,7 @@ from validations.reducers.validation.call_contract import resolve_call_in_contra
 from validations.reducers.validation.evaluation_resolution import (
     build_independent_call_resolution,
 )
+from validations.reducers.validation.evaluation_parse import parse_independent_files
 from validations.reducers.validation.evaluation import _filter_core_edges_in_contract
 from validations.reducers.validation.ground_truth import edge_records_from_ground_truth
 from validations.reducers.validation.import_contract import resolve_import_contract
@@ -646,6 +647,29 @@ def test_load_tsconfig_is_cached(tmp_path: Path) -> None:
     first = _load_tsconfig(tmp_path)
     second = _load_tsconfig(tmp_path)
     assert first is second
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="node is required")
+def test_parse_independent_files_canonicalizes_typescript_module_scope(tmp_path: Path) -> None:
+    source = tmp_path / "pkg" / "main.ts"
+    source.parent.mkdir(parents=True)
+    source.write_text(
+        "const helper = () => 1;\n"
+        "export function run() { return helper(); }\n",
+        encoding="utf-8",
+    )
+    parse_map = {
+        "pkg/main.ts": {
+            "file_path": "pkg/main.ts",
+            "module_qualified_name": "wrong.scope",
+            "language": "typescript",
+        }
+    }
+    results = parse_independent_files(tmp_path, parse_map, on_file_parsed=None)
+    parsed = results["pkg/main.ts"]
+    expected_module = module_name_from_file(tmp_path, "pkg/main.ts", "typescript")
+    assert parsed.module_qualified_name == expected_module
+    assert any(edge.caller == f"{expected_module}.run" for edge in parsed.call_edges)
 
 
 def test_ground_truth_excludes_external_imports_from_enrichment() -> None:
