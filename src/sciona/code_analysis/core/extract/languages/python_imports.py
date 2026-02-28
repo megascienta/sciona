@@ -5,16 +5,15 @@
 
 from __future__ import annotations
 
-import importlib.util
 from typing import List, Optional
 
 from .....runtime import packaging as runtime_packaging
 from .....runtime import paths as runtime_paths
 from ...normalize.model import FileSnapshot
-from ..utils import find_nodes_of_types_query
+from ..utils import find_direct_children_query
 from .import_model import NormalizedImportModel
 from .query_surface import PYTHON_IMPORT_NODE_TYPES
-from .shared import is_internal_module, repo_root_from_snapshot
+from .shared import is_internal_module, node_text, repo_root_from_snapshot
 
 
 def collect_python_imports(
@@ -50,14 +49,10 @@ def collect_python_import_model(
     local_packages = set(runtime_packaging.local_package_names(repo_root))
     model = NormalizedImportModel()
     is_package = snapshot.record.path.name == "__init__.py"
-    for child in find_nodes_of_types_query(
-        root,
-        language_name="python",
-        node_types=PYTHON_IMPORT_NODE_TYPES,
-    ):
-        model.imports_seen += 1
-        if not _is_direct_child(child, root):
+    for child in find_direct_children_query(root, language_name="python"):
+        if child.type not in PYTHON_IMPORT_NODE_TYPES:
             continue
+        model.imports_seen += 1
         if child.type == "import_statement":
             extracted = extract_import_statement_from_node(child, snapshot.content)
             for module, alias in extracted:
@@ -105,7 +100,7 @@ def extract_import_statement_from_node(
     extracted: list[tuple[str, str | None]] = []
     for child in getattr(node, "children", []):
         if child.type == "dotted_name":
-            module = content[child.start_byte : child.end_byte].decode("utf-8").strip()
+            module = (node_text(child, content) or "").strip()
             if module:
                 extracted.append((module, None))
         elif child.type == "aliased_import":
@@ -113,9 +108,9 @@ def extract_import_statement_from_node(
             alias_node = child.child_by_field_name("alias")
             if name_node is None:
                 continue
-            module = content[name_node.start_byte : name_node.end_byte].decode("utf-8").strip()
+            module = (node_text(name_node, content) or "").strip()
             alias = (
-                content[alias_node.start_byte : alias_node.end_byte].decode("utf-8").strip()
+                (node_text(alias_node, content) or "").strip()
                 if alias_node is not None
                 else None
             )
@@ -134,11 +129,11 @@ def extract_from_import_from_node(
         if child.type == "wildcard_import":
             names.append(("*", None))
         elif child.type == "dotted_name":
-            name = content[child.start_byte : child.end_byte].decode("utf-8").strip()
+            name = (node_text(child, content) or "").strip()
             if name:
                 names.append((name, None))
         elif child.type == "identifier":
-            name = content[child.start_byte : child.end_byte].decode("utf-8").strip()
+            name = (node_text(child, content) or "").strip()
             if name not in {"from", "import"}:
                 names.append((name, None))
         elif child.type == "aliased_import":
@@ -146,9 +141,9 @@ def extract_from_import_from_node(
             alias_node = child.child_by_field_name("alias")
             if name_node is None:
                 continue
-            name = content[name_node.start_byte : name_node.end_byte].decode("utf-8").strip()
+            name = (node_text(name_node, content) or "").strip()
             alias = (
-                content[alias_node.start_byte : alias_node.end_byte].decode("utf-8").strip()
+                (node_text(alias_node, content) or "").strip()
                 if alias_node is not None
                 else None
             )
@@ -162,7 +157,7 @@ def _module_from_import_from_node(node, content: bytes) -> str | None:
     if module_node is None:
         module_node = node.child_by_field_name("module")
     if module_node is not None:
-        value = content[module_node.start_byte : module_node.end_byte].decode("utf-8").strip()
+        value = (node_text(module_node, content) or "").strip()
         return value or None
     # `from . import x` and `from ..pkg import x` are represented as relative_import.
     relative_node = next(
@@ -171,7 +166,7 @@ def _module_from_import_from_node(node, content: bytes) -> str | None:
     )
     if relative_node is None:
         return None
-    value = content[relative_node.start_byte : relative_node.end_byte].decode("utf-8").strip()
+    value = (node_text(relative_node, content) or "").strip()
     return value or None
 
 
@@ -190,11 +185,7 @@ def normalize_import(
         package = package_context(module_name, is_package)
         if not package:
             return None
-        try:
-            resolved = importlib.util.resolve_name(target, package)
-            return resolved
-        except ImportError:
-            return None
+        return _resolve_relative_import_syntax(target, package)
     if repo_prefix and (target == repo_prefix or target.startswith(f"{repo_prefix}.")):
         return target
     for package in local_packages:
@@ -213,12 +204,25 @@ def package_context(module_name: str, is_package: bool) -> Optional[str]:
     return None
 
 
-def _is_direct_child(node, root) -> bool:
-    parent = getattr(node, "parent", None)
-    if parent is None:
-        return False
-    return (
-        parent.start_byte == root.start_byte
-        and parent.end_byte == root.end_byte
-        and parent.type == root.type
-    )
+def _resolve_relative_import_syntax(target: str, package: str) -> str | None:
+    level = 0
+    for ch in target:
+        if ch == ".":
+            level += 1
+        else:
+            break
+    suffix = target[level:]
+    package_parts = [part for part in package.split(".") if part]
+    # Leading single-dot imports do not ascend; two dots ascend by one, etc.
+    ascend = max(level - 1, 0)
+    if ascend > len(package_parts) - 1:
+        return None
+    base_parts = package_parts[: len(package_parts) - ascend]
+    if suffix:
+        suffix_parts = [part for part in suffix.split(".") if part]
+        if not suffix_parts:
+            return None
+        base_parts.extend(suffix_parts)
+    if not base_parts:
+        return None
+    return ".".join(base_parts)

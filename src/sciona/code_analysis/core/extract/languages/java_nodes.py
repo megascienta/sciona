@@ -84,21 +84,11 @@ def _java_bases(node, content: bytes) -> list[str]:
 
 
 def _java_structural_children(node) -> list[object]:
-    structural = find_nodes_of_types_query(
-        node,
-        language_name="java",
-        node_types=tuple(sorted(JAVA_STRUCTURAL_NODE_TYPES)),
-    )
-    node_key = (node.start_byte, node.end_byte, node.type)
-    selected: list[object] = []
-    for child in structural:
-        parent = getattr(child, "parent", None)
-        if parent is None:
-            continue
-        parent_key = (parent.start_byte, parent.end_byte, parent.type)
-        if parent_key == node_key:
-            selected.append(child)
-    return selected
+    return [
+        child
+        for child in getattr(node, "named_children", [])
+        if getattr(child, "type", "") in JAVA_STRUCTURAL_NODE_TYPES
+    ]
 
 
 def walk_java_nodes(

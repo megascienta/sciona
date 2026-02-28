@@ -106,9 +106,9 @@ def walk_typescript_nodes(
         name_node = node.child_by_field_name("name")
         if not name_node:
             return
-        class_name = snapshot.content[name_node.start_byte : name_node.end_byte].decode(
-            "utf-8"
-        )
+        class_name = node_text(name_node, snapshot.content)
+        if not class_name:
+            return
         if state.class_stack:
             parent = state.class_stack[-1]
             parent_node_type = "class"
@@ -195,9 +195,9 @@ def walk_typescript_nodes(
         name_node = node.child_by_field_name("name")
         if not name_node:
             return
-        func_name = snapshot.content[name_node.start_byte : name_node.end_byte].decode(
-            "utf-8"
-        )
+        func_name = node_text(name_node, snapshot.content)
+        if not func_name:
+            return
         if node.type in {"method_definition", "method_signature", "abstract_method_signature"}:
             if not state.class_stack:
                 return
@@ -296,12 +296,10 @@ def walk_typescript_nodes(
         )
         if not name_node or not value_node:
             return
-        if name_node.type == "identifier":
-            binding = node_text(name_node, snapshot.content)
         if value_node.type in {"class", "class_expression"} and name_node.type == "identifier":
-            class_name = snapshot.content[
-                name_node.start_byte : name_node.end_byte
-            ].decode("utf-8")
+            class_name = node_text(name_node, snapshot.content)
+            if not class_name:
+                return
             qualified = f"{module_name}.{class_name}"
             result.nodes.append(
                 SemanticNodeRecord(
@@ -365,19 +363,13 @@ def walk_typescript_nodes(
                     "function"
                 )
                 callee_chain = name_chain(callee, snapshot.content)
-                name = snapshot.content[name_node.start_byte : name_node.end_byte].decode(
-                    "utf-8"
-                )
+                name = node_text(name_node, snapshot.content)
                 if callee_chain and name:
                     state.pending_instance_assignments.append((name, callee_chain))
             return
         if value_node.type == "identifier" and name_node.type == "identifier":
-            name = snapshot.content[name_node.start_byte : name_node.end_byte].decode(
-                "utf-8"
-            )
-            source = snapshot.content[
-                value_node.start_byte : value_node.end_byte
-            ].decode("utf-8")
+            name = node_text(name_node, snapshot.content)
+            source = node_text(value_node, snapshot.content)
             if name and source:
                 state.pending_alias_assignments.append((name, source))
             return
@@ -385,9 +377,9 @@ def walk_typescript_nodes(
             return
         if name_node.type != "identifier":
             return
-        func_name = snapshot.content[name_node.start_byte : name_node.end_byte].decode(
-            "utf-8"
-        )
+        func_name = node_text(name_node, snapshot.content)
+        if not func_name:
+            return
         qualified = f"{module_name}.{func_name}"
         state.module_functions.add(func_name)
         result.nodes.append(
@@ -435,7 +427,9 @@ def walk_typescript_nodes(
         )
         if not name_node:
             return
-        field = snapshot.content[name_node.start_byte : name_node.end_byte].decode("utf-8")
+        field = node_text(name_node, snapshot.content)
+        if not field:
+            return
         type_node = node.child_by_field_name("type")
         type_name = parse_type_annotation(type_node, snapshot.content)
         if type_name and field and (value_node is None or value_node.type != "new_expression"):
@@ -457,9 +451,9 @@ def walk_typescript_nodes(
             return
         if name_node.type != "property_identifier":
             return
-        func_name = snapshot.content[name_node.start_byte : name_node.end_byte].decode(
-            "utf-8"
-        )
+        func_name = node_text(name_node, snapshot.content)
+        if not func_name:
+            return
         parent = state.class_stack[-1]
         qualified = f"{parent}.{func_name}"
         state.class_methods.setdefault(parent, set()).add(func_name)

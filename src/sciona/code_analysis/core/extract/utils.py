@@ -68,28 +68,9 @@ def _compile_query_source(language_name: str, source: str):
 
 
 def find_direct_children_query(node, *, language_name: str) -> list[object]:
-    """Return direct child nodes using tree-sitter query captures."""
-    query = _compile_query_source(language_name, "(_ ) @node")
-    captures = query.captures(node)
-    node_key = (node.start_byte, node.end_byte, node.type)
-    direct: list[object] = []
-    seen: set[tuple[int, int, str]] = set()
-    for captured_node, capture_name in captures:
-        if isinstance(capture_name, bytes):
-            capture_name = capture_name.decode("utf-8")
-        if capture_name != "node":
-            continue
-        parent = getattr(captured_node, "parent", None)
-        if parent is None:
-            continue
-        parent_key = (parent.start_byte, parent.end_byte, parent.type)
-        if parent_key != node_key:
-            continue
-        key = (captured_node.start_byte, captured_node.end_byte, captured_node.type)
-        if key in seen:
-            continue
-        seen.add(key)
-        direct.append(captured_node)
+    """Return direct named child nodes using tree-sitter field API."""
+    _ = language_name
+    direct = list(getattr(node, "named_children", []))
     direct.sort(key=lambda item: (item.start_byte, item.end_byte))
     return direct
 

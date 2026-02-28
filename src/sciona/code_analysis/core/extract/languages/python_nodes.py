@@ -9,7 +9,6 @@ from dataclasses import dataclass, field
 from typing import List
 
 from ...normalize.model import EdgeRecord, FileSnapshot, SemanticNodeRecord
-from ..utils import find_nodes_of_types_query
 from .analyzer_support import emit_decorator_edges
 from .query_surface import PYTHON_STRUCTURAL_NODE_TYPES
 from .shared import node_text as shared_node_text
@@ -63,21 +62,11 @@ def _is_async_callable(node, content: bytes) -> bool:
 
 
 def _python_structural_children(node) -> list[object]:
-    structural = find_nodes_of_types_query(
-        node,
-        language_name="python",
-        node_types=tuple(sorted(PYTHON_STRUCTURAL_NODE_TYPES)),
-    )
-    node_key = (node.start_byte, node.end_byte, node.type)
-    selected: list[object] = []
-    for child in structural:
-        parent = getattr(child, "parent", None)
-        if parent is None:
-            continue
-        parent_key = (parent.start_byte, parent.end_byte, parent.type)
-        if parent_key == node_key:
-            selected.append(child)
-    return selected
+    return [
+        child
+        for child in getattr(node, "named_children", [])
+        if getattr(child, "type", "") in PYTHON_STRUCTURAL_NODE_TYPES
+    ]
 
 
 def walk_python_nodes(

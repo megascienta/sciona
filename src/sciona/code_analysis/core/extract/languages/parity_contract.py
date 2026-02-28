@@ -67,6 +67,10 @@ def build_parity_contract() -> dict[str, object]:
             "java": {
                 "callable_types": ["method"],
                 "reason": "java has no module-level function declarations",
+                "async_callable_kind": {
+                    "present": False,
+                    "reason": "java extraction does not model async/await callable kind metadata",
+                },
             }
         },
     }

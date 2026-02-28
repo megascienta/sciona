@@ -324,7 +324,11 @@
         "callable_types": [
           "method"
         ],
-        "reason": "java has no module-level function declarations"
+        "reason": "java has no module-level function declarations",
+        "async_callable_kind": {
+          "present": false,
+          "reason": "java extraction does not model async/await callable kind metadata"
+        }
       }
     }
   }
