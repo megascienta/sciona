@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+from functools import lru_cache
 from pathlib import Path
 
 from sciona.runtime.paths import repo_name_prefix
@@ -35,6 +36,7 @@ def _java_package_name(content: bytes | None) -> str | None:
     return None
 
 
+@lru_cache(maxsize=8)
 def _load_tsconfig(repo_root: Path) -> dict:
     tsconfig = repo_root / "tsconfig.json"
     if not tsconfig.exists():

@@ -20,6 +20,7 @@ from validations.reducers.validation.evaluation_resolution import (
 from validations.reducers.validation.evaluation import _filter_core_edges_in_contract
 from validations.reducers.validation.ground_truth import edge_records_from_ground_truth
 from validations.reducers.validation.import_contract import resolve_import_contract
+from validations.reducers.validation.import_contract import _load_tsconfig
 from validations.reducers.validation.independent.contract_normalization import (
     module_name_from_file,
     normalize_scoped_calls,
@@ -627,6 +628,24 @@ def test_typescript_import_contract_resolves_tsconfig_path_alias(tmp_path: Path)
         local_packages={"fixture"},
     )
     assert resolved == "fixture.src.utils"
+
+
+def test_load_tsconfig_is_cached(tmp_path: Path) -> None:
+    (tmp_path / "tsconfig.json").write_text(
+        json.dumps(
+            {
+                "compilerOptions": {
+                    "baseUrl": ".",
+                    "paths": {"@app/*": ["src/*"]},
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    _load_tsconfig.cache_clear()
+    first = _load_tsconfig(tmp_path)
+    second = _load_tsconfig(tmp_path)
+    assert first is second
 
 
 def test_ground_truth_excludes_external_imports_from_enrichment() -> None:
