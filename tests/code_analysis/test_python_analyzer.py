@@ -267,6 +267,42 @@ async def handler():
     assert decorator_edges
 
 
+def test_python_analyzer_emits_async_method_inside_class_body(tmp_path):
+    module = """
+class Service:
+    async def run(self):
+        return 1
+"""
+    repo = tmp_path
+    pkg = repo / "pkg"
+    pkg.mkdir()
+    file_path = pkg / "mod.py"
+    file_path.write_text(module, encoding="utf-8")
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("pkg/mod.py"),
+            language="python",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = PythonAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+    qnames = {node.qualified_name for node in result.nodes}
+    assert f"{module_name}.Service.run" in qnames
+    method_node = next(
+        node for node in result.nodes if node.qualified_name == f"{module_name}.Service.run"
+    )
+    assert method_node.node_type == "method"
+    assert (method_node.metadata or {}).get("kind") == "async_function"
+
+
 def test_python_analyzer_resolves_typed_constructor_param_alias_for_self_field(tmp_path):
     module = """
 class UserRepo:
