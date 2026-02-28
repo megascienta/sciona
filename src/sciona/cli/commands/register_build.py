@@ -17,9 +17,15 @@ from .. import render as cli_render
 
 def register_build(app: typer.Typer) -> None:
     @app.command()
-    def build() -> None:
+    def build(
+        force_rebuild: bool = typer.Option(
+            False,
+            "--force-rebuild",
+            help="Bypass fingerprint fast-path and run a full rebuild.",
+        ),
+    ) -> None:
         """Create a new snapshot and ingest enabled languages (clean worktree required)."""
-        result = cli_call(api_cli.build)
+        result = cli_call(lambda: api_cli.build(force_rebuild=force_rebuild))
         cli_render.emit(cli_render.render_build(result.__dict__))
         _emit_build_warnings(result)
         _exit_if_no_discovery(result)
