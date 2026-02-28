@@ -16,11 +16,15 @@ from .routing import resolve_analyzer, select_analyzers, should_register_module
 from .module_naming import module_name_from_path
 from ..tools import snapshots, walker
 from ..tools.discovery import compute_discovery_details
-from .normalize.model import FileRecord, FileSnapshot
+from .normalize.model import AnalysisResult, FileRecord, FileSnapshot
 from .structural_assembler import StructuralAssembler
 from .snapshot import Snapshot
 
 logger = get_logger(__name__)
+
+DEFAULT_MAX_FILE_BYTES = 5_000_000
+DEFAULT_MAX_NODES_PER_FILE = 20_000
+DEFAULT_MAX_CALL_IDENTIFIERS_PER_FILE = 100_000
 
 
 class BuildEngine:
@@ -36,6 +40,9 @@ class BuildEngine:
         config_root: Optional[Path] = None,
         progress_factory=None,
         warning_sink: Optional[Callable[[str], None]] = None,
+        max_file_bytes: int | None = DEFAULT_MAX_FILE_BYTES,
+        max_nodes_per_file: int | None = DEFAULT_MAX_NODES_PER_FILE,
+        max_call_identifiers_per_file: int | None = DEFAULT_MAX_CALL_IDENTIFIERS_PER_FILE,
     ) -> None:
         self.workspace_root = workspace_root
         # Keep legacy attribute name for helpers that still reference repo_root.
@@ -58,6 +65,9 @@ class BuildEngine:
         self.call_gate_diagnostics = self.assembler.call_gate_diagnostics
         self._progress_factory = progress_factory
         self._warning_sink = warning_sink
+        self.max_file_bytes = max_file_bytes
+        self.max_nodes_per_file = max_nodes_per_file
+        self.max_call_identifiers_per_file = max_call_identifiers_per_file
 
     def run(self, snapshot: Snapshot) -> Tuple[int, int]:
         if not self.conn.in_transaction:
@@ -142,7 +152,12 @@ class BuildEngine:
                         self.workspace_root, file_snapshot
                     )
                     try:
+                        self._enforce_file_snapshot_limits(file_snapshot)
                         analysis = analyzer.analyze(file_snapshot, module_name)
+                        self._enforce_analysis_limits(analysis)
+                        node_count, node_id_map = self.assembler.persist_analysis(
+                            snapshot_id, analysis, file_snapshot
+                        )
                     except Exception as exc:
                         warning = f"Failed to analyze {file_snapshot.record.relative_path}: {exc}"
                         self._warn(warning)
@@ -156,9 +171,6 @@ class BuildEngine:
                         if progress:
                             progress.advance(1)
                         continue
-                    node_count, node_id_map = self.assembler.persist_analysis(
-                        snapshot_id, analysis, file_snapshot
-                    )
                     inserted_nodes += node_count
                     processed_files += 1
                     if progress:
@@ -200,6 +212,36 @@ class BuildEngine:
         logger.warning(message)
         if self._warning_sink:
             self._warning_sink(message)
+
+    def _enforce_file_snapshot_limits(self, file_snapshot: FileSnapshot) -> None:
+        if (
+            self.max_file_bytes is not None
+            and file_snapshot.size > self.max_file_bytes
+        ):
+            raise ValueError(
+                f"file exceeds max_file_bytes={self.max_file_bytes} "
+                f"(size={file_snapshot.size})"
+            )
+
+    def _enforce_analysis_limits(self, analysis: AnalysisResult) -> None:
+        if (
+            self.max_nodes_per_file is not None
+            and len(analysis.nodes) > self.max_nodes_per_file
+        ):
+            raise ValueError(
+                f"file exceeds max_nodes_per_file={self.max_nodes_per_file} "
+                f"(nodes={len(analysis.nodes)})"
+            )
+        if self.max_call_identifiers_per_file is None:
+            return
+        call_identifiers = sum(
+            len(record.callee_identifiers) for record in analysis.call_records
+        )
+        if call_identifiers > self.max_call_identifiers_per_file:
+            raise ValueError(
+                "file exceeds max_call_identifiers_per_file="
+                f"{self.max_call_identifiers_per_file} (call_identifiers={call_identifiers})"
+            )
 
     def _register_modules(self, snapshot_id: str, snapshots: List[FileSnapshot]) -> int:
         inserted = 0

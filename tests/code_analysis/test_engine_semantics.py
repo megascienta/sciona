@@ -7,7 +7,7 @@ from pathlib import Path
 from sciona.data_storage.core_db.schema import ensure_schema
 from sciona.code_analysis.core.extract.analyzer import ASTAnalyzer
 from sciona.code_analysis.core.engine import BuildEngine
-from sciona.code_analysis.core.normalize.model import AnalysisResult
+from sciona.code_analysis.core.normalize.model import AnalysisResult, CallRecord
 from sciona.data_storage.core_db import write_ops as core_write
 from sciona.runtime import config as core_config
 from sciona.code_analysis.core.extract import registry
@@ -255,4 +255,152 @@ def test_entry_points_are_written_to_synthetic_tables(tmp_path, monkeypatch):
     ).fetchone()
     assert entry_point_rows is not None
     assert entry_point_rows["count"] == 0
+    conn.close()
+
+
+def test_engine_applies_max_file_bytes_guardrail(tmp_path, monkeypatch):
+    class MinimalAnalyzer(ASTAnalyzer):
+        language = "python"
+
+        def analyze(self, snapshot, module_name):
+            return AnalysisResult(nodes=[], edges=[], call_records=[])
+
+        def module_name(self, repo_root, snapshot):
+            return "pkg.mod"
+
+    repo_root = tmp_path
+    (repo_root / "pkg").mkdir(parents=True)
+    file_path = repo_root / "pkg" / "mod.py"
+    file_path.write_text("print('too-large')\n", encoding="utf-8")
+
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    ensure_schema(conn)
+    snapshot_id = "snap"
+    conn.execute(
+        """
+        INSERT INTO snapshots(snapshot_id, created_at, source, is_committed, structural_hash)
+        VALUES (?, ?, ?, ?, ?)
+        """,
+        (snapshot_id, "2024-01-01T00:00:00Z", "scan", 0, "hash"),
+    )
+    conn.commit()
+
+    languages = {"python": core_config.LanguageSettings(name="python", enabled=True)}
+    monkeypatch.setattr(registry, "get_analyzer", lambda language: MinimalAnalyzer())
+    monkeypatch.setattr(
+        registry, "get_analyzer_for_path", lambda path, analyzers: analyzers.get("python")
+    )
+    monkeypatch.setattr(
+        "sciona.runtime.git.tracked_paths", lambda _root: {Path("pkg/mod.py").as_posix()}
+    )
+    monkeypatch.setattr("sciona.runtime.git.ignored_tracked_paths", lambda _root: set())
+    monkeypatch.setattr(
+        "sciona.runtime.git.blob_sha_batch", lambda _root, paths: {path: "hash" for path in paths}
+    )
+    monkeypatch.setattr("sciona.runtime.git.blob_sha", lambda _root, _path: "hash")
+
+    engine = BuildEngine(
+        repo_root,
+        conn,
+        core_write,
+        languages=languages,
+        discovery=core_config.DiscoverySettings(exclude_globs=[]),
+        max_file_bytes=1,
+    )
+    conn.execute("BEGIN")
+    engine.run(
+        snapshot=Snapshot(
+            snapshot_id=snapshot_id,
+            created_at="2024-01-01T00:00:00Z",
+            source="scan",
+            git_commit_sha="",
+            git_commit_time="",
+            git_branch="",
+        )
+    )
+    conn.commit()
+
+    assert engine.parse_failures == 1
+    assert any("max_file_bytes=1" in warning for warning in engine.warnings)
+    conn.close()
+
+
+def test_engine_applies_max_call_identifiers_guardrail(tmp_path, monkeypatch):
+    class CallHeavyAnalyzer(ASTAnalyzer):
+        language = "python"
+
+        def analyze(self, snapshot, module_name):
+            return AnalysisResult(
+                nodes=[],
+                edges=[],
+                call_records=[
+                    CallRecord(
+                        qualified_name="pkg.mod.fn",
+                        node_type="function",
+                        callee_identifiers=["a", "b", "c"],
+                    )
+                ],
+            )
+
+        def module_name(self, repo_root, snapshot):
+            return "pkg.mod"
+
+    repo_root = tmp_path
+    (repo_root / "pkg").mkdir(parents=True)
+    file_path = repo_root / "pkg" / "mod.py"
+    file_path.write_text("def fn():\n    pass\n", encoding="utf-8")
+
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    ensure_schema(conn)
+    snapshot_id = "snap"
+    conn.execute(
+        """
+        INSERT INTO snapshots(snapshot_id, created_at, source, is_committed, structural_hash)
+        VALUES (?, ?, ?, ?, ?)
+        """,
+        (snapshot_id, "2024-01-01T00:00:00Z", "scan", 0, "hash"),
+    )
+    conn.commit()
+
+    languages = {"python": core_config.LanguageSettings(name="python", enabled=True)}
+    monkeypatch.setattr(registry, "get_analyzer", lambda language: CallHeavyAnalyzer())
+    monkeypatch.setattr(
+        registry, "get_analyzer_for_path", lambda path, analyzers: analyzers.get("python")
+    )
+    monkeypatch.setattr(
+        "sciona.runtime.git.tracked_paths", lambda _root: {Path("pkg/mod.py").as_posix()}
+    )
+    monkeypatch.setattr("sciona.runtime.git.ignored_tracked_paths", lambda _root: set())
+    monkeypatch.setattr(
+        "sciona.runtime.git.blob_sha_batch", lambda _root, paths: {path: "hash" for path in paths}
+    )
+    monkeypatch.setattr("sciona.runtime.git.blob_sha", lambda _root, _path: "hash")
+
+    engine = BuildEngine(
+        repo_root,
+        conn,
+        core_write,
+        languages=languages,
+        discovery=core_config.DiscoverySettings(exclude_globs=[]),
+        max_call_identifiers_per_file=2,
+    )
+    conn.execute("BEGIN")
+    engine.run(
+        snapshot=Snapshot(
+            snapshot_id=snapshot_id,
+            created_at="2024-01-01T00:00:00Z",
+            source="scan",
+            git_commit_sha="",
+            git_commit_time="",
+            git_branch="",
+        )
+    )
+    conn.commit()
+
+    assert engine.parse_failures == 1
+    assert any(
+        "max_call_identifiers_per_file=2" in warning for warning in engine.warnings
+    )
     conn.close()
