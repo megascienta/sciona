@@ -118,6 +118,12 @@ def render_summary(payload: dict) -> List[str]:
     lines.append(
         f"- avg_non_static_rate_percent: `{_format_percent(q3.get('avg_non_static_rate_percent'))}`"
     )
+    lines.append(
+        f"- decorator_rate_percent: `{_format_percent(q3.get('decorator_rate_percent'))}`"
+    )
+    lines.append(
+        f"- dynamic_dispatch_rate_percent: `{_format_percent(q3.get('dynamic_dispatch_rate_percent'))}`"
+    )
     percent_by_type = q3.get("by_semantic_type_non_static_avg_percent") or {}
     formatted_percent_by_type = {
         str(key): _format_percent(value) for key, value in percent_by_type.items()

@@ -862,9 +862,9 @@ def test_ground_truth_treats_decorator_shaped_calls_as_dynamic() -> None:
     )
     assert expected == []
     assert len(out_of_contract) == 1
-    assert out_meta and out_meta[0]["reason"] == "dynamic"
-    assert out_meta[0]["semantic_type"] == "dynamic_call"
-    assert diagnostics["included_limitation_by_reason"]["dynamic"] == 1
+    assert out_meta and out_meta[0]["reason"] == "decorator"
+    assert out_meta[0]["semantic_type"] == "decorator_call"
+    assert diagnostics["included_limitation_by_reason"]["decorator"] == 1
 
 
 def test_ground_truth_class_diagnostic_marks_no_method_class() -> None:

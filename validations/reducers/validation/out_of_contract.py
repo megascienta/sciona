@@ -15,6 +15,8 @@ def classify_call_reason(
     del language
     callee_text = (getattr(edge, "callee_text", None) or "").strip().lower()
     if edge.dynamic:
+        if callee_text.startswith("decorator:"):
+            return "decorator"
         return "dynamic"
     identifier = (edge.callee or "").strip()
     if not identifier and edge.callee_qname:
@@ -30,6 +32,8 @@ def classify_call_reason(
 def classify_call_semantic_type(*, edge, reason: str) -> str:
     callee_text = (getattr(edge, "callee_text", None) or "").strip()
     has_member_shape = "." in callee_text if callee_text else False
+    if reason == "decorator":
+        return "decorator_call"
     if reason == "dynamic":
         return "dynamic_member_call" if has_member_shape else "dynamic_call"
     if reason == "in_repo_unresolved":

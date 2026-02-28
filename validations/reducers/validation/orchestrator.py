@@ -30,7 +30,9 @@ from .reducer_queries import get_snapshot_id
 
 REPORT_SCHEMA_VERSION = "2026-02-27"
 Q2_FILTERING_SOURCE = "core_only"
-NON_STATIC_REASONS = {"dynamic"}
+NON_STATIC_REASONS = {"dynamic", "decorator"}
+DECORATOR_REASONS = {"decorator"}
+DYNAMIC_DISPATCH_REASONS = {"dynamic"}
 UNRESOLVED_STATIC_REASONS = {"in_repo_unresolved", "relative_unresolved", "unknown"}
 
 
@@ -335,6 +337,16 @@ def _build_report_payload(
         for record in out_of_contract_meta
         if str(record.get("reason") or "") in NON_STATIC_REASONS
     ]
+    decorator_records = [
+        record
+        for record in out_of_contract_meta
+        if str(record.get("reason") or "") in DECORATOR_REASONS
+    ]
+    dynamic_dispatch_records = [
+        record
+        for record in out_of_contract_meta
+        if str(record.get("reason") or "") in DYNAMIC_DISPATCH_REASONS
+    ]
     unresolved_static_records = [
         record
         for record in out_of_contract_meta
@@ -343,6 +355,10 @@ def _build_report_payload(
     non_static_counts, non_static_semantic_counts = _build_reason_breakdown(non_static_records)
     unresolved_counts, unresolved_semantic_counts = _build_reason_breakdown(
         unresolved_static_records
+    )
+    decorator_counts, decorator_semantic_counts = _build_reason_breakdown(decorator_records)
+    dynamic_dispatch_counts, dynamic_dispatch_semantic_counts = _build_reason_breakdown(
+        dynamic_dispatch_records
     )
     non_static_metrics = _build_per_node_rate_payload(
         rows=rows,
@@ -353,6 +369,16 @@ def _build_report_payload(
         rows=rows,
         counts_by_entity=unresolved_counts,
         semantic_type_counts_by_entity=unresolved_semantic_counts,
+    )
+    decorator_metrics = _build_per_node_rate_payload(
+        rows=rows,
+        counts_by_entity=decorator_counts,
+        semantic_type_counts_by_entity=decorator_semantic_counts,
+    )
+    dynamic_dispatch_metrics = _build_per_node_rate_payload(
+        rows=rows,
+        counts_by_entity=dynamic_dispatch_counts,
+        semantic_type_counts_by_entity=dynamic_dispatch_semantic_counts,
     )
     unresolved_static_zero = bool(
         (unresolved_static_metrics.get("avg_rate") or 0.0) == 0.0
@@ -544,6 +570,10 @@ def _build_report_payload(
                 "scored_nodes": non_static_metrics.get("scored_nodes"),
                 "avg_non_static_rate": non_static_metrics.get("avg_rate"),
                 "avg_non_static_rate_percent": non_static_metrics.get("avg_rate_percent"),
+                "decorator_rate_percent": decorator_metrics.get("avg_rate_percent"),
+                "dynamic_dispatch_rate_percent": dynamic_dispatch_metrics.get(
+                    "avg_rate_percent"
+                ),
                 "total_non_static_edges": non_static_metrics.get("total_edges"),
                 "by_semantic_type_non_static_avg_rate": non_static_metrics.get(
                     "by_semantic_type_avg_rate"
