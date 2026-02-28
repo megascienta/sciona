@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from ...normalize.model import FileSnapshot
 from .shared import node_text
-from ..utils import find_nodes_of_types_query
+from ..query_helpers import find_nodes_of_types_query
 from .symbol_ir import TypedSymbolBinding
 
 def collect_declared_vars(

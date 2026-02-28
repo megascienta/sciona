@@ -14,6 +14,9 @@ It is authoritative for analysis and validation.
 - A narrow parser bootstrap helper is allowed for multi-language growth.
 - Allowed bootstrap scope is strictly:
   parser construction, language binding, and parser/grammar diagnostics.
+- Bootstrap helper location is `src/sciona/code_analysis/core/extract/parser_bootstrap.py`.
+- Query/extraction helpers MUST be separate from bootstrap helper code
+  (for example `core/extract/query_helpers.py`).
 - Bootstrap helper MUST NOT perform parsing fallback, extraction logic,
   language routing, or semantic behavior changes.
 - General parser wrapper/factory abstractions remain out-of-contract.

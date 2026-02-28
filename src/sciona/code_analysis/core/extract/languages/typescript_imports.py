@@ -11,7 +11,7 @@ from typing import Optional
 from .....runtime import paths as runtime_paths
 from ...module_naming import module_name_from_path
 from ...normalize.model import FileSnapshot
-from ..utils import find_nodes_of_types_query
+from ..query_helpers import find_nodes_of_types_query
 from .import_model import NormalizedImportModel
 from .query_surface import (
     TYPESCRIPT_IMPORT_EXPORT_NODE_TYPES,

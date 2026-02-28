@@ -10,7 +10,7 @@ from typing import List, Optional
 from .....runtime import packaging as runtime_packaging
 from .....runtime import paths as runtime_paths
 from ...normalize.model import FileSnapshot
-from ..utils import find_direct_children_query
+from ..query_helpers import find_direct_children_query
 from .import_model import NormalizedImportModel
 from .query_surface import PYTHON_IMPORT_NODE_TYPES
 from .shared import is_internal_module, node_text, repo_root_from_snapshot

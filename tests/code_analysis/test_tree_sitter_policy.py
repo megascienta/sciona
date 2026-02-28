@@ -66,7 +66,7 @@ def test_policy_only_narrow_parser_bootstrap_helper(path: Path) -> None:
     assert "def parser_factory(" not in text
     assert "def make_parser(" not in text
     if "def bootstrap_tree_sitter_parser(" in text:
-        assert rel == "core/extract/utils.py"
+        assert rel == "core/extract/parser_bootstrap.py"
 
 
 @pytest.mark.parametrize("path", _python_files(), ids=lambda p: _rel(p))
@@ -99,7 +99,7 @@ def test_policy_structural_extraction_avoids_non_query_traversal(path: Path) -> 
     if not rel.startswith("core/extract/"):
         return
     text = path.read_text(encoding="utf-8")
-    if rel == "core/extract/utils.py":
+    if rel in {"core/extract/parser_bootstrap.py", "core/extract/query_helpers.py"}:
         assert "stack = [node]" not in text
         assert "stack.pop()" not in text
         return

@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from typing import List
 
 from ...normalize.model import EdgeRecord, FileSnapshot, SemanticNodeRecord
-from ..utils import find_nodes_of_types_query
+from ..query_helpers import find_nodes_of_types_query
 from .analyzer_support import emit_decorator_edges
 from .query_surface import JAVA_STRUCTURAL_NODE_TYPES
 from .shared import node_text as shared_node_text

@@ -10,10 +10,18 @@ This note records the parser initialization policy adopted for multi-language gr
 ## Allowed Abstraction
 
 - A single narrow helper is allowed for parser bootstrap.
+- Bootstrap helper module: `src/sciona/code_analysis/core/extract/parser_bootstrap.py`.
 - Allowed responsibilities:
   - instantiate `tree_sitter.Parser`,
   - bind grammar via `tree_sitter_languages.get_language`,
   - return diagnostics metadata about parser/grammar setup.
+
+## Query Helper Separation
+
+- Query/extraction helpers live in
+  `src/sciona/code_analysis/core/extract/query_helpers.py`.
+- Query helpers are allowed to compile/execute tree-sitter queries and
+  expose extraction utilities, but MUST NOT include parser bootstrap logic.
 
 ## Disallowed Abstraction
 

@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-from ..core.extract.utils import bootstrap_tree_sitter_parser
+from ..core.extract.parser_bootstrap import bootstrap_tree_sitter_parser
 from .profile_errors import TreeSitterBootstrapError
 from .profile_introspection_cache import _java_inspector_cached
 from .profile_query import find_profile_nodes_of_types

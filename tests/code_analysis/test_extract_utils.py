@@ -3,13 +3,15 @@
 
 from tree_sitter import Parser
 
-from sciona.code_analysis.core.extract.utils import (
+from sciona.code_analysis.core.extract.parser_bootstrap import (
     bootstrap_tree_sitter_parser,
+)
+from sciona.code_analysis.core.extract.query_helpers import (
     count_lines,
     find_direct_children_query,
     find_nodes_of_types_query,
 )
-from sciona.code_analysis.core.extract import utils as extract_utils
+from sciona.code_analysis.core.extract import query_helpers as extract_utils
 import pytest
 
 

@@ -5,7 +5,7 @@ from tree_sitter import Parser
 from tree_sitter_languages import get_language
 
 from sciona.code_analysis.core.extract.languages.scope_resolver import ScopeResolver
-from sciona.code_analysis.core.extract.utils import find_nodes_of_types_query
+from sciona.code_analysis.core.extract.query_helpers import find_nodes_of_types_query
 
 
 def _parser(language_name: str) -> Parser:

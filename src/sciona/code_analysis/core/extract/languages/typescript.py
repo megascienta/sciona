@@ -16,7 +16,8 @@ from ...normalize.model import (
     SemanticNodeRecord,
 )
 from ..analyzer import ASTAnalyzer
-from ..utils import bootstrap_tree_sitter_parser, count_lines, find_direct_children_query
+from ..parser_bootstrap import bootstrap_tree_sitter_parser
+from ..query_helpers import count_lines, find_direct_children_query
 from .typescript_calls import callee_text, resolve_typescript_calls
 from .typescript_imports import collect_typescript_import_model
 from .typescript_nodes import TypeScriptNodeState, walk_typescript_nodes
