@@ -27,7 +27,6 @@ from .profile_introspection_typescript import (
     _TypeScriptClassDetails,
     _TypeScriptFunctionDetails,
     _TypeScriptInspector,
-    _collect_ts_decorators,
     _collect_typescript_bases,
     _collect_typescript_parameters,
     _typescript_inspector,

@@ -53,7 +53,7 @@ def helper(x, *args, **kwargs):
         start_line=2,
         end_line=4,
     )
-    assert decorators == ["decorator"]
+    assert decorators == []
     assert bases == ["Base"]
 
     params, func_decorators = python_function_extras(
@@ -63,7 +63,7 @@ def helper(x, *args, **kwargs):
         start_line=7,
         end_line=8,
     )
-    assert func_decorators == ["decorator"]
+    assert func_decorators == []
     assert params == ["x", "*args", "**kwargs"]
 
 
@@ -94,8 +94,7 @@ export function makeWidget(name: string, ...args: string[]) {
         start_line=2,
         end_line=6,
     )
-    if decorators:
-        assert decorators == ["@sealed"]
+    assert decorators == []
     if bases:
         assert bases == ["Base"]
 
@@ -184,7 +183,7 @@ class Widget extends Base implements Role {
         start_line=4,
         end_line=9,
     )
-    assert decorators == ["@Entity"]
+    assert decorators == []
     assert "Base" in bases
     assert "Role" in bases
 
@@ -195,5 +194,5 @@ class Widget extends Base implements Role {
         start_line=7,
         end_line=8,
     )
-    assert func_decorators == ["@Timed"]
+    assert func_decorators == []
     assert params == ["userId", "retries"]

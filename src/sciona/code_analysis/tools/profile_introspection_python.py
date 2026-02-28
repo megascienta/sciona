@@ -14,7 +14,6 @@ from .profile_errors import TreeSitterBootstrapError
 from .profile_query import find_profile_nodes_of_types
 from .profile_query_surface import (
     PYTHON_PROFILE_BASE_NODE_TYPES,
-    PYTHON_PROFILE_DECORATOR_NODE_TYPES,
     PYTHON_PROFILE_PARAMETER_NODE_TYPES,
 )
 from .profile_introspection_cache import _python_inspector_cached
@@ -22,11 +21,9 @@ from .profile_introspection_cache import _python_inspector_cached
 @dataclass
 class _FunctionDetails:
     parameters: List[str]
-    decorators: List[str]
 
 @dataclass
 class _ClassDetails:
-    decorators: List[str]
     bases: List[str]
 
 class _PythonInspector:
@@ -45,7 +42,7 @@ class _PythonInspector:
         self._tree = _PythonInspector._PARSER.parse(self._source)
         self.functions: Dict[Tuple[int, int], _FunctionDetails] = {}
         self.classes: Dict[Tuple[int, int], _ClassDetails] = {}
-        self._scan(self._tree.root_node, decorators=())
+        self._scan(self._tree.root_node)
 
     def function_details(
         self, start_line: int, end_line: int
@@ -61,36 +58,34 @@ class _PythonInspector:
             return exact
         return _fuzzy_span_lookup(self.classes, start_line, end_line)
 
-    def _scan(self, node, *, decorators: tuple[str, ...]) -> None:
+    def _scan(self, node) -> None:
         node_type = getattr(node, "type", "")
         if node_type == "decorated_definition":
             decorated = self._decorated_target(node)
             if decorated is None:
                 return
-            self._scan(decorated, decorators=tuple(self._decorator_names(node)))
+            self._scan(decorated)
             return
         if node_type in {"function_definition", "async_function_definition"}:
-            self._record_function(node, decorators=decorators)
+            self._record_function(node)
         elif node_type == "class_definition":
-            self._record_class(node, decorators=decorators)
+            self._record_class(node)
         for child in getattr(node, "children", []):
-            self._scan(child, decorators=())
+            self._scan(child)
 
-    def _record_function(self, node, *, decorators: tuple[str, ...]) -> None:
+    def _record_function(self, node) -> None:
         lineno = node.start_point[0] + 1
         end_lineno = node.end_point[0] + 1
         params_node = node.child_by_field_name("parameters")
         self.functions[(lineno, end_lineno)] = _FunctionDetails(
             parameters=_collect_parameters(params_node, self._source),
-            decorators=list(decorators),
         )
 
-    def _record_class(self, node, *, decorators: tuple[str, ...]) -> None:
+    def _record_class(self, node) -> None:
         lineno = node.start_point[0] + 1
         end_lineno = node.end_point[0] + 1
         superclasses_node = node.child_by_field_name("superclasses")
         self.classes[(lineno, end_lineno)] = _ClassDetails(
-            decorators=list(decorators),
             bases=_collect_bases(superclasses_node, self._source),
         )
 
@@ -99,23 +94,6 @@ class _PythonInspector:
             if child.type in {"function_definition", "async_function_definition", "class_definition"}:
                 return child
         return None
-
-    def _decorator_names(self, node) -> list[str]:
-        decorators: list[str] = []
-        for child in find_profile_nodes_of_types(
-            node,
-            language_name="python",
-            node_types=PYTHON_PROFILE_DECORATOR_NODE_TYPES,
-        ):
-            text = _node_text(child, self._source).strip()
-            if not text:
-                continue
-            if text.startswith("@"):
-                text = text[1:].strip()
-            text = text.replace('"', "'")
-            if text:
-                decorators.append(text)
-        return decorators
 
 def python_function_extras(
     language: str,
@@ -133,7 +111,7 @@ def python_function_extras(
     details = inspector.function_details(start_line, end_line)
     if not details:
         return [], []
-    return details.parameters, details.decorators
+    return details.parameters, []
 
 def python_class_extras(
     language: str,
@@ -151,7 +129,7 @@ def python_class_extras(
     details = inspector.class_details(start_line, end_line)
     if not details:
         return [], []
-    return details.decorators, details.bases
+    return [], details.bases
 
 def _python_inspector(
     repo_root: Path, relative_path: str

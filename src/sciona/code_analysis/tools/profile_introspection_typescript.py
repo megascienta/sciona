@@ -15,7 +15,6 @@ from .profile_query import find_profile_nodes_of_types
 from .profile_query_surface import (
     TYPESCRIPT_PROFILE_BASE_NODE_TYPES,
     TYPESCRIPT_PROFILE_CLASS_NODE_TYPES,
-    TYPESCRIPT_PROFILE_DECORATOR_NODE_TYPES,
     TYPESCRIPT_PROFILE_FUNCTION_NODE_TYPES,
     TYPESCRIPT_PROFILE_PARAMETER_NODE_TYPES,
 )
@@ -24,11 +23,9 @@ from .profile_introspection_cache import _typescript_inspector_cached
 @dataclass
 class _TypeScriptFunctionDetails:
     parameters: List[str]
-    decorators: List[str]
 
 @dataclass
 class _TypeScriptClassDetails:
-    decorators: List[str]
     bases: List[str]
 
 class _TypeScriptInspector:
@@ -81,19 +78,17 @@ class _TypeScriptInspector:
         end_lineno = node.end_point[0] + 1
         params_node = node.child_by_field_name("parameters")
         parameters = _collect_typescript_parameters(params_node, self._source)
-        decorators = _collect_ts_decorators(node, self._source)
         self.functions[(lineno, end_lineno)] = _TypeScriptFunctionDetails(
-            parameters=parameters, decorators=decorators
+            parameters=parameters
         )
 
     def _record_class(self, node) -> None:
         lineno = node.start_point[0] + 1
         end_lineno = node.end_point[0] + 1
-        decorators = _collect_ts_decorators(node, self._source)
         heritage = node.child_by_field_name("heritage")
         bases = _collect_typescript_bases(heritage, self._source)
         self.classes[(lineno, end_lineno)] = _TypeScriptClassDetails(
-            decorators=decorators, bases=bases
+            bases=bases
         )
 
     def _record_expression_callable(self, node) -> None:
@@ -151,13 +146,11 @@ def typescript_function_extras(
         return [], []
     inspector = _typescript_inspector(repo_root, file_path)
     parameters: List[str] = []
-    decorators: List[str] = []
     if inspector:
         details = inspector.function_details(start_line, end_line)
         if details:
             parameters = details.parameters
-            decorators = details.decorators
-    return parameters, decorators
+    return parameters, []
 
 def typescript_class_extras(
     language: str,
@@ -175,7 +168,7 @@ def typescript_class_extras(
     details = inspector.class_details(start_line, end_line)
     if not details:
         return [], []
-    return details.decorators, details.bases
+    return [], details.bases
 
 def _typescript_inspector(
     repo_root: Path, relative_path: str
@@ -225,23 +218,6 @@ def _collect_typescript_bases(heritage_node, source: str) -> List[str]:
         if value and value not in {"extends", "implements"}:
             bases.append(value)
     return list(dict.fromkeys(bases))
-
-def _collect_ts_decorators(node, source: str) -> List[str]:
-    decorators: List[str] = []
-    for child in find_profile_nodes_of_types(
-        node,
-        language_name="typescript",
-        node_types=TYPESCRIPT_PROFILE_DECORATOR_NODE_TYPES,
-    ):
-        text = (
-            source.encode("utf-8")[child.start_byte : child.end_byte]
-            .decode("utf-8")
-            .strip()
-        )
-        if text:
-            decorators.append(text)
-    return decorators
-
 
 def _is_direct_child(node, parent) -> bool:
     owner = getattr(node, "parent", None)
