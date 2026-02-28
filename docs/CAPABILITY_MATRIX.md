@@ -47,6 +47,9 @@ Legend:
   `import_statement`, `export_statement`, and require-style lexical declarations.
 - Java import parsing supports class aliases, static member aliases, and static wildcard owners.
 - Java profile extras include annotation extraction from declaration modifiers.
+- Python and TypeScript use different instance-map strategies:
+  Python resolves module/class/callable scopes eagerly; TypeScript resolves pending
+  instance/alias assignments in a deferred pass before call resolution.
 
 ## Gate Criteria
 

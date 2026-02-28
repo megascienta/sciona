@@ -8,6 +8,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional
 
+from .profile_errors import QueryCompileError, TreeSitterBootstrapError
+
 
 def _python_inspector_cached(root_key: str, relative_path: str) -> Optional[object]:
     path = Path(root_key) / relative_path
@@ -19,7 +21,7 @@ def _python_inspector_cached(root_key: str, relative_path: str) -> Optional[obje
         from .profile_introspection_python import _PythonInspector
 
         return _PythonInspector(source)
-    except SyntaxError:
+    except (TreeSitterBootstrapError, QueryCompileError):
         return None
 
 
@@ -33,7 +35,7 @@ def _typescript_inspector_cached(root_key: str, relative_path: str) -> Optional[
         from .profile_introspection_typescript import _TypeScriptInspector
 
         return _TypeScriptInspector(source)
-    except SyntaxError:
+    except (TreeSitterBootstrapError, QueryCompileError):
         return None
 
 
@@ -47,6 +49,5 @@ def _java_inspector_cached(root_key: str, relative_path: str) -> Optional[object
         from .profile_introspection_java import _JavaInspector
 
         return _JavaInspector(source)
-    except SyntaxError:
+    except (TreeSitterBootstrapError, QueryCompileError):
         return None
-

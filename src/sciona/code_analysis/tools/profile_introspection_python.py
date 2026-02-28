@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 from ..core.extract.utils import bootstrap_tree_sitter_parser
+from .profile_errors import TreeSitterBootstrapError
 from .profile_query import find_profile_nodes_of_types
 from .profile_query_surface import (
     PYTHON_PROFILE_BASE_NODE_TYPES,
@@ -33,9 +34,12 @@ class _PythonInspector:
 
     def __init__(self, source: str) -> None:
         if _PythonInspector._PARSER is None:
-            _PythonInspector._PARSER, _language, _diagnostics = bootstrap_tree_sitter_parser(
-                "python"
-            )
+            try:
+                _PythonInspector._PARSER, _language, _diagnostics = (
+                    bootstrap_tree_sitter_parser("python")
+                )
+            except RuntimeError as exc:
+                raise TreeSitterBootstrapError(str(exc)) from exc
         assert _PythonInspector._PARSER is not None
         self._source = source.encode("utf-8")
         self._tree = _PythonInspector._PARSER.parse(self._source)

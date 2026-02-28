@@ -22,3 +22,14 @@ def is_internal_module(module_name: str, module_index: set[str] | None) -> bool:
         return False
     return module_name in module_index
 
+
+def node_text(node, content: bytes) -> str | None:
+    if node is None:
+        return None
+    text = getattr(node, "text", None)
+    if text:
+        return text.decode("utf-8")
+    return content[node.start_byte : node.end_byte].decode("utf-8")
+
+
+__all__ = ["is_internal_module", "node_text", "repo_root_from_snapshot"]

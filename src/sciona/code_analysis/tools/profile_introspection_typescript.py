@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 from ..core.extract.utils import bootstrap_tree_sitter_parser
+from .profile_errors import TreeSitterBootstrapError
 from .profile_query import find_profile_nodes_of_types
 from .profile_query_surface import (
     TYPESCRIPT_PROFILE_BASE_NODE_TYPES,
@@ -35,9 +36,12 @@ class _TypeScriptInspector:
 
     def __init__(self, source: str) -> None:
         if _TypeScriptInspector._PARSER is None:
-            _TypeScriptInspector._PARSER, _language, _diagnostics = (
-                bootstrap_tree_sitter_parser("typescript")
-            )
+            try:
+                _TypeScriptInspector._PARSER, _language, _diagnostics = (
+                    bootstrap_tree_sitter_parser("typescript")
+                )
+            except RuntimeError as exc:
+                raise TreeSitterBootstrapError(str(exc)) from exc
         assert _TypeScriptInspector._PARSER is not None
         tree = _TypeScriptInspector._PARSER.parse(source.encode("utf-8"))
         self._source = source

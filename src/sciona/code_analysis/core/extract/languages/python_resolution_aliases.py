@@ -5,17 +5,8 @@
 
 from __future__ import annotations
 
+from .shared import node_text
 from .symbol_ir import resolve_alias
-
-
-def node_text(node, content: bytes) -> str | None:
-    if node is None:
-        return None
-    text = getattr(node, "text", None)
-    if text:
-        return text.decode("utf-8")
-    return content[node.start_byte : node.end_byte].decode("utf-8")
-
 
 def attribute_chain(node, content: bytes) -> tuple[str, ...]:
     if node is None:

@@ -6,10 +6,11 @@
 from __future__ import annotations
 
 from collections import defaultdict
+import re
 from typing import Callable, Sequence
 
 from ....tools.call_extraction import collect_call_targets
-from ...normalize.model import EdgeRecord, FileSnapshot
+from ...normalize.model import EdgeRecord, FileSnapshot, SemanticNodeRecord
 from .scope_resolver import ScopeResolver
 
 
@@ -149,7 +150,57 @@ def emit_callable_import_edges(
         )
 
 
+def decorator_qname(module_name: str, decorator_text: str) -> str:
+    token = re.sub(r"[^A-Za-z0-9_]+", "_", decorator_text).strip("_") or "decorator"
+    return f"{module_name}.__decorator__.{token}"
+
+
+def emit_decorator_edges(
+    *,
+    language: str,
+    snapshot: FileSnapshot,
+    module_name: str,
+    result,
+    owner_qname: str,
+    owner_type: str,
+    decorators: Sequence[str],
+) -> None:
+    if not decorators:
+        return
+    existing = {node.qualified_name for node in result.nodes if node.node_type == "decorator"}
+    for decorator in decorators:
+        decorator_id = decorator_qname(module_name, decorator)
+        if decorator_id not in existing:
+            existing.add(decorator_id)
+            result.nodes.append(
+                SemanticNodeRecord(
+                    language=language,
+                    node_type="decorator",
+                    qualified_name=decorator_id,
+                    display_name=decorator,
+                    file_path=snapshot.record.relative_path,
+                    start_line=1,
+                    end_line=1,
+                    start_byte=0,
+                    end_byte=0,
+                )
+            )
+        result.edges.append(
+            EdgeRecord(
+                src_language=language,
+                src_node_type=owner_type,
+                src_qualified_name=owner_qname,
+                dst_language=language,
+                dst_node_type="decorator",
+                dst_qualified_name=decorator_id,
+                edge_type="DECORATED_BY",
+            )
+        )
+
+
 __all__ = [
+    "decorator_qname",
+    "emit_decorator_edges",
     "PendingCall",
     "assert_scope_resolver_parity",
     "collect_targets_by_callable",

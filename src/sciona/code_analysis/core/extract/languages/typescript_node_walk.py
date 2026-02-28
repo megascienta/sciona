@@ -4,10 +4,10 @@
 """Walker implementation for TypeScript node extraction."""
 
 from __future__ import annotations
-import re
 
 from ...normalize.model import EdgeRecord, FileSnapshot, SemanticNodeRecord
 from ..utils import find_direct_children_query
+from .analyzer_support import emit_decorator_edges
 from .typescript_node_state import TypeScriptNodeState
 from .typescript_node_text import (
     function_body_node,
@@ -58,54 +58,6 @@ def _typescript_bases(node, content: bytes) -> list[str]:
         if value:
             bases.append(value)
     return bases
-
-
-def _decorator_qname(module_name: str, decorator_text: str) -> str:
-    token = re.sub(r"[^A-Za-z0-9_]+", "_", decorator_text).strip("_") or "decorator"
-    return f"{module_name}.__decorator__.{token}"
-
-
-def _emit_decorator_edges(
-    *,
-    language: str,
-    snapshot: FileSnapshot,
-    module_name: str,
-    result,
-    owner_qname: str,
-    owner_type: str,
-    decorators: list[str],
-) -> None:
-    if not decorators:
-        return
-    existing = {node.qualified_name for node in result.nodes if node.node_type == "decorator"}
-    for decorator in decorators:
-        decorator_qname = _decorator_qname(module_name, decorator)
-        if decorator_qname not in existing:
-            existing.add(decorator_qname)
-            result.nodes.append(
-                SemanticNodeRecord(
-                    language=language,
-                    node_type="decorator",
-                    qualified_name=decorator_qname,
-                    display_name=decorator,
-                    file_path=snapshot.record.relative_path,
-                    start_line=1,
-                    end_line=1,
-                    start_byte=0,
-                    end_byte=0,
-                )
-            )
-        result.edges.append(
-            EdgeRecord(
-                src_language=language,
-                src_node_type=owner_type,
-                src_qualified_name=owner_qname,
-                dst_language=language,
-                dst_node_type="decorator",
-                dst_qualified_name=decorator_qname,
-                edge_type="DECORATED_BY",
-            )
-        )
 
 
 def walk_typescript_nodes(
@@ -160,7 +112,7 @@ def walk_typescript_nodes(
                 },
             )
         )
-        _emit_decorator_edges(
+        emit_decorator_edges(
             language=language,
             snapshot=snapshot,
             module_name=module_name,
@@ -265,7 +217,7 @@ def walk_typescript_nodes(
                 ),
             )
         )
-        _emit_decorator_edges(
+        emit_decorator_edges(
             language=language,
             snapshot=snapshot,
             module_name=module_name,

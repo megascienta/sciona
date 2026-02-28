@@ -49,6 +49,9 @@ class CallResolutionOutcome:
 ALLOWED_MATERIALIZATION_PROVENANCE = frozenset(
     {"exact_qname", "module_scoped", "import_narrowed"}
 )
+# Adapters may emit provisional provenance labels (for example
+# "ambiguous_candidate") for diagnostics; these are intentionally not in the
+# materialization allow-list and are dropped by materialize_outcomes.
 PROVENANCE_TERMINAL_FALLBACK = "terminal_fallback"
 
 
