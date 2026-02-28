@@ -12,7 +12,8 @@ TYPESCRIPT_IMPORT_EXPORT_NODE_TYPES = (
     "export_statement",
 )
 TYPESCRIPT_REQUIRE_DECLARATION_NODE_TYPES = ("lexical_declaration",)
-TYPESCRIPT_STRING_NODE_TYPES = ("string",)
+TYPESCRIPT_DYNAMIC_IMPORT_NODE_TYPES = ("call_expression",)
+TYPESCRIPT_STRING_NODE_TYPES = ("string", "template_string")
 JAVA_PACKAGE_NODE_TYPES = ("package_declaration",)
 JAVA_IMPORT_NODE_TYPES = ("import_declaration",)
 

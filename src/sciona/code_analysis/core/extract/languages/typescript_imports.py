@@ -14,6 +14,7 @@ from ...normalize.model import FileSnapshot
 from ..query_helpers import find_nodes_of_types_query
 from .import_model import NormalizedImportModel
 from .query_surface import (
+    TYPESCRIPT_DYNAMIC_IMPORT_NODE_TYPES,
     TYPESCRIPT_IMPORT_EXPORT_NODE_TYPES,
     TYPESCRIPT_REQUIRE_DECLARATION_NODE_TYPES,
     TYPESCRIPT_STRING_NODE_TYPES,
@@ -101,6 +102,26 @@ def collect_typescript_import_model(
                 continue
         model.modules.append(normalized)
         model.import_aliases[alias] = normalized
+    for node in find_nodes_of_types_query(
+        root,
+        language_name="typescript",
+        node_types=TYPESCRIPT_DYNAMIC_IMPORT_NODE_TYPES,
+    ):
+        module_spec = extract_dynamic_import_spec_from_call(node, snapshot.content)
+        if not module_spec:
+            continue
+        model.imports_seen += 1
+        normalized = normalize_import(module_spec, snapshot)
+        if not normalized or not is_internal_module(normalized, module_index):
+            if module_index is not None and module_spec.strip().startswith("."):
+                alt = normalize_relative_index(module_spec, snapshot)
+                if alt and is_internal_module(alt, module_index):
+                    normalized = alt
+                else:
+                    continue
+            else:
+                continue
+        model.modules.append(normalized)
     return model
 
 
@@ -123,10 +144,37 @@ def extract_module_spec_from_node(node, content: bytes) -> Optional[str]:
     return None
 
 
+def extract_dynamic_import_spec_from_call(node, content: bytes) -> Optional[str]:
+    function_node = node.child_by_field_name("function")
+    if function_node is None:
+        return None
+    callee = content[function_node.start_byte : function_node.end_byte].decode("utf-8").strip()
+    if callee != "import":
+        return None
+    args_node = node.child_by_field_name("arguments")
+    if args_node is None:
+        return None
+    first_literal = next(
+        (
+            child
+            for child in getattr(args_node, "children", [])
+            if child.type in TYPESCRIPT_STRING_NODE_TYPES
+        ),
+        None,
+    )
+    if first_literal is None:
+        return None
+    return decode_string_literal(first_literal, content)
+
+
 def decode_string_literal(node, content: bytes) -> Optional[str]:
     text = content[node.start_byte : node.end_byte].decode("utf-8").strip()
     if not text:
         return None
+    if node.type == "template_string":
+        if "${" in text:
+            return None
+        return text.strip("`")
     return text.strip("'\"")
 
 
