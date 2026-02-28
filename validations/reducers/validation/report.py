@@ -40,6 +40,18 @@ def render_summary(payload: dict) -> List[str]:
     lines: List[str] = []
     lines.append("# SCIONA Reducer Validation Report")
     lines.append("")
+    sampling = payload.get("sampling") or {}
+    if sampling:
+        lines.append("## Sampling")
+        lines.append("")
+        lines.append(f"- seed: `{sampling.get('seed')}`")
+        lines.append(f"- requested_nodes: `{sampling.get('requested_nodes')}`")
+        lines.append(f"- sampled_nodes: `{sampling.get('sampled_nodes')}`")
+        lines.append(f"- population_by_language: `{sampling.get('population_by_language')}`")
+        lines.append(f"- population_by_kind: `{sampling.get('population_by_kind')}`")
+        lines.append(f"- sampled_by_language: `{sampling.get('sampled_by_language')}`")
+        lines.append(f"- sampled_by_kind: `{sampling.get('sampled_by_kind')}`")
+        lines.append("")
     questions = payload.get("questions") or {}
 
     q1 = questions.get("q1") or {}

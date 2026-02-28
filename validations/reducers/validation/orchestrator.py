@@ -203,6 +203,7 @@ def _build_report_payload(
     repo_root: Path,
     rows: list[dict],
     out_of_contract_meta: list[dict],
+    sampling_metadata: dict | None = None,
 ) -> dict:
     scored_rows_q2 = [
         row
@@ -509,7 +510,7 @@ def _build_report_payload(
     mismatch_candidates.sort(key=lambda item: (-item[0], -item[1], -item[2], item[3]))
     top_mismatch_signatures = [item[4] for item in mismatch_candidates[:20]]
 
-    return {
+    payload = {
         "report_schema_version": REPORT_SCHEMA_VERSION,
         "summary": summary,
         "invariants": invariants,
@@ -598,6 +599,9 @@ def _build_report_payload(
             },
         },
     }
+    if sampling_metadata:
+        payload["sampling"] = sampling_metadata
+    return payload
 
 
 def run_validation(
@@ -608,6 +612,7 @@ def run_validation(
 ) -> int:
     repo_root = repo_root.resolve()
     reports = config.report_paths(repo_root)
+    sampling_metadata: dict | None = None
 
     with open_core_db(repo_root) as conn:
         snapshot_id = get_snapshot_id(conn)
@@ -699,11 +704,29 @@ def run_validation(
                 db_source,
                 validation_progress,
             )
+            sampled_by_language: dict[str, int] = {}
+            sampled_by_kind: dict[str, int] = {}
+            for entity in sampled:
+                sampled_by_language[entity.language] = (
+                    int(sampled_by_language.get(entity.language, 0)) + 1
+                )
+                sampled_by_kind[entity.kind] = int(sampled_by_kind.get(entity.kind, 0)) + 1
+            sampling_metadata = {
+                "seed": int(seed),
+                "requested_nodes": int(nodes),
+                "sampled_nodes": len(sampled),
+                "population_by_language": dict(sorted((sampling.population_by_language or {}).items())),
+                "population_by_kind": dict(sorted((sampling.population_by_kind or {}).items())),
+                "sampled_by_language": dict(sorted(sampled_by_language.items())),
+                "sampled_by_kind": dict(sorted(sampled_by_kind.items())),
+                "strata_counts": dict(sorted((sampling.strata_counts or {}).items())),
+            }
 
     payload = _build_report_payload(
         repo_root=repo_root,
         rows=rows,
         out_of_contract_meta=out_of_contract_meta,
+        sampling_metadata=sampling_metadata,
     )
 
     write_json(reports.json_path, payload)

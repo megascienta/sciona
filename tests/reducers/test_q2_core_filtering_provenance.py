@@ -362,3 +362,23 @@ def test_q2_reports_class_truth_reliability_breakdown(tmp_path: Path) -> None:
     assert q2["class_truth_unreliable_count"] == 1
     assert q2["class_truth_unreliable_scored_excluded_count"] == 1
     assert q2["class_match_strategy_breakdown"] == {"ambiguous": 1, "exact_qname": 1}
+
+
+def test_report_payload_includes_sampling_metadata(tmp_path: Path) -> None:
+    payload = _build_report_payload(
+        repo_root=tmp_path,
+        rows=[],
+        out_of_contract_meta=[],
+        sampling_metadata={
+            "seed": 7,
+            "requested_nodes": 10,
+            "sampled_nodes": 8,
+            "population_by_language": {"python": 20},
+            "population_by_kind": {"function": 20},
+            "sampled_by_language": {"python": 8},
+            "sampled_by_kind": {"function": 8},
+            "strata_counts": {"python/function/small/sparse/top": 8},
+        },
+    )
+    assert payload["sampling"]["seed"] == 7
+    assert payload["sampling"]["sampled_nodes"] == 8
