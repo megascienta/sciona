@@ -27,6 +27,27 @@ def test_bootstrap_tree_sitter_parser_returns_diagnostics() -> None:
     assert diagnostics["language_name"] == "python"
     assert diagnostics["binding_api"] in {"set_language", "language_attr"}
     assert diagnostics["query_api_available"] is True
+    assert diagnostics["parser_class"] == "Parser"
+    assert diagnostics["language_class"]
+    assert diagnostics["language_module"]
+
+
+def test_bootstrap_diagnostics_are_stable_across_calls() -> None:
+    _p1, _l1, d1 = bootstrap_tree_sitter_parser("python")
+    _p2, _l2, d2 = bootstrap_tree_sitter_parser("python")
+    stable_keys = {
+        "language_name",
+        "binding_api",
+        "query_api_available",
+        "parser_class",
+        "language_class",
+        "language_module",
+        "language_version",
+        "language_abi_version",
+    }
+    assert {key: d1.get(key) for key in stable_keys} == {
+        key: d2.get(key) for key in stable_keys
+    }
 
 
 def test_count_lines_counts_non_empty() -> None:

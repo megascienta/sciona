@@ -43,14 +43,7 @@ def get_analyzer_for_path(
     analyzers: Dict[str, ASTAnalyzer],
 ) -> Optional[ASTAnalyzer]:
     extension = path.suffix.lower()
-    language = _language_for_extension(extension)
+    language = language_for_extension(extension, analyzers.keys())
     if not language:
         return None
     return analyzers.get(language)
-
-
-def _language_for_extension(extension: str) -> Optional[str]:
-    for language, config in LANGUAGE_CONFIG.items():
-        if extension in config.extensions:
-            return language
-    return None

@@ -12,6 +12,7 @@ from ...runtime import config as runtime_config
 from ...runtime import git as git_ops
 from ...runtime.errors import IngestionError
 from ...runtime.logging import get_logger
+from ...data_storage.sql_utils import validate_sql_identifier
 from .routing import resolve_analyzer, select_analyzers, should_register_module
 from .module_naming import module_name_from_path
 from ..tools import snapshots, walker
@@ -72,7 +73,7 @@ class BuildEngine:
     def run(self, snapshot: Snapshot) -> Tuple[int, int]:
         if not self.conn.in_transaction:
             raise IngestionError("BuildEngine requires an active transaction.")
-        savepoint = "ingest_build"
+        savepoint = validate_sql_identifier("ingest_build", kind="savepoint")
         self.conn.execute(f"SAVEPOINT {savepoint}")
         try:
             tracked = git_ops.tracked_paths(self.workspace_root)

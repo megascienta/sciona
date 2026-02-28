@@ -6,10 +6,12 @@
 from __future__ import annotations
 
 from contextlib import contextmanager
+import re
 from typing import Iterator, Sequence
 from uuid import uuid4
 
 SQLITE_MAX_VARS = 900
+_SQL_IDENTIFIER_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 
 def chunked(values: Sequence[str], size: int) -> Iterator[Sequence[str]]:
@@ -17,6 +19,12 @@ def chunked(values: Sequence[str], size: int) -> Iterator[Sequence[str]]:
         raise ValueError("chunk size must be >= 1")
     for idx in range(0, len(values), size):
         yield values[idx : idx + size]
+
+
+def validate_sql_identifier(name: str, *, kind: str = "identifier") -> str:
+    if not _SQL_IDENTIFIER_RE.fullmatch(name):
+        raise ValueError(f"Invalid SQL {kind}: {name!r}")
+    return name
 
 
 @contextmanager

@@ -30,4 +30,5 @@ def test_language_for_extension_respects_enabled_languages() -> None:
 def test_get_analyzer_for_path_resolves_by_extension() -> None:
     analyzers = {"python": object()}
     assert get_analyzer_for_path(Path("script.py"), analyzers) is analyzers["python"]
+    assert get_analyzer_for_path(Path("script.java"), analyzers) is None
     assert get_analyzer_for_path(Path("script.unknown"), analyzers) is None

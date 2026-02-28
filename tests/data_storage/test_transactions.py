@@ -6,6 +6,7 @@ import sqlite3
 import pytest
 
 from sciona.data_storage.transactions import transaction
+from sciona.data_storage.sql_utils import validate_sql_identifier
 
 
 def test_transaction_rolls_back_on_exception(tmp_path) -> None:
@@ -20,3 +21,8 @@ def test_transaction_rolls_back_on_exception(tmp_path) -> None:
     row = conn.execute("SELECT id FROM items").fetchone()
     assert row is None
     conn.close()
+
+
+def test_validate_sql_identifier_rejects_unsafe_savepoint() -> None:
+    with pytest.raises(ValueError):
+        validate_sql_identifier("bad;DROP", kind="savepoint")

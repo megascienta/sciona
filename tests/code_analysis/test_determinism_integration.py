@@ -123,3 +123,12 @@ class Controller {
             _fingerprint(analyzer.analyze(snapshot, module_name)) for _ in range(5)
         )
         assert all(fp == fingerprints[0] for fp in fingerprints[1:])
+
+
+def test_analyzer_bootstrap_diagnostics_are_deterministic() -> None:
+    analyzers = [PythonAnalyzer(), TypeScriptAnalyzer(), JavaAnalyzer()]
+    for analyzer in analyzers:
+        diagnostics = getattr(analyzer, "_parser_bootstrap_diagnostics", {})
+        assert diagnostics.get("language_name") == analyzer.language
+        assert diagnostics.get("query_api_available") is True
+        assert diagnostics.get("binding_api") in {"set_language", "language_attr"}

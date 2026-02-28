@@ -180,6 +180,7 @@ def walk_python_nodes(
             qualified = f"{module_name}.{func_name}"
             edge_type = "CONTAINS"
             state.module_functions.add(func_name)
+        is_async = _is_async_callable(node, snapshot.content)
         result.nodes.append(
             SemanticNodeRecord(
                 language=language,
@@ -191,17 +192,7 @@ def walk_python_nodes(
                 end_line=node.end_point[0] + 1,
                 start_byte=node.start_byte,
                 end_byte=node.end_byte,
-                metadata=(
-                    {
-                        "kind": (
-                            "async_function"
-                            if _is_async_callable(node, snapshot.content)
-                            else "function"
-                        ),
-                    }
-                    if _is_async_callable(node, snapshot.content)
-                    else None
-                ),
+                metadata={"kind": "async_function"} if is_async else None,
             )
         )
         result.edges.append(
@@ -224,6 +215,20 @@ def walk_python_nodes(
                 state.class_stack[-1] if state.class_stack else None,
             )
         )
+        return
+
+    if node.type in {"assignment", "augmented_assignment"}:
+        # Assignment nodes are query-surface carriers; recurse explicitly into
+        # structural children only and do not emit assignment as a structural node.
+        for child in _python_structural_children(node):
+            walk_python_nodes(
+                child,
+                language=language,
+                snapshot=snapshot,
+                module_name=module_name,
+                result=result,
+                state=state,
+            )
         return
 
     for child in _python_structural_children(node):

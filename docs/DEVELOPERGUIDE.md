@@ -91,6 +91,8 @@ Parsing and extraction:
 
 - Tree-sitter parser per language.
 - Query API for node capture and field-driven extraction.
+- Query compilation caches are keyed by language + grammar signature metadata
+  (`version` / `abi_version` when available) + query source.
 - No DFS fallback traversal for structural extraction.
 
 Calls:

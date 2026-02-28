@@ -60,10 +60,24 @@ def _compile_type_query(
 
 @lru_cache(maxsize=64)
 def _compile_query_source(language_name: str, source: str):
+    signature = _language_signature(language_name)
+    return _compile_query_source_cached(language_name, signature, source)
+
+
+@lru_cache(maxsize=64)
+def _compile_query_source_cached(language_name: str, signature: str, source: str):
+    del signature
     language = get_language(language_name)
     if hasattr(language, "query"):
         return language.query(source)
     raise RuntimeError(f"Tree-sitter query API unavailable for language: {language_name}")
+
+
+def _language_signature(language_name: str) -> str:
+    language = get_language(language_name)
+    version = getattr(language, "version", None)
+    abi_version = getattr(language, "abi_version", None)
+    return f"{type(language).__name__}:{version}:{abi_version}"
 
 
 def find_direct_children_query(node, *, language_name: str) -> list[object]:

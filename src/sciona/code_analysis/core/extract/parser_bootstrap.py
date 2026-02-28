@@ -23,6 +23,11 @@ def bootstrap_tree_sitter_parser(language_name: str) -> tuple[Parser, object, di
         "language_name": language_name,
         "binding_api": binding_api,
         "query_api_available": hasattr(language, "query"),
+        "parser_class": type(parser).__name__,
+        "language_class": type(language).__name__,
+        "language_module": type(language).__module__,
+        "language_version": getattr(language, "version", None),
+        "language_abi_version": getattr(language, "abi_version", None),
     }
     return parser, language, diagnostics
 

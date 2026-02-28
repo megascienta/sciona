@@ -11,9 +11,11 @@ from uuid import uuid4
 
 import sqlite3
 
+from .sql_utils import validate_sql_identifier
+
 
 def _savepoint_name(prefix: str) -> str:
-    return f"{prefix}_{uuid4().hex}"
+    return validate_sql_identifier(f"{prefix}_{uuid4().hex}", kind="savepoint")
 
 
 @contextmanager
