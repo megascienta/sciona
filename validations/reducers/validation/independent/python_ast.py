@@ -30,6 +30,29 @@ class _CallVisitor(ast.NodeVisitor):
             return "module"
         return self._scope_stack[-1][1]
 
+    def _record_parameter_hints(self, args: ast.arguments) -> None:
+        if self._current_scope_kind() not in {"function", "method"}:
+            return
+        parameters: list[ast.arg] = []
+        parameters.extend(list(args.posonlyargs))
+        parameters.extend(list(args.args))
+        parameters.extend(list(args.kwonlyargs))
+        if args.vararg is not None:
+            parameters.append(args.vararg)
+        if args.kwarg is not None:
+            parameters.append(args.kwarg)
+        for parameter in parameters:
+            hint = _annotation_name(parameter.annotation)
+            if not hint:
+                continue
+            self.assignment_hints.append(
+                AssignmentHint(
+                    scope=self._current_scope(),
+                    receiver=parameter.arg,
+                    value_text=hint,
+                )
+            )
+
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
         scope_kind = self._current_scope_kind()
         if scope_kind in {"function", "method"}:
@@ -45,6 +68,7 @@ class _CallVisitor(ast.NodeVisitor):
             qname = f"{self.module_qname}.{node.name}"
         self.defs.append(Definition(kind, qname, node.lineno, node.end_lineno or node.lineno))
         self._scope_stack.append((qname, kind))
+        self._record_parameter_hints(node.args)
         for statement in node.body:
             self.visit(statement)
         self._scope_stack.pop()
@@ -62,6 +86,7 @@ class _CallVisitor(ast.NodeVisitor):
             qname = f"{self.module_qname}.{node.name}"
         self.defs.append(Definition(kind, qname, node.lineno, node.end_lineno or node.lineno))
         self._scope_stack.append((qname, kind))
+        self._record_parameter_hints(node.args)
         for statement in node.body:
             self.visit(statement)
         self._scope_stack.pop()
@@ -133,6 +158,8 @@ class _CallVisitor(ast.NodeVisitor):
 
     def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
         value_text = self._assignment_value_text(node.value) if node.value else None
+        if not value_text:
+            value_text = _annotation_name(node.annotation)
         if value_text and self._current_scope_kind() in {"function", "method"}:
             self._record_assignment_target(node.target, value_text)
         self.generic_visit(node)
@@ -203,6 +230,35 @@ def _expr_name(node: ast.AST) -> str | None:
         if root:
             return f"{root}.{node.attr}"
         return node.attr
+    return None
+
+
+def _annotation_name(node: ast.AST | None) -> str | None:
+    if node is None:
+        return None
+    if isinstance(node, ast.Name):
+        return node.id
+    if isinstance(node, ast.Attribute):
+        return _expr_name(node)
+    if isinstance(node, ast.Constant) and isinstance(node.value, str):
+        value = node.value.strip()
+        return value or None
+    if isinstance(node, ast.Subscript):
+        wrapper = _annotation_name(node.value)
+        if wrapper in {"Annotated", "Optional", "Required", "NotRequired"}:
+            target = node.slice
+            if isinstance(target, ast.Tuple) and target.elts:
+                return _annotation_name(target.elts[0])
+            return _annotation_name(target)
+        return wrapper
+    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.BitOr):
+        left = _annotation_name(node.left)
+        right = _annotation_name(node.right)
+        if left and not right:
+            return left
+        if right and not left:
+            return right
+        return None
     return None
 
 

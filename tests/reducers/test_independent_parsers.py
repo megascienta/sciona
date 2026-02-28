@@ -1252,6 +1252,18 @@ def test_python_parser_collects_assignment_hints() -> None:
     assert ("fixture.sample.entry", "svc", "Service") in hints
 
 
+def test_python_parser_collects_parameter_annotation_hints() -> None:
+    tree = ast.parse(
+        "from fixture.websocket import WebSocket\n"
+        "def endpoint(websocket: WebSocket):\n"
+        "    websocket.accept()\n"
+    )
+    visitor = _CallVisitor("fixture.sample")
+    visitor.visit(tree)
+    hints = {(h.scope, h.receiver, h.value_text) for h in visitor.assignment_hints}
+    assert ("fixture.sample.endpoint", "websocket", "WebSocket") in hints
+
+
 @pytest.mark.skipif(shutil.which("node") is None, reason="node is required")
 def test_typescript_parser_collects_assignment_hints(tmp_path: Path) -> None:
     source = tmp_path / "sample.ts"
@@ -1494,6 +1506,58 @@ def test_call_resolution_propagates_constructor_bindings_to_methods() -> None:
     bindings = resolution["receiver_bindings"].get("fixture.sample.Controller.handle", {})
     assert "service" in bindings
     assert "fixture.sample.Service" in bindings["service"]
+
+
+def test_call_resolution_uses_python_parameter_annotations(tmp_path: Path) -> None:
+    websocket_src = tmp_path / "websocket.py"
+    websocket_src.write_text(
+        "class WebSocket:\n"
+        "    def accept(self):\n"
+        "        return None\n",
+        encoding="utf-8",
+    )
+    sample_src = tmp_path / "sample.py"
+    sample_src.write_text(
+        "from fixture.websocket import WebSocket\n"
+        "def endpoint(websocket: WebSocket):\n"
+        "    return websocket.accept()\n",
+        encoding="utf-8",
+    )
+    parsed = parse_python_files(
+        tmp_path,
+        [
+            {"file_path": "websocket.py", "module_qualified_name": "fixture.websocket"},
+            {"file_path": "sample.py", "module_qualified_name": "fixture.sample"},
+        ],
+    )
+    results = {entry.file_path: entry for entry in parsed}
+    normalized_map = {
+        path: normalize_file_edges(result.module_qualified_name, result.call_edges, result.import_edges)
+        for path, result in results.items()
+    }
+    resolution = build_independent_call_resolution(
+        independent_results=results,
+        normalized_edge_map=normalized_map,
+        module_names={"fixture.websocket", "fixture.sample"},
+        repo_root=tmp_path,
+        repo_prefix="fixture",
+        local_packages={"fixture"},
+    )
+    sample_result = results["sample.py"]
+    normalized_calls, _imports = normalized_map["sample.py"]
+    edge = next(call for call in normalized_calls if call.caller == "fixture.sample.endpoint")
+    resolved = resolve_call_in_contract(
+        edge=EdgeRecord(
+            caller=edge.caller,
+            callee=edge.callee,
+            callee_qname=edge.callee_qname,
+            provenance="syntax_raw",
+        ),
+        caller_qname="fixture.sample.endpoint",
+        caller_module=sample_result.module_qualified_name,
+        call_resolution=resolution,
+    )
+    assert resolved == "fixture.websocket.WebSocket.accept"
 
 
 def test_call_resolution_does_not_propagate_ambiguous_constructor_bindings() -> None:

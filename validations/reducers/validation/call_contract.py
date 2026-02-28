@@ -139,11 +139,24 @@ def build_contract_call_candidates(
     if raw_qname and raw_qname not in module_lookup and "." in raw_qname:
         qualifier = _qualifier_from_text(edge)
         if qualifier and qualifier.split(".", 1)[0] not in {"self", "cls", "this", "super"}:
-            return ContractCallCandidates(
-                identifier=identifier,
-                direct_candidates=[],
-                fallback_candidates=[],
+            qualifier_leaf = qualifier.split(".")[-1]
+            scope_bindings = receiver_bindings.get(caller_qname, {})
+            has_receiver_binding = bool(scope_bindings.get(qualifier_leaf))
+            has_receiver_import_hint = bool(
+                (import_symbol_hints.get(caller_module, {}).get(qualifier_leaf))
+                or (namespace_aliases.get(caller_module, {}).get(qualifier_leaf))
+                or (class_name_index.get(qualifier_leaf))
             )
+            if has_receiver_binding or has_receiver_import_hint:
+                # Keep resolution path open for typed receiver/member calls
+                # (for example: websocket.accept()).
+                pass
+            else:
+                return ContractCallCandidates(
+                    identifier=identifier,
+                    direct_candidates=[],
+                    fallback_candidates=[],
+                )
 
     direct_candidates: list[str] = []
     if edge.callee_qname and edge.callee_qname in module_lookup:

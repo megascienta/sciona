@@ -9753,8 +9753,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 6,
-          "1": 1,
+          "0": 4,
+          "1": 3,
           "3": 1
         }
       },
@@ -9969,8 +9969,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 5,
-          "1": 1
+          "0": 4,
+          "1": 2
         }
       },
       "q2_node_rates": {
@@ -10183,8 +10183,10 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 6,
-          "4": 1
+          "0": 4,
+          "4": 1,
+          "36": 1,
+          "12": 1
         }
       },
       "q2_node_rates": {
@@ -10263,8 +10265,9 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 2,
-          "1": 1
+          "0": 1,
+          "1": 1,
+          "2": 1
         }
       },
       "q2_node_rates": null,
@@ -10437,8 +10440,9 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "2": 1,
-          "0": 3,
-          "3": 1
+          "1": 2,
+          "3": 1,
+          "0": 1
         }
       },
       "q2_node_rates": {
@@ -10685,8 +10689,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 6,
-          "1": 1
+          "0": 3,
+          "1": 4
         }
       },
       "q2_node_rates": {
@@ -10910,8 +10914,10 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 6,
-          "4": 1
+          "0": 4,
+          "4": 1,
+          "36": 1,
+          "12": 1
         }
       },
       "q2_node_rates": {
@@ -11088,9 +11094,9 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "1": 2,
+          "1": 4,
           "2": 2,
-          "0": 4
+          "0": 2
         }
       },
       "q2_node_rates": {
@@ -12065,7 +12071,8 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "1": 3,
-          "0": 3
+          "2": 1,
+          "0": 2
         }
       },
       "q2_node_rates": {
@@ -12357,8 +12364,9 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 4,
-          "1": 1
+          "0": 3,
+          "1": 1,
+          "2": 1
         }
       },
       "q2_node_rates": {
@@ -12563,10 +12571,10 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "1": 2,
+          "1": 3,
           "3": 1,
           "40": 1,
-          "0": 2,
+          "0": 1,
           "2": 1
         }
       },
@@ -12662,8 +12670,10 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 6,
-          "4": 1
+          "0": 3,
+          "4": 1,
+          "1": 2,
+          "12": 1
         }
       },
       "q2_node_rates": {
@@ -12873,8 +12883,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 4,
-          "1": 1
+          "0": 3,
+          "1": 2
         }
       },
       "q2_node_rates": {
@@ -13112,8 +13122,9 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 4,
-          "1": 1
+          "0": 3,
+          "1": 1,
+          "2": 1
         }
       },
       "q2_node_rates": {
@@ -13184,7 +13195,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 1
+          "12": 1
         }
       },
       "q2_node_rates": null,
@@ -13283,8 +13294,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 6,
-          "1": 3,
+          "0": 5,
+          "1": 4,
           "36": 1,
           "4": 2
         }
@@ -13901,7 +13912,8 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "1": 1,
-          "0": 5,
+          "0": 4,
+          "36": 1,
           "3": 1
         }
       },
@@ -14001,7 +14013,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 7,
+          "0": 2,
+          "1": 5,
           "2": 1
         }
       },
@@ -14212,7 +14225,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 1
+          "12": 1
         }
       },
       "q2_node_rates": null,
@@ -14287,8 +14300,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 4,
-          "1": 1
+          "0": 3,
+          "1": 2
         }
       },
       "q2_node_rates": {
@@ -14441,8 +14454,9 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 4,
-          "2": 1
+          "0": 3,
+          "2": 1,
+          "3": 1
         }
       },
       "q2_node_rates": {
@@ -14623,8 +14637,10 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 16,
-          "2": 1
+          "0": 8,
+          "1": 7,
+          "2": 1,
+          "4": 1
         }
       },
       "q2_node_rates": {
@@ -14989,8 +15005,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 2,
-          "1": 1
+          "0": 1,
+          "1": 2
         }
       },
       "q2_node_rates": {
@@ -15069,7 +15085,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 3
+          "0": 2,
+          "1": 1
         }
       },
       "q2_node_rates": null,
@@ -15580,9 +15597,10 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 7,
+          "0": 6,
           "1": 2,
-          "6": 1
+          "6": 1,
+          "7": 1
         }
       },
       "q2_node_rates": {
@@ -15747,8 +15765,9 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "1": 4,
-          "0": 5
+          "1": 5,
+          "0": 3,
+          "36": 1
         }
       },
       "q2_node_rates": null,
@@ -16411,7 +16430,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 2
+          "0": 1,
+          "1": 1
         }
       },
       "q2_node_rates": null,
@@ -16791,9 +16811,10 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 4,
+          "0": 3,
           "1": 1,
-          "6": 1
+          "6": 1,
+          "7": 1
         }
       },
       "q2_node_rates": null,
@@ -16874,8 +16895,9 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 4,
-          "2": 1
+          "0": 3,
+          "2": 1,
+          "3": 1
         }
       },
       "q2_node_rates": {
@@ -16946,7 +16968,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 1
+          "1": 1
         }
       },
       "q2_node_rates": null,
@@ -17115,7 +17137,8 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "1": 2,
-          "0": 7
+          "0": 6,
+          "36": 1
         }
       },
       "q2_node_rates": null,
@@ -17427,7 +17450,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 1
+          "12": 1
         }
       },
       "q2_node_rates": null,
@@ -22232,8 +22255,8 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "4": 1,
-          "0": 5,
-          "1": 2
+          "0": 3,
+          "1": 4
         }
       },
       "q2_node_rates": {
@@ -22374,11 +22397,12 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "1": 2,
-          "0": 43,
+          "1": 3,
+          "0": 40,
           "54": 5,
           "4": 5,
-          "3": 4,
+          "3": 5,
+          "8": 1,
           "35": 2
         }
       },
@@ -22968,8 +22992,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "1": 3,
-          "0": 6,
+          "1": 4,
+          "0": 5,
           "3": 1,
           "5": 1
         }
@@ -23066,9 +23090,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "1": 2,
+          "1": 3,
           "2": 1,
-          "0": 1,
           "3": 1
         }
       },
@@ -23190,7 +23213,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 17,
+          "0": 16,
+          "1": 1,
           "3": 2,
           "54": 3,
           "4": 1,
@@ -23327,8 +23351,12 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 24,
-          "54": 2
+          "121": 1,
+          "54": 2,
+          "0": 18,
+          "4": 2,
+          "1": 2,
+          "127": 1
         }
       },
       "q2_node_rates": {
@@ -23499,8 +23527,9 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "1": 2,
-          "0": 16,
+          "1": 3,
+          "0": 14,
+          "4": 1,
           "6": 1,
           "3": 1
         }
@@ -23625,8 +23654,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 9,
-          "1": 3,
+          "0": 8,
+          "1": 4,
           "2": 2,
           "121": 2,
           "3": 1
@@ -23889,9 +23918,9 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 39,
+          "0": 38,
           "4": 3,
-          "1": 5,
+          "1": 6,
           "3": 4,
           "2": 2,
           "54": 1
@@ -23995,8 +24024,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 4,
-          "1": 3
+          "1": 4,
+          "0": 3
         }
       },
       "q2_node_rates": {
@@ -24153,7 +24182,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 6
+          "3": 1,
+          "0": 5
         }
       },
       "q2_node_rates": null,
@@ -24245,7 +24275,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 7
+          "0": 5,
+          "1": 2
         }
       },
       "q2_node_rates": {
@@ -24342,8 +24373,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "1": 1,
-          "0": 7,
+          "1": 3,
+          "0": 5,
           "6": 1
         }
       },
@@ -24578,7 +24609,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 1
+          "1": 1
         }
       },
       "q2_node_rates": null,
@@ -24883,9 +24914,10 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 13,
+          "0": 12,
           "1": 1,
           "3": 1,
+          "18": 1,
           "6": 2,
           "14": 1
         }
@@ -24972,8 +25004,9 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 5,
-          "3": 1
+          "0": 2,
+          "3": 3,
+          "7": 1
         }
       },
       "q2_node_rates": {
@@ -25187,7 +25220,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 1,
+          "1": 1,
           "3": 1
         }
       },
@@ -25435,7 +25468,8 @@
           "54": 1,
           "2": 1,
           "3": 1,
-          "0": 10,
+          "0": 9,
+          "1": 1,
           "10": 1
         }
       },
@@ -25557,8 +25591,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "1": 4,
-          "0": 10,
+          "1": 7,
+          "0": 7,
           "33": 1
         }
       },
@@ -25662,9 +25696,9 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 10,
+          "0": 9,
           "54": 1,
-          "1": 3,
+          "1": 4,
           "14": 1
         }
       },
@@ -25758,8 +25792,10 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 3,
+          "0": 1,
           "2": 2,
+          "121": 1,
+          "1": 1,
           "3": 1
         }
       },
@@ -25846,8 +25882,8 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "3": 1,
-          "0": 2,
-          "1": 2
+          "1": 3,
+          "0": 1
         }
       },
       "q2_node_rates": {
@@ -26356,8 +26392,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 13,
-          "1": 2,
+          "0": 10,
+          "1": 5,
           "4": 2
         }
       },
@@ -26499,9 +26535,10 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 5,
+          "0": 4,
           "4": 1,
-          "13": 1
+          "13": 1,
+          "1": 1
         }
       },
       "q2_node_rates": {
@@ -26831,8 +26868,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "1": 4,
-          "0": 27,
+          "1": 6,
+          "0": 25,
           "4": 4,
           "3": 2,
           "2": 2,
@@ -26921,9 +26958,10 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 7,
+          "0": 6,
           "4": 1,
-          "13": 1
+          "13": 1,
+          "1": 1
         }
       },
       "q2_node_rates": {
@@ -27210,7 +27248,7 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 1
+          "1": 1
         }
       },
       "q2_node_rates": null,
@@ -27600,7 +27638,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 5
+          "0": 4,
+          "1": 1
         }
       },
       "q2_node_rates": {
@@ -28041,10 +28080,15 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 12,
+          "6": 1,
+          "1": 2,
+          "0": 4,
+          "3": 2,
           "4": 1,
           "7": 1,
-          "3": 1
+          "2": 2,
+          "54": 1,
+          "14": 1
         }
       },
       "q2_node_rates": {
@@ -28411,7 +28455,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 2
+          "0": 1,
+          "1": 1
         }
       },
       "q2_node_rates": {
@@ -28913,7 +28958,8 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
           "1": 1,
-          "0": 4,
+          "0": 3,
+          "36": 1,
           "3": 1
         }
       },
@@ -29548,7 +29594,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 12,
+          "0": 11,
+          "2": 1,
           "1": 4,
           "8": 2
         }
@@ -30433,9 +30480,10 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 8,
+          "0": 6,
           "2": 1,
-          "1": 3,
+          "1": 4,
+          "121": 1,
           "3": 2
         }
       },
@@ -30641,7 +30689,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 3
+          "0": 2,
+          "1": 1
         }
       },
       "q2_node_rates": null,
@@ -31580,8 +31629,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 15,
-          "1": 4,
+          "0": 14,
+          "1": 5,
           "2": 1
         }
       },
@@ -32680,9 +32729,10 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 4,
-          "54": 1,
-          "4": 1
+          "0": 2,
+          "54": 2,
+          "4": 1,
+          "35": 1
         }
       },
       "q2_node_rates": null,
@@ -32911,10 +32961,11 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 12,
+          "0": 9,
           "2": 2,
           "3": 2,
-          "4": 1
+          "4": 1,
+          "1": 3
         }
       },
       "q2_node_rates": {
@@ -33185,8 +33236,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 5,
-          "1": 1
+          "0": 4,
+          "1": 2
         }
       },
       "q2_node_rates": null,
@@ -33944,8 +33995,11 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 9,
-          "2": 1
+          "0": 5,
+          "54": 1,
+          "8": 1,
+          "2": 2,
+          "1": 1
         }
       },
       "q2_node_rates": null,
@@ -34138,7 +34192,8 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 3
+          "0": 2,
+          "1": 1
         }
       },
       "q2_node_rates": null,
@@ -34441,8 +34496,9 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 4,
-          "1": 1
+          "0": 3,
+          "1": 1,
+          "2": 1
         }
       },
       "q2_node_rates": {
@@ -34978,8 +35034,10 @@
         "class_candidate_count": 0,
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {
-          "0": 9,
-          "1": 5
+          "0": 5,
+          "1": 7,
+          "2": 1,
+          "6": 1
         }
       },
       "q2_node_rates": null,
@@ -35430,30 +35488,32 @@
         "qname_exact": 1083
       },
       "strict_contract_candidate_count_histogram": {
-        "0": 1074,
-        "1": 260,
+        "0": 943,
+        "1": 341,
         "10": 3,
         "102": 2,
-        "12": 1,
-        "121": 2,
+        "12": 7,
+        "121": 5,
+        "127": 1,
         "13": 3,
-        "14": 2,
-        "2": 44,
+        "14": 3,
+        "18": 1,
+        "2": 54,
         "27": 1,
         "28": 1,
         "29": 2,
-        "3": 52,
+        "3": 59,
         "32": 2,
         "33": 2,
-        "35": 9,
-        "36": 2,
-        "4": 44,
+        "35": 10,
+        "36": 8,
+        "4": 48,
         "40": 9,
         "5": 3,
-        "54": 58,
-        "6": 14,
-        "7": 5,
-        "8": 10
+        "54": 61,
+        "6": 16,
+        "7": 8,
+        "8": 12
       },
       "class_truth_unreliable_count": 2,
       "class_truth_unreliable_scored_excluded_count": 2,
