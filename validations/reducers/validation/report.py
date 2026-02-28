@@ -100,6 +100,12 @@ def render_summary(payload: dict) -> List[str]:
     lines.append(
         f"- class_match_strategy_breakdown: `{q2.get('class_match_strategy_breakdown')}`"
     )
+    lines.append(
+        f"- match_provenance_breakdown: `{q2.get('match_provenance_breakdown')}`"
+    )
+    lines.append(
+        f"- strict_contract_candidate_count_histogram: `{q2.get('strict_contract_candidate_count_histogram')}`"
+    )
     lines.append(f"- by_language: `{q2.get('by_language')}`")
     lines.append("")
 

@@ -533,6 +533,9 @@ def evaluate_entities(
                     "class_match_strategy": gt_diagnostics.get("class_match_strategy"),
                     "class_candidate_count": int(gt_diagnostics.get("class_candidate_count") or 0),
                     "class_truth_method_count": int(gt_diagnostics.get("class_truth_method_count") or 0),
+                    "strict_contract_candidate_count_histogram": dict(
+                        gt_diagnostics.get("strict_contract_candidate_count_histogram") or {}
+                    ),
                 },
             }
         )

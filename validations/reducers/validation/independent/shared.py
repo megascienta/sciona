@@ -113,16 +113,34 @@ def match_edge(
     expected_callee: str,
     expected_qname: str | None,
 ) -> bool:
+    return (
+        match_edge_provenance(
+            sciona_callee=sciona_callee,
+            sciona_callee_qname=sciona_callee_qname,
+            expected_callee=expected_callee,
+            expected_qname=expected_qname,
+        )
+        is not None
+    )
+
+
+def match_edge_provenance(
+    *,
+    sciona_callee: str | None,
+    sciona_callee_qname: str | None,
+    expected_callee: str,
+    expected_qname: str | None,
+) -> str | None:
     if expected_qname and sciona_callee_qname:
         if sciona_callee_qname == expected_qname:
-            return True
+            return "qname_exact"
     if sciona_callee_qname and expected_qname:
         if sciona_callee_qname.endswith(f".{expected_callee}"):
-            return True
+            return "qname_suffix"
     if sciona_callee and expected_callee:
         if sciona_callee == expected_callee:
-            return True
+            return "name_only"
     if sciona_callee_qname and expected_callee:
         if sciona_callee_qname.endswith(f".{expected_callee}"):
-            return True
-    return False
+            return "name_only"
+    return None

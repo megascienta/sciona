@@ -34,6 +34,7 @@ def test_q2_payload_declares_core_only_filtering_source(tmp_path: Path) -> None:
                     "spillover_count": 0,
                     "coverage": 1.0,
                     "spillover_ratio": 0.0,
+                    "match_provenance_breakdown": {"qname_exact": 1},
                 },
             }
         ],
@@ -48,6 +49,8 @@ def test_q2_payload_declares_core_only_filtering_source(tmp_path: Path) -> None:
     assert payload["questions"]["q2"]["envelope_excluded_count"] == 0
     assert payload["questions"]["q2"]["envelope_total_count"] == 1
     assert payload["questions"]["q2"]["contract_filtered_out_ratio"] == 0.0
+    assert payload["questions"]["q2"]["match_provenance_breakdown"] == {"qname_exact": 1}
+    assert payload["questions"]["q2"]["strict_contract_candidate_count_histogram"] == {}
 
 
 def test_q2_filtering_pipeline_no_validation_contract_override() -> None:
@@ -202,6 +205,7 @@ def test_q2_payload_reports_contract_filtered_out_ratio(tmp_path: Path) -> None:
                     "spillover_count": 0,
                     "coverage": 1.0,
                     "spillover_ratio": 0.0,
+                    "match_provenance_breakdown": {"name_only": 1, "qname_suffix": 2},
                 },
                 "q2_filtering_stats": {
                     "reference_in_contract_count": 3,
@@ -210,6 +214,9 @@ def test_q2_payload_reports_contract_filtered_out_ratio(tmp_path: Path) -> None:
                     "excluded_total_count": 3,
                     "excluded_out_of_scope_by_reason": {"external": 2},
                     "excluded_limitation_by_reason": {"dynamic": 1},
+                },
+                "q2_ground_truth_diagnostics": {
+                    "strict_contract_candidate_count_histogram": {"0": 2, "1": 1}
                 },
             }
         ],
@@ -221,6 +228,8 @@ def test_q2_payload_reports_contract_filtered_out_ratio(tmp_path: Path) -> None:
     assert q2["envelope_total_count"] == 6
     assert q2["contract_filtered_out_ratio"] == 0.5
     assert q2["envelope_excluded_by_reason"] == {"dynamic": 1, "external": 2}
+    assert q2["match_provenance_breakdown"] == {"name_only": 1, "qname_suffix": 2}
+    assert q2["strict_contract_candidate_count_histogram"] == {"0": 2, "1": 1}
 
 
 def test_q2_reports_class_truth_reliability_breakdown(tmp_path: Path) -> None:

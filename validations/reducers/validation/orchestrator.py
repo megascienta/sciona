@@ -56,6 +56,13 @@ def _aggregate_set_metrics(rows: list[dict], key: str) -> dict:
     spillover_ratio = (
         (spillover_count / reference_count) if reference_count else None
     )
+    match_provenance_breakdown: dict[str, int] = {}
+    for row in rows:
+        breakdown = (row.get(key) or {}).get("match_provenance_breakdown") or {}
+        for provenance, count in breakdown.items():
+            match_provenance_breakdown[str(provenance)] = (
+                int(match_provenance_breakdown.get(str(provenance), 0)) + int(count or 0)
+            )
     return {
         "reference_count": reference_count,
         "candidate_count": candidate_count,
@@ -64,6 +71,7 @@ def _aggregate_set_metrics(rows: list[dict], key: str) -> dict:
         "spillover_count": spillover_count,
         "coverage": coverage,
         "spillover_ratio": spillover_ratio,
+        "match_provenance_breakdown": dict(sorted(match_provenance_breakdown.items())),
     }
 
 
@@ -227,6 +235,15 @@ def _build_report_payload(
     q2_reference_total = int(q2_agg.get("reference_count") or 0)
     q2_envelope_total = q2_reference_total + q2_excluded_total
     q2_contract_filtered_out_ratio = _safe_ratio(q2_excluded_total, q2_envelope_total)
+    strict_contract_candidate_histogram: dict[str, int] = {}
+    for row in rows:
+        diagnostics = row.get("q2_ground_truth_diagnostics") or {}
+        histogram = diagnostics.get("strict_contract_candidate_count_histogram") or {}
+        for bucket, count in histogram.items():
+            strict_contract_candidate_histogram[str(bucket)] = (
+                int(strict_contract_candidate_histogram.get(str(bucket), 0))
+                + int(count or 0)
+            )
     class_truth_unreliable_count = 0
     class_truth_unreliable_scored_excluded_count = 0
     class_match_strategy_breakdown: dict[str, int] = {}
@@ -508,6 +525,10 @@ def _build_report_payload(
                 "envelope_total_count": q2_envelope_total,
                 "contract_filtered_out_ratio": q2_contract_filtered_out_ratio,
                 "envelope_excluded_by_reason": dict(sorted(q2_excluded_by_reason.items())),
+                "match_provenance_breakdown": q2_agg.get("match_provenance_breakdown"),
+                "strict_contract_candidate_count_histogram": dict(
+                    sorted(strict_contract_candidate_histogram.items())
+                ),
                 "class_truth_unreliable_count": class_truth_unreliable_count,
                 "class_truth_unreliable_scored_excluded_count": (
                     class_truth_unreliable_scored_excluded_count

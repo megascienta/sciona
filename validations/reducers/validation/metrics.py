@@ -6,7 +6,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import List
 
-from .independent.shared import EdgeRecord, dedupe_edge_records, match_edge
+from .independent.shared import EdgeRecord, dedupe_edge_records, match_edge_provenance
 
 
 @dataclass
@@ -18,6 +18,7 @@ class SetMetrics:
     spillover_count: int
     coverage: float | None
     spillover_ratio: float | None
+    match_provenance_breakdown: dict[str, int]
 
 
 def _safe_ratio(num: int, den: int) -> float | None:
@@ -35,6 +36,7 @@ def compute_set_metrics(
 
     intersection = 0
     spillover = 0
+    match_provenance_breakdown: dict[str, int] = {}
 
     unmatched_reference = reference_edges[:]
 
@@ -43,14 +45,18 @@ def compute_set_metrics(
         for idx, reference in enumerate(unmatched_reference):
             if candidate.caller != reference.caller:
                 continue
-            if match_edge(
-                candidate.callee,
-                candidate.callee_qname,
-                reference.callee,
-                reference.callee_qname,
-            ):
+            provenance = match_edge_provenance(
+                sciona_callee=candidate.callee,
+                sciona_callee_qname=candidate.callee_qname,
+                expected_callee=reference.callee,
+                expected_qname=reference.callee_qname,
+            )
+            if provenance:
                 matched = True
                 intersection += 1
+                match_provenance_breakdown[provenance] = int(
+                    match_provenance_breakdown.get(provenance, 0)
+                ) + 1
                 unmatched_reference.pop(idx)
                 break
         if not matched:
@@ -70,4 +76,5 @@ def compute_set_metrics(
         spillover_count=spillover,
         coverage=coverage,
         spillover_ratio=spillover_ratio,
+        match_provenance_breakdown=dict(sorted(match_provenance_breakdown.items())),
     )
