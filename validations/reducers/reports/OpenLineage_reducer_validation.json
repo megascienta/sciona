@@ -1,13 +1,38 @@
 {
-  "report_schema_version": "2026-02-27",
+  "report_schema_version": "2026-03-01",
   "summary": [
     "repo=OpenLineage",
     "sampled_nodes=500",
     "q1_reducer_vs_db_exact=True",
     "q2_reducer_vs_independent_overlap_macro=False",
     "q3_avg_non_static_percent=0.3663",
-    "unresolved_static_avg_percent=140.5006"
+    "unresolved_static_avg_percent=140.8669"
   ],
+  "metrics_v2": {
+    "q2": {
+      "pass": false,
+      "metric_mode": "weighted_aggregate_v2",
+      "weighted": {
+        "missing_rate": 0.1035923141186299,
+        "spillover_rate": 0.09941520467836257,
+        "mutual_accuracy": 0.8153495440729484
+      },
+      "per_node_avg": {
+        "missing_rate": 0.2495115995115995,
+        "spillover_rate": 0.09304029304029304,
+        "mutual_accuracy": 0.7313390313390313
+      },
+      "targets": {
+        "missing_rate_max": 0.010000000000000009,
+        "spillover_rate_max": 0.010000000000000009,
+        "mutual_accuracy_min": 0.99
+      }
+    },
+    "q3": {
+      "unresolved_static_avg_rate": 1.4086691086691088,
+      "unresolved_static_total_edges": 646
+    }
+  },
   "invariants": {
     "passed": false,
     "pipeline_self_consistent": true,
@@ -23,6 +48,7 @@
     "q2_target_mutual_accuracy_min": 0.99,
     "q2_target_missing_rate_max": 0.010000000000000009,
     "q2_target_spillover_rate_max": 0.010000000000000009,
+    "q2_metric_mode": "weighted_aggregate_v2",
     "q2_filtering_source": "core_only",
     "unresolved_static_target_zero": true
   },
@@ -141,12 +167,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 2,
-        "candidate_count": 2,
+        "candidate_count": 6,
         "intersection_count": 2,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 4,
         "coverage": 1.0,
-        "spillover_ratio": 0.0,
+        "spillover_ratio": 2.0,
         "match_provenance_breakdown": {
           "qname_exact": 2
         }
@@ -163,12 +189,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 2,
-        "excluded_out_of_scope_count": 26,
+        "reference_in_contract_count": 6,
+        "excluded_out_of_scope_count": 22,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 26,
+        "excluded_total_count": 22,
         "excluded_out_of_scope_by_reason": {
-          "external": 26
+          "external": 22
         },
         "excluded_limitation_by_reason": {}
       },
@@ -181,8 +207,8 @@
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 0.0,
-        "mutual_accuracy": 1.0
+        "spillover_rate": 2.0,
+        "mutual_accuracy": 0.3333333333333333
       },
       "q3_non_static_rate_percent": 0.0,
       "unresolved_static_rate_percent": 0.0
@@ -205,10 +231,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 0,
+        "candidate_count": 3,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 3,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -225,12 +251,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 12,
+        "reference_in_contract_count": 3,
+        "excluded_out_of_scope_count": 9,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 12,
+        "excluded_total_count": 9,
         "excluded_out_of_scope_by_reason": {
-          "external": 12
+          "external": 9
         },
         "excluded_limitation_by_reason": {}
       },
@@ -265,12 +291,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 2,
-        "candidate_count": 0,
+        "candidate_count": 1,
         "intersection_count": 0,
         "missing_count": 2,
-        "spillover_count": 0,
+        "spillover_count": 1,
         "coverage": 0.0,
-        "spillover_ratio": 0.0,
+        "spillover_ratio": 0.5,
         "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
@@ -285,12 +311,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 53,
+        "reference_in_contract_count": 1,
+        "excluded_out_of_scope_count": 52,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 53,
+        "excluded_total_count": 52,
         "excluded_out_of_scope_by_reason": {
-          "external": 53
+          "external": 52
         },
         "excluded_limitation_by_reason": {}
       },
@@ -303,7 +329,7 @@
       },
       "q2_node_rates": {
         "missing_rate": 1.0,
-        "spillover_rate": 0.0,
+        "spillover_rate": 0.5,
         "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
@@ -327,10 +353,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 0,
+        "candidate_count": 1,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 1,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -347,12 +373,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 25,
+        "reference_in_contract_count": 1,
+        "excluded_out_of_scope_count": 24,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 25,
+        "excluded_total_count": 24,
         "excluded_out_of_scope_by_reason": {
-          "external": 25
+          "external": 24
         },
         "excluded_limitation_by_reason": {}
       },
@@ -797,12 +823,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 2,
-        "candidate_count": 2,
+        "candidate_count": 8,
         "intersection_count": 2,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 6,
         "coverage": 1.0,
-        "spillover_ratio": 0.0,
+        "spillover_ratio": 3.0,
         "match_provenance_breakdown": {
           "qname_exact": 2
         }
@@ -819,12 +845,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 2,
-        "excluded_out_of_scope_count": 30,
+        "reference_in_contract_count": 8,
+        "excluded_out_of_scope_count": 24,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 30,
+        "excluded_total_count": 24,
         "excluded_out_of_scope_by_reason": {
-          "external": 30
+          "external": 24
         },
         "excluded_limitation_by_reason": {}
       },
@@ -837,8 +863,8 @@
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 0.0,
-        "mutual_accuracy": 1.0
+        "spillover_rate": 3.0,
+        "mutual_accuracy": 0.25
       },
       "q3_non_static_rate_percent": 0.0,
       "unresolved_static_rate_percent": 0.0
@@ -863,12 +889,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 1,
+        "candidate_count": 10,
         "intersection_count": 1,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 9,
         "coverage": 1.0,
-        "spillover_ratio": 0.0,
+        "spillover_ratio": 9.0,
         "match_provenance_breakdown": {
           "qname_exact": 1
         }
@@ -885,12 +911,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 48,
+        "reference_in_contract_count": 10,
+        "excluded_out_of_scope_count": 39,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 48,
+        "excluded_total_count": 39,
         "excluded_out_of_scope_by_reason": {
-          "external": 48
+          "external": 39
         },
         "excluded_limitation_by_reason": {}
       },
@@ -903,8 +929,8 @@
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 0.0,
-        "mutual_accuracy": 1.0
+        "spillover_rate": 9.0,
+        "mutual_accuracy": 0.1
       },
       "q3_non_static_rate_percent": 0.0,
       "unresolved_static_rate_percent": 0.0
@@ -1233,12 +1259,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 1,
+        "candidate_count": 2,
         "intersection_count": 1,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 1,
         "coverage": 1.0,
-        "spillover_ratio": 0.0,
+        "spillover_ratio": 1.0,
         "match_provenance_breakdown": {
           "qname_exact": 1
         }
@@ -1255,12 +1281,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 83,
+        "reference_in_contract_count": 2,
+        "excluded_out_of_scope_count": 82,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 83,
+        "excluded_total_count": 82,
         "excluded_out_of_scope_by_reason": {
-          "external": 83
+          "external": 82
         },
         "excluded_limitation_by_reason": {}
       },
@@ -1273,8 +1299,8 @@
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 0.0,
-        "mutual_accuracy": 1.0
+        "spillover_rate": 1.0,
+        "mutual_accuracy": 0.5
       },
       "q3_non_static_rate_percent": 0.0,
       "unresolved_static_rate_percent": 0.0
@@ -1363,10 +1389,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 0,
+        "candidate_count": 11,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 11,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -1383,12 +1409,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 28,
+        "reference_in_contract_count": 11,
+        "excluded_out_of_scope_count": 17,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 28,
+        "excluded_total_count": 17,
         "excluded_out_of_scope_by_reason": {
-          "external": 28
+          "external": 17
         },
         "excluded_limitation_by_reason": {}
       },
@@ -1421,10 +1447,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 0,
+        "candidate_count": 3,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 3,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -1441,12 +1467,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 19,
+        "reference_in_contract_count": 3,
+        "excluded_out_of_scope_count": 16,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 19,
+        "excluded_total_count": 16,
         "excluded_out_of_scope_by_reason": {
-          "external": 19
+          "external": 16
         },
         "excluded_limitation_by_reason": {}
       },
@@ -1479,10 +1505,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 0,
+        "candidate_count": 6,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 6,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -1499,12 +1525,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 31,
+        "reference_in_contract_count": 6,
+        "excluded_out_of_scope_count": 25,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 31,
+        "excluded_total_count": 25,
         "excluded_out_of_scope_by_reason": {
-          "external": 31
+          "external": 25
         },
         "excluded_limitation_by_reason": {}
       },
@@ -1537,10 +1563,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 0,
+        "candidate_count": 3,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 3,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -1557,12 +1583,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 12,
+        "reference_in_contract_count": 3,
+        "excluded_out_of_scope_count": 9,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 12,
+        "excluded_total_count": 9,
         "excluded_out_of_scope_by_reason": {
-          "external": 12
+          "external": 9
         },
         "excluded_limitation_by_reason": {}
       },
@@ -1711,10 +1737,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 0,
+        "candidate_count": 3,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 3,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -1731,12 +1757,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 30,
+        "reference_in_contract_count": 3,
+        "excluded_out_of_scope_count": 27,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 30,
+        "excluded_total_count": 27,
         "excluded_out_of_scope_by_reason": {
-          "external": 30
+          "external": 27
         },
         "excluded_limitation_by_reason": {}
       },
@@ -1885,10 +1911,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 0,
+        "candidate_count": 2,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 2,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -1905,12 +1931,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 10,
+        "reference_in_contract_count": 2,
+        "excluded_out_of_scope_count": 8,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 10,
+        "excluded_total_count": 8,
         "excluded_out_of_scope_by_reason": {
-          "external": 10
+          "external": 8
         },
         "excluded_limitation_by_reason": {}
       },
@@ -2255,10 +2281,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 0,
+        "candidate_count": 3,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 3,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -2275,12 +2301,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 12,
+        "reference_in_contract_count": 3,
+        "excluded_out_of_scope_count": 9,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 12,
+        "excluded_total_count": 9,
         "excluded_out_of_scope_by_reason": {
-          "external": 12
+          "external": 9
         },
         "excluded_limitation_by_reason": {}
       },
@@ -2315,12 +2341,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 2,
-        "candidate_count": 2,
+        "candidate_count": 9,
         "intersection_count": 2,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 7,
         "coverage": 1.0,
-        "spillover_ratio": 0.0,
+        "spillover_ratio": 3.5,
         "match_provenance_breakdown": {
           "qname_exact": 2
         }
@@ -2337,12 +2363,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 2,
-        "excluded_out_of_scope_count": 19,
+        "reference_in_contract_count": 9,
+        "excluded_out_of_scope_count": 12,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 19,
+        "excluded_total_count": 12,
         "excluded_out_of_scope_by_reason": {
-          "external": 19
+          "external": 12
         },
         "excluded_limitation_by_reason": {}
       },
@@ -2355,8 +2381,8 @@
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 0.0,
-        "mutual_accuracy": 1.0
+        "spillover_rate": 3.5,
+        "mutual_accuracy": 0.2222222222222222
       },
       "q3_non_static_rate_percent": 0.0,
       "unresolved_static_rate_percent": 0.0
@@ -2379,10 +2405,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 0,
+        "candidate_count": 1,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 1,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -2399,12 +2425,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 5,
+        "reference_in_contract_count": 1,
+        "excluded_out_of_scope_count": 4,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 5,
+        "excluded_total_count": 4,
         "excluded_out_of_scope_by_reason": {
-          "external": 5
+          "external": 4
         },
         "excluded_limitation_by_reason": {}
       },
@@ -2437,10 +2463,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 0,
+        "candidate_count": 9,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 9,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -2457,12 +2483,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 36,
+        "reference_in_contract_count": 9,
+        "excluded_out_of_scope_count": 27,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 36,
+        "excluded_total_count": 27,
         "excluded_out_of_scope_by_reason": {
-          "external": 36
+          "external": 27
         },
         "excluded_limitation_by_reason": {}
       },
@@ -2553,12 +2579,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 0,
+        "candidate_count": 2,
         "intersection_count": 0,
         "missing_count": 1,
-        "spillover_count": 0,
+        "spillover_count": 2,
         "coverage": 0.0,
-        "spillover_ratio": 0.0,
+        "spillover_ratio": 2.0,
         "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
@@ -2573,12 +2599,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 22,
+        "reference_in_contract_count": 2,
+        "excluded_out_of_scope_count": 20,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 22,
+        "excluded_total_count": 20,
         "excluded_out_of_scope_by_reason": {
-          "external": 22
+          "external": 20
         },
         "excluded_limitation_by_reason": {}
       },
@@ -2591,7 +2617,7 @@
       },
       "q2_node_rates": {
         "missing_rate": 1.0,
-        "spillover_rate": 0.0,
+        "spillover_rate": 2.0,
         "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
@@ -2673,10 +2699,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 0,
+        "candidate_count": 7,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 7,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -2693,12 +2719,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 25,
+        "reference_in_contract_count": 7,
+        "excluded_out_of_scope_count": 18,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 25,
+        "excluded_total_count": 18,
         "excluded_out_of_scope_by_reason": {
-          "external": 25
+          "external": 18
         },
         "excluded_limitation_by_reason": {}
       },
@@ -2915,12 +2941,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 2,
-        "candidate_count": 2,
+        "candidate_count": 3,
         "intersection_count": 2,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 1,
         "coverage": 1.0,
-        "spillover_ratio": 0.0,
+        "spillover_ratio": 0.5,
         "match_provenance_breakdown": {
           "qname_exact": 2
         }
@@ -2937,12 +2963,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 2,
-        "excluded_out_of_scope_count": 24,
+        "reference_in_contract_count": 3,
+        "excluded_out_of_scope_count": 23,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 24,
+        "excluded_total_count": 23,
         "excluded_out_of_scope_by_reason": {
-          "external": 24
+          "external": 23
         },
         "excluded_limitation_by_reason": {}
       },
@@ -2955,8 +2981,8 @@
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 0.0,
-        "mutual_accuracy": 1.0
+        "spillover_rate": 0.5,
+        "mutual_accuracy": 0.6666666666666666
       },
       "q3_non_static_rate_percent": 0.0,
       "unresolved_static_rate_percent": 0.0
@@ -3103,10 +3129,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 0,
+        "candidate_count": 5,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 5,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -3123,12 +3149,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 39,
+        "reference_in_contract_count": 5,
+        "excluded_out_of_scope_count": 34,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 39,
+        "excluded_total_count": 34,
         "excluded_out_of_scope_by_reason": {
-          "external": 39
+          "external": 34
         },
         "excluded_limitation_by_reason": {}
       },
@@ -9744,7 +9770,8 @@
           "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved_unique_without_provenance": 2,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -9960,7 +9987,7 @@
           "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -10181,7 +10208,8 @@
           "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -10263,7 +10291,8 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_unique_without_provenance": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -10342,7 +10371,8 @@
         "excluded_total_count": 2,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_unique_without_provenance": 1,
+          "in_repo_unresolved": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -10437,7 +10467,9 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved": 1,
+          "in_repo_unresolved_unique_without_provenance": 2,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -10687,7 +10719,7 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved_unique_without_provenance": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -10912,7 +10944,8 @@
           "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -10988,7 +11021,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -11092,7 +11125,8 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 6
+          "in_repo_unresolved": 3,
+          "in_repo_unresolved_unique_without_provenance": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -11273,7 +11307,8 @@
         "excluded_total_count": 6,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 6
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 2,
+          "in_repo_unresolved_unique_without_provenance": 4
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -11681,7 +11716,8 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 5
+          "in_repo_unresolved": 3,
+          "in_repo_unresolved_unique_without_provenance": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -11765,7 +11801,8 @@
         "excluded_total_count": 3,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved_unique_without_provenance": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -12374,7 +12411,7 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -12477,7 +12514,9 @@
           "external": 8
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 5
+          "in_repo_unresolved_unique_without_provenance": 2,
+          "in_repo_unresolved": 2,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -12581,7 +12620,8 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 5
+          "in_repo_unresolved": 4,
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -12680,7 +12720,9 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1,
+          "in_repo_unresolved_unique_without_provenance": 2,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -12814,7 +12856,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -12893,7 +12935,7 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -13132,7 +13174,7 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -13205,7 +13247,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -13308,7 +13350,9 @@
           "external": 6
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 6
+          "in_repo_unresolved": 4,
+          "in_repo_unresolved_unique_without_provenance": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -13865,7 +13909,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved_unique_without_provenance": 4
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -13951,7 +13995,8 @@
           "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved_unique_without_provenance": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -14269,7 +14314,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -14502,7 +14547,8 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_unique_without_provenance": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -14912,7 +14958,7 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -15059,7 +15105,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -15139,7 +15185,8 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_unique_without_provenance": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -15228,7 +15275,8 @@
           "external": 8
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved_unique_without_provenance": 2,
+          "in_repo_unresolved": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -15371,7 +15419,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -15658,7 +15706,7 @@
           "external": 6
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -15827,7 +15875,8 @@
           "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 5
+          "in_repo_unresolved_unique_without_provenance": 4,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -16046,7 +16095,8 @@
           "external": 10
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved_unique_without_provenance": 2,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -16123,7 +16173,7 @@
           "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -16268,7 +16318,7 @@
           "external": 6
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -16344,7 +16394,7 @@
           "external": 8
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -16494,7 +16544,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -16570,7 +16620,7 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -16782,7 +16832,7 @@
         "excluded_total_count": 2,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -16875,7 +16925,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 4
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -16960,7 +17010,8 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_unique_without_provenance": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -17034,7 +17085,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -17121,7 +17172,8 @@
           "external": 5
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved_unique_without_provenance": 2,
+          "in_repo_unresolved": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -17208,7 +17260,8 @@
           "external": 6
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved_unique_without_provenance": 2,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -17315,7 +17368,8 @@
           "external": 10
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 6
+          "in_repo_unresolved_unique_without_provenance": 5,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -17394,7 +17448,8 @@
         "excluded_total_count": 2,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_unique_without_provenance": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -17522,7 +17577,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -18915,7 +18970,8 @@
           "external": 6
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 2,
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -19047,7 +19103,7 @@
           "external": 6
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -19438,10 +19494,10 @@
       },
       "set_q2_reducer_vs_independent_syntax": {
         "reference_count": 0,
-        "candidate_count": 263,
+        "candidate_count": 0,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 263,
+        "spillover_count": 0,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -19449,12 +19505,10 @@
       "basket2_edges": [],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 263,
+        "excluded_out_of_scope_count": 0,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 263,
-        "excluded_out_of_scope_by_reason": {
-          "external": 263
-        },
+        "excluded_total_count": 0,
+        "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {}
       },
       "q2_ground_truth_diagnostics": {
@@ -20772,10 +20826,10 @@
       },
       "set_q2_reducer_vs_independent_syntax": {
         "reference_count": 0,
-        "candidate_count": 63,
+        "candidate_count": 4,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 63,
+        "spillover_count": 4,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -20783,11 +20837,11 @@
       "basket2_edges": [],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 63,
+        "excluded_out_of_scope_count": 4,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 63,
+        "excluded_total_count": 4,
         "excluded_out_of_scope_by_reason": {
-          "external": 63
+          "external": 4
         },
         "excluded_limitation_by_reason": {}
       },
@@ -21526,10 +21580,10 @@
       },
       "set_q2_reducer_vs_independent_syntax": {
         "reference_count": 0,
-        "candidate_count": 4,
+        "candidate_count": 0,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 4,
+        "spillover_count": 0,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -21537,12 +21591,10 @@
       "basket2_edges": [],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 4,
+        "excluded_out_of_scope_count": 0,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 4,
-        "excluded_out_of_scope_by_reason": {
-          "external": 4
-        },
+        "excluded_total_count": 0,
+        "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {}
       },
       "q2_ground_truth_diagnostics": {
@@ -21758,10 +21810,10 @@
       },
       "set_q2_reducer_vs_independent_syntax": {
         "reference_count": 0,
-        "candidate_count": 31,
+        "candidate_count": 0,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 31,
+        "spillover_count": 0,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -21769,12 +21821,10 @@
       "basket2_edges": [],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 31,
+        "excluded_out_of_scope_count": 0,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 31,
-        "excluded_out_of_scope_by_reason": {
-          "external": 31
-        },
+        "excluded_total_count": 0,
+        "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {}
       },
       "q2_ground_truth_diagnostics": {
@@ -22329,7 +22379,9 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1,
+          "in_repo_unresolved_unique_without_provenance": 1,
+          "in_repo_unresolved": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -22532,7 +22584,8 @@
           "external": 39
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 22
+          "in_repo_unresolved_unique_without_provenance": 4,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 18
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -23279,7 +23332,8 @@
           "external": 121
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 112
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 92,
+          "in_repo_unresolved_unique_without_provenance": 20
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -23386,7 +23440,8 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 5
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 4,
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -23465,7 +23520,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -23654,7 +23709,8 @@
           "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 6
+          "in_repo_unresolved_unique_without_provenance": 3,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -23752,7 +23808,9 @@
         "excluded_total_count": 4,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 2,
+          "in_repo_unresolved": 1,
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -23899,7 +23957,8 @@
           "external": 12
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 13
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 11,
+          "in_repo_unresolved_unique_without_provenance": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -24046,7 +24105,9 @@
           "external": 14
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 12
+          "in_repo_unresolved": 2,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 8,
+          "in_repo_unresolved_unique_without_provenance": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -24223,7 +24284,9 @@
           "external": 14
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 5
+          "in_repo_unresolved_unique_without_provenance": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 3,
+          "in_repo_unresolved": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -24356,7 +24419,9 @@
           "external": 6
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 10
+          "in_repo_unresolved_unique_without_provenance": 3,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 6,
+          "in_repo_unresolved": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -24644,7 +24709,8 @@
           "external": 29
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 24
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 13,
+          "in_repo_unresolved_unique_without_provenance": 11
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -24758,7 +24824,9 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 6
+          "in_repo_unresolved": 2,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1,
+          "in_repo_unresolved_unique_without_provenance": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -24844,7 +24912,8 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved": 1,
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -24918,7 +24987,7 @@
           "external": 5
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -25010,8 +25079,9 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3,
-          "dynamic": 1
+          "in_repo_unresolved": 2,
+          "dynamic": 1,
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -25110,7 +25180,8 @@
           "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved_unique_without_provenance": 2,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -25186,7 +25257,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -25274,7 +25345,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved_unique_without_provenance": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -25348,7 +25419,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -25668,7 +25739,8 @@
           "external": 10
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 8
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 7,
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -25760,7 +25832,8 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -25841,7 +25914,7 @@
         "excluded_total_count": 2,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_unique_without_provenance": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -25976,7 +26049,8 @@
         "excluded_total_count": 2,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_unique_without_provenance": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -26052,7 +26126,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -26127,7 +26201,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -26221,7 +26295,8 @@
           "external": 9
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 3,
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -26359,7 +26434,8 @@
           "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 10
+          "in_repo_unresolved_unique_without_provenance": 7,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -26479,7 +26555,8 @@
           "external": 7
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 8
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 3,
+          "in_repo_unresolved_unique_without_provenance": 5
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -26576,7 +26653,8 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 3,
+          "in_repo_unresolved": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -26665,7 +26743,8 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1,
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -26949,7 +27028,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -27055,7 +27134,8 @@
           "external": 9
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 6
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 4,
+          "in_repo_unresolved_unique_without_provenance": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -27184,7 +27264,10 @@
           "external": 8
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 9
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1,
+          "in_repo_unresolved": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 2,
+          "in_repo_unresolved_unique_without_provenance": 5
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -27283,15 +27366,13 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 1,
-        "intersection_count": 1,
-        "missing_count": 0,
+        "candidate_count": 0,
+        "intersection_count": 0,
+        "missing_count": 1,
         "spillover_count": 0,
-        "coverage": 1.0,
+        "coverage": 0.0,
         "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 1
-        }
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
         "reference_count": 1,
@@ -27314,21 +27395,29 @@
         },
         {
           "caller": "OpenLineage.integration.spark.spark3.src.main.java.io.openlineage.spark3.agent.lifecycle.plan.SubqueryAliasInputDatasetBuilder.SubqueryAliasInputDatasetBuilder.delegate",
+          "callee": "delegate",
+          "callee_qname": null,
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "OpenLineage.integration.spark.spark3.src.main.java.io.openlineage.spark3.agent.lifecycle.plan.SubqueryAliasInputDatasetBuilder.SubqueryAliasInputDatasetBuilder.delegate",
           "callee": "toScalaFn",
           "callee_qname": "ScalaConversionUtils.toScalaFn",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
+        "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 4,
-        "excluded_limitation_count": 2,
-        "excluded_total_count": 6,
+        "excluded_limitation_count": 3,
+        "excluded_total_count": 7,
         "excluded_out_of_scope_by_reason": {
           "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1,
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1,
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -27344,12 +27433,12 @@
         }
       },
       "q2_node_rates": {
-        "missing_rate": 0.0,
+        "missing_rate": 1.0,
         "spillover_rate": 0.0,
-        "mutual_accuracy": 1.0
+        "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 200.0
+      "unresolved_static_rate_percent": 300.0
     },
     {
       "entity": "OpenLineage.integration.flink.shared.src.main.java.io.openlineage.flink.utils.ProtobufFieldResolver.ProtobufFieldResolver.resolve",
@@ -27416,7 +27505,8 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1,
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -27497,7 +27587,8 @@
           "external": 5
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_unique_without_provenance": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -27670,7 +27761,8 @@
           "external": 22
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 17
+          "in_repo_unresolved_unique_without_provenance": 9,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 8
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -27760,7 +27852,8 @@
           "external": 6
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1,
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -27867,10 +27960,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 0,
+        "candidate_count": 3,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 3,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -27887,12 +27980,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 8,
+        "reference_in_contract_count": 3,
+        "excluded_out_of_scope_count": 5,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 8,
+        "excluded_total_count": 5,
         "excluded_out_of_scope_by_reason": {
-          "external": 8
+          "external": 5
         },
         "excluded_limitation_by_reason": {}
       },
@@ -27982,7 +28075,9 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1,
+          "in_repo_unresolved": 1,
+          "in_repo_unresolved_unique_without_provenance": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -28057,7 +28152,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -28091,10 +28186,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 0,
+        "candidate_count": 1,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 1,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -28111,12 +28206,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 36,
+        "reference_in_contract_count": 1,
+        "excluded_out_of_scope_count": 35,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 36,
+        "excluded_total_count": 35,
         "excluded_out_of_scope_by_reason": {
-          "external": 36
+          "external": 35
         },
         "excluded_limitation_by_reason": {}
       },
@@ -28190,7 +28285,8 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_unique_without_provenance": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -28302,10 +28398,10 @@
       },
       "set_q2_reducer_vs_independent_syntax": {
         "reference_count": 0,
-        "candidate_count": 124,
+        "candidate_count": 0,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 124,
+        "spillover_count": 0,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -28313,12 +28409,10 @@
       "basket2_edges": [],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 124,
+        "excluded_out_of_scope_count": 0,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 124,
-        "excluded_out_of_scope_by_reason": {
-          "external": 124
-        },
+        "excluded_total_count": 0,
+        "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {}
       },
       "q2_ground_truth_diagnostics": {
@@ -28521,7 +28615,7 @@
           "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -28622,10 +28716,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 0,
+        "candidate_count": 6,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 6,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -28642,12 +28736,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 18,
+        "reference_in_contract_count": 6,
+        "excluded_out_of_scope_count": 12,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 18,
+        "excluded_total_count": 12,
         "excluded_out_of_scope_by_reason": {
-          "external": 18
+          "external": 12
         },
         "excluded_limitation_by_reason": {}
       },
@@ -28745,7 +28839,8 @@
           "external": 7
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 5
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 3,
+          "in_repo_unresolved_unique_without_provenance": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -28892,7 +28987,9 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 12
+          "in_repo_unresolved": 5,
+          "in_repo_unresolved_unique_without_provenance": 2,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 5
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -28938,10 +29035,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 0,
+        "candidate_count": 2,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 2,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -28958,12 +29055,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 16,
+        "reference_in_contract_count": 2,
+        "excluded_out_of_scope_count": 14,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 16,
+        "excluded_total_count": 14,
         "excluded_out_of_scope_by_reason": {
-          "external": 16
+          "external": 14
         },
         "excluded_limitation_by_reason": {}
       },
@@ -29185,7 +29282,8 @@
           "external": 6
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved": 3,
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -29494,7 +29592,8 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 5
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 3,
+          "in_repo_unresolved_unique_without_provenance": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -29776,7 +29875,8 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved_unique_without_provenance": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -29848,7 +29948,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -30425,7 +30525,9 @@
           "external": 9
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 8
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 4,
+          "in_repo_unresolved": 1,
+          "in_repo_unresolved_unique_without_provenance": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -30509,7 +30611,7 @@
           "external": 12
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -30550,12 +30652,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 0,
+        "candidate_count": 1,
         "intersection_count": 0,
         "missing_count": 1,
-        "spillover_count": 0,
+        "spillover_count": 1,
         "coverage": 0.0,
-        "spillover_ratio": 0.0,
+        "spillover_ratio": 1.0,
         "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
@@ -30570,12 +30672,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 24,
+        "reference_in_contract_count": 1,
+        "excluded_out_of_scope_count": 23,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 24,
+        "excluded_total_count": 23,
         "excluded_out_of_scope_by_reason": {
-          "external": 24
+          "external": 23
         },
         "excluded_limitation_by_reason": {}
       },
@@ -30588,7 +30690,7 @@
       },
       "q2_node_rates": {
         "missing_rate": 1.0,
-        "spillover_rate": 0.0,
+        "spillover_rate": 1.0,
         "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
@@ -31031,7 +31133,8 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -31196,7 +31299,7 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -31325,7 +31428,9 @@
           "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 9
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 4,
+          "in_repo_unresolved": 1,
+          "in_repo_unresolved_unique_without_provenance": 4
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -31369,12 +31474,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 5,
-        "candidate_count": 4,
+        "candidate_count": 11,
         "intersection_count": 4,
         "missing_count": 1,
-        "spillover_count": 0,
+        "spillover_count": 7,
         "coverage": 0.8,
-        "spillover_ratio": 0.0,
+        "spillover_ratio": 1.4,
         "match_provenance_breakdown": {
           "qname_exact": 4
         }
@@ -31391,12 +31496,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 4,
-        "excluded_out_of_scope_count": 47,
+        "reference_in_contract_count": 11,
+        "excluded_out_of_scope_count": 40,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 47,
+        "excluded_total_count": 40,
         "excluded_out_of_scope_by_reason": {
-          "external": 47
+          "external": 40
         },
         "excluded_limitation_by_reason": {}
       },
@@ -31409,8 +31514,8 @@
       },
       "q2_node_rates": {
         "missing_rate": 0.2,
-        "spillover_rate": 0.0,
-        "mutual_accuracy": 0.8
+        "spillover_rate": 1.4,
+        "mutual_accuracy": 0.3333333333333333
       },
       "q3_non_static_rate_percent": 0.0,
       "unresolved_static_rate_percent": 0.0
@@ -31534,7 +31639,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -31616,7 +31721,8 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1,
+          "in_repo_unresolved_unique_without_provenance": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -31879,7 +31985,8 @@
           "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved": 1,
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -32152,7 +32259,7 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -32488,7 +32595,8 @@
           "external": 14
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 6
+          "in_repo_unresolved": 4,
+          "in_repo_unresolved_unique_without_provenance": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -32642,7 +32750,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -32841,7 +32949,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -33132,7 +33240,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -33603,7 +33711,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 4
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -33835,7 +33943,8 @@
           "external": 8
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 6
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 3,
+          "in_repo_unresolved": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -33945,10 +34054,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 0,
+        "candidate_count": 3,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 3,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -33965,12 +34074,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 23,
+        "reference_in_contract_count": 3,
+        "excluded_out_of_scope_count": 20,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 23,
+        "excluded_total_count": 20,
         "excluded_out_of_scope_by_reason": {
-          "external": 23
+          "external": 20
         },
         "excluded_limitation_by_reason": {}
       },
@@ -34110,7 +34219,7 @@
           "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_unique_without_provenance": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -34492,7 +34601,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -34769,7 +34878,8 @@
           "external": 11
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_unique_without_provenance": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -34870,7 +34980,8 @@
           "external": 5
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 5
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 4,
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -34908,10 +35019,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 0,
+        "candidate_count": 4,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 4,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -34928,12 +35039,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 20,
+        "reference_in_contract_count": 4,
+        "excluded_out_of_scope_count": 16,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 20,
+        "excluded_total_count": 16,
         "excluded_out_of_scope_by_reason": {
-          "external": 20
+          "external": 16
         },
         "excluded_limitation_by_reason": {}
       },
@@ -35067,7 +35178,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -35224,10 +35335,10 @@
       },
       "set_q2_reducer_vs_independent_syntax": {
         "reference_count": 0,
-        "candidate_count": 449,
+        "candidate_count": 6,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 449,
+        "spillover_count": 6,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -35235,11 +35346,11 @@
       "basket2_edges": [],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 449,
+        "excluded_out_of_scope_count": 6,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 449,
+        "excluded_total_count": 6,
         "excluded_out_of_scope_by_reason": {
-          "external": 449
+          "external": 6
         },
         "excluded_limitation_by_reason": {}
       },
@@ -35371,7 +35482,7 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -35790,7 +35901,8 @@
           "external": 19
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 11
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 5,
+          "in_repo_unresolved_unique_without_provenance": 6
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -35924,7 +36036,8 @@
           "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 10
+          "in_repo_unresolved_unique_without_provenance": 7,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -35961,10 +36074,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 0,
+        "candidate_count": 1,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 1,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -35981,12 +36094,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 24,
+        "reference_in_contract_count": 1,
+        "excluded_out_of_scope_count": 23,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 24,
+        "excluded_total_count": 23,
         "excluded_out_of_scope_by_reason": {
-          "external": 24
+          "external": 23
         },
         "excluded_limitation_by_reason": {}
       },
@@ -36180,7 +36293,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -36341,20 +36454,27 @@
       "target_missing_rate_max": 0.010000000000000009,
       "target_spillover_rate_max": 0.010000000000000009,
       "scored_nodes": 273,
-      "avg_missing_rate": 0.24584859584859584,
-      "avg_spillover_rate": 0.005494505494505495,
-      "avg_mutual_accuracy": 0.7510989010989011,
+      "avg_missing_rate": 0.2495115995115995,
+      "avg_spillover_rate": 0.09304029304029304,
+      "avg_mutual_accuracy": 0.7313390313390313,
+      "weighted_missing_rate": 0.1035923141186299,
+      "weighted_spillover_rate": 0.09941520467836257,
+      "weighted_mutual_accuracy": 0.8153495440729484,
+      "metric_mode": "weighted_aggregate_v2",
       "reference_count": 1197,
-      "candidate_count": 1077,
-      "intersection_count": 1074,
-      "missing_count": 123,
-      "spillover_count": 3,
+      "candidate_count": 1192,
+      "intersection_count": 1073,
+      "missing_count": 124,
+      "spillover_count": 119,
       "by_language": {
         "java": {
           "scored_nodes": 133,
-          "avg_missing_rate": 0.1324561403508772,
-          "avg_spillover_rate": 0.0,
-          "avg_mutual_accuracy": 0.8675438596491228,
+          "avg_missing_rate": 0.1399749373433584,
+          "avg_spillover_rate": 0.17969924812030075,
+          "avg_mutual_accuracy": 0.8269841269841269,
+          "weighted_missing_rate": 0.047142857142857146,
+          "weighted_spillover_rate": 0.1657142857142857,
+          "weighted_mutual_accuracy": 0.8174019607843137,
           "pass": false
         },
         "python": {
@@ -36362,6 +36482,9 @@
           "avg_missing_rate": 0.36666666666666664,
           "avg_spillover_rate": 0.011111111111111112,
           "avg_mutual_accuracy": 0.6271604938271605,
+          "weighted_missing_rate": 0.18533604887983707,
+          "weighted_spillover_rate": 0.006109979633401222,
+          "weighted_mutual_accuracy": 0.8097165991902834,
           "pass": false
         },
         "typescript": {
@@ -36369,23 +36492,29 @@
           "avg_missing_rate": 0.0,
           "avg_spillover_rate": 0.0,
           "avg_mutual_accuracy": 1.0,
+          "weighted_missing_rate": 0.0,
+          "weighted_spillover_rate": 0.0,
+          "weighted_mutual_accuracy": 1.0,
           "pass": true
         }
       },
       "filtering_source": "core_only",
       "envelope_reference_count": 1197,
-      "envelope_excluded_count": 4319,
-      "envelope_excluded_out_of_scope_count": 3673,
-      "envelope_excluded_limitation_count": 646,
-      "envelope_total_count": 5516,
-      "contract_filtered_out_ratio": 0.7829949238578681,
+      "envelope_excluded_count": 3280,
+      "envelope_excluded_out_of_scope_count": 2633,
+      "envelope_excluded_limitation_count": 647,
+      "envelope_total_count": 4477,
+      "contract_filtered_out_ratio": 0.7326334599061872,
       "envelope_excluded_by_reason": {
         "dynamic": 1,
-        "external": 3673,
-        "in_repo_unresolved": 645
+        "external": 2633,
+        "in_repo_unresolved": 125,
+        "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 7,
+        "in_repo_unresolved_ambiguous_no_in_scope_candidate": 304,
+        "in_repo_unresolved_unique_without_provenance": 210
       },
       "match_provenance_breakdown": {
-        "qname_exact": 1074
+        "qname_exact": 1073
       },
       "strict_contract_candidate_count_histogram": {
         "0": 842,
@@ -36425,25 +36554,44 @@
       },
       "core_contract_overlap": {
         "reference_count": 1197,
-        "candidate_count": 1077,
-        "intersection_count": 1074,
-        "missing_count": 123,
-        "spillover_count": 3,
-        "avg_missing_rate": 0.24584859584859584,
-        "avg_spillover_rate": 0.005494505494505495,
-        "avg_mutual_accuracy": 0.7510989010989011
+        "candidate_count": 1192,
+        "intersection_count": 1073,
+        "missing_count": 124,
+        "spillover_count": 119,
+        "avg_missing_rate": 0.2495115995115995,
+        "avg_spillover_rate": 0.09304029304029304,
+        "avg_mutual_accuracy": 0.7313390313390313,
+        "weighted_missing_rate": 0.1035923141186299,
+        "weighted_spillover_rate": 0.09941520467836257,
+        "weighted_mutual_accuracy": 0.8153495440729484
       },
       "contract_plus_resolution_hints": {
-        "reference_count": 1843,
-        "candidate_count": 1077,
-        "intersection_count": 1074,
-        "missing_count": 769,
-        "spillover_count": 3,
-        "avg_missing_rate": 0.4682996630743647,
-        "avg_spillover_rate": 0.001834862385321101,
-        "avg_mutual_accuracy": 0.5311469657300623
+        "reference_count": 1844,
+        "candidate_count": 1192,
+        "intersection_count": 1073,
+        "missing_count": 771,
+        "spillover_count": 119,
+        "avg_missing_rate": 0.46931903106620976,
+        "avg_spillover_rate": 0.07492354740061162,
+        "avg_mutual_accuracy": 0.5166889297123932,
+        "weighted_missing_rate": 0.4181127982646421,
+        "weighted_spillover_rate": 0.06453362255965293,
+        "weighted_mutual_accuracy": 0.5466123280692817
       },
       "top_mismatch_signatures": [
+        {
+          "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.ArgumentParserTest",
+          "language": "java",
+          "kind": "module",
+          "file_path": "integration/spark/app/src/test/java/io/openlineage/spark/agent/ArgumentParserTest.java",
+          "module_qualified_name": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent",
+          "missing_count": 0,
+          "spillover_count": 11,
+          "reference_count": 0,
+          "missing_rate": null,
+          "spillover_rate": null,
+          "total_mismatch": 11
+        },
         {
           "entity": "OpenLineage.dev.get_contributor_stats.main",
           "language": "python",
@@ -36456,6 +36604,71 @@
           "missing_rate": 1.0,
           "spillover_rate": 0.0,
           "total_mismatch": 9
+        },
+        {
+          "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.OpenLineageSparkListenerTest",
+          "language": "java",
+          "kind": "module",
+          "file_path": "integration/spark/app/src/test/java/io/openlineage/spark/agent/OpenLineageSparkListenerTest.java",
+          "module_qualified_name": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent",
+          "missing_count": 0,
+          "spillover_count": 9,
+          "reference_count": 1,
+          "missing_rate": 0.0,
+          "spillover_rate": 9.0,
+          "total_mismatch": 9
+        },
+        {
+          "entity": "OpenLineage.integration.spark.vendor.snowflake.src.test.java.io.openlineage.spark.agent.vendor.snowflake.lifecycle.plan.SnowflakeRelationVisitorTest",
+          "language": "java",
+          "kind": "module",
+          "file_path": "integration/spark/vendor/snowflake/src/test/java/io/openlineage/spark/agent/vendor/snowflake/lifecycle/plan/SnowflakeRelationVisitorTest.java",
+          "module_qualified_name": "OpenLineage.integration.spark.vendor.snowflake.src.test.java.io.openlineage.spark.agent.vendor.snowflake.lifecycle.plan",
+          "missing_count": 0,
+          "spillover_count": 9,
+          "reference_count": 0,
+          "missing_rate": null,
+          "spillover_rate": null,
+          "total_mismatch": 9
+        },
+        {
+          "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.column.ColumnLevelLineageIcebergTest",
+          "language": "java",
+          "kind": "module",
+          "file_path": "integration/spark/app/src/test/java/io/openlineage/spark/agent/column/ColumnLevelLineageIcebergTest.java",
+          "module_qualified_name": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.column",
+          "missing_count": 1,
+          "spillover_count": 7,
+          "reference_count": 5,
+          "missing_rate": 0.2,
+          "spillover_rate": 1.4,
+          "total_mismatch": 8
+        },
+        {
+          "entity": "OpenLineage.integration.spark.shared.src.test.java.io.openlineage.spark.agent.lifecycle.OpenLineageRunEventTimeoutExecutorTest",
+          "language": "java",
+          "kind": "module",
+          "file_path": "integration/spark/shared/src/test/java/io/openlineage/spark/agent/lifecycle/OpenLineageRunEventTimeoutExecutorTest.java",
+          "module_qualified_name": "OpenLineage.integration.spark.shared.src.test.java.io.openlineage.spark.agent.lifecycle",
+          "missing_count": 0,
+          "spillover_count": 7,
+          "reference_count": 0,
+          "missing_rate": null,
+          "spillover_rate": null,
+          "total_mismatch": 7
+        },
+        {
+          "entity": "OpenLineage.integration.spark.spark3.src.main.java.io.openlineage.spark3.agent.utils.DataSourceV2RelationDatasetExtractor",
+          "language": "java",
+          "kind": "module",
+          "file_path": "integration/spark/spark3/src/main/java/io/openlineage/spark3/agent/utils/DataSourceV2RelationDatasetExtractor.java",
+          "module_qualified_name": "OpenLineage.integration.spark.spark3.src.main.java.io.openlineage.spark3.agent.utils",
+          "missing_count": 0,
+          "spillover_count": 7,
+          "reference_count": 2,
+          "missing_rate": 0.0,
+          "spillover_rate": 3.5,
+          "total_mismatch": 7
         },
         {
           "entity": "OpenLineage.dev.get_changes.main",
@@ -36471,6 +36684,45 @@
           "total_mismatch": 6
         },
         {
+          "entity": "OpenLineage.integration.flink.flink1.src.test.java.io.openlineage.flink.JobListenerTest",
+          "language": "java",
+          "kind": "module",
+          "file_path": "integration/flink/flink1/src/test/java/io/openlineage/flink/JobListenerTest.java",
+          "module_qualified_name": "OpenLineage.integration.flink.flink1.src.test.java.io.openlineage.flink",
+          "missing_count": 0,
+          "spillover_count": 6,
+          "reference_count": 0,
+          "missing_rate": null,
+          "spillover_rate": null,
+          "total_mismatch": 6
+        },
+        {
+          "entity": "OpenLineage.integration.spark-extension-interfaces.src.test.java.io.openlineage.spark.shade.extension.v1.lifecycle.plan.SparkOpenLineageExtensionVisitorTest",
+          "language": "java",
+          "kind": "module",
+          "file_path": "integration/spark-extension-interfaces/src/test/java/io/openlineage/spark/shade/extension/v1/lifecycle/plan/SparkOpenLineageExtensionVisitorTest.java",
+          "module_qualified_name": "OpenLineage.integration.spark-extension-interfaces.src.test.java.io.openlineage.spark.shade.extension.v1.lifecycle.plan",
+          "missing_count": 0,
+          "spillover_count": 6,
+          "reference_count": 0,
+          "missing_rate": null,
+          "spillover_rate": null,
+          "total_mismatch": 6
+        },
+        {
+          "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.lifecycle.StaticExecutionContextFactory",
+          "language": "java",
+          "kind": "module",
+          "file_path": "integration/spark/app/src/test/java/io/openlineage/spark/agent/lifecycle/StaticExecutionContextFactory.java",
+          "module_qualified_name": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.lifecycle",
+          "missing_count": 0,
+          "spillover_count": 6,
+          "reference_count": 2,
+          "missing_rate": 0.0,
+          "spillover_rate": 3.0,
+          "total_mismatch": 6
+        },
+        {
           "entity": "OpenLineage.integration.flink.shared.src.main.java.io.openlineage.flink.visitor.FlinkKafkaProducerVisitor.FlinkKafkaProducerVisitor.apply",
           "language": "java",
           "kind": "method",
@@ -36481,6 +36733,19 @@
           "reference_count": 5,
           "missing_rate": 1.0,
           "spillover_rate": 0.0,
+          "total_mismatch": 5
+        },
+        {
+          "entity": "OpenLineage.integration.spark.spark3.src.test.java.io.openlineage.spark3.agent.lifecycle.plan.TableContentChangeDatasetBuilderTest",
+          "language": "java",
+          "kind": "module",
+          "file_path": "integration/spark/spark3/src/test/java/io/openlineage/spark3/agent/lifecycle/plan/TableContentChangeDatasetBuilderTest.java",
+          "module_qualified_name": "OpenLineage.integration.spark.spark3.src.test.java.io.openlineage.spark3.agent.lifecycle.plan",
+          "missing_count": 0,
+          "spillover_count": 5,
+          "reference_count": 0,
+          "missing_rate": null,
+          "spillover_rate": null,
           "total_mismatch": 5
         },
         {
@@ -36536,6 +36801,32 @@
           "total_mismatch": 4
         },
         {
+          "entity": "OpenLineage.integration.spark.shared.src.test.java.io.openlineage.spark.agent.facets.builder.SparkApplicationDetailsFacetBuilderTest",
+          "language": "java",
+          "kind": "module",
+          "file_path": "integration/spark/shared/src/test/java/io/openlineage/spark/agent/facets/builder/SparkApplicationDetailsFacetBuilderTest.java",
+          "module_qualified_name": "OpenLineage.integration.spark.shared.src.test.java.io.openlineage.spark.agent.facets.builder",
+          "missing_count": 0,
+          "spillover_count": 4,
+          "reference_count": 0,
+          "missing_rate": null,
+          "spillover_rate": null,
+          "total_mismatch": 4
+        },
+        {
+          "entity": "OpenLineage.integration.spark.spark3.src.main.java.io.openlineage.spark3.agent.lifecycle.plan.catalog.iceberg.IcebergHandler",
+          "language": "java",
+          "kind": "module",
+          "file_path": "integration/spark/spark3/src/main/java/io/openlineage/spark3/agent/lifecycle/plan/catalog/iceberg/IcebergHandler.java",
+          "module_qualified_name": "OpenLineage.integration.spark.spark3.src.main.java.io.openlineage.spark3.agent.lifecycle.plan.catalog.iceberg",
+          "missing_count": 0,
+          "spillover_count": 4,
+          "reference_count": 2,
+          "missing_rate": 0.0,
+          "spillover_rate": 2.0,
+          "total_mismatch": 4
+        },
+        {
           "entity": "OpenLineage.integration.common.src.openlineage.common.provider.bigquery.BigQueryDatasetsProvider._get_input_from_bq",
           "language": "python",
           "kind": "method",
@@ -36547,162 +36838,6 @@
           "missing_rate": 1.0,
           "spillover_rate": 0.0,
           "total_mismatch": 3
-        },
-        {
-          "entity": "OpenLineage.integration.common.src.openlineage.common.provider.bigquery.BigQueryDatasetsProvider._get_input_output",
-          "language": "python",
-          "kind": "method",
-          "file_path": "integration/common/src/openlineage/common/provider/bigquery.py",
-          "module_qualified_name": "OpenLineage.integration.common.src.openlineage.common.provider.bigquery",
-          "missing_count": 3,
-          "spillover_count": 0,
-          "reference_count": 3,
-          "missing_rate": 1.0,
-          "spillover_rate": 0.0,
-          "total_mismatch": 3
-        },
-        {
-          "entity": "OpenLineage.integration.common.src.openlineage.common.provider.dbt.local.DbtLocalArtifactProcessor.get_dbt_metadata",
-          "language": "python",
-          "kind": "method",
-          "file_path": "integration/common/src/openlineage/common/provider/dbt/local.py",
-          "module_qualified_name": "OpenLineage.integration.common.src.openlineage.common.provider.dbt.local",
-          "missing_count": 3,
-          "spillover_count": 0,
-          "reference_count": 3,
-          "missing_rate": 1.0,
-          "spillover_rate": 0.0,
-          "total_mismatch": 3
-        },
-        {
-          "entity": "OpenLineage.integration.common.src.openlineage.common.provider.dbt.processor.DbtArtifactProcessor.extract_dataset_data",
-          "language": "python",
-          "kind": "method",
-          "file_path": "integration/common/src/openlineage/common/provider/dbt/processor.py",
-          "module_qualified_name": "OpenLineage.integration.common.src.openlineage.common.provider.dbt.processor",
-          "missing_count": 3,
-          "spillover_count": 0,
-          "reference_count": 3,
-          "missing_rate": 1.0,
-          "spillover_rate": 0.0,
-          "total_mismatch": 3
-        },
-        {
-          "entity": "OpenLineage.integration.common.src.openlineage.common.provider.dbt.structured_logs.DbtStructuredLogsProcessor.parse",
-          "language": "python",
-          "kind": "method",
-          "file_path": "integration/common/src/openlineage/common/provider/dbt/structured_logs.py",
-          "module_qualified_name": "OpenLineage.integration.common.src.openlineage.common.provider.dbt.structured_logs",
-          "missing_count": 3,
-          "spillover_count": 0,
-          "reference_count": 3,
-          "missing_rate": 1.0,
-          "spillover_rate": 0.0,
-          "total_mismatch": 3
-        },
-        {
-          "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.ConfigurableIntegrationTest",
-          "language": "java",
-          "kind": "module",
-          "file_path": "integration/spark/app/src/test/java/io/openlineage/spark/agent/ConfigurableIntegrationTest.java",
-          "module_qualified_name": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent",
-          "missing_count": 3,
-          "spillover_count": 0,
-          "reference_count": 4,
-          "missing_rate": 0.75,
-          "spillover_rate": 0.0,
-          "total_mismatch": 3
-        },
-        {
-          "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.SparkIcebergMetadataJsonTest",
-          "language": "java",
-          "kind": "module",
-          "file_path": "integration/spark/app/src/test/java/io/openlineage/spark/agent/SparkIcebergMetadataJsonTest.java",
-          "module_qualified_name": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent",
-          "missing_count": 3,
-          "spillover_count": 0,
-          "reference_count": 3,
-          "missing_rate": 1.0,
-          "spillover_rate": 0.0,
-          "total_mismatch": 3
-        },
-        {
-          "entity": "OpenLineage.client.python.src.openlineage.client.transport.gcplineage.GCPLineageTransport.close",
-          "language": "python",
-          "kind": "method",
-          "file_path": "client/python/src/openlineage/client/transport/gcplineage.py",
-          "module_qualified_name": "OpenLineage.client.python.src.openlineage.client.transport.gcplineage",
-          "missing_count": 2,
-          "spillover_count": 0,
-          "reference_count": 2,
-          "missing_rate": 1.0,
-          "spillover_rate": 0.0,
-          "total_mismatch": 2
-        },
-        {
-          "entity": "OpenLineage.client.python.src.openlineage.client.transport.http.JwtTokenProvider.get_bearer",
-          "language": "python",
-          "kind": "method",
-          "file_path": "client/python/src/openlineage/client/transport/http.py",
-          "module_qualified_name": "OpenLineage.client.python.src.openlineage.client.transport.http",
-          "missing_count": 2,
-          "spillover_count": 0,
-          "reference_count": 2,
-          "missing_rate": 1.0,
-          "spillover_rate": 0.0,
-          "total_mismatch": 2
-        },
-        {
-          "entity": "OpenLineage.dev.create_release_doc.main",
-          "language": "python",
-          "kind": "function",
-          "file_path": "dev/create_release_doc.py",
-          "module_qualified_name": "OpenLineage.dev.create_release_doc",
-          "missing_count": 2,
-          "spillover_count": 0,
-          "reference_count": 2,
-          "missing_rate": 1.0,
-          "spillover_rate": 0.0,
-          "total_mismatch": 2
-        },
-        {
-          "entity": "OpenLineage.integration.common.src.openlineage.common.provider.dbt.local.DbtLocalArtifactProcessor.load_yaml_with_jinja",
-          "language": "python",
-          "kind": "method",
-          "file_path": "integration/common/src/openlineage/common/provider/dbt/local.py",
-          "module_qualified_name": "OpenLineage.integration.common.src.openlineage.common.provider.dbt.local",
-          "missing_count": 2,
-          "spillover_count": 0,
-          "reference_count": 2,
-          "missing_rate": 1.0,
-          "spillover_rate": 0.0,
-          "total_mismatch": 2
-        },
-        {
-          "entity": "OpenLineage.integration.common.src.openlineage.common.provider.great_expectations.action.OpenLineageValidationAction._fetch_datasets_from_pandas_source",
-          "language": "python",
-          "kind": "method",
-          "file_path": "integration/common/src/openlineage/common/provider/great_expectations/action.py",
-          "module_qualified_name": "OpenLineage.integration.common.src.openlineage.common.provider.great_expectations.action",
-          "missing_count": 2,
-          "spillover_count": 0,
-          "reference_count": 2,
-          "missing_rate": 1.0,
-          "spillover_rate": 0.0,
-          "total_mismatch": 2
-        },
-        {
-          "entity": "OpenLineage.integration.common.src.openlineage.common.provider.great_expectations.action.OpenLineageValidationAction.results_facet",
-          "language": "python",
-          "kind": "method",
-          "file_path": "integration/common/src/openlineage/common/provider/great_expectations/action.py",
-          "module_qualified_name": "OpenLineage.integration.common.src.openlineage.common.provider.great_expectations.action",
-          "missing_count": 2,
-          "spillover_count": 0,
-          "reference_count": 2,
-          "missing_rate": 1.0,
-          "spillover_rate": 0.0,
-          "total_mismatch": 2
         }
       ]
     },
@@ -36710,12 +36845,12 @@
       "title": "reducers vs independent syntax-only baseline",
       "scored_nodes": 500,
       "reference_count": 1197,
-      "candidate_count": 5174,
+      "candidate_count": 4250,
       "intersection_count": 1113,
       "missing_count": 84,
-      "spillover_count": 4061,
+      "spillover_count": 3137,
       "coverage": 0.9298245614035088,
-      "spillover_ratio": 3.3926482873851294,
+      "spillover_ratio": 2.620718462823726,
       "match_provenance_breakdown": {
         "name_only": 1113
       }
@@ -36739,17 +36874,282 @@
         "target_zero": true,
         "pass": false,
         "scored_nodes": 273,
-        "avg_rate": 1.405006105006105,
-        "avg_rate_percent": 140.5006105006105,
-        "total_edges": 645,
+        "avg_rate": 1.4086691086691088,
+        "avg_rate_percent": 140.86691086691087,
+        "total_edges": 646,
         "by_semantic_type_avg_rate": {
-          "direct_call_unresolved": 1.0765567765567765,
+          "direct_call_unresolved": 1.0802197802197802,
           "member_call_unresolved": 0.32844932844932845
         },
         "by_semantic_type_avg_percent": {
-          "direct_call_unresolved": 107.65567765567765,
+          "direct_call_unresolved": 108.02197802197801,
           "member_call_unresolved": 32.84493284493284
-        }
+        },
+        "top_unresolved_signatures": [
+          {
+            "entity": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest.OpenLineageTest.factory",
+            "language": "java",
+            "kind": "method",
+            "file_path": "client/java/src/test/java/io/openlineage/client/OpenLineageTest.java",
+            "module_qualified_name": "OpenLineage.client.java.src.test.java.io.openlineage.client.OpenLineageTest",
+            "unresolved_static_count": 112,
+            "reference_count": 1,
+            "unresolved_static_rate": 112.0,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 112
+            }
+          },
+          {
+            "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.PostgresJDBCSparkQueryTest.PostgresJDBCSparkQueryTest.testColumnLevelLineageWhenLoadingJDBC",
+            "language": "java",
+            "kind": "method",
+            "file_path": "integration/spark/app/src/test/java/io/openlineage/spark/agent/PostgresJDBCSparkQueryTest.java",
+            "module_qualified_name": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.PostgresJDBCSparkQueryTest",
+            "unresolved_static_count": 24,
+            "reference_count": 1,
+            "unresolved_static_rate": 24.0,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 24
+            }
+          },
+          {
+            "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.PostgresJDBCSparkQueryTest.PostgresJDBCSparkQueryTest.testPostgresWhenOnlyOneTableIsLoadedDirectly",
+            "language": "java",
+            "kind": "method",
+            "file_path": "integration/spark/app/src/test/java/io/openlineage/spark/agent/PostgresJDBCSparkQueryTest.java",
+            "module_qualified_name": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.PostgresJDBCSparkQueryTest",
+            "unresolved_static_count": 17,
+            "reference_count": 1,
+            "unresolved_static_rate": 17.0,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 17
+            }
+          },
+          {
+            "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.lifecycle.plan.InsertIntoDataSourceVisitor.InsertIntoDataSourceVisitor.apply",
+            "language": "java",
+            "kind": "method",
+            "file_path": "integration/spark/shared/src/main/java/io/openlineage/spark/agent/lifecycle/plan/InsertIntoDataSourceVisitor.java",
+            "module_qualified_name": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.lifecycle.plan.InsertIntoDataSourceVisitor",
+            "unresolved_static_count": 12,
+            "reference_count": 2,
+            "unresolved_static_rate": 6.0,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 12
+            }
+          },
+          {
+            "entity": "OpenLineage.integration.flink.shared.src.main.java.io.openlineage.flink.visitor.FlinkKafkaProducerVisitor.FlinkKafkaProducerVisitor.apply",
+            "language": "java",
+            "kind": "method",
+            "file_path": "integration/flink/shared/src/main/java/io/openlineage/flink/visitor/FlinkKafkaProducerVisitor.java",
+            "module_qualified_name": "OpenLineage.integration.flink.shared.src.main.java.io.openlineage.flink.visitor.FlinkKafkaProducerVisitor",
+            "unresolved_static_count": 12,
+            "reference_count": 5,
+            "unresolved_static_rate": 2.4,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 12
+            }
+          },
+          {
+            "entity": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.SparkSqlQueryRecordingTest.SparkSqlQueryRecordingTest.testReadingSqlQuery",
+            "language": "java",
+            "kind": "method",
+            "file_path": "integration/spark/app/src/test/java/io/openlineage/spark/agent/SparkSqlQueryRecordingTest.java",
+            "module_qualified_name": "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.SparkSqlQueryRecordingTest",
+            "unresolved_static_count": 11,
+            "reference_count": 1,
+            "unresolved_static_rate": 11.0,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 11
+            }
+          },
+          {
+            "entity": "OpenLineage.client.java.src.main.java.io.openlineage.client.utils.filesystem.ObjectStorageDatasetExtractor.ObjectStorageDatasetExtractor.extract",
+            "language": "java",
+            "kind": "method",
+            "file_path": "client/java/src/main/java/io/openlineage/client/utils/filesystem/ObjectStorageDatasetExtractor.java",
+            "module_qualified_name": "OpenLineage.client.java.src.main.java.io.openlineage.client.utils.filesystem.ObjectStorageDatasetExtractor",
+            "unresolved_static_count": 10,
+            "reference_count": 1,
+            "unresolved_static_rate": 10.0,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 10
+            }
+          },
+          {
+            "entity": "OpenLineage.integration.spark.spark3.src.test.java.io.openlineage.spark3.agent.lifecycle.plan.column.visitors.expression.AggregateExpressionVisitorTest.AggregateExpressionVisitorTest.testApplyWithResultIdMethod",
+            "language": "java",
+            "kind": "method",
+            "file_path": "integration/spark/spark3/src/test/java/io/openlineage/spark3/agent/lifecycle/plan/column/visitors/expression/AggregateExpressionVisitorTest.java",
+            "module_qualified_name": "OpenLineage.integration.spark.spark3.src.test.java.io.openlineage.spark3.agent.lifecycle.plan.column.visitors.expression.AggregateExpressionVisitorTest",
+            "unresolved_static_count": 9,
+            "reference_count": 1,
+            "unresolved_static_rate": 9.0,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 9
+            }
+          },
+          {
+            "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.api.AbstractQueryPlanDatasetBuilder.AbstractQueryPlanDatasetBuilder.apply",
+            "language": "java",
+            "kind": "method",
+            "file_path": "integration/spark/shared/src/main/java/io/openlineage/spark/api/AbstractQueryPlanDatasetBuilder.java",
+            "module_qualified_name": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.api.AbstractQueryPlanDatasetBuilder",
+            "unresolved_static_count": 9,
+            "reference_count": 2,
+            "unresolved_static_rate": 4.5,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 9
+            }
+          },
+          {
+            "entity": "OpenLineage.dev.get_contributor_stats.main",
+            "language": "python",
+            "kind": "function",
+            "file_path": "dev/get_contributor_stats.py",
+            "module_qualified_name": "OpenLineage.dev.get_contributor_stats",
+            "unresolved_static_count": 9,
+            "reference_count": 9,
+            "unresolved_static_rate": 1.0,
+            "semantic_breakdown": {
+              "member_call_unresolved": 9
+            }
+          },
+          {
+            "entity": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.testutils.KafkaTestEnvironmentImpl.KafkaTestEnvironmentImpl.startKafkaContainerCluster",
+            "language": "java",
+            "kind": "method",
+            "file_path": "integration/flink/flink2/src/test/java/io/openlineage/flink/testutils/KafkaTestEnvironmentImpl.java",
+            "module_qualified_name": "OpenLineage.integration.flink.flink2.src.test.java.io.openlineage.flink.testutils.KafkaTestEnvironmentImpl",
+            "unresolved_static_count": 8,
+            "reference_count": 2,
+            "unresolved_static_rate": 4.0,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 8
+            }
+          },
+          {
+            "entity": "OpenLineage.client.java.src.test.java.io.openlineage.client.ConfigTest.ConfigTest.testSimpleMemoryCircuitBreakerConfigFromYaml",
+            "language": "java",
+            "kind": "method",
+            "file_path": "client/java/src/test/java/io/openlineage/client/ConfigTest.java",
+            "module_qualified_name": "OpenLineage.client.java.src.test.java.io.openlineage.client.ConfigTest",
+            "unresolved_static_count": 6,
+            "reference_count": 1,
+            "unresolved_static_rate": 6.0,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 6
+            }
+          },
+          {
+            "entity": "OpenLineage.client.python.src.openlineage.client.generator.cli.main",
+            "language": "python",
+            "kind": "function",
+            "file_path": "client/python/src/openlineage/client/generator/cli.py",
+            "module_qualified_name": "OpenLineage.client.python.src.openlineage.client.generator.cli",
+            "unresolved_static_count": 6,
+            "reference_count": 1,
+            "unresolved_static_rate": 6.0,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 5,
+              "member_call_unresolved": 1
+            }
+          },
+          {
+            "entity": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.lifecycle.plan.CreateTableCommandVisitor.CreateTableCommandVisitor.jobNameSuffix",
+            "language": "java",
+            "kind": "method",
+            "file_path": "integration/spark/shared/src/main/java/io/openlineage/spark/agent/lifecycle/plan/CreateTableCommandVisitor.java",
+            "module_qualified_name": "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.spark.agent.lifecycle.plan.CreateTableCommandVisitor",
+            "unresolved_static_count": 6,
+            "reference_count": 1,
+            "unresolved_static_rate": 6.0,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 6
+            }
+          },
+          {
+            "entity": "OpenLineage.integration.common.src.openlineage.common.provider.bigquery.BigQueryDatasetsProvider._get_input_from_bq",
+            "language": "python",
+            "kind": "method",
+            "file_path": "integration/common/src/openlineage/common/provider/bigquery.py",
+            "module_qualified_name": "OpenLineage.integration.common.src.openlineage.common.provider.bigquery",
+            "unresolved_static_count": 6,
+            "reference_count": 3,
+            "unresolved_static_rate": 2.0,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 1,
+              "member_call_unresolved": 5
+            }
+          },
+          {
+            "entity": "OpenLineage.integration.spark.spark3.src.test.java.io.openlineage.spark3.agent.lifecycle.plan.column.ExpressionDependencyCollectorTest.ExpressionDependencyCollectorTest.testCollectMultipleDirectTransformationsForOneInput",
+            "language": "java",
+            "kind": "method",
+            "file_path": "integration/spark/spark3/src/test/java/io/openlineage/spark3/agent/lifecycle/plan/column/ExpressionDependencyCollectorTest.java",
+            "module_qualified_name": "OpenLineage.integration.spark.spark3.src.test.java.io.openlineage.spark3.agent.lifecycle.plan.column.ExpressionDependencyCollectorTest",
+            "unresolved_static_count": 6,
+            "reference_count": 3,
+            "unresolved_static_rate": 2.0,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 6
+            }
+          },
+          {
+            "entity": "OpenLineage.client.java.generator.src.main.java.io.openlineage.client.JavaPoetGenerator.JavaPoetGenerator.generateTypes",
+            "language": "java",
+            "kind": "method",
+            "file_path": "client/java/generator/src/main/java/io/openlineage/client/JavaPoetGenerator.java",
+            "module_qualified_name": "OpenLineage.client.java.generator.src.main.java.io.openlineage.client.JavaPoetGenerator",
+            "unresolved_static_count": 6,
+            "reference_count": 4,
+            "unresolved_static_rate": 1.5,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 6
+            }
+          },
+          {
+            "entity": "OpenLineage.client.python.src.openlineage.client.client.OpenLineageClient.emit",
+            "language": "python",
+            "kind": "method",
+            "file_path": "client/python/src/openlineage/client/client.py",
+            "module_qualified_name": "OpenLineage.client.python.src.openlineage.client.client",
+            "unresolved_static_count": 6,
+            "reference_count": 4,
+            "unresolved_static_rate": 1.5,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 1,
+              "member_call_unresolved": 5
+            }
+          },
+          {
+            "entity": "OpenLineage.client.python.src.openlineage.client.transport.async_http.AsyncHttpTransport.emit",
+            "language": "python",
+            "kind": "method",
+            "file_path": "client/python/src/openlineage/client/transport/async_http.py",
+            "module_qualified_name": "OpenLineage.client.python.src.openlineage.client.transport.async_http",
+            "unresolved_static_count": 6,
+            "reference_count": 4,
+            "unresolved_static_rate": 1.5,
+            "semantic_breakdown": {
+              "member_call_unresolved": 6
+            }
+          },
+          {
+            "entity": "OpenLineage.dev.get_changes.main",
+            "language": "python",
+            "kind": "function",
+            "file_path": "dev/get_changes.py",
+            "module_qualified_name": "OpenLineage.dev.get_changes",
+            "unresolved_static_count": 6,
+            "reference_count": 6,
+            "unresolved_static_rate": 1.0,
+            "semantic_breakdown": {
+              "member_call_unresolved": 6
+            }
+          }
+        ]
       }
     }
   },

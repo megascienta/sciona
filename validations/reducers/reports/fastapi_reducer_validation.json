@@ -1,13 +1,38 @@
 {
-  "report_schema_version": "2026-02-27",
+  "report_schema_version": "2026-03-01",
   "summary": [
     "repo=fastapi",
     "sampled_nodes=500",
     "q1_reducer_vs_db_exact=True",
     "q2_reducer_vs_independent_overlap_macro=False",
-    "q3_avg_non_static_percent=1.6935",
-    "unresolved_static_avg_percent=37.2924"
+    "q3_avg_non_static_percent=1.7355",
+    "unresolved_static_avg_percent=38.2163"
   ],
+  "metrics_v2": {
+    "q2": {
+      "pass": false,
+      "metric_mode": "weighted_aggregate_v2",
+      "weighted": {
+        "missing_rate": 0.1282565130260521,
+        "spillover_rate": 0.02404809619238477,
+        "mutual_accuracy": 0.8512720156555773
+      },
+      "per_node_avg": {
+        "missing_rate": 0.18574380165289256,
+        "spillover_rate": 0.009641873278236915,
+        "mutual_accuracy": 0.8083333333333333
+      },
+      "targets": {
+        "missing_rate_max": 0.010000000000000009,
+        "spillover_rate_max": 0.010000000000000009,
+        "mutual_accuracy_min": 0.99
+      }
+    },
+    "q3": {
+      "unresolved_static_avg_rate": 0.3821625344352617,
+      "unresolved_static_total_edges": 184
+    }
+  },
   "invariants": {
     "passed": false,
     "pipeline_self_consistent": true,
@@ -23,6 +48,7 @@
     "q2_target_mutual_accuracy_min": 0.99,
     "q2_target_missing_rate_max": 0.010000000000000009,
     "q2_target_spillover_rate_max": 0.010000000000000009,
+    "q2_metric_mode": "weighted_aggregate_v2",
     "q2_filtering_source": "core_only",
     "unresolved_static_target_zero": true
   },
@@ -2425,50 +2451,42 @@
       "file_path": "tests/__init__.py",
       "module_qualified_name": "fastapi",
       "set_q1_reducer_vs_db": {
-        "reference_count": 837,
-        "candidate_count": 837,
-        "intersection_count": 837,
+        "reference_count": 0,
+        "candidate_count": 0,
+        "intersection_count": 0,
         "missing_count": 0,
         "spillover_count": 0,
-        "coverage": 1.0,
-        "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 837
-        }
+        "coverage": null,
+        "spillover_ratio": null,
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_contract": {
-        "reference_count": 837,
-        "candidate_count": 837,
-        "intersection_count": 837,
+        "reference_count": 0,
+        "candidate_count": 0,
+        "intersection_count": 0,
         "missing_count": 0,
         "spillover_count": 0,
-        "coverage": 1.0,
-        "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 837
-        }
+        "coverage": null,
+        "spillover_ratio": null,
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
-        "reference_count": 837,
-        "candidate_count": 2033,
-        "intersection_count": 729,
-        "missing_count": 108,
-        "spillover_count": 1304,
-        "coverage": 0.8709677419354839,
-        "spillover_ratio": 1.5579450418160095,
-        "match_provenance_breakdown": {
-          "name_only": 729
-        }
+        "reference_count": 0,
+        "candidate_count": 0,
+        "intersection_count": 0,
+        "missing_count": 0,
+        "spillover_count": 0,
+        "coverage": null,
+        "spillover_ratio": null,
+        "match_provenance_breakdown": {}
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 837,
-        "excluded_out_of_scope_count": 1196,
+        "reference_in_contract_count": 0,
+        "excluded_out_of_scope_count": 0,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 1196,
-        "excluded_out_of_scope_by_reason": {
-          "external": 1196
-        },
+        "excluded_total_count": 0,
+        "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {}
       },
       "q2_ground_truth_diagnostics": {
@@ -2478,13 +2496,9 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {}
       },
-      "q2_node_rates": {
-        "missing_rate": 0.0,
-        "spillover_rate": 0.0,
-        "mutual_accuracy": 1.0
-      },
-      "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 0.0
+      "q2_node_rates": null,
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_dependency_partial",
@@ -3287,50 +3301,42 @@
       "file_path": "fastapi/dependencies/__init__.py",
       "module_qualified_name": "fastapi",
       "set_q1_reducer_vs_db": {
-        "reference_count": 13,
-        "candidate_count": 13,
-        "intersection_count": 13,
+        "reference_count": 0,
+        "candidate_count": 0,
+        "intersection_count": 0,
         "missing_count": 0,
         "spillover_count": 0,
-        "coverage": 1.0,
-        "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 13
-        }
+        "coverage": null,
+        "spillover_ratio": null,
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_contract": {
-        "reference_count": 13,
-        "candidate_count": 13,
-        "intersection_count": 13,
+        "reference_count": 0,
+        "candidate_count": 0,
+        "intersection_count": 0,
         "missing_count": 0,
         "spillover_count": 0,
-        "coverage": 1.0,
-        "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 13
-        }
+        "coverage": null,
+        "spillover_ratio": null,
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
-        "reference_count": 13,
-        "candidate_count": 40,
-        "intersection_count": 13,
+        "reference_count": 0,
+        "candidate_count": 0,
+        "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 27,
-        "coverage": 1.0,
-        "spillover_ratio": 2.076923076923077,
-        "match_provenance_breakdown": {
-          "name_only": 13
-        }
+        "spillover_count": 0,
+        "coverage": null,
+        "spillover_ratio": null,
+        "match_provenance_breakdown": {}
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 13,
-        "excluded_out_of_scope_count": 27,
+        "reference_in_contract_count": 0,
+        "excluded_out_of_scope_count": 0,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 27,
-        "excluded_out_of_scope_by_reason": {
-          "external": 27
-        },
+        "excluded_total_count": 0,
+        "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {}
       },
       "q2_ground_truth_diagnostics": {
@@ -3340,13 +3346,9 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {}
       },
-      "q2_node_rates": {
-        "missing_rate": 0.0,
-        "spillover_rate": 0.0,
-        "mutual_accuracy": 1.0
-      },
-      "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 0.0
+      "q2_node_rates": null,
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_dependency_duplicates",
@@ -3956,10 +3958,10 @@
       },
       "set_q2_reducer_vs_independent_syntax": {
         "reference_count": 0,
-        "candidate_count": 8,
+        "candidate_count": 1,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 8,
+        "spillover_count": 1,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -3967,11 +3969,11 @@
       "basket2_edges": [],
       "q2_filtering_stats": {
         "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 8,
+        "excluded_out_of_scope_count": 1,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 8,
+        "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {
-          "external": 8
+          "external": 1
         },
         "excluded_limitation_by_reason": {}
       },
@@ -5501,44 +5503,38 @@
       "file_path": "docs_src/bigger_applications/app_an_py310/internal/__init__.py",
       "module_qualified_name": "fastapi.docs_src.bigger_applications.app_an_py310",
       "set_q1_reducer_vs_db": {
-        "reference_count": 1,
-        "candidate_count": 1,
-        "intersection_count": 1,
+        "reference_count": 0,
+        "candidate_count": 0,
+        "intersection_count": 0,
         "missing_count": 0,
         "spillover_count": 0,
-        "coverage": 1.0,
-        "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 1
-        }
+        "coverage": null,
+        "spillover_ratio": null,
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_contract": {
-        "reference_count": 1,
-        "candidate_count": 1,
-        "intersection_count": 1,
+        "reference_count": 0,
+        "candidate_count": 0,
+        "intersection_count": 0,
         "missing_count": 0,
         "spillover_count": 0,
-        "coverage": 1.0,
-        "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 1
-        }
+        "coverage": null,
+        "spillover_ratio": null,
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
-        "reference_count": 1,
-        "candidate_count": 1,
-        "intersection_count": 1,
+        "reference_count": 0,
+        "candidate_count": 0,
+        "intersection_count": 0,
         "missing_count": 0,
         "spillover_count": 0,
-        "coverage": 1.0,
-        "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "name_only": 1
-        }
+        "coverage": null,
+        "spillover_ratio": null,
+        "match_provenance_breakdown": {}
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
+        "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 0,
         "excluded_limitation_count": 0,
         "excluded_total_count": 0,
@@ -5552,13 +5548,9 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {}
       },
-      "q2_node_rates": {
-        "missing_rate": 0.0,
-        "spillover_rate": 0.0,
-        "mutual_accuracy": 1.0
-      },
-      "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 0.0
+      "q2_node_rates": null,
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.exception_handlers",
@@ -6227,50 +6219,46 @@
       "file_path": "fastapi/security/__init__.py",
       "module_qualified_name": "fastapi",
       "set_q1_reducer_vs_db": {
-        "reference_count": 14,
-        "candidate_count": 14,
-        "intersection_count": 14,
+        "reference_count": 4,
+        "candidate_count": 4,
+        "intersection_count": 4,
         "missing_count": 0,
         "spillover_count": 0,
         "coverage": 1.0,
         "spillover_ratio": 0.0,
         "match_provenance_breakdown": {
-          "qname_exact": 14
+          "qname_exact": 4
         }
       },
       "set_q2_reducer_vs_independent_contract": {
-        "reference_count": 14,
-        "candidate_count": 18,
-        "intersection_count": 14,
+        "reference_count": 4,
+        "candidate_count": 4,
+        "intersection_count": 4,
         "missing_count": 0,
-        "spillover_count": 4,
+        "spillover_count": 0,
         "coverage": 1.0,
-        "spillover_ratio": 0.2857142857142857,
+        "spillover_ratio": 0.0,
         "match_provenance_breakdown": {
-          "qname_exact": 14
+          "qname_exact": 4
         }
       },
       "set_q2_reducer_vs_independent_syntax": {
-        "reference_count": 14,
-        "candidate_count": 39,
-        "intersection_count": 10,
+        "reference_count": 4,
+        "candidate_count": 4,
+        "intersection_count": 0,
         "missing_count": 4,
-        "spillover_count": 29,
-        "coverage": 0.7142857142857143,
-        "spillover_ratio": 2.0714285714285716,
-        "match_provenance_breakdown": {
-          "name_only": 10
-        }
+        "spillover_count": 4,
+        "coverage": 0.0,
+        "spillover_ratio": 1.0,
+        "match_provenance_breakdown": {}
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 18,
-        "excluded_out_of_scope_count": 21,
+        "reference_in_contract_count": 4,
+        "excluded_out_of_scope_count": 0,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 21,
-        "excluded_out_of_scope_by_reason": {
-          "external": 21
-        },
+        "excluded_total_count": 0,
+        "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {}
       },
       "q2_ground_truth_diagnostics": {
@@ -6282,8 +6270,8 @@
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 0.2857142857142857,
-        "mutual_accuracy": 0.7777777777777778
+        "spillover_rate": 0.0,
+        "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
       "unresolved_static_rate_percent": 0.0
@@ -7223,50 +7211,46 @@
       "file_path": "fastapi/_compat/__init__.py",
       "module_qualified_name": "fastapi",
       "set_q1_reducer_vs_db": {
-        "reference_count": 6,
-        "candidate_count": 6,
-        "intersection_count": 6,
+        "reference_count": 2,
+        "candidate_count": 2,
+        "intersection_count": 2,
         "missing_count": 0,
         "spillover_count": 0,
         "coverage": 1.0,
         "spillover_ratio": 0.0,
         "match_provenance_breakdown": {
-          "qname_exact": 6
+          "qname_exact": 2
         }
       },
       "set_q2_reducer_vs_independent_contract": {
-        "reference_count": 6,
-        "candidate_count": 7,
-        "intersection_count": 6,
+        "reference_count": 2,
+        "candidate_count": 2,
+        "intersection_count": 2,
         "missing_count": 0,
-        "spillover_count": 1,
+        "spillover_count": 0,
         "coverage": 1.0,
-        "spillover_ratio": 0.16666666666666666,
+        "spillover_ratio": 0.0,
         "match_provenance_breakdown": {
-          "qname_exact": 6
+          "qname_exact": 2
         }
       },
       "set_q2_reducer_vs_independent_syntax": {
-        "reference_count": 6,
-        "candidate_count": 32,
-        "intersection_count": 4,
+        "reference_count": 2,
+        "candidate_count": 2,
+        "intersection_count": 0,
         "missing_count": 2,
-        "spillover_count": 28,
-        "coverage": 0.6666666666666666,
-        "spillover_ratio": 4.666666666666667,
-        "match_provenance_breakdown": {
-          "name_only": 4
-        }
+        "spillover_count": 2,
+        "coverage": 0.0,
+        "spillover_ratio": 1.0,
+        "match_provenance_breakdown": {}
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 7,
-        "excluded_out_of_scope_count": 25,
+        "reference_in_contract_count": 2,
+        "excluded_out_of_scope_count": 0,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 25,
-        "excluded_out_of_scope_by_reason": {
-          "external": 25
-        },
+        "excluded_total_count": 0,
+        "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {}
       },
       "q2_ground_truth_diagnostics": {
@@ -7278,8 +7262,8 @@
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 0.16666666666666666,
-        "mutual_accuracy": 0.8571428571428571
+        "spillover_rate": 0.0,
+        "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
       "unresolved_static_rate_percent": 0.0
@@ -7427,50 +7411,42 @@
       "file_path": "tests/test_tutorial/test_generate_clients/__init__.py",
       "module_qualified_name": "fastapi.tests.test_tutorial",
       "set_q1_reducer_vs_db": {
-        "reference_count": 3,
-        "candidate_count": 3,
-        "intersection_count": 3,
+        "reference_count": 0,
+        "candidate_count": 0,
+        "intersection_count": 0,
         "missing_count": 0,
         "spillover_count": 0,
-        "coverage": 1.0,
-        "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 3
-        }
+        "coverage": null,
+        "spillover_ratio": null,
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_contract": {
-        "reference_count": 3,
-        "candidate_count": 3,
-        "intersection_count": 3,
+        "reference_count": 0,
+        "candidate_count": 0,
+        "intersection_count": 0,
         "missing_count": 0,
         "spillover_count": 0,
-        "coverage": 1.0,
-        "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 3
-        }
+        "coverage": null,
+        "spillover_ratio": null,
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
-        "reference_count": 3,
-        "candidate_count": 16,
-        "intersection_count": 3,
+        "reference_count": 0,
+        "candidate_count": 0,
+        "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 13,
-        "coverage": 1.0,
-        "spillover_ratio": 4.333333333333333,
-        "match_provenance_breakdown": {
-          "name_only": 3
-        }
+        "spillover_count": 0,
+        "coverage": null,
+        "spillover_ratio": null,
+        "match_provenance_breakdown": {}
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 3,
-        "excluded_out_of_scope_count": 13,
+        "reference_in_contract_count": 0,
+        "excluded_out_of_scope_count": 0,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 13,
-        "excluded_out_of_scope_by_reason": {
-          "external": 13
-        },
+        "excluded_total_count": 0,
+        "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {}
       },
       "q2_ground_truth_diagnostics": {
@@ -7480,13 +7456,9 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {}
       },
-      "q2_node_rates": {
-        "missing_rate": 0.0,
-        "spillover_rate": 0.0,
-        "mutual_accuracy": 1.0
-      },
-      "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 0.0
+      "q2_node_rates": null,
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.tests.test_tutorial.test_configure_swagger_ui.test_tutorial003",
@@ -7563,73 +7535,49 @@
       "file_path": "fastapi/__init__.py",
       "module_qualified_name": "fastapi",
       "set_q1_reducer_vs_db": {
-        "reference_count": 1622,
-        "candidate_count": 1622,
-        "intersection_count": 1622,
+        "reference_count": 9,
+        "candidate_count": 9,
+        "intersection_count": 9,
         "missing_count": 0,
         "spillover_count": 0,
         "coverage": 1.0,
         "spillover_ratio": 0.0,
         "match_provenance_breakdown": {
-          "qname_exact": 1622
+          "qname_exact": 9
         }
       },
       "set_q2_reducer_vs_independent_contract": {
-        "reference_count": 1622,
-        "candidate_count": 1629,
-        "intersection_count": 1622,
+        "reference_count": 9,
+        "candidate_count": 9,
+        "intersection_count": 9,
         "missing_count": 0,
-        "spillover_count": 7,
+        "spillover_count": 0,
         "coverage": 1.0,
-        "spillover_ratio": 0.004315659679408138,
+        "spillover_ratio": 0.0,
         "match_provenance_breakdown": {
-          "qname_exact": 1622
+          "qname_exact": 9
         }
       },
       "set_q2_reducer_vs_independent_syntax": {
-        "reference_count": 1622,
-        "candidate_count": 3598,
-        "intersection_count": 1464,
-        "missing_count": 158,
-        "spillover_count": 2134,
-        "coverage": 0.9025893958076449,
-        "spillover_ratio": 1.315659679408138,
-        "match_provenance_breakdown": {
-          "name_only": 1464
-        }
+        "reference_count": 9,
+        "candidate_count": 10,
+        "intersection_count": 0,
+        "missing_count": 9,
+        "spillover_count": 10,
+        "coverage": 0.0,
+        "spillover_ratio": 1.1111111111111112,
+        "match_provenance_breakdown": {}
       },
-      "basket2_edges": [
-        {
-          "caller": "fastapi.docs_src.bigger_applications.app_py39.main",
-          "callee": ".internal",
-          "callee_qname": null,
-          "provenance": "syntax_raw"
-        },
-        {
-          "caller": "fastapi.docs_src.bigger_applications.app_py39.main",
-          "callee": ".routers",
-          "callee_qname": null,
-          "provenance": "syntax_raw"
-        },
-        {
-          "caller": "fastapi.docs_src.pydantic_v1_in_v2.tutorial004_an_py310",
-          "callee": "fastapi.temp_pydantic_v1_params",
-          "callee_qname": null,
-          "provenance": "syntax_raw"
-        }
-      ],
+      "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1629,
-        "excluded_out_of_scope_count": 1965,
-        "excluded_limitation_count": 3,
-        "excluded_total_count": 1968,
+        "reference_in_contract_count": 9,
+        "excluded_out_of_scope_count": 1,
+        "excluded_limitation_count": 0,
+        "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {
-          "external": 1965
+          "external": 1
         },
-        "excluded_limitation_by_reason": {
-          "relative_unresolved": 2,
-          "in_repo_unresolved": 1
-        }
+        "excluded_limitation_by_reason": {}
       },
       "q2_ground_truth_diagnostics": {
         "class_truth_unreliable": null,
@@ -7640,11 +7588,11 @@
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 0.004315659679408138,
-        "mutual_accuracy": 0.9957028852056476
+        "spillover_rate": 0.0,
+        "mutual_accuracy": 1.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 0.18495684340320592
+      "unresolved_static_rate_percent": 0.0
     },
     {
       "entity": "fastapi._compat.v2",
@@ -7925,50 +7873,42 @@
       "file_path": "fastapi/openapi/__init__.py",
       "module_qualified_name": "fastapi",
       "set_q1_reducer_vs_db": {
-        "reference_count": 16,
-        "candidate_count": 16,
-        "intersection_count": 16,
+        "reference_count": 0,
+        "candidate_count": 0,
+        "intersection_count": 0,
         "missing_count": 0,
         "spillover_count": 0,
-        "coverage": 1.0,
-        "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 16
-        }
+        "coverage": null,
+        "spillover_ratio": null,
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_contract": {
-        "reference_count": 16,
-        "candidate_count": 16,
-        "intersection_count": 16,
+        "reference_count": 0,
+        "candidate_count": 0,
+        "intersection_count": 0,
         "missing_count": 0,
         "spillover_count": 0,
-        "coverage": 1.0,
-        "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 16
-        }
+        "coverage": null,
+        "spillover_ratio": null,
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
-        "reference_count": 16,
-        "candidate_count": 35,
-        "intersection_count": 16,
+        "reference_count": 0,
+        "candidate_count": 0,
+        "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 19,
-        "coverage": 1.0,
-        "spillover_ratio": 1.1875,
-        "match_provenance_breakdown": {
-          "name_only": 16
-        }
+        "spillover_count": 0,
+        "coverage": null,
+        "spillover_ratio": null,
+        "match_provenance_breakdown": {}
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 16,
-        "excluded_out_of_scope_count": 19,
+        "reference_in_contract_count": 0,
+        "excluded_out_of_scope_count": 0,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 19,
-        "excluded_out_of_scope_by_reason": {
-          "external": 19
-        },
+        "excluded_total_count": 0,
+        "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {}
       },
       "q2_ground_truth_diagnostics": {
@@ -7978,13 +7918,9 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {}
       },
-      "q2_node_rates": {
-        "missing_rate": 0.0,
-        "spillover_rate": 0.0,
-        "mutual_accuracy": 1.0
-      },
-      "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 0.0
+      "q2_node_rates": null,
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.security.oauth2",
@@ -8129,50 +8065,42 @@
       "file_path": "docs_src/async_tests/app_a_py310/__init__.py",
       "module_qualified_name": "fastapi.docs_src.async_tests",
       "set_q1_reducer_vs_db": {
-        "reference_count": 2,
-        "candidate_count": 2,
-        "intersection_count": 2,
+        "reference_count": 0,
+        "candidate_count": 0,
+        "intersection_count": 0,
         "missing_count": 0,
         "spillover_count": 0,
-        "coverage": 1.0,
-        "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 2
-        }
+        "coverage": null,
+        "spillover_ratio": null,
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_contract": {
-        "reference_count": 2,
-        "candidate_count": 2,
-        "intersection_count": 2,
+        "reference_count": 0,
+        "candidate_count": 0,
+        "intersection_count": 0,
         "missing_count": 0,
         "spillover_count": 0,
-        "coverage": 1.0,
-        "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 2
-        }
+        "coverage": null,
+        "spillover_ratio": null,
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
-        "reference_count": 2,
-        "candidate_count": 4,
-        "intersection_count": 1,
-        "missing_count": 1,
-        "spillover_count": 3,
-        "coverage": 0.5,
-        "spillover_ratio": 1.5,
-        "match_provenance_breakdown": {
-          "name_only": 1
-        }
+        "reference_count": 0,
+        "candidate_count": 0,
+        "intersection_count": 0,
+        "missing_count": 0,
+        "spillover_count": 0,
+        "coverage": null,
+        "spillover_ratio": null,
+        "match_provenance_breakdown": {}
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 2,
-        "excluded_out_of_scope_count": 2,
+        "reference_in_contract_count": 0,
+        "excluded_out_of_scope_count": 0,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 2,
-        "excluded_out_of_scope_by_reason": {
-          "external": 2
-        },
+        "excluded_total_count": 0,
+        "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {}
       },
       "q2_ground_truth_diagnostics": {
@@ -8182,13 +8110,9 @@
         "class_truth_method_count": 0,
         "strict_contract_candidate_count_histogram": {}
       },
-      "q2_node_rates": {
-        "missing_rate": 0.0,
-        "spillover_rate": 0.0,
-        "mutual_accuracy": 1.0
-      },
-      "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 0.0
+      "q2_node_rates": null,
+      "q3_non_static_rate_percent": null,
+      "unresolved_static_rate_percent": null
     },
     {
       "entity": "fastapi.docs_src.settings.app03_an_py310.config",
@@ -8525,7 +8449,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -8755,7 +8679,8 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1,
+          "in_repo_unresolved": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -9633,7 +9558,8 @@
           "external": 13
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved": 2,
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -9938,7 +9864,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -10629,7 +10555,8 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1,
+          "in_repo_unresolved": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -10766,7 +10693,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -10919,7 +10846,8 @@
         "excluded_total_count": 2,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1,
+          "in_repo_unresolved": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -11053,7 +10981,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -11206,7 +11134,8 @@
         "excluded_total_count": 2,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1,
+          "in_repo_unresolved": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -11280,7 +11209,7 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -11350,7 +11279,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -12198,7 +12127,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -12476,7 +12405,7 @@
           "external": 8
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -13120,7 +13049,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -13579,7 +13508,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -13779,7 +13708,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -14640,7 +14569,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -14946,7 +14875,7 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -15016,7 +14945,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -15873,7 +15802,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -16119,7 +16048,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -16249,7 +16178,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -16675,7 +16604,9 @@
           "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1,
+          "in_repo_unresolved": 1,
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -16815,7 +16746,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -16995,7 +16926,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -17071,7 +17002,7 @@
           "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -17151,7 +17082,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -17286,7 +17217,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -17360,7 +17291,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -17558,7 +17489,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -17628,7 +17559,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -17837,7 +17768,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -17907,7 +17838,7 @@
           "external": 7
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -17981,7 +17912,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -18133,7 +18064,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -18239,7 +18170,8 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 7
+          "in_repo_unresolved_unique_without_provenance": 5,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -18317,7 +18249,8 @@
           "external": 6
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_unique_without_provenance": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -18530,7 +18463,7 @@
           "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -18671,7 +18604,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -18747,7 +18680,7 @@
           "external": 7
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -18918,7 +18851,7 @@
         },
         "excluded_limitation_by_reason": {
           "dynamic": 1,
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_unique_without_provenance": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -18992,7 +18925,7 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -19190,7 +19123,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -19394,7 +19327,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -19559,7 +19492,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -19759,7 +19692,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -19834,7 +19767,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -19910,7 +19843,7 @@
           "external": 7
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -20065,7 +19998,7 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -20238,7 +20171,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -20380,7 +20313,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -20454,7 +20387,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -20676,7 +20609,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -20752,7 +20685,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -20897,7 +20830,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -20972,7 +20905,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -21066,7 +20999,8 @@
           "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1,
+          "in_repo_unresolved_unique_without_provenance": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -21436,7 +21370,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -21578,7 +21512,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -21923,7 +21857,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -21997,7 +21931,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -22209,7 +22143,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -22411,7 +22345,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -22882,7 +22816,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -23018,7 +22952,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -23492,7 +23426,7 @@
           "external": 5
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 6
+          "in_repo_unresolved_unique_without_provenance": 6
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -23772,7 +23706,7 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -23914,7 +23848,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -23988,7 +23922,7 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -24064,7 +23998,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -24308,7 +24242,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -24450,7 +24384,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -24524,7 +24458,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -24876,7 +24810,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -24953,7 +24887,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -25235,7 +25169,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -25472,7 +25406,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -25547,7 +25481,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -25778,7 +25712,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -33092,9 +33026,9 @@
       "title": "reducers vs DB correctness",
       "pass": true,
       "exact_required": true,
-      "reference_count": 2998,
-      "candidate_count": 2998,
-      "intersection_count": 2998,
+      "reference_count": 499,
+      "candidate_count": 499,
+      "intersection_count": 499,
       "missing_count": 0,
       "spillover_count": 0,
       "mismatch_nodes": 0
@@ -33105,39 +33039,49 @@
       "target_mutual_accuracy_min": 0.99,
       "target_missing_rate_max": 0.010000000000000009,
       "target_spillover_rate_max": 0.010000000000000009,
-      "scored_nodes": 248,
-      "avg_missing_rate": 0.18125,
-      "avg_spillover_rate": 0.011250120747555216,
-      "avg_mutual_accuracy": 0.8114810088177135,
-      "reference_count": 2998,
-      "candidate_count": 2958,
-      "intersection_count": 2934,
+      "scored_nodes": 242,
+      "avg_missing_rate": 0.18574380165289256,
+      "avg_spillover_rate": 0.009641873278236915,
+      "avg_mutual_accuracy": 0.8083333333333333,
+      "weighted_missing_rate": 0.1282565130260521,
+      "weighted_spillover_rate": 0.02404809619238477,
+      "weighted_mutual_accuracy": 0.8512720156555773,
+      "metric_mode": "weighted_aggregate_v2",
+      "reference_count": 499,
+      "candidate_count": 447,
+      "intersection_count": 435,
       "missing_count": 64,
-      "spillover_count": 24,
+      "spillover_count": 12,
       "by_language": {
         "python": {
-          "scored_nodes": 248,
-          "avg_missing_rate": 0.18125,
-          "avg_spillover_rate": 0.011250120747555216,
-          "avg_mutual_accuracy": 0.8114810088177135,
+          "scored_nodes": 242,
+          "avg_missing_rate": 0.18574380165289256,
+          "avg_spillover_rate": 0.009641873278236915,
+          "avg_mutual_accuracy": 0.8083333333333333,
+          "weighted_missing_rate": 0.1282565130260521,
+          "weighted_spillover_rate": 0.02404809619238477,
+          "weighted_mutual_accuracy": 0.8512720156555773,
           "pass": false
         }
       },
       "filtering_source": "core_only",
-      "envelope_reference_count": 2998,
-      "envelope_excluded_count": 4272,
-      "envelope_excluded_out_of_scope_count": 4078,
-      "envelope_excluded_limitation_count": 194,
-      "envelope_total_count": 7270,
-      "contract_filtered_out_ratio": 0.5876203576341128,
+      "envelope_reference_count": 499,
+      "envelope_excluded_count": 995,
+      "envelope_excluded_out_of_scope_count": 804,
+      "envelope_excluded_limitation_count": 191,
+      "envelope_total_count": 1494,
+      "contract_filtered_out_ratio": 0.6659973226238286,
       "envelope_excluded_by_reason": {
         "dynamic": 7,
-        "external": 4078,
-        "in_repo_unresolved": 183,
-        "relative_unresolved": 4
+        "external": 804,
+        "in_repo_unresolved": 84,
+        "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 15,
+        "in_repo_unresolved_ambiguous_no_in_scope_candidate": 47,
+        "in_repo_unresolved_unique_without_provenance": 36,
+        "relative_unresolved": 2
       },
       "match_provenance_breakdown": {
-        "qname_exact": 2934
+        "qname_exact": 435
       },
       "strict_contract_candidate_count_histogram": {
         "0": 376,
@@ -33157,39 +33101,32 @@
         "exact_qname": 125
       },
       "core_contract_overlap": {
-        "reference_count": 2998,
-        "candidate_count": 2958,
-        "intersection_count": 2934,
+        "reference_count": 499,
+        "candidate_count": 447,
+        "intersection_count": 435,
         "missing_count": 64,
-        "spillover_count": 24,
-        "avg_missing_rate": 0.18125,
-        "avg_spillover_rate": 0.011250120747555216,
-        "avg_mutual_accuracy": 0.8114810088177135
+        "spillover_count": 12,
+        "avg_missing_rate": 0.18574380165289256,
+        "avg_spillover_rate": 0.009641873278236915,
+        "avg_mutual_accuracy": 0.8083333333333333,
+        "weighted_missing_rate": 0.1282565130260521,
+        "weighted_spillover_rate": 0.02404809619238477,
+        "weighted_mutual_accuracy": 0.8512720156555773
       },
       "contract_plus_resolution_hints": {
-        "reference_count": 3192,
-        "candidate_count": 2958,
-        "intersection_count": 2934,
-        "missing_count": 258,
-        "spillover_count": 24,
-        "avg_missing_rate": 0.3855352959797404,
-        "avg_spillover_rate": 0.005586092919426252,
-        "avg_mutual_accuracy": 0.6109042464434621
+        "reference_count": 690,
+        "candidate_count": 447,
+        "intersection_count": 435,
+        "missing_count": 255,
+        "spillover_count": 12,
+        "avg_missing_rate": 0.3934781331688548,
+        "avg_spillover_rate": 0.004131893307151039,
+        "avg_mutual_accuracy": 0.6041572783840825,
+        "weighted_missing_rate": 0.3695652173913043,
+        "weighted_spillover_rate": 0.017391304347826087,
+        "weighted_mutual_accuracy": 0.6196581196581197
       },
       "top_mismatch_signatures": [
-        {
-          "entity": "fastapi",
-          "language": "python",
-          "kind": "module",
-          "file_path": "fastapi/__init__.py",
-          "module_qualified_name": "fastapi",
-          "missing_count": 0,
-          "spillover_count": 7,
-          "reference_count": 1622,
-          "missing_rate": 0.0,
-          "spillover_rate": 0.004315659679408138,
-          "total_mismatch": 7
-        },
         {
           "entity": "fastapi.docs_src.websockets.tutorial003_py310.websocket_endpoint",
           "language": "python",
@@ -33214,19 +33151,6 @@
           "reference_count": 4,
           "missing_rate": 1.0,
           "spillover_rate": 0.0,
-          "total_mismatch": 4
-        },
-        {
-          "entity": "fastapi.security",
-          "language": "python",
-          "kind": "module",
-          "file_path": "fastapi/security/__init__.py",
-          "module_qualified_name": "fastapi",
-          "missing_count": 0,
-          "spillover_count": 4,
-          "reference_count": 14,
-          "missing_rate": 0.0,
-          "spillover_rate": 0.2857142857142857,
           "total_mismatch": 4
         },
         {
@@ -33436,59 +33360,349 @@
           "missing_rate": 1.0,
           "spillover_rate": 0.0,
           "total_mismatch": 1
+        },
+        {
+          "entity": "fastapi.applications.FastAPI.include_router",
+          "language": "python",
+          "kind": "method",
+          "file_path": "fastapi/applications.py",
+          "module_qualified_name": "fastapi.applications",
+          "missing_count": 1,
+          "spillover_count": 0,
+          "reference_count": 1,
+          "missing_rate": 1.0,
+          "spillover_rate": 0.0,
+          "total_mismatch": 1
+        },
+        {
+          "entity": "fastapi.applications.FastAPI.options",
+          "language": "python",
+          "kind": "method",
+          "file_path": "fastapi/applications.py",
+          "module_qualified_name": "fastapi.applications",
+          "missing_count": 1,
+          "spillover_count": 0,
+          "reference_count": 1,
+          "missing_rate": 1.0,
+          "spillover_rate": 0.0,
+          "total_mismatch": 1
         }
       ]
     },
     "q2_syntax": {
       "title": "reducers vs independent syntax-only baseline",
       "scored_nodes": 500,
-      "reference_count": 2998,
-      "candidate_count": 7199,
-      "intersection_count": 2704,
-      "missing_count": 294,
-      "spillover_count": 4495,
-      "coverage": 0.9019346230820547,
-      "spillover_ratio": 1.4993328885923949,
+      "reference_count": 499,
+      "candidate_count": 1410,
+      "intersection_count": 463,
+      "missing_count": 36,
+      "spillover_count": 947,
+      "coverage": 0.9278557114228457,
+      "spillover_ratio": 1.8977955911823647,
       "match_provenance_breakdown": {
-        "name_only": 2704
+        "name_only": 463
       }
     },
     "q3": {
       "title": "non-static edges beyond contract envelope",
       "descriptive_only": true,
-      "scored_nodes": 248,
-      "avg_non_static_rate": 0.016935483870967744,
-      "avg_non_static_rate_percent": 1.6935483870967745,
+      "scored_nodes": 242,
+      "avg_non_static_rate": 0.017355371900826446,
+      "avg_non_static_rate_percent": 1.7355371900826446,
       "decorator_rate_percent": 0.0,
-      "dynamic_dispatch_rate_percent": 1.6935483870967745,
+      "dynamic_dispatch_rate_percent": 1.7355371900826446,
       "total_non_static_edges": 7,
       "by_semantic_type_non_static_avg_rate": {
-        "dynamic_call": 0.012903225806451613,
-        "dynamic_member_call": 0.004032258064516129
+        "dynamic_call": 0.013223140495867768,
+        "dynamic_member_call": 0.004132231404958678
       },
       "by_semantic_type_non_static_avg_percent": {
-        "dynamic_call": 1.2903225806451613,
-        "dynamic_member_call": 0.4032258064516129
+        "dynamic_call": 1.322314049586777,
+        "dynamic_member_call": 0.4132231404958678
       },
       "unresolved_static_defect": {
         "target_zero": true,
         "pass": false,
-        "scored_nodes": 248,
-        "avg_rate": 0.3729241246039007,
-        "avg_rate_percent": 37.29241246039007,
-        "total_edges": 187,
+        "scored_nodes": 242,
+        "avg_rate": 0.3821625344352617,
+        "avg_rate_percent": 38.21625344352617,
+        "total_edges": 184,
         "by_semantic_type_avg_rate": {
-          "direct_call_unresolved": 0.03870967741935484,
-          "member_call_unresolved": 0.3301747311827957,
-          "module_import_unresolved": 2.4859790780000797e-06,
-          "relative_import_unresolved": 0.004037230022672129
+          "direct_call_unresolved": 0.03966942148760331,
+          "member_call_unresolved": 0.3383608815426997,
+          "relative_import_unresolved": 0.004132231404958678
         },
         "by_semantic_type_avg_percent": {
-          "direct_call_unresolved": 3.870967741935484,
-          "member_call_unresolved": 33.017473118279575,
-          "module_import_unresolved": 0.000248597907800008,
-          "relative_import_unresolved": 0.4037230022672129
-        }
+          "direct_call_unresolved": 3.9669421487603307,
+          "member_call_unresolved": 33.83608815426997,
+          "relative_import_unresolved": 0.4132231404958678
+        },
+        "top_unresolved_signatures": [
+          {
+            "entity": "fastapi.dependencies.utils._extract_form_body",
+            "language": "python",
+            "kind": "function",
+            "file_path": "fastapi/dependencies/utils.py",
+            "module_qualified_name": "fastapi.dependencies.utils",
+            "unresolved_static_count": 6,
+            "reference_count": 1,
+            "unresolved_static_rate": 6.0,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 4,
+              "member_call_unresolved": 2
+            }
+          },
+          {
+            "entity": "fastapi.tests.test_generate_unique_id_function.test_subrouter_top_level_include_overrides_generate_unique_id",
+            "language": "python",
+            "kind": "function",
+            "file_path": "tests/test_generate_unique_id_function.py",
+            "module_qualified_name": "fastapi.tests.test_generate_unique_id_function",
+            "unresolved_static_count": 6,
+            "reference_count": 3,
+            "unresolved_static_rate": 2.0,
+            "semantic_breakdown": {
+              "member_call_unresolved": 6
+            }
+          },
+          {
+            "entity": "fastapi.dependencies.utils.request_body_to_args",
+            "language": "python",
+            "kind": "function",
+            "file_path": "fastapi/dependencies/utils.py",
+            "module_qualified_name": "fastapi.dependencies.utils",
+            "unresolved_static_count": 4,
+            "reference_count": 3,
+            "unresolved_static_rate": 1.3333333333333333,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 3,
+              "member_call_unresolved": 1
+            }
+          },
+          {
+            "entity": "fastapi.tests.test_generate_unique_id_function.test_app_path_operation_overrides_generate_unique_id",
+            "language": "python",
+            "kind": "function",
+            "file_path": "tests/test_generate_unique_id_function.py",
+            "module_qualified_name": "fastapi.tests.test_generate_unique_id_function",
+            "unresolved_static_count": 4,
+            "reference_count": 3,
+            "unresolved_static_rate": 1.3333333333333333,
+            "semantic_breakdown": {
+              "member_call_unresolved": 4
+            }
+          },
+          {
+            "entity": "fastapi.tests.test_generate_unique_id_function.test_router_overrides_generate_unique_id",
+            "language": "python",
+            "kind": "function",
+            "file_path": "tests/test_generate_unique_id_function.py",
+            "module_qualified_name": "fastapi.tests.test_generate_unique_id_function",
+            "unresolved_static_count": 4,
+            "reference_count": 3,
+            "unresolved_static_rate": 1.3333333333333333,
+            "semantic_breakdown": {
+              "member_call_unresolved": 4
+            }
+          },
+          {
+            "entity": "fastapi.tests.test_generate_unique_id_function.test_router_path_operation_overrides_generate_unique_id",
+            "language": "python",
+            "kind": "function",
+            "file_path": "tests/test_generate_unique_id_function.py",
+            "module_qualified_name": "fastapi.tests.test_generate_unique_id_function",
+            "unresolved_static_count": 4,
+            "reference_count": 3,
+            "unresolved_static_rate": 1.3333333333333333,
+            "semantic_breakdown": {
+              "member_call_unresolved": 4
+            }
+          },
+          {
+            "entity": "fastapi.docs_src.websockets.tutorial003_py310.websocket_endpoint",
+            "language": "python",
+            "kind": "function",
+            "file_path": "docs_src/websockets/tutorial003_py310.py",
+            "module_qualified_name": "fastapi.docs_src.websockets.tutorial003_py310",
+            "unresolved_static_count": 4,
+            "reference_count": 4,
+            "unresolved_static_rate": 1.0,
+            "semantic_breakdown": {
+              "member_call_unresolved": 4
+            }
+          },
+          {
+            "entity": "fastapi.docs_src.websockets.tutorial003_py39.websocket_endpoint",
+            "language": "python",
+            "kind": "function",
+            "file_path": "docs_src/websockets/tutorial003_py39.py",
+            "module_qualified_name": "fastapi.docs_src.websockets.tutorial003_py39",
+            "unresolved_static_count": 4,
+            "reference_count": 4,
+            "unresolved_static_rate": 1.0,
+            "semantic_breakdown": {
+              "member_call_unresolved": 4
+            }
+          },
+          {
+            "entity": "fastapi.tests.test_generate_unique_id_function.test_callback_override_generate_unique_id",
+            "language": "python",
+            "kind": "function",
+            "file_path": "tests/test_generate_unique_id_function.py",
+            "module_qualified_name": "fastapi.tests.test_generate_unique_id_function",
+            "unresolved_static_count": 3,
+            "reference_count": 2,
+            "unresolved_static_rate": 1.5,
+            "semantic_breakdown": {
+              "member_call_unresolved": 3
+            }
+          },
+          {
+            "entity": "fastapi.applications.FastAPI.setup",
+            "language": "python",
+            "kind": "method",
+            "file_path": "fastapi/applications.py",
+            "module_qualified_name": "fastapi.applications",
+            "unresolved_static_count": 3,
+            "reference_count": 4,
+            "unresolved_static_rate": 0.75,
+            "semantic_breakdown": {
+              "member_call_unresolved": 3
+            }
+          },
+          {
+            "entity": "fastapi.routing.APIRouter.include_router",
+            "language": "python",
+            "kind": "method",
+            "file_path": "fastapi/routing.py",
+            "module_qualified_name": "fastapi.routing",
+            "unresolved_static_count": 3,
+            "reference_count": 5,
+            "unresolved_static_rate": 0.6,
+            "semantic_breakdown": {
+              "member_call_unresolved": 3
+            }
+          },
+          {
+            "entity": "fastapi.routing.APIRoute.__init__",
+            "language": "python",
+            "kind": "method",
+            "file_path": "fastapi/routing.py",
+            "module_qualified_name": "fastapi.routing",
+            "unresolved_static_count": 3,
+            "reference_count": 10,
+            "unresolved_static_rate": 0.3,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 1,
+              "member_call_unresolved": 2
+            }
+          },
+          {
+            "entity": "fastapi.encoders.jsonable_encoder",
+            "language": "python",
+            "kind": "function",
+            "file_path": "fastapi/encoders.py",
+            "module_qualified_name": "fastapi.encoders",
+            "unresolved_static_count": 2,
+            "reference_count": 1,
+            "unresolved_static_rate": 2.0,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 1,
+              "member_call_unresolved": 1
+            }
+          },
+          {
+            "entity": "fastapi.security.oauth2.OAuth2.__call__",
+            "language": "python",
+            "kind": "method",
+            "file_path": "fastapi/security/oauth2.py",
+            "module_qualified_name": "fastapi.security.oauth2",
+            "unresolved_static_count": 2,
+            "reference_count": 1,
+            "unresolved_static_rate": 2.0,
+            "semantic_breakdown": {
+              "member_call_unresolved": 2
+            }
+          },
+          {
+            "entity": "fastapi.security.oauth2.OAuth2AuthorizationCodeBearer.__call__",
+            "language": "python",
+            "kind": "method",
+            "file_path": "fastapi/security/oauth2.py",
+            "module_qualified_name": "fastapi.security.oauth2",
+            "unresolved_static_count": 2,
+            "reference_count": 1,
+            "unresolved_static_rate": 2.0,
+            "semantic_breakdown": {
+              "member_call_unresolved": 2
+            }
+          },
+          {
+            "entity": "fastapi.security.oauth2.OAuth2PasswordBearer.__call__",
+            "language": "python",
+            "kind": "method",
+            "file_path": "fastapi/security/oauth2.py",
+            "module_qualified_name": "fastapi.security.oauth2",
+            "unresolved_static_count": 2,
+            "reference_count": 1,
+            "unresolved_static_rate": 2.0,
+            "semantic_breakdown": {
+              "member_call_unresolved": 2
+            }
+          },
+          {
+            "entity": "fastapi.security.open_id_connect_url.OpenIdConnect.__call__",
+            "language": "python",
+            "kind": "method",
+            "file_path": "fastapi/security/open_id_connect_url.py",
+            "module_qualified_name": "fastapi.security.open_id_connect_url",
+            "unresolved_static_count": 2,
+            "reference_count": 1,
+            "unresolved_static_rate": 2.0,
+            "semantic_breakdown": {
+              "member_call_unresolved": 2
+            }
+          },
+          {
+            "entity": "fastapi.tests.test_openapi_separate_input_output_schemas.test_create_item",
+            "language": "python",
+            "kind": "function",
+            "file_path": "tests/test_openapi_separate_input_output_schemas.py",
+            "module_qualified_name": "fastapi.tests.test_openapi_separate_input_output_schemas",
+            "unresolved_static_count": 2,
+            "reference_count": 1,
+            "unresolved_static_rate": 2.0,
+            "semantic_breakdown": {
+              "member_call_unresolved": 2
+            }
+          },
+          {
+            "entity": "fastapi.docs_src.bigger_applications.app_py39.main",
+            "language": "python",
+            "kind": "module",
+            "file_path": "docs_src/bigger_applications/app_py39/main.py",
+            "module_qualified_name": "fastapi.docs_src.bigger_applications.app_py39",
+            "unresolved_static_count": 2,
+            "reference_count": 2,
+            "unresolved_static_rate": 1.0,
+            "semantic_breakdown": {
+              "relative_import_unresolved": 2
+            }
+          },
+          {
+            "entity": "fastapi._compat.v2.ModelField.default",
+            "language": "python",
+            "kind": "method",
+            "file_path": "fastapi/_compat/v2.py",
+            "module_qualified_name": "fastapi._compat.v2",
+            "unresolved_static_count": 1,
+            "reference_count": 1,
+            "unresolved_static_rate": 1.0,
+            "semantic_breakdown": {
+              "member_call_unresolved": 1
+            }
+          }
+        ]
       }
     }
   },

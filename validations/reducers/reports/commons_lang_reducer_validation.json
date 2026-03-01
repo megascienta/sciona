@@ -1,13 +1,38 @@
 {
-  "report_schema_version": "2026-02-27",
+  "report_schema_version": "2026-03-01",
   "summary": [
     "repo=commons_lang",
     "sampled_nodes=500",
     "q1_reducer_vs_db_exact=True",
     "q2_reducer_vs_independent_overlap_macro=False",
     "q3_avg_non_static_percent=0.0000",
-    "unresolved_static_avg_percent=53.7323"
+    "unresolved_static_avg_percent=54.0156"
   ],
+  "metrics_v2": {
+    "q2": {
+      "pass": false,
+      "metric_mode": "weighted_aggregate_v2",
+      "weighted": {
+        "missing_rate": 0.01855249745158002,
+        "spillover_rate": 0.010601427115188583,
+        "mutual_accuracy": 0.9711519063949969
+      },
+      "per_node_avg": {
+        "missing_rate": 0.192233238904627,
+        "spillover_rate": 0.09047264196847306,
+        "mutual_accuracy": 0.7938980673223318
+      },
+      "targets": {
+        "missing_rate_max": 0.010000000000000009,
+        "spillover_rate_max": 0.010000000000000009,
+        "mutual_accuracy_min": 0.99
+      }
+    },
+    "q3": {
+      "unresolved_static_avg_rate": 0.5401558073654391,
+      "unresolved_static_total_edges": 393
+    }
+  },
   "invariants": {
     "passed": false,
     "pipeline_self_consistent": true,
@@ -23,6 +48,7 @@
     "q2_target_mutual_accuracy_min": 0.99,
     "q2_target_missing_rate_max": 0.010000000000000009,
     "q2_target_spillover_rate_max": 0.010000000000000009,
+    "q2_metric_mode": "weighted_aggregate_v2",
     "q2_filtering_source": "core_only",
     "unresolved_static_target_zero": true
   },
@@ -80,7 +106,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -243,7 +269,8 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved_unique_without_provenance": 2,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -362,7 +389,8 @@
           "external": 8
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 8
+          "in_repo_unresolved_unique_without_provenance": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 7
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -442,7 +470,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -512,7 +540,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -669,7 +697,8 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1,
+          "in_repo_unresolved_unique_without_provenance": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -762,7 +791,8 @@
         "excluded_total_count": 4,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -854,7 +884,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -928,7 +958,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -996,7 +1026,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -1079,7 +1109,8 @@
         "excluded_total_count": 3,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1,
+          "in_repo_unresolved": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -1196,7 +1227,8 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 7
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 5,
+          "in_repo_unresolved": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -1383,7 +1415,8 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 5
+          "in_repo_unresolved_unique_without_provenance": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 4
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -1456,7 +1489,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -1538,7 +1571,8 @@
         "excluded_total_count": 3,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved_unique_without_provenance": 2,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -1620,7 +1654,8 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1,
+          "in_repo_unresolved": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -1769,7 +1804,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -1884,7 +1919,9 @@
           "external": 6
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 7
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 3,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 2,
+          "in_repo_unresolved": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -1987,7 +2024,8 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 3,
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -2165,7 +2203,8 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 5
+          "in_repo_unresolved_unique_without_provenance": 2,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -2249,7 +2288,8 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1,
+          "in_repo_unresolved_unique_without_provenance": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -2326,7 +2366,7 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -2424,7 +2464,7 @@
         "excluded_total_count": 5,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 5
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 5
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -2649,7 +2689,8 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1,
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -2722,7 +2763,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -2881,7 +2922,8 @@
           "external": 5
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 3,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -2956,7 +2998,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -3045,7 +3087,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved_unique_without_provenance": 4
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -3145,7 +3187,9 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 5
+          "in_repo_unresolved": 2,
+          "in_repo_unresolved_unique_without_provenance": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -3241,7 +3285,8 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved_unique_without_provenance": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -3434,7 +3479,9 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 6
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 2,
+          "in_repo_unresolved_unique_without_provenance": 3,
+          "in_repo_unresolved": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -3511,7 +3558,7 @@
           "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -3745,7 +3792,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -3819,7 +3866,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -3898,7 +3945,7 @@
         "excluded_total_count": 2,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_unique_without_provenance": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -4034,7 +4081,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -4123,7 +4170,8 @@
           "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved_unique_without_provenance": 3,
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -4194,7 +4242,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -4417,7 +4465,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -4568,7 +4616,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -4799,7 +4847,8 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 2,
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -4898,15 +4947,13 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 1,
-        "intersection_count": 1,
-        "missing_count": 0,
+        "candidate_count": 0,
+        "intersection_count": 0,
+        "missing_count": 1,
         "spillover_count": 0,
-        "coverage": 1.0,
+        "coverage": 0.0,
         "spillover_ratio": 0.0,
-        "match_provenance_breakdown": {
-          "qname_exact": 1
-        }
+        "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
         "reference_count": 1,
@@ -4929,19 +4976,26 @@
         },
         {
           "caller": "commons_lang.src.test.java.org.apache.commons.lang3.util.FluentBitSetTest.FluentBitSetTest.test_toLongArray",
+          "callee": "newInstance",
+          "callee_qname": null,
+          "provenance": "syntax_raw"
+        },
+        {
+          "caller": "commons_lang.src.test.java.org.apache.commons.lang3.util.FluentBitSetTest.FluentBitSetTest.test_toLongArray",
           "callee": "toLongArray",
           "callee_qname": "bs.toLongArray",
           "provenance": "syntax_raw"
         }
       ],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
+        "reference_in_contract_count": 0,
         "excluded_out_of_scope_count": 0,
-        "excluded_limitation_count": 2,
-        "excluded_total_count": 2,
+        "excluded_limitation_count": 3,
+        "excluded_total_count": 3,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_unique_without_provenance": 2,
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -4955,12 +5009,12 @@
         }
       },
       "q2_node_rates": {
-        "missing_rate": 0.0,
+        "missing_rate": 1.0,
         "spillover_rate": 0.0,
-        "mutual_accuracy": 1.0
+        "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
-      "unresolved_static_rate_percent": 200.0
+      "unresolved_static_rate_percent": 300.0
     },
     {
       "entity": "commons_lang.src.main.java.org.apache.commons.lang3.text.StrTokenizer.StrTokenizer.readWithQuotes",
@@ -5055,7 +5109,8 @@
         "excluded_total_count": 7,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 7
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 5,
+          "in_repo_unresolved": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -5151,7 +5206,8 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved_unique_without_provenance": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -5316,7 +5372,9 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved": 1,
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -5410,7 +5468,8 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved_unique_without_provenance": 2,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -5481,7 +5540,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -5558,7 +5617,8 @@
         "excluded_total_count": 2,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved": 1,
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -5632,7 +5692,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -5778,7 +5838,8 @@
         "excluded_total_count": 2,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved": 1,
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -6042,7 +6103,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -6117,7 +6178,7 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -6213,7 +6274,8 @@
         "excluded_total_count": 4,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1,
+          "in_repo_unresolved": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -6424,7 +6486,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -6496,7 +6558,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -6653,7 +6715,8 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved_unique_without_provenance": 3,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -6728,7 +6791,8 @@
         "excluded_total_count": 2,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved": 1,
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -6803,7 +6867,8 @@
         "excluded_total_count": 2,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_unique_without_provenance": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -6909,7 +6974,10 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 6
+          "in_repo_unresolved_unique_without_provenance": 1,
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 3,
+          "in_repo_unresolved": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -6991,7 +7059,7 @@
         "excluded_total_count": 2,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_unique_without_provenance": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -7078,7 +7146,7 @@
         "excluded_total_count": 4,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 4
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -7297,7 +7365,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -7399,7 +7467,9 @@
           "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 5
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 3,
+          "in_repo_unresolved": 1,
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -7823,7 +7893,8 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1,
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -7970,7 +8041,8 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_unique_without_provenance": 1,
+          "in_repo_unresolved": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -8053,7 +8125,8 @@
         "excluded_total_count": 2,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved": 1,
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -8133,7 +8206,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_unique_without_provenance": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -8207,7 +8280,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -8285,7 +8358,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -8377,7 +8450,8 @@
           "external": 5
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved_unique_without_provenance": 3,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -8456,7 +8530,8 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1,
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -8553,7 +8628,9 @@
         "excluded_total_count": 4,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1,
+          "in_repo_unresolved": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -8781,7 +8858,7 @@
         "excluded_total_count": 4,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 4
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -8858,7 +8935,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -8928,7 +9005,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -9167,7 +9244,9 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 8
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 4,
+          "in_repo_unresolved_unique_without_provenance": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -9281,7 +9360,9 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 6
+          "in_repo_unresolved_unique_without_provenance": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 3,
+          "in_repo_unresolved": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -9405,7 +9486,8 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 8
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 5,
+          "in_repo_unresolved": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -9496,7 +9578,8 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved_unique_without_provenance": 2,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -9573,7 +9656,7 @@
         "excluded_total_count": 2,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -9641,7 +9724,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -9718,7 +9801,8 @@
         "excluded_total_count": 2,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_unique_without_provenance": 1,
+          "in_repo_unresolved": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -9810,7 +9894,7 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -9888,7 +9972,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -10129,7 +10213,7 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 16
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 16
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -10206,7 +10290,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -10381,7 +10465,9 @@
           "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 5
+          "in_repo_unresolved": 3,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1,
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -10463,7 +10549,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -10638,7 +10724,8 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 6
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 5,
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -10896,7 +10983,9 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 7
+          "in_repo_unresolved_unique_without_provenance": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 5,
+          "in_repo_unresolved": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -10977,7 +11066,7 @@
         "excluded_total_count": 2,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_unique_without_provenance": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -11082,7 +11171,9 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 6
+          "in_repo_unresolved_unique_without_provenance": 3,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1,
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -11178,7 +11269,8 @@
           "external": 4
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved_unique_without_provenance": 3,
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -11433,7 +11525,8 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 5
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 2,
+          "in_repo_unresolved_unique_without_provenance": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -11532,7 +11625,8 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 5
+          "in_repo_unresolved_unique_without_provenance": 2,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -11701,7 +11795,9 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 4
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1,
+          "in_repo_unresolved_unique_without_provenance": 2,
+          "in_repo_unresolved": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -11777,7 +11873,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -11859,7 +11955,8 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved": 1,
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -12061,7 +12158,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -12160,7 +12257,9 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 5
+          "in_repo_unresolved": 2,
+          "in_repo_unresolved_unique_without_provenance": 1,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -12299,7 +12398,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -12381,7 +12480,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 2
+          "in_repo_unresolved_unique_without_provenance": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -12617,7 +12716,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 6
+          "in_repo_unresolved_unique_without_provenance": 6
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -12699,7 +12798,8 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved_unique_without_provenance": 2,
+          "in_repo_unresolved": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -12784,7 +12884,8 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved_unique_without_provenance": 2,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -12873,7 +12974,8 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved_unique_without_provenance": 2,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -12984,7 +13086,9 @@
           "external": 3
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 7
+          "in_repo_unresolved": 3,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 3,
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -13174,7 +13278,10 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 7
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1,
+          "in_repo_unresolved": 1,
+          "in_repo_unresolved_unique_without_provenance": 3,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 2
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -13249,7 +13356,7 @@
         "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -13407,7 +13514,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 3
+          "in_repo_unresolved_unique_without_provenance": 3
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -13477,7 +13584,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_unique_without_provenance": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -13626,7 +13733,7 @@
           "external": 1
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 1
+          "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -13736,7 +13843,8 @@
           "external": 2
         },
         "excluded_limitation_by_reason": {
-          "in_repo_unresolved": 7
+          "in_repo_unresolved_unique_without_provenance": 6,
+          "in_repo_unresolved_ambiguous_no_in_scope_candidate": 1
         }
       },
       "q2_ground_truth_diagnostics": {
@@ -25771,12 +25879,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 1,
+        "candidate_count": 2,
         "intersection_count": 1,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 1,
         "coverage": 1.0,
-        "spillover_ratio": 0.0,
+        "spillover_ratio": 1.0,
         "match_provenance_breakdown": {
           "qname_exact": 1
         }
@@ -25793,12 +25901,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 15,
+        "reference_in_contract_count": 2,
+        "excluded_out_of_scope_count": 14,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 15,
+        "excluded_total_count": 14,
         "excluded_out_of_scope_by_reason": {
-          "external": 15
+          "external": 14
         },
         "excluded_limitation_by_reason": {}
       },
@@ -25811,8 +25919,8 @@
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 0.0,
-        "mutual_accuracy": 1.0
+        "spillover_rate": 1.0,
+        "mutual_accuracy": 0.5
       },
       "q3_non_static_rate_percent": 0.0,
       "unresolved_static_rate_percent": 0.0
@@ -26085,12 +26193,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 0,
+        "candidate_count": 3,
         "intersection_count": 0,
         "missing_count": 1,
-        "spillover_count": 0,
+        "spillover_count": 3,
         "coverage": 0.0,
-        "spillover_ratio": 0.0,
+        "spillover_ratio": 3.0,
         "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
@@ -26105,12 +26213,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 35,
+        "reference_in_contract_count": 3,
+        "excluded_out_of_scope_count": 32,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 35,
+        "excluded_total_count": 32,
         "excluded_out_of_scope_by_reason": {
-          "external": 35
+          "external": 32
         },
         "excluded_limitation_by_reason": {}
       },
@@ -26123,7 +26231,7 @@
       },
       "q2_node_rates": {
         "missing_rate": 1.0,
-        "spillover_rate": 0.0,
+        "spillover_rate": 3.0,
         "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
@@ -26593,12 +26701,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 1,
+        "candidate_count": 8,
         "intersection_count": 1,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 7,
         "coverage": 1.0,
-        "spillover_ratio": 0.0,
+        "spillover_ratio": 7.0,
         "match_provenance_breakdown": {
           "qname_exact": 1
         }
@@ -26615,12 +26723,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 18,
+        "reference_in_contract_count": 8,
+        "excluded_out_of_scope_count": 11,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 18,
+        "excluded_total_count": 11,
         "excluded_out_of_scope_by_reason": {
-          "external": 18
+          "external": 11
         },
         "excluded_limitation_by_reason": {}
       },
@@ -26633,8 +26741,8 @@
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 0.0,
-        "mutual_accuracy": 1.0
+        "spillover_rate": 7.0,
+        "mutual_accuracy": 0.125
       },
       "q3_non_static_rate_percent": 0.0,
       "unresolved_static_rate_percent": 0.0
@@ -26989,12 +27097,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 2,
-        "candidate_count": 1,
+        "candidate_count": 2,
         "intersection_count": 1,
         "missing_count": 1,
-        "spillover_count": 0,
+        "spillover_count": 1,
         "coverage": 0.5,
-        "spillover_ratio": 0.0,
+        "spillover_ratio": 0.5,
         "match_provenance_breakdown": {
           "qname_exact": 1
         }
@@ -27011,12 +27119,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 10,
+        "reference_in_contract_count": 2,
+        "excluded_out_of_scope_count": 9,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 10,
+        "excluded_total_count": 9,
         "excluded_out_of_scope_by_reason": {
-          "external": 10
+          "external": 9
         },
         "excluded_limitation_by_reason": {}
       },
@@ -27029,8 +27137,8 @@
       },
       "q2_node_rates": {
         "missing_rate": 0.5,
-        "spillover_rate": 0.0,
-        "mutual_accuracy": 0.5
+        "spillover_rate": 0.5,
+        "mutual_accuracy": 0.3333333333333333
       },
       "q3_non_static_rate_percent": 0.0,
       "unresolved_static_rate_percent": 0.0
@@ -27117,10 +27225,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 0,
+        "candidate_count": 1,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 1,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -27137,12 +27245,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 15,
+        "reference_in_contract_count": 1,
+        "excluded_out_of_scope_count": 14,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 15,
+        "excluded_total_count": 14,
         "excluded_out_of_scope_by_reason": {
-          "external": 15
+          "external": 14
         },
         "excluded_limitation_by_reason": {}
       },
@@ -27429,12 +27537,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 0,
+        "candidate_count": 5,
         "intersection_count": 0,
         "missing_count": 1,
-        "spillover_count": 0,
+        "spillover_count": 5,
         "coverage": 0.0,
-        "spillover_ratio": 0.0,
+        "spillover_ratio": 5.0,
         "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
@@ -27449,12 +27557,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 37,
+        "reference_in_contract_count": 5,
+        "excluded_out_of_scope_count": 32,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 37,
+        "excluded_total_count": 32,
         "excluded_out_of_scope_by_reason": {
-          "external": 37
+          "external": 32
         },
         "excluded_limitation_by_reason": {}
       },
@@ -27467,7 +27575,7 @@
       },
       "q2_node_rates": {
         "missing_rate": 1.0,
-        "spillover_rate": 0.0,
+        "spillover_rate": 5.0,
         "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
@@ -27491,10 +27599,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 0,
+        "candidate_count": 1,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 1,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -27511,12 +27619,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 12,
+        "reference_in_contract_count": 1,
+        "excluded_out_of_scope_count": 11,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 12,
+        "excluded_total_count": 11,
         "excluded_out_of_scope_by_reason": {
-          "external": 12
+          "external": 11
         },
         "excluded_limitation_by_reason": {}
       },
@@ -27683,12 +27791,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 0,
+        "candidate_count": 1,
         "intersection_count": 0,
         "missing_count": 1,
-        "spillover_count": 0,
+        "spillover_count": 1,
         "coverage": 0.0,
-        "spillover_ratio": 0.0,
+        "spillover_ratio": 1.0,
         "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
@@ -27703,12 +27811,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 5,
+        "reference_in_contract_count": 1,
+        "excluded_out_of_scope_count": 4,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 5,
+        "excluded_total_count": 4,
         "excluded_out_of_scope_by_reason": {
-          "external": 5
+          "external": 4
         },
         "excluded_limitation_by_reason": {}
       },
@@ -27721,7 +27829,7 @@
       },
       "q2_node_rates": {
         "missing_rate": 1.0,
-        "spillover_rate": 0.0,
+        "spillover_rate": 1.0,
         "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
@@ -27745,10 +27853,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 0,
+        "candidate_count": 1,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 1,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -27765,12 +27873,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 6,
+        "reference_in_contract_count": 1,
+        "excluded_out_of_scope_count": 5,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 6,
+        "excluded_total_count": 5,
         "excluded_out_of_scope_by_reason": {
-          "external": 6
+          "external": 5
         },
         "excluded_limitation_by_reason": {}
       },
@@ -27995,12 +28103,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 1,
+        "candidate_count": 2,
         "intersection_count": 1,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 1,
         "coverage": 1.0,
-        "spillover_ratio": 0.0,
+        "spillover_ratio": 1.0,
         "match_provenance_breakdown": {
           "qname_exact": 1
         }
@@ -28017,12 +28125,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 12,
+        "reference_in_contract_count": 2,
+        "excluded_out_of_scope_count": 11,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 12,
+        "excluded_total_count": 11,
         "excluded_out_of_scope_by_reason": {
-          "external": 12
+          "external": 11
         },
         "excluded_limitation_by_reason": {}
       },
@@ -28035,8 +28143,8 @@
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 0.0,
-        "mutual_accuracy": 1.0
+        "spillover_rate": 1.0,
+        "mutual_accuracy": 0.5
       },
       "q3_non_static_rate_percent": 0.0,
       "unresolved_static_rate_percent": 0.0
@@ -28757,12 +28865,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 8,
-        "candidate_count": 7,
+        "candidate_count": 13,
         "intersection_count": 7,
         "missing_count": 1,
-        "spillover_count": 0,
+        "spillover_count": 6,
         "coverage": 0.875,
-        "spillover_ratio": 0.0,
+        "spillover_ratio": 0.75,
         "match_provenance_breakdown": {
           "qname_exact": 7
         }
@@ -28779,12 +28887,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 7,
-        "excluded_out_of_scope_count": 34,
+        "reference_in_contract_count": 13,
+        "excluded_out_of_scope_count": 28,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 34,
+        "excluded_total_count": 28,
         "excluded_out_of_scope_by_reason": {
-          "external": 34
+          "external": 28
         },
         "excluded_limitation_by_reason": {}
       },
@@ -28797,8 +28905,8 @@
       },
       "q2_node_rates": {
         "missing_rate": 0.125,
-        "spillover_rate": 0.0,
-        "mutual_accuracy": 0.875
+        "spillover_rate": 0.75,
+        "mutual_accuracy": 0.5
       },
       "q3_non_static_rate_percent": 0.0,
       "unresolved_static_rate_percent": 0.0
@@ -28823,12 +28931,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 0,
+        "candidate_count": 2,
         "intersection_count": 0,
         "missing_count": 1,
-        "spillover_count": 0,
+        "spillover_count": 2,
         "coverage": 0.0,
-        "spillover_ratio": 0.0,
+        "spillover_ratio": 2.0,
         "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
@@ -28843,12 +28951,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 12,
+        "reference_in_contract_count": 2,
+        "excluded_out_of_scope_count": 10,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 12,
+        "excluded_total_count": 10,
         "excluded_out_of_scope_by_reason": {
-          "external": 12
+          "external": 10
         },
         "excluded_limitation_by_reason": {}
       },
@@ -28861,7 +28969,7 @@
       },
       "q2_node_rates": {
         "missing_rate": 1.0,
-        "spillover_rate": 0.0,
+        "spillover_rate": 2.0,
         "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
@@ -29447,12 +29555,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 0,
+        "candidate_count": 2,
         "intersection_count": 0,
         "missing_count": 1,
-        "spillover_count": 0,
+        "spillover_count": 2,
         "coverage": 0.0,
-        "spillover_ratio": 0.0,
+        "spillover_ratio": 2.0,
         "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
@@ -29467,12 +29575,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 17,
+        "reference_in_contract_count": 2,
+        "excluded_out_of_scope_count": 15,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 17,
+        "excluded_total_count": 15,
         "excluded_out_of_scope_by_reason": {
-          "external": 17
+          "external": 15
         },
         "excluded_limitation_by_reason": {}
       },
@@ -29485,7 +29593,7 @@
       },
       "q2_node_rates": {
         "missing_rate": 1.0,
-        "spillover_rate": 0.0,
+        "spillover_rate": 2.0,
         "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
@@ -29511,12 +29619,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 0,
+        "candidate_count": 1,
         "intersection_count": 0,
         "missing_count": 1,
-        "spillover_count": 0,
+        "spillover_count": 1,
         "coverage": 0.0,
-        "spillover_ratio": 0.0,
+        "spillover_ratio": 1.0,
         "match_provenance_breakdown": {}
       },
       "set_q2_reducer_vs_independent_syntax": {
@@ -29531,12 +29639,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 30,
+        "reference_in_contract_count": 1,
+        "excluded_out_of_scope_count": 29,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 30,
+        "excluded_total_count": 29,
         "excluded_out_of_scope_by_reason": {
-          "external": 30
+          "external": 29
         },
         "excluded_limitation_by_reason": {}
       },
@@ -29549,7 +29657,7 @@
       },
       "q2_node_rates": {
         "missing_rate": 1.0,
-        "spillover_rate": 0.0,
+        "spillover_rate": 1.0,
         "mutual_accuracy": 0.0
       },
       "q3_non_static_rate_percent": 0.0,
@@ -29573,10 +29681,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 0,
+        "candidate_count": 1,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 1,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -29593,12 +29701,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 2,
+        "reference_in_contract_count": 1,
+        "excluded_out_of_scope_count": 1,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 2,
+        "excluded_total_count": 1,
         "excluded_out_of_scope_by_reason": {
-          "external": 2
+          "external": 1
         },
         "excluded_limitation_by_reason": {}
       },
@@ -29821,10 +29929,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 0,
+        "candidate_count": 1,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 1,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -29841,12 +29949,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 10,
+        "reference_in_contract_count": 1,
+        "excluded_out_of_scope_count": 9,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 10,
+        "excluded_total_count": 9,
         "excluded_out_of_scope_by_reason": {
-          "external": 10
+          "external": 9
         },
         "excluded_limitation_by_reason": {}
       },
@@ -30013,12 +30121,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 2,
-        "candidate_count": 1,
+        "candidate_count": 2,
         "intersection_count": 1,
         "missing_count": 1,
-        "spillover_count": 0,
+        "spillover_count": 1,
         "coverage": 0.5,
-        "spillover_ratio": 0.0,
+        "spillover_ratio": 0.5,
         "match_provenance_breakdown": {
           "qname_exact": 1
         }
@@ -30035,12 +30143,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 15,
+        "reference_in_contract_count": 2,
+        "excluded_out_of_scope_count": 14,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 15,
+        "excluded_total_count": 14,
         "excluded_out_of_scope_by_reason": {
-          "external": 15
+          "external": 14
         },
         "excluded_limitation_by_reason": {}
       },
@@ -30053,8 +30161,8 @@
       },
       "q2_node_rates": {
         "missing_rate": 0.5,
-        "spillover_rate": 0.0,
-        "mutual_accuracy": 0.5
+        "spillover_rate": 0.5,
+        "mutual_accuracy": 0.3333333333333333
       },
       "q3_non_static_rate_percent": 0.0,
       "unresolved_static_rate_percent": 0.0
@@ -30769,12 +30877,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 1,
+        "candidate_count": 5,
         "intersection_count": 1,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 4,
         "coverage": 1.0,
-        "spillover_ratio": 0.0,
+        "spillover_ratio": 4.0,
         "match_provenance_breakdown": {
           "qname_exact": 1
         }
@@ -30791,12 +30899,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 34,
+        "reference_in_contract_count": 5,
+        "excluded_out_of_scope_count": 30,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 34,
+        "excluded_total_count": 30,
         "excluded_out_of_scope_by_reason": {
-          "external": 34
+          "external": 30
         },
         "excluded_limitation_by_reason": {}
       },
@@ -30809,8 +30917,8 @@
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 0.0,
-        "mutual_accuracy": 1.0
+        "spillover_rate": 4.0,
+        "mutual_accuracy": 0.2
       },
       "q3_non_static_rate_percent": 0.0,
       "unresolved_static_rate_percent": 0.0
@@ -31379,12 +31487,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 1,
+        "candidate_count": 2,
         "intersection_count": 1,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 1,
         "coverage": 1.0,
-        "spillover_ratio": 0.0,
+        "spillover_ratio": 1.0,
         "match_provenance_breakdown": {
           "qname_exact": 1
         }
@@ -31401,12 +31509,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 13,
+        "reference_in_contract_count": 2,
+        "excluded_out_of_scope_count": 12,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 13,
+        "excluded_total_count": 12,
         "excluded_out_of_scope_by_reason": {
-          "external": 13
+          "external": 12
         },
         "excluded_limitation_by_reason": {}
       },
@@ -31419,8 +31527,8 @@
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 0.0,
-        "mutual_accuracy": 1.0
+        "spillover_rate": 1.0,
+        "mutual_accuracy": 0.5
       },
       "q3_non_static_rate_percent": 0.0,
       "unresolved_static_rate_percent": 0.0
@@ -32119,12 +32227,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 2,
-        "candidate_count": 1,
+        "candidate_count": 2,
         "intersection_count": 1,
         "missing_count": 1,
-        "spillover_count": 0,
+        "spillover_count": 1,
         "coverage": 0.5,
-        "spillover_ratio": 0.0,
+        "spillover_ratio": 0.5,
         "match_provenance_breakdown": {
           "qname_exact": 1
         }
@@ -32141,12 +32249,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 23,
+        "reference_in_contract_count": 2,
+        "excluded_out_of_scope_count": 22,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 23,
+        "excluded_total_count": 22,
         "excluded_out_of_scope_by_reason": {
-          "external": 23
+          "external": 22
         },
         "excluded_limitation_by_reason": {}
       },
@@ -32159,8 +32267,8 @@
       },
       "q2_node_rates": {
         "missing_rate": 0.5,
-        "spillover_rate": 0.0,
-        "mutual_accuracy": 0.5
+        "spillover_rate": 0.5,
+        "mutual_accuracy": 0.3333333333333333
       },
       "q3_non_static_rate_percent": 0.0,
       "unresolved_static_rate_percent": 0.0
@@ -32355,10 +32463,10 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 0,
-        "candidate_count": 0,
+        "candidate_count": 2,
         "intersection_count": 0,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 2,
         "coverage": null,
         "spillover_ratio": null,
         "match_provenance_breakdown": {}
@@ -32375,13 +32483,11 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 0,
-        "excluded_out_of_scope_count": 2,
+        "reference_in_contract_count": 2,
+        "excluded_out_of_scope_count": 0,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 2,
-        "excluded_out_of_scope_by_reason": {
-          "external": 2
-        },
+        "excluded_total_count": 0,
+        "excluded_out_of_scope_by_reason": {},
         "excluded_limitation_by_reason": {}
       },
       "q2_ground_truth_diagnostics": {
@@ -32857,12 +32963,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 2,
-        "candidate_count": 1,
+        "candidate_count": 2,
         "intersection_count": 1,
         "missing_count": 1,
-        "spillover_count": 0,
+        "spillover_count": 1,
         "coverage": 0.5,
-        "spillover_ratio": 0.0,
+        "spillover_ratio": 0.5,
         "match_provenance_breakdown": {
           "qname_exact": 1
         }
@@ -32879,12 +32985,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 18,
+        "reference_in_contract_count": 2,
+        "excluded_out_of_scope_count": 17,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 18,
+        "excluded_total_count": 17,
         "excluded_out_of_scope_by_reason": {
-          "external": 18
+          "external": 17
         },
         "excluded_limitation_by_reason": {}
       },
@@ -32897,8 +33003,8 @@
       },
       "q2_node_rates": {
         "missing_rate": 0.5,
-        "spillover_rate": 0.0,
-        "mutual_accuracy": 0.5
+        "spillover_rate": 0.5,
+        "mutual_accuracy": 0.3333333333333333
       },
       "q3_non_static_rate_percent": 0.0,
       "unresolved_static_rate_percent": 0.0
@@ -33169,12 +33275,12 @@
       },
       "set_q2_reducer_vs_independent_contract": {
         "reference_count": 1,
-        "candidate_count": 1,
+        "candidate_count": 2,
         "intersection_count": 1,
         "missing_count": 0,
-        "spillover_count": 0,
+        "spillover_count": 1,
         "coverage": 1.0,
-        "spillover_ratio": 0.0,
+        "spillover_ratio": 1.0,
         "match_provenance_breakdown": {
           "qname_exact": 1
         }
@@ -33191,12 +33297,12 @@
       },
       "basket2_edges": [],
       "q2_filtering_stats": {
-        "reference_in_contract_count": 1,
-        "excluded_out_of_scope_count": 30,
+        "reference_in_contract_count": 2,
+        "excluded_out_of_scope_count": 29,
         "excluded_limitation_count": 0,
-        "excluded_total_count": 30,
+        "excluded_total_count": 29,
         "excluded_out_of_scope_by_reason": {
-          "external": 30
+          "external": 29
         },
         "excluded_limitation_by_reason": {}
       },
@@ -33209,8 +33315,8 @@
       },
       "q2_node_rates": {
         "missing_rate": 0.0,
-        "spillover_rate": 0.0,
-        "mutual_accuracy": 1.0
+        "spillover_rate": 1.0,
+        "mutual_accuracy": 0.5
       },
       "q3_non_static_rate_percent": 0.0,
       "unresolved_static_rate_percent": 0.0
@@ -35087,36 +35193,46 @@
       "target_missing_rate_max": 0.010000000000000009,
       "target_spillover_rate_max": 0.010000000000000009,
       "scored_nodes": 353,
-      "avg_missing_rate": 0.18940037771482532,
-      "avg_spillover_rate": 0.0005292991922690881,
-      "avg_mutual_accuracy": 0.8100925904573649,
+      "avg_missing_rate": 0.192233238904627,
+      "avg_spillover_rate": 0.09047264196847306,
+      "avg_mutual_accuracy": 0.7938980673223318,
+      "weighted_missing_rate": 0.01855249745158002,
+      "weighted_spillover_rate": 0.010601427115188583,
+      "weighted_mutual_accuracy": 0.9711519063949969,
+      "metric_mode": "weighted_aggregate_v2",
       "reference_count": 4905,
-      "candidate_count": 4821,
-      "intersection_count": 4815,
-      "missing_count": 90,
-      "spillover_count": 6,
+      "candidate_count": 4866,
+      "intersection_count": 4814,
+      "missing_count": 91,
+      "spillover_count": 52,
       "by_language": {
         "java": {
           "scored_nodes": 353,
-          "avg_missing_rate": 0.18940037771482532,
-          "avg_spillover_rate": 0.0005292991922690881,
-          "avg_mutual_accuracy": 0.8100925904573649,
+          "avg_missing_rate": 0.192233238904627,
+          "avg_spillover_rate": 0.09047264196847306,
+          "avg_mutual_accuracy": 0.7938980673223318,
+          "weighted_missing_rate": 0.01855249745158002,
+          "weighted_spillover_rate": 0.010601427115188583,
+          "weighted_mutual_accuracy": 0.9711519063949969,
           "pass": false
         }
       },
       "filtering_source": "core_only",
       "envelope_reference_count": 4905,
-      "envelope_excluded_count": 2071,
-      "envelope_excluded_out_of_scope_count": 1679,
-      "envelope_excluded_limitation_count": 392,
-      "envelope_total_count": 6976,
-      "contract_filtered_out_ratio": 0.296875,
+      "envelope_excluded_count": 2026,
+      "envelope_excluded_out_of_scope_count": 1633,
+      "envelope_excluded_limitation_count": 393,
+      "envelope_total_count": 6931,
+      "contract_filtered_out_ratio": 0.29230991198961187,
       "envelope_excluded_by_reason": {
-        "external": 1679,
-        "in_repo_unresolved": 392
+        "external": 1633,
+        "in_repo_unresolved": 81,
+        "in_repo_unresolved_ambiguous_multiple_in_scope_candidates": 33,
+        "in_repo_unresolved_ambiguous_no_in_scope_candidate": 156,
+        "in_repo_unresolved_unique_without_provenance": 123
       },
       "match_provenance_breakdown": {
-        "qname_exact": 4815
+        "qname_exact": 4814
       },
       "strict_contract_candidate_count_histogram": {
         "0": 169,
@@ -35152,25 +35268,96 @@
       },
       "core_contract_overlap": {
         "reference_count": 4905,
-        "candidate_count": 4821,
-        "intersection_count": 4815,
-        "missing_count": 90,
-        "spillover_count": 6,
-        "avg_missing_rate": 0.18940037771482532,
-        "avg_spillover_rate": 0.0005292991922690881,
-        "avg_mutual_accuracy": 0.8100925904573649
+        "candidate_count": 4866,
+        "intersection_count": 4814,
+        "missing_count": 91,
+        "spillover_count": 52,
+        "avg_missing_rate": 0.192233238904627,
+        "avg_spillover_rate": 0.09047264196847306,
+        "avg_mutual_accuracy": 0.7938980673223318,
+        "weighted_missing_rate": 0.01855249745158002,
+        "weighted_spillover_rate": 0.010601427115188583,
+        "weighted_mutual_accuracy": 0.9711519063949969
       },
       "contract_plus_resolution_hints": {
-        "reference_count": 5297,
-        "candidate_count": 4821,
-        "intersection_count": 4815,
-        "missing_count": 482,
-        "spillover_count": 6,
-        "avg_missing_rate": 0.37596382885904944,
-        "avg_spillover_rate": 0.000449140901132183,
-        "avg_mutual_accuracy": 0.6236059253832177
+        "reference_count": 5298,
+        "candidate_count": 4866,
+        "intersection_count": 4814,
+        "missing_count": 484,
+        "spillover_count": 52,
+        "avg_missing_rate": 0.3767651109103315,
+        "avg_spillover_rate": 0.07677125628574757,
+        "avg_mutual_accuracy": 0.6114665023062946,
+        "weighted_missing_rate": 0.09135522838807097,
+        "weighted_spillover_rate": 0.009815024537561345,
+        "weighted_mutual_accuracy": 0.8998130841121496
       },
       "top_mismatch_signatures": [
+        {
+          "entity": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.MethodUtilsTest",
+          "language": "java",
+          "kind": "module",
+          "file_path": "src/test/java/org/apache/commons/lang3/reflect/MethodUtilsTest.java",
+          "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.reflect",
+          "missing_count": 1,
+          "spillover_count": 6,
+          "reference_count": 8,
+          "missing_rate": 0.125,
+          "spillover_rate": 0.75,
+          "total_mismatch": 7
+        },
+        {
+          "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.RecursiveToStringStyleTest",
+          "language": "java",
+          "kind": "module",
+          "file_path": "src/test/java/org/apache/commons/lang3/builder/RecursiveToStringStyleTest.java",
+          "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.builder",
+          "missing_count": 0,
+          "spillover_count": 7,
+          "reference_count": 1,
+          "missing_rate": 0.0,
+          "spillover_rate": 7.0,
+          "total_mismatch": 7
+        },
+        {
+          "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ObjectUtilsTest",
+          "language": "java",
+          "kind": "module",
+          "file_path": "src/test/java/org/apache/commons/lang3/ObjectUtilsTest.java",
+          "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3",
+          "missing_count": 1,
+          "spillover_count": 5,
+          "reference_count": 1,
+          "missing_rate": 1.0,
+          "spillover_rate": 5.0,
+          "total_mismatch": 6
+        },
+        {
+          "entity": "commons_lang.src.test.java.org.apache.commons.lang3.StringUtilsTest",
+          "language": "java",
+          "kind": "module",
+          "file_path": "src/test/java/org/apache/commons/lang3/StringUtilsTest.java",
+          "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3",
+          "missing_count": 1,
+          "spillover_count": 3,
+          "reference_count": 1,
+          "missing_rate": 1.0,
+          "spillover_rate": 3.0,
+          "total_mismatch": 4
+        },
+        {
+          "entity": "commons_lang.src.test.java.org.apache.commons.lang3.time.FastDateParser_TimeZoneStrategyTest",
+          "language": "java",
+          "kind": "module",
+          "file_path": "src/test/java/org/apache/commons/lang3/time/FastDateParser_TimeZoneStrategyTest.java",
+          "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.time",
+          "missing_count": 0,
+          "spillover_count": 4,
+          "reference_count": 1,
+          "missing_rate": 0.0,
+          "spillover_rate": 4.0,
+          "total_mismatch": 4
+        },
         {
           "entity": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testDoubleUnaryOperatorCompose",
           "language": "java",
@@ -35182,6 +35369,32 @@
           "reference_count": 3,
           "missing_rate": 1.0,
           "spillover_rate": 0.0,
+          "total_mismatch": 3
+        },
+        {
+          "entity": "commons_lang.src.test.java.org.apache.commons.lang3.StringEscapeUtilsTest",
+          "language": "java",
+          "kind": "module",
+          "file_path": "src/test/java/org/apache/commons/lang3/StringEscapeUtilsTest.java",
+          "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3",
+          "missing_count": 1,
+          "spillover_count": 2,
+          "reference_count": 1,
+          "missing_rate": 1.0,
+          "spillover_rate": 2.0,
+          "total_mismatch": 3
+        },
+        {
+          "entity": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.AbstractConcurrentInitializerCloseAndExceptionsTest",
+          "language": "java",
+          "kind": "module",
+          "file_path": "src/test/java/org/apache/commons/lang3/concurrent/AbstractConcurrentInitializerCloseAndExceptionsTest.java",
+          "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent",
+          "missing_count": 1,
+          "spillover_count": 2,
+          "reference_count": 1,
+          "missing_rate": 1.0,
+          "spillover_rate": 2.0,
           "total_mismatch": 3
         },
         {
@@ -35263,173 +35476,82 @@
           "total_mismatch": 2
         },
         {
-          "entity": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils.ArrayUtils.arraycopy",
+          "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ArrayUtilsTest",
           "language": "java",
-          "kind": "method",
-          "file_path": "src/main/java/org/apache/commons/lang3/ArrayUtils.java",
-          "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils",
+          "kind": "module",
+          "file_path": "src/test/java/org/apache/commons/lang3/ArrayUtilsTest.java",
+          "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3",
           "missing_count": 1,
-          "spillover_count": 0,
+          "spillover_count": 1,
           "reference_count": 1,
           "missing_rate": 1.0,
-          "spillover_rate": 0.0,
-          "total_mismatch": 1
+          "spillover_rate": 1.0,
+          "total_mismatch": 2
         },
         {
-          "entity": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils.ArrayUtils.isArrayEmpty",
+          "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.ConversionTest",
           "language": "java",
-          "kind": "method",
-          "file_path": "src/main/java/org/apache/commons/lang3/ArrayUtils.java",
-          "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils",
+          "kind": "module",
+          "file_path": "src/test/java/org/apache/commons/lang3/builder/ConversionTest.java",
+          "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.builder",
           "missing_count": 1,
-          "spillover_count": 0,
+          "spillover_count": 1,
           "reference_count": 1,
           "missing_rate": 1.0,
-          "spillover_rate": 0.0,
-          "total_mismatch": 1
+          "spillover_rate": 1.0,
+          "total_mismatch": 2
         },
         {
-          "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties.SystemProperties.getHttpAuthNtlmDomain",
+          "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.DiffBuilderTest",
           "language": "java",
-          "kind": "method",
-          "file_path": "src/main/java/org/apache/commons/lang3/SystemProperties.java",
-          "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties",
+          "kind": "module",
+          "file_path": "src/test/java/org/apache/commons/lang3/builder/DiffBuilderTest.java",
+          "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.builder",
           "missing_count": 1,
-          "spillover_count": 0,
-          "reference_count": 1,
-          "missing_rate": 1.0,
-          "spillover_rate": 0.0,
-          "total_mismatch": 1
-        },
-        {
-          "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties.SystemProperties.getJavaTimeZoneDefaultZoneRulesProvider",
-          "language": "java",
-          "kind": "method",
-          "file_path": "src/main/java/org/apache/commons/lang3/SystemProperties.java",
-          "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties",
-          "missing_count": 1,
-          "spillover_count": 0,
-          "reference_count": 1,
-          "missing_rate": 1.0,
-          "spillover_rate": 0.0,
-          "total_mismatch": 1
-        },
-        {
-          "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties.SystemProperties.getJavaXmlConfigFile",
-          "language": "java",
-          "kind": "method",
-          "file_path": "src/main/java/org/apache/commons/lang3/SystemProperties.java",
-          "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties",
-          "missing_count": 1,
-          "spillover_count": 0,
-          "reference_count": 1,
-          "missing_rate": 1.0,
-          "spillover_rate": 0.0,
-          "total_mismatch": 1
-        },
-        {
-          "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties.SystemProperties.getJdkHttpClientMaxStreams",
-          "language": "java",
-          "kind": "method",
-          "file_path": "src/main/java/org/apache/commons/lang3/SystemProperties.java",
-          "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties",
-          "missing_count": 1,
-          "spillover_count": 0,
-          "reference_count": 1,
-          "missing_rate": 1.0,
-          "spillover_rate": 0.0,
-          "total_mismatch": 1
-        },
-        {
-          "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties.SystemProperties.getOrgJcpXmlDsigSecureValidation",
-          "language": "java",
-          "kind": "method",
-          "file_path": "src/main/java/org/apache/commons/lang3/SystemProperties.java",
-          "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties",
-          "missing_count": 1,
-          "spillover_count": 0,
-          "reference_count": 1,
-          "missing_rate": 1.0,
-          "spillover_rate": 0.0,
-          "total_mismatch": 1
-        },
-        {
-          "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties.SystemProperties.getOsVersion",
-          "language": "java",
-          "kind": "method",
-          "file_path": "src/main/java/org/apache/commons/lang3/SystemProperties.java",
-          "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties",
-          "missing_count": 1,
-          "spillover_count": 0,
-          "reference_count": 1,
-          "missing_rate": 1.0,
-          "spillover_rate": 0.0,
-          "total_mismatch": 1
-        },
-        {
-          "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties.SystemProperties.getSunNetHttpServerMaxIdleConnections",
-          "language": "java",
-          "kind": "method",
-          "file_path": "src/main/java/org/apache/commons/lang3/SystemProperties.java",
-          "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties",
-          "missing_count": 1,
-          "spillover_count": 0,
-          "reference_count": 1,
-          "missing_rate": 1.0,
-          "spillover_rate": 0.0,
-          "total_mismatch": 1
-        },
-        {
-          "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties.SystemProperties.getSunNetHttpServerMaxReqHeaders",
-          "language": "java",
-          "kind": "method",
-          "file_path": "src/main/java/org/apache/commons/lang3/SystemProperties.java",
-          "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties",
-          "missing_count": 1,
-          "spillover_count": 0,
-          "reference_count": 1,
-          "missing_rate": 1.0,
-          "spillover_rate": 0.0,
-          "total_mismatch": 1
-        },
-        {
-          "entity": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.AtomicSafeInitializer.AtomicSafeInitializer.get",
-          "language": "java",
-          "kind": "method",
-          "file_path": "src/main/java/org/apache/commons/lang3/concurrent/AtomicSafeInitializer.java",
-          "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.AtomicSafeInitializer",
-          "missing_count": 1,
-          "spillover_count": 0,
+          "spillover_count": 1,
           "reference_count": 2,
           "missing_rate": 0.5,
-          "spillover_rate": 0.0,
-          "total_mismatch": 1
+          "spillover_rate": 0.5,
+          "total_mismatch": 2
         },
         {
-          "entity": "commons_lang.src.main.java.org.apache.commons.lang3.exception.ContextedException.ContextedException.getContextEntries",
+          "entity": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest",
           "language": "java",
-          "kind": "method",
-          "file_path": "src/main/java/org/apache/commons/lang3/exception/ContextedException.java",
-          "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.exception.ContextedException",
+          "kind": "module",
+          "file_path": "src/test/java/org/apache/commons/lang3/function/FailableTest.java",
+          "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.function",
           "missing_count": 1,
-          "spillover_count": 0,
-          "reference_count": 1,
-          "missing_rate": 1.0,
-          "spillover_rate": 0.0,
-          "total_mismatch": 1
+          "spillover_count": 1,
+          "reference_count": 2,
+          "missing_rate": 0.5,
+          "spillover_rate": 0.5,
+          "total_mismatch": 2
         },
         {
-          "entity": "commons_lang.src.main.java.org.apache.commons.lang3.exception.ExceptionUtils.ExceptionUtils.forEach",
+          "entity": "commons_lang.src.test.java.org.apache.commons.lang3.text.StrBuilderTest",
           "language": "java",
-          "kind": "method",
-          "file_path": "src/main/java/org/apache/commons/lang3/exception/ExceptionUtils.java",
-          "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.exception.ExceptionUtils",
+          "kind": "module",
+          "file_path": "src/test/java/org/apache/commons/lang3/text/StrBuilderTest.java",
+          "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.text",
           "missing_count": 1,
-          "spillover_count": 0,
-          "reference_count": 1,
-          "missing_rate": 1.0,
-          "spillover_rate": 0.0,
-          "total_mismatch": 1
+          "spillover_count": 1,
+          "reference_count": 2,
+          "missing_rate": 0.5,
+          "spillover_rate": 0.5,
+          "total_mismatch": 2
+        },
+        {
+          "entity": "commons_lang.src.test.java.org.apache.commons.lang3.tuple.ImmutablePairTest",
+          "language": "java",
+          "kind": "module",
+          "file_path": "src/test/java/org/apache/commons/lang3/tuple/ImmutablePairTest.java",
+          "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.tuple",
+          "missing_count": 1,
+          "spillover_count": 1,
+          "reference_count": 2,
+          "missing_rate": 0.5,
+          "spillover_rate": 0.5,
+          "total_mismatch": 2
         }
       ]
     },
@@ -35462,15 +35584,277 @@
         "target_zero": true,
         "pass": false,
         "scored_nodes": 353,
-        "avg_rate": 0.5373229461756374,
-        "avg_rate_percent": 53.73229461756374,
-        "total_edges": 392,
+        "avg_rate": 0.5401558073654391,
+        "avg_rate_percent": 54.01558073654391,
+        "total_edges": 393,
         "by_semantic_type_avg_rate": {
-          "direct_call_unresolved": 0.5373229461756374
+          "direct_call_unresolved": 0.5401558073654391
         },
         "by_semantic_type_avg_percent": {
-          "direct_call_unresolved": 53.73229461756374
-        }
+          "direct_call_unresolved": 54.01558073654391
+        },
+        "top_unresolved_signatures": [
+          {
+            "entity": "commons_lang.src.test.java.org.apache.commons.lang3.stream.LangCollectorsTest.LangCollectorsTest.testJoiningNonStrings1Arg",
+            "language": "java",
+            "kind": "method",
+            "file_path": "src/test/java/org/apache/commons/lang3/stream/LangCollectorsTest.java",
+            "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.stream.LangCollectorsTest",
+            "unresolved_static_count": 16,
+            "reference_count": 1,
+            "unresolved_static_rate": 16.0,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 16
+            }
+          },
+          {
+            "entity": "commons_lang.src.main.java.org.apache.commons.lang3.CharSequenceUtils.CharSequenceUtils.lastIndexOf",
+            "language": "java",
+            "kind": "method",
+            "file_path": "src/main/java/org/apache/commons/lang3/CharSequenceUtils.java",
+            "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.CharSequenceUtils",
+            "unresolved_static_count": 8,
+            "reference_count": 1,
+            "unresolved_static_rate": 8.0,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 8
+            }
+          },
+          {
+            "entity": "commons_lang.src.test.java.org.apache.commons.lang3.StreamsTest.StreamsTest.simpleStreamForEachFailing",
+            "language": "java",
+            "kind": "method",
+            "file_path": "src/test/java/org/apache/commons/lang3/StreamsTest.java",
+            "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.StreamsTest",
+            "unresolved_static_count": 8,
+            "reference_count": 1,
+            "unresolved_static_rate": 8.0,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 8
+            }
+          },
+          {
+            "entity": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testDoubleUnaryOperatorCompose",
+            "language": "java",
+            "kind": "method",
+            "file_path": "src/test/java/org/apache/commons/lang3/function/FailableTest.java",
+            "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest",
+            "unresolved_static_count": 8,
+            "reference_count": 3,
+            "unresolved_static_rate": 2.6666666666666665,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 8
+            }
+          },
+          {
+            "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.DiffBuilderTest.DiffBuilderTest.testDouble",
+            "language": "java",
+            "kind": "method",
+            "file_path": "src/test/java/org/apache/commons/lang3/builder/DiffBuilderTest.java",
+            "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.builder.DiffBuilderTest",
+            "unresolved_static_count": 7,
+            "reference_count": 1,
+            "unresolved_static_rate": 7.0,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 7
+            }
+          },
+          {
+            "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.EqualsBuilderTest.EqualsBuilderTest.testObjectArrayHiddenByObject",
+            "language": "java",
+            "kind": "method",
+            "file_path": "src/test/java/org/apache/commons/lang3/builder/EqualsBuilderTest.java",
+            "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.builder.EqualsBuilderTest",
+            "unresolved_static_count": 7,
+            "reference_count": 1,
+            "unresolved_static_rate": 7.0,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 7
+            }
+          },
+          {
+            "entity": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testGetSupplier",
+            "language": "java",
+            "kind": "method",
+            "file_path": "src/test/java/org/apache/commons/lang3/function/FailableTest.java",
+            "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest",
+            "unresolved_static_count": 7,
+            "reference_count": 2,
+            "unresolved_static_rate": 3.5,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 7
+            }
+          },
+          {
+            "entity": "commons_lang.src.main.java.org.apache.commons.lang3.text.ExtendedMessageFormat.ExtendedMessageFormat.insertFormats",
+            "language": "java",
+            "kind": "method",
+            "file_path": "src/main/java/org/apache/commons/lang3/text/ExtendedMessageFormat.java",
+            "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.text.ExtendedMessageFormat",
+            "unresolved_static_count": 7,
+            "reference_count": 4,
+            "unresolved_static_rate": 1.75,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 7
+            }
+          },
+          {
+            "entity": "commons_lang.src.main.java.org.apache.commons.lang3.text.StrTokenizer.StrTokenizer.readWithQuotes",
+            "language": "java",
+            "kind": "method",
+            "file_path": "src/main/java/org/apache/commons/lang3/text/StrTokenizer.java",
+            "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.text.StrTokenizer",
+            "unresolved_static_count": 7,
+            "reference_count": 5,
+            "unresolved_static_rate": 1.4,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 7
+            }
+          },
+          {
+            "entity": "commons_lang.src.main.java.org.apache.commons.lang3.EnumUtils.EnumUtils.generateBitVectors",
+            "language": "java",
+            "kind": "method",
+            "file_path": "src/main/java/org/apache/commons/lang3/EnumUtils.java",
+            "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.EnumUtils",
+            "unresolved_static_count": 6,
+            "reference_count": 1,
+            "unresolved_static_rate": 6.0,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 6
+            }
+          },
+          {
+            "entity": "commons_lang.src.test.java.org.apache.commons.lang3.ThreadUtilsTest.ThreadUtilsTest.testThreads",
+            "language": "java",
+            "kind": "method",
+            "file_path": "src/test/java/org/apache/commons/lang3/ThreadUtilsTest.java",
+            "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.ThreadUtilsTest",
+            "unresolved_static_count": 6,
+            "reference_count": 1,
+            "unresolved_static_rate": 6.0,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 6
+            }
+          },
+          {
+            "entity": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.AtomicSafeInitializer.AtomicSafeInitializer.get",
+            "language": "java",
+            "kind": "method",
+            "file_path": "src/main/java/org/apache/commons/lang3/concurrent/AtomicSafeInitializer.java",
+            "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.AtomicSafeInitializer",
+            "unresolved_static_count": 6,
+            "reference_count": 2,
+            "unresolved_static_rate": 3.0,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 6
+            }
+          },
+          {
+            "entity": "commons_lang.src.test.java.org.apache.commons.lang3.text.ExtendedMessageFormatTest.ExtendedMessageFormatTest.checkBuiltInFormat",
+            "language": "java",
+            "kind": "method",
+            "file_path": "src/test/java/org/apache/commons/lang3/text/ExtendedMessageFormatTest.java",
+            "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.text.ExtendedMessageFormatTest",
+            "unresolved_static_count": 6,
+            "reference_count": 2,
+            "unresolved_static_rate": 3.0,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 6
+            }
+          },
+          {
+            "entity": "commons_lang.src.main.java.org.apache.commons.lang3.LocaleUtils.LocaleUtils.parseLocale",
+            "language": "java",
+            "kind": "method",
+            "file_path": "src/main/java/org/apache/commons/lang3/LocaleUtils.java",
+            "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.LocaleUtils",
+            "unresolved_static_count": 6,
+            "reference_count": 3,
+            "unresolved_static_rate": 2.0,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 6
+            }
+          },
+          {
+            "entity": "commons_lang.src.test.java.org.apache.commons.lang3.FunctionsTest.FunctionsTest.testBiPredicate",
+            "language": "java",
+            "kind": "method",
+            "file_path": "src/test/java/org/apache/commons/lang3/FunctionsTest.java",
+            "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.FunctionsTest",
+            "unresolved_static_count": 5,
+            "reference_count": 1,
+            "unresolved_static_rate": 5.0,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 5
+            }
+          },
+          {
+            "entity": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.BasicThreadFactoryTest.BasicThreadFactoryTest.testBuilderResetAfterBuild",
+            "language": "java",
+            "kind": "method",
+            "file_path": "src/test/java/org/apache/commons/lang3/concurrent/BasicThreadFactoryTest.java",
+            "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.concurrent.BasicThreadFactoryTest",
+            "unresolved_static_count": 5,
+            "reference_count": 1,
+            "unresolved_static_rate": 5.0,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 5
+            }
+          },
+          {
+            "entity": "commons_lang.src.test.java.org.apache.commons.lang3.time.FastDateParserTest.FastDateParserTest.testDayOf",
+            "language": "java",
+            "kind": "method",
+            "file_path": "src/test/java/org/apache/commons/lang3/time/FastDateParserTest.java",
+            "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.time.FastDateParserTest",
+            "unresolved_static_count": 5,
+            "reference_count": 1,
+            "unresolved_static_rate": 5.0,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 5
+            }
+          },
+          {
+            "entity": "commons_lang.src.test.java.org.apache.commons.lang3.time.FastDateParserTest.FastDateParserTest.testShortDateStyleWithLocales",
+            "language": "java",
+            "kind": "method",
+            "file_path": "src/test/java/org/apache/commons/lang3/time/FastDateParserTest.java",
+            "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.time.FastDateParserTest",
+            "unresolved_static_count": 5,
+            "reference_count": 1,
+            "unresolved_static_rate": 5.0,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 5
+            }
+          },
+          {
+            "entity": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.FieldUtils.FieldUtils.removeFinalModifier",
+            "language": "java",
+            "kind": "method",
+            "file_path": "src/main/java/org/apache/commons/lang3/reflect/FieldUtils.java",
+            "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.FieldUtils",
+            "unresolved_static_count": 5,
+            "reference_count": 2,
+            "unresolved_static_rate": 2.5,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 5
+            }
+          },
+          {
+            "entity": "commons_lang.src.main.java.org.apache.commons.lang3.Conversion.Conversion.byteToHex",
+            "language": "java",
+            "kind": "method",
+            "file_path": "src/main/java/org/apache/commons/lang3/Conversion.java",
+            "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.Conversion",
+            "unresolved_static_count": 4,
+            "reference_count": 1,
+            "unresolved_static_rate": 4.0,
+            "semantic_breakdown": {
+              "direct_call_unresolved": 4
+            }
+          }
+        ]
       }
     }
   },
