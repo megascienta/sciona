@@ -36,13 +36,13 @@ DECORATOR_REASONS = {"decorator"}
 DYNAMIC_DISPATCH_REASONS = {"dynamic"}
 UNRESOLVED_STATIC_REASONS = {
     "in_repo_unresolved",
+    "in_repo_unresolved_import_normalization_miss",
     "in_repo_unresolved_no_candidates",
     "in_repo_unresolved_unique_without_provenance",
     "in_repo_unresolved_ambiguous_no_caller_module",
     "in_repo_unresolved_ambiguous_no_in_scope_candidate",
     "in_repo_unresolved_ambiguous_multiple_in_scope_candidates",
     "relative_unresolved",
-    "unknown",
 }
 
 
@@ -155,21 +155,21 @@ def _build_q2_weighted_rates(metrics: dict | None) -> dict | None:
 
 def _passes_q2_gate(
     *,
-    avg_missing_rate: float | None,
-    avg_spillover_rate: float | None,
-    avg_mutual_accuracy: float | None,
+    missing_rate: float | None,
+    spillover_rate: float | None,
+    mutual_accuracy: float | None,
     target: float,
 ) -> bool:
     if (
-        avg_missing_rate is None
-        or avg_spillover_rate is None
-        or avg_mutual_accuracy is None
+        missing_rate is None
+        or spillover_rate is None
+        or mutual_accuracy is None
     ):
         return False
     return bool(
-        avg_missing_rate <= (1.0 - target)
-        and avg_spillover_rate <= (1.0 - target)
-        and avg_mutual_accuracy >= target
+        missing_rate <= (1.0 - target)
+        and spillover_rate <= (1.0 - target)
+        and mutual_accuracy >= target
     )
 
 
@@ -396,9 +396,9 @@ def _build_report_payload(
         weighted_q2_rates.get("mutual_accuracy") if weighted_q2_rates else None
     )
     q2_pass = _passes_q2_gate(
-        avg_missing_rate=weighted_missing_rate,
-        avg_spillover_rate=weighted_spillover_rate,
-        avg_mutual_accuracy=weighted_mutual_accuracy,
+        missing_rate=weighted_missing_rate,
+        spillover_rate=weighted_spillover_rate,
+        mutual_accuracy=weighted_mutual_accuracy,
         target=q2_target,
     )
     q1_pass = bool(
@@ -450,9 +450,9 @@ def _build_report_payload(
             "weighted_spillover_rate": lang_weighted_spillover,
             "weighted_mutual_accuracy": lang_weighted_mutual,
             "pass": _passes_q2_gate(
-                avg_missing_rate=lang_weighted_missing,
-                avg_spillover_rate=lang_weighted_spillover,
-                avg_mutual_accuracy=lang_weighted_mutual,
+                missing_rate=lang_weighted_missing,
+                spillover_rate=lang_weighted_spillover,
+                mutual_accuracy=lang_weighted_mutual,
                 target=q2_target,
             ),
         }

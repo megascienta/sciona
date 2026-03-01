@@ -21,6 +21,7 @@ EXPANDED_TRUTH_POLICY = {
     "limitation_focus": [
         "dynamic",
         "in_repo_unresolved",
+        "in_repo_unresolved_import_normalization_miss",
         "in_repo_unresolved_no_candidates",
         "in_repo_unresolved_unique_without_provenance",
         "in_repo_unresolved_ambiguous_no_caller_module",
@@ -31,6 +32,7 @@ EXPANDED_TRUTH_POLICY = {
     "confidence_tiers": {
         "high": [
             "in_repo_unresolved",
+            "in_repo_unresolved_import_normalization_miss",
             "in_repo_unresolved_no_candidates",
             "in_repo_unresolved_unique_without_provenance",
             "in_repo_unresolved_ambiguous_no_caller_module",

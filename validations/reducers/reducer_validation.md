@@ -127,6 +127,8 @@ python validations/reducers/reducer_validation.py \
 - High unresolved-static defect implies genuine static-resolution gaps or unresolved normalization boundaries.
 - `in_repo_unresolved*` limitation reasons are selector-drop diagnostics; use the
   suffix reason to distinguish ambiguity/provenance gaps from no-candidate cases.
+- `unknown` call-shape artifacts are tracked as parse/noise diagnostics and are
+  excluded from unresolved-static defect accounting.
 - Prefer `metrics_v2.q2.weighted` for gate interpretation and trend tracking;
   use `metrics_v2.q2.per_node_avg` as diagnostic distribution signal.
 - Use `top_mismatch_signatures` and `strict_contract_candidate_count_histogram` first; do not infer architectural defects from aggregate metrics alone.

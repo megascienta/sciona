@@ -701,6 +701,97 @@ def test_ground_truth_excludes_external_imports_from_enrichment() -> None:
     assert out_of_contract == []
 
 
+def test_ground_truth_marks_dynamic_in_repo_imports_as_dynamic() -> None:
+    file_result = FileParseResult(
+        language="python",
+        file_path="pkg/mod.py",
+        module_qualified_name="fixture.pkg.mod",
+        defs=[],
+        call_edges=[],
+        import_edges=[],
+        assignment_hints=[],
+        parse_ok=True,
+    )
+    entity = SimpleNamespace(
+        kind="module",
+        qualified_name="fixture.pkg.mod",
+        module_qualified_name="fixture.pkg.mod",
+    )
+    dynamic_import_edge = ImportEdge(
+        source_module="fixture.pkg.mod",
+        target_module="fixture.pkg.service",
+        dynamic=True,
+    )
+    expected, _, out_of_contract, out_meta, diagnostics = edge_records_from_ground_truth(
+        file_result=file_result,
+        normalized_calls=[],
+        normalized_imports=[],
+        module_imports_by_prefix={
+            "fixture.pkg.mod": [
+                ("fixture.pkg.mod", "pkg/mod.py", "python", dynamic_import_edge)
+            ]
+        },
+        entity=entity,
+        module_names={"fixture.pkg.mod", "fixture.pkg.service"},
+        call_resolution={},
+        repo_root=FIXTURE_ROOT / "python",
+        repo_prefix="fixture",
+        local_packages={"fixture"},
+    )
+    assert expected == []
+    assert len(out_of_contract) == 1
+    assert out_meta and out_meta[0]["reason"] == "dynamic"
+    assert out_meta[0]["semantic_type"] == "dynamic_import"
+    assert diagnostics["included_limitation_by_reason"]["dynamic"] == 1
+
+
+def test_ground_truth_flags_import_normalization_miss_as_in_repo_unresolved() -> None:
+    file_result = FileParseResult(
+        language="java",
+        file_path="pkg/mod.java",
+        module_qualified_name="fixture.pkg.mod",
+        defs=[],
+        call_edges=[],
+        import_edges=[],
+        assignment_hints=[],
+        parse_ok=True,
+    )
+    entity = SimpleNamespace(
+        kind="module",
+        qualified_name="fixture.pkg.mod",
+        module_qualified_name="fixture.pkg.mod",
+    )
+    unresolved_import_edge = ImportEdge(
+        source_module="fixture.pkg.mod",
+        target_module="io.openlineage.client",
+        dynamic=False,
+    )
+    expected, _, out_of_contract, out_meta, diagnostics = edge_records_from_ground_truth(
+        file_result=file_result,
+        normalized_calls=[],
+        normalized_imports=[],
+        module_imports_by_prefix={
+            "fixture.pkg.mod": [
+                ("fixture.pkg.mod", "pkg/mod.java", "go", unresolved_import_edge)
+            ]
+        },
+        entity=entity,
+        module_names={"fixture.pkg.mod", "fixture.java.src.main.io.openlineage.client"},
+        call_resolution={},
+        repo_root=FIXTURE_ROOT / "python",
+        repo_prefix="fixture",
+        local_packages={"fixture"},
+    )
+    assert expected == []
+    assert len(out_of_contract) == 1
+    assert out_meta and out_meta[0]["reason"] == "in_repo_unresolved_import_normalization_miss"
+    assert out_meta[0]["semantic_type"] == "module_import_unresolved"
+    assert (
+        diagnostics["included_limitation_by_reason"]["in_repo_unresolved_import_normalization_miss"]
+        == 1
+    )
+
+
 def test_ground_truth_excludes_out_of_repo_calls_from_enrichment() -> None:
     file_result = FileParseResult(
         language="python",

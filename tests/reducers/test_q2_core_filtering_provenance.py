@@ -395,6 +395,56 @@ def test_unresolved_static_top_signatures_rank_by_count_then_rate(tmp_path: Path
     assert top[0]["unresolved_static_rate"] > top[1]["unresolved_static_rate"]
 
 
+def test_unknown_reason_is_not_counted_as_unresolved_static_defect(tmp_path: Path) -> None:
+    payload = _build_report_payload(
+        repo_root=tmp_path,
+        rows=[
+            {
+                "entity": "fixture.mod.fn",
+                "language": "python",
+                "kind": "function",
+                "file_path": "mod.py",
+                "module_qualified_name": "fixture.mod",
+                "set_q1_reducer_vs_db": {
+                    "reference_count": 1,
+                    "candidate_count": 1,
+                    "intersection_count": 1,
+                    "missing_count": 0,
+                    "spillover_count": 0,
+                    "coverage": 1.0,
+                    "spillover_ratio": 0.0,
+                },
+                "set_q2_reducer_vs_independent_contract": {
+                    "reference_count": 2,
+                    "candidate_count": 1,
+                    "intersection_count": 1,
+                    "missing_count": 1,
+                    "spillover_count": 0,
+                    "coverage": 0.5,
+                    "spillover_ratio": 0.0,
+                },
+            }
+        ],
+        out_of_contract_meta=[
+            {
+                "edge_type": "call",
+                "language": "python",
+                "reason": "unknown",
+                "semantic_type": "unknown_call_shape",
+                "entity": "fixture.mod.fn",
+                "entity_kind": "function",
+                "caller": "fixture.mod.fn",
+                "callee": "",
+                "callee_qname": None,
+                "provenance": "syntax_raw",
+            }
+        ],
+    )
+    unresolved = payload["questions"]["q3"]["unresolved_static_defect"]
+    assert unresolved["total_edges"] == 0
+    assert unresolved["avg_rate"] == 0.0
+
+
 def test_q2_payload_reports_contract_filtered_out_ratio(tmp_path: Path) -> None:
     payload = _build_report_payload(
         repo_root=tmp_path,

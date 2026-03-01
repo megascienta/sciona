@@ -68,17 +68,26 @@ def classify_import_reason(
     raw_target: str,
     resolved: str | None,
     repo_prefix: str,
+    dynamic: bool = False,
+    module_names: set[str] | None = None,
 ) -> str:
-    if not raw_target:
+    target = (raw_target or "").strip()
+    if not target:
         return "unknown"
+    if dynamic:
+        return "dynamic"
     if resolved:
         return "in_repo_unresolved"
-    if raw_target.startswith(".") or raw_target.startswith("/"):
+    if target.startswith(".") or target.startswith("/"):
         return "relative_unresolved"
     if repo_prefix and (
-        raw_target == repo_prefix or raw_target.startswith(f"{repo_prefix}.")
+        target == repo_prefix or target.startswith(f"{repo_prefix}.")
     ):
         return "in_repo_unresolved"
+    if module_names:
+        suffix = f".{target}"
+        if target in module_names or any(name.endswith(suffix) for name in module_names):
+            return "in_repo_unresolved_import_normalization_miss"
     return "external"
 
 
@@ -86,7 +95,9 @@ def classify_import_semantic_type(*, raw_target: str, reason: str) -> str:
     target = (raw_target or "").strip()
     if reason == "relative_unresolved":
         return "relative_import_unresolved"
-    if reason == "in_repo_unresolved":
+    if reason == "dynamic":
+        return "dynamic_import"
+    if reason == "in_repo_unresolved" or reason.startswith("in_repo_unresolved_"):
         if target.startswith("@"):
             return "aliased_import_unresolved"
         return "module_import_unresolved"

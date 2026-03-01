@@ -323,6 +323,8 @@ def edge_records_from_ground_truth(
                     raw_target=raw_target,
                     resolved=resolved,
                     repo_prefix=repo_prefix,
+                    dynamic=bool(edge.dynamic),
+                    module_names=module_names,
                 )
                 _register_limitation_edge(reason, record)
                 _append_basket2_meta(
@@ -365,6 +367,8 @@ def edge_records_from_ground_truth(
                         raw_target=raw_target,
                         resolved=resolved,
                         repo_prefix=repo_prefix,
+                        dynamic=bool(edge.dynamic),
+                        module_names=module_names,
                     )
                     _register_limitation_edge(reason, record)
                     _append_basket2_meta(
