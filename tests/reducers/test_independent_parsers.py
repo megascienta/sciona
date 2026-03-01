@@ -1397,6 +1397,46 @@ def test_typescript_parser_collects_accessor_method_defs(tmp_path: Path) -> None
     assert "fixture.sample.Controller.value" in defs
 
 
+@pytest.mark.skipif(shutil.which("node") is None, reason="node is required")
+def test_typescript_parser_collects_default_export_anonymous_function(tmp_path: Path) -> None:
+    source = tmp_path / "sample.ts"
+    source.write_text(
+        "const logger = { info() {} };\n"
+        "export default function () {\n"
+        "  logger.info();\n"
+        "}\n",
+        encoding="utf-8",
+    )
+    result = parse_typescript_files(
+        tmp_path, [{"file_path": "sample.ts", "module_qualified_name": "fixture.sample"}]
+    )[0]
+    assert result.parse_ok
+    defs = {entry.qualified_name for entry in result.defs if entry.kind == "function"}
+    assert "fixture.sample.default" in defs
+    edges = [edge for edge in result.call_edges if edge.caller == "fixture.sample.default"]
+    assert any(edge.callee == "info" for edge in edges)
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="node is required")
+def test_typescript_parser_collects_export_assignment_arrow_function(tmp_path: Path) -> None:
+    source = tmp_path / "sample.ts"
+    source.write_text(
+        "const logger = { info() {} };\n"
+        "export default () => {\n"
+        "  logger.info();\n"
+        "};\n",
+        encoding="utf-8",
+    )
+    result = parse_typescript_files(
+        tmp_path, [{"file_path": "sample.ts", "module_qualified_name": "fixture.sample"}]
+    )[0]
+    assert result.parse_ok
+    defs = {entry.qualified_name for entry in result.defs if entry.kind == "function"}
+    assert "fixture.sample.default" in defs
+    edges = [edge for edge in result.call_edges if edge.caller == "fixture.sample.default"]
+    assert any(edge.callee == "info" for edge in edges)
+
+
 def test_call_contract_resolves_module_scoped_symbol() -> None:
     edge = NormalizedCallEdge(
         caller="fixture.sample.entry",

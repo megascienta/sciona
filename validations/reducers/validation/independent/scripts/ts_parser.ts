@@ -141,6 +141,11 @@ function parseFile(entry) {
     popScope();
   }
 
+  function hasDefaultModifier(node) {
+    const modifiers = node && node.modifiers ? node.modifiers : [];
+    return modifiers.some(mod => mod.kind === ts.SyntaxKind.DefaultKeyword);
+  }
+
   function visit(node) {
     if (
       ts.isVariableDeclaration(node) &&
@@ -310,6 +315,16 @@ function parseFile(entry) {
       return;
     }
 
+    if (ts.isFunctionDeclaration(node) && !node.name && currentScopeKind() === "module") {
+      if (hasDefaultModifier(node)) {
+        const qname = `${entry.module_qualified_name}.default`;
+        registerCallable("function", qname, node, () => ts.forEachChild(node, visit));
+        return;
+      }
+      ts.forEachChild(node, visit);
+      return;
+    }
+
     if (
       ts.isVariableDeclaration(node) &&
       currentScopeKind() === "module" &&
@@ -347,6 +362,16 @@ function parseFile(entry) {
       const parent = scopeKind === "class" ? currentScope() : entry.module_qualified_name;
       const qname = `${parent}.${node.name.text}`;
       registerCallable("class", qname, node, () => ts.forEachChild(node, visit));
+      return;
+    }
+
+    if (ts.isClassDeclaration(node) && !node.name && currentScopeKind() === "module") {
+      if (hasDefaultModifier(node)) {
+        const qname = `${entry.module_qualified_name}.default`;
+        registerCallable("class", qname, node, () => ts.forEachChild(node, visit));
+        return;
+      }
+      ts.forEachChild(node, visit);
       return;
     }
 
@@ -423,6 +448,24 @@ function parseFile(entry) {
       const qname = `${classScope}.${name}`;
       registerCallable("method", qname, node, () => ts.forEachChild(node, visit));
       return;
+    }
+
+    if (
+      ts.isExportAssignment(node) &&
+      !node.isExportEquals &&
+      currentScopeKind() === "module"
+    ) {
+      const exportExpr = node.expression;
+      if (ts.isArrowFunction(exportExpr) || ts.isFunctionExpression(exportExpr)) {
+        const qname = `${entry.module_qualified_name}.default`;
+        registerCallable("function", qname, exportExpr, () => ts.forEachChild(exportExpr, visit));
+        return;
+      }
+      if (ts.isClassExpression(exportExpr)) {
+        const qname = `${entry.module_qualified_name}.default`;
+        registerCallable("class", qname, exportExpr, () => ts.forEachChild(exportExpr, visit));
+        return;
+      }
     }
 
     ts.forEachChild(node, visit);
