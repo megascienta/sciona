@@ -24,7 +24,7 @@ from .evaluation import (
 )
 from .evaluation_parse import parse_independent_files
 from .evaluation_resolution import build_independent_call_resolution
-from .report import render_summary, write_json, write_markdown, write_q2_hotspots_json
+from .report import render_summary, write_json, write_markdown
 from .reducer_queries import get_snapshot_id
 
 
@@ -271,13 +271,6 @@ def _build_report_payload(
     q2_envelope_total = q2_reference_total + q2_excluded_total
     q2_contract_filtered_out_ratio = _safe_ratio(q2_excluded_total, q2_envelope_total)
     strict_contract_candidate_histogram: dict[str, int] = {}
-    strict_contract_dropped_by_reason: dict[str, int] = {}
-    caller_divergence_aggregate = {
-        "rows_with_alt_caller_match": 0,
-        "alternate_caller_match_count": 0,
-        "missing_reference_edges_count": 0,
-        "missing_reference_with_qname_count": 0,
-    }
     for row in rows:
         diagnostics = row.get("q2_ground_truth_diagnostics") or {}
         histogram = diagnostics.get("strict_contract_candidate_count_histogram") or {}
@@ -286,24 +279,6 @@ def _build_report_payload(
                 int(strict_contract_candidate_histogram.get(str(bucket), 0))
                 + int(count or 0)
             )
-        dropped = diagnostics.get("strict_contract_dropped_by_reason") or {}
-        for reason, count in dropped.items():
-            strict_contract_dropped_by_reason[str(reason)] = (
-                int(strict_contract_dropped_by_reason.get(str(reason), 0))
-                + int(count or 0)
-            )
-        caller_divergence = row.get("caller_divergence_diagnostics") or {}
-        if bool(caller_divergence.get("has_alternate_caller_match")):
-            caller_divergence_aggregate["rows_with_alt_caller_match"] += 1
-        caller_divergence_aggregate["alternate_caller_match_count"] += int(
-            caller_divergence.get("alternate_caller_match_count") or 0
-        )
-        caller_divergence_aggregate["missing_reference_edges_count"] += int(
-            caller_divergence.get("missing_reference_edges_count") or 0
-        )
-        caller_divergence_aggregate["missing_reference_with_qname_count"] += int(
-            caller_divergence.get("missing_reference_with_qname_count") or 0
-        )
     class_truth_unreliable_count = 0
     class_truth_unreliable_scored_excluded_count = 0
     class_match_strategy_breakdown: dict[str, int] = {}
@@ -501,10 +476,6 @@ def _build_report_payload(
 
     compact_rows: list[dict] = []
     for row in rows:
-        diagnostics = row.get("q2_ground_truth_diagnostics") or {}
-        mismatch_reason_bucket = dict(
-            sorted((diagnostics.get("strict_contract_dropped_by_reason") or {}).items())
-        )
         compact_rows.append(
             {
                 "entity": row["entity"],
@@ -522,8 +493,6 @@ def _build_report_payload(
                 "basket2_edges": row.get("basket2_edges"),
                 "q2_filtering_stats": row.get("q2_filtering_stats"),
                 "q2_ground_truth_diagnostics": row.get("q2_ground_truth_diagnostics"),
-                "caller_divergence_diagnostics": row.get("caller_divergence_diagnostics"),
-                "mismatch_reason_bucket": mismatch_reason_bucket,
                 "q2_node_rates": _build_q2_node_rates(
                     row.get("set_q2_reducer_vs_independent_contract")
                 ),
@@ -607,18 +576,6 @@ def _build_report_payload(
                     "missing_rate": missing_rate,
                     "spillover_rate": spillover_rate,
                     "total_mismatch": total,
-                    "mismatch_reason_bucket": dict(
-                        sorted(
-                            (
-                                (
-                                    row.get("q2_ground_truth_diagnostics")
-                                    or {}
-                                ).get("strict_contract_dropped_by_reason")
-                                or {}
-                            ).items()
-                        )
-                    ),
-                    "caller_divergence_diagnostics": row.get("caller_divergence_diagnostics"),
                 },
             )
         )
@@ -652,16 +609,12 @@ def _build_report_payload(
                 "scored_nodes": len(q2_node_rates),
                 "avg_missing_rate": avg_missing_rate,
                 "avg_spillover_rate": avg_spillover_rate,
-                "avg_reference_unconfirmed_rate": avg_missing_rate,
-                "avg_independent_unmatched_rate": avg_spillover_rate,
                 "avg_mutual_accuracy": avg_mutual_accuracy,
                 "reference_count": q2_agg.get("reference_count"),
                 "candidate_count": q2_agg.get("candidate_count"),
                 "intersection_count": q2_agg.get("intersection_count"),
                 "missing_count": q2_agg.get("missing_count"),
                 "spillover_count": q2_agg.get("spillover_count"),
-                "reference_unconfirmed_count": q2_agg.get("missing_count"),
-                "independent_unmatched_count": q2_agg.get("spillover_count"),
                 "by_language": q2_by_language,
                 "filtering_source": Q2_FILTERING_SOURCE,
                 "envelope_reference_count": q2_reference_total,
@@ -675,10 +628,6 @@ def _build_report_payload(
                 "strict_contract_candidate_count_histogram": dict(
                     sorted(strict_contract_candidate_histogram.items())
                 ),
-                "strict_contract_dropped_by_reason": dict(
-                    sorted(strict_contract_dropped_by_reason.items())
-                ),
-                "caller_divergence_summary": caller_divergence_aggregate,
                 "class_truth_unreliable_count": class_truth_unreliable_count,
                 "class_truth_unreliable_scored_excluded_count": (
                     class_truth_unreliable_scored_excluded_count
@@ -888,11 +837,6 @@ def run_validation(
 
     write_json(reports.json_path, payload)
     write_markdown(reports.md_path, render_summary(payload))
-    hotspots_path = reports.json_path.with_name(
-        reports.json_path.name.replace("_reducer_validation.json", "_q2_hotspots.json")
-    )
-    write_q2_hotspots_json(hotspots_path, payload)
     print(f"Wrote: {reports.json_path}")
     print(f"Wrote: {reports.md_path}")
-    print(f"Wrote: {hotspots_path}")
     return 0

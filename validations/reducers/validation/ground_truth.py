@@ -72,7 +72,6 @@ def edge_records_from_ground_truth(
         "limitation_edges_full": [],
         "limitation_edges_by_reason": {},
         "strict_contract_accepted_by_provenance": {},
-        "strict_contract_dropped_by_reason": {},
         "strict_contract_candidate_count_histogram": {},
     }
     policy = config.EXPANDED_TRUTH_POLICY
@@ -527,11 +526,6 @@ def edge_records_from_ground_truth(
             accepted = diagnostics.setdefault("strict_contract_accepted_by_provenance", {})
             accepted[call_decision.accepted_provenance] = int(
                 accepted.get(call_decision.accepted_provenance, 0)
-            ) + 1
-        if call_decision.dropped_reason:
-            dropped = diagnostics.setdefault("strict_contract_dropped_by_reason", {})
-            dropped[call_decision.dropped_reason] = int(
-                dropped.get(call_decision.dropped_reason, 0)
             ) + 1
         if call_decision.candidate_count >= 0:
             histogram = diagnostics.setdefault(

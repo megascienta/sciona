@@ -46,12 +46,6 @@ Primary gate metrics:
 
 Q2 is evaluated only on scored nodes with non-null contract-set metrics.
 
-Naming aliases (backward-compatible):
-- `avg_reference_unconfirmed_rate` == `avg_missing_rate`
-- `avg_independent_unmatched_rate` == `avg_spillover_rate`
-- `reference_unconfirmed_count` == `missing_count`
-- `independent_unmatched_count` == `spillover_count`
-
 ### Q2 Syntax Baseline (Diagnostic)
 `set_q2_reducer_vs_independent_syntax` is emitted for comparison only and is not the gate.
 
@@ -124,4 +118,4 @@ python validations/reducers/reducer_validation.py \
 ## Interpretation Guidance
 - `Q1 pass + Q2 fail` usually means reducers/DB are internally consistent but independent parser overlap (within contract) is still incomplete.
 - High unresolved-static defect implies genuine static-resolution gaps or unresolved normalization boundaries.
-- Use `top_mismatch_signatures` and per-node diagnostics first; do not infer architectural defects from aggregate metrics alone.
+- Use `top_mismatch_signatures` and `strict_contract_candidate_count_histogram` first; do not infer architectural defects from aggregate metrics alone.

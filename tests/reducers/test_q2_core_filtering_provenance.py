@@ -51,19 +51,6 @@ def test_q2_payload_declares_core_only_filtering_source(tmp_path: Path) -> None:
     assert payload["questions"]["q2"]["contract_filtered_out_ratio"] == 0.0
     assert payload["questions"]["q2"]["match_provenance_breakdown"] == {"qname_exact": 1}
     assert payload["questions"]["q2"]["strict_contract_candidate_count_histogram"] == {}
-    assert payload["questions"]["q2"]["strict_contract_dropped_by_reason"] == {}
-    assert payload["questions"]["q2"]["avg_reference_unconfirmed_rate"] == 0.0
-    assert payload["questions"]["q2"]["avg_independent_unmatched_rate"] == 0.0
-    assert payload["questions"]["q2"]["reference_unconfirmed_count"] == 0
-    assert payload["questions"]["q2"]["independent_unmatched_count"] == 0
-    assert payload["questions"]["q2"]["caller_divergence_summary"] == {
-        "rows_with_alt_caller_match": 0,
-        "alternate_caller_match_count": 0,
-        "missing_reference_edges_count": 0,
-        "missing_reference_with_qname_count": 0,
-    }
-    assert payload["per_node"][0]["mismatch_reason_bucket"] == {}
-    assert payload["per_node"][0]["caller_divergence_diagnostics"] is None
     assert payload["questions"]["q2"]["core_contract_overlap"] == {
         "reference_count": 1,
         "candidate_count": 1,
@@ -316,23 +303,6 @@ def test_q2_payload_reports_contract_filtered_out_ratio(tmp_path: Path) -> None:
                 },
                 "q2_ground_truth_diagnostics": {
                     "strict_contract_candidate_count_histogram": {"0": 2, "1": 1},
-                    "strict_contract_dropped_by_reason": {
-                        "no_candidates": 2,
-                        "unique_without_provenance": 1,
-                    },
-                },
-                "caller_divergence_diagnostics": {
-                    "missing_reference_edges_count": 2,
-                    "missing_reference_with_qname_count": 2,
-                    "alternate_caller_match_count": 1,
-                    "has_alternate_caller_match": True,
-                    "examples": [
-                        {
-                            "callee_qname": "fixture.mod.helper",
-                            "reference_caller": "fixture.mod.fn",
-                            "alternate_candidate_callers": ["fixture.mod.alt"],
-                        }
-                    ],
                 },
             }
         ],
@@ -346,41 +316,10 @@ def test_q2_payload_reports_contract_filtered_out_ratio(tmp_path: Path) -> None:
     assert q2["envelope_excluded_by_reason"] == {"dynamic": 1, "external": 2}
     assert q2["match_provenance_breakdown"] == {"name_only": 1, "qname_suffix": 2}
     assert q2["strict_contract_candidate_count_histogram"] == {"0": 2, "1": 1}
-    assert q2["strict_contract_dropped_by_reason"] == {
-        "no_candidates": 2,
-        "unique_without_provenance": 1,
-    }
-    assert q2["avg_reference_unconfirmed_rate"] == q2["avg_missing_rate"]
-    assert q2["avg_independent_unmatched_rate"] == q2["avg_spillover_rate"]
-    assert q2["reference_unconfirmed_count"] == q2["missing_count"]
-    assert q2["independent_unmatched_count"] == q2["spillover_count"]
-    assert q2["caller_divergence_summary"] == {
-        "rows_with_alt_caller_match": 1,
-        "alternate_caller_match_count": 1,
-        "missing_reference_edges_count": 2,
-        "missing_reference_with_qname_count": 2,
-    }
     assert q2["core_contract_overlap"]["reference_count"] == 3
     assert q2["core_contract_overlap"]["missing_count"] == 0
     assert q2["contract_plus_resolution_hints"]["reference_count"] == 4
     assert q2["contract_plus_resolution_hints"]["missing_count"] == 1
-    assert payload["per_node"][0]["mismatch_reason_bucket"] == {
-        "no_candidates": 2,
-        "unique_without_provenance": 1,
-    }
-    assert payload["per_node"][0]["caller_divergence_diagnostics"] == {
-        "missing_reference_edges_count": 2,
-        "missing_reference_with_qname_count": 2,
-        "alternate_caller_match_count": 1,
-        "has_alternate_caller_match": True,
-        "examples": [
-            {
-                "callee_qname": "fixture.mod.helper",
-                "reference_caller": "fixture.mod.fn",
-                "alternate_candidate_callers": ["fixture.mod.alt"],
-            }
-        ],
-    }
 
 
 def test_q2_reports_class_truth_reliability_breakdown(tmp_path: Path) -> None:
