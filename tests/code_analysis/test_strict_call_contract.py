@@ -54,3 +54,64 @@ def test_strict_call_contract_accepts_unique_import_scoped_candidate() -> None:
     )
     assert decision.accepted_candidate == "deps.mod.S.run"
     assert decision.accepted_provenance == "import_narrowed"
+
+
+def test_strict_call_contract_accepts_unique_same_module_candidate() -> None:
+    decision = select_strict_call_candidate(
+        identifier="run",
+        direct_candidates=[],
+        fallback_candidates=["app.mod.S.run"],
+        caller_module="app.mod",
+        module_lookup={"app.mod.S.run": "app.mod"},
+        import_targets={},
+    )
+    assert decision.accepted_candidate == "app.mod.S.run"
+    assert decision.accepted_provenance == "module_scoped"
+    assert decision.dropped_reason is None
+
+
+def test_strict_call_contract_rejects_when_no_candidates() -> None:
+    decision = select_strict_call_candidate(
+        identifier="run",
+        direct_candidates=[],
+        fallback_candidates=[],
+        caller_module="app.mod",
+        module_lookup={},
+        import_targets={},
+    )
+    assert decision.accepted_candidate is None
+    assert decision.accepted_provenance is None
+    assert decision.dropped_reason == "no_candidates"
+    assert decision.candidate_count == 0
+
+
+def test_strict_call_contract_rejects_ambiguous_multiple_in_scope_candidates() -> None:
+    decision = select_strict_call_candidate(
+        identifier="run",
+        direct_candidates=[],
+        fallback_candidates=["deps.a.S.run", "deps.b.S.run", "offscope.S.run"],
+        caller_module="app.mod",
+        module_lookup={
+            "deps.a.S.run": "deps.a",
+            "deps.b.S.run": "deps.b",
+            "offscope.S.run": "offscope",
+        },
+        import_targets={"app.mod": {"deps.a", "deps.b"}},
+    )
+    assert decision.accepted_candidate is None
+    assert decision.accepted_provenance is None
+    assert decision.dropped_reason == "ambiguous_multiple_in_scope_candidates"
+
+
+def test_strict_call_contract_rejects_ambiguous_without_in_scope_candidates() -> None:
+    decision = select_strict_call_candidate(
+        identifier="run",
+        direct_candidates=[],
+        fallback_candidates=["x.mod.S.run", "y.mod.S.run"],
+        caller_module="app.mod",
+        module_lookup={"x.mod.S.run": "x.mod", "y.mod.S.run": "y.mod"},
+        import_targets={"app.mod": {"deps.a"}},
+    )
+    assert decision.accepted_candidate is None
+    assert decision.accepted_provenance is None
+    assert decision.dropped_reason == "ambiguous_no_in_scope_candidate"
