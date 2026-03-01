@@ -164,6 +164,49 @@ def _normalize_java_import(
     return text
 
 
+def _java_import_target_text(raw_target: str) -> str | None:
+    raw = (raw_target or "").strip()
+    if not raw:
+        return None
+    if not raw.startswith("import"):
+        raw = f"import {raw};"
+    if not raw.startswith("import"):
+        return None
+    is_static = raw.startswith("import static")
+    text = raw[len("import") :].strip()
+    if text.startswith("static"):
+        text = text[len("static") :].strip()
+    if text.endswith(";"):
+        text = text[:-1]
+    text = text.strip()
+    if not text or text.endswith(".*"):
+        return None
+    if is_static and "." in text:
+        text = text.rsplit(".", 1)[0]
+    return text or None
+
+
+def likely_java_import_normalization_miss(
+    *,
+    raw_target: str,
+    module_qname: str,
+    repo_prefix: str,
+    module_names: set[str],
+) -> bool:
+    text = _java_import_target_text(raw_target)
+    if not text:
+        return False
+    if repo_prefix and (text == repo_prefix or text.startswith(f"{repo_prefix}.")):
+        return True
+    top_package = core_java_top_level_package(module_qname, repo_prefix)
+    if top_package and (text == top_package or text.startswith(f"{top_package}.")):
+        return True
+    if "." not in text:
+        return False
+    suffix = f".{text}"
+    return any(name.endswith(suffix) for name in module_names)
+
+
 def resolve_import_contract(
     raw_target: str,
     file_path: str,

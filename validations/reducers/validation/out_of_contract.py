@@ -69,7 +69,7 @@ def classify_import_reason(
     resolved: str | None,
     repo_prefix: str,
     dynamic: bool = False,
-    module_names: set[str] | None = None,
+    normalization_miss: bool = False,
 ) -> str:
     target = (raw_target or "").strip()
     if not target:
@@ -78,16 +78,14 @@ def classify_import_reason(
         return "dynamic"
     if resolved:
         return "in_repo_unresolved"
+    if normalization_miss:
+        return "in_repo_unresolved_import_normalization_miss"
     if target.startswith(".") or target.startswith("/"):
         return "relative_unresolved"
     if repo_prefix and (
         target == repo_prefix or target.startswith(f"{repo_prefix}.")
     ):
         return "in_repo_unresolved"
-    if module_names:
-        suffix = f".{target}"
-        if target in module_names or any(name.endswith(suffix) for name in module_names):
-            return "in_repo_unresolved_import_normalization_miss"
     return "external"
 
 

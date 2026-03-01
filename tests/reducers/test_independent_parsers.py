@@ -772,7 +772,7 @@ def test_ground_truth_flags_import_normalization_miss_as_in_repo_unresolved() ->
         normalized_imports=[],
         module_imports_by_prefix={
             "fixture.pkg.mod": [
-                ("fixture.pkg.mod", "pkg/mod.java", "go", unresolved_import_edge)
+                ("fixture.pkg.mod", "pkg/mod.java", "java", unresolved_import_edge)
             ]
         },
         entity=entity,
@@ -790,6 +790,49 @@ def test_ground_truth_flags_import_normalization_miss_as_in_repo_unresolved() ->
         diagnostics["included_limitation_by_reason"]["in_repo_unresolved_import_normalization_miss"]
         == 1
     )
+
+
+def test_ground_truth_does_not_apply_java_normalization_miss_to_python() -> None:
+    file_result = FileParseResult(
+        language="python",
+        file_path="pkg/mod.py",
+        module_qualified_name="fixture.pkg.mod",
+        defs=[],
+        call_edges=[],
+        import_edges=[],
+        assignment_hints=[],
+        parse_ok=True,
+    )
+    entity = SimpleNamespace(
+        kind="module",
+        qualified_name="fixture.pkg.mod",
+        module_qualified_name="fixture.pkg.mod",
+    )
+    unresolved_import_edge = ImportEdge(
+        source_module="fixture.pkg.mod",
+        target_module="io.openlineage.client",
+        dynamic=False,
+    )
+    expected, _, out_of_contract, out_meta, diagnostics = edge_records_from_ground_truth(
+        file_result=file_result,
+        normalized_calls=[],
+        normalized_imports=[],
+        module_imports_by_prefix={
+            "fixture.pkg.mod": [
+                ("fixture.pkg.mod", "pkg/mod.py", "python", unresolved_import_edge)
+            ]
+        },
+        entity=entity,
+        module_names={"fixture.pkg.mod", "fixture.java.src.main.io.openlineage.client"},
+        call_resolution={},
+        repo_root=FIXTURE_ROOT / "python",
+        repo_prefix="fixture",
+        local_packages={"fixture"},
+    )
+    assert expected == []
+    assert out_of_contract == []
+    assert out_meta == []
+    assert diagnostics["excluded_out_of_scope_by_reason"]["external"] == 1
 
 
 def test_ground_truth_excludes_out_of_repo_calls_from_enrichment() -> None:

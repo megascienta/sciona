@@ -7,7 +7,7 @@ from typing import Dict, List, Tuple
 
 from . import config
 from .call_contract import resolve_call_in_contract_details
-from .import_contract import resolve_import_contract
+from .import_contract import likely_java_import_normalization_miss, resolve_import_contract
 from .independent.shared import EdgeRecord, FileParseResult, dedupe_edge_records
 from .out_of_contract import (
     classify_call_reason,
@@ -324,7 +324,16 @@ def edge_records_from_ground_truth(
                     resolved=resolved,
                     repo_prefix=repo_prefix,
                     dynamic=bool(edge.dynamic),
-                    module_names=module_names,
+                    normalization_miss=(
+                        language == "java"
+                        and not resolved
+                        and likely_java_import_normalization_miss(
+                            raw_target=raw_target,
+                            module_qname=module_name,
+                            repo_prefix=repo_prefix,
+                            module_names=module_names,
+                        )
+                    ),
                 )
                 _register_limitation_edge(reason, record)
                 _append_basket2_meta(
@@ -368,7 +377,16 @@ def edge_records_from_ground_truth(
                         resolved=resolved,
                         repo_prefix=repo_prefix,
                         dynamic=bool(edge.dynamic),
-                        module_names=module_names,
+                        normalization_miss=(
+                            file_result.language == "java"
+                            and not resolved
+                            and likely_java_import_normalization_miss(
+                                raw_target=raw_target,
+                                module_qname=file_result.module_qualified_name,
+                                repo_prefix=repo_prefix,
+                                module_names=module_names,
+                            )
+                        ),
                     )
                     _register_limitation_edge(reason, record)
                     _append_basket2_meta(
