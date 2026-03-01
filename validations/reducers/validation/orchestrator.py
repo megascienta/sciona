@@ -271,12 +271,19 @@ def _build_report_payload(
     q2_envelope_total = q2_reference_total + q2_excluded_total
     q2_contract_filtered_out_ratio = _safe_ratio(q2_excluded_total, q2_envelope_total)
     strict_contract_candidate_histogram: dict[str, int] = {}
+    strict_contract_dropped_by_reason: dict[str, int] = {}
     for row in rows:
         diagnostics = row.get("q2_ground_truth_diagnostics") or {}
         histogram = diagnostics.get("strict_contract_candidate_count_histogram") or {}
         for bucket, count in histogram.items():
             strict_contract_candidate_histogram[str(bucket)] = (
                 int(strict_contract_candidate_histogram.get(str(bucket), 0))
+                + int(count or 0)
+            )
+        dropped = diagnostics.get("strict_contract_dropped_by_reason") or {}
+        for reason, count in dropped.items():
+            strict_contract_dropped_by_reason[str(reason)] = (
+                int(strict_contract_dropped_by_reason.get(str(reason), 0))
                 + int(count or 0)
             )
     class_truth_unreliable_count = 0
@@ -476,6 +483,10 @@ def _build_report_payload(
 
     compact_rows: list[dict] = []
     for row in rows:
+        diagnostics = row.get("q2_ground_truth_diagnostics") or {}
+        mismatch_reason_bucket = dict(
+            sorted((diagnostics.get("strict_contract_dropped_by_reason") or {}).items())
+        )
         compact_rows.append(
             {
                 "entity": row["entity"],
@@ -493,6 +504,7 @@ def _build_report_payload(
                 "basket2_edges": row.get("basket2_edges"),
                 "q2_filtering_stats": row.get("q2_filtering_stats"),
                 "q2_ground_truth_diagnostics": row.get("q2_ground_truth_diagnostics"),
+                "mismatch_reason_bucket": mismatch_reason_bucket,
                 "q2_node_rates": _build_q2_node_rates(
                     row.get("set_q2_reducer_vs_independent_contract")
                 ),
@@ -576,6 +588,17 @@ def _build_report_payload(
                     "missing_rate": missing_rate,
                     "spillover_rate": spillover_rate,
                     "total_mismatch": total,
+                    "mismatch_reason_bucket": dict(
+                        sorted(
+                            (
+                                (
+                                    row.get("q2_ground_truth_diagnostics")
+                                    or {}
+                                ).get("strict_contract_dropped_by_reason")
+                                or {}
+                            ).items()
+                        )
+                    ),
                 },
             )
         )
@@ -627,6 +650,9 @@ def _build_report_payload(
                 "match_provenance_breakdown": q2_agg.get("match_provenance_breakdown"),
                 "strict_contract_candidate_count_histogram": dict(
                     sorted(strict_contract_candidate_histogram.items())
+                ),
+                "strict_contract_dropped_by_reason": dict(
+                    sorted(strict_contract_dropped_by_reason.items())
                 ),
                 "class_truth_unreliable_count": class_truth_unreliable_count,
                 "class_truth_unreliable_scored_excluded_count": (

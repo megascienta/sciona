@@ -705,6 +705,12 @@ def evaluate_entities(
                     "strict_contract_candidate_count_histogram": dict(
                         gt_diagnostics.get("strict_contract_candidate_count_histogram") or {}
                     ),
+                    "strict_contract_accepted_by_provenance": dict(
+                        gt_diagnostics.get("strict_contract_accepted_by_provenance") or {}
+                    ),
+                    "strict_contract_dropped_by_reason": dict(
+                        gt_diagnostics.get("strict_contract_dropped_by_reason") or {}
+                    ),
                 },
             }
         )

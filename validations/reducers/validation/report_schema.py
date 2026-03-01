@@ -15,6 +15,7 @@ class ReportRow(TypedDict, total=False):
     set_q1_reducer_vs_db: NotRequired[dict | None]
     set_q2_reducer_vs_independent_contract: NotRequired[dict | None]
     basket2_edges: NotRequired[list]
+    mismatch_reason_bucket: NotRequired[dict]
     q2_node_rates: NotRequired[dict | None]
     q3_non_static_rate_percent: NotRequired[float | None]
     unresolved_static_rate_percent: NotRequired[float | None]
@@ -82,6 +83,7 @@ def _validate_row(row: Mapping[str, object], index: int) -> list[str]:
     for metric_key in (
         "set_q1_reducer_vs_db",
         "set_q2_reducer_vs_independent_contract",
+        "mismatch_reason_bucket",
         "q2_node_rates",
     ):
         metric = row.get(metric_key)

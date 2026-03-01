@@ -51,6 +51,8 @@ def test_q2_payload_declares_core_only_filtering_source(tmp_path: Path) -> None:
     assert payload["questions"]["q2"]["contract_filtered_out_ratio"] == 0.0
     assert payload["questions"]["q2"]["match_provenance_breakdown"] == {"qname_exact": 1}
     assert payload["questions"]["q2"]["strict_contract_candidate_count_histogram"] == {}
+    assert payload["questions"]["q2"]["strict_contract_dropped_by_reason"] == {}
+    assert payload["per_node"][0]["mismatch_reason_bucket"] == {}
     assert payload["questions"]["q2"]["core_contract_overlap"] == {
         "reference_count": 1,
         "candidate_count": 1,
@@ -302,7 +304,11 @@ def test_q2_payload_reports_contract_filtered_out_ratio(tmp_path: Path) -> None:
                     "excluded_limitation_by_reason": {"dynamic": 1},
                 },
                 "q2_ground_truth_diagnostics": {
-                    "strict_contract_candidate_count_histogram": {"0": 2, "1": 1}
+                    "strict_contract_candidate_count_histogram": {"0": 2, "1": 1},
+                    "strict_contract_dropped_by_reason": {
+                        "no_candidates": 2,
+                        "unique_without_provenance": 1,
+                    },
                 },
             }
         ],
@@ -316,10 +322,18 @@ def test_q2_payload_reports_contract_filtered_out_ratio(tmp_path: Path) -> None:
     assert q2["envelope_excluded_by_reason"] == {"dynamic": 1, "external": 2}
     assert q2["match_provenance_breakdown"] == {"name_only": 1, "qname_suffix": 2}
     assert q2["strict_contract_candidate_count_histogram"] == {"0": 2, "1": 1}
+    assert q2["strict_contract_dropped_by_reason"] == {
+        "no_candidates": 2,
+        "unique_without_provenance": 1,
+    }
     assert q2["core_contract_overlap"]["reference_count"] == 3
     assert q2["core_contract_overlap"]["missing_count"] == 0
     assert q2["contract_plus_resolution_hints"]["reference_count"] == 4
     assert q2["contract_plus_resolution_hints"]["missing_count"] == 1
+    assert payload["per_node"][0]["mismatch_reason_bucket"] == {
+        "no_candidates": 2,
+        "unique_without_provenance": 1,
+    }
 
 
 def test_q2_reports_class_truth_reliability_breakdown(tmp_path: Path) -> None:
