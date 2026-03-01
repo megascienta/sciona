@@ -4,7 +4,13 @@ from __future__ import annotations
 
 import pytest
 
-from validations.reducers.validation.report import render_summary, write_json
+import json
+
+from validations.reducers.validation.report import (
+    render_summary,
+    write_json,
+    write_q2_hotspots_json,
+)
 
 
 def test_render_summary_includes_core_questions_and_syntax_baseline() -> None:
@@ -161,3 +167,29 @@ def test_write_json_rejects_legacy_metric_keys(tmp_path) -> None:
     with pytest.raises(ValueError) as exc:
         write_json(out, payload)
     assert "not allowed in current schema" in str(exc.value)
+
+
+def test_write_q2_hotspots_json_emits_compact_payload(tmp_path) -> None:
+    out = tmp_path / "fixture_q2_hotspots.json"
+    payload = {
+        "report_schema_version": "2026-02-27",
+        "questions": {
+            "q2": {
+                "pass": False,
+                "scored_nodes": 3,
+                "avg_mutual_accuracy": 0.9,
+                "avg_missing_rate": 0.1,
+                "avg_spillover_rate": 0.01,
+                "by_language": {"python": {"scored_nodes": 3}},
+                "strict_contract_dropped_by_reason": {"no_candidates": 2},
+                "caller_divergence_summary": {"rows_with_alt_caller_match": 0},
+                "top_mismatch_signatures": [{"entity": "fixture.mod.fn"}],
+            }
+        },
+    }
+    write_q2_hotspots_json(out, payload)
+    parsed = json.loads(out.read_text(encoding="utf-8"))
+    assert parsed["report_schema_version"] == "2026-02-27"
+    assert parsed["q2"]["pass"] is False
+    assert parsed["q2"]["strict_contract_dropped_by_reason"] == {"no_candidates": 2}
+    assert parsed["q2"]["top_mismatch_signatures"] == [{"entity": "fixture.mod.fn"}]

@@ -24,6 +24,28 @@ def write_markdown(path: Path, lines: List[str]) -> None:
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def write_q2_hotspots_json(path: Path, payload: dict) -> None:
+    questions = payload.get("questions") or {}
+    q2 = questions.get("q2") or {}
+    hotspot_payload = {
+        "report_schema_version": payload.get("report_schema_version"),
+        "source_report": str(path.name).replace("_q2_hotspots.json", "_reducer_validation.json"),
+        "q2": {
+            "pass": q2.get("pass"),
+            "scored_nodes": q2.get("scored_nodes"),
+            "avg_mutual_accuracy": q2.get("avg_mutual_accuracy"),
+            "avg_missing_rate": q2.get("avg_missing_rate"),
+            "avg_spillover_rate": q2.get("avg_spillover_rate"),
+            "by_language": q2.get("by_language"),
+            "strict_contract_dropped_by_reason": q2.get("strict_contract_dropped_by_reason"),
+            "caller_divergence_summary": q2.get("caller_divergence_summary"),
+            "top_mismatch_signatures": q2.get("top_mismatch_signatures") or [],
+        },
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(hotspot_payload, indent=2), encoding="utf-8")
+
+
 def _format_ratio(value) -> str:
     if isinstance(value, float):
         return f"{value:.6f}"

@@ -24,7 +24,7 @@ from .evaluation import (
 )
 from .evaluation_parse import parse_independent_files
 from .evaluation_resolution import build_independent_call_resolution
-from .report import render_summary, write_json, write_markdown
+from .report import render_summary, write_json, write_markdown, write_q2_hotspots_json
 from .reducer_queries import get_snapshot_id
 
 
@@ -888,6 +888,11 @@ def run_validation(
 
     write_json(reports.json_path, payload)
     write_markdown(reports.md_path, render_summary(payload))
+    hotspots_path = reports.json_path.with_name(
+        reports.json_path.name.replace("_reducer_validation.json", "_q2_hotspots.json")
+    )
+    write_q2_hotspots_json(hotspots_path, payload)
     print(f"Wrote: {reports.json_path}")
     print(f"Wrote: {reports.md_path}")
+    print(f"Wrote: {hotspots_path}")
     return 0

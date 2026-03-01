@@ -1,0 +1,483 @@
+{
+  "report_schema_version": "2026-02-27",
+  "source_report": "commons_lang_reducer_validation.json",
+  "q2": {
+    "pass": false,
+    "scored_nodes": 353,
+    "avg_mutual_accuracy": 0.8100925904573649,
+    "avg_missing_rate": 0.18940037771482532,
+    "avg_spillover_rate": 0.0005292991922690881,
+    "by_language": {
+      "java": {
+        "scored_nodes": 353,
+        "avg_missing_rate": 0.18940037771482532,
+        "avg_spillover_rate": 0.0005292991922690881,
+        "avg_mutual_accuracy": 0.8100925904573649,
+        "pass": false
+      }
+    },
+    "strict_contract_dropped_by_reason": {
+      "ambiguous_multiple_in_scope_candidates": 30,
+      "ambiguous_no_in_scope_candidate": 164,
+      "no_candidates": 169,
+      "unique_without_provenance": 124
+    },
+    "caller_divergence_summary": {
+      "rows_with_alt_caller_match": 0,
+      "alternate_caller_match_count": 0,
+      "missing_reference_edges_count": 90,
+      "missing_reference_with_qname_count": 90
+    },
+    "top_mismatch_signatures": [
+      {
+        "entity": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testDoubleUnaryOperatorCompose",
+        "language": "java",
+        "kind": "method",
+        "file_path": "src/test/java/org/apache/commons/lang3/function/FailableTest.java",
+        "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest",
+        "missing_count": 3,
+        "spillover_count": 0,
+        "reference_count": 3,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 3,
+        "mismatch_reason_bucket": {
+          "ambiguous_multiple_in_scope_candidates": 4,
+          "ambiguous_no_in_scope_candidate": 3,
+          "no_candidates": 3,
+          "unique_without_provenance": 1
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 3,
+          "missing_reference_with_qname_count": 3,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "commons_lang.src.main.java.org.apache.commons.lang3.builder.ToStringStyle.ToStringStyle.appendInternal",
+        "language": "java",
+        "kind": "method",
+        "file_path": "src/main/java/org/apache/commons/lang3/builder/ToStringStyle.java",
+        "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.builder.ToStringStyle",
+        "missing_count": 2,
+        "spillover_count": 0,
+        "reference_count": 8,
+        "missing_rate": 0.25,
+        "spillover_rate": 0.0,
+        "total_mismatch": 2,
+        "mismatch_reason_bucket": {
+          "ambiguous_multiple_in_scope_candidates": 1,
+          "ambiguous_no_in_scope_candidate": 2
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 2,
+          "missing_reference_with_qname_count": 2,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "commons_lang.src.main.java.org.apache.commons.lang3.exception.ContextedException.ContextedException.getMessage",
+        "language": "java",
+        "kind": "method",
+        "file_path": "src/main/java/org/apache/commons/lang3/exception/ContextedException.java",
+        "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.exception.ContextedException",
+        "missing_count": 2,
+        "spillover_count": 0,
+        "reference_count": 2,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 2,
+        "mismatch_reason_bucket": {},
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 2,
+          "missing_reference_with_qname_count": 2,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "commons_lang.src.test.java.org.apache.commons.lang3.builder.HashCodeBuilderTest.HashCodeBuilderTest.testReflectionObjectCycle",
+        "language": "java",
+        "kind": "method",
+        "file_path": "src/test/java/org/apache/commons/lang3/builder/HashCodeBuilderTest.java",
+        "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.builder.HashCodeBuilderTest",
+        "missing_count": 2,
+        "spillover_count": 0,
+        "reference_count": 2,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 2,
+        "mismatch_reason_bucket": {
+          "ambiguous_multiple_in_scope_candidates": 2,
+          "ambiguous_no_in_scope_candidate": 2,
+          "no_candidates": 3
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 2,
+          "missing_reference_with_qname_count": 2,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "commons_lang.src.test.java.org.apache.commons.lang3.exception.ExceptionUtilsTest.ExceptionUtilsTest.setUp",
+        "language": "java",
+        "kind": "method",
+        "file_path": "src/test/java/org/apache/commons/lang3/exception/ExceptionUtilsTest.java",
+        "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.exception.ExceptionUtilsTest",
+        "missing_count": 2,
+        "spillover_count": 0,
+        "reference_count": 5,
+        "missing_rate": 0.4,
+        "spillover_rate": 0.0,
+        "total_mismatch": 2,
+        "mismatch_reason_bucket": {
+          "no_candidates": 1
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 2,
+          "missing_reference_with_qname_count": 2,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testAcceptConsumer",
+        "language": "java",
+        "kind": "method",
+        "file_path": "src/test/java/org/apache/commons/lang3/function/FailableTest.java",
+        "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest",
+        "missing_count": 2,
+        "spillover_count": 0,
+        "reference_count": 2,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 2,
+        "mismatch_reason_bucket": {
+          "ambiguous_multiple_in_scope_candidates": 3,
+          "ambiguous_no_in_scope_candidate": 1,
+          "no_candidates": 5
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 2,
+          "missing_reference_with_qname_count": 2,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest.FailableTest.testGetSupplier",
+        "language": "java",
+        "kind": "method",
+        "file_path": "src/test/java/org/apache/commons/lang3/function/FailableTest.java",
+        "module_qualified_name": "commons_lang.src.test.java.org.apache.commons.lang3.function.FailableTest",
+        "missing_count": 2,
+        "spillover_count": 0,
+        "reference_count": 2,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 2,
+        "mismatch_reason_bucket": {
+          "ambiguous_multiple_in_scope_candidates": 3,
+          "ambiguous_no_in_scope_candidate": 2,
+          "no_candidates": 6
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 2,
+          "missing_reference_with_qname_count": 2,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils.ArrayUtils.arraycopy",
+        "language": "java",
+        "kind": "method",
+        "file_path": "src/main/java/org/apache/commons/lang3/ArrayUtils.java",
+        "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 1,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {
+          "ambiguous_no_in_scope_candidate": 1
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils.ArrayUtils.isArrayEmpty",
+        "language": "java",
+        "kind": "method",
+        "file_path": "src/main/java/org/apache/commons/lang3/ArrayUtils.java",
+        "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 1,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {},
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties.SystemProperties.getHttpAuthNtlmDomain",
+        "language": "java",
+        "kind": "method",
+        "file_path": "src/main/java/org/apache/commons/lang3/SystemProperties.java",
+        "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 1,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {},
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties.SystemProperties.getJavaTimeZoneDefaultZoneRulesProvider",
+        "language": "java",
+        "kind": "method",
+        "file_path": "src/main/java/org/apache/commons/lang3/SystemProperties.java",
+        "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 1,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {},
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties.SystemProperties.getJavaXmlConfigFile",
+        "language": "java",
+        "kind": "method",
+        "file_path": "src/main/java/org/apache/commons/lang3/SystemProperties.java",
+        "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 1,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {},
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties.SystemProperties.getJdkHttpClientMaxStreams",
+        "language": "java",
+        "kind": "method",
+        "file_path": "src/main/java/org/apache/commons/lang3/SystemProperties.java",
+        "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 1,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {},
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties.SystemProperties.getOrgJcpXmlDsigSecureValidation",
+        "language": "java",
+        "kind": "method",
+        "file_path": "src/main/java/org/apache/commons/lang3/SystemProperties.java",
+        "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 1,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {},
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties.SystemProperties.getOsVersion",
+        "language": "java",
+        "kind": "method",
+        "file_path": "src/main/java/org/apache/commons/lang3/SystemProperties.java",
+        "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 1,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {},
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties.SystemProperties.getSunNetHttpServerMaxIdleConnections",
+        "language": "java",
+        "kind": "method",
+        "file_path": "src/main/java/org/apache/commons/lang3/SystemProperties.java",
+        "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 1,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {},
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties.SystemProperties.getSunNetHttpServerMaxReqHeaders",
+        "language": "java",
+        "kind": "method",
+        "file_path": "src/main/java/org/apache/commons/lang3/SystemProperties.java",
+        "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.SystemProperties",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 1,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {},
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.AtomicSafeInitializer.AtomicSafeInitializer.get",
+        "language": "java",
+        "kind": "method",
+        "file_path": "src/main/java/org/apache/commons/lang3/concurrent/AtomicSafeInitializer.java",
+        "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.AtomicSafeInitializer",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 2,
+        "missing_rate": 0.5,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {
+          "ambiguous_multiple_in_scope_candidates": 1,
+          "ambiguous_no_in_scope_candidate": 3,
+          "no_candidates": 1,
+          "unique_without_provenance": 1
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "commons_lang.src.main.java.org.apache.commons.lang3.exception.ContextedException.ContextedException.getContextEntries",
+        "language": "java",
+        "kind": "method",
+        "file_path": "src/main/java/org/apache/commons/lang3/exception/ContextedException.java",
+        "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.exception.ContextedException",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 1,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {},
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "commons_lang.src.main.java.org.apache.commons.lang3.exception.ExceptionUtils.ExceptionUtils.forEach",
+        "language": "java",
+        "kind": "method",
+        "file_path": "src/main/java/org/apache/commons/lang3/exception/ExceptionUtils.java",
+        "module_qualified_name": "commons_lang.src.main.java.org.apache.commons.lang3.exception.ExceptionUtils",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 1,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {},
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      }
+    ]
+  }
+}

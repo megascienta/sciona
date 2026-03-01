@@ -1,0 +1,476 @@
+{
+  "report_schema_version": "2026-02-27",
+  "source_report": "fastapi_reducer_validation.json",
+  "q2": {
+    "pass": false,
+    "scored_nodes": 248,
+    "avg_mutual_accuracy": 0.8114810088177135,
+    "avg_missing_rate": 0.18125,
+    "avg_spillover_rate": 0.011250120747555216,
+    "by_language": {
+      "python": {
+        "scored_nodes": 248,
+        "avg_missing_rate": 0.18125,
+        "avg_spillover_rate": 0.011250120747555216,
+        "avg_mutual_accuracy": 0.8114810088177135,
+        "pass": false
+      }
+    },
+    "strict_contract_dropped_by_reason": {
+      "ambiguous_multiple_in_scope_candidates": 15,
+      "ambiguous_no_in_scope_candidate": 47,
+      "no_candidates": 376,
+      "unique_without_provenance": 37
+    },
+    "caller_divergence_summary": {
+      "rows_with_alt_caller_match": 0,
+      "alternate_caller_match_count": 0,
+      "missing_reference_edges_count": 64,
+      "missing_reference_with_qname_count": 64
+    },
+    "top_mismatch_signatures": [
+      {
+        "entity": "fastapi",
+        "language": "python",
+        "kind": "module",
+        "file_path": "fastapi/__init__.py",
+        "module_qualified_name": "fastapi",
+        "missing_count": 0,
+        "spillover_count": 7,
+        "reference_count": 1622,
+        "missing_rate": 0.0,
+        "spillover_rate": 0.004315659679408138,
+        "total_mismatch": 7,
+        "mismatch_reason_bucket": {},
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 0,
+          "missing_reference_with_qname_count": 0,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "fastapi.docs_src.websockets.tutorial003_py310.websocket_endpoint",
+        "language": "python",
+        "kind": "function",
+        "file_path": "docs_src/websockets/tutorial003_py310.py",
+        "module_qualified_name": "fastapi.docs_src.websockets.tutorial003_py310",
+        "missing_count": 4,
+        "spillover_count": 0,
+        "reference_count": 4,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 4,
+        "mismatch_reason_bucket": {
+          "no_candidates": 1
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 4,
+          "missing_reference_with_qname_count": 4,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "fastapi.docs_src.websockets.tutorial003_py39.websocket_endpoint",
+        "language": "python",
+        "kind": "function",
+        "file_path": "docs_src/websockets/tutorial003_py39.py",
+        "module_qualified_name": "fastapi.docs_src.websockets.tutorial003_py39",
+        "missing_count": 4,
+        "spillover_count": 0,
+        "reference_count": 4,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 4,
+        "mismatch_reason_bucket": {
+          "no_candidates": 1
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 4,
+          "missing_reference_with_qname_count": 4,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "fastapi.security",
+        "language": "python",
+        "kind": "module",
+        "file_path": "fastapi/security/__init__.py",
+        "module_qualified_name": "fastapi",
+        "missing_count": 0,
+        "spillover_count": 4,
+        "reference_count": 14,
+        "missing_rate": 0.0,
+        "spillover_rate": 0.2857142857142857,
+        "total_mismatch": 4,
+        "mismatch_reason_bucket": {},
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 0,
+          "missing_reference_with_qname_count": 0,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "fastapi.routing.APIRouter.include_router",
+        "language": "python",
+        "kind": "method",
+        "file_path": "fastapi/routing.py",
+        "module_qualified_name": "fastapi.routing",
+        "missing_count": 3,
+        "spillover_count": 0,
+        "reference_count": 5,
+        "missing_rate": 0.6,
+        "spillover_rate": 0.0,
+        "total_mismatch": 3,
+        "mismatch_reason_bucket": {
+          "no_candidates": 12
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 3,
+          "missing_reference_with_qname_count": 3,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "fastapi.tests.test_generate_unique_id_function.test_app_path_operation_overrides_generate_unique_id",
+        "language": "python",
+        "kind": "function",
+        "file_path": "tests/test_generate_unique_id_function.py",
+        "module_qualified_name": "fastapi.tests.test_generate_unique_id_function",
+        "missing_count": 3,
+        "spillover_count": 0,
+        "reference_count": 3,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 3,
+        "mismatch_reason_bucket": {
+          "no_candidates": 5
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 3,
+          "missing_reference_with_qname_count": 3,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "fastapi.tests.test_generate_unique_id_function.test_router_overrides_generate_unique_id",
+        "language": "python",
+        "kind": "function",
+        "file_path": "tests/test_generate_unique_id_function.py",
+        "module_qualified_name": "fastapi.tests.test_generate_unique_id_function",
+        "missing_count": 3,
+        "spillover_count": 0,
+        "reference_count": 3,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 3,
+        "mismatch_reason_bucket": {
+          "no_candidates": 5
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 3,
+          "missing_reference_with_qname_count": 3,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "fastapi.tests.test_generate_unique_id_function.test_router_path_operation_overrides_generate_unique_id",
+        "language": "python",
+        "kind": "function",
+        "file_path": "tests/test_generate_unique_id_function.py",
+        "module_qualified_name": "fastapi.tests.test_generate_unique_id_function",
+        "missing_count": 3,
+        "spillover_count": 0,
+        "reference_count": 3,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 3,
+        "mismatch_reason_bucket": {
+          "no_candidates": 5
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 3,
+          "missing_reference_with_qname_count": 3,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "fastapi.tests.test_generate_unique_id_function.test_subrouter_top_level_include_overrides_generate_unique_id",
+        "language": "python",
+        "kind": "function",
+        "file_path": "tests/test_generate_unique_id_function.py",
+        "module_qualified_name": "fastapi.tests.test_generate_unique_id_function",
+        "missing_count": 3,
+        "spillover_count": 0,
+        "reference_count": 3,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 3,
+        "mismatch_reason_bucket": {
+          "no_candidates": 5
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 3,
+          "missing_reference_with_qname_count": 3,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "fastapi.tests.test_generate_unique_id_function.test_callback_override_generate_unique_id",
+        "language": "python",
+        "kind": "function",
+        "file_path": "tests/test_generate_unique_id_function.py",
+        "module_qualified_name": "fastapi.tests.test_generate_unique_id_function",
+        "missing_count": 2,
+        "spillover_count": 0,
+        "reference_count": 2,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 2,
+        "mismatch_reason_bucket": {
+          "no_candidates": 5
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 2,
+          "missing_reference_with_qname_count": 2,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "fastapi.applications.FastAPI.setup",
+        "language": "python",
+        "kind": "method",
+        "file_path": "fastapi/applications.py",
+        "module_qualified_name": "fastapi.applications",
+        "missing_count": 1,
+        "spillover_count": 1,
+        "reference_count": 4,
+        "missing_rate": 0.25,
+        "spillover_rate": 0.25,
+        "total_mismatch": 2,
+        "mismatch_reason_bucket": {
+          "no_candidates": 4
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "fastapi._compat.v2.ModelField.default",
+        "language": "python",
+        "kind": "method",
+        "file_path": "fastapi/_compat/v2.py",
+        "module_qualified_name": "fastapi._compat.v2",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 1,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {},
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "fastapi._compat.v2.ModelField.get_default",
+        "language": "python",
+        "kind": "method",
+        "file_path": "fastapi/_compat/v2.py",
+        "module_qualified_name": "fastapi._compat.v2",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 1,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {
+          "no_candidates": 1
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "fastapi.applications.FastAPI.__init__",
+        "language": "python",
+        "kind": "method",
+        "file_path": "fastapi/applications.py",
+        "module_qualified_name": "fastapi.applications",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 1,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {
+          "no_candidates": 7
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "fastapi.applications.FastAPI.add_api_route",
+        "language": "python",
+        "kind": "method",
+        "file_path": "fastapi/applications.py",
+        "module_qualified_name": "fastapi.applications",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 1,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {},
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "fastapi.applications.FastAPI.add_api_websocket_route",
+        "language": "python",
+        "kind": "method",
+        "file_path": "fastapi/applications.py",
+        "module_qualified_name": "fastapi.applications",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 1,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {},
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "fastapi.applications.FastAPI.api_route",
+        "language": "python",
+        "kind": "method",
+        "file_path": "fastapi/applications.py",
+        "module_qualified_name": "fastapi.applications",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 1,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {},
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "fastapi.applications.FastAPI.delete",
+        "language": "python",
+        "kind": "method",
+        "file_path": "fastapi/applications.py",
+        "module_qualified_name": "fastapi.applications",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 1,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {},
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "fastapi.applications.FastAPI.get",
+        "language": "python",
+        "kind": "method",
+        "file_path": "fastapi/applications.py",
+        "module_qualified_name": "fastapi.applications",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 1,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {},
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "fastapi.applications.FastAPI.head",
+        "language": "python",
+        "kind": "method",
+        "file_path": "fastapi/applications.py",
+        "module_qualified_name": "fastapi.applications",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 1,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {},
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      }
+    ]
+  }
+}

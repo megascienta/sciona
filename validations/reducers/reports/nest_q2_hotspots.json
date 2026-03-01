@@ -1,0 +1,495 @@
+{
+  "report_schema_version": "2026-02-27",
+  "source_report": "nest_reducer_validation.json",
+  "q2": {
+    "pass": false,
+    "scored_nodes": 316,
+    "avg_mutual_accuracy": 0.9143065303787252,
+    "avg_missing_rate": 0.08558619650391802,
+    "avg_spillover_rate": 0.0001110370863868532,
+    "by_language": {
+      "typescript": {
+        "scored_nodes": 316,
+        "avg_missing_rate": 0.08558619650391802,
+        "avg_spillover_rate": 0.0001110370863868532,
+        "avg_mutual_accuracy": 0.9143065303787252,
+        "pass": false
+      }
+    },
+    "strict_contract_dropped_by_reason": {
+      "ambiguous_multiple_in_scope_candidates": 16,
+      "ambiguous_no_in_scope_candidate": 172,
+      "no_candidates": 279,
+      "unique_without_provenance": 84
+    },
+    "caller_divergence_summary": {
+      "rows_with_alt_caller_match": 0,
+      "alternate_caller_match_count": 0,
+      "missing_reference_edges_count": 86,
+      "missing_reference_with_qname_count": 86
+    },
+    "top_mismatch_signatures": [
+      {
+        "entity": "nest.packages.microservices.server.server-grpc.ServerGrpc",
+        "language": "typescript",
+        "kind": "class",
+        "file_path": "packages/microservices/server/server-grpc.ts",
+        "module_qualified_name": "nest.packages.microservices.server.server-grpc",
+        "missing_count": 4,
+        "spillover_count": 0,
+        "reference_count": 32,
+        "missing_rate": 0.125,
+        "spillover_rate": 0.0,
+        "total_mismatch": 4,
+        "mismatch_reason_bucket": {},
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 4,
+          "missing_reference_with_qname_count": 4,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "nest.packages.core.injector.module.Module",
+        "language": "typescript",
+        "kind": "class",
+        "file_path": "packages/core/injector/module.ts",
+        "module_qualified_name": "nest.packages.core.injector.module",
+        "missing_count": 3,
+        "spillover_count": 0,
+        "reference_count": 56,
+        "missing_rate": 0.05357142857142857,
+        "spillover_rate": 0.0,
+        "total_mismatch": 3,
+        "mismatch_reason_bucket": {},
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 3,
+          "missing_reference_with_qname_count": 3,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "nest.packages.core.middleware.route-info-path-extractor.RouteInfoPathExtractor.constructor",
+        "language": "typescript",
+        "kind": "method",
+        "file_path": "packages/core/middleware/route-info-path-extractor.ts",
+        "module_qualified_name": "nest.packages.core.middleware.route-info-path-extractor",
+        "missing_count": 3,
+        "spillover_count": 0,
+        "reference_count": 3,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 3,
+        "mismatch_reason_bucket": {
+          "no_candidates": 1,
+          "unique_without_provenance": 2
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 3,
+          "missing_reference_with_qname_count": 3,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "nest.packages.core.nest-application.NestApplication.registerRouter",
+        "language": "typescript",
+        "kind": "method",
+        "file_path": "packages/core/nest-application.ts",
+        "module_qualified_name": "nest.packages.core.nest-application",
+        "missing_count": 3,
+        "spillover_count": 0,
+        "reference_count": 3,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 3,
+        "mismatch_reason_bucket": {
+          "ambiguous_multiple_in_scope_candidates": 2,
+          "unique_without_provenance": 1
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 3,
+          "missing_reference_with_qname_count": 3,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "nest.packages.core.exceptions.external-exception-filter-context.ExternalExceptionFilterContext.getGlobalMetadata",
+        "language": "typescript",
+        "kind": "method",
+        "file_path": "packages/core/exceptions/external-exception-filter-context.ts",
+        "module_qualified_name": "nest.packages.core.exceptions.external-exception-filter-context",
+        "missing_count": 2,
+        "spillover_count": 0,
+        "reference_count": 2,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 2,
+        "mismatch_reason_bucket": {
+          "no_candidates": 6
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 2,
+          "missing_reference_with_qname_count": 2,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "nest.packages.core.nest-application.NestApplication.init",
+        "language": "typescript",
+        "kind": "method",
+        "file_path": "packages/core/nest-application.ts",
+        "module_qualified_name": "nest.packages.core.nest-application",
+        "missing_count": 2,
+        "spillover_count": 0,
+        "reference_count": 8,
+        "missing_rate": 0.25,
+        "spillover_rate": 0.0,
+        "total_mismatch": 2,
+        "mismatch_reason_bucket": {
+          "ambiguous_multiple_in_scope_candidates": 1,
+          "ambiguous_no_in_scope_candidate": 1
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 2,
+          "missing_reference_with_qname_count": 2,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "nest.packages.core.nest-application.NestApplication.registerParserMiddleware",
+        "language": "typescript",
+        "kind": "method",
+        "file_path": "packages/core/nest-application.ts",
+        "module_qualified_name": "nest.packages.core.nest-application",
+        "missing_count": 2,
+        "spillover_count": 0,
+        "reference_count": 2,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 2,
+        "mismatch_reason_bucket": {},
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 2,
+          "missing_reference_with_qname_count": 2,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "nest.packages.core.nest-application.NestApplication.useGlobalGuards",
+        "language": "typescript",
+        "kind": "method",
+        "file_path": "packages/core/nest-application.ts",
+        "module_qualified_name": "nest.packages.core.nest-application",
+        "missing_count": 2,
+        "spillover_count": 0,
+        "reference_count": 3,
+        "missing_rate": 0.6666666666666666,
+        "spillover_rate": 0.0,
+        "total_mismatch": 2,
+        "mismatch_reason_bucket": {
+          "ambiguous_multiple_in_scope_candidates": 1,
+          "no_candidates": 1
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 2,
+          "missing_reference_with_qname_count": 2,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "nest.packages.core.scanner.DependenciesScanner.insertInjectable",
+        "language": "typescript",
+        "kind": "method",
+        "file_path": "packages/core/scanner.ts",
+        "module_qualified_name": "nest.packages.core.scanner",
+        "missing_count": 2,
+        "spillover_count": 0,
+        "reference_count": 2,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 2,
+        "mismatch_reason_bucket": {
+          "ambiguous_multiple_in_scope_candidates": 1,
+          "unique_without_provenance": 1
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 2,
+          "missing_reference_with_qname_count": 2,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "nest.packages.platform-fastify.adapters.fastify-adapter.FastifyAdapter",
+        "language": "typescript",
+        "kind": "class",
+        "file_path": "packages/platform-fastify/adapters/fastify-adapter.ts",
+        "module_qualified_name": "nest.packages.platform-fastify.adapters.fastify-adapter",
+        "missing_count": 0,
+        "spillover_count": 2,
+        "reference_count": 57,
+        "missing_rate": 0.0,
+        "spillover_rate": 0.03508771929824561,
+        "total_mismatch": 2,
+        "mismatch_reason_bucket": {},
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 0,
+          "missing_reference_with_qname_count": 0,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "nest.integration.inspector.src.database.database.controller.DatabaseController.create",
+        "language": "typescript",
+        "kind": "method",
+        "file_path": "integration/inspector/src/database/database.controller.ts",
+        "module_qualified_name": "nest.integration.inspector.src.database.database.controller",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 1,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {
+          "ambiguous_multiple_in_scope_candidates": 1,
+          "no_candidates": 1,
+          "unique_without_provenance": 1
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "nest.integration.scopes.src.inject-inquirer.hello-request.request-logger.service.RequestLogger.log",
+        "language": "typescript",
+        "kind": "method",
+        "file_path": "integration/scopes/src/inject-inquirer/hello-request/request-logger.service.ts",
+        "module_qualified_name": "nest.integration.scopes.src.inject-inquirer.hello-request.request-logger.service",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 1,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {},
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "nest.integration.typeorm.src.photo.photo.service.PhotoService.create",
+        "language": "typescript",
+        "kind": "method",
+        "file_path": "integration/typeorm/src/photo/photo.service.ts",
+        "module_qualified_name": "nest.integration.typeorm.src.photo.photo.service",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 1,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {
+          "no_candidates": 1
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "nest.packages.common.utils.load-package.util.loadPackage",
+        "language": "typescript",
+        "kind": "function",
+        "file_path": "packages/common/utils/load-package.util.ts",
+        "module_qualified_name": "nest.packages.common.utils.load-package.util",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 2,
+        "missing_rate": 0.5,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {
+          "no_candidates": 3
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "nest.packages.common.utils.validate-module-keys.util.validateModuleKeys",
+        "language": "typescript",
+        "kind": "function",
+        "file_path": "packages/common/utils/validate-module-keys.util.ts",
+        "module_qualified_name": "nest.packages.common.utils.validate-module-keys.util",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 1,
+        "missing_rate": 1.0,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {
+          "no_candidates": 3
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "nest.packages.core.helpers.context-id-factory.ContextIdFactory.getByRequest",
+        "language": "typescript",
+        "kind": "method",
+        "file_path": "packages/core/helpers/context-id-factory.ts",
+        "module_qualified_name": "nest.packages.core.helpers.context-id-factory",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 3,
+        "missing_rate": 0.3333333333333333,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {
+          "ambiguous_no_in_scope_candidate": 1
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "nest.packages.core.hooks.before-app-shutdown.hook.callBeforeAppShutdownHook",
+        "language": "typescript",
+        "kind": "function",
+        "file_path": "packages/core/hooks/before-app-shutdown.hook.ts",
+        "module_qualified_name": "nest.packages.core.hooks.before-app-shutdown.hook",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 5,
+        "missing_rate": 0.2,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {
+          "ambiguous_no_in_scope_candidate": 2,
+          "no_candidates": 1
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "nest.packages.core.hooks.on-app-bootstrap.hook.callModuleBootstrapHook",
+        "language": "typescript",
+        "kind": "function",
+        "file_path": "packages/core/hooks/on-app-bootstrap.hook.ts",
+        "module_qualified_name": "nest.packages.core.hooks.on-app-bootstrap.hook",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 5,
+        "missing_rate": 0.2,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {
+          "ambiguous_no_in_scope_candidate": 2,
+          "no_candidates": 1
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "nest.packages.core.hooks.on-app-shutdown.hook.callAppShutdownHook",
+        "language": "typescript",
+        "kind": "function",
+        "file_path": "packages/core/hooks/on-app-shutdown.hook.ts",
+        "module_qualified_name": "nest.packages.core.hooks.on-app-shutdown.hook",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 5,
+        "missing_rate": 0.2,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {
+          "ambiguous_no_in_scope_candidate": 2,
+          "no_candidates": 1
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      },
+      {
+        "entity": "nest.packages.core.hooks.on-module-destroy.hook.callModuleDestroyHook",
+        "language": "typescript",
+        "kind": "function",
+        "file_path": "packages/core/hooks/on-module-destroy.hook.ts",
+        "module_qualified_name": "nest.packages.core.hooks.on-module-destroy.hook",
+        "missing_count": 1,
+        "spillover_count": 0,
+        "reference_count": 5,
+        "missing_rate": 0.2,
+        "spillover_rate": 0.0,
+        "total_mismatch": 1,
+        "mismatch_reason_bucket": {
+          "ambiguous_no_in_scope_candidate": 2,
+          "no_candidates": 1
+        },
+        "caller_divergence_diagnostics": {
+          "missing_reference_edges_count": 1,
+          "missing_reference_with_qname_count": 1,
+          "alternate_caller_match_count": 0,
+          "has_alternate_caller_match": false,
+          "examples": []
+        }
+      }
+    ]
+  }
+}
