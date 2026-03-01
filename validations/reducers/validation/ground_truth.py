@@ -24,16 +24,15 @@ def build_module_imports_by_prefix(
     module_imports_by_prefix: Dict[str, List[Tuple[str, str, str, object]]] = {}
     for file_result in independent_results.values():
         module_name = file_result.module_qualified_name
-        module_parts = module_name.split(".") if module_name else []
+        if not module_name:
+            continue
         normalized = normalized_edge_map.get(file_result.file_path)
         if not normalized or not normalized[1]:
             continue
         for edge in normalized[1]:
-            for i in range(1, len(module_parts) + 1):
-                prefix = ".".join(module_parts[:i])
-                module_imports_by_prefix.setdefault(prefix, []).append(
-                    (module_name, file_result.file_path, file_result.language, edge)
-                )
+            module_imports_by_prefix.setdefault(module_name, []).append(
+                (module_name, file_result.file_path, file_result.language, edge)
+            )
     return module_imports_by_prefix
 
 

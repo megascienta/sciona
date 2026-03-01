@@ -20,6 +20,7 @@ from validations.reducers.validation.evaluation_resolution import (
 from validations.reducers.validation.evaluation_parse import parse_independent_files
 from validations.reducers.validation.evaluation import _filter_core_edges_in_contract
 from validations.reducers.validation.ground_truth import edge_records_from_ground_truth
+from validations.reducers.validation.ground_truth import build_module_imports_by_prefix
 from validations.reducers.validation.import_contract import resolve_import_contract
 from validations.reducers.validation.import_contract import _load_tsconfig
 from validations.reducers.validation.independent.contract_normalization import (
@@ -751,6 +752,29 @@ def test_ground_truth_excludes_external_imports_from_enrichment() -> None:
     )
     assert out_meta == []
     assert out_of_contract == []
+
+
+def test_module_import_map_does_not_propagate_to_parent_prefixes() -> None:
+    result = FileParseResult(
+        language="python",
+        file_path="pkg/mod.py",
+        module_qualified_name="fixture.pkg.mod",
+        defs=[],
+        call_edges=[],
+        import_edges=[ImportEdge("fixture.pkg.mod", "fixture.pkg.util", False)],
+        assignment_hints=[],
+        parse_ok=True,
+    )
+    normalized_calls, normalized_imports = normalize_file_edges(
+        result.module_qualified_name, result.call_edges, result.import_edges
+    )
+    mapped = build_module_imports_by_prefix(
+        {"pkg/mod.py": result},
+        {"pkg/mod.py": (normalized_calls, normalized_imports)},
+    )
+    assert "fixture.pkg.mod" in mapped
+    assert "fixture.pkg" not in mapped
+    assert "fixture" not in mapped
 
 
 def test_ground_truth_marks_dynamic_in_repo_imports_as_dynamic() -> None:
