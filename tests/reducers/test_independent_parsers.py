@@ -19,6 +19,7 @@ from validations.reducers.validation.evaluation_resolution import (
 )
 from validations.reducers.validation.evaluation_parse import parse_independent_files
 from validations.reducers.validation.evaluation import _filter_core_edges_in_contract
+import validations.reducers.validation.evaluation as evaluation_mod
 from validations.reducers.validation.ground_truth import edge_records_from_ground_truth
 from validations.reducers.validation.ground_truth import build_module_imports_by_prefix
 from validations.reducers.validation.import_contract import resolve_import_contract
@@ -1982,3 +1983,93 @@ def test_typescript_module_name_parity_for_d_ts_and_tsx(tmp_path: Path) -> None:
     assert core_typescript_module_name(tmp_path, tsx_snapshot) == module_name_from_file(
         tmp_path, "src/view.tsx", "typescript"
     )
+
+
+def test_reducer_edge_source_module_prefers_structural_id(monkeypatch, tmp_path: Path) -> None:
+    captured: dict[str, str] = {}
+
+    def _fake_dependency_edges_payload(snapshot_id, conn, repo_root, module_id):
+        del snapshot_id, conn, repo_root
+        captured["module_id"] = module_id
+        return {"edges": []}
+
+    monkeypatch.setattr(
+        evaluation_mod,
+        "get_dependency_edges_payload",
+        _fake_dependency_edges_payload,
+    )
+    source = evaluation_mod.ReducerEdgeSource(
+        conn=object(),
+        repo_root=tmp_path,
+        snapshot_id="snap",
+    )
+    payloads, edges, error = source.get_edges(
+        SimpleNamespace(
+            kind="module",
+            qualified_name="pkg",
+            structural_id="module-123",
+        )
+    )
+    assert error is None
+    assert payloads["dependency_edges"] == {"edges": []}
+    assert edges == []
+    assert captured["module_id"] == "module-123"
+
+
+def test_db_edge_source_module_uses_single_exact_structural_id(monkeypatch) -> None:
+    captured: dict[str, object] = {}
+
+    def _always_consistent(_artifact_conn, *, snapshot_id):
+        assert snapshot_id == "snap"
+        return True
+
+    def _fake_graph_edges_for_ids(
+        artifact_conn,
+        core_conn,
+        snapshot_id,
+        structural_ids,
+        allowed_kinds,
+    ):
+        captured["artifact_conn"] = artifact_conn
+        captured["core_conn"] = core_conn
+        captured["snapshot_id"] = snapshot_id
+        captured["structural_ids"] = list(structural_ids)
+        captured["allowed_kinds"] = list(allowed_kinds)
+        return []
+
+    monkeypatch.setattr(
+        evaluation_mod.artifact_read_status,
+        "rebuild_consistent_for_snapshot",
+        _always_consistent,
+    )
+    monkeypatch.setattr(
+        evaluation_mod,
+        "graph_edges_for_ids",
+        _fake_graph_edges_for_ids,
+    )
+
+    class _Resolver:
+        def resolve_node_instance(self, qualified_name: str, kind: str):
+            assert qualified_name == "pkg"
+            assert kind == "module"
+            return {"structural_id": "module-123"}
+
+    source = evaluation_mod.DbEdgeSource(
+        core_conn="core",
+        artifact_conn="artifact",
+        snapshot_id="snap",
+        resolver=_Resolver(),
+    )
+    payloads, edges, error = source.get_edges(
+        SimpleNamespace(
+            kind="module",
+            qualified_name="pkg",
+            structural_id=None,
+        )
+    )
+    assert error is None
+    assert payloads == {}
+    assert edges == []
+    assert captured["snapshot_id"] == "snap"
+    assert captured["structural_ids"] == ["module-123"]
+    assert captured["allowed_kinds"] == ["IMPORTS_DECLARED"]

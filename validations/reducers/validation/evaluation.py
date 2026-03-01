@@ -13,7 +13,6 @@ from sciona.code_analysis.tools.call_extraction_queries import normalize_call_id
 from .db_adapter import (
     call_edge_count_by_id,
     graph_edges_for_ids,
-    resolve_module_structural_ids,
     resolve_node_instance,
 )
 from .ground_truth import build_module_imports_by_prefix, edge_records_from_ground_truth
@@ -223,7 +222,6 @@ class ResolverCache:
         self._core_conn = core_conn
         self._snapshot_id = snapshot_id
         self._node_instance_cache: Dict[Tuple[str, str], dict | None] = {}
-        self._module_ids_cache: Dict[str, List[str]] = {}
 
     def resolve_node_instance(self, qualified_name: str, kind: str) -> dict | None:
         key = (qualified_name, kind)
@@ -232,15 +230,6 @@ class ResolverCache:
         resolved = resolve_node_instance(self._core_conn, self._snapshot_id, qualified_name, kind)
         self._node_instance_cache[key] = resolved
         return resolved
-
-    def resolve_module_structural_ids(self, qualified_name: str) -> List[str]:
-        if qualified_name in self._module_ids_cache:
-            return self._module_ids_cache[qualified_name]
-        module_ids = resolve_module_structural_ids(
-            self._core_conn, self._snapshot_id, qualified_name
-        )
-        self._module_ids_cache[qualified_name] = module_ids or []
-        return self._module_ids_cache[qualified_name]
 
 
 class ReducerEdgeSource:
@@ -254,11 +243,12 @@ class ReducerEdgeSource:
             payloads: Dict[str, object] = {}
             edges: List[EdgeRecord] = []
             if entity.kind == "module":
+                module_selector = entity.structural_id or entity.qualified_name
                 dep_payload = get_dependency_edges_payload(
                     self._snapshot_id,
                     self._conn,
                     self._repo_root,
-                    entity.qualified_name,
+                    module_selector,
                 )
                 for edge in dep_payload.get("edges", []) or []:
                     edges.append(edge_record_from_import(edge))
@@ -333,14 +323,15 @@ class DbEdgeSource:
         try:
             edges: List[EdgeRecord] = []
             if entity.kind == "module":
-                module_ids = self._resolver.resolve_module_structural_ids(entity.qualified_name)
-                if not module_ids:
+                resolved = self._resolver.resolve_node_instance(entity.qualified_name, "module")
+                module_id = entity.structural_id or ((resolved or {}).get("structural_id"))
+                if not module_id:
                     raise RuntimeError("module structural_id not found")
                 edges = graph_edges_for_ids(
                     self._artifact_conn,
                     self._core_conn,
                     self._snapshot_id,
-                    module_ids,
+                    [module_id],
                     ["IMPORTS_DECLARED"],
                 )
                 return {}, edges, None
