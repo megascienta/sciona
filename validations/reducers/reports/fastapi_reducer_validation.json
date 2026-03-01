@@ -39156,12 +39156,16 @@
       "scored_nodes": 248,
       "avg_missing_rate": 0.18125,
       "avg_spillover_rate": 0.011250120747555216,
+      "avg_reference_unconfirmed_rate": 0.18125,
+      "avg_independent_unmatched_rate": 0.011250120747555216,
       "avg_mutual_accuracy": 0.8114810088177135,
       "reference_count": 2998,
       "candidate_count": 2958,
       "intersection_count": 2934,
       "missing_count": 64,
       "spillover_count": 24,
+      "reference_unconfirmed_count": 64,
+      "independent_unmatched_count": 24,
       "by_language": {
         "python": {
           "scored_nodes": 248,

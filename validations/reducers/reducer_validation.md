@@ -46,6 +46,12 @@ Primary gate metrics:
 
 Q2 is evaluated only on scored nodes with non-null contract-set metrics.
 
+Naming aliases (backward-compatible):
+- `avg_reference_unconfirmed_rate` == `avg_missing_rate`
+- `avg_independent_unmatched_rate` == `avg_spillover_rate`
+- `reference_unconfirmed_count` == `missing_count`
+- `independent_unmatched_count` == `spillover_count`
+
 ### Q2 Syntax Baseline (Diagnostic)
 `set_q2_reducer_vs_independent_syntax` is emitted for comparison only and is not the gate.
 

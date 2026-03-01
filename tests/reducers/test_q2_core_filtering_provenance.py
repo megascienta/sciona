@@ -52,6 +52,10 @@ def test_q2_payload_declares_core_only_filtering_source(tmp_path: Path) -> None:
     assert payload["questions"]["q2"]["match_provenance_breakdown"] == {"qname_exact": 1}
     assert payload["questions"]["q2"]["strict_contract_candidate_count_histogram"] == {}
     assert payload["questions"]["q2"]["strict_contract_dropped_by_reason"] == {}
+    assert payload["questions"]["q2"]["avg_reference_unconfirmed_rate"] == 0.0
+    assert payload["questions"]["q2"]["avg_independent_unmatched_rate"] == 0.0
+    assert payload["questions"]["q2"]["reference_unconfirmed_count"] == 0
+    assert payload["questions"]["q2"]["independent_unmatched_count"] == 0
     assert payload["questions"]["q2"]["caller_divergence_summary"] == {
         "rows_with_alt_caller_match": 0,
         "alternate_caller_match_count": 0,
@@ -346,6 +350,10 @@ def test_q2_payload_reports_contract_filtered_out_ratio(tmp_path: Path) -> None:
         "no_candidates": 2,
         "unique_without_provenance": 1,
     }
+    assert q2["avg_reference_unconfirmed_rate"] == q2["avg_missing_rate"]
+    assert q2["avg_independent_unmatched_rate"] == q2["avg_spillover_rate"]
+    assert q2["reference_unconfirmed_count"] == q2["missing_count"]
+    assert q2["independent_unmatched_count"] == q2["spillover_count"]
     assert q2["caller_divergence_summary"] == {
         "rows_with_alt_caller_match": 1,
         "alternate_caller_match_count": 1,

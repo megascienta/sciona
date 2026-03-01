@@ -40830,12 +40830,16 @@
       "scored_nodes": 316,
       "avg_missing_rate": 0.08558619650391802,
       "avg_spillover_rate": 0.0001110370863868532,
+      "avg_reference_unconfirmed_rate": 0.08558619650391802,
+      "avg_independent_unmatched_rate": 0.0001110370863868532,
       "avg_mutual_accuracy": 0.9143065303787252,
       "reference_count": 1774,
       "candidate_count": 1725,
       "intersection_count": 1719,
       "missing_count": 55,
       "spillover_count": 6,
+      "reference_unconfirmed_count": 55,
+      "independent_unmatched_count": 6,
       "by_language": {
         "typescript": {
           "scored_nodes": 316,

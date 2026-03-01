@@ -41009,12 +41009,16 @@
       "scored_nodes": 353,
       "avg_missing_rate": 0.18940037771482532,
       "avg_spillover_rate": 0.0005292991922690881,
+      "avg_reference_unconfirmed_rate": 0.18940037771482532,
+      "avg_independent_unmatched_rate": 0.0005292991922690881,
       "avg_mutual_accuracy": 0.8100925904573649,
       "reference_count": 4905,
       "candidate_count": 4821,
       "intersection_count": 4815,
       "missing_count": 90,
       "spillover_count": 6,
+      "reference_unconfirmed_count": 90,
+      "independent_unmatched_count": 6,
       "by_language": {
         "java": {
           "scored_nodes": 353,
