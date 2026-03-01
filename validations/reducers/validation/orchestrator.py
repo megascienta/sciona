@@ -272,6 +272,12 @@ def _build_report_payload(
     q2_contract_filtered_out_ratio = _safe_ratio(q2_excluded_total, q2_envelope_total)
     strict_contract_candidate_histogram: dict[str, int] = {}
     strict_contract_dropped_by_reason: dict[str, int] = {}
+    caller_divergence_aggregate = {
+        "rows_with_alt_caller_match": 0,
+        "alternate_caller_match_count": 0,
+        "missing_reference_edges_count": 0,
+        "missing_reference_with_qname_count": 0,
+    }
     for row in rows:
         diagnostics = row.get("q2_ground_truth_diagnostics") or {}
         histogram = diagnostics.get("strict_contract_candidate_count_histogram") or {}
@@ -286,6 +292,18 @@ def _build_report_payload(
                 int(strict_contract_dropped_by_reason.get(str(reason), 0))
                 + int(count or 0)
             )
+        caller_divergence = row.get("caller_divergence_diagnostics") or {}
+        if bool(caller_divergence.get("has_alternate_caller_match")):
+            caller_divergence_aggregate["rows_with_alt_caller_match"] += 1
+        caller_divergence_aggregate["alternate_caller_match_count"] += int(
+            caller_divergence.get("alternate_caller_match_count") or 0
+        )
+        caller_divergence_aggregate["missing_reference_edges_count"] += int(
+            caller_divergence.get("missing_reference_edges_count") or 0
+        )
+        caller_divergence_aggregate["missing_reference_with_qname_count"] += int(
+            caller_divergence.get("missing_reference_with_qname_count") or 0
+        )
     class_truth_unreliable_count = 0
     class_truth_unreliable_scored_excluded_count = 0
     class_match_strategy_breakdown: dict[str, int] = {}
@@ -504,6 +522,7 @@ def _build_report_payload(
                 "basket2_edges": row.get("basket2_edges"),
                 "q2_filtering_stats": row.get("q2_filtering_stats"),
                 "q2_ground_truth_diagnostics": row.get("q2_ground_truth_diagnostics"),
+                "caller_divergence_diagnostics": row.get("caller_divergence_diagnostics"),
                 "mismatch_reason_bucket": mismatch_reason_bucket,
                 "q2_node_rates": _build_q2_node_rates(
                     row.get("set_q2_reducer_vs_independent_contract")
@@ -599,6 +618,7 @@ def _build_report_payload(
                             ).items()
                         )
                     ),
+                    "caller_divergence_diagnostics": row.get("caller_divergence_diagnostics"),
                 },
             )
         )
@@ -654,6 +674,7 @@ def _build_report_payload(
                 "strict_contract_dropped_by_reason": dict(
                     sorted(strict_contract_dropped_by_reason.items())
                 ),
+                "caller_divergence_summary": caller_divergence_aggregate,
                 "class_truth_unreliable_count": class_truth_unreliable_count,
                 "class_truth_unreliable_scored_excluded_count": (
                     class_truth_unreliable_scored_excluded_count

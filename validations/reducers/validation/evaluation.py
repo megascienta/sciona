@@ -22,7 +22,12 @@ from .independent.contract_normalization import (
     module_name_from_file,
 )
 from .independent.normalize import normalize_file_edges
-from .independent.shared import EdgeRecord, FileParseResult, dedupe_edge_records
+from .independent.shared import (
+    EdgeRecord,
+    FileParseResult,
+    dedupe_edge_records,
+    match_edge_provenance,
+)
 from .metrics import compute_set_metrics
 from .sampling import build_entities_from_db, sample_entities
 from .reducer_queries import (
@@ -590,6 +595,71 @@ def evaluate_entities(
     db_source: EdgeSource,
     progress_handle,
 ) -> Tuple[List[dict], List[dict]]:
+    def _unmatched_reference_edges(
+        reference_edges: list[EdgeRecord],
+        candidate_edges: list[EdgeRecord],
+    ) -> list[EdgeRecord]:
+        unmatched = dedupe_edge_records(reference_edges)
+        for candidate in dedupe_edge_records(candidate_edges):
+            for idx, reference in enumerate(unmatched):
+                if candidate.caller != reference.caller:
+                    continue
+                if match_edge_provenance(
+                    sciona_callee=candidate.callee,
+                    sciona_callee_qname=candidate.callee_qname,
+                    expected_callee=reference.callee,
+                    expected_qname=reference.callee_qname,
+                ):
+                    unmatched.pop(idx)
+                    break
+        return unmatched
+
+    def _caller_divergence_diagnostics(
+        reference_edges: list[EdgeRecord],
+        candidate_edges: list[EdgeRecord],
+    ) -> dict:
+        unmatched = _unmatched_reference_edges(reference_edges, candidate_edges)
+        by_callee_qname: dict[str, list[EdgeRecord]] = {}
+        for edge in candidate_edges:
+            callee_qname = (edge.callee_qname or "").strip()
+            if not callee_qname:
+                continue
+            by_callee_qname.setdefault(callee_qname, []).append(edge)
+        examples: list[dict] = []
+        alt_match_count = 0
+        missing_with_qname_count = 0
+        for edge in unmatched:
+            callee_qname = (edge.callee_qname or "").strip()
+            if not callee_qname:
+                continue
+            missing_with_qname_count += 1
+            alternatives = [
+                candidate
+                for candidate in by_callee_qname.get(callee_qname, [])
+                if candidate.caller != edge.caller
+            ]
+            if not alternatives:
+                continue
+            alt_match_count += len(alternatives)
+            if len(examples) >= 5:
+                continue
+            examples.append(
+                {
+                    "callee_qname": callee_qname,
+                    "reference_caller": edge.caller,
+                    "alternate_candidate_callers": sorted(
+                        {candidate.caller for candidate in alternatives}
+                    ),
+                }
+            )
+        return {
+            "missing_reference_edges_count": len(unmatched),
+            "missing_reference_with_qname_count": missing_with_qname_count,
+            "alternate_caller_match_count": alt_match_count,
+            "has_alternate_caller_match": bool(alt_match_count > 0),
+            "examples": examples,
+        }
+
     rows: List[dict] = []
     out_of_contract_meta: List[dict] = []
     for entity in sampled:
@@ -649,6 +719,10 @@ def evaluate_entities(
             set_q2_reducer_vs_independent_contract = compute_set_metrics(
                 reducer_edges_contract, expected_filtered
             )
+        caller_divergence = _caller_divergence_diagnostics(
+            reducer_edges_contract,
+            expected_filtered,
+        )
         if file_result.parse_ok and not reducer_error:
             set_q2_reducer_vs_independent_syntax = compute_set_metrics(
                 reducer_edges_contract, syntax_reference_edges
@@ -712,6 +786,7 @@ def evaluate_entities(
                         gt_diagnostics.get("strict_contract_dropped_by_reason") or {}
                     ),
                 },
+                "caller_divergence_diagnostics": caller_divergence,
             }
         )
         if progress_handle:
