@@ -643,6 +643,58 @@ def test_load_tsconfig_is_cached(tmp_path: Path) -> None:
     assert first is second
 
 
+def test_java_import_contract_resolves_unique_suffix_match(tmp_path: Path) -> None:
+    source = (
+        tmp_path
+        / "integration/spark/app/src/test/java/io/openlineage/spark/agent/ArgumentParserTest.java"
+    )
+    source.parent.mkdir(parents=True, exist_ok=True)
+    source.write_text(
+        "package io.openlineage.spark.agent;\n"
+        "import io.openlineage.client.OpenLineageClientUtils;\n",
+        encoding="utf-8",
+    )
+    resolved = resolve_import_contract(
+        raw_target="io.openlineage.client.OpenLineageClientUtils",
+        file_path=str(source.relative_to(tmp_path)),
+        module_qname=(
+            "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.ArgumentParserTest"
+        ),
+        language="java",
+        module_names={
+            "OpenLineage.integration.spark.app.src.test.java.io.openlineage.spark.agent.ArgumentParserTest",
+            "OpenLineage.client.java.src.main.java.io.openlineage.client.OpenLineageClientUtils",
+        },
+        repo_root=tmp_path,
+        repo_prefix="OpenLineage",
+        local_packages={"OpenLineage"},
+    )
+    assert (
+        resolved
+        == "OpenLineage.client.java.src.main.java.io.openlineage.client.OpenLineageClientUtils"
+    )
+
+
+def test_java_import_contract_does_not_pick_ambiguous_suffix_match(tmp_path: Path) -> None:
+    source = tmp_path / "src/test/java/pkg/A.java"
+    source.parent.mkdir(parents=True, exist_ok=True)
+    source.write_text("package pkg;\nimport io.openlineage.client.Utils;\n", encoding="utf-8")
+    resolved = resolve_import_contract(
+        raw_target="io.openlineage.client.Utils",
+        file_path=str(source.relative_to(tmp_path)),
+        module_qname="OpenLineage.src.test.java.pkg.A",
+        language="java",
+        module_names={
+            "OpenLineage.client.java.src.main.java.io.openlineage.client.Utils",
+            "OpenLineage.integration.spark.shared.src.main.java.io.openlineage.client.Utils",
+        },
+        repo_root=tmp_path,
+        repo_prefix="OpenLineage",
+        local_packages={"OpenLineage"},
+    )
+    assert resolved is None
+
+
 @pytest.mark.skipif(shutil.which("node") is None, reason="node is required")
 def test_parse_independent_files_canonicalizes_typescript_module_scope(tmp_path: Path) -> None:
     source = tmp_path / "pkg" / "main.ts"
@@ -776,7 +828,11 @@ def test_ground_truth_flags_import_normalization_miss_as_in_repo_unresolved() ->
             ]
         },
         entity=entity,
-        module_names={"fixture.pkg.mod", "fixture.java.src.main.io.openlineage.client"},
+        module_names={
+            "fixture.pkg.mod",
+            "fixture.java.src.main.io.openlineage.client",
+            "fixture.other.src.main.io.openlineage.client",
+        },
         call_resolution={},
         repo_root=FIXTURE_ROOT / "python",
         repo_prefix="fixture",

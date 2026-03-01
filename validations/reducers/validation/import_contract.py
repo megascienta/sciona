@@ -164,6 +164,22 @@ def _normalize_java_import(
     return text
 
 
+def _resolve_java_module_by_suffix(
+    candidate: str | None,
+    module_names: set[str],
+) -> str | None:
+    text = (candidate or "").strip()
+    if not text:
+        return None
+    if text in module_names:
+        return text
+    suffix = f".{text}"
+    matches = sorted(name for name in module_names if name.endswith(suffix))
+    if len(matches) == 1:
+        return matches[0]
+    return None
+
+
 def _java_import_target_text(raw_target: str) -> str | None:
     raw = (raw_target or "").strip()
     if not raw:
@@ -282,4 +298,12 @@ def resolve_import_contract(
     if resolved:
         if resolved in module_names:
             return resolved
+        if language == "java":
+            suffix_resolved = _resolve_java_module_by_suffix(resolved, module_names)
+            if suffix_resolved:
+                return suffix_resolved
+            raw_java_target = _java_import_target_text(raw_target)
+            raw_suffix_resolved = _resolve_java_module_by_suffix(raw_java_target, module_names)
+            if raw_suffix_resolved:
+                return raw_suffix_resolved
     return None
