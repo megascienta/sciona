@@ -123,4 +123,6 @@ python validations/reducers/reducer_validation.py \
 ## Interpretation Guidance
 - `Q1 pass + Q2 fail` usually means reducers/DB are internally consistent but independent parser overlap (within contract) is still incomplete.
 - High unresolved-static defect implies genuine static-resolution gaps or unresolved normalization boundaries.
+- `in_repo_unresolved*` limitation reasons are selector-drop diagnostics; use the
+  suffix reason to distinguish ambiguity/provenance gaps from no-candidate cases.
 - Use `top_mismatch_signatures` and `strict_contract_candidate_count_histogram` first; do not infer architectural defects from aggregate metrics alone.

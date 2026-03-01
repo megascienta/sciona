@@ -568,6 +568,7 @@ def edge_records_from_ground_truth(
                 edge=edge,
                 language=file_result.language,
                 call_resolution=call_resolution,
+                dropped_reason=call_decision.dropped_reason,
             )
             _register_limitation_edge(call_reason, full_record)
             _append_basket2_meta(

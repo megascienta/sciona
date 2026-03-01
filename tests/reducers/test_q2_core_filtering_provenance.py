@@ -251,7 +251,7 @@ def test_unresolved_static_is_reported_as_separate_defect(tmp_path: Path) -> Non
             {
                 "edge_type": "call",
                 "language": "python",
-                "reason": "in_repo_unresolved",
+                "reason": "in_repo_unresolved_ambiguous_no_in_scope_candidate",
                 "semantic_type": "direct_call_unresolved",
                 "entity": "fixture.mod.fn",
                 "entity_kind": "function",

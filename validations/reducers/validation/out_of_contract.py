@@ -6,11 +6,26 @@ from __future__ import annotations
 from typing import Iterable
 
 
+IN_REPO_UNRESOLVED_REASON_MAP: dict[str, str] = {
+    "no_candidates": "in_repo_unresolved_no_candidates",
+    "unique_without_provenance": "in_repo_unresolved_unique_without_provenance",
+    "ambiguous_no_caller_module": "in_repo_unresolved_ambiguous_no_caller_module",
+    "ambiguous_no_in_scope_candidate": "in_repo_unresolved_ambiguous_no_in_scope_candidate",
+    "ambiguous_multiple_in_scope_candidates": "in_repo_unresolved_ambiguous_multiple_in_scope_candidates",
+}
+
+
+def is_in_repo_unresolved_reason(reason: str) -> bool:
+    value = (reason or "").strip()
+    return value == "in_repo_unresolved" or value.startswith("in_repo_unresolved_")
+
+
 def classify_call_reason(
     *,
     edge,
     language: str,
     call_resolution: dict,
+    dropped_reason: str | None = None,
 ) -> str:
     del language
     callee_text = (getattr(edge, "callee_text", None) or "").strip().lower()
@@ -25,6 +40,9 @@ def classify_call_reason(
         return "unknown"
     symbol_index: dict[str, list[str]] = call_resolution.get("symbol_index", {})
     if identifier in symbol_index:
+        normalized_drop = (dropped_reason or "").strip()
+        if normalized_drop:
+            return IN_REPO_UNRESOLVED_REASON_MAP.get(normalized_drop, "in_repo_unresolved")
         return "in_repo_unresolved"
     return "external"
 
@@ -36,7 +54,7 @@ def classify_call_semantic_type(*, edge, reason: str) -> str:
         return "decorator_call"
     if reason == "dynamic":
         return "dynamic_member_call" if has_member_shape else "dynamic_call"
-    if reason == "in_repo_unresolved":
+    if is_in_repo_unresolved_reason(reason):
         return "member_call_unresolved" if has_member_shape else "direct_call_unresolved"
     if reason == "unknown":
         return "unknown_call_shape"

@@ -851,12 +851,20 @@ def test_ground_truth_includes_dynamic_and_unresolved_in_expanded_tiers() -> Non
     )
     assert expected == []
     assert len(out_of_contract) == 2
-    assert {m["reason"] for m in out_meta} == {"in_repo_unresolved", "dynamic"}
+    reasons = {m["reason"] for m in out_meta}
+    assert "dynamic" in reasons
+    assert any(reason.startswith("in_repo_unresolved") for reason in reasons)
+    assert "in_repo_unresolved_ambiguous_no_in_scope_candidate" in reasons
     high = diagnostics["limitation_edges_high_conf"]
     full = diagnostics["limitation_edges_full"]
     assert len(high) == 1
     assert len(full) == 2
-    assert diagnostics["included_limitation_by_reason"]["in_repo_unresolved"] == 1
+    unresolved_count = sum(
+        count
+        for reason, count in diagnostics["included_limitation_by_reason"].items()
+        if reason.startswith("in_repo_unresolved")
+    )
+    assert unresolved_count == 1
     assert diagnostics["included_limitation_by_reason"]["dynamic"] == 1
 
 
@@ -911,8 +919,13 @@ def test_ground_truth_excludes_resolved_unresolved_static_from_q2_reference() ->
     assert expected == []
     assert len(out_of_contract) == 1
     assert out_of_contract[0].callee_qname == "module.getNonAliasProviders"
-    assert out_meta and out_meta[0]["reason"] == "in_repo_unresolved"
-    assert diagnostics["included_limitation_by_reason"]["in_repo_unresolved"] == 1
+    assert out_meta and out_meta[0]["reason"].startswith("in_repo_unresolved")
+    unresolved_count = sum(
+        count
+        for reason, count in diagnostics["included_limitation_by_reason"].items()
+        if reason.startswith("in_repo_unresolved")
+    )
+    assert unresolved_count == 1
 
 
 def test_ground_truth_nest_hook_like_partition_is_deterministic() -> None:
@@ -1024,8 +1037,13 @@ def test_ground_truth_nest_hook_like_partition_is_deterministic() -> None:
         "module.getNonAliasProviders",
         "moduleClassHost.isDependencyTreeStatic",
     }
-    assert {item["reason"] for item in out_meta} == {"in_repo_unresolved"}
-    assert diagnostics["included_limitation_by_reason"]["in_repo_unresolved"] == 2
+    assert all(item["reason"].startswith("in_repo_unresolved") for item in out_meta)
+    unresolved_count = sum(
+        count
+        for reason, count in diagnostics["included_limitation_by_reason"].items()
+        if reason.startswith("in_repo_unresolved")
+    )
+    assert unresolved_count == 2
     assert diagnostics["excluded_out_of_scope_by_reason"]["external"] == 1
 
 

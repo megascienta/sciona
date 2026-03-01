@@ -18,9 +18,25 @@ STRICT_CONTRACT_MODE = "candidate_only_strict_contract_v1"
 
 EXPANDED_TRUTH_POLICY = {
     "scope_exclusions": ["external"],
-    "limitation_focus": ["dynamic", "in_repo_unresolved", "relative_unresolved"],
+    "limitation_focus": [
+        "dynamic",
+        "in_repo_unresolved",
+        "in_repo_unresolved_no_candidates",
+        "in_repo_unresolved_unique_without_provenance",
+        "in_repo_unresolved_ambiguous_no_caller_module",
+        "in_repo_unresolved_ambiguous_no_in_scope_candidate",
+        "in_repo_unresolved_ambiguous_multiple_in_scope_candidates",
+        "relative_unresolved",
+    ],
     "confidence_tiers": {
-        "high": ["in_repo_unresolved"],
+        "high": [
+            "in_repo_unresolved",
+            "in_repo_unresolved_no_candidates",
+            "in_repo_unresolved_unique_without_provenance",
+            "in_repo_unresolved_ambiguous_no_caller_module",
+            "in_repo_unresolved_ambiguous_no_in_scope_candidate",
+            "in_repo_unresolved_ambiguous_multiple_in_scope_candidates",
+        ],
         "low": ["dynamic", "relative_unresolved"],
     },
 }

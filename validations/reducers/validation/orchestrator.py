@@ -34,7 +34,16 @@ Q2_METRIC_MODE = "weighted_aggregate_v2"
 NON_STATIC_REASONS = {"dynamic", "decorator"}
 DECORATOR_REASONS = {"decorator"}
 DYNAMIC_DISPATCH_REASONS = {"dynamic"}
-UNRESOLVED_STATIC_REASONS = {"in_repo_unresolved", "relative_unresolved", "unknown"}
+UNRESOLVED_STATIC_REASONS = {
+    "in_repo_unresolved",
+    "in_repo_unresolved_no_candidates",
+    "in_repo_unresolved_unique_without_provenance",
+    "in_repo_unresolved_ambiguous_no_caller_module",
+    "in_repo_unresolved_ambiguous_no_in_scope_candidate",
+    "in_repo_unresolved_ambiguous_multiple_in_scope_candidates",
+    "relative_unresolved",
+    "unknown",
+}
 
 
 def _aggregate_set_metrics(rows: list[dict], key: str) -> dict:
