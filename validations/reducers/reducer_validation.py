@@ -58,12 +58,18 @@ def main() -> int:
         runs.append(
             {
                 "seed": seed,
+                "q2_pass": bool(q2.get("pass")),
                 "avg_missing_rate": q2.get("avg_missing_rate"),
                 "avg_spillover_rate": q2.get("avg_spillover_rate"),
                 "avg_mutual_accuracy": q2.get("avg_mutual_accuracy"),
                 "weighted_missing_rate": q2.get("weighted_missing_rate"),
                 "weighted_spillover_rate": q2.get("weighted_spillover_rate"),
                 "weighted_mutual_accuracy": q2.get("weighted_mutual_accuracy"),
+                "unresolved_static_avg_rate": (
+                    ((payload.get("questions") or {}).get("q3") or {})
+                    .get("unresolved_static_defect", {})
+                    .get("avg_rate")
+                ),
             }
         )
     def _series(key: str) -> list[float]:
@@ -75,6 +81,7 @@ def main() -> int:
         "weighted_missing_rate",
         "weighted_spillover_rate",
         "weighted_mutual_accuracy",
+        "unresolved_static_avg_rate",
     ):
         values = _series(metric)
         if not values:
@@ -82,6 +89,8 @@ def main() -> int:
             continue
         std = pstdev(values) if len(values) > 1 else 0.0
         print(f"{metric}: n={len(values)} mean={mean(values):.6f} stddev={std:.6f}")
+    pass_count = sum(1 for run in runs if run.get("q2_pass"))
+    print(f"q2_pass: {pass_count}/{len(runs)}")
     return 0
 
 

@@ -90,6 +90,7 @@ Reported only:
 Top-level keys:
 - `report_schema_version`
 - `summary`
+- `metrics_v2`
 - `sampling`
 - `invariants`
 - `quality_gates`
@@ -126,4 +127,6 @@ python validations/reducers/reducer_validation.py \
 - High unresolved-static defect implies genuine static-resolution gaps or unresolved normalization boundaries.
 - `in_repo_unresolved*` limitation reasons are selector-drop diagnostics; use the
   suffix reason to distinguish ambiguity/provenance gaps from no-candidate cases.
+- Prefer `metrics_v2.q2.weighted` for gate interpretation and trend tracking;
+  use `metrics_v2.q2.per_node_avg` as diagnostic distribution signal.
 - Use `top_mismatch_signatures` and `strict_contract_candidate_count_histogram` first; do not infer architectural defects from aggregate metrics alone.

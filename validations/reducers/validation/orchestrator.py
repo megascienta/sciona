@@ -686,6 +686,31 @@ def _build_report_payload(
     payload = {
         "report_schema_version": REPORT_SCHEMA_VERSION,
         "summary": summary,
+        "metrics_v2": {
+            "q2": {
+                "pass": q2_pass,
+                "metric_mode": Q2_METRIC_MODE,
+                "weighted": {
+                    "missing_rate": weighted_missing_rate,
+                    "spillover_rate": weighted_spillover_rate,
+                    "mutual_accuracy": weighted_mutual_accuracy,
+                },
+                "per_node_avg": {
+                    "missing_rate": avg_missing_rate,
+                    "spillover_rate": avg_spillover_rate,
+                    "mutual_accuracy": avg_mutual_accuracy,
+                },
+                "targets": {
+                    "missing_rate_max": (1.0 - q2_target),
+                    "spillover_rate_max": (1.0 - q2_target),
+                    "mutual_accuracy_min": q2_target,
+                },
+            },
+            "q3": {
+                "unresolved_static_avg_rate": unresolved_static_metrics.get("avg_rate"),
+                "unresolved_static_total_edges": unresolved_static_metrics.get("total_edges"),
+            },
+        },
         "invariants": invariants,
         "quality_gates": quality_gates,
         "per_node": compact_rows,

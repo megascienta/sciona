@@ -44,6 +44,11 @@ def test_q2_payload_declares_core_only_filtering_source(tmp_path: Path) -> None:
     assert payload["questions"]["q2"]["metric_mode"] == "weighted_aggregate_v2"
     assert payload["quality_gates"]["q2_metric_mode"] == "weighted_aggregate_v2"
     assert payload["quality_gates"]["q2_filtering_source"] == "core_only"
+    metrics_v2 = payload["metrics_v2"]["q2"]
+    assert metrics_v2["metric_mode"] == "weighted_aggregate_v2"
+    assert metrics_v2["weighted"]["missing_rate"] == 0.0
+    assert metrics_v2["weighted"]["mutual_accuracy"] == 1.0
+    assert metrics_v2["per_node_avg"]["mutual_accuracy"] == 1.0
     assert payload["invariants"]["pipeline_self_consistent"] is True
     assert payload["invariants"]["independently_verified"] is True
     assert payload["invariants"]["passed"] is True
@@ -268,6 +273,8 @@ def test_unresolved_static_is_reported_as_separate_defect(tmp_path: Path) -> Non
     assert unresolved["by_semantic_type_avg_percent"] == {"direct_call_unresolved": 50.0}
     assert unresolved["top_unresolved_signatures"][0]["entity"] == "fixture.mod.fn"
     assert unresolved["top_unresolved_signatures"][0]["unresolved_static_count"] == 1
+    assert payload["metrics_v2"]["q3"]["unresolved_static_avg_rate"] == 0.5
+    assert payload["metrics_v2"]["q3"]["unresolved_static_total_edges"] == 1
     q2 = payload["questions"]["q2"]
     assert q2["envelope_reference_count"] == 2
     assert q2["envelope_excluded_count"] == 0
