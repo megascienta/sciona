@@ -193,3 +193,47 @@ def test_write_q2_hotspots_json_emits_compact_payload(tmp_path) -> None:
     assert parsed["q2"]["pass"] is False
     assert parsed["q2"]["strict_contract_dropped_by_reason"] == {"no_candidates": 2}
     assert parsed["q2"]["top_mismatch_signatures"] == [{"entity": "fixture.mod.fn"}]
+
+
+def test_write_json_rejects_invalid_mismatch_reason_bucket_type(tmp_path) -> None:
+    payload = {
+        "summary": ["repo=test"],
+        "invariants": {"passed": True},
+        "quality_gates": {"threshold_profile": "single_language"},
+        "per_node": [
+            {
+                "entity": "fixture.sample.entry",
+                "language": "python",
+                "kind": "function",
+                "file_path": "sample.py",
+                "module_qualified_name": "fixture.sample",
+                "mismatch_reason_bucket": "not-a-mapping",
+            }
+        ],
+    }
+    out = tmp_path / "report.json"
+    with pytest.raises(ValueError) as exc:
+        write_json(out, payload)
+    assert "mismatch_reason_bucket" in str(exc.value)
+
+
+def test_write_json_rejects_invalid_caller_divergence_diagnostics_type(tmp_path) -> None:
+    payload = {
+        "summary": ["repo=test"],
+        "invariants": {"passed": True},
+        "quality_gates": {"threshold_profile": "single_language"},
+        "per_node": [
+            {
+                "entity": "fixture.sample.entry",
+                "language": "python",
+                "kind": "function",
+                "file_path": "sample.py",
+                "module_qualified_name": "fixture.sample",
+                "caller_divergence_diagnostics": "not-a-mapping",
+            }
+        ],
+    }
+    out = tmp_path / "report.json"
+    with pytest.raises(ValueError) as exc:
+        write_json(out, payload)
+    assert "caller_divergence_diagnostics" in str(exc.value)
