@@ -81,6 +81,7 @@ def render_summary(payload: dict) -> List[str]:
     lines.append(
         f"- target_spillover_rate_max: `{_format_ratio(q2.get('target_spillover_rate_max'))}`"
     )
+    lines.append(f"- metric_mode: `{q2.get('metric_mode')}`")
     lines.append(
         f"- scored_nodes: `{q2.get('scored_nodes')}`"
     )
@@ -89,6 +90,12 @@ def render_summary(payload: dict) -> List[str]:
     )
     lines.append(
         f"- avg_mutual_accuracy: `{_format_ratio(q2.get('avg_mutual_accuracy'))}`"
+    )
+    lines.append(
+        f"- weighted_missing_rate/weighted_spillover_rate: `{_format_ratio(q2.get('weighted_missing_rate'))}`/`{_format_ratio(q2.get('weighted_spillover_rate'))}`"
+    )
+    lines.append(
+        f"- weighted_mutual_accuracy: `{_format_ratio(q2.get('weighted_mutual_accuracy'))}`"
     )
     lines.append(
         f"- reference/candidate/intersection: `{q2.get('reference_count')}`/`{q2.get('candidate_count')}`/`{q2.get('intersection_count')}`"

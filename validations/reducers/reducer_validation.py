@@ -61,11 +61,21 @@ def main() -> int:
                 "avg_missing_rate": q2.get("avg_missing_rate"),
                 "avg_spillover_rate": q2.get("avg_spillover_rate"),
                 "avg_mutual_accuracy": q2.get("avg_mutual_accuracy"),
+                "weighted_missing_rate": q2.get("weighted_missing_rate"),
+                "weighted_spillover_rate": q2.get("weighted_spillover_rate"),
+                "weighted_mutual_accuracy": q2.get("weighted_mutual_accuracy"),
             }
         )
     def _series(key: str) -> list[float]:
         return [float(run[key]) for run in runs if run.get(key) is not None]
-    for metric in ("avg_missing_rate", "avg_spillover_rate", "avg_mutual_accuracy"):
+    for metric in (
+        "avg_missing_rate",
+        "avg_spillover_rate",
+        "avg_mutual_accuracy",
+        "weighted_missing_rate",
+        "weighted_spillover_rate",
+        "weighted_mutual_accuracy",
+    ):
         values = _series(metric)
         if not values:
             print(f"{metric}: n=0")

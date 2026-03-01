@@ -39,10 +39,15 @@ Pass requires per aggregate:
 - `spillover_count == 0`
 
 ### Q2: Reducers vs Independent (In-Contract)
-Primary gate metrics:
-- `avg_mutual_accuracy >= 0.99`
-- `avg_missing_rate <= 0.01`
-- `avg_spillover_rate <= 0.01`
+Primary gate metrics (weighted aggregate):
+- `weighted_mutual_accuracy >= 0.99`
+- `weighted_missing_rate <= 0.01`
+- `weighted_spillover_rate <= 0.01`
+
+Diagnostic metrics (non-gating):
+- `avg_mutual_accuracy`
+- `avg_missing_rate`
+- `avg_spillover_rate`
 
 Q2 is evaluated only on scored nodes with non-null contract-set metrics.
 

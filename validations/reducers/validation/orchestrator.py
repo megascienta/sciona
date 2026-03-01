@@ -28,8 +28,9 @@ from .report import render_summary, write_json, write_markdown
 from .reducer_queries import get_snapshot_id
 
 
-REPORT_SCHEMA_VERSION = "2026-02-27"
+REPORT_SCHEMA_VERSION = "2026-03-01"
 Q2_FILTERING_SOURCE = "core_only"
+Q2_METRIC_MODE = "weighted_aggregate_v2"
 NON_STATIC_REASONS = {"dynamic", "decorator"}
 DECORATOR_REASONS = {"decorator"}
 DYNAMIC_DISPATCH_REASONS = {"dynamic"}
@@ -114,6 +115,24 @@ def _build_q2_hints_augmented_rates(
     if reference_count <= 0:
         return None
     missing_count = int(metrics.get("missing_count") or 0) + int(excluded_limitation_count or 0)
+    spillover_count = int(metrics.get("spillover_count") or 0)
+    intersection_count = int(metrics.get("intersection_count") or 0)
+    candidate_count = int(metrics.get("candidate_count") or 0)
+    union_count = reference_count + candidate_count - intersection_count
+    return {
+        "missing_rate": _safe_ratio(missing_count, reference_count),
+        "spillover_rate": _safe_ratio(spillover_count, reference_count),
+        "mutual_accuracy": _safe_ratio(intersection_count, union_count),
+    }
+
+
+def _build_q2_weighted_rates(metrics: dict | None) -> dict | None:
+    if not metrics:
+        return None
+    reference_count = int(metrics.get("reference_count") or 0)
+    if reference_count <= 0:
+        return None
+    missing_count = int(metrics.get("missing_count") or 0)
     spillover_count = int(metrics.get("spillover_count") or 0)
     intersection_count = int(metrics.get("intersection_count") or 0)
     candidate_count = int(metrics.get("candidate_count") or 0)
@@ -357,10 +376,20 @@ def _build_report_payload(
         if q2_hints_node_rates
         else None
     )
+    weighted_q2_rates = _build_q2_weighted_rates(q2_agg)
+    weighted_missing_rate = (
+        weighted_q2_rates.get("missing_rate") if weighted_q2_rates else None
+    )
+    weighted_spillover_rate = (
+        weighted_q2_rates.get("spillover_rate") if weighted_q2_rates else None
+    )
+    weighted_mutual_accuracy = (
+        weighted_q2_rates.get("mutual_accuracy") if weighted_q2_rates else None
+    )
     q2_pass = _passes_q2_gate(
-        avg_missing_rate=avg_missing_rate,
-        avg_spillover_rate=avg_spillover_rate,
-        avg_mutual_accuracy=avg_mutual_accuracy,
+        avg_missing_rate=weighted_missing_rate,
+        avg_spillover_rate=weighted_spillover_rate,
+        avg_mutual_accuracy=weighted_mutual_accuracy,
         target=q2_target,
     )
     q1_pass = bool(
@@ -374,6 +403,10 @@ def _build_report_payload(
         or int((row.get("set_q1_reducer_vs_db") or {}).get("spillover_count") or 0) > 0
     )
     q2_by_language_raw: dict[str, list[dict]] = {}
+    q2_rows_by_language: dict[str, list[dict]] = {}
+    for row in scored_rows_q2:
+        language = str(row.get("language") or "unknown")
+        q2_rows_by_language.setdefault(language, []).append(row)
     for rates in q2_node_rates:
         language = str(rates.get("language") or "unknown")
         q2_by_language_raw.setdefault(language, []).append(rates)
@@ -386,15 +419,31 @@ def _build_report_payload(
             if values
             else None
         )
+        lang_agg = _aggregate_set_metrics(
+            q2_rows_by_language.get(language, []), "set_q2_reducer_vs_independent_contract"
+        )
+        lang_weighted_rates = _build_q2_weighted_rates(lang_agg)
+        lang_weighted_missing = (
+            lang_weighted_rates.get("missing_rate") if lang_weighted_rates else None
+        )
+        lang_weighted_spillover = (
+            lang_weighted_rates.get("spillover_rate") if lang_weighted_rates else None
+        )
+        lang_weighted_mutual = (
+            lang_weighted_rates.get("mutual_accuracy") if lang_weighted_rates else None
+        )
         q2_by_language[language] = {
             "scored_nodes": len(values),
             "avg_missing_rate": lang_avg_missing,
             "avg_spillover_rate": lang_avg_spillover,
             "avg_mutual_accuracy": lang_avg_mutual,
+            "weighted_missing_rate": lang_weighted_missing,
+            "weighted_spillover_rate": lang_weighted_spillover,
+            "weighted_mutual_accuracy": lang_weighted_mutual,
             "pass": _passes_q2_gate(
-                avg_missing_rate=lang_avg_missing,
-                avg_spillover_rate=lang_avg_spillover,
-                avg_mutual_accuracy=lang_avg_mutual,
+                avg_missing_rate=lang_weighted_missing,
+                avg_spillover_rate=lang_weighted_spillover,
+                avg_mutual_accuracy=lang_weighted_mutual,
                 target=q2_target,
             ),
         }
@@ -470,6 +519,7 @@ def _build_report_payload(
         "q2_target_mutual_accuracy_min": q2_target,
         "q2_target_missing_rate_max": (1.0 - q2_target),
         "q2_target_spillover_rate_max": (1.0 - q2_target),
+        "q2_metric_mode": Q2_METRIC_MODE,
         "q2_filtering_source": Q2_FILTERING_SOURCE,
         "unresolved_static_target_zero": True,
     }
@@ -582,6 +632,14 @@ def _build_report_payload(
     mismatch_candidates.sort(key=lambda item: (-item[0], -item[1], -item[2], item[3]))
     top_mismatch_signatures = [item[4] for item in mismatch_candidates[:20]]
 
+    weighted_hints_reference = q2_reference_total + q2_excluded_limitation
+    weighted_hints_candidate = int(q2_agg.get("candidate_count") or 0)
+    weighted_hints_intersection = int(q2_agg.get("intersection_count") or 0)
+    weighted_hints_missing = int(q2_agg.get("missing_count") or 0) + q2_excluded_limitation
+    weighted_hints_spillover = int(q2_agg.get("spillover_count") or 0)
+    weighted_hints_union = (
+        weighted_hints_reference + weighted_hints_candidate - weighted_hints_intersection
+    )
     payload = {
         "report_schema_version": REPORT_SCHEMA_VERSION,
         "summary": summary,
@@ -610,6 +668,10 @@ def _build_report_payload(
                 "avg_missing_rate": avg_missing_rate,
                 "avg_spillover_rate": avg_spillover_rate,
                 "avg_mutual_accuracy": avg_mutual_accuracy,
+                "weighted_missing_rate": weighted_missing_rate,
+                "weighted_spillover_rate": weighted_spillover_rate,
+                "weighted_mutual_accuracy": weighted_mutual_accuracy,
+                "metric_mode": Q2_METRIC_MODE,
                 "reference_count": q2_agg.get("reference_count"),
                 "candidate_count": q2_agg.get("candidate_count"),
                 "intersection_count": q2_agg.get("intersection_count"),
@@ -644,17 +706,28 @@ def _build_report_payload(
                     "avg_missing_rate": avg_missing_rate,
                     "avg_spillover_rate": avg_spillover_rate,
                     "avg_mutual_accuracy": avg_mutual_accuracy,
+                    "weighted_missing_rate": weighted_missing_rate,
+                    "weighted_spillover_rate": weighted_spillover_rate,
+                    "weighted_mutual_accuracy": weighted_mutual_accuracy,
                 },
                 "contract_plus_resolution_hints": {
-                    "reference_count": q2_reference_total + q2_excluded_limitation,
+                    "reference_count": weighted_hints_reference,
                     "candidate_count": q2_agg.get("candidate_count"),
                     "intersection_count": q2_agg.get("intersection_count"),
-                    "missing_count": int(q2_agg.get("missing_count") or 0)
-                    + q2_excluded_limitation,
+                    "missing_count": weighted_hints_missing,
                     "spillover_count": q2_agg.get("spillover_count"),
                     "avg_missing_rate": avg_missing_rate_hints,
                     "avg_spillover_rate": avg_spillover_rate_hints,
                     "avg_mutual_accuracy": avg_mutual_accuracy_hints,
+                    "weighted_missing_rate": _safe_ratio(
+                        weighted_hints_missing, weighted_hints_reference
+                    ),
+                    "weighted_spillover_rate": _safe_ratio(
+                        weighted_hints_spillover, weighted_hints_reference
+                    ),
+                    "weighted_mutual_accuracy": _safe_ratio(
+                        weighted_hints_intersection, weighted_hints_union
+                    ),
                 },
                 "top_mismatch_signatures": top_mismatch_signatures,
             },

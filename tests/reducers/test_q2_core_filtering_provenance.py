@@ -41,6 +41,8 @@ def test_q2_payload_declares_core_only_filtering_source(tmp_path: Path) -> None:
         out_of_contract_meta=[],
     )
     assert payload["questions"]["q2"]["filtering_source"] == "core_only"
+    assert payload["questions"]["q2"]["metric_mode"] == "weighted_aggregate_v2"
+    assert payload["quality_gates"]["q2_metric_mode"] == "weighted_aggregate_v2"
     assert payload["quality_gates"]["q2_filtering_source"] == "core_only"
     assert payload["invariants"]["pipeline_self_consistent"] is True
     assert payload["invariants"]["independently_verified"] is True
@@ -60,6 +62,9 @@ def test_q2_payload_declares_core_only_filtering_source(tmp_path: Path) -> None:
         "avg_missing_rate": 0.0,
         "avg_spillover_rate": 0.0,
         "avg_mutual_accuracy": 1.0,
+        "weighted_missing_rate": 0.0,
+        "weighted_spillover_rate": 0.0,
+        "weighted_mutual_accuracy": 1.0,
     }
     assert payload["questions"]["q2"]["contract_plus_resolution_hints"] == {
         "reference_count": 1,
@@ -70,6 +75,9 @@ def test_q2_payload_declares_core_only_filtering_source(tmp_path: Path) -> None:
         "avg_missing_rate": 0.0,
         "avg_spillover_rate": 0.0,
         "avg_mutual_accuracy": 1.0,
+        "weighted_missing_rate": 0.0,
+        "weighted_spillover_rate": 0.0,
+        "weighted_mutual_accuracy": 1.0,
     }
     assert payload["questions"]["q2_syntax"]["scored_nodes"] == 0
 
@@ -318,8 +326,10 @@ def test_q2_payload_reports_contract_filtered_out_ratio(tmp_path: Path) -> None:
     assert q2["strict_contract_candidate_count_histogram"] == {"0": 2, "1": 1}
     assert q2["core_contract_overlap"]["reference_count"] == 3
     assert q2["core_contract_overlap"]["missing_count"] == 0
+    assert q2["core_contract_overlap"]["weighted_mutual_accuracy"] == 1.0
     assert q2["contract_plus_resolution_hints"]["reference_count"] == 4
     assert q2["contract_plus_resolution_hints"]["missing_count"] == 1
+    assert q2["contract_plus_resolution_hints"]["weighted_missing_rate"] == 0.25
 
 
 def test_q2_reports_class_truth_reliability_breakdown(tmp_path: Path) -> None:
@@ -407,3 +417,67 @@ def test_report_payload_includes_sampling_metadata(tmp_path: Path) -> None:
     )
     assert payload["sampling"]["seed"] == 7
     assert payload["sampling"]["sampled_nodes"] == 8
+
+
+def test_q2_gate_uses_weighted_metrics_not_per_node_average(tmp_path: Path) -> None:
+    payload = _build_report_payload(
+        repo_root=tmp_path,
+        rows=[
+            {
+                "entity": "fixture.mod.small",
+                "language": "python",
+                "kind": "function",
+                "file_path": "mod.py",
+                "module_qualified_name": "fixture.mod",
+                "set_q1_reducer_vs_db": {
+                    "reference_count": 1,
+                    "candidate_count": 1,
+                    "intersection_count": 1,
+                    "missing_count": 0,
+                    "spillover_count": 0,
+                    "coverage": 1.0,
+                    "spillover_ratio": 0.0,
+                },
+                "set_q2_reducer_vs_independent_contract": {
+                    "reference_count": 1,
+                    "candidate_count": 0,
+                    "intersection_count": 0,
+                    "missing_count": 1,
+                    "spillover_count": 0,
+                    "coverage": 0.0,
+                    "spillover_ratio": 0.0,
+                },
+            },
+            {
+                "entity": "fixture.mod.large",
+                "language": "python",
+                "kind": "function",
+                "file_path": "mod.py",
+                "module_qualified_name": "fixture.mod",
+                "set_q1_reducer_vs_db": {
+                    "reference_count": 100,
+                    "candidate_count": 100,
+                    "intersection_count": 100,
+                    "missing_count": 0,
+                    "spillover_count": 0,
+                    "coverage": 1.0,
+                    "spillover_ratio": 0.0,
+                },
+                "set_q2_reducer_vs_independent_contract": {
+                    "reference_count": 100,
+                    "candidate_count": 100,
+                    "intersection_count": 100,
+                    "missing_count": 0,
+                    "spillover_count": 0,
+                    "coverage": 1.0,
+                    "spillover_ratio": 0.0,
+                },
+            },
+        ],
+        out_of_contract_meta=[],
+    )
+    q2 = payload["questions"]["q2"]
+    assert q2["avg_missing_rate"] > q2["weighted_missing_rate"]
+    assert q2["avg_missing_rate"] > 0.01
+    assert q2["weighted_missing_rate"] < 0.01
+    assert q2["pass"] is True
