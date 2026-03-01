@@ -512,6 +512,40 @@ def _build_report_payload(
         (unresolved_static_metrics.get("avg_rate") or 0.0) == 0.0
         and int(unresolved_static_metrics.get("total_edges") or 0) == 0
     )
+    unresolved_candidates: list[tuple[int, float, str, dict]] = []
+    for row in rows:
+        metrics = row.get("set_q2_reducer_vs_independent_contract") or {}
+        reference_count = int(metrics.get("reference_count") or 0)
+        if reference_count <= 0:
+            continue
+        entity_name = str(row.get("entity") or "")
+        unresolved_count = int(unresolved_counts.get(entity_name) or 0)
+        if unresolved_count <= 0:
+            continue
+        unresolved_rate = _safe_ratio(unresolved_count, reference_count) or 0.0
+        semantic_breakdown = dict(
+            sorted((unresolved_semantic_counts.get(entity_name) or {}).items())
+        )
+        unresolved_candidates.append(
+            (
+                unresolved_count,
+                unresolved_rate,
+                entity_name,
+                {
+                    "entity": row.get("entity"),
+                    "language": row.get("language"),
+                    "kind": row.get("kind"),
+                    "file_path": row.get("file_path"),
+                    "module_qualified_name": row.get("module_qualified_name"),
+                    "unresolved_static_count": unresolved_count,
+                    "reference_count": reference_count,
+                    "unresolved_static_rate": unresolved_rate,
+                    "semantic_breakdown": semantic_breakdown,
+                },
+            )
+        )
+    unresolved_candidates.sort(key=lambda item: (-item[0], -item[1], item[2]))
+    top_unresolved_signatures = [item[3] for item in unresolved_candidates[:20]]
 
     invariants = {
         "passed": bool(q2_pass),
@@ -782,6 +816,7 @@ def _build_report_payload(
                     "by_semantic_type_avg_percent": unresolved_static_metrics.get(
                         "by_semantic_type_avg_percent"
                     ),
+                    "top_unresolved_signatures": top_unresolved_signatures,
                 },
             },
         },

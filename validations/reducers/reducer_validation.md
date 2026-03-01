@@ -63,6 +63,7 @@ Reported only:
 
 ### Unresolved-Static Defect (Quality Defect, Not Q3 Gate)
 - `unresolved_static_avg_percent`
+- `top_unresolved_signatures`
 - target: `0`
 
 ## Core-First Pipeline (Current)

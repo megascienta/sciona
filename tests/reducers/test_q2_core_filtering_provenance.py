@@ -266,10 +266,126 @@ def test_unresolved_static_is_reported_as_separate_defect(tmp_path: Path) -> Non
     assert unresolved["pass"] is False
     assert unresolved["avg_rate_percent"] == 50.0
     assert unresolved["by_semantic_type_avg_percent"] == {"direct_call_unresolved": 50.0}
+    assert unresolved["top_unresolved_signatures"][0]["entity"] == "fixture.mod.fn"
+    assert unresolved["top_unresolved_signatures"][0]["unresolved_static_count"] == 1
     q2 = payload["questions"]["q2"]
     assert q2["envelope_reference_count"] == 2
     assert q2["envelope_excluded_count"] == 0
     assert q2["contract_filtered_out_ratio"] == 0.0
+
+
+def test_unresolved_static_top_signatures_rank_by_count_then_rate(tmp_path: Path) -> None:
+    payload = _build_report_payload(
+        repo_root=tmp_path,
+        rows=[
+            {
+                "entity": "fixture.mod.a",
+                "language": "python",
+                "kind": "function",
+                "file_path": "mod.py",
+                "module_qualified_name": "fixture.mod",
+                "set_q1_reducer_vs_db": {
+                    "reference_count": 1,
+                    "candidate_count": 1,
+                    "intersection_count": 1,
+                    "missing_count": 0,
+                    "spillover_count": 0,
+                    "coverage": 1.0,
+                    "spillover_ratio": 0.0,
+                },
+                "set_q2_reducer_vs_independent_contract": {
+                    "reference_count": 2,
+                    "candidate_count": 0,
+                    "intersection_count": 0,
+                    "missing_count": 2,
+                    "spillover_count": 0,
+                    "coverage": 0.0,
+                    "spillover_ratio": 0.0,
+                },
+            },
+            {
+                "entity": "fixture.mod.b",
+                "language": "python",
+                "kind": "function",
+                "file_path": "mod.py",
+                "module_qualified_name": "fixture.mod",
+                "set_q1_reducer_vs_db": {
+                    "reference_count": 1,
+                    "candidate_count": 1,
+                    "intersection_count": 1,
+                    "missing_count": 0,
+                    "spillover_count": 0,
+                    "coverage": 1.0,
+                    "spillover_ratio": 0.0,
+                },
+                "set_q2_reducer_vs_independent_contract": {
+                    "reference_count": 10,
+                    "candidate_count": 8,
+                    "intersection_count": 8,
+                    "missing_count": 2,
+                    "spillover_count": 0,
+                    "coverage": 0.8,
+                    "spillover_ratio": 0.0,
+                },
+            },
+        ],
+        out_of_contract_meta=[
+            {
+                "edge_type": "call",
+                "language": "python",
+                "reason": "in_repo_unresolved_ambiguous_no_in_scope_candidate",
+                "semantic_type": "direct_call_unresolved",
+                "entity": "fixture.mod.a",
+                "entity_kind": "function",
+                "caller": "fixture.mod.a",
+                "callee": "x",
+                "callee_qname": None,
+                "provenance": "syntax_raw",
+            },
+            {
+                "edge_type": "call",
+                "language": "python",
+                "reason": "in_repo_unresolved_ambiguous_no_in_scope_candidate",
+                "semantic_type": "direct_call_unresolved",
+                "entity": "fixture.mod.a",
+                "entity_kind": "function",
+                "caller": "fixture.mod.a",
+                "callee": "y",
+                "callee_qname": None,
+                "provenance": "syntax_raw",
+            },
+            {
+                "edge_type": "call",
+                "language": "python",
+                "reason": "in_repo_unresolved_unique_without_provenance",
+                "semantic_type": "direct_call_unresolved",
+                "entity": "fixture.mod.b",
+                "entity_kind": "function",
+                "caller": "fixture.mod.b",
+                "callee": "x",
+                "callee_qname": None,
+                "provenance": "syntax_raw",
+            },
+            {
+                "edge_type": "call",
+                "language": "python",
+                "reason": "in_repo_unresolved_unique_without_provenance",
+                "semantic_type": "direct_call_unresolved",
+                "entity": "fixture.mod.b",
+                "entity_kind": "function",
+                "caller": "fixture.mod.b",
+                "callee": "y",
+                "callee_qname": None,
+                "provenance": "syntax_raw",
+            },
+        ],
+    )
+    top = payload["questions"]["q3"]["unresolved_static_defect"]["top_unresolved_signatures"]
+    assert top[0]["entity"] == "fixture.mod.a"
+    assert top[1]["entity"] == "fixture.mod.b"
+    assert top[0]["unresolved_static_count"] == 2
+    assert top[1]["unresolved_static_count"] == 2
+    assert top[0]["unresolved_static_rate"] > top[1]["unresolved_static_rate"]
 
 
 def test_q2_payload_reports_contract_filtered_out_ratio(tmp_path: Path) -> None:

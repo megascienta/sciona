@@ -179,5 +179,8 @@ def render_summary(payload: dict) -> List[str]:
     lines.append(
         f"- unresolved_static_avg_percent: `{_format_percent(unresolved.get('avg_rate_percent'))}`"
     )
+    lines.append(
+        f"- top_unresolved_signatures: `{unresolved.get('top_unresolved_signatures')}`"
+    )
     lines.append("")
     return lines
