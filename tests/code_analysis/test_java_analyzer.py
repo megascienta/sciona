@@ -54,7 +54,7 @@ def test_java_analyzer_extracts_structure_and_calls(tmp_path):
     result = analyzer.analyze(snapshot, module_name)
 
     node_types = {node.node_type for node in result.nodes}
-    assert {"module", "class", "method"}.issubset(node_types)
+    assert {"module", "type", "callable"}.issubset(node_types)
 
     import_edges = [
         edge for edge in result.edges if edge.edge_type == "IMPORTS_DECLARED"
@@ -74,7 +74,7 @@ def test_java_analyzer_extracts_structure_and_calls(tmp_path):
     }.issubset(call_records[helper_key])
     assert not any(target.endswith(".Runnable.run") for target in call_records[helper_key])
     method_nodes = {
-        node.qualified_name for node in result.nodes if node.node_type == "method"
+        node.qualified_name for node in result.nodes if node.node_type == "callable"
     }
     assert method_nodes == {
         f"{class_name}.Foo",
@@ -125,7 +125,7 @@ def test_java_analyzer_nested_class_qname(tmp_path):
         if edge.src_qualified_name == f"{module_name}.Outer"
         and edge.dst_qualified_name == f"{module_name}.Outer.Inner"
     }
-    assert {"CONTAINS", "NESTS"}.issubset(edge_types)
+    assert {"LEXICALLY_CONTAINS"}.issubset(edge_types)
 
 
 def test_java_analyzer_resolves_for_each_catch_and_instanceof_bindings(tmp_path):

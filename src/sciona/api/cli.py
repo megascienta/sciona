@@ -34,6 +34,7 @@ get_entry = reducers_pipeline.get_entry
 identifier_for_repo = resolve_pipeline.identifier_for_repo
 identifier = resolve_pipeline.identifier
 require_identifier = resolve_pipeline.require_identifier
+format_resolution_message = resolve_pipeline.format_resolution_message
 
 __all__ = [
     "init",
@@ -55,6 +56,7 @@ __all__ = [
     "identifier_for_repo",
     "identifier",
     "require_identifier",
+    "format_resolution_message",
     "freeze_registry",
     "get_reducers",
     "load_reducer",

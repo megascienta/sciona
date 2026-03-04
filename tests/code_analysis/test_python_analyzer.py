@@ -48,10 +48,10 @@ def helper():
     analyzer.module_index = {module_name}
     result = analyzer.analyze(snapshot, module_name)
     node_types = {node.node_type for node in result.nodes}
-    assert {"module", "class", "method", "function"}.issubset(node_types)
+    assert {"module", "type", "callable"}.issubset(node_types)
     assert not [edge for edge in result.edges if edge.edge_type == "CALLS"]
-    method_edges = [edge for edge in result.edges if edge.edge_type == "DEFINES_METHOD"]
-    assert method_edges and method_edges[0].src_node_type == "class"
+    method_edges = [edge for edge in result.edges if edge.edge_type == "LEXICALLY_CONTAINS"]
+    assert method_edges
     import_edges = [
         edge for edge in result.edges if edge.edge_type == "IMPORTS_DECLARED"
     ]
@@ -60,15 +60,15 @@ def helper():
         record.qualified_name: set(record.callee_identifiers)
         for record in result.call_records
     }
-    outer_name = f"{module_name}.outer"
+    outer_name = f"{module_name}.outer.inner"
     helper_name = f"{module_name}.helper"
     assert outer_name in call_records
     assert helper_name in call_records[outer_name]
-    function_nodes = {
-        node.qualified_name for node in result.nodes if node.node_type == "function"
+    callable_nodes = {
+        node.qualified_name for node in result.nodes if node.node_type == "callable"
     }
-    assert f"{module_name}.inner" not in function_nodes
-    assert f"{module_name}.inner" not in call_records
+    assert f"{module_name}.outer.inner" in callable_nodes
+    assert f"{module_name}.outer.inner" in call_records
 
 
 def test_python_analyzer_resolves_instance_assignments_per_callable_scope(tmp_path):
@@ -369,7 +369,7 @@ async def handler():
         if edge.src_qualified_name == f"{module_name}.Outer"
         and edge.dst_qualified_name == f"{module_name}.Outer.Inner"
     }
-    assert {"CONTAINS", "NESTS"}.issubset(inner_edge_types)
+    assert {"LEXICALLY_CONTAINS"}.issubset(inner_edge_types)
     handler_node = next(node for node in result.nodes if node.qualified_name == f"{module_name}.handler")
     assert (handler_node.metadata or {}).get("kind") == "async_function"
     assert "decorators" not in (handler_node.metadata or {})
@@ -409,7 +409,7 @@ class Service:
     method_node = next(
         node for node in result.nodes if node.qualified_name == f"{module_name}.Service.run"
     )
-    assert method_node.node_type == "method"
+    assert method_node.node_type == "callable"
     assert (method_node.metadata or {}).get("kind") == "async_function"
 
 
@@ -570,8 +570,8 @@ def helper():
     call_records = {
         rec.qualified_name: set(rec.callee_identifiers) for rec in result.call_records
     }
-    assert f"{module_name}.inner" not in call_records
-    assert f"{module_name}.helper" in call_records[f"{module_name}.outer"]
+    assert f"{module_name}.outer.inner" in call_records
+    assert f"{module_name}.helper" in call_records[f"{module_name}.outer.inner"]
 
 
 def test_python_analyzer_does_not_module_resolve_shadowed_param_call(tmp_path):

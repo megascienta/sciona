@@ -43,11 +43,11 @@ def build_agents_block(
         CMD_BUILD=commands.get("build", "sciona build"),
         CMD_SEARCH=commands.get(
             "search",
-            "sciona search <query> --kind module|class|function|method|callable --limit 10",
+            "sciona search <query> --kind module|type|class|function|method|callable --limit 10",
         ),
         CMD_RESOLVE=commands.get(
             "resolve",
-            "sciona resolve <identifier> --kind module|class|function|method|callable",
+            "sciona resolve <identifier> --kind module|type|class|function|method|callable",
         ),
         TRACKED_FILE_SCOPE=_render_tracked_file_scope(repo_root),
     )
@@ -196,8 +196,8 @@ _DEFAULT_COMMANDS = {
     "reducer_list": "sciona reducer list",
     "reducer_info": "sciona reducer info --id <reducer_id>",
     "build": "sciona build",
-    "search": "sciona search <query> --kind module|class|function|method|callable --limit 10",
-    "resolve": "sciona resolve <identifier> --kind module|class|function|method|callable",
+    "search": "sciona search <query> --kind module|type|class|function|method|callable --limit 10",
+    "resolve": "sciona resolve <identifier> --kind module|type|class|function|method|callable",
 }
 
 

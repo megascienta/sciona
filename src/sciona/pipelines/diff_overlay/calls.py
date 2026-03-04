@@ -249,9 +249,11 @@ def module_for_node(node_type: str, qualified_name: str) -> str | None:
     parts = qualified_name.split(".")
     if not parts:
         return None
-    if node_type == "method":
+    if node_type == "callable":
         if len(parts) >= 3:
             return ".".join(parts[:-2])
+        if len(parts) >= 2:
+            return ".".join(parts[:-1])
         return None
     if len(parts) >= 2:
         return ".".join(parts[:-1])

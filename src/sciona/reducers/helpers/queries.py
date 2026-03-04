@@ -11,11 +11,11 @@ from typing import Dict, Iterable, List, Sequence, Set
 from ...code_analysis.analysis.graph import module_id_for
 
 NODE_TYPE_MODULE = ("module",)
-NODE_TYPE_CLASS = ("class",)
-NODE_TYPE_FUNCTION_OR_METHOD = ("function", "method")
-NODE_TYPE_METHOD = ("method",)
-NODE_TYPE_FUNCTION = ("function",)
-NODE_TYPE_FILE_BACKED = ("module", "class", "function", "method")
+NODE_TYPE_CLASS = ("type",)
+NODE_TYPE_FUNCTION_OR_METHOD = ("callable",)
+NODE_TYPE_METHOD = ("callable",)
+NODE_TYPE_FUNCTION = ("callable",)
+NODE_TYPE_FILE_BACKED = ("module", "type", "callable")
 
 
 def resolve_function_id(conn, snapshot_id: str, function_id: str | None) -> str:
@@ -32,7 +32,7 @@ def resolve_function_id(conn, snapshot_id: str, function_id: str | None) -> str:
         FROM structural_nodes sn
         JOIN node_instances ni ON ni.structural_id = sn.structural_id
         WHERE ni.snapshot_id = ?
-          AND sn.node_type IN ('function', 'method')
+          AND sn.node_type = 'callable'
         ORDER BY sn.structural_id
         """,
         (snapshot_id,),

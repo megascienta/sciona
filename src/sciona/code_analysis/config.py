@@ -61,7 +61,7 @@ def _java_module_namer(repo_root: Path, snapshot: "FileSnapshot") -> str:
     return java_lang.module_name(repo_root, snapshot)
 
 
-CALLABLE_NODE_TYPES = frozenset({"function", "method"})
+CALLABLE_NODE_TYPES = frozenset({"callable"})
 TERMINAL_IDENTIFIER_TYPES_BY_LANGUAGE = {
     "python": frozenset({"identifier"}),
     "typescript": frozenset(
@@ -78,19 +78,19 @@ TERMINAL_IDENTIFIER_TYPES_BY_LANGUAGE = {
 LANGUAGE_CONFIG: dict[str, LanguageConfig] = {
     "python": LanguageConfig(
         extensions=(".py",),
-        callable_types=("function", "method"),
+        callable_types=("callable",),
         analyzer_factory=_python_analyzer_factory,
         module_namer=_python_module_namer,
     ),
     "typescript": LanguageConfig(
         extensions=(".ts", ".tsx"),
-        callable_types=("function", "method"),
+        callable_types=("callable",),
         analyzer_factory=_typescript_analyzer_factory,
         module_namer=_typescript_module_namer,
     ),
     "java": LanguageConfig(
         extensions=(".java",),
-        callable_types=("method",),
+        callable_types=("callable",),
         analyzer_factory=_java_analyzer_factory,
         module_namer=_java_module_namer,
     ),

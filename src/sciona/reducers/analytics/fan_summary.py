@@ -81,7 +81,7 @@ def render(
     call_stats = load_node_fan_stats(
         repo_root,
         edge_kinds=["CALLS"],
-        node_kinds=["function", "method"],
+        node_kinds=["callable"],
     )
     import_stats = load_node_fan_stats(
         repo_root,

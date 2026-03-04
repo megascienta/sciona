@@ -49,9 +49,14 @@ def rebuild_graph_rollups(
     method_edges = core_read.list_edges_by_type(
         core_conn,
         snapshot_id,
-        "DEFINES_METHOD",
+        "LEXICALLY_CONTAINS",
     )
-    method_to_class = {dst_id: src_id for src_id, dst_id in method_edges}
+    node_type_by_id = {structural_id: node_type for structural_id, node_type, _q in node_rows}
+    method_to_class = {
+        dst_id: src_id
+        for src_id, dst_id in method_edges
+        if node_type_by_id.get(src_id) == "type" and node_type_by_id.get(dst_id) == "callable"
+    }
 
     call_rows = artifact_persistence.list_call_edges(artifact_conn)
     module_calls: Counter[tuple[str, str]] = Counter()
@@ -127,12 +132,20 @@ def write_call_artifacts(
             continue
         caller_diag = _ensure_caller_diagnostics(diagnostics, record)
         caller_module_id = module_lookup.get(caller_id)
-        callee_ids, _, resolution_stats = _resolve_callees(
+        callee_ids, _, resolution_stats, callsite_rows = _resolve_callees(
             record.callee_identifiers,
             symbol_index,
             caller_module_id=caller_module_id,
             module_lookup=module_lookup,
             import_targets=import_targets,
+        )
+        artifact_persistence.upsert_call_sites(
+            artifact_conn,
+            snapshot_id=snapshot_id,
+            caller_id=caller_id,
+            caller_qname=record.caller_qualified_name,
+            caller_node_type=record.caller_node_type,
+            rows=callsite_rows,
         )
         _merge_resolution_stats(caller_diag, diagnostics_totals, resolution_stats)
         if not callee_ids:
@@ -227,9 +240,15 @@ def _resolve_callees(
     caller_module_id: str | None,
     module_lookup: dict[str, str],
     import_targets: dict[str, set[str]],
-) -> tuple[set[str], set[str], dict[str, object]]:
+) -> tuple[
+    set[str],
+    set[str],
+    dict[str, object],
+    list[tuple[str, str, str | None, str | None, str | None, int]],
+]:
     resolved_ids: set[str] = set()
     resolved_names: set[str] = set()
+    callsite_rows: list[tuple[str, str, str | None, str | None, str | None, int]] = []
     stats: dict[str, object] = {
         "identifiers_total": 0,
         "accepted_by_provenance": Counter(),
@@ -257,9 +276,31 @@ def _resolve_callees(
             cast(Counter[str], stats["accepted_by_provenance"])[
                 str(decision.accepted_provenance)
             ] += 1
+            if decision.candidate_count > 0:
+                callsite_rows.append(
+                    (
+                        identifier,
+                        "accepted",
+                        decision.accepted_candidate,
+                        decision.accepted_provenance,
+                        None,
+                        decision.candidate_count,
+                    )
+                )
             continue
         cast(Counter[str], stats["dropped_by_reason"])[str(decision.dropped_reason)] += 1
-    return resolved_ids, resolved_names, stats
+        if decision.candidate_count > 0:
+            callsite_rows.append(
+                (
+                    identifier,
+                    "dropped",
+                    None,
+                    None,
+                    decision.dropped_reason,
+                    decision.candidate_count,
+                )
+            )
+    return resolved_ids, resolved_names, stats, callsite_rows
 
 
 def _ensure_rollup_diagnostics(diagnostics: dict[str, object] | None) -> dict[str, object]:

@@ -29,7 +29,7 @@ def register(app: typer.Typer) -> None:
         kind: Optional[str] = typer.Option(
             None,
             "--kind",
-            help="Filter kind: module, class, function, method, callable, or any.",
+            help="Filter kind: module, type, class, function, method, callable, or any.",
         ),
         limit: int = typer.Option(10, "--limit", help="Maximum matches to return."),
         json_output: bool = typer.Option(

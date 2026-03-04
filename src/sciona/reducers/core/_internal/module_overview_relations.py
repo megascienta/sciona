@@ -26,7 +26,7 @@ def _list_children(
 ) -> List[Dict[str, str]]:
     edges = load_artifact_edges(
         repo_root,
-        edge_kinds=["CONTAINS"],
+        edge_kinds=["LEXICALLY_CONTAINS"],
         src_ids=module_ids,
     )
     child_ids = sorted({dst for _, dst, _ in edges})
@@ -90,7 +90,7 @@ def _language_breakdown(
 ) -> Dict[str, int]:
     edges = load_artifact_edges(
         repo_root,
-        edge_kinds=["CONTAINS"],
+        edge_kinds=["LEXICALLY_CONTAINS"],
         src_ids=module_ids,
     )
     child_ids = sorted({dst for _, dst, _ in edges})
@@ -106,18 +106,18 @@ def _language_breakdown(
         tuple(child_ids),
     ).fetchall()
     counts: Dict[str, int] = {}
-    class_ids = []
+    type_ids = []
     for row in rows:
         language = row["language"]
         if language:
             counts[language] = counts.get(language, 0) + 1
-        if row["node_type"] == "class":
-            class_ids.append(row["structural_id"])
-    if class_ids:
+        if row["node_type"] == "type":
+            type_ids.append(row["structural_id"])
+    if type_ids:
         method_edges = load_artifact_edges(
             repo_root,
-            edge_kinds=["DEFINES_METHOD"],
-            src_ids=class_ids,
+            edge_kinds=["LEXICALLY_CONTAINS"],
+            src_ids=type_ids,
         )
         method_ids = sorted({dst for _, dst, _ in method_edges})
         if method_ids:
@@ -141,16 +141,16 @@ def _list_methods(
 ) -> List[Dict[str, str]]:
     container_edges = load_artifact_edges(
         repo_root,
-        edge_kinds=["CONTAINS"],
+        edge_kinds=["LEXICALLY_CONTAINS"],
         src_ids=module_ids,
     )
-    class_ids = sorted({dst for _, dst, _ in container_edges})
-    if not class_ids:
+    type_ids = sorted({dst for _, dst, _ in container_edges})
+    if not type_ids:
         return []
     method_edges = load_artifact_edges(
         repo_root,
-        edge_kinds=["DEFINES_METHOD"],
-        src_ids=class_ids,
+        edge_kinds=["LEXICALLY_CONTAINS"],
+        src_ids=type_ids,
     )
     method_ids = sorted({dst for _, dst, _ in method_edges})
     if not method_ids:
@@ -164,7 +164,7 @@ def _list_methods(
             ON ni.structural_id = sn.structural_id
             AND ni.snapshot_id = ?
         WHERE ni.structural_id IN ({placeholders})
-          AND sn.node_type = 'method'
+          AND sn.node_type = 'callable'
         """,
         (snapshot_id, *method_ids),
     ).fetchall()
@@ -182,20 +182,21 @@ def _list_nested_classes(
 ) -> List[Dict[str, str]]:
     container_edges = load_artifact_edges(
         repo_root,
-        edge_kinds=["CONTAINS"],
+        edge_kinds=["LEXICALLY_CONTAINS"],
         src_ids=module_ids,
     )
-    class_ids = sorted({dst for _, dst, _ in container_edges})
-    if not class_ids:
+    type_ids = sorted({dst for _, dst, _ in container_edges})
+    if not type_ids:
         return []
-    nests_edges = load_artifact_edges(
+    nested_edges = load_artifact_edges(
         repo_root,
-        edge_kinds=["NESTS"],
-        src_ids=class_ids,
+        edge_kinds=["LEXICALLY_CONTAINS"],
+        src_ids=type_ids,
     )
-    if not nests_edges:
+    nested_edges = [edge for edge in nested_edges if edge[1] in type_ids]
+    if not nested_edges:
         return []
-    all_ids = sorted({src for src, _, _ in nests_edges} | {dst for _, dst, _ in nests_edges})
+    all_ids = sorted({src for src, _, _ in nested_edges} | {dst for _, dst, _ in nested_edges})
     placeholders = ",".join("?" for _ in all_ids)
     rows = conn.execute(
         f"""
@@ -218,7 +219,7 @@ def _list_nested_classes(
             "child_structural_id": dst_id,
             "child_qualified_name": names.get(dst_id, ""),
         }
-        for src_id, dst_id, _ in nests_edges
+        for src_id, dst_id, _ in nested_edges
         if names.get(src_id) and names.get(dst_id)
     ]
     order_nodes(

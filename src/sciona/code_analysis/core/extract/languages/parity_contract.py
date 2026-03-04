@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 
-PARITY_CONTRACT_VERSION = 3
+PARITY_CONTRACT_VERSION = 4
 
 
 def build_parity_contract() -> dict[str, object]:
@@ -21,7 +21,7 @@ def build_parity_contract() -> dict[str, object]:
                 "python": "yes",
                 "typescript": "yes",
             },
-            "core_nests_edges": {
+            "lexical_contains_edges": {
                 "java": "yes",
                 "python": "yes",
                 "typescript": "yes",
@@ -56,6 +56,11 @@ def build_parity_contract() -> dict[str, object]:
                 "python": "yes",
                 "typescript": "yes",
             },
+            "callable_role_coverage": {
+                "java": "yes",
+                "python": "yes",
+                "typescript": "yes",
+            },
             "profile_function_extras_tree_sitter": {
                 "java": "yes",
                 "python": "yes",
@@ -81,8 +86,8 @@ def build_parity_contract() -> dict[str, object]:
                 },
             },
             "java": {
-                "callable_types": ["method"],
-                "reason": "java has no module-level function declarations",
+                "callable_types": ["callable"],
+                "reason": "java emits callable nodes only; no module-level function declarations",
                 "async_callable_kind": {
                     "present": False,
                     "reason": "java extraction does not model async/await callable kind metadata",

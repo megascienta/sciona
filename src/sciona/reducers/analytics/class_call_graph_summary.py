@@ -45,7 +45,7 @@ def render(
         method_structural_id = queries.resolve_method_id(conn, snapshot_id, method_id)
         edges = load_artifact_edges(
             repo_root,
-            edge_kinds=["DEFINES_METHOD"],
+            edge_kinds=["LEXICALLY_CONTAINS"],
             dst_ids=[method_structural_id],
         )
         if edges:
@@ -145,7 +145,7 @@ def _class_name_lookup(
         FROM structural_nodes sn
         JOIN node_instances ni ON ni.structural_id = sn.structural_id
         WHERE ni.snapshot_id = ?
-          AND sn.node_type = 'class'
+          AND sn.node_type = 'type'
           AND ni.structural_id IN ({placeholders})
         """,
         (snapshot_id, *class_ids),

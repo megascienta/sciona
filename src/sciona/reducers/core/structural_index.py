@@ -7,10 +7,8 @@ from __future__ import annotations
 
 from ._internal.structural_index_main import REDUCER_META, render, run
 from ._internal.structural_index_entries import (
-    CLASS_NODE_TYPES,
+    TYPE_NODE_TYPES,
     CALLABLE_NODE_TYPES,
-    FUNCTION_NODE_TYPES,
-    METHOD_NODE_TYPES,
     _module_summaries,
     _file_entries,
     _class_entries,
@@ -28,10 +26,8 @@ __all__ = [
     "REDUCER_META",
     "render",
     "run",
-    "CLASS_NODE_TYPES",
+    "TYPE_NODE_TYPES",
     "CALLABLE_NODE_TYPES",
-    "FUNCTION_NODE_TYPES",
-    "METHOD_NODE_TYPES",
     "_module_summaries",
     "_file_entries",
     "_class_entries",

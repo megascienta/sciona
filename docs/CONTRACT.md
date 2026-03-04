@@ -28,9 +28,22 @@ It is authoritative for analysis and validation.
 SCIONA MUST emit these structural node types:
 
 - `module`
-- `class`
-- `function` (top-level only)
-- `method` (class members only; constructors are represented as methods)
+- `type`
+- `callable`
+
+`callable` role metadata MUST classify each callable as one of:
+
+- `declared`
+- `nested`
+- `bound`
+- `constructor`
+
+Promotion rule for `callable`:
+
+- A callable is structural iff it introduces a callable body with a stable
+  lexical binding in the current lexical parent.
+- Inline anonymous callbacks without stable lexical binding MUST NOT be
+  structural nodes.
 
 Synthetic nodes:
 
@@ -42,38 +55,35 @@ Synthetic nodes:
 
 SCIONA MUST emit these edge types:
 
-- `CONTAINS` (module -> class/function; class -> nested class)
-- `DEFINES_METHOD` (class -> method)
+- `LEXICALLY_CONTAINS` (lexical parent -> lexical child)
 - `IMPORTS_DECLARED` (module -> module)
 - `CALLS` (callable -> callable, in-repo only)
-- `NESTS` (class -> nested class, disambiguates nested containment)
-- `EXTENDS` (class-like -> class-like, local syntactic inheritance)
-- `IMPLEMENTS` (class/record -> interface, local syntactic implementation)
+- `EXTENDS` (type -> type, local syntactic inheritance)
+- `IMPLEMENTS` (type -> type, local syntactic implementation)
 
 ## Edge Semantics
 
-`CONTAINS`:
+`LEXICALLY_CONTAINS`:
 
-- `module` MUST contain only `class` and `function` nodes.
-- `module` MUST NOT contain `method` nodes.
-- `class` MAY contain nested `class` nodes.
-
-`DEFINES_METHOD`:
-
-- Constructors MUST be represented as `method` nodes.
-- Constructor/member method ownership MUST be represented via `DEFINES_METHOD`.
+- Structural hierarchy is a lexical tree per module.
+- `module` is the only lexical root.
+- Every non-`module` structural node MUST have exactly one lexical parent.
+- Parent and child MUST be from the same module/file lexical tree.
+- Parent source span MUST strictly enclose child source span.
+- Graph MUST be acyclic.
+- Allowed pairs:
+  - `module -> type`
+  - `module -> callable`
+  - `type -> type`
+  - `type -> callable`
+  - `callable -> type`
+  - `callable -> callable`
 
 `CALLS`:
 
 - MUST represent syntactic call expressions only.
 - MUST NOT represent attribute reads/writes or other non-call expressions.
 - MUST be emitted only when the final accepted target is an in-repo callable.
-
-`NESTS`:
-
-- MUST represent lexical class nesting only.
-- MUST be emitted only for class-like -> nested class-like declarations.
-- MUST NOT be emitted for nested function/method scopes.
 
 `EXTENDS`:
 
@@ -95,23 +105,27 @@ Module identity:
 
 Qualified names:
 
-- `class`: `{module}.{class_name}`
-- `function`: `{module}.{function_name}`
-- `method`: `{class}.{method_name}`
+- Qualified names MUST encode lexical ownership.
+- Identifiers MAY include deterministic disambiguators when required.
+
+Disambiguation:
+
+- If multiple structural siblings share the same local name in one lexical parent,
+  identity MUST be disambiguated deterministically by lexical order
+  (`start_byte` ascending).
 
 Alias usage:
 
-- Language-specific module aliases MAY be used for resolution assistance.
+- Language-specific aliases MAY be used for resolution assistance.
 - Aliases MUST NOT replace canonical module identity.
 
 ## Call Attribution and Materialization
 
 Attribution:
 
-- Calls are attributed to the nearest enclosing structural callable.
-- Nested non-structural callables are implementation detail.
-- Nested callable calls MUST be attributed to enclosing structural callable.
-- Nested callables MUST NOT be emitted as structural nodes.
+- Calls are attributed to the nearest enclosing structural callable node.
+- Inline anonymous non-structural callable bodies attribute calls to their
+  nearest enclosing structural callable node.
 
 Materialization gate:
 
@@ -131,10 +145,19 @@ Optional metadata:
 - Implementations MAY attach import metadata (for example `import_scope`).
 - Metadata MUST NOT alter structural edge types or contract semantics.
 - Implementations MAY attach structural enrichment metadata, including:
-  - class/method kind hints,
+  - callable role and modifiers,
   - local base/interface names,
   - module-level binding names,
   - ambiguous call candidate diagnostics.
+
+## Artifacts Observability
+
+`CALL_SITES` is an artifact-layer observational table.
+
+- `CALLS` remains the only authoritative call edge truth for reducers.
+- `CALL_SITES` MUST NOT define new structural entities or structural edges.
+- `CALL_SITES` stores in-repo candidate-relevant callsite observations only.
+- External callsites MUST NOT be persisted as rows in `CALL_SITES`.
 
 ## Determinism
 

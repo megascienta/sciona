@@ -8,11 +8,9 @@ from __future__ import annotations
 
 CORE_STRUCTURAL_EDGE_TYPES = frozenset(
     {
-        "CONTAINS",
-        "DEFINES_METHOD",
+        "LEXICALLY_CONTAINS",
         "IMPORTS_DECLARED",
         "CALLS",
-        "NESTS",
         "EXTENDS",
         "IMPLEMENTS",
     }

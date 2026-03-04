@@ -56,6 +56,12 @@ def patch_structural_index(
         qualified_name = str(node.get("qualified_name", ""))
         module_name = module_for_node(node_type, qualified_name)
         file_path = node.get("file_path")
+        is_method_like = (
+            node_type == "callable"
+            and bool(module_name)
+            and qualified_name.startswith(f"{module_name}.")
+            and "." in qualified_name[len(module_name) + 1 :]
+        )
         if change["diff_kind"] == "add":
             if node_type == "module" and module_name:
                 module_map.setdefault(
@@ -69,7 +75,7 @@ def patch_structural_index(
                         "method_count": 0,
                     },
                 )
-            if node_type == "class" and node.get("structural_id") not in class_ids:
+            if node_type == "type" and node.get("structural_id") not in class_ids:
                 classes.append(
                     {
                         "structural_id": node.get("structural_id"),
@@ -83,17 +89,18 @@ def patch_structural_index(
                 class_ids.add(node.get("structural_id"))
                 if module_name:
                     class_counts[module_name] = class_counts.get(module_name, 0) + 1
-            if node_type == "function" and module_name:
-                function_counts[module_name] = function_counts.get(module_name, 0) + 1
-            if node_type == "method" and module_name:
-                method_counts[module_name] = method_counts.get(module_name, 0) + 1
+            if node_type == "callable" and module_name:
+                if is_method_like:
+                    method_counts[module_name] = method_counts.get(module_name, 0) + 1
+                else:
+                    function_counts[module_name] = function_counts.get(module_name, 0) + 1
             if file_path and file_path not in file_map:
                 file_map[file_path] = {
                     "path": file_path,
                     "module_qualified_name": module_name,
                 }
         elif change["diff_kind"] == "remove":
-            if node_type == "class":
+            if node_type == "type":
                 classes = [
                     entry
                     for entry in classes
@@ -103,14 +110,15 @@ def patch_structural_index(
                     class_counts[module_name] = max(
                         0, class_counts.get(module_name, 0) - 1
                     )
-            if node_type == "function" and module_name:
-                function_counts[module_name] = max(
-                    0, function_counts.get(module_name, 0) - 1
-                )
-            if node_type == "method" and module_name:
-                method_counts[module_name] = max(
-                    0, method_counts.get(module_name, 0) - 1
-                )
+            if node_type == "callable" and module_name:
+                if is_method_like:
+                    method_counts[module_name] = max(
+                        0, method_counts.get(module_name, 0) - 1
+                    )
+                else:
+                    function_counts[module_name] = max(
+                        0, function_counts.get(module_name, 0) - 1
+                    )
 
     modules = list(module_map.values())
     for entry in modules:
@@ -224,10 +232,16 @@ def patch_module_overview(
         node_type = str(node.get("node_type", ""))
         qualified_name = str(node.get("qualified_name", ""))
         node_module = module_for_node(node_type, qualified_name)
+        is_method_like = (
+            node_type == "callable"
+            and bool(node_module)
+            and qualified_name.startswith(f"{node_module}.")
+            and "." in qualified_name[len(node_module) + 1 :]
+        )
         if not node_module or not module_in_scope(module_name, node_module):
             continue
         if change["diff_kind"] == "add":
-            if node_type == "class" and node.get("structural_id") not in class_ids:
+            if node_type == "type" and node.get("structural_id") not in class_ids:
                 classes.append(
                     {
                         "structural_id": node.get("structural_id"),
@@ -236,7 +250,8 @@ def patch_module_overview(
                 )
                 class_ids.add(node.get("structural_id"))
             if (
-                node_type == "function"
+                node_type == "callable"
+                and not is_method_like
                 and node.get("structural_id") not in function_ids
             ):
                 functions.append(
@@ -246,7 +261,11 @@ def patch_module_overview(
                     }
                 )
                 function_ids.add(node.get("structural_id"))
-            if node_type == "method" and node.get("structural_id") not in method_ids:
+            if (
+                node_type == "callable"
+                and is_method_like
+                and node.get("structural_id") not in method_ids
+            ):
                 methods.append(
                     {
                         "structural_id": node.get("structural_id"),
@@ -269,19 +288,19 @@ def patch_module_overview(
                     ],
                 }
         elif change["diff_kind"] == "remove":
-            if node_type == "class":
+            if node_type == "type":
                 classes = [
                     entry
                     for entry in classes
                     if entry.get("structural_id") != node.get("structural_id")
                 ]
-            if node_type == "function":
+            if node_type == "callable" and not is_method_like:
                 functions = [
                     entry
                     for entry in functions
                     if entry.get("structural_id") != node.get("structural_id")
                 ]
-            if node_type == "method":
+            if node_type == "callable" and is_method_like:
                 methods = [
                     entry
                     for entry in methods
@@ -405,6 +424,17 @@ def patch_class_overview(
     class_id = payload.get("class_id")
     if not class_id:
         return payload
+    class_row = conn.execute(
+        """
+        SELECT ni.qualified_name
+        FROM node_instances ni
+        WHERE ni.snapshot_id = ?
+          AND ni.structural_id = ?
+        LIMIT 1
+        """,
+        (snapshot_id, class_id),
+    ).fetchone()
+    class_qualified_name = str(class_row["qualified_name"]) if class_row else ""
     methods = list(payload.get("methods", []) or [])
     method_ids = {
         entry.get("function_id") for entry in methods if entry.get("function_id")
@@ -415,7 +445,7 @@ def patch_class_overview(
             continue
         node_type = node.get("node_type")
         if (
-            node_type == "class"
+            node_type == "type"
             and node.get("structural_id") == class_id
             and change.get("diff_kind") == "modify"
         ):
@@ -433,9 +463,14 @@ def patch_class_overview(
                     payload["line_span"] = span
             if change.get("field") == "content_hash":
                 payload["content_hash"] = change.get("new_value")
-        if node_type == "method":
+        if node_type == "callable":
+            qualified_name = str(node.get("qualified_name", ""))
+            if not class_qualified_name or not qualified_name.startswith(
+                f"{class_qualified_name}."
+            ):
+                continue
             parent_module = module_for_node(
-                "method", str(node.get("qualified_name", ""))
+                "callable", qualified_name
             )
             if (
                 payload.get("module_qualified_name")

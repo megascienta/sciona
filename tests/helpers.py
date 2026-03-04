@@ -92,17 +92,17 @@ def setup_structural_index_db(tmp_path: Path, *, repo_root: Path) -> Tuple[Path,
     nodes = [
         ("mod_alpha", "module", "python", _q("pkg.alpha"), "pkg/alpha/__init__.py"),
         ("mod_beta", "module", "python", _q("pkg.beta"), "pkg/beta/__init__.py"),
-        ("cls_alpha", "class", "python", _q("pkg.alpha.Service"), "pkg/alpha/service.py"),
+        ("cls_alpha", "type", "python", _q("pkg.alpha.Service"), "pkg/alpha/service.py"),
         (
             "func_alpha",
-            "function",
+            "callable",
             "python",
             _q("pkg.alpha.service.helper"),
             "pkg/alpha/service.py",
         ),
         (
             "meth_alpha",
-            "method",
+            "callable",
             "python",
             _q("pkg.alpha.Service.run"),
             "pkg/alpha/service.py",
@@ -139,9 +139,9 @@ def setup_structural_index_db(tmp_path: Path, *, repo_root: Path) -> Tuple[Path,
             ),
         )
     edges = [
-        (snapshot_id, "mod_alpha", "cls_alpha", "CONTAINS"),
-        (snapshot_id, "mod_alpha", "func_alpha", "CONTAINS"),
-        (snapshot_id, "cls_alpha", "meth_alpha", "DEFINES_METHOD"),
+        (snapshot_id, "mod_alpha", "cls_alpha", "LEXICALLY_CONTAINS"),
+        (snapshot_id, "mod_alpha", "func_alpha", "LEXICALLY_CONTAINS"),
+        (snapshot_id, "cls_alpha", "meth_alpha", "LEXICALLY_CONTAINS"),
         (snapshot_id, "mod_alpha", "mod_beta", "IMPORTS_DECLARED"),
         (snapshot_id, "mod_beta", "mod_alpha", "IMPORTS_DECLARED"),
     ]
@@ -256,7 +256,7 @@ def setup_evolution_db(tmp_path: Path) -> Dict[str, object]:
         ),
         (
             "func_old",
-            "function",
+            "callable",
             "python",
             "pkg.alpha.old_helper",
             "pkg/alpha/old.py",
@@ -264,7 +264,7 @@ def setup_evolution_db(tmp_path: Path) -> Dict[str, object]:
         ),
         (
             "func_new",
-            "function",
+            "callable",
             "python",
             "pkg.alpha.new_helper",
             "pkg/alpha/new.py",
@@ -272,7 +272,7 @@ def setup_evolution_db(tmp_path: Path) -> Dict[str, object]:
         ),
         (
             "func_beta",
-            "function",
+            "callable",
             "python",
             "pkg.beta.worker",
             "pkg/beta/worker.py",
@@ -280,7 +280,7 @@ def setup_evolution_db(tmp_path: Path) -> Dict[str, object]:
         ),
         (
             "orphan_func",
-            "function",
+            "callable",
             "python",
             "pkg.alpha.orphan",
             "pkg/alpha/orphan.py",
@@ -326,10 +326,10 @@ def setup_evolution_db(tmp_path: Path) -> Dict[str, object]:
                 ),
             )
     edges = [
-        ("snap_a", "mod_alpha", "func_old", "CONTAINS"),
-        ("snap_a", "mod_alpha", "func_beta", "CONTAINS"),
-        ("snap_b", "mod_alpha", "func_new", "CONTAINS"),
-        ("snap_b", "mod_beta", "func_beta", "CONTAINS"),
+        ("snap_a", "mod_alpha", "func_old", "LEXICALLY_CONTAINS"),
+        ("snap_a", "mod_alpha", "func_beta", "LEXICALLY_CONTAINS"),
+        ("snap_b", "mod_alpha", "func_new", "LEXICALLY_CONTAINS"),
+        ("snap_b", "mod_beta", "func_beta", "LEXICALLY_CONTAINS"),
         ("snap_b", "mod_alpha", "mod_beta", "IMPORTS_DECLARED"),
     ]
     for snap, src, dst, edge_type in edges:
@@ -413,9 +413,9 @@ class Diagnostics:
             LEFT JOIN edges e
                 ON e.snapshot_id = ni.snapshot_id
                AND e.dst_structural_id = ni.structural_id
-               AND e.edge_type IN ('CONTAINS', 'DEFINES_METHOD')
+               AND e.edge_type IN ('LEXICALLY_CONTAINS', 'LEXICALLY_CONTAINS')
             WHERE ni.snapshot_id = ?
-              AND sn.node_type IN ('class', 'function', 'method')
+              AND sn.node_type IN ('type', 'callable', 'callable')
             GROUP BY ni.structural_id
             HAVING COUNT(e.dst_structural_id) = 0
             """,
@@ -462,7 +462,7 @@ class Diagnostics:
             SELECT e.dst_structural_id AS structural_id
             FROM edges e
             WHERE e.snapshot_id = ?
-              AND e.edge_type IN ('CONTAINS', 'DEFINES_METHOD')
+              AND e.edge_type IN ('LEXICALLY_CONTAINS', 'LEXICALLY_CONTAINS')
             GROUP BY e.dst_structural_id
             HAVING COUNT(*) > 1
             """,

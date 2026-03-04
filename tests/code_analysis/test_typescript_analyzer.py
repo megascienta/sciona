@@ -44,19 +44,19 @@ def test_typescript_analyzer_extracts_structure(tmp_path):
     analyzer.module_index = {module_name}
     result = analyzer.analyze(snapshot, module_name)
     node_types = {node.node_type for node in result.nodes}
-    assert {"module", "class", "function", "method"}.issubset(node_types)
+    assert {"module", "type", "callable"}.issubset(node_types)
     import_edges = [
         edge for edge in result.edges if edge.edge_type == "IMPORTS_DECLARED"
     ]
     assert not import_edges
     assert not [edge for edge in result.edges if edge.edge_type == "CALLS"]
-    method_edges = [edge for edge in result.edges if edge.edge_type == "DEFINES_METHOD"]
-    assert method_edges and method_edges[0].src_node_type == "class"
+    method_edges = [edge for edge in result.edges if edge.edge_type == "LEXICALLY_CONTAINS"]
+    assert method_edges
     call_records = {
         record.qualified_name: set(record.callee_identifiers)
         for record in result.call_records
     }
-    outer_name = f"{module_name}.outer"
+    outer_name = f"{module_name}.outer.inner"
     helper_name = f"{module_name}.helper"
     assert outer_name in call_records
     assert helper_name in call_records[outer_name]
@@ -64,7 +64,7 @@ def test_typescript_analyzer_extracts_structure(tmp_path):
 
 
 
-def test_typescript_nested_function_declaration_is_not_structural(tmp_path):
+def test_typescript_nested_function_declaration_is_structural(tmp_path):
     module = """
     export function outer() {
       function inner() {
@@ -98,22 +98,22 @@ def test_typescript_nested_function_declaration_is_not_structural(tmp_path):
     result = analyzer.analyze(snapshot, module_name)
 
     function_nodes = {
-        node.qualified_name for node in result.nodes if node.node_type == "function"
+        node.qualified_name for node in result.nodes if node.node_type == "callable"
     }
     assert f"{module_name}.outer" in function_nodes
     assert f"{module_name}.helper" in function_nodes
-    assert f"{module_name}.inner" not in function_nodes
+    assert f"{module_name}.outer.inner" in function_nodes
 
     call_records = {record.qualified_name for record in result.call_records}
-    assert f"{module_name}.inner" not in call_records
+    assert f"{module_name}.outer.inner" in call_records
     by_caller = {
         record.qualified_name: set(record.callee_identifiers)
         for record in result.call_records
     }
-    assert f"{module_name}.helper" in by_caller[f"{module_name}.outer"]
+    assert f"{module_name}.helper" in by_caller[f"{module_name}.outer.inner"]
 
 
-def test_typescript_nested_arrow_and_function_expression_are_not_structural(tmp_path):
+def test_typescript_nested_arrow_and_function_expression_are_structural_when_bound(tmp_path):
     module = """
     export function outer() {
       const innerArrow = () => 1;
@@ -143,14 +143,14 @@ def test_typescript_nested_arrow_and_function_expression_are_not_structural(tmp_
     analyzer.module_index = {module_name}
     result = analyzer.analyze(snapshot, module_name)
     function_nodes = {
-        node.qualified_name for node in result.nodes if node.node_type == "function"
+        node.qualified_name for node in result.nodes if node.node_type == "callable"
     }
     assert f"{module_name}.outer" in function_nodes
-    assert f"{module_name}.innerArrow" not in function_nodes
-    assert f"{module_name}.innerExpr" not in function_nodes
+    assert f"{module_name}.outer.innerArrow" in function_nodes
+    assert f"{module_name}.outer.innerExpr" in function_nodes
     callers = {record.qualified_name for record in result.call_records}
-    assert f"{module_name}.innerArrow" not in callers
-    assert f"{module_name}.innerExpr" not in callers
+    assert f"{module_name}.outer.innerArrow" not in callers
+    assert f"{module_name}.outer.innerExpr" not in callers
 
 
 def test_typescript_analyzer_collects_internal_imports_and_reexports(tmp_path):
@@ -771,12 +771,12 @@ def test_typescript_analyzer_keeps_method_in_class_declared_inside_function(tmp_
     analyzer.module_index = {module_name}
     result = analyzer.analyze(snapshot, module_name)
     qnames = {node.qualified_name for node in result.nodes}
-    assert f"{module_name}.Inner" in qnames
-    assert f"{module_name}.Inner.run" in qnames
+    assert f"{module_name}.outer.Inner" in qnames
+    assert f"{module_name}.outer.Inner.run" in qnames
     call_records = {
         rec.qualified_name: set(rec.callee_identifiers) for rec in result.call_records
     }
-    assert f"{module_name}.helper" in call_records[f"{module_name}.Inner.run"]
+    assert f"{module_name}.helper" in call_records[f"{module_name}.outer.Inner.run"]
 
 
 def test_typescript_analyzer_emits_kind_metadata_for_interface_and_signatures(tmp_path):
@@ -871,10 +871,10 @@ def test_typescript_analyzer_emits_function_and_async_metadata(tmp_path):
         node for node in result.nodes if node.qualified_name == f"{module_name}.Service.task"
     )
 
-    assert (load_node.metadata or {}).get("kind") == "async_function"
-    assert (worker_node.metadata or {}).get("kind") == "async_function"
-    assert (run_node.metadata or {}).get("kind") == "async_method"
-    assert (task_node.metadata or {}).get("kind") == "async_method"
+    assert (load_node.metadata or {}).get("kind") == "async_callable"
+    assert (worker_node.metadata or {}).get("kind") == "async_callable"
+    assert (run_node.metadata or {}).get("kind") == "async_callable"
+    assert (task_node.metadata or {}).get("kind") == "async_callable"
 
 
 def test_typescript_analyzer_emits_class_expression_bases_metadata(tmp_path):

@@ -8,6 +8,7 @@ from __future__ import annotations
 import sqlite3
 from typing import Iterable, Sequence
 
+from ...runtime import identity as ids
 from ...runtime.time import utc_now
 from ..encoding import bool_to_int
 from ..sql_utils import temp_id_table
@@ -58,6 +59,71 @@ def cleanup_removed_nodes(
         conn.execute(
             f"DELETE FROM node_calls WHERE callee_id NOT IN (SELECT node_id FROM {table})",
         )
+        conn.execute(
+            f"DELETE FROM call_sites WHERE caller_id NOT IN (SELECT node_id FROM {table})",
+        )
+
+
+def upsert_call_sites(
+    conn: sqlite3.Connection,
+    *,
+    snapshot_id: str,
+    caller_id: str,
+    caller_qname: str,
+    caller_node_type: str,
+    rows: Sequence[tuple[str, str, str | None, str | None, str | None, int]],
+) -> None:
+    conn.execute(
+        "DELETE FROM call_sites WHERE snapshot_id = ? AND caller_id = ?",
+        (snapshot_id, caller_id),
+    )
+    if not rows:
+        return
+    entries = []
+    for identifier, status, accepted_callee_id, provenance, drop_reason, candidate_count in rows:
+        site_hash = ids.structural_id(
+            "call_site",
+            "artifact",
+            f"{snapshot_id}:{caller_id}:{identifier}:{status}:{accepted_callee_id or ''}:{provenance or ''}:{drop_reason or ''}:{candidate_count}",
+        )
+        entries.append(
+            (
+                snapshot_id,
+                caller_id,
+                caller_qname,
+                caller_node_type,
+                identifier,
+                status,
+                accepted_callee_id,
+                provenance,
+                drop_reason,
+                candidate_count,
+                None,
+                None,
+                site_hash,
+            )
+        )
+    conn.executemany(
+        """
+        INSERT INTO call_sites(
+            snapshot_id,
+            caller_id,
+            caller_qname,
+            caller_node_type,
+            identifier,
+            resolution_status,
+            accepted_callee_id,
+            provenance,
+            drop_reason,
+            candidate_count,
+            call_start_byte,
+            call_end_byte,
+            site_hash
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        entries,
+    )
 
 
 def mark_rebuild_started(conn: sqlite3.Connection, *, snapshot_id: str) -> None:

@@ -11,6 +11,7 @@ from ..helpers import queries
 from ..helpers.artifact_graph_edges import (
     artifact_db_available,
     load_artifact_edges,
+    load_call_sites,
     load_call_resolution_diagnostics,
 )
 from ..helpers.render import render_json_payload, require_connection
@@ -99,7 +100,26 @@ def render(
         "edge_source": "artifact_db" if artifact_available else "none",
         "edge_count": len(enriched),
         "edges": enriched,
+        "call_sites": [],
     }
+    if artifact_available and repo_root is not None:
+        call_sites = load_call_sites(
+            repo_root,
+            snapshot_id=snapshot_id,
+            caller_id=resolved_id,
+        )
+        body["call_sites"] = [
+            {
+                "identifier": row.get("identifier"),
+                "resolution_status": row.get("resolution_status"),
+                "accepted_callee_id": row.get("accepted_callee_id"),
+                "provenance": row.get("provenance"),
+                "drop_reason": row.get("drop_reason"),
+                "candidate_count": row.get("candidate_count"),
+                "line_span": None,
+            }
+            for row in call_sites
+        ]
     if artifact_available and repo_root is not None:
         body["resolution_diagnostics"] = load_call_resolution_diagnostics(
             repo_root,

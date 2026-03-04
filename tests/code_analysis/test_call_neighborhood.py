@@ -28,7 +28,7 @@ def test_write_call_artifacts_resolves_function(tmp_path: Path):
                 CallExtractionRecord(
                     caller_structural_id="meth_alpha",
                     caller_qualified_name=f"{prefix}.pkg.alpha.Service.run",
-                    caller_node_type="method",
+                    caller_node_type="callable",
                     callee_identifiers=("helper",),
                 )
             ]
@@ -62,14 +62,14 @@ def test_write_call_artifacts_resolves_ambiguous_by_imports(tmp_path: Path):
             ("mod_gamma", "module", "python", f"{prefix}.pkg.gamma", "pkg/gamma/__init__.py"),
             (
                 "func_gamma",
-                "function",
+                "callable",
                 "python",
                 f"{prefix}.pkg.gamma.helper",
                 "pkg/gamma/helper.py",
             ),
             (
                 "func_beta_task",
-                "function",
+                "callable",
                 "python",
                 f"{prefix}.pkg.beta.task",
                 "pkg/beta/task.py",
@@ -110,14 +110,14 @@ def test_write_call_artifacts_resolves_ambiguous_by_imports(tmp_path: Path):
             INSERT INTO edges(snapshot_id, src_structural_id, dst_structural_id, edge_type)
             VALUES (?, ?, ?, ?)
             """,
-            (snapshot_id, "mod_gamma", "func_gamma", "CONTAINS"),
+            (snapshot_id, "mod_gamma", "func_gamma", "LEXICALLY_CONTAINS"),
         )
         core_conn.execute(
             """
             INSERT INTO edges(snapshot_id, src_structural_id, dst_structural_id, edge_type)
             VALUES (?, ?, ?, ?)
             """,
-            (snapshot_id, "mod_beta", "func_beta_task", "CONTAINS"),
+            (snapshot_id, "mod_beta", "func_beta_task", "LEXICALLY_CONTAINS"),
         )
         core_conn.commit()
 
@@ -129,7 +129,7 @@ def test_write_call_artifacts_resolves_ambiguous_by_imports(tmp_path: Path):
                 CallExtractionRecord(
                     caller_structural_id="func_beta_task",
                     caller_qualified_name=f"{prefix}.pkg.beta.task",
-                    caller_node_type="function",
+                    caller_node_type="callable",
                     callee_identifiers=("helper",),
                 )
             ]
@@ -166,7 +166,7 @@ def test_write_call_artifacts_resolves_fully_qualified_identifier(tmp_path: Path
                 CallExtractionRecord(
                     caller_structural_id="meth_alpha",
                     caller_qualified_name=f"{prefix}.pkg.alpha.Service.run",
-                    caller_node_type="method",
+                    caller_node_type="callable",
                     callee_identifiers=(f"{prefix}.pkg.alpha.service.helper",),
                 )
             ]
@@ -198,14 +198,14 @@ def test_write_call_artifacts_skips_ambiguous_same_module_resolution(tmp_path: P
         additions = [
             (
                 "func_alpha_alt",
-                "function",
+                "callable",
                 "python",
                 f"{prefix}.pkg.alpha.alt.helper",
                 "pkg/alpha/service.py",
             ),
             (
                 "func_beta_task",
-                "function",
+                "callable",
                 "python",
                 f"{prefix}.pkg.beta.task",
                 "pkg/beta/task.py",
@@ -246,14 +246,14 @@ def test_write_call_artifacts_skips_ambiguous_same_module_resolution(tmp_path: P
             INSERT INTO edges(snapshot_id, src_structural_id, dst_structural_id, edge_type)
             VALUES (?, ?, ?, ?)
             """,
-            (snapshot_id, "mod_beta", "func_beta_task", "CONTAINS"),
+            (snapshot_id, "mod_beta", "func_beta_task", "LEXICALLY_CONTAINS"),
         )
         core_conn.execute(
             """
             INSERT INTO edges(snapshot_id, src_structural_id, dst_structural_id, edge_type)
             VALUES (?, ?, ?, ?)
             """,
-            (snapshot_id, "mod_alpha", "func_alpha_alt", "CONTAINS"),
+            (snapshot_id, "mod_alpha", "func_alpha_alt", "LEXICALLY_CONTAINS"),
         )
         core_conn.commit()
 
@@ -265,7 +265,7 @@ def test_write_call_artifacts_skips_ambiguous_same_module_resolution(tmp_path: P
                 CallExtractionRecord(
                     caller_structural_id="func_beta_task",
                     caller_qualified_name=f"{prefix}.pkg.beta.task",
-                    caller_node_type="function",
+                    caller_node_type="callable",
                     callee_identifiers=("helper",),
                 )
             ]
@@ -300,7 +300,7 @@ def test_write_call_artifacts_rejects_unique_without_provenance_and_reports_diag
             INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
             VALUES (?, ?, ?, ?)
             """,
-            ("func_beta_task", "function", "python", snapshot_id),
+            ("func_beta_task", "callable", "python", snapshot_id),
         )
         core_conn.execute(
             """
@@ -324,7 +324,7 @@ def test_write_call_artifacts_rejects_unique_without_provenance_and_reports_diag
             INSERT INTO edges(snapshot_id, src_structural_id, dst_structural_id, edge_type)
             VALUES (?, ?, ?, ?)
             """,
-            (snapshot_id, "mod_beta", "func_beta_task", "CONTAINS"),
+            (snapshot_id, "mod_beta", "func_beta_task", "LEXICALLY_CONTAINS"),
         )
         core_conn.execute(
             """
@@ -347,7 +347,7 @@ def test_write_call_artifacts_rejects_unique_without_provenance_and_reports_diag
                 CallExtractionRecord(
                     caller_structural_id="func_beta_task",
                     caller_qualified_name=f"{prefix}.pkg.beta.task",
-                    caller_node_type="function",
+                    caller_node_type="callable",
                     callee_identifiers=("helper",),
                 )
             ]

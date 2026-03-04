@@ -53,7 +53,7 @@ def render(
         method_structural_id = queries.resolve_method_id(conn, snapshot_id, method_id)
         edges = load_artifact_edges(
             repo_path,
-            edge_kinds=["DEFINES_METHOD"],
+            edge_kinds=["LEXICALLY_CONTAINS"],
             dst_ids=[method_structural_id],
         )
         if edges:
@@ -85,8 +85,8 @@ def run(snapshot_id: str, **params) -> ClassOverviewPayload:
         raise ValueError("class_overview requires 'class_id'.")
 
     row = fetch_node_instance(conn, snapshot_id, class_id)
-    if row["node_type"] != "class":
-        raise ValueError(f"Node '{class_id}' is not a class.")
+    if row["node_type"] != "type":
+        raise ValueError(f"Node '{class_id}' is not a type.")
 
     repo_root = params.get("repo_root")
     repo_path = Path(repo_root) if repo_root else None
@@ -147,7 +147,7 @@ def _load_methods(
         return []
     edges = load_artifact_edges(
         repo_root,
-        edge_kinds=["DEFINES_METHOD"],
+        edge_kinds=["LEXICALLY_CONTAINS"],
         src_ids=[class_id],
     )
     method_ids = [dst for _, dst, _ in edges]
@@ -161,7 +161,7 @@ def _load_methods(
         JOIN structural_nodes sn ON sn.structural_id = ni.structural_id
         WHERE ni.snapshot_id = ?
           AND ni.structural_id IN ({placeholders})
-          AND sn.node_type = 'method'
+          AND sn.node_type = 'callable'
         """,
         (snapshot_id, *method_ids),
     ).fetchall()

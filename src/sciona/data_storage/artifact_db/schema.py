@@ -28,6 +28,32 @@ SCHEMA_STATEMENTS: list[str] = [
     ON node_calls(callee_id)
     """,
     """
+    CREATE TABLE IF NOT EXISTS call_sites (
+        snapshot_id TEXT NOT NULL,
+        caller_id TEXT NOT NULL,
+        caller_qname TEXT NOT NULL,
+        caller_node_type TEXT NOT NULL,
+        identifier TEXT NOT NULL,
+        resolution_status TEXT NOT NULL,     -- accepted/dropped
+        accepted_callee_id TEXT,
+        provenance TEXT,
+        drop_reason TEXT,
+        candidate_count INTEGER NOT NULL,
+        call_start_byte INTEGER,
+        call_end_byte INTEGER,
+        site_hash TEXT NOT NULL,
+        PRIMARY KEY (snapshot_id, caller_id, site_hash)
+    )
+    """,
+    """
+    CREATE INDEX IF NOT EXISTS idx_call_sites_caller
+    ON call_sites(snapshot_id, caller_id)
+    """,
+    """
+    CREATE INDEX IF NOT EXISTS idx_call_sites_status
+    ON call_sites(snapshot_id, resolution_status)
+    """,
+    """
     CREATE TABLE IF NOT EXISTS graph_nodes (
         node_id TEXT PRIMARY KEY,
         node_kind TEXT NOT NULL
@@ -193,19 +219,19 @@ def _ensure_graph_fk_schema(conn: sqlite3.Connection) -> None:
     conn.execute("DROP TABLE IF EXISTS class_call_edges")
     conn.execute("DROP TABLE IF EXISTS node_fan_stats")
     statements = [
-        SCHEMA_STATEMENTS[4],  # graph_edges
-        SCHEMA_STATEMENTS[8],  # module_call_edges
-        SCHEMA_STATEMENTS[11],  # class_call_edges
-        SCHEMA_STATEMENTS[14],  # node_fan_stats
-        SCHEMA_STATEMENTS[5],  # idx_graph_edges_src
-        SCHEMA_STATEMENTS[6],  # idx_graph_edges_dst
-        SCHEMA_STATEMENTS[7],  # idx_graph_edges_kind
-        SCHEMA_STATEMENTS[9],  # idx_module_call_edges_src
-        SCHEMA_STATEMENTS[10],  # idx_module_call_edges_dst
-        SCHEMA_STATEMENTS[12],  # idx_class_call_edges_src
-        SCHEMA_STATEMENTS[13],  # idx_class_call_edges_dst
-        SCHEMA_STATEMENTS[15],  # idx_node_fan_stats_kind
-        SCHEMA_STATEMENTS[16],  # idx_node_fan_stats_node
+        SCHEMA_STATEMENTS[7],  # graph_edges
+        SCHEMA_STATEMENTS[11],  # module_call_edges
+        SCHEMA_STATEMENTS[14],  # class_call_edges
+        SCHEMA_STATEMENTS[17],  # node_fan_stats
+        SCHEMA_STATEMENTS[8],  # idx_graph_edges_src
+        SCHEMA_STATEMENTS[9],  # idx_graph_edges_dst
+        SCHEMA_STATEMENTS[10],  # idx_graph_edges_kind
+        SCHEMA_STATEMENTS[12],  # idx_module_call_edges_src
+        SCHEMA_STATEMENTS[13],  # idx_module_call_edges_dst
+        SCHEMA_STATEMENTS[15],  # idx_class_call_edges_src
+        SCHEMA_STATEMENTS[16],  # idx_class_call_edges_dst
+        SCHEMA_STATEMENTS[18],  # idx_node_fan_stats_kind
+        SCHEMA_STATEMENTS[19],  # idx_node_fan_stats_node
     ]
     for statement in statements:
         conn.execute(statement)

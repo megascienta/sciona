@@ -12,6 +12,7 @@ from typing import List
 @dataclass
 class TypeScriptNodeState:
     class_stack: List[str] = field(default_factory=list)
+    callable_stack: List[str] = field(default_factory=list)
     module_functions: set[str] = field(default_factory=set)
     class_methods: dict[str, set[str]] = field(default_factory=dict)
     class_name_map: dict[str, str] = field(default_factory=dict)

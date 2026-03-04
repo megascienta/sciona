@@ -45,11 +45,12 @@ def test_persist_analysis_sorts_edges_by_source_target_edge_type(monkeypatch) ->
     monkeypatch.setattr(assembler, "_emit_structural_node", _fake_emit_structural_node)
     monkeypatch.setattr(assembler, "_emit_node_instances", _fake_emit_node_instances)
     monkeypatch.setattr(assembler, "_emit_edges", _fake_emit_edges)
+    monkeypatch.setattr(assembler, "_validate_lexical_containment", lambda _analysis: None)
 
     nodes = [
         SemanticNodeRecord(
             language="python",
-            node_type="function",
+            node_type="callable",
             qualified_name="pkg.mod.src",
             display_name="src",
             file_path=Path("pkg/mod.py"),
@@ -58,7 +59,7 @@ def test_persist_analysis_sorts_edges_by_source_target_edge_type(monkeypatch) ->
         ),
         SemanticNodeRecord(
             language="python",
-            node_type="function",
+            node_type="callable",
             qualified_name="pkg.mod.a",
             display_name="a",
             file_path=Path("pkg/mod.py"),
@@ -67,7 +68,7 @@ def test_persist_analysis_sorts_edges_by_source_target_edge_type(monkeypatch) ->
         ),
         SemanticNodeRecord(
             language="python",
-            node_type="function",
+            node_type="callable",
             qualified_name="pkg.mod.b",
             display_name="b",
             file_path=Path("pkg/mod.py"),
@@ -78,28 +79,28 @@ def test_persist_analysis_sorts_edges_by_source_target_edge_type(monkeypatch) ->
     edges = [
         EdgeRecord(
             src_language="python",
-            src_node_type="function",
+            src_node_type="callable",
             src_qualified_name="pkg.mod.src",
             dst_language="python",
-            dst_node_type="function",
+            dst_node_type="callable",
             dst_qualified_name="pkg.mod.b",
-            edge_type="CONTAINS",
+            edge_type="LEXICALLY_CONTAINS",
         ),
         EdgeRecord(
             src_language="python",
-            src_node_type="function",
+            src_node_type="callable",
             src_qualified_name="pkg.mod.src",
             dst_language="python",
-            dst_node_type="function",
+            dst_node_type="callable",
             dst_qualified_name="pkg.mod.a",
             edge_type="ZZZ",
         ),
         EdgeRecord(
             src_language="python",
-            src_node_type="function",
+            src_node_type="callable",
             src_qualified_name="pkg.mod.src",
             dst_language="python",
-            dst_node_type="function",
+            dst_node_type="callable",
             dst_qualified_name="pkg.mod.a",
             edge_type="AAA",
         ),
@@ -126,7 +127,7 @@ def test_persist_analysis_sorts_edges_by_source_target_edge_type(monkeypatch) ->
     assert captured == [
         ("pkg.mod.src", "pkg.mod.a", "AAA"),
         ("pkg.mod.src", "pkg.mod.a", "ZZZ"),
-        ("pkg.mod.src", "pkg.mod.b", "CONTAINS"),
+        ("pkg.mod.src", "pkg.mod.b", "LEXICALLY_CONTAINS"),
     ]
 
 
@@ -145,7 +146,7 @@ def test_normalize_call_records_strict_keeps_exact_qname() -> None:
             ),
             SemanticNodeRecord(
                 language="python",
-                node_type="function",
+                node_type="callable",
                 qualified_name="pkg.mod.entry",
                 display_name="entry",
                 file_path=Path("pkg/mod.py"),
@@ -157,7 +158,7 @@ def test_normalize_call_records_strict_keeps_exact_qname() -> None:
         call_records=[
             CallRecord(
                 qualified_name="pkg.mod.entry",
-                node_type="function",
+                node_type="callable",
                 callee_identifiers=["pkg.other.service.run"],
             )
         ],
@@ -196,7 +197,7 @@ def test_normalize_call_records_strict_drops_terminal_without_provenance() -> No
             ),
             SemanticNodeRecord(
                 language="python",
-                node_type="function",
+                node_type="callable",
                 qualified_name="pkg.mod.entry",
                 display_name="entry",
                 file_path=Path("pkg/mod.py"),
@@ -208,7 +209,7 @@ def test_normalize_call_records_strict_drops_terminal_without_provenance() -> No
         call_records=[
             CallRecord(
                 qualified_name="pkg.mod.entry",
-                node_type="function",
+                node_type="callable",
                 callee_identifiers=["run"],
             )
         ],
@@ -254,7 +255,7 @@ def test_normalize_call_records_strict_accepts_module_scoped_terminal() -> None:
             ),
             SemanticNodeRecord(
                 language="python",
-                node_type="function",
+                node_type="callable",
                 qualified_name="pkg.mod.entry",
                 display_name="entry",
                 file_path=Path("pkg/mod.py"),
@@ -263,7 +264,7 @@ def test_normalize_call_records_strict_accepts_module_scoped_terminal() -> None:
             ),
             SemanticNodeRecord(
                 language="python",
-                node_type="function",
+                node_type="callable",
                 qualified_name="pkg.mod.run",
                 display_name="run",
                 file_path=Path("pkg/mod.py"),
@@ -275,7 +276,7 @@ def test_normalize_call_records_strict_accepts_module_scoped_terminal() -> None:
         call_records=[
             CallRecord(
                 qualified_name="pkg.mod.entry",
-                node_type="function",
+                node_type="callable",
                 callee_identifiers=["run"],
             )
         ],

@@ -74,10 +74,30 @@ def upsert_node_calls(
     )
 
 
+def upsert_call_sites(
+    conn,
+    *,
+    snapshot_id: str,
+    caller_id: str,
+    caller_qname: str,
+    caller_node_type: str,
+    rows: Sequence[tuple[str, str, str | None, str | None, str | None, int]],
+) -> None:
+    write_index.upsert_call_sites(
+        conn,
+        snapshot_id=snapshot_id,
+        caller_id=caller_id,
+        caller_qname=caller_qname,
+        caller_node_type=caller_node_type,
+        rows=rows,
+    )
+
+
 __all__ = [
     "list_call_edges",
     "list_graph_edges",
     "reset_graph_rollups",
+    "upsert_call_sites",
     "upsert_node_calls",
     "write_class_call_edges",
     "write_module_call_edges",

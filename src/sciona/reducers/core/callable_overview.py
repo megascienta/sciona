@@ -90,8 +90,8 @@ def run(snapshot_id: str, **params) -> CallableOverviewPayload:
         row = fetch_node_instance(conn, snapshot_id, resolved_id)
     except ValueError:
         row = _fetch_by_qualified_name(conn, snapshot_id, resolved_id)
-    if row["node_type"] not in {"function", "method"}:
-        raise ValueError(f"Node '{resolved_id}' is not a function or method.")
+    if row["node_type"] != "callable":
+        raise ValueError(f"Node '{resolved_id}' is not a callable.")
 
     module_name = queries.module_id_for_structural(
         conn, snapshot_id, row["structural_id"]
@@ -168,7 +168,7 @@ def _resolve_parent(
         return {"structural_id": None, "node_type": None, "qualified_name": None}
     edges = load_artifact_edges(
         repo_root,
-        edge_kinds=["CONTAINS", "DEFINES_METHOD"],
+        edge_kinds=["LEXICALLY_CONTAINS"],
         dst_ids=[structural_id],
     )
     if not edges:
@@ -219,7 +219,7 @@ def _fetch_by_qualified_name(conn, snapshot_id: str, qualified_name: str):
         JOIN node_instances ni ON ni.structural_id = sn.structural_id
         WHERE ni.snapshot_id = ?
           AND ni.qualified_name = ?
-          AND sn.node_type IN ('function', 'method')
+          AND sn.node_type = 'callable'
         LIMIT 1
         """,
         (snapshot_id, qualified_name),

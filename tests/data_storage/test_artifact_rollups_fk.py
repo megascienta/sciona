@@ -30,7 +30,7 @@ def test_rollups_use_structural_ids_for_module_edges(tmp_path: Path):
             CallExtractionRecord(
                 caller_structural_id="meth_alpha",
                 caller_qualified_name=f"{prefix}.pkg.alpha.Service.run",
-                caller_node_type="method",
+                caller_node_type="callable",
                 callee_identifiers=("helper",),
             )
         ]
@@ -74,7 +74,7 @@ def test_rollups_full_rebuild_is_idempotent(tmp_path: Path):
             CallExtractionRecord(
                 caller_structural_id="meth_alpha",
                 caller_qualified_name=f"{prefix}.pkg.alpha.Service.run",
-                caller_node_type="method",
+                caller_node_type="callable",
                 callee_identifiers=("helper",),
             )
         ]

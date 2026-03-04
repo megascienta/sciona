@@ -46,7 +46,7 @@ def normalize_call_identifiers(
 
 def _module_scope_for_call(qualified_name: str, node_type: str) -> str:
     parts = qualified_name.split(".")
-    if node_type == "method":
+    if node_type == "callable":
         if len(parts) > 2:
             return ".".join(parts[:-2])
         return qualified_name

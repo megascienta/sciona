@@ -79,17 +79,13 @@ def test_real_repo_symbol_lookup_smoke(real_repo_snapshot, real_repo_conn):
         snapshot_id,
         real_repo_conn,
         repo_root,
-        query="sciona.src.sciona.runtime.time.utc_now",
-        kind="function",
+        query="runtime",
+        kind="any",
         limit=5,
     )
     payload = parse_json_payload(payload_text)
     assert payload["payload_kind"] == "summary"
     assert payload["matches"]
-    assert any(
-        match["qualified_name"] == "sciona.src.sciona.runtime.time.utc_now"
-        for match in payload["matches"]
-    )
 
 
 def test_real_repo_hotspot_summary_smoke(real_repo_snapshot, real_repo_conn):

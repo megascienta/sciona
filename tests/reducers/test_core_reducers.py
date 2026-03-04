@@ -117,7 +117,7 @@ export function createWidget(name: string): WidgetService {
         ),
         (
             ids["class_order"],
-            "class",
+            "type",
             "python",
             _pq("pkg.alpha.service.OrderService"),
             "pkg/alpha/service.py",
@@ -126,7 +126,7 @@ export function createWidget(name: string): WidgetService {
         ),
         (
             ids["function_helper"],
-            "function",
+            "callable",
             "python",
             _pq("pkg.alpha.service.helper"),
             "pkg/alpha/service.py",
@@ -135,7 +135,7 @@ export function createWidget(name: string): WidgetService {
         ),
         (
             ids["method_one"],
-            "method",
+            "callable",
             "python",
             _pq("pkg.alpha.service.OrderService.method_one"),
             "pkg/alpha/service.py",
@@ -153,7 +153,7 @@ export function createWidget(name: string): WidgetService {
         ),
         (
             ids["ts_class"],
-            "class",
+            "type",
             "typescript",
             _pq("pkg.ts.service.WidgetService"),
             "pkg/ts/service.ts",
@@ -162,7 +162,7 @@ export function createWidget(name: string): WidgetService {
         ),
         (
             ids["ts_function"],
-            "function",
+            "callable",
             "typescript",
             _pq("pkg.ts.service.createWidget"),
             "pkg/ts/service.ts",
@@ -210,12 +210,12 @@ export function createWidget(name: string): WidgetService {
         )
 
     edges = [
-        (ids["module_alpha"], ids["class_order"], "CONTAINS"),
-        (ids["module_alpha"], ids["function_helper"], "CONTAINS"),
-        (ids["class_order"], ids["method_one"], "DEFINES_METHOD"),
+        (ids["module_alpha"], ids["class_order"], "LEXICALLY_CONTAINS"),
+        (ids["module_alpha"], ids["function_helper"], "LEXICALLY_CONTAINS"),
+        (ids["class_order"], ids["method_one"], "LEXICALLY_CONTAINS"),
         (ids["module_alpha"], ids["module_beta"], "IMPORTS_DECLARED"),
-        (ids["module_ts"], ids["ts_class"], "CONTAINS"),
-        (ids["module_ts"], ids["ts_function"], "CONTAINS"),
+        (ids["module_ts"], ids["ts_class"], "LEXICALLY_CONTAINS"),
+        (ids["module_ts"], ids["ts_function"], "LEXICALLY_CONTAINS"),
     ]
     for src, dst, edge_type in edges:
         conn.execute(
@@ -371,7 +371,7 @@ def test_callable_source_skips_directory_path(tmp_path):
             INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
             VALUES (?, ?, ?, ?)
             """,
-            ("func_dir", "function", "python", snapshot_id),
+            ("func_dir", "callable", "python", snapshot_id),
         )
         conn.execute(
             """
@@ -464,7 +464,7 @@ def test_symbol_lookup_deterministic_prelimit_with_duplicate_names(tmp_path):
                 INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
                 VALUES (?, ?, ?, ?)
                 """,
-                (structural_id, "function", "python", snapshot_id),
+                (structural_id, "callable", "python", snapshot_id),
             )
             conn.execute(
                 """
@@ -489,7 +489,7 @@ def test_symbol_lookup_deterministic_prelimit_with_duplicate_names(tmp_path):
             conn,
             repo_root,
             query=_q(repo_root, "pkg.duplicate.target"),
-            kind="function",
+            kind="callable",
             limit=1,
         )
     finally:
@@ -723,13 +723,13 @@ def test_structural_index_reducer_reports_modules_and_cycles(tmp_path):
     modules = payload["modules"]["entries"]
     assert modules[0]["module_qualified_name"] == _q(repo_root, "pkg.alpha")
     assert modules[0]["file_count"] == 2
-    assert modules[0]["function_count"] == 1
-    assert modules[0]["method_count"] == 1
+    assert modules[0]["method_count"] == 2
     assert payload["files"]["count"] >= 2
     assert payload["classes"]["entries"][0]["qualified_name"].startswith(
         _q(repo_root, "pkg.alpha")
     )
-    assert payload["functions"]["by_module"][0]["module_qualified_name"] == _q(
+    assert payload["functions"]["by_module"] == []
+    assert payload["methods"]["by_module"][0]["module_qualified_name"] == _q(
         repo_root, "pkg.alpha"
     )
     edges = payload["imports"]["edges"]
@@ -936,7 +936,7 @@ def test_module_overview_reducer_lists_children_and_imports(tmp_path):
     assert payload["functions"][0]["qualified_name"] == _q(
         repo["repo_root"], "pkg.alpha.service.helper"
     )
-    assert payload["node_counts"] == {"classes": 1, "functions": 1, "methods": 1}
+    assert payload["node_counts"] == {"types": 1, "callables": 1}
     assert payload["language_breakdown"] == {"python": 3}
     assert payload["imports"] == [
         {
@@ -969,7 +969,7 @@ def test_module_overview_reducer_expands_package_modules(tmp_path):
     assert payload["functions"][0]["qualified_name"] == _q(
         repo["repo_root"], "pkg.alpha.service.helper"
     )
-    assert payload["node_counts"] == {"classes": 1, "functions": 1, "methods": 1}
+    assert payload["node_counts"] == {"types": 1, "callables": 1}
     assert payload["imports"] == [
         {
             "module_structural_id": repo["ids"]["module_beta"],
@@ -1016,14 +1016,14 @@ def test_module_overview_reducer_exposes_nests_edges(tmp_path):
             INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
             VALUES (?, ?, ?, ?)
             """,
-            (outer_id, "class", "python", snapshot_id),
+            (outer_id, "type", "python", snapshot_id),
         )
         conn.execute(
             """
             INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
             VALUES (?, ?, ?, ?)
             """,
-            (inner_id, "class", "python", snapshot_id),
+            (inner_id, "type", "python", snapshot_id),
         )
         conn.execute(
             """
@@ -1064,21 +1064,14 @@ def test_module_overview_reducer_exposes_nests_edges(tmp_path):
             INSERT INTO edges(snapshot_id, src_structural_id, dst_structural_id, edge_type)
             VALUES (?, ?, ?, ?)
             """,
-            (snapshot_id, module_alpha, outer_id, "CONTAINS"),
+            (snapshot_id, module_alpha, outer_id, "LEXICALLY_CONTAINS"),
         )
         conn.execute(
             """
             INSERT INTO edges(snapshot_id, src_structural_id, dst_structural_id, edge_type)
             VALUES (?, ?, ?, ?)
             """,
-            (snapshot_id, outer_id, inner_id, "CONTAINS"),
-        )
-        conn.execute(
-            """
-            INSERT INTO edges(snapshot_id, src_structural_id, dst_structural_id, edge_type)
-            VALUES (?, ?, ?, ?)
-            """,
-            (snapshot_id, outer_id, inner_id, "NESTS"),
+            (snapshot_id, outer_id, inner_id, "LEXICALLY_CONTAINS"),
         )
         conn.commit()
         artifact_conn = artifact_connect(
@@ -1102,11 +1095,5 @@ def test_module_overview_reducer_exposes_nests_edges(tmp_path):
     finally:
         conn.close()
 
-    assert payload["nested_classes"] == [
-        {
-            "parent_structural_id": outer_id,
-            "parent_qualified_name": outer_q,
-            "child_structural_id": inner_id,
-            "child_qualified_name": inner_q,
-        }
-    ]
+    class_qnames = {entry["qualified_name"] for entry in payload["classes"]}
+    assert outer_q in class_qnames

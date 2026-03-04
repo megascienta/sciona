@@ -22,7 +22,7 @@ def _build_references(
     callable_ids = [
         match["structural_id"]
         for match in matches
-        if match["node_type"] in {"function", "method"}
+        if match["node_type"] == "callable"
     ]
     module_ids = [
         match["structural_id"] for match in matches if match["node_type"] == "module"

@@ -58,7 +58,7 @@ def render(
         FROM structural_nodes sn
         JOIN node_instances ni ON ni.structural_id = sn.structural_id
         WHERE ni.snapshot_id = ?
-          AND sn.node_type IN ('module', 'class', 'function', 'method')
+          AND sn.node_type IN ('module', 'type', 'callable')
         ORDER BY ni.file_path, ni.start_line, ni.qualified_name
         """,
         (snapshot_id,),

@@ -13,14 +13,14 @@ def build_walker_capabilities() -> dict[str, list[dict[str, object]]]:
             {
                 "construct": "class_declaration",
                 "node_types": ["class_definition"],
-                "emits_nodes": ["class"],
-                "emits_edges": ["CONTAINS", "NESTS"],
+                "emits_nodes": ["type"],
+                "emits_edges": ["LEXICALLY_CONTAINS"],
             },
             {
                 "construct": "function_declaration",
                 "node_types": ["function_definition", "async_function_definition"],
-                "emits_nodes": ["function", "method"],
-                "emits_edges": ["CONTAINS", "DEFINES_METHOD"],
+                "emits_nodes": ["callable"],
+                "emits_edges": ["LEXICALLY_CONTAINS"],
             },
             {
                 "construct": "decorated_definition_unwrap",
@@ -44,8 +44,8 @@ def build_walker_capabilities() -> dict[str, list[dict[str, object]]]:
                     "abstract_class_declaration",
                     "interface_declaration",
                 ],
-                "emits_nodes": ["class"],
-                "emits_edges": ["CONTAINS", "NESTS"],
+                "emits_nodes": ["type"],
+                "emits_edges": ["LEXICALLY_CONTAINS"],
             },
             {
                 "construct": "callable_declaration",
@@ -55,8 +55,8 @@ def build_walker_capabilities() -> dict[str, list[dict[str, object]]]:
                     "method_signature",
                     "abstract_method_signature",
                 ],
-                "emits_nodes": ["function", "method"],
-                "emits_edges": ["CONTAINS", "DEFINES_METHOD"],
+                "emits_nodes": ["callable"],
+                "emits_edges": ["LEXICALLY_CONTAINS"],
             },
             {
                 "construct": "class_and_function_expressions",
@@ -66,8 +66,8 @@ def build_walker_capabilities() -> dict[str, list[dict[str, object]]]:
                     "arrow_function",
                     "function_expression",
                 ],
-                "emits_nodes": ["class", "function", "method"],
-                "emits_edges": ["CONTAINS", "DEFINES_METHOD", "NESTS"],
+                "emits_nodes": ["type", "callable"],
+                "emits_edges": ["LEXICALLY_CONTAINS"],
                 "constraints": [
                     "function/method emission only for module-level bindings or class member fields; nested expressions are non-structural"
                 ],
@@ -95,8 +95,8 @@ def build_walker_capabilities() -> dict[str, list[dict[str, object]]]:
                     "enum_declaration",
                     "record_declaration",
                 ],
-                "emits_nodes": ["class"],
-                "emits_edges": ["CONTAINS", "NESTS"],
+                "emits_nodes": ["type"],
+                "emits_edges": ["LEXICALLY_CONTAINS"],
             },
             {
                 "construct": "method_like_declaration",
@@ -105,8 +105,8 @@ def build_walker_capabilities() -> dict[str, list[dict[str, object]]]:
                     "constructor_declaration",
                     "compact_constructor_declaration",
                 ],
-                "emits_nodes": ["method"],
-                "emits_edges": ["DEFINES_METHOD"],
+                "emits_nodes": ["callable"],
+                "emits_edges": ["LEXICALLY_CONTAINS"],
             },
             {
                 "construct": "field_type_tracking",

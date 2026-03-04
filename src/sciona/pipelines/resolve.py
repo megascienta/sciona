@@ -142,8 +142,12 @@ def require_identifier(
 
 def _node_types_for_kind(kind: str) -> Sequence[str]:
     if kind == "callable":
-        return ("function", "method")
-    if kind in {"function", "method", "class", "module"}:
+        return ("callable",)
+    if kind in {"function", "method"}:
+        return ("callable",)
+    if kind == "class":
+        return ("type",)
+    if kind in {"module", "type", "callable"}:
         return (kind,)
     raise ValueError(f"Unknown identifier kind '{kind}'.")
 

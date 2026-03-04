@@ -79,6 +79,7 @@ class StructuralAssembler:
         file_snapshot: FileSnapshot,
     ) -> tuple[int, Dict[str, Tuple[str, str]]]:
         analysis = self._normalize_call_records(analysis, file_snapshot)
+        self._validate_lexical_containment(analysis)
         nodes = sorted(
             analysis.nodes, key=lambda node: (node.node_type, node.qualified_name)
         )
@@ -101,6 +102,56 @@ class StructuralAssembler:
         )
         self._emit_edges(snapshot_id, edges, node_id_map)
         return node_count, node_id_map
+
+    def _validate_lexical_containment(self, analysis: AnalysisResult) -> None:
+        structural_nodes = {
+            (node.node_type, node.qualified_name): node
+            for node in analysis.nodes
+            if node.node_type in {"module", "type", "callable"}
+        }
+        parent_by_child: dict[tuple[str, str], tuple[str, str]] = {}
+        for edge in analysis.edges:
+            if edge.edge_type != "LEXICALLY_CONTAINS":
+                continue
+            parent_key = (edge.src_node_type, edge.src_qualified_name)
+            child_key = (edge.dst_node_type, edge.dst_qualified_name)
+            if child_key[0] == "module":
+                raise ValueError("Lexical containment cannot target a module node.")
+            existing_parent = parent_by_child.get(child_key)
+            if existing_parent and existing_parent != parent_key:
+                raise ValueError(
+                    "Structural node has multiple lexical parents: "
+                    f"{child_key[1]} <- {existing_parent[1]}, {parent_key[1]}"
+                )
+            parent_by_child[child_key] = parent_key
+            parent_node = structural_nodes.get(parent_key)
+            child_node = structural_nodes.get(child_key)
+            if not parent_node or not child_node:
+                continue
+            if (
+                parent_node.start_byte is None
+                or parent_node.end_byte is None
+                or child_node.start_byte is None
+                or child_node.end_byte is None
+            ):
+                continue
+            if not (
+                parent_node.start_byte < child_node.start_byte
+                and parent_node.end_byte > child_node.end_byte
+            ):
+                raise ValueError(
+                    "Lexical containment span invariant violated: "
+                    f"{parent_node.qualified_name} does not strictly enclose {child_node.qualified_name}"
+                )
+        for key in structural_nodes:
+            node_type, qualified_name = key
+            if node_type == "module":
+                continue
+            if key not in parent_by_child:
+                raise ValueError(
+                    "Structural node missing lexical parent: "
+                    f"{qualified_name} ({node_type})"
+                )
 
     def _normalize_call_records(
         self,

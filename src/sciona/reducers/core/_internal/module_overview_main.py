@@ -126,10 +126,9 @@ def run(snapshot_id: str, **params) -> ModuleOverviewPayload:
     module_file_entries = (
         _module_file_entries(conn, snapshot_id, module_ids) if include_file_map else []
     )
-    classes = _list_children(conn, snapshot_id, module_ids, "class", repo_path)
-    functions = _list_children(conn, snapshot_id, module_ids, "function", repo_path)
-    methods = _list_methods(conn, snapshot_id, module_ids, repo_path)
-    nested_classes = _list_nested_classes(conn, snapshot_id, module_ids, repo_path)
+    types = _list_children(conn, snapshot_id, module_ids, "type", repo_path)
+    callables = _list_children(conn, snapshot_id, module_ids, "callable", repo_path)
+    nested_types = _list_nested_classes(conn, snapshot_id, module_ids, repo_path)
     imports = _list_imports(conn, snapshot_id, module_ids, repo_path)
     language_breakdown = _language_breakdown(conn, snapshot_id, module_ids, repo_path)
 
@@ -150,14 +149,16 @@ def run(snapshot_id: str, **params) -> ModuleOverviewPayload:
         "line_span_hash": line_span_hash(repo_path, row["file_path"], line_span),
         "files": files,
         "file_count": len(files),
-        "classes": classes,
-        "functions": functions,
-        "methods": methods,
-        "nested_classes": nested_classes,
+        "types": types,
+        "callables": callables,
+        "nested_types": nested_types,
+        "classes": types,
+        "functions": callables,
+        "methods": _list_methods(conn, snapshot_id, module_ids, repo_path),
+        "nested_classes": nested_types,
         "node_counts": {
-            "classes": len(classes),
-            "functions": len(functions),
-            "methods": len(methods),
+            "types": len(types),
+            "callables": len(callables),
         },
         "language_breakdown": language_breakdown,
         "imports": imports,

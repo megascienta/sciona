@@ -17,6 +17,7 @@ from .shared import node_text as shared_node_text
 @dataclass
 class JavaNodeState:
     class_stack: List[str] = field(default_factory=list)
+    callable_stack: List[str] = field(default_factory=list)
     module_functions: set[str] = field(default_factory=set)
     class_methods: dict[str, set[str]] = field(default_factory=dict)
     class_name_map: dict[str, str] = field(default_factory=dict)
@@ -102,7 +103,11 @@ def walk_java_nodes(
             return
         if state.class_stack:
             parent = state.class_stack[-1]
-            parent_node_type = "class"
+            parent_node_type = "type"
+            qualified = f"{parent}.{class_name}"
+        elif state.callable_stack:
+            parent = state.callable_stack[-1]
+            parent_node_type = "callable"
             qualified = f"{parent}.{class_name}"
         else:
             parent = module_name
@@ -111,7 +116,7 @@ def walk_java_nodes(
         result.nodes.append(
             SemanticNodeRecord(
                 language=language,
-                node_type="class",
+                node_type="type",
                 qualified_name=qualified,
                 display_name=class_name,
                 file_path=snapshot.record.relative_path,
@@ -131,23 +136,11 @@ def walk_java_nodes(
                 src_node_type=parent_node_type,
                 src_qualified_name=parent,
                 dst_language=language,
-                dst_node_type="class",
+                dst_node_type="type",
                 dst_qualified_name=qualified,
-                edge_type="CONTAINS",
+                edge_type="LEXICALLY_CONTAINS",
             )
         )
-        if parent_node_type == "class":
-            result.edges.append(
-                EdgeRecord(
-                    src_language=language,
-                    src_node_type=parent_node_type,
-                    src_qualified_name=parent,
-                    dst_language=language,
-                    dst_node_type="class",
-                    dst_qualified_name=qualified,
-                    edge_type="NESTS",
-                )
-            )
         body = node.child_by_field_name("body")
         state.class_stack.append(qualified)
         state.class_methods.setdefault(qualified, set())
@@ -182,7 +175,7 @@ def walk_java_nodes(
             return
         if not state.class_stack:
             return
-        node_type = "method"
+        node_type = "callable"
         parent = state.class_stack[-1]
         state.class_methods.setdefault(parent, set()).add(func_name)
         qualified = f"{parent}.{func_name}"
@@ -213,19 +206,36 @@ def walk_java_nodes(
         result.edges.append(
             EdgeRecord(
                 src_language=language,
-                src_node_type="class",
+                src_node_type="type",
                 src_qualified_name=parent,
                 dst_language=language,
                 dst_node_type=node_type,
                 dst_qualified_name=qualified,
-                edge_type="DEFINES_METHOD",
+                edge_type="LEXICALLY_CONTAINS",
             )
         )
         if node.type in {"constructor_declaration", "compact_constructor_declaration"}:
             constructor_fields = collect_constructor_field_types(body_node, snapshot)
             for field_name, type_text in constructor_fields.items():
                 state.class_field_types.setdefault(parent, {})[field_name] = type_text
+        metadata = result.nodes[-1].metadata or {}
+        metadata["callable_role"] = "constructor" if "constructor" in callable_kind else "declared"
+        result.nodes[-1].metadata = metadata
         state.pending_calls.append((qualified, node_type, body_node, parent))
+        state.callable_stack.append(qualified)
+        if body_node:
+            for child in _java_structural_children(body_node):
+                walk_java_nodes(
+                    child,
+                    language=language,
+                    snapshot=snapshot,
+                    module_name=module_name,
+                    result=result,
+                    state=state,
+                    collect_declared_vars=collect_declared_vars,
+                    collect_constructor_field_types=collect_constructor_field_types,
+                )
+        state.callable_stack.pop()
         return
 
     if node.type == "field_declaration" and state.class_stack:

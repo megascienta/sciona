@@ -25,13 +25,9 @@ from ....code_analysis.analysis.orderings import order_edges, order_nodes
 from ...helpers.artifact_graph_edges import artifact_db_available, load_artifact_edges
 from ...helpers.types import StructuralIndexPayload
 
-CLASS_NODE_TYPES = {"class", "interface"}
+TYPE_NODE_TYPES = {"type"}
 
-CALLABLE_NODE_TYPES = {"function", "method"}
-
-FUNCTION_NODE_TYPES = {"function"}
-
-METHOD_NODE_TYPES = {"method"}
+CALLABLE_NODE_TYPES = {"callable"}
 
 def _module_summaries(
     conn, snapshot_id: str, module_graph
@@ -72,17 +68,24 @@ def _module_summaries(
         if not module_name:
             continue
         node_type = row["node_type"]
+        qualified_name = row["qualified_name"]
         file_path = row["file_path"]
         if file_path:
             module_files.setdefault(module_name, set()).add(file_path)
             file_path_votes[file_path][module_name] += 1
-        if node_type in FUNCTION_NODE_TYPES:
-            function_counts[module_name] = function_counts.get(module_name, 0) + 1
-            function_languages[row["language"]] += 1
-        if node_type in METHOD_NODE_TYPES:
-            method_counts[module_name] = method_counts.get(module_name, 0) + 1
-            method_languages[row["language"]] += 1
-        if node_type in CLASS_NODE_TYPES:
+        if node_type in CALLABLE_NODE_TYPES:
+            callable_suffix = (
+                qualified_name[len(module_name) + 1 :]
+                if qualified_name.startswith(f"{module_name}.")
+                else qualified_name
+            )
+            if "." in callable_suffix:
+                method_counts[module_name] = method_counts.get(module_name, 0) + 1
+                method_languages[row["language"]] += 1
+            else:
+                function_counts[module_name] = function_counts.get(module_name, 0) + 1
+                function_languages[row["language"]] += 1
+        if node_type in TYPE_NODE_TYPES:
             class_counts[module_name] = class_counts.get(module_name, 0) + 1
     module_entries: List[Dict[str, object]] = []
     for module in sorted(module_graph.nodes):
@@ -155,7 +158,7 @@ def _class_entries(
         FROM structural_nodes sn
         JOIN node_instances ni ON ni.structural_id = sn.structural_id
         WHERE ni.snapshot_id = ?
-          AND sn.node_type IN ('class', 'interface')
+          AND sn.node_type = 'type'
         """,
         (snapshot_id,),
     ).fetchall()

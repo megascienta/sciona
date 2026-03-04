@@ -21,7 +21,7 @@ def register(app: typer.Typer) -> None:
         kind: str = typer.Option(
             ...,
             "--kind",
-            help="Identifier kind: callable, function, method, class, or module.",
+            help="Identifier kind: callable, type, class, function, method, or module.",
         ),
         limit: int = typer.Option(5, "--limit", help="Maximum candidates to return."),
         json_output: bool = typer.Option(
