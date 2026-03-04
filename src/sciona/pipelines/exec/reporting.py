@@ -174,19 +174,23 @@ def snapshot_report(
     rows: list[LanguageMetrics] = []
     for language in languages:
         current = language_metrics[language]
+        call_totals = call_site_totals.get(
+            language,
+            {"eligible": 0, "accepted": 0, "dropped": 0},
+        )
         rows.append(
             LanguageMetrics(
                 language=language,
                 files=current.files,
                 nodes=current.nodes,
                 edges=current.edges,
-                call_sites_eligible=call_site_totals.get(language, {}).get("eligible")
+                call_sites_eligible=call_totals.get("eligible")
                 if artifact_available
                 else None,
-                call_sites_accepted=call_site_totals.get(language, {}).get("accepted")
+                call_sites_accepted=call_totals.get("accepted")
                 if artifact_available
                 else None,
-                call_sites_dropped=call_site_totals.get(language, {}).get("dropped")
+                call_sites_dropped=call_totals.get("dropped")
                 if artifact_available
                 else None,
                 drop_reasons=call_site_reasons.get(language, {}),

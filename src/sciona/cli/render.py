@@ -92,8 +92,9 @@ def _render_summary_lines(
         files = int(item.get("files") or 0)
         nodes = int(item.get("nodes") or 0)
         edges = int(item.get("edges") or 0)
+        lines.append(f"{indent}{language}: {files} files, {nodes} nodes, {edges} edges")
         lines.append(
-            f"{indent}{language}: {files} files, {nodes} nodes, {edges} edges, "
+            f"{indent}  call_materialization: "
             f"{_format_call_site_summary(item.get('call_sites') or {})}"
         )
         if include_reasons:
@@ -107,8 +108,9 @@ def _render_summary_lines(
     total_files = int(totals.get("files") or 0)
     total_nodes = int(totals.get("nodes") or 0)
     total_edges = int(totals.get("edges") or 0)
+    lines.append(f"{indent}total: {total_files} files, {total_nodes} nodes, {total_edges} edges")
     lines.append(
-        f"{indent}total: {total_files} files, {total_nodes} nodes, {total_edges} edges, "
+        f"{indent}  call_materialization: "
         f"{_format_call_site_summary(totals.get('call_sites') or {})}"
     )
     if not summary.get("artifact_db_available", False):

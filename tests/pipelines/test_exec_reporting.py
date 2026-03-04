@@ -21,6 +21,11 @@ def test_snapshot_report_returns_db_counts(repo_with_snapshot):
     assert payload["totals"]["call_sites"]["eligible"] == 0
     assert payload["totals"]["call_sites"]["accepted"] == 0
     assert payload["totals"]["call_sites"]["dropped"] == 0
+    by_language = {entry["language"]: entry for entry in payload["languages"]}
+    python = by_language["python"]
+    assert python["call_sites"]["eligible"] == 0
+    assert python["call_sites"]["accepted"] == 0
+    assert python["call_sites"]["dropped"] == 0
 
 
 def test_snapshot_report_full_includes_failure_reasons(repo_with_snapshot):
