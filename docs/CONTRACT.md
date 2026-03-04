@@ -72,7 +72,8 @@ SCIONA MUST emit these edge types:
 - `module` is the only lexical root.
 - Every non-`module` structural node MUST have exactly one lexical parent.
 - Parent and child MUST be from the same module/file lexical tree.
-- Parent source span MUST strictly enclose child source span.
+- Parent source span MUST contain child source span.
+- Parent and child source spans MUST NOT be identical.
 - Graph MUST be acyclic.
 - Allowed pairs:
   - `module -> type`

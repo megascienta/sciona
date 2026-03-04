@@ -13,7 +13,8 @@ contract in `docs/CONTRACT.md`.
   `LEXICALLY_CONTAINS`, `IMPORTS_DECLARED`, `CALLS`, `EXTENDS`, `IMPLEMENTS`.
 - `module` is lexical root; each non-`module` structural node has exactly one
   lexical parent.
-- Parent span strictly encloses child span for `LEXICALLY_CONTAINS`.
+- Parent span contains child span and is not identical to child span for
+  `LEXICALLY_CONTAINS`.
 - Lexical structural graph is acyclic.
 - Constructors are represented as `callable` with role `constructor`.
 - Canonical module identity is path-derived (not alias-derived).
