@@ -8,11 +8,10 @@ from __future__ import annotations
 from typing import Dict, List, Optional
 
 from ..helpers import queries
+from ..helpers.artifact_call_sites import load_callsite_enrichment
 from ..helpers.artifact_graph_edges import (
     artifact_db_available,
     load_artifact_edges,
-    load_call_sites,
-    load_call_resolution_diagnostics,
 )
 from ..helpers.render import render_json_payload, require_connection
 from ..helpers.utils import require_latest_committed_snapshot
@@ -42,6 +41,7 @@ def render(
     method_id: str | None = None,
     direction: str | None = None,
     detail_level: str | None = None,
+    include_callsite_diagnostics: bool | None = None,
     **_: object,
 ) -> str:
     conn = require_connection(conn)
@@ -101,10 +101,11 @@ def render(
         "edge_count": len(enriched),
         "edges": enriched,
         "call_sites": [],
+        "resolution_diagnostics": {},
     }
-    if artifact_available and repo_root is not None:
-        call_sites = load_call_sites(
-            repo_root,
+    if artifact_available and repo_root is not None and bool(include_callsite_diagnostics):
+        call_sites, diagnostics = load_callsite_enrichment(
+            repo_root=repo_root,
             snapshot_id=snapshot_id,
             caller_id=resolved_id,
         )
@@ -127,12 +128,7 @@ def render(
             }
             for row in call_sites
         ]
-    if artifact_available and repo_root is not None:
-        body["resolution_diagnostics"] = load_call_resolution_diagnostics(
-            repo_root,
-            snapshot_id=snapshot_id,
-            caller_id=resolved_id,
-        )
+        body["resolution_diagnostics"] = diagnostics
     return render_json_payload(body)
 
 
