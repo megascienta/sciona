@@ -115,3 +115,33 @@ def test_strict_call_contract_rejects_ambiguous_without_in_scope_candidates() ->
     assert decision.accepted_candidate is None
     assert decision.accepted_provenance is None
     assert decision.dropped_reason == "ambiguous_no_in_scope_candidate"
+
+
+def test_strict_call_contract_prefers_exact_qname_in_ambiguous_set() -> None:
+    decision = select_strict_call_candidate(
+        identifier="pkg.mod.Service.run",
+        direct_candidates=["pkg.mod.Service.run", "pkg.alt.Service.run"],
+        fallback_candidates=[],
+        caller_module="pkg.mod",
+        module_lookup={
+            "pkg.mod.Service.run": "pkg.mod",
+            "pkg.alt.Service.run": "pkg.alt",
+        },
+        import_targets={"pkg.mod": {"pkg.alt"}},
+    )
+    assert decision.accepted_candidate == "pkg.mod.Service.run"
+    assert decision.accepted_provenance == "exact_qname"
+    assert decision.dropped_reason is None
+
+
+def test_strict_call_contract_deduplicates_candidates() -> None:
+    decision = select_strict_call_candidate(
+        identifier="run",
+        direct_candidates=[],
+        fallback_candidates=["pkg.mod.Service.run", "pkg.mod.Service.run"],
+        caller_module="pkg.mod",
+        module_lookup={"pkg.mod.Service.run": "pkg.mod"},
+        import_targets={},
+    )
+    assert decision.accepted_candidate == "pkg.mod.Service.run"
+    assert decision.accepted_provenance == "module_scoped"

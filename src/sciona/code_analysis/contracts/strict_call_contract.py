@@ -25,7 +25,8 @@ def select_strict_call_candidate(
     import_targets: Mapping[str, set[str]],
 ) -> StrictCallDecision:
     """Apply contract-strict accept_if_single behavior for call candidates."""
-    candidates = list(direct_candidates) or list(fallback_candidates)
+    raw_candidates = list(direct_candidates) or list(fallback_candidates)
+    candidates = list(dict.fromkeys(raw_candidates))
     candidate_count = len(candidates)
     if not candidates:
         return StrictCallDecision(
@@ -34,6 +35,16 @@ def select_strict_call_candidate(
             dropped_reason="no_candidates",
             candidate_count=0,
         )
+
+    if "." in identifier:
+        exact_matches = [candidate for candidate in candidates if candidate == identifier]
+        if len(exact_matches) == 1:
+            return StrictCallDecision(
+                accepted_candidate=exact_matches[0],
+                accepted_provenance="exact_qname",
+                dropped_reason=None,
+                candidate_count=candidate_count,
+            )
 
     if len(candidates) == 1:
         candidate = candidates[0]
