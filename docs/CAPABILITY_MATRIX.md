@@ -15,12 +15,9 @@ Legend:
 | Capability | Python | TypeScript | Java | Notes / Coverage |
 |---|---|---|---|---|
 | Module node emission | yes | yes | yes | Contract baseline |
-| Class node emission | yes | yes | yes | Includes nested classes |
-| Function node emission (top-level only) | yes | yes | n/a | Java has no module-level functions; see `parity_contract.documented_asymmetries.java` |
-| Method node emission | yes | yes | yes | Constructors as methods |
-| `CONTAINS` edges | yes | yes | yes | Deterministic ordering |
-| `DEFINES_METHOD` edges | yes | yes | yes | Contract baseline |
-| `NESTS` edges | yes | yes | yes | Lexical class nesting only |
+| Type node emission | yes | yes | yes | Includes nested/local named classes |
+| Callable node emission (declared/nested/bound/constructor) | yes | yes | yes | Java has no module-level callable declarations outside types |
+| `LEXICALLY_CONTAINS` edges | yes | yes | yes | Deterministic lexical tree |
 | `EXTENDS` edges | yes | yes | yes | Direct syntax-level inheritance only |
 | `IMPLEMENTS` edges | n/a | yes | yes | Direct syntax-level interface implementation only |
 | `IMPORTS_DECLARED` extraction | yes | yes | yes | Syntax-only, internal targets only |
@@ -42,9 +39,9 @@ Legend:
 
 ## Declared Language-Specific Differences
 
-- Nested named/non-structural callables are intentionally not emitted as
-  structural nodes; calls inside them are attributed to nearest enclosing
-  structural callable (contract behavior, not a leakage defect).
+- Nested named callables are structural and emitted as callable nodes.
+- Inline anonymous callbacks remain non-structural; calls inside them are
+  attributed to nearest enclosing structural callable.
 - TypeScript import parsing supports the grammar surface available via
   `import_statement`, `export_statement`, and require-style lexical declarations.
 - Java import parsing supports class aliases, static member aliases, and static wildcard owners.

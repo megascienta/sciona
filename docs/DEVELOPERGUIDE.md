@@ -147,7 +147,7 @@ CoreDB (authoritative):
 
 Core structural edge semantics currently emitted:
 
-- `NESTS` for nested class containment disambiguation.
+- `LEXICALLY_CONTAINS` for deterministic lexical containment.
 - `EXTENDS` / `IMPLEMENTS` for local syntactic inheritance.
 
 ArtifactDB (derived):
