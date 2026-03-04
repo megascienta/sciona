@@ -93,6 +93,8 @@ Parsing and extraction:
 - Query API for node capture and field-driven extraction.
 - Query compilation caches are keyed by language + grammar signature metadata
   (`version` / `abi_version` when available) + query source.
+- Profile introspection inspectors are memoized by `(repo_root, relative_path)` to
+  avoid repeated parse/query compilation on unchanged files.
 - No DFS fallback traversal for structural extraction.
 
 Calls:
@@ -134,12 +136,16 @@ TypeScript:
 - Imports: `import_statement`, `export_statement`, `lexical_declaration` require-assignment patterns, dynamic `import()` (`call_expression`)
 - Calls: `call_expression`, `new_expression`
 - Note: `import ... = require(...)` is covered through `import_statement` / `import_require_clause` in the current grammar; there is no standalone `import_equals_declaration` node in this build.
+- Profile class surface includes `class_declaration`,
+  `abstract_class_declaration`, and `class_expression`.
 
 Java:
 
 - Imports: `import_declaration`
 - Java import normalization includes class aliases, static member aliases, and static wildcard owner targets.
 - Calls: `method_invocation`, `object_creation_expression`, `explicit_constructor_invocation`
+- Profile class surface includes `class_declaration`, `interface_declaration`,
+  `enum_declaration`, and `record_declaration`.
 
 ## Data Model
 

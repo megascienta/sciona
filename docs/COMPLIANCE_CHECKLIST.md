@@ -63,6 +63,8 @@ contract in `docs/CONTRACT.md`.
   - `call_expression` dynamic `import()` with string literal targets.
 - `import ... = require(...)` is represented under `import_statement` with `import_require_clause` in the current grammar build.
 - Calls are collected from `call_expression`/`new_expression` and attributed by enclosing callable scope.
+- Profiling/introspection class query surface includes
+  `class_declaration`, `abstract_class_declaration`, `class_expression`.
 
 ## Java Compliance
 
@@ -78,6 +80,8 @@ contract in `docs/CONTRACT.md`.
   - `method_invocation`,
   - `object_creation_expression`,
   - `explicit_constructor_invocation`.
+- Profiling/introspection class query surface includes
+  `class_declaration`, `interface_declaration`, `enum_declaration`, `record_declaration`.
 
 ## Verification Guidance
 
