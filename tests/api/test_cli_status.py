@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import os
 from types import SimpleNamespace
 
 from sciona.api import cli as api_cli
@@ -112,7 +113,8 @@ def test_cli_status_json_emits_payload(cli_app, cli_runner, monkeypatch):
     assert result.exit_code == 0
     assert calls == [True]
     payload = json.loads(result.stdout)
-    assert payload["repo_root"] == "/tmp/repo"
+    assert payload["repo_root"] == os.path.relpath("/tmp/repo", start=os.getcwd())
+    assert not payload["repo_root"].startswith("/")
     assert payload["latest_snapshot"] == "snap-1"
     assert payload["status_report_version"] == 1
     assert payload["summary"]["snapshot_id"] == "snap-1"
@@ -137,5 +139,6 @@ def test_cli_status_output_writes_json_file(cli_app, cli_runner, monkeypatch, tm
     assert calls == [True]
     payload = json.loads(output_path.read_text(encoding="utf-8"))
     assert payload["status_report_version"] == 1
+    assert not payload["repo_root"].startswith("/")
     assert payload["detailed"] is False
     assert payload["summary"]["languages"][0]["drop_reasons"]["no_candidates"] == 1

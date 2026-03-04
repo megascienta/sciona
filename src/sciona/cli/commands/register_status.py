@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Optional
 
@@ -70,6 +71,9 @@ def register_status(app: typer.Typer) -> None:
             "status_report_version": 1,
         }
         if export_mode:
+            payload["repo_root"] = os.path.relpath(
+                str(status_result.repo_root), start=os.getcwd()
+            )
             warning = get_dirty_worktree_warning(status_result.repo_root)
             if warning:
                 payload["warning"] = warning
