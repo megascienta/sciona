@@ -36,4 +36,38 @@ def call_site_caller_status_counts(
     ]
 
 
-__all__ = ["call_site_caller_status_counts"]
+def call_site_drop_debug_counts(
+    conn: sqlite3.Connection,
+    *,
+    snapshot_id: str,
+    limit: int = 200,
+) -> list[dict[str, object]]:
+    rows = conn.execute(
+        """
+        SELECT caller_id,
+               caller_qname,
+               identifier,
+               drop_reason,
+               COUNT(*) AS site_count
+        FROM call_sites
+        WHERE snapshot_id = ?
+          AND resolution_status = 'dropped'
+        GROUP BY caller_id, caller_qname, identifier, drop_reason
+        ORDER BY site_count DESC, caller_qname, identifier
+        LIMIT ?
+        """,
+        (snapshot_id, limit),
+    ).fetchall()
+    return [
+        {
+            "caller_id": row["caller_id"],
+            "caller_qname": row["caller_qname"],
+            "identifier": row["identifier"],
+            "drop_reason": row["drop_reason"],
+            "site_count": int(row["site_count"] or 0),
+        }
+        for row in rows
+    ]
+
+
+__all__ = ["call_site_caller_status_counts", "call_site_drop_debug_counts"]

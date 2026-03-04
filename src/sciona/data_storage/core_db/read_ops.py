@@ -17,6 +17,7 @@ from .read_ops_snapshots import (
     validate_snapshot_for_read,
 )
 from .read_ops_nodes import (
+    caller_node_metadata_map,
     caller_language_map,
     language_file_node_counts,
     list_nodes_by_types,
@@ -63,6 +64,7 @@ __all__ = [
     "node_instances_for_file_paths",
     "language_file_node_counts",
     "caller_language_map",
+    "caller_node_metadata_map",
     "edges_for_source_ids",
     "language_edge_counts",
     "structural_hash_node_entries",

@@ -123,3 +123,9 @@ def test_snapshot_report_full_includes_failure_reasons(repo_with_snapshot):
     assert call_sites["accepted"] == 1
     assert call_sites["dropped"] == 1
     assert python["drop_reasons"] == {"unique_without_provenance": 1}
+    assert "unique_without_provenance" in python["drop_reason_examples"]
+    example = python["drop_reason_examples"]["unique_without_provenance"][0]
+    assert example["caller_qname"].endswith(".pkg.alpha.Service.run")
+    assert example["caller_file_path"] == "pkg/alpha/service.py"
+    assert example["identifier"] == "missing"
+    assert example["count"] == 1

@@ -263,3 +263,36 @@ def caller_language_map(
     for row in rows:
         mapping[str(row["structural_id"])] = str(row["language"])
     return mapping
+
+
+def caller_node_metadata_map(
+    conn: sqlite3.Connection,
+    snapshot_id: str,
+) -> dict[str, dict[str, object]]:
+    rows = conn.execute(
+        """
+        SELECT ni.structural_id AS structural_id,
+               sn.language AS language,
+               sn.node_type AS node_type,
+               ni.qualified_name AS qualified_name,
+               ni.file_path AS file_path,
+               ni.start_line AS start_line,
+               ni.end_line AS end_line
+        FROM node_instances ni
+        JOIN structural_nodes sn ON sn.structural_id = ni.structural_id
+        WHERE ni.snapshot_id = ?
+        """,
+        (snapshot_id,),
+    ).fetchall()
+    mapping: dict[str, dict[str, object]] = {}
+    for row in rows:
+        structural_id = str(row["structural_id"])
+        mapping[structural_id] = {
+            "language": str(row["language"]),
+            "node_type": str(row["node_type"]),
+            "qualified_name": str(row["qualified_name"]),
+            "file_path": str(row["file_path"]),
+            "start_line": int(row["start_line"]) if row["start_line"] is not None else None,
+            "end_line": int(row["end_line"]) if row["end_line"] is not None else None,
+        }
+    return mapping

@@ -56,7 +56,7 @@ def register_status(app: typer.Typer) -> None:
                 include_failure_reasons=detailed,
             )
         payload = {
-            "repo_root": status_result.repo_root,
+            "repo_root": str(status_result.repo_root),
             "tool_version": status_result.tool_version,
             "schema_version": status_result.schema_version,
             "snapshot_count": status_result.snapshot_count,

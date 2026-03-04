@@ -25,6 +25,7 @@ class LanguageMetrics:
     call_sites_accepted: int | None = None
     call_sites_dropped: int | None = None
     drop_reasons: dict[str, int] = field(default_factory=dict)
+    drop_reason_examples: dict[str, list[dict[str, object]]] = field(default_factory=dict)
 
     def to_payload(self, *, include_failure_reasons: bool) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -40,6 +41,11 @@ class LanguageMetrics:
         )
         if include_failure_reasons and self.drop_reasons:
             payload["drop_reasons"] = dict(sorted(self.drop_reasons.items()))
+        if include_failure_reasons and self.drop_reason_examples:
+            payload["drop_reason_examples"] = {
+                reason: examples
+                for reason, examples in sorted(self.drop_reason_examples.items())
+            }
         return payload
 
 
@@ -51,6 +57,7 @@ def snapshot_report(
 ) -> dict[str, object] | None:
     language_metrics: dict[str, LanguageMetrics] = {}
     caller_language: dict[str, str] = {}
+    caller_metadata: dict[str, dict[str, object]] = {}
     created_at: str | None = None
 
     with core_readonly(repo_state.db_path, repo_root=repo_state.repo_root) as conn:
@@ -79,10 +86,15 @@ def snapshot_report(
                 call_sites_dropped=current.call_sites_dropped,
                 drop_reasons=current.drop_reasons,
             )
-        caller_language = core_read.caller_language_map(conn, snapshot_id)
+        caller_metadata = core_read.caller_node_metadata_map(conn, snapshot_id)
+        caller_language = {
+            structural_id: str(meta["language"])
+            for structural_id, meta in caller_metadata.items()
+        }
 
     artifact_available = False
     call_site_reasons: dict[str, dict[str, int]] = defaultdict(dict)
+    call_site_reason_examples: dict[str, dict[str, list[dict[str, object]]]] = defaultdict(dict)
     call_site_totals: dict[str, dict[str, int]] = defaultdict(
         lambda: {"eligible": 0, "accepted": 0, "dropped": 0}
     )
@@ -111,6 +123,37 @@ def snapshot_report(
                         call_site_reasons[language][reason] = (
                             call_site_reasons[language].get(reason, 0) + count
                         )
+            if include_failure_reasons:
+                dropped_sites = artifact_reporting.call_site_drop_debug_counts(
+                    conn,
+                    snapshot_id=snapshot_id,
+                )
+                for item in dropped_sites:
+                    caller_id = str(item["caller_id"])
+                    language = caller_language.get(caller_id)
+                    if not language:
+                        continue
+                    reason = str(item["drop_reason"] or "unknown")
+                    by_reason = call_site_reason_examples[language].setdefault(reason, [])
+                    if len(by_reason) >= 8:
+                        continue
+                    caller_info = caller_metadata.get(caller_id, {})
+                    by_reason.append(
+                        {
+                            "caller_id": caller_id,
+                            "caller_qname": str(
+                                caller_info.get("qualified_name") or item.get("caller_qname") or ""
+                            ),
+                            "caller_file_path": caller_info.get("file_path"),
+                            "caller_node_type": caller_info.get("node_type"),
+                            "caller_span": [
+                                caller_info.get("start_line"),
+                                caller_info.get("end_line"),
+                            ],
+                            "identifier": str(item.get("identifier") or ""),
+                            "count": int(item.get("site_count") or 0),
+                        }
+                    )
     except sqlite3.Error:
         artifact_available = False
 
@@ -134,6 +177,7 @@ def snapshot_report(
                 if artifact_available
                 else None,
                 drop_reasons=call_site_reasons.get(language, {}),
+                drop_reason_examples=call_site_reason_examples.get(language, {}),
             )
         )
 
