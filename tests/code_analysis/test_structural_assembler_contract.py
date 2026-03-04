@@ -131,7 +131,7 @@ def test_persist_analysis_sorts_edges_by_source_target_edge_type(monkeypatch) ->
     ]
 
 
-def test_normalize_call_records_strict_keeps_exact_qname() -> None:
+def test_normalize_call_records_strict_drops_unindexed_dotted_identifier() -> None:
     assembler = StructuralAssembler(_DummyConn(), _DummyStore())
     analysis = AnalysisResult(
         nodes=[
@@ -178,8 +178,10 @@ def test_normalize_call_records_strict_keeps_exact_qname() -> None:
 
     normalized = assembler._normalize_call_records(analysis, snapshot)
 
-    assert len(normalized.call_records) == 1
-    assert normalized.call_records[0].callee_identifiers == ["pkg.other.service.run"]
+    assert normalized.call_records == []
+    diagnostics = assembler.call_gate_diagnostics
+    dropped = diagnostics.get("dropped_by_reason") or {}
+    assert dropped.get("no_candidates") == 1
 
 
 def test_normalize_call_records_strict_drops_terminal_without_provenance() -> None:

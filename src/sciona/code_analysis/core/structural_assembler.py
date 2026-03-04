@@ -216,7 +216,7 @@ class StructuralAssembler:
                 )
                 direct_candidates: list[str]
                 if "." in identifier:
-                    direct_candidates = [identifier]
+                    direct_candidates = list(symbol_index.get(identifier, ()))
                 else:
                     direct_candidates = list(symbol_index.get(identifier, ()))
                 fallback_candidates: list[str] = []

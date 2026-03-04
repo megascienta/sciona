@@ -429,6 +429,61 @@ def test_python_analyzer_resolves_reexported_member_alias_call(tmp_path):
     assert f"{compat_module}.lenient_issubclass" in call_records[f"{module_name}.top"]
 
 
+def test_python_analyzer_resolves_call_via_local_alias_of_imported_module(tmp_path):
+    repo = tmp_path
+    pkg = repo / "pkg"
+    api = pkg / "api"
+    pkg.mkdir()
+    api.mkdir()
+    (pkg / "__init__.py").write_text("", encoding="utf-8")
+    (api / "__init__.py").write_text("", encoding="utf-8")
+    (api / "cli.py").write_text(
+        "def get_repo_root():\n    return '.'\n", encoding="utf-8"
+    )
+    file_path = pkg / "mod.py"
+    file_path.write_text(
+        "from .api import cli as api_cli\n"
+        "alias_cli = api_cli\n\n"
+        "def top():\n"
+        "    return alias_cli.get_repo_root()\n",
+        encoding="utf-8",
+    )
+    analyzer = PythonAnalyzer()
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("pkg/mod.py"),
+            language="python",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=file_path.stat().st_size,
+        line_count=5,
+        content=file_path.read_bytes(),
+    )
+    module_name = analyzer.module_name(repo, snapshot)
+    api_snapshot = FileSnapshot(
+        record=FileRecord(
+            path=api / "cli.py",
+            relative_path=Path("pkg/api/cli.py"),
+            language="python",
+        ),
+        file_id="api-cli",
+        blob_sha="hash",
+        size=(api / "cli.py").stat().st_size,
+        line_count=2,
+        content=(api / "cli.py").read_bytes(),
+    )
+    api_module = analyzer.module_name(repo, api_snapshot)
+    analyzer.module_index = {module_name, api_module, f"{module_name.rsplit('.', 1)[0]}.api"}
+    result = analyzer.analyze(snapshot, module_name)
+    call_records = {
+        record.qualified_name: set(record.callee_identifiers)
+        for record in result.call_records
+    }
+    assert f"{api_module}.get_repo_root" in call_records[f"{module_name}.top"]
+
+
 def test_python_analyzer_bare_relative_import_falls_back_to_package_when_not_module(tmp_path):
     repo = tmp_path
     pkg = repo / "pkg"

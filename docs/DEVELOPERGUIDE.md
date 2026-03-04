@@ -177,6 +177,18 @@ ArtifactDB (derived):
 - Rollups: `module_call_edges`, `class_call_edges`, `node_fan_stats`
 - Optional overlay tables: `diff_overlay*`
 
+Status/report payload semantics:
+
+- Structural counts (`files`, `nodes`, `edges`) and call materialization counts are
+  reported separately.
+- `call_sites` is observational call materialization telemetry and does not alter
+  structural truth (`CALLS` remains authoritative).
+- `call_sites_by_scope` partitions materialization telemetry into `non_tests` and
+  `tests` buckets.
+- When ArtifactDB is available and no eligible rows exist for a language/scope,
+  counts are reported as `eligible=0, accepted=0, dropped=0` and
+  `success_rate=null` (undefined ratio), not missing/null counts.
+
 ## Reducer Rules
 
 - Reducers are deterministic, read-only, and snapshot-bound.

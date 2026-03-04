@@ -8,6 +8,9 @@ from __future__ import annotations
 from .shared import node_text
 from .symbol_ir import resolve_alias
 
+_MAX_ALIAS_HOPS = 8
+
+
 def attribute_chain(node, content: bytes) -> tuple[str, ...]:
     if node is None:
         return ()
@@ -86,19 +89,83 @@ def _resolve_alias_target(
     node,
     content: bytes,
     known_instances: dict[str, str],
+    import_aliases: dict[str, str],
+    member_aliases: dict[str, str],
+    raw_module_map: dict[str, str],
 ) -> str | None:
     if node is None:
         return None
     if node.type == "identifier":
         name = node_text(node, content)
-        return resolve_alias(name or "", instance_map=known_instances)
+        return _resolve_alias_name(
+            name or "",
+            known_instances=known_instances,
+            import_aliases=import_aliases,
+            member_aliases=member_aliases,
+        )
     if node.type == "attribute":
         chain = attribute_chain(node, content)
         if not chain:
             return None
         if len(chain) >= 2 and chain[0] in {"self", "cls"}:
-            return resolve_alias(chain[1], instance_map=known_instances)
-        return resolve_alias(".".join(chain), instance_map=known_instances)
+            return _resolve_alias_name(
+                chain[1],
+                known_instances=known_instances,
+                import_aliases=import_aliases,
+                member_aliases=member_aliases,
+            )
+        head, *tail = chain
+        head_target = _resolve_alias_name(
+            head,
+            known_instances=known_instances,
+            import_aliases=import_aliases,
+            member_aliases=member_aliases,
+        )
+        if head_target:
+            return ".".join((head_target, *tail)) if tail else head_target
+        dotted = ".".join(chain)
+        direct = _resolve_alias_name(
+            dotted,
+            known_instances=known_instances,
+            import_aliases=import_aliases,
+            member_aliases=member_aliases,
+        )
+        if direct:
+            return direct
+        for raw_chain, normalized in _raw_module_chain_map(raw_module_map).items():
+            if len(chain) < len(raw_chain) or chain[: len(raw_chain)] != raw_chain:
+                continue
+            suffix = chain[len(raw_chain) :]
+            return f"{normalized}.{'.'.join(suffix)}" if suffix else normalized
+    return None
+
+
+def _resolve_alias_name(
+    symbol: str,
+    *,
+    known_instances: dict[str, str],
+    import_aliases: dict[str, str],
+    member_aliases: dict[str, str],
+) -> str | None:
+    if not symbol:
+        return None
+    current = symbol
+    seen: set[str] = set()
+    for _ in range(_MAX_ALIAS_HOPS):
+        if current in seen:
+            return None
+        seen.add(current)
+        target = resolve_alias(
+            current,
+            instance_map=known_instances,
+            import_aliases=import_aliases,
+            member_aliases=member_aliases,
+        )
+        if not target:
+            return None if current == symbol else current
+        if target == current:
+            return target
+        current = target
     return None
 
 

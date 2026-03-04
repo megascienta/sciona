@@ -92,3 +92,41 @@ class C:
         raw_module_map={},
     )
     assert class_map == {}
+
+
+def test_collect_module_instance_map_resolves_member_alias_identifier_assignment(
+    tmp_path,
+) -> None:
+    source = """
+svc = ServiceAlias
+"""
+    snapshot = _snapshot(tmp_path, source)
+    root = _parser("python").parse(snapshot.content).root_node
+    module_map = collect_module_instance_map(
+        root,
+        snapshot,
+        class_name_candidates={},
+        import_aliases={},
+        member_aliases={"ServiceAlias": "repo.pkg.compat.Service"},
+        raw_module_map={},
+    )
+    assert module_map == {"svc": "repo.pkg.compat.Service"}
+
+
+def test_collect_module_instance_map_resolves_attribute_assignment_from_import_alias(
+    tmp_path,
+) -> None:
+    source = """
+api_helpers = api.helpers
+"""
+    snapshot = _snapshot(tmp_path, source)
+    root = _parser("python").parse(snapshot.content).root_node
+    module_map = collect_module_instance_map(
+        root,
+        snapshot,
+        class_name_candidates={},
+        import_aliases={"api": "repo.pkg.api"},
+        member_aliases={},
+        raw_module_map={},
+    )
+    assert module_map == {"api_helpers": "repo.pkg.api.helpers"}

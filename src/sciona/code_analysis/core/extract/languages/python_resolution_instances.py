@@ -123,6 +123,9 @@ def collect_module_instance_map(
                     right,
                     snapshot.content,
                     instance_map,
+                    import_aliases,
+                    member_aliases,
+                    raw_module_map,
                 )
                 name = node_text(left, snapshot.content)
                 if name and target:
@@ -198,6 +201,9 @@ def collect_callable_instance_map(
                         right,
                         snapshot.content,
                         instance_map,
+                        import_aliases,
+                        member_aliases,
+                        raw_module_map,
                     )
                     if target:
                         instance_map[name] = target
@@ -269,7 +275,14 @@ def collect_class_instance_map(
                             raw_module_map,
                         )
                     )
-                    target = _resolve_alias_target(right, snapshot.content, alias_scope)
+                    target = _resolve_alias_target(
+                        right,
+                        snapshot.content,
+                        alias_scope,
+                        import_aliases,
+                        member_aliases,
+                        raw_module_map,
+                    )
                     if name and target:
                         instance_map[name] = target
         for child in getattr(node, "named_children", []):
