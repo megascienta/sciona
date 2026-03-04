@@ -238,14 +238,3 @@ pytest -q
 
 Repository policy for this workspace requires running tests in conda env
 `multiphysics`.
-
-## CI Guardrails
-
-SCIONA includes generic non-test callsite acceptance guardrails by language.
-
-- Config: `validations/callsite_guardrails.json`
-- Checker: `validations/check_callsite_guardrails.py`
-- CI workflow: `.github/workflows/callsite-guardrails.yml`
-
-Guardrails evaluate `call_sites_by_scope.non_tests.success_rate` per language.
-They are policy checks only and do not alter extraction/materialization logic.

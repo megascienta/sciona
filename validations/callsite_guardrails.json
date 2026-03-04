@@ -1,7 +1,0 @@
-{
-  "non_tests_min_success_rate": {
-    "java": 0.9,
-    "python": 0.9,
-    "typescript": 0.9
-  }
-}
