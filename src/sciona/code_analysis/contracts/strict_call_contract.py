@@ -23,6 +23,7 @@ def select_strict_call_candidate(
     caller_module: str | None,
     module_lookup: Mapping[str, str],
     import_targets: Mapping[str, set[str]],
+    expanded_import_targets: Mapping[str, set[str]] | None = None,
     caller_ancestor_modules: set[str] | None = None,
 ) -> StrictCallDecision:
     """Apply contract-strict accept_if_single behavior for call candidates."""
@@ -50,12 +51,16 @@ def select_strict_call_candidate(
     if len(candidates) == 1:
         candidate = candidates[0]
         allowed_modules = set(import_targets.get(caller_module or "", set()))
+        provenance_scope = set(
+            (expanded_import_targets or import_targets).get(caller_module or "", set())
+        )
         if caller_module:
             allowed_modules.add(caller_module)
+            provenance_scope.add(caller_module)
         candidate_module = _candidate_module(
             candidate=candidate,
             module_lookup=module_lookup,
-            scope_modules=allowed_modules,
+            scope_modules=provenance_scope,
         )
         if direct_candidates and "." in identifier:
             return StrictCallDecision(
@@ -81,7 +86,7 @@ def select_strict_call_candidate(
         if caller_module and candidate_module:
             if _in_allowed_module_scope(
                 candidate_module=candidate_module,
-                allowed_modules=allowed_modules,
+                allowed_modules=provenance_scope,
             ):
                 return StrictCallDecision(
                     accepted_candidate=candidate,
@@ -116,6 +121,7 @@ def select_strict_call_candidate(
         if _in_allowed_module_scope(
             candidate_module=candidate_module,
             allowed_modules=allowed_modules,
+            allow_descendants=False,
         ):
             narrowed.append(candidate)
     if len(narrowed) == 1:
@@ -156,11 +162,14 @@ def _in_allowed_module_scope(
     *,
     candidate_module: str | None,
     allowed_modules: set[str],
+    allow_descendants: bool = True,
 ) -> bool:
     if not candidate_module:
         return False
     for allowed in allowed_modules:
-        if candidate_module == allowed or candidate_module.startswith(f"{allowed}."):
+        if candidate_module == allowed:
+            return True
+        if allow_descendants and candidate_module.startswith(f"{allowed}."):
             return True
     return False
 

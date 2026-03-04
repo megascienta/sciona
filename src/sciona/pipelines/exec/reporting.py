@@ -430,12 +430,9 @@ def _drop_classification_bucket(
     callee_kind: str,
 ) -> str | None:
     if (
-        drop_reason in {
-            "ambiguous_no_in_scope_candidate",
-            "ambiguous_multiple_in_scope_candidates",
-        }
+        drop_reason == "ambiguous_no_in_scope_candidate"
         and callee_kind == "qualified"
-        and candidate_count > 0
+        and candidate_count >= 3
         and "." in identifier
     ):
         return "external_likely"

@@ -189,6 +189,35 @@ def test_strict_call_contract_accepts_imported_package_descendant_candidate() ->
     assert decision.dropped_reason is None
 
 
+def test_strict_call_contract_uses_expanded_scope_for_single_candidate_only() -> None:
+    single = select_strict_call_candidate(
+        identifier="build",
+        direct_candidates=[],
+        fallback_candidates=["deps.deep.Builder.build"],
+        caller_module="app.mod",
+        module_lookup={"deps.deep.Builder.build": "deps.deep"},
+        import_targets={"app.mod": {"deps"}},
+        expanded_import_targets={"app.mod": {"deps", "deps.deep"}},
+    )
+    assert single.accepted_candidate == "deps.deep.Builder.build"
+    assert single.accepted_provenance == "import_narrowed"
+
+    ambiguous = select_strict_call_candidate(
+        identifier="build",
+        direct_candidates=[],
+        fallback_candidates=["deps.deep.Builder.build", "deps.other.Builder.build"],
+        caller_module="app.mod",
+        module_lookup={
+            "deps.deep.Builder.build": "deps.deep",
+            "deps.other.Builder.build": "deps.other",
+        },
+        import_targets={"app.mod": {"deps"}},
+        expanded_import_targets={"app.mod": {"deps", "deps.deep", "deps.other"}},
+    )
+    assert ambiguous.accepted_candidate is None
+    assert ambiguous.dropped_reason == "ambiguous_no_in_scope_candidate"
+
+
 def test_strict_call_contract_accepts_single_ancestor_module_candidate() -> None:
     decision = select_strict_call_candidate(
         identifier="pkg.compat.lenient_issubclass",

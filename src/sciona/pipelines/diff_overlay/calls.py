@@ -28,6 +28,7 @@ def compute_call_overlay_rows(
     if not analysis_calls:
         return []
     import_targets = build_import_targets(core_conn, snapshot_id)
+    expanded_import_targets = expand_import_targets(import_targets)
     module_lookup = build_module_lookup(core_conn, snapshot_id, analysis_nodes)
     caller_lookup = {
         (node.get("qualified_name"), node.get("node_type")): node
@@ -54,6 +55,7 @@ def compute_call_overlay_rows(
             symbol_index,
             caller_module=caller_module,
             import_targets=import_targets,
+            expanded_import_targets=expanded_import_targets,
             module_lookup=module_lookup,
         )
         for callee_id in callee_ids:
@@ -212,6 +214,7 @@ def resolve_callees(
     *,
     caller_module: str | None,
     import_targets: dict[str, set[str]],
+    expanded_import_targets: dict[str, set[str]],
     module_lookup: dict[str, str],
 ) -> tuple[set[str], set[str]]:
     resolved_ids: set[str] = set()
@@ -228,6 +231,7 @@ def resolve_callees(
             caller_module=caller_module,
             module_lookup=module_lookup,
             import_targets=import_targets,
+            expanded_import_targets=expanded_import_targets,
         )
         if decision.accepted_candidate:
             resolved_ids.add(decision.accepted_candidate)
@@ -304,7 +308,7 @@ def build_import_targets(
         if not src_name or not dst_name:
             continue
         targets.setdefault(src_name, set()).add(dst_name)
-    return expand_import_targets(targets)
+    return targets
 
 
 __all__ = [

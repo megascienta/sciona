@@ -19,6 +19,7 @@ from .structural_assembler_emit import (
 )
 from .structural_assembler_hash import node_content_hash
 from .structural_assembler_index import (
+    build_expanded_import_targets,
     build_import_targets,
     build_module_lookup,
     build_symbol_index,
@@ -197,6 +198,7 @@ class StructuralAssembler:
         symbol_index = build_symbol_index(analysis.nodes)
         module_lookup = build_module_lookup(analysis.nodes, module_names)
         import_targets = build_import_targets(analysis.edges)
+        expanded_import_targets = build_expanded_import_targets(analysis.edges)
         strict_normalized: list[tuple[str, str, str, list[str]]] = []
         local_totals: dict[str, object] = {
             "identifiers_total": 0,
@@ -234,6 +236,7 @@ class StructuralAssembler:
                     caller_module=caller_module,
                     module_lookup=module_lookup,
                     import_targets=import_targets,
+                    expanded_import_targets=expanded_import_targets,
                     caller_ancestor_modules=caller_ancestors,
                 )
                 if decision.accepted_candidate:

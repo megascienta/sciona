@@ -134,7 +134,12 @@ def write_call_artifacts(
     if not caller_set:
         return
     symbol_index, in_repo_callable_ids = _build_symbol_index(core_conn, snapshot_id)
-    module_lookup, import_targets, module_ancestors = _build_module_context(
+    (
+        module_lookup,
+        import_targets,
+        expanded_import_targets,
+        module_ancestors,
+    ) = _build_module_context(
         core_conn, snapshot_id
     )
     node_hashes = _load_node_hashes(core_conn, snapshot_id, caller_set)
@@ -152,6 +157,7 @@ def write_call_artifacts(
             caller_module=caller_module,
             module_lookup=module_lookup,
             import_targets=import_targets,
+            expanded_import_targets=expanded_import_targets,
             module_ancestors=module_ancestors,
         )
         callee_ids = {callee_id for callee_id in callee_ids if callee_id in in_repo_callable_ids}
@@ -289,7 +295,7 @@ def _filter_in_repo_callsite_rows(
 def _build_module_context(
     core_conn,
     snapshot_id: str,
-) -> tuple[dict[str, str], dict[str, set[str]], dict[str, set[str]]]:
+) -> tuple[dict[str, str], dict[str, set[str]], dict[str, set[str]], dict[str, set[str]]]:
     node_rows = core_read.list_nodes_with_names(core_conn, snapshot_id)
     module_names = {
         qualified_name
@@ -322,13 +328,14 @@ def _build_module_context(
             dst_name = module_name_by_id.get(dst_id)
             if src_name and dst_name:
                 direct_import_targets[src_name].add(dst_name)
-    import_targets = expand_import_targets({
+    import_targets = {
         module_name: set(targets) for module_name, targets in direct_import_targets.items()
-    })
+    }
+    expanded_import_targets = expand_import_targets(import_targets)
     module_ancestors: dict[str, set[str]] = {
         module_name: _module_qname_ancestors(module_name) for module_name in module_names
     }
-    return module_lookup, import_targets, module_ancestors
+    return module_lookup, import_targets, expanded_import_targets, module_ancestors
 
 
 def _load_node_hashes(
@@ -344,6 +351,7 @@ def _resolve_callees(
     caller_module: str | None,
     module_lookup: dict[str, str],
     import_targets: dict[str, set[str]],
+    expanded_import_targets: dict[str, set[str]],
     module_ancestors: dict[str, set[str]],
 ) -> tuple[
     set[str],
@@ -387,6 +395,7 @@ def _resolve_callees(
             caller_module=caller_module,
             module_lookup=module_lookup,
             import_targets=import_targets,
+            expanded_import_targets=expanded_import_targets,
             caller_ancestor_modules=module_ancestors.get(caller_module or "", set()),
         )
         cast(Counter[int], stats["candidate_count_histogram"])[decision.candidate_count] += 1

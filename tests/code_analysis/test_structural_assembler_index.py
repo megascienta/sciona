@@ -19,7 +19,7 @@ def test_expand_import_targets_computes_transitive_closure() -> None:
     assert expanded["pkg.runtime.paths"] == set()
 
 
-def test_build_import_targets_returns_transitive_targets() -> None:
+def test_build_import_targets_returns_direct_targets() -> None:
     edges = [
         EdgeRecord(
             src_language="python",
@@ -53,4 +53,6 @@ def test_build_import_targets_returns_transitive_targets() -> None:
         ),
     ]
     targets = build_import_targets(edges)
-    assert targets["pkg.cli.main"] == {"pkg.api.cli", "pkg.runtime.paths"}
+    assert targets["pkg.cli.main"] == {"pkg.api.cli"}
+    expanded = expand_import_targets(targets)
+    assert expanded["pkg.cli.main"] == {"pkg.api.cli", "pkg.runtime.paths"}

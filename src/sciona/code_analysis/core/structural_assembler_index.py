@@ -69,13 +69,18 @@ def build_import_targets(
         ):
             continue
         direct_targets[edge.src_qualified_name].add(edge.dst_qualified_name)
-    return expand_import_targets(
-        {module_name: set(targets) for module_name, targets in direct_targets.items()}
-    )
+    return {module_name: set(targets) for module_name, targets in direct_targets.items()}
+
+
+def build_expanded_import_targets(
+    edges: Iterable[EdgeRecord],
+) -> dict[str, set[str]]:
+    return expand_import_targets(build_import_targets(edges))
 
 
 __all__ = [
     "build_import_targets",
+    "build_expanded_import_targets",
     "build_module_lookup",
     "build_symbol_index",
     "expand_import_targets",

@@ -390,6 +390,7 @@ def test_resolve_callees_accepts_parent_package_with_precomputed_ancestors() -> 
         caller_module="pkg.parent.child",
         module_lookup={"callee-id": "pkg.parent"},
         import_targets={"pkg.parent.child": {"pkg.parent.child", "pkg.parent"}},
+        expanded_import_targets={"pkg.parent.child": {"pkg.parent.child", "pkg.parent"}},
         module_ancestors={"pkg.parent.child": {"pkg.parent"}},
     )
     assert resolved_ids == {"callee-id"}
