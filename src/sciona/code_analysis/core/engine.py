@@ -64,6 +64,10 @@ class BuildEngine:
         self.analyzers = select_analyzers(self.languages)
         self.assembler = StructuralAssembler(conn, store)
         self.call_gate_diagnostics = self.assembler.call_gate_diagnostics
+        self.name_collisions_detected = 0
+        self.name_collisions_disambiguated = 0
+        self.residual_containment_failures = 0
+        self.name_collisions_by_language: dict[str, dict[str, int]] = {}
         self._progress_factory = progress_factory
         self._warning_sink = warning_sink
         self.max_file_bytes = max_file_bytes
@@ -155,11 +159,17 @@ class BuildEngine:
                     try:
                         self._enforce_file_snapshot_limits(file_snapshot)
                         analysis = analyzer.analyze(file_snapshot, module_name)
+                        self._accumulate_analysis_diagnostics(
+                            language=analyzer.language,
+                            analysis=analysis,
+                        )
                         self._enforce_analysis_limits(analysis)
                         node_count, node_id_map = self.assembler.persist_analysis(
                             snapshot_id, analysis, file_snapshot
                         )
                     except Exception as exc:
+                        if "Lexical containment" in str(exc):
+                            self.residual_containment_failures += 1
                         warning = f"Failed to analyze {file_snapshot.record.relative_path}: {exc}"
                         self._warn(warning)
                         self.parse_failures += 1
@@ -243,6 +253,26 @@ class BuildEngine:
                 "file exceeds max_call_identifiers_per_file="
                 f"{self.max_call_identifiers_per_file} (call_identifiers={call_identifiers})"
             )
+
+    def _accumulate_analysis_diagnostics(
+        self, *, language: str, analysis: AnalysisResult
+    ) -> None:
+        diagnostics = analysis.diagnostics or {}
+        detected = int(diagnostics.get("name_collisions_detected", 0) or 0)
+        disambiguated = int(diagnostics.get("name_collisions_disambiguated", 0) or 0)
+        self.name_collisions_detected += detected
+        self.name_collisions_disambiguated += disambiguated
+        if detected == 0 and disambiguated == 0:
+            return
+        bucket = self.name_collisions_by_language.setdefault(
+            language,
+            {
+                "name_collisions_detected": 0,
+                "name_collisions_disambiguated": 0,
+            },
+        )
+        bucket["name_collisions_detected"] += detected
+        bucket["name_collisions_disambiguated"] += disambiguated
 
     def _register_modules(self, snapshot_id: str, snapshots: List[FileSnapshot]) -> int:
         inserted = 0

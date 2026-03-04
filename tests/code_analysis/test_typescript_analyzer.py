@@ -815,12 +815,23 @@ def test_typescript_analyzer_disambiguates_duplicate_local_class_names(tmp_path)
     analyzer = TypeScriptAnalyzer()
     module_name = analyzer.module_name(repo, snapshot)
     analyzer.module_index = {module_name}
-    result = analyzer.analyze(snapshot, module_name)
+    first = analyzer.analyze(snapshot, module_name)
+    second = analyzer.analyze(snapshot, module_name)
+    assert [node.qualified_name for node in first.nodes] == [
+        node.qualified_name for node in second.nodes
+    ]
+    result = first
     qnames = {node.qualified_name for node in result.nodes}
     assert f"{module_name}.TestClass" in qnames
     assert f"{module_name}.TestClass-2" in qnames
     assert f"{module_name}.TestClass.alpha" in qnames
     assert f"{module_name}.TestClass-2.beta" in qnames
+    test_class_nodes = [
+        node
+        for node in result.nodes
+        if node.node_type == "type" and node.qualified_name.startswith(f"{module_name}.TestClass")
+    ]
+    assert {node.display_name for node in test_class_nodes} == {"TestClass"}
 
 
 def test_typescript_analyzer_emits_kind_metadata_for_interface_and_signatures(tmp_path):

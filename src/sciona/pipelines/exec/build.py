@@ -49,6 +49,10 @@ class BuildResult:
     discovery_excluded_total: int = 0
     exclude_globs: Sequence[str] = field(default_factory=list)
     parse_failures: int = 0
+    name_collisions_detected: int = 0
+    name_collisions_disambiguated: int = 0
+    residual_containment_failures: int = 0
+    name_collisions_by_language: dict[str, dict[str, int]] = field(default_factory=dict)
     analysis_warnings: Sequence[str] = field(default_factory=list)
     artifact_warnings: Sequence[str] = field(default_factory=list)
 
@@ -186,6 +190,10 @@ def build_repo(
                 discovery_excluded_total=engine.discovery_excluded_total,
                 exclude_globs=list(engine.exclude_globs),
                 parse_failures=engine.parse_failures,
+                name_collisions_detected=engine.name_collisions_detected,
+                name_collisions_disambiguated=engine.name_collisions_disambiguated,
+                residual_containment_failures=engine.residual_containment_failures,
+                name_collisions_by_language=dict(engine.name_collisions_by_language),
                 analysis_warnings=list(engine.warnings),
                 artifact_warnings=list(artifact_warnings),
             )
@@ -302,6 +310,18 @@ def _hydrate_result_payload(payload: dict[str, object]) -> BuildResult | None:
             discovery_excluded_total=int(payload.get("discovery_excluded_total", 0)),
             exclude_globs=list(payload.get("exclude_globs", [])),
             parse_failures=int(payload.get("parse_failures", 0)),
+            name_collisions_detected=int(
+                payload.get("name_collisions_detected", 0)
+            ),
+            name_collisions_disambiguated=int(
+                payload.get("name_collisions_disambiguated", 0)
+            ),
+            residual_containment_failures=int(
+                payload.get("residual_containment_failures", 0)
+            ),
+            name_collisions_by_language=dict(
+                payload.get("name_collisions_by_language", {})
+            ),
             analysis_warnings=list(payload.get("analysis_warnings", [])),
             artifact_warnings=list(payload.get("artifact_warnings", [])),
         )
@@ -322,6 +342,10 @@ def _build_result_payload(result: BuildResult) -> dict[str, object]:
         "discovery_excluded_total": result.discovery_excluded_total,
         "exclude_globs": list(result.exclude_globs),
         "parse_failures": result.parse_failures,
+        "name_collisions_detected": result.name_collisions_detected,
+        "name_collisions_disambiguated": result.name_collisions_disambiguated,
+        "residual_containment_failures": result.residual_containment_failures,
+        "name_collisions_by_language": dict(result.name_collisions_by_language),
         "analysis_warnings": list(result.analysis_warnings),
         "artifact_warnings": list(result.artifact_warnings),
     }

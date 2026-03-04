@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 from typing import List
 
 from ...normalize.model import EdgeRecord, FileSnapshot, SemanticNodeRecord
+from .lexical_naming import LexicalNameDisambiguator
 from .query_surface import PYTHON_STRUCTURAL_NODE_TYPES
 from .shared import node_text as shared_node_text
 
@@ -24,6 +25,9 @@ class PythonNodeState:
     class_body_map: dict[str, object] = field(default_factory=dict)
     pending_calls: list[tuple[str, str, object | None, str | None]] = field(
         default_factory=list
+    )
+    name_disambiguator: LexicalNameDisambiguator = field(
+        default_factory=LexicalNameDisambiguator
     )
 
 
@@ -78,6 +82,20 @@ def _lambda_body(node):
     return node.child_by_field_name("body")
 
 
+def _disambiguate_child_name(
+    *,
+    state: PythonNodeState,
+    parent: str,
+    child_kind: str,
+    local_name: str,
+) -> str:
+    return state.name_disambiguator.canonical_name(
+        parent=parent,
+        child_kind=child_kind,
+        local_name=local_name,
+    )
+
+
 def walk_python_nodes(
     node,
     *,
@@ -112,14 +130,22 @@ def walk_python_nodes(
         class_name = _node_text(name_node, snapshot.content)
         if not class_name:
             return
-        if state.class_stack:
+        if state.callable_stack:
+            parent = state.callable_stack[-1]
+            parent_node_type = "callable"
+        elif state.class_stack:
             parent = state.class_stack[-1]
             parent_node_type = "type"
-            qualified = f"{parent}.{class_name}"
         else:
             parent = module_name
             parent_node_type = "module"
-            qualified = f"{module_name}.{class_name}"
+        emitted_name = _disambiguate_child_name(
+            state=state,
+            parent=parent,
+            child_kind="type",
+            local_name=class_name,
+        )
+        qualified = f"{parent}.{emitted_name}"
         result.nodes.append(
             SemanticNodeRecord(
                 language=language,
@@ -178,7 +204,6 @@ def walk_python_nodes(
         if state.class_stack:
             node_type = "callable"
             parent = state.class_stack[-1]
-            qualified = f"{parent}.{func_name}"
             parent_node_type = "type"
             edge_type = "LEXICALLY_CONTAINS"
             state.class_methods.setdefault(parent, set()).add(func_name)
@@ -187,17 +212,22 @@ def walk_python_nodes(
             node_type = "callable"
             parent = state.callable_stack[-1]
             parent_node_type = "callable"
-            qualified = f"{parent}.{func_name}"
             edge_type = "LEXICALLY_CONTAINS"
             role = "nested"
         else:
             node_type = "callable"
             parent = module_name
             parent_node_type = "module"
-            qualified = f"{module_name}.{func_name}"
             edge_type = "LEXICALLY_CONTAINS"
             state.module_functions.add(func_name)
             role = "declared"
+        emitted_name = _disambiguate_child_name(
+            state=state,
+            parent=parent,
+            child_kind="callable",
+            local_name=func_name,
+        )
+        qualified = f"{parent}.{emitted_name}"
         is_async = _is_async_callable(node, snapshot.content)
         metadata = {"callable_role": role}
         if is_async:
@@ -273,7 +303,13 @@ def walk_python_nodes(
                     parent = module_name
                     parent_node_type = "module"
                     role = "bound"
-                qualified = f"{parent}.{func_name}"
+                emitted_name = _disambiguate_child_name(
+                    state=state,
+                    parent=parent,
+                    child_kind="callable",
+                    local_name=func_name,
+                )
+                qualified = f"{parent}.{emitted_name}"
                 result.nodes.append(
                     SemanticNodeRecord(
                         language=language,

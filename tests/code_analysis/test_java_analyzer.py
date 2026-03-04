@@ -128,6 +128,54 @@ def test_java_analyzer_nested_class_qname(tmp_path):
     assert {"LEXICALLY_CONTAINS"}.issubset(edge_types)
 
 
+def test_java_analyzer_disambiguates_overloaded_methods_and_local_classes(tmp_path):
+    module = """
+    class Outer {
+        void run() {}
+        void run(int x) {}
+
+        void a() {
+            class Local {}
+        }
+        void b() {
+            class Local {}
+        }
+    }
+    """
+    repo = tmp_path
+    src = repo / "src"
+    src.mkdir()
+    file_path = src / "Outer.java"
+    file_path.write_text(module, encoding="utf-8")
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("src/Outer.java"),
+            language="java",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = JavaAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+    qnames = {node.qualified_name for node in result.nodes}
+    assert f"{module_name}.Outer.run" in qnames
+    assert f"{module_name}.Outer.run-2" in qnames
+    assert f"{module_name}.Outer.a.Local" in qnames
+    assert f"{module_name}.Outer.b.Local" in qnames
+    run_nodes = [
+        node
+        for node in result.nodes
+        if node.node_type == "callable" and node.qualified_name.startswith(f"{module_name}.Outer.run")
+    ]
+    assert {node.display_name for node in run_nodes} == {"run"}
+
+
 def test_java_analyzer_resolves_for_each_catch_and_instanceof_bindings(tmp_path):
     module = """
     class Item {
@@ -456,4 +504,4 @@ def test_java_callable_role_nested_for_local_class_methods_in_callable_scope(tmp
         if node.node_type == "callable"
     }
     assert role_by_qname[f"{module_name}.Outer.host"] == "declared"
-    assert role_by_qname[f"{module_name}.Outer.Local.run"] == "nested"
+    assert role_by_qname[f"{module_name}.Outer.host.Local.run"] == "nested"

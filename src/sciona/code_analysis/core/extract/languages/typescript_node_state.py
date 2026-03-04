@@ -8,6 +8,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List
 
+from .lexical_naming import LexicalNameDisambiguator
+
 
 @dataclass
 class TypeScriptNodeState:
@@ -31,7 +33,9 @@ class TypeScriptNodeState:
     pending_calls: list[tuple[str, str, object | None, str | None]] = field(
         default_factory=list
     )
-    sibling_name_counts: dict[tuple[str, str, str], int] = field(default_factory=dict)
+    name_disambiguator: LexicalNameDisambiguator = field(
+        default_factory=LexicalNameDisambiguator
+    )
 
 
 __all__ = ["TypeScriptNodeState"]

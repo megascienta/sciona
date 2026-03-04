@@ -79,6 +79,12 @@ class JavaAnalyzer(ASTAnalyzer):
                 collect_declared_vars=collect_declared_vars,
                 collect_constructor_field_types=collect_constructor_field_types,
             )
+        result.diagnostics["name_collisions_detected"] = (
+            state.name_disambiguator.collisions_detected
+        )
+        result.diagnostics["name_collisions_disambiguated"] = (
+            state.name_disambiguator.collisions_disambiguated
+        )
 
         emit_local_inheritance_edges(language=self.language, result=result)
         import_model = collect_java_import_model(

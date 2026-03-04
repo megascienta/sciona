@@ -404,3 +404,93 @@ def test_engine_applies_max_call_identifiers_guardrail(tmp_path, monkeypatch):
         "max_call_identifiers_per_file=2" in warning for warning in engine.warnings
     )
     conn.close()
+
+
+def test_engine_accumulates_name_collision_and_residual_containment_diagnostics(
+    tmp_path, monkeypatch
+):
+    class DiagnosticAnalyzer(ASTAnalyzer):
+        language = "python"
+
+        def analyze(self, snapshot, module_name):
+            rel = snapshot.record.relative_path.as_posix()
+            if rel.endswith("bad.py"):
+                raise ValueError(
+                    "Lexical containment span invariant violated: parent does not enclose child"
+                )
+            return AnalysisResult(
+                nodes=[],
+                edges=[],
+                call_records=[],
+                diagnostics={
+                    "name_collisions_detected": 2,
+                    "name_collisions_disambiguated": 2,
+                },
+            )
+
+        def module_name(self, repo_root, snapshot):
+            rel = snapshot.record.relative_path.as_posix()
+            if rel.endswith("good.py"):
+                return "pkg.good"
+            return "pkg.bad"
+
+    repo_root = tmp_path
+    pkg = repo_root / "pkg"
+    pkg.mkdir(parents=True)
+    (pkg / "good.py").write_text("def ok():\n    pass\n", encoding="utf-8")
+    (pkg / "bad.py").write_text("def bad():\n    pass\n", encoding="utf-8")
+
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    ensure_schema(conn)
+    snapshot_id = "snap"
+    conn.execute(
+        """
+        INSERT INTO snapshots(snapshot_id, created_at, source, is_committed, structural_hash)
+        VALUES (?, ?, ?, ?, ?)
+        """,
+        (snapshot_id, "2024-01-01T00:00:00Z", "scan", 0, "hash"),
+    )
+    conn.commit()
+
+    languages = {"python": core_config.LanguageSettings(name="python", enabled=True)}
+    monkeypatch.setattr(registry, "get_analyzer", lambda language: DiagnosticAnalyzer())
+    monkeypatch.setattr(
+        registry, "get_analyzer_for_path", lambda path, analyzers: analyzers.get("python")
+    )
+    monkeypatch.setattr(
+        "sciona.runtime.git.tracked_paths",
+        lambda _root: {Path("pkg/good.py").as_posix(), Path("pkg/bad.py").as_posix()},
+    )
+    monkeypatch.setattr("sciona.runtime.git.ignored_tracked_paths", lambda _root: set())
+    monkeypatch.setattr(
+        "sciona.runtime.git.blob_sha_batch", lambda _root, paths: {path: "hash" for path in paths}
+    )
+    monkeypatch.setattr("sciona.runtime.git.blob_sha", lambda _root, _path: "hash")
+
+    engine = BuildEngine(
+        repo_root,
+        conn,
+        core_write,
+        languages=languages,
+        discovery=core_config.DiscoverySettings(exclude_globs=[]),
+    )
+    conn.execute("BEGIN")
+    engine.run(
+        snapshot=Snapshot(
+            snapshot_id=snapshot_id,
+            created_at="2024-01-01T00:00:00Z",
+            source="scan",
+            git_commit_sha="",
+            git_commit_time="",
+            git_branch="",
+        )
+    )
+    conn.commit()
+
+    assert engine.name_collisions_detected == 2
+    assert engine.name_collisions_disambiguated == 2
+    assert engine.residual_containment_failures == 1
+    assert engine.name_collisions_by_language["python"]["name_collisions_detected"] == 2
+    assert engine.name_collisions_by_language["python"]["name_collisions_disambiguated"] == 2
+    conn.close()

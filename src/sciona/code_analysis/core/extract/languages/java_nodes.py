@@ -10,6 +10,7 @@ from typing import List
 
 from ...normalize.model import EdgeRecord, FileSnapshot, SemanticNodeRecord
 from ..query_helpers import find_nodes_of_types_query
+from .lexical_naming import LexicalNameDisambiguator
 from .query_surface import JAVA_STRUCTURAL_NODE_TYPES
 from .shared import node_text as shared_node_text
 
@@ -26,6 +27,9 @@ class JavaNodeState:
     class_field_types: dict[str, dict[str, str]] = field(default_factory=dict)
     pending_calls: list[tuple[str, str, object | None, str | None]] = field(
         default_factory=list
+    )
+    name_disambiguator: LexicalNameDisambiguator = field(
+        default_factory=LexicalNameDisambiguator
     )
 
 
@@ -72,6 +76,20 @@ def _java_structural_children(node) -> list[object]:
     ]
 
 
+def _disambiguate_child_name(
+    *,
+    state: JavaNodeState,
+    parent: str,
+    child_kind: str,
+    local_name: str,
+) -> str:
+    return state.name_disambiguator.canonical_name(
+        parent=parent,
+        child_kind=child_kind,
+        local_name=local_name,
+    )
+
+
 def walk_java_nodes(
     node,
     *,
@@ -101,18 +119,22 @@ def walk_java_nodes(
         class_name = _node_text(name_node, snapshot.content)
         if not class_name:
             return
-        if state.class_stack:
-            parent = state.class_stack[-1]
-            parent_node_type = "type"
-            qualified = f"{parent}.{class_name}"
-        elif state.callable_stack:
+        if state.callable_stack:
             parent = state.callable_stack[-1]
             parent_node_type = "callable"
-            qualified = f"{parent}.{class_name}"
+        elif state.class_stack:
+            parent = state.class_stack[-1]
+            parent_node_type = "type"
         else:
             parent = module_name
             parent_node_type = "module"
-            qualified = f"{module_name}.{class_name}"
+        emitted_name = _disambiguate_child_name(
+            state=state,
+            parent=parent,
+            child_kind="type",
+            local_name=class_name,
+        )
+        qualified = f"{parent}.{emitted_name}"
         result.nodes.append(
             SemanticNodeRecord(
                 language=language,
@@ -178,7 +200,13 @@ def walk_java_nodes(
         node_type = "callable"
         parent = state.class_stack[-1]
         state.class_methods.setdefault(parent, set()).add(func_name)
-        qualified = f"{parent}.{func_name}"
+        emitted_name = _disambiguate_child_name(
+            state=state,
+            parent=parent,
+            child_kind="callable",
+            local_name=func_name,
+        )
+        qualified = f"{parent}.{emitted_name}"
         callable_kind = {
             "constructor_declaration": "constructor",
             "compact_constructor_declaration": "compact_constructor",

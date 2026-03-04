@@ -36,6 +36,10 @@ def render_build(payload: dict) -> list[str]:
         lines.extend(_render_summary_lines(summary, indent="  ", include_reasons=False))
     else:
         lines.append("Summary: unavailable")
+    diagnostics = _render_name_collision_diagnostics(payload, indent="  ")
+    if diagnostics:
+        lines.append("Diagnostics:")
+        lines.extend(diagnostics)
     return lines
 
 
@@ -126,6 +130,28 @@ def _format_call_site_summary(call_sites: dict) -> str:
         f"call_sites: {percentage:.1f}% successful ({accepted}/{eligible}), "
         f"failed: {dropped}"
     )
+
+
+def _render_name_collision_diagnostics(payload: dict, *, indent: str) -> list[str]:
+    detected = int(payload.get("name_collisions_detected") or 0)
+    disambiguated = int(payload.get("name_collisions_disambiguated") or 0)
+    residual = int(payload.get("residual_containment_failures") or 0)
+    by_language = payload.get("name_collisions_by_language") or {}
+    if detected == 0 and disambiguated == 0 and residual == 0:
+        return []
+    lines = [
+        f"{indent}name_collisions_detected: {detected}",
+        f"{indent}name_collisions_disambiguated: {disambiguated}",
+        f"{indent}residual_containment_failures: {residual}",
+    ]
+    for language in sorted(by_language):
+        item = by_language.get(language) or {}
+        lang_detected = int(item.get("name_collisions_detected") or 0)
+        lang_disambiguated = int(item.get("name_collisions_disambiguated") or 0)
+        lines.append(
+            f"{indent}{language}: detected={lang_detected}, disambiguated={lang_disambiguated}"
+        )
+    return lines
 
 
 def emit(lines: Iterable[str]) -> None:

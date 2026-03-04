@@ -63,12 +63,11 @@ def _disambiguate_child_name(
     child_kind: str,
     local_name: str,
 ) -> str:
-    key = (parent, child_kind, local_name)
-    occurrence = state.sibling_name_counts.get(key, 0) + 1
-    state.sibling_name_counts[key] = occurrence
-    if occurrence == 1:
-        return local_name
-    return f"{local_name}-{occurrence}"
+    return state.name_disambiguator.canonical_name(
+        parent=parent,
+        child_kind=child_kind,
+        local_name=local_name,
+    )
 
 
 def walk_typescript_nodes(
@@ -94,7 +93,13 @@ def walk_typescript_nodes(
             child_span = (value_node.start_byte, value_node.end_byte)
             if not _span_encloses(parent_span, child_span):
                 return
-        qualified = f"{parent}.{name}"
+        emitted_name = _disambiguate_child_name(
+            state=state,
+            parent=parent,
+            child_kind="callable",
+            local_name=name,
+        )
+        qualified = f"{parent}.{emitted_name}"
         if parent_node_type == "module":
             state.module_functions.add(name)
         elif parent_node_type == "type":
@@ -147,12 +152,12 @@ def walk_typescript_nodes(
         class_name = node_text(name_node, snapshot.content)
         if not class_name:
             return
-        if state.class_stack:
-            parent = state.class_stack[-1]
-            parent_node_type = "type"
-        elif state.callable_stack:
+        if state.callable_stack:
             parent = state.callable_stack[-1]
             parent_node_type = "callable"
+        elif state.class_stack:
+            parent = state.class_stack[-1]
+            parent_node_type = "type"
         else:
             parent = module_name
             parent_node_type = "module"
@@ -168,7 +173,7 @@ def walk_typescript_nodes(
                 language=language,
                 node_type="type",
                 qualified_name=qualified,
-                display_name=emitted_name,
+                display_name=class_name,
                 file_path=snapshot.record.relative_path,
                 start_line=node.start_point[0] + 1,
                 end_line=node.end_point[0] + 1,
@@ -235,7 +240,13 @@ def walk_typescript_nodes(
             node_type = "callable"
             parent = state.class_stack[-1]
             parent_node_type = "type"
-            qualified = f"{parent}.{func_name}"
+            emitted_name = _disambiguate_child_name(
+                state=state,
+                parent=parent,
+                child_kind="callable",
+                local_name=func_name,
+            )
+            qualified = f"{parent}.{emitted_name}"
             edge_type = "LEXICALLY_CONTAINS"
             state.class_methods.setdefault(parent, set()).add(func_name)
             role = "constructor" if func_name == "constructor" else "declared"
@@ -244,12 +255,24 @@ def walk_typescript_nodes(
             if state.callable_stack:
                 parent = state.callable_stack[-1]
                 parent_node_type = "callable"
-                qualified = f"{parent}.{func_name}"
+                emitted_name = _disambiguate_child_name(
+                    state=state,
+                    parent=parent,
+                    child_kind="callable",
+                    local_name=func_name,
+                )
+                qualified = f"{parent}.{emitted_name}"
                 role = "nested"
             else:
                 parent = module_name
                 parent_node_type = "module"
-                qualified = f"{module_name}.{func_name}"
+                emitted_name = _disambiguate_child_name(
+                    state=state,
+                    parent=parent,
+                    child_kind="callable",
+                    local_name=func_name,
+                )
+                qualified = f"{parent}.{emitted_name}"
                 role = "declared"
             edge_type = "LEXICALLY_CONTAINS"
             if parent_node_type == "module":
@@ -335,12 +358,12 @@ def walk_typescript_nodes(
             class_name = node_text(name_node, snapshot.content)
             if not class_name:
                 return
-            if state.class_stack:
-                parent = state.class_stack[-1]
-                parent_node_type = "type"
-            elif state.callable_stack:
+            if state.callable_stack:
                 parent = state.callable_stack[-1]
                 parent_node_type = "callable"
+            elif state.class_stack:
+                parent = state.class_stack[-1]
+                parent_node_type = "type"
             else:
                 parent = module_name
                 parent_node_type = "module"
@@ -356,7 +379,7 @@ def walk_typescript_nodes(
                     language=language,
                     node_type="type",
                     qualified_name=qualified,
-                    display_name=emitted_name,
+                    display_name=class_name,
                     file_path=snapshot.record.relative_path,
                     start_line=value_node.start_point[0] + 1,
                     end_line=value_node.end_point[0] + 1,
@@ -403,14 +426,14 @@ def walk_typescript_nodes(
             object_name = node_text(name_node, snapshot.content)
             if not object_name:
                 return
-            if state.class_stack:
-                parent = state.class_stack[-1]
-                parent_node_type = "type"
-                class_name = parent
-            elif state.callable_stack:
+            if state.callable_stack:
                 parent = state.callable_stack[-1]
                 parent_node_type = "callable"
                 class_name = state.class_stack[-1] if state.class_stack else None
+            elif state.class_stack:
+                parent = state.class_stack[-1]
+                parent_node_type = "type"
+                class_name = parent
             else:
                 parent = module_name
                 parent_node_type = "module"
@@ -467,12 +490,12 @@ def walk_typescript_nodes(
         func_name = node_text(name_node, snapshot.content)
         if not func_name:
             return
-        if state.class_stack:
-            parent = state.class_stack[-1]
-            parent_node_type = "type"
-        elif state.callable_stack:
+        if state.callable_stack:
             parent = state.callable_stack[-1]
             parent_node_type = "callable"
+        elif state.class_stack:
+            parent = state.class_stack[-1]
+            parent_node_type = "type"
         else:
             parent = module_name
             parent_node_type = "module"

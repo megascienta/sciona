@@ -115,3 +115,4 @@ class AnalysisResult:
     nodes: List[SemanticNodeRecord] = field(default_factory=list)
     edges: List[EdgeRecord] = field(default_factory=list)
     call_records: List[CallRecord] = field(default_factory=list)
+    diagnostics: Dict[str, object] = field(default_factory=dict)

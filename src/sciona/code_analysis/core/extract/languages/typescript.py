@@ -72,6 +72,12 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                 state=state,
                 function_depth=0,
             )
+        result.diagnostics["name_collisions_detected"] = (
+            state.name_disambiguator.collisions_detected
+        )
+        result.diagnostics["name_collisions_disambiguated"] = (
+            state.name_disambiguator.collisions_disambiguated
+        )
         emit_local_inheritance_edges(language=self.language, result=result)
         import_model = collect_typescript_import_model(
             root,
