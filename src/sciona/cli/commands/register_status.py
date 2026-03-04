@@ -27,12 +27,12 @@ def register_status(app: typer.Typer) -> None:
         full: bool = typer.Option(
             False,
             "--full",
-            help="Show per-language diagnostic details.",
+            help="Show per-language diagnostic details in text output.",
         ),
         verbose: bool = typer.Option(
             False,
             "--verbose",
-            help="Alias for --full.",
+            help="Alias for --full (text output only).",
         ),
         json_output: bool = typer.Option(
             False,
@@ -48,8 +48,8 @@ def register_status(app: typer.Typer) -> None:
     ) -> None:
         """Show SCIONA status for the current repository (warns if dirty)."""
         status_result = cli_call(api_cli.status)
-        detailed = bool(full or verbose)
         export_mode = bool(json_output or output is not None)
+        detailed = bool(full or verbose) if not export_mode else True
         include_failure_reasons = bool(detailed or export_mode)
         summary = None
         if status_result.latest_snapshot:

@@ -74,6 +74,7 @@ def test_cli_status_default_uses_short_summary(cli_app, cli_runner, monkeypatch)
     assert "Last build:" in result.stdout
     assert "Summary:" in result.stdout
     assert "Discovery:" not in result.stdout
+    assert "call_materialization:" not in result.stdout
     assert "failed reasons:" not in result.stdout
     assert "Last build:\n  Snapshot:" not in result.stdout
     assert "Last build:\n  Created:" not in result.stdout
@@ -94,6 +95,7 @@ def test_cli_status_full_emits_failure_reasons(cli_app, cli_runner, monkeypatch)
 
     assert result.exit_code == 0
     assert calls == [True]
+    assert "call_materialization:" in result.stdout
     assert "failed reasons: no_candidates=1" in result.stdout
 
 
@@ -140,5 +142,24 @@ def test_cli_status_output_writes_json_file(cli_app, cli_runner, monkeypatch, tm
     payload = json.loads(output_path.read_text(encoding="utf-8"))
     assert payload["status_report_version"] == 1
     assert not payload["repo_root"].startswith("/")
-    assert payload["detailed"] is False
+    assert payload["detailed"] is True
     assert payload["summary"]["languages"][0]["drop_reasons"]["no_candidates"] == 1
+
+
+def test_cli_status_json_ignores_full_flag_for_payload_shape(
+    cli_app, cli_runner, monkeypatch
+):
+    def _summary(snapshot_id: str, include_failure_reasons: bool = False):
+        assert snapshot_id == "snap-1"
+        assert include_failure_reasons is True
+        return _fake_summary()
+
+    monkeypatch.setattr(api_cli, "status", _fake_status)
+    monkeypatch.setattr(api_cli, "snapshot_report", _summary)
+
+    plain = cli_runner.invoke(cli_app, ["status", "--json"])
+    flagged = cli_runner.invoke(cli_app, ["status", "--json", "--full"])
+
+    assert plain.exit_code == 0
+    assert flagged.exit_code == 0
+    assert json.loads(plain.stdout) == json.loads(flagged.stdout)

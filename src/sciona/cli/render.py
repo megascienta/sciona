@@ -73,6 +73,7 @@ def render_status(payload: dict) -> list[str]:
                     summary,
                     indent="    ",
                     include_reasons=bool(payload.get("detailed")),
+                    include_call_stats=bool(payload.get("detailed")),
                 )
             )
         else:
@@ -85,6 +86,7 @@ def _render_summary_lines(
     *,
     indent: str,
     include_reasons: bool,
+    include_call_stats: bool = True,
 ) -> list[str]:
     lines: list[str] = []
     for item in summary.get("languages", []) or []:
@@ -93,10 +95,11 @@ def _render_summary_lines(
         nodes = int(item.get("nodes") or 0)
         edges = int(item.get("edges") or 0)
         lines.append(f"{indent}{language}: {files} files, {nodes} nodes, {edges} edges")
-        lines.append(
-            f"{indent}  call_materialization: "
-            f"{_format_call_site_summary(item.get('call_sites') or {})}"
-        )
+        if include_call_stats:
+            lines.append(
+                f"{indent}  call_materialization: "
+                f"{_format_call_site_summary(item.get('call_sites') or {})}"
+            )
         if include_reasons:
             reasons = item.get("drop_reasons") or {}
             if reasons:
@@ -109,10 +112,11 @@ def _render_summary_lines(
     total_nodes = int(totals.get("nodes") or 0)
     total_edges = int(totals.get("edges") or 0)
     lines.append(f"{indent}total: {total_files} files, {total_nodes} nodes, {total_edges} edges")
-    lines.append(
-        f"{indent}  call_materialization: "
-        f"{_format_call_site_summary(totals.get('call_sites') or {})}"
-    )
+    if include_call_stats:
+        lines.append(
+            f"{indent}  call_materialization: "
+            f"{_format_call_site_summary(totals.get('call_sites') or {})}"
+        )
     if not summary.get("artifact_db_available", False):
         lines.append(f"{indent}call_sites diagnostics: unavailable (artifact DB missing)")
     return lines
