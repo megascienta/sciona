@@ -31,6 +31,7 @@ class TypeScriptNodeState:
     pending_calls: list[tuple[str, str, object | None, str | None]] = field(
         default_factory=list
     )
+    sibling_name_counts: dict[tuple[str, str, str], int] = field(default_factory=dict)
 
 
 __all__ = ["TypeScriptNodeState"]

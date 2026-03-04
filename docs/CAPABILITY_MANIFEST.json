@@ -63,6 +63,7 @@
           "method_signature"
         ],
         "classes": [
+          "abstract_class_declaration",
           "class_declaration",
           "class_expression"
         ],
@@ -101,7 +102,10 @@
           "method_declaration"
         ],
         "classes": [
-          "class_declaration"
+          "class_declaration",
+          "enum_declaration",
+          "interface_declaration",
+          "record_declaration"
         ],
         "parameters": [
           "formal_parameter"

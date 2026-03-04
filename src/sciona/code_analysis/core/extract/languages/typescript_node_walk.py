@@ -56,6 +56,21 @@ def _is_async_callable(node, content: bytes) -> bool:
     return text.startswith("async ")
 
 
+def _disambiguate_child_name(
+    *,
+    state: TypeScriptNodeState,
+    parent: str,
+    child_kind: str,
+    local_name: str,
+) -> str:
+    key = (parent, child_kind, local_name)
+    occurrence = state.sibling_name_counts.get(key, 0) + 1
+    state.sibling_name_counts[key] = occurrence
+    if occurrence == 1:
+        return local_name
+    return f"{local_name}-{occurrence}"
+
+
 def walk_typescript_nodes(
     node,
     *,
@@ -135,21 +150,25 @@ def walk_typescript_nodes(
         if state.class_stack:
             parent = state.class_stack[-1]
             parent_node_type = "type"
-            qualified = f"{parent}.{class_name}"
         elif state.callable_stack:
             parent = state.callable_stack[-1]
             parent_node_type = "callable"
-            qualified = f"{parent}.{class_name}"
         else:
             parent = module_name
             parent_node_type = "module"
-            qualified = f"{module_name}.{class_name}"
+        emitted_name = _disambiguate_child_name(
+            state=state,
+            parent=parent,
+            child_kind="type",
+            local_name=class_name,
+        )
+        qualified = f"{parent}.{emitted_name}"
         result.nodes.append(
             SemanticNodeRecord(
                 language=language,
                 node_type="type",
                 qualified_name=qualified,
-                display_name=class_name,
+                display_name=emitted_name,
                 file_path=snapshot.record.relative_path,
                 start_line=node.start_point[0] + 1,
                 end_line=node.end_point[0] + 1,
@@ -319,21 +338,25 @@ def walk_typescript_nodes(
             if state.class_stack:
                 parent = state.class_stack[-1]
                 parent_node_type = "type"
-                qualified = f"{parent}.{class_name}"
             elif state.callable_stack:
                 parent = state.callable_stack[-1]
                 parent_node_type = "callable"
-                qualified = f"{parent}.{class_name}"
             else:
                 parent = module_name
                 parent_node_type = "module"
-                qualified = f"{module_name}.{class_name}"
+            emitted_name = _disambiguate_child_name(
+                state=state,
+                parent=parent,
+                child_kind="type",
+                local_name=class_name,
+            )
+            qualified = f"{parent}.{emitted_name}"
             result.nodes.append(
                 SemanticNodeRecord(
                     language=language,
                     node_type="type",
                     qualified_name=qualified,
-                    display_name=class_name,
+                    display_name=emitted_name,
                     file_path=snapshot.record.relative_path,
                     start_line=value_node.start_point[0] + 1,
                     end_line=value_node.end_point[0] + 1,
