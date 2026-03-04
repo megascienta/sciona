@@ -8,7 +8,6 @@ from __future__ import annotations
 from pathlib import Path, PurePosixPath
 from typing import Optional
 
-from .....runtime import paths as runtime_paths
 from ...module_naming import module_name_from_path
 from ...normalize.model import FileSnapshot
 from ..query_helpers import find_nodes_of_types_query
@@ -47,7 +46,6 @@ def collect_typescript_import_model(
 ) -> NormalizedImportModel:
     del module_name
     model = NormalizedImportModel()
-    repo_prefix = runtime_paths.repo_name_prefix(repo_root_from_snapshot(snapshot))
     nodes = find_nodes_of_types_query(
         root,
         language_name="typescript",
@@ -68,12 +66,7 @@ def collect_typescript_import_model(
                     continue
             else:
                 continue
-        if repo_prefix and (
-            normalized == repo_prefix or normalized.startswith(f"{repo_prefix}.")
-        ):
-            model.modules.append(normalized)
-        else:
-            model.modules.append(normalized)
+        model.modules.append(normalized)
         populate_ts_aliases_from_node(
             node,
             snapshot.content,
