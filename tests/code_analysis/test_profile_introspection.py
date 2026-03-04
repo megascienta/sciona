@@ -11,6 +11,11 @@ from sciona.code_analysis.tools.profile_introspection import (
     typescript_class_extras,
     typescript_function_extras,
 )
+from sciona.code_analysis.tools.profile_introspection_cache import (
+    _java_inspector_cached,
+    _python_inspector_cached,
+    _typescript_inspector_cached,
+)
 from sciona.code_analysis.tools.profile_introspection_typescript import (
     _TypeScriptInspector,
     _fuzzy_span_lookup,
@@ -207,3 +212,29 @@ def test_typescript_fuzzy_span_lookup_prefers_closest_covering_end_line() -> Non
     }
     assert _fuzzy_span_lookup(index, 10, 11) == "covering"
     assert _fuzzy_span_lookup(index, 10, 30) == "late"
+
+
+def test_profile_inspector_loaders_are_memoized(tmp_path: Path) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    (repo_root / "pkg").mkdir()
+    (repo_root / "pkg" / "a.py").write_text("def f():\n    return 1\n", encoding="utf-8")
+    (repo_root / "pkg" / "a.ts").write_text("class A {}\n", encoding="utf-8")
+    (repo_root / "pkg" / "A.java").write_text("class A {}\n", encoding="utf-8")
+
+    root_key = str(repo_root.resolve())
+    _python_inspector_cached.cache_clear()
+    _typescript_inspector_cached.cache_clear()
+    _java_inspector_cached.cache_clear()
+
+    py_first = _python_inspector_cached(root_key, "pkg/a.py")
+    py_second = _python_inspector_cached(root_key, "pkg/a.py")
+    assert py_first is py_second
+
+    ts_first = _typescript_inspector_cached(root_key, "pkg/a.ts")
+    ts_second = _typescript_inspector_cached(root_key, "pkg/a.ts")
+    assert ts_first is ts_second
+
+    java_first = _java_inspector_cached(root_key, "pkg/A.java")
+    java_second = _java_inspector_cached(root_key, "pkg/A.java")
+    assert java_first is java_second

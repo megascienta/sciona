@@ -5,12 +5,14 @@
 
 from __future__ import annotations
 
+from functools import lru_cache
 from pathlib import Path
 from typing import Optional
 
 from .profile_errors import QueryCompileError, TreeSitterBootstrapError
 
 
+@lru_cache(maxsize=512)
 def _python_inspector_cached(root_key: str, relative_path: str) -> Optional[object]:
     path = Path(root_key) / relative_path
     try:
@@ -25,6 +27,7 @@ def _python_inspector_cached(root_key: str, relative_path: str) -> Optional[obje
         return None
 
 
+@lru_cache(maxsize=512)
 def _typescript_inspector_cached(root_key: str, relative_path: str) -> Optional[object]:
     path = Path(root_key) / relative_path
     try:
@@ -39,6 +42,7 @@ def _typescript_inspector_cached(root_key: str, relative_path: str) -> Optional[
         return None
 
 
+@lru_cache(maxsize=512)
 def _java_inspector_cached(root_key: str, relative_path: str) -> Optional[object]:
     path = Path(root_key) / relative_path
     try:
