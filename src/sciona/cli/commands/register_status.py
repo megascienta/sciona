@@ -48,12 +48,14 @@ def register_status(app: typer.Typer) -> None:
         """Show SCIONA status for the current repository (warns if dirty)."""
         status_result = cli_call(api_cli.status)
         detailed = bool(full or verbose)
+        export_mode = bool(json_output or output is not None)
+        include_failure_reasons = bool(detailed or export_mode)
         summary = None
         if status_result.latest_snapshot:
             summary = cli_call(
                 api_cli.snapshot_report,
                 snapshot_id=status_result.latest_snapshot,
-                include_failure_reasons=detailed,
+                include_failure_reasons=include_failure_reasons,
             )
         payload = {
             "repo_root": str(status_result.repo_root),
@@ -67,7 +69,7 @@ def register_status(app: typer.Typer) -> None:
             "detailed": detailed,
             "status_report_version": 1,
         }
-        if json_output or output is not None:
+        if export_mode:
             warning = get_dirty_worktree_warning(status_result.repo_root)
             if warning:
                 payload["warning"] = warning

@@ -110,12 +110,13 @@ def test_cli_status_json_emits_payload(cli_app, cli_runner, monkeypatch):
     result = cli_runner.invoke(cli_app, ["status", "--json"])
 
     assert result.exit_code == 0
-    assert calls == [False]
+    assert calls == [True]
     payload = json.loads(result.stdout)
     assert payload["repo_root"] == "/tmp/repo"
     assert payload["latest_snapshot"] == "snap-1"
     assert payload["status_report_version"] == 1
     assert payload["summary"]["snapshot_id"] == "snap-1"
+    assert payload["summary"]["languages"][0]["drop_reasons"]["no_candidates"] == 1
 
 
 def test_cli_status_output_writes_json_file(cli_app, cli_runner, monkeypatch, tmp_path):
@@ -130,11 +131,11 @@ def test_cli_status_output_writes_json_file(cli_app, cli_runner, monkeypatch, tm
     monkeypatch.setattr(api_cli, "snapshot_report", _summary)
 
     output_path = tmp_path / "reports" / "status.json"
-    result = cli_runner.invoke(cli_app, ["status", "--full", "--output", str(output_path)])
+    result = cli_runner.invoke(cli_app, ["status", "--output", str(output_path)])
 
     assert result.exit_code == 0
     assert calls == [True]
     payload = json.loads(output_path.read_text(encoding="utf-8"))
     assert payload["status_report_version"] == 1
-    assert payload["detailed"] is True
+    assert payload["detailed"] is False
     assert payload["summary"]["languages"][0]["drop_reasons"]["no_candidates"] == 1
