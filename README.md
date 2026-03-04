@@ -54,6 +54,10 @@ sciona init
 $EDITOR .sciona/config.yaml   # enable languages
 sciona build
 sciona status
+# machine-readable status payload
+sciona status --json
+# write full status payload to file
+sciona status --full --output .sciona/status-report.json
 ```
 
 ## Supported languages

@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import json
 from types import SimpleNamespace
 
 from sciona.api import cli as api_cli
@@ -93,3 +94,47 @@ def test_cli_status_full_emits_failure_reasons(cli_app, cli_runner, monkeypatch)
     assert result.exit_code == 0
     assert calls == [True]
     assert "failed reasons: no_candidates=1" in result.stdout
+
+
+def test_cli_status_json_emits_payload(cli_app, cli_runner, monkeypatch):
+    calls: list[bool] = []
+
+    def _summary(snapshot_id: str, include_failure_reasons: bool = False):
+        assert snapshot_id == "snap-1"
+        calls.append(include_failure_reasons)
+        return _fake_summary()
+
+    monkeypatch.setattr(api_cli, "status", _fake_status)
+    monkeypatch.setattr(api_cli, "snapshot_report", _summary)
+
+    result = cli_runner.invoke(cli_app, ["status", "--json"])
+
+    assert result.exit_code == 0
+    assert calls == [False]
+    payload = json.loads(result.stdout)
+    assert payload["repo_root"] == "/tmp/repo"
+    assert payload["latest_snapshot"] == "snap-1"
+    assert payload["status_report_version"] == 1
+    assert payload["summary"]["snapshot_id"] == "snap-1"
+
+
+def test_cli_status_output_writes_json_file(cli_app, cli_runner, monkeypatch, tmp_path):
+    calls: list[bool] = []
+
+    def _summary(snapshot_id: str, include_failure_reasons: bool = False):
+        assert snapshot_id == "snap-1"
+        calls.append(include_failure_reasons)
+        return _fake_summary()
+
+    monkeypatch.setattr(api_cli, "status", _fake_status)
+    monkeypatch.setattr(api_cli, "snapshot_report", _summary)
+
+    output_path = tmp_path / "reports" / "status.json"
+    result = cli_runner.invoke(cli_app, ["status", "--full", "--output", str(output_path)])
+
+    assert result.exit_code == 0
+    assert calls == [True]
+    payload = json.loads(output_path.read_text(encoding="utf-8"))
+    assert payload["status_report_version"] == 1
+    assert payload["detailed"] is True
+    assert payload["summary"]["languages"][0]["drop_reasons"]["no_candidates"] == 1

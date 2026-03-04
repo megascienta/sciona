@@ -5,10 +5,18 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+from typing import Optional
+
 import typer
 
 from ...api import cli as api_cli
-from ..utils import cli_call, emit_dirty_worktree_warning
+from ..utils import (
+    cli_call,
+    emit_dirty_worktree_warning,
+    get_dirty_worktree_warning,
+)
 from .. import render as cli_render
 
 
@@ -24,6 +32,17 @@ def register_status(app: typer.Typer) -> None:
             False,
             "--verbose",
             help="Alias for --full.",
+        ),
+        json_output: bool = typer.Option(
+            False,
+            "--json",
+            help="Emit machine-readable JSON output.",
+        ),
+        output: Optional[Path] = typer.Option(
+            None,
+            "--output",
+            "-o",
+            help="Write full machine-readable status payload to a JSON file.",
         ),
     ) -> None:
         """Show SCIONA status for the current repository (warns if dirty)."""
@@ -46,7 +65,19 @@ def register_status(app: typer.Typer) -> None:
             "db_exists": status_result.db_exists,
             "summary": summary,
             "detailed": detailed,
+            "status_report_version": 1,
         }
+        if json_output or output is not None:
+            warning = get_dirty_worktree_warning(status_result.repo_root)
+            if warning:
+                payload["warning"] = warning
+            text = json.dumps(payload)
+            if output is not None:
+                output.parent.mkdir(parents=True, exist_ok=True)
+                output.write_text(text + "\n", encoding="utf-8")
+            if json_output:
+                typer.echo(text)
+            return
         emit_dirty_worktree_warning(status_result.repo_root)
         cli_render.emit(cli_render.render_status(payload))
 
