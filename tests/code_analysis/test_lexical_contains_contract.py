@@ -97,6 +97,54 @@ def test_lexical_contains_rejects_identical_parent_child_span() -> None:
         assembler._validate_lexical_containment(analysis)
 
 
+def test_lexical_contains_rejects_equal_start_boundary() -> None:
+    assembler = StructuralAssembler(_DummyConn(), _DummyStore())
+    analysis = AnalysisResult(
+        nodes=[
+            _node(node_type="module", qname="pkg.mod", start=0, end=100),
+            _node(node_type="callable", qname="pkg.mod.fn", start=0, end=90),
+        ],
+        edges=[
+            EdgeRecord(
+                src_language="python",
+                src_node_type="module",
+                src_qualified_name="pkg.mod",
+                dst_language="python",
+                dst_node_type="callable",
+                dst_qualified_name="pkg.mod.fn",
+                edge_type="LEXICALLY_CONTAINS",
+            )
+        ],
+        call_records=[],
+    )
+    with pytest.raises(ValueError, match="does not enclose"):
+        assembler._validate_lexical_containment(analysis)
+
+
+def test_lexical_contains_rejects_equal_end_boundary() -> None:
+    assembler = StructuralAssembler(_DummyConn(), _DummyStore())
+    analysis = AnalysisResult(
+        nodes=[
+            _node(node_type="module", qname="pkg.mod", start=0, end=100),
+            _node(node_type="callable", qname="pkg.mod.fn", start=10, end=100),
+        ],
+        edges=[
+            EdgeRecord(
+                src_language="python",
+                src_node_type="module",
+                src_qualified_name="pkg.mod",
+                dst_language="python",
+                dst_node_type="callable",
+                dst_qualified_name="pkg.mod.fn",
+                edge_type="LEXICALLY_CONTAINS",
+            )
+        ],
+        call_records=[],
+    )
+    with pytest.raises(ValueError, match="does not enclose"):
+        assembler._validate_lexical_containment(analysis)
+
+
 def test_lexical_contains_rejects_cycles() -> None:
     assembler = StructuralAssembler(_DummyConn(), _DummyStore())
     analysis = AnalysisResult(

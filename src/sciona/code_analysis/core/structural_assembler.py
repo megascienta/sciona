@@ -136,8 +136,8 @@ class StructuralAssembler:
             ):
                 continue
             enclosed = (
-                parent_node.start_byte <= child_node.start_byte
-                and parent_node.end_byte >= child_node.end_byte
+                parent_node.start_byte < child_node.start_byte
+                and parent_node.end_byte > child_node.end_byte
             )
             identical_span = (
                 parent_node.start_byte == child_node.start_byte
