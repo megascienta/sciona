@@ -133,7 +133,12 @@ Attribution:
 Materialization gate:
 
 - Candidate resolution may produce provisional outcomes.
+- Required resolution stages (receiver/instance mapping, alias narrowing, class
+  scoped fallback, module scoped fallback) are executed in language-specific
+  resolver paths before strict materialization.
 - Final CALLS emission MUST pass strict candidate selection.
+- Strict candidate selection is the final acceptance/materialization gate and
+  MUST NOT be interpreted as the full resolution-stage pipeline.
 - Non-accepted candidates (unresolved, ambiguous, external, disallowed provenance)
   MUST be dropped.
 

@@ -78,6 +78,10 @@ def build_parity_contract() -> dict[str, object]:
             "class_scoped_fallback",
             "module_scoped_fallback",
         ],
+        "resolution_stage_enforcement": {
+            "owner": "language_adapters_via_shared_kernel",
+            "strict_call_gate_role": "final_materialization_only",
+        },
         "documented_asymmetries": {
             "python": {
                 "implements_edges": {

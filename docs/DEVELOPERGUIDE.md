@@ -100,9 +100,14 @@ Calls:
 - Call sites are syntax-derived and best-effort.
 - Attribution is based on nearest enclosing structural callable.
 - Resolution uses deterministic shared kernel path.
+- Required resolution stages (receiver/instance mapping, alias narrowing, class
+  scoped fallback, module scoped fallback) are satisfied in language adapters
+  through the shared kernel contract.
 - BuildEngine strict gating is authoritative for CoreDB snapshot call acceptance.
 - ArtifactEngine applies the same strict gate against committed snapshot context for derived artifacts and may drop additional call materializations without mutating CoreDB.
-- Final materialization is contract-gated via strict call candidate selection.
+- Final materialization is contract-gated via strict call candidate selection;
+  this gate validates acceptance and does not execute the upstream stage
+  pipeline itself.
 - Only accepted in-repo callable targets become `CALLS` edges.
 - Ambiguous provisional candidates are dropped at materialization time.
 

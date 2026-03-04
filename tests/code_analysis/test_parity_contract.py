@@ -33,6 +33,15 @@ def test_parity_contract_stage_order_matches_kernel_contract() -> None:
     assert tuple(contract["required_resolution_stages"]) == REQUIRED_RESOLUTION_STAGES
 
 
+def test_parity_contract_declares_stage_enforcement_ownership() -> None:
+    contract = build_parity_contract()
+    enforcement = contract["resolution_stage_enforcement"]
+    assert enforcement == {
+        "owner": "language_adapters_via_shared_kernel",
+        "strict_call_gate_role": "final_materialization_only",
+    }
+
+
 def test_parity_contract_languages_match_capabilities_and_config() -> None:
     contract = build_parity_contract()
     expected = set(LANGUAGE_CONFIG)
