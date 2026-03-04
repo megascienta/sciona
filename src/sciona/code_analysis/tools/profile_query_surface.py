@@ -26,7 +26,11 @@ TYPESCRIPT_PROFILE_FUNCTION_NODE_TYPES = (
     "method_signature",
     "abstract_method_signature",
 )
-TYPESCRIPT_PROFILE_CLASS_NODE_TYPES = ("class_declaration", "class_expression")
+TYPESCRIPT_PROFILE_CLASS_NODE_TYPES = (
+    "class_declaration",
+    "abstract_class_declaration",
+    "class_expression",
+)
 TYPESCRIPT_PROFILE_PARAMETER_NODE_TYPES = (
     "required_parameter",
     "optional_parameter",

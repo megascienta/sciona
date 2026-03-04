@@ -28,6 +28,7 @@ def test_java_profile_parameter_surface_excludes_spread_parameter() -> None:
 
 def test_profile_surfaces_include_parity_nodes() -> None:
     assert "compact_constructor_declaration" in JAVA_PROFILE_FUNCTION_NODE_TYPES
+    assert "abstract_class_declaration" in TYPESCRIPT_PROFILE_CLASS_NODE_TYPES
     assert "class_expression" in TYPESCRIPT_PROFILE_CLASS_NODE_TYPES
 
 
