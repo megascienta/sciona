@@ -116,6 +116,44 @@ def test_snapshot_report_full_includes_failure_reasons(repo_with_snapshot):
                 "site-dropped",
             ),
         )
+        conn.execute(
+            """
+            INSERT INTO call_sites(
+                snapshot_id,
+                caller_id,
+                caller_qname,
+                caller_node_type,
+                identifier,
+                resolution_status,
+                accepted_callee_id,
+                provenance,
+                drop_reason,
+                candidate_count,
+                callee_kind,
+                call_start_byte,
+                call_end_byte,
+                call_ordinal,
+                site_hash
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                snapshot_id,
+                "meth_alpha",
+                caller_qname,
+                "callable",
+                "external.client.Client.get",
+                "dropped",
+                None,
+                None,
+                "ambiguous_no_in_scope_candidate",
+                3,
+                "qualified",
+                None,
+                None,
+                3,
+                "site-dropped-external",
+            ),
+        )
         conn.commit()
     finally:
         conn.close()
@@ -129,14 +167,20 @@ def test_snapshot_report_full_includes_failure_reasons(repo_with_snapshot):
     by_language = {entry["language"]: entry for entry in payload["languages"]}
     python = by_language["python"]
     call_sites = python["call_sites"]
-    assert call_sites["eligible"] == 2
+    assert call_sites["eligible"] == 3
     assert call_sites["accepted"] == 1
-    assert call_sites["dropped"] == 1
-    assert python["call_sites_by_scope"]["non_tests"]["eligible"] == 2
+    assert call_sites["dropped"] == 2
+    assert python["call_sites_by_scope"]["non_tests"]["eligible"] == 3
     assert python["call_sites_by_scope"]["non_tests"]["accepted"] == 1
-    assert python["call_sites_by_scope"]["non_tests"]["dropped"] == 1
+    assert python["call_sites_by_scope"]["non_tests"]["dropped"] == 2
     assert python["call_sites_by_scope"]["tests"]["eligible"] == 0
-    assert python["drop_reasons"] == {"unique_without_provenance": 1}
+    assert python["drop_reasons"] == {
+        "ambiguous_no_in_scope_candidate": 1,
+        "unique_without_provenance": 1,
+    }
+    assert python["drop_classification"] == {"external_likely": 1}
+    assert python["drop_classification_by_scope"]["non_tests"] == {"external_likely": 1}
+    assert python["drop_classification_by_scope"]["tests"] == {}
     assert "unique_without_provenance" in python["drop_reason_examples"]
     example = python["drop_reason_examples"]["unique_without_provenance"][0]
     assert example["caller_qname"].endswith(".pkg.alpha.Service.run")
@@ -157,9 +201,14 @@ def test_snapshot_report_full_includes_failure_reasons(repo_with_snapshot):
     top_callers = hotspots["top_failed_callers"]["python"]
     top_files = hotspots["top_failed_files"]["python"]
     assert top_callers[0]["name"].endswith(".pkg.alpha.Service.run")
-    assert top_callers[0]["count"] == 1
+    assert top_callers[0]["count"] == 2
     assert top_files[0]["name"] == "pkg/alpha/service.py"
-    assert top_files[0]["count"] == 1
+    assert top_files[0]["count"] == 2
+    total_classification = payload["totals"]["drop_classification"]
+    assert total_classification == {"external_likely": 1}
+    total_scope_classification = payload["totals"]["drop_classification_by_scope"]
+    assert total_scope_classification["non_tests"] == {"external_likely": 1}
+    assert total_scope_classification["tests"] == {}
 
 
 def test_scope_bucket_detects_test_and_non_test_paths() -> None:

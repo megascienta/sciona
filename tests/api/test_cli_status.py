@@ -54,6 +54,7 @@ def _fake_summary():
                     },
                 },
                 "drop_reasons": {"no_candidates": 1},
+                "drop_classification": {"external_likely": 1},
             }
         ],
         "totals": {
@@ -80,6 +81,7 @@ def _fake_summary():
                     "success_rate": 0.5,
                 },
             },
+            "drop_classification": {"external_likely": 1},
         },
     }
 
@@ -127,6 +129,7 @@ def test_cli_status_full_emits_failure_reasons(cli_app, cli_runner, monkeypatch)
     assert "non_tests:" in result.stdout
     assert "tests:" in result.stdout
     assert "failed reasons: no_candidates=1" in result.stdout
+    assert "drop classification: external_likely=1" in result.stdout
 
 
 def test_cli_status_json_emits_payload(cli_app, cli_runner, monkeypatch):

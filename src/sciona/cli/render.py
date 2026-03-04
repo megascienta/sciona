@@ -120,6 +120,12 @@ def _render_summary_lines(
                     f"{name}={count}" for name, count in sorted(reasons.items())
                 )
                 lines.append(f"{indent}  failed reasons: {reason_text}")
+            classification = item.get("drop_classification") or {}
+            if classification:
+                class_text = ", ".join(
+                    f"{name}={count}" for name, count in sorted(classification.items())
+                )
+                lines.append(f"{indent}  drop classification: {class_text}")
     totals = summary.get("totals") or {}
     total_files = int(totals.get("files") or 0)
     total_nodes = int(totals.get("nodes") or 0)
@@ -137,6 +143,13 @@ def _render_summary_lines(
                     indent=f"{indent}    ",
                 )
             )
+    if include_reasons:
+        total_classification = totals.get("drop_classification") or {}
+        if total_classification:
+            class_text = ", ".join(
+                f"{name}={count}" for name, count in sorted(total_classification.items())
+            )
+            lines.append(f"{indent}  drop classification: {class_text}")
     if not summary.get("artifact_db_available", False):
         lines.append(f"{indent}call_sites diagnostics: unavailable (artifact DB missing)")
     return lines

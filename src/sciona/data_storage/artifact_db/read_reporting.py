@@ -121,8 +121,42 @@ def call_site_accept_debug_counts(
     ]
 
 
+def call_site_drop_identifier_counts(
+    conn: sqlite3.Connection,
+    *,
+    snapshot_id: str,
+) -> list[dict[str, object]]:
+    rows = conn.execute(
+        """
+        SELECT caller_id,
+               identifier,
+               drop_reason,
+               candidate_count,
+               callee_kind,
+               COUNT(*) AS site_count
+        FROM call_sites
+        WHERE snapshot_id = ?
+          AND resolution_status = 'dropped'
+        GROUP BY caller_id, identifier, drop_reason, candidate_count, callee_kind
+        """,
+        (snapshot_id,),
+    ).fetchall()
+    return [
+        {
+            "caller_id": row["caller_id"],
+            "identifier": row["identifier"],
+            "drop_reason": row["drop_reason"],
+            "candidate_count": int(row["candidate_count"] or 0),
+            "callee_kind": row["callee_kind"],
+            "site_count": int(row["site_count"] or 0),
+        }
+        for row in rows
+    ]
+
+
 __all__ = [
     "call_site_accept_debug_counts",
     "call_site_caller_status_counts",
+    "call_site_drop_identifier_counts",
     "call_site_drop_debug_counts",
 ]

@@ -25,6 +25,8 @@ class LanguageMetrics:
     call_sites_accepted: int | None = None
     call_sites_dropped: int | None = None
     drop_reasons: dict[str, int] = field(default_factory=dict)
+    drop_classification: dict[str, int] = field(default_factory=dict)
+    drop_classification_by_scope: dict[str, dict[str, int]] = field(default_factory=dict)
     drop_reason_examples: dict[str, list[dict[str, object]]] = field(default_factory=dict)
     accepted_examples: list[dict[str, object]] = field(default_factory=list)
 
@@ -42,6 +44,13 @@ class LanguageMetrics:
         )
         if include_failure_reasons and self.drop_reasons:
             payload["drop_reasons"] = dict(sorted(self.drop_reasons.items()))
+        if include_failure_reasons and self.drop_classification:
+            payload["drop_classification"] = dict(sorted(self.drop_classification.items()))
+        if include_failure_reasons and self.drop_classification_by_scope:
+            payload["drop_classification_by_scope"] = {
+                scope: dict(sorted(counts.items()))
+                for scope, counts in sorted(self.drop_classification_by_scope.items())
+            }
         if include_failure_reasons and self.drop_reason_examples:
             payload["drop_reason_examples"] = {
                 reason: examples
@@ -88,6 +97,8 @@ def snapshot_report(
                 call_sites_accepted=current.call_sites_accepted,
                 call_sites_dropped=current.call_sites_dropped,
                 drop_reasons=current.drop_reasons,
+                drop_classification=current.drop_classification,
+                drop_classification_by_scope=current.drop_classification_by_scope,
             )
         caller_metadata = core_read.caller_node_metadata_map(conn, snapshot_id)
         caller_language = {
@@ -97,6 +108,10 @@ def snapshot_report(
 
     artifact_available = False
     call_site_reasons: dict[str, dict[str, int]] = defaultdict(dict)
+    drop_classification: dict[str, dict[str, int]] = defaultdict(dict)
+    drop_classification_by_scope: dict[str, dict[str, dict[str, int]]] = defaultdict(
+        lambda: {"non_tests": {}, "tests": {}}
+    )
     call_site_reason_examples: dict[str, dict[str, list[dict[str, object]]]] = defaultdict(dict)
     call_site_accept_examples: dict[str, list[dict[str, object]]] = defaultdict(list)
     failure_hotspots_callers: dict[str, dict[str, int]] = defaultdict(dict)
@@ -142,6 +157,31 @@ def snapshot_report(
                             call_site_reasons[language].get(reason, 0) + count
                         )
             if include_failure_reasons:
+                dropped_identifiers = artifact_reporting.call_site_drop_identifier_counts(
+                    conn,
+                    snapshot_id=snapshot_id,
+                )
+                for item in dropped_identifiers:
+                    caller_id = str(item["caller_id"])
+                    language = caller_language.get(caller_id)
+                    if not language:
+                        continue
+                    caller_info = caller_metadata.get(caller_id, {})
+                    scope_key = _scope_bucket(str(caller_info.get("file_path") or ""))
+                    bucket = _drop_classification_bucket(
+                        identifier=str(item.get("identifier") or ""),
+                        drop_reason=str(item.get("drop_reason") or ""),
+                        candidate_count=int(item.get("candidate_count") or 0),
+                        callee_kind=str(item.get("callee_kind") or ""),
+                    )
+                    if not bucket:
+                        continue
+                    count = int(item.get("site_count") or 0)
+                    drop_classification[language][bucket] = (
+                        drop_classification[language].get(bucket, 0) + count
+                    )
+                    scoped = drop_classification_by_scope[language][scope_key]
+                    scoped[bucket] = scoped.get(bucket, 0) + count
                 dropped_sites = artifact_reporting.call_site_drop_debug_counts(
                     conn,
                     snapshot_id=snapshot_id,
@@ -247,6 +287,10 @@ def snapshot_report(
                 if artifact_available
                 else None,
                 drop_reasons=call_site_reasons.get(language, {}),
+                drop_classification=drop_classification.get(language, {}),
+                drop_classification_by_scope=drop_classification_by_scope.get(
+                    language, {}
+                ),
                 drop_reason_examples=call_site_reason_examples.get(language, {}),
                 accepted_examples=call_site_accept_examples.get(language, []),
             )
@@ -292,6 +336,16 @@ def snapshot_report(
             ),
         },
     }
+    if include_failure_reasons and artifact_available:
+        payload["totals"]["drop_classification"] = _sum_bucket_counts(drop_classification)
+        payload["totals"]["drop_classification_by_scope"] = {
+            "non_tests": _sum_bucket_counts_by_scope(
+                drop_classification_by_scope, scope_key="non_tests"
+            ),
+            "tests": _sum_bucket_counts_by_scope(
+                drop_classification_by_scope, scope_key="tests"
+            ),
+        }
     for item in payload["languages"]:
         language = str(item.get("language") or "")
         if not language:
@@ -366,6 +420,48 @@ def _scope_call_sites_payload(
             int(counts.get("dropped", 0)),
         )
     return payload
+
+
+def _drop_classification_bucket(
+    *,
+    identifier: str,
+    drop_reason: str,
+    candidate_count: int,
+    callee_kind: str,
+) -> str | None:
+    if (
+        drop_reason in {
+            "ambiguous_no_in_scope_candidate",
+            "ambiguous_multiple_in_scope_candidates",
+        }
+        and callee_kind == "qualified"
+        and candidate_count > 0
+        and "." in identifier
+    ):
+        return "external_likely"
+    return None
+
+
+def _sum_bucket_counts(
+    language_buckets: dict[str, dict[str, int]],
+) -> dict[str, int]:
+    totals: dict[str, int] = {}
+    for buckets in language_buckets.values():
+        for bucket, count in buckets.items():
+            totals[bucket] = totals.get(bucket, 0) + int(count)
+    return dict(sorted(totals.items()))
+
+
+def _sum_bucket_counts_by_scope(
+    language_scope_buckets: dict[str, dict[str, dict[str, int]]],
+    *,
+    scope_key: str,
+) -> dict[str, int]:
+    totals: dict[str, int] = {}
+    for scope_map in language_scope_buckets.values():
+        for bucket, count in (scope_map.get(scope_key) or {}).items():
+            totals[bucket] = totals.get(bucket, 0) + int(count)
+    return dict(sorted(totals.items()))
 
 
 def _sum_scope(
