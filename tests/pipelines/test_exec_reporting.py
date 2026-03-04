@@ -97,8 +97,8 @@ def test_snapshot_report_full_includes_failure_reasons(repo_with_snapshot):
                 "dropped",
                 None,
                 None,
-                "no_candidates",
-                0,
+                "unique_without_provenance",
+                1,
                 "terminal",
                 None,
                 None,
@@ -122,4 +122,4 @@ def test_snapshot_report_full_includes_failure_reasons(repo_with_snapshot):
     assert call_sites["eligible"] == 2
     assert call_sites["accepted"] == 1
     assert call_sites["dropped"] == 1
-    assert python["drop_reasons"] == {"no_candidates": 1}
+    assert python["drop_reasons"] == {"unique_without_provenance": 1}

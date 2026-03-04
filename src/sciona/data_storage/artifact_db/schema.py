@@ -46,12 +46,16 @@ SCHEMA_STATEMENTS: list[str] = [
                 'ambiguous_multiple_in_scope_candidates'
             ) OR drop_reason IS NULL
         ),
-        candidate_count INTEGER NOT NULL,
+        candidate_count INTEGER NOT NULL CHECK (candidate_count > 0),
         callee_kind TEXT NOT NULL CHECK (callee_kind IN ('qualified', 'terminal')),
         call_start_byte INTEGER,
         call_end_byte INTEGER,
         call_ordinal INTEGER NOT NULL,
         site_hash TEXT NOT NULL,
+        CHECK (
+            (resolution_status = 'accepted' AND accepted_callee_id IS NOT NULL AND provenance IS NOT NULL AND drop_reason IS NULL) OR
+            (resolution_status = 'dropped' AND accepted_callee_id IS NULL AND provenance IS NULL AND drop_reason IS NOT NULL)
+        ),
         PRIMARY KEY (snapshot_id, caller_id, site_hash)
     )
     """,

@@ -15,6 +15,17 @@ from ..tools.call_extraction import CallExtractionRecord
 from ...data_storage.artifact_db import rollup_persistence as artifact_persistence
 from ...data_storage.core_db import read_ops as core_read
 
+ALLOWED_CALLSITE_PROVENANCE = frozenset({"exact_qname", "module_scoped", "import_narrowed"})
+ALLOWED_CALLSITE_DROP_REASONS = frozenset(
+    {
+        "no_candidates",
+        "unique_without_provenance",
+        "ambiguous_no_caller_module",
+        "ambiguous_no_in_scope_candidate",
+        "ambiguous_multiple_in_scope_candidates",
+    }
+)
+
 
 def rebuild_graph_rollups(
     artifact_conn,
@@ -121,7 +132,7 @@ def write_call_artifacts(
     )
     if not caller_set:
         return
-    symbol_index = _build_symbol_index(core_conn, snapshot_id)
+    symbol_index, in_repo_callable_ids = _build_symbol_index(core_conn, snapshot_id)
     module_lookup, import_targets = _build_module_context(core_conn, snapshot_id)
     node_hashes = _load_node_hashes(core_conn, snapshot_id, caller_set)
     processed_callers: set[str] = set()
@@ -139,13 +150,18 @@ def write_call_artifacts(
             module_lookup=module_lookup,
             import_targets=import_targets,
         )
+        callee_ids = {callee_id for callee_id in callee_ids if callee_id in in_repo_callable_ids}
+        filtered_callsite_rows = _filter_in_repo_callsite_rows(
+            callsite_rows,
+            in_repo_callable_ids=in_repo_callable_ids,
+        )
         artifact_persistence.upsert_call_sites(
             artifact_conn,
             snapshot_id=snapshot_id,
             caller_id=caller_id,
             caller_qname=record.caller_qualified_name,
             caller_node_type=record.caller_node_type,
-            rows=callsite_rows,
+            rows=filtered_callsite_rows,
         )
         _merge_resolution_stats(caller_diag, diagnostics_totals, resolution_stats)
         if not callee_ids:
@@ -179,11 +195,15 @@ def write_call_artifacts(
         )
 
 
-def _build_symbol_index(core_conn, snapshot_id: str) -> dict[str, list[str]]:
+def _build_symbol_index(
+    core_conn, snapshot_id: str
+) -> tuple[dict[str, list[str]], set[str]]:
     callable_types = sorted(CALLABLE_NODE_TYPES)
     rows = core_read.list_nodes_by_types(core_conn, snapshot_id, callable_types)
     index_sets: dict[str, set[str]] = defaultdict(set)
+    in_repo_callable_ids: set[str] = set()
     for structural_id, _node_type, qualified_name in rows:
+        in_repo_callable_ids.add(structural_id)
         if not qualified_name:
             continue
         terminal = _simple_identifier(qualified_name)
@@ -191,7 +211,75 @@ def _build_symbol_index(core_conn, snapshot_id: str) -> dict[str, list[str]]:
             index_sets[terminal].add(structural_id)
         # Preserve fully-qualified call hints emitted by analyzers.
         index_sets[qualified_name].add(structural_id)
-    return {key: sorted(values) for key, values in index_sets.items()}
+    return {key: sorted(values) for key, values in index_sets.items()}, in_repo_callable_ids
+
+
+def _filter_in_repo_callsite_rows(
+    rows: Sequence[
+        tuple[
+            str,
+            str,
+            str | None,
+            str | None,
+            str | None,
+            int,
+            str,
+            int | None,
+            int | None,
+            int,
+        ]
+    ],
+    *,
+    in_repo_callable_ids: set[str],
+) -> list[
+    tuple[str, str, str | None, str | None, str | None, int, str, int | None, int | None, int]
+]:
+    filtered: list[
+        tuple[
+            str,
+            str,
+            str | None,
+            str | None,
+            str | None,
+            int,
+            str,
+            int | None,
+            int | None,
+            int,
+        ]
+    ] = []
+    for row in rows:
+        (
+            _identifier,
+            status,
+            accepted_callee_id,
+            provenance,
+            drop_reason,
+            candidate_count,
+            _callee_kind,
+            _call_start_byte,
+            _call_end_byte,
+            _call_ordinal,
+        ) = row
+        if candidate_count <= 0:
+            continue
+        if status == "accepted":
+            if (
+                accepted_callee_id
+                and accepted_callee_id in in_repo_callable_ids
+                and provenance in ALLOWED_CALLSITE_PROVENANCE
+                and drop_reason is None
+            ):
+                filtered.append(row)
+            continue
+        if (
+            status == "dropped"
+            and accepted_callee_id is None
+            and provenance is None
+            and drop_reason in ALLOWED_CALLSITE_DROP_REASONS
+        ):
+            filtered.append(row)
+    return filtered
 
 
 def _build_module_context(
