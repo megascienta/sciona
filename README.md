@@ -66,41 +66,6 @@ SCIONA indexes the **last committed snapshot**. Reducers are evaluated against t
 
 If your worktree is dirty, reducer outputs include an `_diff` payload describing a best‑effort overlay of uncommitted changes. `_diff` payload should be treated as advisory. The current `_diff` schema is minimal: it reports scope plus `affected`/`affected_by` signals rather than full change lists. Please use a clean commit and `sciona build` for authoritative results.
 
-## Reducer Contract Validation
-
-SCIONA includes a repository-independent reducer validation workflow in [`validations/reducers/`](validations/reducers/). It validates reducer behavior against direct DB queries and independent parsers using shared strict acceptance semantics from core ([`src/sciona/code_analysis/contracts/strict_call_contract.py`](src/sciona/code_analysis/contracts/strict_call_contract.py)).
-
-Run:
-
-```bash
-python validations/reducers/reducer_validation.py \
-  --repo-root /path/to/repo \
-  --nodes 500 \
-  --seed 20260222 \
-  --stability-runs 3
-```
-
-Latest consolidated snapshot (N=500 each, regenerated 2026-02-23):
-
-| Repository | Language | Invariants | Strict Parity Gate | Strict Contract Recall | Overreach Rate | Member Recall |
-| ---------- | -------- | ---------- | ------------------ | ---------------------- | -------------- | ------------- |
-| [OpenLineage](https://github.com/OpenLineage/OpenLineage) | Multi (Java/Python/TS) | **True** | **True** | **0.9884** | **0.0221** | **0.9266** |
-| [Apache Commons Lang](https://github.com/apache/commons-lang) | Java | **True** | **True** | **0.9981** | **0.0271** | n/a |
-| [FastAPI](https://github.com/fastapi/fastapi) | Python | **True** | **True** | **0.9925** | **0.0209** | **1.0000** |
-| [Nest](https://github.com/nestjs/nest) | TypeScript | **True** | **True** | **0.9939** | **0.0670** | **0.9416** |
-
-Interpretation:
-- `reducer_vs_db` exactness is mandatory; reducer is a DB projection.
-- `gate_strict_contract_parity=True` in this snapshot for all listed repos.
-- `static_contract_recall` is coverage of independent strict contract truth.
-- `static_overreach_rate` is reducer output outside independent strict contract truth.
-- Current report headings separate strict gating vs enrichment diagnostics:
-  - `Strict Contract Alignment (Gating)`
-  - `Enrichment Alignment (Non-Gating Diagnostics)`
-  - `Independent Strict Contract Diagnostics`
-
-Detailed diagnostics and consolidated analysis are maintained in [`validations/reducers/reports/consolidated_validation_report.md`](validations/reducers/reports/consolidated_validation_report.md).
-
 ## Reducers usage
 
 ### Discovery
