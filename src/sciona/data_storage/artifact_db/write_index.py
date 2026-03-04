@@ -8,10 +8,10 @@ from __future__ import annotations
 import sqlite3
 from typing import Iterable, Sequence
 
-from ...runtime import identity as ids
 from ...runtime.time import utc_now
 from ..encoding import bool_to_int
 from ..sql_utils import temp_id_table
+from .write_call_sites import build_site_hash
 
 
 def upsert_node_calls(
@@ -71,7 +71,20 @@ def upsert_call_sites(
     caller_id: str,
     caller_qname: str,
     caller_node_type: str,
-    rows: Sequence[tuple[str, str, str | None, str | None, str | None, int]],
+    rows: Sequence[
+        tuple[
+            str,
+            str,
+            str | None,
+            str | None,
+            str | None,
+            int,
+            str,
+            int | None,
+            int | None,
+            int,
+        ]
+    ],
 ) -> None:
     conn.execute(
         "DELETE FROM call_sites WHERE snapshot_id = ? AND caller_id = ?",
@@ -80,11 +93,31 @@ def upsert_call_sites(
     if not rows:
         return
     entries = []
-    for identifier, status, accepted_callee_id, provenance, drop_reason, candidate_count in rows:
-        site_hash = ids.structural_id(
-            "call_site",
-            "artifact",
-            f"{snapshot_id}:{caller_id}:{identifier}:{status}:{accepted_callee_id or ''}:{provenance or ''}:{drop_reason or ''}:{candidate_count}",
+    for (
+        identifier,
+        status,
+        accepted_callee_id,
+        provenance,
+        drop_reason,
+        candidate_count,
+        callee_kind,
+        call_start_byte,
+        call_end_byte,
+        call_ordinal,
+    ) in rows:
+        site_hash = build_site_hash(
+            snapshot_id=snapshot_id,
+            caller_id=caller_id,
+            identifier=identifier,
+            resolution_status=status,
+            accepted_callee_id=accepted_callee_id,
+            provenance=provenance,
+            drop_reason=drop_reason,
+            candidate_count=candidate_count,
+            callee_kind=callee_kind,
+            call_start_byte=call_start_byte,
+            call_end_byte=call_end_byte,
+            call_ordinal=call_ordinal,
         )
         entries.append(
             (
@@ -98,8 +131,10 @@ def upsert_call_sites(
                 provenance,
                 drop_reason,
                 candidate_count,
-                None,
-                None,
+                callee_kind,
+                call_start_byte,
+                call_end_byte,
+                call_ordinal,
                 site_hash,
             )
         )
@@ -116,11 +151,13 @@ def upsert_call_sites(
             provenance,
             drop_reason,
             candidate_count,
+            callee_kind,
             call_start_byte,
             call_end_byte,
+            call_ordinal,
             site_hash
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         entries,
     )

@@ -34,13 +34,23 @@ SCHEMA_STATEMENTS: list[str] = [
         caller_qname TEXT NOT NULL,
         caller_node_type TEXT NOT NULL,
         identifier TEXT NOT NULL,
-        resolution_status TEXT NOT NULL,     -- accepted/dropped
+        resolution_status TEXT NOT NULL CHECK (resolution_status IN ('accepted', 'dropped')),
         accepted_callee_id TEXT,
-        provenance TEXT,
-        drop_reason TEXT,
+        provenance TEXT CHECK (provenance IN ('exact_qname', 'module_scoped', 'import_narrowed') OR provenance IS NULL),
+        drop_reason TEXT CHECK (
+            drop_reason IN (
+                'no_candidates',
+                'unique_without_provenance',
+                'ambiguous_no_caller_module',
+                'ambiguous_no_in_scope_candidate',
+                'ambiguous_multiple_in_scope_candidates'
+            ) OR drop_reason IS NULL
+        ),
         candidate_count INTEGER NOT NULL,
+        callee_kind TEXT NOT NULL CHECK (callee_kind IN ('qualified', 'terminal')),
         call_start_byte INTEGER,
         call_end_byte INTEGER,
+        call_ordinal INTEGER NOT NULL,
         site_hash TEXT NOT NULL,
         PRIMARY KEY (snapshot_id, caller_id, site_hash)
     )
@@ -205,7 +215,21 @@ SCHEMA_STATEMENTS: list[str] = [
 
 def ensure_schema(conn: sqlite3.Connection) -> None:
     _ensure_schema(conn, SCHEMA_STATEMENTS)
+    _ensure_call_sites_schema(conn)
     _ensure_graph_fk_schema(conn)
+
+
+def _ensure_call_sites_schema(conn: sqlite3.Connection) -> None:
+    columns = {
+        row[1]
+        for row in conn.execute("PRAGMA table_info(call_sites)").fetchall()
+    }
+    required = {"callee_kind", "call_ordinal"}
+    if not required.issubset(columns):
+        conn.execute("DROP TABLE IF EXISTS call_sites")
+        conn.execute(SCHEMA_STATEMENTS[3])
+        conn.execute(SCHEMA_STATEMENTS[4])
+        conn.execute(SCHEMA_STATEMENTS[5])
 
 
 def _ensure_graph_fk_schema(conn: sqlite3.Connection) -> None:

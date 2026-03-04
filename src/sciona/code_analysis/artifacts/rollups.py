@@ -244,11 +244,25 @@ def _resolve_callees(
     set[str],
     set[str],
     dict[str, object],
-    list[tuple[str, str, str | None, str | None, str | None, int]],
+    list[tuple[str, str, str | None, str | None, str | None, int, str, int | None, int | None, int]],
 ]:
     resolved_ids: set[str] = set()
     resolved_names: set[str] = set()
-    callsite_rows: list[tuple[str, str, str | None, str | None, str | None, int]] = []
+    callsite_rows: list[
+        tuple[
+            str,
+            str,
+            str | None,
+            str | None,
+            str | None,
+            int,
+            str,
+            int | None,
+            int | None,
+            int,
+        ]
+    ] = []
+    ordinal_by_identifier: dict[str, int] = {}
     stats: dict[str, object] = {
         "identifiers_total": 0,
         "accepted_by_provenance": Counter(),
@@ -270,6 +284,9 @@ def _resolve_callees(
             import_targets=import_targets,
         )
         cast(Counter[int], stats["candidate_count_histogram"])[decision.candidate_count] += 1
+        ordinal = ordinal_by_identifier.get(identifier, 0) + 1
+        ordinal_by_identifier[identifier] = ordinal
+        callee_kind = "qualified" if "." in identifier else "terminal"
         if decision.accepted_candidate:
             resolved_ids.add(decision.accepted_candidate)
             resolved_names.add(identifier)
@@ -285,6 +302,10 @@ def _resolve_callees(
                         decision.accepted_provenance,
                         None,
                         decision.candidate_count,
+                        callee_kind,
+                        None,
+                        None,
+                        ordinal,
                     )
                 )
             continue
@@ -298,6 +319,10 @@ def _resolve_callees(
                     None,
                     decision.dropped_reason,
                     decision.candidate_count,
+                    callee_kind,
+                    None,
+                    None,
+                    ordinal,
                 )
             )
     return resolved_ids, resolved_names, stats, callsite_rows

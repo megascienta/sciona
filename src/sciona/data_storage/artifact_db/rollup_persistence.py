@@ -81,7 +81,20 @@ def upsert_call_sites(
     caller_id: str,
     caller_qname: str,
     caller_node_type: str,
-    rows: Sequence[tuple[str, str, str | None, str | None, str | None, int]],
+    rows: Sequence[
+        tuple[
+            str,
+            str,
+            str | None,
+            str | None,
+            str | None,
+            int,
+            str,
+            int | None,
+            int | None,
+            int,
+        ]
+    ],
 ) -> None:
     write_index.upsert_call_sites(
         conn,

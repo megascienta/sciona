@@ -116,7 +116,14 @@ def render(
                 "provenance": row.get("provenance"),
                 "drop_reason": row.get("drop_reason"),
                 "candidate_count": row.get("candidate_count"),
-                "line_span": None,
+                "callee_kind": row.get("callee_kind"),
+                "line_span": (
+                    [row.get("call_start_byte"), row.get("call_end_byte")]
+                    if row.get("call_start_byte") is not None
+                    and row.get("call_end_byte") is not None
+                    else None
+                ),
+                "ordinal": row.get("call_ordinal"),
             }
             for row in call_sites
         ]

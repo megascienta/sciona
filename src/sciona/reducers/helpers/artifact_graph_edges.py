@@ -100,8 +100,10 @@ def load_call_sites(
                 provenance,
                 drop_reason,
                 candidate_count,
+                callee_kind,
                 call_start_byte,
                 call_end_byte,
+                call_ordinal,
                 site_hash
             FROM call_sites
             WHERE {where}
