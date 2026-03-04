@@ -133,7 +133,9 @@ def write_call_artifacts(
     if not caller_set:
         return
     symbol_index, in_repo_callable_ids = _build_symbol_index(core_conn, snapshot_id)
-    module_lookup, import_targets = _build_module_context(core_conn, snapshot_id)
+    module_lookup, import_targets, module_ancestors = _build_module_context(
+        core_conn, snapshot_id
+    )
     node_hashes = _load_node_hashes(core_conn, snapshot_id, caller_set)
     processed_callers: set[str] = set()
     diagnostics_totals = _ensure_rollup_diagnostics(diagnostics)
@@ -142,13 +144,14 @@ def write_call_artifacts(
         if caller_id not in caller_set:
             continue
         caller_diag = _ensure_caller_diagnostics(diagnostics, record)
-        caller_module_id = module_lookup.get(caller_id)
+        caller_module = module_lookup.get(caller_id)
         callee_ids, _, resolution_stats, callsite_rows = _resolve_callees(
             record.callee_identifiers,
             symbol_index,
-            caller_module_id=caller_module_id,
+            caller_module=caller_module,
             module_lookup=module_lookup,
             import_targets=import_targets,
+            module_ancestors=module_ancestors,
         )
         callee_ids = {callee_id for callee_id in callee_ids if callee_id in in_repo_callable_ids}
         filtered_callsite_rows = _filter_in_repo_callsite_rows(
@@ -285,7 +288,7 @@ def _filter_in_repo_callsite_rows(
 def _build_module_context(
     core_conn,
     snapshot_id: str,
-) -> tuple[dict[str, str], dict[str, set[str]]]:
+) -> tuple[dict[str, str], dict[str, set[str]], dict[str, set[str]]]:
     node_rows = core_read.list_nodes_with_names(core_conn, snapshot_id)
     module_names = {
         qualified_name
@@ -297,22 +300,34 @@ def _build_module_context(
         for structural_id, node_type, qualified_name in node_rows
         if node_type == "module" and qualified_name
     }
+    module_name_by_id = {
+        structural_id: qualified_name
+        for qualified_name, structural_id in module_id_by_name.items()
+    }
     module_lookup: dict[str, str] = {}
     for structural_id, _node_type, qualified_name in node_rows:
         if not qualified_name:
             continue
         module_name = module_id_for(qualified_name, module_names)
-        module_structural_id = module_id_by_name.get(module_name)
-        if module_structural_id:
-            module_lookup[structural_id] = module_structural_id
+        if module_name:
+            module_lookup[structural_id] = module_name
     module_ids = set(module_id_by_name.values())
-    import_targets: dict[str, set[str]] = defaultdict(set)
+    direct_import_targets: dict[str, set[str]] = defaultdict(set)
     for src_id, dst_id in core_read.list_edges_by_type(
         core_conn, snapshot_id, "IMPORTS_DECLARED"
     ):
         if src_id in module_ids and dst_id in module_ids:
-            import_targets[src_id].add(dst_id)
-    return module_lookup, import_targets
+            src_name = module_name_by_id.get(src_id)
+            dst_name = module_name_by_id.get(dst_id)
+            if src_name and dst_name:
+                direct_import_targets[src_name].add(dst_name)
+    import_targets: dict[str, set[str]] = {
+        module_name: set(targets) for module_name, targets in direct_import_targets.items()
+    }
+    module_ancestors: dict[str, set[str]] = {
+        module_name: _module_qname_ancestors(module_name) for module_name in module_names
+    }
+    return module_lookup, import_targets, module_ancestors
 
 
 def _load_node_hashes(
@@ -325,9 +340,10 @@ def _resolve_callees(
     identifiers: Sequence[str],
     symbol_index: dict[str, Sequence[str]],
     *,
-    caller_module_id: str | None,
+    caller_module: str | None,
     module_lookup: dict[str, str],
     import_targets: dict[str, set[str]],
+    module_ancestors: dict[str, set[str]],
 ) -> tuple[
     set[str],
     set[str],
@@ -367,9 +383,10 @@ def _resolve_callees(
             identifier=identifier,
             direct_candidates=direct_candidates,
             fallback_candidates=fallback_candidates,
-            caller_module=caller_module_id,
+            caller_module=caller_module,
             module_lookup=module_lookup,
             import_targets=import_targets,
+            caller_ancestor_modules=module_ancestors.get(caller_module or "", set()),
         )
         cast(Counter[int], stats["candidate_count_histogram"])[decision.candidate_count] += 1
         ordinal = ordinal_by_identifier.get(identifier, 0) + 1
@@ -414,6 +431,14 @@ def _resolve_callees(
                 )
             )
     return resolved_ids, resolved_names, stats, callsite_rows
+
+
+def _module_qname_ancestors(module_qname: str) -> set[str]:
+    parts = [part for part in module_qname.split(".") if part]
+    ancestors: set[str] = set()
+    for end in range(len(parts) - 1, 0, -1):
+        ancestors.add(".".join(parts[:end]))
+    return ancestors
 
 
 def _ensure_rollup_diagnostics(diagnostics: dict[str, object] | None) -> dict[str, object]:

@@ -63,9 +63,14 @@ def collect_typescript_import_model(
                 if alt and is_internal_module(alt, module_index):
                     normalized = alt
                 else:
+                    if module_index is not None:
+                        model.imports_filtered_not_internal += 1
                     continue
             else:
+                if module_index is not None and normalized:
+                    model.imports_filtered_not_internal += 1
                 continue
+        model.imports_internal += 1
         model.modules.append(normalized)
         populate_ts_aliases_from_node(
             node,
@@ -90,9 +95,14 @@ def collect_typescript_import_model(
                 if alt and is_internal_module(alt, module_index):
                     normalized = alt
                 else:
+                    if module_index is not None:
+                        model.imports_filtered_not_internal += 1
                     continue
             else:
+                if module_index is not None and normalized:
+                    model.imports_filtered_not_internal += 1
                 continue
+        model.imports_internal += 1
         model.modules.append(normalized)
         model.import_aliases[alias] = normalized
     for node in find_nodes_of_types_query(
@@ -111,9 +121,14 @@ def collect_typescript_import_model(
                 if alt and is_internal_module(alt, module_index):
                     normalized = alt
                 else:
+                    if module_index is not None:
+                        model.imports_filtered_not_internal += 1
                     continue
             else:
+                if module_index is not None and normalized:
+                    model.imports_filtered_not_internal += 1
                 continue
+        model.imports_internal += 1
         model.modules.append(normalized)
     return model
 

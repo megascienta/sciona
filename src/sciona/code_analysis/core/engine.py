@@ -68,6 +68,10 @@ class BuildEngine:
         self.name_collisions_disambiguated = 0
         self.residual_containment_failures = 0
         self.name_collisions_by_language: dict[str, dict[str, int]] = {}
+        self.imports_seen = 0
+        self.imports_internal = 0
+        self.imports_filtered_not_internal = 0
+        self.imports_by_language: dict[str, dict[str, int]] = {}
         self._progress_factory = progress_factory
         self._warning_sink = warning_sink
         self.max_file_bytes = max_file_bytes
@@ -260,19 +264,39 @@ class BuildEngine:
         diagnostics = analysis.diagnostics or {}
         detected = int(diagnostics.get("name_collisions_detected", 0) or 0)
         disambiguated = int(diagnostics.get("name_collisions_disambiguated", 0) or 0)
+        imports_seen = int(diagnostics.get("imports_seen", 0) or 0)
+        imports_internal = int(diagnostics.get("imports_internal", 0) or 0)
+        imports_filtered_not_internal = int(
+            diagnostics.get("imports_filtered_not_internal", 0) or 0
+        )
         self.name_collisions_detected += detected
         self.name_collisions_disambiguated += disambiguated
-        if detected == 0 and disambiguated == 0:
+        self.imports_seen += imports_seen
+        self.imports_internal += imports_internal
+        self.imports_filtered_not_internal += imports_filtered_not_internal
+        if detected != 0 or disambiguated != 0:
+            bucket = self.name_collisions_by_language.setdefault(
+                language,
+                {
+                    "name_collisions_detected": 0,
+                    "name_collisions_disambiguated": 0,
+                },
+            )
+            bucket["name_collisions_detected"] += detected
+            bucket["name_collisions_disambiguated"] += disambiguated
+        if imports_seen == 0 and imports_internal == 0 and imports_filtered_not_internal == 0:
             return
-        bucket = self.name_collisions_by_language.setdefault(
+        imports_bucket = self.imports_by_language.setdefault(
             language,
             {
-                "name_collisions_detected": 0,
-                "name_collisions_disambiguated": 0,
+                "imports_seen": 0,
+                "imports_internal": 0,
+                "imports_filtered_not_internal": 0,
             },
         )
-        bucket["name_collisions_detected"] += detected
-        bucket["name_collisions_disambiguated"] += disambiguated
+        imports_bucket["imports_seen"] += imports_seen
+        imports_bucket["imports_internal"] += imports_internal
+        imports_bucket["imports_filtered_not_internal"] += imports_filtered_not_internal
 
     def _register_modules(self, snapshot_id: str, snapshots: List[FileSnapshot]) -> int:
         inserted = 0

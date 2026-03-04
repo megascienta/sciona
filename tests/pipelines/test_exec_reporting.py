@@ -145,6 +145,14 @@ def test_snapshot_report_full_includes_failure_reasons(repo_with_snapshot):
     assert example["candidate_count"] == 1
     assert example["callee_kind"] == "terminal"
     assert example["count"] == 1
+    assert "accepted_examples" in python
+    accepted_example = python["accepted_examples"][0]
+    assert accepted_example["identifier"] == "helper"
+    assert accepted_example["accepted_callee_id"] == "func_alpha"
+    assert accepted_example["provenance"] == "exact_qname"
+    assert accepted_example["candidate_count"] == 1
+    assert accepted_example["callee_kind"] == "terminal"
+    assert accepted_example["count"] == 1
     hotspots = payload["failure_hotspots"]
     top_callers = hotspots["top_failed_callers"]["python"]
     top_files = hotspots["top_failed_files"]["python"]

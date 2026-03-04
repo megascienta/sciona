@@ -63,8 +63,13 @@ def collect_python_import_model(
                     repo_prefix=repo_prefix,
                     local_packages=local_packages,
                 )
-                if not normalized or not is_internal_module(normalized, module_index):
+                if not normalized:
                     continue
+                if not is_internal_module(normalized, module_index):
+                    if module_index is not None:
+                        model.imports_filtered_not_internal += 1
+                    continue
+                model.imports_internal += 1
                 model.modules.append(normalized)
                 model.raw_module_map[module] = normalized
                 if alias:
@@ -82,8 +87,13 @@ def collect_python_import_model(
                 repo_prefix=repo_prefix,
                 local_packages=local_packages,
             )
-            if not normalized or not is_internal_module(normalized, module_index):
+            if not normalized:
                 continue
+            if not is_internal_module(normalized, module_index):
+                if module_index is not None:
+                    model.imports_filtered_not_internal += 1
+                continue
+            model.imports_internal += 1
             is_bare_relative = module.startswith(".") and not module.strip(".")
             resolved_submodules: list[str] = []
             if is_bare_relative:

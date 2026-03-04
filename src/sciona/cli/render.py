@@ -36,7 +36,9 @@ def render_build(payload: dict) -> list[str]:
         lines.extend(_render_summary_lines(summary, indent="  ", include_reasons=False))
     else:
         lines.append("Summary: unavailable")
-    diagnostics = _render_name_collision_diagnostics(payload, indent="  ")
+    diagnostics = []
+    diagnostics.extend(_render_name_collision_diagnostics(payload, indent="  "))
+    diagnostics.extend(_render_import_diagnostics(payload, indent="  "))
     if diagnostics:
         lines.append("Diagnostics:")
         lines.extend(diagnostics)
@@ -74,6 +76,7 @@ def render_status(payload: dict) -> list[str]:
                     indent="    ",
                     include_reasons=bool(payload.get("detailed")),
                     include_call_stats=bool(payload.get("detailed")),
+                    include_scope_split=bool(payload.get("detailed")),
                 )
             )
         else:
@@ -87,6 +90,7 @@ def _render_summary_lines(
     indent: str,
     include_reasons: bool,
     include_call_stats: bool = True,
+    include_scope_split: bool = False,
 ) -> list[str]:
     lines: list[str] = []
     for item in summary.get("languages", []) or []:
@@ -100,6 +104,13 @@ def _render_summary_lines(
                 f"{indent}  call_materialization: "
                 f"{_format_call_site_summary(item.get('call_sites') or {})}"
             )
+            if include_scope_split:
+                lines.extend(
+                    _render_scope_call_site_lines(
+                        item.get("call_sites_by_scope"),
+                        indent=f"{indent}    ",
+                    )
+                )
         if include_reasons:
             reasons = item.get("drop_reasons") or {}
             if reasons:
@@ -117,6 +128,13 @@ def _render_summary_lines(
             f"{indent}  call_materialization: "
             f"{_format_call_site_summary(totals.get('call_sites') or {})}"
         )
+        if include_scope_split:
+            lines.extend(
+                _render_scope_call_site_lines(
+                    totals.get("call_sites_by_scope"),
+                    indent=f"{indent}    ",
+                )
+            )
     if not summary.get("artifact_db_available", False):
         lines.append(f"{indent}call_sites diagnostics: unavailable (artifact DB missing)")
     return lines
@@ -157,6 +175,48 @@ def _render_name_collision_diagnostics(payload: dict, *, indent: str) -> list[st
         lines.append(
             f"{indent}{language}: detected={lang_detected}, disambiguated={lang_disambiguated}"
         )
+    return lines
+
+
+def _render_import_diagnostics(payload: dict, *, indent: str) -> list[str]:
+    seen = int(payload.get("imports_seen") or 0)
+    internal = int(payload.get("imports_internal") or 0)
+    filtered = int(payload.get("imports_filtered_not_internal") or 0)
+    by_language = payload.get("imports_by_language") or {}
+    if seen == 0 and internal == 0 and filtered == 0:
+        return []
+    lines = [
+        f"{indent}imports_seen: {seen}",
+        f"{indent}imports_internal: {internal}",
+        f"{indent}imports_filtered_not_internal: {filtered}",
+    ]
+    for language in sorted(by_language):
+        item = by_language.get(language) or {}
+        lines.append(
+            f"{indent}{language}: "
+            f"seen={int(item.get('imports_seen') or 0)}, "
+            f"internal={int(item.get('imports_internal') or 0)}, "
+            f"filtered_not_internal={int(item.get('imports_filtered_not_internal') or 0)}"
+        )
+    return lines
+
+
+def _render_scope_call_site_lines(
+    scope_payload: dict[str, dict[str, object]] | None,
+    *,
+    indent: str,
+) -> list[str]:
+    if not scope_payload:
+        return []
+    lines: list[str] = []
+    non_tests = scope_payload.get("non_tests")
+    tests = scope_payload.get("tests")
+    if non_tests is not None:
+        lines.append(
+            f"{indent}non_tests: {_format_call_site_summary(non_tests)}"
+        )
+    if tests is not None:
+        lines.append(f"{indent}tests: {_format_call_site_summary(tests)}")
     return lines
 
 

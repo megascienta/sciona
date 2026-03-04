@@ -425,6 +425,9 @@ def test_engine_accumulates_name_collision_and_residual_containment_diagnostics(
                 diagnostics={
                     "name_collisions_detected": 2,
                     "name_collisions_disambiguated": 2,
+                    "imports_seen": 5,
+                    "imports_internal": 3,
+                    "imports_filtered_not_internal": 2,
                 },
             )
 
@@ -493,4 +496,12 @@ def test_engine_accumulates_name_collision_and_residual_containment_diagnostics(
     assert engine.residual_containment_failures == 1
     assert engine.name_collisions_by_language["python"]["name_collisions_detected"] == 2
     assert engine.name_collisions_by_language["python"]["name_collisions_disambiguated"] == 2
+    assert engine.imports_seen == 5
+    assert engine.imports_internal == 3
+    assert engine.imports_filtered_not_internal == 2
+    assert engine.imports_by_language["python"]["imports_seen"] == 5
+    assert engine.imports_by_language["python"]["imports_internal"] == 3
+    assert (
+        engine.imports_by_language["python"]["imports_filtered_not_internal"] == 2
+    )
     conn.close()

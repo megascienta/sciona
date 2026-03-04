@@ -39,6 +39,20 @@ def _fake_summary():
                     "dropped": 1,
                     "success_rate": 0.9,
                 },
+                "call_sites_by_scope": {
+                    "non_tests": {
+                        "eligible": 8,
+                        "accepted": 8,
+                        "dropped": 0,
+                        "success_rate": 1.0,
+                    },
+                    "tests": {
+                        "eligible": 2,
+                        "accepted": 1,
+                        "dropped": 1,
+                        "success_rate": 0.5,
+                    },
+                },
                 "drop_reasons": {"no_candidates": 1},
             }
         ],
@@ -51,6 +65,20 @@ def _fake_summary():
                 "accepted": 9,
                 "dropped": 1,
                 "success_rate": 0.9,
+            },
+            "call_sites_by_scope": {
+                "non_tests": {
+                    "eligible": 8,
+                    "accepted": 8,
+                    "dropped": 0,
+                    "success_rate": 1.0,
+                },
+                "tests": {
+                    "eligible": 2,
+                    "accepted": 1,
+                    "dropped": 1,
+                    "success_rate": 0.5,
+                },
             },
         },
     }
@@ -96,6 +124,8 @@ def test_cli_status_full_emits_failure_reasons(cli_app, cli_runner, monkeypatch)
     assert result.exit_code == 0
     assert calls == [True]
     assert "call_materialization:" in result.stdout
+    assert "non_tests:" in result.stdout
+    assert "tests:" in result.stdout
     assert "failed reasons: no_candidates=1" in result.stdout
 
 

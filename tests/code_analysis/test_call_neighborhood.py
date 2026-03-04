@@ -5,6 +5,7 @@ import sqlite3
 from pathlib import Path
 
 from sciona.code_analysis.artifacts import write_call_artifacts
+from sciona.code_analysis.artifacts.rollups import _resolve_callees
 from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.code_analysis.tools.call_extraction import CallExtractionRecord
 from sciona.runtime import paths as runtime_paths
@@ -380,3 +381,18 @@ def test_write_call_artifacts_rejects_unique_without_provenance_and_reports_diag
             artifact_conn.close()
     finally:
         core_conn.close()
+
+
+def test_resolve_callees_accepts_parent_package_with_precomputed_ancestors() -> None:
+    resolved_ids, _resolved_names, stats, callsite_rows = _resolve_callees(
+        ("pkg.parent.reexported.fn",),
+        {"fn": ["callee-id"]},
+        caller_module="pkg.parent.child",
+        module_lookup={"callee-id": "pkg.parent"},
+        import_targets={"pkg.parent.child": {"pkg.parent.child", "pkg.parent"}},
+        module_ancestors={"pkg.parent.child": {"pkg.parent"}},
+    )
+    assert resolved_ids == {"callee-id"}
+    accepted = stats.get("accepted_by_provenance") or {}
+    assert accepted.get("import_narrowed") == 1
+    assert callsite_rows[0][1] == "accepted"

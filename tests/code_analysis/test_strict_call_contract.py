@@ -187,3 +187,18 @@ def test_strict_call_contract_accepts_imported_package_descendant_candidate() ->
     assert decision.accepted_candidate == "pkg.compat.v2.lenient_issubclass"
     assert decision.accepted_provenance == "import_narrowed"
     assert decision.dropped_reason is None
+
+
+def test_strict_call_contract_accepts_single_ancestor_module_candidate() -> None:
+    decision = select_strict_call_candidate(
+        identifier="pkg.compat.lenient_issubclass",
+        direct_candidates=[],
+        fallback_candidates=["pkg.compat.lenient_issubclass_impl"],
+        caller_module="pkg.compat.v2",
+        module_lookup={"pkg.compat.lenient_issubclass_impl": "pkg.compat"},
+        import_targets={},
+        caller_ancestor_modules={"pkg.compat"},
+    )
+    assert decision.accepted_candidate == "pkg.compat.lenient_issubclass_impl"
+    assert decision.accepted_provenance == "import_narrowed"
+    assert decision.dropped_reason is None

@@ -26,6 +26,7 @@ class LanguageMetrics:
     call_sites_dropped: int | None = None
     drop_reasons: dict[str, int] = field(default_factory=dict)
     drop_reason_examples: dict[str, list[dict[str, object]]] = field(default_factory=dict)
+    accepted_examples: list[dict[str, object]] = field(default_factory=list)
 
     def to_payload(self, *, include_failure_reasons: bool) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -46,6 +47,8 @@ class LanguageMetrics:
                 reason: examples
                 for reason, examples in sorted(self.drop_reason_examples.items())
             }
+        if include_failure_reasons and self.accepted_examples:
+            payload["accepted_examples"] = list(self.accepted_examples)
         return payload
 
 
@@ -95,6 +98,7 @@ def snapshot_report(
     artifact_available = False
     call_site_reasons: dict[str, dict[str, int]] = defaultdict(dict)
     call_site_reason_examples: dict[str, dict[str, list[dict[str, object]]]] = defaultdict(dict)
+    call_site_accept_examples: dict[str, list[dict[str, object]]] = defaultdict(list)
     failure_hotspots_callers: dict[str, dict[str, int]] = defaultdict(dict)
     failure_hotspots_files: dict[str, dict[str, int]] = defaultdict(dict)
     call_site_totals: dict[str, dict[str, int]] = defaultdict(
@@ -181,6 +185,41 @@ def snapshot_report(
                             "count": count,
                         }
                     )
+                accepted_sites = artifact_reporting.call_site_accept_debug_counts(
+                    conn,
+                    snapshot_id=snapshot_id,
+                )
+                for item in accepted_sites:
+                    caller_id = str(item["caller_id"])
+                    language = caller_language.get(caller_id)
+                    if not language:
+                        continue
+                    examples = call_site_accept_examples[language]
+                    if len(examples) >= 8:
+                        continue
+                    caller_info = caller_metadata.get(caller_id, {})
+                    examples.append(
+                        {
+                            "caller_id": caller_id,
+                            "caller_qname": str(
+                                caller_info.get("qualified_name")
+                                or item.get("caller_qname")
+                                or ""
+                            ),
+                            "caller_file_path": str(caller_info.get("file_path") or "") or None,
+                            "caller_node_type": caller_info.get("node_type"),
+                            "caller_span": [
+                                caller_info.get("start_line"),
+                                caller_info.get("end_line"),
+                            ],
+                            "identifier": str(item.get("identifier") or ""),
+                            "accepted_callee_id": str(item.get("accepted_callee_id") or ""),
+                            "provenance": str(item.get("provenance") or ""),
+                            "candidate_count": int(item.get("candidate_count") or 0),
+                            "callee_kind": str(item.get("callee_kind") or ""),
+                            "count": int(item.get("site_count") or 0),
+                        }
+                    )
     except sqlite3.Error:
         artifact_available = False
 
@@ -209,6 +248,7 @@ def snapshot_report(
                 else None,
                 drop_reasons=call_site_reasons.get(language, {}),
                 drop_reason_examples=call_site_reason_examples.get(language, {}),
+                accepted_examples=call_site_accept_examples.get(language, []),
             )
         )
 

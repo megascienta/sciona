@@ -19,6 +19,16 @@ def _fake_result() -> BuildResult:
         discovery_excluded_total=0,
         exclude_globs=[],
         parse_failures=0,
+        imports_seen=3,
+        imports_internal=2,
+        imports_filtered_not_internal=1,
+        imports_by_language={
+            "python": {
+                "imports_seen": 3,
+                "imports_internal": 2,
+                "imports_filtered_not_internal": 1,
+            }
+        },
         analysis_warnings=[],
         artifact_warnings=[],
     )
@@ -65,5 +75,6 @@ def test_cli_build_emits_summary_block(cli_app, cli_runner, monkeypatch):
 
     assert result.exit_code == 0
     assert "Summary:" in result.stdout
+    assert "imports_seen: 3" in result.stdout
     assert "Discovery summary:" not in result.stdout
     assert "Source candidates by extension:" not in result.stdout

@@ -23,6 +23,7 @@ def select_strict_call_candidate(
     caller_module: str | None,
     module_lookup: Mapping[str, str],
     import_targets: Mapping[str, set[str]],
+    caller_ancestor_modules: set[str] | None = None,
 ) -> StrictCallDecision:
     """Apply contract-strict accept_if_single behavior for call candidates."""
     raw_candidates = list(direct_candidates) or list(fallback_candidates)
@@ -67,6 +68,13 @@ def select_strict_call_candidate(
             return StrictCallDecision(
                 accepted_candidate=candidate,
                 accepted_provenance="module_scoped",
+                dropped_reason=None,
+                candidate_count=candidate_count,
+            )
+        if candidate_module and caller_ancestor_modules and candidate_module in caller_ancestor_modules:
+            return StrictCallDecision(
+                accepted_candidate=candidate,
+                accepted_provenance="import_narrowed",
                 dropped_reason=None,
                 candidate_count=candidate_count,
             )

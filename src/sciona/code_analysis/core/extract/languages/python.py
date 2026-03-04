@@ -83,6 +83,11 @@ class PythonAnalyzer(ASTAnalyzer):
             module_name,
             module_index=getattr(self, "module_index", None),
         )
+        result.diagnostics["imports_seen"] = import_model.imports_seen
+        result.diagnostics["imports_internal"] = import_model.imports_internal
+        result.diagnostics["imports_filtered_not_internal"] = (
+            import_model.imports_filtered_not_internal
+        )
         imports = import_model.modules
         import_aliases = import_model.import_aliases
         member_aliases = import_model.member_aliases

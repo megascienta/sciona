@@ -156,7 +156,10 @@ def collect_java_import_model(
             continue
         normalized = bindings.normalized_module
         if not is_internal_module(normalized, module_index):
+            if module_index is not None:
+                model.imports_filtered_not_internal += 1
             continue
+        model.imports_internal += 1
         model.modules.append(normalized)
         model.raw_module_map[normalized] = normalized
         for alias, target in bindings.import_aliases:

@@ -16,4 +16,5 @@ class NormalizedImportModel:
     raw_module_map: dict[str, str] = field(default_factory=dict)
     static_wildcard_targets: set[str] = field(default_factory=set)
     imports_seen: int = 0
-
+    imports_internal: int = 0
+    imports_filtered_not_internal: int = 0

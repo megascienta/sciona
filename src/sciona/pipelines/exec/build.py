@@ -53,6 +53,10 @@ class BuildResult:
     name_collisions_disambiguated: int = 0
     residual_containment_failures: int = 0
     name_collisions_by_language: dict[str, dict[str, int]] = field(default_factory=dict)
+    imports_seen: int = 0
+    imports_internal: int = 0
+    imports_filtered_not_internal: int = 0
+    imports_by_language: dict[str, dict[str, int]] = field(default_factory=dict)
     analysis_warnings: Sequence[str] = field(default_factory=list)
     artifact_warnings: Sequence[str] = field(default_factory=list)
 
@@ -194,6 +198,10 @@ def build_repo(
                 name_collisions_disambiguated=engine.name_collisions_disambiguated,
                 residual_containment_failures=engine.residual_containment_failures,
                 name_collisions_by_language=dict(engine.name_collisions_by_language),
+                imports_seen=engine.imports_seen,
+                imports_internal=engine.imports_internal,
+                imports_filtered_not_internal=engine.imports_filtered_not_internal,
+                imports_by_language=dict(engine.imports_by_language),
                 analysis_warnings=list(engine.warnings),
                 artifact_warnings=list(artifact_warnings),
             )
@@ -322,6 +330,12 @@ def _hydrate_result_payload(payload: dict[str, object]) -> BuildResult | None:
             name_collisions_by_language=dict(
                 payload.get("name_collisions_by_language", {})
             ),
+            imports_seen=int(payload.get("imports_seen", 0)),
+            imports_internal=int(payload.get("imports_internal", 0)),
+            imports_filtered_not_internal=int(
+                payload.get("imports_filtered_not_internal", 0)
+            ),
+            imports_by_language=dict(payload.get("imports_by_language", {})),
             analysis_warnings=list(payload.get("analysis_warnings", [])),
             artifact_warnings=list(payload.get("artifact_warnings", [])),
         )
@@ -346,6 +360,10 @@ def _build_result_payload(result: BuildResult) -> dict[str, object]:
         "name_collisions_disambiguated": result.name_collisions_disambiguated,
         "residual_containment_failures": result.residual_containment_failures,
         "name_collisions_by_language": dict(result.name_collisions_by_language),
+        "imports_seen": result.imports_seen,
+        "imports_internal": result.imports_internal,
+        "imports_filtered_not_internal": result.imports_filtered_not_internal,
+        "imports_by_language": dict(result.imports_by_language),
         "analysis_warnings": list(result.analysis_warnings),
         "artifact_warnings": list(result.artifact_warnings),
     }

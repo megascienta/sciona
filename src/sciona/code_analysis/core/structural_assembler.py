@@ -209,6 +209,9 @@ class StructuralAssembler:
         }
         for language, qualified, node_type, identifiers in normalized:
             caller_module = module_id_for(qualified, module_names)
+            caller_ancestors = (
+                _module_qname_ancestors(caller_module) if caller_module else set()
+            )
             accepted: list[str] = []
             for identifier in identifiers:
                 local_totals["identifiers_total"] = (
@@ -231,6 +234,7 @@ class StructuralAssembler:
                     caller_module=caller_module,
                     module_lookup=module_lookup,
                     import_targets=import_targets,
+                    caller_ancestor_modules=caller_ancestors,
                 )
                 if decision.accepted_candidate:
                     accepted.append(decision.accepted_candidate)
@@ -456,3 +460,11 @@ class StructuralAssembler:
             target[key] = bucket
         label = str(entry or "unknown")
         bucket[label] = int(bucket.get(label, 0)) + 1
+
+
+def _module_qname_ancestors(module_qname: str) -> set[str]:
+    parts = [part for part in module_qname.split(".") if part]
+    ancestors: set[str] = set()
+    for end in range(len(parts) - 1, 0, -1):
+        ancestors.add(".".join(parts[:end]))
+    return ancestors
