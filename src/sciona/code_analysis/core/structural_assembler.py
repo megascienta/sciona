@@ -135,13 +135,18 @@ class StructuralAssembler:
                 or child_node.end_byte is None
             ):
                 continue
-            if not (
-                parent_node.start_byte < child_node.start_byte
-                and parent_node.end_byte > child_node.end_byte
-            ):
+            enclosed = (
+                parent_node.start_byte <= child_node.start_byte
+                and parent_node.end_byte >= child_node.end_byte
+            )
+            identical_span = (
+                parent_node.start_byte == child_node.start_byte
+                and parent_node.end_byte == child_node.end_byte
+            )
+            if not enclosed or identical_span:
                 raise ValueError(
                     "Lexical containment span invariant violated: "
-                    f"{parent_node.qualified_name} does not strictly enclose {child_node.qualified_name}"
+                    f"{parent_node.qualified_name} does not enclose {child_node.qualified_name}"
                 )
         for key in structural_nodes:
             node_type, qualified_name = key
