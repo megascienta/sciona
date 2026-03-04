@@ -40,6 +40,8 @@ Legend:
 ## Declared Language-Specific Differences
 
 - Nested named callables are structural and emitted as callable nodes.
+- TypeScript promotes stable bound callable forms including object-literal
+  methods and anonymous `export default` callables.
 - Inline anonymous callbacks remain non-structural; calls inside them are
   attributed to nearest enclosing structural callable.
 - TypeScript import parsing supports the grammar surface available via

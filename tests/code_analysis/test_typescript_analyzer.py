@@ -986,3 +986,143 @@ def test_typescript_analyzer_resolves_typed_local_declaration_receiver(tmp_path)
         rec.qualified_name: set(rec.callee_identifiers) for rec in result.call_records
     }
     assert f"{module_name}.ServerGrpc.start" in call_records[f"{module_name}.boot"]
+
+
+def test_typescript_analyzer_promotes_bound_object_literal_methods(tmp_path):
+    module = """
+    export function helper() {}
+    export function outer() {
+      const tools = {
+        run() { helper(); },
+        ping: () => helper(),
+        pong: function() { helper(); },
+      };
+      return tools;
+    }
+    """
+    repo = tmp_path
+    src = repo / "src"
+    src.mkdir()
+    file_path = src / "mod.ts"
+    file_path.write_text(module, encoding="utf-8")
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("src/mod.ts"),
+            language="typescript",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = TypeScriptAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+
+    qnames = {node.qualified_name for node in result.nodes if node.node_type == "callable"}
+    assert f"{module_name}.outer.tools.run" in qnames
+    assert f"{module_name}.outer.tools.ping" in qnames
+    assert f"{module_name}.outer.tools.pong" in qnames
+    role_by_qname = {
+        node.qualified_name: (node.metadata or {}).get("callable_role")
+        for node in result.nodes
+        if node.node_type == "callable"
+    }
+    assert role_by_qname[f"{module_name}.outer.tools.run"] == "bound"
+    assert role_by_qname[f"{module_name}.outer.tools.ping"] == "bound"
+    assert role_by_qname[f"{module_name}.outer.tools.pong"] == "bound"
+
+    call_records = {
+        rec.qualified_name: set(rec.callee_identifiers) for rec in result.call_records
+    }
+    assert f"{module_name}.helper" in call_records[f"{module_name}.outer.tools.run"]
+    assert f"{module_name}.helper" in call_records[f"{module_name}.outer.tools.ping"]
+    assert f"{module_name}.helper" in call_records[f"{module_name}.outer.tools.pong"]
+
+
+def test_typescript_analyzer_promotes_anonymous_export_default_callable(tmp_path):
+    module = """
+    export function helper() {}
+    export default function() {
+      helper();
+    }
+    """
+    repo = tmp_path
+    src = repo / "src"
+    src.mkdir()
+    file_path = src / "mod.ts"
+    file_path.write_text(module, encoding="utf-8")
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("src/mod.ts"),
+            language="typescript",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = TypeScriptAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+
+    default_node = next(
+        node for node in result.nodes if node.node_type == "callable" and node.qualified_name == f"{module_name}.default"
+    )
+    assert (default_node.metadata or {}).get("callable_role") == "bound"
+    call_records = {
+        rec.qualified_name: set(rec.callee_identifiers) for rec in result.call_records
+    }
+    assert f"{module_name}.helper" in call_records[f"{module_name}.default"]
+
+
+def test_typescript_callable_roles_cover_declared_nested_bound_constructor(tmp_path):
+    module = """
+    class Service {
+      constructor() {}
+      run() {}
+    }
+    export function outer() {
+      function inner() {}
+      const bound = () => 1;
+      return bound() + inner();
+    }
+    """
+    repo = tmp_path
+    src = repo / "src"
+    src.mkdir()
+    file_path = src / "mod.ts"
+    file_path.write_text(module, encoding="utf-8")
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("src/mod.ts"),
+            language="typescript",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = TypeScriptAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+
+    role_by_qname = {
+        node.qualified_name: (node.metadata or {}).get("callable_role")
+        for node in result.nodes
+        if node.node_type == "callable"
+    }
+    assert role_by_qname[f"{module_name}.Service.constructor"] == "constructor"
+    assert role_by_qname[f"{module_name}.Service.run"] == "declared"
+    assert role_by_qname[f"{module_name}.outer"] == "declared"
+    assert role_by_qname[f"{module_name}.outer.inner"] == "nested"
+    assert role_by_qname[f"{module_name}.outer.bound"] == "bound"

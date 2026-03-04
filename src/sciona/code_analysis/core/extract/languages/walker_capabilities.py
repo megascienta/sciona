@@ -61,15 +61,19 @@ def build_walker_capabilities() -> dict[str, list[dict[str, object]]]:
             {
                 "construct": "class_and_function_expressions",
                 "node_types": [
+                    "export_statement",
                     "class",
                     "class_expression",
+                    "object",
+                    "pair",
+                    "method_definition",
                     "arrow_function",
                     "function_expression",
                 ],
                 "emits_nodes": ["type", "callable"],
                 "emits_edges": ["LEXICALLY_CONTAINS"],
                 "constraints": [
-                    "function/method emission only for module-level bindings or class member fields; nested expressions are non-structural"
+                    "function/method emission for stable lexical bindings, including nested bound expressions, object-literal bound methods, class member fields, and anonymous export default callables; inline anonymous callbacks are non-structural"
                 ],
             },
             {

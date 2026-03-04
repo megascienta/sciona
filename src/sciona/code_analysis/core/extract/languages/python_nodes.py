@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 from typing import List
 
 from ...normalize.model import EdgeRecord, FileSnapshot, SemanticNodeRecord
+from ..query_helpers import find_direct_children_query
 from .query_surface import PYTHON_STRUCTURAL_NODE_TYPES
 from .shared import node_text as shared_node_text
 
@@ -142,7 +143,7 @@ def walk_python_nodes(
         if body is not None:
             state.class_body_map[qualified] = body
         if body:
-            for child in _python_structural_children(body):
+            for child in find_direct_children_query(body, language_name="python"):
                 walk_python_nodes(
                     child,
                     language=language,
@@ -216,7 +217,7 @@ def walk_python_nodes(
         body = node.child_by_field_name("body")
         state.callable_stack.append(qualified)
         if body:
-            for child in _python_structural_children(body):
+            for child in find_direct_children_query(body, language_name="python"):
                 walk_python_nodes(
                     child,
                     language=language,

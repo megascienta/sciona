@@ -52,6 +52,8 @@ contract in `docs/CONTRACT.md`.
 - Nested named function declarations map to `callable` with role `nested`.
 - Bound callable expressions (arrow/function expressions with stable bindings)
   map to `callable` with role `bound`.
+- Object-literal methods bound to stable identifiers map to `callable` with role `bound`.
+- Anonymous `export default` callables map to deterministic module callable bindings.
 - Inline anonymous callbacks are non-structural.
 - Imports are extracted from:
   - `import_statement`,

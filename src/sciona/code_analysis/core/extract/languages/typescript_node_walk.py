@@ -62,6 +62,51 @@ def walk_typescript_nodes(
     state: TypeScriptNodeState,
     function_depth: int,
 ) -> None:
+    def _emit_bound_callable(
+        *,
+        name: str,
+        value_node,
+        parent: str,
+        parent_node_type: str,
+        class_name: str | None,
+    ) -> None:
+        qualified = f"{parent}.{name}"
+        if parent_node_type == "module":
+            state.module_functions.add(name)
+        elif parent_node_type == "type":
+            state.class_methods.setdefault(parent, set()).add(name)
+        result.nodes.append(
+            SemanticNodeRecord(
+                language=language,
+                node_type="callable",
+                qualified_name=qualified,
+                display_name=name,
+                file_path=snapshot.record.relative_path,
+                start_line=value_node.start_point[0] + 1,
+                end_line=value_node.end_point[0] + 1,
+                start_byte=value_node.start_byte,
+                end_byte=value_node.end_byte,
+                metadata={
+                    "kind": "async_callable"
+                    if _is_async_callable(value_node, snapshot.content)
+                    else "callable",
+                    "callable_role": "bound",
+                },
+            )
+        )
+        result.edges.append(
+            EdgeRecord(
+                src_language=language,
+                src_node_type=parent_node_type,
+                src_qualified_name=parent,
+                dst_language=language,
+                dst_node_type="callable",
+                dst_qualified_name=qualified,
+                edge_type="LEXICALLY_CONTAINS",
+            )
+        )
+        state.pending_calls.append((qualified, "callable", function_body_node(value_node), class_name))
+
     class_kind_map = {
         "class_declaration": "class",
         "abstract_class_declaration": "class",
@@ -232,6 +277,18 @@ def walk_typescript_nodes(
         state.callable_stack.pop()
         return
 
+    if node.type == "export_statement":
+        value_node = node.child_by_field_name("value")
+        if value_node is not None and value_node.type in {"arrow_function", "function", "function_expression"}:
+            _emit_bound_callable(
+                name="default",
+                value_node=value_node,
+                parent=module_name,
+                parent_node_type="module",
+                class_name=None,
+            )
+            return
+
     if node.type == "variable_declarator":
         name_node = node.child_by_field_name("name")
         value_node = node.child_by_field_name("value") or node.child_by_field_name(
@@ -301,6 +358,51 @@ def walk_typescript_nodes(
                     )
             state.class_stack.pop()
             return
+        if value_node.type == "object" and name_node.type == "identifier":
+            object_name = node_text(name_node, snapshot.content)
+            if not object_name:
+                return
+            if state.class_stack:
+                parent = state.class_stack[-1]
+                parent_node_type = "type"
+                class_name = parent
+            elif state.callable_stack:
+                parent = state.callable_stack[-1]
+                parent_node_type = "callable"
+                class_name = state.class_stack[-1] if state.class_stack else None
+            else:
+                parent = module_name
+                parent_node_type = "module"
+                class_name = None
+            for child in find_direct_children_query(value_node, language_name="typescript"):
+                if child.type == "method_definition":
+                    method_name_node = child.child_by_field_name("name")
+                    method_name = node_text(method_name_node, snapshot.content)
+                    if not method_name:
+                        continue
+                    _emit_bound_callable(
+                        name=f"{object_name}.{method_name}",
+                        value_node=child,
+                        parent=parent,
+                        parent_node_type=parent_node_type,
+                        class_name=class_name,
+                    )
+                elif child.type == "pair":
+                    key_node = child.child_by_field_name("key")
+                    method_name = node_text(key_node, snapshot.content) if key_node else None
+                    member_value = child.child_by_field_name("value")
+                    if not method_name or member_value is None:
+                        continue
+                    if member_value.type not in {"arrow_function", "function", "function_expression"}:
+                        continue
+                    _emit_bound_callable(
+                        name=f"{object_name}.{method_name}",
+                        value_node=member_value,
+                        parent=parent,
+                        parent_node_type=parent_node_type,
+                        class_name=class_name,
+                    )
+            return
         if value_node.type == "new_expression":
             if name_node.type == "identifier":
                 callee = value_node.child_by_field_name("constructor") or value_node.child_by_field_name(
@@ -327,51 +429,19 @@ def walk_typescript_nodes(
         if state.class_stack:
             parent = state.class_stack[-1]
             parent_node_type = "type"
-            qualified = f"{parent}.{func_name}"
-            role = "bound"
         elif state.callable_stack:
             parent = state.callable_stack[-1]
             parent_node_type = "callable"
-            qualified = f"{parent}.{func_name}"
-            role = "bound"
         else:
             parent = module_name
             parent_node_type = "module"
-            qualified = f"{module_name}.{func_name}"
-            role = "bound"
-        if parent_node_type == "module":
-            state.module_functions.add(func_name)
-        result.nodes.append(
-            SemanticNodeRecord(
-                language=language,
-                node_type="callable",
-                qualified_name=qualified,
-                display_name=func_name,
-                file_path=snapshot.record.relative_path,
-                start_line=value_node.start_point[0] + 1,
-                end_line=value_node.end_point[0] + 1,
-                start_byte=value_node.start_byte,
-                end_byte=value_node.end_byte,
-                metadata={
-                    "kind": "async_callable"
-                    if _is_async_callable(value_node, snapshot.content)
-                    else "callable",
-                    "callable_role": role,
-                },
-            )
+        _emit_bound_callable(
+            name=func_name,
+            value_node=value_node,
+            parent=parent,
+            parent_node_type=parent_node_type,
+            class_name=state.class_stack[-1] if state.class_stack else None,
         )
-        result.edges.append(
-            EdgeRecord(
-                src_language=language,
-                src_node_type=parent_node_type,
-                src_qualified_name=parent,
-                dst_language=language,
-                dst_node_type="callable",
-                dst_qualified_name=qualified,
-                edge_type="LEXICALLY_CONTAINS",
-            )
-        )
-        state.pending_calls.append((qualified, "callable", function_body_node(value_node), None))
         return
 
     if node.type in {
@@ -414,39 +484,13 @@ def walk_typescript_nodes(
         if not func_name:
             return
         parent = state.class_stack[-1]
-        qualified = f"{parent}.{func_name}"
-        state.class_methods.setdefault(parent, set()).add(func_name)
-        result.nodes.append(
-            SemanticNodeRecord(
-                language=language,
-                node_type="callable",
-                qualified_name=qualified,
-                display_name=func_name,
-                file_path=snapshot.record.relative_path,
-                start_line=value_node.start_point[0] + 1,
-                end_line=value_node.end_point[0] + 1,
-                start_byte=value_node.start_byte,
-                end_byte=value_node.end_byte,
-                metadata={
-                    "kind": "async_callable"
-                    if _is_async_callable(value_node, snapshot.content)
-                    else "callable",
-                    "callable_role": "bound",
-                },
-            )
+        _emit_bound_callable(
+            name=func_name,
+            value_node=value_node,
+            parent=parent,
+            parent_node_type="type",
+            class_name=parent,
         )
-        result.edges.append(
-            EdgeRecord(
-                src_language=language,
-                src_node_type="type",
-                src_qualified_name=parent,
-                dst_language=language,
-                dst_node_type="callable",
-                dst_qualified_name=qualified,
-                edge_type="LEXICALLY_CONTAINS",
-            )
-        )
-        state.pending_calls.append((qualified, "callable", function_body_node(value_node), parent))
         return
 
     if node.type == "assignment_expression" and state.class_stack and function_depth > 0:

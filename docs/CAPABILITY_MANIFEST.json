@@ -1,12 +1,317 @@
 {
+  "version": 1,
+  "queries": {
+    "python": {
+      "imports": [
+        "import_from_statement",
+        "import_statement"
+      ],
+      "calls": [
+        "call"
+      ],
+      "skip_calls": [
+        "class_definition"
+      ],
+      "profile": {
+        "functions": [
+          "async_function_definition",
+          "function_definition"
+        ],
+        "classes": [
+          "class_definition"
+        ],
+        "parameters": [
+          "default_parameter",
+          "dictionary_splat_pattern",
+          "identifier",
+          "list_splat_pattern",
+          "typed_default_parameter",
+          "typed_parameter"
+        ],
+        "bases": [
+          "attribute",
+          "identifier"
+        ]
+      }
+    },
+    "typescript": {
+      "imports": [
+        "export_statement",
+        "import_statement"
+      ],
+      "require_declarations": [
+        "lexical_declaration"
+      ],
+      "calls": [
+        "call_expression",
+        "new_expression"
+      ],
+      "skip_calls": [
+        "abstract_class_declaration",
+        "class",
+        "class_declaration",
+        "class_expression"
+      ],
+      "profile": {
+        "functions": [
+          "abstract_method_signature",
+          "function_declaration",
+          "method_definition",
+          "method_signature"
+        ],
+        "classes": [
+          "class_declaration",
+          "class_expression"
+        ],
+        "parameters": [
+          "optional_parameter",
+          "required_parameter"
+        ],
+        "bases": [
+          "identifier",
+          "type_identifier"
+        ]
+      }
+    },
+    "java": {
+      "packages": [
+        "package_declaration"
+      ],
+      "imports": [
+        "import_declaration"
+      ],
+      "calls": [
+        "explicit_constructor_invocation",
+        "method_invocation",
+        "object_creation_expression"
+      ],
+      "skip_calls": [
+        "class_declaration",
+        "enum_declaration",
+        "interface_declaration",
+        "record_declaration"
+      ],
+      "profile": {
+        "functions": [
+          "compact_constructor_declaration",
+          "constructor_declaration",
+          "method_declaration"
+        ],
+        "classes": [
+          "class_declaration"
+        ],
+        "parameters": [
+          "formal_parameter"
+        ],
+        "bases": [
+          "identifier",
+          "scoped_type_identifier",
+          "type_identifier"
+        ]
+      }
+    }
+  },
+  "walker_capabilities": {
+    "python": [
+      {
+        "construct": "class_declaration",
+        "node_types": [
+          "class_definition"
+        ],
+        "emits_nodes": [
+          "type"
+        ],
+        "emits_edges": [
+          "LEXICALLY_CONTAINS"
+        ]
+      },
+      {
+        "construct": "function_declaration",
+        "node_types": [
+          "function_definition",
+          "async_function_definition"
+        ],
+        "emits_nodes": [
+          "callable"
+        ],
+        "emits_edges": [
+          "LEXICALLY_CONTAINS"
+        ]
+      },
+      {
+        "construct": "decorated_definition_unwrap",
+        "node_types": [
+          "decorated_definition"
+        ],
+        "emits_nodes": [],
+        "emits_edges": []
+      },
+      {
+        "construct": "local_inheritance_edges",
+        "node_types": [
+          "class_definition"
+        ],
+        "emits_nodes": [],
+        "emits_edges": [
+          "EXTENDS"
+        ],
+        "constraints": [
+          "syntax-local base references only"
+        ]
+      }
+    ],
+    "typescript": [
+      {
+        "construct": "class_like_declaration",
+        "node_types": [
+          "class_declaration",
+          "abstract_class_declaration",
+          "interface_declaration"
+        ],
+        "emits_nodes": [
+          "type"
+        ],
+        "emits_edges": [
+          "LEXICALLY_CONTAINS"
+        ]
+      },
+      {
+        "construct": "callable_declaration",
+        "node_types": [
+          "function_declaration",
+          "method_definition",
+          "method_signature",
+          "abstract_method_signature"
+        ],
+        "emits_nodes": [
+          "callable"
+        ],
+        "emits_edges": [
+          "LEXICALLY_CONTAINS"
+        ]
+      },
+      {
+        "construct": "class_and_function_expressions",
+        "node_types": [
+          "export_statement",
+          "class",
+          "class_expression",
+          "object",
+          "pair",
+          "method_definition",
+          "arrow_function",
+          "function_expression"
+        ],
+        "emits_nodes": [
+          "type",
+          "callable"
+        ],
+        "emits_edges": [
+          "LEXICALLY_CONTAINS"
+        ],
+        "constraints": [
+          "function/method emission for stable lexical bindings, including nested bound expressions, object-literal bound methods, class member fields, and anonymous export default callables; inline anonymous callbacks are non-structural"
+        ]
+      },
+      {
+        "construct": "instance_and_alias_tracking",
+        "node_types": [
+          "new_expression",
+          "assignment_expression",
+          "variable_declarator"
+        ],
+        "emits_nodes": [],
+        "emits_edges": []
+      },
+      {
+        "construct": "local_inheritance_edges",
+        "node_types": [
+          "class_declaration",
+          "class_expression",
+          "interface_declaration"
+        ],
+        "emits_nodes": [],
+        "emits_edges": [
+          "EXTENDS",
+          "IMPLEMENTS"
+        ],
+        "constraints": [
+          "syntax-local base/interface references only"
+        ]
+      }
+    ],
+    "java": [
+      {
+        "construct": "class_like_declaration",
+        "node_types": [
+          "class_declaration",
+          "interface_declaration",
+          "enum_declaration",
+          "record_declaration"
+        ],
+        "emits_nodes": [
+          "type"
+        ],
+        "emits_edges": [
+          "LEXICALLY_CONTAINS"
+        ]
+      },
+      {
+        "construct": "method_like_declaration",
+        "node_types": [
+          "method_declaration",
+          "constructor_declaration",
+          "compact_constructor_declaration"
+        ],
+        "emits_nodes": [
+          "callable"
+        ],
+        "emits_edges": [
+          "LEXICALLY_CONTAINS"
+        ]
+      },
+      {
+        "construct": "field_type_tracking",
+        "node_types": [
+          "field_declaration"
+        ],
+        "emits_nodes": [],
+        "emits_edges": []
+      },
+      {
+        "construct": "local_inheritance_edges",
+        "node_types": [
+          "class_declaration",
+          "interface_declaration",
+          "enum_declaration",
+          "record_declaration"
+        ],
+        "emits_nodes": [],
+        "emits_edges": [
+          "EXTENDS",
+          "IMPLEMENTS"
+        ],
+        "constraints": [
+          "syntax-local base/interface references only"
+        ]
+      }
+    ]
+  },
   "parity_contract": {
+    "version": 4,
+    "languages": [
+      "java",
+      "python",
+      "typescript"
+    ],
+    "objective": "full_factual_parity_depth_quality",
     "dimensions": {
-      "call_extraction_and_attribution": {
+      "structural_nodes_edges_contract": {
         "java": "yes",
         "python": "yes",
         "typescript": "yes"
       },
-      "callable_role_coverage": {
+      "lexical_contains_edges": {
         "java": "yes",
         "python": "yes",
         "typescript": "yes"
@@ -26,17 +331,22 @@
         "python": "yes",
         "typescript": "yes"
       },
-      "lexical_contains_edges": {
-        "java": "yes",
-        "python": "yes",
-        "typescript": "yes"
-      },
       "normalized_import_model_convergence": {
         "java": "yes",
         "python": "yes",
         "typescript": "yes"
       },
-      "profile_class_extras_tree_sitter": {
+      "call_extraction_and_attribution": {
+        "java": "yes",
+        "python": "yes",
+        "typescript": "yes"
+      },
+      "walker_construct_capability_declarations": {
+        "java": "yes",
+        "python": "yes",
+        "typescript": "yes"
+      },
+      "callable_role_coverage": {
         "java": "yes",
         "python": "yes",
         "typescript": "yes"
@@ -46,341 +356,35 @@
         "python": "yes",
         "typescript": "yes"
       },
-      "structural_nodes_edges_contract": {
-        "java": "yes",
-        "python": "yes",
-        "typescript": "yes"
-      },
-      "walker_construct_capability_declarations": {
+      "profile_class_extras_tree_sitter": {
         "java": "yes",
         "python": "yes",
         "typescript": "yes"
       }
     },
-    "documented_asymmetries": {
-      "java": {
-        "async_callable_kind": {
-          "present": false,
-          "reason": "java extraction does not model async/await callable kind metadata"
-        },
-        "callable_types": [
-          "callable"
-        ],
-        "reason": "java emits callable nodes only; no module-level function declarations"
-      },
-      "python": {
-        "implements_edges": {
-          "present": false,
-          "reason": "python has no dedicated interface-implementation syntax token"
-        }
-      }
-    },
-    "languages": [
-      "java",
-      "python",
-      "typescript"
-    ],
-    "objective": "full_factual_parity_depth_quality",
     "required_resolution_stages": [
       "receiver_typed_or_instance_mapped",
       "import_or_member_alias_narrowing",
       "class_scoped_fallback",
       "module_scoped_fallback"
     ],
-    "version": 4
-  },
-  "queries": {
-    "java": {
-      "calls": [
-        "explicit_constructor_invocation",
-        "method_invocation",
-        "object_creation_expression"
-      ],
-      "imports": [
-        "import_declaration"
-      ],
-      "packages": [
-        "package_declaration"
-      ],
-      "profile": {
-        "bases": [
-          "identifier",
-          "scoped_type_identifier",
-          "type_identifier"
-        ],
-        "classes": [
-          "class_declaration"
-        ],
-        "functions": [
-          "compact_constructor_declaration",
-          "constructor_declaration",
-          "method_declaration"
-        ],
-        "parameters": [
-          "formal_parameter"
-        ]
+    "documented_asymmetries": {
+      "python": {
+        "implements_edges": {
+          "present": false,
+          "reason": "python has no dedicated interface-implementation syntax token"
+        }
       },
-      "skip_calls": [
-        "class_declaration",
-        "enum_declaration",
-        "interface_declaration",
-        "record_declaration"
-      ]
-    },
-    "python": {
-      "calls": [
-        "call"
-      ],
-      "imports": [
-        "import_from_statement",
-        "import_statement"
-      ],
-      "profile": {
-        "bases": [
-          "attribute",
-          "identifier"
+      "java": {
+        "callable_types": [
+          "callable"
         ],
-        "classes": [
-          "class_definition"
-        ],
-        "functions": [
-          "async_function_definition",
-          "function_definition"
-        ],
-        "parameters": [
-          "default_parameter",
-          "dictionary_splat_pattern",
-          "identifier",
-          "list_splat_pattern",
-          "typed_default_parameter",
-          "typed_parameter"
-        ]
-      },
-      "skip_calls": [
-        "class_definition"
-      ]
-    },
-    "typescript": {
-      "calls": [
-        "call_expression",
-        "new_expression"
-      ],
-      "imports": [
-        "export_statement",
-        "import_statement"
-      ],
-      "profile": {
-        "bases": [
-          "identifier",
-          "type_identifier"
-        ],
-        "classes": [
-          "class_declaration",
-          "class_expression"
-        ],
-        "functions": [
-          "abstract_method_signature",
-          "function_declaration",
-          "method_definition",
-          "method_signature"
-        ],
-        "parameters": [
-          "optional_parameter",
-          "required_parameter"
-        ]
-      },
-      "require_declarations": [
-        "lexical_declaration"
-      ],
-      "skip_calls": [
-        "abstract_class_declaration",
-        "class",
-        "class_declaration",
-        "class_expression"
-      ]
+        "reason": "java emits callable nodes only; no module-level function declarations",
+        "async_callable_kind": {
+          "present": false,
+          "reason": "java extraction does not model async/await callable kind metadata"
+        }
+      }
     }
-  },
-  "version": 1,
-  "walker_capabilities": {
-    "java": [
-      {
-        "construct": "class_like_declaration",
-        "emits_edges": [
-          "LEXICALLY_CONTAINS"
-        ],
-        "emits_nodes": [
-          "type"
-        ],
-        "node_types": [
-          "class_declaration",
-          "interface_declaration",
-          "enum_declaration",
-          "record_declaration"
-        ]
-      },
-      {
-        "construct": "method_like_declaration",
-        "emits_edges": [
-          "LEXICALLY_CONTAINS"
-        ],
-        "emits_nodes": [
-          "callable"
-        ],
-        "node_types": [
-          "method_declaration",
-          "constructor_declaration",
-          "compact_constructor_declaration"
-        ]
-      },
-      {
-        "construct": "field_type_tracking",
-        "emits_edges": [],
-        "emits_nodes": [],
-        "node_types": [
-          "field_declaration"
-        ]
-      },
-      {
-        "constraints": [
-          "syntax-local base/interface references only"
-        ],
-        "construct": "local_inheritance_edges",
-        "emits_edges": [
-          "EXTENDS",
-          "IMPLEMENTS"
-        ],
-        "emits_nodes": [],
-        "node_types": [
-          "class_declaration",
-          "interface_declaration",
-          "enum_declaration",
-          "record_declaration"
-        ]
-      }
-    ],
-    "python": [
-      {
-        "construct": "class_declaration",
-        "emits_edges": [
-          "LEXICALLY_CONTAINS"
-        ],
-        "emits_nodes": [
-          "type"
-        ],
-        "node_types": [
-          "class_definition"
-        ]
-      },
-      {
-        "construct": "function_declaration",
-        "emits_edges": [
-          "LEXICALLY_CONTAINS"
-        ],
-        "emits_nodes": [
-          "callable"
-        ],
-        "node_types": [
-          "function_definition",
-          "async_function_definition"
-        ]
-      },
-      {
-        "construct": "decorated_definition_unwrap",
-        "emits_edges": [],
-        "emits_nodes": [],
-        "node_types": [
-          "decorated_definition"
-        ]
-      },
-      {
-        "constraints": [
-          "syntax-local base references only"
-        ],
-        "construct": "local_inheritance_edges",
-        "emits_edges": [
-          "EXTENDS"
-        ],
-        "emits_nodes": [],
-        "node_types": [
-          "class_definition"
-        ]
-      }
-    ],
-    "typescript": [
-      {
-        "construct": "class_like_declaration",
-        "emits_edges": [
-          "LEXICALLY_CONTAINS"
-        ],
-        "emits_nodes": [
-          "type"
-        ],
-        "node_types": [
-          "class_declaration",
-          "abstract_class_declaration",
-          "interface_declaration"
-        ]
-      },
-      {
-        "construct": "callable_declaration",
-        "emits_edges": [
-          "LEXICALLY_CONTAINS"
-        ],
-        "emits_nodes": [
-          "callable"
-        ],
-        "node_types": [
-          "function_declaration",
-          "method_definition",
-          "method_signature",
-          "abstract_method_signature"
-        ]
-      },
-      {
-        "constraints": [
-          "function/method emission only for module-level bindings or class member fields; nested expressions are non-structural"
-        ],
-        "construct": "class_and_function_expressions",
-        "emits_edges": [
-          "LEXICALLY_CONTAINS"
-        ],
-        "emits_nodes": [
-          "type",
-          "callable"
-        ],
-        "node_types": [
-          "class",
-          "class_expression",
-          "arrow_function",
-          "function_expression"
-        ]
-      },
-      {
-        "construct": "instance_and_alias_tracking",
-        "emits_edges": [],
-        "emits_nodes": [],
-        "node_types": [
-          "new_expression",
-          "assignment_expression",
-          "variable_declarator"
-        ]
-      },
-      {
-        "constraints": [
-          "syntax-local base/interface references only"
-        ],
-        "construct": "local_inheritance_edges",
-        "emits_edges": [
-          "EXTENDS",
-          "IMPLEMENTS"
-        ],
-        "emits_nodes": [],
-        "node_types": [
-          "class_declaration",
-          "class_expression",
-          "interface_declaration"
-        ]
-      }
-    ]
   }
 }

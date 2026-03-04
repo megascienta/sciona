@@ -378,3 +378,41 @@ def test_java_analyzer_emits_local_implements_edges(tmp_path):
         and edge.dst_qualified_name == f"{module_name}.Repo"
     }
     assert "IMPLEMENTS" in edge_types
+
+
+def test_java_callable_roles_cover_declared_and_constructor(tmp_path):
+    module = """
+    class Service {
+        Service() {}
+        void run() {}
+    }
+    """
+    repo = tmp_path
+    src = repo / "src"
+    src.mkdir()
+    file_path = src / "App.java"
+    file_path.write_text(module, encoding="utf-8")
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("src/App.java"),
+            language="java",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = JavaAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+
+    role_by_qname = {
+        node.qualified_name: (node.metadata or {}).get("callable_role")
+        for node in result.nodes
+        if node.node_type == "callable"
+    }
+    assert role_by_qname[f"{module_name}.Service.Service"] == "constructor"
+    assert role_by_qname[f"{module_name}.Service.run"] == "declared"
