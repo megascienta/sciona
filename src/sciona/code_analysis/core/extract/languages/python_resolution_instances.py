@@ -19,6 +19,15 @@ from .python_resolution_types import (
 )
 
 
+def _known_class_targets(
+    class_name_candidates: dict[str, set[str]],
+) -> set[str]:
+    targets: set[str] = set()
+    for candidates in class_name_candidates.values():
+        targets.update(candidates)
+    return targets
+
+
 def _collect_identifier_names(node, content: bytes) -> set[str]:
     names: set[str] = set()
     if node is None:
@@ -85,6 +94,7 @@ def collect_module_instance_map(
     raw_module_map: dict[str, str],
 ) -> dict[str, str]:
     instance_map: dict[str, str] = {}
+    class_targets = _known_class_targets(class_name_candidates)
 
     def walk(node) -> None:
         if node is None:
@@ -116,7 +126,7 @@ def collect_module_instance_map(
                     member_aliases,
                     raw_module_map,
                 )
-                if name and target:
+                if name and target and target in class_targets:
                     instance_map[name] = target
             elif left is not None and right is not None and left.type == "identifier":
                 target = _resolve_alias_target(
@@ -147,6 +157,7 @@ def collect_callable_instance_map(
 ) -> dict[str, str]:
     if body_node is None:
         return {}
+    class_targets = _known_class_targets(class_name_candidates)
     instance_map: dict[str, str] = _typed_parameters_for_body_node(
         body_node,
         snapshot,
@@ -186,7 +197,7 @@ def collect_callable_instance_map(
                     member_aliases,
                     raw_module_map,
                 )
-                if name and target:
+                if name and target and target in class_targets:
                     instance_map[name] = target
             elif left is not None and right is not None:
                 name = None
@@ -225,6 +236,7 @@ def collect_class_instance_map(
     if class_body_node is None:
         return {}
     instance_map: dict[str, str] = {}
+    class_targets = _known_class_targets(class_name_candidates)
 
     def walk(node) -> None:
         if node is None:
@@ -258,7 +270,7 @@ def collect_class_instance_map(
                         member_aliases,
                         raw_module_map,
                     )
-                    if target:
+                    if target and target in class_targets:
                         instance_map[name] = target
             elif left is not None and right is not None and left.type == "attribute":
                 chain = attribute_chain(left, snapshot.content)

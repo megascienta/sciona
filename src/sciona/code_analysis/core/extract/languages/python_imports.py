@@ -49,6 +49,11 @@ def collect_python_import_model(
     local_packages = set(runtime_packaging.local_package_names(repo_root))
     model = NormalizedImportModel()
     is_package = snapshot.record.path.name == "__init__.py"
+
+    def _append_module(module_qname: str) -> None:
+        if module_qname and module_qname not in model.modules:
+            model.modules.append(module_qname)
+
     for child in find_direct_children_query(root, language_name="python"):
         if child.type not in PYTHON_IMPORT_NODE_TYPES:
             continue
@@ -70,7 +75,7 @@ def collect_python_import_model(
                         model.imports_filtered_not_internal += 1
                     continue
                 model.imports_internal += 1
-                model.modules.append(normalized)
+                _append_module(normalized)
                 model.raw_module_map[module] = normalized
                 if alias:
                     model.import_aliases[alias] = normalized
@@ -96,17 +101,19 @@ def collect_python_import_model(
             model.imports_internal += 1
             is_bare_relative = module.startswith(".") and not module.strip(".")
             resolved_submodules: list[str] = []
-            if is_bare_relative:
-                for name, _alias in names:
-                    if name == "*":
-                        continue
-                    candidate_module = f"{normalized}.{name}"
-                    if is_internal_module(candidate_module, module_index):
-                        resolved_submodules.append(candidate_module)
+            for name, _alias in names:
+                if name == "*":
+                    continue
+                candidate_module = f"{normalized}.{name}"
+                if is_internal_module(candidate_module, module_index):
+                    resolved_submodules.append(candidate_module)
             if resolved_submodules:
-                model.modules.extend(resolved_submodules)
+                if not is_bare_relative:
+                    _append_module(normalized)
+                for candidate_module in resolved_submodules:
+                    _append_module(candidate_module)
             else:
-                model.modules.append(normalized)
+                _append_module(normalized)
             model.raw_module_map[module] = normalized
             for name, alias in names:
                 if name == "*":

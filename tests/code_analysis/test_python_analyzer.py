@@ -477,11 +477,58 @@ def test_python_analyzer_resolves_call_via_local_alias_of_imported_module(tmp_pa
     api_module = analyzer.module_name(repo, api_snapshot)
     analyzer.module_index = {module_name, api_module, f"{module_name.rsplit('.', 1)[0]}.api"}
     result = analyzer.analyze(snapshot, module_name)
+    imports = {
+        edge.dst_qualified_name
+        for edge in result.edges
+        if edge.edge_type == "IMPORTS_DECLARED"
+    }
     call_records = {
         record.qualified_name: set(record.callee_identifiers)
         for record in result.call_records
     }
+    assert api_module in imports
     assert f"{api_module}.get_repo_root" in call_records[f"{module_name}.top"]
+
+
+def test_python_analyzer_does_not_treat_function_return_as_class_instance(tmp_path):
+    module = """
+class Service:
+    def run(self):
+        pass
+
+def resolve_service():
+    return Service()
+
+def top():
+    svc = resolve_service()
+    svc.run()
+"""
+    repo = tmp_path
+    pkg = repo / "pkg"
+    pkg.mkdir()
+    file_path = pkg / "mod.py"
+    file_path.write_text(module, encoding="utf-8")
+    record = FileRecord(
+        path=file_path,
+        relative_path=Path("pkg/mod.py"),
+        language="python",
+    )
+    snapshot = FileSnapshot(
+        record=record,
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = PythonAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+    call_records = {
+        rec.qualified_name: set(rec.callee_identifiers) for rec in result.call_records
+    }
+    assert f"{module_name}.resolve_service.run" not in call_records[f"{module_name}.top"]
 
 
 def test_python_analyzer_bare_relative_import_falls_back_to_package_when_not_module(tmp_path):
