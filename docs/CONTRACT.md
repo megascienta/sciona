@@ -7,6 +7,9 @@ It is authoritative for analysis and validation.
 
 - Applies to all supported languages.
 - Applies to the single committed snapshot retained in CoreDB.
+- `node_instances` and `edges` facts are snapshot-bound by `snapshot_id`.
+- `structural_nodes` identities are global and carry deterministic
+  `created_snapshot_id` provenance.
 - Static, syntax-only analysis; no execution, no runtime inference.
 - Extraction is tree-sitter query/field driven.
 - Tree-sitter parser setup MUST be deterministic and use

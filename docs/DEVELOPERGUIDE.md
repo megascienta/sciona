@@ -145,9 +145,11 @@ CoreDB (authoritative):
 - `node_instances`
 - `edges`
 
-Core structural edge semantics currently emitted:
+Core structural edge types in the committed snapshot:
 
 - `LEXICALLY_CONTAINS` for deterministic lexical containment.
+- `IMPORTS_DECLARED` for syntax-level module import declarations.
+- `CALLS` for accepted in-repo callable call edges.
 - `EXTENDS` / `IMPLEMENTS` for local syntactic inheritance.
 
 ArtifactDB (derived):
