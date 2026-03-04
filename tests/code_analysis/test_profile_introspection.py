@@ -16,6 +16,7 @@ from sciona.code_analysis.tools.profile_introspection_typescript import (
     _fuzzy_span_lookup,
 )
 from sciona.code_analysis.tools.profile_query_surface import (
+    JAVA_PROFILE_CLASS_NODE_TYPES,
     JAVA_PROFILE_FUNCTION_NODE_TYPES,
     JAVA_PROFILE_PARAMETER_NODE_TYPES,
     TYPESCRIPT_PROFILE_CLASS_NODE_TYPES,
@@ -28,6 +29,9 @@ def test_java_profile_parameter_surface_excludes_spread_parameter() -> None:
 
 def test_profile_surfaces_include_parity_nodes() -> None:
     assert "compact_constructor_declaration" in JAVA_PROFILE_FUNCTION_NODE_TYPES
+    assert "interface_declaration" in JAVA_PROFILE_CLASS_NODE_TYPES
+    assert "enum_declaration" in JAVA_PROFILE_CLASS_NODE_TYPES
+    assert "record_declaration" in JAVA_PROFILE_CLASS_NODE_TYPES
     assert "abstract_class_declaration" in TYPESCRIPT_PROFILE_CLASS_NODE_TYPES
     assert "class_expression" in TYPESCRIPT_PROFILE_CLASS_NODE_TYPES
 

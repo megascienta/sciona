@@ -42,6 +42,11 @@ JAVA_PROFILE_FUNCTION_NODE_TYPES = (
     "constructor_declaration",
     "compact_constructor_declaration",
 )
-JAVA_PROFILE_CLASS_NODE_TYPES = ("class_declaration",)
+JAVA_PROFILE_CLASS_NODE_TYPES = (
+    "class_declaration",
+    "interface_declaration",
+    "enum_declaration",
+    "record_declaration",
+)
 JAVA_PROFILE_PARAMETER_NODE_TYPES = ("formal_parameter",)
 JAVA_PROFILE_BASE_NODE_TYPES = ("type_identifier", "identifier", "scoped_type_identifier")
