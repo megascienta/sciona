@@ -185,9 +185,23 @@ Status/report payload semantics:
   structural truth (`CALLS` remains authoritative).
 - `call_sites_by_scope` partitions materialization telemetry into `non_tests` and
   `tests` buckets.
+- `drop_classification` and `drop_classification_by_scope` are derived
+  diagnostics for dropped callsites (for example `external_likely`) and are
+  reporting-only. They MUST NOT alter acceptance/materialization behavior.
 - When ArtifactDB is available and no eligible rows exist for a language/scope,
   counts are reported as `eligible=0, accepted=0, dropped=0` and
   `success_rate=null` (undefined ratio), not missing/null counts.
+- `success_rate` is computed over `eligible` callsite rows in ArtifactDB
+  materialization telemetry. Changes in `success_rate` can come from both
+  numerator changes (`accepted`) and denominator changes (`eligible`); it is not
+  a raw call-expression coverage metric.
+
+Strict call-gate scope behavior:
+
+- Single-candidate provenance checks MAY use expanded/transitive import scope for
+  deterministic provenance confirmation.
+- Multi-candidate disambiguation MUST use direct import scope plus caller-module
+  scope to avoid over-broad narrowing.
 
 ## Reducer Rules
 
@@ -224,3 +238,14 @@ pytest -q
 
 Repository policy for this workspace requires running tests in conda env
 `multiphysics`.
+
+## CI Guardrails
+
+SCIONA includes generic non-test callsite acceptance guardrails by language.
+
+- Config: `validations/callsite_guardrails.json`
+- Checker: `validations/check_callsite_guardrails.py`
+- CI workflow: `.github/workflows/callsite-guardrails.yml`
+
+Guardrails evaluate `call_sites_by_scope.non_tests.success_rate` per language.
+They are policy checks only and do not alter extraction/materialization logic.

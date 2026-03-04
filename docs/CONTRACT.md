@@ -167,6 +167,9 @@ Optional metadata:
 - `CALL_SITES` MUST NOT define new structural entities or structural edges.
 - `CALL_SITES` stores in-repo candidate-relevant callsite observations only.
 - External callsites MUST NOT be persisted as rows in `CALL_SITES`.
+- Derived reporting classifications on dropped callsites (for example
+  `external_likely`) are observational metadata only and MUST NOT affect strict
+  candidate acceptance or `CALLS` emission.
 
 ## Determinism
 
