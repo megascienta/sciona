@@ -82,7 +82,11 @@ def build_repo(
         try:
             conn.execute("BEGIN IMMEDIATE")
             core_write.purge_uncommitted_snapshots(conn)
-            baseline_meta = core_read.latest_committed_snapshot(conn)
+            baseline_meta = (
+                None
+                if policy.force_rebuild
+                else core_read.latest_committed_snapshot(conn)
+            )
 
             engine = BuildEngine(
                 workspace,

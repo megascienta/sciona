@@ -35,7 +35,7 @@ def test_cli_build_forwards_force_rebuild_flag(
         return _fake_result()
 
     monkeypatch.setattr(api_cli, "build", _build)
-    result = cli_runner.invoke(cli_app, ["build", "--force-rebuild"])
+    result = cli_runner.invoke(cli_app, ["build", "--force"])
     assert result.exit_code == 0
     assert calls == [True]
 

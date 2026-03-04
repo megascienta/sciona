@@ -17,7 +17,7 @@ def register_build(app: typer.Typer) -> None:
     def build(
         force_rebuild: bool = typer.Option(
             False,
-            "--force-rebuild",
+            "--force",
             help="Bypass fingerprint fast-path and run a full rebuild.",
         ),
     ) -> None:

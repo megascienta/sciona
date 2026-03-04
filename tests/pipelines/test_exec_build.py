@@ -172,5 +172,5 @@ def test_build_repo_force_rebuild_bypasses_fingerprint_fast_path(tmp_path: Path)
     forced = build_repo(repo_state, force_policy)
     cache_after = cache_path.read_text(encoding="utf-8")
 
-    assert forced.status == "reused"
+    assert forced.status == "committed"
     assert cache_before != cache_after
