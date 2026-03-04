@@ -23,6 +23,13 @@ The tool is functional and actively used, but should currently be considered an 
 
 SCIONA can be used directly via its CLI or integrated into LLM-assisted workflows. During initialization, SCIONA optionally auto-generates an `AGENTS.md` file in the repository root. This file serves as a control surface for LLM copilots by explicitly specifying how SCIONA should be used during code reasoning. In this mode, the copilot is instructed to reason over reducer outputs rather than reconstructing structure heuristically from source text.
 
+Authoritative project docs:
+
+- Contract: `docs/CONTRACT.md`
+- Developer guide: `docs/DEVELOPERGUIDE.md`
+- Addons API: `docs/ADDONSAPI.md`
+- Generated capability manifest: `docs/CAPABILITY_MANIFEST.json`
+
 ## Installation
 
 Requirements:
@@ -125,7 +132,7 @@ sciona reducer --id class_overview [--class-id CLASS_ID] [--method-id METHOD_ID]
 Structural summary of a module, including contained classes and callables. Use for architectural inspection. Scope: module-level.
 
 ```bash
-sciona reducer --id module_overview [--module-id MODULE_ID] [--callable-id CALLABLE_ID] [--function-id FUNCTION_ID] [--method-id METHOD_ID] [--class-id CLASS_ID] [--include-file-map]
+sciona reducer --id module_overview [--module-id MODULE_ID] [--callable-id CALLABLE_ID] [--function-id FUNCTION_ID] [--method-id METHOD_ID] [--class-id CLASS_ID] [--include-file-map INCLUDE_FILE_MAP]
 ```
 
 Canonical structural index of the codebase. Use for global structural reasoning or validation. Scope: entire SCI snapshot.
@@ -165,7 +172,7 @@ sciona reducer --id concatenated_source [--scope SCOPE] [--module-id MODULE_ID] 
 Indexed caller/callee edges for a callable, including callsite details. Use when reasoning about call directionality or callsite-level analysis. detail_level='neighbors' returns caller/callee sets. Scope: callable-level call edges.
 
 ```bash
-sciona reducer --id callsite_index [--callable-id CALLABLE_ID] [--function-id FUNCTION_ID] [--method-id METHOD_ID] [--direction DIRECTION] [--detail-level DETAIL_LEVEL]
+sciona reducer --id callsite_index [--callable-id CALLABLE_ID] [--function-id FUNCTION_ID] [--method-id METHOD_ID] [--direction DIRECTION] [--detail-level DETAIL_LEVEL] [--include-callsite-diagnostics INCLUDE_CALLSITE_DIAGNOSTICS]
 ```
 
 Summary of call relationships within a class. Use for analysing method interaction patterns or internal coupling. Scope: class-level call graph.
@@ -194,7 +201,7 @@ sciona reducer --id hotspot_summary
 
 ## Project Governance
 
-Sciona is developed and maintained by Dmitry Chigrin. This work is part of my independent research & engineering activities under the MetaScienta brand.
+Sciona is developed and maintained by Dmitry Chigrin. This work is part of independent research and engineering activities under the MegaScienta brand.
 
 ## Support Sciona
 

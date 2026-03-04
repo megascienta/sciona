@@ -6,13 +6,19 @@ rules for contributors.
 Authoritative references:
 
 - Contract: `docs/CONTRACT.md`
-- Compliance: `docs/COMPLIANCE_CHECKLIST.md`
-- Capability parity matrix: `docs/CAPABILITY_MATRIX.md`
 - Generated capability manifest: `docs/CAPABILITY_MANIFEST.json`
-- Parser bootstrap policy: `docs/PARSER_BOOTSTRAP_POLICY.md`
 - Executable parity contract: `src/sciona/code_analysis/core/extract/languages/parity_contract.py`
 
-If this guide conflicts with those files, contract/compliance wins.
+If this guide conflicts with those files, contract wins.
+
+## Documentation Source of Truth
+
+- Contract semantics and compliance criteria are authoritative in `docs/CONTRACT.md`.
+- Capability data is generated from source code contracts/query surfaces:
+  - `src/sciona/code_analysis/core/extract/languages/capability_manifest.py`
+  - `src/sciona/code_analysis/core/extract/languages/parity_contract.py`
+- `docs/CAPABILITY_MANIFEST.json` is a generated artifact and the machine-readable
+  docs source for capability reporting.
 
 ## System Purpose
 
