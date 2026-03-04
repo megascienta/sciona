@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.pipelines import repo as repo_pipeline
+from sciona.pipelines.exec import reporting as exec_reporting
 from sciona.runtime import constants as runtime_constants
 from sciona.runtime import paths as runtime_paths
 
@@ -21,11 +22,15 @@ def test_snapshot_report_returns_db_counts(repo_with_snapshot):
     assert payload["totals"]["call_sites"]["eligible"] == 0
     assert payload["totals"]["call_sites"]["accepted"] == 0
     assert payload["totals"]["call_sites"]["dropped"] == 0
+    assert payload["totals"]["call_sites_by_scope"]["non_tests"]["eligible"] == 0
+    assert payload["totals"]["call_sites_by_scope"]["tests"]["eligible"] == 0
     by_language = {entry["language"]: entry for entry in payload["languages"]}
     python = by_language["python"]
     assert python["call_sites"]["eligible"] == 0
     assert python["call_sites"]["accepted"] == 0
     assert python["call_sites"]["dropped"] == 0
+    assert python["call_sites_by_scope"]["non_tests"]["eligible"] == 0
+    assert python["call_sites_by_scope"]["tests"]["eligible"] == 0
 
 
 def test_snapshot_report_full_includes_failure_reasons(repo_with_snapshot):
@@ -127,6 +132,10 @@ def test_snapshot_report_full_includes_failure_reasons(repo_with_snapshot):
     assert call_sites["eligible"] == 2
     assert call_sites["accepted"] == 1
     assert call_sites["dropped"] == 1
+    assert python["call_sites_by_scope"]["non_tests"]["eligible"] == 2
+    assert python["call_sites_by_scope"]["non_tests"]["accepted"] == 1
+    assert python["call_sites_by_scope"]["non_tests"]["dropped"] == 1
+    assert python["call_sites_by_scope"]["tests"]["eligible"] == 0
     assert python["drop_reasons"] == {"unique_without_provenance": 1}
     assert "unique_without_provenance" in python["drop_reason_examples"]
     example = python["drop_reason_examples"]["unique_without_provenance"][0]
@@ -143,3 +152,9 @@ def test_snapshot_report_full_includes_failure_reasons(repo_with_snapshot):
     assert top_callers[0]["count"] == 1
     assert top_files[0]["name"] == "pkg/alpha/service.py"
     assert top_files[0]["count"] == 1
+
+
+def test_scope_bucket_detects_test_and_non_test_paths() -> None:
+    assert exec_reporting._scope_bucket("pkg/service.py") == "non_tests"
+    assert exec_reporting._scope_bucket("tests/test_api.py") == "tests"
+    assert exec_reporting._scope_bucket("src/test/java/org/example/AppTest.java") == "tests"

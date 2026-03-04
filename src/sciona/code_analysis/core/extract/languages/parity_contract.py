@@ -14,7 +14,7 @@ def build_parity_contract() -> dict[str, object]:
     return {
         "version": PARITY_CONTRACT_VERSION,
         "languages": ["java", "python", "typescript"],
-        "objective": "full_factual_parity_depth_quality",
+        "objective": "structural_contract_capability_parity",
         "dimensions": {
             "structural_nodes_edges_contract": {
                 "java": "yes",

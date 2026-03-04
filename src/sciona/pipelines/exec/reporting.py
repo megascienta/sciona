@@ -100,6 +100,12 @@ def snapshot_report(
     call_site_totals: dict[str, dict[str, int]] = defaultdict(
         lambda: {"eligible": 0, "accepted": 0, "dropped": 0}
     )
+    call_site_scope_totals: dict[str, dict[str, dict[str, int]]] = defaultdict(
+        lambda: {
+            "non_tests": {"eligible": 0, "accepted": 0, "dropped": 0},
+            "tests": {"eligible": 0, "accepted": 0, "dropped": 0},
+        }
+    )
     try:
         with artifact_readonly(
             repo_state.artifact_db_path, repo_root=repo_state.repo_root
@@ -114,12 +120,18 @@ def snapshot_report(
                 if not language:
                     continue
                 count = int(item["site_count"] or 0)
+                caller_info = caller_metadata.get(str(item["caller_id"])) or {}
+                caller_file_path = str(caller_info.get("file_path") or "")
+                scope_key = _scope_bucket(caller_file_path)
                 call_site_totals[language]["eligible"] += count
+                call_site_scope_totals[language][scope_key]["eligible"] += count
                 status = str(item["resolution_status"])
                 if status == "accepted":
                     call_site_totals[language]["accepted"] += count
+                    call_site_scope_totals[language][scope_key]["accepted"] += count
                 else:
                     call_site_totals[language]["dropped"] += count
+                    call_site_scope_totals[language][scope_key]["dropped"] += count
                     if include_failure_reasons:
                         reason = str(item["drop_reason"] or "unknown")
                         call_site_reasons[language][reason] = (
@@ -226,8 +238,36 @@ def snapshot_report(
             "nodes": total_nodes,
             "edges": total_edges,
             "call_sites": _call_sites_payload(total_eligible, total_accepted, total_dropped),
+            "call_sites_by_scope": _scope_call_sites_payload(
+                {
+                    "non_tests": _sum_scope(
+                        call_site_scope_totals, scope_key="non_tests", field_names=("eligible", "accepted", "dropped")
+                    ),
+                    "tests": _sum_scope(
+                        call_site_scope_totals, scope_key="tests", field_names=("eligible", "accepted", "dropped")
+                    ),
+                }
+                if artifact_available
+                else None
+            ),
         },
     }
+    for item in payload["languages"]:
+        language = str(item.get("language") or "")
+        if not language:
+            continue
+        scope_counts = (
+            call_site_scope_totals.get(
+                language,
+                {
+                    "non_tests": {"eligible": 0, "accepted": 0, "dropped": 0},
+                    "tests": {"eligible": 0, "accepted": 0, "dropped": 0},
+                },
+            )
+            if artifact_available
+            else None
+        )
+        item["call_sites_by_scope"] = _scope_call_sites_payload(scope_counts)
     if include_failure_reasons:
         payload["failure_hotspots"] = {
             "top_failed_callers": {
@@ -263,6 +303,43 @@ def _call_sites_payload(
 def _top_items(items: dict[str, int], *, limit: int) -> list[dict[str, object]]:
     ordered = sorted(items.items(), key=lambda kv: (-kv[1], kv[0]))[:limit]
     return [{"name": name, "count": int(count)} for name, count in ordered]
+
+
+def _scope_bucket(file_path: str) -> str:
+    if not file_path:
+        return "non_tests"
+    parts = [segment for segment in file_path.replace("\\", "/").split("/") if segment]
+    return "tests" if any(part in {"test", "tests"} for part in parts) else "non_tests"
+
+
+def _scope_call_sites_payload(
+    scope_counts: dict[str, dict[str, int]] | None,
+) -> dict[str, dict[str, object]] | None:
+    if scope_counts is None:
+        return None
+    payload: dict[str, dict[str, object]] = {}
+    for scope_key in ("non_tests", "tests"):
+        counts = scope_counts.get(scope_key, {"eligible": 0, "accepted": 0, "dropped": 0})
+        payload[scope_key] = _call_sites_payload(
+            int(counts.get("eligible", 0)),
+            int(counts.get("accepted", 0)),
+            int(counts.get("dropped", 0)),
+        )
+    return payload
+
+
+def _sum_scope(
+    language_scope_totals: dict[str, dict[str, dict[str, int]]],
+    *,
+    scope_key: str,
+    field_names: tuple[str, ...],
+) -> dict[str, int]:
+    result = {field: 0 for field in field_names}
+    for scope_counts in language_scope_totals.values():
+        scope = scope_counts.get(scope_key, {})
+        for field in field_names:
+            result[field] += int(scope.get(field, 0))
+    return result
 
 
 __all__ = ["snapshot_report"]

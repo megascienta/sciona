@@ -327,7 +327,7 @@
       "python",
       "typescript"
     ],
-    "objective": "full_factual_parity_depth_quality",
+    "objective": "structural_contract_capability_parity",
     "dimensions": {
       "structural_nodes_edges_contract": {
         "java": "yes",
