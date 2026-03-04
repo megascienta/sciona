@@ -157,6 +157,17 @@ class StructuralAssembler:
                     "Structural node missing lexical parent: "
                     f"{qualified_name} ({node_type})"
                 )
+        for child_key in parent_by_child:
+            seen: set[tuple[str, str]] = set()
+            current = child_key
+            while current in parent_by_child:
+                if current in seen:
+                    raise ValueError(
+                        "Lexical containment cycle detected involving "
+                        f"{current[1]}"
+                    )
+                seen.add(current)
+                current = parent_by_child[current]
 
     def _normalize_call_records(
         self,

@@ -18,7 +18,13 @@ class _DummyStore:
     pass
 
 
-def _node(*, node_type: str, qname: str, start: int, end: int) -> SemanticNodeRecord:
+def _node(
+    *,
+    node_type: str,
+    qname: str,
+    start: int | None,
+    end: int | None,
+) -> SemanticNodeRecord:
     return SemanticNodeRecord(
         language="python",
         node_type=node_type,
@@ -88,4 +94,38 @@ def test_lexical_contains_rejects_identical_parent_child_span() -> None:
         call_records=[],
     )
     with pytest.raises(ValueError, match="does not enclose"):
+        assembler._validate_lexical_containment(analysis)
+
+
+def test_lexical_contains_rejects_cycles() -> None:
+    assembler = StructuralAssembler(_DummyConn(), _DummyStore())
+    analysis = AnalysisResult(
+        nodes=[
+            _node(node_type="module", qname="pkg.mod", start=0, end=100),
+            _node(node_type="callable", qname="pkg.mod.a", start=None, end=None),
+            _node(node_type="callable", qname="pkg.mod.b", start=None, end=None),
+        ],
+        edges=[
+            EdgeRecord(
+                src_language="python",
+                src_node_type="callable",
+                src_qualified_name="pkg.mod.a",
+                dst_language="python",
+                dst_node_type="callable",
+                dst_qualified_name="pkg.mod.b",
+                edge_type="LEXICALLY_CONTAINS",
+            ),
+            EdgeRecord(
+                src_language="python",
+                src_node_type="callable",
+                src_qualified_name="pkg.mod.b",
+                dst_language="python",
+                dst_node_type="callable",
+                dst_qualified_name="pkg.mod.a",
+                edge_type="LEXICALLY_CONTAINS",
+            ),
+        ],
+        call_records=[],
+    )
+    with pytest.raises(ValueError, match="cycle"):
         assembler._validate_lexical_containment(analysis)
