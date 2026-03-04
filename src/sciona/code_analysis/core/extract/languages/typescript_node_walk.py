@@ -17,6 +17,10 @@ from .typescript_node_text import (
 )
 
 
+def _span_encloses(parent: tuple[int, int], child: tuple[int, int]) -> bool:
+    return parent[0] <= child[0] and parent[1] >= child[1]
+
+
 def _typescript_bases(node, content: bytes) -> list[str]:
     heritage = node.child_by_field_name("heritage")
     if heritage is None:
@@ -70,6 +74,11 @@ def walk_typescript_nodes(
         parent_node_type: str,
         class_name: str | None,
     ) -> None:
+        if parent_node_type == "type" and state.class_span_stack:
+            parent_span = state.class_span_stack[-1]
+            child_span = (value_node.start_byte, value_node.end_byte)
+            if not _span_encloses(parent_span, child_span):
+                return
         qualified = f"{parent}.{name}"
         if parent_node_type == "module":
             state.module_functions.add(name)
@@ -167,6 +176,7 @@ def walk_typescript_nodes(
         )
         body = node.child_by_field_name("body")
         state.class_stack.append(qualified)
+        state.class_span_stack.append((node.start_byte, node.end_byte))
         state.class_methods.setdefault(qualified, set())
         if body:
             for child in find_direct_children_query(body, language_name="typescript"):
@@ -180,6 +190,7 @@ def walk_typescript_nodes(
                     function_depth=function_depth,
                 )
         state.class_stack.pop()
+        state.class_span_stack.pop()
         return
 
     if node.type in {
@@ -197,6 +208,11 @@ def walk_typescript_nodes(
         if node.type in {"method_definition", "method_signature", "abstract_method_signature"}:
             if not state.class_stack:
                 return
+            if state.class_span_stack:
+                parent_span = state.class_span_stack[-1]
+                child_span = (node.start_byte, node.end_byte)
+                if not _span_encloses(parent_span, child_span):
+                    return
             node_type = "callable"
             parent = state.class_stack[-1]
             parent_node_type = "type"
@@ -343,6 +359,7 @@ def walk_typescript_nodes(
             state.class_name_map.setdefault(class_name, qualified)
             state.class_name_candidates.setdefault(class_name, set()).add(qualified)
             state.class_stack.append(qualified)
+            state.class_span_stack.append((value_node.start_byte, value_node.end_byte))
             state.class_methods.setdefault(qualified, set())
             body = value_node.child_by_field_name("body")
             if body:
@@ -357,6 +374,7 @@ def walk_typescript_nodes(
                         function_depth=function_depth,
                     )
             state.class_stack.pop()
+            state.class_span_stack.pop()
             return
         if value_node.type == "object" and name_node.type == "identifier":
             object_name = node_text(name_node, snapshot.content)
