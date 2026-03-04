@@ -95,6 +95,8 @@ def snapshot_report(
     artifact_available = False
     call_site_reasons: dict[str, dict[str, int]] = defaultdict(dict)
     call_site_reason_examples: dict[str, dict[str, list[dict[str, object]]]] = defaultdict(dict)
+    failure_hotspots_callers: dict[str, dict[str, int]] = defaultdict(dict)
+    failure_hotspots_files: dict[str, dict[str, int]] = defaultdict(dict)
     call_site_totals: dict[str, dict[str, int]] = defaultdict(
         lambda: {"eligible": 0, "accepted": 0, "dropped": 0}
     )
@@ -133,25 +135,36 @@ def snapshot_report(
                     language = caller_language.get(caller_id)
                     if not language:
                         continue
+                    caller_info = caller_metadata.get(caller_id, {})
+                    caller_qname = str(
+                        caller_info.get("qualified_name") or item.get("caller_qname") or ""
+                    )
+                    caller_file_path = str(caller_info.get("file_path") or "")
+                    count = int(item.get("site_count") or 0)
+                    if caller_qname:
+                        failure_hotspots_callers[language][caller_qname] = (
+                            failure_hotspots_callers[language].get(caller_qname, 0) + count
+                        )
+                    if caller_file_path:
+                        failure_hotspots_files[language][caller_file_path] = (
+                            failure_hotspots_files[language].get(caller_file_path, 0) + count
+                        )
                     reason = str(item["drop_reason"] or "unknown")
                     by_reason = call_site_reason_examples[language].setdefault(reason, [])
                     if len(by_reason) >= 8:
                         continue
-                    caller_info = caller_metadata.get(caller_id, {})
                     by_reason.append(
                         {
                             "caller_id": caller_id,
-                            "caller_qname": str(
-                                caller_info.get("qualified_name") or item.get("caller_qname") or ""
-                            ),
-                            "caller_file_path": caller_info.get("file_path"),
+                            "caller_qname": caller_qname,
+                            "caller_file_path": caller_file_path or None,
                             "caller_node_type": caller_info.get("node_type"),
                             "caller_span": [
                                 caller_info.get("start_line"),
                                 caller_info.get("end_line"),
                             ],
                             "identifier": str(item.get("identifier") or ""),
-                            "count": int(item.get("site_count") or 0),
+                            "count": count,
                         }
                     )
     except sqlite3.Error:
@@ -194,7 +207,7 @@ def snapshot_report(
         sum(item.call_sites_dropped or 0 for item in rows) if artifact_available else None
     )
 
-    return {
+    payload: dict[str, object] = {
         "snapshot_id": snapshot_id,
         "created_at": created_at,
         "artifact_db_available": artifact_available,
@@ -209,6 +222,18 @@ def snapshot_report(
             "call_sites": _call_sites_payload(total_eligible, total_accepted, total_dropped),
         },
     }
+    if include_failure_reasons:
+        payload["failure_hotspots"] = {
+            "top_failed_callers": {
+                language: _top_items(counts, limit=10)
+                for language, counts in sorted(failure_hotspots_callers.items())
+            },
+            "top_failed_files": {
+                language: _top_items(counts, limit=10)
+                for language, counts in sorted(failure_hotspots_files.items())
+            },
+        }
+    return payload
 
 
 def _call_sites_payload(
@@ -227,6 +252,11 @@ def _call_sites_payload(
     if eligible > 0:
         payload["success_rate"] = accepted / eligible
     return payload
+
+
+def _top_items(items: dict[str, int], *, limit: int) -> list[dict[str, object]]:
+    ordered = sorted(items.items(), key=lambda kv: (-kv[1], kv[0]))[:limit]
+    return [{"name": name, "count": int(count)} for name, count in ordered]
 
 
 __all__ = ["snapshot_report"]
