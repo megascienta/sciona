@@ -69,3 +69,27 @@ def edges_for_source_ids(
                 (row["src_structural_id"], row["dst_structural_id"], row["edge_type"])
             )
     return edges
+
+
+def language_edge_counts(
+    conn: sqlite3.Connection,
+    snapshot_id: str,
+) -> list[dict[str, object]]:
+    rows = conn.execute(
+        """
+        SELECT src.language AS language,
+               COUNT(*) AS edge_count
+        FROM edges e
+        JOIN structural_nodes src ON src.structural_id = e.src_structural_id
+        WHERE e.snapshot_id = ?
+        GROUP BY src.language
+        """,
+        (snapshot_id,),
+    ).fetchall()
+    return [
+        {
+            "language": row["language"],
+            "edge_count": int(row["edge_count"] or 0),
+        }
+        for row in rows
+    ]

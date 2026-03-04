@@ -57,6 +57,21 @@ def snapshot_git_commit_sha(conn: sqlite3.Connection, snapshot_id: str) -> str |
         return None
     return row["git_commit_sha"]
 
+
+def snapshot_created_at(conn: sqlite3.Connection, snapshot_id: str) -> str | None:
+    row = conn.execute(
+        """
+        SELECT created_at
+        FROM snapshots
+        WHERE snapshot_id = ?
+        LIMIT 1
+        """,
+        (snapshot_id,),
+    ).fetchone()
+    if not row:
+        return None
+    return row["created_at"]
+
 def count_committed_snapshots(conn: sqlite3.Connection) -> int:
     row = conn.execute(
         "SELECT COUNT(*) AS count FROM snapshots WHERE is_committed = 1"

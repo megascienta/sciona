@@ -1,0 +1,95 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
+from __future__ import annotations
+
+from types import SimpleNamespace
+
+from sciona.api import cli as api_cli
+
+
+def _fake_status():
+    return SimpleNamespace(
+        repo_root="/tmp/repo",
+        tool_version="1.0.0",
+        schema_version="1.0.0",
+        snapshot_count=1,
+        latest_snapshot="snap-1",
+        latest_created="2026-03-04T00:00:00Z",
+        db_exists=True,
+    )
+
+
+def _fake_summary():
+    return {
+        "snapshot_id": "snap-1",
+        "created_at": "2026-03-04T00:00:00Z",
+        "artifact_db_available": True,
+        "languages": [
+            {
+                "language": "python",
+                "files": 10,
+                "nodes": 20,
+                "edges": 30,
+                "call_sites": {
+                    "eligible": 10,
+                    "accepted": 9,
+                    "dropped": 1,
+                    "success_rate": 0.9,
+                },
+                "drop_reasons": {"no_candidates": 1},
+            }
+        ],
+        "totals": {
+            "files": 10,
+            "nodes": 20,
+            "edges": 30,
+            "call_sites": {
+                "eligible": 10,
+                "accepted": 9,
+                "dropped": 1,
+                "success_rate": 0.9,
+            },
+        },
+    }
+
+
+def test_cli_status_default_uses_short_summary(cli_app, cli_runner, monkeypatch):
+    calls: list[bool] = []
+
+    def _summary(snapshot_id: str, include_failure_reasons: bool = False):
+        assert snapshot_id == "snap-1"
+        calls.append(include_failure_reasons)
+        return _fake_summary()
+
+    monkeypatch.setattr(api_cli, "status", _fake_status)
+    monkeypatch.setattr(api_cli, "snapshot_report", _summary)
+
+    result = cli_runner.invoke(cli_app, ["status"])
+
+    assert result.exit_code == 0
+    assert calls == [False]
+    assert "Last build:" in result.stdout
+    assert "Summary:" in result.stdout
+    assert "Discovery:" not in result.stdout
+    assert "failed reasons:" not in result.stdout
+    assert "Last build:\n  Snapshot:" not in result.stdout
+    assert "Last build:\n  Created:" not in result.stdout
+
+
+def test_cli_status_full_emits_failure_reasons(cli_app, cli_runner, monkeypatch):
+    calls: list[bool] = []
+
+    def _summary(snapshot_id: str, include_failure_reasons: bool = False):
+        assert snapshot_id == "snap-1"
+        calls.append(include_failure_reasons)
+        return _fake_summary()
+
+    monkeypatch.setattr(api_cli, "status", _fake_status)
+    monkeypatch.setattr(api_cli, "snapshot_report", _summary)
+
+    result = cli_runner.invoke(cli_app, ["status", "--full"])
+
+    assert result.exit_code == 0
+    assert calls == [True]
+    assert "failed reasons: no_candidates=1" in result.stdout

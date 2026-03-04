@@ -35,6 +35,7 @@ from .exec.repo import (
     init_repo as exec_init,
     status_repo as exec_status,
 )
+from .exec.reporting import snapshot_report as exec_snapshot_report
 from .policy import build as policy_build
 from .policy import repo as policy_repo
 
@@ -108,6 +109,21 @@ def status(repo_root: Optional[Path] = None) -> StatusResult:
     repo_state = policy_repo.resolve_repo_state(repo_root, allow_missing_config=True)
     policy_repo.ensure_initialized(repo_state)
     return exec_status(repo_state)
+
+
+def snapshot_report(
+    snapshot_id: str,
+    repo_root: Optional[Path] = None,
+    *,
+    include_failure_reasons: bool = False,
+) -> dict[str, object] | None:
+    repo_state = policy_repo.resolve_repo_state(repo_root, allow_missing_config=True)
+    policy_repo.ensure_initialized(repo_state)
+    return exec_snapshot_report(
+        repo_state,
+        snapshot_id=snapshot_id,
+        include_failure_reasons=include_failure_reasons,
+    )
 
 
 def clean(repo_root: Optional[Path] = None) -> bool:

@@ -217,3 +217,49 @@ def node_instances_for_file_paths(
                 }
             )
     return rows
+
+
+def language_file_node_counts(
+    conn: sqlite3.Connection,
+    snapshot_id: str,
+) -> list[dict[str, object]]:
+    rows = conn.execute(
+        """
+        SELECT sn.language AS language,
+               COUNT(DISTINCT ni.file_path) AS file_count,
+               COUNT(DISTINCT ni.structural_id) AS node_count
+        FROM node_instances ni
+        JOIN structural_nodes sn ON sn.structural_id = ni.structural_id
+        WHERE ni.snapshot_id = ?
+        GROUP BY sn.language
+        """,
+        (snapshot_id,),
+    ).fetchall()
+    return [
+        {
+            "language": row["language"],
+            "file_count": int(row["file_count"] or 0),
+            "node_count": int(row["node_count"] or 0),
+        }
+        for row in rows
+    ]
+
+
+def caller_language_map(
+    conn: sqlite3.Connection,
+    snapshot_id: str,
+) -> dict[str, str]:
+    rows = conn.execute(
+        """
+        SELECT ni.structural_id AS structural_id,
+               sn.language AS language
+        FROM node_instances ni
+        JOIN structural_nodes sn ON sn.structural_id = ni.structural_id
+        WHERE ni.snapshot_id = ?
+        """,
+        (snapshot_id,),
+    ).fetchall()
+    mapping: dict[str, str] = {}
+    for row in rows:
+        mapping[str(row["structural_id"])] = str(row["language"])
+    return mapping

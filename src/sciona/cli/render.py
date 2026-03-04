@@ -28,46 +28,14 @@ def render_init(payload: dict) -> list[str]:
     return lines
 
 
-def render_discovery_summary(payload: dict) -> list[str]:
-    enabled = list(payload.get("enabled_languages") or [])
-    counts = payload.get("discovery_counts") or {}
-    candidates = payload.get("discovery_candidates") or {}
-    excluded_total = payload.get("discovery_excluded_total", 0) or 0
-    excluded_by_glob = payload.get("discovery_excluded_by_glob") or {}
-    exclude_globs = payload.get("exclude_globs") or []
-    lines: list[str] = []
-    if enabled:
-        lines.append("Discovery summary:")
-        for language in enabled:
-            count = counts.get(language, 0)
-            suffix = " (enabled)" if count == 0 else ""
-            lines.append(f"  {language}: {count} files{suffix}")
-        lines.append("Source candidates by extension:")
-        for language in enabled:
-            lines.append(f"  {language}: {candidates.get(language, 0)}")
-    if excluded_total:
-        lines.append(f"Excluded by discovery filters: {excluded_total}")
-        for pattern, count in excluded_by_glob.items():
-            lines.append(f"  {pattern}: {count}")
-    if exclude_globs:
-        lines.append("Discovery filters active:")
-        lines.append("  exclude_globs:")
-        for entry in exclude_globs:
-            lines.append(f"    - {entry}")
-    return lines
-
-
 def render_build(payload: dict) -> list[str]:
-    lines = []
-    lines.extend(render_discovery_summary(payload))
-    lines.append(f"Files analyzed: {payload['files_processed']}")
-    lines.append(f"Structural nodes updated: {payload['nodes_recorded']}")
-    if payload.get("parse_failures"):
-        lines.append("Analysis warnings:")
-        lines.append(
-            f"  - {payload['parse_failures']} files failed to parse (partial snapshot)"
-        )
-        lines.append("Run with --debug for details.")
+    lines: list[str] = []
+    summary = payload.get("summary")
+    if summary:
+        lines.append("Summary:")
+        lines.extend(_render_summary_lines(summary, indent="  ", include_reasons=False))
+    else:
+        lines.append("Summary: unavailable")
     return lines
 
 
@@ -91,38 +59,73 @@ def render_status(payload: dict) -> list[str]:
             f"  Latest: {payload['latest_snapshot']} @ {_format_ts(payload.get('latest_created'))}"
         )
     lines.append(f"  Database present: {'yes' if payload['db_exists'] else 'no'}")
-    if payload.get("enabled_languages") is not None:
-        lines.append("Discovery:")
-        enabled = payload.get("enabled_languages") or []
-        if enabled:
-            for language in enabled:
-                lines.append(f"  Enabled: {language}")
-        else:
-            lines.append("  Enabled: none")
-        exclude_count = payload.get("exclude_globs_count", 0) or 0
-        if exclude_count:
-            lines.append(f"  Exclude globs: {exclude_count} pattern(s)")
-            for entry in payload.get("exclude_globs", []) or []:
-                lines.append(f"    - {entry}")
-        else:
-            lines.append("  Exclude globs: none")
-    last_build = payload.get("last_build")
-    if last_build:
+    summary = payload.get("summary")
+    if payload.get("latest_snapshot"):
         lines.append("Last build:")
-        lines.append(f"  Snapshot: {last_build.get('snapshot_id')}")
-        created_at = last_build.get("created_at") or last_build.get("recorded_at")
-        if created_at is not None:
-            lines.append(f"  Created: {_format_ts(created_at)}")
-        lines.append(f"  Files analyzed: {last_build.get('files_processed')}")
-        langs = last_build.get("enabled_languages") or []
-        if langs:
-            lines.append(f"  Languages: {', '.join(langs)}")
-        counts = last_build.get("discovery_counts") or {}
-        if counts:
-            lines.append("  Discovery summary:")
-            for language in langs:
-                lines.append(f"    {language}: {counts.get(language, 0)}")
+        if summary:
+            lines.append("  Summary:")
+            lines.extend(
+                _render_summary_lines(
+                    summary,
+                    indent="    ",
+                    include_reasons=bool(payload.get("detailed")),
+                )
+            )
+        else:
+            lines.append("  Summary: unavailable")
     return lines
+
+
+def _render_summary_lines(
+    summary: dict,
+    *,
+    indent: str,
+    include_reasons: bool,
+) -> list[str]:
+    lines: list[str] = []
+    for item in summary.get("languages", []) or []:
+        language = str(item.get("language") or "unknown")
+        files = int(item.get("files") or 0)
+        nodes = int(item.get("nodes") or 0)
+        edges = int(item.get("edges") or 0)
+        lines.append(
+            f"{indent}{language}: {files} files, {nodes} nodes, {edges} edges, "
+            f"{_format_call_site_summary(item.get('call_sites') or {})}"
+        )
+        if include_reasons:
+            reasons = item.get("drop_reasons") or {}
+            if reasons:
+                reason_text = ", ".join(
+                    f"{name}={count}" for name, count in sorted(reasons.items())
+                )
+                lines.append(f"{indent}  failed reasons: {reason_text}")
+    totals = summary.get("totals") or {}
+    total_files = int(totals.get("files") or 0)
+    total_nodes = int(totals.get("nodes") or 0)
+    total_edges = int(totals.get("edges") or 0)
+    lines.append(
+        f"{indent}total: {total_files} files, {total_nodes} nodes, {total_edges} edges, "
+        f"{_format_call_site_summary(totals.get('call_sites') or {})}"
+    )
+    if not summary.get("artifact_db_available", False):
+        lines.append(f"{indent}call_sites diagnostics: unavailable (artifact DB missing)")
+    return lines
+
+
+def _format_call_site_summary(call_sites: dict) -> str:
+    eligible = call_sites.get("eligible")
+    accepted = call_sites.get("accepted")
+    dropped = call_sites.get("dropped")
+    rate = call_sites.get("success_rate")
+    if eligible is None or accepted is None or dropped is None:
+        return "call_sites: n/a"
+    if eligible == 0:
+        return "call_sites: n/a (0/0), failed: 0"
+    percentage = float(rate or 0.0) * 100.0
+    return (
+        f"call_sites: {percentage:.1f}% successful ({accepted}/{eligible}), "
+        f"failed: {dropped}"
+    )
 
 
 def emit(lines: Iterable[str]) -> None:

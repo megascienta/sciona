@@ -16,6 +16,7 @@ from ..runtime.paths import get_repo_root, get_sciona_dir
 init = repo_pipeline.init
 build = repo_pipeline.build
 status = repo_pipeline.status
+snapshot_report = repo_pipeline.snapshot_report
 init_dialog_defaults = repo_pipeline.init_dialog_defaults
 init_supported_languages = repo_pipeline.init_supported_languages
 init_apply_languages = repo_pipeline.init_apply_languages
@@ -40,6 +41,7 @@ __all__ = [
     "init",
     "build",
     "status",
+    "snapshot_report",
     "init_dialog_defaults",
     "init_supported_languages",
     "init_apply_languages",

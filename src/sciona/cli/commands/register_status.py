@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-import json
-
 import typer
 
 from ...api import cli as api_cli
@@ -16,34 +14,28 @@ from .. import render as cli_render
 
 def register_status(app: typer.Typer) -> None:
     @app.command()
-    def status() -> None:
+    def status(
+        full: bool = typer.Option(
+            False,
+            "--full",
+            help="Show per-language diagnostic details.",
+        ),
+        verbose: bool = typer.Option(
+            False,
+            "--verbose",
+            help="Alias for --full.",
+        ),
+    ) -> None:
         """Show SCIONA status for the current repository (warns if dirty)."""
         status_result = cli_call(api_cli.status)
-        enabled: list[str] | None = None
-        exclude_globs: list[str] = []
-        try:
-            runtime_cfg = cli_call(
-                api_cli.load_runtime_config, status_result.repo_root
+        detailed = bool(full or verbose)
+        summary = None
+        if status_result.latest_snapshot:
+            summary = cli_call(
+                api_cli.snapshot_report,
+                snapshot_id=status_result.latest_snapshot,
+                include_failure_reasons=detailed,
             )
-            enabled = [
-                name
-                for name, settings in runtime_cfg.languages.items()
-                if settings.enabled
-            ]
-            exclude_globs = runtime_cfg.discovery.exclude_globs
-        except Exception:
-            cli_render.emit_warning(
-                ["Failed to load runtime config; discovery settings unavailable."]
-            )
-        last_build = None
-        try:
-            repo_root = status_result.repo_root
-            sciona_dir = api_cli.get_sciona_dir(repo_root)
-            path = sciona_dir / ".last_build.json"
-            if path.exists():
-                last_build = json.loads(path.read_text(encoding="utf-8"))
-        except Exception:
-            last_build = None
         payload = {
             "repo_root": status_result.repo_root,
             "tool_version": status_result.tool_version,
@@ -52,10 +44,8 @@ def register_status(app: typer.Typer) -> None:
             "latest_snapshot": status_result.latest_snapshot,
             "latest_created": status_result.latest_created,
             "db_exists": status_result.db_exists,
-            "enabled_languages": enabled,
-            "exclude_globs_count": len(exclude_globs),
-            "exclude_globs": exclude_globs,
-            "last_build": last_build,
+            "summary": summary,
+            "detailed": detailed,
         }
         emit_dirty_worktree_warning(status_result.repo_root)
         cli_render.emit(cli_render.render_status(payload))
