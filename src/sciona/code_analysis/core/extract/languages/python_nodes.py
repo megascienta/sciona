@@ -9,7 +9,6 @@ from dataclasses import dataclass, field
 from typing import List
 
 from ...normalize.model import EdgeRecord, FileSnapshot, SemanticNodeRecord
-from ..query_helpers import find_direct_children_query
 from .query_surface import PYTHON_STRUCTURAL_NODE_TYPES
 from .shared import node_text as shared_node_text
 
@@ -57,6 +56,20 @@ def _python_structural_children(node) -> list[object]:
         for child in getattr(node, "named_children", [])
         if getattr(child, "type", "") in PYTHON_STRUCTURAL_NODE_TYPES
     ]
+
+
+def _python_structural_children_from_body(node) -> list[object]:
+    selected: list[object] = []
+    for child in getattr(node, "named_children", []):
+        child_type = getattr(child, "type", "")
+        if child_type in PYTHON_STRUCTURAL_NODE_TYPES:
+            selected.append(child)
+            continue
+        # Python statements often wrap structural nodes (for example assignment
+        # in expression_statement); unwrap one level to keep traversal focused.
+        selected.extend(_python_structural_children(child))
+    selected.sort(key=lambda item: (item.start_byte, item.end_byte))
+    return selected
 
 
 def _lambda_body(node):
@@ -143,7 +156,7 @@ def walk_python_nodes(
         if body is not None:
             state.class_body_map[qualified] = body
         if body:
-            for child in find_direct_children_query(body, language_name="python"):
+            for child in _python_structural_children_from_body(body):
                 walk_python_nodes(
                     child,
                     language=language,
@@ -217,7 +230,7 @@ def walk_python_nodes(
         body = node.child_by_field_name("body")
         state.callable_stack.append(qualified)
         if body:
-            for child in find_direct_children_query(body, language_name="python"):
+            for child in _python_structural_children_from_body(body):
                 walk_python_nodes(
                     child,
                     language=language,
