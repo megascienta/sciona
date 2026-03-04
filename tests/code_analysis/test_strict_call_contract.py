@@ -145,3 +145,31 @@ def test_strict_call_contract_deduplicates_candidates() -> None:
     )
     assert decision.accepted_candidate == "pkg.mod.Service.run"
     assert decision.accepted_provenance == "module_scoped"
+
+
+def test_strict_call_contract_infers_module_scope_when_lookup_missing() -> None:
+    decision = select_strict_call_candidate(
+        identifier="run",
+        direct_candidates=[],
+        fallback_candidates=["pkg.mod.Service.run"],
+        caller_module="pkg.mod",
+        module_lookup={},
+        import_targets={},
+    )
+    assert decision.accepted_candidate == "pkg.mod.Service.run"
+    assert decision.accepted_provenance == "module_scoped"
+    assert decision.dropped_reason is None
+
+
+def test_strict_call_contract_infers_import_scope_when_lookup_missing() -> None:
+    decision = select_strict_call_candidate(
+        identifier="build",
+        direct_candidates=[],
+        fallback_candidates=["deps.mod.Builder.build"],
+        caller_module="app.mod",
+        module_lookup={},
+        import_targets={"app.mod": {"deps.mod"}},
+    )
+    assert decision.accepted_candidate == "deps.mod.Builder.build"
+    assert decision.accepted_provenance == "import_narrowed"
+    assert decision.dropped_reason is None

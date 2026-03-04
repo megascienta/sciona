@@ -48,7 +48,14 @@ def select_strict_call_candidate(
 
     if len(candidates) == 1:
         candidate = candidates[0]
-        candidate_module = module_lookup.get(candidate)
+        allowed_modules = set(import_targets.get(caller_module or "", set()))
+        if caller_module:
+            allowed_modules.add(caller_module)
+        candidate_module = _candidate_module(
+            candidate=candidate,
+            module_lookup=module_lookup,
+            scope_modules=allowed_modules,
+        )
         if direct_candidates and "." in identifier:
             return StrictCallDecision(
                 accepted_candidate=candidate,
@@ -64,8 +71,6 @@ def select_strict_call_candidate(
                 candidate_count=candidate_count,
             )
         if caller_module and candidate_module:
-            allowed_modules = set(import_targets.get(caller_module, set()))
-            allowed_modules.add(caller_module)
             if candidate_module in allowed_modules:
                 return StrictCallDecision(
                     accepted_candidate=candidate,
@@ -90,11 +95,15 @@ def select_strict_call_candidate(
 
     allowed_modules = set(import_targets.get(caller_module, set()))
     allowed_modules.add(caller_module)
-    narrowed = [
-        candidate
-        for candidate in candidates
-        if module_lookup.get(candidate) in allowed_modules
-    ]
+    narrowed = []
+    for candidate in candidates:
+        candidate_module = _candidate_module(
+            candidate=candidate,
+            module_lookup=module_lookup,
+            scope_modules=allowed_modules,
+        )
+        if candidate_module in allowed_modules:
+            narrowed.append(candidate)
     if len(narrowed) == 1:
         return StrictCallDecision(
             accepted_candidate=narrowed[0],
@@ -112,6 +121,21 @@ def select_strict_call_candidate(
         dropped_reason=dropped_reason,
         candidate_count=candidate_count,
     )
+
+
+def _candidate_module(
+    *,
+    candidate: str,
+    module_lookup: Mapping[str, str],
+    scope_modules: set[str],
+) -> str | None:
+    module = module_lookup.get(candidate)
+    if module:
+        return module
+    for scope in sorted(scope_modules, key=len, reverse=True):
+        if candidate == scope or candidate.startswith(f"{scope}."):
+            return scope
+    return None
 
 
 __all__ = ["StrictCallDecision", "select_strict_call_candidate"]
