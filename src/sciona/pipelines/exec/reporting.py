@@ -164,6 +164,8 @@ def snapshot_report(
                                 caller_info.get("end_line"),
                             ],
                             "identifier": str(item.get("identifier") or ""),
+                            "candidate_count": int(item.get("candidate_count") or 0),
+                            "callee_kind": str(item.get("callee_kind") or ""),
                             "count": count,
                         }
                     )

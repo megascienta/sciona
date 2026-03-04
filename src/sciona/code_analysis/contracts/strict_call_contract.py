@@ -71,7 +71,10 @@ def select_strict_call_candidate(
                 candidate_count=candidate_count,
             )
         if caller_module and candidate_module:
-            if candidate_module in allowed_modules:
+            if _in_allowed_module_scope(
+                candidate_module=candidate_module,
+                allowed_modules=allowed_modules,
+            ):
                 return StrictCallDecision(
                     accepted_candidate=candidate,
                     accepted_provenance="import_narrowed",
@@ -102,7 +105,10 @@ def select_strict_call_candidate(
             module_lookup=module_lookup,
             scope_modules=allowed_modules,
         )
-        if candidate_module in allowed_modules:
+        if _in_allowed_module_scope(
+            candidate_module=candidate_module,
+            allowed_modules=allowed_modules,
+        ):
             narrowed.append(candidate)
     if len(narrowed) == 1:
         return StrictCallDecision(
@@ -136,6 +142,19 @@ def _candidate_module(
         if candidate == scope or candidate.startswith(f"{scope}."):
             return scope
     return None
+
+
+def _in_allowed_module_scope(
+    *,
+    candidate_module: str | None,
+    allowed_modules: set[str],
+) -> bool:
+    if not candidate_module:
+        return False
+    for allowed in allowed_modules:
+        if candidate_module == allowed or candidate_module.startswith(f"{allowed}."):
+            return True
+    return False
 
 
 __all__ = ["StrictCallDecision", "select_strict_call_candidate"]

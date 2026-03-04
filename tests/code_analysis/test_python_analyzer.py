@@ -291,6 +291,144 @@ def test_python_analyzer_tracks_bare_relative_import_alias_submodule(tmp_path):
     assert package_prefix not in imports
 
 
+def test_python_analyzer_resolves_reexported_member_import_call(tmp_path):
+    repo = tmp_path
+    pkg = repo / "pkg"
+    compat = pkg / "compat"
+    pkg.mkdir()
+    compat.mkdir()
+    (pkg / "__init__.py").write_text("", encoding="utf-8")
+    (compat / "__init__.py").write_text(
+        "from .v2 import lenient_issubclass\n", encoding="utf-8"
+    )
+    (compat / "v2.py").write_text(
+        "def lenient_issubclass():\n    return True\n", encoding="utf-8"
+    )
+    file_path = pkg / "mod.py"
+    file_path.write_text(
+        "from .compat import lenient_issubclass\n\n"
+        "def top():\n"
+        "    return lenient_issubclass()\n",
+        encoding="utf-8",
+    )
+    analyzer = PythonAnalyzer()
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("pkg/mod.py"),
+            language="python",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=file_path.stat().st_size,
+        line_count=4,
+        content=file_path.read_bytes(),
+    )
+    module_name = analyzer.module_name(repo, snapshot)
+    compat_snapshot = FileSnapshot(
+        record=FileRecord(
+            path=compat / "__init__.py",
+            relative_path=Path("pkg/compat/__init__.py"),
+            language="python",
+        ),
+        file_id="compat",
+        blob_sha="hash",
+        size=(compat / "__init__.py").stat().st_size,
+        line_count=1,
+        content=(compat / "__init__.py").read_bytes(),
+    )
+    compat_v2_snapshot = FileSnapshot(
+        record=FileRecord(
+            path=compat / "v2.py",
+            relative_path=Path("pkg/compat/v2.py"),
+            language="python",
+        ),
+        file_id="compat-v2",
+        blob_sha="hash",
+        size=(compat / "v2.py").stat().st_size,
+        line_count=2,
+        content=(compat / "v2.py").read_bytes(),
+    )
+    compat_module = analyzer.module_name(repo, compat_snapshot)
+    compat_v2_module = analyzer.module_name(repo, compat_v2_snapshot)
+    analyzer.module_index = {module_name, compat_module, compat_v2_module}
+    result = analyzer.analyze(snapshot, module_name)
+    call_records = {
+        record.qualified_name: set(record.callee_identifiers)
+        for record in result.call_records
+    }
+    assert f"{compat_module}.lenient_issubclass" in call_records[f"{module_name}.top"]
+
+
+def test_python_analyzer_resolves_reexported_member_alias_call(tmp_path):
+    repo = tmp_path
+    pkg = repo / "pkg"
+    compat = pkg / "compat"
+    pkg.mkdir()
+    compat.mkdir()
+    (pkg / "__init__.py").write_text("", encoding="utf-8")
+    (compat / "__init__.py").write_text(
+        "from .v2 import lenient_issubclass\n", encoding="utf-8"
+    )
+    (compat / "v2.py").write_text(
+        "def lenient_issubclass():\n    return True\n", encoding="utf-8"
+    )
+    file_path = pkg / "mod.py"
+    file_path.write_text(
+        "from .compat import lenient_issubclass as compat_lenient\n\n"
+        "def top():\n"
+        "    return compat_lenient()\n",
+        encoding="utf-8",
+    )
+    analyzer = PythonAnalyzer()
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("pkg/mod.py"),
+            language="python",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=file_path.stat().st_size,
+        line_count=4,
+        content=file_path.read_bytes(),
+    )
+    module_name = analyzer.module_name(repo, snapshot)
+    compat_snapshot = FileSnapshot(
+        record=FileRecord(
+            path=compat / "__init__.py",
+            relative_path=Path("pkg/compat/__init__.py"),
+            language="python",
+        ),
+        file_id="compat",
+        blob_sha="hash",
+        size=(compat / "__init__.py").stat().st_size,
+        line_count=1,
+        content=(compat / "__init__.py").read_bytes(),
+    )
+    compat_v2_snapshot = FileSnapshot(
+        record=FileRecord(
+            path=compat / "v2.py",
+            relative_path=Path("pkg/compat/v2.py"),
+            language="python",
+        ),
+        file_id="compat-v2",
+        blob_sha="hash",
+        size=(compat / "v2.py").stat().st_size,
+        line_count=2,
+        content=(compat / "v2.py").read_bytes(),
+    )
+    compat_module = analyzer.module_name(repo, compat_snapshot)
+    compat_v2_module = analyzer.module_name(repo, compat_v2_snapshot)
+    analyzer.module_index = {module_name, compat_module, compat_v2_module}
+    result = analyzer.analyze(snapshot, module_name)
+    call_records = {
+        record.qualified_name: set(record.callee_identifiers)
+        for record in result.call_records
+    }
+    assert f"{compat_module}.lenient_issubclass" in call_records[f"{module_name}.top"]
+
+
 def test_python_analyzer_bare_relative_import_falls_back_to_package_when_not_module(tmp_path):
     repo = tmp_path
     pkg = repo / "pkg"

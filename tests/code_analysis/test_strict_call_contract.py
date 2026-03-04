@@ -173,3 +173,17 @@ def test_strict_call_contract_infers_import_scope_when_lookup_missing() -> None:
     assert decision.accepted_candidate == "deps.mod.Builder.build"
     assert decision.accepted_provenance == "import_narrowed"
     assert decision.dropped_reason is None
+
+
+def test_strict_call_contract_accepts_imported_package_descendant_candidate() -> None:
+    decision = select_strict_call_candidate(
+        identifier="pkg.compat.lenient_issubclass",
+        direct_candidates=[],
+        fallback_candidates=["pkg.compat.v2.lenient_issubclass"],
+        caller_module="pkg.mod",
+        module_lookup={"pkg.compat.v2.lenient_issubclass": "pkg.compat.v2"},
+        import_targets={"pkg.mod": {"pkg.compat"}},
+    )
+    assert decision.accepted_candidate == "pkg.compat.v2.lenient_issubclass"
+    assert decision.accepted_provenance == "import_narrowed"
+    assert decision.dropped_reason is None

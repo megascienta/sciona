@@ -48,11 +48,13 @@ def call_site_drop_debug_counts(
                caller_qname,
                identifier,
                drop_reason,
+               candidate_count,
+               callee_kind,
                COUNT(*) AS site_count
         FROM call_sites
         WHERE snapshot_id = ?
           AND resolution_status = 'dropped'
-        GROUP BY caller_id, caller_qname, identifier, drop_reason
+        GROUP BY caller_id, caller_qname, identifier, drop_reason, candidate_count, callee_kind
         ORDER BY site_count DESC, caller_qname, identifier
         LIMIT ?
         """,
@@ -64,6 +66,8 @@ def call_site_drop_debug_counts(
             "caller_qname": row["caller_qname"],
             "identifier": row["identifier"],
             "drop_reason": row["drop_reason"],
+            "candidate_count": int(row["candidate_count"] or 0),
+            "callee_kind": row["callee_kind"],
             "site_count": int(row["site_count"] or 0),
         }
         for row in rows

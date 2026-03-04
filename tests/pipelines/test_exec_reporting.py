@@ -133,6 +133,8 @@ def test_snapshot_report_full_includes_failure_reasons(repo_with_snapshot):
     assert example["caller_qname"].endswith(".pkg.alpha.Service.run")
     assert example["caller_file_path"] == "pkg/alpha/service.py"
     assert example["identifier"] == "missing"
+    assert example["candidate_count"] == 1
+    assert example["callee_kind"] == "terminal"
     assert example["count"] == 1
     hotspots = payload["failure_hotspots"]
     top_callers = hotspots["top_failed_callers"]["python"]

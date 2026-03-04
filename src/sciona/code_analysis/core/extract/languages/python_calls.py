@@ -111,6 +111,8 @@ class _PythonCallAdapter(CallResolutionAdapter):
                     ]
             if head in self.import_aliases:
                 return [_outcome(f"{self.import_aliases[head]}.{rest}", "import_narrowed")]
+            if head in self.member_aliases:
+                return [_outcome(f"{self.member_aliases[head]}.{rest}", "import_narrowed")]
             class_candidates = self.class_name_candidates.get(head) or set()
             if len(class_candidates) == 1:
                 return [
