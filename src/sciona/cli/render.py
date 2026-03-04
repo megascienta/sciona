@@ -33,15 +33,17 @@ def render_build(payload: dict) -> list[str]:
     summary = payload.get("summary")
     if summary:
         lines.append("Summary:")
-        lines.extend(_render_summary_lines(summary, indent="  ", include_reasons=False))
+        lines.extend(
+            _render_summary_lines(
+                summary,
+                indent="  ",
+                include_reasons=False,
+                include_call_stats=False,
+                include_scope_split=False,
+            )
+        )
     else:
         lines.append("Summary: unavailable")
-    diagnostics = []
-    diagnostics.extend(_render_name_collision_diagnostics(payload, indent="  "))
-    diagnostics.extend(_render_import_diagnostics(payload, indent="  "))
-    if diagnostics:
-        lines.append("Diagnostics:")
-        lines.extend(diagnostics)
     return lines
 
 

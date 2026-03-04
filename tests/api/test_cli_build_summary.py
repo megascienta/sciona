@@ -75,6 +75,8 @@ def test_cli_build_emits_summary_block(cli_app, cli_runner, monkeypatch):
 
     assert result.exit_code == 0
     assert "Summary:" in result.stdout
-    assert "imports_seen: 3" in result.stdout
+    assert "call_materialization:" not in result.stdout
+    assert "imports_seen:" not in result.stdout
+    assert "Diagnostics:" not in result.stdout
     assert "Discovery summary:" not in result.stdout
     assert "Source candidates by extension:" not in result.stdout
