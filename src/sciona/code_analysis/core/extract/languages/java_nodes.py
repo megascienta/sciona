@@ -219,7 +219,13 @@ def walk_java_nodes(
             for field_name, type_text in constructor_fields.items():
                 state.class_field_types.setdefault(parent, {})[field_name] = type_text
         metadata = result.nodes[-1].metadata or {}
-        metadata["callable_role"] = "constructor" if "constructor" in callable_kind else "declared"
+        if "constructor" in callable_kind:
+            role = "constructor"
+        elif state.callable_stack:
+            role = "nested"
+        else:
+            role = "declared"
+        metadata["callable_role"] = role
         result.nodes[-1].metadata = metadata
         state.pending_calls.append((qualified, node_type, body_node, parent))
         state.callable_stack.append(qualified)
