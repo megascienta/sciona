@@ -158,6 +158,8 @@ def _compile_call_query(language_name: str, source: str):
 
 @lru_cache(maxsize=32)
 def _compile_call_query_cached(language_name: str, signature: str, source: str):
+    # `signature` is intentionally part of the cache key so query objects are
+    # rebuilt when the underlying tree-sitter grammar changes.
     del signature
     language = get_language(language_name)
     if hasattr(language, "query"):

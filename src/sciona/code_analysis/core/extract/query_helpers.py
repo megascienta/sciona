@@ -66,6 +66,8 @@ def _compile_query_source(language_name: str, source: str):
 
 @lru_cache(maxsize=64)
 def _compile_query_source_cached(language_name: str, signature: str, source: str):
+    # `signature` is intentionally part of the cache key so grammar upgrades
+    # invalidate stale compiled queries even when the language name is unchanged.
     del signature
     language = get_language(language_name)
     if hasattr(language, "query"):
