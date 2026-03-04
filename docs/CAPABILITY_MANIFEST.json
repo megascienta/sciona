@@ -39,6 +39,9 @@
         "export_statement",
         "import_statement"
       ],
+      "dynamic_imports": [
+        "call_expression"
+      ],
       "require_declarations": [
         "lexical_declaration"
       ],
@@ -136,6 +139,22 @@
         ],
         "emits_edges": [
           "LEXICALLY_CONTAINS"
+        ]
+      },
+      {
+        "construct": "bound_callable_declaration",
+        "node_types": [
+          "assignment",
+          "augmented_assignment"
+        ],
+        "emits_nodes": [
+          "callable"
+        ],
+        "emits_edges": [
+          "LEXICALLY_CONTAINS"
+        ],
+        "constraints": [
+          "rhs must be lambda with stable lexical binding"
         ]
       },
       {

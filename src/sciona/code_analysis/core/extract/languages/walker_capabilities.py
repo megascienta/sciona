@@ -23,6 +23,13 @@ def build_walker_capabilities() -> dict[str, list[dict[str, object]]]:
                 "emits_edges": ["LEXICALLY_CONTAINS"],
             },
             {
+                "construct": "bound_callable_declaration",
+                "node_types": ["assignment", "augmented_assignment"],
+                "emits_nodes": ["callable"],
+                "emits_edges": ["LEXICALLY_CONTAINS"],
+                "constraints": ["rhs must be lambda with stable lexical binding"],
+            },
+            {
                 "construct": "decorated_definition_unwrap",
                 "node_types": ["decorated_definition"],
                 "emits_nodes": [],

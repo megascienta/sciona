@@ -35,6 +35,7 @@ def _build_query_surfaces() -> dict[str, dict[str, object]]:
         },
         "typescript": {
             "imports": sorted(query_surface.TYPESCRIPT_IMPORT_EXPORT_NODE_TYPES),
+            "dynamic_imports": sorted(query_surface.TYPESCRIPT_DYNAMIC_IMPORT_NODE_TYPES),
             "require_declarations": sorted(
                 query_surface.TYPESCRIPT_REQUIRE_DECLARATION_NODE_TYPES
             ),
