@@ -127,7 +127,14 @@ def run(snapshot_id: str, **params) -> ModuleOverviewPayload:
         _module_file_entries(conn, snapshot_id, module_ids) if include_file_map else []
     )
     types = _list_children(conn, snapshot_id, module_ids, "type", repo_path)
-    callables = _list_children(conn, snapshot_id, module_ids, "callable", repo_path)
+    callables = _list_children(
+        conn,
+        snapshot_id,
+        module_ids,
+        "callable",
+        repo_path,
+        recursive=True,
+    )
     nested_types = _list_nested_classes(conn, snapshot_id, module_ids, repo_path)
     imports = _list_imports(conn, snapshot_id, module_ids, repo_path)
     language_breakdown = _language_breakdown(conn, snapshot_id, module_ids, repo_path)

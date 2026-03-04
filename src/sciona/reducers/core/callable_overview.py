@@ -124,6 +124,12 @@ def run(snapshot_id: str, **params) -> CallableOverviewPayload:
             row["end_line"],
         )
     parent = _resolve_parent(conn, snapshot_id, row["structural_id"], repo_path)
+    callable_role, role_source = _infer_callable_role(
+        language=row["language"],
+        qualified_name=row["qualified_name"],
+        parent_type=parent.get("node_type"),
+        parent_qualified_name=parent.get("qualified_name"),
+    )
     signature = _build_signature(row["qualified_name"], params_list)
 
     line_span = [row["start_line"], row["end_line"]]
@@ -147,6 +153,8 @@ def run(snapshot_id: str, **params) -> CallableOverviewPayload:
         "start_byte": row["start_byte"],
         "end_byte": row["end_byte"],
         "content_hash": row["content_hash"],
+        "callable_role": callable_role,
+        "callable_role_source": role_source,
         "line_span_hash": line_span_hash(repo_path, row["file_path"], line_span),
         "parameters": params_list,
         "signature": signature,
@@ -200,6 +208,38 @@ def _build_signature(qualified_name: str, parameters: List[str]) -> str:
     name = qualified_name.split(".")[-1]
     param_text = ", ".join(parameters)
     return f"{name}({param_text})"
+
+
+def _infer_callable_role(
+    *,
+    language: str,
+    qualified_name: str,
+    parent_type: str | None,
+    parent_qualified_name: str | None,
+) -> tuple[str | None, str]:
+    local_name = qualified_name.split(".")[-1] if qualified_name else ""
+    parent_name = parent_qualified_name.split(".")[-1] if parent_qualified_name else ""
+    suffix = ""
+    if parent_qualified_name and qualified_name.startswith(f"{parent_qualified_name}."):
+        suffix = qualified_name[len(parent_qualified_name) + 1 :]
+    if language == "python" and local_name == "__init__":
+        return "constructor", "inferred_constructor"
+    if language in {"typescript", "java"} and parent_type == "type":
+        if local_name == "constructor" or (parent_name and local_name == parent_name):
+            return "constructor", "inferred_constructor"
+    if parent_type == "callable":
+        if local_name == "default" or "." in local_name or "." in suffix:
+            return "bound", "inferred_lexical_parent"
+        return "nested", "inferred_lexical_parent"
+    if parent_type == "module":
+        if local_name == "default" or "." in local_name or "." in suffix:
+            return "bound", "inferred_lexical_parent"
+        return "declared", "inferred_lexical_parent"
+    if parent_type == "type":
+        if "." in local_name or "." in suffix:
+            return "bound", "inferred_lexical_parent"
+        return "declared", "inferred_lexical_parent"
+    return None, "unknown"
 
 
 def _fetch_by_qualified_name(conn, snapshot_id: str, qualified_name: str):

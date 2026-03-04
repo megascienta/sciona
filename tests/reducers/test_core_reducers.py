@@ -780,6 +780,8 @@ def test_callable_overview_reducer_returns_typescript_metadata(tmp_path):
     assert payload["language"] == "typescript"
     assert payload["parameters"] == ["name"]
     assert payload["signature"].startswith("createWidget(name")
+    assert payload["callable_role"] == "declared"
+    assert payload["callable_role_source"] == "inferred_lexical_parent"
     assert "confidence" not in payload
 
 
@@ -933,10 +935,10 @@ def test_module_overview_reducer_lists_children_and_imports(tmp_path):
     assert payload["classes"][0]["qualified_name"] == _q(
         repo["repo_root"], "pkg.alpha.service.OrderService"
     )
-    assert payload["functions"][0]["qualified_name"] == _q(
-        repo["repo_root"], "pkg.alpha.service.helper"
-    )
-    assert payload["node_counts"] == {"types": 1, "callables": 1}
+    function_qnames = {entry["qualified_name"] for entry in payload["functions"]}
+    assert _q(repo["repo_root"], "pkg.alpha.service.helper") in function_qnames
+    assert _q(repo["repo_root"], "pkg.alpha.service.OrderService.method_one") in function_qnames
+    assert payload["node_counts"] == {"types": 1, "callables": 2}
     assert payload["language_breakdown"] == {"python": 3}
     assert payload["imports"] == [
         {
@@ -966,10 +968,10 @@ def test_module_overview_reducer_expands_package_modules(tmp_path):
     assert payload["classes"][0]["qualified_name"] == _q(
         repo["repo_root"], "pkg.alpha.service.OrderService"
     )
-    assert payload["functions"][0]["qualified_name"] == _q(
-        repo["repo_root"], "pkg.alpha.service.helper"
-    )
-    assert payload["node_counts"] == {"types": 1, "callables": 1}
+    function_qnames = {entry["qualified_name"] for entry in payload["functions"]}
+    assert _q(repo["repo_root"], "pkg.alpha.service.helper") in function_qnames
+    assert _q(repo["repo_root"], "pkg.alpha.service.OrderService.method_one") in function_qnames
+    assert payload["node_counts"] == {"types": 1, "callables": 2}
     assert payload["imports"] == [
         {
             "module_structural_id": repo["ids"]["module_beta"],
@@ -1097,3 +1099,150 @@ def test_module_overview_reducer_exposes_nests_edges(tmp_path):
 
     class_qnames = {entry["qualified_name"] for entry in payload["classes"]}
     assert outer_q in class_qnames
+
+
+def _insert_typescript_bound_callables(conn, repo: dict[str, object]) -> dict[str, str]:
+    snapshot_id = repo["snapshot_id"]
+    module_ts = repo["ids"]["module_ts"]
+    repo_root = repo["repo_root"]
+    outer_id = "func_ts_outer"
+    default_id = "func_ts_default"
+    tools_run_id = "func_ts_outer_tools_run"
+    q_outer = _q(repo_root, "pkg.ts.service.outer")
+    q_default = _q(repo_root, "pkg.ts.service.default")
+    q_tools_run = _q(repo_root, "pkg.ts.service.outer.tools.run")
+    for structural_id, qualified_name, start_line, end_line in (
+        (outer_id, q_outer, 12, 16),
+        (default_id, q_default, 17, 19),
+        (tools_run_id, q_tools_run, 13, 14),
+    ):
+        conn.execute(
+            """
+            INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
+            VALUES (?, ?, ?, ?)
+            """,
+            (structural_id, "callable", "typescript", snapshot_id),
+        )
+        conn.execute(
+            """
+            INSERT INTO node_instances(
+                instance_id, structural_id, snapshot_id, qualified_name, file_path, start_line, end_line, content_hash
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                f"{snapshot_id}:{structural_id}",
+                structural_id,
+                snapshot_id,
+                qualified_name,
+                "pkg/ts/service.ts",
+                start_line,
+                end_line,
+                f"hash-{structural_id}",
+            ),
+        )
+    conn.execute(
+        """
+        INSERT INTO edges(snapshot_id, src_structural_id, dst_structural_id, edge_type)
+        VALUES (?, ?, ?, ?)
+        """,
+        (snapshot_id, module_ts, outer_id, "LEXICALLY_CONTAINS"),
+    )
+    conn.execute(
+        """
+        INSERT INTO edges(snapshot_id, src_structural_id, dst_structural_id, edge_type)
+        VALUES (?, ?, ?, ?)
+        """,
+        (snapshot_id, module_ts, default_id, "LEXICALLY_CONTAINS"),
+    )
+    conn.execute(
+        """
+        INSERT INTO edges(snapshot_id, src_structural_id, dst_structural_id, edge_type)
+        VALUES (?, ?, ?, ?)
+        """,
+        (snapshot_id, outer_id, tools_run_id, "LEXICALLY_CONTAINS"),
+    )
+    conn.commit()
+    artifact_conn = artifact_connect(
+        repo_root / setup_config.SCIONA_DIR_NAME / setup_config.ARTIFACT_DB_FILENAME
+    )
+    try:
+        with transaction(artifact_conn):
+            rebuild_graph_index(
+                artifact_conn,
+                core_conn=conn,
+                snapshot_id=snapshot_id,
+            )
+    finally:
+        artifact_conn.close()
+    return {
+        "outer_id": outer_id,
+        "default_id": default_id,
+        "tools_run_id": tools_run_id,
+        "q_outer": q_outer,
+        "q_default": q_default,
+        "q_tools_run": q_tools_run,
+    }
+
+
+def test_callable_overview_reducer_exposes_bound_callable_roles(tmp_path):
+    repo = _build_profile_repo(tmp_path)
+    conn = sqlite3.connect(repo["db_path"])
+    conn.row_factory = sqlite3.Row
+    try:
+        ids = _insert_typescript_bound_callables(conn, repo)
+        default_payload = callable_overview.run(
+            repo["snapshot_id"],
+            conn=conn,
+            function_id=ids["default_id"],
+            repo_root=repo["repo_root"],
+        )
+        tools_payload = callable_overview.run(
+            repo["snapshot_id"],
+            conn=conn,
+            function_id=ids["tools_run_id"],
+            repo_root=repo["repo_root"],
+        )
+    finally:
+        conn.close()
+
+    assert default_payload["callable_role"] == "bound"
+    assert default_payload["callable_role_source"] == "inferred_lexical_parent"
+    assert tools_payload["callable_role"] == "bound"
+    assert tools_payload["callable_role_source"] == "inferred_lexical_parent"
+
+
+def test_file_outline_and_module_overview_include_default_and_object_bound_callables(tmp_path):
+    repo = _build_profile_repo(tmp_path)
+    conn = sqlite3.connect(repo["db_path"])
+    conn.row_factory = sqlite3.Row
+    try:
+        ids = _insert_typescript_bound_callables(conn, repo)
+        file_outline_payload = parse_json_payload(
+            file_outline.render(
+                repo["snapshot_id"],
+                conn,
+                repo["repo_root"],
+                module_id=_q(repo["repo_root"], "pkg.ts.service"),
+            )
+        )
+        module_payload = module_overview.run(
+            repo["snapshot_id"],
+            conn=conn,
+            module_id=_q(repo["repo_root"], "pkg.ts.service"),
+            repo_root=repo["repo_root"],
+        )
+    finally:
+        conn.close()
+
+    outlined_qnames = {
+        node["qualified_name"]
+        for file_entry in file_outline_payload["files"]
+        for node in file_entry["nodes"]
+        if node["node_type"] == "callable"
+    }
+    assert ids["q_default"] in outlined_qnames
+    assert ids["q_tools_run"] in outlined_qnames
+
+    module_callables = {entry["qualified_name"] for entry in module_payload["callables"]}
+    assert ids["q_default"] in module_callables
+    assert ids["q_tools_run"] in module_callables

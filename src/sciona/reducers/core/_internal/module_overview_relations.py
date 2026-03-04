@@ -23,13 +23,35 @@ def _list_children(
     module_ids: List[str],
     node_type: str,
     repo_root: Path,
+    *,
+    recursive: bool = False,
 ) -> List[Dict[str, str]]:
-    edges = load_artifact_edges(
-        repo_root,
-        edge_kinds=["LEXICALLY_CONTAINS"],
-        src_ids=module_ids,
-    )
-    child_ids = sorted({dst for _, dst, _ in edges})
+    if recursive:
+        frontier = list(module_ids)
+        visited: set[str] = set(module_ids)
+        child_ids: set[str] = set()
+        while frontier:
+            edges = load_artifact_edges(
+                repo_root,
+                edge_kinds=["LEXICALLY_CONTAINS"],
+                src_ids=frontier,
+            )
+            next_frontier: list[str] = []
+            for _src, dst, _kind in edges:
+                if dst in visited:
+                    continue
+                visited.add(dst)
+                child_ids.add(dst)
+                next_frontier.append(dst)
+            frontier = next_frontier
+        child_ids = sorted(child_ids)
+    else:
+        edges = load_artifact_edges(
+            repo_root,
+            edge_kinds=["LEXICALLY_CONTAINS"],
+            src_ids=module_ids,
+        )
+        child_ids = sorted({dst for _, dst, _ in edges})
     if not child_ids:
         return []
     placeholders = ",".join("?" for _ in child_ids)

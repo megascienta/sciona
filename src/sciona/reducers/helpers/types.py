@@ -67,6 +67,8 @@ class CallableOverviewPayload(TypedDict, total=False):
     start_byte: int
     end_byte: int
     content_hash: str
+    callable_role: str | None
+    callable_role_source: str
     parameters: List[str]
     signature: str
     parent_structural_id: str | None
