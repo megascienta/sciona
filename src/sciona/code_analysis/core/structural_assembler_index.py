@@ -13,6 +13,23 @@ from ..config import CALLABLE_NODE_TYPES
 from .normalize.model import EdgeRecord, SemanticNodeRecord
 
 
+def expand_import_targets(
+    direct_targets: dict[str, set[str]],
+) -> dict[str, set[str]]:
+    expanded: dict[str, set[str]] = {}
+    for source in direct_targets:
+        seen: set[str] = set()
+        stack = list(direct_targets.get(source, ()))
+        while stack:
+            target = stack.pop()
+            if target in seen:
+                continue
+            seen.add(target)
+            stack.extend(direct_targets.get(target, ()))
+        expanded[source] = seen
+    return expanded
+
+
 def build_symbol_index(
     nodes: Iterable[SemanticNodeRecord],
 ) -> dict[str, list[str]]:
@@ -43,7 +60,7 @@ def build_module_lookup(
 def build_import_targets(
     edges: Iterable[EdgeRecord],
 ) -> dict[str, set[str]]:
-    targets: dict[str, set[str]] = defaultdict(set)
+    direct_targets: dict[str, set[str]] = defaultdict(set)
     for edge in edges:
         if (
             edge.edge_type != "IMPORTS_DECLARED"
@@ -51,8 +68,15 @@ def build_import_targets(
             or edge.dst_node_type != "module"
         ):
             continue
-        targets[edge.src_qualified_name].add(edge.dst_qualified_name)
-    return targets
+        direct_targets[edge.src_qualified_name].add(edge.dst_qualified_name)
+    return expand_import_targets(
+        {module_name: set(targets) for module_name, targets in direct_targets.items()}
+    )
 
 
-__all__ = ["build_import_targets", "build_module_lookup", "build_symbol_index"]
+__all__ = [
+    "build_import_targets",
+    "build_module_lookup",
+    "build_symbol_index",
+    "expand_import_targets",
+]

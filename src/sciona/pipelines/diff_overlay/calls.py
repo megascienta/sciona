@@ -10,6 +10,7 @@ from typing import Iterable
 
 from ...code_analysis.config import CALLABLE_NODE_TYPES
 from ...code_analysis.contracts import select_strict_call_candidate
+from ...code_analysis.core.structural_assembler_index import expand_import_targets
 from ...data_storage.core_db import read_ops as core_read
 
 
@@ -303,7 +304,7 @@ def build_import_targets(
         if not src_name or not dst_name:
             continue
         targets.setdefault(src_name, set()).add(dst_name)
-    return targets
+    return expand_import_targets(targets)
 
 
 __all__ = [

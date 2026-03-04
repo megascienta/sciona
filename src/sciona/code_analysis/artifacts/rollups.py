@@ -10,6 +10,7 @@ from typing import Iterable, Sequence, cast
 
 from ..analysis.graph import module_id_for
 from ..contracts import select_strict_call_candidate
+from ..core.structural_assembler_index import expand_import_targets
 from ..config import CALLABLE_NODE_TYPES
 from ..tools.call_extraction import CallExtractionRecord
 from ...data_storage.artifact_db import rollup_persistence as artifact_persistence
@@ -321,9 +322,9 @@ def _build_module_context(
             dst_name = module_name_by_id.get(dst_id)
             if src_name and dst_name:
                 direct_import_targets[src_name].add(dst_name)
-    import_targets: dict[str, set[str]] = {
+    import_targets = expand_import_targets({
         module_name: set(targets) for module_name, targets in direct_import_targets.items()
-    }
+    })
     module_ancestors: dict[str, set[str]] = {
         module_name: _module_qname_ancestors(module_name) for module_name in module_names
     }
