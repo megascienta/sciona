@@ -58,7 +58,8 @@ contract in `docs/CONTRACT.md`.
 - Imports are extracted from:
   - `import_statement`,
   - `export_statement`,
-  - `lexical_declaration` require-assignment patterns.
+  - `lexical_declaration` require-assignment patterns,
+  - `call_expression` dynamic `import()` with string literal targets.
 - `import ... = require(...)` is represented under `import_statement` with `import_require_clause` in the current grammar build.
 - Calls are collected from `call_expression`/`new_expression` and attributed by enclosing callable scope.
 
@@ -66,6 +67,8 @@ contract in `docs/CONTRACT.md`.
 
 - Class-like types include class/interface/enum/record forms and map to `type`.
 - Methods and constructors map to `callable`.
+- Methods on named local classes declared inside callable scopes map to
+  `callable` role `nested` (constructors remain `constructor`).
 - Named local classes are structural `type` nodes.
 - Lambda expressions are non-structural callables.
 - Imports are extracted from `import_declaration`.

@@ -131,7 +131,7 @@ Python:
 
 TypeScript:
 
-- Imports: `import_statement`, `export_statement`, `lexical_declaration` require-assignment patterns
+- Imports: `import_statement`, `export_statement`, `lexical_declaration` require-assignment patterns, dynamic `import()` (`call_expression`)
 - Calls: `call_expression`, `new_expression`
 - Note: `import ... = require(...)` is covered through `import_statement` / `import_require_clause` in the current grammar; there is no standalone `import_equals_declaration` node in this build.
 

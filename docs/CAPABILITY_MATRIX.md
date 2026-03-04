@@ -45,7 +45,8 @@ Legend:
 - Inline anonymous callbacks remain non-structural; calls inside them are
   attributed to nearest enclosing structural callable.
 - TypeScript import parsing supports the grammar surface available via
-  `import_statement`, `export_statement`, and require-style lexical declarations.
+  `import_statement`, `export_statement`, require-style lexical declarations,
+  and dynamic `import()` (`call_expression` with import callee).
 - Java import parsing supports class aliases, static member aliases, and static wildcard owners.
 - Python and TypeScript use different instance-map strategies:
   Python resolves module/class/callable scopes eagerly; TypeScript resolves pending
