@@ -2,6 +2,7 @@
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
 from sciona.code_analysis.core.extract.language_registry import (
+    descriptor_validation_errors,
     descriptors,
     get_descriptor,
     install_hint_for,
@@ -27,3 +28,9 @@ def test_supported_languages_is_sorted() -> None:
 
 def test_install_hint_for_extra_language() -> None:
     assert install_hint_for("fortran") == 'pip install "sciona[fortran]"'
+
+
+def test_descriptor_validation_errors_unknown_language() -> None:
+    errors = descriptor_validation_errors("unknown_lang")
+    assert errors
+    assert "not registered" in errors[0]

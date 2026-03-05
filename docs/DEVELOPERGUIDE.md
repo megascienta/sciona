@@ -64,6 +64,7 @@ Out of scope:
 - `src/sciona/runtime/`: runtime utilities (paths, identity, logging, git, errors)
 - `src/sciona/data_storage/`: CoreDB/ArtifactDB schemas and storage operations
 - `src/sciona/code_analysis/`: discovery, parse, extraction, normalization, assembly
+- `src/sciona/code_analysis/languages/builtin/`: builtin language adapter surfaces
 - `src/sciona/pipelines/`: build/reducer orchestration and policy enforcement
 - `src/sciona/reducers/`: deterministic reducer payload generation
 - `src/sciona/api/`: stable addon-facing API
@@ -72,6 +73,13 @@ Dependency direction:
 
 - No upward imports across layers.
 - Exception: pipelines may import reducer registry/context/payload wiring.
+
+Language adapter boundary:
+
+- Registry wiring is descriptor-first via `core.extract.language_registry`.
+- Enabled language descriptors must be compliant (extensions, callable types,
+  analyzer factory, module namer) before analyzer selection.
+- Missing enabled adapters fail with install-hint diagnostics.
 
 ## Build Lifecycle
 

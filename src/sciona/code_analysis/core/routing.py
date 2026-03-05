@@ -24,6 +24,12 @@ def select_analyzers(languages: Dict[str, core_config.LanguageSettings]) -> Anal
     for language, settings in languages.items():
         if not settings.enabled:
             continue
+        descriptor = language_registry.get_descriptor(language)
+        if descriptor is not None:
+            try:
+                language_registry.assert_descriptor_compliant(language)
+            except ValueError as exc:
+                raise IngestionError(str(exc)) from exc
         analyzer = registry.get_analyzer(language)
         if analyzer:
             analyzers[language] = analyzer

@@ -48,4 +48,35 @@ def install_hint_for(language_id: str) -> str | None:
     )
 
 
-__all__ = ["descriptors", "get_descriptor", "install_hint_for", "supported_languages"]
+def descriptor_validation_errors(language_id: str) -> tuple[str, ...]:
+    descriptor = get_descriptor(language_id)
+    if descriptor is None:
+        return (f"descriptor not registered for language '{language_id}'",)
+    errors: list[str] = []
+    if not descriptor.extensions:
+        errors.append("missing file extensions")
+    if not descriptor.callable_types:
+        errors.append("missing callable_types")
+    if descriptor.analyzer_factory is None:
+        errors.append("missing analyzer_factory")
+    if descriptor.module_namer is None:
+        errors.append("missing module_namer")
+    return tuple(errors)
+
+
+def assert_descriptor_compliant(language_id: str) -> None:
+    errors = descriptor_validation_errors(language_id)
+    if not errors:
+        return
+    joined = "; ".join(errors)
+    raise ValueError(f"Invalid language descriptor for '{language_id}': {joined}")
+
+
+__all__ = [
+    "assert_descriptor_compliant",
+    "descriptor_validation_errors",
+    "descriptors",
+    "get_descriptor",
+    "install_hint_for",
+    "supported_languages",
+]
