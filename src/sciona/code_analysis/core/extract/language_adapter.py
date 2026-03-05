@@ -36,6 +36,9 @@ class LanguageDescriptor:
     callable_types: tuple[str, ...]
     analyzer_factory: AnalyzerFactory | None
     module_namer: ModuleNamer | None
+    grammar_name: str | None = None
+    query_set_version: int | None = None
+    capability_manifest_key: str | None = None
     install_hint: str | None = None
 
 

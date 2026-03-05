@@ -14,17 +14,39 @@ _EXTRA_INSTALL_HINTS: dict[str, str] = {
     "go": 'pip install "sciona[go]"',
 }
 
+_LANGUAGE_METADATA: dict[str, dict[str, object]] = {
+    "python": {
+        "grammar_name": "python",
+        "query_set_version": 1,
+        "capability_manifest_key": "python",
+    },
+    "typescript": {
+        "grammar_name": "typescript",
+        "query_set_version": 1,
+        "capability_manifest_key": "typescript",
+    },
+    "java": {
+        "grammar_name": "java",
+        "query_set_version": 1,
+        "capability_manifest_key": "java",
+    },
+}
+
 
 def descriptors() -> dict[str, LanguageDescriptor]:
     """Return static language descriptors keyed by language id."""
     registered: dict[str, LanguageDescriptor] = {}
     for language_id, config in LANGUAGE_CONFIG.items():
+        metadata = _LANGUAGE_METADATA.get(language_id, {})
         registered[language_id] = LanguageDescriptor(
             language_id=language_id,
             extensions=config.extensions,
             callable_types=config.callable_types,
             analyzer_factory=config.analyzer_factory,
             module_namer=config.module_namer,
+            grammar_name=metadata.get("grammar_name"),
+            query_set_version=metadata.get("query_set_version"),
+            capability_manifest_key=metadata.get("capability_manifest_key"),
         )
     return registered
 
@@ -61,6 +83,12 @@ def descriptor_validation_errors(language_id: str) -> tuple[str, ...]:
         errors.append("missing analyzer_factory")
     if descriptor.module_namer is None:
         errors.append("missing module_namer")
+    if not descriptor.grammar_name:
+        errors.append("missing grammar_name")
+    if descriptor.query_set_version is None:
+        errors.append("missing query_set_version")
+    if not descriptor.capability_manifest_key:
+        errors.append("missing capability_manifest_key")
     return tuple(errors)
 
 

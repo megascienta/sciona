@@ -19,6 +19,9 @@ def test_get_descriptor_returns_extension_data() -> None:
     descriptor = get_descriptor("python")
     assert descriptor is not None
     assert ".py" in descriptor.extensions
+    assert descriptor.grammar_name == "python"
+    assert descriptor.query_set_version == 1
+    assert descriptor.capability_manifest_key == "python"
 
 
 def test_supported_languages_is_sorted() -> None:
@@ -34,3 +37,9 @@ def test_descriptor_validation_errors_unknown_language() -> None:
     errors = descriptor_validation_errors("unknown_lang")
     assert errors
     assert "not registered" in errors[0]
+
+
+def test_descriptor_validation_accepts_builtin_languages() -> None:
+    assert descriptor_validation_errors("python") == ()
+    assert descriptor_validation_errors("typescript") == ()
+    assert descriptor_validation_errors("java") == ()
