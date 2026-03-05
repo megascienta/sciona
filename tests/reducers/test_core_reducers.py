@@ -17,6 +17,7 @@ from sciona.reducers.core import (
     dependency_edges,
     file_outline,
     module_overview,
+    snapshot_provenance,
     structural_index,
     symbol_lookup,
     symbol_references,
@@ -1246,3 +1247,38 @@ def test_file_outline_and_module_overview_include_default_and_object_bound_calla
     module_callables = {entry["qualified_name"] for entry in module_payload["callables"]}
     assert ids["q_default"] in module_callables
     assert ids["q_tools_run"] in module_callables
+
+
+def test_snapshot_provenance_returns_committed_snapshot_metadata(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = _core_conn(repo_root)
+    try:
+        payload_text = snapshot_provenance.render(snapshot_id, conn, repo_root)
+    finally:
+        conn.close()
+    payload = parse_json_payload(payload_text)
+    assert payload["payload_kind"] == "summary"
+    assert payload["snapshot_id"] == snapshot_id
+    assert payload["structural_hash"] == "struct-state"
+    assert payload["git_commit_sha"] == f"commit-{snapshot_id}"
+    assert payload["artifact_available"] is True
+    assert isinstance(payload["artifact_rebuild_consistent"], bool)
+
+
+def test_snapshot_provenance_reports_missing_artifact_db(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    artifact_path = (
+        repo_root
+        / setup_config.SCIONA_DIR_NAME
+        / setup_config.ARTIFACT_DB_FILENAME
+    )
+    artifact_path.unlink()
+    conn = _core_conn(repo_root)
+    try:
+        payload_text = snapshot_provenance.render(snapshot_id, conn, repo_root)
+    finally:
+        conn.close()
+    payload = parse_json_payload(payload_text)
+    assert payload["snapshot_id"] == snapshot_id
+    assert payload["artifact_available"] is False
+    assert payload["artifact_rebuild_consistent"] is None
