@@ -16,6 +16,7 @@ from ...normalize.model import (
     SemanticNodeRecord,
 )
 from ..analyzer import ASTAnalyzer
+from ..extraction_buffer import ExtractionBuffer
 from ..parser_bootstrap import bootstrap_tree_sitter_parser
 from ..query_helpers import count_lines, find_direct_children_query
 from .python_calls import resolve_python_calls
@@ -45,7 +46,7 @@ class PythonAnalyzer(ASTAnalyzer):
 
     def analyze(self, snapshot: FileSnapshot, module_name: str) -> AnalysisResult:
         tree = self._parser.parse(snapshot.content)
-        result = AnalysisResult()
+        buffer = ExtractionBuffer()
         module_node = SemanticNodeRecord(
             language=self.language,
             node_type="module",
@@ -57,7 +58,7 @@ class PythonAnalyzer(ASTAnalyzer):
             start_byte=0,
             end_byte=len(snapshot.content),
         )
-        result.nodes.append(module_node)
+        buffer.add_node(module_node)
 
         root = tree.root_node
         state = PythonNodeState()
@@ -67,25 +68,25 @@ class PythonAnalyzer(ASTAnalyzer):
                 language=self.language,
                 snapshot=snapshot,
                 module_name=module_name,
-                result=result,
+                result=buffer,
                 state=state,
             )
-        result.diagnostics["name_collisions_detected"] = (
+        buffer.diagnostics["name_collisions_detected"] = (
             state.name_disambiguator.collisions_detected
         )
-        result.diagnostics["name_collisions_disambiguated"] = (
+        buffer.diagnostics["name_collisions_disambiguated"] = (
             state.name_disambiguator.collisions_disambiguated
         )
-        emit_local_inheritance_edges(language=self.language, result=result)
+        emit_local_inheritance_edges(language=self.language, result=buffer)
         import_model = collect_python_import_model(
             root,
             snapshot,
             module_name,
             module_index=getattr(self, "module_index", None),
         )
-        result.diagnostics["imports_seen"] = import_model.imports_seen
-        result.diagnostics["imports_internal"] = import_model.imports_internal
-        result.diagnostics["imports_filtered_not_internal"] = (
+        buffer.diagnostics["imports_seen"] = import_model.imports_seen
+        buffer.diagnostics["imports_internal"] = import_model.imports_internal
+        buffer.diagnostics["imports_filtered_not_internal"] = (
             import_model.imports_filtered_not_internal
         )
         imports = import_model.modules
@@ -158,7 +159,7 @@ class PythonAnalyzer(ASTAnalyzer):
                 local_binding_names,
             )
             if resolved:
-                result.call_records.append(
+                buffer.add_call(
                     CallRecord(
                         qualified_name=qualified,
                         node_type=node_type,
@@ -166,7 +167,7 @@ class PythonAnalyzer(ASTAnalyzer):
                     )
                 )
         for module in sorted(set(imports)):
-            result.edges.append(
+            buffer.add_edge(
                 EdgeRecord(
                     src_language=self.language,
                     src_node_type="module",
@@ -177,7 +178,7 @@ class PythonAnalyzer(ASTAnalyzer):
                     edge_type="IMPORTS_DECLARED",
                 )
             )
-        return result
+        return buffer.finalize()
 
     def module_name(self, repo_root: Path, snapshot: FileSnapshot) -> str:
         return module_name(repo_root, snapshot)
