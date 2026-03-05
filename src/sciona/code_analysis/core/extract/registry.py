@@ -8,24 +8,24 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Callable, Dict, Iterable, Optional, Tuple
 
-from ...config import LANGUAGE_CONFIG
 from .analyzer import ASTAnalyzer
+from .language_registry import get_descriptor
 
 AnalyzerFactory = Callable[[], ASTAnalyzer]
 
 
 def get_analyzer(language: str) -> Optional[ASTAnalyzer]:
-    config = LANGUAGE_CONFIG.get(language)
-    if not config or not config.analyzer_factory:
+    descriptor = get_descriptor(language)
+    if not descriptor or not descriptor.analyzer_factory:
         return None
-    return config.analyzer_factory()
+    return descriptor.analyzer_factory()
 
 
 def extensions_for_language(language: str) -> Tuple[str, ...]:
-    config = LANGUAGE_CONFIG.get(language)
-    if not config:
+    descriptor = get_descriptor(language)
+    if not descriptor:
         return ()
-    return config.extensions
+    return descriptor.extensions
 
 
 def language_for_extension(

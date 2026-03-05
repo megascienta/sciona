@@ -26,37 +26,37 @@ class LanguageConfig:
 
 
 def _python_analyzer_factory() -> "ASTAnalyzer":
-    from .core.extract.languages import python as python_lang
+    from .languages.builtin import python as python_lang
 
     return python_lang.PythonAnalyzer()
 
 
 def _typescript_analyzer_factory() -> "ASTAnalyzer":
-    from .core.extract.languages import typescript as typescript_lang
+    from .languages.builtin import typescript as typescript_lang
 
     return typescript_lang.TypeScriptAnalyzer()
 
 
 def _java_analyzer_factory() -> "ASTAnalyzer":
-    from .core.extract.languages import java as java_lang
+    from .languages.builtin import java as java_lang
 
     return java_lang.JavaAnalyzer()
 
 
 def _python_module_namer(repo_root: Path, snapshot: "FileSnapshot") -> str:
-    from .core.extract.languages import python as python_lang
+    from .languages.builtin import python as python_lang
 
     return python_lang.module_name(repo_root, snapshot)
 
 
 def _typescript_module_namer(repo_root: Path, snapshot: "FileSnapshot") -> str:
-    from .core.extract.languages import typescript as typescript_lang
+    from .languages.builtin import typescript as typescript_lang
 
     return typescript_lang.module_name(repo_root, snapshot)
 
 
 def _java_module_namer(repo_root: Path, snapshot: "FileSnapshot") -> str:
-    from .core.extract.languages import java as java_lang
+    from .languages.builtin import java as java_lang
 
     return java_lang.module_name(repo_root, snapshot)
 
