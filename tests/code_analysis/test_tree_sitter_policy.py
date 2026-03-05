@@ -130,3 +130,12 @@ def test_policy_structural_extraction_avoids_non_query_traversal() -> None:
         if "find_nodes_of_type(" in text:
             violations.append(f"{rel}: find_nodes_of_type(")
     assert not violations
+
+
+def test_policy_core_language_modules_are_compatibility_shims() -> None:
+    shims_root = _CODE_ANALYSIS_ROOT / "core" / "extract" / "languages"
+    for path in sorted(shims_root.glob("*.py")):
+        if path.name in {"__init__.py"}:
+            continue
+        text = path.read_text(encoding="utf-8")
+        assert "Compatibility shim; implementation moved." in text
