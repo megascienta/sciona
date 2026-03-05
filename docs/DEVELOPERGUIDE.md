@@ -80,10 +80,15 @@ Language adapter boundary:
 
 - Registry wiring is descriptor-first via `core.extract.language_registry`.
 - Enabled language descriptors must be compliant (extensions, callable types,
-  analyzer factory, module namer, grammar metadata) before analyzer selection.
+  extractor factory, module namer, grammar metadata) before analyzer selection.
 - Missing enabled adapters fail with install-hint diagnostics.
-- `core/extract/languages/*` modules are compatibility shims; canonical
-  implementations live under `code_analysis/languages/`.
+- Canonical language implementations live under `code_analysis/languages/`.
+- Versioned onboarding contract is represented by `AdapterSpecV1` in
+  `core.extract.language_adapter`.
+
+Language architecture reference:
+
+- `docs/LANGUAGE_ADAPTER_ARCHITECTURE.md` defines the adapter/IR/builder flow.
 
 ## Build Lifecycle
 
