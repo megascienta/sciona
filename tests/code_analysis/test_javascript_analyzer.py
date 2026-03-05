@@ -112,3 +112,72 @@ def test_javascript_analyzer_collects_imports_require_and_dynamic_import(tmp_pat
 
     by_caller = {record.qualified_name: set(record.callee_identifiers) for record in result.call_records}
     assert f"{utils_module}.helper" in by_caller[f"{mod_module}.run"]
+
+
+def test_javascript_analyzer_does_not_promote_inline_or_iife_callables(tmp_path) -> None:
+    repo = tmp_path
+    snapshot = _snapshot(
+        repo,
+        "src/mod.js",
+        """
+        export function outer(items) {
+          const mapped = items.map((x) => x + 1);
+          (function () { return 1; })();
+          return mapped;
+        }
+        """,
+    )
+    analyzer = JavaScriptAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+
+    callables = {node.qualified_name for node in result.nodes if node.node_type == "callable"}
+    assert f"{module_name}.outer" in callables
+    assert all(not name.endswith(".x") for name in callables)
+    assert all(".default" not in name for name in callables)
+
+
+def test_javascript_analyzer_does_not_promote_dynamic_destructured_binding(tmp_path) -> None:
+    repo = tmp_path
+    snapshot = _snapshot(
+        repo,
+        "src/mod.js",
+        """
+        export function outer(factory) {
+          ({ f } = factory());
+          return f;
+        }
+        """,
+    )
+    analyzer = JavaScriptAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+
+    callables = {node.qualified_name for node in result.nodes if node.node_type == "callable"}
+    assert f"{module_name}.outer" in callables
+    assert all(not name.endswith(".f") for name in callables if name != f"{module_name}.outer")
+
+
+def test_javascript_analyzer_disambiguates_duplicate_bound_callable_names(tmp_path) -> None:
+    repo = tmp_path
+    snapshot = _snapshot(
+        repo,
+        "src/mod.js",
+        """
+        export function outer() {
+          const f = () => 1;
+          const f = () => 2;
+          return f();
+        }
+        """,
+    )
+    analyzer = JavaScriptAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+
+    callables = {node.qualified_name for node in result.nodes if node.node_type == "callable"}
+    assert f"{module_name}.outer.f" in callables
+    assert f"{module_name}.outer.f-2" in callables
