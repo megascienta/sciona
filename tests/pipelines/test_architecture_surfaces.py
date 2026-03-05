@@ -3,6 +3,10 @@
 
 from sciona import reducers
 from sciona.code_analysis.analysis import graph as analysis_graph
+import pytest
+
+
+pytestmark = [pytest.mark.policy]
 
 
 def test_analysis_graph_public_surface_is_explicit():

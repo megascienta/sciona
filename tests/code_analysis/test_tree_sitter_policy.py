@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from functools import lru_cache
 from pathlib import Path
 
 import pytest
@@ -18,12 +19,19 @@ _ALLOWLIST_AST_PARSE: set[str] = set()
 _ALLOWLIST_LINE_BASED_FALLBACK: set[str] = set()
 
 
-def _python_files() -> list[Path]:
-    return sorted(_CODE_ANALYSIS_ROOT.rglob("*.py"))
+pytestmark = [pytest.mark.policy]
 
 
 def _rel(path: Path) -> str:
     return path.relative_to(_CODE_ANALYSIS_ROOT).as_posix()
+
+
+@lru_cache(maxsize=1)
+def _python_file_texts() -> dict[str, str]:
+    return {
+        _rel(path): path.read_text(encoding="utf-8")
+        for path in sorted(_CODE_ANALYSIS_ROOT.rglob("*.py"))
+    }
 
 
 def test_policy_no_tree_sitter_wrapper_module() -> None:
@@ -57,50 +65,68 @@ def test_policy_profile_introspection_uses_bootstrap_helper() -> None:
         assert ".set_language(" not in text
 
 
-@pytest.mark.parametrize("path", _python_files(), ids=lambda p: _rel(p))
-def test_policy_only_narrow_parser_bootstrap_helper(path: Path) -> None:
-    rel = _rel(path)
-    text = path.read_text(encoding="utf-8")
-    assert "def build_parser(" not in text
-    assert "build_parser =" not in text
-    assert "def parser_factory(" not in text
-    assert "def make_parser(" not in text
-    if "def bootstrap_tree_sitter_parser(" in text:
-        assert rel == "core/extract/parser_bootstrap.py"
+def test_policy_only_narrow_parser_bootstrap_helper() -> None:
+    violations: list[str] = []
+    for rel, text in _python_file_texts().items():
+        if "def build_parser(" in text:
+            violations.append(f"{rel}: def build_parser(")
+        if "build_parser =" in text:
+            violations.append(f"{rel}: build_parser =")
+        if "def parser_factory(" in text:
+            violations.append(f"{rel}: def parser_factory(")
+        if "def make_parser(" in text:
+            violations.append(f"{rel}: def make_parser(")
+        if (
+            "def bootstrap_tree_sitter_parser(" in text
+            and rel != "core/extract/parser_bootstrap.py"
+        ):
+            violations.append(f"{rel}: bootstrap_tree_sitter_parser outside canonical module")
+    assert not violations
 
 
-@pytest.mark.parametrize("path", _python_files(), ids=lambda p: _rel(p))
-def test_policy_no_ast_parse_in_code_analysis(path: Path) -> None:
-    rel = _rel(path)
-    text = path.read_text(encoding="utf-8")
-    if rel in _ALLOWLIST_AST_PARSE:
-        return
-    assert "ast.parse(" not in text
-    assert "tools.tree_sitter" not in text
-    assert "from .tree_sitter import build_parser" not in text
+def test_policy_no_ast_parse_in_code_analysis() -> None:
+    violations: list[str] = []
+    for rel, text in _python_file_texts().items():
+        if rel in _ALLOWLIST_AST_PARSE:
+            continue
+        if "ast.parse(" in text:
+            violations.append(f"{rel}: ast.parse(")
+        if "tools.tree_sitter" in text:
+            violations.append(f"{rel}: tools.tree_sitter")
+        if "from .tree_sitter import build_parser" in text:
+            violations.append(f"{rel}: from .tree_sitter import build_parser")
+    assert not violations
 
 
-@pytest.mark.parametrize("path", _python_files(), ids=lambda p: _rel(p))
-def test_policy_no_line_based_parameter_fallback(path: Path) -> None:
-    rel = _rel(path)
-    text = path.read_text(encoding="utf-8")
-    if rel in _ALLOWLIST_LINE_BASED_FALLBACK:
-        return
-    assert "def _line_based_ts_parameters(" not in text
-    assert "_line_based_ts_parameters(" not in text
-    assert "def _split_comma_aware(" not in text
-    assert "_parse_typescript_parameters(" not in text
-    assert "_parse_typescript_bases(" not in text
+def test_policy_no_line_based_parameter_fallback() -> None:
+    violations: list[str] = []
+    for rel, text in _python_file_texts().items():
+        if rel in _ALLOWLIST_LINE_BASED_FALLBACK:
+            continue
+        if "def _line_based_ts_parameters(" in text:
+            violations.append(f"{rel}: def _line_based_ts_parameters(")
+        if "_line_based_ts_parameters(" in text:
+            violations.append(f"{rel}: _line_based_ts_parameters(")
+        if "def _split_comma_aware(" in text:
+            violations.append(f"{rel}: def _split_comma_aware(")
+        if "_parse_typescript_parameters(" in text:
+            violations.append(f"{rel}: _parse_typescript_parameters(")
+        if "_parse_typescript_bases(" in text:
+            violations.append(f"{rel}: _parse_typescript_bases(")
+    assert not violations
 
 
-@pytest.mark.parametrize("path", _python_files(), ids=lambda p: _rel(p))
-def test_policy_structural_extraction_avoids_non_query_traversal(path: Path) -> None:
-    rel = _rel(path)
-    if not rel.startswith("core/extract/"):
-        return
-    text = path.read_text(encoding="utf-8")
-    if rel in {"core/extract/parser_bootstrap.py", "core/extract/query_helpers.py"}:
-        assert "stack = [node]" not in text
-        assert "stack.pop()" not in text
-        return
-    assert "find_nodes_of_type(" not in text
+def test_policy_structural_extraction_avoids_non_query_traversal() -> None:
+    violations: list[str] = []
+    for rel, text in _python_file_texts().items():
+        if not rel.startswith("core/extract/"):
+            continue
+        if rel in {"core/extract/parser_bootstrap.py", "core/extract/query_helpers.py"}:
+            if "stack = [node]" in text:
+                violations.append(f"{rel}: stack = [node]")
+            if "stack.pop()" in text:
+                violations.append(f"{rel}: stack.pop()")
+            continue
+        if "find_nodes_of_type(" in text:
+            violations.append(f"{rel}: find_nodes_of_type(")
+    assert not violations

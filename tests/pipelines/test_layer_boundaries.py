@@ -6,8 +6,11 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parents[2] / "src" / "sciona"
+pytestmark = [pytest.mark.policy]
 
 
 FORBIDDEN_IMPORTS = {

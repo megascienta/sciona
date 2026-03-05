@@ -6,9 +6,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from sciona.code_analysis.core.extract.languages.capability_manifest import (
     build_capability_manifest,
 )
+
+pytestmark = [pytest.mark.policy]
 
 
 def test_capability_manifest_is_current() -> None:

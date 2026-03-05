@@ -12,7 +12,8 @@ from sciona.runtime.reducer_metadata import (
 
 
 def test_reducer_metadata_constants() -> None:
-    assert CATEGORY_ORDER == ("core", "grounding", "analytics")
+    assert CATEGORY_ORDER[:3] == ("core", "grounding", "analytics")
+    assert "composites" in CATEGORY_ORDER
     assert set(CATEGORY_ORDER) == set(VALID_CATEGORIES)
     assert SCOPE_ORDER == ("callable", "class", "module", "codebase")
     assert set(SCOPE_ORDER) == set(VALID_SCOPES)

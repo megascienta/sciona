@@ -6,11 +6,14 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
+import pytest
+
 
 ALLOWED_MODULES = {
     "sciona.api.addons",
 }
 ALLOWED_PREFIXES = ("sciona.addons",)
+pytestmark = [pytest.mark.policy]
 
 
 def _is_allowed_import_name(name: str) -> bool:

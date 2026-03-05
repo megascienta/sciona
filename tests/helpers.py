@@ -226,6 +226,26 @@ def commit_all(repo_root: Path, *, message: str = "init") -> None:
     )
 
 
+def write_and_commit_file(
+    repo_root: Path, relative_path: str | Path, content: str, *, message: str
+) -> None:
+    path = repo_root / relative_path
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
+    subprocess.run(
+        ["git", "add", str(relative_path)],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+    )
+    subprocess.run(
+        ["git", "commit", "-m", message],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+    )
+
+
 def setup_evolution_db(tmp_path: Path) -> Dict[str, object]:
     """Create a database with two snapshots used by change_delta/impact_preview tests."""
     db_path = tmp_path / "evolution.db"
