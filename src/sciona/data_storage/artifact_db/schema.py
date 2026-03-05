@@ -36,7 +36,14 @@ SCHEMA_STATEMENTS: list[str] = [
         identifier TEXT NOT NULL,
         resolution_status TEXT NOT NULL CHECK (resolution_status IN ('accepted', 'dropped')),
         accepted_callee_id TEXT,
-        provenance TEXT CHECK (provenance IN ('exact_qname', 'module_scoped', 'import_narrowed') OR provenance IS NULL),
+        provenance TEXT CHECK (
+            provenance IN (
+                'exact_qname',
+                'module_scoped',
+                'import_narrowed',
+                'export_chain_narrowed'
+            ) OR provenance IS NULL
+        ),
         drop_reason TEXT CHECK (
             drop_reason IN (
                 'no_candidates',

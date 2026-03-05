@@ -16,7 +16,9 @@ from ..tools.call_extraction import CallExtractionRecord
 from ...data_storage.artifact_db import rollup_persistence as artifact_persistence
 from ...data_storage.core_db import read_ops as core_read
 
-ALLOWED_CALLSITE_PROVENANCE = frozenset({"exact_qname", "module_scoped", "import_narrowed"})
+ALLOWED_CALLSITE_PROVENANCE = frozenset(
+    {"exact_qname", "module_scoped", "import_narrowed", "export_chain_narrowed"}
+)
 ALLOWED_CALLSITE_DROP_REASONS = frozenset(
     {
         "no_candidates",
@@ -141,10 +143,20 @@ def write_call_artifacts(
         import_targets,
         expanded_import_targets,
         module_ancestors,
+        module_file_by_name,
     ) = _build_module_context(
         core_conn, snapshot_id
     )
     caller_language_map = core_read.caller_language_map(core_conn, snapshot_id)
+    module_bindings_by_name = _build_module_binding_index(
+        callable_qname_by_id=callable_qname_by_id,
+        module_lookup=module_lookup,
+    )
+    ts_barrel_export_map = _build_typescript_barrel_export_map(
+        import_targets=import_targets,
+        module_bindings_by_name=module_bindings_by_name,
+        module_file_by_name=module_file_by_name,
+    )
     node_hashes = _load_node_hashes(core_conn, snapshot_id, caller_set)
     processed_callers: set[str] = set()
     diagnostics_totals = _ensure_rollup_diagnostics(diagnostics)
@@ -164,6 +176,9 @@ def write_call_artifacts(
             import_targets=import_targets,
             expanded_import_targets=expanded_import_targets,
             module_ancestors=module_ancestors,
+            module_bindings_by_name=module_bindings_by_name,
+            module_file_by_name=module_file_by_name,
+            ts_barrel_export_map=ts_barrel_export_map,
         )
         callee_ids = {callee_id for callee_id in callee_ids if callee_id in in_repo_callable_ids}
         filtered_callsite_rows = _filter_in_repo_callsite_rows(
@@ -325,7 +340,13 @@ def _filter_in_repo_callsite_rows(
 def _build_module_context(
     core_conn,
     snapshot_id: str,
-) -> tuple[dict[str, str], dict[str, set[str]], dict[str, set[str]], dict[str, set[str]]]:
+) -> tuple[
+    dict[str, str],
+    dict[str, set[str]],
+    dict[str, set[str]],
+    dict[str, set[str]],
+    dict[str, str],
+]:
     node_rows = core_read.list_nodes_with_names(core_conn, snapshot_id)
     module_names = {
         qualified_name
@@ -342,12 +363,18 @@ def _build_module_context(
         for qualified_name, structural_id in module_id_by_name.items()
     }
     module_lookup: dict[str, str] = {}
+    module_file_by_name: dict[str, str] = {}
+    node_meta = core_read.caller_node_metadata_map(core_conn, snapshot_id)
     for structural_id, _node_type, qualified_name in node_rows:
         if not qualified_name:
             continue
         module_name = module_id_for(qualified_name, module_names)
         if module_name:
             module_lookup[structural_id] = module_name
+        if structural_id in module_id_by_name.values():
+            file_path = str((node_meta.get(structural_id) or {}).get("file_path") or "")
+            if file_path:
+                module_file_by_name[qualified_name] = file_path
     module_ids = set(module_id_by_name.values())
     direct_import_targets: dict[str, set[str]] = defaultdict(set)
     for src_id, dst_id in core_read.list_edges_by_type(
@@ -365,7 +392,13 @@ def _build_module_context(
     module_ancestors: dict[str, set[str]] = {
         module_name: _module_qname_ancestors(module_name) for module_name in module_names
     }
-    return module_lookup, import_targets, expanded_import_targets, module_ancestors
+    return (
+        module_lookup,
+        import_targets,
+        expanded_import_targets,
+        module_ancestors,
+        module_file_by_name,
+    )
 
 
 def _load_node_hashes(
@@ -385,6 +418,9 @@ def _resolve_callees(
     import_targets: dict[str, set[str]],
     expanded_import_targets: dict[str, set[str]],
     module_ancestors: dict[str, set[str]],
+    module_bindings_by_name: dict[str, set[str]],
+    module_file_by_name: dict[str, str],
+    ts_barrel_export_map: dict[str, set[str]],
 ) -> tuple[
     set[str],
     set[str],
@@ -450,6 +486,7 @@ def _resolve_callees(
             allow_descendant_scope_for_ambiguous=caller_language == "typescript",
         )
         rescue_candidate: str | None = None
+        rescue_provenance: str | None = None
         if (
             decision.accepted_candidate is None
             and decision.dropped_reason
@@ -468,7 +505,11 @@ def _resolve_callees(
                     module_lookup=module_lookup,
                     import_targets=import_targets,
                     expanded_import_targets=expanded_import_targets,
+                    module_bindings_by_name=module_bindings_by_name,
+                    module_file_by_name=module_file_by_name,
                 )
+                if rescue_candidate:
+                    rescue_provenance = "export_chain_narrowed"
             elif caller_language == "typescript":
                 rescue_candidate = _resolve_typescript_barrel_ambiguous(
                     identifier=identifier,
@@ -479,6 +520,7 @@ def _resolve_callees(
                     module_lookup=module_lookup,
                     import_targets=import_targets,
                     expanded_import_targets=expanded_import_targets,
+                    ts_barrel_export_map=ts_barrel_export_map,
                 )
         if rescue_candidate:
             decision = select_strict_call_candidate(
@@ -500,8 +542,9 @@ def _resolve_callees(
         if decision.accepted_candidate:
             resolved_ids.add(decision.accepted_candidate)
             resolved_names.add(identifier)
+            accepted_provenance = rescue_provenance or str(decision.accepted_provenance)
             cast(Counter[str], stats["accepted_by_provenance"])[
-                str(decision.accepted_provenance)
+                accepted_provenance
             ] += 1
             if decision.candidate_count > 0:
                 callsite_rows.append(
@@ -509,7 +552,7 @@ def _resolve_callees(
                         identifier,
                         "accepted",
                         decision.accepted_candidate,
-                        decision.accepted_provenance,
+                        accepted_provenance,
                         None,
                         decision.candidate_count,
                         callee_kind,
@@ -564,6 +607,8 @@ def _resolve_python_export_chain_ambiguous(
     module_lookup: dict[str, str],
     import_targets: dict[str, set[str]],
     expanded_import_targets: dict[str, set[str]],
+    module_bindings_by_name: dict[str, set[str]],
+    module_file_by_name: dict[str, str],
 ) -> str | None:
     candidates = list(dict.fromkeys(list(direct_candidates) or list(fallback_candidates)))
     if len(candidates) < 2 or not caller_module:
@@ -571,18 +616,24 @@ def _resolve_python_export_chain_ambiguous(
     terminal = _simple_identifier(identifier)
     if not terminal:
         return None
-    allowed_modules = set(expanded_import_targets.get(caller_module, set()))
-    allowed_modules.update(import_targets.get(caller_module, set()))
+    allowed_modules = _python_export_scope_modules(
+        caller_module=caller_module,
+        import_targets=import_targets,
+        expanded_import_targets=expanded_import_targets,
+        module_file_by_name=module_file_by_name,
+    )
     allowed_modules.add(caller_module)
     in_scope = []
     for candidate in candidates:
         module = module_lookup.get(candidate)
         if not module:
             continue
-        if not _module_in_scope(module, allowed_modules, allow_descendants=True):
+        if not _module_in_scope(module, allowed_modules, allow_descendants=False):
             continue
         qname = callable_qname_by_id.get(candidate, "")
         if qname and _simple_identifier(qname) == terminal:
+            if terminal not in module_bindings_by_name.get(module, set()):
+                continue
             in_scope.append(candidate)
     if not in_scope:
         return None
@@ -613,6 +664,7 @@ def _resolve_typescript_barrel_ambiguous(
     module_lookup: dict[str, str],
     import_targets: dict[str, set[str]],
     expanded_import_targets: dict[str, set[str]],
+    ts_barrel_export_map: dict[str, set[str]],
 ) -> str | None:
     candidates = list(dict.fromkeys(list(direct_candidates) or list(fallback_candidates)))
     if len(candidates) < 2 or not caller_module:
@@ -627,6 +679,11 @@ def _resolve_typescript_barrel_ambiguous(
             continue
         if _module_in_scope(module, allowed_modules, allow_descendants=True):
             in_scope.append(candidate)
+    if caller_module:
+        for barrel_target in ts_barrel_export_map.get(caller_module, set()):
+            for candidate in candidates:
+                if module_lookup.get(candidate) == barrel_target and candidate not in in_scope:
+                    in_scope.append(candidate)
     if not in_scope:
         return None
     exact_qname = [c for c in in_scope if callable_qname_by_id.get(c) == identifier]
@@ -665,6 +722,92 @@ def _best_candidate_by_module_path(
         ),
     )
     return ranked[0]
+
+
+def _build_module_binding_index(
+    *,
+    callable_qname_by_id: dict[str, str],
+    module_lookup: dict[str, str],
+) -> dict[str, set[str]]:
+    bindings: dict[str, set[str]] = defaultdict(set)
+    for callable_id, qname in callable_qname_by_id.items():
+        module = module_lookup.get(callable_id)
+        if not module:
+            continue
+        terminal = _simple_identifier(qname)
+        if terminal:
+            bindings[module].add(terminal)
+    return dict(bindings)
+
+
+def _python_export_scope_modules(
+    *,
+    caller_module: str,
+    import_targets: dict[str, set[str]],
+    expanded_import_targets: dict[str, set[str]],
+    module_file_by_name: dict[str, str],
+) -> set[str]:
+    seed_modules = set(expanded_import_targets.get(caller_module, set()))
+    seed_modules.update(import_targets.get(caller_module, set()))
+    init_roots = {
+        module
+        for module in seed_modules
+        if str(module_file_by_name.get(module, "")).endswith("__init__.py")
+    }
+    if not init_roots:
+        init_roots = seed_modules
+    scoped: set[str] = set(seed_modules)
+    for root in init_roots:
+        scoped.update(_bounded_module_reachability(import_targets, start=root, max_depth=4))
+    return scoped
+
+
+def _build_typescript_barrel_export_map(
+    *,
+    import_targets: dict[str, set[str]],
+    module_bindings_by_name: dict[str, set[str]],
+    module_file_by_name: dict[str, str],
+) -> dict[str, set[str]]:
+    barrel_map: dict[str, set[str]] = {}
+    for module, file_path in module_file_by_name.items():
+        normalized = file_path.replace("\\", "/")
+        if not normalized.endswith("/index.ts") and not normalized.endswith("/index.tsx"):
+            continue
+        targets = _bounded_module_reachability(import_targets, start=module, max_depth=4)
+        exported: set[str] = set()
+        bindings = module_bindings_by_name.get(module, set())
+        for target in targets:
+            if bindings & module_bindings_by_name.get(target, set()):
+                exported.add(target)
+        if exported:
+            barrel_map[module] = exported
+    return barrel_map
+
+
+def _bounded_module_reachability(
+    import_targets: dict[str, set[str]],
+    *,
+    start: str,
+    max_depth: int,
+) -> set[str]:
+    if max_depth <= 0:
+        return set()
+    reached: set[str] = set()
+    frontier = {start}
+    visited = {start}
+    for _ in range(max_depth):
+        next_frontier: set[str] = set()
+        for module in frontier:
+            for target in import_targets.get(module, set()):
+                if target in visited:
+                    continue
+                visited.add(target)
+                reached.add(target)
+                next_frontier.add(target)
+        if not next_frontier:
+            break
+        frontier = next_frontier
+    return reached
 
 
 def _best_candidate_by_module_distance(
