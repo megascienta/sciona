@@ -21,6 +21,8 @@ tree-sitter AST
 - Language implementations live in:
   - `src/sciona/code_analysis/languages/builtin/`
   - `src/sciona/code_analysis/languages/common/`
+  - Builtins currently shipped with core: `python`, `typescript`,
+    `javascript`, `java`.
 - Legacy `core/extract/languages/` implementation modules are retired.
 
 ## Adapter Contract
@@ -44,3 +46,14 @@ Descriptors are validated before analyzer routing.
 - Snapshot semantics and reducers remain core-owned.
 - Adapters perform syntax extraction and mapping only.
 - IR stays minimal and structural (not a generic AST).
+
+## JavaScript Notes
+
+- JavaScript adapter modules are split by concern:
+  - `javascript_nodes.py`
+  - `javascript_imports.py`
+  - `javascript_calls.py`
+  - `javascript_resolution.py`
+- Implementation reuses shared TypeScript-compatible extraction/resolution
+  helpers while keeping JavaScript query surfaces and callable-promotion
+  contract explicit in the JS adapter boundary.

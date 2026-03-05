@@ -145,6 +145,7 @@ Imports:
 
 - Python
 - TypeScript
+- JavaScript
 - Java
 
 ## Current Language Extraction Surface
@@ -161,6 +162,19 @@ TypeScript:
 - Note: `import ... = require(...)` is covered through `import_statement` / `import_require_clause` in the current grammar; there is no standalone `import_equals_declaration` node in this build.
 - Profile class surface includes `class_declaration`,
   `abstract_class_declaration`, and `class_expression`.
+
+JavaScript:
+
+- Imports: `import_statement`, `export_statement`, `lexical_declaration`
+  require-assignment patterns, dynamic `import()` (`call_expression`)
+- Calls: `call_expression`, `new_expression`
+- Structural callable promotion covers:
+  - declarations/methods/constructors,
+  - nested named functions,
+  - bound function/arrow expressions from stable lexical bindings,
+  - class-field callable values.
+- Inline anonymous callbacks, IIFEs, and dynamic/destructured non-stable
+  bindings are non-structural.
 
 Java:
 
