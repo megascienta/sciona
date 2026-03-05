@@ -24,6 +24,7 @@ def test_snapshot_report_returns_db_counts(repo_with_snapshot):
     assert payload["totals"]["call_sites"]["dropped"] == 0
     assert payload["totals"]["adjusted_call_sites"]["adjusted_eligible"] == 0
     assert payload["totals"]["adjusted_call_sites"]["success_rate"] is None
+    assert payload["totals"]["classification_quality"]["confidence"] == "n/a"
     assert payload["totals"]["call_sites_by_scope"]["non_tests"]["eligible"] == 0
     assert payload["totals"]["call_sites_by_scope"]["tests"]["eligible"] == 0
     by_language = {entry["language"]: entry for entry in payload["languages"]}
@@ -33,6 +34,7 @@ def test_snapshot_report_returns_db_counts(repo_with_snapshot):
     assert python["call_sites"]["dropped"] == 0
     assert python["adjusted_call_sites"]["adjusted_eligible"] == 0
     assert python["adjusted_call_sites"]["success_rate"] is None
+    assert python["classification_quality"]["confidence"] == "n/a"
     assert python["call_sites_by_scope"]["non_tests"]["eligible"] == 0
     assert python["call_sites_by_scope"]["tests"]["eligible"] == 0
 
@@ -187,6 +189,13 @@ def test_snapshot_report_full_includes_failure_reasons(repo_with_snapshot):
     )
     assert python["adjusted_call_sites_by_scope"]["non_tests"]["adjusted_eligible"] == 2
     assert python["adjusted_call_sites_by_scope"]["non_tests"]["success_rate"] == 0.5
+    assert python["classification_quality"]["external_likely_share"] == 0.5
+    assert python["classification_quality"]["ambiguous_share"] == 0.5
+    assert python["classification_quality"]["confidence"] == "medium"
+    assert set(python["classification_quality"]["caveats"]) == {
+        "external_likely_material_share",
+        "ambiguity_material_share",
+    }
     assert python["drop_reasons"] == {
         "ambiguous_no_in_scope_candidate": 1,
         "unique_without_provenance": 1,
@@ -222,6 +231,7 @@ def test_snapshot_report_full_includes_failure_reasons(repo_with_snapshot):
     assert payload["totals"]["adjusted_call_sites"]["excluded_external_likely"] == 1
     assert payload["totals"]["adjusted_call_sites"]["adjusted_eligible"] == 2
     assert payload["totals"]["adjusted_call_sites"]["success_rate"] == 0.5
+    assert payload["totals"]["classification_quality"]["confidence"] == "medium"
     total_scope_classification = payload["totals"]["drop_classification_by_scope"]
     assert total_scope_classification["non_tests"] == {"external_likely": 1}
     assert total_scope_classification["tests"] == {}

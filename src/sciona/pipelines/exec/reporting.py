@@ -153,11 +153,10 @@ def snapshot_report(
                 else:
                     call_site_totals[language]["dropped"] += count
                     call_site_scope_totals[language][scope_key]["dropped"] += count
-                    if include_failure_reasons:
-                        reason = str(item["drop_reason"] or "unknown")
-                        call_site_reasons[language][reason] = (
-                            call_site_reasons[language].get(reason, 0) + count
-                        )
+                    reason = str(item["drop_reason"] or "unknown")
+                    call_site_reasons[language][reason] = (
+                        call_site_reasons[language].get(reason, 0) + count
+                    )
             dropped_identifiers = artifact_reporting.call_site_drop_identifier_counts(
                 conn,
                 snapshot_id=snapshot_id,
@@ -386,6 +385,11 @@ def snapshot_report(
             .get("tests", {})
             .get("external_likely", 0),
         )
+        item["classification_quality"] = _classification_quality_payload(
+            item.get("call_sites"),
+            drop_reasons=call_site_reasons.get(language, {}),
+            drop_classification=drop_classification.get(language, {}),
+        )
     payload["totals"]["adjusted_call_sites"] = _adjusted_call_sites_payload(
         payload["totals"].get("call_sites"),
         excluded_external_likely=_sum_bucket_counts(drop_classification).get(
@@ -400,6 +404,11 @@ def snapshot_report(
         excluded_tests=_sum_bucket_counts_by_scope(
             drop_classification_by_scope, scope_key="tests"
         ).get("external_likely", 0),
+    )
+    payload["totals"]["classification_quality"] = _classification_quality_payload(
+        payload["totals"].get("call_sites"),
+        drop_reasons=_sum_bucket_counts(call_site_reasons),
+        drop_classification=_sum_bucket_counts(drop_classification),
     )
     if include_failure_reasons:
         payload["failure_hotspots"] = {
@@ -500,6 +509,48 @@ def _scope_adjusted_call_sites_payload(
         excluded_external_likely=excluded_tests,
     )
     return {"non_tests": non_tests, "tests": tests}
+
+
+def _classification_quality_payload(
+    call_sites: dict[str, object] | None,
+    *,
+    drop_reasons: dict[str, int],
+    drop_classification: dict[str, int],
+) -> dict[str, object]:
+    dropped = int((call_sites or {}).get("dropped") or 0)
+    external_likely = int(drop_classification.get("external_likely", 0))
+    ambiguous = int(
+        drop_reasons.get("ambiguous_no_in_scope_candidate", 0)
+        + drop_reasons.get("ambiguous_multiple_in_scope_candidates", 0)
+    )
+    external_share = (external_likely / dropped) if dropped > 0 else None
+    ambiguous_share = (ambiguous / dropped) if dropped > 0 else None
+    confidence = "n/a"
+    caveats: list[str] = []
+    if dropped > 0:
+        confidence = "high"
+        if external_share is not None and external_share >= 0.75:
+            confidence = "low"
+            caveats.append("external_likely_dominates_drops")
+        elif external_share is not None and external_share >= 0.40:
+            confidence = "medium"
+            caveats.append("external_likely_material_share")
+        if ambiguous_share is not None and ambiguous_share >= 0.75:
+            confidence = "low"
+            caveats.append("ambiguity_dominates_drops")
+        elif ambiguous_share is not None and ambiguous_share >= 0.40:
+            if confidence == "high":
+                confidence = "medium"
+            caveats.append("ambiguity_material_share")
+    return {
+        "dropped_callsites": dropped,
+        "external_likely": external_likely,
+        "ambiguous_drops": ambiguous,
+        "external_likely_share": external_share,
+        "ambiguous_share": ambiguous_share,
+        "confidence": confidence,
+        "caveats": caveats,
+    }
 
 
 def _drop_classification_bucket(
