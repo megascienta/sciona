@@ -117,6 +117,24 @@ def test_strict_call_contract_rejects_ambiguous_without_in_scope_candidates() ->
     assert decision.dropped_reason == "ambiguous_no_in_scope_candidate"
 
 
+def test_strict_call_contract_can_allow_descendant_scope_for_ambiguous() -> None:
+    decision = select_strict_call_candidate(
+        identifier="build",
+        direct_candidates=[],
+        fallback_candidates=["deps.deep.Builder.build", "offscope.Builder.build"],
+        caller_module="app.mod",
+        module_lookup={
+            "deps.deep.Builder.build": "deps.deep",
+            "offscope.Builder.build": "offscope",
+        },
+        import_targets={"app.mod": {"deps"}},
+        allow_descendant_scope_for_ambiguous=True,
+    )
+    assert decision.accepted_candidate == "deps.deep.Builder.build"
+    assert decision.accepted_provenance == "import_narrowed"
+    assert decision.dropped_reason is None
+
+
 def test_strict_call_contract_prefers_exact_qname_in_ambiguous_set() -> None:
     decision = select_strict_call_candidate(
         identifier="pkg.mod.Service.run",

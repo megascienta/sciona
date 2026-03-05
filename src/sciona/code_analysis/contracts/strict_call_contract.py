@@ -28,6 +28,7 @@ def select_strict_call_candidate(
     import_targets: Mapping[str, set[str]],
     expanded_import_targets: Mapping[str, set[str]] | None = None,
     caller_ancestor_modules: set[str] | None = None,
+    allow_descendant_scope_for_ambiguous: bool = False,
 ) -> StrictCallDecision:
     """Apply contract-strict accept_if_single behavior for call candidates."""
     raw_candidates = list(direct_candidates) or list(fallback_candidates)
@@ -165,7 +166,7 @@ def select_strict_call_candidate(
         if _in_allowed_module_scope(
             candidate_module=candidate_module,
             allowed_modules=allowed_modules,
-            allow_descendants=False,
+            allow_descendants=allow_descendant_scope_for_ambiguous,
         ):
             narrowed.append(candidate)
     if len(narrowed) == 1:

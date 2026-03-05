@@ -144,6 +144,7 @@ def write_call_artifacts(
     ) = _build_module_context(
         core_conn, snapshot_id
     )
+    caller_language_map = core_read.caller_language_map(core_conn, snapshot_id)
     node_hashes = _load_node_hashes(core_conn, snapshot_id, caller_set)
     processed_callers: set[str] = set()
     diagnostics_totals = _ensure_rollup_diagnostics(diagnostics)
@@ -157,11 +158,12 @@ def write_call_artifacts(
             record.callee_identifiers,
             symbol_index,
             caller_module=caller_module,
-                module_lookup=module_lookup,
-                callable_qname_by_id=callable_qname_by_id,
-                import_targets=import_targets,
-                expanded_import_targets=expanded_import_targets,
-                module_ancestors=module_ancestors,
+            caller_language=caller_language_map.get(caller_id),
+            module_lookup=module_lookup,
+            callable_qname_by_id=callable_qname_by_id,
+            import_targets=import_targets,
+            expanded_import_targets=expanded_import_targets,
+            module_ancestors=module_ancestors,
         )
         callee_ids = {callee_id for callee_id in callee_ids if callee_id in in_repo_callable_ids}
         filtered_callsite_rows = _filter_in_repo_callsite_rows(
@@ -377,6 +379,7 @@ def _resolve_callees(
     symbol_index: dict[str, Sequence[str]],
     *,
     caller_module: str | None,
+    caller_language: str | None,
     module_lookup: dict[str, str],
     callable_qname_by_id: dict[str, str],
     import_targets: dict[str, set[str]],
@@ -444,6 +447,7 @@ def _resolve_callees(
             import_targets=import_targets,
             expanded_import_targets=expanded_import_targets,
             caller_ancestor_modules=module_ancestors.get(caller_module or "", set()),
+            allow_descendant_scope_for_ambiguous=caller_language == "typescript",
         )
         cast(Counter[int], stats["candidate_count_histogram"])[decision.candidate_count] += 1
         ordinal = ordinal_by_identifier.get(identifier, 0) + 1
