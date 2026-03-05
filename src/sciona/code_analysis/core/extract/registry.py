@@ -16,9 +16,9 @@ AnalyzerFactory = Callable[[], ASTAnalyzer]
 
 def get_analyzer(language: str) -> Optional[ASTAnalyzer]:
     descriptor = get_descriptor(language)
-    if not descriptor or not descriptor.analyzer_factory:
+    if not descriptor or not descriptor.extractor_factory:
         return None
-    return descriptor.analyzer_factory()
+    return descriptor.extractor_factory()
 
 
 def extensions_for_language(language: str) -> Tuple[str, ...]:

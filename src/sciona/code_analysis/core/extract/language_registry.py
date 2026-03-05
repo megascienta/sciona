@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from ...config import LANGUAGE_CONFIG
-from .language_adapter import LanguageDescriptor
+from .language_adapter import AdapterSpecV1, LanguageDescriptor
 
 _EXTRA_INSTALL_HINTS: dict[str, str] = {
     "fortran": 'pip install "sciona[fortran]"',
@@ -42,7 +42,7 @@ def descriptors() -> dict[str, LanguageDescriptor]:
             language_id=language_id,
             extensions=config.extensions,
             callable_types=config.callable_types,
-            analyzer_factory=config.analyzer_factory,
+            extractor_factory=config.analyzer_factory,
             module_namer=config.module_namer,
             grammar_name=metadata.get("grammar_name"),
             query_set_version=metadata.get("query_set_version"),
@@ -79,8 +79,8 @@ def descriptor_validation_errors(language_id: str) -> tuple[str, ...]:
         errors.append("missing file extensions")
     if not descriptor.callable_types:
         errors.append("missing callable_types")
-    if descriptor.analyzer_factory is None:
-        errors.append("missing analyzer_factory")
+    if descriptor.extractor_factory is None:
+        errors.append("missing extractor_factory")
     if descriptor.module_namer is None:
         errors.append("missing module_namer")
     if not descriptor.grammar_name:
@@ -100,7 +100,20 @@ def assert_descriptor_compliant(language_id: str) -> None:
     raise ValueError(f"Invalid language descriptor for '{language_id}': {joined}")
 
 
+def adapter_spec_v1(language_id: str) -> AdapterSpecV1:
+    descriptor = get_descriptor(language_id)
+    if descriptor is None:
+        raise ValueError(f"descriptor not registered for language '{language_id}'")
+    spec = descriptor.to_adapter_spec_v1()
+    if spec is None:
+        raise ValueError(
+            f"Invalid language descriptor for '{language_id}': incomplete AdapterSpecV1"
+        )
+    return spec
+
+
 __all__ = [
+    "adapter_spec_v1",
     "assert_descriptor_compliant",
     "descriptor_validation_errors",
     "descriptors",
