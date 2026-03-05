@@ -36,6 +36,8 @@ def build_agents_block(
     commands = _merge_commands(commands)
     content = template.format(
         COMMON_TASKS=_render_common_tasks(reducers),
+        RISK_TIER_REDUCERS=_render_risk_tier_reducers(reducers),
+        REDUCER_ESCALATION_ORDER=_render_reducer_escalation_order(reducers),
         CMD_REDUCER_LIST=commands.get("reducer_list", "sciona reducer list"),
         CMD_REDUCER_INFO=commands.get(
             "reducer_info", "sciona reducer info --id <reducer_id>"
@@ -182,6 +184,89 @@ def _render_common_tasks(reducers) -> str:
             }
         )
     return "\n".join(render_reducer_list(entries, reducers, include_prefix=True))
+
+
+def _render_risk_tier_reducers(reducers) -> str:
+    normal = _sorted_reducer_ids_by_categories(reducers, {"core", "analytics"})
+    elevated = _sorted_reducer_ids_by_categories(reducers, {"grounding", "composites"})
+    normal_text = ", ".join(normal) if normal else "(none)"
+    elevated_text = ", ".join(elevated) if elevated else "(none)"
+    return "\n".join(
+        [
+            f"- Normal tier reducers: {normal_text}",
+            f"- Elevated tier reducers: {elevated_text}",
+        ]
+    )
+
+
+def _render_reducer_escalation_order(reducers) -> str:
+    core_module_codebase = _sorted_reducer_ids(
+        reducers,
+        categories={"core"},
+        scopes={"module", "codebase"},
+    )
+    core_entity = _sorted_reducer_ids(
+        reducers,
+        categories={"core"},
+        scopes={"callable", "class"},
+    )
+    analytics_all = _sorted_reducer_ids(reducers, categories={"analytics"})
+    grounding_narrow = _sorted_reducer_ids(
+        reducers,
+        categories={"grounding"},
+        scopes={"callable", "class", "module"},
+    )
+    grounding_broad = _sorted_reducer_ids(
+        reducers,
+        categories={"grounding"},
+        scopes={"codebase"},
+    )
+
+    return "\n".join(
+        [
+            "1. **Discovery and structural orientation** — "
+            + _format_reducer_list_for_docs(core_module_codebase),
+            "2. **Entity structure and direct relations** — "
+            + _format_reducer_list_for_docs(core_entity),
+            "3. **Analytical relations and metrics** — "
+            + _format_reducer_list_for_docs(analytics_all),
+            "4. **Focused source grounding** — "
+            + _format_reducer_list_for_docs(grounding_narrow),
+            "5. **Broad source grounding (last resort)** — "
+            + _format_reducer_list_for_docs(grounding_broad),
+        ]
+    )
+
+
+def _sorted_reducer_ids_by_categories(
+    reducers,
+    categories: set[str],
+) -> list[str]:
+    return _sorted_reducer_ids(reducers, categories=categories)
+
+
+def _sorted_reducer_ids(
+    reducers,
+    *,
+    categories: set[str],
+    scopes: set[str] | None = None,
+) -> list[str]:
+    selected: list[str] = []
+    for reducer_id, entry in reducers.items():
+        category = str(getattr(entry, "category", "") or "")
+        scope = str(getattr(entry, "scope", "") or "")
+        if category not in categories:
+            continue
+        if scopes is not None and scope not in scopes:
+            continue
+        selected.append(str(reducer_id))
+    return sorted(selected)
+
+
+def _format_reducer_list_for_docs(reducer_ids: list[str]) -> str:
+    if not reducer_ids:
+        return "(no reducers in this level for current installation)"
+    return ", ".join(f"`{reducer_id}`" for reducer_id in reducer_ids)
 
 
 def _merge_commands(commands: Mapping[str, str] | None) -> dict[str, str]:

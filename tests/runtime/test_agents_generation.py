@@ -46,6 +46,8 @@ def test_agents_block_expands_placeholders(tmp_path: Path):
     for token in {
         "{TRACKED_FILE_SCOPE}",
         "{COMMON_TASKS}",
+        "{RISK_TIER_REDUCERS}",
+        "{REDUCER_ESCALATION_ORDER}",
         "{CMD_REDUCER_LIST}",
         "{CMD_REDUCER_INFO}",
         "{CMD_BUILD}",
@@ -57,6 +59,8 @@ def test_agents_block_expands_placeholders(tmp_path: Path):
     assert "sciona reducer info" in block
     assert "sciona search" in block
     assert "sciona resolve" in block
+    assert "Normal tier reducers:" in block
+    assert "Discovery and structural orientation" in block
 
 def test_agents_block_section_order(tmp_path: Path):
     block = agents.build_agents_block(tmp_path, get_reducers())
