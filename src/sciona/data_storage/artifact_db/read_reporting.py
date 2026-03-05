@@ -154,9 +154,46 @@ def call_site_drop_identifier_counts(
     ]
 
 
+def call_site_rows_for_caller(
+    conn: sqlite3.Connection,
+    *,
+    snapshot_id: str,
+    caller_id: str,
+    identifier: str | None = None,
+) -> list[dict[str, object]]:
+    clauses = ["snapshot_id = ?", "caller_id = ?"]
+    params: list[object] = [snapshot_id, caller_id]
+    if identifier:
+        clauses.append("identifier = ?")
+        params.append(identifier)
+    where = " AND ".join(clauses)
+    rows = conn.execute(
+        f"""
+        SELECT
+            identifier,
+            resolution_status,
+            accepted_callee_id,
+            provenance,
+            drop_reason,
+            candidate_count,
+            callee_kind,
+            call_start_byte,
+            call_end_byte,
+            call_ordinal,
+            site_hash
+        FROM call_sites
+        WHERE {where}
+        ORDER BY identifier, call_ordinal, site_hash
+        """,
+        tuple(params),
+    ).fetchall()
+    return [dict(row) for row in rows]
+
+
 __all__ = [
     "call_site_accept_debug_counts",
     "call_site_caller_status_counts",
     "call_site_drop_identifier_counts",
     "call_site_drop_debug_counts",
+    "call_site_rows_for_caller",
 ]

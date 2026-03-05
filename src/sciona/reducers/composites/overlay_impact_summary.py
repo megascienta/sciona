@@ -5,8 +5,7 @@
 
 from __future__ import annotations
 
-import json
-
+from ...data_storage.artifact_db import read_overlay as artifact_read_overlay
 from ..helpers.context import current_artifact_connection, fallback_artifact_connection
 from ..helpers.render import render_json_payload, require_connection
 from ..helpers.utils import require_latest_committed_snapshot
@@ -53,29 +52,22 @@ def render(
         "call_change_count": 0,
     }
     if artifact_conn is not None:
-        row = artifact_conn.execute(
-            """
-            SELECT worktree_hash, summary_json, created_at
-            FROM diff_overlay_summary
-            WHERE snapshot_id = ?
-            ORDER BY created_at DESC, worktree_hash DESC
-            LIMIT 1
-            """,
-            (snapshot_id,),
-        ).fetchone()
-        if row:
-            summary_payload = _parse_summary(row["summary_json"])
-            worktree_hash = row["worktree_hash"]
+        row = artifact_read_overlay.latest_overlay_summary_for_snapshot(
+            artifact_conn,
+            snapshot_id=snapshot_id,
+        )
+        if row is not None:
+            worktree_hash = str(row["worktree_hash"])
             body["overlay_available"] = True
             body["worktree_hash"] = worktree_hash
             body["created_at"] = row["created_at"]
-            body["summary"] = summary_payload
-            body["node_change_count"] = _count_node_changes(
+            body["summary"] = row["summary"]
+            body["node_change_count"] = artifact_read_overlay.overlay_node_change_count(
                 artifact_conn,
                 snapshot_id=snapshot_id,
                 worktree_hash=worktree_hash,
             )
-            body["call_change_count"] = _count_call_changes(
+            body["call_change_count"] = artifact_read_overlay.overlay_call_change_count(
                 artifact_conn,
                 snapshot_id=snapshot_id,
                 worktree_hash=worktree_hash,
@@ -83,44 +75,6 @@ def render(
     if owns_connection and artifact_conn is not None:
         artifact_conn.close()
     return render_json_payload(body)
-
-
-def _parse_summary(raw: object) -> dict[str, object] | None:
-    if not raw or not isinstance(raw, str):
-        return None
-    try:
-        payload = json.loads(raw)
-    except json.JSONDecodeError:
-        return None
-    if not isinstance(payload, dict):
-        return None
-    return payload
-
-
-def _count_node_changes(artifact_conn, *, snapshot_id: str, worktree_hash: str) -> int:
-    row = artifact_conn.execute(
-        """
-        SELECT COUNT(*) AS count
-        FROM diff_overlay
-        WHERE snapshot_id = ?
-          AND worktree_hash = ?
-        """,
-        (snapshot_id, worktree_hash),
-    ).fetchone()
-    return int(row["count"] or 0) if row else 0
-
-
-def _count_call_changes(artifact_conn, *, snapshot_id: str, worktree_hash: str) -> int:
-    row = artifact_conn.execute(
-        """
-        SELECT COUNT(*) AS count
-        FROM diff_overlay_calls
-        WHERE snapshot_id = ?
-          AND worktree_hash = ?
-        """,
-        (snapshot_id, worktree_hash),
-    ).fetchone()
-    return int(row["count"] or 0) if row else 0
 
 
 __all__ = ["render", "REDUCER_META"]

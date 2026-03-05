@@ -7,8 +7,11 @@ from __future__ import annotations
 
 from typing import Any
 
-from ...code_analysis.core.extract.languages.call_resolution_kernel import (
+from ...data_storage.artifact_db import read_reporting as artifact_reporting
+from ...data_storage.core_db import read_ops as core_read
+from ...runtime.call_resolution_contract import (
     REQUIRED_RESOLUTION_STAGES,
+    STRICT_CANDIDATE_GATE_STAGE,
 )
 from ..helpers import queries
 from ..helpers.artifact_graph_edges import load_call_resolution_diagnostics
@@ -54,7 +57,9 @@ def render(
         method_id=method_id,
     )
     limit_value = _normalize_limit(limit)
-    caller_meta = _caller_metadata(conn, snapshot_id, resolved_callable_id)
+    caller_meta = core_read.caller_node_metadata_map(conn, snapshot_id).get(
+        resolved_callable_id, {}
+    )
     diagnostics = load_call_resolution_diagnostics(
         repo_root,
         snapshot_id=snapshot_id,
@@ -67,7 +72,7 @@ def render(
         owns_connection = artifact_conn is not None
     call_sites: list[dict[str, Any]] = []
     if artifact_conn is not None:
-        call_sites = _load_caller_call_sites(
+        call_sites = artifact_reporting.call_site_rows_for_caller(
             artifact_conn,
             snapshot_id=snapshot_id,
             caller_id=resolved_callable_id,
@@ -84,7 +89,7 @@ def render(
         "artifact_available": artifact_conn is not None,
         "resolution_pipeline_stages": [
             *REQUIRED_RESOLUTION_STAGES,
-            "strict_candidate_gate",
+            STRICT_CANDIDATE_GATE_STAGE,
         ],
         "identifier_filter": identifier or None,
         "totals": totals,
@@ -134,64 +139,6 @@ def _normalize_limit(limit: int) -> int:
     if value <= 0:
         raise ValueError("resolution_trace limit must be a positive integer.")
     return value
-
-
-def _caller_metadata(conn, snapshot_id: str, caller_id: str) -> dict[str, object]:
-    row = conn.execute(
-        """
-        SELECT sn.language, ni.qualified_name, ni.file_path
-        FROM structural_nodes sn
-        JOIN node_instances ni
-          ON ni.structural_id = sn.structural_id
-         AND ni.snapshot_id = ?
-        WHERE sn.structural_id = ?
-        LIMIT 1
-        """,
-        (snapshot_id, caller_id),
-    ).fetchone()
-    if row is None:
-        return {}
-    return {
-        "language": row["language"],
-        "qualified_name": row["qualified_name"],
-        "file_path": row["file_path"],
-    }
-
-
-def _load_caller_call_sites(
-    artifact_conn,
-    *,
-    snapshot_id: str,
-    caller_id: str,
-    identifier: str | None,
-) -> list[dict[str, Any]]:
-    clauses = ["snapshot_id = ?", "caller_id = ?"]
-    params: list[object] = [snapshot_id, caller_id]
-    if identifier:
-        clauses.append("identifier = ?")
-        params.append(identifier)
-    where = " AND ".join(clauses)
-    rows = artifact_conn.execute(
-        f"""
-        SELECT
-            identifier,
-            resolution_status,
-            accepted_callee_id,
-            provenance,
-            drop_reason,
-            candidate_count,
-            callee_kind,
-            call_start_byte,
-            call_end_byte,
-            call_ordinal,
-            site_hash
-        FROM call_sites
-        WHERE {where}
-        ORDER BY identifier, call_ordinal, site_hash
-        """,
-        tuple(params),
-    ).fetchall()
-    return [dict(row) for row in rows]
 
 
 def _split_call_sites(

@@ -9,19 +9,16 @@ from dataclasses import dataclass
 from typing import Protocol, Sequence
 
 from ....tools.call_extraction import CallTargetIR
-
-
-MODE_SHARED = "shared"
-STAGE_RECEIVER_TYPED = "receiver_typed_or_instance_mapped"
-STAGE_ALIAS_NARROWING = "import_or_member_alias_narrowing"
-STAGE_CLASS_SCOPED = "class_scoped_fallback"
-STAGE_MODULE_SCOPED = "module_scoped_fallback"
-REQUIRED_RESOLUTION_STAGES = (
-    STAGE_RECEIVER_TYPED,
+from .....runtime.call_resolution_contract import (
+    REQUIRED_RESOLUTION_STAGES,
     STAGE_ALIAS_NARROWING,
     STAGE_CLASS_SCOPED,
     STAGE_MODULE_SCOPED,
+    STAGE_RECEIVER_TYPED,
 )
+
+
+MODE_SHARED = "shared"
 
 
 @dataclass(frozen=True)

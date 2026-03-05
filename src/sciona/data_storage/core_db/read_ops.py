@@ -40,6 +40,11 @@ from .read_ops_hashes import (
     structural_hash_edge_entries,
     structural_hash_node_entries,
 )
+from .read_ops_integrity import (
+    duplicate_qualified_names,
+    inheritance_cycles,
+    lexical_orphans,
+)
 
 __all__ = [
     "latest_committed_snapshot",
@@ -69,4 +74,7 @@ __all__ = [
     "language_edge_counts",
     "structural_hash_node_entries",
     "structural_hash_edge_entries",
+    "duplicate_qualified_names",
+    "lexical_orphans",
+    "inheritance_cycles",
 ]
