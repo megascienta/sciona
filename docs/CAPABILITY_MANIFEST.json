@@ -107,8 +107,9 @@
           "class_expression"
         ],
         "parameters": [
-          "optional_parameter",
-          "required_parameter"
+          "assignment_pattern",
+          "identifier",
+          "rest_pattern"
         ],
         "bases": [
           "identifier"

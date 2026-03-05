@@ -23,7 +23,7 @@ def _descriptor() -> LanguageDescriptor:
 def test_validate_language_onboarding_success() -> None:
     result = validate_language_onboarding(
         _descriptor(),
-        capability_keys={"python", "typescript", "java", "rust"},
+        capability_keys={"python", "typescript", "javascript", "java", "rust"},
         declared_parity_dimensions={"structural_nodes_edges_contract"},
         required_parity_dimensions={"structural_nodes_edges_contract"},
     )
@@ -34,7 +34,7 @@ def test_validate_language_onboarding_success() -> None:
 def test_validate_language_onboarding_reports_missing_capability_and_parity() -> None:
     result = validate_language_onboarding(
         _descriptor(),
-        capability_keys={"python", "typescript", "java"},
+        capability_keys={"python", "typescript", "javascript", "java"},
         declared_parity_dimensions=set(),
         required_parity_dimensions={"structural_nodes_edges_contract"},
     )

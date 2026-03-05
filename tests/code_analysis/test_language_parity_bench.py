@@ -4,6 +4,7 @@
 from pathlib import Path
 
 from sciona.code_analysis.languages.builtin.java import JavaAnalyzer
+from sciona.code_analysis.languages.builtin.javascript import JavaScriptAnalyzer
 from sciona.code_analysis.languages.builtin.python import PythonAnalyzer
 from sciona.code_analysis.languages.builtin.typescript import TypeScriptAnalyzer
 from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
@@ -68,6 +69,30 @@ export class Controller {
     ts_res = ts.analyze(ts_snap, ts_mod)
     ts_calls = {r.qualified_name: set(r.callee_identifiers) for r in ts_res.call_records}
     assert f"{ts_mod}.Service.run" in ts_calls[f"{ts_mod}.Controller.handle"]
+
+    js_src = """
+class Service {
+  run() {}
+}
+export class Controller {
+  constructor() {
+    this.svc = new Service();
+  }
+  handle() {
+    this.svc.run();
+  }
+}
+"""
+    js_path = repo / "js" / "mod.js"
+    js_path.parent.mkdir(parents=True)
+    js_path.write_text(js_src, encoding="utf-8")
+    js = JavaScriptAnalyzer()
+    js_snap = _snapshot(js_path, "js/mod.js", "javascript", js_src)
+    js_mod = js.module_name(repo, js_snap)
+    js.module_index = {js_mod}
+    js_res = js.analyze(js_snap, js_mod)
+    js_calls = {r.qualified_name: set(r.callee_identifiers) for r in js_res.call_records}
+    assert f"{js_mod}.Service.run" in js_calls[f"{js_mod}.Controller.handle"]
 
     java_src = """
 package a;

@@ -27,6 +27,8 @@ from .profile_introspection_typescript import (
     _TypeScriptClassDetails,
     _TypeScriptFunctionDetails,
     _TypeScriptInspector,
+    javascript_class_extras,
+    javascript_function_extras,
     _collect_typescript_bases,
     _collect_typescript_parameters,
     _typescript_inspector,
@@ -34,6 +36,7 @@ from .profile_introspection_typescript import (
     typescript_function_extras,
 )
 from .profile_introspection_cache import (
+    _javascript_inspector_cached,
     _java_inspector_cached,
     _python_inspector_cached,
     _typescript_inspector_cached,
@@ -46,4 +49,6 @@ __all__ = [
     "java_function_extras",
     "typescript_class_extras",
     "typescript_function_extras",
+    "javascript_class_extras",
+    "javascript_function_extras",
 ]

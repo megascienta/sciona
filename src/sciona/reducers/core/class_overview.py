@@ -11,6 +11,7 @@ from typing import Dict, List
 from ...code_analysis.analysis.orderings import order_nodes
 from ...code_analysis.tools.profile_introspection import (
     java_class_extras,
+    javascript_class_extras,
     python_class_extras,
     typescript_class_extras,
 )
@@ -103,6 +104,14 @@ def run(snapshot_id: str, **params) -> ClassOverviewPayload:
         )
     elif row["language"] == "typescript":
         bases = typescript_class_extras(
+            row["language"],
+            repo_path,
+            row["file_path"],
+            row["start_line"],
+            row["end_line"],
+        )
+    elif row["language"] == "javascript":
+        bases = javascript_class_extras(
             row["language"],
             repo_path,
             row["file_path"],

@@ -13,12 +13,19 @@ from ..core.extract.parsing.parser_bootstrap import bootstrap_tree_sitter_parser
 from .profile_errors import TreeSitterBootstrapError
 from .profile_query import find_profile_nodes_of_types
 from .profile_query_surface import (
+    JAVASCRIPT_PROFILE_BASE_NODE_TYPES,
+    JAVASCRIPT_PROFILE_CLASS_NODE_TYPES,
+    JAVASCRIPT_PROFILE_FUNCTION_NODE_TYPES,
+    JAVASCRIPT_PROFILE_PARAMETER_NODE_TYPES,
     TYPESCRIPT_PROFILE_BASE_NODE_TYPES,
     TYPESCRIPT_PROFILE_CLASS_NODE_TYPES,
     TYPESCRIPT_PROFILE_FUNCTION_NODE_TYPES,
     TYPESCRIPT_PROFILE_PARAMETER_NODE_TYPES,
 )
-from .profile_introspection_cache import _typescript_inspector_cached
+from .profile_introspection_cache import (
+    _javascript_inspector_cached,
+    _typescript_inspector_cached,
+)
 
 @dataclass
 class _TypeScriptFunctionDetails:
@@ -29,18 +36,33 @@ class _TypeScriptClassDetails:
     bases: List[str]
 
 class _TypeScriptInspector:
-    _PARSER = None
+    _PARSERS: dict[str, object] = {}
 
-    def __init__(self, source: str) -> None:
-        if _TypeScriptInspector._PARSER is None:
+    def __init__(
+        self,
+        source: str,
+        *,
+        language_name: str = "typescript",
+        function_node_types: tuple[str, ...] = TYPESCRIPT_PROFILE_FUNCTION_NODE_TYPES,
+        class_node_types: tuple[str, ...] = TYPESCRIPT_PROFILE_CLASS_NODE_TYPES,
+        parameter_node_types: tuple[str, ...] = TYPESCRIPT_PROFILE_PARAMETER_NODE_TYPES,
+        base_node_types: tuple[str, ...] = TYPESCRIPT_PROFILE_BASE_NODE_TYPES,
+    ) -> None:
+        parser = _TypeScriptInspector._PARSERS.get(language_name)
+        if parser is None:
             try:
-                _TypeScriptInspector._PARSER, _language, _diagnostics = (
-                    bootstrap_tree_sitter_parser("typescript")
+                parser, _language, _diagnostics = (
+                    bootstrap_tree_sitter_parser(language_name)
                 )
             except RuntimeError as exc:
                 raise TreeSitterBootstrapError(str(exc)) from exc
-        assert _TypeScriptInspector._PARSER is not None
-        tree = _TypeScriptInspector._PARSER.parse(source.encode("utf-8"))
+            _TypeScriptInspector._PARSERS[language_name] = parser
+        tree = parser.parse(source.encode("utf-8"))
+        self._language_name = language_name
+        self._function_node_types = function_node_types
+        self._class_node_types = class_node_types
+        self._parameter_node_types = parameter_node_types
+        self._base_node_types = base_node_types
         self._source = source
         self.functions: Dict[Tuple[int, int], _TypeScriptFunctionDetails] = {}
         self.classes: Dict[Tuple[int, int], _TypeScriptClassDetails] = {}
@@ -71,9 +93,9 @@ class _TypeScriptInspector:
 
     def _scan(self, node) -> None:
         node_type = getattr(node, "type", "")
-        if node_type in TYPESCRIPT_PROFILE_FUNCTION_NODE_TYPES:
+        if node_type in self._function_node_types:
             self._record_function(node)
-        if node_type in TYPESCRIPT_PROFILE_CLASS_NODE_TYPES:
+        if node_type in self._class_node_types:
             self._record_class(node)
         self._record_expression_callable(node)
         self._record_expression_class(node)
@@ -84,7 +106,12 @@ class _TypeScriptInspector:
         lineno = node.start_point[0] + 1
         end_lineno = node.end_point[0] + 1
         params_node = node.child_by_field_name("parameters")
-        parameters = _collect_typescript_parameters(params_node, self._source)
+        parameters = _collect_typescript_parameters(
+            params_node,
+            self._source,
+            language_name=self._language_name,
+            parameter_node_types=self._parameter_node_types,
+        )
         self.functions[(lineno, end_lineno)] = _TypeScriptFunctionDetails(
             parameters=parameters
         )
@@ -96,7 +123,21 @@ class _TypeScriptInspector:
         lineno = node.start_point[0] + 1
         end_lineno = node.end_point[0] + 1
         heritage = node.child_by_field_name("heritage")
-        bases = _collect_typescript_bases(heritage, self._source)
+        if heritage is None:
+            heritage = next(
+                (
+                    child
+                    for child in getattr(node, "named_children", [])
+                    if child.type in {"class_heritage", "extends_clause", "implements_clause"}
+                ),
+                None,
+            )
+        bases = _collect_typescript_bases(
+            heritage,
+            self._source,
+            language_name=self._language_name,
+            base_node_types=self._base_node_types,
+        )
         self.classes[(lineno, end_lineno)] = _TypeScriptClassDetails(
             bases=bases
         )
@@ -143,6 +184,9 @@ class _TypeScriptInspector:
         if value_node is None or value_node.type not in {"class", "class_expression"}:
             return
         self._record_class(value_node)
+        lineno = value_node.start_point[0] + 1
+        end_lineno = value_node.end_point[0] + 1
+        self.classes[(lineno, end_lineno)] = _TypeScriptClassDetails(bases=[])
 
     def _slice(self, start: int, end: int) -> str:
         return self._source.encode("utf-8")[start:end].decode("utf-8")
@@ -189,24 +233,73 @@ def typescript_class_extras(
         return []
     return details.bases
 
+def javascript_function_extras(
+    language: str,
+    repo_root: Optional[Path],
+    file_path: str,
+    start_line: int,
+    end_line: int,
+) -> List[str]:
+    """Return parameter names for JavaScript functions."""
+    if language != "javascript" or repo_root is None:
+        return []
+    inspector = _javascript_inspector(repo_root, file_path)
+    parameters: List[str] = []
+    if inspector:
+        details = inspector.function_details(start_line, end_line)
+        if details:
+            parameters = details.parameters
+    return parameters
+
+def javascript_class_extras(
+    language: str,
+    repo_root: Optional[Path],
+    file_path: str,
+    start_line: int,
+    end_line: int,
+) -> List[str]:
+    """Return base clauses for JavaScript classes."""
+    if language != "javascript" or repo_root is None:
+        return []
+    inspector = _javascript_inspector(repo_root, file_path)
+    if not inspector:
+        return []
+    details = inspector.class_details(start_line, end_line)
+    if not details:
+        return []
+    return details.bases
+
 def _typescript_inspector(
     repo_root: Path, relative_path: str
 ) -> Optional[_TypeScriptInspector]:
     return _typescript_inspector_cached(str(repo_root.resolve()), relative_path)
 
-def _collect_typescript_parameters(parameters_node, source: str) -> List[str]:
+def _javascript_inspector(
+    repo_root: Path, relative_path: str
+) -> Optional[_TypeScriptInspector]:
+    return _javascript_inspector_cached(str(repo_root.resolve()), relative_path)
+
+def _collect_typescript_parameters(
+    parameters_node,
+    source: str,
+    *,
+    language_name: str = "typescript",
+    parameter_node_types: tuple[str, ...] = TYPESCRIPT_PROFILE_PARAMETER_NODE_TYPES,
+) -> List[str]:
     if parameters_node is None:
         return []
     source_bytes = source.encode("utf-8")
     params: List[str] = []
     for child in find_profile_nodes_of_types(
         parameters_node,
-        language_name="typescript",
-        node_types=TYPESCRIPT_PROFILE_PARAMETER_NODE_TYPES,
+        language_name=language_name,
+        node_types=parameter_node_types,
     ):
         if not _is_direct_child(child, parameters_node):
             continue
         name = child.child_by_field_name("pattern") or child.child_by_field_name("name")
+        if name is None and child.type == "identifier":
+            name = child
         if name is None:
             name = next(
                 (entry for entry in getattr(child, "children", []) if entry.type == "identifier"),
@@ -223,15 +316,21 @@ def _collect_typescript_parameters(parameters_node, source: str) -> List[str]:
         params.append(value)
     return params
 
-def _collect_typescript_bases(heritage_node, source: str) -> List[str]:
+def _collect_typescript_bases(
+    heritage_node,
+    source: str,
+    *,
+    language_name: str = "typescript",
+    base_node_types: tuple[str, ...] = TYPESCRIPT_PROFILE_BASE_NODE_TYPES,
+) -> List[str]:
     if heritage_node is None:
         return []
     source_bytes = source.encode("utf-8")
     bases: List[str] = []
     for child in find_profile_nodes_of_types(
         heritage_node,
-        language_name="typescript",
-        node_types=TYPESCRIPT_PROFILE_BASE_NODE_TYPES,
+        language_name=language_name,
+        node_types=base_node_types,
     ):
         value = source_bytes[child.start_byte : child.end_byte].decode("utf-8").strip()
         if value and value not in {"extends", "implements"}:

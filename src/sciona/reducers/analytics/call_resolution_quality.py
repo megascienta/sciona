@@ -240,8 +240,11 @@ def _normalize_language(language: str | None) -> str | None:
     value = str(language).strip().lower()
     if not value:
         return None
-    if value not in {"python", "typescript", "java"}:
-        raise ValueError("call_resolution_quality language must be one of: python, typescript, java.")
+    if value not in {"python", "typescript", "javascript", "java"}:
+        raise ValueError(
+            "call_resolution_quality language must be one of: "
+            "python, typescript, javascript, java."
+        )
     return value
 
 

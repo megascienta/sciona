@@ -10,6 +10,7 @@ from typing import Dict, List
 
 from ...code_analysis.tools.profile_introspection import (
     java_function_extras,
+    javascript_function_extras,
     python_function_extras,
     typescript_function_extras,
 )
@@ -109,6 +110,14 @@ def run(snapshot_id: str, **params) -> CallableOverviewPayload:
         )
     elif row["language"] == "typescript":
         params_list = typescript_function_extras(
+            row["language"],
+            repo_path,
+            row["file_path"],
+            row["start_line"],
+            row["end_line"],
+        )
+    elif row["language"] == "javascript":
+        params_list = javascript_function_extras(
             row["language"],
             repo_path,
             row["file_path"],
@@ -224,7 +233,7 @@ def _infer_callable_role(
         suffix = qualified_name[len(parent_qualified_name) + 1 :]
     if language == "python" and local_name == "__init__":
         return "constructor", "inferred_constructor"
-    if language in {"typescript", "java"} and parent_type == "type":
+    if language in {"typescript", "javascript", "java"} and parent_type == "type":
         if local_name == "constructor" or (parent_name and local_name == parent_name):
             return "constructor", "inferred_constructor"
     if parent_type == "callable":

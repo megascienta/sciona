@@ -6,12 +6,15 @@ from pathlib import Path
 from sciona.code_analysis.tools.profile_introspection import (
     java_class_extras,
     java_function_extras,
+    javascript_class_extras,
+    javascript_function_extras,
     python_class_extras,
     python_function_extras,
     typescript_class_extras,
     typescript_function_extras,
 )
 from sciona.code_analysis.tools.profile_introspection_cache import (
+    _javascript_inspector_cached,
     _java_inspector_cached,
     _python_inspector_cached,
     _typescript_inspector_cached,
@@ -163,6 +166,41 @@ const Local = class extends Base {};
     assert (6, 6) in inspector.classes
 
 
+def test_javascript_introspection_extras(tmp_path: Path) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    file_path = repo_root / "pkg" / "mod.js"
+    file_path.parent.mkdir(parents=True)
+    file_path.write_text(
+        """
+class Base {}
+class Widget extends Base {
+  run(userId, retries) {
+    return userId + retries;
+  }
+}
+""".lstrip(),
+        encoding="utf-8",
+    )
+    bases = javascript_class_extras(
+        "javascript",
+        repo_root,
+        "pkg/mod.js",
+        start_line=2,
+        end_line=6,
+    )
+    assert "Base" in bases
+
+    params = javascript_function_extras(
+        "javascript",
+        repo_root,
+        "pkg/mod.js",
+        start_line=3,
+        end_line=5,
+    )
+    assert params == ["userId", "retries"]
+
+
 def test_java_introspection_extras(tmp_path: Path) -> None:
     repo_root = tmp_path / "repo"
     repo_root.mkdir()
@@ -220,11 +258,13 @@ def test_profile_inspector_loaders_are_memoized(tmp_path: Path) -> None:
     (repo_root / "pkg").mkdir()
     (repo_root / "pkg" / "a.py").write_text("def f():\n    return 1\n", encoding="utf-8")
     (repo_root / "pkg" / "a.ts").write_text("class A {}\n", encoding="utf-8")
+    (repo_root / "pkg" / "a.js").write_text("class A {}\n", encoding="utf-8")
     (repo_root / "pkg" / "A.java").write_text("class A {}\n", encoding="utf-8")
 
     root_key = str(repo_root.resolve())
     _python_inspector_cached.cache_clear()
     _typescript_inspector_cached.cache_clear()
+    _javascript_inspector_cached.cache_clear()
     _java_inspector_cached.cache_clear()
 
     py_first = _python_inspector_cached(root_key, "pkg/a.py")
@@ -234,6 +274,10 @@ def test_profile_inspector_loaders_are_memoized(tmp_path: Path) -> None:
     ts_first = _typescript_inspector_cached(root_key, "pkg/a.ts")
     ts_second = _typescript_inspector_cached(root_key, "pkg/a.ts")
     assert ts_first is ts_second
+
+    js_first = _javascript_inspector_cached(root_key, "pkg/a.js")
+    js_second = _javascript_inspector_cached(root_key, "pkg/a.js")
+    assert js_first is js_second
 
     java_first = _java_inspector_cached(root_key, "pkg/A.java")
     java_second = _java_inspector_cached(root_key, "pkg/A.java")

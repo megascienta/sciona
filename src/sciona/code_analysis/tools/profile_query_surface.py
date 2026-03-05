@@ -46,8 +46,9 @@ JAVASCRIPT_PROFILE_CLASS_NODE_TYPES = (
     "class_expression",
 )
 JAVASCRIPT_PROFILE_PARAMETER_NODE_TYPES = (
-    "required_parameter",
-    "optional_parameter",
+    "identifier",
+    "assignment_pattern",
+    "rest_pattern",
 )
 JAVASCRIPT_PROFILE_BASE_NODE_TYPES = ("identifier",)
 

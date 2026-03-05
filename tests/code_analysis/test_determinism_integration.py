@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from sciona.code_analysis.languages.builtin.java import JavaAnalyzer
+from sciona.code_analysis.languages.builtin.javascript import JavaScriptAnalyzer
 from sciona.code_analysis.languages.builtin.python import PythonAnalyzer
 from sciona.code_analysis.languages.builtin.typescript import TypeScriptAnalyzer
 from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
@@ -93,6 +94,26 @@ export class Controller {
 """,
         ),
         (
+            "javascript",
+            JavaScriptAnalyzer(),
+            "src/mod.js",
+            """
+class Service {
+  run() {}
+}
+
+export class Controller {
+  constructor() {
+    this.svc = new Service();
+  }
+
+  handle() {
+    this.svc.run();
+  }
+}
+""",
+        ),
+        (
             "java",
             JavaAnalyzer(),
             "src/Mod.java",
@@ -126,7 +147,7 @@ class Controller {
 
 
 def test_analyzer_bootstrap_diagnostics_are_deterministic() -> None:
-    analyzers = [PythonAnalyzer(), TypeScriptAnalyzer(), JavaAnalyzer()]
+    analyzers = [PythonAnalyzer(), TypeScriptAnalyzer(), JavaScriptAnalyzer(), JavaAnalyzer()]
     for analyzer in analyzers:
         diagnostics = getattr(analyzer, "_parser_bootstrap_diagnostics", {})
         assert diagnostics.get("language_name") == analyzer.language
