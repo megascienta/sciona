@@ -38,7 +38,6 @@ Authoritative project docs:
 
 - Contract: `docs/CONTRACT.md`
 - Developer guide: `docs/DEVELOPERGUIDE.md`
-- Addons API: `docs/ADDONSAPI.md`
 - Generated capability manifest: `docs/CAPABILITY_MANIFEST.json`
 
 ## Installation
@@ -80,7 +79,7 @@ sciona status --output .sciona/status-report.json
 
 ## Supported languages
 
-Built-in analyzers currently include Python, TypeScript, and Java. Enable languages in `.sciona/config.yaml` after `sciona init`.
+Built-in analyzers currently include Python, TypeScript, JavaScript, and Java. Enable languages in `.sciona/config.yaml` after `sciona init`.
 
 ## Snapshot model
 

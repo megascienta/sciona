@@ -1,271 +1,137 @@
 # SCIONA Developer Guide
 
-This guide defines current implementation boundaries, invariants, and workflow
-rules for contributors.
+This guide is operational. It explains where code lives, how to work safely, and
+how to validate changes.
 
 Authoritative references:
 
-- Contract: `docs/CONTRACT.md`
-- Generated capability manifest: `docs/CAPABILITY_MANIFEST.json`
+- Normative contract: `docs/CONTRACT.md`
+- Generated capabilities: `docs/CAPABILITY_MANIFEST.json`
 - Executable parity contract:
   `src/sciona/code_analysis/languages/common/parity_contract.py`
 
-If this guide conflicts with those files, contract wins.
+If this guide conflicts with `CONTRACT.md`, the contract wins.
 
-## Documentation Source of Truth
+## Scope
 
-- Contract semantics and compliance criteria are authoritative in `docs/CONTRACT.md`.
-- Capability data is generated from source code contracts/query surfaces:
-  - `src/sciona/code_analysis/languages/common/capability_manifest.py`
-  - `src/sciona/code_analysis/languages/common/parity_contract.py`
-- `docs/CAPABILITY_MANIFEST.json` is a generated artifact and the machine-readable
-  docs source for capability reporting.
+Use this document for:
 
-## System Purpose
+- repository boundaries and ownership;
+- extraction architecture at implementation level;
+- addon API entry points;
+- required test workflow.
 
-SCIONA builds a deterministic Structural Code Index (SCI) for a committed
-repository snapshot. It models static structure and relations only.
+Do not use this document to redefine structural semantics.
 
-Out of scope:
-
-- Runtime behavior
-- Dynamic dispatch certainty
-- Dependency-injection wiring certainty
-- Reflection/monkey-patching/runtime mutation
-
-## Core Invariants
-
-- Deterministic output for the same committed repo state, config, and version.
-- Committed snapshot is authoritative.
-- CoreDB holds one authoritative committed snapshot.
-- ArtifactDB is derived from committed SCI and does not mutate SCI facts.
-- Reducers are deterministic and read-only.
-- Structural extraction is tree-sitter query/field driven.
-- No heuristic fallback traversal for structural extraction.
-- Unsupported query node types fail closed (partial parse metadata), not fallback.
-- Code-analysis profiling helpers are tree-sitter driven; non-tree-sitter parser fallbacks are disallowed.
-- Code-analysis parser setup is deterministic and uses
-  `tree_sitter.Parser` + `tree_sitter_languages.get_language`.
-- A narrow parser bootstrap helper is allowed only for parser construction,
-  language binding, and parser/grammar diagnostics.
-- Parser bootstrap helper module is
-  `src/sciona/code_analysis/core/extract/parsing/parser_bootstrap.py`.
-- Query/extraction helpers live in
-  `src/sciona/code_analysis/core/extract/parsing/query_helpers.py`.
-- Parser wrapper/factory modules that alter behavior are disallowed.
-
-## Runtime Requirements
+## Runtime
 
 - Python: 3.11 or 3.12
 - `tree_sitter_languages` required
-- Python 3.13 currently unsupported (upstream wheel availability)
+- Python 3.13 unsupported (upstream wheel availability)
 
-## Package Boundaries
+## Repository Boundaries
 
-- `src/sciona/runtime/`: runtime utilities (paths, identity, logging, git, errors)
-- `src/sciona/data_storage/`: CoreDB/ArtifactDB schemas and storage operations
+- `src/sciona/runtime/`: paths, identity, logging, git, errors
+- `src/sciona/data_storage/`: CoreDB/ArtifactDB schemas and access
 - `src/sciona/code_analysis/`: discovery, parse, extraction, normalization, assembly
-- `src/sciona/code_analysis/languages/builtin/`: builtin language adapter surfaces
+- `src/sciona/code_analysis/languages/builtin/`: builtin adapters (`python`, `typescript`, `javascript`, `java`)
 - `src/sciona/code_analysis/languages/common/`: shared language extraction helpers
-- `src/sciona/pipelines/`: build/reducer orchestration and policy enforcement
+- `src/sciona/pipelines/`: build/reducer orchestration + policy checks
 - `src/sciona/reducers/`: deterministic reducer payload generation
 - `src/sciona/api/`: stable addon-facing API
 
-Dependency direction:
+Dependency direction is downward only across layers.
 
-- No upward imports across layers.
-- Exception: pipelines may import reducer registry/context/payload wiring.
+## Language Adapter Architecture
 
-Language adapter boundary:
+Pipeline:
 
-- Registry wiring is descriptor-first via `core.extract.language_registry`.
-- Enabled language descriptors must be compliant (extensions, callable types,
-  extractor factory, module namer, grammar metadata) before analyzer selection.
-- Missing enabled adapters fail with install-hint diagnostics.
-- Canonical language implementations live under `code_analysis/languages/`.
-- Versioned onboarding contract is represented by `AdapterSpecV1` in
-  `core.extract.language_adapter`.
+```text
+tree-sitter AST
+  -> language adapter
+  -> Structural IR (IRNode / IREdge / IRCall)
+  -> IR Builder
+  -> AnalysisResult
+  -> Structural Assembler
+  -> CoreDB snapshot
+```
 
-Language architecture reference:
+Adapter contract is `AdapterSpecV1` (descriptor-first registration).
 
-- `docs/LANGUAGE_ADAPTER_ARCHITECTURE.md` defines the adapter/IR/builder flow.
+Required descriptor fields:
+
+- `language_id`
+- `extensions`
+- `grammar_name`
+- `query_set_version`
+- `callable_types`
+- `module_namer`
+- `extractor_factory`
+- `capability_manifest_key`
+
+JavaScript adapter modules are split by concern:
+
+- `javascript_nodes.py`
+- `javascript_imports.py`
+- `javascript_calls.py`
+- `javascript_resolution.py`
+
+Non-negotiable ownership boundaries:
+
+- `CALLS` strict materialization gate stays core-owned.
+- Snapshot semantics and reducers stay core-owned.
+- Adapters map syntax to structural IR only.
 
 ## Build Lifecycle
 
 `pipelines.exec.build` high-level flow:
 
-1. Validate repository and config policy.
+1. Validate repo/config policy.
 2. Discover tracked files for enabled languages.
 3. Parse and extract structural nodes/edges.
 4. Compute structural hash and decide snapshot reuse/new commit.
-5. Enforce single committed snapshot in CoreDB.
-6. Rebuild ArtifactDB as a pure derivative of committed snapshot.
+5. Enforce one committed snapshot in CoreDB.
+6. Rebuild ArtifactDB as a derivative of committed snapshot.
 
-## Snapshot and Diff Overlay Policy
+## Snapshot and Diff Overlay
 
-- Authoritative evidence is committed snapshot data.
-- Dirty worktree overlays (`_diff`) are best-effort reducer hints only.
-- `_diff` does not replace SCI evidence.
-- Dirty checks apply to tracked files/languages in `.sciona/config.yaml` scope.
+- Committed snapshot is authoritative.
+- Dirty-worktree `_diff` payloads are advisory only.
+- For authoritative evidence, commit + `sciona build`.
 
-## Extraction and Resolution Model
+## Addon API
 
-Parsing and extraction:
+Core runtime does not auto-discover/load addons.
+Stable read-only addon surface is `sciona.api.addons`.
 
-- Tree-sitter parser per language.
-- Query API for node capture and field-driven extraction.
-- Query compilation caches are keyed by language + grammar signature metadata
-  (`version` / `abi_version` when available) + query source.
-- Profile introspection inspectors are memoized by `(repo_root, relative_path)` to
-  avoid repeated parse/query compilation on unchanged files.
-- No DFS fallback traversal for structural extraction.
+Exports:
 
-Calls:
+- `PLUGIN_API_VERSION`, `PLUGIN_API_MAJOR`, `PLUGIN_API_MINOR`
+- `list_entries(...)`
+- `emit(...)`
+- `open_core_readonly(...)`, `open_artifact_readonly(...)`
+- `core_readonly(...)`, `artifact_readonly(...)`
 
-- Call sites are syntax-derived and best-effort.
-- Attribution is based on nearest enclosing structural callable.
-- Resolution uses deterministic shared kernel path.
-- Required resolution stages (receiver/instance mapping, alias narrowing, class
-  scoped fallback, module scoped fallback) are satisfied in language adapters
-  through the shared kernel contract.
-- BuildEngine strict gating is authoritative for CoreDB snapshot call acceptance.
-- ArtifactEngine applies the same strict gate against committed snapshot context for derived artifacts and may drop additional call materializations without mutating CoreDB.
-- Final materialization is contract-gated via strict call candidate selection;
-  this gate validates acceptance and does not execute the upstream stage
-  pipeline itself.
-- Only accepted in-repo callable targets become `CALLS` edges.
-- Ambiguous provisional candidates are dropped at materialization time.
+Behavior:
 
-Imports:
+- addon access is read-only;
+- helpers resolve `repo_root` from CWD when omitted;
+- `emit(...)` targets latest committed snapshot.
 
-- Syntax-only extraction and normalization.
-- External/unresolved imports are not emitted as internal structural edges.
+## Testing Workflow
 
-## Supported Languages
+Run tests in conda env `multiphysics`.
 
-- Python
-- TypeScript
-- JavaScript
-- Java
-
-## Current Language Extraction Surface
-
-Python:
-
-- Imports: `import_statement`, `import_from_statement`
-- Calls: `call`
-
-TypeScript:
-
-- Imports: `import_statement`, `export_statement`, `lexical_declaration` require-assignment patterns, dynamic `import()` (`call_expression`)
-- Calls: `call_expression`, `new_expression`
-- Note: `import ... = require(...)` is covered through `import_statement` / `import_require_clause` in the current grammar; there is no standalone `import_equals_declaration` node in this build.
-- Profile class surface includes `class_declaration`,
-  `abstract_class_declaration`, and `class_expression`.
-
-JavaScript:
-
-- Imports: `import_statement`, `export_statement`, `lexical_declaration`
-  require-assignment patterns, dynamic `import()` (`call_expression`)
-- Calls: `call_expression`, `new_expression`
-- Structural callable promotion covers:
-  - declarations/methods/constructors,
-  - nested named functions,
-  - bound function/arrow expressions from stable lexical bindings,
-  - class-field callable values.
-- Inline anonymous callbacks, IIFEs, and dynamic/destructured non-stable
-  bindings are non-structural.
-
-Java:
-
-- Imports: `import_declaration`
-- Java import normalization includes class aliases, static member aliases, and static wildcard owner targets.
-- Calls: `method_invocation`, `object_creation_expression`, `explicit_constructor_invocation`
-- Profile class surface includes `class_declaration`, `interface_declaration`,
-  `enum_declaration`, and `record_declaration`.
-
-## Data Model
-
-CoreDB (authoritative):
-
-- `snapshots`
-- `structural_nodes`
-- `node_instances`
-- `edges`
-
-Core structural edge types in the committed snapshot:
-
-- `LEXICALLY_CONTAINS` for deterministic lexical containment.
-- `IMPORTS_DECLARED` for syntax-level module import declarations.
-- `CALLS` for accepted in-repo callable call edges.
-- `EXTENDS` / `IMPLEMENTS` for local syntactic inheritance.
-
-ArtifactDB (derived):
-
-- `node_calls`
-- `graph_nodes`
-- `graph_edges`
-- Rollups: `module_call_edges`, `class_call_edges`, `node_fan_stats`
-- Optional overlay tables: `diff_overlay*`
-
-Status/report payload semantics:
-
-- Structural counts (`files`, `nodes`, `edges`) and call materialization counts are
-  reported separately.
-- `call_sites` is observational call materialization telemetry and does not alter
-  structural truth (`CALLS` remains authoritative).
-- `call_sites_by_scope` partitions materialization telemetry into `non_tests` and
-  `tests` buckets.
-- `drop_classification` and `drop_classification_by_scope` are derived
-  diagnostics for dropped callsites (for example `external_likely`) and are
-  reporting-only. They MUST NOT alter acceptance/materialization behavior.
-- When ArtifactDB is available and no eligible rows exist for a language/scope,
-  counts are reported as `eligible=0, accepted=0, dropped=0` and
-  `success_rate=null` (undefined ratio), not missing/null counts.
-- `success_rate` is computed over `eligible` callsite rows in ArtifactDB
-  materialization telemetry. Changes in `success_rate` can come from both
-  numerator changes (`accepted`) and denominator changes (`eligible`); it is not
-  a raw call-expression coverage metric.
-
-Strict call-gate scope behavior:
-
-- Single-candidate provenance checks MAY use expanded/transitive import scope for
-  deterministic provenance confirmation.
-- Multi-candidate disambiguation MUST use direct import scope plus caller-module
-  scope to avoid over-broad narrowing.
-
-## Reducer Rules
-
-- Reducers are deterministic, read-only, and snapshot-bound.
-- Reducers may enrich representation of known nodes.
-- Reducers must not discover/define new structural entities.
-- Reducer pipeline validates diff mode and identifier resolution against committed SCI.
-
-## Addon Rules
-
-Core runtime does not dynamically discover/load addons.
-
-- Stable addon API: `sciona.api.addons`
-- Addons may consume reducers and read storage through exposed APIs.
-- Addons must not mutate snapshot/artifact state directly.
-
-## Testing Expectations
-
-Mandatory coverage themes:
-
-- Contract/compliance invariants
-- Determinism and stable ordering
-- Cross-language parity on shared fixtures (hand-authored + generated)
-- Parity score hard-gate (`tests/code_analysis/test_language_parity_score_gate.py`)
-- Build/reducer boundary correctness
-- Strict call-gate behavior for `CALLS` emission
-- Policy gates for tree-sitter-only extraction/profiling behavior
-
-Run baseline test suite:
+Baseline:
 
 ```bash
 pytest -q
 ```
 
-Repository policy for this workspace requires running tests in conda env
-`multiphysics`.
+Required coverage themes for structural changes:
+
+- contract/compliance invariants;
+- determinism/stable ordering;
+- cross-language parity (fixtures + score gate);
+- strict `CALLS` gate behavior;
+- tree-sitter policy constraints.
