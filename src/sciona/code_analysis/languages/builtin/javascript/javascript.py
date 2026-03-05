@@ -21,11 +21,7 @@ from ....core.extract.parsing.parser_bootstrap import bootstrap_tree_sitter_pars
 from ....core.extract.parsing.query_helpers import count_lines, find_direct_children_query
 from ...common.query_surface import (
     JAVASCRIPT_CALL_NODE_TYPES,
-    JAVASCRIPT_DYNAMIC_IMPORT_NODE_TYPES,
-    JAVASCRIPT_IMPORT_EXPORT_NODE_TYPES,
-    JAVASCRIPT_REQUIRE_DECLARATION_NODE_TYPES,
     JAVASCRIPT_SKIP_CALL_NODE_TYPES,
-    TYPESCRIPT_STRING_NODE_TYPES,
 )
 from ...common.analyzer_support import (
     assert_scope_resolver_parity,
@@ -33,10 +29,10 @@ from ...common.analyzer_support import (
     emit_local_inheritance_edges,
     scope_resolver_from_pending_calls,
 )
-from ..typescript.typescript_calls import callee_text, resolve_typescript_calls
-from ..typescript.typescript_imports import collect_typescript_import_model
-from ..typescript.typescript_nodes import TypeScriptNodeState, walk_typescript_nodes
-from ..typescript.typescript_resolution import (
+from .javascript_calls import callee_text, resolve_javascript_calls
+from .javascript_imports import collect_javascript_import_model
+from .javascript_nodes import TypeScriptNodeState, walk_javascript_nodes
+from .javascript_resolution import (
     collect_callable_typed_binding_instance_map,
     resolve_pending_instances,
 )
@@ -67,10 +63,9 @@ class JavaScriptAnalyzer(ASTAnalyzer):
         root = tree.root_node
         state = TypeScriptNodeState()
         for child in find_direct_children_query(root, language_name=self.language):
-            walk_typescript_nodes(
+            walk_javascript_nodes(
                 child,
                 language=self.language,
-                syntax_language=self.language,
                 snapshot=snapshot,
                 module_name=module_name,
                 result=buffer,
@@ -84,16 +79,11 @@ class JavaScriptAnalyzer(ASTAnalyzer):
             state.name_disambiguator.collisions_disambiguated
         )
         emit_local_inheritance_edges(language=self.language, result=buffer)
-        import_model = collect_typescript_import_model(
+        import_model = collect_javascript_import_model(
             root,
             snapshot,
             module_name,
             module_index=getattr(self, "module_index", None),
-            language_name=self.language,
-            import_export_node_types=JAVASCRIPT_IMPORT_EXPORT_NODE_TYPES,
-            require_declaration_node_types=JAVASCRIPT_REQUIRE_DECLARATION_NODE_TYPES,
-            dynamic_import_node_types=JAVASCRIPT_DYNAMIC_IMPORT_NODE_TYPES,
-            string_node_types=TYPESCRIPT_STRING_NODE_TYPES,
         )
         buffer.diagnostics["imports_seen"] = import_model.imports_seen
         buffer.diagnostics["imports_internal"] = import_model.imports_internal
@@ -147,7 +137,7 @@ class JavaScriptAnalyzer(ASTAnalyzer):
                 **state.instance_map,
                 **callable_instance_map,
             }
-            resolved = resolve_typescript_calls(
+            resolved = resolve_javascript_calls(
                 call_targets,
                 module_name,
                 state.module_functions,
