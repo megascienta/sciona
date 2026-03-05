@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from . import (
+    artifact_reporting,
     artifact_call_sites,
     artifact_graph_edges,
     artifact_graph_rollups,
@@ -20,6 +21,7 @@ from . import (
 __all__ = [
     "artifact_graph_edges",
     "artifact_call_sites",
+    "artifact_reporting",
     "artifact_graph_rollups",
     "base",
     "profile_utils",

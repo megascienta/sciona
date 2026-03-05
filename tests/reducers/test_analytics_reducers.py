@@ -4,12 +4,16 @@
 import pytest
 
 from sciona.reducers.analytics import (
+    call_resolution_quality,
     callsite_index,
     class_call_graph_summary,
     fan_summary,
     hotspot_summary,
     module_call_graph_summary,
 )
+from sciona.data_storage.artifact_db import connect as artifact_connect
+from sciona.data_storage.artifact_db import write_index as artifact_write
+from sciona.runtime import constants as setup_config
 from tests.helpers import core_conn, parse_json_payload, qualify_repo_name, seed_repo_with_snapshot
 
 
@@ -36,6 +40,76 @@ def test_callsite_index_reducer_returns_payload(tmp_path):
         edge = payload["edges"][0]
         assert "caller_node_type" in edge
         assert "callee_node_type" in edge
+
+
+def test_call_resolution_quality_returns_payload(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = core_conn(repo_root)
+    try:
+        payload_text = call_resolution_quality.render(snapshot_id, conn, repo_root)
+    finally:
+        conn.close()
+    payload = parse_json_payload(payload_text)
+    assert payload["payload_kind"] == "summary"
+    assert "totals" in payload
+    assert "by_language" in payload
+    assert "by_module" in payload
+    assert "by_caller" in payload
+
+
+def test_call_resolution_quality_aggregates_callsite_rows(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    artifact_db = repo_root / ".sciona" / setup_config.ARTIFACT_DB_FILENAME
+    conn = artifact_connect(artifact_db, repo_root=repo_root)
+    try:
+        artifact_write.upsert_call_sites(
+            conn,
+            snapshot_id=snapshot_id,
+            caller_id="func_alpha",
+            caller_qname=qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
+            caller_node_type="callable",
+            rows=[
+                (
+                    "pkg.beta.worker",
+                    "accepted",
+                    "func_beta",
+                    "exact_qname",
+                    None,
+                    1,
+                    "qualified",
+                    1,
+                    5,
+                    0,
+                ),
+                (
+                    "pkg.unknown.missing",
+                    "dropped",
+                    None,
+                    None,
+                    "no_candidates",
+                    1,
+                    "qualified",
+                    6,
+                    10,
+                    1,
+                ),
+            ],
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    core = core_conn(repo_root)
+    try:
+        payload_text = call_resolution_quality.render(snapshot_id, core, repo_root)
+    finally:
+        core.close()
+    payload = parse_json_payload(payload_text)
+    assert payload["totals"]["eligible"] == 2
+    assert payload["totals"]["accepted"] == 1
+    assert payload["totals"]["dropped"] == 1
+    assert payload["drop_reason_counts"][0]["name"] == "no_candidates"
+    assert payload["drop_reason_counts"][0]["count"] == 1
 
 
 def test_callsite_index_neighbors_detail_level(tmp_path):

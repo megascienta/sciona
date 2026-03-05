@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from . import (
+    call_resolution_quality,
     callsite_index,
     class_call_graph_summary,
     fan_summary,
@@ -15,6 +16,7 @@ from . import (
 
 __all__ = [
     "callsite_index",
+    "call_resolution_quality",
     "class_call_graph_summary",
     "fan_summary",
     "hotspot_summary",
