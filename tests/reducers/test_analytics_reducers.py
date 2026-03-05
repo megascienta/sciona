@@ -232,6 +232,10 @@ def test_structural_integrity_summary_returns_payload(tmp_path):
     assert "duplicate_qualified_names" in payload
     assert "lexical_orphans" in payload
     assert "inheritance_cycles" in payload
+    assert "low_node_file_diagnostics" in payload
+    totals = payload["low_node_file_diagnostics"]["totals"]
+    assert totals["files"] >= 1
+    assert totals["inflation_warning"] is False
 
 
 def test_structural_integrity_summary_detects_duplicates_and_orphans(tmp_path):
@@ -298,6 +302,7 @@ def test_structural_integrity_summary_detects_duplicates_and_orphans(tmp_path):
     assert qualify_repo_name(repo_root, "pkg.alpha.service.helper") in duplicate_names
     assert "func_orphan" in orphan_ids
     assert payload["integrity_ok"] is False
+    assert "low_node_file_diagnostics" in payload
 
 
 def test_callsite_index_neighbors_detail_level(tmp_path):

@@ -95,20 +95,41 @@ def upsert_call_sites(
     if not rows:
         return
     entries = []
-    for (
-        identifier,
-        status,
-        accepted_callee_id,
-        provenance,
-        drop_reason,
-        candidate_count,
-        callee_kind,
-        call_start_byte,
-        call_end_byte,
-        call_ordinal,
-        in_scope_candidate_count,
-        candidate_module_hints,
-    ) in rows:
+    for row in rows:
+        if len(row) == 10:
+            (
+                identifier,
+                status,
+                accepted_callee_id,
+                provenance,
+                drop_reason,
+                candidate_count,
+                callee_kind,
+                call_start_byte,
+                call_end_byte,
+                call_ordinal,
+            ) = row
+            in_scope_candidate_count = None
+            candidate_module_hints = None
+        elif len(row) == 12:
+            (
+                identifier,
+                status,
+                accepted_callee_id,
+                provenance,
+                drop_reason,
+                candidate_count,
+                callee_kind,
+                call_start_byte,
+                call_end_byte,
+                call_ordinal,
+                in_scope_candidate_count,
+                candidate_module_hints,
+            ) = row
+        else:
+            raise ValueError(
+                "call_sites rows must have 10 (legacy) or 12 (extended) fields"
+            )
         site_hash = build_site_hash(
             snapshot_id=snapshot_id,
             caller_id=caller_id,

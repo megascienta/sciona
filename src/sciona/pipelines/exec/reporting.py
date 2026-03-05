@@ -594,6 +594,11 @@ def _structural_density_payload(
         bucket = _directory_bucket(file_path)
         low_node_dir_counts[bucket] = low_node_dir_counts.get(bucket, 0) + 1
     top_low_node_dirs = _top_items(low_node_dir_counts, limit=5)
+    low_node_ratio = (len(low_node_files) / files) if files > 0 else None
+    inflation_warning = bool(
+        files >= 200 and low_node_ratio is not None and low_node_ratio >= 0.60
+    )
+    warnings = ["low_node_file_ratio_high"] if inflation_warning else []
     return {
         "files": files,
         "nodes": nodes,
@@ -601,7 +606,10 @@ def _structural_density_payload(
         "nodes_per_file": nodes_per_file,
         "eligible_callsites_per_file": eligible_callsites_per_file,
         "low_node_files_leq_1": len(low_node_files),
+        "low_node_file_ratio": low_node_ratio,
         "top_low_node_dirs": top_low_node_dirs,
+        "inflation_warning": inflation_warning,
+        "warnings": warnings,
         "zero_node_files_observed": 0,
         "zero_node_files_note": "Not observable from indexed files; files without nodes are not materialized in node_instances.",
     }

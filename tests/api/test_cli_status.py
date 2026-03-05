@@ -196,3 +196,27 @@ def test_cli_status_json_ignores_full_flag_for_payload_shape(
     assert plain.exit_code == 0
     assert flagged.exit_code == 0
     assert json.loads(plain.stdout) == json.loads(flagged.stdout)
+
+
+def test_cli_status_full_emits_low_node_warning(cli_app, cli_runner, monkeypatch):
+    def _summary(snapshot_id: str, include_failure_reasons: bool = False):
+        assert snapshot_id == "snap-1"
+        payload = _fake_summary()
+        payload["languages"][0]["structural_density"] = {
+            "inflation_warning": True,
+            "low_node_file_ratio": 0.72,
+        }
+        payload["totals"]["structural_density"] = {
+            "inflation_warning": True,
+            "low_node_file_ratio": 0.68,
+        }
+        return payload
+
+    monkeypatch.setattr(api_cli, "status", _fake_status)
+    monkeypatch.setattr(api_cli, "snapshot_report", _summary)
+
+    result = cli_runner.invoke(cli_app, ["status", "--full"])
+
+    assert result.exit_code == 0
+    assert "warning: low-node file ratio is high (72.0%)" in result.stdout
+    assert "warning: low-node file ratio is high (68.0%)" in result.stdout

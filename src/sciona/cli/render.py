@@ -126,6 +126,12 @@ def _render_summary_lines(
                     f"{name}={count}" for name, count in sorted(classification.items())
                 )
                 lines.append(f"{indent}  drop classification: {class_text}")
+        density = item.get("structural_density") or {}
+        if density.get("inflation_warning"):
+            lines.append(
+                f"{indent}  warning: low-node file ratio is high "
+                f"({float(density.get('low_node_file_ratio') or 0.0):.1%})"
+            )
     totals = summary.get("totals") or {}
     total_files = int(totals.get("files") or 0)
     total_nodes = int(totals.get("nodes") or 0)
@@ -150,6 +156,12 @@ def _render_summary_lines(
                 f"{name}={count}" for name, count in sorted(total_classification.items())
             )
             lines.append(f"{indent}  drop classification: {class_text}")
+    totals_density = totals.get("structural_density") or {}
+    if totals_density.get("inflation_warning"):
+        lines.append(
+            f"{indent}  warning: low-node file ratio is high "
+            f"({float(totals_density.get('low_node_file_ratio') or 0.0):.1%})"
+        )
     if not summary.get("artifact_db_available", False):
         lines.append(f"{indent}call_sites diagnostics: unavailable (artifact DB missing)")
     return lines
