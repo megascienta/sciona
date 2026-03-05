@@ -2,6 +2,7 @@
     <img src="assets/logo.jpg" alt="SCIONA logo" width="240">
 </p>
 
+### SCIONA provides deterministic structural grounding for LLM-assisted development in medium-to-large codebases
 
 SCIONA builds a **deterministic structural index (SCI)** for a *git* repository. It captures what exists in the code (modules, classes, functions, methods) and how entities are structurally connected. SCIONA is **snapshot-based, reducer-driven, and LLM-agnostic**. It does not execute code or perform semantic inference. Instead, SCIONA produces  explicit structural representations derived from [tree-sitter](https://tree-sitter.github.io/tree-sitter/) parsing. Analysis is static and source-only across supported languages. Reducers serve as the source of structural evidence, rendering reproducible  facts from a committed snapshot. **This deterministic representation can be used to stabilize tooling workflows, including LLM-assisted development.**
 
@@ -19,9 +20,19 @@ SCIONA was originally developed as an internal tool at MegaScienta to address li
 
 The tool is functional and actively used, but should currently be considered an early public release. Broader real-world validation across diverse repositories is still ongoing. Feedback, issue reports, and field experience are highly appreciated. Thank you and happy coding.
 
+## Project Governance
+
+SCIONA is developed and maintained by Dmitry Chigrin. This work is part of independent research and engineering activities under the MegaScienta brand.
+
+## Development Workflow
+
+SCIONA itself was developed using a combination of conventional tooling and LLM-assisted programming copilots. Final design decisions, integration, and validation remain the responsibility of the maintainer.
+
+As the project matured, SCIONA was routinely used to ground LLM reasoning over the repository structure during development.
+
 ## How SCIONA can be used
 
-SCIONA can be used directly via its CLI or integrated into LLM-assisted workflows. During initialization, SCIONA optionally auto-generates an `AGENTS.md` file in the repository root. This file serves as a control surface for LLM copilots by explicitly specifying how SCIONA should be used during code reasoning. In this mode, the copilot is instructed to reason over reducer outputs rather than reconstructing structure heuristically from source text.
+SCIONA can be used directly via its CLI or integrated into LLM-assisted workflows. During initialization, SCIONA optionally auto-generates an `AGENTS.md` file in the repository root. This file serves as a control surface for LLM copilots by explicitly specifying how SCIONA should be used during code reasoning. In this mode, the copilot is instructed to reason over reducer outputs instead of reconstructing repository structure heuristically from source text.
 
 Authoritative project docs:
 
@@ -64,7 +75,7 @@ sciona status
 # machine-readable status payload
 sciona status --json
 # write full status payload to file
-sciona status --full --output .sciona/status-report.json
+sciona status --output .sciona/status-report.json
 ```
 
 ## Supported languages
@@ -230,14 +241,3 @@ Advisory summary of dirty-worktree diff overlay impact for the committed snapsho
 ```bash
 sciona reducer --id overlay_impact_summary
 ```
-
-## Project Governance
-
-Sciona is developed and maintained by Dmitry Chigrin. This work is part of independent research and engineering activities under the MegaScienta brand.
-
-## Support Sciona
-
-If Sciona contributes to your development workflow, you can support its maintenance:
-
-GitHub Sponsors  
-buymecoffee.com/sciona

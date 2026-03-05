@@ -297,7 +297,7 @@ Reducers expose different evidence layers of the SCIONA system. Agents MUST trea
 
 Reducers are deterministic, but **not all reducer outputs represent the same level of structural truth**.
 
-## 7.1 Risk tiers
+### 7.1 Risk tiers
 
 Reducer categories imply typical misuse risk.
 
@@ -318,7 +318,7 @@ Current reducer IDs by tier:
 
 {RISK_TIER_REDUCERS}
 
-## 7.2 Evidence labels (MUST)
+### 7.2 Evidence labels (MUST)
 
 When reducer-derived evidence is used, agents MUST label the evidence origin in the response using one of the following labels:
 
@@ -332,7 +332,7 @@ When reducer-derived evidence is used, agents MUST label the evidence origin in 
 
 Reducers MAY yield mixed evidence types. Agents SHOULD label the dominant evidence type used in the reasoning step.
 
-## 7.3 Evidence authority hierarchy (MUST)
+### 7.3 Evidence authority hierarchy (MUST)
 
 When evidence sources conflict, the following authority order MUST be applied:
 
@@ -349,7 +349,7 @@ Implications:
 
 Note: this hierarchy governs conflict resolution. In the absence of conflict, all evidence types remain valid inputs to reasoning.
 
-## 7.4 Cross-check rule (MUST)
+### 7.4 Cross-check rule (MUST)
 
 When **structural conclusions** about structure, dependencies, or call relationships are derived from `grounding` or `composites` reducers, agents MUST cross-check using at least one `core` or `analytics` reducer.
 
@@ -366,7 +366,7 @@ If cross-check evidence is unavailable or inconsistent, agents MUST:
 
 This rule applies to structural claims. It does not apply to retrieving already-established facts where the structural basis was previously confirmed by a `core` or `analytics` reducer in the same task.
 
-## 7.5 Overlay authority boundary (MUST)
+### 7.5 Overlay authority boundary (MUST)
 
 Overlay-derived payload elements represent best-effort dirty-worktree hints.
 
@@ -379,7 +379,7 @@ Agents MUST NOT:
 
 Overlay evidence MAY be used to flag potential differences between the working tree and the committed snapshot, provided it is labeled `overlay_advisory`.
 
-## 7.6 Payload minimization and reducer escalation (SHOULD)
+### 7.6 Payload minimization and reducer escalation (SHOULD)
 
 Agents MUST follow this escalation order and MUST NOT skip levels without explicit justification:
 
@@ -402,7 +402,7 @@ Agents MUST:
 ## 9. Reporting Checklist
 
 Strict Mode applies when:
-– Structural claims about the repository are made
+– Structural claims about the repository are made as defined in Section 2.5
 – Reducer-derived evidence is used in reasoning
 – Determinism, invariants, or ordering guarantees are analysed
 – Architectural, refactoring, or dependency reasoning is performed
