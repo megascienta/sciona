@@ -22,6 +22,8 @@ def build_site_hash(
     call_start_byte: int | None,
     call_end_byte: int | None,
     call_ordinal: int,
+    in_scope_candidate_count: int | None,
+    candidate_module_hints: str | None,
 ) -> str:
     return ids.structural_id(
         "call_site",
@@ -29,7 +31,8 @@ def build_site_hash(
         (
             f"{snapshot_id}:{caller_id}:{identifier}:{resolution_status}:"
             f"{accepted_callee_id or ''}:{provenance or ''}:{drop_reason or ''}:"
-            f"{candidate_count}:{callee_kind}:{call_start_byte}:{call_end_byte}:{call_ordinal}"
+            f"{candidate_count}:{callee_kind}:{call_start_byte}:{call_end_byte}:{call_ordinal}:"
+            f"{in_scope_candidate_count}:{candidate_module_hints or ''}"
         ),
     )
 

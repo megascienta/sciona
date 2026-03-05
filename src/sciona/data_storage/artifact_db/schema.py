@@ -51,6 +51,8 @@ SCHEMA_STATEMENTS: list[str] = [
         call_start_byte INTEGER,
         call_end_byte INTEGER,
         call_ordinal INTEGER NOT NULL,
+        in_scope_candidate_count INTEGER,
+        candidate_module_hints TEXT,
         site_hash TEXT NOT NULL,
         CHECK (
             (resolution_status = 'accepted' AND accepted_callee_id IS NOT NULL AND provenance IS NOT NULL AND drop_reason IS NULL) OR
@@ -228,7 +230,12 @@ def _ensure_call_sites_schema(conn: sqlite3.Connection) -> None:
         row[1]
         for row in conn.execute("PRAGMA table_info(call_sites)").fetchall()
     }
-    required = {"callee_kind", "call_ordinal"}
+    required = {
+        "callee_kind",
+        "call_ordinal",
+        "in_scope_candidate_count",
+        "candidate_module_hints",
+    }
     if not required.issubset(columns):
         conn.execute("DROP TABLE IF EXISTS call_sites")
         conn.execute(SCHEMA_STATEMENTS[3])

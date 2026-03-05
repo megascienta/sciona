@@ -237,12 +237,27 @@ def _filter_in_repo_callsite_rows(
             int | None,
             int | None,
             int,
+            int | None,
+            str | None,
         ]
     ],
     *,
     in_repo_callable_ids: set[str],
 ) -> list[
-    tuple[str, str, str | None, str | None, str | None, int, str, int | None, int | None, int]
+    tuple[
+        str,
+        str,
+        str | None,
+        str | None,
+        str | None,
+        int,
+        str,
+        int | None,
+        int | None,
+        int,
+        int | None,
+        str | None,
+    ]
 ]:
     filtered: list[
         tuple[
@@ -256,6 +271,8 @@ def _filter_in_repo_callsite_rows(
             int | None,
             int | None,
             int,
+            int | None,
+            str | None,
         ]
     ] = []
     for row in rows:
@@ -270,6 +287,8 @@ def _filter_in_repo_callsite_rows(
             _call_start_byte,
             _call_end_byte,
             _call_ordinal,
+            _in_scope_candidate_count,
+            _candidate_module_hints,
         ) = row
         if candidate_count <= 0:
             continue
@@ -357,7 +376,22 @@ def _resolve_callees(
     set[str],
     set[str],
     dict[str, object],
-    list[tuple[str, str, str | None, str | None, str | None, int, str, int | None, int | None, int]],
+    list[
+        tuple[
+            str,
+            str,
+            str | None,
+            str | None,
+            str | None,
+            int,
+            str,
+            int | None,
+            int | None,
+            int,
+            int | None,
+            str | None,
+        ]
+    ],
 ]:
     resolved_ids: set[str] = set()
     resolved_names: set[str] = set()
@@ -373,6 +407,8 @@ def _resolve_callees(
             int | None,
             int | None,
             int,
+            int | None,
+            str | None,
         ]
     ] = []
     ordinal_by_identifier: dict[str, int] = {}
@@ -421,6 +457,10 @@ def _resolve_callees(
                         None,
                         None,
                         ordinal,
+                        decision.in_scope_candidate_count,
+                        ",".join(decision.candidate_module_hints)
+                        if decision.candidate_module_hints
+                        else None,
                     )
                 )
             continue
@@ -438,6 +478,10 @@ def _resolve_callees(
                     None,
                     None,
                     ordinal,
+                    decision.in_scope_candidate_count,
+                    ",".join(decision.candidate_module_hints)
+                    if decision.candidate_module_hints
+                    else None,
                 )
             )
     return resolved_ids, resolved_names, stats, callsite_rows

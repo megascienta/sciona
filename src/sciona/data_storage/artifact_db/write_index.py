@@ -83,6 +83,8 @@ def upsert_call_sites(
             int | None,
             int | None,
             int,
+            int | None,
+            str | None,
         ]
     ],
 ) -> None:
@@ -104,6 +106,8 @@ def upsert_call_sites(
         call_start_byte,
         call_end_byte,
         call_ordinal,
+        in_scope_candidate_count,
+        candidate_module_hints,
     ) in rows:
         site_hash = build_site_hash(
             snapshot_id=snapshot_id,
@@ -118,6 +122,8 @@ def upsert_call_sites(
             call_start_byte=call_start_byte,
             call_end_byte=call_end_byte,
             call_ordinal=call_ordinal,
+            in_scope_candidate_count=in_scope_candidate_count,
+            candidate_module_hints=candidate_module_hints,
         )
         entries.append(
             (
@@ -135,6 +141,8 @@ def upsert_call_sites(
                 call_start_byte,
                 call_end_byte,
                 call_ordinal,
+                in_scope_candidate_count,
+                candidate_module_hints,
                 site_hash,
             )
         )
@@ -155,9 +163,11 @@ def upsert_call_sites(
             call_start_byte,
             call_end_byte,
             call_ordinal,
+            in_scope_candidate_count,
+            candidate_module_hints,
             site_hash
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         entries,
     )

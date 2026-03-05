@@ -38,7 +38,13 @@ def test_call_sites_persist_in_repo_candidates_only(tmp_path: Path) -> None:
             )
             rows = artifact_conn.execute(
                 """
-                SELECT identifier, resolution_status, candidate_count, callee_kind, call_ordinal
+                SELECT identifier,
+                       resolution_status,
+                       candidate_count,
+                       in_scope_candidate_count,
+                       candidate_module_hints,
+                       callee_kind,
+                       call_ordinal
                 FROM call_sites
                 WHERE snapshot_id = ? AND caller_id = ?
                 ORDER BY call_ordinal
@@ -49,6 +55,8 @@ def test_call_sites_persist_in_repo_candidates_only(tmp_path: Path) -> None:
             assert [row["identifier"] for row in rows] == ["helper"]
             assert rows[0]["resolution_status"] == "accepted"
             assert rows[0]["candidate_count"] > 0
+            assert rows[0]["in_scope_candidate_count"] == 1
+            assert rows[0]["candidate_module_hints"]
             assert rows[0]["callee_kind"] == "terminal"
             assert rows[0]["call_ordinal"] == 1
         finally:
@@ -77,7 +85,20 @@ def test_call_sites_filter_out_of_repo_accepted_rows_at_persistence_boundary(
                 "candidate_count_histogram": {1: 1},
             },
             [
-                ("helper", "accepted", "func_alpha", "exact_qname", None, 1, "terminal", None, None, 1),
+                (
+                    "helper",
+                    "accepted",
+                    "func_alpha",
+                    "exact_qname",
+                    None,
+                    1,
+                    "terminal",
+                    None,
+                    None,
+                    1,
+                    1,
+                    f"{prefix}.pkg.alpha",
+                ),
                 (
                     "external.helper",
                     "accepted",
@@ -89,6 +110,8 @@ def test_call_sites_filter_out_of_repo_accepted_rows_at_persistence_boundary(
                     None,
                     None,
                     2,
+                    1,
+                    "external",
                 ),
             ],
         )

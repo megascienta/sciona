@@ -13,6 +13,8 @@ class StrictCallDecision:
     accepted_provenance: str | None
     dropped_reason: str | None
     candidate_count: int
+    in_scope_candidate_count: int = 0
+    candidate_module_hints: tuple[str, ...] = ()
 
 
 def select_strict_call_candidate(
@@ -36,7 +38,14 @@ def select_strict_call_candidate(
             accepted_provenance=None,
             dropped_reason="no_candidates",
             candidate_count=0,
+            in_scope_candidate_count=0,
+            candidate_module_hints=(),
         )
+
+    candidate_module_hints = _candidate_module_hints(
+        candidates=candidates,
+        module_lookup=module_lookup,
+    )
 
     if "." in identifier:
         exact_matches = [candidate for candidate in candidates if candidate == identifier]
@@ -46,6 +55,8 @@ def select_strict_call_candidate(
                 accepted_provenance="exact_qname",
                 dropped_reason=None,
                 candidate_count=candidate_count,
+                in_scope_candidate_count=1,
+                candidate_module_hints=candidate_module_hints,
             )
 
     if len(candidates) == 1:
@@ -68,6 +79,8 @@ def select_strict_call_candidate(
                 accepted_provenance="exact_qname",
                 dropped_reason=None,
                 candidate_count=candidate_count,
+                in_scope_candidate_count=1,
+                candidate_module_hints=candidate_module_hints,
             )
         if caller_module and candidate_module == caller_module:
             return StrictCallDecision(
@@ -75,6 +88,8 @@ def select_strict_call_candidate(
                 accepted_provenance="module_scoped",
                 dropped_reason=None,
                 candidate_count=candidate_count,
+                in_scope_candidate_count=1,
+                candidate_module_hints=candidate_module_hints,
             )
         if candidate_module and caller_ancestor_modules and candidate_module in caller_ancestor_modules:
             return StrictCallDecision(
@@ -82,6 +97,8 @@ def select_strict_call_candidate(
                 accepted_provenance="import_narrowed",
                 dropped_reason=None,
                 candidate_count=candidate_count,
+                in_scope_candidate_count=1,
+                candidate_module_hints=candidate_module_hints,
             )
         if caller_module and candidate_module:
             if _in_allowed_module_scope(
@@ -93,12 +110,16 @@ def select_strict_call_candidate(
                     accepted_provenance="import_narrowed",
                     dropped_reason=None,
                     candidate_count=candidate_count,
+                    in_scope_candidate_count=1,
+                    candidate_module_hints=candidate_module_hints,
                 )
         return StrictCallDecision(
             accepted_candidate=None,
             accepted_provenance=None,
             dropped_reason="unique_without_provenance",
             candidate_count=candidate_count,
+            in_scope_candidate_count=0,
+            candidate_module_hints=candidate_module_hints,
         )
 
     if not caller_module:
@@ -107,6 +128,8 @@ def select_strict_call_candidate(
             accepted_provenance=None,
             dropped_reason="ambiguous_no_caller_module",
             candidate_count=candidate_count,
+            in_scope_candidate_count=0,
+            candidate_module_hints=candidate_module_hints,
         )
 
     allowed_modules = set(import_targets.get(caller_module, set()))
@@ -130,6 +153,8 @@ def select_strict_call_candidate(
             accepted_provenance="import_narrowed",
             dropped_reason=None,
             candidate_count=candidate_count,
+            in_scope_candidate_count=1,
+            candidate_module_hints=candidate_module_hints,
         )
     if not narrowed:
         dropped_reason = "ambiguous_no_in_scope_candidate"
@@ -140,6 +165,8 @@ def select_strict_call_candidate(
         accepted_provenance=None,
         dropped_reason=dropped_reason,
         candidate_count=candidate_count,
+        in_scope_candidate_count=len(narrowed),
+        candidate_module_hints=candidate_module_hints,
     )
 
 
@@ -172,6 +199,24 @@ def _in_allowed_module_scope(
         if allow_descendants and candidate_module.startswith(f"{allowed}."):
             return True
     return False
+
+
+def _candidate_module_hints(
+    *,
+    candidates: Sequence[str],
+    module_lookup: Mapping[str, str],
+    limit: int = 8,
+) -> tuple[str, ...]:
+    modules: list[str] = []
+    for candidate in candidates:
+        module = module_lookup.get(candidate)
+        if not module:
+            continue
+        modules.append(module)
+    if not modules:
+        return ()
+    unique_modules = sorted(set(modules))
+    return tuple(unique_modules[:limit])
 
 
 __all__ = ["StrictCallDecision", "select_strict_call_candidate"]

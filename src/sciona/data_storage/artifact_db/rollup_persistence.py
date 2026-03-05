@@ -93,6 +93,8 @@ def upsert_call_sites(
             int | None,
             int | None,
             int,
+            int | None,
+            str | None,
         ]
     ],
 ) -> None:

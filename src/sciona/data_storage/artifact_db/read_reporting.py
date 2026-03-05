@@ -50,11 +50,20 @@ def call_site_drop_debug_counts(
                drop_reason,
                candidate_count,
                callee_kind,
+               in_scope_candidate_count,
+               candidate_module_hints,
                COUNT(*) AS site_count
         FROM call_sites
         WHERE snapshot_id = ?
           AND resolution_status = 'dropped'
-        GROUP BY caller_id, caller_qname, identifier, drop_reason, candidate_count, callee_kind
+        GROUP BY caller_id,
+                 caller_qname,
+                 identifier,
+                 drop_reason,
+                 candidate_count,
+                 callee_kind,
+                 in_scope_candidate_count,
+                 candidate_module_hints
         ORDER BY site_count DESC, caller_qname, identifier
         LIMIT ?
         """,
@@ -68,6 +77,12 @@ def call_site_drop_debug_counts(
             "drop_reason": row["drop_reason"],
             "candidate_count": int(row["candidate_count"] or 0),
             "callee_kind": row["callee_kind"],
+            "in_scope_candidate_count": (
+                int(row["in_scope_candidate_count"])
+                if row["in_scope_candidate_count"] is not None
+                else None
+            ),
+            "candidate_module_hints": row["candidate_module_hints"],
             "site_count": int(row["site_count"] or 0),
         }
         for row in rows
@@ -133,11 +148,19 @@ def call_site_drop_identifier_counts(
                drop_reason,
                candidate_count,
                callee_kind,
+               in_scope_candidate_count,
+               candidate_module_hints,
                COUNT(*) AS site_count
         FROM call_sites
         WHERE snapshot_id = ?
           AND resolution_status = 'dropped'
-        GROUP BY caller_id, identifier, drop_reason, candidate_count, callee_kind
+        GROUP BY caller_id,
+                 identifier,
+                 drop_reason,
+                 candidate_count,
+                 callee_kind,
+                 in_scope_candidate_count,
+                 candidate_module_hints
         """,
         (snapshot_id,),
     ).fetchall()
@@ -148,6 +171,12 @@ def call_site_drop_identifier_counts(
             "drop_reason": row["drop_reason"],
             "candidate_count": int(row["candidate_count"] or 0),
             "callee_kind": row["callee_kind"],
+            "in_scope_candidate_count": (
+                int(row["in_scope_candidate_count"])
+                if row["in_scope_candidate_count"] is not None
+                else None
+            ),
+            "candidate_module_hints": row["candidate_module_hints"],
             "site_count": int(row["site_count"] or 0),
         }
         for row in rows
@@ -177,6 +206,8 @@ def call_site_rows_for_caller(
             drop_reason,
             candidate_count,
             callee_kind,
+            in_scope_candidate_count,
+            candidate_module_hints,
             call_start_byte,
             call_end_byte,
             call_ordinal,

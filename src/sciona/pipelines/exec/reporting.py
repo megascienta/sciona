@@ -226,6 +226,10 @@ def snapshot_report(
                             ],
                             "identifier": str(item.get("identifier") or ""),
                             "candidate_count": int(item.get("candidate_count") or 0),
+                            "in_scope_candidate_count": item.get(
+                                "in_scope_candidate_count"
+                            ),
+                            "candidate_module_hints": item.get("candidate_module_hints"),
                             "callee_kind": str(item.get("callee_kind") or ""),
                             "count": count,
                         }
