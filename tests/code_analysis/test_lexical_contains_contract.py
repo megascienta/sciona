@@ -73,7 +73,7 @@ def test_lexical_contains_rejects_multiple_parents() -> None:
         assembler._validate_lexical_containment(analysis)
 
 
-def test_lexical_contains_rejects_identical_parent_child_span() -> None:
+def test_lexical_contains_allows_identical_parent_child_span_for_module_parent() -> None:
     assembler = StructuralAssembler(_DummyConn(), _DummyStore())
     analysis = AnalysisResult(
         nodes=[
@@ -90,6 +90,39 @@ def test_lexical_contains_rejects_identical_parent_child_span() -> None:
                 dst_qualified_name="pkg.mod.fn",
                 edge_type="LEXICALLY_CONTAINS",
             )
+        ],
+        call_records=[],
+    )
+    assembler._validate_lexical_containment(analysis)
+
+
+def test_lexical_contains_rejects_identical_parent_child_span_for_non_module_parent() -> None:
+    assembler = StructuralAssembler(_DummyConn(), _DummyStore())
+    analysis = AnalysisResult(
+        nodes=[
+            _node(node_type="module", qname="pkg.mod", start=0, end=100),
+            _node(node_type="type", qname="pkg.mod.A", start=10, end=80),
+            _node(node_type="callable", qname="pkg.mod.A.fn", start=10, end=80),
+        ],
+        edges=[
+            EdgeRecord(
+                src_language="python",
+                src_node_type="module",
+                src_qualified_name="pkg.mod",
+                dst_language="python",
+                dst_node_type="type",
+                dst_qualified_name="pkg.mod.A",
+                edge_type="LEXICALLY_CONTAINS",
+            ),
+            EdgeRecord(
+                src_language="python",
+                src_node_type="type",
+                src_qualified_name="pkg.mod.A",
+                dst_language="python",
+                dst_node_type="callable",
+                dst_qualified_name="pkg.mod.A.fn",
+                edge_type="LEXICALLY_CONTAINS",
+            ),
         ],
         call_records=[],
     )

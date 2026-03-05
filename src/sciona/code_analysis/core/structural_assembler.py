@@ -144,7 +144,10 @@ class StructuralAssembler:
                 parent_node.start_byte == child_node.start_byte
                 and parent_node.end_byte == child_node.end_byte
             )
-            if not enclosed or identical_span:
+            module_parent_identical_span = (
+                parent_node.node_type == "module" and identical_span
+            )
+            if not enclosed or (identical_span and not module_parent_identical_span):
                 raise ValueError(
                     "Lexical containment span invariant violated: "
                     f"{parent_node.qualified_name} does not enclose {child_node.qualified_name}"
