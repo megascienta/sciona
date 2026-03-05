@@ -22,7 +22,7 @@ SCIONA takes a deliberately different path: it provides a stable structural snap
 
 ## Structural Resolution Performance
 
-SCIONA has been tested on several large open-source repositories including **VSCode, SymPy, Guava, Webpack, Airbyte, and NestJS**. Validation reports, methodology description, and the full dataset are available in [`validations/build_status_reports/`](validations/build_status_reports/). 
+SCIONA has been tested on several large open-source repositories including **[VSCode](https://github.com/microsoft/vscode), [SymPy](https://github.com/sympy/sympy), [Guava](https://github.com/google/guava), [Webpack](https://github.com/webpack/webpack), [Airbyte](https://github.com/airbytehq/airbyte), and [NestJS](https://github.com/nestjs/nest)**. Validation reports, methodology description, and the full dataset are available in [`validations/build_status_reports/`](validations/build_status_reports/). 
 
 Across these repositories SCIONA processed **27,700 files**, extracted **304,824 structural nodes**, and analyzed **265,110 call sites**, producing **255,904 deterministic call edges**. This corresponds to an overall **~96.5% in-repository call resolution rate**.
 
@@ -56,7 +56,7 @@ As the project matured, SCIONA was routinely used to ground LLM reasoning over t
 
 ## How SCIONA can be used
 
-SCIONA can be used directly via its CLI or integrated into LLM-assisted workflows. During initialization, SCIONA optionally auto-generates an `AGENTS.md` file in the repository root. This file acts as a control surface for LLM copilots by explicitly specifying how SCIONA should be used during code reasoning. In this mode, the copilot is instructed to reason over reducer outputs instead of reconstructing repository structure heuristically from source text.
+SCIONA can be used directly via its CLI or integrated into LLM-assisted workflows. **During initialization, SCIONA optionally auto-generates an `AGENTS.md` file in the repository root.** This file acts as a control surface for LLM copilots by explicitly specifying how SCIONA should be used during code reasoning. In this mode, the copilot is instructed to reason over reducer outputs instead of reconstructing repository structure heuristically from source text. Initialization can also optionally install a post-commit hook to keep the SCIONA snapshot metadata up to date.
 
 Authoritative project docs:
 
