@@ -13,6 +13,7 @@ from sciona.code_analysis.core.extract.registry import (
 
 def test_extensions_for_language_includes_python() -> None:
     assert ".py" in extensions_for_language("python")
+    assert ".js" in extensions_for_language("javascript")
 
 
 def test_get_analyzer_returns_instance() -> None:
@@ -24,6 +25,7 @@ def test_get_analyzer_returns_instance() -> None:
 def test_language_for_extension_respects_enabled_languages() -> None:
     assert language_for_extension(".py", ["python", "java"]) == "python"
     assert language_for_extension(".java", ["python", "java"]) == "java"
+    assert language_for_extension(".js", ["javascript", "java"]) == "javascript"
     assert language_for_extension(".rb", ["python"]) is None
 
 

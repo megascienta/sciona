@@ -3,6 +3,7 @@
 
 from pathlib import Path
 
+from sciona.code_analysis.languages.builtin import javascript as js_lang
 from sciona.code_analysis.languages.builtin import python as python_lang
 from sciona.code_analysis.languages.builtin import typescript as ts_lang
 from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
@@ -94,5 +95,19 @@ def test_typescript_module_name_includes_repo_prefix(tmp_path):
     )
     assert (
         ts_lang.module_name(repo_root, snapshot)
+        == "sciona.addons.documentation.assets.sample"
+    )
+
+
+def test_javascript_module_name_removes_js_suffix(tmp_path):
+    repo_root = tmp_path / "sciona"
+    repo_root.mkdir()
+    snapshot = _snapshot_for(
+        repo_root,
+        Path("addons/documentation/assets/sample.js"),
+        "javascript",
+    )
+    assert (
+        js_lang.module_name(repo_root, snapshot)
         == "sciona.addons.documentation.assets.sample"
     )

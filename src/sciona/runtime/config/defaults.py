@@ -9,6 +9,7 @@ LANGUAGE_DEFAULTS = {
     "python": {"enabled": False},
     "typescript": {"enabled": False},
     "java": {"enabled": False},
+    "javascript": {"enabled": False},
 }
 DEFAULT_LOG_LEVEL = "INFO"
 DEFAULT_LOG_DEBUG = False

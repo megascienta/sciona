@@ -43,6 +43,12 @@ def _java_analyzer_factory() -> "ASTAnalyzer":
     return java_lang.JavaAnalyzer()
 
 
+def _javascript_analyzer_factory() -> "ASTAnalyzer":
+    from .languages.builtin import javascript as javascript_lang
+
+    return javascript_lang.JavaScriptAnalyzer()
+
+
 def _python_module_namer(repo_root: Path, snapshot: "FileSnapshot") -> str:
     from .languages.builtin import python as python_lang
 
@@ -61,6 +67,12 @@ def _java_module_namer(repo_root: Path, snapshot: "FileSnapshot") -> str:
     return java_lang.module_name(repo_root, snapshot)
 
 
+def _javascript_module_namer(repo_root: Path, snapshot: "FileSnapshot") -> str:
+    from .languages.builtin import javascript as javascript_lang
+
+    return javascript_lang.module_name(repo_root, snapshot)
+
+
 CALLABLE_NODE_TYPES = frozenset({"callable"})
 TERMINAL_IDENTIFIER_TYPES_BY_LANGUAGE = {
     "python": frozenset({"identifier"}),
@@ -73,6 +85,7 @@ TERMINAL_IDENTIFIER_TYPES_BY_LANGUAGE = {
         }
     ),
     "java": frozenset({"identifier", "type_identifier"}),
+    "javascript": frozenset({"identifier", "property_identifier"}),
 }
 
 LANGUAGE_CONFIG: dict[str, LanguageConfig] = {
@@ -93,5 +106,11 @@ LANGUAGE_CONFIG: dict[str, LanguageConfig] = {
         callable_types=("callable",),
         analyzer_factory=_java_analyzer_factory,
         module_namer=_java_module_namer,
+    ),
+    "javascript": LanguageConfig(
+        extensions=(".js", ".mjs", ".cjs"),
+        callable_types=("callable",),
+        analyzer_factory=_javascript_analyzer_factory,
+        module_namer=_javascript_module_namer,
     ),
 }

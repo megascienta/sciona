@@ -30,6 +30,11 @@ _LANGUAGE_METADATA: dict[str, dict[str, object]] = {
         "query_set_version": 1,
         "capability_manifest_key": "java",
     },
+    "javascript": {
+        "grammar_name": "javascript",
+        "query_set_version": 1,
+        "capability_manifest_key": "javascript",
+    },
 }
 
 

@@ -13,7 +13,7 @@ from sciona.code_analysis.core.extract.contracts.language_registry import (
 
 def test_language_registry_contains_default_languages() -> None:
     registered = descriptors()
-    assert {"python", "typescript", "java"}.issubset(registered.keys())
+    assert {"python", "typescript", "java", "javascript"}.issubset(registered.keys())
 
 
 def test_get_descriptor_returns_extension_data() -> None:
