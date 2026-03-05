@@ -13,6 +13,7 @@ from . import (
     hotspot_summary,
     module_call_graph_summary,
     resolution_trace,
+    structural_integrity_summary,
 )
 
 __all__ = [
@@ -23,4 +24,5 @@ __all__ = [
     "hotspot_summary",
     "module_call_graph_summary",
     "resolution_trace",
+    "structural_integrity_summary",
 ]

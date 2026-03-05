@@ -12,6 +12,7 @@ from sciona.reducers.analytics import (
     hotspot_summary,
     module_call_graph_summary,
     resolution_trace,
+    structural_integrity_summary,
 )
 from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.data_storage.artifact_db import write_index as artifact_write
@@ -216,6 +217,87 @@ def test_resolution_trace_uses_callsite_and_diagnostics(tmp_path):
     assert payload["accepted_samples"][0]["identifier"] == "pkg.beta.worker"
     assert payload["dropped_samples"][0]["identifier"] == "pkg.unknown.missing"
     assert payload["dropped_samples"][0]["drop_reason"] == "no_candidates"
+
+
+def test_structural_integrity_summary_returns_payload(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = core_conn(repo_root)
+    try:
+        payload_text = structural_integrity_summary.render(snapshot_id, conn, repo_root)
+    finally:
+        conn.close()
+    payload = parse_json_payload(payload_text)
+    assert payload["payload_kind"] == "summary"
+    assert "integrity_ok" in payload
+    assert "duplicate_qualified_names" in payload
+    assert "lexical_orphans" in payload
+    assert "inheritance_cycles" in payload
+
+
+def test_structural_integrity_summary_detects_duplicates_and_orphans(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = core_conn(repo_root)
+    try:
+        conn.execute(
+            """
+            INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
+            VALUES (?, ?, ?, ?)
+            """,
+            ("func_dup", "callable", "python", snapshot_id),
+        )
+        conn.execute(
+            """
+            INSERT INTO node_instances(
+                instance_id, structural_id, snapshot_id, qualified_name, file_path, start_line, end_line, content_hash
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                f"{snapshot_id}:func_dup",
+                "func_dup",
+                snapshot_id,
+                qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
+                "pkg/alpha/other.py",
+                1,
+                2,
+                "hash-func_dup",
+            ),
+        )
+        conn.execute(
+            """
+            INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
+            VALUES (?, ?, ?, ?)
+            """,
+            ("func_orphan", "callable", "python", snapshot_id),
+        )
+        conn.execute(
+            """
+            INSERT INTO node_instances(
+                instance_id, structural_id, snapshot_id, qualified_name, file_path, start_line, end_line, content_hash
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                f"{snapshot_id}:func_orphan",
+                "func_orphan",
+                snapshot_id,
+                qualify_repo_name(repo_root, "pkg.alpha.orphan"),
+                "pkg/alpha/orphan.py",
+                1,
+                2,
+                "hash-func_orphan",
+            ),
+        )
+        conn.commit()
+        payload_text = structural_integrity_summary.render(snapshot_id, conn, repo_root)
+    finally:
+        conn.close()
+    payload = parse_json_payload(payload_text)
+    duplicate_names = {
+        entry["qualified_name"] for entry in payload["duplicate_qualified_names"]
+    }
+    orphan_ids = {entry["structural_id"] for entry in payload["lexical_orphans"]}
+    assert qualify_repo_name(repo_root, "pkg.alpha.service.helper") in duplicate_names
+    assert "func_orphan" in orphan_ids
+    assert payload["integrity_ok"] is False
 
 
 def test_callsite_index_neighbors_detail_level(tmp_path):
