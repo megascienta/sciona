@@ -41,9 +41,9 @@ def test_policy_no_tree_sitter_wrapper_module() -> None:
 def test_policy_no_typescript_structural_regex_fallback() -> None:
     path = (
         _CODE_ANALYSIS_ROOT
-        / "core"
-        / "extract"
         / "languages"
+        / "builtin"
+        / "typescript"
         / "typescript_node_walk.py"
     )
     text = path.read_text(encoding="utf-8")
@@ -78,7 +78,7 @@ def test_policy_only_narrow_parser_bootstrap_helper() -> None:
             violations.append(f"{rel}: def make_parser(")
         if (
             "def bootstrap_tree_sitter_parser(" in text
-            and rel != "core/extract/parser_bootstrap.py"
+            and rel != "core/extract/parsing/parser_bootstrap.py"
         ):
             violations.append(f"{rel}: bootstrap_tree_sitter_parser outside canonical module")
     assert not violations
@@ -130,3 +130,9 @@ def test_policy_structural_extraction_avoids_non_query_traversal() -> None:
         if "find_nodes_of_type(" in text:
             violations.append(f"{rel}: find_nodes_of_type(")
     assert not violations
+
+
+def test_policy_core_language_modules_are_not_implemented_in_core() -> None:
+    shims_root = _CODE_ANALYSIS_ROOT / "core" / "extract" / "languages"
+    for path in sorted(shims_root.glob("*.py")):
+        assert path.name == "__init__.py"

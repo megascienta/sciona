@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-from sciona.code_analysis.core.extract.languages.call_resolution_kernel import (
+from sciona.code_analysis.core.extract.call_resolution_kernel import (
     REQUIRED_RESOLUTION_STAGES,
 )
-from sciona.code_analysis.core.extract.languages.parity_contract import (
+from sciona.code_analysis.languages.common.parity_contract import (
     build_parity_contract,
 )
-from sciona.code_analysis.core.extract.languages.walker_capabilities import (
+from sciona.code_analysis.languages.common.walker_capabilities import (
     build_walker_capabilities,
 )
 from sciona.code_analysis.config import LANGUAGE_CONFIG

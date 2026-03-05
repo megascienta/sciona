@@ -1,10 +1,12 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-from sciona.code_analysis.core.extract.languages.java_calls import resolve_java_calls
-from sciona.code_analysis.core.extract.languages.java_resolution import qualify_java_type
-from sciona.code_analysis.core.extract.languages.python_calls import resolve_python_calls
-from sciona.code_analysis.core.extract.languages.typescript_calls import (
+from sciona.code_analysis.languages.builtin.java.java_calls import resolve_java_calls
+from sciona.code_analysis.languages.builtin.java.java_resolution import qualify_java_type
+from sciona.code_analysis.languages.builtin.python.python_calls import (
+    resolve_python_calls,
+)
+from sciona.code_analysis.languages.builtin.typescript.typescript_calls import (
     resolve_typescript_calls,
 )
 from sciona.code_analysis.tools.call_extraction import (

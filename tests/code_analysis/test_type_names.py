@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 
-from sciona.code_analysis.core.extract.languages.type_names import type_base_name
+from sciona.code_analysis.languages.common.type_names import type_base_name
 
 
 def test_type_base_name_strips_generic_wrapper() -> None:

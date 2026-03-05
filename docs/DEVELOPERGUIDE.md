@@ -7,7 +7,8 @@ Authoritative references:
 
 - Contract: `docs/CONTRACT.md`
 - Generated capability manifest: `docs/CAPABILITY_MANIFEST.json`
-- Executable parity contract: `src/sciona/code_analysis/core/extract/languages/parity_contract.py`
+- Executable parity contract:
+  `src/sciona/code_analysis/languages/common/parity_contract.py`
 
 If this guide conflicts with those files, contract wins.
 
@@ -15,8 +16,8 @@ If this guide conflicts with those files, contract wins.
 
 - Contract semantics and compliance criteria are authoritative in `docs/CONTRACT.md`.
 - Capability data is generated from source code contracts/query surfaces:
-  - `src/sciona/code_analysis/core/extract/languages/capability_manifest.py`
-  - `src/sciona/code_analysis/core/extract/languages/parity_contract.py`
+  - `src/sciona/code_analysis/languages/common/capability_manifest.py`
+  - `src/sciona/code_analysis/languages/common/parity_contract.py`
 - `docs/CAPABILITY_MANIFEST.json` is a generated artifact and the machine-readable
   docs source for capability reporting.
 
@@ -65,6 +66,7 @@ Out of scope:
 - `src/sciona/data_storage/`: CoreDB/ArtifactDB schemas and storage operations
 - `src/sciona/code_analysis/`: discovery, parse, extraction, normalization, assembly
 - `src/sciona/code_analysis/languages/builtin/`: builtin language adapter surfaces
+- `src/sciona/code_analysis/languages/common/`: shared language extraction helpers
 - `src/sciona/pipelines/`: build/reducer orchestration and policy enforcement
 - `src/sciona/reducers/`: deterministic reducer payload generation
 - `src/sciona/api/`: stable addon-facing API
@@ -78,8 +80,15 @@ Language adapter boundary:
 
 - Registry wiring is descriptor-first via `core.extract.language_registry`.
 - Enabled language descriptors must be compliant (extensions, callable types,
-  analyzer factory, module namer) before analyzer selection.
+  extractor factory, module namer, grammar metadata) before analyzer selection.
 - Missing enabled adapters fail with install-hint diagnostics.
+- Canonical language implementations live under `code_analysis/languages/`.
+- Versioned onboarding contract is represented by `AdapterSpecV1` in
+  `core.extract.language_adapter`.
+
+Language architecture reference:
+
+- `docs/LANGUAGE_ADAPTER_ARCHITECTURE.md` defines the adapter/IR/builder flow.
 
 ## Build Lifecycle
 

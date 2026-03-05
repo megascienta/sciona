@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 
-from sciona.code_analysis.core.extract.languages.python_imports import normalize_import
+from sciona.code_analysis.languages.builtin.python.python_imports import normalize_import
 
 
 def test_normalize_import_resolves_relative_single_dot() -> None:

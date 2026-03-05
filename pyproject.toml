@@ -28,6 +28,9 @@ docs = []
 dev = [
     "pytest>=7",
 ]
+fortran = []
+c = []
+go = []
 
 [project.scripts]
 sciona = "sciona.cli.main:run"

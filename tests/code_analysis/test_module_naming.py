@@ -3,8 +3,8 @@
 
 from pathlib import Path
 
-from sciona.code_analysis.core.extract.languages import python as python_lang
-from sciona.code_analysis.core.extract.languages import typescript as ts_lang
+from sciona.code_analysis.languages.builtin import python as python_lang
+from sciona.code_analysis.languages.builtin import typescript as ts_lang
 from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
 
 

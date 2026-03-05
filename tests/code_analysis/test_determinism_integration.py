@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from sciona.code_analysis.core.extract.languages.java import JavaAnalyzer
-from sciona.code_analysis.core.extract.languages.python import PythonAnalyzer
-from sciona.code_analysis.core.extract.languages.typescript import TypeScriptAnalyzer
+from sciona.code_analysis.languages.builtin.java import JavaAnalyzer
+from sciona.code_analysis.languages.builtin.python import PythonAnalyzer
+from sciona.code_analysis.languages.builtin.typescript import TypeScriptAnalyzer
 from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
 
 

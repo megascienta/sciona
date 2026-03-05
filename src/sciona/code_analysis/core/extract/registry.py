@@ -9,16 +9,16 @@ from pathlib import Path
 from typing import Callable, Dict, Iterable, Optional, Tuple
 
 from .analyzer import ASTAnalyzer
-from .language_registry import get_descriptor
+from .contracts.language_registry import get_descriptor
 
 AnalyzerFactory = Callable[[], ASTAnalyzer]
 
 
 def get_analyzer(language: str) -> Optional[ASTAnalyzer]:
     descriptor = get_descriptor(language)
-    if not descriptor or not descriptor.analyzer_factory:
+    if not descriptor or not descriptor.extractor_factory:
         return None
-    return descriptor.analyzer_factory()
+    return descriptor.extractor_factory()
 
 
 def extensions_for_language(language: str) -> Tuple[str, ...]:
