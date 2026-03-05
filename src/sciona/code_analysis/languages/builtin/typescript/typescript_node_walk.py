@@ -74,6 +74,7 @@ def walk_typescript_nodes(
     node,
     *,
     language: str,
+    syntax_language: str = "typescript",
     snapshot: FileSnapshot,
     module_name: str,
     result,
@@ -203,10 +204,11 @@ def walk_typescript_nodes(
         state.class_span_stack.append((node.start_byte, node.end_byte))
         state.class_methods.setdefault(qualified, set())
         if body:
-            for child in find_direct_children_query(body, language_name="typescript"):
+            for child in find_direct_children_query(body, language_name=syntax_language):
                 walk_typescript_nodes(
                     child,
                     language=language,
+                    syntax_language=syntax_language,
                     snapshot=snapshot,
                     module_name=module_name,
                     result=result,
@@ -326,6 +328,7 @@ def walk_typescript_nodes(
         walk_typescript_children(
             node,
             language=language,
+            syntax_language=syntax_language,
             snapshot=snapshot,
             module_name=module_name,
             result=result,
@@ -409,10 +412,11 @@ def walk_typescript_nodes(
             state.class_methods.setdefault(qualified, set())
             body = value_node.child_by_field_name("body")
             if body:
-                for child in find_direct_children_query(body, language_name="typescript"):
+                for child in find_direct_children_query(body, language_name=syntax_language):
                     walk_typescript_nodes(
                         child,
                         language=language,
+                        syntax_language=syntax_language,
                         snapshot=snapshot,
                         module_name=module_name,
                         result=result,
@@ -438,7 +442,7 @@ def walk_typescript_nodes(
                 parent = module_name
                 parent_node_type = "module"
                 class_name = None
-            for child in find_direct_children_query(value_node, language_name="typescript"):
+            for child in find_direct_children_query(value_node, language_name=syntax_language):
                 if child.type == "method_definition":
                     method_name_node = child.child_by_field_name("name")
                     method_name = node_text(method_name_node, snapshot.content)
@@ -515,6 +519,15 @@ def walk_typescript_nodes(
         "field_definition",
     } and state.class_stack:
         name_node = node.child_by_field_name("name")
+        if name_node is None:
+            name_node = next(
+                (
+                    child
+                    for child in getattr(node, "named_children", [])
+                    if child.type in {"property_identifier", "private_property_identifier"}
+                ),
+                None,
+            )
         value_node = node.child_by_field_name("value") or node.child_by_field_name(
             "initializer"
         )
@@ -597,6 +610,7 @@ def walk_typescript_nodes(
     walk_typescript_children(
         node,
         language=language,
+        syntax_language=syntax_language,
         snapshot=snapshot,
         module_name=module_name,
         result=result,
@@ -609,6 +623,7 @@ def walk_typescript_children(
     node,
     *,
     language: str,
+    syntax_language: str = "typescript",
     snapshot: FileSnapshot,
     module_name: str,
     result,
@@ -626,10 +641,11 @@ def walk_typescript_children(
         }
         else function_depth
     )
-    for child in find_direct_children_query(node, language_name="typescript"):
+    for child in find_direct_children_query(node, language_name=syntax_language):
         walk_typescript_nodes(
             child,
             language=language,
+            syntax_language=syntax_language,
             snapshot=snapshot,
             module_name=module_name,
             result=result,

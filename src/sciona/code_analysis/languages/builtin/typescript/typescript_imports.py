@@ -43,17 +43,27 @@ def collect_typescript_import_model(
     module_name: str,
     *,
     module_index: set[str] | None,
+    language_name: str = "typescript",
+    import_export_node_types: tuple[str, ...] = TYPESCRIPT_IMPORT_EXPORT_NODE_TYPES,
+    require_declaration_node_types: tuple[str, ...] = TYPESCRIPT_REQUIRE_DECLARATION_NODE_TYPES,
+    dynamic_import_node_types: tuple[str, ...] = TYPESCRIPT_DYNAMIC_IMPORT_NODE_TYPES,
+    string_node_types: tuple[str, ...] = TYPESCRIPT_STRING_NODE_TYPES,
 ) -> NormalizedImportModel:
     del module_name
     model = NormalizedImportModel()
     nodes = find_nodes_of_types_query(
         root,
-        language_name="typescript",
-        node_types=TYPESCRIPT_IMPORT_EXPORT_NODE_TYPES,
+        language_name=language_name,
+        node_types=import_export_node_types,
     )
     for node in nodes:
         model.imports_seen += 1
-        module_spec = extract_module_spec_from_node(node, snapshot.content)
+        module_spec = extract_module_spec_from_node(
+            node,
+            snapshot.content,
+            language_name=language_name,
+            string_node_types=string_node_types,
+        )
         if not module_spec:
             continue
         normalized = normalize_import(module_spec, snapshot)
@@ -81,8 +91,8 @@ def collect_typescript_import_model(
         )
     for node in find_nodes_of_types_query(
         root,
-        language_name="typescript",
-        node_types=TYPESCRIPT_REQUIRE_DECLARATION_NODE_TYPES,
+        language_name=language_name,
+        node_types=require_declaration_node_types,
     ):
         model.imports_seen += 1
         alias, module_spec = extract_require_assignment_from_node(node, snapshot.content)
@@ -107,10 +117,14 @@ def collect_typescript_import_model(
         model.import_aliases[alias] = normalized
     for node in find_nodes_of_types_query(
         root,
-        language_name="typescript",
-        node_types=TYPESCRIPT_DYNAMIC_IMPORT_NODE_TYPES,
+        language_name=language_name,
+        node_types=dynamic_import_node_types,
     ):
-        module_spec = extract_dynamic_import_spec_from_call(node, snapshot.content)
+        module_spec = extract_dynamic_import_spec_from_call(
+            node,
+            snapshot.content,
+            string_node_types=string_node_types,
+        )
         if not module_spec:
             continue
         model.imports_seen += 1
@@ -133,7 +147,13 @@ def collect_typescript_import_model(
     return model
 
 
-def extract_module_spec_from_node(node, content: bytes) -> Optional[str]:
+def extract_module_spec_from_node(
+    node,
+    content: bytes,
+    *,
+    language_name: str = "typescript",
+    string_node_types: tuple[str, ...] = TYPESCRIPT_STRING_NODE_TYPES,
+) -> Optional[str]:
     source = node.child_by_field_name("source")
     if source is not None:
         return decode_string_literal(source, content)
@@ -144,15 +164,20 @@ def extract_module_spec_from_node(node, content: bytes) -> Optional[str]:
                     return decode_string_literal(candidate, content)
     string_nodes = find_nodes_of_types_query(
         node,
-        language_name="typescript",
-        node_types=TYPESCRIPT_STRING_NODE_TYPES,
+        language_name=language_name,
+        node_types=string_node_types,
     )
     if string_nodes:
         return decode_string_literal(string_nodes[0], content)
     return None
 
 
-def extract_dynamic_import_spec_from_call(node, content: bytes) -> Optional[str]:
+def extract_dynamic_import_spec_from_call(
+    node,
+    content: bytes,
+    *,
+    string_node_types: tuple[str, ...] = TYPESCRIPT_STRING_NODE_TYPES,
+) -> Optional[str]:
     function_node = node.child_by_field_name("function")
     if function_node is None:
         return None
@@ -166,7 +191,7 @@ def extract_dynamic_import_spec_from_call(node, content: bytes) -> Optional[str]
         (
             child
             for child in getattr(args_node, "children", [])
-            if child.type in TYPESCRIPT_STRING_NODE_TYPES
+            if child.type in string_node_types
         ),
         None,
     )
