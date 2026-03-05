@@ -15,6 +15,7 @@ OUTPUT_ROOT = ROOT / "generated"
 LANGUAGE_EXT = {
     "python": "py",
     "typescript": "ts",
+    "javascript": "js",
     "java": "java",
 }
 

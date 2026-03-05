@@ -6,6 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from sciona.code_analysis.languages.builtin.java import JavaAnalyzer
+from sciona.code_analysis.languages.builtin.javascript import JavaScriptAnalyzer
 from sciona.code_analysis.languages.builtin.python import PythonAnalyzer
 from sciona.code_analysis.languages.builtin.typescript import TypeScriptAnalyzer
 from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
@@ -26,6 +27,7 @@ def language_specs():
     return (
         ("python", "python.py", PythonAnalyzer(), "python"),
         ("typescript", "typescript.ts", TypeScriptAnalyzer(), "typescript"),
+        ("javascript", "javascript.js", JavaScriptAnalyzer(), "javascript"),
         ("java", "java.java", JavaAnalyzer(), "java"),
     )
 
@@ -35,6 +37,8 @@ def extension_for(language: str) -> str:
         return ".py"
     if language == "java":
         return ".java"
+    if language == "javascript":
+        return ".js"
     return ".ts"
 
 

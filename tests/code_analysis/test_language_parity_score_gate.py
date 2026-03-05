@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 
 from sciona.code_analysis.languages.builtin.java import JavaAnalyzer
+from sciona.code_analysis.languages.builtin.javascript import JavaScriptAnalyzer
 from sciona.code_analysis.languages.builtin.python import PythonAnalyzer
 from sciona.code_analysis.languages.builtin.typescript import TypeScriptAnalyzer
 from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
@@ -32,6 +33,7 @@ def test_language_parity_score_gate(tmp_path: Path) -> None:
     language_specs = (
         ("python", "python.py", PythonAnalyzer(), "python"),
         ("typescript", "typescript.ts", TypeScriptAnalyzer(), "typescript"),
+        ("javascript", "javascript.js", JavaScriptAnalyzer(), "javascript"),
         ("java", "java.java", JavaAnalyzer(), "java"),
     )
 
@@ -43,7 +45,11 @@ def test_language_parity_score_gate(tmp_path: Path) -> None:
         expected = json.loads((scenario / "expected.json").read_text(encoding="utf-8"))
         for language, fixture_name, analyzer, _ in language_specs:
             source = (scenario / fixture_name).read_text(encoding="utf-8")
-            ext = ".py" if language == "python" else (".java" if language == "java" else ".ts")
+            ext = (
+                ".py"
+                if language == "python"
+                else (".java" if language == "java" else (".js" if language == "javascript" else ".ts"))
+            )
             rel_path = f"{scenario.name}/{language}/mod{ext}"
             path = tmp_path / rel_path
             path.parent.mkdir(parents=True, exist_ok=True)
@@ -78,11 +84,10 @@ def test_language_parity_score_gate(tmp_path: Path) -> None:
             node_score_by_language[language].append(node_score)
             call_score_by_language[language].append(call_score)
 
-    for language in ("python", "typescript", "java"):
+    for language, *_ in language_specs:
         avg_score = sum(score_by_language[language]) / len(score_by_language[language])
         avg_node = sum(node_score_by_language[language]) / len(node_score_by_language[language])
         avg_call = sum(call_score_by_language[language]) / len(call_score_by_language[language])
         assert avg_score >= 0.95, f"{language} parity score below threshold: {avg_score:.3f}"
         assert avg_node >= 0.90, f"{language} node parity below critical threshold: {avg_node:.3f}"
         assert avg_call >= 0.90, f"{language} call parity below critical threshold: {avg_call:.3f}"
-
