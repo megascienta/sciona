@@ -19,6 +19,7 @@ from .read_ops_snapshots import (
 from .read_ops_nodes import (
     caller_node_metadata_map,
     caller_language_map,
+    language_file_node_distribution,
     language_file_node_counts,
     list_nodes_by_types,
     list_nodes_with_names,
@@ -68,6 +69,7 @@ __all__ = [
     "list_nodes_by_types",
     "node_instances_for_file_paths",
     "language_file_node_counts",
+    "language_file_node_distribution",
     "caller_language_map",
     "caller_node_metadata_map",
     "edges_for_source_ids",

@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.pipelines import repo as repo_pipeline
 from sciona.pipelines.exec import reporting as exec_reporting
@@ -25,6 +27,11 @@ def test_snapshot_report_returns_db_counts(repo_with_snapshot):
     assert payload["totals"]["adjusted_call_sites"]["adjusted_eligible"] == 0
     assert payload["totals"]["adjusted_call_sites"]["success_rate"] is None
     assert payload["totals"]["classification_quality"]["confidence"] == "n/a"
+    assert payload["totals"]["structural_density"]["files"] == 3
+    assert payload["totals"]["structural_density"]["nodes"] == 5
+    assert payload["totals"]["structural_density"]["nodes_per_file"] == pytest.approx(
+        5 / 3
+    )
     assert payload["totals"]["call_sites_by_scope"]["non_tests"]["eligible"] == 0
     assert payload["totals"]["call_sites_by_scope"]["tests"]["eligible"] == 0
     by_language = {entry["language"]: entry for entry in payload["languages"]}
@@ -35,6 +42,7 @@ def test_snapshot_report_returns_db_counts(repo_with_snapshot):
     assert python["adjusted_call_sites"]["adjusted_eligible"] == 0
     assert python["adjusted_call_sites"]["success_rate"] is None
     assert python["classification_quality"]["confidence"] == "n/a"
+    assert python["structural_density"]["nodes_per_file"] == pytest.approx(5 / 3)
     assert python["call_sites_by_scope"]["non_tests"]["eligible"] == 0
     assert python["call_sites_by_scope"]["tests"]["eligible"] == 0
 
@@ -196,6 +204,10 @@ def test_snapshot_report_full_includes_failure_reasons(repo_with_snapshot):
         "external_likely_material_share",
         "ambiguity_material_share",
     }
+    assert python["structural_density"]["files"] == 3
+    assert python["structural_density"]["eligible_callsites"] == 3
+    assert python["structural_density"]["eligible_callsites_per_file"] == 1.0
+    assert python["structural_density"]["top_low_node_dirs"]
     assert python["drop_reasons"] == {
         "ambiguous_no_in_scope_candidate": 1,
         "unique_without_provenance": 1,
@@ -232,6 +244,7 @@ def test_snapshot_report_full_includes_failure_reasons(repo_with_snapshot):
     assert payload["totals"]["adjusted_call_sites"]["adjusted_eligible"] == 2
     assert payload["totals"]["adjusted_call_sites"]["success_rate"] == 0.5
     assert payload["totals"]["classification_quality"]["confidence"] == "medium"
+    assert payload["totals"]["structural_density"]["eligible_callsites"] == 3
     total_scope_classification = payload["totals"]["drop_classification_by_scope"]
     assert total_scope_classification["non_tests"] == {"external_likely": 1}
     assert total_scope_classification["tests"] == {}

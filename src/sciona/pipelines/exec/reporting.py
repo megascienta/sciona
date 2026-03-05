@@ -71,6 +71,7 @@ def snapshot_report(
     caller_language: dict[str, str] = {}
     caller_metadata: dict[str, dict[str, object]] = {}
     callable_identifiers_by_language: dict[str, set[str]] = {}
+    file_node_distribution_by_language: dict[str, list[tuple[str, int]]] = {}
     created_at: str | None = None
 
     with core_readonly(repo_state.db_path, repo_root=repo_state.repo_root) as conn:
@@ -107,6 +108,16 @@ def snapshot_report(
             for structural_id, meta in caller_metadata.items()
         }
         callable_identifiers_by_language = _build_callable_identifier_index(caller_metadata)
+        file_node_distribution = core_read.language_file_node_distribution(conn, snapshot_id)
+        for item in file_node_distribution:
+            language = str(item.get("language") or "")
+            file_path = str(item.get("file_path") or "")
+            node_count = int(item.get("node_count") or 0)
+            if not language or not file_path:
+                continue
+            file_node_distribution_by_language.setdefault(language, []).append(
+                (file_path, node_count)
+            )
 
     artifact_available = False
     call_site_reasons: dict[str, dict[str, int]] = defaultdict(dict)
@@ -390,6 +401,12 @@ def snapshot_report(
             drop_reasons=call_site_reasons.get(language, {}),
             drop_classification=drop_classification.get(language, {}),
         )
+        item["structural_density"] = _structural_density_payload(
+            files=int(item.get("files") or 0),
+            nodes=int(item.get("nodes") or 0),
+            eligible_callsites=int((item.get("call_sites") or {}).get("eligible") or 0),
+            file_node_distribution=file_node_distribution_by_language.get(language, []),
+        )
     payload["totals"]["adjusted_call_sites"] = _adjusted_call_sites_payload(
         payload["totals"].get("call_sites"),
         excluded_external_likely=_sum_bucket_counts(drop_classification).get(
@@ -409,6 +426,15 @@ def snapshot_report(
         payload["totals"].get("call_sites"),
         drop_reasons=_sum_bucket_counts(call_site_reasons),
         drop_classification=_sum_bucket_counts(drop_classification),
+    )
+    all_distribution: list[tuple[str, int]] = []
+    for items in file_node_distribution_by_language.values():
+        all_distribution.extend(items)
+    payload["totals"]["structural_density"] = _structural_density_payload(
+        files=int(payload["totals"].get("files") or 0),
+        nodes=int(payload["totals"].get("nodes") or 0),
+        eligible_callsites=int((payload["totals"].get("call_sites") or {}).get("eligible") or 0),
+        file_node_distribution=all_distribution,
     )
     if include_failure_reasons:
         payload["failure_hotspots"] = {
@@ -551,6 +577,46 @@ def _classification_quality_payload(
         "confidence": confidence,
         "caveats": caveats,
     }
+
+
+def _structural_density_payload(
+    *,
+    files: int,
+    nodes: int,
+    eligible_callsites: int,
+    file_node_distribution: list[tuple[str, int]],
+) -> dict[str, object]:
+    nodes_per_file = (nodes / files) if files > 0 else None
+    eligible_callsites_per_file = (eligible_callsites / files) if files > 0 else None
+    low_node_files = [(path, count) for path, count in file_node_distribution if count <= 1]
+    low_node_dir_counts: dict[str, int] = {}
+    for file_path, _count in low_node_files:
+        bucket = _directory_bucket(file_path)
+        low_node_dir_counts[bucket] = low_node_dir_counts.get(bucket, 0) + 1
+    top_low_node_dirs = _top_items(low_node_dir_counts, limit=5)
+    return {
+        "files": files,
+        "nodes": nodes,
+        "eligible_callsites": eligible_callsites,
+        "nodes_per_file": nodes_per_file,
+        "eligible_callsites_per_file": eligible_callsites_per_file,
+        "low_node_files_leq_1": len(low_node_files),
+        "top_low_node_dirs": top_low_node_dirs,
+        "zero_node_files_observed": 0,
+        "zero_node_files_note": "Not observable from indexed files; files without nodes are not materialized in node_instances.",
+    }
+
+
+def _directory_bucket(file_path: str) -> str:
+    normalized = file_path.replace("\\", "/").strip("/")
+    if not normalized:
+        return "."
+    parts = [part for part in normalized.split("/") if part]
+    if not parts:
+        return "."
+    if len(parts) == 1:
+        return parts[0]
+    return "/".join(parts[:2])
 
 
 def _drop_classification_bucket(
