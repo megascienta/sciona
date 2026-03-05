@@ -28,6 +28,8 @@ def test_snapshot_report_returns_db_counts(repo_with_snapshot):
     assert payload["totals"]["adjusted_call_sites"]["success_rate"] is None
     assert payload["totals"]["classification_quality"]["confidence"] == "n/a"
     assert payload["totals"]["structural_density"]["files"] == 3
+    assert "discovered_files" in payload["totals"]["structural_density"]
+    assert "inferred_zero_node_files" in payload["totals"]["structural_density"]
     assert payload["totals"]["structural_density"]["nodes"] == 5
     assert payload["totals"]["structural_density"]["nodes_per_file"] == pytest.approx(
         5 / 3
@@ -44,6 +46,8 @@ def test_snapshot_report_returns_db_counts(repo_with_snapshot):
     assert python["adjusted_call_sites"]["success_rate"] is None
     assert python["classification_quality"]["confidence"] == "n/a"
     assert python["structural_density"]["nodes_per_file"] == pytest.approx(5 / 3)
+    assert "discovered_files" in python["structural_density"]
+    assert "inferred_zero_node_ratio" in python["structural_density"]
     assert python["structural_density"]["inflation_warning"] is False
     assert python["call_sites_by_scope"]["non_tests"]["eligible"] == 0
     assert python["call_sites_by_scope"]["tests"]["eligible"] == 0
@@ -210,6 +214,7 @@ def test_snapshot_report_full_includes_failure_reasons(repo_with_snapshot):
     assert python["structural_density"]["eligible_callsites"] == 3
     assert python["structural_density"]["eligible_callsites_per_file"] == 1.0
     assert python["structural_density"]["top_low_node_dirs"]
+    assert "warnings" in python["structural_density"]
     assert python["structural_density"]["inflation_warning"] is False
     assert python["drop_reasons"] == {
         "ambiguous_no_in_scope_candidate": 1,

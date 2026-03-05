@@ -243,7 +243,15 @@ def _ensure_call_sites_schema(conn: sqlite3.Connection) -> None:
         "in_scope_candidate_count",
         "candidate_module_hints",
     }
-    if not required.issubset(columns):
+    recreate = not required.issubset(columns)
+    if not recreate:
+        row = conn.execute(
+            "SELECT sql FROM sqlite_master WHERE type='table' AND name='call_sites'"
+        ).fetchone()
+        table_sql = (row[0] if row is not None else "") or ""
+        if "export_chain_narrowed" not in table_sql:
+            recreate = True
+    if recreate:
         conn.execute("DROP TABLE IF EXISTS call_sites")
         conn.execute(SCHEMA_STATEMENTS[3])
         conn.execute(SCHEMA_STATEMENTS[4])

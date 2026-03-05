@@ -236,6 +236,9 @@ def test_structural_integrity_summary_returns_payload(tmp_path):
     totals = payload["low_node_file_diagnostics"]["totals"]
     assert totals["files"] >= 1
     assert totals["inflation_warning"] is False
+    reconciliation = payload["low_node_file_diagnostics"]["discovery_reconciliation"]
+    assert "totals" in reconciliation
+    assert "inferred_zero_node_files" in reconciliation["totals"]
 
 
 def test_structural_integrity_summary_detects_duplicates_and_orphans(tmp_path):
@@ -303,6 +306,7 @@ def test_structural_integrity_summary_detects_duplicates_and_orphans(tmp_path):
     assert "func_orphan" in orphan_ids
     assert payload["integrity_ok"] is False
     assert "low_node_file_diagnostics" in payload
+    assert "discovery_reconciliation" in payload["low_node_file_diagnostics"]
 
 
 def test_callsite_index_neighbors_detail_level(tmp_path):

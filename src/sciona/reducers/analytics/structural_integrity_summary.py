@@ -5,10 +5,13 @@
 
 from __future__ import annotations
 
+from ...code_analysis.tools import walker as file_walker
 from ...data_storage.core_db import read_ops as core_read
 from ..helpers.render import render_json_payload, require_connection
 from ..helpers.utils import require_latest_committed_snapshot
 from ..metadata import ReducerMeta
+from ...runtime import config as runtime_config
+from ...runtime import git as git_ops
 
 REDUCER_META = ReducerMeta(
     reducer_id="structural_integrity_summary",
@@ -70,6 +73,33 @@ def render(
         and low_node_totals_ratio is not None
         and low_node_totals_ratio >= 0.60
     )
+    discovered_by_language = _discovered_files_by_language(repo_root)
+    reconciliation_by_language: dict[str, dict[str, int | float | bool]] = {}
+    for language, metrics in low_node_by_language.items():
+        indexed_files = int(metrics.get("files") or 0)
+        discovered_files = int(discovered_by_language.get(language, 0))
+        inferred_zero = max(discovered_files - indexed_files, 0)
+        inferred_zero_ratio = (
+            (inferred_zero / discovered_files) if discovered_files > 0 else None
+        )
+        inflation_warning = bool(
+            discovered_files >= 200
+            and inferred_zero_ratio is not None
+            and inferred_zero_ratio >= 0.40
+        )
+        reconciliation_by_language[language] = {
+            "discovered_files": discovered_files,
+            "indexed_files": indexed_files,
+            "inferred_zero_node_files": inferred_zero,
+            "inferred_zero_node_ratio": inferred_zero_ratio,
+            "inflation_warning": inflation_warning,
+        }
+    discovered_total = sum(discovered_by_language.values())
+    indexed_total = low_node_totals_files
+    inferred_zero_total = max(discovered_total - indexed_total, 0)
+    inferred_zero_total_ratio = (
+        (inferred_zero_total / discovered_total) if discovered_total > 0 else None
+    )
     body = {
         "payload_kind": "summary",
         "top_k": limit,
@@ -90,6 +120,20 @@ def render(
             },
             "zero_node_files_observed": 0,
             "zero_node_files_note": "Not observable from indexed files; files without nodes are not materialized in node_instances.",
+            "discovery_reconciliation": {
+                "by_language": reconciliation_by_language,
+                "totals": {
+                    "discovered_files": discovered_total,
+                    "indexed_files": indexed_total,
+                    "inferred_zero_node_files": inferred_zero_total,
+                    "inferred_zero_node_ratio": inferred_zero_total_ratio,
+                    "inflation_warning": bool(
+                        discovered_total >= 200
+                        and inferred_zero_total_ratio is not None
+                        and inferred_zero_total_ratio >= 0.40
+                    ),
+                },
+            },
         },
     }
     return render_json_payload(body)
@@ -100,6 +144,27 @@ def _normalize_limit(top_k: int) -> int:
     if value <= 0:
         raise ValueError("structural_integrity_summary top_k must be positive.")
     return value
+
+
+def _discovered_files_by_language(repo_root) -> dict[str, int]:
+    try:
+        config = runtime_config.load_runtime_config(repo_root)
+        tracked = git_ops.tracked_paths(repo_root)
+        ignored = git_ops.ignored_tracked_paths(repo_root)
+        records = file_walker.collect_files(
+            repo_root,
+            config.languages,
+            discovery=config.discovery,
+            tracked_paths=tracked,
+            ignored_paths=ignored,
+        )
+    except Exception:
+        return {}
+    counts: dict[str, int] = {}
+    for record in records:
+        language = str(record.language)
+        counts[language] = counts.get(language, 0) + 1
+    return counts
 
 
 __all__ = ["render", "REDUCER_META"]

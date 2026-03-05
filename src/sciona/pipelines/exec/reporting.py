@@ -9,7 +9,10 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 import sqlite3
 
+from ...code_analysis.tools import walker as file_walker
 from ..domain.repository import RepoState
+from ...runtime import config as runtime_config
+from ...runtime import git as git_ops
 from ...data_storage.connections import artifact_readonly, core_readonly
 from ...data_storage.core_db import read_ops as core_read
 from ...data_storage.artifact_db import read_reporting as artifact_reporting
@@ -72,6 +75,7 @@ def snapshot_report(
     caller_metadata: dict[str, dict[str, object]] = {}
     callable_identifiers_by_language: dict[str, set[str]] = {}
     file_node_distribution_by_language: dict[str, list[tuple[str, int]]] = {}
+    discovered_files_by_language = _discovered_files_by_language(repo_state.repo_root)
     created_at: str | None = None
 
     with core_readonly(repo_state.db_path, repo_root=repo_state.repo_root) as conn:
@@ -406,6 +410,7 @@ def snapshot_report(
             nodes=int(item.get("nodes") or 0),
             eligible_callsites=int((item.get("call_sites") or {}).get("eligible") or 0),
             file_node_distribution=file_node_distribution_by_language.get(language, []),
+            discovered_files=discovered_files_by_language.get(language),
         )
     payload["totals"]["adjusted_call_sites"] = _adjusted_call_sites_payload(
         payload["totals"].get("call_sites"),
@@ -435,6 +440,11 @@ def snapshot_report(
         nodes=int(payload["totals"].get("nodes") or 0),
         eligible_callsites=int((payload["totals"].get("call_sites") or {}).get("eligible") or 0),
         file_node_distribution=all_distribution,
+        discovered_files=(
+            sum(int(v) for v in discovered_files_by_language.values())
+            if discovered_files_by_language
+            else None
+        ),
     )
     if include_failure_reasons:
         payload["failure_hotspots"] = {
@@ -585,6 +595,7 @@ def _structural_density_payload(
     nodes: int,
     eligible_callsites: int,
     file_node_distribution: list[tuple[str, int]],
+    discovered_files: int | None,
 ) -> dict[str, object]:
     nodes_per_file = (nodes / files) if files > 0 else None
     eligible_callsites_per_file = (eligible_callsites / files) if files > 0 else None
@@ -595,18 +606,43 @@ def _structural_density_payload(
         low_node_dir_counts[bucket] = low_node_dir_counts.get(bucket, 0) + 1
     top_low_node_dirs = _top_items(low_node_dir_counts, limit=5)
     low_node_ratio = (len(low_node_files) / files) if files > 0 else None
+    inferred_zero_node_files = (
+        max(int(discovered_files or 0) - files, 0)
+        if discovered_files is not None
+        else None
+    )
+    inferred_zero_node_ratio = (
+        (inferred_zero_node_files / int(discovered_files))
+        if discovered_files is not None and int(discovered_files) > 0 and inferred_zero_node_files is not None
+        else None
+    )
     inflation_warning = bool(
         files >= 200 and low_node_ratio is not None and low_node_ratio >= 0.60
     )
-    warnings = ["low_node_file_ratio_high"] if inflation_warning else []
+    if (
+        not inflation_warning
+        and discovered_files is not None
+        and int(discovered_files) >= 200
+        and inferred_zero_node_ratio is not None
+        and inferred_zero_node_ratio >= 0.40
+    ):
+        inflation_warning = True
+    warnings: list[str] = []
+    if low_node_ratio is not None and low_node_ratio >= 0.60:
+        warnings.append("low_node_file_ratio_high")
+    if inferred_zero_node_ratio is not None and inferred_zero_node_ratio >= 0.40:
+        warnings.append("inferred_zero_node_ratio_high")
     return {
         "files": files,
+        "discovered_files": discovered_files,
         "nodes": nodes,
         "eligible_callsites": eligible_callsites,
         "nodes_per_file": nodes_per_file,
         "eligible_callsites_per_file": eligible_callsites_per_file,
         "low_node_files_leq_1": len(low_node_files),
         "low_node_file_ratio": low_node_ratio,
+        "inferred_zero_node_files": inferred_zero_node_files,
+        "inferred_zero_node_ratio": inferred_zero_node_ratio,
         "top_low_node_dirs": top_low_node_dirs,
         "inflation_warning": inflation_warning,
         "warnings": warnings,
@@ -625,6 +661,26 @@ def _directory_bucket(file_path: str) -> str:
     if len(parts) == 1:
         return parts[0]
     return "/".join(parts[:2])
+
+
+def _discovered_files_by_language(repo_root) -> dict[str, int]:
+    try:
+        config = runtime_config.load_runtime_config(repo_root)
+        tracked = git_ops.tracked_paths(repo_root)
+        ignored = git_ops.ignored_tracked_paths(repo_root)
+        records = file_walker.collect_files(
+            repo_root,
+            config.languages,
+            discovery=config.discovery,
+            tracked_paths=tracked,
+            ignored_paths=ignored,
+        )
+    except Exception:
+        return {}
+    counts: dict[str, int] = defaultdict(int)
+    for record in records:
+        counts[str(record.language)] += 1
+    return dict(counts)
 
 
 def _drop_classification_bucket(
