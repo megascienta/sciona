@@ -24,6 +24,7 @@ def select_strict_call_candidate(
     fallback_candidates: Sequence[str],
     caller_module: str | None,
     module_lookup: Mapping[str, str],
+    candidate_qualified_names: Mapping[str, str] | None = None,
     import_targets: Mapping[str, set[str]],
     expanded_import_targets: Mapping[str, set[str]] | None = None,
     caller_ancestor_modules: set[str] | None = None,
@@ -48,7 +49,11 @@ def select_strict_call_candidate(
     )
 
     if "." in identifier:
-        exact_matches = [candidate for candidate in candidates if candidate == identifier]
+        exact_matches = []
+        for candidate in candidates:
+            candidate_qname = (candidate_qualified_names or {}).get(candidate, candidate)
+            if candidate_qname == identifier:
+                exact_matches.append(candidate)
         if len(exact_matches) == 1:
             return StrictCallDecision(
                 accepted_candidate=exact_matches[0],
@@ -58,6 +63,22 @@ def select_strict_call_candidate(
                 in_scope_candidate_count=1,
                 candidate_module_hints=candidate_module_hints,
             )
+        if len(exact_matches) > 1:
+            identifier_module = identifier.rsplit(".", 1)[0]
+            module_exact = [
+                candidate
+                for candidate in exact_matches
+                if module_lookup.get(candidate) == identifier_module
+            ]
+            if len(module_exact) == 1:
+                return StrictCallDecision(
+                    accepted_candidate=module_exact[0],
+                    accepted_provenance="exact_qname",
+                    dropped_reason=None,
+                    candidate_count=candidate_count,
+                    in_scope_candidate_count=1,
+                    candidate_module_hints=candidate_module_hints,
+                )
 
     if len(candidates) == 1:
         candidate = candidates[0]

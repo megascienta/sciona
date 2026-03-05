@@ -133,7 +133,9 @@ def write_call_artifacts(
     )
     if not caller_set:
         return
-    symbol_index, in_repo_callable_ids = _build_symbol_index(core_conn, snapshot_id)
+    symbol_index, in_repo_callable_ids, callable_qname_by_id = _build_symbol_index(
+        core_conn, snapshot_id
+    )
     (
         module_lookup,
         import_targets,
@@ -155,10 +157,11 @@ def write_call_artifacts(
             record.callee_identifiers,
             symbol_index,
             caller_module=caller_module,
-            module_lookup=module_lookup,
-            import_targets=import_targets,
-            expanded_import_targets=expanded_import_targets,
-            module_ancestors=module_ancestors,
+                module_lookup=module_lookup,
+                callable_qname_by_id=callable_qname_by_id,
+                import_targets=import_targets,
+                expanded_import_targets=expanded_import_targets,
+                module_ancestors=module_ancestors,
         )
         callee_ids = {callee_id for callee_id in callee_ids if callee_id in in_repo_callable_ids}
         filtered_callsite_rows = _filter_in_repo_callsite_rows(
@@ -207,21 +210,27 @@ def write_call_artifacts(
 
 def _build_symbol_index(
     core_conn, snapshot_id: str
-) -> tuple[dict[str, list[str]], set[str]]:
+) -> tuple[dict[str, list[str]], set[str], dict[str, str]]:
     callable_types = sorted(CALLABLE_NODE_TYPES)
     rows = core_read.list_nodes_by_types(core_conn, snapshot_id, callable_types)
     index_sets: dict[str, set[str]] = defaultdict(set)
     in_repo_callable_ids: set[str] = set()
+    callable_qname_by_id: dict[str, str] = {}
     for structural_id, _node_type, qualified_name in rows:
         in_repo_callable_ids.add(structural_id)
         if not qualified_name:
             continue
+        callable_qname_by_id[structural_id] = qualified_name
         terminal = _simple_identifier(qualified_name)
         if terminal:
             index_sets[terminal].add(structural_id)
         # Preserve fully-qualified call hints emitted by analyzers.
         index_sets[qualified_name].add(structural_id)
-    return {key: sorted(values) for key, values in index_sets.items()}, in_repo_callable_ids
+    return (
+        {key: sorted(values) for key, values in index_sets.items()},
+        in_repo_callable_ids,
+        callable_qname_by_id,
+    )
 
 
 def _filter_in_repo_callsite_rows(
@@ -369,6 +378,7 @@ def _resolve_callees(
     *,
     caller_module: str | None,
     module_lookup: dict[str, str],
+    callable_qname_by_id: dict[str, str],
     import_targets: dict[str, set[str]],
     expanded_import_targets: dict[str, set[str]],
     module_ancestors: dict[str, set[str]],
@@ -430,6 +440,7 @@ def _resolve_callees(
             fallback_candidates=fallback_candidates,
             caller_module=caller_module,
             module_lookup=module_lookup,
+            candidate_qualified_names=callable_qname_by_id,
             import_targets=import_targets,
             expanded_import_targets=expanded_import_targets,
             caller_ancestor_modules=module_ancestors.get(caller_module or "", set()),

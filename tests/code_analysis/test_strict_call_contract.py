@@ -134,6 +134,24 @@ def test_strict_call_contract_prefers_exact_qname_in_ambiguous_set() -> None:
     assert decision.dropped_reason is None
 
 
+def test_strict_call_contract_prefers_exact_qname_with_structural_ids() -> None:
+    decision = select_strict_call_candidate(
+        identifier="pkg.mod.Service.run",
+        direct_candidates=["id_a", "id_b"],
+        fallback_candidates=[],
+        caller_module="pkg.mod",
+        module_lookup={"id_a": "pkg.mod", "id_b": "pkg.alt"},
+        candidate_qualified_names={
+            "id_a": "pkg.mod.Service.run",
+            "id_b": "pkg.alt.Service.run",
+        },
+        import_targets={"pkg.mod": {"pkg.alt"}},
+    )
+    assert decision.accepted_candidate == "id_a"
+    assert decision.accepted_provenance == "exact_qname"
+    assert decision.dropped_reason is None
+
+
 def test_strict_call_contract_deduplicates_candidates() -> None:
     decision = select_strict_call_candidate(
         identifier="run",
