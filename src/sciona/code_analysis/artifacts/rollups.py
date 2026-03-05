@@ -449,6 +449,39 @@ def _resolve_callees(
             caller_ancestor_modules=module_ancestors.get(caller_module or "", set()),
             allow_descendant_scope_for_ambiguous=caller_language == "typescript",
         )
+        rescue_candidate: str | None = None
+        if (
+            decision.accepted_candidate is None
+            and decision.dropped_reason
+            in {
+                "ambiguous_no_in_scope_candidate",
+                "ambiguous_multiple_in_scope_candidates",
+            }
+        ):
+            if caller_language == "python":
+                rescue_candidate = _resolve_python_export_chain_ambiguous(
+                    identifier=identifier,
+                    direct_candidates=direct_candidates,
+                    fallback_candidates=fallback_candidates,
+                    caller_module=caller_module,
+                    callable_qname_by_id=callable_qname_by_id,
+                    module_lookup=module_lookup,
+                    import_targets=import_targets,
+                    expanded_import_targets=expanded_import_targets,
+                )
+        if rescue_candidate:
+            decision = select_strict_call_candidate(
+                identifier=identifier,
+                direct_candidates=[rescue_candidate],
+                fallback_candidates=[],
+                caller_module=caller_module,
+                module_lookup=module_lookup,
+                candidate_qualified_names=callable_qname_by_id,
+                import_targets=import_targets,
+                expanded_import_targets=expanded_import_targets,
+                caller_ancestor_modules=module_ancestors.get(caller_module or "", set()),
+                allow_descendant_scope_for_ambiguous=caller_language == "typescript",
+            )
         cast(Counter[int], stats["candidate_count_histogram"])[decision.candidate_count] += 1
         ordinal = ordinal_by_identifier.get(identifier, 0) + 1
         ordinal_by_identifier[identifier] = ordinal
@@ -508,6 +541,74 @@ def _module_qname_ancestors(module_qname: str) -> set[str]:
     for end in range(len(parts) - 1, 0, -1):
         ancestors.add(".".join(parts[:end]))
     return ancestors
+
+
+def _resolve_python_export_chain_ambiguous(
+    *,
+    identifier: str,
+    direct_candidates: Sequence[str],
+    fallback_candidates: Sequence[str],
+    caller_module: str | None,
+    callable_qname_by_id: dict[str, str],
+    module_lookup: dict[str, str],
+    import_targets: dict[str, set[str]],
+    expanded_import_targets: dict[str, set[str]],
+) -> str | None:
+    candidates = list(dict.fromkeys(list(direct_candidates) or list(fallback_candidates)))
+    if len(candidates) < 2 or not caller_module:
+        return None
+    terminal = _simple_identifier(identifier)
+    if not terminal:
+        return None
+    allowed_modules = set(expanded_import_targets.get(caller_module, set()))
+    allowed_modules.update(import_targets.get(caller_module, set()))
+    allowed_modules.add(caller_module)
+    in_scope = []
+    for candidate in candidates:
+        module = module_lookup.get(candidate)
+        if not module:
+            continue
+        if not _module_in_scope(module, allowed_modules, allow_descendants=True):
+            continue
+        qname = callable_qname_by_id.get(candidate, "")
+        if qname and _simple_identifier(qname) == terminal:
+            in_scope.append(candidate)
+    if not in_scope:
+        return None
+    return _best_candidate_by_module_path(in_scope, module_lookup, callable_qname_by_id)
+
+
+def _module_in_scope(
+    candidate_module: str,
+    allowed_modules: set[str],
+    *,
+    allow_descendants: bool,
+) -> bool:
+    for allowed in allowed_modules:
+        if candidate_module == allowed:
+            return True
+        if allow_descendants and candidate_module.startswith(f"{allowed}."):
+            return True
+    return False
+
+
+def _best_candidate_by_module_path(
+    candidates: Sequence[str],
+    module_lookup: dict[str, str],
+    callable_qname_by_id: dict[str, str],
+) -> str:
+    ranked = sorted(
+        candidates,
+        key=lambda candidate: (
+            len((module_lookup.get(candidate) or "").split(".")),
+            module_lookup.get(candidate) or "",
+            callable_qname_by_id.get(candidate) or "",
+            candidate,
+        ),
+    )
+    return ranked[0]
+
+
 
 
 def _ensure_rollup_diagnostics(diagnostics: dict[str, object] | None) -> dict[str, object]:
