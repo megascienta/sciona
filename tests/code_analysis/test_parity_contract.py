@@ -16,15 +16,10 @@ from sciona.code_analysis.config import LANGUAGE_CONFIG
 def test_parity_contract_declared_dimensions_match_expected_matrix() -> None:
     contract = build_parity_contract()
     dimensions = contract["dimensions"]
-    expected = {
-        key: {"java": "yes", "python": "yes", "typescript": "yes"}
-        for key in dimensions
-    }
-    expected["core_implements_edges"] = {
-        "java": "yes",
-        "python": "n/a",
-        "typescript": "yes",
-    }
+    languages = tuple(contract["languages"])
+    expected = {key: {lang: "yes" for lang in languages} for key in dimensions}
+    expected["core_implements_edges"]["python"] = "n/a"
+    expected["core_implements_edges"]["javascript"] = "n/a"
     assert dimensions == expected
 
 
@@ -63,3 +58,11 @@ def test_parity_contract_documents_python_implements_asymmetry() -> None:
     python = asymmetries.get("python")
     assert python is not None
     assert python["implements_edges"]["present"] is False
+
+
+def test_parity_contract_documents_javascript_implements_asymmetry() -> None:
+    contract = build_parity_contract()
+    asymmetries = contract.get("documented_asymmetries", {})
+    javascript = asymmetries.get("javascript")
+    assert javascript is not None
+    assert javascript["implements_edges"]["present"] is False

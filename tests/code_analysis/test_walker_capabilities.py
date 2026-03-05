@@ -4,11 +4,12 @@
 from sciona.code_analysis.languages.common.walker_capabilities import (
     build_walker_capabilities,
 )
+from sciona.code_analysis.config import LANGUAGE_CONFIG
 
 
 def test_walker_capabilities_cover_supported_languages() -> None:
     capabilities = build_walker_capabilities()
-    assert set(capabilities) == {"python", "typescript", "java"}
+    assert set(capabilities) == set(LANGUAGE_CONFIG)
 
 
 def test_walker_capability_entries_have_structural_mapping_shape() -> None:

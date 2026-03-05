@@ -37,6 +37,20 @@ TYPESCRIPT_PROFILE_PARAMETER_NODE_TYPES = (
 )
 TYPESCRIPT_PROFILE_BASE_NODE_TYPES = ("identifier", "type_identifier")
 
+JAVASCRIPT_PROFILE_FUNCTION_NODE_TYPES = (
+    "function_declaration",
+    "method_definition",
+)
+JAVASCRIPT_PROFILE_CLASS_NODE_TYPES = (
+    "class_declaration",
+    "class_expression",
+)
+JAVASCRIPT_PROFILE_PARAMETER_NODE_TYPES = (
+    "required_parameter",
+    "optional_parameter",
+)
+JAVASCRIPT_PROFILE_BASE_NODE_TYPES = ("identifier",)
+
 JAVA_PROFILE_FUNCTION_NODE_TYPES = (
     "method_declaration",
     "constructor_declaration",

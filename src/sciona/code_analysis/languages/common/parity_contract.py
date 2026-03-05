@@ -6,68 +6,79 @@
 from __future__ import annotations
 
 
-PARITY_CONTRACT_VERSION = 4
+PARITY_CONTRACT_VERSION = 5
 
 
 def build_parity_contract() -> dict[str, object]:
-    """Return a machine-readable parity contract for PY/TS/Java."""
+    """Return a machine-readable parity contract for builtin languages."""
     return {
         "version": PARITY_CONTRACT_VERSION,
-        "languages": ["java", "python", "typescript"],
+        "languages": ["java", "javascript", "python", "typescript"],
         "objective": "structural_contract_capability_parity",
         "dimensions": {
             "structural_nodes_edges_contract": {
                 "java": "yes",
+                "javascript": "yes",
                 "python": "yes",
                 "typescript": "yes",
             },
             "lexical_contains_edges": {
                 "java": "yes",
+                "javascript": "yes",
                 "python": "yes",
                 "typescript": "yes",
             },
             "core_extends_edges": {
                 "java": "yes",
+                "javascript": "yes",
                 "python": "yes",
                 "typescript": "yes",
             },
             "core_implements_edges": {
                 "java": "yes",
+                "javascript": "n/a",
                 "python": "n/a",
                 "typescript": "yes",
             },
             "imports_declared_and_aliasing": {
                 "java": "yes",
+                "javascript": "yes",
                 "python": "yes",
                 "typescript": "yes",
             },
             "normalized_import_model_convergence": {
                 "java": "yes",
+                "javascript": "yes",
                 "python": "yes",
                 "typescript": "yes",
             },
             "call_extraction_and_attribution": {
                 "java": "yes",
+                "javascript": "yes",
                 "python": "yes",
                 "typescript": "yes",
             },
             "walker_construct_capability_declarations": {
                 "java": "yes",
+                "javascript": "yes",
                 "python": "yes",
                 "typescript": "yes",
             },
             "callable_role_coverage": {
                 "java": "yes",
+                "javascript": "yes",
                 "python": "yes",
                 "typescript": "yes",
             },
             "profile_function_extras_tree_sitter": {
                 "java": "yes",
+                "javascript": "yes",
                 "python": "yes",
                 "typescript": "yes",
             },
             "profile_class_extras_tree_sitter": {
                 "java": "yes",
+                "javascript": "yes",
                 "python": "yes",
                 "typescript": "yes",
             },
@@ -96,6 +107,12 @@ def build_parity_contract() -> dict[str, object]:
                     "present": False,
                     "reason": "java extraction does not model async/await callable kind metadata",
                 },
-            }
+            },
+            "javascript": {
+                "implements_edges": {
+                    "present": False,
+                    "reason": "javascript has no dedicated interface-implementation syntax token",
+                },
+            },
         },
     }

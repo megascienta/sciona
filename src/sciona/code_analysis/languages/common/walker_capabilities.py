@@ -138,4 +138,34 @@ def build_walker_capabilities() -> dict[str, list[dict[str, object]]]:
                 "constraints": ["syntax-local base/interface references only"],
             },
         ],
+        "javascript": [
+            {
+                "construct": "class_declaration",
+                "node_types": ["class_declaration", "class_expression"],
+                "emits_nodes": ["type"],
+                "emits_edges": ["LEXICALLY_CONTAINS"],
+            },
+            {
+                "construct": "callable_declaration",
+                "node_types": ["function_declaration", "method_definition"],
+                "emits_nodes": ["callable"],
+                "emits_edges": ["LEXICALLY_CONTAINS"],
+            },
+            {
+                "construct": "bound_callable_declaration",
+                "node_types": ["variable_declarator", "assignment_expression", "field_definition"],
+                "emits_nodes": ["callable"],
+                "emits_edges": ["LEXICALLY_CONTAINS"],
+                "constraints": [
+                    "function/arrow callable promoted only for stable lexical bindings; inline anonymous callbacks are non-structural"
+                ],
+            },
+            {
+                "construct": "local_inheritance_edges",
+                "node_types": ["class_declaration", "class_expression"],
+                "emits_nodes": [],
+                "emits_edges": ["EXTENDS"],
+                "constraints": ["syntax-local base references only"],
+            },
+        ],
     }

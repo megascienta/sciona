@@ -77,6 +77,44 @@
         ]
       }
     },
+    "javascript": {
+      "imports": [
+        "export_statement",
+        "import_statement"
+      ],
+      "dynamic_imports": [
+        "call_expression"
+      ],
+      "require_declarations": [
+        "lexical_declaration"
+      ],
+      "calls": [
+        "call_expression",
+        "new_expression"
+      ],
+      "skip_calls": [
+        "class",
+        "class_declaration",
+        "class_expression"
+      ],
+      "profile": {
+        "functions": [
+          "function_declaration",
+          "method_definition"
+        ],
+        "classes": [
+          "class_declaration",
+          "class_expression"
+        ],
+        "parameters": [
+          "optional_parameter",
+          "required_parameter"
+        ],
+        "bases": [
+          "identifier"
+        ]
+      }
+    },
     "java": {
       "packages": [
         "package_declaration"
@@ -318,12 +356,72 @@
           "syntax-local base/interface references only"
         ]
       }
+    ],
+    "javascript": [
+      {
+        "construct": "class_declaration",
+        "node_types": [
+          "class_declaration",
+          "class_expression"
+        ],
+        "emits_nodes": [
+          "type"
+        ],
+        "emits_edges": [
+          "LEXICALLY_CONTAINS"
+        ]
+      },
+      {
+        "construct": "callable_declaration",
+        "node_types": [
+          "function_declaration",
+          "method_definition"
+        ],
+        "emits_nodes": [
+          "callable"
+        ],
+        "emits_edges": [
+          "LEXICALLY_CONTAINS"
+        ]
+      },
+      {
+        "construct": "bound_callable_declaration",
+        "node_types": [
+          "variable_declarator",
+          "assignment_expression",
+          "field_definition"
+        ],
+        "emits_nodes": [
+          "callable"
+        ],
+        "emits_edges": [
+          "LEXICALLY_CONTAINS"
+        ],
+        "constraints": [
+          "function/arrow callable promoted only for stable lexical bindings; inline anonymous callbacks are non-structural"
+        ]
+      },
+      {
+        "construct": "local_inheritance_edges",
+        "node_types": [
+          "class_declaration",
+          "class_expression"
+        ],
+        "emits_nodes": [],
+        "emits_edges": [
+          "EXTENDS"
+        ],
+        "constraints": [
+          "syntax-local base references only"
+        ]
+      }
     ]
   },
   "parity_contract": {
-    "version": 4,
+    "version": 5,
     "languages": [
       "java",
+      "javascript",
       "python",
       "typescript"
     ],
@@ -331,56 +429,67 @@
     "dimensions": {
       "structural_nodes_edges_contract": {
         "java": "yes",
+        "javascript": "yes",
         "python": "yes",
         "typescript": "yes"
       },
       "lexical_contains_edges": {
         "java": "yes",
+        "javascript": "yes",
         "python": "yes",
         "typescript": "yes"
       },
       "core_extends_edges": {
         "java": "yes",
+        "javascript": "yes",
         "python": "yes",
         "typescript": "yes"
       },
       "core_implements_edges": {
         "java": "yes",
+        "javascript": "n/a",
         "python": "n/a",
         "typescript": "yes"
       },
       "imports_declared_and_aliasing": {
         "java": "yes",
+        "javascript": "yes",
         "python": "yes",
         "typescript": "yes"
       },
       "normalized_import_model_convergence": {
         "java": "yes",
+        "javascript": "yes",
         "python": "yes",
         "typescript": "yes"
       },
       "call_extraction_and_attribution": {
         "java": "yes",
+        "javascript": "yes",
         "python": "yes",
         "typescript": "yes"
       },
       "walker_construct_capability_declarations": {
         "java": "yes",
+        "javascript": "yes",
         "python": "yes",
         "typescript": "yes"
       },
       "callable_role_coverage": {
         "java": "yes",
+        "javascript": "yes",
         "python": "yes",
         "typescript": "yes"
       },
       "profile_function_extras_tree_sitter": {
         "java": "yes",
+        "javascript": "yes",
         "python": "yes",
         "typescript": "yes"
       },
       "profile_class_extras_tree_sitter": {
         "java": "yes",
+        "javascript": "yes",
         "python": "yes",
         "typescript": "yes"
       }
@@ -410,6 +519,12 @@
         "async_callable_kind": {
           "present": false,
           "reason": "java extraction does not model async/await callable kind metadata"
+        }
+      },
+      "javascript": {
+        "implements_edges": {
+          "present": false,
+          "reason": "javascript has no dedicated interface-implementation syntax token"
         }
       }
     }

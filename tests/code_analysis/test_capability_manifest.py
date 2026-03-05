@@ -38,3 +38,10 @@ def test_capability_manifest_declares_python_bound_callable_construct() -> None:
         "assignment",
         "augmented_assignment",
     ]
+
+
+def test_capability_manifest_declares_javascript_import_and_require_surfaces() -> None:
+    manifest = build_capability_manifest()
+    javascript = manifest["queries"]["javascript"]
+    assert javascript["dynamic_imports"] == ["call_expression"]
+    assert javascript["require_declarations"] == ["lexical_declaration"]

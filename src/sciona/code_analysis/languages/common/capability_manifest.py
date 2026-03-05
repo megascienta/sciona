@@ -52,6 +52,25 @@ def _build_query_surfaces() -> dict[str, dict[str, object]]:
                 "bases": sorted(profile_query_surface.TYPESCRIPT_PROFILE_BASE_NODE_TYPES),
             },
         },
+        "javascript": {
+            "imports": sorted(query_surface.JAVASCRIPT_IMPORT_EXPORT_NODE_TYPES),
+            "dynamic_imports": sorted(query_surface.JAVASCRIPT_DYNAMIC_IMPORT_NODE_TYPES),
+            "require_declarations": sorted(
+                query_surface.JAVASCRIPT_REQUIRE_DECLARATION_NODE_TYPES
+            ),
+            "calls": sorted(query_surface.JAVASCRIPT_CALL_NODE_TYPES),
+            "skip_calls": sorted(query_surface.JAVASCRIPT_SKIP_CALL_NODE_TYPES),
+            "profile": {
+                "functions": sorted(
+                    profile_query_surface.JAVASCRIPT_PROFILE_FUNCTION_NODE_TYPES
+                ),
+                "classes": sorted(profile_query_surface.JAVASCRIPT_PROFILE_CLASS_NODE_TYPES),
+                "parameters": sorted(
+                    profile_query_surface.JAVASCRIPT_PROFILE_PARAMETER_NODE_TYPES
+                ),
+                "bases": sorted(profile_query_surface.JAVASCRIPT_PROFILE_BASE_NODE_TYPES),
+            },
+        },
         "java": {
             "packages": sorted(query_surface.JAVA_PACKAGE_NODE_TYPES),
             "imports": sorted(query_surface.JAVA_IMPORT_NODE_TYPES),
