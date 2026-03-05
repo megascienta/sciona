@@ -83,6 +83,7 @@ def select_strict_call_candidate(
 
     if len(candidates) == 1:
         candidate = candidates[0]
+        candidate_qname = (candidate_qualified_names or {}).get(candidate, candidate)
         allowed_modules = set(import_targets.get(caller_module or "", set()))
         provenance_scope = set(
             (expanded_import_targets or import_targets).get(caller_module or "", set())
@@ -90,6 +91,17 @@ def select_strict_call_candidate(
         if caller_module:
             allowed_modules.add(caller_module)
             provenance_scope.add(caller_module)
+        if "." in identifier and _is_constructor_proxy_match(
+            identifier=identifier, candidate_qname=candidate_qname
+        ):
+            return StrictCallDecision(
+                accepted_candidate=candidate,
+                accepted_provenance="exact_qname",
+                dropped_reason=None,
+                candidate_count=candidate_count,
+                in_scope_candidate_count=1,
+                candidate_module_hints=candidate_module_hints,
+            )
         candidate_module = _candidate_module(
             candidate=candidate,
             module_lookup=module_lookup,
@@ -239,6 +251,15 @@ def _candidate_module_hints(
         return ()
     unique_modules = sorted(set(modules))
     return tuple(unique_modules[:limit])
+
+
+def _is_constructor_proxy_match(*, identifier: str, candidate_qname: str) -> bool:
+    if not identifier or not candidate_qname:
+        return False
+    if not candidate_qname.startswith(f"{identifier}."):
+        return False
+    suffix = candidate_qname[len(identifier) + 1 :]
+    return suffix in {"__new__", "__init__", "new"}
 
 
 __all__ = ["StrictCallDecision", "select_strict_call_candidate"]

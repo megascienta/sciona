@@ -70,6 +70,21 @@ def test_strict_call_contract_accepts_unique_same_module_candidate() -> None:
     assert decision.dropped_reason is None
 
 
+def test_strict_call_contract_accepts_constructor_proxy_match() -> None:
+    decision = select_strict_call_candidate(
+        identifier="sympy.logic.boolalg.And",
+        direct_candidates=[],
+        fallback_candidates=["id_and_ctor"],
+        caller_module="sympy.assumptions.facts",
+        module_lookup={"id_and_ctor": "sympy.logic.boolalg"},
+        candidate_qualified_names={"id_and_ctor": "sympy.logic.boolalg.And.__new__"},
+        import_targets={},
+    )
+    assert decision.accepted_candidate == "id_and_ctor"
+    assert decision.accepted_provenance == "exact_qname"
+    assert decision.dropped_reason is None
+
+
 def test_strict_call_contract_rejects_when_no_candidates() -> None:
     decision = select_strict_call_candidate(
         identifier="run",
