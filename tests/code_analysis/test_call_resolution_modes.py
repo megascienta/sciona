@@ -4,6 +4,7 @@
 from pathlib import Path
 
 from sciona.code_analysis.languages.builtin.java import JavaAnalyzer
+from sciona.code_analysis.languages.builtin.javascript import JavaScriptAnalyzer
 from sciona.code_analysis.languages.builtin.python import PythonAnalyzer
 from sciona.code_analysis.languages.builtin.typescript import TypeScriptAnalyzer
 from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
@@ -93,6 +94,33 @@ public class Foo {
     file_path.write_text(source, encoding="utf-8")
     analyzer = JavaAnalyzer()
     snapshot = _snapshot(file_path, "src/Foo.java", "java", source)
+    module_name = analyzer.module_name(tmp_path, snapshot)
+    analyzer.module_index = {module_name}
+
+    run_1 = _call_map(analyzer.analyze(snapshot, module_name))
+    run_2 = _call_map(analyzer.analyze(snapshot, module_name))
+    assert run_1 == run_2
+
+
+def test_javascript_resolution_is_stable_across_runs(tmp_path):
+    source = """
+class Service {
+  run() {}
+}
+export class Controller {
+  constructor() {
+    this.svc = new Service();
+  }
+  handle() {
+    this.svc.run();
+  }
+}
+"""
+    file_path = tmp_path / "src" / "mod.js"
+    file_path.parent.mkdir()
+    file_path.write_text(source, encoding="utf-8")
+    analyzer = JavaScriptAnalyzer()
+    snapshot = _snapshot(file_path, "src/mod.js", "javascript", source)
     module_name = analyzer.module_name(tmp_path, snapshot)
     analyzer.module_index = {module_name}
 

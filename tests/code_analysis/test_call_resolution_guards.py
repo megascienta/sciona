@@ -2,6 +2,9 @@
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
 from sciona.code_analysis.languages.builtin.java.java_calls import resolve_java_calls
+from sciona.code_analysis.languages.builtin.javascript.javascript_calls import (
+    resolve_javascript_calls,
+)
 from sciona.code_analysis.languages.builtin.java.java_resolution import qualify_java_type
 from sciona.code_analysis.languages.builtin.python.python_calls import (
     resolve_python_calls,
@@ -40,6 +43,27 @@ def test_typescript_ambiguous_class_candidate_does_not_overresolve() -> None:
     targets = [CallTarget(terminal="run", callee_text="Service.run")]
     outcome_diagnostics: dict[str, int] = {}
     resolved = resolve_typescript_calls(
+        targets=targets,
+        module_name="repo.pkg.mod",
+        module_functions=set(),
+        class_methods={},
+        class_name=None,
+        import_aliases={},
+        member_aliases={},
+        class_name_map={"Service": "repo.pkg.a.Service"},
+        class_name_candidates={"Service": {"repo.pkg.a.Service", "repo.pkg.b.Service"}},
+        instance_map={},
+        class_instance_map={},
+        outcome_diagnostics=outcome_diagnostics,
+    )
+    assert resolved == []
+    assert outcome_diagnostics.get("ambiguous_candidate") == 1
+
+
+def test_javascript_ambiguous_class_candidate_does_not_overresolve() -> None:
+    targets = [CallTarget(terminal="run", callee_text="Service.run")]
+    outcome_diagnostics: dict[str, int] = {}
+    resolved = resolve_javascript_calls(
         targets=targets,
         module_name="repo.pkg.mod",
         module_functions=set(),
@@ -148,6 +172,30 @@ def test_typescript_resolves_using_ir_qualified_call_when_text_is_unqualified() 
     assert resolved == ["repo.pkg.services.Service.run"]
 
 
+def test_javascript_resolves_using_ir_qualified_call_when_text_is_unqualified() -> None:
+    targets = [
+        CallTarget(
+            terminal="run",
+            callee_text="run",
+            ir=QualifiedCallIR(parts=("svc_alias", "run"), terminal="run"),
+        )
+    ]
+    resolved = resolve_javascript_calls(
+        targets=targets,
+        module_name="repo.pkg.mod",
+        module_functions=set(),
+        class_methods={},
+        class_name=None,
+        import_aliases={"svc_alias": "repo.pkg.services.Service"},
+        member_aliases={},
+        class_name_map={},
+        class_name_candidates={},
+        instance_map={},
+        class_instance_map={},
+    )
+    assert resolved == ["repo.pkg.services.Service.run"]
+
+
 def test_java_resolves_using_ir_qualified_call_when_text_is_unqualified() -> None:
     targets = [
         CallTarget(
@@ -232,6 +280,24 @@ def test_python_module_fallback_respects_local_binding_shadowing() -> None:
 def test_typescript_member_alias_does_not_apply_to_receiver_calls() -> None:
     targets = [CallTarget(terminal="run", callee_text="svc.run")]
     resolved = resolve_typescript_calls(
+        targets=targets,
+        module_name="repo.pkg.mod",
+        module_functions=set(),
+        class_methods={},
+        class_name=None,
+        import_aliases={},
+        member_aliases={"run": "repo.pkg.Service.run"},
+        class_name_map={},
+        class_name_candidates={},
+        instance_map={},
+        class_instance_map={},
+    )
+    assert resolved == []
+
+
+def test_javascript_member_alias_does_not_apply_to_receiver_calls() -> None:
+    targets = [CallTarget(terminal="run", callee_text="svc.run")]
+    resolved = resolve_javascript_calls(
         targets=targets,
         module_name="repo.pkg.mod",
         module_functions=set(),

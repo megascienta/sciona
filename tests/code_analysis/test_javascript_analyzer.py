@@ -114,6 +114,26 @@ def test_javascript_analyzer_collects_imports_require_and_dynamic_import(tmp_pat
     assert f"{utils_module}.helper" in by_caller[f"{mod_module}.run"]
 
 
+def test_javascript_analyzer_strict_gate_drops_external_import_calls(tmp_path) -> None:
+    repo = tmp_path
+    snapshot = _snapshot(
+        repo,
+        "src/mod.js",
+        """
+        import { helper } from 'third-party-lib';
+        export function run() {
+          return helper();
+        }
+        """,
+    )
+    analyzer = JavaScriptAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+    call_map = {record.qualified_name: tuple(record.callee_identifiers) for record in result.call_records}
+    assert call_map == {}
+
+
 def test_javascript_analyzer_does_not_promote_inline_or_iife_callables(tmp_path) -> None:
     repo = tmp_path
     snapshot = _snapshot(
