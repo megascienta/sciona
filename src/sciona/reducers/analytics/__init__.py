@@ -12,6 +12,7 @@ from . import (
     fan_summary,
     hotspot_summary,
     module_call_graph_summary,
+    resolution_trace,
 )
 
 __all__ = [
@@ -21,4 +22,5 @@ __all__ = [
     "fan_summary",
     "hotspot_summary",
     "module_call_graph_summary",
+    "resolution_trace",
 ]

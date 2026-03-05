@@ -2,6 +2,7 @@
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
 import pytest
+import json
 
 from sciona.reducers.analytics import (
     call_resolution_quality,
@@ -10,6 +11,7 @@ from sciona.reducers.analytics import (
     fan_summary,
     hotspot_summary,
     module_call_graph_summary,
+    resolution_trace,
 )
 from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.data_storage.artifact_db import write_index as artifact_write
@@ -110,6 +112,110 @@ def test_call_resolution_quality_aggregates_callsite_rows(tmp_path):
     assert payload["totals"]["dropped"] == 1
     assert payload["drop_reason_counts"][0]["name"] == "no_candidates"
     assert payload["drop_reason_counts"][0]["count"] == 1
+
+
+def test_resolution_trace_returns_payload(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = core_conn(repo_root)
+    function_id = qualify_repo_name(repo_root, "pkg.alpha.service.helper")
+    try:
+        payload_text = resolution_trace.render(
+            snapshot_id,
+            conn,
+            repo_root,
+            function_id=function_id,
+        )
+    finally:
+        conn.close()
+    payload = parse_json_payload(payload_text)
+    assert payload["payload_kind"] == "summary"
+    assert payload["callable_id"]
+    assert "resolution_pipeline_stages" in payload
+    assert "accepted_samples" in payload
+    assert "dropped_samples" in payload
+
+
+def test_resolution_trace_uses_callsite_and_diagnostics(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    artifact_db = repo_root / ".sciona" / setup_config.ARTIFACT_DB_FILENAME
+    conn = artifact_connect(artifact_db, repo_root=repo_root)
+    try:
+        artifact_write.upsert_call_sites(
+            conn,
+            snapshot_id=snapshot_id,
+            caller_id="func_alpha",
+            caller_qname=qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
+            caller_node_type="callable",
+            rows=[
+                (
+                    "pkg.beta.worker",
+                    "accepted",
+                    "func_beta",
+                    "exact_qname",
+                    None,
+                    1,
+                    "qualified",
+                    1,
+                    5,
+                    0,
+                ),
+                (
+                    "pkg.unknown.missing",
+                    "dropped",
+                    None,
+                    None,
+                    "no_candidates",
+                    2,
+                    "qualified",
+                    6,
+                    10,
+                    1,
+                ),
+            ],
+        )
+        artifact_write.set_rebuild_metadata(
+            conn,
+            key=f"call_resolution_diagnostics:{snapshot_id}",
+            value=json.dumps(
+                {
+                    "version": 1,
+                    "by_caller": {
+                        "func_alpha": {
+                            "identifiers_total": 2,
+                            "accepted_identifiers": 1,
+                            "dropped_identifiers": 1,
+                            "accepted_by_provenance": {"exact_qname": 1},
+                            "dropped_by_reason": {"no_candidates": 1},
+                            "candidate_count_histogram": {"1": 1, "2": 1},
+                            "record_drops": {},
+                            "assembler_accepted_artifact_dropped": 0,
+                        }
+                    },
+                },
+                sort_keys=True,
+            ),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    core = core_conn(repo_root)
+    try:
+        payload_text = resolution_trace.render(
+            snapshot_id,
+            core,
+            repo_root,
+            function_id=qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
+        )
+    finally:
+        core.close()
+    payload = parse_json_payload(payload_text)
+    assert payload["totals"] == {"eligible": 2, "accepted": 1, "dropped": 1}
+    assert payload["accepted_by_provenance"][0] == {"name": "exact_qname", "count": 1}
+    assert payload["dropped_by_reason"][0] == {"name": "no_candidates", "count": 1}
+    assert payload["accepted_samples"][0]["identifier"] == "pkg.beta.worker"
+    assert payload["dropped_samples"][0]["identifier"] == "pkg.unknown.missing"
+    assert payload["dropped_samples"][0]["drop_reason"] == "no_candidates"
 
 
 def test_callsite_index_neighbors_detail_level(tmp_path):
