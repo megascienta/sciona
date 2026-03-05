@@ -342,9 +342,55 @@ def test_hotspot_summary_returns_payload(tmp_path):
         conn.close()
     payload = parse_json_payload(payload_text)
     assert payload["payload_kind"] == "summary"
+    assert payload["version"] == 2
     assert "by_size" in payload
     assert "by_fan_in" in payload
     assert "by_fan_out" in payload
+    assert "by_call_fan_in" in payload
+    assert "by_call_fan_out" in payload
+    assert "by_import_fan_in" in payload
+    assert "by_import_fan_out" in payload
+
+
+def test_hotspot_summary_v2_uses_rollup_fan_stats(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    artifact_db = repo_root / ".sciona" / setup_config.ARTIFACT_DB_FILENAME
+    conn = artifact_connect(artifact_db, repo_root=repo_root)
+    try:
+        conn.execute(
+            """
+            INSERT OR REPLACE INTO node_fan_stats(node_id, node_kind, edge_kind, fan_in, fan_out)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            ("mod_alpha", "module", "CALLS", 5, 2),
+        )
+        conn.execute(
+            """
+            INSERT OR REPLACE INTO node_fan_stats(node_id, node_kind, edge_kind, fan_in, fan_out)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            ("mod_beta", "module", "CALLS", 1, 7),
+        )
+        conn.execute(
+            """
+            INSERT OR REPLACE INTO node_fan_stats(node_id, node_kind, edge_kind, fan_in, fan_out)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            ("mod_alpha", "module", "IMPORTS_DECLARED", 3, 8),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    core = core_conn(repo_root)
+    try:
+        payload_text = hotspot_summary.render(snapshot_id, core, repo_root)
+    finally:
+        core.close()
+    payload = parse_json_payload(payload_text)
+    assert payload["by_call_fan_in"][0]["module_id"] == "mod_alpha"
+    assert payload["by_call_fan_out"][0]["module_id"] == "mod_beta"
+    assert payload["by_import_fan_out"][0]["module_id"] == "mod_alpha"
 
 
 def test_module_call_graph_summary_returns_payload(tmp_path):
