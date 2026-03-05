@@ -78,7 +78,7 @@ def test_policy_only_narrow_parser_bootstrap_helper() -> None:
             violations.append(f"{rel}: def make_parser(")
         if (
             "def bootstrap_tree_sitter_parser(" in text
-            and rel != "core/extract/parser_bootstrap.py"
+            and rel != "core/extract/parsing/parser_bootstrap.py"
         ):
             violations.append(f"{rel}: bootstrap_tree_sitter_parser outside canonical module")
     assert not violations

@@ -11,7 +11,7 @@ from typing import Sequence
 
 import yaml
 
-from ...code_analysis.core.extract import language_registry
+from ...code_analysis.core.extract.contracts import language_registry
 from ...code_analysis.tools.discovery import detect_languages_from_tracked_paths
 from ...runtime import git as git_ops
 from ...runtime.paths import get_config_path

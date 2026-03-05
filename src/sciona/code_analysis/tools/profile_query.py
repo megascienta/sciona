@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from ..core.extract.query_helpers import find_nodes_of_types_query
+from ..core.extract.parsing.query_helpers import find_nodes_of_types_query
 from .profile_errors import QueryCompileError
 
 

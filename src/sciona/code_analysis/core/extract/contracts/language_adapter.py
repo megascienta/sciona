@@ -9,8 +9,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Protocol
 
-from .analyzer import ASTAnalyzer
-from ..normalize.model import FileSnapshot
+from ..analyzer import ASTAnalyzer
+from ...normalize.model import FileSnapshot
 
 
 ModuleNamer = Callable[[Path, FileSnapshot], str]

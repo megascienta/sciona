@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from ...config import LANGUAGE_CONFIG
+from ....config import LANGUAGE_CONFIG
 from .language_adapter import AdapterSpecV1, LanguageDescriptor
 
 _EXTRA_INSTALL_HINTS: dict[str, str] = {

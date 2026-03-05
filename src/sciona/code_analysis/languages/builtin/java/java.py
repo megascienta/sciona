@@ -16,9 +16,9 @@ from ....core.normalize.model import (
     SemanticNodeRecord,
 )
 from ....core.extract.analyzer import ASTAnalyzer
-from ....core.extract.extraction_buffer import ExtractionBuffer
-from ....core.extract.parser_bootstrap import bootstrap_tree_sitter_parser
-from ....core.extract.query_helpers import count_lines, find_direct_children_query
+from ....core.extract.ir.extraction_buffer import ExtractionBuffer
+from ....core.extract.parsing.parser_bootstrap import bootstrap_tree_sitter_parser
+from ....core.extract.parsing.query_helpers import count_lines, find_direct_children_query
 from .java_calls import callee_text, resolve_java_calls
 from .java_imports import (
     collect_java_import_model,

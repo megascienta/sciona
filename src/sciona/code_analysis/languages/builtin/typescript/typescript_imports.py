@@ -10,7 +10,7 @@ from typing import Optional
 
 from ....core.module_naming import module_name_from_path
 from ....core.normalize.model import FileSnapshot
-from ....core.extract.query_helpers import find_nodes_of_types_query
+from ....core.extract.parsing.query_helpers import find_nodes_of_types_query
 from ...common.import_model import NormalizedImportModel
 from ...common.query_surface import (
     TYPESCRIPT_DYNAMIC_IMPORT_NODE_TYPES,

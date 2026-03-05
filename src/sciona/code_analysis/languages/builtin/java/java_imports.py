@@ -10,7 +10,7 @@ from typing import Optional
 
 from .....runtime import paths as runtime_paths
 from ....core.normalize.model import FileSnapshot
-from ....core.extract.query_helpers import find_nodes_of_types_query
+from ....core.extract.parsing.query_helpers import find_nodes_of_types_query
 from ...common.import_model import NormalizedImportModel
 from ...common.query_surface import JAVA_IMPORT_NODE_TYPES, JAVA_PACKAGE_NODE_TYPES
 from ...common.shared import is_internal_module, repo_root_from_snapshot

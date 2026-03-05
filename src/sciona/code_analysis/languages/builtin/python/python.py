@@ -16,9 +16,9 @@ from ....core.normalize.model import (
     SemanticNodeRecord,
 )
 from ....core.extract.analyzer import ASTAnalyzer
-from ....core.extract.extraction_buffer import ExtractionBuffer
-from ....core.extract.parser_bootstrap import bootstrap_tree_sitter_parser
-from ....core.extract.query_helpers import count_lines, find_direct_children_query
+from ....core.extract.ir.extraction_buffer import ExtractionBuffer
+from ....core.extract.parsing.parser_bootstrap import bootstrap_tree_sitter_parser
+from ....core.extract.parsing.query_helpers import count_lines, find_direct_children_query
 from .python_calls import resolve_python_calls
 from .python_imports import collect_python_import_model
 from .python_nodes import PythonNodeState, walk_python_nodes
