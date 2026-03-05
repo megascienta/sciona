@@ -215,3 +215,66 @@ def test_scope_bucket_detects_test_and_non_test_paths() -> None:
     assert exec_reporting._scope_bucket("pkg/service.py") == "non_tests"
     assert exec_reporting._scope_bucket("tests/test_api.py") == "tests"
     assert exec_reporting._scope_bucket("src/test/java/org/example/AppTest.java") == "tests"
+
+
+def test_snapshot_report_classifies_in_repo_unresolvable(repo_with_snapshot):
+    repo_root, snapshot_id = repo_with_snapshot
+    artifact_db = repo_root / ".sciona" / runtime_constants.ARTIFACT_DB_FILENAME
+    caller_qname = runtime_paths.repo_name_prefix(repo_root) + ".pkg.alpha.Service.run"
+
+    conn = artifact_connect(artifact_db, repo_root=repo_root)
+    try:
+        conn.execute(
+            """
+            INSERT INTO call_sites(
+                snapshot_id,
+                caller_id,
+                caller_qname,
+                caller_node_type,
+                identifier,
+                resolution_status,
+                accepted_callee_id,
+                provenance,
+                drop_reason,
+                candidate_count,
+                callee_kind,
+                call_start_byte,
+                call_end_byte,
+                call_ordinal,
+                site_hash
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                snapshot_id,
+                "meth_alpha",
+                caller_qname,
+                "callable",
+                runtime_paths.repo_name_prefix(repo_root) + ".pkg.alpha.service.helper",
+                "dropped",
+                None,
+                None,
+                "ambiguous_no_in_scope_candidate",
+                3,
+                "qualified",
+                None,
+                None,
+                1,
+                "site-dropped-in-repo",
+            ),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    payload = repo_pipeline.snapshot_report(
+        snapshot_id,
+        repo_root=repo_root,
+        include_failure_reasons=True,
+    )
+    assert payload is not None
+    python = {entry["language"]: entry for entry in payload["languages"]}["python"]
+    assert python["drop_classification"] == {"in_repo_unresolvable": 1}
+    assert python["drop_classification_by_scope"]["non_tests"] == {
+        "in_repo_unresolvable": 1
+    }
+    assert payload["totals"]["drop_classification"] == {"in_repo_unresolvable": 1}

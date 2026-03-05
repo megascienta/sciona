@@ -70,6 +70,7 @@ def snapshot_report(
     language_metrics: dict[str, LanguageMetrics] = {}
     caller_language: dict[str, str] = {}
     caller_metadata: dict[str, dict[str, object]] = {}
+    callable_identifiers_by_language: dict[str, set[str]] = {}
     created_at: str | None = None
 
     with core_readonly(repo_state.db_path, repo_root=repo_state.repo_root) as conn:
@@ -105,6 +106,7 @@ def snapshot_report(
             structural_id: str(meta["language"])
             for structural_id, meta in caller_metadata.items()
         }
+        callable_identifiers_by_language = _build_callable_identifier_index(caller_metadata)
 
     artifact_available = False
     call_site_reasons: dict[str, dict[str, int]] = defaultdict(dict)
@@ -173,6 +175,9 @@ def snapshot_report(
                         drop_reason=str(item.get("drop_reason") or ""),
                         candidate_count=int(item.get("candidate_count") or 0),
                         callee_kind=str(item.get("callee_kind") or ""),
+                        known_callable_identifiers=callable_identifiers_by_language.get(
+                            language, set()
+                        ),
                     )
                     if not bucket:
                         continue
@@ -428,6 +433,7 @@ def _drop_classification_bucket(
     drop_reason: str,
     candidate_count: int,
     callee_kind: str,
+    known_callable_identifiers: set[str],
 ) -> str | None:
     if (
         drop_reason == "ambiguous_no_in_scope_candidate"
@@ -435,8 +441,53 @@ def _drop_classification_bucket(
         and candidate_count >= 3
         and "." in identifier
     ):
+        if _identifier_has_in_repo_callable(
+            identifier,
+            known_callable_identifiers=known_callable_identifiers,
+        ):
+            return "in_repo_unresolvable"
         return "external_likely"
     return None
+
+
+def _build_callable_identifier_index(
+    caller_metadata: dict[str, dict[str, object]],
+) -> dict[str, set[str]]:
+    index: dict[str, set[str]] = defaultdict(set)
+    for meta in caller_metadata.values():
+        if str(meta.get("node_type") or "") != "callable":
+            continue
+        language = str(meta.get("language") or "")
+        qualified_name = str(meta.get("qualified_name") or "")
+        if not language or not qualified_name:
+            continue
+        index[language].add(qualified_name)
+        terminal = _identifier_terminal(qualified_name)
+        if terminal:
+            index[language].add(terminal)
+    return dict(index)
+
+
+def _identifier_has_in_repo_callable(
+    identifier: str,
+    *,
+    known_callable_identifiers: set[str],
+) -> bool:
+    if not identifier or not known_callable_identifiers:
+        return False
+    if identifier in known_callable_identifiers:
+        return True
+    terminal = _identifier_terminal(identifier)
+    if not terminal:
+        return False
+    return terminal in known_callable_identifiers
+
+
+def _identifier_terminal(identifier: str) -> str:
+    text = identifier.strip()
+    if not text:
+        return ""
+    return text.rsplit(".", 1)[-1].strip()
 
 
 def _sum_bucket_counts(
