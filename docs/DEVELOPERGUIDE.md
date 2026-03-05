@@ -49,9 +49,9 @@ Out of scope:
 - A narrow parser bootstrap helper is allowed only for parser construction,
   language binding, and parser/grammar diagnostics.
 - Parser bootstrap helper module is
-  `src/sciona/code_analysis/core/extract/parser_bootstrap.py`.
+  `src/sciona/code_analysis/core/extract/parsing/parser_bootstrap.py`.
 - Query/extraction helpers live in
-  `src/sciona/code_analysis/core/extract/query_helpers.py`.
+  `src/sciona/code_analysis/core/extract/parsing/query_helpers.py`.
 - Parser wrapper/factory modules that alter behavior are disallowed.
 
 ## Runtime Requirements
