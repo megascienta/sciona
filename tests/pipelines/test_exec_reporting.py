@@ -22,6 +22,8 @@ def test_snapshot_report_returns_db_counts(repo_with_snapshot):
     assert payload["totals"]["call_sites"]["eligible"] == 0
     assert payload["totals"]["call_sites"]["accepted"] == 0
     assert payload["totals"]["call_sites"]["dropped"] == 0
+    assert payload["totals"]["adjusted_call_sites"]["adjusted_eligible"] == 0
+    assert payload["totals"]["adjusted_call_sites"]["success_rate"] is None
     assert payload["totals"]["call_sites_by_scope"]["non_tests"]["eligible"] == 0
     assert payload["totals"]["call_sites_by_scope"]["tests"]["eligible"] == 0
     by_language = {entry["language"]: entry for entry in payload["languages"]}
@@ -29,6 +31,8 @@ def test_snapshot_report_returns_db_counts(repo_with_snapshot):
     assert python["call_sites"]["eligible"] == 0
     assert python["call_sites"]["accepted"] == 0
     assert python["call_sites"]["dropped"] == 0
+    assert python["adjusted_call_sites"]["adjusted_eligible"] == 0
+    assert python["adjusted_call_sites"]["success_rate"] is None
     assert python["call_sites_by_scope"]["non_tests"]["eligible"] == 0
     assert python["call_sites_by_scope"]["tests"]["eligible"] == 0
 
@@ -174,6 +178,15 @@ def test_snapshot_report_full_includes_failure_reasons(repo_with_snapshot):
     assert python["call_sites_by_scope"]["non_tests"]["accepted"] == 1
     assert python["call_sites_by_scope"]["non_tests"]["dropped"] == 2
     assert python["call_sites_by_scope"]["tests"]["eligible"] == 0
+    assert python["adjusted_call_sites"]["excluded_external_likely"] == 1
+    assert python["adjusted_call_sites"]["adjusted_eligible"] == 2
+    assert python["adjusted_call_sites"]["success_rate"] == 0.5
+    assert (
+        python["adjusted_call_sites_by_scope"]["non_tests"]["excluded_external_likely"]
+        == 1
+    )
+    assert python["adjusted_call_sites_by_scope"]["non_tests"]["adjusted_eligible"] == 2
+    assert python["adjusted_call_sites_by_scope"]["non_tests"]["success_rate"] == 0.5
     assert python["drop_reasons"] == {
         "ambiguous_no_in_scope_candidate": 1,
         "unique_without_provenance": 1,
@@ -206,6 +219,9 @@ def test_snapshot_report_full_includes_failure_reasons(repo_with_snapshot):
     assert top_files[0]["count"] == 2
     total_classification = payload["totals"]["drop_classification"]
     assert total_classification == {"external_likely": 1}
+    assert payload["totals"]["adjusted_call_sites"]["excluded_external_likely"] == 1
+    assert payload["totals"]["adjusted_call_sites"]["adjusted_eligible"] == 2
+    assert payload["totals"]["adjusted_call_sites"]["success_rate"] == 0.5
     total_scope_classification = payload["totals"]["drop_classification_by_scope"]
     assert total_scope_classification["non_tests"] == {"external_likely": 1}
     assert total_scope_classification["tests"] == {}

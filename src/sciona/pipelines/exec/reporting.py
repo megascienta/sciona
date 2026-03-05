@@ -158,35 +158,35 @@ def snapshot_report(
                         call_site_reasons[language][reason] = (
                             call_site_reasons[language].get(reason, 0) + count
                         )
-            if include_failure_reasons:
-                dropped_identifiers = artifact_reporting.call_site_drop_identifier_counts(
-                    conn,
-                    snapshot_id=snapshot_id,
+            dropped_identifiers = artifact_reporting.call_site_drop_identifier_counts(
+                conn,
+                snapshot_id=snapshot_id,
+            )
+            for item in dropped_identifiers:
+                caller_id = str(item["caller_id"])
+                language = caller_language.get(caller_id)
+                if not language:
+                    continue
+                caller_info = caller_metadata.get(caller_id, {})
+                scope_key = _scope_bucket(str(caller_info.get("file_path") or ""))
+                bucket = _drop_classification_bucket(
+                    identifier=str(item.get("identifier") or ""),
+                    drop_reason=str(item.get("drop_reason") or ""),
+                    candidate_count=int(item.get("candidate_count") or 0),
+                    callee_kind=str(item.get("callee_kind") or ""),
+                    known_callable_identifiers=callable_identifiers_by_language.get(
+                        language, set()
+                    ),
                 )
-                for item in dropped_identifiers:
-                    caller_id = str(item["caller_id"])
-                    language = caller_language.get(caller_id)
-                    if not language:
-                        continue
-                    caller_info = caller_metadata.get(caller_id, {})
-                    scope_key = _scope_bucket(str(caller_info.get("file_path") or ""))
-                    bucket = _drop_classification_bucket(
-                        identifier=str(item.get("identifier") or ""),
-                        drop_reason=str(item.get("drop_reason") or ""),
-                        candidate_count=int(item.get("candidate_count") or 0),
-                        callee_kind=str(item.get("callee_kind") or ""),
-                        known_callable_identifiers=callable_identifiers_by_language.get(
-                            language, set()
-                        ),
-                    )
-                    if not bucket:
-                        continue
-                    count = int(item.get("site_count") or 0)
-                    drop_classification[language][bucket] = (
-                        drop_classification[language].get(bucket, 0) + count
-                    )
-                    scoped = drop_classification_by_scope[language][scope_key]
-                    scoped[bucket] = scoped.get(bucket, 0) + count
+                if not bucket:
+                    continue
+                count = int(item.get("site_count") or 0)
+                drop_classification[language][bucket] = (
+                    drop_classification[language].get(bucket, 0) + count
+                )
+                scoped = drop_classification_by_scope[language][scope_key]
+                scoped[bucket] = scoped.get(bucket, 0) + count
+            if include_failure_reasons:
                 dropped_sites = artifact_reporting.call_site_drop_debug_counts(
                     conn,
                     snapshot_id=snapshot_id,
@@ -371,6 +371,36 @@ def snapshot_report(
             else None
         )
         item["call_sites_by_scope"] = _scope_call_sites_payload(scope_counts)
+        item["adjusted_call_sites"] = _adjusted_call_sites_payload(
+            item.get("call_sites"),
+            excluded_external_likely=drop_classification.get(language, {}).get(
+                "external_likely", 0
+            ),
+        )
+        item["adjusted_call_sites_by_scope"] = _scope_adjusted_call_sites_payload(
+            item.get("call_sites_by_scope"),
+            excluded_non_tests=drop_classification_by_scope.get(language, {})
+            .get("non_tests", {})
+            .get("external_likely", 0),
+            excluded_tests=drop_classification_by_scope.get(language, {})
+            .get("tests", {})
+            .get("external_likely", 0),
+        )
+    payload["totals"]["adjusted_call_sites"] = _adjusted_call_sites_payload(
+        payload["totals"].get("call_sites"),
+        excluded_external_likely=_sum_bucket_counts(drop_classification).get(
+            "external_likely", 0
+        ),
+    )
+    payload["totals"]["adjusted_call_sites_by_scope"] = _scope_adjusted_call_sites_payload(
+        payload["totals"].get("call_sites_by_scope"),
+        excluded_non_tests=_sum_bucket_counts_by_scope(
+            drop_classification_by_scope, scope_key="non_tests"
+        ).get("external_likely", 0),
+        excluded_tests=_sum_bucket_counts_by_scope(
+            drop_classification_by_scope, scope_key="tests"
+        ).get("external_likely", 0),
+    )
     if include_failure_reasons:
         payload["failure_hotspots"] = {
             "top_failed_callers": {
@@ -403,6 +433,28 @@ def _call_sites_payload(
     return payload
 
 
+def _adjusted_call_sites_payload(
+    call_sites: dict[str, object] | None,
+    *,
+    excluded_external_likely: int,
+) -> dict[str, object]:
+    eligible = call_sites.get("eligible") if call_sites else None
+    accepted = call_sites.get("accepted") if call_sites else None
+    adjusted_eligible = None
+    success_rate = None
+    if isinstance(eligible, int):
+        adjusted_eligible = max(eligible - int(excluded_external_likely or 0), 0)
+    if isinstance(adjusted_eligible, int) and adjusted_eligible > 0 and isinstance(accepted, int):
+        success_rate = accepted / adjusted_eligible
+    return {
+        "eligible": eligible,
+        "accepted": accepted,
+        "excluded_external_likely": int(excluded_external_likely or 0),
+        "adjusted_eligible": adjusted_eligible,
+        "success_rate": success_rate,
+    }
+
+
 def _top_items(items: dict[str, int], *, limit: int) -> list[dict[str, object]]:
     ordered = sorted(items.items(), key=lambda kv: (-kv[1], kv[0]))[:limit]
     return [{"name": name, "count": int(count)} for name, count in ordered]
@@ -429,6 +481,25 @@ def _scope_call_sites_payload(
             int(counts.get("dropped", 0)),
         )
     return payload
+
+
+def _scope_adjusted_call_sites_payload(
+    scope_payload: dict[str, dict[str, object]] | None,
+    *,
+    excluded_non_tests: int,
+    excluded_tests: int,
+) -> dict[str, dict[str, object]] | None:
+    if not scope_payload:
+        return None
+    non_tests = _adjusted_call_sites_payload(
+        scope_payload.get("non_tests"),
+        excluded_external_likely=excluded_non_tests,
+    )
+    tests = _adjusted_call_sites_payload(
+        scope_payload.get("tests"),
+        excluded_external_likely=excluded_tests,
+    )
+    return {"non_tests": non_tests, "tests": tests}
 
 
 def _drop_classification_bucket(
