@@ -59,6 +59,22 @@ def supported_languages() -> tuple[str, ...]:
     return tuple(sorted(descriptors().keys()))
 
 
+def optional_languages() -> tuple[str, ...]:
+    return tuple(sorted(_EXTRA_INSTALL_HINTS.keys()))
+
+
+def language_availability() -> dict[str, tuple[str, ...]]:
+    installed = supported_languages()
+    optional = optional_languages()
+    supported = tuple(sorted(set(installed) | set(optional)))
+    missing = tuple(sorted(set(optional) - set(installed)))
+    return {
+        "supported": supported,
+        "installed": installed,
+        "missing": missing,
+    }
+
+
 def install_hint_for(language_id: str) -> str | None:
     descriptor = get_descriptor(language_id)
     if descriptor and descriptor.install_hint:
@@ -115,6 +131,8 @@ def adapter_spec_v1(language_id: str) -> AdapterSpecV1:
 __all__ = [
     "adapter_spec_v1",
     "assert_descriptor_compliant",
+    "language_availability",
+    "optional_languages",
     "descriptor_validation_errors",
     "descriptors",
     "get_descriptor",

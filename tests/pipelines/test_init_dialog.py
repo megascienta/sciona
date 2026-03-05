@@ -25,6 +25,14 @@ def test_supported_languages_sorted() -> None:
     langs = init_dialog.supported_languages()
     assert langs == sorted(langs)
     assert "python" in langs
+    assert "fortran" in langs
+
+
+def test_installed_and_missing_languages_surfaces() -> None:
+    installed = init_dialog.installed_languages()
+    missing = init_dialog.missing_languages()
+    assert "python" in installed
+    assert "fortran" in missing
 
 
 def test_apply_language_selection_updates_config(tmp_path: Path) -> None:
@@ -48,3 +56,5 @@ def test_detect_languages_from_tracked_paths(tmp_path: Path) -> None:
 
     defaults = init_dialog.detect_languages(repo_root)
     assert "python" in defaults.detected_languages
+    assert "python" in defaults.installed_languages
+    assert "fortran" in defaults.missing_languages
