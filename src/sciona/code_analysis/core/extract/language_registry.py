@@ -8,6 +8,12 @@ from __future__ import annotations
 from ...config import LANGUAGE_CONFIG
 from .language_adapter import LanguageDescriptor
 
+_EXTRA_INSTALL_HINTS: dict[str, str] = {
+    "fortran": 'pip install "sciona[fortran]"',
+    "c": 'pip install "sciona[c]"',
+    "go": 'pip install "sciona[go]"',
+}
+
 
 def descriptors() -> dict[str, LanguageDescriptor]:
     """Return static language descriptors keyed by language id."""
@@ -31,4 +37,15 @@ def supported_languages() -> tuple[str, ...]:
     return tuple(sorted(descriptors().keys()))
 
 
-__all__ = ["descriptors", "get_descriptor", "supported_languages"]
+def install_hint_for(language_id: str) -> str | None:
+    descriptor = get_descriptor(language_id)
+    if descriptor and descriptor.install_hint:
+        return descriptor.install_hint
+    if descriptor:
+        return None
+    return _EXTRA_INSTALL_HINTS.get(
+        language_id, f'pip install "sciona[{language_id}]"'
+    )
+
+
+__all__ = ["descriptors", "get_descriptor", "install_hint_for", "supported_languages"]

@@ -4,6 +4,7 @@
 from sciona.code_analysis.core.extract.language_registry import (
     descriptors,
     get_descriptor,
+    install_hint_for,
     supported_languages,
 )
 
@@ -22,3 +23,7 @@ def test_get_descriptor_returns_extension_data() -> None:
 def test_supported_languages_is_sorted() -> None:
     languages = supported_languages()
     assert languages == tuple(sorted(languages))
+
+
+def test_install_hint_for_extra_language() -> None:
+    assert install_hint_for("fortran") == 'pip install "sciona[fortran]"'
