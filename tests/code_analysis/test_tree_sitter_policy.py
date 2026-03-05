@@ -41,9 +41,9 @@ def test_policy_no_tree_sitter_wrapper_module() -> None:
 def test_policy_no_typescript_structural_regex_fallback() -> None:
     path = (
         _CODE_ANALYSIS_ROOT
-        / "core"
-        / "extract"
         / "languages"
+        / "builtin"
+        / "typescript"
         / "typescript_node_walk.py"
     )
     text = path.read_text(encoding="utf-8")
@@ -132,10 +132,7 @@ def test_policy_structural_extraction_avoids_non_query_traversal() -> None:
     assert not violations
 
 
-def test_policy_core_language_modules_are_compatibility_shims() -> None:
+def test_policy_core_language_modules_are_not_implemented_in_core() -> None:
     shims_root = _CODE_ANALYSIS_ROOT / "core" / "extract" / "languages"
     for path in sorted(shims_root.glob("*.py")):
-        if path.name in {"__init__.py"}:
-            continue
-        text = path.read_text(encoding="utf-8")
-        assert "Compatibility shim; implementation moved." in text
+        assert path.name == "__init__.py"

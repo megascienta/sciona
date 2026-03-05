@@ -6,7 +6,7 @@ from pathlib import Path
 from tree_sitter import Parser
 from tree_sitter_languages import get_language
 
-from sciona.code_analysis.core.extract.languages.python_resolution import (
+from sciona.code_analysis.languages.builtin.python.python_resolution import (
     collect_class_instance_map,
     collect_module_instance_map,
 )

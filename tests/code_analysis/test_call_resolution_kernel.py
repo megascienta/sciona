@@ -3,7 +3,7 @@
 
 import pytest
 
-from sciona.code_analysis.core.extract.languages.call_resolution_kernel import (
+from sciona.code_analysis.core.extract.call_resolution_kernel import (
     CallResolutionOutcome,
     CallResolutionRequest,
     PROVENANCE_TERMINAL_FALLBACK,
