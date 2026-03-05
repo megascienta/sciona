@@ -5,6 +5,6 @@
 
 from __future__ import annotations
 
-from . import analytics, core, grounding, helpers
+from . import analytics, composites, core, grounding, helpers
 
-__all__ = ["analytics", "core", "grounding", "helpers"]
+__all__ = ["analytics", "composites", "core", "grounding", "helpers"]

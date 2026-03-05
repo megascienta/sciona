@@ -8,7 +8,7 @@ from __future__ import annotations
 from typing import Literal
 
 
-CATEGORY_ORDER = ("core", "grounding", "analytics")
+CATEGORY_ORDER = ("core", "grounding", "analytics", "composites")
 VALID_CATEGORIES = frozenset(CATEGORY_ORDER)
 
 SCOPE_ORDER = ("callable", "class", "module", "codebase")
