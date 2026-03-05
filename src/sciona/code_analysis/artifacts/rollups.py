@@ -469,6 +469,17 @@ def _resolve_callees(
                     import_targets=import_targets,
                     expanded_import_targets=expanded_import_targets,
                 )
+            elif caller_language == "typescript":
+                rescue_candidate = _resolve_typescript_barrel_ambiguous(
+                    identifier=identifier,
+                    direct_candidates=direct_candidates,
+                    fallback_candidates=fallback_candidates,
+                    caller_module=caller_module,
+                    callable_qname_by_id=callable_qname_by_id,
+                    module_lookup=module_lookup,
+                    import_targets=import_targets,
+                    expanded_import_targets=expanded_import_targets,
+                )
         if rescue_candidate:
             decision = select_strict_call_candidate(
                 identifier=identifier,
@@ -592,6 +603,53 @@ def _module_in_scope(
     return False
 
 
+def _resolve_typescript_barrel_ambiguous(
+    *,
+    identifier: str,
+    direct_candidates: Sequence[str],
+    fallback_candidates: Sequence[str],
+    caller_module: str | None,
+    callable_qname_by_id: dict[str, str],
+    module_lookup: dict[str, str],
+    import_targets: dict[str, set[str]],
+    expanded_import_targets: dict[str, set[str]],
+) -> str | None:
+    candidates = list(dict.fromkeys(list(direct_candidates) or list(fallback_candidates)))
+    if len(candidates) < 2 or not caller_module:
+        return None
+    allowed_modules = set(expanded_import_targets.get(caller_module, set()))
+    allowed_modules.update(import_targets.get(caller_module, set()))
+    allowed_modules.add(caller_module)
+    in_scope = []
+    for candidate in candidates:
+        module = module_lookup.get(candidate)
+        if not module:
+            continue
+        if _module_in_scope(module, allowed_modules, allow_descendants=True):
+            in_scope.append(candidate)
+    if not in_scope:
+        return None
+    exact_qname = [c for c in in_scope if callable_qname_by_id.get(c) == identifier]
+    if len(exact_qname) == 1:
+        return exact_qname[0]
+    if len(exact_qname) > 1:
+        in_scope = exact_qname
+    terminal = _simple_identifier(identifier)
+    if terminal:
+        terminal_matches = [
+            c for c in in_scope if _simple_identifier(callable_qname_by_id.get(c, "")) == terminal
+        ]
+        if terminal_matches:
+            in_scope = terminal_matches
+    return _best_candidate_by_module_distance(
+        in_scope,
+        caller_module=caller_module,
+        module_lookup=module_lookup,
+        callable_qname_by_id=callable_qname_by_id,
+        import_targets=import_targets,
+    )
+
+
 def _best_candidate_by_module_path(
     candidates: Sequence[str],
     module_lookup: dict[str, str],
@@ -607,6 +665,60 @@ def _best_candidate_by_module_path(
         ),
     )
     return ranked[0]
+
+
+def _best_candidate_by_module_distance(
+    candidates: Sequence[str],
+    *,
+    caller_module: str,
+    module_lookup: dict[str, str],
+    callable_qname_by_id: dict[str, str],
+    import_targets: dict[str, set[str]],
+) -> str:
+    ranked = sorted(
+        candidates,
+        key=lambda candidate: (
+            _module_distance(
+                caller_module,
+                module_lookup.get(candidate) or "",
+                import_targets=import_targets,
+                max_depth=6,
+            ),
+            len((module_lookup.get(candidate) or "").split(".")),
+            callable_qname_by_id.get(candidate) or "",
+            candidate,
+        ),
+    )
+    return ranked[0]
+
+
+def _module_distance(
+    src_module: str,
+    dst_module: str,
+    *,
+    import_targets: dict[str, set[str]],
+    max_depth: int,
+) -> int:
+    if not dst_module:
+        return max_depth + 100
+    if src_module == dst_module:
+        return 0
+    frontier = {src_module}
+    visited = {src_module}
+    for depth in range(1, max_depth + 1):
+        next_frontier: set[str] = set()
+        for module in frontier:
+            for target in import_targets.get(module, set()):
+                if target in visited:
+                    continue
+                if dst_module == target or dst_module.startswith(f"{target}."):
+                    return depth
+                visited.add(target)
+                next_frontier.add(target)
+        frontier = next_frontier
+        if not frontier:
+            break
+    return max_depth + 100
 
 
 

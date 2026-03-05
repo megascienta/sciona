@@ -25,3 +25,26 @@ def test_python_export_chain_ambiguity_rescue_picks_terminal_match() -> None:
         expanded_import_targets={"sympy.physics.mechanics": {"sympy"}},
     )
     assert candidate == "id_sin_b"
+
+
+def test_typescript_barrel_ambiguity_rescue_prefers_closest_module() -> None:
+    candidate = rollups._resolve_typescript_barrel_ambiguous(
+        identifier="create",
+        direct_candidates=["id_far", "id_near"],
+        fallback_candidates=[],
+        caller_module="app.feature.user",
+        callable_qname_by_id={
+            "id_far": "app.shared.utils.factory.create",
+            "id_near": "app.feature.user.index.create",
+        },
+        module_lookup={
+            "id_far": "app.shared.utils.factory",
+            "id_near": "app.feature.user.index",
+        },
+        import_targets={
+            "app.feature.user": {"app.feature"},
+            "app.feature": {"app.feature.user.index"},
+        },
+        expanded_import_targets={"app.feature.user": {"app.feature", "app.feature.user.index"}},
+    )
+    assert candidate == "id_near"
