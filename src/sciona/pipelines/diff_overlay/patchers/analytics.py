@@ -103,12 +103,15 @@ def patch_callsite_index(
     edges = list(payload.get("edges", []) or [])
     edge_map: dict[tuple[str, str, str], dict[str, object]] = {}
     for entry in edges:
+        item = dict(entry)
+        item["row_origin"] = str(item.get("row_origin") or "committed")
+        item["transition"] = str(item.get("transition") or "unchanged")
         key = (
-            str(entry.get("caller_id") or ""),
-            str(entry.get("callee_id") or ""),
-            str(entry.get("edge_kind") or "CALLS"),
+            str(item.get("caller_id") or ""),
+            str(item.get("callee_id") or ""),
+            str(item.get("edge_kind") or "CALLS"),
         )
-        edge_map[key] = entry
+        edge_map[key] = item
     ids_needed: set[str] = set()
     for change in overlay.calls.get("add", []) + overlay.calls.get("remove", []):
         src_id = change.get("src_structural_id")
@@ -145,6 +148,8 @@ def patch_callsite_index(
             "edge_source": edge_source,
             "call_hash": None,
             "line_span": None,
+            "row_origin": "overlay",
+            "transition": "dropped_to_accepted",
         }
 
     def _matches_direction(src_id: str, dst_id: str) -> bool:
@@ -171,7 +176,13 @@ def patch_callsite_index(
             continue
         if not _matches_direction(str(src_id), str(dst_id)):
             continue
-        edge_map.pop((str(src_id), str(dst_id), "CALLS"), None)
+        key = (str(src_id), str(dst_id), "CALLS")
+        current = edge_map.get(key)
+        if current is None:
+            edge_map[key] = _entry(str(src_id), str(dst_id), "overlay")
+        edge_map[key]["row_origin"] = "overlay"
+        edge_map[key]["transition"] = "accepted_to_dropped"
+        edge_map[key]["edge_source"] = "overlay"
 
     payload["edges"] = sorted(
         edge_map.values(),
@@ -180,7 +191,31 @@ def patch_callsite_index(
             str(item.get("callee_id")),
         ),
     )
-    payload["edge_count"] = len(payload["edges"])
+    payload["edge_transition_summary"] = {
+        "unchanged": sum(
+            1 for item in payload["edges"] if item.get("transition") == "unchanged"
+        ),
+        "accepted_to_dropped": sum(
+            1
+            for item in payload["edges"]
+            if item.get("transition") == "accepted_to_dropped"
+        ),
+        "dropped_to_accepted": sum(
+            1
+            for item in payload["edges"]
+            if item.get("transition") == "dropped_to_accepted"
+        ),
+        "provenance_changed": sum(
+            1
+            for item in payload["edges"]
+            if item.get("transition") == "provenance_changed"
+        ),
+    }
+    payload["edge_count"] = sum(
+        1
+        for item in payload["edges"]
+        if item.get("transition") != "accepted_to_dropped"
+    )
     return payload
 
 def patch_module_call_graph_summary(

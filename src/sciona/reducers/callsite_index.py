@@ -93,6 +93,8 @@ def render(
                 "edge_source": edge.get("edge_source"),
                 "call_hash": edge.get("call_hash"),
                 "line_span": None,
+                "row_origin": "committed",
+                "transition": "unchanged",
             }
         )
     body = {
@@ -110,6 +112,12 @@ def render(
         "edge_source": "artifact_db" if artifact_available else "none",
         "edge_count": len(enriched),
         "edges": enriched,
+        "edge_transition_summary": {
+            "unchanged": len(enriched),
+            "accepted_to_dropped": 0,
+            "dropped_to_accepted": 0,
+            "provenance_changed": 0,
+        },
         "call_sites": [],
         "resolution_diagnostics": {},
     }
@@ -145,6 +153,8 @@ def render(
                     else None
                 ),
                 "ordinal": row.get("call_ordinal"),
+                "row_origin": "committed",
+                "transition": "unchanged",
             }
             for row in filtered_call_sites
         ]

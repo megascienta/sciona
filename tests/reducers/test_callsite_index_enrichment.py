@@ -124,7 +124,12 @@ def test_callsite_index_filters_callsites_and_edges(tmp_path: Path) -> None:
             )
         )
         assert [row["identifier"] for row in accepted_payload["call_sites"]] == ["helper"]
+        assert accepted_payload["call_sites"][0]["row_origin"] == "committed"
+        assert accepted_payload["call_sites"][0]["transition"] == "unchanged"
         assert [edge["callee_id"] for edge in accepted_payload["edges"]] == ["func_alpha"]
+        assert accepted_payload["edges"][0]["row_origin"] == "committed"
+        assert accepted_payload["edges"][0]["transition"] == "unchanged"
+        assert accepted_payload["edge_transition_summary"]["unchanged"] == 1
 
         dropped_payload = parse_json_payload(
             callsite_index.render(

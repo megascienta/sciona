@@ -40,10 +40,13 @@ def test_callsite_index_reducer_returns_payload(tmp_path):
     assert "artifact_available" in payload
     assert "edge_source" in payload
     assert "resolution_diagnostics" in payload
+    assert "edge_transition_summary" in payload
     if payload["edges"]:
         edge = payload["edges"][0]
         assert "caller_node_type" in edge
         assert "callee_node_type" in edge
+        assert edge["row_origin"] == "committed"
+        assert edge["transition"] == "unchanged"
 
 
 def test_call_resolution_quality_returns_payload(tmp_path):
