@@ -6,11 +6,9 @@
 
 SCIONA builds a **deterministic structural index (SCI)** for a *git* repository. It captures what exists in the code and how entities are structurally connected. SCIONA is **snapshot-based, reducer-driven, and LLM-agnostic**. It does not execute code or perform semantic inference. Instead, SCIONA produces explicit structural representations derived from [tree-sitter](https://tree-sitter.github.io/tree-sitter/) parsing. Analysis is static and source-only across the supported languages. Reducers serve as the source of structural evidence, rendering reproducible  facts from a committed snapshot. **This deterministic representation can be used to stabilize tooling workflows, including LLM-assisted development.**
 
-
 ![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Status](https://img.shields.io/badge/status-active%20development-orange)
-
 
 ## Why SCIONA exists
 
@@ -20,57 +18,49 @@ In real software systems, correctness often depends on structural relationships.
 
 SCIONA takes a deliberately different path: it provides a stable structural snapshot that downstream tools can rely on. Rather than reconstructing structure heuristically, tools can reason over deterministic reducer outputs. **SCIONA is intentionally limited in scope. It provides structure - not interpretation.**
 
-## Structural Resolution Performance
-
-SCIONA has been tested on several large open-source repositories including **[VSCode](https://github.com/microsoft/vscode), [SymPy](https://github.com/sympy/sympy), [Guava](https://github.com/google/guava), [Webpack](https://github.com/webpack/webpack), [Airbyte](https://github.com/airbytehq/airbyte), and [NestJS](https://github.com/nestjs/nest)**. Validation reports, methodology description, and the full dataset are available in [`validations/build_status_reports/`](validations/build_status_reports/). 
-
-Across these repositories SCIONA processed **27,700 files**, extracted **304,824 structural nodes**, and analyzed **265,110 call sites**, producing **255,904 deterministic call edges**. This corresponds to an overall **~96.5% in-repository call resolution rate**.
-
-Examples from large repositories include:
-
-* **VSCode:** 149,573 call sites resolved at **97.6%**
-* **SymPy:** 47,285 call sites resolved at **99.6%**
-* **Guava:** 38,315 call sites resolved at **89.8%**
-
-Resolution rates remain consistently high across supported languages, with **~98% for Python**, **~97.6% for TypeScript**, **~97.3% for JavaScript**, and **~90.6% for Java**.
-
-SCIONA resolves only **syntactically provable in-repository call edges**. Ambiguous or dynamic calls are **dropped rather than guessed**, prioritizing reproducibility and avoiding false positives.
-
-## Project Status
-
-SCIONA was originally developed as an internal tool at MegaScienta to support LLM-assisted development in large repositories. It has been used in day-to-day engineering workflows and validated on several large open-source codebases.
-
-The project is now released publicly to encourage broader experimentation and community feedback. While the core architecture is stable and actively used, additional validation across diverse repositories and workflows is ongoing.
-
-Issues, discussions, and field experience reports are very welcome. Thank you and happy coding.
-
-## Project Governance
-
-SCIONA is developed and maintained by Dmitry Chigrin. This work is part of independent research and engineering activities under the MegaScienta brand.
-
-## Development Workflow
-
-SCIONA was developed using a combination of conventional tooling and LLM-assisted programming copilots. Final design decisions, integration, and validation remain the responsibility of the maintainer.
-
-As the project matured, SCIONA was routinely used to ground LLM reasoning over the repository structure during development.
-
 ## How SCIONA can be used
 
 SCIONA can be used directly via its CLI or integrated into LLM-assisted workflows. **During initialization, SCIONA optionally auto-generates an `AGENTS.md` file in the repository root.** This file acts as a control surface for LLM copilots by explicitly specifying how SCIONA should be used during code reasoning. In this mode, the copilot is instructed to reason over reducer outputs instead of reconstructing repository structure heuristically from source text. Initialization can also optionally install a post-commit hook to keep the SCIONA snapshot metadata up to date.
 
-Authoritative project docs:
+## Supported languages
 
-- Contract: `docs/CONTRACT.md`
-- Developer guide: `docs/DEVELOPERGUIDE.md`
-- Generated capability manifest: `docs/CAPABILITY_MANIFEST.json`
+Built-in analyzers currently include **Python**, **TypeScript**, **JavaScript**, and **Java**. Enable languages in `.sciona/config.yaml` after `sciona init`.
+
+## Snapshot model
+
+SCIONA indexes the **last committed snapshot**. Reducers are evaluated against that committed snapshot, not against uncommitted working tree state. If you change tracked source files, commit and run `sciona build` to refresh the snapshot before relying on reducer output. If your worktree is dirty, reducer output includes a _diff advisory payload describing affected scope. Treat this as a signal, not a structural fact. For authoritative results, commit and `sciona build` first.
+
+## Documentation
+
+- Contract: [`docs/CONTRACT.md`](docs/CONTRACT.md)
+- Developer guide: [`docs/DEVELOPERGUIDE.md`](docs/DEVELOPERGUIDE.md)
+- Generated capability manifest: [`docs/CAPABILITY_MANIFEST.json`](docs/CAPABILITY_MANIFEST.json)
+
+## Structural Resolution Performance
+
+SCIONA has been tested on several large open-source repositories including **[VSCode](https://github.com/microsoft/vscode), [SymPy](https://github.com/sympy/sympy), [Guava](https://github.com/google/guava), [Webpack](https://github.com/webpack/webpack), [Airbyte](https://github.com/airbytehq/airbyte), and [NestJS](https://github.com/nestjs/nest)**. Validation reports, methodology description, and the full dataset are available in [`validations/build_status_reports/`](validations/build_status_reports/). 
+
+Across these repositories SCIONA processed **27,700 files**, extracted **304,824 structural nodes**, and analyzed **265,110 call sites**, producing **255,904 deterministic call edges**. This corresponds to an overall **~96.5% in-repository call resolution rate**. Resolution rates remain consistently high across supported languages, with **~98% for Python**, **~97.6% for TypeScript**, **~97.3% for JavaScript**, and **~90.6% for Java**.
+
+Examples from large repositories include:
+* **VSCode:** 149,573 call sites resolved at **97.6%**
+* **SymPy:** 47,285 call sites resolved at **99.6%**
+* **Guava:** 38,315 call sites resolved at **89.8%**
+
+## Project Status
+
+SCIONA was developed as an internal tool at MegaScienta to support LLM-assisted development in large repositories. It has been used in day-to-day engineering workflows and validated on several large open-source codebases. The project is now released publicly to encourage broader experimentation and community feedback. While the core architecture is stable and actively used, additional validation across diverse repositories and workflows is ongoing. *Issues, discussions, and field experience reports are very welcome.*
+
+## Project Governance
+
+SCIONA is developed and maintained by Dmitry Chigrin as part of independent research and engineering under the MegaScienta brand. Development combined conventional tooling with LLM-assisted programming; as the project matured, SCIONA was routinely used to ground LLM reasoning over its own repository. Final design decisions, integration, and validation remain the responsibility of the maintainer.
 
 ## Installation
 
 Requirements:
-- Python 3.11 or 3.12
+- Python 3.11 or 3.12 (Python 3.13 is not supported yet)
 - Git (for cloning and for snapshot metadata)
 - `pip` (or another PEP 517 installer)
-- Note: Python 3.13 is not supported yet because `tree_sitter_languages` does not publish wheels.
 
 Default install (from GitHub release tag):
 
@@ -101,17 +91,9 @@ sciona status --json
 sciona status --output .sciona/status-report.json
 ```
 
-## Supported languages
-
-Built-in analyzers currently include Python, TypeScript, JavaScript, and Java. Enable languages in `.sciona/config.yaml` after `sciona init`.
-
-## Snapshot model
-
-SCIONA indexes the **last committed snapshot**. Reducers are evaluated against that committed snapshot, not against uncommitted working tree state. If you change tracked source files, commit and run `sciona build` to refresh the snapshot before relying on reducer output.
-
-If your worktree is dirty, reducer outputs include an `_diff` payload describing a best‑effort overlay of uncommitted changes. `_diff` payload should be treated as advisory. The current `_diff` schema is minimal: it reports scope plus `affected`/`affected_by` signals rather than full change lists. Please use a clean commit and `sciona build` for authoritative results.
-
 ## Reducers usage
+
+Reducers are the primary interface for structural queries. Each reducer takes a scope (callable, classifier, module, or global) and returns a deterministic structural payload. Start with `sciona reducer list` to see what's available.
 
 ### Discovery
 
@@ -131,136 +113,77 @@ sciona resolve IDENTIFIER [--kind KIND] [--limit LIMIT] [--json]
 
 ### Available reducers:
 
-#### Category: core
+The authoritative live catalog is:
 
-Structural summary of a callable, including signature, location, and metadata. Use for quick callable inspection without retrieving full source. Scope: single callable.
+```bash
+sciona reducer list
+sciona reducer info --id REDUCER_ID
+```
+
+Reducers are grouped by workflow category.
+
+#### Category: structure
+
+- `callable_overview` — Structural summary of a callable, including signature, location, and metadata. Use for quick callable inspection without retrieving full source.
+- `classifier_inheritance` — Parsed base classifiers and inheritance relations. Use when reasoning about classifier hierarchy or polymorphic structure.
+- `classifier_overview` — Structural summary of a classifier, including methods and metadata. Use for quick classifier inspection.
+- `file_outline` — Structural outline of a file, including modules, classifiers, and callables. Use for navigation and symbol discovery.
+- `module_overview` — Structural summary of a module, including contained classifiers and callables. Use for architectural inspection.
+- `snapshot_provenance` — Snapshot provenance and reproducibility metadata for the committed SCI state. Use to verify snapshot freshness or identity before structural reasoning.
+- `structural_index` — Canonical structural index of the codebase. Use for global structural reasoning or validation.
+- `symbol_lookup` — Ranked structural symbol matches for a query. Use when resolving unknown identifiers.
 
 ```bash
 sciona reducer --id callable_overview [--callable-id CALLABLE_ID]
-```
-
-Parsed base classifiers and inheritance relations. Use when reasoning about classifier hierarchy or polymorphic structure. Scope: classifier hierarchy.
-
-```bash
 sciona reducer --id classifier_inheritance [--classifier-id CLASSIFIER_ID]
-```
-
-Structural summary of a classifier, including methods and metadata. Use for quick classifier inspection. Scope: classifier-level structure.
-
-```bash
 sciona reducer --id classifier_overview [--classifier-id CLASSIFIER_ID]
-```
-
-Explicit module import dependencies. Use for analysing module coupling or dependency graphs. `direction='in'` or `direction='out'` scopes `module_id` filters. Scope: module-level import edges.
-
-```bash
-sciona reducer --id dependency_edges [--module-id MODULE_ID] [--from-module-id FROM_MODULE_ID] [--to-module-id TO_MODULE_ID] [--query QUERY] [--edge-type EDGE_TYPE] [--direction DIRECTION] [--limit LIMIT]
-```
-
-Structural outline of a file, including modules, classifiers, and callables. Use for navigation and symbol discovery. Scope: file-level structure.
-
-```bash
 sciona reducer --id file_outline [--module-id MODULE_ID] [--file-path FILE_PATH]
-```
-
-Structural summary of a module, including contained classifiers and callables. Use for architectural inspection. Scope: module-level.
-
-```bash
 sciona reducer --id module_overview [--module-id MODULE_ID] [--callable-id CALLABLE_ID] [--classifier-id CLASSIFIER_ID] [--include-file-map INCLUDE_FILE_MAP]
-```
-
-Snapshot provenance and reproducibility metadata for the committed SCI state. Use to verify snapshot freshness/identity before structural reasoning. Scope: snapshot-level metadata.
-
-```bash
 sciona reducer --id snapshot_provenance
-```
-
-Canonical structural index of the codebase. Use for global structural reasoning or validation. Scope: entire SCI snapshot.
-
-```bash
 sciona reducer --id structural_index
-```
-
-Ranked structural symbol matches for a query. Use when resolving unknown identifiers. Scope: query → symbols.
-
-```bash
 sciona reducer --id symbol_lookup [--query QUERY] [--kind KIND] [--limit LIMIT]
 ```
 
-Structural relationships (calls/imports) for matched symbols. Use for impact analysis or dependency tracing. Scope: symbol → relations.
+#### Category: relations
 
-```bash
-sciona reducer --id symbol_references [--query QUERY] [--kind KIND] [--limit LIMIT]
-```
-
-#### Category: grounding
-
-Full source code of a callable. Use only when implementation details are required. Scope: single callable.
-
-```bash
-sciona reducer --id callable_source [--callable-id CALLABLE_ID]
-```
-
-Concatenated source code for a selected scope (codebase/module/classifier). Use for large-context reasoning or cross-entity inspection. Scope: configurable.
-
-```bash
-sciona reducer --id concatenated_source [--scope SCOPE] [--module-id MODULE_ID] [--classifier-id CLASSIFIER_ID]
-```
-
-#### Category: analytics
-
-Aggregated call-resolution quality diagnostics derived from callsite telemetry. Use to understand accepted vs dropped callsite distribution and dominant drop reasons. Scope: codebase-level telemetry summary.
-
-```bash
-sciona reducer --id call_resolution_quality [--module-id MODULE_ID] [--language LANGUAGE] [--limit LIMIT]
-```
-
-Indexed caller/callee edges for a callable, including callsite details. Use when reasoning about call directionality or callsite-level analysis. detail_level='neighbors' returns caller/callee sets. Scope: callable-level call edges.
+- `callsite_index` — Indexed caller/callee edges for a callable, including callsite details. Use when reasoning about call directionality or callsite-level analysis.
+- `classifier_call_graph_summary` — Summary of call relationships within a classifier. Use for analysing method interaction patterns or internal coupling.
+- `dependency_edges` — Explicit module import dependencies. Use for analysing module coupling or dependency graphs.
+- `module_call_graph_summary` — Summary of call relationships within a module. Use for module-level flow or coupling analysis.
+- `symbol_references` — Structural relationships (calls/imports) for matched symbols. Use for impact analysis or dependency tracing.
 
 ```bash
 sciona reducer --id callsite_index [--callable-id CALLABLE_ID] [--direction DIRECTION] [--detail-level DETAIL_LEVEL] [--include-callsite-diagnostics INCLUDE_CALLSITE_DIAGNOSTICS]
-```
-
-Summary of call relationships within a classifier. Use for analysing method interaction patterns or internal coupling. Scope: classifier-level call graph.
-
-```bash
 sciona reducer --id classifier_call_graph_summary [--classifier-id CLASSIFIER_ID] [--top-k TOP_K]
-```
-
-Summary of call relationships within a module. Use for module-level flow or coupling analysis. Scope: module call graph.
-
-```bash
+sciona reducer --id dependency_edges [--module-id MODULE_ID] [--from-module-id FROM_MODULE_ID] [--to-module-id TO_MODULE_ID] [--query QUERY] [--edge-type EDGE_TYPE] [--direction DIRECTION] [--limit LIMIT]
 sciona reducer --id module_call_graph_summary [--module-id MODULE_ID] [--callable-id CALLABLE_ID] [--classifier-id CLASSIFIER_ID] [--top-k TOP_K]
+sciona reducer --id symbol_references [--query QUERY] [--kind KIND] [--limit LIMIT]
 ```
 
-Call-resolution diagnostics and sampled traces for one callable. Use to understand why callsites were accepted or dropped without changing `CALLS` truth. Scope: callable-level telemetry.
+#### Category: metrics
+
+- `call_resolution_quality` — Aggregated call-resolution quality diagnostics derived from callsite telemetry. Use to understand accepted vs dropped callsite distribution and dominant drop reasons.
+- `fan_summary` — Fan-in/fan-out metrics for calls and imports. Use to identify highly connected entities or hotspots.
+- `hotspot_summary` — Compressed summary of structurally significant or highly connected entities. Use for architectural orientation or complexity inspection.
+- `overlay_impact_summary` — Advisory summary of dirty-worktree diff overlay impact for the committed snapshot. Use when triaging uncommitted changes; output is non-authoritative.
+- `resolution_trace` — Call-resolution diagnostics and sampled traces for one callable. Use to understand why callsites were accepted or dropped without changing `CALLS` truth.
+- `structural_integrity_summary` — Structural integrity diagnostics over committed SCI facts. Use to detect duplicates, lexical orphans, and inheritance-cycle anomalies before downstream reasoning.
 
 ```bash
+sciona reducer --id call_resolution_quality [--module-id MODULE_ID] [--language LANGUAGE] [--limit LIMIT]
+sciona reducer --id fan_summary [--callable-id CALLABLE_ID] [--classifier-id CLASSIFIER_ID] [--module-id MODULE_ID] [--top-k TOP_K]
+sciona reducer --id hotspot_summary
+sciona reducer --id overlay_impact_summary
 sciona reducer --id resolution_trace [--callable-id CALLABLE_ID] [--identifier IDENTIFIER] [--limit LIMIT]
-```
-
-Structural integrity diagnostics over committed SCI facts. Use to detect duplicates, lexical orphans, and inheritance-cycle anomalies before downstream reasoning. Scope: codebase-level.
-
-```bash
 sciona reducer --id structural_integrity_summary [--top-k TOP_K]
 ```
 
-Fan-in/fan-out metrics for calls and imports. Use to identify highly connected entities or hotspots. Scope: callable/classifier/module.
+#### Category: source
+
+- `callable_source` — Full source code of a callable. Use only when implementation details are required.
+- `concatenated_source` — Concatenated source code for a selected scope (codebase, module, or classifier). Use for large-context reasoning or cross-entity inspection.
 
 ```bash
-sciona reducer --id fan_summary [--callable-id CALLABLE_ID] [--classifier-id CLASSIFIER_ID] [--module-id MODULE_ID] [--top-k TOP_K]
-```
-
-Compressed summary of structurally significant or highly connected entities. Use for architectural orientation or complexity inspection. Scope: codebase-level.
-
-```bash
-sciona reducer --id hotspot_summary
-```
-
-#### Category: composites
-
-Advisory summary of dirty-worktree diff overlay impact for the committed snapshot. Use when triaging uncommitted changes; output is non-authoritative. Scope: codebase-level overlay synthesis.
-
-```bash
-sciona reducer --id overlay_impact_summary
+sciona reducer --id callable_source [--callable-id CALLABLE_ID]
+sciona reducer --id concatenated_source [--scope SCOPE] [--module-id MODULE_ID] [--classifier-id CLASSIFIER_ID]
 ```
