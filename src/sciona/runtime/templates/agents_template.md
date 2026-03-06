@@ -371,6 +371,12 @@ Agents MUST prefer reducers that:
 - Minimize semantic interpretation
 - Maximize structural grounding
 - Avoid redundant evidence retrieval
+- Prefer reducer narrowing arguments before broad payload expansion when the
+  investigation already has a target caller, callee, module, status, or
+  provenance class
+- Prefer compact summary reducers such as `call_resolution_drop_summary` and
+  `overlay_projection_status_summary` before escalating to raw broad
+  diagnostics when they are sufficient for the question
 Follow the stage mapping in §5.3 when selecting reducers for the current reasoning task.
 
 ### 6.5 Resource limits

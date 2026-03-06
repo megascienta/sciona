@@ -250,6 +250,17 @@ languages until the user enables them in `.sciona/config.yaml`.
 - Reducer emission opens CoreDB for committed snapshot identity resolution and
   ArtifactDB for reducer-facing projections
 - Reducers may receive overlay decoration when the worktree is dirty
+- Relationship reducers support optional narrowing arguments to reduce payload
+  size for targeted analysis; current examples include
+  `module_call_graph_summary(from_module_id, to_module_id)`,
+  `classifier_call_graph_summary(caller_id, callee_id)`,
+  `callsite_index(identifier, status, provenance, drop_reason)`,
+  `fan_summary(edge_kind, min_fan, node_kind)`, and
+  `symbol_references(kind, module_id)`
+- Metrics reducers now include compact decision-surface summaries for common
+  workflows:
+  `call_resolution_drop_summary` for dropped-call triage and
+  `overlay_projection_status_summary` for overlay trust/patchability status
 
 ## Addon API
 

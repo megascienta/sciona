@@ -363,7 +363,7 @@ Stage 4 — Relationship analysis
 
 Stage 5 — Diagnostics / metrics
   Purpose: detect anomalies, hotspots, resolution quality
-  Reducers: call_resolution_quality, fan_summary, hotspot_summary, overlay_impact_summary, resolution_trace, structural_integrity_summary
+  Reducers: call_resolution_drop_summary, call_resolution_quality, fan_summary, hotspot_summary, overlay_impact_summary, overlay_projection_status_summary, resolution_trace, structural_integrity_summary
 
 Stage 6 — Source verification (only when ambiguity remains)
   Purpose: validate structural hypotheses already established by
@@ -412,6 +412,12 @@ Agents MUST prefer reducers that:
 - Minimize semantic interpretation
 - Maximize structural grounding
 - Avoid redundant evidence retrieval
+- Prefer reducer narrowing arguments before broad payload expansion when the
+  investigation already has a target caller, callee, module, status, or
+  provenance class
+- Prefer compact summary reducers such as `call_resolution_drop_summary` and
+  `overlay_projection_status_summary` before escalating to raw broad
+  diagnostics when they are sufficient for the question
 Follow the stage mapping in §5.3 when selecting reducers for the current reasoning task.
 
 ### 6.5 Resource limits
@@ -440,7 +446,7 @@ callable_overview, classifier_inheritance, classifier_overview, file_outline, mo
 callsite_index, classifier_call_graph_summary, dependency_edges, module_call_graph_summary, symbol_references
 
 **Metrics reducers:**
-call_resolution_quality, fan_summary, hotspot_summary, overlay_impact_summary, resolution_trace, structural_integrity_summary
+call_resolution_drop_summary, call_resolution_quality, fan_summary, hotspot_summary, overlay_impact_summary, overlay_projection_status_summary, resolution_trace, structural_integrity_summary
 
 **Source reducers:**
 callable_source, concatenated_source
