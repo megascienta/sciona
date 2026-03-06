@@ -140,7 +140,7 @@ Attribution:
 Materialization gate:
 
 - Candidate resolution may produce provisional outcomes.
-- Required resolution stages (receiver/instance mapping, alias narrowing, class
+- Required resolution stages (receiver/instance mapping, alias narrowing, classifier
   scoped fallback, module scoped fallback) are executed in language-specific
   resolver paths before strict materialization.
 - Final CALLS emission MUST pass strict candidate selection.
@@ -259,7 +259,7 @@ TypeScript criteria:
   `import_require_clause` in the current grammar build.
 - Calls are collected from `call_expression`/`new_expression` and attributed by
   enclosing callable scope.
-- Profiling/introspection class query surface includes
+- Profiling/introspection classifier query surface includes
   `class_declaration`, `abstract_class_declaration`, `class_expression`.
 - TypeScript `classifier` currently means class-family declarations captured by
   the extractor query surface above.
@@ -280,7 +280,7 @@ Java criteria:
   - `method_invocation`,
   - `object_creation_expression`,
   - `explicit_constructor_invocation`.
-- Profiling/introspection class query surface includes
+- Profiling/introspection classifier query surface includes
   `class_declaration`, `interface_declaration`, `enum_declaration`,
   `record_declaration`.
 - Java `classifier` currently means classes, interfaces, enums, and records.

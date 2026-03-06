@@ -28,7 +28,9 @@ def _build_query_surfaces() -> dict[str, dict[str, object]]:
             "skip_calls": sorted(query_surface.PYTHON_SKIP_CALL_NODE_TYPES),
             "profile": {
                 "functions": sorted(profile_query_surface.PYTHON_PROFILE_FUNCTION_NODE_TYPES),
-                "classes": sorted(profile_query_surface.PYTHON_PROFILE_CLASS_NODE_TYPES),
+                "classifiers": sorted(
+                    profile_query_surface.PYTHON_PROFILE_CLASS_NODE_TYPES
+                ),
                 "parameters": sorted(profile_query_surface.PYTHON_PROFILE_PARAMETER_NODE_TYPES),
                 "bases": sorted(profile_query_surface.PYTHON_PROFILE_BASE_NODE_TYPES),
             },
@@ -45,7 +47,9 @@ def _build_query_surfaces() -> dict[str, dict[str, object]]:
                 "functions": sorted(
                     profile_query_surface.TYPESCRIPT_PROFILE_FUNCTION_NODE_TYPES
                 ),
-                "classes": sorted(profile_query_surface.TYPESCRIPT_PROFILE_CLASS_NODE_TYPES),
+                "classifiers": sorted(
+                    profile_query_surface.TYPESCRIPT_PROFILE_CLASS_NODE_TYPES
+                ),
                 "parameters": sorted(
                     profile_query_surface.TYPESCRIPT_PROFILE_PARAMETER_NODE_TYPES
                 ),
@@ -64,7 +68,9 @@ def _build_query_surfaces() -> dict[str, dict[str, object]]:
                 "functions": sorted(
                     profile_query_surface.JAVASCRIPT_PROFILE_FUNCTION_NODE_TYPES
                 ),
-                "classes": sorted(profile_query_surface.JAVASCRIPT_PROFILE_CLASS_NODE_TYPES),
+                "classifiers": sorted(
+                    profile_query_surface.JAVASCRIPT_PROFILE_CLASS_NODE_TYPES
+                ),
                 "parameters": sorted(
                     profile_query_surface.JAVASCRIPT_PROFILE_PARAMETER_NODE_TYPES
                 ),
@@ -78,7 +84,9 @@ def _build_query_surfaces() -> dict[str, dict[str, object]]:
             "skip_calls": sorted(query_surface.JAVA_SKIP_CALL_NODE_TYPES),
             "profile": {
                 "functions": sorted(profile_query_surface.JAVA_PROFILE_FUNCTION_NODE_TYPES),
-                "classes": sorted(profile_query_surface.JAVA_PROFILE_CLASS_NODE_TYPES),
+                "classifiers": sorted(
+                    profile_query_surface.JAVA_PROFILE_CLASS_NODE_TYPES
+                ),
                 "parameters": sorted(profile_query_surface.JAVA_PROFILE_PARAMETER_NODE_TYPES),
                 "bases": sorted(profile_query_surface.JAVA_PROFILE_BASE_NODE_TYPES),
             },

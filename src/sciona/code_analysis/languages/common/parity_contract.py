@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 
-PARITY_CONTRACT_VERSION = 5
+PARITY_CONTRACT_VERSION = 6
 
 
 def build_parity_contract() -> dict[str, object]:
@@ -76,7 +76,7 @@ def build_parity_contract() -> dict[str, object]:
                 "python": "yes",
                 "typescript": "yes",
             },
-            "profile_class_extras_tree_sitter": {
+            "profile_classifier_extras_tree_sitter": {
                 "java": "yes",
                 "javascript": "yes",
                 "python": "yes",
@@ -86,7 +86,7 @@ def build_parity_contract() -> dict[str, object]:
         "required_resolution_stages": [
             "receiver_typed_or_instance_mapped",
             "import_or_member_alias_narrowing",
-            "class_scoped_fallback",
+            "classifier_scoped_fallback",
             "module_scoped_fallback",
         ],
         "resolution_stage_enforcement": {

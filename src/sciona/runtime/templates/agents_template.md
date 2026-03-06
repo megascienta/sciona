@@ -136,7 +136,7 @@ Required patterns:
 Agents MUST NOT make structural claims about the repository without reducer-backed evidence.
 
 A structural claim is any assertion about the committed repository snapshot involving:
-- Existence of entities (modules, classes, functions, methods)
+- Existence of entities (modules, classifiers, callables)
 - Relationships between entities (calls, imports, inheritance)
 - Entity location (file, module, lexical scope)
 - Callable signatures or interfaces

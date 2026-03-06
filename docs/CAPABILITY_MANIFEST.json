@@ -17,7 +17,7 @@
           "async_function_definition",
           "function_definition"
         ],
-        "classes": [
+        "classifiers": [
           "class_definition"
         ],
         "parameters": [
@@ -62,7 +62,7 @@
           "method_definition",
           "method_signature"
         ],
-        "classes": [
+        "classifiers": [
           "abstract_class_declaration",
           "class_declaration",
           "class_expression"
@@ -102,7 +102,7 @@
           "function_declaration",
           "method_definition"
         ],
-        "classes": [
+        "classifiers": [
           "class_declaration",
           "class_expression"
         ],
@@ -140,7 +140,7 @@
           "constructor_declaration",
           "method_declaration"
         ],
-        "classes": [
+        "classifiers": [
           "class_declaration",
           "enum_declaration",
           "interface_declaration",
@@ -165,7 +165,7 @@
           "class_definition"
         ],
         "emits_nodes": [
-          "type"
+          "classifier"
         ],
         "emits_edges": [
           "LEXICALLY_CONTAINS"
@@ -231,7 +231,7 @@
           "interface_declaration"
         ],
         "emits_nodes": [
-          "type"
+          "classifier"
         ],
         "emits_edges": [
           "LEXICALLY_CONTAINS"
@@ -265,7 +265,7 @@
           "function_expression"
         ],
         "emits_nodes": [
-          "type",
+          "classifier",
           "callable"
         ],
         "emits_edges": [
@@ -312,7 +312,7 @@
           "record_declaration"
         ],
         "emits_nodes": [
-          "type"
+          "classifier"
         ],
         "emits_edges": [
           "LEXICALLY_CONTAINS"
@@ -366,7 +366,7 @@
           "class_expression"
         ],
         "emits_nodes": [
-          "type"
+          "classifier"
         ],
         "emits_edges": [
           "LEXICALLY_CONTAINS"
@@ -419,7 +419,7 @@
     ]
   },
   "parity_contract": {
-    "version": 5,
+    "version": 6,
     "languages": [
       "java",
       "javascript",
@@ -488,7 +488,7 @@
         "python": "yes",
         "typescript": "yes"
       },
-      "profile_class_extras_tree_sitter": {
+      "profile_classifier_extras_tree_sitter": {
         "java": "yes",
         "javascript": "yes",
         "python": "yes",
@@ -498,7 +498,7 @@
     "required_resolution_stages": [
       "receiver_typed_or_instance_mapped",
       "import_or_member_alias_narrowing",
-      "class_scoped_fallback",
+      "classifier_scoped_fallback",
       "module_scoped_fallback"
     ],
     "resolution_stage_enforcement": {
