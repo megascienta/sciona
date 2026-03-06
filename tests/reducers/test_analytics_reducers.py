@@ -342,6 +342,49 @@ def test_fan_summary_returns_payload(tmp_path):
     assert "imports" in payload
 
 
+def test_fan_summary_filters_by_edge_kind_node_kind_and_min_fan(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    artifact_db = repo_root / ".sciona" / setup_config.ARTIFACT_DB_FILENAME
+    artifact_conn = artifact_connect(artifact_db, repo_root=repo_root)
+    try:
+        artifact_conn.execute(
+            """
+            INSERT OR REPLACE INTO node_fan_stats(node_id, node_kind, edge_kind, fan_in, fan_out)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            ("meth_alpha", "callable", "CALLS", 3, 1),
+        )
+        artifact_conn.execute(
+            """
+            INSERT OR REPLACE INTO node_fan_stats(node_id, node_kind, edge_kind, fan_in, fan_out)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            ("func_alpha", "callable", "CALLS", 1, 1),
+        )
+        artifact_conn.commit()
+    finally:
+        artifact_conn.close()
+    conn = core_conn(repo_root)
+    try:
+        payload_text = fan_summary.render(
+            snapshot_id,
+            conn,
+            repo_root,
+            edge_kind="CALLS",
+            node_kind="callable",
+            min_fan=2,
+        )
+    finally:
+        conn.close()
+    payload = parse_json_payload(payload_text)
+    assert payload["filters"]["edge_kind"] == "CALLS"
+    assert payload["filters"]["node_kind"] == "callable"
+    assert payload["filters"]["min_fan"] == 2
+    assert payload["imports"]["total"] == 0
+    assert payload["calls"]["total"] >= 1
+    assert all(entry["count"] >= 2 for entry in payload["calls"]["by_fan_in"])
+
+
 def test_hotspot_summary_returns_payload(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     conn = core_conn(repo_root)

@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional, Sequence
 
+from .helpers import queries
 from .helpers.artifact_graph_edges import artifact_db_available, load_artifact_edges
 from .helpers.render import render_json_payload, require_connection
 from .helpers.utils import require_latest_committed_snapshot
@@ -18,8 +19,8 @@ REDUCER_META = ReducerMeta(
     risk_tier="normal",
     stage="relationship_analysis",
     placeholder="SYMBOL_REFERENCES",
-    summary="Structural relationships (calls/imports) for matched symbols. "
-    "Use for impact analysis or dependency tracing. ",
+    summary="Summarize structural symbol references in the committed snapshot, with "
+    "optional narrowing by symbol kind or module. ",
 )
 
 _NODE_TYPES = {"module", "classifier", "callable"}
@@ -31,6 +32,7 @@ def render(
     repo_root,
     query: str | None = None,
     kind: str | None = None,
+    module_id: str | None = None,
     limit: int | str | None = 20,
     **_: object,
 ) -> str:
@@ -43,9 +45,19 @@ def render(
     node_types = _normalize_kind(kind)
     normalized_query = str(query).strip()
     limit_value = _normalize_limit(limit)
+    resolved_module_structural_id, resolved_module_name = _resolve_optional_module(
+        conn, snapshot_id, module_id
+    )
     candidates = _fetch_candidates(
         conn, snapshot_id, normalized_query, node_types, limit=limit_value * 5
     )
+    if resolved_module_name:
+        module_lookup = queries.module_id_lookup(conn, snapshot_id)
+        candidates = [
+            candidate
+            for candidate in candidates
+            if module_lookup.get(str(candidate["structural_id"])) == resolved_module_name
+        ]
     ranked = _rank_candidates(normalized_query, candidates)[:limit_value]
     node_ids = [match["structural_id"] for match in ranked]
     lookup = _node_lookup(conn, snapshot_id, set(node_ids))
@@ -55,6 +67,9 @@ def render(
         "payload_kind": "summary",
         "query": normalized_query,
         "kind": kind,
+        "module_id": module_id,
+        "resolved_module_id": resolved_module_name,
+        "resolved_module_structural_id": resolved_module_structural_id,
         "limit": limit_value,
         "matches": ranked,
         "reference_count": len(references),
@@ -81,6 +96,28 @@ def _normalize_kind(kind: Optional[str]) -> Sequence[str]:
     if normalized in _NODE_TYPES:
         return (normalized,)
     raise ValueError(f"Unknown kind '{kind}'.")
+
+
+def _resolve_optional_module(
+    conn, snapshot_id: str, module_id: str | None
+) -> tuple[str | None, str | None]:
+    if not module_id:
+        return None, None
+    row = conn.execute(
+        """
+        SELECT sn.structural_id, ni.qualified_name
+        FROM structural_nodes sn
+        JOIN node_instances ni ON ni.structural_id = sn.structural_id
+        WHERE ni.snapshot_id = ?
+          AND sn.node_type = 'module'
+          AND (sn.structural_id = ? OR ni.qualified_name = ?)
+        LIMIT 1
+        """,
+        (snapshot_id, module_id, module_id),
+    ).fetchone()
+    if row is None:
+        raise ValueError(f"Module '{module_id}' not found in snapshot '{snapshot_id}'.")
+    return str(row["structural_id"]), str(row["qualified_name"])
 
 
 def _normalize_limit(limit: int | str | None) -> int:

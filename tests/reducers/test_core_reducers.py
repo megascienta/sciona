@@ -520,6 +520,63 @@ def test_symbol_references_returns_relationships(tmp_path):
     assert payload["references"]
 
 
+def test_symbol_references_can_filter_by_module(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = _core_conn(repo_root)
+    try:
+        conn.execute(
+            """
+            INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
+            VALUES (?, ?, ?, ?)
+            """,
+            ("func_beta_helper", "callable", "python", snapshot_id),
+        )
+        conn.execute(
+            """
+            INSERT INTO node_instances(
+                instance_id, structural_id, snapshot_id, qualified_name, file_path, start_line, end_line, content_hash
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                f"{snapshot_id}:func_beta_helper",
+                "func_beta_helper",
+                snapshot_id,
+                _q(repo_root, "pkg.beta.helper"),
+                "pkg/beta/helper.py",
+                1,
+                10,
+                "hash-func-beta-helper",
+            ),
+        )
+        conn.execute(
+            """
+            INSERT INTO edges(snapshot_id, src_structural_id, dst_structural_id, edge_type)
+            VALUES (?, ?, ?, ?)
+            """,
+            (snapshot_id, "mod_beta", "func_beta_helper", "LEXICALLY_CONTAINS"),
+        )
+        conn.commit()
+        payload_text = symbol_references.render(
+            snapshot_id,
+            conn,
+            repo_root,
+            query="helper",
+            kind="callable",
+            module_id=_q(repo_root, "pkg.alpha"),
+            limit=10,
+        )
+    finally:
+        conn.close()
+    payload = parse_json_payload(payload_text)
+    assert payload["resolved_module_id"] == _q(repo_root, "pkg.alpha")
+    assert payload["resolved_module_structural_id"] == "mod_alpha"
+    assert payload["matches"]
+    assert all(
+        str(match["qualified_name"]).startswith(_q(repo_root, "pkg.alpha"))
+        for match in payload["matches"]
+    )
+
+
 def test_dependency_edges_reducer_returns_edges(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     conn = _core_conn(repo_root)

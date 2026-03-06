@@ -21,8 +21,8 @@ REDUCER_META = ReducerMeta(
     risk_tier="normal",
     stage="diagnostics_metrics",
     placeholder="FAN_SUMMARY",
-    summary="Fan-in/fan-out metrics for calls and imports. " \
-    "Use to identify highly connected entities or hotspots. ",
+    summary="Summarize fan-in and fan-out over reducer-facing graph edges, with "
+    "optional narrowing by edge kind, node kind, and minimum fan threshold. ",
 )
 
 
@@ -33,6 +33,9 @@ def render(
     callable_id: str | None = None,
     classifier_id: str | None = None,
     module_id: str | None = None,
+    edge_kind: str | None = None,
+    min_fan: int | None = None,
+    node_kind: str | None = None,
     top_k: int | None = None,
     **_: object,
 ) -> str:
@@ -41,6 +44,9 @@ def render(
         conn, snapshot_id, reducer_name="fan_summary reducer"
     )
     artifact_available = artifact_db_available(repo_root) if repo_root else False
+    edge_kind_value = _normalize_edge_kind(edge_kind)
+    min_fan_value = _normalize_min_fan(min_fan)
+    node_kind_value = _normalize_node_kind(node_kind)
     resolved_id = None
     if callable_id:
         resolved_id = queries.resolve_callable_id(conn, snapshot_id, callable_id)
@@ -54,6 +60,7 @@ def render(
         stats = load_node_fan_stats(
             repo_root,
             node_ids=[resolved_id],
+            edge_kinds=[edge_kind_value] if edge_kind_value else None,
         )
         edge_map: Dict[str, Dict[str, int]] = {}
         for _node_id, _node_kind, edge_kind, fan_in, fan_out in stats:
@@ -63,26 +70,48 @@ def render(
             "node_id": resolved_id,
             "edge_kinds": edge_map,
             "edge_summary": edge_map,
+            "filters": {
+                "edge_kind": edge_kind_value,
+                "min_fan": min_fan_value,
+                "node_kind": node_kind_value,
+            },
             "top_k": limit,
             "artifact_available": artifact_available,
             "edge_source": "artifact_db" if artifact_available else "none",
         }
         return render_json_payload(body)
 
-    call_stats = load_node_fan_stats(
-        repo_root,
-        edge_kinds=["CALLS"],
-        node_kinds=["callable"],
+    call_stats = (
+        load_node_fan_stats(
+            repo_root,
+            edge_kinds=["CALLS"] if edge_kind_value in {None, "CALLS"} else [],
+            node_kinds=[node_kind_value] if node_kind_value else ["callable"],
+        )
+        if edge_kind_value in {None, "CALLS"}
+        else []
     )
-    import_stats = load_node_fan_stats(
-        repo_root,
-        edge_kinds=["IMPORTS_DECLARED"],
-        node_kinds=["module"],
+    import_stats = (
+        load_node_fan_stats(
+            repo_root,
+            edge_kinds=["IMPORTS_DECLARED"]
+            if edge_kind_value in {None, "IMPORTS_DECLARED"}
+            else [],
+            node_kinds=[node_kind_value] if node_kind_value else ["module"],
+        )
+        if edge_kind_value in {None, "IMPORTS_DECLARED"}
+        else []
     )
+    call_stats = _filter_min_fan(call_stats, min_fan_value)
+    import_stats = _filter_min_fan(import_stats, min_fan_value)
     calls_table = _fan_tables(conn, snapshot_id, call_stats, top_k=limit)
     imports_table = _fan_tables(conn, snapshot_id, import_stats, top_k=limit)
     body = {
         "payload_kind": "summary",
+        "filters": {
+            "edge_kind": edge_kind_value,
+            "min_fan": min_fan_value,
+            "node_kind": node_kind_value,
+        },
         "calls": calls_table,
         "imports": imports_table,
         "edge_summary": {
@@ -188,6 +217,45 @@ def _normalize_top_k(value: Optional[int], *, default: int) -> Optional[int]:
     if value <= 0:
         raise ValueError("fan_summary top_k must be a positive integer.")
     return value
+
+
+def _normalize_edge_kind(value: Optional[str]) -> str | None:
+    if value is None:
+        return None
+    normalized = str(value).strip().upper()
+    if normalized in {"CALLS", "IMPORTS_DECLARED"}:
+        return normalized
+    raise ValueError("fan_summary edge_kind must be one of: CALLS, IMPORTS_DECLARED.")
+
+
+def _normalize_min_fan(value: Optional[int]) -> int | None:
+    if value is None:
+        return None
+    normalized = int(value)
+    if normalized < 0:
+        raise ValueError("fan_summary min_fan must be zero or a positive integer.")
+    return normalized
+
+
+def _normalize_node_kind(value: Optional[str]) -> str | None:
+    if value is None:
+        return None
+    normalized = str(value).strip().lower()
+    if normalized in {"module", "classifier", "callable"}:
+        return normalized
+    raise ValueError("fan_summary node_kind must be one of: module, classifier, callable.")
+
+
+def _filter_min_fan(
+    stats: List[tuple[str, str, str, int, int]], min_fan: int | None
+) -> List[tuple[str, str, str, int, int]]:
+    if min_fan is None:
+        return stats
+    return [
+        row
+        for row in stats
+        if max(int(row[3]), int(row[4])) >= min_fan
+    ]
 
 
 def _apply_top_k(
