@@ -436,6 +436,133 @@ def test_class_call_graph_summary_returns_payload(tmp_path):
     assert "incoming" in payload
 
 
+def test_module_call_graph_summary_can_narrow_by_peer_modules(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    module_id = qualify_repo_name(repo_root, "pkg.alpha")
+    other_module_id = qualify_repo_name(repo_root, "pkg.beta")
+    artifact_db = repo_root / ".sciona" / setup_config.ARTIFACT_DB_FILENAME
+    artifact_conn = artifact_connect(artifact_db, repo_root=repo_root)
+    try:
+        artifact_conn.execute(
+            """
+            INSERT OR REPLACE INTO module_call_edges(src_module_id, dst_module_id, call_count)
+            VALUES (?, ?, ?)
+            """,
+            ("mod_alpha", "mod_beta", 5),
+        )
+        artifact_conn.execute(
+            """
+            INSERT OR REPLACE INTO module_call_edges(src_module_id, dst_module_id, call_count)
+            VALUES (?, ?, ?)
+            """,
+            ("mod_beta", "mod_alpha", 4),
+        )
+        artifact_conn.commit()
+    finally:
+        artifact_conn.close()
+    conn = core_conn(repo_root)
+    try:
+        payload_text = module_call_graph_summary.render(
+            snapshot_id,
+            conn,
+            repo_root,
+            module_id=module_id,
+            from_module_id=other_module_id,
+            to_module_id=other_module_id,
+        )
+    finally:
+        conn.close()
+    payload = parse_json_payload(payload_text)
+    assert payload["module_qualified_name"] == module_id
+    assert payload["from_module_id"] == other_module_id
+    assert payload["to_module_id"] == other_module_id
+    assert payload["outgoing_total"] == 1
+    assert payload["incoming_total"] == 1
+    assert payload["outgoing"][0]["dst_module_qualified_name"] == other_module_id
+    assert payload["incoming"][0]["src_module_qualified_name"] == other_module_id
+
+
+def test_classifier_call_graph_summary_can_narrow_by_peer_classifiers(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    artifact_db = repo_root / ".sciona" / setup_config.ARTIFACT_DB_FILENAME
+    conn = core_conn(repo_root)
+    try:
+        conn.execute(
+            """
+            INSERT OR REPLACE INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
+            VALUES (?, ?, ?, ?)
+            """,
+            ("cls_other", "classifier", "python", snapshot_id),
+        )
+        conn.execute(
+            """
+            INSERT OR REPLACE INTO node_instances(
+                instance_id, structural_id, snapshot_id, qualified_name, file_path, start_line, end_line, content_hash
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                f"{snapshot_id}:cls_other",
+                "cls_other",
+                snapshot_id,
+                qualify_repo_name(repo_root, "pkg.beta.Other"),
+                "pkg/beta/other.py",
+                1,
+                10,
+                "hash-cls-other",
+            ),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+    artifact_conn = artifact_connect(artifact_db, repo_root=repo_root)
+    try:
+        artifact_conn.execute(
+            """
+            INSERT OR REPLACE INTO graph_nodes(node_id, node_kind)
+            VALUES (?, ?)
+            """,
+            ("cls_other", "classifier"),
+        )
+        artifact_conn.execute(
+            """
+            INSERT OR REPLACE INTO class_call_edges(src_class_id, dst_class_id, call_count)
+            VALUES (?, ?, ?)
+            """,
+            ("cls_alpha", "cls_other", 4),
+        )
+        artifact_conn.execute(
+            """
+            INSERT OR REPLACE INTO class_call_edges(src_class_id, dst_class_id, call_count)
+            VALUES (?, ?, ?)
+            """,
+            ("cls_other", "cls_alpha", 3),
+        )
+        artifact_conn.commit()
+    finally:
+        artifact_conn.close()
+    conn = core_conn(repo_root)
+    try:
+        payload_text = classifier_call_graph_summary.render(
+            snapshot_id,
+            conn,
+            repo_root,
+            classifier_id=qualify_repo_name(repo_root, "pkg.alpha.Service"),
+            caller_id=qualify_repo_name(repo_root, "pkg.beta.Other"),
+            callee_id=qualify_repo_name(repo_root, "pkg.beta.Other"),
+        )
+    finally:
+        conn.close()
+    payload = parse_json_payload(payload_text)
+    other_id = qualify_repo_name(repo_root, "pkg.beta.Other")
+    assert payload["classifier_id"] == qualify_repo_name(repo_root, "pkg.alpha.Service")
+    assert payload["caller_id"] == other_id
+    assert payload["callee_id"] == other_id
+    assert payload["outgoing_total"] == 1
+    assert payload["incoming_total"] == 1
+    assert payload["outgoing"][0]["dst_classifier_id"] == "cls_other"
+    assert payload["incoming"][0]["src_classifier_id"] == "cls_other"
+
+
 def test_callsite_index_rejects_invalid_detail_level(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     callable_id = qualify_repo_name(repo_root, "pkg.alpha.service.helper")

@@ -20,8 +20,8 @@ REDUCER_META = ReducerMeta(
     risk_tier="normal",
     stage="relationship_analysis",
     placeholder="MODULE_CALL_GRAPH",
-    summary="Summary of call relationships within a module. " \
-    "Use for module-level flow or coupling analysis. ",
+    summary="Summarize module-to-module artifact call relationships for the committed "
+    "snapshot, with optional narrowing by caller or callee module. ",
 )
 
 
@@ -32,6 +32,8 @@ def render(
     module_id: str | None = None,
     callable_id: str | None = None,
     classifier_id: str | None = None,
+    from_module_id: str | None = None,
+    to_module_id: str | None = None,
     top_k: int | None = None,
     **_: object,
 ) -> str:
@@ -39,44 +41,67 @@ def render(
     require_latest_committed_snapshot(
         conn, snapshot_id, reducer_name="module_call_graph_summary reducer"
     )
-    resolved_module_id = module_id
-    if not resolved_module_id and classifier_id:
+    resolved_module_name = module_id
+    if not resolved_module_name and classifier_id:
         classifier_structural_id = queries.resolve_classifier_id(
             conn, snapshot_id, classifier_id
         )
-        resolved_module_id = queries.module_id_for_structural(
+        resolved_module_name = queries.module_id_for_structural(
             conn, snapshot_id, classifier_structural_id
         )
-    if not resolved_module_id and callable_id:
+    if not resolved_module_name and callable_id:
         callable_structural_id = queries.resolve_callable_id(
             conn, snapshot_id, callable_id
         )
-        resolved_module_id = queries.module_id_for_structural(
+        resolved_module_name = queries.module_id_for_structural(
             conn, snapshot_id, callable_structural_id
         )
-    if not resolved_module_id:
+    if not resolved_module_name:
         raise ValueError("MODULE_CALL_GRAPH requires a resolvable module_id.")
+    module_name_lookup = _module_name_lookup(conn, snapshot_id)
+    resolved_module_structural_id, resolved_module_name = _resolve_required_module(
+        conn, snapshot_id, resolved_module_name
+    )
     artifact_available = artifact_db_available(repo_root) if repo_root else False
 
     limit = _normalize_top_k(top_k)
+    resolved_from_module_structural_id, resolved_from_module_name = _resolve_optional_module(
+        conn, snapshot_id, from_module_id
+    )
+    resolved_to_module_structural_id, resolved_to_module_name = _resolve_optional_module(
+        conn, snapshot_id, to_module_id
+    )
 
     outgoing_edges = load_module_call_edges(
         repo_root,
-        src_module_ids=[resolved_module_id],
+        src_module_ids=[resolved_module_structural_id],
+        dst_module_ids=[resolved_to_module_structural_id]
+        if resolved_to_module_structural_id
+        else None,
     )
     incoming_edges = load_module_call_edges(
         repo_root,
-        dst_module_ids=[resolved_module_id],
+        src_module_ids=[resolved_from_module_structural_id]
+        if resolved_from_module_structural_id
+        else None,
+        dst_module_ids=[resolved_module_structural_id],
     )
 
-    outgoing_all = _edges_to_entries(outgoing_edges, direction="outgoing")
-    incoming_all = _edges_to_entries(incoming_edges, direction="incoming")
+    outgoing_all = _edges_to_entries(
+        outgoing_edges, direction="outgoing", name_lookup=module_name_lookup
+    )
+    incoming_all = _edges_to_entries(
+        incoming_edges, direction="incoming", name_lookup=module_name_lookup
+    )
     outgoing = _apply_top_k(outgoing_all, limit)
     incoming = _apply_top_k(incoming_all, limit)
 
     body = {
         "payload_kind": "summary",
-        "module_qualified_name": resolved_module_id,
+        "module_qualified_name": resolved_module_name,
+        "module_structural_id": resolved_module_structural_id,
+        "from_module_id": resolved_from_module_name,
+        "to_module_id": resolved_to_module_name,
         "outgoing_count": len(outgoing),
         "incoming_count": len(incoming),
         "outgoing_total": len(outgoing_all),
@@ -99,15 +124,45 @@ def render(
     return render_json_payload(body)
 
 
+def _module_name_lookup(conn, snapshot_id: str) -> Dict[str, str]:
+    rows = queries.list_modules(conn, snapshot_id)
+    return {
+        str(row["structural_id"]): str(row["qualified_name"])
+        for row in rows
+        if row.get("structural_id") and row.get("qualified_name")
+    }
+
+
+def _resolve_required_module(conn, snapshot_id: str, module_id: str) -> tuple[str, str]:
+    structural_id, qualified_name = _resolve_optional_module(conn, snapshot_id, module_id)
+    if not structural_id or not qualified_name:
+        raise ValueError(f"Module '{module_id}' not found in snapshot '{snapshot_id}'.")
+    return structural_id, qualified_name
+
+
+def _resolve_optional_module(
+    conn, snapshot_id: str, module_id: str | None
+) -> tuple[str | None, str | None]:
+    if not module_id:
+        return None, None
+    rows = queries.list_modules(conn, snapshot_id)
+    for row in rows:
+        structural_id = row.get("structural_id")
+        qualified_name = row.get("qualified_name")
+        if module_id == structural_id or module_id == qualified_name:
+            return str(structural_id), str(qualified_name)
+    raise ValueError(f"Module '{module_id}' not found in snapshot '{snapshot_id}'.")
+
+
 def _edges_to_entries(
-    edges: List[tuple[str, str, int]], *, direction: str
+    edges: List[tuple[str, str, int]], *, direction: str, name_lookup: Dict[str, str]
 ) -> List[Dict[str, int | str]]:
     entries: List[Dict[str, int | str]] = []
     for src_id, dst_id, count in edges:
         entries.append(
             {
-                "src_module_qualified_name": src_id,
-                "dst_module_qualified_name": dst_id,
+                "src_module_qualified_name": name_lookup.get(src_id, src_id),
+                "dst_module_qualified_name": name_lookup.get(dst_id, dst_id),
                 "direction": direction,
                 "call_count": count,
             }

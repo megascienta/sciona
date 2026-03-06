@@ -8,7 +8,7 @@ from __future__ import annotations
 from typing import Dict, List, Optional
 
 from .helpers import queries
-from .helpers.artifact_graph_edges import artifact_db_available, load_artifact_edges
+from .helpers.artifact_graph_edges import artifact_db_available
 from .helpers.artifact_graph_rollups import load_class_call_edges
 from .helpers.render import render_json_payload, require_connection
 from .helpers.utils import require_latest_committed_snapshot
@@ -20,8 +20,8 @@ REDUCER_META = ReducerMeta(
     risk_tier="normal",
     stage="relationship_analysis",
     placeholder="CLASSIFIER_CALL_GRAPH",
-    summary="Summary of call relationships within a classifier. " \
-    "Use for analysing method interaction patterns or internal coupling. ",
+    summary="Summarize classifier-level artifact call relationships for the committed "
+    "snapshot, with optional narrowing by caller or callee classifier. ",
 )
 
 def render(
@@ -29,6 +29,8 @@ def render(
     conn,
     repo_root,
     classifier_id: str | None = None,
+    caller_id: str | None = None,
+    callee_id: str | None = None,
     top_k: int | None = None,
     **_: object,
 ) -> str:
@@ -36,19 +38,26 @@ def render(
     require_latest_committed_snapshot(
         conn, snapshot_id, reducer_name="classifier_call_graph_summary reducer"
     )
-    resolved_classifier_id = classifier_id
-    if not resolved_classifier_id:
+    requested_classifier_id = classifier_id
+    if not requested_classifier_id:
         raise ValueError("CLASSIFIER_CALL_GRAPH requires classifier_id.")
+    resolved_classifier_id = queries.resolve_classifier_id(
+        conn, snapshot_id, requested_classifier_id
+    )
     artifact_available = artifact_db_available(repo_root) if repo_root else False
 
     limit = _normalize_top_k(top_k)
+    resolved_caller_id = _resolve_optional_classifier_id(conn, snapshot_id, caller_id)
+    resolved_callee_id = _resolve_optional_classifier_id(conn, snapshot_id, callee_id)
 
     outgoing_edges = load_class_call_edges(
         repo_root,
         src_class_ids=[resolved_classifier_id],
+        dst_class_ids=[resolved_callee_id] if resolved_callee_id else None,
     )
     incoming_edges = load_class_call_edges(
         repo_root,
+        src_class_ids=[resolved_caller_id] if resolved_caller_id else None,
         dst_class_ids=[resolved_classifier_id],
     )
 
@@ -69,7 +78,10 @@ def render(
 
     body = {
         "payload_kind": "summary",
-        "classifier_id": resolved_classifier_id,
+        "classifier_id": name_lookup.get(resolved_classifier_id, requested_classifier_id),
+        "classifier_structural_id": resolved_classifier_id,
+        "caller_id": name_lookup.get(resolved_caller_id, caller_id) if resolved_caller_id else None,
+        "callee_id": name_lookup.get(resolved_callee_id, callee_id) if resolved_callee_id else None,
         "outgoing_count": len(outgoing),
         "incoming_count": len(incoming),
         "outgoing_total": len(outgoing_all),
@@ -90,6 +102,14 @@ def render(
         "edge_source": "artifact_db" if artifact_available else "none",
     }
     return render_json_payload(body)
+
+
+def _resolve_optional_classifier_id(
+    conn, snapshot_id: str, classifier_id: str | None
+) -> str | None:
+    if not classifier_id:
+        return None
+    return queries.resolve_classifier_id(conn, snapshot_id, classifier_id)
 
 
 def _edges_to_entries(
