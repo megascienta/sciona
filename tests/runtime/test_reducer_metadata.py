@@ -36,3 +36,8 @@ def test_reducer_registry_exposes_explicit_risk_and_stage() -> None:
         assert entry.risk_tier in VALID_RISK_TIERS
         assert entry.stage in VALID_INVESTIGATION_STAGES
         assert entry.placeholder
+        assert entry.module.__name__.startswith("sciona.reducers.")
+        assert ".core." not in entry.module.__name__
+        assert ".analytics." not in entry.module.__name__
+        assert ".grounding." not in entry.module.__name__
+        assert ".composites." not in entry.module.__name__

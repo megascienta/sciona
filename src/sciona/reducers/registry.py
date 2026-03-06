@@ -37,24 +37,18 @@ class ReducerEntry:
 
 def _iter_reducer_modules() -> Iterator[ModuleType]:
     base_dir = Path(__file__).resolve().parent
-    reducer_packages = ("core", "grounding", "analytics", "composites")
-    for package in reducer_packages:
-        package_path = base_dir / package
-        if not package_path.exists():
+    module_entries = sorted(
+        (entry for entry in pkgutil.iter_modules([str(base_dir)])),
+        key=lambda item: item.name,
+    )
+    ignored = {"__pycache__", "analytics", "composites", "core", "grounding", "helpers"}
+    for entry in module_entries:
+        if entry.ispkg or entry.name in ignored:
             continue
-        module_entries = sorted(
-            (entry for entry in pkgutil.iter_modules([str(package_path)])),
-            key=lambda item: item.name,
-        )
-        for entry in module_entries:
-            if entry.ispkg:
-                continue
-            module = importlib.import_module(f"{__package__}.{package}.{entry.name}")
-            if not hasattr(module, "REDUCER_META"):
-                raise ValueError(
-                    f"Reducer module '{module.__name__}' is missing REDUCER_META."
-                )
-            yield module
+        module = importlib.import_module(f"{__package__}.{entry.name}")
+        if not hasattr(module, "REDUCER_META"):
+            continue
+        yield module
 
 
 def _validate_meta(meta: ReducerMeta, module_name: str) -> None:
