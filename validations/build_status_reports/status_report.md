@@ -1,6 +1,8 @@
 # SCIONA Call-Edge Resolution Report
 
-This report summarizes 10 status payloads in `validations/build_status_reports/*.json` and interprets them using SCIONA contract constraints.
+This report summarizes the status payloads in `validations/build_status_reports/*.json` and interprets them using SCIONA contract constraints.
+
+The directory currently contains **11 JSON payloads**. Aggregate metrics in this report are computed over **10 unique repositories** because `vccode.json` is a legacy VSCode-named artifact and `vscode.json` is treated as the canonical VSCode entry for the rollup.
 
 ## Executive Summary
 
@@ -35,8 +37,13 @@ Analysis has been performed over 10 popular open source repositories:
 * [`nest`](https://github.com/nestjs/nest)
 * [`pydantic`](https://github.com/pydantic/pydantic)
 * [`sympy`](https://github.com/sympy/sympy)
-* [`vccode`](https://github.com/microsoft/vscode)
+* [`vscode`](https://github.com/microsoft/vscode)
 * [`webpack`](https://github.com/webpack/webpack)
+
+Data-source note:
+
+* `validations/build_status_reports/vccode.json` is retained as a legacy-named VSCode report.
+* `validations/build_status_reports/vscode.json` is the canonical VSCode status artifact used in the aggregate totals below.
 
 All status reports in JSON format were emitted by:
 
