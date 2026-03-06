@@ -56,6 +56,28 @@ def render(
             "dropped": 0,
             "drop_rate": None,
         },
+        "committed_totals": {
+            "eligible": 0,
+            "accepted": 0,
+            "dropped": 0,
+            "drop_rate": None,
+        },
+        "overlay_adjusted_totals": {
+            "eligible": 0,
+            "accepted": 0,
+            "dropped": 0,
+            "drop_rate": None,
+        },
+        "overlay_delta_totals": {
+            "eligible": 0,
+            "accepted": 0,
+            "dropped": 0,
+        },
+        "overlay_transition_counts": {
+            "accepted_to_dropped": 0,
+            "dropped_to_accepted": 0,
+        },
+        "overlay_drop_reason_delta": [],
         "dropped_by_reason": [],
         "dropped_by_reason_by_language": [],
         "dropped_by_reason_by_scope": {
@@ -129,6 +151,8 @@ def render(
         **totals,
         "drop_rate": _ratio(totals["dropped"], totals["eligible"]),
     }
+    body["committed_totals"] = dict(body["totals"])
+    body["overlay_adjusted_totals"] = dict(body["totals"])
     body["dropped_by_reason"] = _counter_entries(by_reason, limit_value)
     body["dropped_by_reason_by_language"] = _grouped_counter_entries(
         by_language,

@@ -134,6 +134,23 @@ def render(
             **totals,
             "acceptance_rate": _ratio(totals["accepted"], totals["eligible"]),
         },
+        "committed_totals": {
+            **totals,
+            "acceptance_rate": _ratio(totals["accepted"], totals["eligible"]),
+        },
+        "overlay_adjusted_totals": {
+            **totals,
+            "acceptance_rate": _ratio(totals["accepted"], totals["eligible"]),
+        },
+        "overlay_delta_totals": {
+            "eligible": 0,
+            "accepted": 0,
+            "dropped": 0,
+        },
+        "overlay_transition_counts": {
+            "accepted_to_dropped": 0,
+            "dropped_to_accepted": 0,
+        },
         "drop_reason_counts": _counter_entries(drop_reasons, limit_value),
         "by_language": _metric_entries(by_language, key_name="language", top_k=limit_value),
         "by_module": _metric_entries(

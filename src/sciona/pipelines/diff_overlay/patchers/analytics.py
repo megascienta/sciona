@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections import Counter
 import json
 from typing import Optional
 
@@ -614,6 +615,238 @@ def patch_classifier_call_graph_summary(
     if incoming_all:
         payload["incoming_coverage_ratio"] = 1.0
     return payload
+
+
+def patch_call_resolution_quality(
+    payload: dict[str, object],
+    overlay: OverlayPayload,
+    *,
+    snapshot_id: str,
+    conn,
+) -> dict[str, object]:
+    transition_counts = _overlay_transition_counts(overlay)
+    delta_totals = {
+        "eligible": 0,
+        "accepted": transition_counts["dropped_to_accepted"]
+        - transition_counts["accepted_to_dropped"],
+        "dropped": transition_counts["accepted_to_dropped"]
+        - transition_counts["dropped_to_accepted"],
+    }
+    committed = dict(payload.get("committed_totals") or payload.get("totals") or {})
+    adjusted = {
+        "eligible": int(committed.get("eligible") or 0),
+        "accepted": max(
+            0, int(committed.get("accepted") or 0) + int(delta_totals["accepted"])
+        ),
+        "dropped": max(
+            0, int(committed.get("dropped") or 0) + int(delta_totals["dropped"])
+        ),
+    }
+    adjusted["acceptance_rate"] = (
+        float(adjusted["accepted"]) / float(adjusted["eligible"])
+        if adjusted["eligible"] > 0
+        else None
+    )
+    payload["committed_totals"] = {
+        "eligible": int(committed.get("eligible") or 0),
+        "accepted": int(committed.get("accepted") or 0),
+        "dropped": int(committed.get("dropped") or 0),
+        "acceptance_rate": committed.get("acceptance_rate"),
+    }
+    payload["overlay_adjusted_totals"] = adjusted
+    payload["overlay_delta_totals"] = delta_totals
+    payload["overlay_transition_counts"] = transition_counts
+    payload["totals"] = adjusted
+    payload["by_caller"] = _patch_quality_by_caller(
+        list(payload.get("by_caller") or []),
+        overlay,
+        snapshot_id=snapshot_id,
+        conn=conn,
+    )
+    return payload
+
+
+def patch_call_resolution_drop_summary(
+    payload: dict[str, object],
+    overlay: OverlayPayload,
+    *,
+    snapshot_id: str,
+    conn,
+) -> dict[str, object]:
+    transition_counts = _overlay_transition_counts(overlay)
+    delta_totals = {
+        "eligible": 0,
+        "accepted": transition_counts["dropped_to_accepted"]
+        - transition_counts["accepted_to_dropped"],
+        "dropped": transition_counts["accepted_to_dropped"]
+        - transition_counts["dropped_to_accepted"],
+    }
+    committed = dict(payload.get("committed_totals") or payload.get("totals") or {})
+    adjusted = {
+        "eligible": int(committed.get("eligible") or 0),
+        "accepted": max(
+            0, int(committed.get("accepted") or 0) + int(delta_totals["accepted"])
+        ),
+        "dropped": max(
+            0, int(committed.get("dropped") or 0) + int(delta_totals["dropped"])
+        ),
+    }
+    adjusted["drop_rate"] = (
+        round(adjusted["dropped"] / adjusted["eligible"], 6)
+        if adjusted["eligible"] > 0
+        else None
+    )
+    payload["committed_totals"] = {
+        "eligible": int(committed.get("eligible") or 0),
+        "accepted": int(committed.get("accepted") or 0),
+        "dropped": int(committed.get("dropped") or 0),
+        "drop_rate": committed.get("drop_rate"),
+    }
+    payload["overlay_adjusted_totals"] = adjusted
+    payload["overlay_delta_totals"] = delta_totals
+    payload["overlay_transition_counts"] = transition_counts
+    payload["overlay_drop_reason_delta"] = _overlay_drop_reason_delta_entries(
+        transition_counts
+    )
+    payload["totals"] = adjusted
+    payload["top_changed_callers"] = _overlay_changed_callers(
+        overlay,
+        snapshot_id=snapshot_id,
+        conn=conn,
+        limit=int(payload.get("limit") or 10),
+    )
+    return payload
+
+
+def _overlay_transition_counts(overlay: OverlayPayload) -> dict[str, int]:
+    return {
+        "accepted_to_dropped": len(overlay.calls.get("remove", [])),
+        "dropped_to_accepted": len(overlay.calls.get("add", [])),
+    }
+
+
+def _patch_quality_by_caller(
+    rows: list[dict[str, object]],
+    overlay: OverlayPayload,
+    *,
+    snapshot_id: str,
+    conn,
+) -> list[dict[str, object]]:
+    caller_deltas = _caller_transition_deltas(overlay)
+    ids_needed = set(caller_deltas)
+    meta_lookup = _node_meta_lookup(conn, snapshot_id, overlay, ids_needed)
+    by_caller = {
+        str(row.get("caller_id") or ""): dict(row) for row in rows if row.get("caller_id")
+    }
+    for caller_id, delta in caller_deltas.items():
+        row = dict(by_caller.get(caller_id) or {})
+        committed_accepted = int(row.get("accepted") or 0)
+        committed_dropped = int(row.get("dropped") or 0)
+        eligible = int(row.get("eligible") or (committed_accepted + committed_dropped))
+        meta = meta_lookup.get(caller_id, {})
+        row.update(
+            {
+                "caller_id": caller_id,
+                "qualified_name": row.get("qualified_name") or meta.get("qualified_name"),
+                "language": row.get("language") or meta.get("language"),
+                "module_qualified_name": row.get("module_qualified_name")
+                or _module_for_node(
+                    str(meta.get("node_type") or ""),
+                    str(meta.get("qualified_name") or ""),
+                ),
+                "file_path": row.get("file_path") or meta.get("file_path"),
+                "eligible": eligible,
+                "accepted": max(0, committed_accepted + delta["accepted"]),
+                "dropped": max(0, committed_dropped + delta["dropped"]),
+                "accepted_delta": delta["accepted"],
+                "dropped_delta": delta["dropped"],
+            }
+        )
+        row["acceptance_rate"] = (
+            float(row["accepted"]) / float(eligible) if eligible > 0 else None
+        )
+        by_caller[caller_id] = row
+    result = list(by_caller.values())
+    result.sort(
+        key=lambda item: (
+            -abs(int(item.get("accepted_delta") or 0) - int(item.get("dropped_delta") or 0)),
+            -int(item.get("eligible") or 0),
+            str(item.get("qualified_name") or ""),
+        )
+    )
+    return result
+
+
+def _overlay_drop_reason_delta_entries(
+    transition_counts: dict[str, int],
+) -> list[dict[str, object]]:
+    entries = []
+    for name, count in {
+        "overlay_unclassified_drop": int(transition_counts["accepted_to_dropped"]),
+        "overlay_unclassified_resolution": -int(
+            transition_counts["dropped_to_accepted"]
+        ),
+    }.items():
+        if count:
+            entries.append({"name": name, "delta_count": count})
+    entries.sort(key=lambda item: (-abs(int(item["delta_count"])), str(item["name"])))
+    return entries
+
+
+def _overlay_changed_callers(
+    overlay: OverlayPayload,
+    *,
+    snapshot_id: str,
+    conn,
+    limit: int,
+) -> list[dict[str, object]]:
+    caller_deltas = _caller_transition_deltas(overlay)
+    ids_needed = set(caller_deltas)
+    meta_lookup = _node_meta_lookup(conn, snapshot_id, overlay, ids_needed)
+    rows = []
+    for caller_id, delta in caller_deltas.items():
+        meta = meta_lookup.get(caller_id, {})
+        rows.append(
+            {
+                "caller_id": caller_id,
+                "qualified_name": meta.get("qualified_name"),
+                "language": meta.get("language"),
+                "module_qualified_name": _module_for_node(
+                    str(meta.get("node_type") or ""),
+                    str(meta.get("qualified_name") or ""),
+                ),
+                "file_path": meta.get("file_path"),
+                "accepted_delta": delta["accepted"],
+                "dropped_delta": delta["dropped"],
+            }
+        )
+    rows.sort(
+        key=lambda item: (
+            -abs(int(item.get("accepted_delta") or 0) - int(item.get("dropped_delta") or 0)),
+            str(item.get("qualified_name") or ""),
+            str(item.get("caller_id") or ""),
+        )
+    )
+    return rows[:limit]
+
+
+def _caller_transition_deltas(overlay: OverlayPayload) -> dict[str, dict[str, int]]:
+    deltas: dict[str, dict[str, int]] = {}
+    for change in overlay.calls.get("add", []):
+        caller_id = str(change.get("src_structural_id") or "")
+        if not caller_id:
+            continue
+        entry = deltas.setdefault(caller_id, {"accepted": 0, "dropped": 0})
+        entry["accepted"] += 1
+        entry["dropped"] -= 1
+    for change in overlay.calls.get("remove", []):
+        caller_id = str(change.get("src_structural_id") or "")
+        if not caller_id:
+            continue
+        entry = deltas.setdefault(caller_id, {"accepted": 0, "dropped": 0})
+        entry["accepted"] -= 1
+        entry["dropped"] += 1
+    return deltas
 
 def patch_fan_summary(
     payload: dict[str, object],

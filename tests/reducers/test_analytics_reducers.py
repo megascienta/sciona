@@ -59,6 +59,9 @@ def test_call_resolution_quality_returns_payload(tmp_path):
     payload = parse_json_payload(payload_text)
     assert payload["payload_kind"] == "summary"
     assert "totals" in payload
+    assert "committed_totals" in payload
+    assert "overlay_adjusted_totals" in payload
+    assert "overlay_delta_totals" in payload
     assert "by_language" in payload
     assert "by_module" in payload
     assert "by_caller" in payload
@@ -281,6 +284,13 @@ def test_call_resolution_drop_summary_aggregates_dropped_callsites(tmp_path):
     ]
     assert payload["top_callers_by_drop_count"][0]["caller_id"] == "func_alpha"
     assert payload["top_callers_by_drop_count"][1]["caller_id"] == "func_test_case"
+    assert payload["committed_totals"] == payload["totals"]
+    assert payload["overlay_adjusted_totals"] == payload["totals"]
+    assert payload["overlay_delta_totals"] == {
+        "eligible": 0,
+        "accepted": 0,
+        "dropped": 0,
+    }
 
 
 def test_resolution_trace_returns_payload(tmp_path):

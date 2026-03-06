@@ -89,6 +89,16 @@ _OVERLAY_PROFILE: dict[str, dict[str, object]] = {
         "scope_type": "module",
         "affected_by": ["calls"],
     },
+    "call_resolution_quality": {
+        "supports_patch": True,
+        "scope_type": "metrics",
+        "affected_by": ["calls"],
+    },
+    "call_resolution_drop_summary": {
+        "supports_patch": True,
+        "scope_type": "metrics",
+        "affected_by": ["calls"],
+    },
     "fan_summary": {
         "supports_patch": True,
         "scope_type": "fan",

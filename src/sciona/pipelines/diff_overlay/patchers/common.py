@@ -12,6 +12,8 @@ from ..types import OverlayPayload
 from ....runtime import identity as ids
 from .analytics import (
     patch_call_neighbors,
+    patch_call_resolution_drop_summary,
+    patch_call_resolution_quality,
     patch_callsite_index,
     patch_classifier_call_graph_summary,
     patch_fan_summary,
@@ -72,6 +74,14 @@ def apply_overlay_to_payload(
         ), True
     if projection == "module_call_graph_summary":
         return patch_module_call_graph_summary(
+            payload, overlay, snapshot_id=snapshot_id, conn=conn
+        ), True
+    if projection == "call_resolution_quality":
+        return patch_call_resolution_quality(
+            payload, overlay, snapshot_id=snapshot_id, conn=conn
+        ), True
+    if projection == "call_resolution_drop_summary":
+        return patch_call_resolution_drop_summary(
             payload, overlay, snapshot_id=snapshot_id, conn=conn
         ), True
     if projection == "fan_summary":
