@@ -509,9 +509,14 @@ def patch_file_outline(
     payload: dict[str, object], overlay: OverlayPayload
 ) -> dict[str, object]:
     files = list(payload.get("files", []) or [])
-    file_map = {
-        entry.get("file_path"): entry for entry in files if entry.get("file_path")
-    }
+    file_map = {}
+    for entry in files:
+        file_path = entry.get("file_path")
+        if not file_path:
+            continue
+        item = dict(entry)
+        item["nodes"] = [dict(node) for node in item.get("nodes", []) or []]
+        file_map[file_path] = item
     file_filter = payload.get("file_path")
     module_filter = payload.get("module_filter")
     for change in iter_node_changes(overlay):
@@ -545,14 +550,27 @@ def patch_file_outline(
                     "node_type": node_type,
                     "module_qualified_name": module_name,
                     "line_span": [node.get("start_line"), node.get("end_line")],
+                    "row_origin": "overlay_added",
                 }
             )
         elif change["diff_kind"] == "remove":
-            nodes = [
-                item
-                for item in nodes
-                if item.get("structural_id") != node.get("structural_id")
-            ]
+            removed = False
+            for item in nodes:
+                if item.get("structural_id") != node.get("structural_id"):
+                    continue
+                item["row_origin"] = "overlay_removed"
+                removed = True
+            if not removed:
+                nodes.append(
+                    {
+                        "structural_id": node.get("structural_id"),
+                        "qualified_name": qualified_name,
+                        "node_type": node_type,
+                        "module_qualified_name": module_name,
+                        "line_span": [node.get("start_line"), node.get("end_line")],
+                        "row_origin": "overlay_removed",
+                    }
+                )
         elif change["diff_kind"] == "modify":
             for item in nodes:
                 if item.get("structural_id") != node.get("structural_id"):
@@ -567,6 +585,7 @@ def patch_file_outline(
                         item["line_span"] = span
                 if change.get("field") == "qualified_name":
                     item["qualified_name"] = change.get("new_value")
+                item["row_origin"] = "overlay_changed"
         entry["nodes"] = sorted(
             nodes,
             key=lambda item: (
@@ -678,7 +697,7 @@ def patch_dependency_edges(
 def patch_symbol_lookup(
     payload: dict[str, object], overlay: OverlayPayload
 ) -> dict[str, object]:
-    matches = list(payload.get("matches", []) or [])
+    matches = [dict(entry) for entry in payload.get("matches", []) or []]
     match_ids = {
         entry.get("structural_id") for entry in matches if entry.get("structural_id")
     }
@@ -695,15 +714,17 @@ def patch_symbol_lookup(
                     "qualified_name": node.get("qualified_name"),
                     "file_path": node.get("file_path"),
                     "score": 0.55,
+                    "row_origin": "overlay_added",
+                    "match_status": "active",
                 }
             )
             match_ids.add(node.get("structural_id"))
         elif change["diff_kind"] == "remove":
-            matches = [
-                entry
-                for entry in matches
-                if entry.get("structural_id") != node.get("structural_id")
-            ]
+            for entry in matches:
+                if entry.get("structural_id") != node.get("structural_id"):
+                    continue
+                entry["row_origin"] = "overlay_removed"
+                entry["match_status"] = "stale"
     payload["matches"] = sorted(
         matches,
         key=lambda item: (

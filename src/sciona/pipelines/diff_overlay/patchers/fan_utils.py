@@ -133,17 +133,37 @@ def _patch_fan_table(
     *,
     edge_kind: str,
 ) -> dict[str, object]:
-    by_in = {entry.get("node_id"): int(entry.get("count") or 0) for entry in table.get("by_fan_in", []) or []}
-    by_out = {entry.get("node_id"): int(entry.get("count") or 0) for entry in table.get("by_fan_out", []) or []}
+    by_in = {
+        entry.get("node_id"): {
+            "node_id": entry.get("node_id"),
+            "qualified_name": entry.get("qualified_name"),
+            "committed_count": int(entry.get("committed_count") or entry.get("count") or 0),
+            "adjusted_count": int(entry.get("adjusted_count") or entry.get("count") or 0),
+        }
+        for entry in table.get("by_fan_in", []) or []
+    }
+    by_out = {
+        entry.get("node_id"): {
+            "node_id": entry.get("node_id"),
+            "qualified_name": entry.get("qualified_name"),
+            "committed_count": int(entry.get("committed_count") or entry.get("count") or 0),
+            "adjusted_count": int(entry.get("adjusted_count") or entry.get("count") or 0),
+        }
+        for entry in table.get("by_fan_out", []) or []
+    }
     if edge_kind == "CALLS":
         for change in overlay.calls.get("add", []) + overlay.calls.get("remove", []):
             delta = 1 if change.get("diff_kind") == "add" else -1
             src_id = change.get("src_structural_id")
             dst_id = change.get("dst_structural_id")
             if src_id in by_out:
-                by_out[src_id] = max(0, by_out.get(src_id, 0) + delta)
+                by_out[src_id]["adjusted_count"] = max(
+                    0, int(by_out[src_id]["adjusted_count"]) + delta
+                )
             if dst_id in by_in:
-                by_in[dst_id] = max(0, by_in.get(dst_id, 0) + delta)
+                by_in[dst_id]["adjusted_count"] = max(
+                    0, int(by_in[dst_id]["adjusted_count"]) + delta
+                )
     if edge_kind == "IMPORTS_DECLARED":
         for change in overlay.edges.get("add", []) + overlay.edges.get("remove", []):
             edge = edge_from_value(change.get("new_value") or change.get("old_value"))
@@ -153,15 +173,38 @@ def _patch_fan_table(
             src_id = edge.get("src_structural_id")
             dst_id = edge.get("dst_structural_id")
             if src_id in by_out:
-                by_out[src_id] = max(0, by_out.get(src_id, 0) + delta)
+                by_out[src_id]["adjusted_count"] = max(
+                    0, int(by_out[src_id]["adjusted_count"]) + delta
+                )
             if dst_id in by_in:
-                by_in[dst_id] = max(0, by_in.get(dst_id, 0) + delta)
+                by_in[dst_id]["adjusted_count"] = max(
+                    0, int(by_in[dst_id]["adjusted_count"]) + delta
+                )
     table["by_fan_in"] = [
-        {"node_id": node_id, "count": count}
-        for node_id, count in sorted(by_in.items(), key=lambda item: (-item[1], str(item[0])))
+        {
+            **entry,
+            "count": int(entry["adjusted_count"]),
+            "delta_count": int(entry["adjusted_count"]) - int(entry["committed_count"]),
+        }
+        for _node_id, entry in sorted(
+            by_in.items(),
+            key=lambda item: (-int(item[1]["adjusted_count"]), str(item[0])),
+        )
     ]
     table["by_fan_out"] = [
-        {"node_id": node_id, "count": count}
-        for node_id, count in sorted(by_out.items(), key=lambda item: (-item[1], str(item[0])))
+        {
+            **entry,
+            "count": int(entry["adjusted_count"]),
+            "delta_count": int(entry["adjusted_count"]) - int(entry["committed_count"]),
+        }
+        for _node_id, entry in sorted(
+            by_out.items(),
+            key=lambda item: (-int(item[1]["adjusted_count"]), str(item[0])),
+        )
     ]
+    committed_total = int(table.get("committed_total") or table.get("total") or 0)
+    adjusted_total = committed_total
+    table["committed_total"] = committed_total
+    table["adjusted_total"] = adjusted_total
+    table["delta_total"] = adjusted_total - committed_total
     return table

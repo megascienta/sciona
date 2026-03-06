@@ -68,7 +68,16 @@ def render(
         body = {
             "payload_kind": "summary",
             "node_id": resolved_id,
-            "edge_kinds": edge_map,
+            "edge_kinds": {
+                edge_name: {
+                    **values,
+                    "committed_fan_in": values.get("fan_in", 0),
+                    "committed_fan_out": values.get("fan_out", 0),
+                    "delta_fan_in": 0,
+                    "delta_fan_out": 0,
+                }
+                for edge_name, values in edge_map.items()
+            },
             "edge_summary": edge_map,
             "filters": {
                 "edge_kind": edge_kind_value,
@@ -137,14 +146,18 @@ def _fan_tables(
     by_fan_in = _apply_top_k(by_fan_in, top_k)
     by_fan_out = _apply_top_k(by_fan_out, top_k)
     total = len(stats)
-    return {
+    table = {
         "total": total,
+        "committed_total": total,
+        "adjusted_total": total,
+        "delta_total": 0,
         "top_k": top_k,
         "fan_in_coverage_ratio": _coverage_ratio(len(by_fan_in), total),
         "fan_out_coverage_ratio": _coverage_ratio(len(by_fan_out), total),
         "by_fan_in": _fan_entries(conn, snapshot_id, by_fan_in, index=3),
         "by_fan_out": _fan_entries(conn, snapshot_id, by_fan_out, index=4),
     }
+    return table
 
 
 def _fan_entries(
@@ -164,6 +177,9 @@ def _fan_entries(
                 "node_id": node_id,
                 "qualified_name": name_lookup.get(node_id),
                 "count": count,
+                "committed_count": count,
+                "adjusted_count": count,
+                "delta_count": 0,
             }
         )
     order_nodes(entries, key=lambda item: (-int(item["count"]), str(item["node_id"])))

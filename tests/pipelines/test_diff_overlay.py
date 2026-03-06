@@ -12,7 +12,12 @@ from sciona.pipelines.diff_overlay.patchers.analytics import (
     patch_call_resolution_drop_summary,
     patch_call_resolution_quality,
     patch_classifier_call_graph_summary,
+    patch_fan_summary,
     patch_module_call_graph_summary,
+)
+from sciona.pipelines.diff_overlay.patchers.core import (
+    patch_file_outline,
+    patch_symbol_lookup,
 )
 from sciona.pipelines.diff_overlay.patchers.core import patch_dependency_edges
 from sciona.pipelines.diff_overlay.ops_get import _OVERLAY_PROFILE
@@ -650,6 +655,209 @@ def test_patch_call_resolution_drop_summary_adjusts_overlay_totals(repo_with_sna
     assert patched["overlay_drop_reason_delta"] == [
         {"name": "overlay_unclassified_resolution", "delta_count": -1}
     ]
+
+
+def test_patch_file_outline_marks_overlay_row_origins():
+    payload = {
+        "file_path": None,
+        "module_filter": None,
+        "files": [
+            {
+                "file_path": "pkg/alpha/service.py",
+                "language": "python",
+                "nodes": [
+                    {
+                        "structural_id": "func_alpha",
+                        "qualified_name": "pkg.alpha.service.helper",
+                        "node_type": "callable",
+                        "module_qualified_name": "pkg.alpha",
+                        "line_span": [1, 2],
+                        "row_origin": "committed",
+                    }
+                ],
+            }
+        ],
+    }
+    overlay = OverlayPayload(
+        worktree_hash="hash",
+        snapshot_commit="commit",
+        base_commit="base",
+        base_commit_strategy="snapshot",
+        head_commit="head",
+        merge_base=None,
+        nodes={
+            "add": [
+                {
+                    "new_value": json.dumps(
+                        {
+                            "structural_id": "meth_alpha",
+                            "qualified_name": "pkg.alpha.Service.run",
+                            "node_type": "callable",
+                            "language": "python",
+                            "file_path": "pkg/alpha/service.py",
+                            "start_line": 5,
+                            "end_line": 8,
+                        }
+                    )
+                }
+            ],
+            "remove": [
+                {
+                    "old_value": json.dumps(
+                        {
+                            "structural_id": "func_alpha",
+                            "qualified_name": "pkg.alpha.service.helper",
+                            "node_type": "callable",
+                            "language": "python",
+                            "file_path": "pkg/alpha/service.py",
+                            "start_line": 1,
+                            "end_line": 2,
+                        }
+                    )
+                }
+            ],
+            "update": [],
+        },
+        edges={"add": [], "remove": [], "update": []},
+        calls={"add": [], "remove": [], "update": []},
+        summary=None,
+        warnings=[],
+    )
+    patched = patch_file_outline(payload, overlay)
+    origins = {
+        node["structural_id"]: node["row_origin"]
+        for node in patched["files"][0]["nodes"]
+    }
+    assert origins["func_alpha"] == "overlay_removed"
+    assert origins["meth_alpha"] == "overlay_added"
+
+
+def test_patch_symbol_lookup_marks_overlay_match_status():
+    payload = {
+        "limit": 10,
+        "matches": [
+            {
+                "structural_id": "func_alpha",
+                "node_type": "callable",
+                "language": "python",
+                "qualified_name": "pkg.alpha.service.helper",
+                "file_path": "pkg/alpha/service.py",
+                "score": 0.9,
+                "row_origin": "committed",
+                "match_status": "active",
+            }
+        ],
+    }
+    overlay = OverlayPayload(
+        worktree_hash="hash",
+        snapshot_commit="commit",
+        base_commit="base",
+        base_commit_strategy="snapshot",
+        head_commit="head",
+        merge_base=None,
+        nodes={
+            "add": [
+                {
+                    "new_value": json.dumps(
+                        {
+                            "structural_id": "meth_alpha",
+                            "node_type": "callable",
+                            "language": "python",
+                            "qualified_name": "pkg.alpha.Service.run",
+                            "file_path": "pkg/alpha/service.py",
+                        }
+                    )
+                }
+            ],
+            "remove": [
+                {
+                    "old_value": json.dumps(
+                        {
+                            "structural_id": "func_alpha",
+                            "node_type": "callable",
+                            "language": "python",
+                            "qualified_name": "pkg.alpha.service.helper",
+                            "file_path": "pkg/alpha/service.py",
+                        }
+                    )
+                }
+            ],
+            "update": [],
+        },
+        edges={"add": [], "remove": [], "update": []},
+        calls={"add": [], "remove": [], "update": []},
+        summary=None,
+        warnings=[],
+    )
+    patched = patch_symbol_lookup(payload, overlay)
+    states = {
+        row["structural_id"]: (row["row_origin"], row["match_status"])
+        for row in patched["matches"]
+    }
+    assert states["func_alpha"] == ("overlay_removed", "stale")
+    assert states["meth_alpha"] == ("overlay_added", "active")
+
+
+def test_patch_fan_summary_adds_delta_counts(repo_with_snapshot):
+    repo_root, snapshot_id = repo_with_snapshot
+    payload = {
+        "calls": {
+            "total": 1,
+            "committed_total": 1,
+            "adjusted_total": 1,
+            "delta_total": 0,
+            "by_fan_in": [
+                {
+                    "node_id": "meth_alpha",
+                    "qualified_name": qualify_repo_name(repo_root, "pkg.alpha.Service.run"),
+                    "count": 1,
+                    "committed_count": 1,
+                    "adjusted_count": 1,
+                    "delta_count": 0,
+                }
+            ],
+            "by_fan_out": [
+                {
+                    "node_id": "func_alpha",
+                    "qualified_name": qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
+                    "count": 1,
+                    "committed_count": 1,
+                    "adjusted_count": 1,
+                    "delta_count": 0,
+                }
+            ],
+        },
+        "imports": {"total": 0, "committed_total": 0, "adjusted_total": 0, "delta_total": 0, "by_fan_in": [], "by_fan_out": []},
+    }
+    overlay = OverlayPayload(
+        worktree_hash="hash",
+        snapshot_commit="commit",
+        base_commit="base",
+        base_commit_strategy="snapshot",
+        head_commit="head",
+        merge_base=None,
+        nodes={"add": [], "remove": [], "update": []},
+        edges={"add": [], "remove": [], "update": []},
+        calls={
+            "add": [{"src_structural_id": "func_alpha", "dst_structural_id": "meth_alpha", "diff_kind": "add"}],
+            "remove": [],
+            "update": [],
+        },
+        summary=None,
+        warnings=[],
+    )
+    conn = core_conn(repo_root)
+    try:
+        patched = patch_fan_summary(
+            payload,
+            overlay,
+            snapshot_id=snapshot_id,
+            conn=conn,
+        )
+    finally:
+        conn.close()
+    assert patched["calls"]["by_fan_in"][0]["delta_count"] == 1
+    assert patched["calls"]["by_fan_out"][0]["delta_count"] == 1
 
 
 def test_dirty_overlay_fan_summary_node_id_updates(repo_with_snapshot):

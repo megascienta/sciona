@@ -533,6 +533,8 @@ def test_fan_summary_returns_payload(tmp_path):
     assert payload["payload_kind"] == "summary"
     assert "calls" in payload
     assert "imports" in payload
+    if payload["calls"]["by_fan_in"]:
+        assert payload["calls"]["by_fan_in"][0]["delta_count"] == 0
 
 
 def test_fan_summary_filters_by_edge_kind_node_kind_and_min_fan(tmp_path):

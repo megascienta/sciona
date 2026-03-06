@@ -77,6 +77,7 @@ def render(
             "node_type": row["node_type"],
             "module_qualified_name": module_name,
             "line_span": [row["start_line"], row["end_line"]],
+            "row_origin": "committed",
         }
         if file_entry not in grouped:
             grouped[file_entry] = {

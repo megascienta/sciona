@@ -861,8 +861,14 @@ def patch_fan_summary(
         deltas = _fan_deltas_for_node(overlay, str(node_id))
         for edge_kind, delta_map in deltas.items():
             entry = dict(edge_kinds.get(edge_kind) or {})
-            entry["fan_in"] = max(0, int(entry.get("fan_in") or 0) + delta_map.get("fan_in", 0))
-            entry["fan_out"] = max(0, int(entry.get("fan_out") or 0) + delta_map.get("fan_out", 0))
+            committed_in = int(entry.get("committed_fan_in") or entry.get("fan_in") or 0)
+            committed_out = int(entry.get("committed_fan_out") or entry.get("fan_out") or 0)
+            entry["fan_in"] = max(0, committed_in + delta_map.get("fan_in", 0))
+            entry["fan_out"] = max(0, committed_out + delta_map.get("fan_out", 0))
+            entry["committed_fan_in"] = committed_in
+            entry["committed_fan_out"] = committed_out
+            entry["delta_fan_in"] = int(entry["fan_in"]) - committed_in
+            entry["delta_fan_out"] = int(entry["fan_out"]) - committed_out
             edge_kinds[edge_kind] = entry
         payload["edge_kinds"] = edge_kinds
         payload["edge_summary"] = edge_kinds

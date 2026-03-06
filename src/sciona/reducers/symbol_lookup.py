@@ -50,7 +50,14 @@ def render(
         "query": normalized_query,
         "kind": kind,
         "limit": limit_value,
-        "matches": ranked,
+        "matches": [
+            {
+                **row,
+                "row_origin": "committed",
+                "match_status": "active",
+            }
+            for row in ranked
+        ],
     }
     return render_json_payload(body)
 

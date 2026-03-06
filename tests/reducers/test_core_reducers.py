@@ -421,6 +421,8 @@ def test_symbol_lookup_reducer_returns_matches(tmp_path):
         conn.close()
     payload = parse_json_payload(payload_text)
     assert payload["matches"]
+    assert payload["matches"][0]["row_origin"] == "committed"
+    assert payload["matches"][0]["match_status"] == "active"
     assert any(
         match["qualified_name"] == _q(repo_root, "pkg.alpha")
         for match in payload["matches"]
@@ -655,6 +657,7 @@ def test_file_outline_returns_nodes(tmp_path):
     payload = parse_json_payload(payload_text)
     assert payload["files"]
     assert any(entry["nodes"] for entry in payload["files"])
+    assert payload["files"][0]["nodes"][0]["row_origin"] == "committed"
 
 
 def test_dependency_edges_direction_filters(tmp_path):
