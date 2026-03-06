@@ -35,6 +35,16 @@ Tests MUST be executed in:
 
 Agents MUST NOT assume alternative environments unless specified.
 
+## PR Execution Workflow
+
+When work is split into declared PRs or PR-sized sets:
+
+- Agents MUST implement one PR at a time
+- After each PR-sized change, agents MUST run the narrowest relevant tests in the `conda` environment `multiphysics`
+- Agents MUST commit only after the tests for that PR pass
+- Agents MUST then continue to the next declared PR until the set is complete
+- At the end, agents MUST check the result against the originally declared PR goals and report any gaps explicitly
+
 <!-- sciona:begin -->
 # SCIONA Agent Protocol
 
