@@ -48,32 +48,23 @@ def render(
     repo_root,
     module_id: str | None = None,
     callable_id: str | None = None,
-    function_id: str | None = None,
-    method_id: str | None = None,
     class_id: str | None = None,
     include_file_map: bool | None = None,
     **_: object,
 ) -> str:
     conn = require_connection(conn)
-    if callable_id and not (function_id or method_id):
-        function_id = callable_id
     resolved_module_id = module_id
     if not resolved_module_id and class_id:
         class_structural_id = queries.resolve_class_id(conn, snapshot_id, class_id)
         resolved_module_id = queries.module_id_for_structural(
             conn, snapshot_id, class_structural_id
         )
-    if not resolved_module_id and method_id:
-        method_structural_id = queries.resolve_method_id(conn, snapshot_id, method_id)
-        resolved_module_id = queries.module_id_for_structural(
-            conn, snapshot_id, method_structural_id
-        )
-    if not resolved_module_id and function_id:
-        function_structural_id = queries.resolve_function_id(
-            conn, snapshot_id, function_id
+    if not resolved_module_id and callable_id:
+        callable_structural_id = queries.resolve_callable_id(
+            conn, snapshot_id, callable_id
         )
         resolved_module_id = queries.module_id_for_structural(
-            conn, snapshot_id, function_structural_id
+            conn, snapshot_id, callable_structural_id
         )
     if not resolved_module_id:
         raise ValueError("Prompt requires a resolvable module_id.")
@@ -126,7 +117,7 @@ def run(snapshot_id: str, **params) -> ModuleOverviewPayload:
     module_file_entries = (
         _module_file_entries(conn, snapshot_id, module_ids) if include_file_map else []
     )
-    types = _list_children(conn, snapshot_id, module_ids, "type", repo_path)
+    types = _list_children(conn, snapshot_id, module_ids, "classifier", repo_path)
     callables = _list_children(
         conn,
         snapshot_id,

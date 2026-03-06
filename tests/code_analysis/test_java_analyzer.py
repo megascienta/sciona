@@ -54,7 +54,7 @@ def test_java_analyzer_extracts_structure_and_calls(tmp_path):
     result = analyzer.analyze(snapshot, module_name)
 
     node_types = {node.node_type for node in result.nodes}
-    assert {"module", "type", "callable"}.issubset(node_types)
+    assert {"module", "classifier", "callable"}.issubset(node_types)
 
     import_edges = [
         edge for edge in result.edges if edge.edge_type == "IMPORTS_DECLARED"

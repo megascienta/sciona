@@ -69,7 +69,8 @@ def rebuild_graph_rollups(
     method_to_class = {
         dst_id: src_id
         for src_id, dst_id in method_edges
-        if node_type_by_id.get(src_id) == "type" and node_type_by_id.get(dst_id) == "callable"
+        if node_type_by_id.get(src_id) == "classifier"
+        and node_type_by_id.get(dst_id) == "callable"
     }
 
     call_rows = artifact_persistence.list_call_edges(artifact_conn)

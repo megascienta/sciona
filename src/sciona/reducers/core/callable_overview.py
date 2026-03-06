@@ -31,7 +31,7 @@ REDUCER_META = ReducerMeta(
     payload_size_stats=None,
     summary="Structural summary of a callable, including signature, location, and metadata. " \
     "Use for quick callable inspection without retrieving full source. " \
-    "Scope: single function or method. Payload kind: summary.",
+    "Scope: single callable. Payload kind: summary.",
 )
 
 
@@ -40,23 +40,16 @@ def render(
     conn,
     repo_root,
     callable_id: str | None = None,
-    function_id: str | None = None,
-    method_id: str | None = None,
     **_: object,
 ) -> str:
     conn = require_connection(conn)
-    requested_identifier = method_id or function_id or callable_id
-    if callable_id and not (function_id or method_id):
-        function_id = callable_id
-    if method_id:
-        resolved_id = queries.resolve_method_id(conn, snapshot_id, method_id)
-    else:
-        resolved_id = queries.resolve_function_id(conn, snapshot_id, function_id)
+    requested_identifier = callable_id
+    resolved_id = queries.resolve_callable_id(conn, snapshot_id, callable_id)
     payload = run(
         snapshot_id,
         conn=conn,
         repo_root=repo_root,
-        function_id=resolved_id,
+        callable_id=resolved_id,
         requested_identifier=requested_identifier,
     )
     return render_json_payload(payload)
@@ -77,10 +70,10 @@ def run(snapshot_id: str, **params) -> CallableOverviewPayload:
     require_latest_committed_snapshot(
         conn, snapshot_id, reducer_name="callable_overview reducer"
     )
-    resolved_id = params.get("function_id")
+    resolved_id = params.get("callable_id")
     if not resolved_id:
         raise ValueError(
-            "callable_overview requires 'function_id' (function or method)."
+            "callable_overview requires 'callable_id'."
         )
     requested_identifier = params.get("requested_identifier") or resolved_id
 
@@ -146,7 +139,6 @@ def run(snapshot_id: str, **params) -> CallableOverviewPayload:
         "projection": "callable_overview",
         "projection_version": "1.0",
         "payload_kind": "summary",
-        "function_id": row["structural_id"],
         "callable_id": row["structural_id"],
         "requested_identifier": requested_identifier,
         "language": row["language"],
@@ -233,7 +225,7 @@ def _infer_callable_role(
         suffix = qualified_name[len(parent_qualified_name) + 1 :]
     if language == "python" and local_name == "__init__":
         return "constructor", "inferred_constructor"
-    if language in {"typescript", "javascript", "java"} and parent_type == "type":
+    if language in {"typescript", "javascript", "java"} and parent_type == "classifier":
         if local_name == "constructor" or (parent_name and local_name == parent_name):
             return "constructor", "inferred_constructor"
     if parent_type == "callable":
@@ -244,7 +236,7 @@ def _infer_callable_role(
         if local_name == "default" or "." in local_name or "." in suffix:
             return "bound", "inferred_lexical_parent"
         return "declared", "inferred_lexical_parent"
-    if parent_type == "type":
+    if parent_type == "classifier":
         if "." in local_name or "." in suffix:
             return "bound", "inferred_lexical_parent"
         return "declared", "inferred_lexical_parent"

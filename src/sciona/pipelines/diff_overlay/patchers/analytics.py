@@ -329,7 +329,7 @@ def patch_class_call_graph_summary(
         if len(parts) < 2 or not language:
             return None
         class_name = ".".join(parts[:-1])
-        return ids.structural_id("type", str(language), class_name)
+        return ids.structural_id("classifier", str(language), class_name)
 
     for change in overlay.calls.get("add", []) + overlay.calls.get("remove", []):
         src_id = change.get("src_structural_id")
@@ -440,7 +440,7 @@ def patch_hotspot_summary(
         if not node:
             continue
         node_type = str(node.get("node_type") or "")
-        if node_type not in {"type", "callable"}:
+        if node_type not in {"classifier", "callable"}:
             continue
         module_name = _match_module_name(
             str(node.get("qualified_name") or ""), module_names

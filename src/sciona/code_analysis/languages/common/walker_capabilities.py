@@ -13,7 +13,7 @@ def build_walker_capabilities() -> dict[str, list[dict[str, object]]]:
             {
                 "construct": "class_declaration",
                 "node_types": ["class_definition"],
-                "emits_nodes": ["type"],
+                "emits_nodes": ["classifier"],
                 "emits_edges": ["LEXICALLY_CONTAINS"],
             },
             {
@@ -51,7 +51,7 @@ def build_walker_capabilities() -> dict[str, list[dict[str, object]]]:
                     "abstract_class_declaration",
                     "interface_declaration",
                 ],
-                "emits_nodes": ["type"],
+                "emits_nodes": ["classifier"],
                 "emits_edges": ["LEXICALLY_CONTAINS"],
             },
             {
@@ -77,7 +77,7 @@ def build_walker_capabilities() -> dict[str, list[dict[str, object]]]:
                     "arrow_function",
                     "function_expression",
                 ],
-                "emits_nodes": ["type", "callable"],
+                "emits_nodes": ["classifier", "callable"],
                 "emits_edges": ["LEXICALLY_CONTAINS"],
                 "constraints": [
                     "function/method emission for stable lexical bindings, including nested bound expressions, object-literal bound methods, class member fields, and anonymous export default callables; inline anonymous callbacks are non-structural"
@@ -106,7 +106,7 @@ def build_walker_capabilities() -> dict[str, list[dict[str, object]]]:
                     "enum_declaration",
                     "record_declaration",
                 ],
-                "emits_nodes": ["type"],
+                "emits_nodes": ["classifier"],
                 "emits_edges": ["LEXICALLY_CONTAINS"],
             },
             {
@@ -142,7 +142,7 @@ def build_walker_capabilities() -> dict[str, list[dict[str, object]]]:
             {
                 "construct": "class_declaration",
                 "node_types": ["class_declaration", "class_expression"],
-                "emits_nodes": ["type"],
+                "emits_nodes": ["classifier"],
                 "emits_edges": ["LEXICALLY_CONTAINS"],
             },
             {

@@ -11,20 +11,18 @@ from typing import Dict, Iterable, List, Sequence, Set
 from ...code_analysis.analysis.graph import module_id_for
 
 NODE_TYPE_MODULE = ("module",)
-NODE_TYPE_CLASS = ("type",)
-NODE_TYPE_FUNCTION_OR_METHOD = ("callable",)
-NODE_TYPE_METHOD = ("callable",)
-NODE_TYPE_FUNCTION = ("callable",)
-NODE_TYPE_FILE_BACKED = ("module", "type", "callable")
+NODE_TYPE_CLASS = ("classifier",)
+NODE_TYPE_CALLABLE = ("callable",)
+NODE_TYPE_FILE_BACKED = ("module", "classifier", "callable")
 
 
-def resolve_function_id(conn, snapshot_id: str, function_id: str | None) -> str:
-    if function_id:
+def resolve_callable_id(conn, snapshot_id: str, callable_id: str | None) -> str:
+    if callable_id:
         return _resolve_node_id(
             conn,
             snapshot_id,
-            function_id,
-            node_types=NODE_TYPE_FUNCTION_OR_METHOD,
+            callable_id,
+            node_types=NODE_TYPE_CALLABLE,
         )
     rows = conn.execute(
         """
@@ -39,20 +37,9 @@ def resolve_function_id(conn, snapshot_id: str, function_id: str | None) -> str:
     ).fetchall()
     if len(rows) != 1:
         raise ValueError(
-            "Reducer requires exactly one function or method in the snapshot."
+            "Reducer requires exactly one callable in the snapshot."
         )
     return rows[0]["structural_id"]
-
-
-def resolve_method_id(conn, snapshot_id: str, method_id: str | None) -> str:
-    if not method_id:
-        raise ValueError("Method identifier is required.")
-    return _resolve_node_id(
-        conn,
-        snapshot_id,
-        method_id,
-        node_types=NODE_TYPE_METHOD,
-    )
 
 
 def resolve_class_id(conn, snapshot_id: str, class_id: str | None) -> str:

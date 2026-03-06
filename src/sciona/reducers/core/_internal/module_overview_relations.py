@@ -133,26 +133,26 @@ def _language_breakdown(
         language = row["language"]
         if language:
             counts[language] = counts.get(language, 0) + 1
-        if row["node_type"] == "type":
+        if row["node_type"] == "classifier":
             type_ids.append(row["structural_id"])
     if type_ids:
-        method_edges = load_artifact_edges(
+        callable_edges = load_artifact_edges(
             repo_root,
             edge_kinds=["LEXICALLY_CONTAINS"],
             src_ids=type_ids,
         )
-        method_ids = sorted({dst for _, dst, _ in method_edges})
-        if method_ids:
-            placeholders = ",".join("?" for _ in method_ids)
-            method_rows = conn.execute(
+        callable_ids = sorted({dst for _, dst, _ in callable_edges})
+        if callable_ids:
+            placeholders = ",".join("?" for _ in callable_ids)
+            callable_rows = conn.execute(
                 f"""
                 SELECT sn.language
                 FROM structural_nodes sn
                 WHERE sn.structural_id IN ({placeholders})
                 """,
-                tuple(method_ids),
+                tuple(callable_ids),
             ).fetchall()
-            for row in method_rows:
+            for row in callable_rows:
                 language = row["language"]
                 if language:
                     counts[language] = counts.get(language, 0) + 1
@@ -169,15 +169,15 @@ def _list_methods(
     type_ids = sorted({dst for _, dst, _ in container_edges})
     if not type_ids:
         return []
-    method_edges = load_artifact_edges(
+    callable_edges = load_artifact_edges(
         repo_root,
         edge_kinds=["LEXICALLY_CONTAINS"],
         src_ids=type_ids,
     )
-    method_ids = sorted({dst for _, dst, _ in method_edges})
-    if not method_ids:
+    callable_ids = sorted({dst for _, dst, _ in callable_edges})
+    if not callable_ids:
         return []
-    placeholders = ",".join("?" for _ in method_ids)
+    placeholders = ",".join("?" for _ in callable_ids)
     rows = conn.execute(
         f"""
         SELECT DISTINCT ni.structural_id, ni.qualified_name
@@ -188,7 +188,7 @@ def _list_methods(
         WHERE ni.structural_id IN ({placeholders})
           AND sn.node_type = 'callable'
         """,
-        (snapshot_id, *method_ids),
+        (snapshot_id, *callable_ids),
     ).fetchall()
     entries = [
         {"structural_id": row["structural_id"], "qualified_name": row["qualified_name"]}

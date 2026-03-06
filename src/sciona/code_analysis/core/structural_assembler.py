@@ -108,7 +108,7 @@ class StructuralAssembler:
         structural_nodes = {
             (node.node_type, node.qualified_name): node
             for node in analysis.nodes
-            if node.node_type in {"module", "type", "callable"}
+            if node.node_type in {"module", "classifier", "callable"}
         }
         parent_by_child: dict[tuple[str, str], tuple[str, str]] = {}
         for edge in analysis.edges:

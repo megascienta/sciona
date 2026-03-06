@@ -12,7 +12,7 @@ from ...helpers.render import render_json_payload, require_connection
 from ...helpers.utils import require_latest_committed_snapshot
 from ...metadata import ReducerMeta
 
-_NODE_TYPES = {"module", "type", "callable"}
+_NODE_TYPES = {"module", "classifier", "callable"}
 
 def _normalize_kind(kind: Optional[str]) -> Sequence[str]:
     if not kind:
@@ -25,7 +25,7 @@ def _normalize_kind(kind: Optional[str]) -> Sequence[str]:
     if normalized in {"function", "method"}:
         return ("callable",)
     if normalized == "class":
-        return ("type",)
+        return ("classifier",)
     if normalized in _NODE_TYPES:
         return (normalized,)
     raise ValueError(f"Unknown kind '{kind}'.")

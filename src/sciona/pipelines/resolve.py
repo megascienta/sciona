@@ -146,8 +146,8 @@ def _node_types_for_kind(kind: str) -> Sequence[str]:
     if kind in {"function", "method"}:
         return ("callable",)
     if kind == "class":
-        return ("type",)
-    if kind in {"module", "type", "callable"}:
+        return ("classifier",)
+    if kind in {"module", "classifier", "callable"}:
         return (kind,)
     raise ValueError(f"Unknown identifier kind '{kind}'.")
 

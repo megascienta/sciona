@@ -76,7 +76,7 @@ def collect_targets_by_callable(
 
 
 def emit_local_inheritance_edges(*, language: str, result) -> None:
-    class_nodes = [node for node in result.nodes if node.node_type == "type"]
+    class_nodes = [node for node in result.nodes if node.node_type == "classifier"]
     class_qnames_by_simple: dict[str, set[str]] = {}
     kind_by_qname: dict[str, str] = {}
     for node in class_nodes:
@@ -107,10 +107,10 @@ def emit_local_inheritance_edges(*, language: str, result) -> None:
             result.edges.append(
                 EdgeRecord(
                     src_language=language,
-                    src_node_type="type",
+                    src_node_type="classifier",
                     src_qualified_name=node.qualified_name,
                     dst_language=language,
-                    dst_node_type="type",
+                    dst_node_type="classifier",
                     dst_qualified_name=target_qname,
                     edge_type=edge_type,
                 )

@@ -92,7 +92,7 @@ def setup_structural_index_db(tmp_path: Path, *, repo_root: Path) -> Tuple[Path,
     nodes = [
         ("mod_alpha", "module", "python", _q("pkg.alpha"), "pkg/alpha/__init__.py"),
         ("mod_beta", "module", "python", _q("pkg.beta"), "pkg/beta/__init__.py"),
-        ("cls_alpha", "type", "python", _q("pkg.alpha.Service"), "pkg/alpha/service.py"),
+        ("cls_alpha", "classifier", "python", _q("pkg.alpha.Service"), "pkg/alpha/service.py"),
         (
             "func_alpha",
             "callable",

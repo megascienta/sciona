@@ -43,14 +43,14 @@ def test_lexical_contains_rejects_multiple_parents() -> None:
     analysis = AnalysisResult(
         nodes=[
             _node(node_type="module", qname="pkg.mod", start=0, end=100),
-            _node(node_type="type", qname="pkg.mod.A", start=10, end=80),
-            _node(node_type="type", qname="pkg.mod.B", start=20, end=90),
+            _node(node_type="classifier", qname="pkg.mod.A", start=10, end=80),
+            _node(node_type="classifier", qname="pkg.mod.B", start=20, end=90),
             _node(node_type="callable", qname="pkg.mod.A.fn", start=30, end=40),
         ],
         edges=[
             EdgeRecord(
                 src_language="python",
-                src_node_type="type",
+                src_node_type="classifier",
                 src_qualified_name="pkg.mod.A",
                 dst_language="python",
                 dst_node_type="callable",
@@ -59,7 +59,7 @@ def test_lexical_contains_rejects_multiple_parents() -> None:
             ),
             EdgeRecord(
                 src_language="python",
-                src_node_type="type",
+                src_node_type="classifier",
                 src_qualified_name="pkg.mod.B",
                 dst_language="python",
                 dst_node_type="callable",
@@ -101,7 +101,7 @@ def test_lexical_contains_rejects_identical_parent_child_span_for_non_module_par
     analysis = AnalysisResult(
         nodes=[
             _node(node_type="module", qname="pkg.mod", start=0, end=100),
-            _node(node_type="type", qname="pkg.mod.A", start=10, end=80),
+            _node(node_type="classifier", qname="pkg.mod.A", start=10, end=80),
             _node(node_type="callable", qname="pkg.mod.A.fn", start=10, end=80),
         ],
         edges=[
@@ -110,13 +110,13 @@ def test_lexical_contains_rejects_identical_parent_child_span_for_non_module_par
                 src_node_type="module",
                 src_qualified_name="pkg.mod",
                 dst_language="python",
-                dst_node_type="type",
+                dst_node_type="classifier",
                 dst_qualified_name="pkg.mod.A",
                 edge_type="LEXICALLY_CONTAINS",
             ),
             EdgeRecord(
                 src_language="python",
-                src_node_type="type",
+                src_node_type="classifier",
                 src_qualified_name="pkg.mod.A",
                 dst_language="python",
                 dst_node_type="callable",
@@ -181,7 +181,7 @@ def test_lexical_contains_allows_parent_and_last_child_same_end_byte() -> None:
     analysis = AnalysisResult(
         nodes=[
             _node(node_type="module", qname="pkg.mod", start=0, end=200),
-            _node(node_type="type", qname="pkg.mod.A", start=10, end=180),
+            _node(node_type="classifier", qname="pkg.mod.A", start=10, end=180),
             _node(node_type="callable", qname="pkg.mod.A.last", start=120, end=180),
         ],
         edges=[
@@ -190,13 +190,13 @@ def test_lexical_contains_allows_parent_and_last_child_same_end_byte() -> None:
                 src_node_type="module",
                 src_qualified_name="pkg.mod",
                 dst_language="python",
-                dst_node_type="type",
+                dst_node_type="classifier",
                 dst_qualified_name="pkg.mod.A",
                 edge_type="LEXICALLY_CONTAINS",
             ),
             EdgeRecord(
                 src_language="python",
-                src_node_type="type",
+                src_node_type="classifier",
                 src_qualified_name="pkg.mod.A",
                 dst_language="python",
                 dst_node_type="callable",

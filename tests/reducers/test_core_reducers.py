@@ -118,7 +118,7 @@ export function createWidget(name: string): WidgetService {
         ),
         (
             ids["class_order"],
-            "type",
+            "classifier",
             "python",
             _pq("pkg.alpha.service.OrderService"),
             "pkg/alpha/service.py",
@@ -154,7 +154,7 @@ export function createWidget(name: string): WidgetService {
         ),
         (
             ids["ts_class"],
-            "type",
+            "classifier",
             "typescript",
             _pq("pkg.ts.service.WidgetService"),
             "pkg/ts/service.ts",
@@ -353,7 +353,7 @@ def test_callable_source_payload(tmp_path):
             snapshot_id,
             conn,
             repo_root,
-            function_id=_q(repo_root, "pkg.alpha.service.helper"),
+            callable_id=_q(repo_root, "pkg.alpha.service.helper"),
         )
     finally:
         conn.close()
@@ -396,7 +396,7 @@ def test_callable_source_skips_directory_path(tmp_path):
             snapshot_id,
             conn,
             repo_root,
-            function_id=_q(repo_root, "pkg.alpha.dir_func"),
+            callable_id=_q(repo_root, "pkg.alpha.dir_func"),
         )
     finally:
         conn.close()
@@ -753,7 +753,7 @@ def test_callable_overview_reducer_returns_python_metadata(tmp_path):
     payload = callable_overview.run(
         repo["snapshot_id"],
         conn=conn,
-        function_id=repo["ids"]["function_helper"],
+        callable_id=repo["ids"]["function_helper"],
         repo_root=repo["repo_root"],
     )
     conn.close()
@@ -773,7 +773,7 @@ def test_callable_overview_reducer_returns_typescript_metadata(tmp_path):
     payload = callable_overview.run(
         repo["snapshot_id"],
         conn=conn,
-        function_id=repo["ids"]["ts_function"],
+        callable_id=repo["ids"]["ts_function"],
         repo_root=repo["repo_root"],
     )
     conn.close()
@@ -802,7 +802,7 @@ def test_class_overview_reducer_exposes_methods_and_metadata(tmp_path):
     assert payload["bases"] == ["BaseService", "Mixin"]
     assert payload["methods"] == [
         {
-            "function_id": repo["ids"]["method_one"],
+            "callable_id": repo["ids"]["method_one"],
             "qualified_name": _q(
                 repo["repo_root"], "pkg.alpha.service.OrderService.method_one"
             ),
@@ -1019,14 +1019,14 @@ def test_module_overview_reducer_exposes_nests_edges(tmp_path):
             INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
             VALUES (?, ?, ?, ?)
             """,
-            (outer_id, "type", "python", snapshot_id),
+            (outer_id, "classifier", "python", snapshot_id),
         )
         conn.execute(
             """
             INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
             VALUES (?, ?, ?, ?)
             """,
-            (inner_id, "type", "python", snapshot_id),
+            (inner_id, "classifier", "python", snapshot_id),
         )
         conn.execute(
             """
@@ -1194,13 +1194,13 @@ def test_callable_overview_reducer_exposes_bound_callable_roles(tmp_path):
         default_payload = callable_overview.run(
             repo["snapshot_id"],
             conn=conn,
-            function_id=ids["default_id"],
+            callable_id=ids["default_id"],
             repo_root=repo["repo_root"],
         )
         tools_payload = callable_overview.run(
             repo["snapshot_id"],
             conn=conn,
-            function_id=ids["tools_run_id"],
+            callable_id=ids["tools_run_id"],
             repo_root=repo["repo_root"],
         )
     finally:

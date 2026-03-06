@@ -75,7 +75,7 @@ def patch_structural_index(
                         "method_count": 0,
                     },
                 )
-            if node_type == "type" and node.get("structural_id") not in class_ids:
+            if node_type == "classifier" and node.get("structural_id") not in class_ids:
                 classes.append(
                     {
                         "structural_id": node.get("structural_id"),
@@ -100,7 +100,7 @@ def patch_structural_index(
                     "module_qualified_name": module_name,
                 }
         elif change["diff_kind"] == "remove":
-            if node_type == "type":
+            if node_type == "classifier":
                 classes = [
                     entry
                     for entry in classes
@@ -207,10 +207,10 @@ def patch_module_overview(
     class_ids = {
         entry.get("structural_id") for entry in classes if entry.get("structural_id")
     }
-    function_ids = {
+    callable_ids = {
         entry.get("structural_id") for entry in functions if entry.get("structural_id")
     }
-    method_ids = {
+    method_callable_ids = {
         entry.get("structural_id") for entry in methods if entry.get("structural_id")
     }
     import_ids = {
@@ -241,7 +241,7 @@ def patch_module_overview(
         if not node_module or not module_in_scope(module_name, node_module):
             continue
         if change["diff_kind"] == "add":
-            if node_type == "type" and node.get("structural_id") not in class_ids:
+            if node_type == "classifier" and node.get("structural_id") not in class_ids:
                 classes.append(
                     {
                         "structural_id": node.get("structural_id"),
@@ -252,7 +252,7 @@ def patch_module_overview(
             if (
                 node_type == "callable"
                 and not is_method_like
-                and node.get("structural_id") not in function_ids
+                and node.get("structural_id") not in callable_ids
             ):
                 functions.append(
                     {
@@ -260,11 +260,11 @@ def patch_module_overview(
                         "qualified_name": qualified_name,
                     }
                 )
-                function_ids.add(node.get("structural_id"))
+                callable_ids.add(node.get("structural_id"))
             if (
                 node_type == "callable"
                 and is_method_like
-                and node.get("structural_id") not in method_ids
+                and node.get("structural_id") not in method_callable_ids
             ):
                 methods.append(
                     {
@@ -272,7 +272,7 @@ def patch_module_overview(
                         "qualified_name": qualified_name,
                     }
                 )
-                method_ids.add(node.get("structural_id"))
+                method_callable_ids.add(node.get("structural_id"))
             file_path = node.get("file_path")
             if file_path:
                 files.add(file_path)
@@ -288,7 +288,7 @@ def patch_module_overview(
                     ],
                 }
         elif change["diff_kind"] == "remove":
-            if node_type == "type":
+            if node_type == "classifier":
                 classes = [
                     entry
                     for entry in classes
@@ -393,7 +393,7 @@ def patch_module_overview(
 def patch_callable_overview(
     payload: dict[str, object], overlay: OverlayPayload
 ) -> dict[str, object]:
-    structural_id = payload.get("function_id") or payload.get("callable_id")
+    structural_id = payload.get("callable_id")
     if not structural_id:
         return payload
     for change in iter_node_changes(overlay):
@@ -436,8 +436,8 @@ def patch_class_overview(
     ).fetchone()
     class_qualified_name = str(class_row["qualified_name"]) if class_row else ""
     methods = list(payload.get("methods", []) or [])
-    method_ids = {
-        entry.get("function_id") for entry in methods if entry.get("function_id")
+    callable_ids = {
+        entry.get("callable_id") for entry in methods if entry.get("callable_id")
     }
     for change in iter_node_changes(overlay):
         node = node_from_value(change.get("new_value") or change.get("old_value"))
@@ -445,7 +445,7 @@ def patch_class_overview(
             continue
         node_type = node.get("node_type")
         if (
-            node_type == "type"
+            node_type == "classifier"
             and node.get("structural_id") == class_id
             and change.get("diff_kind") == "modify"
         ):
@@ -482,20 +482,20 @@ def patch_class_overview(
                 continue
             if (
                 change.get("diff_kind") == "add"
-                and node.get("structural_id") not in method_ids
+                and node.get("structural_id") not in callable_ids
             ):
                 methods.append(
                     {
-                        "function_id": node.get("structural_id"),
+                        "callable_id": node.get("structural_id"),
                         "qualified_name": node.get("qualified_name"),
                     }
                 )
-                method_ids.add(node.get("structural_id"))
+                callable_ids.add(node.get("structural_id"))
             if change.get("diff_kind") == "remove":
                 methods = [
                     entry
                     for entry in methods
-                    if entry.get("function_id") != node.get("structural_id")
+                    if entry.get("callable_id") != node.get("structural_id")
                 ]
     payload["methods"] = sorted(
         methods, key=lambda item: str(item.get("qualified_name"))

@@ -89,7 +89,7 @@ def walk_typescript_nodes(
         parent_node_type: str,
         class_name: str | None,
     ) -> None:
-        if parent_node_type == "type" and state.class_span_stack:
+        if parent_node_type == "classifier" and state.class_span_stack:
             parent_span = state.class_span_stack[-1]
             child_span = (value_node.start_byte, value_node.end_byte)
             if not _span_encloses(parent_span, child_span):
@@ -103,7 +103,7 @@ def walk_typescript_nodes(
         qualified = f"{parent}.{emitted_name}"
         if parent_node_type == "module":
             state.module_functions.add(name)
-        elif parent_node_type == "type":
+        elif parent_node_type == "classifier":
             state.class_methods.setdefault(parent, set()).add(name)
         result.nodes.append(
             SemanticNodeRecord(
@@ -158,21 +158,21 @@ def walk_typescript_nodes(
             parent_node_type = "callable"
         elif state.class_stack:
             parent = state.class_stack[-1]
-            parent_node_type = "type"
+            parent_node_type = "classifier"
         else:
             parent = module_name
             parent_node_type = "module"
         emitted_name = _disambiguate_child_name(
             state=state,
             parent=parent,
-            child_kind="type",
+            child_kind="classifier",
             local_name=class_name,
         )
         qualified = f"{parent}.{emitted_name}"
         result.nodes.append(
             SemanticNodeRecord(
                 language=language,
-                node_type="type",
+                node_type="classifier",
                 qualified_name=qualified,
                 display_name=class_name,
                 file_path=snapshot.record.relative_path,
@@ -194,7 +194,7 @@ def walk_typescript_nodes(
                 src_node_type=parent_node_type,
                 src_qualified_name=parent,
                 dst_language=language,
-                dst_node_type="type",
+                dst_node_type="classifier",
                 dst_qualified_name=qualified,
                 edge_type="LEXICALLY_CONTAINS",
             )
@@ -241,7 +241,7 @@ def walk_typescript_nodes(
                     return
             node_type = "callable"
             parent = state.class_stack[-1]
-            parent_node_type = "type"
+            parent_node_type = "classifier"
             emitted_name = _disambiguate_child_name(
                 state=state,
                 parent=parent,
@@ -366,21 +366,21 @@ def walk_typescript_nodes(
                 parent_node_type = "callable"
             elif state.class_stack:
                 parent = state.class_stack[-1]
-                parent_node_type = "type"
+                parent_node_type = "classifier"
             else:
                 parent = module_name
                 parent_node_type = "module"
             emitted_name = _disambiguate_child_name(
                 state=state,
                 parent=parent,
-                child_kind="type",
+                child_kind="classifier",
                 local_name=class_name,
             )
             qualified = f"{parent}.{emitted_name}"
             result.nodes.append(
                 SemanticNodeRecord(
                     language=language,
-                    node_type="type",
+                    node_type="classifier",
                     qualified_name=qualified,
                     display_name=class_name,
                     file_path=snapshot.record.relative_path,
@@ -400,7 +400,7 @@ def walk_typescript_nodes(
                     src_node_type=parent_node_type,
                     src_qualified_name=parent,
                     dst_language=language,
-                    dst_node_type="type",
+                    dst_node_type="classifier",
                     dst_qualified_name=qualified,
                     edge_type="LEXICALLY_CONTAINS",
                 )
@@ -436,7 +436,7 @@ def walk_typescript_nodes(
                 class_name = state.class_stack[-1] if state.class_stack else None
             elif state.class_stack:
                 parent = state.class_stack[-1]
-                parent_node_type = "type"
+                parent_node_type = "classifier"
                 class_name = parent
             else:
                 parent = module_name
@@ -499,7 +499,7 @@ def walk_typescript_nodes(
             parent_node_type = "callable"
         elif state.class_stack:
             parent = state.class_stack[-1]
-            parent_node_type = "type"
+            parent_node_type = "classifier"
         else:
             parent = module_name
             parent_node_type = "module"
@@ -565,7 +565,7 @@ def walk_typescript_nodes(
             name=func_name,
             value_node=value_node,
             parent=parent,
-            parent_node_type="type",
+            parent_node_type="classifier",
             class_name=parent,
         )
         return

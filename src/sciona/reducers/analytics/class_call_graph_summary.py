@@ -32,7 +32,6 @@ def render(
     conn,
     repo_root,
     class_id: str | None = None,
-    method_id: str | None = None,
     top_k: int | None = None,
     **_: object,
 ) -> str:
@@ -41,15 +40,6 @@ def render(
         conn, snapshot_id, reducer_name="class_call_graph_summary reducer"
     )
     resolved_class_id = class_id
-    if not resolved_class_id and method_id:
-        method_structural_id = queries.resolve_method_id(conn, snapshot_id, method_id)
-        edges = load_artifact_edges(
-            repo_root,
-            edge_kinds=["LEXICALLY_CONTAINS"],
-            dst_ids=[method_structural_id],
-        )
-        if edges:
-            resolved_class_id = edges[0][0]
     if not resolved_class_id:
         raise ValueError("CLASS_CALL_GRAPH requires class_id.")
     artifact_available = artifact_db_available(repo_root) if repo_root else False
@@ -145,7 +135,7 @@ def _class_name_lookup(
         FROM structural_nodes sn
         JOIN node_instances ni ON ni.structural_id = sn.structural_id
         WHERE ni.snapshot_id = ?
-          AND sn.node_type = 'type'
+          AND sn.node_type = 'classifier'
           AND ni.structural_id IN ({placeholders})
         """,
         (snapshot_id, *class_ids),

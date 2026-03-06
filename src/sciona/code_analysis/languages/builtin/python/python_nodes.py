@@ -135,21 +135,21 @@ def walk_python_nodes(
             parent_node_type = "callable"
         elif state.class_stack:
             parent = state.class_stack[-1]
-            parent_node_type = "type"
+            parent_node_type = "classifier"
         else:
             parent = module_name
             parent_node_type = "module"
         emitted_name = _disambiguate_child_name(
             state=state,
             parent=parent,
-            child_kind="type",
+            child_kind="classifier",
             local_name=class_name,
         )
         qualified = f"{parent}.{emitted_name}"
         result.nodes.append(
             SemanticNodeRecord(
                 language=language,
-                node_type="type",
+                node_type="classifier",
                 qualified_name=qualified,
                 display_name=class_name,
                 file_path=snapshot.record.relative_path,
@@ -171,7 +171,7 @@ def walk_python_nodes(
                 src_node_type=parent_node_type,
                 src_qualified_name=parent,
                 dst_language=language,
-                dst_node_type="type",
+                dst_node_type="classifier",
                 dst_qualified_name=qualified,
                 edge_type="LEXICALLY_CONTAINS",
             )
@@ -204,7 +204,7 @@ def walk_python_nodes(
         if state.class_stack:
             node_type = "callable"
             parent = state.class_stack[-1]
-            parent_node_type = "type"
+            parent_node_type = "classifier"
             edge_type = "LEXICALLY_CONTAINS"
             state.class_methods.setdefault(parent, set()).add(func_name)
             role = "constructor" if func_name == "__init__" else "declared"
@@ -293,7 +293,7 @@ def walk_python_nodes(
             if func_name:
                 if state.class_stack:
                     parent = state.class_stack[-1]
-                    parent_node_type = "type"
+                    parent_node_type = "classifier"
                     role = "bound"
                 elif state.callable_stack:
                     parent = state.callable_stack[-1]

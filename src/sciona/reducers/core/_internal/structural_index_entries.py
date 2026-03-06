@@ -25,7 +25,7 @@ from ....code_analysis.analysis.orderings import order_edges, order_nodes
 from ...helpers.artifact_graph_edges import artifact_db_available, load_artifact_edges
 from ...helpers.types import StructuralIndexPayload
 
-TYPE_NODE_TYPES = {"type"}
+TYPE_NODE_TYPES = {"classifier"}
 
 CALLABLE_NODE_TYPES = {"callable"}
 
@@ -158,7 +158,7 @@ def _class_entries(
         FROM structural_nodes sn
         JOIN node_instances ni ON ni.structural_id = sn.structural_id
         WHERE ni.snapshot_id = ?
-          AND sn.node_type = 'type'
+          AND sn.node_type = 'classifier'
         """,
         (snapshot_id,),
     ).fetchall()

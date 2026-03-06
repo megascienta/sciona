@@ -44,7 +44,7 @@ def test_typescript_analyzer_extracts_structure(tmp_path):
     analyzer.module_index = {module_name}
     result = analyzer.analyze(snapshot, module_name)
     node_types = {node.node_type for node in result.nodes}
-    assert {"module", "type", "callable"}.issubset(node_types)
+    assert {"module", "classifier", "callable"}.issubset(node_types)
     import_edges = [
         edge for edge in result.edges if edge.edge_type == "IMPORTS_DECLARED"
     ]
@@ -829,7 +829,7 @@ def test_typescript_analyzer_disambiguates_duplicate_local_class_names(tmp_path)
     test_class_nodes = [
         node
         for node in result.nodes
-        if node.node_type == "type" and node.qualified_name.startswith(f"{module_name}.TestClass")
+        if node.node_type == "classifier" and node.qualified_name.startswith(f"{module_name}.TestClass")
     ]
     assert {node.display_name for node in test_class_nodes} == {"TestClass"}
 

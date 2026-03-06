@@ -40,28 +40,11 @@ def render(
     conn,
     repo_root,
     class_id: str | None = None,
-    method_id: str | None = None,
     **_: object,
 ) -> str:
     conn = require_connection(conn)
-    resolved_class_id = class_id
-    repo_path = Path(repo_root) if repo_root else None
-    if not resolved_class_id and method_id:
-        if repo_path is None:
-            raise ValueError(
-                "class_overview with method_id requires repo_root for artifact lookup."
-            )
-        method_structural_id = queries.resolve_method_id(conn, snapshot_id, method_id)
-        edges = load_artifact_edges(
-            repo_path,
-            edge_kinds=["LEXICALLY_CONTAINS"],
-            dst_ids=[method_structural_id],
-        )
-        if edges:
-            edges.sort(key=lambda entry: (entry[0], entry[1], entry[2]))
-            resolved_class_id = edges[0][0]
     payload = run(
-        snapshot_id, conn=conn, repo_root=repo_root, class_id=resolved_class_id
+        snapshot_id, conn=conn, repo_root=repo_root, class_id=class_id
     )
     return render_json_payload(payload)
 
@@ -86,7 +69,7 @@ def run(snapshot_id: str, **params) -> ClassOverviewPayload:
         raise ValueError("class_overview requires 'class_id'.")
 
     row = fetch_node_instance(conn, snapshot_id, class_id)
-    if row["node_type"] != "type":
+    if row["node_type"] != "classifier":
         raise ValueError(f"Node '{class_id}' is not a type.")
 
     repo_root = params.get("repo_root")
@@ -159,10 +142,10 @@ def _load_methods(
         edge_kinds=["LEXICALLY_CONTAINS"],
         src_ids=[class_id],
     )
-    method_ids = [dst for _, dst, _ in edges]
-    if not method_ids:
+    callable_ids = [dst for _, dst, _ in edges]
+    if not callable_ids:
         return []
-    placeholders = ",".join("?" for _ in method_ids)
+    placeholders = ",".join("?" for _ in callable_ids)
     rows = conn.execute(
         f"""
         SELECT ni.structural_id, ni.qualified_name
@@ -172,10 +155,10 @@ def _load_methods(
           AND ni.structural_id IN ({placeholders})
           AND sn.node_type = 'callable'
         """,
-        (snapshot_id, *method_ids),
+        (snapshot_id, *callable_ids),
     ).fetchall()
     entries = [
-        {"function_id": row["structural_id"], "qualified_name": row["qualified_name"]}
+        {"callable_id": row["structural_id"], "qualified_name": row["qualified_name"]}
         for row in rows
         if row["qualified_name"]
     ]

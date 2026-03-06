@@ -48,7 +48,7 @@ def helper():
     analyzer.module_index = {module_name}
     result = analyzer.analyze(snapshot, module_name)
     node_types = {node.node_type for node in result.nodes}
-    assert {"module", "type", "callable"}.issubset(node_types)
+    assert {"module", "classifier", "callable"}.issubset(node_types)
     assert not [edge for edge in result.edges if edge.edge_type == "CALLS"]
     method_edges = [edge for edge in result.edges if edge.edge_type == "LEXICALLY_CONTAINS"]
     assert method_edges
@@ -159,7 +159,7 @@ def outer():
     local_nodes = [
         node
         for node in first.nodes
-        if node.node_type == "type" and node.qualified_name.startswith(f"{module_name}.outer.Local")
+        if node.node_type == "classifier" and node.qualified_name.startswith(f"{module_name}.outer.Local")
     ]
     assert {node.display_name for node in local_nodes} == {"Local"}
 
