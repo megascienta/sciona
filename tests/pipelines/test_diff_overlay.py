@@ -151,3 +151,27 @@ def test_out_of_scope_indexed_dirty_marks_diff_not_affected(repo_with_snapshot):
     assert diff, "Expected diff overlay in reducer payload"
     assert diff["overlay_available"] is True
     assert diff.get("affected") is False
+
+
+def test_dirty_overlay_snapshot_provenance_marks_projection_not_supported(
+    repo_with_snapshot,
+):
+    repo_root, _snapshot_id = repo_with_snapshot
+    service_path = repo_root / "pkg/alpha/service.py"
+    service_path.write_text(
+        "def helper():\n    return 1\n\n\ndef helper2():\n    return 2\n",
+        encoding="utf-8",
+    )
+
+    text, _, _ = api.addons.emit(
+        "snapshot_provenance",
+        repo_root=repo_root,
+    )
+    payload = parse_json_payload(text)
+    diff = payload.get("_diff")
+    assert diff, "Expected diff overlay in reducer payload"
+    assert diff["overlay_available"] is True
+    assert diff.get("affected") is None
+    warnings = diff.get("warnings") or []
+    assert "projection_not_supported" in warnings
+    assert "projection_not_patched" not in warnings

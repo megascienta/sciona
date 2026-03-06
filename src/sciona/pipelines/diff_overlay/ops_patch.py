@@ -42,11 +42,11 @@ def apply_overlay_to_text(
     profile = _OVERLAY_PROFILE.get(projection, None)
     scope_hint = extract_scope_hint(payload, profile)
     affected, affected_by = scoped_affection(overlay, scope_hint, profile)
-    if not patched_projection:
-        warnings.append("projection_not_patched")
-        affected = None
     if profile and not profile.get("supports_patch"):
         warnings.append("projection_not_supported")
+        affected = None
+    elif not patched_projection:
+        warnings.append("projection_not_patched")
         affected = None
     diff_payload = {
         "version": 3,

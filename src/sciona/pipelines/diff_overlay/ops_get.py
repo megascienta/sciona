@@ -29,6 +29,11 @@ from .types import OverlayPayload
 logger = get_logger(__name__)
 
 _OVERLAY_PROFILE: dict[str, dict[str, object]] = {
+    "snapshot_provenance": {
+        "supports_patch": False,
+        "scope_type": "unknown",
+        "affected_by": [],
+    },
     "structural_index": {
         "supports_patch": True,
         "scope_type": "codebase",
