@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from sciona import api
+from sciona.pipelines.diff_overlay.ops_get import _OVERLAY_PROFILE
 from tests.helpers import parse_json_payload, qualify_repo_name
 
 
@@ -28,6 +29,7 @@ def test_dirty_overlay_adds_node(repo_with_snapshot):
     assert diff["worktree_hash"]
     assert diff.get("affected") is True
     assert "nodes" in diff.get("affected_by", [])
+    assert "projection_not_patched" not in (diff.get("warnings") or [])
 
 
 def test_dirty_overlay_calls_and_summary(repo_with_snapshot):
@@ -151,6 +153,13 @@ def test_out_of_scope_indexed_dirty_marks_diff_not_affected(repo_with_snapshot):
     assert diff, "Expected diff overlay in reducer payload"
     assert diff["overlay_available"] is True
     assert diff.get("affected") is False
+
+
+def test_overlay_profile_support_matrix_includes_supported_and_metadata_only_cases():
+    assert _OVERLAY_PROFILE["structural_index"]["supports_patch"] is True
+    assert _OVERLAY_PROFILE["module_overview"]["supports_patch"] is True
+    assert _OVERLAY_PROFILE["snapshot_provenance"]["supports_patch"] is False
+    assert _OVERLAY_PROFILE["callable_source"]["supports_patch"] is False
 
 
 def test_dirty_overlay_snapshot_provenance_marks_projection_not_supported(
