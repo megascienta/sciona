@@ -37,11 +37,17 @@ def build_agents_block(
     content = template.format(
         COMMON_TASKS=_render_common_tasks(reducers),
         RISK_TIER_REDUCERS=_render_risk_tier_reducers(reducers),
+        INVESTIGATION_STAGE_WORKFLOW=_render_investigation_stage_workflow(reducers),
+        INVESTIGATION_ROLE_CATEGORIES=_render_investigation_role_categories(reducers),
         REDUCER_ESCALATION_ORDER=_render_reducer_escalation_order(reducers),
+        CMD_VERSION=commands.get("version", "sciona --version"),
+        CMD_INIT=commands.get("init", "sciona init"),
+        CMD_AGENTS=commands.get("agents", "sciona agents"),
         CMD_REDUCER_LIST=commands.get("reducer_list", "sciona reducer list"),
         CMD_REDUCER_INFO=commands.get(
             "reducer_info", "sciona reducer info --id <reducer_id>"
         ),
+        CMD_REDUCER=commands.get("reducer", "sciona reducer --id <reducer_id>"),
         CMD_BUILD=commands.get("build", "sciona build"),
         CMD_SEARCH=commands.get(
             "search",
@@ -51,6 +57,7 @@ def build_agents_block(
             "resolve",
             "sciona resolve <identifier> --kind module|type|class|function|method|callable",
         ),
+        SCIONA_CONFIG_PATH=".sciona/config.yaml",
         TRACKED_FILE_SCOPE=_render_tracked_file_scope(repo_root),
     )
     return "\n".join([BEGIN_MARKER, content.strip(), END_MARKER]).rstrip() + "\n"
@@ -180,6 +187,7 @@ def _render_common_tasks(reducers) -> str:
             {
                 "reducer_id": reducer_id,
                 "category": entry.category,
+                "investigation_roles": entry.investigation_roles,
                 "summary": entry.summary,
             }
         )
@@ -187,8 +195,8 @@ def _render_common_tasks(reducers) -> str:
 
 
 def _render_risk_tier_reducers(reducers) -> str:
-    normal = _sorted_reducer_ids_by_categories(reducers, {"core", "analytics"})
-    elevated = _sorted_reducer_ids_by_categories(reducers, {"grounding", "composites"})
+    normal = _sorted_reducer_ids_by_risk_tier(reducers, "normal")
+    elevated = _sorted_reducer_ids_by_risk_tier(reducers, "elevated")
     normal_text = ", ".join(normal) if normal else "(none)"
     elevated_text = ", ".join(elevated) if elevated else "(none)"
     return "\n".join(
@@ -199,41 +207,115 @@ def _render_risk_tier_reducers(reducers) -> str:
     )
 
 
-def _render_reducer_escalation_order(reducers) -> str:
-    core_module_codebase = _sorted_reducer_ids(
-        reducers,
-        categories={"core"},
-        scopes={"module", "codebase"},
-    )
-    core_entity = _sorted_reducer_ids(
-        reducers,
-        categories={"core"},
-        scopes={"callable", "class"},
-    )
-    analytics_all = _sorted_reducer_ids(reducers, categories={"analytics"})
-    grounding_narrow = _sorted_reducer_ids(
-        reducers,
-        categories={"grounding"},
-        scopes={"callable", "class", "module"},
-    )
-    grounding_broad = _sorted_reducer_ids(
-        reducers,
-        categories={"grounding"},
-        scopes={"codebase"},
-    )
+def _render_investigation_role_categories(reducers) -> str:
+    lines: list[str] = []
+    for role_name, label in (
+        ("structure", "Structure reducers"),
+        ("relations", "Relations reducers"),
+        ("metrics", "Metrics reducers"),
+        ("source", "Source reducers"),
+    ):
+        reducer_ids = _sorted_reducer_ids_by_investigation_roles(reducers, {role_name})
+        rendered = ", ".join(reducer_ids) if reducer_ids else "(none)"
+        lines.append(f"**{label}:**")
+        lines.append(rendered)
+        lines.append("")
+    return "\n".join(lines).rstrip()
 
+
+def _render_investigation_stage_workflow(reducers) -> str:
+    lines = [
+        "Stage 1 — Initial scan",
+        "  Purpose: orient to snapshot state and identify scope",
+        "  Reducers: "
+        + _format_plain_reducer_list(
+            _sorted_reducer_ids_by_investigation_stage(
+                reducers, "discovery_orientation"
+            )
+        ),
+        "",
+        "Stage 2 — Entity discovery",
+        "  Purpose: resolve unknown identifiers; locate symbols",
+        "  Reducers: "
+        + _format_plain_reducer_list(
+            _sorted_reducer_ids_by_investigation_stage(
+                reducers, "discovery_orientation"
+            )
+        ),
+        "",
+        "Stage 3 — Structure inspection",
+        "  Purpose: inspect individual entities",
+        "  Reducers: "
+        + _format_plain_reducer_list(
+            _sorted_reducer_ids_by_investigation_stage(reducers, "entity_structure")
+        ),
+        "",
+        "Stage 4 — Relationship analysis",
+        "  Purpose: analyse dependencies, call edges, import coupling",
+        "  Reducers: "
+        + _format_plain_reducer_list(
+            [
+                reducer_id
+                for reducer_id in _sorted_reducer_ids_by_investigation_roles(
+                    reducers, {"relations"}
+                )
+                if _investigation_stage_for_reducer(reducers, reducer_id)
+                in {"discovery_orientation", "analytical_relations_metrics"}
+            ]
+        ),
+        "",
+        "Stage 5 — Diagnostics / metrics",
+        "  Purpose: detect anomalies, hotspots, resolution quality",
+        "  Reducers: "
+        + _format_plain_reducer_list(
+            _sorted_reducer_ids_by_investigation_roles(reducers, {"metrics"})
+        ),
+        "",
+        "Stage 6 — Source verification (only when ambiguity remains)",
+        "  Purpose: validate structural hypotheses at implementation level",
+        "  Reducers: "
+        + _format_plain_reducer_list(
+            _sorted_reducer_ids_by_investigation_roles(reducers, {"source"})
+        ),
+        "",
+        "Stage 7 — Confirmed finding OR concern",
+        "  Purpose: state a reducer-gated structural claim (§2.4) or raise an",
+        "           evidence-bounded concern (§2.7)",
+    ]
+    return "\n".join(lines)
+
+
+def _render_reducer_escalation_order(reducers) -> str:
     return "\n".join(
         [
             "1. **Discovery and structural orientation** — "
-            + _format_reducer_list_for_docs(core_module_codebase),
+            + _format_reducer_list_for_docs(
+                _sorted_reducer_ids_by_investigation_stage(
+                    reducers, "discovery_orientation"
+                )
+            ),
             "2. **Entity structure and direct relations** — "
-            + _format_reducer_list_for_docs(core_entity),
+            + _format_reducer_list_for_docs(
+                _sorted_reducer_ids_by_investigation_stage(reducers, "entity_structure")
+            ),
             "3. **Analytical relations and metrics** — "
-            + _format_reducer_list_for_docs(analytics_all),
+            + _format_reducer_list_for_docs(
+                _sorted_reducer_ids_by_investigation_stage(
+                    reducers, "analytical_relations_metrics"
+                )
+            ),
             "4. **Focused source grounding** — "
-            + _format_reducer_list_for_docs(grounding_narrow),
+            + _format_reducer_list_for_docs(
+                _sorted_reducer_ids_by_investigation_stage(
+                    reducers, "focused_source_grounding"
+                )
+            ),
             "5. **Broad source grounding (last resort)** — "
-            + _format_reducer_list_for_docs(grounding_broad),
+            + _format_reducer_list_for_docs(
+                _sorted_reducer_ids_by_investigation_stage(
+                    reducers, "broad_source_grounding"
+                )
+            ),
         ]
     )
 
@@ -245,19 +327,69 @@ def _sorted_reducer_ids_by_categories(
     return _sorted_reducer_ids(reducers, categories=categories)
 
 
+def _sorted_reducer_ids_by_risk_tier(
+    reducers,
+    risk_tier: str,
+) -> list[str]:
+    return _sorted_reducer_ids(reducers, risk_tier=risk_tier)
+
+
+def _sorted_reducer_ids_by_investigation_roles(
+    reducers,
+    investigation_roles: set[str],
+) -> list[str]:
+    return _sorted_reducer_ids(reducers, investigation_roles=investigation_roles)
+
+
+def _sorted_reducer_ids_by_investigation_stage(
+    reducers,
+    investigation_stage: str,
+) -> list[str]:
+    return _sorted_reducer_ids(reducers, investigation_stage=investigation_stage)
+
+
+def _investigation_stage_for_reducer(reducers, reducer_id: str) -> str:
+    entry = reducers.get(reducer_id)
+    return str(getattr(entry, "investigation_stage", "") or "")
+
+
 def _sorted_reducer_ids(
     reducers,
     *,
-    categories: set[str],
+    categories: set[str] | None = None,
+    investigation_roles: set[str] | None = None,
+    risk_tier: str | None = None,
+    investigation_stage: str | None = None,
     scopes: set[str] | None = None,
+    reducer_ids: set[str] | None = None,
 ) -> list[str]:
     selected: list[str] = []
     for reducer_id, entry in reducers.items():
         category = str(getattr(entry, "category", "") or "")
         scope = str(getattr(entry, "scope", "") or "")
-        if category not in categories:
+        roles = {
+            str(role)
+            for role in (getattr(entry, "investigation_roles", ()) or ())
+            if str(role)
+        }
+        entry_risk_tier = str(getattr(entry, "risk_tier", "") or "")
+        entry_investigation_stage = str(
+            getattr(entry, "investigation_stage", "") or ""
+        )
+        if categories is not None and category not in categories:
+            continue
+        if investigation_roles is not None and not roles.intersection(investigation_roles):
+            continue
+        if risk_tier is not None and entry_risk_tier != risk_tier:
+            continue
+        if (
+            investigation_stage is not None
+            and entry_investigation_stage != investigation_stage
+        ):
             continue
         if scopes is not None and scope not in scopes:
+            continue
+        if reducer_ids is not None and str(reducer_id) not in reducer_ids:
             continue
         selected.append(str(reducer_id))
     return sorted(selected)
@@ -269,6 +401,12 @@ def _format_reducer_list_for_docs(reducer_ids: list[str]) -> str:
     return ", ".join(f"`{reducer_id}`" for reducer_id in reducer_ids)
 
 
+def _format_plain_reducer_list(reducer_ids: list[str]) -> str:
+    if not reducer_ids:
+        return "(no reducers in this level for current installation)"
+    return ", ".join(reducer_ids)
+
+
 def _merge_commands(commands: Mapping[str, str] | None) -> dict[str, str]:
     merged = dict(_DEFAULT_COMMANDS)
     if commands:
@@ -278,8 +416,12 @@ def _merge_commands(commands: Mapping[str, str] | None) -> dict[str, str]:
 
 
 _DEFAULT_COMMANDS = {
+    "version": "sciona --version",
+    "init": "sciona init",
+    "agents": "sciona agents",
     "reducer_list": "sciona reducer list",
     "reducer_info": "sciona reducer info --id <reducer_id>",
+    "reducer": "sciona reducer --id <reducer_id>",
     "build": "sciona build",
     "search": "sciona search <query> --kind module|type|class|function|method|callable --limit 10",
     "resolve": "sciona resolve <identifier> --kind module|type|class|function|method|callable",

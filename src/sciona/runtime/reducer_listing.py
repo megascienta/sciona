@@ -8,7 +8,7 @@ from __future__ import annotations
 import inspect
 from typing import Iterable, Mapping
 
-from .reducer_metadata import CATEGORY_ORDER
+from .reducer_metadata import CATEGORY_ORDER, INVESTIGATION_ROLE_ORDER
 
 
 def format_reducer_call(reducer_id: str, reducer_module) -> str:
@@ -38,6 +38,29 @@ def format_reducer_call(reducer_id: str, reducer_module) -> str:
     if rendered:
         return f"reducer --id {reducer_id} {rendered}"
     return f"reducer --id {reducer_id}"
+
+
+def format_investigation_roles(roles: Iterable[object]) -> str:
+    normalized = [str(role).strip() for role in roles if str(role).strip()]
+    ordered: list[str] = []
+    seen = set()
+    for role in INVESTIGATION_ROLE_ORDER:
+        if role in normalized and role not in seen:
+            ordered.append(role)
+            seen.add(role)
+    for role in sorted(set(normalized) - seen):
+        ordered.append(role)
+    return ", ".join(ordered)
+
+
+def summary_with_roles(
+    summary: str,
+    roles: Iterable[object],
+) -> str:
+    role_text = format_investigation_roles(roles)
+    if not role_text:
+        return summary
+    return f"{summary} Role: {role_text}."
 
 
 def render_reducer_list(
@@ -73,7 +96,10 @@ def render_reducer_list(
             if reducer_module is None:
                 continue
             summary = str(entry.get("summary") or "").strip()
-            lines.append(f"  Summary: {summary}")
+            roles = entry.get("investigation_roles") or getattr(
+                reducer_entry, "investigation_roles", ()
+            )
+            lines.append(f"  Summary: {summary_with_roles(summary, roles)}")
             call = format_reducer_call(reducer_id, reducer_module)
             lines.append(f"  Command: {prefix}{call}")
             lines.append("")
@@ -102,14 +128,17 @@ def render_reducer_catalog(entries: Iterable[Mapping[str, object]]) -> list[str]
         for entry in bucket.get(category, []):
             reducer_id = str(entry.get("reducer_id") or "").strip()
             summary = str(entry.get("summary") or "").strip()
+            roles = entry.get("investigation_roles") or ()
             lines.append(f"- {reducer_id}")
-            lines.append(f"  Summary: {summary}")
+            lines.append(f"  Summary: {summary_with_roles(summary, roles)}")
     return lines
 
 
 __all__ = [
     "CATEGORY_ORDER",
+    "format_investigation_roles",
     "format_reducer_call",
     "render_reducer_list",
     "render_reducer_catalog",
+    "summary_with_roles",
 ]

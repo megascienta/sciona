@@ -16,6 +16,9 @@ REDUCER_META = ReducerMeta(
     reducer_id="snapshot_provenance",
     category="core",
     scope="codebase",
+    investigation_roles=("structure",),
+    risk_tier="normal",
+    investigation_stage="discovery_orientation",
     placeholders=("SNAPSHOT_PROVENANCE",),
     determinism="conditional",
     payload_size_stats=None,
@@ -65,4 +68,3 @@ def render(
     if owns_connection and artifact_conn is not None:
         artifact_conn.close()
     return render_json_payload(body)
-

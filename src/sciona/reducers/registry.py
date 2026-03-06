@@ -16,6 +16,9 @@ from typing import Iterable, Iterator, Mapping
 from ..runtime.reducer_metadata import (
     VALID_CATEGORIES,
     VALID_DETERMINISM,
+    VALID_INVESTIGATION_ROLES,
+    VALID_INVESTIGATION_STAGES,
+    VALID_RISK_TIERS,
     VALID_SCOPES,
 )
 from .metadata import ReducerMeta
@@ -28,6 +31,9 @@ class ReducerEntry:
     reducer_id: str
     category: str
     scope: str
+    investigation_roles: tuple[str, ...]
+    risk_tier: str
+    investigation_stage: str
     placeholders: tuple[str, ...]
     determinism: str
     payload_size_stats: Mapping[str, object] | None
@@ -66,6 +72,27 @@ def _validate_meta(meta: ReducerMeta, module_name: str) -> None:
         )
     if meta.scope not in VALID_SCOPES:
         raise ValueError(f"Reducer '{module_name}' has invalid scope '{meta.scope}'.")
+    if not meta.investigation_roles:
+        raise ValueError(
+            f"Reducer '{module_name}' must declare at least one investigation role."
+        )
+    invalid_roles = [
+        role for role in meta.investigation_roles if role not in VALID_INVESTIGATION_ROLES
+    ]
+    if invalid_roles:
+        joined = ", ".join(sorted(set(invalid_roles)))
+        raise ValueError(
+            f"Reducer '{module_name}' has invalid investigation role(s) '{joined}'."
+        )
+    if meta.risk_tier not in VALID_RISK_TIERS:
+        raise ValueError(
+            f"Reducer '{module_name}' has invalid risk tier '{meta.risk_tier}'."
+        )
+    if meta.investigation_stage not in VALID_INVESTIGATION_STAGES:
+        raise ValueError(
+            f"Reducer '{module_name}' has invalid investigation stage "
+            f"'{meta.investigation_stage}'."
+        )
     if meta.determinism not in VALID_DETERMINISM:
         raise ValueError(
             f"Reducer '{module_name}' has invalid determinism '{meta.determinism}'."
@@ -90,6 +117,9 @@ def _build_registry() -> dict[str, ReducerEntry]:
             reducer_id=reducer_id,
             category=meta.category,
             scope=meta.scope,
+            investigation_roles=meta.investigation_roles,
+            risk_tier=meta.risk_tier,
+            investigation_stage=meta.investigation_stage,
             placeholders=meta.placeholders,
             determinism=meta.determinism,
             payload_size_stats=meta.payload_size_stats,

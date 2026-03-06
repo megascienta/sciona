@@ -45,22 +45,36 @@ def test_agents_block_expands_placeholders(tmp_path: Path):
     block = agents.build_agents_block(tmp_path, get_reducers())
     for token in {
         "{TRACKED_FILE_SCOPE}",
+        "{SCIONA_CONFIG_PATH}",
         "{COMMON_TASKS}",
         "{RISK_TIER_REDUCERS}",
+        "{INVESTIGATION_STAGE_WORKFLOW}",
+        "{INVESTIGATION_ROLE_CATEGORIES}",
         "{REDUCER_ESCALATION_ORDER}",
+        "{CMD_VERSION}",
+        "{CMD_INIT}",
+        "{CMD_AGENTS}",
         "{CMD_REDUCER_LIST}",
         "{CMD_REDUCER_INFO}",
+        "{CMD_REDUCER}",
         "{CMD_BUILD}",
         "{CMD_SEARCH}",
         "{CMD_RESOLVE}",
     }:
         assert token not in block
+    assert "sciona --version" in block
+    assert "sciona init" in block
+    assert "sciona agents" in block
     assert "sciona reducer list" in block
     assert "sciona reducer info" in block
+    assert "sciona reducer --id <reducer_id>" in block
     assert "sciona search" in block
     assert "sciona resolve" in block
+    assert ".sciona/config.yaml" in block
     assert "Normal tier reducers:" in block
+    assert "**Structure reducers:**" in block
     assert "Discovery and structural orientation" in block
+    assert "Stage 1 — Initial scan" in block
 
 def test_agents_block_section_order(tmp_path: Path):
     block = agents.build_agents_block(tmp_path, get_reducers())
@@ -69,3 +83,22 @@ def test_agents_block_section_order(tmp_path: Path):
     reporting = block.index("Reporting Checklist")
     troubleshooting = block.index("Troubleshooting")
     assert discovery < common < reporting < troubleshooting
+
+
+def test_agents_block_removes_reviewed_template_issues(tmp_path: Path):
+    block = agents.build_agents_block(tmp_path, get_reducers())
+    template = Path("src/sciona/runtime/templates/agents_template.md").read_text(
+        encoding="utf-8"
+    )
+    assert ".sciona/config`" not in block
+    assert "§7.12" not in block
+    assert 'Use "let me search the codebase for..." text search for structural information' not in block
+    assert block.count("If SCIONA evidence is insufficient, agents MUST explicitly state what is missing and either:") == 1
+    assert "Current reducer IDs by tier:\n\n- Normal tier reducers:" in block
+    assert "{INVESTIGATION_STAGE_WORKFLOW}" not in block
+    assert (
+        "**Relations reducers:**\ncallsite_index, classifier_call_graph_summary, dependency_edges, module_call_graph_summary"
+        in block
+    )
+    assert "Reducers: snapshot_provenance, structural_index" not in template
+    assert "Role: structure." in block
