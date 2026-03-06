@@ -1,22 +1,22 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Dependency edge reducer."""
+"""Compatibility shim for dependency_edges reducer."""
 
 from __future__ import annotations
 
-from ._internal.dependency_edges_main import REDUCER_META, render
-from ._internal.dependency_edges_normalize import (
+from ..dependency_edges import (
+    REDUCER_META,
+    _fetch_dependency_edges,
+    _fetch_edges,
+    _node_lookup,
     _normalize_direction,
     _normalize_edge_type,
     _normalize_limit,
-)
-from ._internal.dependency_edges_resolve import (
-    _node_lookup,
     _resolve_module_ids,
     _resolve_module_query,
+    render,
 )
-from ._internal.dependency_edges_fetch import _fetch_dependency_edges, _fetch_edges
 
 __all__ = [
     "REDUCER_META",

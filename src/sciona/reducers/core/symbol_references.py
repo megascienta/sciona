@@ -1,22 +1,23 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Symbol reference reducer."""
+"""Compatibility shim for symbol_references reducer."""
 
 from __future__ import annotations
 
-from ._internal.symbol_references_main import REDUCER_META, render
-from ._internal.symbol_references_normalize import _NODE_TYPES, _normalize_kind, _normalize_limit
-from ._internal.symbol_references_candidates import (
-    _fetch_candidates,
-    _rank_candidates,
-    _score_identifier,
-)
-from ._internal.symbol_references_references import (
+from ..symbol_references import (
+    REDUCER_META,
+    _NODE_TYPES,
     _build_references,
     _call_references,
+    _fetch_candidates,
     _import_references,
     _node_lookup,
+    _normalize_kind,
+    _normalize_limit,
+    _rank_candidates,
+    _score_identifier,
+    render,
 )
 
 __all__ = [

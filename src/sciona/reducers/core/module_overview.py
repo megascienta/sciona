@@ -1,22 +1,22 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Module overview reducer."""
+"""Compatibility shim for module_overview reducer."""
 
 from __future__ import annotations
 
-from ._internal.module_overview_main import REDUCER_META, render, run
-from ._internal.module_overview_resolve import (
-    _resolve_module,
-    _resolve_module_ids,
-    _list_module_files,
-    _module_file_entries,
-)
-from ._internal.module_overview_relations import (
+from ..module_overview import (
+    REDUCER_META,
+    _language_breakdown,
     _list_children,
     _list_imports,
-    _language_breakdown,
     _list_methods,
+    _list_module_files,
+    _module_file_entries,
+    _resolve_module,
+    _resolve_module_ids,
+    render,
+    run,
 )
 
 __all__ = [

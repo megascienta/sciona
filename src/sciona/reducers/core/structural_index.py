@@ -1,25 +1,25 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Structural index reducer."""
+"""Compatibility shim for structural_index reducer."""
 
 from __future__ import annotations
 
-from ._internal.structural_index_main import REDUCER_META, render, run
-from ._internal.structural_index_entries import (
-    TYPE_NODE_TYPES,
+from ..structural_index import (
     CALLABLE_NODE_TYPES,
-    _module_summaries,
-    _file_entries,
-    _class_entries,
-    _callable_stats,
-    _count_to_entries,
-)
-from ._internal.structural_index_graph import (
+    REDUCER_META,
+    TYPE_NODE_TYPES,
     _ModuleGraph,
     _build_module_graph,
-    _import_edges,
+    _callable_stats,
+    _class_entries,
+    _count_to_entries,
+    _file_entries,
     _import_cycles,
+    _import_edges,
+    _module_summaries,
+    render,
+    run,
 )
 
 __all__ = [
