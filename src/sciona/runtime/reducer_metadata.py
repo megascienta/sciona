@@ -11,7 +11,7 @@ from typing import Literal
 CATEGORY_ORDER = ("core", "grounding", "analytics", "composites")
 VALID_CATEGORIES = frozenset(CATEGORY_ORDER)
 
-SCOPE_ORDER = ("callable", "class", "module", "codebase")
+SCOPE_ORDER = ("callable", "classifier", "module", "codebase")
 VALID_SCOPES = frozenset(SCOPE_ORDER)
 
 DETERMINISM_ORDER = ("strict", "conditional")

@@ -18,7 +18,7 @@ def test_structural_reducers_public_surface_exports_modules():
     expected = {
         "structural_index",
         "module_overview",
-        "class_overview",
+        "classifier_overview",
         "callable_overview",
     }
     for name in expected:

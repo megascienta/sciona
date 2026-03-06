@@ -214,7 +214,7 @@ def test_reducers_require_single_committed_snapshot_state(tmp_path: Path) -> Non
             reducer = entry.module
             if reducer_id in {
                 "callable_overview",
-                "class_overview",
+                "classifier_overview",
                 "module_overview",
                 "structural_index",
             }:

@@ -34,9 +34,7 @@ def render(
     repo_root,
     module_id: str | None = None,
     callable_id: str | None = None,
-    function_id: str | None = None,
-    method_id: str | None = None,
-    class_id: str | None = None,
+    classifier_id: str | None = None,
     top_k: int | None = None,
     **_: object,
 ) -> str:
@@ -44,25 +42,20 @@ def render(
     require_latest_committed_snapshot(
         conn, snapshot_id, reducer_name="module_call_graph_summary reducer"
     )
-    if callable_id and not (function_id or method_id):
-        function_id = callable_id
     resolved_module_id = module_id
-    if not resolved_module_id and class_id:
-        class_structural_id = queries.resolve_class_id(conn, snapshot_id, class_id)
-        resolved_module_id = queries.module_id_for_structural(
-            conn, snapshot_id, class_structural_id
-        )
-    if not resolved_module_id and method_id:
-        method_structural_id = queries.resolve_method_id(conn, snapshot_id, method_id)
-        resolved_module_id = queries.module_id_for_structural(
-            conn, snapshot_id, method_structural_id
-        )
-    if not resolved_module_id and function_id:
-        function_structural_id = queries.resolve_function_id(
-            conn, snapshot_id, function_id
+    if not resolved_module_id and classifier_id:
+        classifier_structural_id = queries.resolve_classifier_id(
+            conn, snapshot_id, classifier_id
         )
         resolved_module_id = queries.module_id_for_structural(
-            conn, snapshot_id, function_structural_id
+            conn, snapshot_id, classifier_structural_id
+        )
+    if not resolved_module_id and callable_id:
+        callable_structural_id = queries.resolve_callable_id(
+            conn, snapshot_id, callable_id
+        )
+        resolved_module_id = queries.module_id_for_structural(
+            conn, snapshot_id, callable_structural_id
         )
     if not resolved_module_id:
         raise ValueError("MODULE_CALL_GRAPH requires a resolvable module_id.")

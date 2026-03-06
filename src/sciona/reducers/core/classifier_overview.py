@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Class overview reducer."""
+"""Classifier overview reducer."""
 
 from __future__ import annotations
 
@@ -20,18 +20,18 @@ from ..helpers.profile_utils import fetch_node_instance
 from ..helpers import queries
 from ..helpers.render import render_json_payload, require_connection
 from ..metadata import ReducerMeta
-from ..helpers.types import ClassOverviewPayload
+from ..helpers.types import ClassifierOverviewPayload
 from ..helpers.utils import line_span_hash, require_latest_committed_snapshot
 
 REDUCER_META = ReducerMeta(
-    reducer_id="class_overview",
+    reducer_id="classifier_overview",
     category="core",
-    scope="class",
-    placeholders=("CLASS_OVERVIEW",),
+    scope="classifier",
+    placeholders=("CLASSIFIER_OVERVIEW",),
     determinism="conditional",
     payload_size_stats=None,
-    summary="Structural summary of a class, including methods and metadata. " \
-    "Use for quick class inspection. Scope: class-level structure. Payload kind: summary.",
+    summary="Structural summary of a classifier, including methods and metadata. " \
+    "Use for quick classifier inspection. Scope: classifier-level structure. Payload kind: summary.",
 )
 
 
@@ -39,42 +39,42 @@ def render(
     snapshot_id: str,
     conn,
     repo_root,
-    class_id: str | None = None,
+    classifier_id: str | None = None,
     **_: object,
 ) -> str:
     conn = require_connection(conn)
     payload = run(
-        snapshot_id, conn=conn, repo_root=repo_root, class_id=class_id
+        snapshot_id, conn=conn, repo_root=repo_root, classifier_id=classifier_id
     )
     return render_json_payload(payload)
 
 
-def run(snapshot_id: str, **params) -> ClassOverviewPayload:
+def run(snapshot_id: str, **params) -> ClassifierOverviewPayload:
     conn = params.get("conn")
     if conn is None:
         raise ValueError(
-            "class_overview reducer requires an active database connection."
+            "classifier_overview reducer requires an active database connection."
         )
     row = conn.execute(
         "SELECT is_committed FROM snapshots WHERE snapshot_id = ?",
         (snapshot_id,),
     ).fetchone()
     if not row or not row["is_committed"]:
-        raise ValueError("class_overview reducer requires a committed snapshot.")
+        raise ValueError("classifier_overview reducer requires a committed snapshot.")
     require_latest_committed_snapshot(
-        conn, snapshot_id, reducer_name="class_overview reducer"
+        conn, snapshot_id, reducer_name="classifier_overview reducer"
     )
-    class_id = params.get("class_id")
-    if not class_id:
-        raise ValueError("class_overview requires 'class_id'.")
+    classifier_id = params.get("classifier_id")
+    if not classifier_id:
+        raise ValueError("classifier_overview requires 'classifier_id'.")
 
-    row = fetch_node_instance(conn, snapshot_id, class_id)
+    row = fetch_node_instance(conn, snapshot_id, classifier_id)
     if row["node_type"] != "classifier":
-        raise ValueError(f"Node '{class_id}' is not a type.")
+        raise ValueError(f"Node '{classifier_id}' is not a classifier.")
 
     repo_root = params.get("repo_root")
     repo_path = Path(repo_root) if repo_root else None
-    module_name = queries.module_id_for_structural(conn, snapshot_id, class_id)
+    module_name = queries.module_id_for_structural(conn, snapshot_id, classifier_id)
     artifact_available = artifact_db_available(repo_path) if repo_path else False
     bases: List[str] = []
     if row["language"] == "python":
@@ -110,13 +110,13 @@ def run(snapshot_id: str, **params) -> ClassOverviewPayload:
             row["end_line"],
         )
 
-    methods = _load_methods(conn, snapshot_id, class_id, repo_path)
+    methods = _load_methods(conn, snapshot_id, classifier_id, repo_path)
     line_span = [row["start_line"], row["end_line"]]
     return {
-        "projection": "class_overview",
+        "projection": "classifier_overview",
         "projection_version": "1.0",
         "payload_kind": "summary",
-        "class_id": class_id,
+        "classifier_id": classifier_id,
         "language": row["language"],
         "module_qualified_name": module_name,
         "file_path": row["file_path"],
@@ -133,14 +133,14 @@ def run(snapshot_id: str, **params) -> ClassOverviewPayload:
 
 
 def _load_methods(
-    conn, snapshot_id: str, class_id: str, repo_root: Path | None
+    conn, snapshot_id: str, classifier_id: str, repo_root: Path | None
 ) -> List[Dict[str, str]]:
     if repo_root is None:
         return []
     edges = load_artifact_edges(
         repo_root,
         edge_kinds=["LEXICALLY_CONTAINS"],
-        src_ids=[class_id],
+        src_ids=[classifier_id],
     )
     callable_ids = [dst for _, dst, _ in edges]
     if not callable_ids:

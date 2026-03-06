@@ -37,7 +37,7 @@ REDUCER_META = ReducerMeta(
     placeholders=("MODULE_OVERVIEW",),
     determinism="conditional",
     payload_size_stats=None,
-    summary="Structural summary of a module, including contained classes and callables. " \
+    summary="Structural summary of a module, including contained classifiers and callables. " \
     "Use for architectural inspection. " \
     "Scope: module-level. Payload kind: summary.",
 )
@@ -48,16 +48,18 @@ def render(
     repo_root,
     module_id: str | None = None,
     callable_id: str | None = None,
-    class_id: str | None = None,
+    classifier_id: str | None = None,
     include_file_map: bool | None = None,
     **_: object,
 ) -> str:
     conn = require_connection(conn)
     resolved_module_id = module_id
-    if not resolved_module_id and class_id:
-        class_structural_id = queries.resolve_class_id(conn, snapshot_id, class_id)
+    if not resolved_module_id and classifier_id:
+        classifier_structural_id = queries.resolve_classifier_id(
+            conn, snapshot_id, classifier_id
+        )
         resolved_module_id = queries.module_id_for_structural(
-            conn, snapshot_id, class_structural_id
+            conn, snapshot_id, classifier_structural_id
         )
     if not resolved_module_id and callable_id:
         callable_structural_id = queries.resolve_callable_id(
@@ -117,7 +119,7 @@ def run(snapshot_id: str, **params) -> ModuleOverviewPayload:
     module_file_entries = (
         _module_file_entries(conn, snapshot_id, module_ids) if include_file_map else []
     )
-    types = _list_children(conn, snapshot_id, module_ids, "classifier", repo_path)
+    classifiers = _list_children(conn, snapshot_id, module_ids, "classifier", repo_path)
     callables = _list_children(
         conn,
         snapshot_id,
@@ -126,9 +128,10 @@ def run(snapshot_id: str, **params) -> ModuleOverviewPayload:
         repo_path,
         recursive=True,
     )
-    nested_types = _list_nested_classes(conn, snapshot_id, module_ids, repo_path)
+    nested_classifiers = _list_nested_classes(conn, snapshot_id, module_ids, repo_path)
     imports = _list_imports(conn, snapshot_id, module_ids, repo_path)
     language_breakdown = _language_breakdown(conn, snapshot_id, module_ids, repo_path)
+    methods = _list_methods(conn, snapshot_id, module_ids, repo_path)
 
     # Scope clamp: no cross-module aggregation or ranking beyond direct structure facts.
     line_span = [row["start_line"], row["end_line"]]
@@ -147,15 +150,13 @@ def run(snapshot_id: str, **params) -> ModuleOverviewPayload:
         "line_span_hash": line_span_hash(repo_path, row["file_path"], line_span),
         "files": files,
         "file_count": len(files),
-        "types": types,
+        "classifiers": classifiers,
         "callables": callables,
-        "nested_types": nested_types,
-        "classes": types,
         "functions": callables,
-        "methods": _list_methods(conn, snapshot_id, module_ids, repo_path),
-        "nested_classes": nested_types,
+        "methods": methods,
+        "nested_classifiers": nested_classifiers,
         "node_counts": {
-            "types": len(types),
+            "classifiers": len(classifiers),
             "callables": len(callables),
         },
         "language_breakdown": language_breakdown,

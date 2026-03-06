@@ -44,7 +44,7 @@ def _module_summaries(
     module_files: Dict[str, set[str]] = {module: set() for module in module_graph.nodes}
     function_counts: Dict[str, int] = {module: 0 for module in module_graph.nodes}
     method_counts: Dict[str, int] = {module: 0 for module in module_graph.nodes}
-    class_counts: Dict[str, int] = {module: 0 for module in module_graph.nodes}
+    classifier_counts: Dict[str, int] = {module: 0 for module in module_graph.nodes}
     function_languages: Counter[str] = Counter()
     method_languages: Counter[str] = Counter()
     file_assignments: Dict[str, str] = {}
@@ -86,7 +86,7 @@ def _module_summaries(
                 function_counts[module_name] = function_counts.get(module_name, 0) + 1
                 function_languages[row["language"]] += 1
         if node_type in TYPE_NODE_TYPES:
-            class_counts[module_name] = class_counts.get(module_name, 0) + 1
+            classifier_counts[module_name] = classifier_counts.get(module_name, 0) + 1
     module_entries: List[Dict[str, object]] = []
     for module in sorted(module_graph.nodes):
         files = module_files.get(module, set())
@@ -95,7 +95,7 @@ def _module_summaries(
                 "module_qualified_name": module,
                 "language": module_graph.languages.get(module, ""),
                 "file_count": len(files),
-                "class_count": class_counts.get(module, 0),
+                "classifier_count": classifier_counts.get(module, 0),
                 "function_count": function_counts.get(module, 0),
                 "method_count": method_counts.get(module, 0),
             }
@@ -108,7 +108,7 @@ def _module_summaries(
         file_assignments,
         function_counts,
         method_counts,
-        class_counts,
+        classifier_counts,
         file_path_votes,
         function_languages,
         method_languages,

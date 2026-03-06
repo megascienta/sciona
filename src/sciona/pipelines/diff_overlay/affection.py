@@ -26,14 +26,14 @@ def extract_scope_hint(
     elif scope_type == "callable":
         scope = {
             "scope": "callable",
-            "callable_id": payload.get("callable_id") or payload.get("function_id"),
+            "callable_id": payload.get("callable_id"),
             "qualified_name": payload.get("qualified_name")
             or payload.get("identity", {}).get("qualified_name"),
         }
-    elif scope_type == "class":
+    elif scope_type == "classifier":
         scope = {
-            "scope": "class",
-            "class_id": payload.get("class_id"),
+            "scope": "classifier",
+            "classifier_id": payload.get("classifier_id"),
             "qualified_name": payload.get("qualified_name"),
         }
     elif scope_type == "file":
@@ -53,8 +53,8 @@ def extract_scope_hint(
                 "scope": "fan",
                 "node_id": node_id,
                 "module_id": payload.get("module_id"),
-                "class_id": payload.get("class_id"),
-                "callable_id": payload.get("callable_id") or payload.get("function_id"),
+                "classifier_id": payload.get("classifier_id"),
+                "callable_id": payload.get("callable_id"),
             }
         else:
             scope = {"scope": "codebase"}
@@ -76,16 +76,16 @@ def scoped_affection(
     module_name = scope.get("module_qualified_name")
     file_path = scope.get("file_path")
     module_filter = scope.get("module_filter")
-    class_id = scope.get("class_id")
+    classifier_id = scope.get("classifier_id")
     callable_id = scope.get("callable_id")
     node_id = scope.get("node_id")
     query = scope.get("query")
-    class_qualified = scope.get("qualified_name")
+    classifier_qualified = scope.get("qualified_name")
     if scope_type == "callable" and not callable_id:
         return None, affected_by
-    if scope_type == "class" and not (class_id or class_qualified):
+    if scope_type == "classifier" and not (classifier_id or classifier_qualified):
         return None, affected_by
-    if scope_type == "class" and "calls" in affected_by and not class_qualified:
+    if scope_type == "classifier" and "calls" in affected_by and not classifier_qualified:
         return None, affected_by
     if scope_type == "module" and not (module_name or module_filter):
         return None, affected_by
@@ -124,11 +124,11 @@ def scoped_affection(
             return _module_match(str(qualified)) or _module_match(str(meta.get("module")))
         if scope_type == "callable":
             return str(entry.get("structural_id")) == str(callable_id)
-        if scope_type == "class":
-            if str(entry.get("structural_id")) == str(class_id):
+        if scope_type == "classifier":
+            if str(entry.get("structural_id")) == str(classifier_id):
                 return True
-            if class_qualified and qualified:
-                return str(qualified).startswith(f"{class_qualified}.")
+            if classifier_qualified and qualified:
+                return str(qualified).startswith(f"{classifier_qualified}.")
             return False
         if scope_type == "fan":
             return str(entry.get("structural_id")) == str(node_id)
@@ -166,14 +166,14 @@ def scoped_affection(
             src_name = entry.get("src_qualified_name")
             dst_name = entry.get("dst_qualified_name")
             return _module_match(str(src_name)) or _module_match(str(dst_name))
-        if scope_type == "class":
+        if scope_type == "classifier":
             src_name = entry.get("src_qualified_name")
             dst_name = entry.get("dst_qualified_name")
-            if not class_qualified:
+            if not classifier_qualified:
                 return False
-            return str(src_name).startswith(f"{class_qualified}.") or str(dst_name).startswith(
-                f"{class_qualified}."
-            )
+            return str(src_name).startswith(f"{classifier_qualified}.") or str(
+                dst_name
+            ).startswith(f"{classifier_qualified}.")
         if scope_type == "file":
             return bool(
                 file_path

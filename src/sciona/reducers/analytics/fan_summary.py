@@ -24,7 +24,7 @@ REDUCER_META = ReducerMeta(
     payload_size_stats=None,
     summary="Fan-in/fan-out metrics for calls and imports. " \
     "Use to identify highly connected entities or hotspots. " \
-    "Scope: callable/class/module. Payload kind: summary.",
+    "Scope: callable/classifier/module. Payload kind: summary.",
     lossy=True,
 )
 
@@ -34,9 +34,7 @@ def render(
     conn,
     repo_root,
     callable_id: str | None = None,
-    function_id: str | None = None,
-    method_id: str | None = None,
-    class_id: str | None = None,
+    classifier_id: str | None = None,
     module_id: str | None = None,
     top_k: int | None = None,
     **_: object,
@@ -45,16 +43,12 @@ def render(
     require_latest_committed_snapshot(
         conn, snapshot_id, reducer_name="fan_summary reducer"
     )
-    if callable_id and not (function_id or method_id):
-        function_id = callable_id
     artifact_available = artifact_db_available(repo_root) if repo_root else False
     resolved_id = None
-    if method_id:
-        resolved_id = queries.resolve_method_id(conn, snapshot_id, method_id)
-    elif function_id:
-        resolved_id = queries.resolve_function_id(conn, snapshot_id, function_id)
-    elif class_id:
-        resolved_id = queries.resolve_class_id(conn, snapshot_id, class_id)
+    if callable_id:
+        resolved_id = queries.resolve_callable_id(conn, snapshot_id, callable_id)
+    elif classifier_id:
+        resolved_id = queries.resolve_classifier_id(conn, snapshot_id, classifier_id)
     elif module_id:
         resolved_id = _resolve_module_id(conn, snapshot_id, module_id)
     limit = _normalize_top_k(top_k, default=5)

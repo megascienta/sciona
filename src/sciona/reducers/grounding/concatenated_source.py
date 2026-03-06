@@ -21,7 +21,7 @@ REDUCER_META = ReducerMeta(
     placeholders=("CONCATENATED_SOURCE",),
     determinism="conditional",
     payload_size_stats=None,
-    summary="Concatenated source code for a selected scope (codebase/module/class). " \
+    summary="Concatenated source code for a selected scope (codebase/module/classifier). " \
     "Use for large-context reasoning or cross-entity inspection. " \
     "Scope: configurable. Payload kind: source.",
     lossy=False,
@@ -37,14 +37,14 @@ def render(
     repo_root,
     scope: str | None = None,
     module_id: str | None = None,
-    class_id: str | None = None,
+    classifier_id: str | None = None,
     **_: object,
 ) -> str:
     conn = require_connection(conn)
     require_latest_committed_snapshot(
         conn, snapshot_id, reducer_name="concatenated_source reducer"
     )
-    resolved_scope = _normalize_scope(scope, module_id, class_id)
+    resolved_scope = _normalize_scope(scope, module_id, classifier_id)
     if resolved_scope == "codebase":
         file_paths = queries.collect_file_paths(conn, snapshot_id, repo_root)
     elif resolved_scope == "module":
@@ -53,7 +53,9 @@ def render(
             conn, snapshot_id, repo_root, roots=[root]
         )
     else:
-        file_paths = [_resolve_class_file(conn, snapshot_id, class_id, repo_root)]
+        file_paths = [
+            _resolve_classifier_file(conn, snapshot_id, classifier_id, repo_root)
+        ]
     file_paths = sorted(file_paths, key=lambda path: path.as_posix())
     payload = {
         "payload_kind": "source",
@@ -65,36 +67,40 @@ def render(
 
 
 def _normalize_scope(
-    scope: str | None, module_id: str | None, class_id: str | None
+    scope: str | None, module_id: str | None, classifier_id: str | None
 ) -> str:
     if scope is None:
-        raise ValueError("concatenated_source_v1 requires a scope.")
+        raise ValueError("concatenated_source requires a scope.")
     normalized = scope.strip().lower()
-    if normalized not in {"codebase", "module", "class"}:
+    if normalized not in {"codebase", "module", "classifier"}:
         raise ValueError(
-            "concatenated_source_v1 scope must be 'codebase', 'module', or 'class'."
+            "concatenated_source scope must be 'codebase', 'module', or 'classifier'."
         )
     if normalized == "module" and not module_id:
-        raise ValueError("concatenated_source_v1 scope 'module' requires module_id.")
-    if normalized == "class" and not class_id:
-        raise ValueError("concatenated_source_v1 scope 'class' requires class_id.")
+        raise ValueError("concatenated_source scope 'module' requires module_id.")
+    if normalized == "classifier" and not classifier_id:
+        raise ValueError(
+            "concatenated_source scope 'classifier' requires classifier_id."
+        )
     if normalized == "codebase" and module_id:
         raise ValueError(
-            "concatenated_source_v1 scope 'codebase' must not include module_id."
+            "concatenated_source scope 'codebase' must not include module_id."
         )
-    if normalized == "codebase" and class_id:
+    if normalized == "codebase" and classifier_id:
         raise ValueError(
-            "concatenated_source_v1 scope 'codebase' must not include class_id."
+            "concatenated_source scope 'codebase' must not include classifier_id."
         )
-    if normalized == "module" and class_id:
+    if normalized == "module" and classifier_id:
         raise ValueError(
-            "concatenated_source_v1 scope 'module' must not include class_id."
+            "concatenated_source scope 'module' must not include classifier_id."
         )
     return normalized
 
 
-def _resolve_class_file(conn, snapshot_id: str, class_id: str, repo_root: Path) -> Path:
-    structural_id = queries.resolve_class_id(conn, snapshot_id, class_id)
+def _resolve_classifier_file(
+    conn, snapshot_id: str, classifier_id: str, repo_root: Path
+) -> Path:
+    structural_id = queries.resolve_classifier_id(conn, snapshot_id, classifier_id)
     row = conn.execute(
         """
         SELECT ni.file_path
@@ -107,7 +113,7 @@ def _resolve_class_file(conn, snapshot_id: str, class_id: str, repo_root: Path) 
     ).fetchone()
     if not row or not row["file_path"]:
         raise ValueError(
-            f"Class '{class_id}' missing file_path in snapshot '{snapshot_id}'."
+            f"Classifier '{classifier_id}' missing file_path in snapshot '{snapshot_id}'."
         )
     return _normalize_repo_relative(repo_root, Path(row["file_path"]))
 

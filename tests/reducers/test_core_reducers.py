@@ -12,8 +12,8 @@ from sciona.data_storage.core_db.schema import ensure_schema
 from sciona.data_storage.transactions import transaction
 from sciona.reducers.core import (
     callable_overview,
-    class_inheritance,
-    class_overview,
+    classifier_inheritance,
+    classifier_overview,
     dependency_edges,
     file_outline,
     module_overview,
@@ -327,7 +327,7 @@ def test_concatenated_source_module_scope(tmp_path):
     assert "pkg/beta/__init__.py" not in paths
 
 
-def test_concatenated_source_class_scope(tmp_path):
+def test_concatenated_source_classifier_scope(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     conn = _core_conn(repo_root)
     try:
@@ -335,8 +335,8 @@ def test_concatenated_source_class_scope(tmp_path):
             snapshot_id,
             conn,
             repo_root,
-            scope="class",
-            class_id=_q(repo_root, "pkg.alpha.Service"),
+            scope="classifier",
+            classifier_id=_q(repo_root, "pkg.alpha.Service"),
         )
     finally:
         conn.close()
@@ -684,27 +684,27 @@ def test_class_overview_requires_class_id(tmp_path):
     conn = sqlite3.connect(repo["db_path"])
     conn.row_factory = sqlite3.Row
     try:
-        with pytest.raises(ValueError, match="requires 'class_id'"):
-            class_overview.run(
+        with pytest.raises(ValueError, match="requires 'classifier_id'"):
+            classifier_overview.run(
                 repo["snapshot_id"],
                 conn=conn,
-                class_id=None,
+                classifier_id=None,
                 repo_root=repo["repo_root"],
             )
     finally:
         conn.close()
 
 
-def test_class_inheritance_requires_class_id(tmp_path):
+def test_classifier_inheritance_requires_classifier_id(tmp_path):
     repo = _build_profile_repo(tmp_path)
     conn = sqlite3.connect(repo["db_path"])
     conn.row_factory = sqlite3.Row
     try:
-        with pytest.raises(ValueError, match="Class identifier is required"):
-            class_inheritance.render(
+        with pytest.raises(ValueError, match="Classifier identifier is required"):
+            classifier_inheritance.render(
                 repo["snapshot_id"],
                 conn=conn,
-                class_id=None,
+                classifier_id=None,
                 repo_root=repo["repo_root"],
             )
     finally:
@@ -726,7 +726,7 @@ def test_structural_index_reducer_reports_modules_and_cycles(tmp_path):
     assert modules[0]["file_count"] == 2
     assert modules[0]["method_count"] == 2
     assert payload["files"]["count"] >= 2
-    assert payload["classes"]["entries"][0]["qualified_name"].startswith(
+    assert payload["classifiers"]["entries"][0]["qualified_name"].startswith(
         _q(repo_root, "pkg.alpha")
     )
     assert payload["functions"]["by_module"] == []
@@ -790,10 +790,10 @@ def test_class_overview_reducer_exposes_methods_and_metadata(tmp_path):
     repo = _build_profile_repo(tmp_path)
     conn = sqlite3.connect(repo["db_path"])
     conn.row_factory = sqlite3.Row
-    payload = class_overview.run(
+    payload = classifier_overview.run(
         repo["snapshot_id"],
         conn=conn,
-        class_id=repo["ids"]["class_order"],
+        classifier_id=repo["ids"]["class_order"],
         repo_root=repo["repo_root"],
     )
     conn.close()
@@ -815,17 +815,17 @@ def test_class_inheritance_reducer_emits_base_edges(tmp_path):
     repo = _build_profile_repo(tmp_path)
     conn = sqlite3.connect(repo["db_path"])
     conn.row_factory = sqlite3.Row
-    payload_text = class_inheritance.render(
+    payload_text = classifier_inheritance.render(
         repo["snapshot_id"],
         conn=conn,
-        class_id=repo["ids"]["class_order"],
+        classifier_id=repo["ids"]["class_order"],
         repo_root=repo["repo_root"],
     )
     conn.close()
 
     payload = parse_json_payload(payload_text)
     assert payload["payload_kind"] == "summary"
-    assert payload["class_id"] == repo["ids"]["class_order"]
+    assert payload["classifier_id"] == repo["ids"]["class_order"]
     assert payload["incoming"] == []
     assert payload["incoming_count"] == 0
     assert payload["outgoing_count"] == 2
@@ -848,17 +848,17 @@ def test_class_inheritance_reducer_handles_no_bases(tmp_path):
     repo = _build_profile_repo(tmp_path)
     conn = sqlite3.connect(repo["db_path"])
     conn.row_factory = sqlite3.Row
-    payload_text = class_inheritance.render(
+    payload_text = classifier_inheritance.render(
         repo["snapshot_id"],
         conn=conn,
-        class_id=repo["ids"]["ts_class"],
+        classifier_id=repo["ids"]["ts_class"],
         repo_root=repo["repo_root"],
     )
     conn.close()
 
     payload = parse_json_payload(payload_text)
     assert payload["payload_kind"] == "summary"
-    assert payload["class_id"] == repo["ids"]["ts_class"]
+    assert payload["classifier_id"] == repo["ids"]["ts_class"]
     assert payload["outgoing"] == []
     assert payload["outgoing_count"] == 0
     assert payload["incoming"] == []
@@ -897,10 +897,10 @@ def test_class_inheritance_prefers_core_edges_when_available(tmp_path):
     finally:
         artifact_conn.close()
 
-    payload_text = class_inheritance.render(
+    payload_text = classifier_inheritance.render(
         repo["snapshot_id"],
         conn=conn,
-        class_id=repo["ids"]["class_order"],
+        classifier_id=repo["ids"]["class_order"],
         repo_root=repo["repo_root"],
     )
     conn.close()
@@ -933,13 +933,13 @@ def test_module_overview_reducer_lists_children_and_imports(tmp_path):
     assert payload["module_qualified_name"] == _q(repo["repo_root"], "pkg.alpha.service")
     assert payload["files"] == ["pkg/alpha/service.py"]
     assert payload["file_count"] == 1
-    assert payload["classes"][0]["qualified_name"] == _q(
+    assert payload["classifiers"][0]["qualified_name"] == _q(
         repo["repo_root"], "pkg.alpha.service.OrderService"
     )
     function_qnames = {entry["qualified_name"] for entry in payload["functions"]}
     assert _q(repo["repo_root"], "pkg.alpha.service.helper") in function_qnames
     assert _q(repo["repo_root"], "pkg.alpha.service.OrderService.method_one") in function_qnames
-    assert payload["node_counts"] == {"types": 1, "callables": 2}
+    assert payload["node_counts"] == {"classifiers": 1, "callables": 2}
     assert payload["language_breakdown"] == {"python": 3}
     assert payload["imports"] == [
         {
@@ -947,7 +947,7 @@ def test_module_overview_reducer_lists_children_and_imports(tmp_path):
             "module_qualified_name": _q(repo["repo_root"], "pkg.beta.worker"),
         }
     ]
-    assert payload["nested_classes"] == []
+    assert payload["nested_classifiers"] == []
     assert "confidence" not in payload
 
 
@@ -966,13 +966,13 @@ def test_module_overview_reducer_expands_package_modules(tmp_path):
     assert payload["module_qualified_name"] == _q(repo["repo_root"], "pkg.alpha")
     assert payload["files"] == ["pkg/alpha/__init__.py", "pkg/alpha/service.py"]
     assert payload["file_count"] == 2
-    assert payload["classes"][0]["qualified_name"] == _q(
+    assert payload["classifiers"][0]["qualified_name"] == _q(
         repo["repo_root"], "pkg.alpha.service.OrderService"
     )
     function_qnames = {entry["qualified_name"] for entry in payload["functions"]}
     assert _q(repo["repo_root"], "pkg.alpha.service.helper") in function_qnames
     assert _q(repo["repo_root"], "pkg.alpha.service.OrderService.method_one") in function_qnames
-    assert payload["node_counts"] == {"types": 1, "callables": 2}
+    assert payload["node_counts"] == {"classifiers": 1, "callables": 2}
     assert payload["imports"] == [
         {
             "module_structural_id": repo["ids"]["module_beta"],
@@ -1098,7 +1098,7 @@ def test_module_overview_reducer_exposes_nests_edges(tmp_path):
     finally:
         conn.close()
 
-    class_qnames = {entry["qualified_name"] for entry in payload["classes"]}
+    class_qnames = {entry["qualified_name"] for entry in payload["classifiers"]}
     assert outer_q in class_qnames
 
 

@@ -8,8 +8,7 @@ from __future__ import annotations
 from typing import Iterable, List
 
 from ..helpers.base import (
-    load_function_overview,
-    load_method_overview,
+    load_callable_overview,
     require_connection,
 )
 from ..helpers.render import render_json_payload
@@ -24,7 +23,7 @@ REDUCER_META = ReducerMeta(
     determinism="conditional",
     payload_size_stats=None,
     summary="Full source code of a callable. Use only when " \
-    "implementation details are required. Scope: single function or method. Payload kind: source.",
+    "implementation details are required. Scope: single callable. Payload kind: source.",
     lossy=False,
     baseline_only=True,
 )
@@ -35,24 +34,17 @@ def render(
     conn,
     repo_root,
     callable_id: str | None = None,
-    function_id: str | None = None,
-    method_id: str | None = None,
     **_: object,
 ) -> str:
     conn = require_connection(conn)
     require_latest_committed_snapshot(
         conn, snapshot_id, reducer_name="callable_source reducer"
     )
-    if callable_id and not (function_id or method_id):
-        function_id = callable_id
-    if method_id:
-        payload = load_method_overview(snapshot_id, conn, repo_root, method_id)
-    elif function_id:
-        payload = load_function_overview(snapshot_id, conn, repo_root, function_id)
-    else:
+    if not callable_id:
         raise ValueError(
-            "CALLABLE_SOURCE requires callable_id, function_id, or method_id."
+            "CALLABLE_SOURCE requires callable_id."
         )
+    payload = load_callable_overview(snapshot_id, conn, repo_root, callable_id)
     file_path = payload.get("file_path")
     line_span = payload.get("line_span")
     if not file_path or not line_span:

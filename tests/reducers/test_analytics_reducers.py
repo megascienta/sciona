@@ -7,7 +7,7 @@ import json
 from sciona.reducers.analytics import (
     call_resolution_quality,
     callsite_index,
-    class_call_graph_summary,
+    classifier_call_graph_summary,
     fan_summary,
     hotspot_summary,
     module_call_graph_summary,
@@ -22,14 +22,14 @@ from tests.helpers import core_conn, parse_json_payload, qualify_repo_name, seed
 
 def test_callsite_index_reducer_returns_payload(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
-    function_id = qualify_repo_name(repo_root, "pkg.alpha.service.helper")
+    callable_id = qualify_repo_name(repo_root, "pkg.alpha.service.helper")
     conn = core_conn(repo_root)
     try:
         payload_text = callsite_index.render(
             snapshot_id,
             conn,
             repo_root,
-            function_id=function_id,
+            callable_id=callable_id,
         )
     finally:
         conn.close()
@@ -118,13 +118,13 @@ def test_call_resolution_quality_aggregates_callsite_rows(tmp_path):
 def test_resolution_trace_returns_payload(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     conn = core_conn(repo_root)
-    function_id = qualify_repo_name(repo_root, "pkg.alpha.service.helper")
+    callable_id = qualify_repo_name(repo_root, "pkg.alpha.service.helper")
     try:
         payload_text = resolution_trace.render(
             snapshot_id,
             conn,
             repo_root,
-            function_id=function_id,
+            callable_id=callable_id,
         )
     finally:
         conn.close()
@@ -206,7 +206,7 @@ def test_resolution_trace_uses_callsite_and_diagnostics(tmp_path):
             snapshot_id,
             core,
             repo_root,
-            function_id=qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
+            callable_id=qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
         )
     finally:
         core.close()
@@ -311,14 +311,14 @@ def test_structural_integrity_summary_detects_duplicates_and_orphans(tmp_path):
 
 def test_callsite_index_neighbors_detail_level(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
-    function_id = qualify_repo_name(repo_root, "pkg.alpha.service.helper")
+    callable_id = qualify_repo_name(repo_root, "pkg.alpha.service.helper")
     conn = core_conn(repo_root)
     try:
         payload_text = callsite_index.render(
             snapshot_id,
             conn,
             repo_root,
-            function_id=function_id,
+            callable_id=callable_id,
             detail_level="neighbors",
         )
     finally:
@@ -421,24 +421,24 @@ def test_module_call_graph_summary_returns_payload(tmp_path):
 
 def test_class_call_graph_summary_returns_payload(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
-    class_id = qualify_repo_name(repo_root, "pkg.alpha.Service")
+    classifier_id = qualify_repo_name(repo_root, "pkg.alpha.Service")
     conn = core_conn(repo_root)
     try:
-        payload_text = class_call_graph_summary.render(
-            snapshot_id, conn, repo_root, class_id=class_id, top_k=5
+        payload_text = classifier_call_graph_summary.render(
+            snapshot_id, conn, repo_root, classifier_id=classifier_id, top_k=5
         )
     finally:
         conn.close()
     payload = parse_json_payload(payload_text)
     assert payload["payload_kind"] == "summary"
-    assert payload["class_id"] == class_id
+    assert payload["classifier_id"] == classifier_id
     assert "outgoing" in payload
     assert "incoming" in payload
 
 
 def test_callsite_index_rejects_invalid_detail_level(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
-    function_id = qualify_repo_name(repo_root, "pkg.alpha.service.helper")
+    callable_id = qualify_repo_name(repo_root, "pkg.alpha.service.helper")
     conn = core_conn(repo_root)
     try:
         with pytest.raises(ValueError, match="detail_level must be"):
@@ -446,7 +446,7 @@ def test_callsite_index_rejects_invalid_detail_level(tmp_path):
                 snapshot_id,
                 conn,
                 repo_root,
-                function_id=function_id,
+                callable_id=callable_id,
                 detail_level="verbose",
             )
     finally:
@@ -455,7 +455,7 @@ def test_callsite_index_rejects_invalid_detail_level(tmp_path):
 
 def test_callsite_index_rejects_invalid_direction(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
-    function_id = qualify_repo_name(repo_root, "pkg.alpha.service.helper")
+    callable_id = qualify_repo_name(repo_root, "pkg.alpha.service.helper")
     conn = core_conn(repo_root)
     try:
         with pytest.raises(ValueError, match="direction must be one of"):
@@ -463,7 +463,7 @@ def test_callsite_index_rejects_invalid_direction(tmp_path):
                 snapshot_id,
                 conn,
                 repo_root,
-                function_id=function_id,
+                callable_id=callable_id,
                 direction="up",
             )
     finally:

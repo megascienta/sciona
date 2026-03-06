@@ -38,7 +38,7 @@ def render(snapshot_id: str, conn, repo_root, **_: object) -> str:
 
     def _size_metric(entry: dict) -> int:
         return (
-            (entry.get("class_count") or 0)
+            (entry.get("classifier_count") or 0)
             + (entry.get("function_count") or 0)
             + (entry.get("method_count") or 0)
         )

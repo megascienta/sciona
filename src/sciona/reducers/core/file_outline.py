@@ -20,7 +20,7 @@ REDUCER_META = ReducerMeta(
     placeholders=("FILE_OUTLINE",),
     determinism="strict",
     payload_size_stats=None,
-    summary="Structural outline of a file, including modules, classes, and callables. " \
+    summary="Structural outline of a file, including modules, classifiers, and callables. " \
     "Use for navigation and symbol discovery. " \
     "Scope: file-level structure. Payload kind: summary.",
     lossy=False,

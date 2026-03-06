@@ -83,7 +83,7 @@ def test_dirty_overlay_fan_summary_node_id_updates(repo_with_snapshot):
     text, _, _ = api.addons.emit(
         "fan_summary",
         repo_root=repo_root,
-        function_id=qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
+        callable_id=qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
     )
     payload = parse_json_payload(text)
     edge_kinds = payload.get("edge_kinds") or {}

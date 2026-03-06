@@ -1,29 +1,29 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Class relationships reducer."""
+"""Classifier relationships reducer."""
 
 from __future__ import annotations
 
 from pathlib import Path
 
 from ..helpers import queries
-from . import class_overview
+from . import classifier_overview
 from ..helpers.artifact_graph_edges import load_artifact_edges
 from ..helpers.render import render_json_payload, require_connection
 from ..helpers.utils import require_latest_committed_snapshot
 from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
-    reducer_id="class_inheritance",
+    reducer_id="classifier_inheritance",
     category="core",
-    scope="class",
-    placeholders=("CLASS_INHERITANCE",),
+    scope="classifier",
+    placeholders=("CLASSIFIER_INHERITANCE",),
     determinism="conditional",
     payload_size_stats=None,
-    summary="Parsed base classes and inheritance relations. " \
-    "Use when reasoning about type hierarchy or polymorphic structure. " \
-    "Scope: class hierarchy. Payload kind: summary.",
+    summary="Parsed base classifiers and inheritance relations. " \
+    "Use when reasoning about classifier hierarchy or polymorphic structure. " \
+    "Scope: classifier hierarchy. Payload kind: summary.",
 )
 
 
@@ -31,32 +31,32 @@ def render(
     snapshot_id: str,
     conn,
     repo_root,
-    class_id: str | None = None,
+    classifier_id: str | None = None,
     **_: object,
 ) -> str:
     conn = require_connection(conn)
     require_latest_committed_snapshot(
-        conn, snapshot_id, reducer_name="class_inheritance reducer"
+        conn, snapshot_id, reducer_name="classifier_inheritance reducer"
     )
-    resolved_id = queries.resolve_class_id(conn, snapshot_id, class_id)
-    outgoing = _load_class_edges(
+    resolved_id = queries.resolve_classifier_id(conn, snapshot_id, classifier_id)
+    outgoing = _load_classifier_edges(
         conn=conn,
         snapshot_id=snapshot_id,
         repo_root=repo_root,
-        class_id=resolved_id,
+        classifier_id=resolved_id,
         direction="outgoing",
     )
-    incoming = _load_class_edges(
+    incoming = _load_classifier_edges(
         conn=conn,
         snapshot_id=snapshot_id,
         repo_root=repo_root,
-        class_id=resolved_id,
+        classifier_id=resolved_id,
         direction="incoming",
     )
     edge_source = "sci" if (outgoing or incoming) else "none"
     if not outgoing and not incoming:
-        overview = class_overview.run(
-            snapshot_id, conn=conn, repo_root=repo_root, class_id=resolved_id
+        overview = classifier_overview.run(
+            snapshot_id, conn=conn, repo_root=repo_root, classifier_id=resolved_id
         )
         bases = overview.get("bases") or []
         outgoing = [
@@ -71,7 +71,7 @@ def render(
         edge_source = "profile" if bases else "none"
     body = {
         "payload_kind": "summary",
-        "class_id": resolved_id,
+        "classifier_id": resolved_id,
         "outgoing_count": len(outgoing),
         "incoming_count": len(incoming),
         "outgoing": outgoing,
@@ -81,12 +81,12 @@ def render(
     return render_json_payload(body)
 
 
-def _load_class_edges(
+def _load_classifier_edges(
     *,
     conn,
     snapshot_id: str,
     repo_root,
-    class_id: str,
+    classifier_id: str,
     direction: str,
 ) -> list[dict[str, str | None]]:
     if not repo_root:
@@ -96,12 +96,12 @@ def _load_class_edges(
     repo_path = Path(repo_root)
     if direction == "outgoing":
         edges = load_artifact_edges(
-            repo_path, edge_kinds=["EXTENDS", "IMPLEMENTS"], src_ids=[class_id]
+            repo_path, edge_kinds=["EXTENDS", "IMPLEMENTS"], src_ids=[classifier_id]
         )
         target_ids = [dst_id for _src_id, dst_id, _edge_kind in edges]
     else:
         edges = load_artifact_edges(
-            repo_path, edge_kinds=["EXTENDS", "IMPLEMENTS"], dst_ids=[class_id]
+            repo_path, edge_kinds=["EXTENDS", "IMPLEMENTS"], dst_ids=[classifier_id]
         )
         target_ids = [src_id for src_id, _dst_id, _edge_kind in edges]
     if not edges:

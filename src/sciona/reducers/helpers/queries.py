@@ -42,13 +42,13 @@ def resolve_callable_id(conn, snapshot_id: str, callable_id: str | None) -> str:
     return rows[0]["structural_id"]
 
 
-def resolve_class_id(conn, snapshot_id: str, class_id: str | None) -> str:
-    if not class_id:
-        raise ValueError("Class identifier is required.")
+def resolve_classifier_id(conn, snapshot_id: str, classifier_id: str | None) -> str:
+    if not classifier_id:
+        raise ValueError("Classifier identifier is required.")
     return _resolve_node_id(
         conn,
         snapshot_id,
-        class_id,
+        classifier_id,
         node_types=NODE_TYPE_CLASS,
     )
 

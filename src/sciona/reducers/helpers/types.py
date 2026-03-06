@@ -24,10 +24,10 @@ class ModuleOverviewPayload(TypedDict, total=False):
     file_count: int
     module_files: List[Dict[str, str]] | None
     module_file_count: int
-    classes: List[Dict[str, str]]
+    classifiers: List[Dict[str, str]]
     functions: List[Dict[str, str]]
     methods: List[Dict[str, str]]
-    nested_classes: List[Dict[str, str]]
+    nested_classifiers: List[Dict[str, str]]
     node_counts: Dict[str, int]
     language_breakdown: Dict[str, int]
     imports: List[Dict[str, str]]
@@ -35,11 +35,11 @@ class ModuleOverviewPayload(TypedDict, total=False):
     edge_source: str
 
 
-class ClassOverviewPayload(TypedDict, total=False):
+class ClassifierOverviewPayload(TypedDict, total=False):
     projection: str
     projection_version: str
     payload_kind: str
-    class_id: str
+    classifier_id: str
     module_qualified_name: str
     language: str
     file_path: str
@@ -58,7 +58,6 @@ class CallableOverviewPayload(TypedDict, total=False):
     projection_version: str
     payload_kind: str
     callable_id: str
-    function_id: str
     requested_identifier: str
     module_qualified_name: str
     language: str
@@ -84,7 +83,7 @@ class StructuralIndexPayload(TypedDict, total=False):
     payload_kind: str
     modules: Dict[str, object]
     files: Dict[str, object]
-    classes: Dict[str, object]
+    classifiers: Dict[str, object]
     functions: Dict[str, object]
     methods: Dict[str, object]
     imports: Dict[str, object]

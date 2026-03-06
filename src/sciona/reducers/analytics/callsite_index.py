@@ -37,8 +37,6 @@ def render(
     conn,
     repo_root,
     callable_id: str | None = None,
-    function_id: str | None = None,
-    method_id: str | None = None,
     direction: str | None = None,
     detail_level: str | None = None,
     include_callsite_diagnostics: bool | None = None,
@@ -52,8 +50,6 @@ def render(
         conn,
         snapshot_id,
         callable_id=callable_id,
-        function_id=function_id,
-        method_id=method_id,
     )
     level = _normalize_detail_level(detail_level)
     if level == "neighbors":
@@ -165,15 +161,8 @@ def _resolve_callable_id(
     snapshot_id: str,
     *,
     callable_id: str | None,
-    function_id: str | None,
-    method_id: str | None,
 ) -> str:
-    resolved_function_id = function_id
-    if callable_id and not (function_id or method_id):
-        resolved_function_id = callable_id
-    if method_id:
-        return queries.resolve_method_id(conn, snapshot_id, method_id)
-    return queries.resolve_function_id(conn, snapshot_id, resolved_function_id)
+    return queries.resolve_callable_id(conn, snapshot_id, callable_id)
 
 
 def _normalize_detail_level(detail_level: Optional[str]) -> str:

@@ -7,8 +7,8 @@ from __future__ import annotations
 
 from . import (
     callable_overview,
-    class_overview,
-    class_inheritance,
+    classifier_overview,
+    classifier_inheritance,
     dependency_edges,
     file_outline,
     module_overview,
@@ -20,8 +20,8 @@ from . import (
 
 __all__ = [
     "callable_overview",
-    "class_overview",
-    "class_inheritance",
+    "classifier_overview",
+    "classifier_inheritance",
     "dependency_edges",
     "file_outline",
     "module_overview",

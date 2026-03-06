@@ -39,3 +39,21 @@ def test_cli_reducer_list_outputs_calls(cli_app, cli_runner):
 
     assert result.exit_code == 0
     assert "reducer --id structural_index" in result.stdout
+    assert "--function-id" not in result.stdout
+    assert "--method-id" not in result.stdout
+
+
+def test_cli_reducer_rejects_legacy_function_and_method_options(cli_app, cli_runner):
+    result = cli_runner.invoke(
+        cli_app,
+        [
+            "reducer",
+            "--id",
+            "callable_overview",
+            "--function-id",
+            "pkg.alpha.service.helper",
+        ],
+    )
+
+    assert result.exit_code != 0
+    assert "--function-id" in result.output

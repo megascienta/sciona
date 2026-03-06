@@ -44,9 +44,9 @@ _OVERLAY_PROFILE: dict[str, dict[str, object]] = {
         "scope_type": "callable",
         "affected_by": ["nodes"],
     },
-    "class_overview": {
+    "classifier_overview": {
         "supports_patch": True,
-        "scope_type": "class",
+        "scope_type": "classifier",
         "affected_by": ["nodes"],
     },
     "file_outline": {
@@ -74,9 +74,9 @@ _OVERLAY_PROFILE: dict[str, dict[str, object]] = {
         "scope_type": "callable",
         "affected_by": ["calls"],
     },
-    "class_call_graph_summary": {
+    "classifier_call_graph_summary": {
         "supports_patch": True,
-        "scope_type": "class",
+        "scope_type": "classifier",
         "affected_by": ["calls"],
     },
     "module_call_graph_summary": {
@@ -94,9 +94,9 @@ _OVERLAY_PROFILE: dict[str, dict[str, object]] = {
         "scope_type": "codebase",
         "affected_by": ["nodes", "edges"],
     },
-    "class_inheritance": {
+    "classifier_inheritance": {
         "supports_patch": False,
-        "scope_type": "class",
+        "scope_type": "classifier",
         "affected_by": [],
     },
     "callable_source": {

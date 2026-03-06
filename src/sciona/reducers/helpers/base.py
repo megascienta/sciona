@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from ..core import (
     callable_overview,
-    class_overview,
+    classifier_overview,
     module_overview,
     structural_index,
 )
@@ -15,92 +15,51 @@ from . import queries
 from .render import require_connection
 from .types import (
     CallableOverviewPayload,
-    ClassOverviewPayload,
+    ClassifierOverviewPayload,
     ModuleOverviewPayload,
     StructuralIndexPayload,
 )
 
 
 # Reducers must emit a single top-level Markdown block (e.g., one fenced code block).
-def resolve_function_id(conn, snapshot_id: str, function_id: str | None) -> str:
+def resolve_callable_id(conn, snapshot_id: str, callable_id: str | None) -> str:
     conn = require_connection(conn)
-    return queries.resolve_function_id(conn, snapshot_id, function_id)
+    return queries.resolve_callable_id(conn, snapshot_id, callable_id)
 
 
-def resolve_method_id(conn, snapshot_id: str, method_id: str | None) -> str:
+def resolve_classifier_id(conn, snapshot_id: str, classifier_id: str | None) -> str:
     conn = require_connection(conn)
-    return queries.resolve_method_id(conn, snapshot_id, method_id)
-
-
-def resolve_class_id(conn, snapshot_id: str, class_id: str | None) -> str:
-    conn = require_connection(conn)
-    return queries.resolve_class_id(conn, snapshot_id, class_id)
-
-
-def load_function_overview(
-    snapshot_id: str,
-    conn,
-    repo_root,
-    function_id: str | None,
-) -> CallableOverviewPayload:
-    conn = require_connection(conn)
-    resolved_id = resolve_function_id(conn, snapshot_id, function_id)
-    return callable_overview.run(
-        snapshot_id,
-        conn=conn,
-        function_id=resolved_id,
-        repo_root=repo_root,
-    )
-
-
-def load_method_overview(
-    snapshot_id: str,
-    conn,
-    repo_root,
-    method_id: str | None,
-) -> CallableOverviewPayload:
-    conn = require_connection(conn)
-    resolved_id = resolve_method_id(conn, snapshot_id, method_id)
-    return callable_overview.run(
-        snapshot_id,
-        conn=conn,
-        function_id=resolved_id,
-        repo_root=repo_root,
-    )
+    return queries.resolve_classifier_id(conn, snapshot_id, classifier_id)
 
 
 def load_callable_overview(
     snapshot_id: str,
     conn,
     repo_root,
-    function_id: str | None = None,
-    method_id: str | None = None,
+    callable_id: str | None,
 ) -> CallableOverviewPayload:
     conn = require_connection(conn)
-    if method_id:
-        resolved_id = resolve_method_id(conn, snapshot_id, method_id)
-    else:
-        resolved_id = resolve_function_id(conn, snapshot_id, function_id)
+    resolved_id = resolve_callable_id(conn, snapshot_id, callable_id)
     return callable_overview.run(
         snapshot_id,
         conn=conn,
-        function_id=resolved_id,
+        callable_id=resolved_id,
         repo_root=repo_root,
     )
 
 
-def load_class_overview(
+def load_classifier_overview(
     snapshot_id: str,
     conn,
     repo_root,
-    class_id: str | None,
-) -> ClassOverviewPayload:
+    classifier_id: str | None,
+) -> ClassifierOverviewPayload:
     conn = require_connection(conn)
-    resolved_id = resolve_class_id(conn, snapshot_id, class_id)
-    return class_overview.run(
+    resolved_id = resolve_classifier_id(conn, snapshot_id, classifier_id)
+    return classifier_overview.run(
         snapshot_id,
         conn=conn,
-        class_id=resolved_id,
+        classifier_id=resolved_id,
         repo_root=repo_root,
     )
 

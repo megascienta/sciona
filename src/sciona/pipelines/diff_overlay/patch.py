@@ -19,7 +19,7 @@ from .patchers.common import (
 )
 from .patchers.core import (
     patch_callable_overview,
-    patch_class_overview,
+    patch_classifier_overview,
     patch_dependency_edges,
     patch_file_outline,
     patch_module_overview,
@@ -30,7 +30,7 @@ from .patchers.core import (
 from .patchers.analytics import (
     patch_call_neighbors,
     patch_callsite_index,
-    patch_class_call_graph_summary,
+    patch_classifier_call_graph_summary,
     patch_fan_summary,
     patch_hotspot_summary,
     patch_module_call_graph_summary,

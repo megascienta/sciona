@@ -80,7 +80,7 @@ def run(snapshot_id: str, **params) -> StructuralIndexPayload:
         file_assignments,
         function_counts,
         method_counts,
-        class_counts,
+        classifier_counts,
         file_path_votes,
         function_languages,
         method_languages,
@@ -90,7 +90,9 @@ def run(snapshot_id: str, **params) -> StructuralIndexPayload:
         module_graph,
     )
     file_entries = _file_entries(conn, snapshot_id, file_assignments, file_path_votes)
-    class_entries = _class_entries(conn, snapshot_id, module_graph.structural_lookup)
+    classifier_entries = _class_entries(
+        conn, snapshot_id, module_graph.structural_lookup
+    )
     function_stats = _callable_stats(function_counts, function_languages)
     method_stats = _callable_stats(method_counts, method_languages)
     import_edges = _import_edges(module_graph)
@@ -108,11 +110,11 @@ def run(snapshot_id: str, **params) -> StructuralIndexPayload:
             "count": len(file_entries),
             "entries": file_entries,
         },
-        "classes": {
-            "count": len(class_entries),
-            "entries": class_entries,
+        "classifiers": {
+            "count": len(classifier_entries),
+            "entries": classifier_entries,
             "by_module": _count_to_entries(
-                class_counts, key_name="module_qualified_name"
+                classifier_counts, key_name="module_qualified_name"
             ),
         },
         "functions": function_stats,

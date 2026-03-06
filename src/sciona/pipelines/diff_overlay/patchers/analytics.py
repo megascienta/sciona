@@ -292,24 +292,30 @@ def patch_module_call_graph_summary(
         payload["incoming_coverage_ratio"] = 1.0
     return payload
 
-def patch_class_call_graph_summary(
+def patch_classifier_call_graph_summary(
     payload: dict[str, object],
     overlay: OverlayPayload,
     *,
     snapshot_id: str,
     conn,
 ) -> dict[str, object]:
-    target_id = payload.get("class_id")
+    target_id = payload.get("classifier_id")
     if not target_id:
         return payload
     top_k = payload.get("top_k")
     outgoing_map: dict[tuple[str, str], int] = {}
     incoming_map: dict[tuple[str, str], int] = {}
     for entry in payload.get("outgoing", []) or []:
-        key = (str(entry.get("src_class_id")), str(entry.get("dst_class_id")))
+        key = (
+            str(entry.get("src_classifier_id")),
+            str(entry.get("dst_classifier_id")),
+        )
         outgoing_map[key] = int(entry.get("call_count") or 0)
     for entry in payload.get("incoming", []) or []:
-        key = (str(entry.get("src_class_id")), str(entry.get("dst_class_id")))
+        key = (
+            str(entry.get("src_classifier_id")),
+            str(entry.get("dst_classifier_id")),
+        )
         incoming_map[key] = int(entry.get("call_count") or 0)
     ids_needed: set[str] = set()
     for change in overlay.calls.get("add", []) + overlay.calls.get("remove", []):
@@ -319,7 +325,7 @@ def patch_class_call_graph_summary(
             ids_needed.add(str(change.get("dst_structural_id")))
     meta_lookup = _node_meta_lookup(conn, snapshot_id, overlay, ids_needed)
 
-    def _class_id(node_id: str) -> str | None:
+    def _classifier_id(node_id: str) -> str | None:
         meta = meta_lookup.get(node_id, {})
         if meta.get("node_type") != "callable":
             return None
@@ -328,26 +334,26 @@ def patch_class_call_graph_summary(
         parts = qualified.split(".")
         if len(parts) < 2 or not language:
             return None
-        class_name = ".".join(parts[:-1])
-        return ids.structural_id("classifier", str(language), class_name)
+        classifier_name = ".".join(parts[:-1])
+        return ids.structural_id("classifier", str(language), classifier_name)
 
     for change in overlay.calls.get("add", []) + overlay.calls.get("remove", []):
         src_id = change.get("src_structural_id")
         dst_id = change.get("dst_structural_id")
         if not src_id or not dst_id:
             continue
-        src_class = _class_id(str(src_id))
-        dst_class = _class_id(str(dst_id))
-        if not src_class or not dst_class:
+        src_classifier = _classifier_id(str(src_id))
+        dst_classifier = _classifier_id(str(dst_id))
+        if not src_classifier or not dst_classifier:
             continue
         delta = 1 if change.get("diff_kind") == "add" else -1
-        if src_class == target_id:
-            outgoing_map[(src_class, dst_class)] = max(
-                0, outgoing_map.get((src_class, dst_class), 0) + delta
+        if src_classifier == target_id:
+            outgoing_map[(src_classifier, dst_classifier)] = max(
+                0, outgoing_map.get((src_classifier, dst_classifier), 0) + delta
             )
-        if dst_class == target_id:
-            incoming_map[(src_class, dst_class)] = max(
-                0, incoming_map.get((src_class, dst_class), 0) + delta
+        if dst_classifier == target_id:
+            incoming_map[(src_classifier, dst_classifier)] = max(
+                0, incoming_map.get((src_classifier, dst_classifier), 0) + delta
             )
 
     def _entries(edge_map: dict[tuple[str, str], int], direction: str) -> list[dict[str, object]]:
@@ -357,8 +363,8 @@ def patch_class_call_graph_summary(
                 continue
             entries.append(
                 {
-                    "src_class_id": src,
-                    "dst_class_id": dst,
+                    "src_classifier_id": src,
+                    "dst_classifier_id": dst,
                     "direction": direction,
                     "call_count": count,
                 }
@@ -366,8 +372,8 @@ def patch_class_call_graph_summary(
         entries.sort(
             key=lambda item: (
                 -int(item.get("call_count") or 0),
-                str(item.get("src_class_id")),
-                str(item.get("dst_class_id")),
+                str(item.get("src_classifier_id")),
+                str(item.get("dst_classifier_id")),
             )
         )
         if top_k is not None:

@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import builtins
+import inspect
 from contextlib import nullcontext
 from typing import List, Optional, Tuple
 
@@ -95,6 +96,7 @@ def emit(
         raise WorkflowError(
             f"Reducer '{reducer_id}' cannot be rendered.", code="invalid_reducer"
         )
+    _validate_reducer_kwargs(reducer, kwargs)
     with core(db_path, repo_root=repo_state.repo_root) as conn:
         snapshot_id = snapshot_policy.resolve_latest_snapshot(conn)
         resolved_kwargs = _resolve_reducer_identifiers(conn, snapshot_id, kwargs)
@@ -163,27 +165,18 @@ def _resolve_reducer_identifiers(
     kwargs: dict[str, object],
 ) -> dict[str, object]:
     resolved = dict(kwargs)
-    callable_id = resolved.pop("callable_id", None)
-    if callable_id and (resolved.get("function_id") or resolved.get("method_id")):
-        raise WorkflowError(
-            "Provide only one of callable_id, function_id, or method_id.",
-            code="invalid_parameters",
-        )
+    callable_id = resolved.get("callable_id")
 
-    resolved_callable = False
     if callable_id:
-        resolved["function_id"] = require_identifier(
+        resolved["callable_id"] = require_identifier(
             conn,
             snapshot_id,
             kind="callable",
             identifier=callable_id,
         )
-        resolved_callable = True
 
     id_kinds = {
-        "function_id": "function",
-        "method_id": "method",
-        "class_id": "class",
+        "classifier_id": "classifier",
         "module_id": "module",
         "from_module_id": "module",
         "to_module_id": "module",
@@ -192,8 +185,6 @@ def _resolve_reducer_identifiers(
         value = resolved.get(key)
         if not value or not isinstance(value, str):
             continue
-        if resolved_callable and key == "function_id":
-            continue
         resolved[key] = require_identifier(
             conn,
             snapshot_id,
@@ -201,3 +192,22 @@ def _resolve_reducer_identifiers(
             identifier=value,
         )
     return resolved
+
+
+def _validate_reducer_kwargs(reducer, kwargs: dict[str, object]) -> None:
+    render = getattr(reducer, "render", None)
+    if render is None:
+        return
+    reserved = {"snapshot_id", "conn", "repo_root"}
+    allowed = {
+        name
+        for name, param in inspect.signature(render).parameters.items()
+        if name not in reserved and param.kind is not inspect.Parameter.VAR_KEYWORD
+    }
+    unknown = sorted(name for name in kwargs.keys() if name not in allowed)
+    if unknown:
+        names = ", ".join(repr(name) for name in unknown)
+        raise WorkflowError(
+            f"Unknown reducer parameter(s): {names}.",
+            code="invalid_parameters",
+        )

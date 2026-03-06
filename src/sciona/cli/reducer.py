@@ -26,9 +26,7 @@ import inspect
 
 _EXPLICIT_REDUCER_ARGS = {
     "callable_id",
-    "function_id",
-    "method_id",
-    "class_id",
+    "classifier_id",
     "module_id",
     "scope",
 }
@@ -60,13 +58,11 @@ def register(app: typer.Typer) -> None:
             help="Diff overlay mode: full or summary.",
         ),
         callable_id: Optional[str] = typer.Option(
-            None, "--callable-id", help="Callable id (function or method)."
+            None, "--callable-id", help="Callable id."
         ),
-        function_id: Optional[str] = typer.Option(
-            None, "--function-id", help="Function id."
+        classifier_id: Optional[str] = typer.Option(
+            None, "--classifier-id", help="Classifier id."
         ),
-        method_id: Optional[str] = typer.Option(None, "--method-id", help="Method id."),
-        class_id: Optional[str] = typer.Option(None, "--class-id", help="Class id."),
         module_id: Optional[str] = typer.Option(None, "--module-id", help="Module id."),
         scope: Optional[str] = typer.Option(
             None,
@@ -81,16 +77,9 @@ def register(app: typer.Typer) -> None:
         if not reducer_id:
             raise typer.BadParameter("Missing --id.")
 
-        if callable_id and (function_id or method_id):
-            raise typer.BadParameter(
-                "Provide only one of --callable-id, --function-id, or --method-id."
-            )
-
         explicit_ids = {
             "callable_id": callable_id,
-            "function_id": function_id,
-            "method_id": method_id,
-            "class_id": class_id,
+            "classifier_id": classifier_id,
             "module_id": module_id,
         }
         provided_ids = [name for name, value in explicit_ids.items() if value]

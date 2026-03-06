@@ -13,14 +13,14 @@ from ....runtime import identity as ids
 from .analytics import (
     patch_call_neighbors,
     patch_callsite_index,
-    patch_class_call_graph_summary,
+    patch_classifier_call_graph_summary,
     patch_fan_summary,
     patch_hotspot_summary,
     patch_module_call_graph_summary,
 )
 from .core import (
     patch_callable_overview,
-    patch_class_overview,
+    patch_classifier_overview,
     patch_dependency_edges,
     patch_file_outline,
     patch_module_overview,
@@ -52,8 +52,10 @@ def apply_overlay_to_payload(
         return patch_module_overview(payload, overlay), True
     if projection == "callable_overview":
         return patch_callable_overview(payload, overlay), True
-    if projection == "class_overview":
-        return patch_class_overview(payload, overlay), True
+    if projection == "classifier_overview":
+        return patch_classifier_overview(
+            payload, overlay, snapshot_id=snapshot_id, conn=conn
+        ), True
     if projection == "file_outline":
         return patch_file_outline(payload, overlay), True
     if projection == "dependency_edges":
@@ -64,8 +66,8 @@ def apply_overlay_to_payload(
         return patch_symbol_references(payload, overlay), True
     if projection == "callsite_index":
         return patch_callsite_index(payload, overlay, snapshot_id=snapshot_id, conn=conn), True
-    if projection == "class_call_graph_summary":
-        return patch_class_call_graph_summary(
+    if projection == "classifier_call_graph_summary":
+        return patch_classifier_call_graph_summary(
             payload, overlay, snapshot_id=snapshot_id, conn=conn
         ), True
     if projection == "module_call_graph_summary":
