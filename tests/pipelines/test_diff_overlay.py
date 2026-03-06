@@ -4,8 +4,9 @@
 from __future__ import annotations
 
 from sciona import api
+from sciona.reducers import overlay_projection_status_summary
 from sciona.pipelines.diff_overlay.ops_get import _OVERLAY_PROFILE
-from tests.helpers import parse_json_payload, qualify_repo_name
+from tests.helpers import core_conn, parse_json_payload, qualify_repo_name
 
 
 def test_dirty_overlay_adds_node(repo_with_snapshot):
@@ -187,3 +188,75 @@ def test_dirty_overlay_snapshot_provenance_marks_projection_not_supported(
     warning = payload.get("snapshot_warning") or {}
     assert warning.get("code") == "DIRTY_OVERLAY_METADATA_ONLY"
     assert "committed-snapshot only" in str(warning.get("message") or "")
+
+
+def test_overlay_projection_status_summary_reports_clean_worktree(
+    repo_with_snapshot,
+    monkeypatch,
+):
+    repo_root, snapshot_id = repo_with_snapshot
+    monkeypatch.setattr(
+        overlay_projection_status_summary.git_ops,
+        "is_worktree_dirty",
+        lambda _repo_root: False,
+    )
+    conn = core_conn(repo_root)
+    try:
+        payload = parse_json_payload(
+            overlay_projection_status_summary.render(snapshot_id, conn, repo_root)
+        )
+    finally:
+        conn.close()
+    assert payload["payload_kind"] == "summary"
+    assert payload["overlay_advisory"] is True
+    assert payload["worktree_dirty"] is False
+    assert payload["overlay_available"] is False
+    assert payload["overlay_reason"] == "clean_worktree"
+    projections = {row["projection"]: row for row in payload["projections"]}
+    assert projections["structural_index"]["mode"] == "patchable"
+    assert projections["structural_index"]["current_state"] == "committed_only"
+    assert projections["snapshot_provenance"]["mode"] == "metadata_only"
+    assert projections["snapshot_provenance"]["current_state"] == "committed_only"
+
+
+def test_overlay_projection_status_summary_reports_dirty_overlay_modes(
+    repo_with_snapshot,
+):
+    repo_root, snapshot_id = repo_with_snapshot
+    service_path = repo_root / "pkg/alpha/service.py"
+    service_path.write_text(
+        "def helper():\n    return 1\n\n\ndef helper2():\n    return 2\n",
+        encoding="utf-8",
+    )
+    text, _, _ = api.addons.emit(
+        "overlay_projection_status_summary",
+        repo_root=repo_root,
+    )
+    payload = parse_json_payload(text)
+    assert payload["worktree_dirty"] is True
+    assert payload["overlay_available"] is True
+    assert payload["overlay_reason"] == "available"
+    assert payload["worktree_hash"]
+    projections = {row["projection"]: row for row in payload["projections"]}
+    assert projections["structural_index"]["current_state"] == "patchable"
+    assert projections["snapshot_provenance"]["current_state"] == "metadata_only"
+
+
+def test_overlay_projection_status_summary_reducer_rejects_stale_snapshot(
+    repo_with_snapshot,
+):
+    repo_root, snapshot_id = repo_with_snapshot
+    del snapshot_id
+    conn = core_conn(repo_root)
+    try:
+        payload_text = overlay_projection_status_summary.render(
+            "not-latest",
+            conn,
+            repo_root,
+        )
+    except ValueError as exc:
+        assert "committed snapshot selected by build" in str(exc)
+    else:
+        raise AssertionError(payload_text)
+    finally:
+        conn.close()
