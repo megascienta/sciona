@@ -190,7 +190,7 @@ def test_write_call_artifacts_resolves_fully_qualified_identifier(tmp_path: Path
         core_conn.close()
 
 
-def test_write_call_artifacts_skips_ambiguous_same_module_resolution(tmp_path: Path):
+def test_write_call_artifacts_accepts_export_chain_narrowed_resolution(tmp_path: Path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     prefix = runtime_paths.repo_name_prefix(repo_root)
     core_conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
@@ -281,7 +281,19 @@ def test_write_call_artifacts_skips_ambiguous_same_module_resolution(tmp_path: P
                 "SELECT callee_id FROM node_calls WHERE caller_id = ? ORDER BY callee_id",
                 ("func_beta_task",),
             ).fetchall()
-            assert rows == []
+            assert [row["callee_id"] for row in rows] == ["func_alpha_alt"]
+            callsite_rows = artifact_conn.execute(
+                """
+                SELECT accepted_callee_id, provenance
+                FROM call_sites
+                WHERE snapshot_id = ? AND caller_id = ?
+                ORDER BY call_ordinal
+                """,
+                (snapshot_id, "func_beta_task"),
+            ).fetchall()
+            assert [(row["accepted_callee_id"], row["provenance"]) for row in callsite_rows] == [
+                ("func_alpha_alt", "export_chain_narrowed")
+            ]
         finally:
             artifact_conn.close()
     finally:

@@ -7,13 +7,13 @@ from __future__ import annotations
 
 STAGE_RECEIVER_TYPED = "receiver_typed_or_instance_mapped"
 STAGE_ALIAS_NARROWING = "import_or_member_alias_narrowing"
-STAGE_CLASS_SCOPED = "class_scoped_fallback"
+STAGE_CLASSIFIER_SCOPED = "classifier_scoped_fallback"
 STAGE_MODULE_SCOPED = "module_scoped_fallback"
 
 REQUIRED_RESOLUTION_STAGES = (
     STAGE_RECEIVER_TYPED,
     STAGE_ALIAS_NARROWING,
-    STAGE_CLASS_SCOPED,
+    STAGE_CLASSIFIER_SCOPED,
     STAGE_MODULE_SCOPED,
 )
 
@@ -23,7 +23,7 @@ __all__ = [
     "REQUIRED_RESOLUTION_STAGES",
     "STRICT_CANDIDATE_GATE_STAGE",
     "STAGE_ALIAS_NARROWING",
-    "STAGE_CLASS_SCOPED",
+    "STAGE_CLASSIFIER_SCOPED",
     "STAGE_MODULE_SCOPED",
     "STAGE_RECEIVER_TYPED",
 ]

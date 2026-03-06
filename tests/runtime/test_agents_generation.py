@@ -116,17 +116,38 @@ def test_agents_block_section_order(tmp_path: Path):
     assert discovery < common < reporting < troubleshooting
 
 
-def test_agents_block_removes_reviewed_template_issues(tmp_path: Path):
-    block = agents.build_agents_block(tmp_path, get_reducers())
+def test_agents_block_preserves_protocol_invariants(tmp_path: Path):
+    reducers = get_reducers()
+    block = agents.build_agents_block(tmp_path, reducers)
     template = Path("src/sciona/runtime/templates/agents_template.md").read_text(
         encoding="utf-8"
     )
+
+    stage_initial = agents._render_stage_reducer_list(reducers, "initial_scan")
+    stage_entity = agents._render_stage_reducer_list(reducers, "entity_discovery")
+    stage_structure = agents._render_stage_reducer_list(reducers, "structure_inspection")
+    stage_relations = agents._render_stage_reducer_list(
+        reducers, "relationship_analysis"
+    )
+    stage_diagnostics = agents._render_stage_reducer_list(
+        reducers, "diagnostics_metrics"
+    )
+    stage_source = agents._render_stage_reducer_list(reducers, "source_verification")
+    category_block = agents._render_investigation_role_categories(reducers)
+    anomaly_block = agents._render_anomaly_detector_list(reducers)
+    source_block = agents._render_source_reducer_list(reducers)
+
     assert ".sciona/config`" not in block
     assert "§7.12" not in block
     assert "§7.10" not in block
     assert "§7.9" not in block
     assert 'Use "let me search the codebase for..." text search for structural information' not in block
-    assert block.count("If SCIONA evidence is insufficient, agents MUST explicitly state what is missing and either:") == 1
+    assert (
+        block.count(
+            "If SCIONA evidence is insufficient, agents MUST explicitly state what is missing and either:"
+        )
+        == 1
+    )
     assert "{STAGE_INITIAL_SCAN_REDUCERS}" not in block
     assert "{STAGE_ENTITY_DISCOVERY_REDUCERS}" not in block
     assert "{STAGE_STRUCTURE_INSPECTION_REDUCERS}" not in block
@@ -144,22 +165,38 @@ def test_agents_block_removes_reviewed_template_issues(tmp_path: Path):
         "This prohibition applies to `sciona reducer` commands only. `--json` is valid on `sciona search` and `sciona resolve`."
         in block
     )
+    assert category_block in block
+    assert anomaly_block in block
+    assert source_block in block
+    assert stage_initial in block
+    assert stage_entity in block
+    assert stage_structure in block
+    assert stage_relations in block
+    assert stage_diagnostics in block
+    assert stage_source in block
     assert (
-        "**Relations reducers:**\ncallsite_index, classifier_call_graph_summary, dependency_edges, module_call_graph_summary, symbol_references"
+        "Use `sciona reducer list` and `sciona reducer info` to discover reducers"
         in block
     )
-    assert "Use `sciona reducer list` and `sciona reducer info` to discover reducers and then follow the canonical workflow in §5.3." in block
     assert "unverified: pending reducer confirmation" not in block
     assert "unverified: no reducer evidence" not in block
     assert "Raise an evidence-bounded concern under §2.7" in block
-    assert "Cross-category verification is governed by §7.3" in block
+    assert "Cross-category verification is governed by §7.2" in block
     assert "DO: `sciona search" in block
     assert "Reducers: snapshot_provenance, structural_index" not in template
     assert "- `callable_source`\n- `concatenated_source`" not in template
     assert "- `structural_integrity_summary`\n- `hotspot_summary`\n- `call_resolution_quality`" not in template
-    assert "Stage 1 — Initial scan\n  Purpose: orient to snapshot state and identify scope\n  Reducers: snapshot_provenance, structural_index" in block
-    assert "Stage 2 — Entity discovery\n  Purpose: resolve unknown identifiers; locate symbols\n  Reducers: file_outline, module_overview, symbol_lookup" in block
+    assert "Stage 1 — Initial scan" in block
+    assert "Stage 2 — Entity discovery" in block
+    assert "Stage 3 — Structure inspection" in block
+    assert "Stage 4 — Relationship analysis" in block
+    assert "Stage 5 — Diagnostics / metrics" in block
+    assert "Stage 6 — Source verification (only when ambiguity remains)" in block
+    assert "Stage 7 — Confirmed finding OR concern" in block
     assert "structure reducer → relations reducer → diagnostics reducer" in block
     assert "This section is a compact lookup only. The authoritative investigation order is the canonical workflow in §5.3." in block
     assert "Current reducer IDs by tier:" not in block
-    assert "If such input is present, stop and report that the command was rejected as unsafe; do not attempt partial execution or sanitizing-by-guessing" in block
+    assert "Agents MUST sanitize all shell inputs before use." in block
+    assert "- Stop immediately" in block
+    assert "- Report the input as rejected and why" in block
+    assert "partial execution" in block

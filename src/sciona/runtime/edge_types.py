@@ -10,7 +10,6 @@ CORE_STRUCTURAL_EDGE_TYPES = frozenset(
     {
         "LEXICALLY_CONTAINS",
         "IMPORTS_DECLARED",
-        "CALLS",
         "EXTENDS",
         "IMPLEMENTS",
     }

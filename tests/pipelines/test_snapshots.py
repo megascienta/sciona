@@ -166,7 +166,7 @@ def test_delete_snapshot_tree_removes_rows(tmp_path):
     conn.execute(
         """
         INSERT INTO edges(snapshot_id, src_structural_id, dst_structural_id, edge_type)
-        VALUES (?, 'node_one', 'node_one', 'CONTAINS')
+        VALUES (?, 'node_one', 'node_one', 'LEXICALLY_CONTAINS')
         """,
         (snapshot_id,),
     )

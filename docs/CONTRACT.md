@@ -6,10 +6,19 @@ It is authoritative for analysis and validation.
 ## Scope
 
 - Applies to all supported languages.
-- Applies to the single committed snapshot retained in CoreDB.
-- `node_instances` and `edges` facts are snapshot-bound by `snapshot_id`.
+- Applies to the single committed snapshot retained in CoreDB and the
+  immediately rebuilt reducer-facing ArtifactDB state derived from that
+  snapshot.
+- `node_instances` and structural `edges` facts in CoreDB are snapshot-bound by
+  `snapshot_id`.
 - `structural_nodes` identities are global and carry deterministic
   `created_snapshot_id` provenance.
+- Reducer-facing query semantics are defined against ArtifactDB latest-state
+  derived surfaces for the committed snapshot.
+- Reducers MAY use CoreDB in the same request for committed structural identity
+  resolution, naming, file metadata, and other structural context.
+- CoreDB remains the committed structural source; ArtifactDB remains the
+  reducer-facing derived projection layer.
 - Static, syntax-only analysis; no execution, no runtime inference.
 - Extraction is tree-sitter query/field driven.
 - Tree-sitter parser setup MUST be deterministic and use
@@ -62,13 +71,16 @@ Synthetic nodes:
 
 ## Structural Edges
 
-SCIONA MUST emit these edge types:
+SCIONA structural extraction in CoreDB MUST emit these edge types:
 
 - `LEXICALLY_CONTAINS` (lexical parent -> lexical child)
 - `IMPORTS_DECLARED` (module -> module)
-- `CALLS` (callable -> callable, in-repo only)
 - `EXTENDS` (classifier -> classifier, local syntactic inheritance)
 - `IMPLEMENTS` (classifier -> classifier, local syntactic implementation)
+
+SCIONA reducer-facing ArtifactDB graph projections MAY also expose:
+
+- `CALLS` (callable -> callable, in-repo only, artifact-finalized)
 
 ## Edge Semantics
 
@@ -78,8 +90,9 @@ SCIONA MUST emit these edge types:
 - `module` is the only lexical root.
 - Every non-`module` structural node MUST have exactly one lexical parent.
 - Parent and child MUST be from the same module/file lexical tree.
-- Parent source span MUST contain child source span.
-- Parent and child source spans MUST NOT be identical.
+- Parent source span MUST contain child source span when both spans are present.
+- Identical parent/child source spans are allowed only for `module -> child`.
+- Non-`module` parent and child source spans MUST NOT be identical.
 - Graph MUST be acyclic.
 - Allowed pairs:
   - `module -> classifier`
@@ -88,12 +101,6 @@ SCIONA MUST emit these edge types:
   - `classifier -> callable`
   - `callable -> classifier`
   - `callable -> callable`
-
-`CALLS`:
-
-- MUST represent syntactic call expressions only.
-- MUST NOT represent attribute reads/writes or other non-call expressions.
-- MUST be emitted only when the final accepted target is an in-repo callable.
 
 `EXTENDS`:
 
@@ -137,17 +144,29 @@ Attribution:
 - Inline anonymous non-structural callable bodies attribute calls to their
   nearest enclosing structural callable node.
 
-Materialization gate:
+CoreDB structural build:
 
 - Candidate resolution may produce provisional outcomes.
 - Required resolution stages (receiver/instance mapping, alias narrowing, classifier
   scoped fallback, module scoped fallback) are executed in language-specific
-  resolver paths before strict materialization.
-- Final CALLS emission MUST pass strict candidate selection.
+  resolver paths before structural normalization completes.
 - Strict candidate selection is the final acceptance/materialization gate and
   MUST NOT be interpreted as the full resolution-stage pipeline.
 - Non-accepted candidates (unresolved, ambiguous, external, disallowed provenance)
   MUST be dropped.
+
+Artifact-finalized call projection:
+
+- Reducer-facing `CALLS` is finalized in ArtifactDB immediately after the
+  committed CoreDB snapshot is built.
+- Artifact finalization re-analyzes callsites against the committed snapshot and
+  persists deterministic reducer-facing call artifacts.
+- Artifact finalization MAY accept artifact-only rescue provenance, including
+  `export_chain_narrowed`, that is not part of the CoreDB structural gate.
+- Reducer-facing `CALLS` MUST represent syntactic call expressions only.
+- Reducer-facing `CALLS` MUST NOT represent attribute reads/writes or other
+  non-call expressions.
+- Reducer-facing `CALLS` MUST target in-repo callable IDs only.
 
 ## Import Handling
 
@@ -165,21 +184,52 @@ Optional metadata:
   - module-level binding names,
   - ambiguous call candidate diagnostics.
 
-## Artifacts Observability
+## Artifact Semantics
 
-`CALL_SITES` is an artifact-layer observational table.
+ArtifactDB is the reducer-facing query store and is rebuilt immediately after
+each committed CoreDB snapshot.
 
-- `CALLS` remains the only authoritative call edge truth for reducers.
-- `CALL_SITES` MUST NOT define new structural entities or structural edges.
-- `CALL_SITES` stores in-repo candidate-relevant callsite observations only.
-- External callsites MUST NOT be persisted as rows in `CALL_SITES`.
-- Derived reporting classifications on dropped callsites (for example
-  `external_likely`) are observational metadata only and MUST NOT affect strict
-  candidate acceptance or `CALLS` emission.
+ArtifactDB tables and rollups are latest-state derived surfaces for the current
+committed snapshot rather than independently snapshot-keyed structural facts.
+
+`CALL_SITES`:
+
+- is an artifact-layer callsite table, not a structural entity table.
+- MUST NOT define structural nodes or CoreDB structural edges.
+- MAY store accepted and dropped callsite outcomes used for diagnostics,
+  reporting, and artifact call finalization.
+- MAY persist dropped rows whose downstream reporting classification is
+  artifact-only metadata such as `external_likely`.
+- MAY include derived artifact-layer acceptance provenance not present in the
+  CoreDB structural gate.
+
+ArtifactDB `CALLS`:
+
+- is the reducer-facing finalized call graph.
+- is derived after CoreDB snapshot creation from artifact call analysis plus
+  committed structural context.
+- MUST remain deterministic for a fixed committed snapshot and worktree state.
+- MUST include only in-repo callable targets.
+
+Reporting classifications on dropped callsites (for example `external_likely`)
+are artifact metadata only and MUST NOT be restated as CoreDB structural facts.
+
+Reducer read model:
+
+- Reducers MAY combine CoreDB and ArtifactDB reads in one request.
+- CoreDB reads are used for committed structural identity, structural context,
+  and authoritative node/module metadata.
+- ArtifactDB reads are used for latest-state derived relationship projections,
+  call graphs, rollups, and callsite diagnostics.
 
 ## Determinism
 
-Outputs MUST be deterministic, stably ordered, and snapshot-bound.
+Outputs MUST be deterministic and stably ordered.
+
+CoreDB structural outputs are snapshot-bound.
+
+ArtifactDB reducer-facing outputs are defined for the latest-state derived
+surfaces corresponding to the committed snapshot.
 
 Stable ordering MUST be:
 
@@ -194,21 +244,24 @@ Language implementations MUST satisfy all criteria below.
 Global criteria:
 
 - CoreDB retains exactly one authoritative committed snapshot.
+- ArtifactDB is rebuilt immediately after the committed CoreDB snapshot in the
+  normal build flow and serves as the reducer-facing query store.
 - Emits core node types: `module`, `classifier`, `callable`.
 - Callable role metadata is present and in `{declared,nested,bound,constructor}`.
 - Optional synthetic nodes are allowed but excluded from language compliance.
-- Emits edge types:
-  `LEXICALLY_CONTAINS`, `IMPORTS_DECLARED`, `CALLS`, `EXTENDS`, `IMPLEMENTS`.
+- CoreDB emits structural edge types:
+  `LEXICALLY_CONTAINS`, `IMPORTS_DECLARED`, `EXTENDS`, `IMPLEMENTS`.
 - `module` is lexical root; each non-`module` structural node has exactly one
   lexical parent.
-- Parent span contains child span and is not identical to child span for
-  `LEXICALLY_CONTAINS`.
+- Parent span contains child span for `LEXICALLY_CONTAINS` when both spans are
+  present.
+- Module parents may share an identical span with an immediate lexical child;
+  non-module parents may not.
 - Lexical structural graph is acyclic.
 - Constructors are represented as `callable` with role `constructor`.
 - Canonical module identity is path-derived (not alias-derived).
 - Calls are attributed to nearest enclosing structural callable.
 - Inline anonymous non-structural callables do not become structural nodes.
-- CALLS targets are in-repo callable IDs only.
 - Optional enrichment metadata may be present on nodes/modules
   (for example role/modifier/base/module-binding diagnostics).
 - Extraction is tree-sitter query/field driven.
@@ -220,10 +273,18 @@ Global criteria:
 - Structural extraction fallback traversal is not allowed.
 - Unsupported query node types fail closed (partial parse metadata; no
   heuristic fallback).
-- Final CALLS emission passes strict candidate gate; non-accepted candidates
-  are dropped.
-- `CALL_SITES` is observational only and does not alter structural truth.
-- `CALL_SITES` rows exclude external callsites.
+- Artifact-finalized reducer-facing `CALLS` targets are in-repo callable IDs
+  only.
+- CoreDB strict candidate selection drops non-accepted candidates before any
+  structural call normalization is reused downstream.
+- Artifact finalization MAY add reducer-facing rescue provenance such as
+  `export_chain_narrowed`.
+- Reducers read reducer-facing projections from ArtifactDB when present and MAY
+  combine them with CoreDB structural lookups in the same request.
+- `CALL_SITES` remains artifact-layer data and MUST NOT be restated as CoreDB
+  structural truth.
+- `CALL_SITES` MAY include dropped rows that later contribute to artifact-only
+  reporting classifications such as `external_likely`.
 
 Python criteria:
 
@@ -237,6 +298,25 @@ Python criteria:
 - Calls are collected from `call` nodes and attributed by enclosing callable
   scope.
 - Python `classifier` currently means named class declarations.
+
+JavaScript criteria:
+
+- `class_declaration` and `class_expression` map to `classifier`.
+- `function_declaration` and `method_definition` map to `callable`.
+- Bound callable expressions with stable lexical bindings from
+  `variable_declarator`, `assignment_expression`, and `field_definition` map to
+  `callable` with role `bound`.
+- Constructors map to `callable` with role `constructor`.
+- Inline anonymous callbacks are non-structural.
+- Imports are extracted from:
+  - `import_statement`,
+  - `export_statement`,
+  - `lexical_declaration` require-assignment patterns,
+  - `call_expression` dynamic `import()` with string literal targets.
+- Calls are collected from `call_expression` and `new_expression` and
+  attributed by enclosing callable scope.
+- JavaScript `classifier` currently means class-family declarations captured by
+  the extractor query surface above.
 
 TypeScript criteria:
 

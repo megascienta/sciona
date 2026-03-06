@@ -67,7 +67,14 @@ SCHEMA_STATEMENTS: list[str] = [
         snapshot_id TEXT NOT NULL,
         src_structural_id TEXT NOT NULL,
         dst_structural_id TEXT NOT NULL,
-        edge_type TEXT NOT NULL,
+        edge_type TEXT NOT NULL CHECK (
+            edge_type IN (
+                'LEXICALLY_CONTAINS',
+                'IMPORTS_DECLARED',
+                'EXTENDS',
+                'IMPLEMENTS'
+            )
+        ),
         PRIMARY KEY (snapshot_id, src_structural_id, dst_structural_id, edge_type),
         FOREIGN KEY (src_structural_id) REFERENCES structural_nodes(structural_id) ON DELETE CASCADE,
         FOREIGN KEY (dst_structural_id) REFERENCES structural_nodes(structural_id) ON DELETE CASCADE
@@ -119,6 +126,7 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
     conn.execute("PRAGMA foreign_keys=ON")
     _ensure_schema(conn, SCHEMA_STATEMENTS)
     _ensure_fk_schema(conn)
+    _ensure_edge_type_policy(conn)
     _ensure_node_instance_span_columns(conn)
     _ensure_single_committed_snapshot(conn)
 
@@ -223,7 +231,14 @@ def _migrate_edges(conn: sqlite3.Connection) -> None:
             snapshot_id TEXT NOT NULL,
             src_structural_id TEXT NOT NULL,
             dst_structural_id TEXT NOT NULL,
-            edge_type TEXT NOT NULL,
+            edge_type TEXT NOT NULL CHECK (
+                edge_type IN (
+                    'LEXICALLY_CONTAINS',
+                    'IMPORTS_DECLARED',
+                    'EXTENDS',
+                    'IMPLEMENTS'
+                )
+            ),
             PRIMARY KEY (snapshot_id, src_structural_id, dst_structural_id, edge_type),
             FOREIGN KEY (src_structural_id) REFERENCES structural_nodes(structural_id) ON DELETE CASCADE,
             FOREIGN KEY (dst_structural_id) REFERENCES structural_nodes(structural_id) ON DELETE CASCADE
@@ -240,6 +255,74 @@ def _migrate_edges(conn: sqlite3.Connection) -> None:
         FROM edges e
         JOIN structural_nodes src ON src.structural_id = e.src_structural_id
         JOIN structural_nodes dst ON dst.structural_id = e.dst_structural_id
+        """
+    )
+    conn.execute("DROP TABLE edges")
+    conn.execute("ALTER TABLE edges_new RENAME TO edges")
+    conn.execute(
+        """
+        CREATE INDEX IF NOT EXISTS idx_edges_snapshot
+        ON edges(snapshot_id)
+        """
+    )
+    conn.execute(
+        """
+        CREATE INDEX IF NOT EXISTS idx_edges_src
+        ON edges(src_structural_id)
+        """
+    )
+    conn.execute(
+        """
+        CREATE INDEX IF NOT EXISTS idx_edges_dst
+        ON edges(dst_structural_id)
+        """
+    )
+
+
+def _ensure_edge_type_policy(conn: sqlite3.Connection) -> None:
+    row = conn.execute(
+        "SELECT sql FROM sqlite_master WHERE type='table' AND name='edges'"
+    ).fetchone()
+    table_sql = (row[0] if row is not None else "") or ""
+    if "LEXICALLY_CONTAINS" in table_sql and "IMPORTS_DECLARED" in table_sql:
+        return
+    legacy_calls = conn.execute(
+        """
+        SELECT COUNT(*) AS count
+        FROM edges
+        WHERE edge_type = 'CALLS'
+        """
+    ).fetchone()
+    if legacy_calls and int(legacy_calls["count"] or 0) > 0:
+        raise sqlite3.IntegrityError(
+            "CoreDB edges contains legacy CALLS rows; rebuild the snapshot to migrate."
+        )
+    conn.execute("DROP TABLE IF EXISTS edges_new")
+    conn.execute(
+        """
+        CREATE TABLE edges_new (
+            snapshot_id TEXT NOT NULL,
+            src_structural_id TEXT NOT NULL,
+            dst_structural_id TEXT NOT NULL,
+            edge_type TEXT NOT NULL CHECK (
+                edge_type IN (
+                    'LEXICALLY_CONTAINS',
+                    'IMPORTS_DECLARED',
+                    'EXTENDS',
+                    'IMPLEMENTS'
+                )
+            ),
+            PRIMARY KEY (snapshot_id, src_structural_id, dst_structural_id, edge_type),
+            FOREIGN KEY (src_structural_id) REFERENCES structural_nodes(structural_id) ON DELETE CASCADE,
+            FOREIGN KEY (dst_structural_id) REFERENCES structural_nodes(structural_id) ON DELETE CASCADE
+        )
+        """
+    )
+    conn.execute(
+        """
+        INSERT INTO edges_new(snapshot_id, src_structural_id, dst_structural_id, edge_type)
+        SELECT snapshot_id, src_structural_id, dst_structural_id, edge_type
+        FROM edges
         """
     )
     conn.execute("DROP TABLE edges")

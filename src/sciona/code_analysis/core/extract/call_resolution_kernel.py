@@ -12,7 +12,7 @@ from ...tools.call_extraction import CallTargetIR
 from ....runtime.call_resolution_contract import (
     REQUIRED_RESOLUTION_STAGES,
     STAGE_ALIAS_NARROWING,
-    STAGE_CLASS_SCOPED,
+    STAGE_CLASSIFIER_SCOPED,
     STAGE_MODULE_SCOPED,
     STAGE_RECEIVER_TYPED,
 )
@@ -124,7 +124,7 @@ __all__ = [
     "REQUIRED_RESOLUTION_STAGES",
     "PROVENANCE_TERMINAL_FALLBACK",
     "STAGE_ALIAS_NARROWING",
-    "STAGE_CLASS_SCOPED",
+    "STAGE_CLASSIFIER_SCOPED",
     "STAGE_MODULE_SCOPED",
     "STAGE_RECEIVER_TYPED",
     "materialize_outcomes",

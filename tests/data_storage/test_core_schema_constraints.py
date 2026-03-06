@@ -77,6 +77,42 @@ def test_edges_require_existing_snapshot_and_nodes(tmp_path):
         conn.close()
 
 
+def test_edges_reject_calls_edge_type_at_schema_level(tmp_path):
+    conn = _conn(tmp_path)
+    try:
+        conn.execute(
+            """
+            INSERT INTO snapshots(
+                snapshot_id, created_at, source, is_committed, structural_hash
+            ) VALUES ('snap_1', '2026-01-01T00:00:00Z', 'test', 1, 'hash')
+            """
+        )
+        conn.execute(
+            """
+            INSERT INTO structural_nodes(
+                structural_id, node_type, language, created_snapshot_id
+            ) VALUES ('node_a', 'callable', 'python', 'snap_1')
+            """
+        )
+        conn.execute(
+            """
+            INSERT INTO structural_nodes(
+                structural_id, node_type, language, created_snapshot_id
+            ) VALUES ('node_b', 'callable', 'python', 'snap_1')
+            """
+        )
+        with pytest.raises(sqlite3.IntegrityError):
+            conn.execute(
+                """
+                INSERT INTO edges(snapshot_id, src_structural_id, dst_structural_id, edge_type)
+                VALUES (?, ?, ?, ?)
+                """,
+                ("snap_1", "node_a", "node_b", "CALLS"),
+            )
+    finally:
+        conn.close()
+
+
 def test_snapshots_allow_only_one_committed_row(tmp_path):
     conn = _conn(tmp_path)
     try:

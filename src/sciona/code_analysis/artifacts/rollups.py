@@ -413,15 +413,15 @@ def _resolve_callees(
     symbol_index: dict[str, Sequence[str]],
     *,
     caller_module: str | None,
-    caller_language: str | None,
+    caller_language: str | None = None,
     module_lookup: dict[str, str],
-    callable_qname_by_id: dict[str, str],
+    callable_qname_by_id: dict[str, str] | None = None,
     import_targets: dict[str, set[str]],
-    expanded_import_targets: dict[str, set[str]],
+    expanded_import_targets: dict[str, set[str]] | None = None,
     module_ancestors: dict[str, set[str]],
-    module_bindings_by_name: dict[str, set[str]],
-    module_file_by_name: dict[str, str],
-    ts_barrel_export_map: dict[str, set[str]],
+    module_bindings_by_name: dict[str, set[str]] | None = None,
+    module_file_by_name: dict[str, str] | None = None,
+    ts_barrel_export_map: dict[str, set[str]] | None = None,
 ) -> tuple[
     set[str],
     set[str],
@@ -443,6 +443,11 @@ def _resolve_callees(
         ]
     ],
 ]:
+    callable_qname_by_id = callable_qname_by_id or {}
+    expanded_import_targets = expanded_import_targets or import_targets
+    module_bindings_by_name = module_bindings_by_name or {}
+    module_file_by_name = module_file_by_name or {}
+    ts_barrel_export_map = ts_barrel_export_map or {}
     resolved_ids: set[str] = set()
     resolved_names: set[str] = set()
     callsite_rows: list[
