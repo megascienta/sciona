@@ -1,8 +1,291 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
+"""Callsite index reducer."""
+
 from __future__ import annotations
 
-from .analytics.callsite_index import REDUCER_META, render
+from typing import Dict, List, Optional
 
-__all__ = ["REDUCER_META", "render"]
+from .helpers import queries
+from .helpers.artifact_call_sites import load_callsite_enrichment
+from .helpers.artifact_graph_edges import (
+    artifact_db_available,
+    load_artifact_edges,
+)
+from .helpers.render import render_json_payload, require_connection
+from .helpers.utils import require_latest_committed_snapshot
+from .metadata import ReducerMeta
+
+REDUCER_META = ReducerMeta(
+    reducer_id="callsite_index",
+    category="relations",
+    risk_tier="normal",
+    stage="relationship_analysis",
+    placeholder="CALLSITE_INDEX",
+    summary="Indexed caller/callee edges for a callable, including callsite details. " \
+    "Use when reasoning about call directionality or callsite-level analysis. " \
+    "detail_level='neighbors' returns caller/callee sets. ",
+)
+
+
+def render(
+    snapshot_id: str,
+    conn,
+    repo_root,
+    callable_id: str | None = None,
+    direction: str | None = None,
+    detail_level: str | None = None,
+    include_callsite_diagnostics: bool | None = None,
+    **_: object,
+) -> str:
+    conn = require_connection(conn)
+    require_latest_committed_snapshot(
+        conn, snapshot_id, reducer_name="callsite_index reducer"
+    )
+    resolved_id = _resolve_callable_id(
+        conn,
+        snapshot_id,
+        callable_id=callable_id,
+    )
+    level = _normalize_detail_level(detail_level)
+    if level == "neighbors":
+        body = build_neighbors_payload(conn, snapshot_id, repo_root, resolved_id)
+        return render_json_payload(body)
+    dir_value = _normalize_direction(direction)
+    artifact_available = artifact_db_available(repo_root) if repo_root else False
+    edges = _load_edges(repo_root, snapshot_id, resolved_id, dir_value)
+    node_ids = {edge["caller_id"] for edge in edges} | {
+        edge["callee_id"] for edge in edges
+    }
+    lookup = _node_lookup(conn, snapshot_id, node_ids)
+    module_lookup = queries.module_id_lookup(conn, snapshot_id)
+    enriched = []
+    for edge in edges:
+        caller = lookup.get(edge["caller_id"], {})
+        callee = lookup.get(edge["callee_id"], {})
+        enriched.append(
+            {
+                "caller_id": edge["caller_id"],
+                "callee_id": edge["callee_id"],
+                "caller_qualified_name": caller.get("qualified_name"),
+                "callee_qualified_name": callee.get("qualified_name"),
+                "caller_file_path": caller.get("file_path"),
+                "callee_file_path": callee.get("file_path"),
+                "caller_language": caller.get("language"),
+                "callee_language": callee.get("language"),
+                "caller_node_type": caller.get("node_type"),
+                "callee_node_type": callee.get("node_type"),
+                "caller_module_qualified_name": module_lookup.get(edge["caller_id"]),
+                "callee_module_qualified_name": module_lookup.get(edge["callee_id"]),
+                "edge_kind": edge["edge_kind"],
+                "edge_source": edge.get("edge_source"),
+                "call_hash": edge.get("call_hash"),
+                "line_span": None,
+            }
+        )
+    body = {
+        "payload_kind": "summary",
+        "callable_id": resolved_id,
+        "direction": dir_value,
+        "detail_level": level,
+        "artifact_available": artifact_available,
+        "edge_source": "artifact_db" if artifact_available else "none",
+        "edge_count": len(enriched),
+        "edges": enriched,
+        "call_sites": [],
+        "resolution_diagnostics": {},
+    }
+    if artifact_available and repo_root is not None and bool(include_callsite_diagnostics):
+        call_sites, diagnostics = load_callsite_enrichment(
+            repo_root=repo_root,
+            snapshot_id=snapshot_id,
+            caller_id=resolved_id,
+        )
+        body["call_sites"] = [
+            {
+                "identifier": row.get("identifier"),
+                "resolution_status": row.get("resolution_status"),
+                "accepted_callee_id": row.get("accepted_callee_id"),
+                "provenance": row.get("provenance"),
+                "drop_reason": row.get("drop_reason"),
+                "candidate_count": row.get("candidate_count"),
+                "callee_kind": row.get("callee_kind"),
+                "line_span": (
+                    [row.get("call_start_byte"), row.get("call_end_byte")]
+                    if row.get("call_start_byte") is not None
+                    and row.get("call_end_byte") is not None
+                    else None
+                ),
+                "ordinal": row.get("call_ordinal"),
+            }
+            for row in call_sites
+        ]
+        body["resolution_diagnostics"] = diagnostics
+    return render_json_payload(body)
+
+
+def build_neighbors_payload(conn, snapshot_id: str, repo_root, resolved_id: str) -> dict:
+    artifact_available = artifact_db_available(repo_root) if repo_root else False
+    outgoing_edges = load_artifact_edges(
+        repo_root,
+        edge_kinds=["CALLS"],
+        src_ids=[resolved_id],
+    )
+    incoming_edges = load_artifact_edges(
+        repo_root,
+        edge_kinds=["CALLS"],
+        dst_ids=[resolved_id],
+    )
+    callee_ids = sorted({dst for _, dst, _ in outgoing_edges})
+    caller_ids = sorted({src for src, _, _ in incoming_edges})
+    callees = _fetch_nodes(conn, snapshot_id, callee_ids)
+    callers = _fetch_nodes(conn, snapshot_id, caller_ids)
+    return {
+        "payload_kind": "summary",
+        "callable_id": resolved_id,
+        "caller_count": len(callers),
+        "callee_count": len(callees),
+        "callers": callers,
+        "callees": callees,
+        "artifact_available": artifact_available,
+        "edge_source": "artifact_db" if artifact_available else "none",
+    }
+
+
+def _resolve_callable_id(
+    conn,
+    snapshot_id: str,
+    *,
+    callable_id: str | None,
+) -> str:
+    return queries.resolve_callable_id(conn, snapshot_id, callable_id)
+
+
+def _normalize_detail_level(detail_level: Optional[str]) -> str:
+    if not detail_level:
+        return "callsites"
+    value = str(detail_level).strip().lower()
+    if value in {"callsites", "neighbors"}:
+        return value
+    raise ValueError("callsite_index detail_level must be 'callsites' or 'neighbors'.")
+
+
+def _normalize_direction(direction: Optional[str]) -> str:
+    if not direction:
+        return "both"
+    value = str(direction).strip().lower()
+    if value in {"in", "out", "both"}:
+        return value
+    raise ValueError("callsite_index direction must be one of: in, out, both.")
+
+
+def _load_edges(
+    repo_root,
+    snapshot_id: str,
+    resolved_id: str,
+    direction: str,
+) -> List[Dict[str, str]]:
+    if repo_root is None:
+        return []
+    if direction in {"out", "both"}:
+        outgoing = load_artifact_edges(
+            repo_root,
+            edge_kinds=["CALLS"],
+            src_ids=[resolved_id],
+        )
+    else:
+        outgoing = []
+    if direction in {"in", "both"}:
+        incoming = load_artifact_edges(
+            repo_root,
+            edge_kinds=["CALLS"],
+            dst_ids=[resolved_id],
+        )
+    else:
+        incoming = []
+    edges: List[Dict[str, str]] = []
+    for src, dst, edge_kind in outgoing:
+        edges.append(
+            {
+                "caller_id": src,
+                "callee_id": dst,
+                "edge_kind": edge_kind,
+                "edge_source": "artifact_db",
+                "call_hash": None,
+            }
+        )
+    for src, dst, edge_kind in incoming:
+        edges.append(
+            {
+                "caller_id": src,
+                "callee_id": dst,
+                "edge_kind": edge_kind,
+                "edge_source": "artifact_db",
+                "call_hash": None,
+            }
+        )
+    edges.sort(
+        key=lambda entry: (
+            str(entry.get("caller_id")),
+            str(entry.get("callee_id")),
+            str(entry.get("edge_kind")),
+        )
+    )
+    return edges
+
+
+def _node_lookup(
+    conn, snapshot_id: str, node_ids: set[str]
+) -> Dict[str, Dict[str, str]]:
+    if not node_ids:
+        return {}
+    placeholders = ",".join("?" for _ in node_ids)
+    rows = conn.execute(
+        f"""
+        SELECT sn.structural_id, sn.node_type, sn.language, ni.qualified_name, ni.file_path
+        FROM structural_nodes sn
+        JOIN node_instances ni
+            ON ni.structural_id = sn.structural_id
+            AND ni.snapshot_id = ?
+        WHERE sn.structural_id IN ({placeholders})
+        """,
+        (snapshot_id, *node_ids),
+    ).fetchall()
+    return {
+        row["structural_id"]: {
+            "qualified_name": row["qualified_name"],
+            "file_path": row["file_path"],
+            "language": row["language"],
+            "node_type": row["node_type"],
+        }
+        for row in rows
+    }
+
+
+def _fetch_nodes(conn, snapshot_id: str, node_ids: List[str]) -> List[Dict[str, str]]:
+    if not node_ids:
+        return []
+    placeholders = ",".join("?" for _ in node_ids)
+    rows = conn.execute(
+        f"""
+        SELECT sn.structural_id, sn.node_type, ni.qualified_name
+        FROM structural_nodes sn
+        JOIN node_instances ni
+            ON ni.structural_id = sn.structural_id
+            AND ni.snapshot_id = ?
+        WHERE sn.structural_id IN ({placeholders})
+        """,
+        (snapshot_id, *node_ids),
+    ).fetchall()
+    entries = [
+        {
+            "structural_id": row["structural_id"],
+            "qualified_name": row["qualified_name"],
+            "node_type": row["node_type"],
+        }
+        for row in rows
+        if row["qualified_name"]
+    ]
+    entries.sort(key=lambda item: (str(item.get("qualified_name")), str(item.get("structural_id"))))
+    return entries

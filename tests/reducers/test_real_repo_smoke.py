@@ -12,8 +12,7 @@ from sciona.pipelines.exec.build import build_repo
 from sciona.pipelines.domain.repository import RepoState
 from sciona.pipelines.policy import build as policy_build
 from sciona.pipelines.policy import snapshot as snapshot_policy
-from sciona.reducers.analytics import hotspot_summary
-from sciona.reducers.core import module_overview, structural_index, symbol_lookup
+from sciona.reducers import hotspot_summary, module_overview, structural_index, symbol_lookup
 from sciona.runtime.errors import GitError
 from sciona.runtime.paths import get_db_path
 from tests.helpers import parse_json_payload

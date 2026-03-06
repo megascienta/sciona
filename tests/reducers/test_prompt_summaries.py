@@ -2,7 +2,7 @@
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
 from tests.helpers import core_conn, parse_json_payload, seed_repo_with_snapshot
-from sciona.reducers.analytics import hotspot_summary
+from sciona.reducers import hotspot_summary
 
 
 def test_hotspot_summary_includes_counts(tmp_path):

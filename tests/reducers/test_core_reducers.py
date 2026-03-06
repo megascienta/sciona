@@ -10,7 +10,7 @@ from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.data_storage.artifact_db.maintenance import rebuild_graph_index
 from sciona.data_storage.core_db.schema import ensure_schema
 from sciona.data_storage.transactions import transaction
-from sciona.reducers.core import (
+from sciona.reducers import (
     callable_overview,
     classifier_inheritance,
     classifier_overview,
@@ -22,7 +22,7 @@ from sciona.reducers.core import (
     symbol_lookup,
     symbol_references,
 )
-from sciona.reducers.grounding import callable_source, concatenated_source
+from sciona.reducers import callable_source, concatenated_source
 from sciona.runtime import constants as setup_config
 from sciona.runtime import paths as runtime_paths
 from tests.helpers import core_conn as _core_conn, insert_snapshot, parse_json_payload, qualify_repo_name as _q, seed_repo_with_snapshot

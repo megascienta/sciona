@@ -4,7 +4,7 @@
 import pytest
 import json
 
-from sciona.reducers.analytics import (
+from sciona.reducers import (
     call_resolution_quality,
     callsite_index,
     classifier_call_graph_summary,

@@ -4,7 +4,7 @@
 import json
 
 from sciona.data_storage.artifact_db import connect as artifact_connect
-from sciona.reducers.composites import overlay_impact_summary
+from sciona.reducers import overlay_impact_summary
 from sciona.runtime import constants as setup_config
 from tests.helpers import core_conn, parse_json_payload, seed_repo_with_snapshot
 

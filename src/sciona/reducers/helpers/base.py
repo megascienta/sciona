@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from ..core import (
+from .. import (
     callable_overview,
     classifier_overview,
     module_overview,

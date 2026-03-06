@@ -41,7 +41,7 @@ def _iter_reducer_modules() -> Iterator[ModuleType]:
         (entry for entry in pkgutil.iter_modules([str(base_dir)])),
         key=lambda item: item.name,
     )
-    ignored = {"__pycache__", "analytics", "composites", "core", "grounding", "helpers"}
+    ignored = {"__pycache__", "helpers"}
     for entry in module_entries:
         if entry.ispkg or entry.name in ignored:
             continue
