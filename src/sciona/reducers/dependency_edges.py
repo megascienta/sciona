@@ -105,8 +105,10 @@ def render(
                 "to_file_path": dst.get("file_path"),
                 "edge_type": edge["edge_type"],
                 "edge_source": "sci",
+                "row_origin": "committed",
             }
         )
+    committed_count = len(enriched)
     body = {
         "payload_kind": "summary",
         "module_filter": module_id,
@@ -117,7 +119,11 @@ def render(
         "direction": dir_value,
         "limit": limit_value,
         "edge_source": "sci",
-        "edge_count": len(enriched),
+        "edge_count": committed_count,
+        "listed_edge_count": committed_count,
+        "committed_count": committed_count,
+        "overlay_added_count": 0,
+        "overlay_removed_count": 0,
         "edges": enriched,
     }
     return render_json_payload(body)

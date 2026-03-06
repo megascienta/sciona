@@ -3,9 +3,13 @@
 
 from __future__ import annotations
 
+import json
+
 from sciona import api
 from sciona.reducers import overlay_projection_status_summary
+from sciona.pipelines.diff_overlay.patchers.core import patch_dependency_edges
 from sciona.pipelines.diff_overlay.ops_get import _OVERLAY_PROFILE
+from sciona.pipelines.diff_overlay.types import OverlayPayload
 from tests.helpers import core_conn, parse_json_payload, qualify_repo_name
 
 
@@ -73,6 +77,93 @@ def test_dirty_overlay_summary_mode(repo_with_snapshot):
     assert diff["worktree_hash"]
     assert diff.get("affected") is True
     assert "nodes" in diff.get("affected_by", [])
+
+
+def test_patch_dependency_edges_marks_overlay_added_and_removed():
+    payload = {
+        "module_filter": "pkg.alpha",
+        "from_module_filter": None,
+        "to_module_filter": None,
+        "direction": "both",
+        "edge_count": 1,
+        "listed_edge_count": 1,
+        "committed_count": 1,
+        "overlay_added_count": 0,
+        "overlay_removed_count": 0,
+        "edges": [
+            {
+                "from_module_structural_id": "mod_alpha",
+                "to_module_structural_id": "mod_beta",
+                "from_module_qualified_name": "pkg.alpha",
+                "to_module_qualified_name": "pkg.beta",
+                "from_file_path": "pkg/alpha/__init__.py",
+                "to_file_path": "pkg/beta/__init__.py",
+                "edge_type": "IMPORTS_DECLARED",
+                "edge_source": "sci",
+                "row_origin": "committed",
+            }
+        ],
+    }
+    overlay = OverlayPayload(
+        worktree_hash="hash",
+        snapshot_commit="commit",
+        base_commit="base",
+        base_commit_strategy="snapshot",
+        head_commit="head",
+        merge_base=None,
+        nodes={"add": [], "remove": [], "update": []},
+        edges={
+            "add": [
+                {
+                    "new_value": json.dumps(
+                        {
+                            "src_structural_id": "mod_alpha",
+                            "dst_structural_id": "mod_gamma",
+                            "src_qualified_name": "pkg.alpha",
+                            "dst_qualified_name": "pkg.gamma",
+                            "src_file_path": "pkg/alpha/__init__.py",
+                            "dst_file_path": "pkg/gamma/__init__.py",
+                            "edge_type": "IMPORTS_DECLARED",
+                        }
+                    )
+                }
+            ],
+            "remove": [
+                {
+                    "old_value": json.dumps(
+                        {
+                            "src_structural_id": "mod_alpha",
+                            "dst_structural_id": "mod_beta",
+                            "src_qualified_name": "pkg.alpha",
+                            "dst_qualified_name": "pkg.beta",
+                            "src_file_path": "pkg/alpha/__init__.py",
+                            "dst_file_path": "pkg/beta/__init__.py",
+                            "edge_type": "IMPORTS_DECLARED",
+                        }
+                    )
+                }
+            ],
+            "update": [],
+        },
+        calls={"add": [], "remove": [], "update": []},
+        summary=None,
+        warnings=[],
+    )
+
+    patched = patch_dependency_edges(payload, overlay)
+    assert patched["edge_count"] == 1
+    assert patched["listed_edge_count"] == 2
+    assert patched["committed_count"] == 0
+    assert patched["overlay_added_count"] == 1
+    assert patched["overlay_removed_count"] == 1
+    origins = {
+        (edge["from_module_structural_id"], edge["to_module_structural_id"]): edge[
+            "row_origin"
+        ]
+        for edge in patched["edges"]
+    }
+    assert origins[("mod_alpha", "mod_beta")] == "overlay_removed"
+    assert origins[("mod_alpha", "mod_gamma")] == "overlay_added"
 
 
 def test_dirty_overlay_fan_summary_node_id_updates(repo_with_snapshot):

@@ -589,7 +589,11 @@ def patch_dependency_edges(
         entry.get("to_module_structural_id"),
         entry.get("edge_type"),
     )
-    edge_map = {edge_key(entry): entry for entry in edges}
+    edge_map = {}
+    for entry in edges:
+        item = dict(entry)
+        item["row_origin"] = str(item.get("row_origin") or "committed")
+        edge_map[edge_key(item)] = item
     from_filter = payload.get("from_module_filter")
     to_filter = payload.get("to_module_filter")
     module_filter = payload.get("module_filter")
@@ -635,12 +639,40 @@ def patch_dependency_edges(
                 "to_file_path": edge.get("dst_file_path"),
                 "edge_type": edge.get("edge_type"),
                 "edge_source": "overlay",
+                "row_origin": "overlay_added",
             }
         elif change["diff_kind"] == "remove":
-            edge_map.pop(key, None)
+            current = edge_map.get(key)
+            if current is None:
+                edge_map[key] = {
+                    "from_module_structural_id": src_id,
+                    "to_module_structural_id": dst_id,
+                    "from_module_qualified_name": edge.get("src_qualified_name"),
+                    "to_module_qualified_name": edge.get("dst_qualified_name"),
+                    "from_file_path": edge.get("src_file_path"),
+                    "to_file_path": edge.get("dst_file_path"),
+                    "edge_type": edge.get("edge_type"),
+                    "edge_source": "overlay",
+                    "row_origin": "overlay_removed",
+                }
+            else:
+                current["row_origin"] = "overlay_removed"
+                current["edge_source"] = "overlay"
     patched = sorted(edge_map.values(), key=edge_key)
     payload["edges"] = patched
-    payload["edge_count"] = len(patched)
+    payload["listed_edge_count"] = len(patched)
+    payload["committed_count"] = sum(
+        1 for row in patched if row.get("row_origin") == "committed"
+    )
+    payload["overlay_added_count"] = sum(
+        1 for row in patched if row.get("row_origin") == "overlay_added"
+    )
+    payload["overlay_removed_count"] = sum(
+        1 for row in patched if row.get("row_origin") == "overlay_removed"
+    )
+    payload["edge_count"] = sum(
+        1 for row in patched if row.get("row_origin") != "overlay_removed"
+    )
     return payload
 
 def patch_symbol_lookup(

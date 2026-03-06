@@ -591,10 +591,14 @@ def test_dependency_edges_reducer_returns_edges(tmp_path):
         conn.close()
     payload = parse_json_payload(payload_text)
     assert payload["edge_count"] >= 1
+    assert payload["committed_count"] == payload["edge_count"]
+    assert payload["overlay_added_count"] == 0
+    assert payload["overlay_removed_count"] == 0
     edge = payload["edges"][0]
     assert "from_module_structural_id" in edge
     assert "to_module_structural_id" in edge
     assert edge["edge_source"] == "sci"
+    assert edge["row_origin"] == "committed"
 
 
 def test_dependency_edges_filters_and_limit(tmp_path):
