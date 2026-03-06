@@ -5,6 +5,7 @@ import pytest
 import json
 
 from sciona.reducers import (
+    call_resolution_drop_summary,
     call_resolution_quality,
     callsite_index,
     classifier_call_graph_summary,
@@ -115,6 +116,170 @@ def test_call_resolution_quality_aggregates_callsite_rows(tmp_path):
     assert payload["drop_reason_counts"][0]["count"] == 1
 
 
+def test_call_resolution_drop_summary_aggregates_dropped_callsites(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = core_conn(repo_root)
+    try:
+        conn.execute(
+            """
+            INSERT OR REPLACE INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
+            VALUES (?, ?, ?, ?)
+            """,
+            ("mod_pkg_tests", "module", "python", snapshot_id),
+        )
+        conn.execute(
+            """
+            INSERT OR REPLACE INTO node_instances(
+                instance_id, structural_id, snapshot_id, qualified_name, file_path, start_line, end_line, content_hash
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                f"{snapshot_id}:mod_pkg_tests",
+                "mod_pkg_tests",
+                snapshot_id,
+                qualify_repo_name(repo_root, "pkg.tests"),
+                "tests/test_case.py",
+                1,
+                12,
+                "hash-mod-pkg-tests",
+            ),
+        )
+        conn.execute(
+            """
+            INSERT OR REPLACE INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
+            VALUES (?, ?, ?, ?)
+            """,
+            ("func_test_case", "callable", "python", snapshot_id),
+        )
+        conn.execute(
+            """
+            INSERT OR REPLACE INTO node_instances(
+                instance_id, structural_id, snapshot_id, qualified_name, file_path, start_line, end_line, content_hash
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                f"{snapshot_id}:func_test_case",
+                "func_test_case",
+                snapshot_id,
+                qualify_repo_name(repo_root, "pkg.tests.test_case.helper"),
+                "tests/test_case.py",
+                1,
+                12,
+                "hash-func-test-case",
+            ),
+        )
+        conn.execute(
+            """
+            INSERT INTO edges(snapshot_id, src_structural_id, dst_structural_id, edge_type)
+            VALUES (?, ?, ?, ?)
+            """,
+            (snapshot_id, "mod_pkg_tests", "func_test_case", "LEXICALLY_CONTAINS"),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    artifact_db = repo_root / ".sciona" / setup_config.ARTIFACT_DB_FILENAME
+    artifact_conn = artifact_connect(artifact_db, repo_root=repo_root)
+    try:
+        artifact_write.upsert_call_sites(
+            artifact_conn,
+            snapshot_id=snapshot_id,
+            caller_id="func_alpha",
+            caller_qname=qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
+            caller_node_type="callable",
+            rows=[
+                (
+                    "helper",
+                    "accepted",
+                    "func_beta",
+                    "exact_qname",
+                    None,
+                    1,
+                    "qualified",
+                    1,
+                    5,
+                    0,
+                ),
+                (
+                    "missing_helper",
+                    "dropped",
+                    None,
+                    None,
+                    "no_candidates",
+                    1,
+                    "qualified",
+                    6,
+                    10,
+                    1,
+                ),
+            ],
+        )
+        artifact_write.upsert_call_sites(
+            artifact_conn,
+            snapshot_id=snapshot_id,
+            caller_id="func_test_case",
+            caller_qname=qualify_repo_name(repo_root, "pkg.tests.test_case.helper"),
+            caller_node_type="callable",
+            rows=[
+                (
+                    "pkg.external.helper",
+                    "dropped",
+                    None,
+                    None,
+                    "ambiguous_no_in_scope_candidate",
+                    3,
+                    "qualified",
+                    11,
+                    15,
+                    0,
+                ),
+            ],
+        )
+        artifact_conn.commit()
+    finally:
+        artifact_conn.close()
+
+    conn = core_conn(repo_root)
+    try:
+        payload_text = call_resolution_drop_summary.render(
+            snapshot_id,
+            conn,
+            repo_root,
+            limit=5,
+        )
+    finally:
+        conn.close()
+    payload = parse_json_payload(payload_text)
+    assert payload["payload_kind"] == "summary"
+    assert payload["artifact_available"] is True
+    assert payload["totals"]["eligible"] == 3
+    assert payload["totals"]["accepted"] == 1
+    assert payload["totals"]["dropped"] == 2
+    assert payload["dropped_by_reason"] == [
+        {"name": "ambiguous_no_in_scope_candidate", "count": 1},
+        {"name": "no_candidates", "count": 1},
+    ]
+    assert payload["dropped_by_reason_by_language"] == [
+        {
+            "language": "python",
+            "dropped": 2,
+            "drop_reasons": [
+                {"name": "ambiguous_no_in_scope_candidate", "count": 1},
+                {"name": "no_candidates", "count": 1},
+            ],
+        }
+    ]
+    assert payload["dropped_by_reason_by_scope"]["non_tests"] == [
+        {"name": "no_candidates", "count": 1}
+    ]
+    assert payload["dropped_by_reason_by_scope"]["tests"] == [
+        {"name": "ambiguous_no_in_scope_candidate", "count": 1}
+    ]
+    assert payload["top_callers_by_drop_count"][0]["caller_id"] == "func_alpha"
+    assert payload["top_callers_by_drop_count"][1]["caller_id"] == "func_test_case"
+
+
 def test_resolution_trace_returns_payload(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     conn = core_conn(repo_root)
@@ -134,6 +299,21 @@ def test_resolution_trace_returns_payload(tmp_path):
     assert "resolution_pipeline_stages" in payload
     assert "accepted_samples" in payload
     assert "dropped_samples" in payload
+
+
+def test_call_resolution_drop_summary_rejects_invalid_limit(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = core_conn(repo_root)
+    try:
+        with pytest.raises(ValueError, match="positive integer"):
+            call_resolution_drop_summary.render(
+                snapshot_id,
+                conn,
+                repo_root,
+                limit=0,
+            )
+    finally:
+        conn.close()
 
 
 def test_resolution_trace_uses_callsite_and_diagnostics(tmp_path):
