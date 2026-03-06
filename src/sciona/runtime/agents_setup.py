@@ -8,6 +8,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Mapping
 
+from ..code_analysis.core.extract.registry import extensions_for_language
 from .config import io as config_io
 from .config import defaults as config_defaults
 from .errors import ConfigError
@@ -18,13 +19,6 @@ BEGIN_MARKER = "<!-- sciona:begin -->"
 END_MARKER = "<!-- sciona:end -->"
 AGENTS_FILENAME = "AGENTS.md"
 TEMPLATE_PATH = Path(__file__).parent / "templates" / "agents_template.md"
-
-_LANGUAGE_EXTENSIONS = {
-    "python": [".py"],
-    "typescript": [".ts", ".tsx"],
-    "java": [".java"],
-}
-
 
 def build_agents_block(
     repo_root: Path,
@@ -39,6 +33,8 @@ def build_agents_block(
         RISK_TIER_REDUCERS=_render_risk_tier_reducers(reducers),
         INVESTIGATION_STAGE_WORKFLOW=_render_investigation_stage_workflow(reducers),
         INVESTIGATION_ROLE_CATEGORIES=_render_investigation_role_categories(reducers),
+        SOURCE_REDUCER_LIST=_render_source_reducer_list(reducers),
+        ANOMALY_DETECTOR_LIST=_render_anomaly_detector_list(reducers),
         REDUCER_ESCALATION_ORDER=_render_reducer_escalation_order(reducers),
         CMD_VERSION=commands.get("version", "sciona --version"),
         CMD_INIT=commands.get("init", "sciona init"),
@@ -159,7 +155,7 @@ def _render_tracked_file_scope(repo_root: Path) -> str:
 
     extensions = []
     for name in enabled:
-        extensions.extend(_LANGUAGE_EXTENSIONS.get(name, []))
+        extensions.extend(extensions_for_language(name))
     extensions = sorted(set(extensions))
 
     discovery_block = raw.get("discovery", {}) if isinstance(raw, dict) else {}
@@ -221,6 +217,20 @@ def _render_investigation_role_categories(reducers) -> str:
         lines.append(rendered)
         lines.append("")
     return "\n".join(lines).rstrip()
+
+
+def _render_source_reducer_list(reducers) -> str:
+    reducer_ids = _sorted_reducer_ids_by_investigation_roles(reducers, {"source"})
+    return "\n".join(f"- `{reducer_id}`" for reducer_id in reducer_ids)
+
+
+def _render_anomaly_detector_list(reducers) -> str:
+    reducer_ids = sorted(
+        str(reducer_id)
+        for reducer_id, entry in reducers.items()
+        if bool(getattr(entry, "anomaly_detector", False))
+    )
+    return "\n".join(f"- `{reducer_id}`" for reducer_id in reducer_ids)
 
 
 def _render_investigation_stage_workflow(reducers) -> str:

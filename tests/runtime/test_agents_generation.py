@@ -41,6 +41,27 @@ def test_agents_upsert_overwrite(tmp_path: Path):
     assert "Old content" not in content
 
 
+def test_agents_block_tracked_scope_uses_registry_extensions(tmp_path: Path):
+    sciona_dir = tmp_path / ".sciona"
+    sciona_dir.mkdir()
+    (sciona_dir / "config.yaml").write_text(
+        "\n".join(
+            [
+                "languages:",
+                "  javascript:",
+                "    enabled: true",
+                "  python:",
+                "    enabled: true",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    block = agents.build_agents_block(tmp_path, get_reducers())
+    assert "- Enabled languages: javascript, python" in block
+    assert "- Tracked file types: .cjs, .js, .mjs, .py" in block
+
+
 def test_agents_block_expands_placeholders(tmp_path: Path):
     block = agents.build_agents_block(tmp_path, get_reducers())
     for token in {
@@ -50,6 +71,8 @@ def test_agents_block_expands_placeholders(tmp_path: Path):
         "{RISK_TIER_REDUCERS}",
         "{INVESTIGATION_STAGE_WORKFLOW}",
         "{INVESTIGATION_ROLE_CATEGORIES}",
+        "{SOURCE_REDUCER_LIST}",
+        "{ANOMALY_DETECTOR_LIST}",
         "{REDUCER_ESCALATION_ORDER}",
         "{CMD_VERSION}",
         "{CMD_INIT}",
@@ -74,6 +97,11 @@ def test_agents_block_expands_placeholders(tmp_path: Path):
     assert ".sciona/config.yaml" in block
     assert "Normal tier reducers:" in block
     assert "**Structure reducers:**" in block
+    assert "- `callable_source`" in block
+    assert "- `concatenated_source`" in block
+    assert "- `call_resolution_quality`" in block
+    assert "- `hotspot_summary`" in block
+    assert "- `structural_integrity_summary`" in block
     assert "Initial scan" in block
     assert "Stage 1 — Initial scan" in block
 
@@ -97,18 +125,29 @@ def test_agents_block_removes_reviewed_template_issues(tmp_path: Path):
     assert block.count("If SCIONA evidence is insufficient, agents MUST explicitly state what is missing and either:") == 1
     assert "Current reducer IDs by tier:\n\n- Normal tier reducers:" in block
     assert "{INVESTIGATION_STAGE_WORKFLOW}" not in block
+    assert "{SOURCE_REDUCER_LIST}" not in block
+    assert "{ANOMALY_DETECTOR_LIST}" not in block
     assert "Reducers COULD be discovered via:" not in block
     assert "Reducers MAY be discovered via:" in block
     assert "Agents MUST NOT append `--json` to reducer commands." in block
+    assert (
+        "This prohibition applies to `sciona reducer` commands only. `--json` is valid on `sciona search` and `sciona resolve`."
+        in block
+    )
     assert (
         "**Relations reducers:**\ncallsite_index, classifier_call_graph_summary, dependency_edges, module_call_graph_summary, symbol_references"
         in block
     )
     assert "unverified: pending reducer confirmation" not in block
+    assert "unverified: no reducer evidence" not in block
+    assert "Raise an evidence-bounded concern under §2.7" in block
     assert "Cross-category verification is governed by §7.3" in block
     assert "DO: `sciona search" in block
     assert "Reducers: snapshot_provenance, structural_index" not in template
+    assert "- `callable_source`\n- `concatenated_source`" not in template
+    assert "- `structural_integrity_summary`\n- `hotspot_summary`\n- `call_resolution_quality`" not in template
     assert "Stage 1 — Initial scan\n  Purpose: orient to snapshot state and identify scope\n  Reducers: snapshot_provenance, structural_index" in block
     assert "Stage 2 — Entity discovery\n  Purpose: resolve unknown identifiers; locate symbols\n  Reducers: file_outline, module_overview, symbol_lookup" in block
+    assert "structure reducer → relations reducer → diagnostics reducer" in block
     assert "Role: structure." in block
     assert "Role: relations." in block

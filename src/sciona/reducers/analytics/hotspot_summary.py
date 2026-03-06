@@ -27,6 +27,7 @@ REDUCER_META = ReducerMeta(
     "Use for architectural orientation or complexity inspection. " \
     "Scope: codebase-level. Payload kind: summary.",
     lossy=True,
+    anomaly_detector=True,
 )
 
 

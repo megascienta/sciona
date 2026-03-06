@@ -98,11 +98,11 @@ When worktree is dirty:
 ### 2.1 SCIONA-first rule (MUST)
 
 If SCIONA is installed and available, agents MUST use SCIONA reducers when:
-– Structural correctness is critical
-– Cross-file or cross-module reasoning is performed
-– Architectural or refactoring changes are proposed
-– Determinism, invariants, or ordering guarantees are discussed
-– Dependency or call-graph analysis is requested
+- Structural correctness is critical
+- Cross-file or cross-module reasoning is performed
+- Architectural or refactoring changes are proposed
+- Determinism, invariants, or ordering guarantees are discussed
+- Dependency or call-graph analysis is requested
 
 Agents MUST prefer SCIONA reducers for other structural queries.
 
@@ -150,7 +150,6 @@ Fallback reasoning:
 Agents MUST NOT make structural claims about the repository without reducer-backed evidence.
 
 Structural claims include statements about:
-
 - architecture
 - dependencies
 - call graphs
@@ -178,7 +177,7 @@ Cross-category verification is governed by §7.3 and still applies before a stru
 
 If none of the gate conditions are satisfied, the agent MUST NOT state the claim as fact. Instead the agent MUST:
 - Invoke the appropriate reducer, or
-- Mark the statement explicitly as: `unverified: no reducer evidence`
+- Raise an evidence-bounded concern under §2.7
 
 #### Permitted exception
 
@@ -196,8 +195,7 @@ Structural reasoning MUST rely on SCIONA reducers.
 
 Raw source inspection MAY only occur through:
 
-- `callable_source`
-- `concatenated_source`
+{SOURCE_REDUCER_LIST}
 
 These reducers are for **validating structural hypotheses** already grounded in core or analytics reducer evidence. They MUST NOT be used as the primary basis for structural inference. Any structural conclusion derived from source reducers alone MUST be cross-checked with at least one core or analytics reducer (see §7.10).
 
@@ -235,7 +233,7 @@ This introduces an ungrounded structural claim and is prohibited.
 When a concern arises, escalate using:
 
 ```
-diagnostic reducer → relations reducer → structure reducer
+structure reducer → relations reducer → diagnostics reducer
 ```
 
 ---
@@ -342,6 +340,7 @@ Agents MUST NOT guess reducer names.
 Reducers emit **machine-parseable structured output**.
 
 Reducer output is structured by default. Agents MUST NOT append `--json` to reducer commands.
+This prohibition applies to `sciona reducer` commands only. `--json` is valid on `sciona search` and `sciona resolve`.
 
 Agents MUST NOT assume CLI flags modify reducer output format.
 
@@ -351,8 +350,7 @@ Agents MUST prefer reducers that:
 - Minimize semantic interpretation
 - Maximize structural grounding
 - Avoid redundant evidence retrieval
-
-Agents MUST select reducers aligned with the dominant reasoning task (navigation, structure, relations, metrics, or source retrieval), following the stage mapping in §5.3.
+Follow the stage mapping in §5.3 when selecting reducers for the current reasoning task.
 
 ### 6.5 Resource limits
 
@@ -396,8 +394,7 @@ Before structural conclusions (Stage 7 of §5.3), agents MUST obtain evidence fr
 - metrics
 
 Single‑reducer conclusions are not permitted.
-
-**This requirement supersedes single-reducer gate satisfaction in §2.4.** Satisfying the §2.4 claim gate with one reducer does not waive the cross-category requirement.
+This requirement governs structural conclusions under §2.4.
 
 **Previously established reducer evidence** from earlier in the same task satisfies this requirement, provided the earlier evidence has not been superseded. Agents MUST explicitly identify which prior reducer invocation serves as the cross-category anchor.
 
@@ -418,9 +415,7 @@ structural_integrity_summary   [metrics]
 
 Reducers that act as anomaly detectors rather than final evidence:
 
-- `structural_integrity_summary`
-- `hotspot_summary`
-- `call_resolution_quality`
+{ANOMALY_DETECTOR_LIST}
 
 Agents MUST contextualize anomalies using:
 
@@ -534,26 +529,3 @@ Evidence: available / n/a
 
 - No committed snapshots → `{CMD_BUILD}`
 - Unknown reducer → `{CMD_REDUCER_LIST}`
-
----
-
-## 11.  Expected Agent Behavior
-
-This protocol enforces:
-
-1. Reducer‑first reasoning (§2.1)
-2. Evidence‑gated structural claims (§2.4)
-3. Canonical seven-stage investigation pipeline (§5.3)
-4. Cross‑category verification before conclusions (§7.3)
-5. Anomaly contextualization before reporting (§7.5)
-6. Concerns instead of hallucinated claims (§2.7)
-7. Hypothesis discard when contradicted by reducer evidence (§1.3)
-
-Expected outcome:
-
-```
-low‑entropy reasoning
-+ structurally grounded analysis
-+ deeper code investigation
-+ elimination of hallucinated structural findings
-```

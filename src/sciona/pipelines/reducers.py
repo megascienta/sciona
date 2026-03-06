@@ -52,6 +52,7 @@ def list_entries(
                 "summary": entry.summary,
                 "lossy": entry.lossy,
                 "baseline_only": entry.baseline_only,
+                "anomaly_detector": entry.anomaly_detector,
             }
         )
     return sorted(entries, key=lambda item: item["reducer_id"])

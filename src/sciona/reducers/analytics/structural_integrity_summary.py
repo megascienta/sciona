@@ -27,6 +27,7 @@ REDUCER_META = ReducerMeta(
     "Use to detect duplicates, lexical orphans, and inheritance-cycle anomalies before downstream reasoning. "
     "Scope: codebase-level. Payload kind: summary.",
     lossy=True,
+    anomaly_detector=True,
 )
 
 

@@ -30,6 +30,7 @@ REDUCER_META = ReducerMeta(
     "Use to understand accepted vs dropped callsite distribution and dominant drop reasons. "
     "Scope: codebase-level telemetry summary. Payload kind: summary.",
     lossy=True,
+    anomaly_detector=True,
 )
 
 

@@ -32,6 +32,7 @@ class ReducerMeta:
     summary: str
     lossy: bool = False
     baseline_only: bool = False
+    anomaly_detector: bool = False
 
 
 __all__ = ["ReducerMeta"]

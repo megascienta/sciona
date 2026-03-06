@@ -40,6 +40,7 @@ class ReducerEntry:
     summary: str
     lossy: bool
     baseline_only: bool
+    anomaly_detector: bool
     module: ModuleType
 
 
@@ -126,6 +127,7 @@ def _build_registry() -> dict[str, ReducerEntry]:
             summary=meta.summary,
             lossy=meta.lossy,
             baseline_only=meta.baseline_only,
+            anomaly_detector=meta.anomaly_detector,
             module=module,
         )
     return entries
