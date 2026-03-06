@@ -15,8 +15,8 @@
 **When SCIONA is available:**
 - DO: `sciona search` → `sciona resolve` → `sciona reducer`
 - DO: Use structural evidence from reducers
-- DON'T: Grep files for structural information
-- DON'T: Read multiple files to infer relationships
+- DON'T: Grep files for structural information (see §2.1 for the authoritative prohibition)
+- DON'T: Read multiple files to infer relationships (see §2.1)
 - DON'T: Fall back to heuristics after one reducer call
 
 **Golden rule:** If your query is structural → SCIONA is mandatory, not optional.
@@ -28,6 +28,8 @@
 SCIONA provides deterministic structural evidence derived from static code analysis. This protocol prioritizes structural grounding, determinism, and reproducibility while allowing proportional judgment consistent with the user’s intent.
 
 SCIONA constrains what exists and how components relate structurally. It does not guarantee semantic correctness or runtime behavior.
+
+**Reducers are deterministic projections of the SCI graph. They never introduce information not present in SCI.** Reducer outputs are authoritative within their declared abstraction scope and represent the last committed snapshot unless diff overlays are explicitly used.
 
 ---
 
@@ -42,13 +44,13 @@ SCIONA constrains what exists and how components relate structurally. It does no
 - Structural nodes are deterministic and derived from tree-sitter parsing.
 - Tracked call edges are deterministic static approximations.
 - Dynamic dispatch, decorators, dependency injection, runtime wiring, and similar mechanisms are outside SCIONA’s modeling scope.
-- Calls inside nested callables are attributed to the enclosing callable.
 - SCIONA reducers are the **primary source of structural evidence**.
 - Reducer outputs are authoritative within their declared abstraction scope.
 - Reducer-derived evidence MUST be treated as authoritative for structural claims.
 - Reducer outputs can be a lossy representation of structural evidence.
 - Reducer outputs reflect the **last committed snapshot** unless _diff overlays are explicitly used.
 - Manual source inspection SHOULD NOT contradict reducer-derived structural evidence without explicit justification.
+- Agents MUST NOT synthesize or simulate reducer output. All reducer evidence MUST come from actual invocation within the current task.
 
 ### 1.2 Snapshot semantics
 
@@ -56,7 +58,26 @@ SCIONA constrains what exists and how components relate structurally. It does no
 - Dirty worktree status applies only to tracked language files.
 - Uncommitted changes outside tracked scope do not invalidate SCI snapshots.
 
-### 1.3 Diff overlay usage (MUST)
+### 1.3 Evidence authority hierarchy (MUST)
+
+When evidence sources conflict, the following authority order MUST be applied:
+
+```
+structural → telemetry → source interpretation → overlay_advisory
+```
+
+Implications:
+
+- `structural` SCI facts are authoritative and MUST NOT be overridden by lower-tier evidence
+- `telemetry` and diagnostics MUST NOT override structural evidence
+- `source interpretation` is subordinate to structural and telemetry evidence; raw source does not override SCI-derived structure
+- `overlay_advisory` MUST NOT invalidate committed snapshot evidence under any circumstance
+
+Note: this hierarchy governs conflict resolution. In the absence of conflict, all evidence types remain valid inputs to reasoning.
+
+**If reducer evidence contradicts a hypothesis, the hypothesis MUST be discarded.** Agents MUST NOT rationalize or explain away contradictions between a hypothesis and reducer-derived structural evidence.
+
+### 1.4 Diff overlay usage (MUST)
 
 When worktree is dirty:
 - Reducer payloads SHOULD include an `_diff` section; agents MUST check it.
@@ -64,15 +85,18 @@ When worktree is dirty:
 - If `_diff.overlay_available` is false or `_diff` missing, warn and treat evidence as committed-only.
 - If `_diff.warnings` includes `base_commit_differs_from_head`, explicitly note branch divergence risk.
 - If `_diff.warnings` includes `projection_not_patched`, treat the payload as unpatched and rely on committed SCI.
- - Treat `_diff` as best-effort overlay evidence and not fully authoritative.
- - If `_diff` conflicts with SCI evidence, SCI remains authoritative; `_diff` is provisional.
- - If tracked language sources are dirty and `_diff` is unavailable, warn that evidence may be stale and recommend commit + sciona build.
+- Treat `_diff` as best-effort overlay evidence and not fully authoritative.
+- If `_diff` conflicts with SCI evidence, SCI remains authoritative; `_diff` is provisional.
+- If tracked language sources are dirty and `_diff` is unavailable, warn that evidence may be stale and recommend commit + sciona build.
+- Agents MUST NOT present overlay-only evidence as committed SCI truth.
+- Agents MUST NOT claim structural inconsistencies based solely on overlay signals.
+- Overlay evidence MAY be used to flag potential differences between the working tree and the committed snapshot, provided it is labeled `overlay_advisory`.
 
 ---
 
 ## 2. Reasoning Discipline
 
-### 2.1 SCIONA-first rule
+### 2.1 SCIONA-first rule (MUST) — Authoritative prohibition on grep and source scanning
 
 If SCIONA is installed and available, agents MUST use SCIONA reducers when:
 – Structural correctness is critical
@@ -83,10 +107,20 @@ If SCIONA is installed and available, agents MUST use SCIONA reducers when:
 
 Agents MUST prefer SCIONA reducers for other structural queries.
 
-When SCIONA is available and applicable, agents MUST NOT:
+**When SCIONA is available and applicable, agents MUST NOT**:
 - Fall back to file grepping or text search
 - Read multiple source files to reconstruct structure
 - Infer relationships from manual source inspection
+
+If SCIONA evidence is insufficient, agents MUST explicitly state what is missing and either:
+- Use additional SCIONA reducers
+- Request user to commit changes if worktree is dirty
+- Declare SCIONA limitations for the query scope
+- Use "let me search the codebase for..." text search for structural information
+
+This prohibition is absolute when SCIONA is available. There are no exceptions except explicit SCIONA unavailability (see §2.3).
+
+**Source reducers** (`callable_source`, `concatenated_source`) are the only permitted form of raw source access, and only for validating structural hypotheses already established by core or analytics reducers. Source reducers MUST NOT be used to infer structure independently.
 
 If SCIONA evidence is insufficient, agents MUST explicitly state what is missing and either:
 - Use additional SCIONA reducers
@@ -106,7 +140,7 @@ Evidence summary MAY be omitted when:
 - No structural assertions are made
 - The structural basis has already been established earlier in the same task
 
-Absence of evidence MUST NOT be interpreted as evidence of absence.
+**Absence of evidence MUST NOT be interpreted as evidence of absence.** When reducer evidence is insufficient to confirm a claim, agents MUST raise a concern (see §2.7) rather than asserting absence.
 
 ### 2.3 Explicit failure declaration
 
@@ -118,29 +152,20 @@ Fallback reasoning:
 - MUST be labeled non-SCIONA
 - SHOULD remain consistent with any previously retrieved SCI evidence
 
-### 2.4 Prohibited workflow patterns
-
-When SCIONA is available, the following patterns are PROHIBITED:
-- Quick SCIONA check → grep/file reading fallback
-- "Let me search the codebase for..." → text search for structural information
-- Reading multiple files to understand structure
-- Inferring relationships from source inspection
-
-Required patterns:
-- Resolve identifier → retrieve structural evidence → reason
-- Use appropriate reducer for the relationship type
-- Request additional reducers if evidence insufficient
-
-### 2.5 Structural Claim Gate (MUST)
+### 2.4 Structural Claim Gate (MUST)
 
 Agents MUST NOT make structural claims about the repository without reducer-backed evidence.
 
-A structural claim is any assertion about the committed repository snapshot involving:
-- Existence of entities (modules, classifiers, callables)
-- Relationships between entities (calls, imports, inheritance)
-- Entity location (file, module, lexical scope)
-- Callable signatures or interfaces
-- Structural metrics or graph-derived properties (fan-in/out, dependency hotspots)
+Structural claims include statements about:
+
+- architecture
+- dependencies
+- call graphs
+- structural invariants
+- contract violations
+- module relationships
+
+If reducer evidence is unavailable, the agent MUST NOT assert the claim. Instead, the agent MAY raise a concern (§2.7).
 
 Structural claims MUST refer to the committed SCI snapshot unless explicitly marked as `overlay_advisory`.
 
@@ -148,14 +173,14 @@ Structural claims MUST refer to the committed SCI snapshot unless explicitly mar
 
 Before stating a structural claim, at least one of the following conditions MUST be satisfied:
 
-1. Reducer-backed evidence — a core, analytics, or relevant grounding reducer has been invoked and 
-its output directly supports the claim
-  - Core reducers provide authoritative structural facts
-  - Analytics reducers may support structural claims only when their output references structural identifiers
-  - Grounding reducers may support claims about signatures or interfaces
-2. Previously established reducer evidence — the claim was already established earlier in the same 
-task using reducer evidence and has not been invalidated or superseded by subsequent reducer results
-3. Explicit hypothesis — the claim is labeled as: `unverified: pending reducer confirmation`
+1. **Reducer-backed evidence** — a core, analytics, or relevant grounding reducer has been invoked and its output directly supports the claim
+   - Core reducers provide authoritative structural facts
+   - Analytics reducers may support structural claims only when their output references structural identifiers
+   - Grounding reducers may support claims about signatures or interfaces
+2. **Previously established reducer evidence** — the claim was already established earlier in the same task using reducer evidence and has not been invalidated or superseded by subsequent reducer results
+3. **Explicit hypothesis** — the claim is labeled as: `unverified: pending reducer confirmation`
+
+**Priority note:** When gate condition 1 or 2 is satisfied by a single reducer, the cross-category requirement (§7.3) still applies before a structural conclusion is stated. The cross-category requirement supersedes single-reducer gate satisfaction.
 
 #### Failure behavior
 
@@ -165,23 +190,76 @@ If none of the gate conditions are satisfied, the agent MUST NOT state the claim
 
 #### Permitted exception
 
-If SCIONA is explicitly unavailable (see Section 2.3), structural claims MAY be made using fallback reasoning.
+If SCIONA is explicitly unavailable (see §2.3), structural claims MAY be made using fallback reasoning.
 
 Such claims MUST be labeled: `non-SCIONA evidence: best effort`
 
-Fallback claims MUST still be scoped to the last known committed snapshot unless working tree state is
-explicitly declared as the reasoning basis.
+Fallback claims MUST still be scoped to the last known committed snapshot unless working tree state is explicitly declared as the reasoning basis.
+
+### 2.5 Source Inspection Constraints (MUST)
+
+Agents MUST NOT reconstruct repository structure by scanning source files.
+
+Structural reasoning MUST rely on SCIONA reducers.
+
+Raw source inspection MAY only occur through:
+
+- `callable_source`
+- `concatenated_source`
+
+These reducers are for **validating structural hypotheses** already grounded in core or analytics reducer evidence. They MUST NOT be used as the primary basis for structural inference. Any structural conclusion derived from source reducers alone MUST be cross-checked with at least one core or analytics reducer (see §7.10).
 
 ### 2.6 Section interaction: claim gate and evidence discipline
 
-Section 2.5 defines the upstream gate for structural claims. Section 7 defines how reducer 
-evidence must be handled once obtained. Together they enforce a two-stage control:
+Section 2.4 defines the upstream gate for structural claims. Section 7 defines how reducer evidence must be handled once obtained. Together they enforce a two-stage control:
 
- ```
- claim attempted → Section 2.5 gate → reducer evidence obtained → Section 7 evidence discipline → claim stated
- ```
+```
+claim attempted → §2.4 gate → reducer evidence obtained → §7 evidence discipline → claim stated
+```
 
-An agent that satisfies Section 7 but bypasses Section 2.5 is still in violation. Both stages are required.
+An agent that satisfies Section 7 but bypasses §2.4 is still in violation. Both stages are required.
+
+### 2.7 Evidence‑Bounded Concerns (PERMITTED)
+
+If reducer evidence is insufficient, agents MAY raise a **concern** rather than asserting a claim.
+
+Concerns MUST:
+
+1. Reference the reducer output that motivated the concern — the motivating reducer MUST have been actually invoked within the current task, not recalled from prior context or memory
+2. Explicitly state that evidence is insufficient
+3. Avoid presenting the issue as confirmed
+4. Not introduce new structural facts beyond what the invoked reducer reported
+
+**Good concern pattern:**
+
+```
+Concern: possible CALLS edge omission for cross‑module invocation.
+
+Evidence:
+call_resolution_quality reports dropped callsites [invoked this task].
+
+Status: concern — reducer evidence insufficient to confirm.
+
+Suggested validation:
+module_call_graph_summary(module_id)
+callsite_index(callable_id)
+```
+
+**Bad concern pattern (prohibited):**
+
+```
+Concern: module likely calls X
+```
+
+This introduces an ungrounded structural claim and is prohibited.
+
+**Concern escalation pattern:**
+
+When a concern arises, escalate using:
+
+```
+diagnostic reducer → relations reducer → structure reducer
+```
 
 ---
 
@@ -229,16 +307,61 @@ If identifiers are unknown:
 
 {CMD_SEARCH}
 
+Note: To obtain structured output append --json option.
+
 ### 5.2 Resolution
 
 Before structural reasoning:
 
 {CMD_RESOLVE}
 
+Note: To obtain structured output append --json option.
+
 Agents MUST resolve identifiers via SCIONA rather than inferring or guessing symbol names.
 
 Identifier requirements:
 - Identifiers MUST match `^[a-zA-Z0-9_\.-]+$`
+
+
+### 5.3 Standard Investigation Workflow (MUST)
+
+All structural investigations MUST follow this canonical seven-stage pipeline. Stages map directly to reducer categories and the escalation order in §7.12.
+
+```
+Stage 1 — Initial scan
+  Purpose: orient to snapshot state and identify scope
+  Reducers: snapshot_provenance, structural_index
+
+Stage 2 — Entity discovery
+  Purpose: resolve unknown identifiers; locate symbols
+  Reducers: symbol_lookup, symbol_references, file_outline, module_overview
+
+Stage 3 — Structure inspection
+  Purpose: inspect individual entities
+  Reducers: callable_overview, classifier_overview, classifier_inheritance
+
+Stage 4 — Relationship analysis
+  Purpose: analyse dependencies, call edges, import coupling
+  Reducers: dependency_edges, callsite_index, module_call_graph_summary,
+            classifier_call_graph_summary
+
+Stage 5 — Diagnostics / metrics
+  Purpose: detect anomalies, hotspots, resolution quality
+  Reducers: fan_summary, hotspot_summary, call_resolution_quality,
+            structural_integrity_summary, resolution_trace
+
+Stage 6 — Source verification (only when ambiguity remains)
+  Purpose: validate structural hypotheses at implementation level
+  Reducers: callable_source, concatenated_source (last resort)
+
+Stage 7 — Confirmed finding OR concern
+  Purpose: state a reducer-gated structural claim (§2.4) or raise an
+           evidence-bounded concern (§2.7)
+```
+
+Stages MUST NOT be skipped without explicit justification. When skipping a stage, agents MUST state which stage was skipped and why it was inapplicable.
+
+Cross-category evidence (§7.3) MUST be obtained before moving to Stage 7.
 
 ---
 
@@ -253,6 +376,8 @@ Reducers COULD be discovered via:
 - {CMD_REDUCER_INFO}
 
 Agents MUST NOT guess reducer names.
+
+Note: Reducer output is structured by default. Do not append --json to any command unless it is explicitly listed in sciona reducer info output for that specific reducer.
 
 ### 6.2 Common usage
 
@@ -269,7 +394,7 @@ Agents MUST NOT guess reducer names.
 
 Reducers emit **machine-parseable structured output**.
 
-Reducers MAY NOT support --json because structured output is intrinsic.
+Reducer output is structured by default. Do not append --json to any command unless it is explicitly listed in sciona reducer info output for that specific reducer.
 
 Agents MUST NOT assume CLI flags modify reducer output format.
 
@@ -280,7 +405,7 @@ Agents MUST prefer reducers that:
 - Maximize structural grounding
 - Avoid redundant evidence retrieval
 
-Agents MUST select reducers aligned with the dominant reasoning task (navigation, structure, relations, metrics, or source retrieval).
+Agents MUST select reducers aligned with the dominant reasoning task (navigation, structure, relations, metrics, or source retrieval), following the stage mapping in §5.3.
 
 ### 6.5 Resource limits
 
@@ -291,13 +416,88 @@ Agents MUST avoid excessive reducer calls when previously retrieved SCIONA evide
 
 ---
 
-## 7. Reducer Risk Controls
+## 7. Evidence Discipline & Reducer Exploration
 
 Reducers expose different evidence layers of the SCIONA system. Agents MUST treat reducer outputs according to their evidence authority and misuse risk.
 
 Reducers are deterministic, but **not all reducer outputs represent the same level of structural truth**.
 
-### 7.1 Risk tiers
+The evidence authority hierarchy is defined in §1.3 and governs all conflict resolution in this section.
+
+### 7.1 Structural Exploration Discipline (MUST)
+
+Agents MUST explore structure following the canonical seven-stage pipeline in §5.3, using reducer categories in this order:
+
+```
+discovery → structure → relations → metrics → source
+```
+
+Stages MUST NOT be skipped without explicit justification.
+
+### 7.2 Reducer Categories
+
+**Structure reducers:**
+module_overview, classifier_overview, callable_overview, file_outline, classifier_inheritance, snapshot_provenance, structural_index, symbol_lookup, symbol_references
+
+**Relations reducers:**
+dependency_edges, callsite_index, module_call_graph_summary, classifier_call_graph_summary
+
+**Metrics reducers:**
+fan_summary, hotspot_summary, structural_integrity_summary, call_resolution_quality, resolution_trace
+
+**Source reducers:**
+callable_source, concatenated_source
+
+### 7.3 Cross‑Category Evidence Requirement (MUST)
+
+Before structural conclusions (Stage 7 of §5.3), agents MUST obtain evidence from at least two of:
+
+- structure
+- relations
+- metrics
+
+Single‑reducer conclusions are not permitted.
+
+**This requirement supersedes single-reducer gate satisfaction in §2.4.** Satisfying the §2.4 claim gate with one reducer does not waive the cross-category requirement.
+
+**Previously established reducer evidence** from earlier in the same task satisfies this requirement, provided the earlier evidence has not been superseded. Agents MUST explicitly identify which prior reducer invocation serves as the cross-category anchor.
+
+### 7.4 Anomaly Expansion (MUST)
+
+If a reducer reports an anomaly, agents MUST investigate using at least one reducer from another category.
+
+Example:
+
+```
+structural_integrity_summary   [metrics]
+→ symbol_references            [structure]
+→ callable_overview            [structure]
+→ callable_source              [source — validation only]
+```
+
+### 7.5 Anomaly Contextualization (MUST)
+
+Reducers that act as anomaly detectors rather than final evidence:
+
+- `structural_integrity_summary`
+- `hotspot_summary`
+- `call_resolution_quality`
+
+Agents MUST contextualize anomalies using:
+
+- structure reducers OR
+- relations reducers
+
+before reporting conclusions.
+
+### 7.6 Stopping Condition
+
+Structural analysis MAY conclude (proceed to Stage 7) when:
+
+- evidence from two structural categories supports the finding
+- or further reducers produce no new structural evidence
+
+### 7.7 Risk tiers
 
 Reducer categories imply typical misuse risk.
 
@@ -309,16 +509,17 @@ Definitions:
 
 - `core` — structural summaries derived directly from SCI nodes and edges (symbols, outlines, overviews, dependencies, inheritance)
 - `analytics` — deterministic projections of SCI structure (call graphs, fan metrics, hotspots)
-- `grounding` — raw source payloads (`callable_source`, `concatenated_source`); require interpretation
+- `grounding` — raw source payloads (`callable_source`, `concatenated_source`); require interpretation and MUST be cross-checked
 - `composites` — reserved category for composed evidence projections; when present, treat as elevated risk
 
 Risk tiering is guidance for investigation strategy, not an absolute correctness indicator.
 
 Current reducer IDs by tier:
 
-{RISK_TIER_REDUCERS}
+- Normal tier reducers: call_resolution_quality, callable_overview, callsite_index, classifier_call_graph_summary, classifier_inheritance, classifier_overview, dependency_edges, fan_summary, file_outline, hotspot_summary, module_call_graph_summary, module_overview, resolution_trace, snapshot_provenance, structural_index, structural_integrity_summary, symbol_lookup, symbol_references
+- Elevated tier reducers: callable_source, concatenated_source, overlay_impact_summary
 
-### 7.2 Evidence labels (MUST)
+### 7.8 Evidence labels (MUST)
 
 When reducer-derived evidence is used, agents MUST label the evidence origin in the response using one of the following labels:
 
@@ -332,24 +533,7 @@ When reducer-derived evidence is used, agents MUST label the evidence origin in 
 
 Reducers MAY yield mixed evidence types. Agents SHOULD label the dominant evidence type used in the reasoning step.
 
-### 7.3 Evidence authority hierarchy (MUST)
-
-When evidence sources conflict, the following authority order MUST be applied:
-
-```
-structural → telemetry → source interpretation → overlay_advisory
-```
-
-Implications:
-
-- `structural` SCI facts are authoritative and MUST NOT be overridden by lower-tier evidence
-- `telemetry` and diagnostics MUST NOT override structural evidence
-- `source interpretation` is subordinate to structural and telemetry evidence; raw source does not override SCI-derived structure
-- `overlay_advisory` MUST NOT invalidate committed snapshot evidence under any circumstance
-
-Note: this hierarchy governs conflict resolution. In the absence of conflict, all evidence types remain valid inputs to reasoning.
-
-### 7.4 Cross-check rule (MUST)
+### 7.9 Cross-check rule (MUST)
 
 When **structural conclusions** about structure, dependencies, or call relationships are derived from `grounding` or `composites` reducers, agents MUST cross-check using at least one `core` or `analytics` reducer.
 
@@ -366,28 +550,21 @@ If cross-check evidence is unavailable or inconsistent, agents MUST:
 
 This rule applies to structural claims. It does not apply to retrieving already-established facts where the structural basis was previously confirmed by a `core` or `analytics` reducer in the same task.
 
-### 7.5 Overlay authority boundary (MUST)
-
-Overlay-derived payload elements represent best-effort dirty-worktree hints.
-
-Agents MUST treat overlay evidence as advisory and non-authoritative.
-
-Agents MUST NOT:
-
-- Present overlay-only evidence as committed SCI truth
-- Claim structural inconsistencies based solely on overlay signals
-
-Overlay evidence MAY be used to flag potential differences between the working tree and the committed snapshot, provided it is labeled `overlay_advisory`.
-
-### 7.6 Payload minimization and reducer escalation (SHOULD)
+### 7.10 Payload minimization and reducer escalation (MUST)
 
 Agents MUST follow this escalation order and MUST NOT skip levels without explicit justification:
 
-{REDUCER_ESCALATION_ORDER}
+1. **Discovery and structural orientation** — `dependency_edges`, `file_outline`, `module_overview`, `snapshot_provenance`, `structural_index`, `symbol_lookup`, `symbol_references`
+2. **Entity structure and direct relations** — `callable_overview`, `classifier_overview`, `classifier_inheritance`
+3. **Analytical relations and metrics** — `call_resolution_quality`, `callsite_index`, `classifier_call_graph_summary`, `fan_summary`, `hotspot_summary`, `module_call_graph_summary`, `resolution_trace`, `structural_integrity_summary`
+4. **Focused source grounding** — `callable_source`
+5. **Broad source grounding (last resort)** — `concatenated_source`
 
 When skipping a level, agents MUST state which level was skipped and why it was inapplicable to the query.
 
 Reducing payload scope improves determinism and reduces reasoning drift.
+
+This escalation order maps directly to the §5.3 investigation pipeline stages 1–6.
 
 ---
 
@@ -402,23 +579,27 @@ Agents MUST:
 ## 9. Reporting Checklist
 
 Strict Mode applies when:
-– Structural claims about the repository are made as defined in Section 2.5
+– Structural claims about the repository are made as defined in §2.4
 – Reducer-derived evidence is used in reasoning
 – Determinism, invariants, or ordering guarantees are analysed
 – Architectural, refactoring, or dependency reasoning is performed
 
 In Strict Mode, responses MUST include:
 
+```
 Status: sciona used: yes/no | worktree: clean/dirty/unknown | diff: full/summary/unavailable/n/a | warned: yes/no
 Evidence: summary of relevant SCIONA outputs (entities, relations, caveats)
 If `_diff` present: cite `affected` / `affected_by` and key warnings (if any)
+```
 
 Compact Mode MAY be used when Strict Mode conditions are not met.
 
 In Compact Mode:
 
+```
 Status: sciona used: yes/no
 Evidence: available / n/a
+```
 
 ---
 
@@ -426,3 +607,26 @@ Evidence: available / n/a
 
 - No committed snapshots → `{CMD_BUILD}`
 - Unknown reducer → `{CMD_REDUCER_LIST}`
+
+---
+
+## 11.  Expected Agent Behavior
+
+This protocol enforces:
+
+1. Reducer‑first reasoning (§2.1)
+2. Evidence‑gated structural claims (§2.4)
+3. Canonical seven-stage investigation pipeline (§5.3)
+4. Cross‑category verification before conclusions (§7.3)
+5. Anomaly contextualization before reporting (§7.5)
+6. Concerns instead of hallucinated claims (§2.7)
+7. Hypothesis discard when contradicted by reducer evidence (§1.3)
+
+Expected outcome:
+
+```
+low‑entropy reasoning
++ structurally grounded analysis
++ deeper code investigation
++ elimination of hallucinated structural findings
+```
