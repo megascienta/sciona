@@ -6,11 +6,12 @@
 from __future__ import annotations
 
 from ..runtime import git as git_ops
+from ..runtime.overlay_access import load_overlay
+from ..runtime.overlay_profile import OVERLAY_PROFILE
 from .helpers.context import current_artifact_connection, fallback_artifact_connection
 from .helpers.render import render_json_payload, require_connection
 from .helpers.utils import require_latest_committed_snapshot
 from .metadata import ReducerMeta
-from ..pipelines.diff_overlay.ops_get import _OVERLAY_PROFILE, get_overlay
 
 REDUCER_META = ReducerMeta(
     reducer_id="overlay_projection_status_summary",
@@ -42,7 +43,7 @@ def render(
 
     overlay = None
     if worktree_dirty and artifact_conn is not None and repo_root is not None:
-        overlay = get_overlay(
+        overlay = load_overlay(
             repo_root=repo_root,
             snapshot_id=snapshot_id,
             core_conn=conn,
@@ -76,7 +77,7 @@ def _projection_rows(
     overlay_available: bool,
 ) -> list[dict[str, object]]:
     rows: list[dict[str, object]] = []
-    for projection, profile in sorted(_OVERLAY_PROFILE.items()):
+    for projection, profile in sorted(OVERLAY_PROFILE.items()):
         supports_patch = bool(profile.get("supports_patch"))
         rows.append(
             {
