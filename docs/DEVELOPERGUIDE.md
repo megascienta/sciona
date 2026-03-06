@@ -42,6 +42,21 @@ Do not use this document to redefine structural semantics.
 
 Dependency direction is downward only across layers.
 
+## Reducer Layout
+
+Reducer modules live directly under `src/sciona/reducers/`.
+
+Reducer conventions:
+
+- one reducer = one module;
+- reducer-specific query, normalization, and render logic stays in that module;
+- `src/sciona/reducers/helpers/` is reserved for logic shared by multiple reducers;
+- reducer classification is defined by reducer metadata, not by directory structure.
+
+Do not reintroduce semantic subpackages such as `core/`, `analytics/`,
+`grounding/`, or reducer-specific `_internal/` trees unless there is a concrete,
+shared implementation need that cannot be handled cleanly in a single module.
+
 ## Language Adapter Architecture
 
 Pipeline:
