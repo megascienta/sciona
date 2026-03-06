@@ -35,17 +35,12 @@ from .structural_index_graph import _build_module_graph, _import_cycles, _import
 
 REDUCER_META = ReducerMeta(
     reducer_id="structural_index",
-    category="core",
-    scope="codebase",
-    investigation_roles=("structure",),
+    category="structure",
     risk_tier="normal",
-    investigation_stage="initial_scan",
-    placeholders=("STRUCTURAL_INDEX",),
-    determinism="conditional",
-    payload_size_stats=None,
+    stage="initial_scan",
+    placeholder="STRUCTURAL_INDEX",
     summary="Canonical structural index of the codebase. " \
-    "Use for global structural reasoning or validation. " \
-    "Scope: entire SCI snapshot. Payload kind: summary.",
+    "Use for global structural reasoning or validation. ",
 )
 
 def render(snapshot_id: str, conn, repo_root, **_: object) -> str:

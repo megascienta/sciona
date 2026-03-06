@@ -16,19 +16,12 @@ from ..helpers.utils import require_latest_committed_snapshot
 
 REDUCER_META = ReducerMeta(
     reducer_id="concatenated_source",
-    category="grounding",
-    scope="codebase",
-    investigation_roles=("source",),
+    category="source",
     risk_tier="elevated",
-    investigation_stage="source_verification",
-    placeholders=("CONCATENATED_SOURCE",),
-    determinism="conditional",
-    payload_size_stats=None,
+    stage="source_verification",
+    placeholder="CONCATENATED_SOURCE",
     summary="Concatenated source code for a selected scope (codebase/module/classifier). " \
-    "Use for large-context reasoning or cross-entity inspection. " \
-    "Scope: configurable. Payload kind: source.",
-    lossy=False,
-    baseline_only=True,
+    "Use for large-context reasoning or cross-entity inspection. ",
 )
 
 MAX_SOURCE_BYTES = 200_000

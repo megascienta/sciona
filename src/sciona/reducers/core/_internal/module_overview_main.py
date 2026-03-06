@@ -32,17 +32,12 @@ from .module_overview_resolve import (
 
 REDUCER_META = ReducerMeta(
     reducer_id="module_overview",
-    category="core",
-    scope="module",
-    investigation_roles=("structure",),
+    category="structure",
     risk_tier="normal",
-    investigation_stage="entity_discovery",
-    placeholders=("MODULE_OVERVIEW",),
-    determinism="conditional",
-    payload_size_stats=None,
+    stage="entity_discovery",
+    placeholder="MODULE_OVERVIEW",
     summary="Structural summary of a module, including contained classifiers and callables. " \
-    "Use for architectural inspection. " \
-    "Scope: module-level. Payload kind: summary.",
+    "Use for architectural inspection. ",
 )
 
 def render(

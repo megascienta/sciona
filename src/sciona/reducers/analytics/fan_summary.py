@@ -17,18 +17,12 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="fan_summary",
-    category="analytics",
-    scope="codebase",
-    investigation_roles=("metrics",),
+    category="metrics",
     risk_tier="normal",
-    investigation_stage="diagnostics_metrics",
-    placeholders=("FAN_SUMMARY",),
-    determinism="conditional",
-    payload_size_stats=None,
+    stage="diagnostics_metrics",
+    placeholder="FAN_SUMMARY",
     summary="Fan-in/fan-out metrics for calls and imports. " \
-    "Use to identify highly connected entities or hotspots. " \
-    "Scope: callable/classifier/module. Payload kind: summary.",
-    lossy=True,
+    "Use to identify highly connected entities or hotspots. ",
 )
 
 

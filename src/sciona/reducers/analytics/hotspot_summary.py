@@ -15,18 +15,12 @@ from ..helpers.utils import require_latest_committed_snapshot, top_modules
 
 REDUCER_META = ReducerMeta(
     reducer_id="hotspot_summary",
-    category="analytics",
-    scope="codebase",
-    investigation_roles=("metrics",),
+    category="metrics",
     risk_tier="normal",
-    investigation_stage="diagnostics_metrics",
-    placeholders=("HOTSPOT_SUMMARY",),
-    determinism="conditional",
-    payload_size_stats=None,
+    stage="diagnostics_metrics",
+    placeholder="HOTSPOT_SUMMARY",
     summary="Compressed summary of structurally significant or highly connected entities. " \
-    "Use for architectural orientation or complexity inspection. " \
-    "Scope: codebase-level. Payload kind: summary.",
-    lossy=True,
+    "Use for architectural orientation or complexity inspection. ",
     anomaly_detector=True,
 )
 

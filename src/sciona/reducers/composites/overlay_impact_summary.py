@@ -13,18 +13,12 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="overlay_impact_summary",
-    category="composites",
-    scope="codebase",
-    investigation_roles=("metrics",),
+    category="metrics",
     risk_tier="elevated",
-    investigation_stage="diagnostics_metrics",
-    placeholders=("OVERLAY_IMPACT_SUMMARY",),
-    determinism="conditional",
-    payload_size_stats=None,
+    stage="diagnostics_metrics",
+    placeholder="OVERLAY_IMPACT_SUMMARY",
     summary="Advisory summary of dirty-worktree diff overlay impact for the committed snapshot. "
-    "Use when triaging uncommitted changes; output is non-authoritative. "
-    "Scope: codebase-level overlay synthesis. Payload kind: summary.",
-    lossy=True,
+    "Use when triaging uncommitted changes; output is non-authoritative. ",
 )
 
 

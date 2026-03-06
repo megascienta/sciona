@@ -17,18 +17,11 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="callable_source",
-    category="grounding",
-    scope="callable",
-    investigation_roles=("source",),
+    category="source",
     risk_tier="elevated",
-    investigation_stage="source_verification",
-    placeholders=("CALLABLE_SOURCE",),
-    determinism="conditional",
-    payload_size_stats=None,
-    summary="Full source code of a callable. Use only when " \
-    "implementation details are required. Scope: single callable. Payload kind: source.",
-    lossy=False,
-    baseline_only=True,
+    stage="source_verification",
+    placeholder="CALLABLE_SOURCE",
+    summary="Full source code of a callable. Use only when ",
 )
 
 

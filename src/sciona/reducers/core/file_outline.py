@@ -15,18 +15,12 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="file_outline",
-    category="core",
-    scope="codebase",
-    investigation_roles=("structure",),
+    category="structure",
     risk_tier="normal",
-    investigation_stage="entity_discovery",
-    placeholders=("FILE_OUTLINE",),
-    determinism="strict",
-    payload_size_stats=None,
+    stage="entity_discovery",
+    placeholder="FILE_OUTLINE",
     summary="Structural outline of a file, including modules, classifiers, and callables. " \
-    "Use for navigation and symbol discovery. " \
-    "Scope: file-level structure. Payload kind: summary.",
-    lossy=False,
+    "Use for navigation and symbol discovery. ",
 )
 
 

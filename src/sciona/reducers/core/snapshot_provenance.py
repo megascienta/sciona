@@ -14,17 +14,12 @@ from ...data_storage.artifact_db import read_status as artifact_read_status
 
 REDUCER_META = ReducerMeta(
     reducer_id="snapshot_provenance",
-    category="core",
-    scope="codebase",
-    investigation_roles=("structure",),
+    category="structure",
     risk_tier="normal",
-    investigation_stage="initial_scan",
-    placeholders=("SNAPSHOT_PROVENANCE",),
-    determinism="conditional",
-    payload_size_stats=None,
+    stage="initial_scan",
+    placeholder="SNAPSHOT_PROVENANCE",
     summary="Snapshot provenance and reproducibility metadata for the committed SCI state. "
-    "Use to verify snapshot freshness/identity before structural reasoning. "
-    "Scope: snapshot-level metadata. Payload kind: summary.",
+    "Use to verify snapshot freshness/identity before structural reasoning. ",
 )
 
 

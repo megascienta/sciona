@@ -31,7 +31,24 @@ def build_agents_block(
     content = template.format(
         COMMON_TASKS=_render_common_tasks(reducers),
         RISK_TIER_REDUCERS=_render_risk_tier_reducers(reducers),
-        INVESTIGATION_STAGE_WORKFLOW=_render_investigation_stage_workflow(reducers),
+        STAGE_INITIAL_SCAN_REDUCERS=_render_stage_reducer_list(
+            reducers, "initial_scan"
+        ),
+        STAGE_ENTITY_DISCOVERY_REDUCERS=_render_stage_reducer_list(
+            reducers, "entity_discovery"
+        ),
+        STAGE_STRUCTURE_INSPECTION_REDUCERS=_render_stage_reducer_list(
+            reducers, "structure_inspection"
+        ),
+        STAGE_RELATIONSHIP_ANALYSIS_REDUCERS=_render_stage_reducer_list(
+            reducers, "relationship_analysis"
+        ),
+        STAGE_DIAGNOSTICS_REDUCERS=_render_stage_reducer_list(
+            reducers, "diagnostics_metrics"
+        ),
+        STAGE_SOURCE_VERIFICATION_REDUCERS=_render_stage_reducer_list(
+            reducers, "source_verification"
+        ),
         INVESTIGATION_ROLE_CATEGORIES=_render_investigation_role_categories(reducers),
         SOURCE_REDUCER_LIST=_render_source_reducer_list(reducers),
         ANOMALY_DETECTOR_LIST=_render_anomaly_detector_list(reducers),
@@ -183,7 +200,6 @@ def _render_common_tasks(reducers) -> str:
             {
                 "reducer_id": reducer_id,
                 "category": entry.category,
-                "investigation_roles": entry.investigation_roles,
                 "summary": entry.summary,
             }
         )
@@ -211,7 +227,7 @@ def _render_investigation_role_categories(reducers) -> str:
         ("metrics", "Metrics reducers"),
         ("source", "Source reducers"),
     ):
-        reducer_ids = _sorted_reducer_ids_by_investigation_roles(reducers, {role_name})
+        reducer_ids = _sorted_reducer_ids_by_categories(reducers, {role_name})
         rendered = ", ".join(reducer_ids) if reducer_ids else "(none)"
         lines.append(f"**{label}:**")
         lines.append(rendered)
@@ -220,7 +236,7 @@ def _render_investigation_role_categories(reducers) -> str:
 
 
 def _render_source_reducer_list(reducers) -> str:
-    reducer_ids = _sorted_reducer_ids_by_investigation_roles(reducers, {"source"})
+    reducer_ids = _sorted_reducer_ids_by_categories(reducers, {"source"})
     return "\n".join(f"- `{reducer_id}`" for reducer_id in reducer_ids)
 
 
@@ -233,64 +249,10 @@ def _render_anomaly_detector_list(reducers) -> str:
     return "\n".join(f"- `{reducer_id}`" for reducer_id in reducer_ids)
 
 
-def _render_investigation_stage_workflow(reducers) -> str:
-    lines = [
-        "Stage 1 — Initial scan",
-        "  Purpose: orient to snapshot state and identify scope",
-        "  Reducers: "
-        + _format_plain_reducer_list(
-            _sorted_reducer_ids_by_investigation_stage(reducers, "initial_scan")
-        ),
-        "",
-        "Stage 2 — Entity discovery",
-        "  Purpose: resolve unknown identifiers; locate symbols",
-        "  Reducers: "
-        + _format_plain_reducer_list(
-            _sorted_reducer_ids_by_investigation_stage(reducers, "entity_discovery")
-        ),
-        "",
-        "Stage 3 — Structure inspection",
-        "  Purpose: inspect individual entities",
-        "  Reducers: "
-        + _format_plain_reducer_list(
-            _sorted_reducer_ids_by_investigation_stage(
-                reducers, "structure_inspection"
-            )
-        ),
-        "",
-        "Stage 4 — Relationship analysis",
-        "  Purpose: analyse dependencies, call edges, import coupling",
-        "  Reducers: "
-        + _format_plain_reducer_list(
-            _sorted_reducer_ids_by_investigation_stage(
-                reducers, "relationship_analysis"
-            )
-        ),
-        "",
-        "Stage 5 — Diagnostics / metrics",
-        "  Purpose: detect anomalies, hotspots, resolution quality",
-        "  Reducers: "
-        + _format_plain_reducer_list(
-            _sorted_reducer_ids_by_investigation_stage(
-                reducers, "diagnostics_metrics"
-            )
-        ),
-        "",
-        "Stage 6 — Source verification (only when ambiguity remains)",
-        "  Purpose: validate structural hypotheses already established by",
-        "           structure or relations reducers at implementation level",
-        "  Reducers: "
-        + _format_plain_reducer_list(
-            _sorted_reducer_ids_by_investigation_stage(
-                reducers, "source_verification"
-            )
-        ),
-        "",
-        "Stage 7 — Confirmed finding OR concern",
-        "  Purpose: state a reducer-gated structural claim (§2.4) or raise an",
-        "           evidence-bounded concern (§2.7)",
-    ]
-    return "\n".join(lines)
+def _render_stage_reducer_list(reducers, stage: str) -> str:
+    return _format_plain_reducer_list(
+        _sorted_reducer_ids_by_investigation_stage(reducers, stage)
+    )
 
 
 def _render_reducer_escalation_order(reducers) -> str:
@@ -348,13 +310,6 @@ def _sorted_reducer_ids_by_risk_tier(
     return _sorted_reducer_ids(reducers, risk_tier=risk_tier)
 
 
-def _sorted_reducer_ids_by_investigation_roles(
-    reducers,
-    investigation_roles: set[str],
-) -> list[str]:
-    return _sorted_reducer_ids(reducers, investigation_roles=investigation_roles)
-
-
 def _sorted_reducer_ids_by_investigation_stage(
     reducers,
     investigation_stage: str,
@@ -366,28 +321,16 @@ def _sorted_reducer_ids(
     reducers,
     *,
     categories: set[str] | None = None,
-    investigation_roles: set[str] | None = None,
     risk_tier: str | None = None,
     investigation_stage: str | None = None,
-    scopes: set[str] | None = None,
     reducer_ids: set[str] | None = None,
 ) -> list[str]:
     selected: list[str] = []
     for reducer_id, entry in reducers.items():
         category = str(getattr(entry, "category", "") or "")
-        scope = str(getattr(entry, "scope", "") or "")
-        roles = {
-            str(role)
-            for role in (getattr(entry, "investigation_roles", ()) or ())
-            if str(role)
-        }
         entry_risk_tier = str(getattr(entry, "risk_tier", "") or "")
-        entry_investigation_stage = str(
-            getattr(entry, "investigation_stage", "") or ""
-        )
+        entry_investigation_stage = str(getattr(entry, "stage", "") or "")
         if categories is not None and category not in categories:
-            continue
-        if investigation_roles is not None and not roles.intersection(investigation_roles):
             continue
         if risk_tier is not None and entry_risk_tier != risk_tier:
             continue
@@ -395,8 +338,6 @@ def _sorted_reducer_ids(
             investigation_stage is not None
             and entry_investigation_stage != investigation_stage
         ):
-            continue
-        if scopes is not None and scope not in scopes:
             continue
         if reducer_ids is not None and str(reducer_id) not in reducer_ids:
             continue

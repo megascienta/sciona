@@ -15,18 +15,12 @@ from ...runtime import git as git_ops
 
 REDUCER_META = ReducerMeta(
     reducer_id="structural_integrity_summary",
-    category="analytics",
-    scope="codebase",
-    investigation_roles=("metrics",),
+    category="metrics",
     risk_tier="normal",
-    investigation_stage="diagnostics_metrics",
-    placeholders=("STRUCTURAL_INTEGRITY_SUMMARY",),
-    determinism="conditional",
-    payload_size_stats=None,
+    stage="diagnostics_metrics",
+    placeholder="STRUCTURAL_INTEGRITY_SUMMARY",
     summary="Structural integrity diagnostics over committed SCI facts. "
-    "Use to detect duplicates, lexical orphans, and inheritance-cycle anomalies before downstream reasoning. "
-    "Scope: codebase-level. Payload kind: summary.",
-    lossy=True,
+    "Use to detect duplicates, lexical orphans, and inheritance-cycle anomalies before downstream reasoning. ",
     anomaly_detector=True,
 )
 

@@ -2,8 +2,8 @@
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
 from sciona.runtime.reducer_listing import (
-    format_investigation_roles,
     format_reducer_call,
+    normalize_category,
     render_reducer_catalog,
     render_reducer_list,
 )
@@ -25,9 +25,9 @@ class _DummyReducer:
 
 
 class _ReducerEntry:
-    def __init__(self, module, investigation_roles=()):
+    def __init__(self, module, category="structure"):
         self.module = module
-        self.investigation_roles = investigation_roles
+        self.category = category
 
 
 def test_format_reducer_call_includes_flags() -> None:
@@ -38,67 +38,62 @@ def test_format_reducer_call_includes_flags() -> None:
     assert "[--extras]" in call
 
 
-def test_render_reducer_list_orders_categories() -> None:
+def test_render_reducer_list_orders_roles() -> None:
     entries = [
         {
             "reducer_id": "b",
-            "category": "analytics",
+            "category": "metrics",
             "summary": "B",
-            "investigation_roles": ["metrics"],
         },
         {
             "reducer_id": "a",
-            "category": "core",
+            "category": "structure",
             "summary": "A",
-            "investigation_roles": ["structure"],
         },
     ]
     reducers = {
-        "a": _ReducerEntry(_DummyReducer(), ("structure",)),
-        "b": _ReducerEntry(_DummyReducer(), ("metrics",)),
+        "a": _ReducerEntry(_DummyReducer(), "structure"),
+        "b": _ReducerEntry(_DummyReducer(), "metrics"),
     }
     lines = render_reducer_list(entries, reducers, include_prefix=False)
-    core_index = lines.index("Category: core")
-    analytics_index = lines.index("Category: analytics")
-    assert core_index < analytics_index
+    structure_index = lines.index("Category: structure")
+    metrics_index = lines.index("Category: metrics")
+    assert structure_index < metrics_index
     assert any(line.startswith("  Command: reducer --id a") for line in lines)
-    assert any("Role: structure." in line for line in lines)
+    assert "  Summary: A" in lines
 
 
 def test_render_reducer_catalog_lists_entries() -> None:
     entries = [
         {
             "reducer_id": "alpha",
-            "category": "core",
+            "category": "structure",
             "summary": "Alpha",
-            "investigation_roles": ["structure", "relations"],
         },
     ]
     lines = render_reducer_catalog(entries)
     assert "Available reducers:" in lines[0]
     assert "- alpha" in lines
-    assert any("Role: structure, relations." in line for line in lines)
+    assert "  Summary: Alpha" in lines
 
 
-def test_format_investigation_roles_uses_declared_order() -> None:
-    assert format_investigation_roles(["source", "metrics", "structure"]) == (
-        "structure, metrics, source"
-    )
+def test_normalize_category_defaults_to_unknown() -> None:
+    assert normalize_category("") == "unknown"
+    assert normalize_category(" metrics ") == "metrics"
 
 
 def test_render_reducer_show_includes_risk_and_stage() -> None:
     lines = render_reducer_show(
         {
             "reducer_id": "alpha",
-            "scope": "codebase",
-            "category": "analytics",
-            "investigation_roles": ["metrics"],
+            "category": "metrics",
+            "placeholder": "ALPHA",
             "risk_tier": "elevated",
-            "investigation_stage": "analytical_relations_metrics",
-            "determinism": "conditional",
+            "stage": "diagnostics_metrics",
             "summary": "Alpha.",
         }
     )
-    assert "Role: metrics" in lines
+    assert "Category: metrics" in lines
     assert "Risk tier: elevated" in lines
-    assert "Investigation stage: analytical_relations_metrics" in lines
+    assert "Stage: diagnostics_metrics" in lines
+    assert "Placeholder: ALPHA" in lines

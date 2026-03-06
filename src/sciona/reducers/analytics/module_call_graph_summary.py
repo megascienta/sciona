@@ -16,18 +16,12 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="module_call_graph_summary",
-    category="analytics",
-    scope="module",
-    investigation_roles=("relations",),
+    category="relations",
     risk_tier="normal",
-    investigation_stage="relationship_analysis",
-    placeholders=("MODULE_CALL_GRAPH",),
-    determinism="conditional",
-    payload_size_stats=None,
+    stage="relationship_analysis",
+    placeholder="MODULE_CALL_GRAPH",
     summary="Summary of call relationships within a module. " \
-    "Use for module-level flow or coupling analysis. " \
-    "Scope: module call graph. Payload kind: summary.",
-    lossy=True,
+    "Use for module-level flow or coupling analysis. ",
 )
 
 

@@ -6,9 +6,16 @@
 from __future__ import annotations
 
 import inspect
-from typing import Iterable, Mapping
+from typing import Mapping
 
-from .reducer_metadata import CATEGORY_ORDER, INVESTIGATION_ROLE_ORDER
+from .reducer_metadata import CATEGORY_ORDER
+
+
+def normalize_category(category: object) -> str:
+    value = str(category).strip()
+    if value:
+        return value
+    return "unknown"
 
 
 def format_reducer_call(reducer_id: str, reducer_module) -> str:
@@ -40,38 +47,15 @@ def format_reducer_call(reducer_id: str, reducer_module) -> str:
     return f"reducer --id {reducer_id}"
 
 
-def format_investigation_roles(roles: Iterable[object]) -> str:
-    normalized = [str(role).strip() for role in roles if str(role).strip()]
-    ordered: list[str] = []
-    seen = set()
-    for role in INVESTIGATION_ROLE_ORDER:
-        if role in normalized and role not in seen:
-            ordered.append(role)
-            seen.add(role)
-    for role in sorted(set(normalized) - seen):
-        ordered.append(role)
-    return ", ".join(ordered)
-
-
-def summary_with_roles(
-    summary: str,
-    roles: Iterable[object],
-) -> str:
-    role_text = format_investigation_roles(roles)
-    if not role_text:
-        return summary
-    return f"{summary} Role: {role_text}."
-
-
 def render_reducer_list(
-    entries: Iterable[Mapping[str, object]],
+    entries: list[Mapping[str, object]],
     reducers,
     *,
     include_prefix: bool = True,
 ) -> list[str]:
     bucket: dict[str, list[Mapping[str, object]]] = {}
     for entry in entries:
-        category = str(entry.get("category") or "unknown")
+        category = normalize_category(entry.get("category"))
         bucket.setdefault(category, []).append(entry)
 
     for values in bucket.values():
@@ -96,20 +80,17 @@ def render_reducer_list(
             if reducer_module is None:
                 continue
             summary = str(entry.get("summary") or "").strip()
-            roles = entry.get("investigation_roles") or getattr(
-                reducer_entry, "investigation_roles", ()
-            )
-            lines.append(f"  Summary: {summary_with_roles(summary, roles)}")
+            lines.append(f"  Summary: {summary}")
             call = format_reducer_call(reducer_id, reducer_module)
             lines.append(f"  Command: {prefix}{call}")
             lines.append("")
     return lines
 
 
-def render_reducer_catalog(entries: Iterable[Mapping[str, object]]) -> list[str]:
+def render_reducer_catalog(entries: list[Mapping[str, object]]) -> list[str]:
     bucket: dict[str, list[Mapping[str, object]]] = {}
     for entry in entries:
-        category = str(entry.get("category") or "unknown")
+        category = normalize_category(entry.get("category"))
         bucket.setdefault(category, []).append(entry)
 
     for values in bucket.values():
@@ -128,17 +109,15 @@ def render_reducer_catalog(entries: Iterable[Mapping[str, object]]) -> list[str]
         for entry in bucket.get(category, []):
             reducer_id = str(entry.get("reducer_id") or "").strip()
             summary = str(entry.get("summary") or "").strip()
-            roles = entry.get("investigation_roles") or ()
             lines.append(f"- {reducer_id}")
-            lines.append(f"  Summary: {summary_with_roles(summary, roles)}")
+            lines.append(f"  Summary: {summary}")
     return lines
 
 
 __all__ = [
     "CATEGORY_ORDER",
-    "format_investigation_roles",
     "format_reducer_call",
-    "render_reducer_list",
+    "normalize_category",
     "render_reducer_catalog",
-    "summary_with_roles",
+    "render_reducer_list",
 ]

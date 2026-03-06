@@ -8,9 +8,7 @@ from __future__ import annotations
 from typing import Iterable
 
 from ..runtime.reducer_listing import (
-    format_investigation_roles,
     render_reducer_catalog,
-    summary_with_roles,
 )
 
 
@@ -285,18 +283,13 @@ def render_reducer_list(entries: list[dict]) -> list[str]:
 
 
 def render_reducer_show(entry: dict) -> list[str]:
-    summary = summary_with_roles(
-        str(entry["summary"]),
-        entry.get("investigation_roles") or (),
-    )
+    summary = str(entry["summary"])
     lines = [
         f"Reducer: {entry['reducer_id']}",
-        f"Scope: {entry['scope']}",
         f"Category: {entry['category']}",
-        f"Role: {format_investigation_roles(entry.get('investigation_roles') or ())}",
         f"Risk tier: {entry['risk_tier']}",
-        f"Investigation stage: {entry['investigation_stage']}",
-        f"Determinism: {entry['determinism']}",
+        f"Stage: {entry['stage']}",
+        f"Placeholder: {entry['placeholder']}",
         "",
         "Summary:",
         f"  {summary}",

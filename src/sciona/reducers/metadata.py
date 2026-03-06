@@ -6,15 +6,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Mapping, Tuple
 
 from ..runtime.reducer_metadata import (
     CategoryLiteral,
-    DeterminismLiteral,
     InvestigationStageLiteral,
-    InvestigationRoleLiteral,
     RiskTierLiteral,
-    ScopeLiteral,
 )
 
 
@@ -22,16 +18,10 @@ from ..runtime.reducer_metadata import (
 class ReducerMeta:
     reducer_id: str
     category: CategoryLiteral
-    scope: ScopeLiteral
-    investigation_roles: Tuple[InvestigationRoleLiteral, ...]
+    placeholder: str
     risk_tier: RiskTierLiteral
-    investigation_stage: InvestigationStageLiteral
-    placeholders: Tuple[str, ...]
-    determinism: DeterminismLiteral
-    payload_size_stats: Mapping[str, object] | None
+    stage: InvestigationStageLiteral
     summary: str
-    lossy: bool = False
-    baseline_only: bool = False
     anomaly_detector: bool = False
 
 

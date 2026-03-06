@@ -24,17 +24,12 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="callable_overview",
-    category="core",
-    scope="callable",
-    investigation_roles=("structure",),
+    category="structure",
     risk_tier="normal",
-    investigation_stage="structure_inspection",
-    placeholders=("CALLABLE_OVERVIEW",),
-    determinism="conditional",
-    payload_size_stats=None,
+    stage="structure_inspection",
+    placeholder="CALLABLE_OVERVIEW",
     summary="Structural summary of a callable, including signature, location, and metadata. " \
-    "Use for quick callable inspection without retrieving full source. " \
-    "Scope: single callable. Payload kind: summary.",
+    "Use for quick callable inspection without retrieving full source. ",
 )
 
 

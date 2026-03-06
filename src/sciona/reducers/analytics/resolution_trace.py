@@ -22,18 +22,12 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="resolution_trace",
-    category="analytics",
-    scope="callable",
-    investigation_roles=("metrics",),
+    category="metrics",
     risk_tier="normal",
-    investigation_stage="diagnostics_metrics",
-    placeholders=("RESOLUTION_TRACE",),
-    determinism="conditional",
-    payload_size_stats=None,
+    stage="diagnostics_metrics",
+    placeholder="RESOLUTION_TRACE",
     summary="Call-resolution diagnostics and sampled traces for one callable. "
-    "Use to understand why callsites were accepted or dropped without changing CALLS truth. "
-    "Scope: callable-level telemetry. Payload kind: summary.",
-    lossy=True,
+    "Use to understand why callsites were accepted or dropped without changing CALLS truth. ",
 )
 
 

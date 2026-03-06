@@ -24,19 +24,13 @@ from .dependency_edges_resolve import (
 
 REDUCER_META = ReducerMeta(
     reducer_id="dependency_edges",
-    category="core",
-    scope="codebase",
-    investigation_roles=("relations",),
+    category="relations",
     risk_tier="normal",
-    investigation_stage="relationship_analysis",
-    placeholders=("DEPENDENCY_EDGES",),
-    determinism="strict",
-    payload_size_stats=None,
+    stage="relationship_analysis",
+    placeholder="DEPENDENCY_EDGES",
     summary="Explicit module import dependencies. " \
     "Use for analysing module coupling or dependency graphs. " \
-    "direction='in' or 'out' scopes module_id filters. " \
-    "Scope: module-level import edges. Payload kind: summary.",
-    lossy=True,
+    "direction='in' or 'out' scopes module_id filters. ",
 )
 
 def render(

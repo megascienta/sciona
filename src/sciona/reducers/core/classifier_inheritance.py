@@ -16,17 +16,12 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="classifier_inheritance",
-    category="core",
-    scope="classifier",
-    investigation_roles=("structure",),
+    category="structure",
     risk_tier="normal",
-    investigation_stage="structure_inspection",
-    placeholders=("CLASSIFIER_INHERITANCE",),
-    determinism="conditional",
-    payload_size_stats=None,
+    stage="structure_inspection",
+    placeholder="CLASSIFIER_INHERITANCE",
     summary="Parsed base classifiers and inheritance relations. " \
-    "Use when reasoning about classifier hierarchy or polymorphic structure. " \
-    "Scope: classifier hierarchy. Payload kind: summary.",
+    "Use when reasoning about classifier hierarchy or polymorphic structure. ",
 )
 
 

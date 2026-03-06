@@ -41,17 +41,11 @@ def list_entries(
         entries.append(
             {
                 "reducer_id": reducer_id,
-                "scope": entry.scope,
-                "investigation_roles": builtins.list(entry.investigation_roles),
-                "risk_tier": entry.risk_tier,
-                "investigation_stage": entry.investigation_stage,
-                "placeholders": builtins.list(entry.placeholders),
-                "determinism": entry.determinism,
-                "payload_size_stats": entry.payload_size_stats,
                 "category": entry.category,
+                "placeholder": entry.placeholder,
+                "risk_tier": entry.risk_tier,
+                "stage": entry.stage,
                 "summary": entry.summary,
-                "lossy": entry.lossy,
-                "baseline_only": entry.baseline_only,
                 "anomaly_detector": entry.anomaly_detector,
             }
         )

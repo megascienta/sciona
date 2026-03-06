@@ -19,19 +19,13 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="callsite_index",
-    category="analytics",
-    scope="callable",
-    investigation_roles=("relations",),
+    category="relations",
     risk_tier="normal",
-    investigation_stage="relationship_analysis",
-    placeholders=("CALLSITE_INDEX",),
-    determinism="conditional",
-    payload_size_stats=None,
+    stage="relationship_analysis",
+    placeholder="CALLSITE_INDEX",
     summary="Indexed caller/callee edges for a callable, including callsite details. " \
     "Use when reasoning about call directionality or callsite-level analysis. " \
-    "detail_level='neighbors' returns caller/callee sets. " \
-    "Scope: callable-level call edges. Payload kind: summary.",
-    lossy=True,
+    "detail_level='neighbors' returns caller/callee sets. ",
 )
 
 

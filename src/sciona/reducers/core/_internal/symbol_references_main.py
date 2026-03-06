@@ -26,18 +26,12 @@ from .symbol_references_references import (
 
 REDUCER_META = ReducerMeta(
     reducer_id="symbol_references",
-    category="core",
-    scope="codebase",
-    investigation_roles=("relations",),
+    category="relations",
     risk_tier="normal",
-    investigation_stage="relationship_analysis",
-    placeholders=("SYMBOL_REFERENCES",),
-    determinism="conditional",
-    payload_size_stats=None,
+    stage="relationship_analysis",
+    placeholder="SYMBOL_REFERENCES",
     summary="Structural relationships (calls/imports) for matched symbols. " \
-    "Use for impact analysis or dependency tracing. " \
-    "Scope: symbol → relations. Payload kind: summary.",
-    lossy=True,
+    "Use for impact analysis or dependency tracing. ",
 )
 
 def render(

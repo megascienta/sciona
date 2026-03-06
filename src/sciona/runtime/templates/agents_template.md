@@ -44,8 +44,6 @@ SCIONA constrains what exists and how components relate structurally. It does no
 - Tracked call edges are deterministic static approximations.
 - Dynamic dispatch, decorators, dependency injection, runtime wiring, and similar mechanisms are outside SCIONA’s modeling scope.
 - SCIONA reducers are the **primary source of structural evidence**.
-- Reducer outputs are authoritative within their declared abstraction scope.
-- Reducer-derived evidence MUST be treated as authoritative for structural claims.
 - Reducer outputs can be a lossy representation of structural evidence.
 - Reducer outputs reflect the **last committed snapshot** unless _diff overlays are explicitly used.
 - Manual source inspection SHOULD NOT contradict reducer-derived structural evidence without explicit justification.
@@ -157,7 +155,7 @@ Structural claims include statements about:
 - contract violations
 - module relationships
 
-If reducer evidence is unavailable, the agent MUST NOT assert the claim. Instead, the agent MAY raise a concern (§2.7).
+If reducer evidence is unavailable, the agent MUST NOT assert the claim. Instead, the agent MAY raise a concern (§2.7), consistent with §2.2.
 
 Structural claims MUST refer to the committed SCI snapshot unless explicitly marked as `overlay_advisory`.
 
@@ -165,10 +163,10 @@ Structural claims MUST refer to the committed SCI snapshot unless explicitly mar
 
 Before stating a structural claim, at least one of the following conditions MUST be satisfied:
 
-1. **Reducer-backed evidence** — a core, analytics, or relevant grounding reducer has been invoked and its output directly supports the claim
-   - Core reducers provide authoritative structural facts
-   - Analytics reducers may support structural claims only when their output references structural identifiers
-   - Grounding reducers may support claims about signatures or interfaces
+1. **Reducer-backed evidence** — a relevant reducer has been invoked and its output directly supports the claim
+   - `structure` reducers provide primary structural facts
+   - `relations` and `metrics` reducers may support structural claims when their output references structural identifiers or diagnostics grounded in the committed snapshot
+   - `source` reducers may support claims about signatures or implementation details, but only with cross-checking under §7.9
 2. **Previously established reducer evidence** — the claim was already established earlier in the same task using reducer evidence and has not been invalidated or superseded by subsequent reducer results
 
 Cross-category verification is governed by §7.3 and still applies before a structural conclusion is stated.
@@ -197,7 +195,7 @@ Raw source inspection MAY only occur through:
 
 {SOURCE_REDUCER_LIST}
 
-These reducers are for **validating structural hypotheses** already grounded in core or analytics reducer evidence. They MUST NOT be used as the primary basis for structural inference. Any structural conclusion derived from source reducers alone MUST be cross-checked with at least one core or analytics reducer (see §7.10).
+These reducers are for **validating structural hypotheses** already grounded in structure, relations, or metrics reducer evidence. They MUST NOT be used as the primary basis for structural inference. Any structural conclusion derived from source reducers alone MUST be cross-checked under §7.9.
 
 ### 2.6 Section interaction: claim gate and evidence discipline
 
@@ -211,7 +209,7 @@ An agent that satisfies Section 7 but bypasses §2.4 is still in violation. Both
 
 ### 2.7 Evidence‑Bounded Concerns (PERMITTED)
 
-If reducer evidence is insufficient, agents MAY raise a **concern** rather than asserting a claim.
+If reducer evidence is insufficient, agents MAY raise a **concern** rather than asserting a claim, consistent with §2.2.
 
 Concerns MUST:
 
@@ -303,7 +301,34 @@ Identifier requirements:
 All structural investigations MUST follow this canonical seven-stage pipeline. This pipeline is authoritative. §7.10 restates stages 1–6 as reducer escalation order.
 
 ```
-{INVESTIGATION_STAGE_WORKFLOW}
+Stage 1 — Initial scan
+  Purpose: orient to snapshot state and identify scope
+  Reducers: {STAGE_INITIAL_SCAN_REDUCERS}
+
+Stage 2 — Entity discovery
+  Purpose: resolve unknown identifiers; locate symbols
+  Reducers: {STAGE_ENTITY_DISCOVERY_REDUCERS}
+
+Stage 3 — Structure inspection
+  Purpose: inspect individual entities
+  Reducers: {STAGE_STRUCTURE_INSPECTION_REDUCERS}
+
+Stage 4 — Relationship analysis
+  Purpose: analyse dependencies, call edges, import coupling
+  Reducers: {STAGE_RELATIONSHIP_ANALYSIS_REDUCERS}
+
+Stage 5 — Diagnostics / metrics
+  Purpose: detect anomalies, hotspots, resolution quality
+  Reducers: {STAGE_DIAGNOSTICS_REDUCERS}
+
+Stage 6 — Source verification (only when ambiguity remains)
+  Purpose: validate structural hypotheses already established by
+  structure or relations reducers at implementation level
+  Reducers: {STAGE_SOURCE_VERIFICATION_REDUCERS}
+
+Stage 7 — Confirmed finding OR concern
+  Purpose: state a reducer-gated structural claim (§2.4) or raise an
+           evidence-bounded concern (§2.7)
 ```
 
 Stages MUST NOT be skipped without explicit justification. When skipping a stage, agents MUST state which stage was skipped and why it was inapplicable.
@@ -365,9 +390,7 @@ Agents MUST avoid excessive reducer calls when previously retrieved SCIONA evide
 
 Reducers expose different evidence layers of the SCIONA system. Agents MUST treat reducer outputs according to their evidence authority and misuse risk.
 
-Reducers are deterministic, but **not all reducer outputs represent the same level of structural truth**.
-
-The evidence authority hierarchy is defined in §1.3 and governs all conflict resolution in this section.
+The evidence authority hierarchy is defined in §1.3, and dirty-worktree overlay handling is defined in §1.4. Those sections govern this section.
 
 ### 7.1 Structural Exploration Discipline (MUST)
 
@@ -387,14 +410,15 @@ These workflow categories are for investigation use and are orthogonal to reduce
 
 ### 7.3 Cross‑Category Evidence Requirement (MUST)
 
+This rule uses the workflow-role categories in §7.2.
+
 Before structural conclusions (Stage 7 of §5.3), agents MUST obtain evidence from at least two of:
 
 - structure
 - relations
 - metrics
 
-Single‑reducer conclusions are not permitted.
-This requirement governs structural conclusions under §2.4.
+Single‑reducer conclusions are not permitted. This rule governs structural conclusions even when the §2.4 claim gate has been satisfied by a single reducer.
 
 **Previously established reducer evidence** from earlier in the same task satisfies this requirement, provided the earlier evidence has not been superseded. Agents MUST explicitly identify which prior reducer invocation serves as the cross-category anchor.
 
@@ -453,19 +477,23 @@ When reducer-derived evidence is used, agents MUST label the evidence origin in 
 
 **`telemetry`** — derived metrics, diagnostics, or rollups (e.g. callsite diagnostics, fan metrics, hotspot rankings)
 
-**`source`** — raw source code obtained through grounding reducers
+**`source`** — raw source code obtained through source reducers
 
-**`overlay_advisory`** — dirty-worktree overlay hints describing potential differences from the committed snapshot
+**`overlay_advisory`** — dirty-worktree overlay hints describing potential differences from the committed snapshot (see §1.4)
 
 Reducers MAY yield mixed evidence types. Agents SHOULD label the dominant evidence type used in the reasoning step.
 
 ### 7.9 Cross-check rule (MUST)
 
-When **structural conclusions** about structure, dependencies, or call relationships are derived from `grounding` or `composites` reducers, agents MUST cross-check using at least one `core` or `analytics` reducer.
+This rule uses `risk_tier` together with the workflow categories in §7.2.
+
+When **structural conclusions** about structure, dependencies, or call relationships are derived from an elevated-risk reducer or from a `source` reducer, agents MUST cross-check using at least one normal-risk reducer from category `structure`, `relations`, or `metrics`.
+
+If that cross-checking reducer also contributes evidence required by §7.3, the same invocation MAY satisfy both rules.
 
 Cross-check satisfaction:
 
-- If a `core` or `analytics` reducer was already invoked earlier in the same task and its output is relevant to the conclusion, that prior invocation satisfies the cross-check requirement
+- If a normal-risk reducer from category `structure`, `relations`, or `metrics` was already invoked earlier in the same task and its output is relevant to the conclusion, that prior invocation satisfies the cross-check requirement
 - Agents MUST explicitly identify which reducer served as the cross-check anchor
 
 If cross-check evidence is unavailable or inconsistent, agents MUST:
@@ -474,19 +502,16 @@ If cross-check evidence is unavailable or inconsistent, agents MUST:
 - Label the conclusion `source-only`
 - Avoid strong structural conclusions
 
-This rule applies to structural claims. It does not apply to retrieving already-established facts where the structural basis was previously confirmed by a `core` or `analytics` reducer in the same task.
+This rule applies to structural claims. It does not apply to retrieving already-established facts where the structural basis was previously confirmed by a normal-risk `structure`, `relations`, or `metrics` reducer in the same task.
 
 ### 7.10 Payload minimization and reducer escalation (MUST)
 
-Agents MUST follow this escalation order and MUST NOT skip levels without explicit justification:
-
-{REDUCER_ESCALATION_ORDER}
+Agents MUST follow this escalation order and MUST NOT skip levels without explicit justification. Reducer escalation follows the canonical investigation pipeline
+defined in §5.3 (stages 1–6).
 
 When skipping a level, agents MUST state which level was skipped and why it was inapplicable to the query.
 
 Reducing payload scope improves determinism and reduces reasoning drift.
-
-This escalation order maps directly to the §5.3 investigation pipeline stages 1–6.
 
 ---
 

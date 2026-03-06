@@ -16,18 +16,12 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="classifier_call_graph_summary",
-    category="analytics",
-    scope="classifier",
-    investigation_roles=("relations",),
+    category="relations",
     risk_tier="normal",
-    investigation_stage="relationship_analysis",
-    placeholders=("CLASSIFIER_CALL_GRAPH",),
-    determinism="conditional",
-    payload_size_stats=None,
+    stage="relationship_analysis",
+    placeholder="CLASSIFIER_CALL_GRAPH",
     summary="Summary of call relationships within a classifier. " \
-    "Use for analysing method interaction patterns or internal coupling. " \
-    "Scope: classifier-level call graph. Payload kind: summary.",
-    lossy=True,
+    "Use for analysing method interaction patterns or internal coupling. ",
 )
 
 def render(

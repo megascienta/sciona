@@ -18,18 +18,12 @@ from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="call_resolution_quality",
-    category="analytics",
-    scope="codebase",
-    investigation_roles=("metrics",),
+    category="metrics",
     risk_tier="normal",
-    investigation_stage="diagnostics_metrics",
-    placeholders=("CALL_RESOLUTION_QUALITY",),
-    determinism="conditional",
-    payload_size_stats=None,
+    stage="diagnostics_metrics",
+    placeholder="CALL_RESOLUTION_QUALITY",
     summary="Aggregated call-resolution quality diagnostics derived from callsite telemetry. "
-    "Use to understand accepted vs dropped callsite distribution and dominant drop reasons. "
-    "Scope: codebase-level telemetry summary. Payload kind: summary.",
-    lossy=True,
+    "Use to understand accepted vs dropped callsite distribution and dominant drop reasons. ",
     anomaly_detector=True,
 )
 

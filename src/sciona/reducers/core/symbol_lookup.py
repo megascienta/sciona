@@ -15,17 +15,12 @@ _NODE_TYPES = {"module", "classifier", "callable"}
 
 REDUCER_META = ReducerMeta(
     reducer_id="symbol_lookup",
-    category="core",
-    scope="codebase",
-    investigation_roles=("structure",),
+    category="structure",
     risk_tier="normal",
-    investigation_stage="entity_discovery",
-    placeholders=("SYMBOL_LOOKUP",),
-    determinism="conditional",
-    payload_size_stats=None,
+    stage="entity_discovery",
+    placeholder="SYMBOL_LOOKUP",
     summary="Ranked structural symbol matches for a query. " \
-    "Use when resolving unknown identifiers. " \
-    "Scope: query → symbols. Payload kind: summary.",
+    "Use when resolving unknown identifiers. ",
 )
 
 def render(

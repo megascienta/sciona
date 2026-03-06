@@ -240,8 +240,4 @@ def _validate_reducer_args(arg_map: dict[str, object], allowed: set[str]) -> Non
 
 
 def _build_reducer_notes(reducer_id: str) -> list[str]:
-    notes = ["[tool limitation] Results reflect the latest committed snapshot only."]
-    entry = reducer_api.get_reducers().get(reducer_id)
-    if entry and entry.lossy:
-        notes.append("[design choice] Reducer output is lossy (summary or compressed).")
-    return notes
+    return ["[tool limitation] Results reflect the latest committed snapshot only."]

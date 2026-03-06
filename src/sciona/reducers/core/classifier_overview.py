@@ -25,16 +25,12 @@ from ..helpers.utils import line_span_hash, require_latest_committed_snapshot
 
 REDUCER_META = ReducerMeta(
     reducer_id="classifier_overview",
-    category="core",
-    scope="classifier",
-    investigation_roles=("structure",),
+    category="structure",
     risk_tier="normal",
-    investigation_stage="structure_inspection",
-    placeholders=("CLASSIFIER_OVERVIEW",),
-    determinism="conditional",
-    payload_size_stats=None,
+    stage="structure_inspection",
+    placeholder="CLASSIFIER_OVERVIEW",
     summary="Structural summary of a classifier, including methods and metadata. " \
-    "Use for quick classifier inspection. Scope: classifier-level structure. Payload kind: summary.",
+    "Use for quick classifier inspection.",
 )
 
 
