@@ -13,7 +13,7 @@ def load_overlay(
     core_conn,
     artifact_conn,
 ):
-    from ..pipelines.diff_overlay.ops_get import get_overlay
+    from .pipelines.diff_overlay.ops_get import get_overlay
 
     return get_overlay(
         repo_root=repo_root,
