@@ -69,6 +69,16 @@ def apply_overlay_to_text(
     if schema_warnings:
         diff_payload["warnings"].extend(schema_warnings)
     patched["_diff"] = diff_payload
+    if profile and not profile.get("supports_patch"):
+        patched["snapshot_warning"] = {
+            "code": "DIRTY_OVERLAY_METADATA_ONLY",
+            "message": (
+                "Worktree is dirty and overlay metadata is available, but this "
+                "projection is not payload-patchable; reducer output remains "
+                "committed-snapshot only."
+            ),
+            "severity": "warning",
+        }
     return render_json_payload(patched)
 
 def attach_unavailable_overlay(

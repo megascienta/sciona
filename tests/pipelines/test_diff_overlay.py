@@ -175,3 +175,6 @@ def test_dirty_overlay_snapshot_provenance_marks_projection_not_supported(
     warnings = diff.get("warnings") or []
     assert "projection_not_supported" in warnings
     assert "projection_not_patched" not in warnings
+    warning = payload.get("snapshot_warning") or {}
+    assert warning.get("code") == "DIRTY_OVERLAY_METADATA_ONLY"
+    assert "committed-snapshot only" in str(warning.get("message") or "")
