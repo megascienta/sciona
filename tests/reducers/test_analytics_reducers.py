@@ -643,6 +643,10 @@ def test_module_call_graph_summary_returns_payload(tmp_path):
     assert payload["module_qualified_name"] == module_id
     assert "outgoing" in payload
     assert "incoming" in payload
+    assert payload["changed_edge_count"] == 0
+    if payload["outgoing"]:
+        assert payload["outgoing"][0]["row_origin"] == "committed"
+        assert payload["outgoing"][0]["delta_call_count"] == 0
 
 
 def test_class_call_graph_summary_returns_payload(tmp_path):
@@ -660,6 +664,10 @@ def test_class_call_graph_summary_returns_payload(tmp_path):
     assert payload["classifier_id"] == classifier_id
     assert "outgoing" in payload
     assert "incoming" in payload
+    assert payload["changed_edge_count"] == 0
+    if payload["outgoing"]:
+        assert payload["outgoing"][0]["row_origin"] == "committed"
+        assert payload["outgoing"][0]["delta_call_count"] == 0
 
 
 def test_module_call_graph_summary_can_narrow_by_peer_modules(tmp_path):

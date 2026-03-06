@@ -8,6 +8,10 @@ import json
 from sciona import api
 from sciona.reducers import overlay_projection_status_summary
 from sciona.pipelines.diff_overlay.patchers.analytics import patch_callsite_index
+from sciona.pipelines.diff_overlay.patchers.analytics import (
+    patch_classifier_call_graph_summary,
+    patch_module_call_graph_summary,
+)
 from sciona.pipelines.diff_overlay.patchers.core import patch_dependency_edges
 from sciona.pipelines.diff_overlay.ops_get import _OVERLAY_PROFILE
 from sciona.pipelines.diff_overlay.types import OverlayPayload
@@ -265,6 +269,243 @@ def test_patch_callsite_index_marks_edge_transitions(repo_with_snapshot):
     }
     assert transitions[("func_alpha", "func_beta")] == "accepted_to_dropped"
     assert transitions[("func_alpha", "func_gamma")] == "dropped_to_accepted"
+
+
+def test_patch_module_call_graph_summary_marks_edge_deltas(repo_with_snapshot):
+    repo_root, snapshot_id = repo_with_snapshot
+    payload = {
+        "module_qualified_name": qualify_repo_name(repo_root, "pkg.alpha"),
+        "module_structural_id": "mod_alpha",
+        "top_k": None,
+        "outgoing": [
+            {
+                "src_module_structural_id": "mod_alpha",
+                "dst_module_structural_id": "mod_beta",
+                "src_module_qualified_name": qualify_repo_name(repo_root, "pkg.alpha"),
+                "dst_module_qualified_name": qualify_repo_name(repo_root, "pkg.beta"),
+                "direction": "outgoing",
+                "call_count": 1,
+                "committed_call_count": 1,
+                "overlay_call_count": 1,
+                "delta_call_count": 0,
+                "row_origin": "committed",
+                "is_active": True,
+            }
+        ],
+        "incoming": [],
+        "outgoing_total": 1,
+        "incoming_total": 0,
+    }
+    overlay = OverlayPayload(
+        worktree_hash="hash",
+        snapshot_commit="commit",
+        base_commit="base",
+        base_commit_strategy="snapshot",
+        head_commit="head",
+        merge_base=None,
+        nodes={
+            "add": [
+                {
+                    "new_value": json.dumps(
+                        {
+                            "structural_id": "func_beta",
+                            "node_type": "callable",
+                            "language": "python",
+                            "qualified_name": qualify_repo_name(repo_root, "pkg.beta.worker.helper"),
+                            "file_path": "pkg/beta/worker.py",
+                        }
+                    )
+                }
+            ],
+            "remove": [],
+            "update": [],
+        },
+        edges={"add": [], "remove": [], "update": []},
+        calls={
+            "add": [
+                {
+                    "src_structural_id": "func_alpha",
+                    "dst_structural_id": "meth_alpha",
+                    "src_node_type": "callable",
+                    "dst_node_type": "callable",
+                    "src_qualified_name": qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
+                    "dst_qualified_name": qualify_repo_name(repo_root, "pkg.alpha.Service.run"),
+                    "src_file_path": "pkg/alpha/service.py",
+                    "dst_file_path": "pkg/alpha/service.py",
+                    "diff_kind": "add",
+                }
+            ],
+            "remove": [
+                    {
+                        "src_structural_id": "func_alpha",
+                        "dst_structural_id": "func_beta",
+                        "src_node_type": "callable",
+                        "dst_node_type": "callable",
+                        "src_qualified_name": qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
+                        "dst_qualified_name": qualify_repo_name(repo_root, "pkg.beta.worker.helper"),
+                        "src_file_path": "pkg/alpha/service.py",
+                        "dst_file_path": "pkg/beta/worker.py",
+                        "diff_kind": "remove",
+                    }
+                ],
+            "update": [],
+        },
+        summary=None,
+        warnings=[],
+    )
+    conn = core_conn(repo_root)
+    try:
+        patched = patch_module_call_graph_summary(
+            payload,
+            overlay,
+            snapshot_id=snapshot_id,
+            conn=conn,
+        )
+    finally:
+        conn.close()
+    assert patched["added_edge_count"] == 1
+    assert patched["removed_edge_count"] == 1
+    assert patched["changed_edge_count"] == 2
+    origins = {
+        (edge["src_module_structural_id"], edge["dst_module_structural_id"]): edge[
+            "row_origin"
+        ]
+        for edge in patched["outgoing"]
+    }
+    assert origins[("mod_alpha", "mod_beta")] == "overlay_removed"
+    assert origins[("mod_alpha", "mod_alpha")] == "overlay_added"
+
+
+def test_patch_classifier_call_graph_summary_marks_edge_deltas(repo_with_snapshot):
+    repo_root, snapshot_id = repo_with_snapshot
+    conn = core_conn(repo_root)
+    try:
+        conn.execute(
+            """
+            INSERT OR REPLACE INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
+            VALUES (?, ?, ?, ?)
+            """,
+            ("cls_other", "classifier", "python", snapshot_id),
+        )
+        conn.execute(
+            """
+            INSERT OR REPLACE INTO node_instances(
+                instance_id, structural_id, snapshot_id, qualified_name, file_path, start_line, end_line, content_hash
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                f"{snapshot_id}:cls_other",
+                "cls_other",
+                snapshot_id,
+                qualify_repo_name(repo_root, "pkg.beta.Other"),
+                "pkg/beta/other.py",
+                1,
+                12,
+                "hash-cls-other",
+            ),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+    payload = {
+        "classifier_id": qualify_repo_name(repo_root, "pkg.alpha.Service"),
+        "classifier_structural_id": "cls_alpha",
+        "top_k": None,
+        "outgoing": [
+            {
+                "src_classifier_id": "cls_alpha",
+                "dst_classifier_id": "cls_other",
+                "src_classifier_qualified_name": qualify_repo_name(repo_root, "pkg.alpha.Service"),
+                "dst_classifier_qualified_name": qualify_repo_name(repo_root, "pkg.beta.Other"),
+                "direction": "outgoing",
+                "call_count": 1,
+                "committed_call_count": 1,
+                "overlay_call_count": 1,
+                "delta_call_count": 0,
+                "row_origin": "committed",
+                "is_active": True,
+            }
+        ],
+        "incoming": [],
+        "outgoing_total": 1,
+        "incoming_total": 0,
+    }
+    overlay = OverlayPayload(
+        worktree_hash="hash",
+        snapshot_commit="commit",
+        base_commit="base",
+        base_commit_strategy="snapshot",
+        head_commit="head",
+        merge_base=None,
+        nodes={
+            "add": [
+                {
+                    "new_value": json.dumps(
+                        {
+                            "structural_id": "meth_other",
+                            "node_type": "callable",
+                            "language": "python",
+                            "qualified_name": qualify_repo_name(repo_root, "pkg.beta.Other.run"),
+                            "file_path": "pkg/beta/other.py",
+                        }
+                    )
+                }
+            ],
+            "remove": [],
+            "update": [],
+        },
+        edges={"add": [], "remove": [], "update": []},
+        calls={
+            "add": [
+                {
+                    "src_structural_id": "meth_alpha",
+                    "dst_structural_id": "meth_alpha",
+                    "src_node_type": "callable",
+                    "dst_node_type": "callable",
+                    "src_qualified_name": qualify_repo_name(repo_root, "pkg.alpha.Service.run"),
+                    "dst_qualified_name": qualify_repo_name(repo_root, "pkg.alpha.Service.run"),
+                    "src_file_path": "pkg/alpha/service.py",
+                    "dst_file_path": "pkg/alpha/service.py",
+                    "diff_kind": "add",
+                }
+            ],
+            "remove": [
+                {
+                    "src_structural_id": "meth_alpha",
+                    "dst_structural_id": "meth_other",
+                    "src_node_type": "callable",
+                    "dst_node_type": "callable",
+                    "src_qualified_name": qualify_repo_name(repo_root, "pkg.alpha.Service.run"),
+                    "dst_qualified_name": qualify_repo_name(repo_root, "pkg.beta.Other.run"),
+                    "src_file_path": "pkg/alpha/service.py",
+                    "dst_file_path": "pkg/beta/other.py",
+                    "diff_kind": "remove",
+                }
+            ],
+            "update": [],
+        },
+        summary=None,
+        warnings=[],
+    )
+    conn = core_conn(repo_root)
+    try:
+        patched = patch_classifier_call_graph_summary(
+            payload,
+            overlay,
+            snapshot_id=snapshot_id,
+            conn=conn,
+        )
+    finally:
+        conn.close()
+    assert patched["added_edge_count"] == 1
+    assert patched["removed_edge_count"] == 1
+    assert patched["changed_edge_count"] == 2
+    origins = {
+        (edge["src_classifier_id"], edge["dst_classifier_id"]): edge["row_origin"]
+        for edge in patched["outgoing"]
+    }
+    assert origins[("cls_alpha", "cls_other")] == "overlay_removed"
+    assert origins[("cls_alpha", "cls_alpha")] == "overlay_added"
 
 
 def test_dirty_overlay_fan_summary_node_id_updates(repo_with_snapshot):

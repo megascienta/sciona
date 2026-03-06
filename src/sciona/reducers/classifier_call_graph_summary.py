@@ -86,9 +86,14 @@ def render(
         "incoming_count": len(incoming),
         "outgoing_total": len(outgoing_all),
         "incoming_total": len(incoming_all),
+        "outgoing_listed_count": len(outgoing),
+        "incoming_listed_count": len(incoming),
         "outgoing_coverage_ratio": _coverage_ratio(len(outgoing), len(outgoing_all)),
         "incoming_coverage_ratio": _coverage_ratio(len(incoming), len(incoming_all)),
         "total_edges": len(outgoing_all) + len(incoming_all),
+        "changed_edge_count": 0,
+        "added_edge_count": 0,
+        "removed_edge_count": 0,
         "edge_summary": {
             "CALLS": {
                 "outgoing": len(outgoing_all),
@@ -128,6 +133,11 @@ def _edges_to_entries(
                 "dst_classifier_qualified_name": name_lookup.get(dst_id),
                 "direction": direction,
                 "call_count": count,
+                "committed_call_count": count,
+                "overlay_call_count": count,
+                "delta_call_count": 0,
+                "row_origin": "committed",
+                "is_active": True,
             }
         )
     entries.sort(

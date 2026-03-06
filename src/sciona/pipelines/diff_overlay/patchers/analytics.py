@@ -9,7 +9,6 @@ import json
 from typing import Optional
 
 from ..types import OverlayPayload
-from ....runtime import identity as ids
 from .fan_utils import (
     _fan_deltas_for_node,
     _match_module_name,
@@ -225,24 +224,24 @@ def patch_module_call_graph_summary(
     snapshot_id: str,
     conn,
 ) -> dict[str, object]:
-    target_id = payload.get("module_qualified_name")
+    target_id = payload.get("module_structural_id")
     if not target_id:
         return payload
     top_k = payload.get("top_k")
-    outgoing_map: dict[tuple[str, str], int] = {}
-    incoming_map: dict[tuple[str, str], int] = {}
+    outgoing_map: dict[tuple[str, str], dict[str, object]] = {}
+    incoming_map: dict[tuple[str, str], dict[str, object]] = {}
     for entry in payload.get("outgoing", []) or []:
         key = (
-            str(entry.get("src_module_qualified_name")),
-            str(entry.get("dst_module_qualified_name")),
+            str(entry.get("src_module_structural_id") or ""),
+            str(entry.get("dst_module_structural_id") or ""),
         )
-        outgoing_map[key] = int(entry.get("call_count") or 0)
+        outgoing_map[key] = dict(entry)
     for entry in payload.get("incoming", []) or []:
         key = (
-            str(entry.get("src_module_qualified_name")),
-            str(entry.get("dst_module_qualified_name")),
+            str(entry.get("src_module_structural_id") or ""),
+            str(entry.get("dst_module_structural_id") or ""),
         )
-        incoming_map[key] = int(entry.get("call_count") or 0)
+        incoming_map[key] = dict(entry)
     ids_needed: set[str] = set()
     for change in overlay.calls.get("add", []) + overlay.calls.get("remove", []):
         if change.get("src_structural_id"):
@@ -250,18 +249,34 @@ def patch_module_call_graph_summary(
         if change.get("dst_structural_id"):
             ids_needed.add(str(change.get("dst_structural_id")))
     meta_lookup = _node_meta_lookup(conn, snapshot_id, overlay, ids_needed)
+    module_rows = conn.execute(
+        """
+        SELECT sn.structural_id, ni.qualified_name
+        FROM structural_nodes sn
+        JOIN node_instances ni
+          ON ni.structural_id = sn.structural_id
+         AND ni.snapshot_id = ?
+        WHERE sn.node_type = 'module'
+        """,
+        (snapshot_id,),
+    ).fetchall()
+    module_id_by_name = {
+        str(row["qualified_name"]): str(row["structural_id"])
+        for row in module_rows
+        if row["qualified_name"] and row["structural_id"]
+    }
 
     def _module_id(node_id: str) -> str | None:
         meta = meta_lookup.get(node_id, {})
         module_name = _module_for_node(
             str(meta.get("node_type") or ""), str(meta.get("qualified_name") or "")
         )
-        language = meta.get("language")
-        if not module_name or not language:
+        if not module_name:
             return None
-        return ids.structural_id("module", str(language), str(module_name))
+        return module_id_by_name.get(module_name)
 
-    for change in overlay.calls.get("add", []) + overlay.calls.get("remove", []):
+    changes = overlay.calls.get("add", []) + overlay.calls.get("remove", [])
+    for change in changes:
         src_id = change.get("src_structural_id")
         dst_id = change.get("dst_structural_id")
         if not src_id or not dst_id:
@@ -271,31 +286,69 @@ def patch_module_call_graph_summary(
         if not src_module or not dst_module:
             continue
         delta = 1 if change.get("diff_kind") == "add" else -1
-        if src_module == target_id:
-            outgoing_map[(src_module, dst_module)] = max(
-                0, outgoing_map.get((src_module, dst_module), 0) + delta
-            )
-        if dst_module == target_id:
-            incoming_map[(src_module, dst_module)] = max(
-                0, incoming_map.get((src_module, dst_module), 0) + delta
-            )
+        src_name = _module_for_node(
+            str(meta_lookup.get(str(src_id), {}).get("node_type") or ""),
+            str(meta_lookup.get(str(src_id), {}).get("qualified_name") or ""),
+        )
+        dst_name = _module_for_node(
+            str(meta_lookup.get(str(dst_id), {}).get("node_type") or ""),
+            str(meta_lookup.get(str(dst_id), {}).get("qualified_name") or ""),
+        )
 
-    def _entries(edge_map: dict[tuple[str, str], int], direction: str) -> list[dict[str, object]]:
-        entries = []
-        for (src, dst), count in edge_map.items():
-            if count <= 0:
-                continue
-            entries.append(
+        def _apply_delta(
+            edge_map: dict[tuple[str, str], dict[str, object]],
+            *,
+            key: tuple[str, str],
+            direction: str,
+        ) -> None:
+            entry = dict(edge_map.get(key) or {})
+            committed = int(entry.get("committed_call_count") or entry.get("call_count") or 0)
+            overlay_count = int(entry.get("overlay_call_count") or committed)
+            overlay_count = max(0, overlay_count + delta)
+            entry.update(
                 {
-                    "src_module_qualified_name": src,
-                    "dst_module_qualified_name": dst,
+                    "src_module_structural_id": key[0],
+                    "dst_module_structural_id": key[1],
+                    "src_module_qualified_name": src_name or key[0],
+                    "dst_module_qualified_name": dst_name or key[1],
                     "direction": direction,
-                    "call_count": count,
+                    "committed_call_count": committed,
+                    "overlay_call_count": overlay_count,
+                    "delta_call_count": overlay_count - committed,
+                    "call_count": overlay_count,
+                    "is_active": overlay_count > 0,
                 }
             )
+            if committed == 0 and overlay_count > 0:
+                entry["row_origin"] = "overlay_added"
+            elif committed > 0 and overlay_count == 0:
+                entry["row_origin"] = "overlay_removed"
+            elif committed != overlay_count:
+                entry["row_origin"] = "overlay_changed"
+            else:
+                entry["row_origin"] = "committed"
+            edge_map[key] = entry
+
+        if src_module == target_id:
+            _apply_delta(
+                outgoing_map,
+                key=(src_module, dst_module),
+                direction="outgoing",
+            )
+        if dst_module == target_id:
+            _apply_delta(
+                incoming_map,
+                key=(src_module, dst_module),
+                direction="incoming",
+            )
+
+    def _entries(edge_map: dict[tuple[str, str], dict[str, object]]) -> list[dict[str, object]]:
+        entries = []
+        for row in edge_map.values():
+            entries.append(dict(row))
         entries.sort(
             key=lambda item: (
-                -int(item.get("call_count") or 0),
+                -int(item.get("overlay_call_count") or item.get("call_count") or 0),
                 str(item.get("src_module_qualified_name")),
                 str(item.get("dst_module_qualified_name")),
             )
@@ -309,17 +362,54 @@ def patch_module_call_graph_summary(
                 entries = entries[:limit]
         return entries
 
-    outgoing_all = _entries(outgoing_map, "outgoing")
-    incoming_all = _entries(incoming_map, "incoming")
+    outgoing_all = _entries(outgoing_map)
+    incoming_all = _entries(incoming_map)
     payload["outgoing"] = outgoing_all
     payload["incoming"] = incoming_all
-    payload["outgoing_count"] = len(outgoing_all)
-    payload["incoming_count"] = len(incoming_all)
-    payload["outgoing_total"] = len(outgoing_all)
-    payload["incoming_total"] = len(incoming_all)
+    payload["outgoing_count"] = sum(1 for item in outgoing_all if item.get("is_active"))
+    payload["incoming_count"] = sum(1 for item in incoming_all if item.get("is_active"))
+    payload["outgoing_total"] = payload["outgoing_count"]
+    payload["incoming_total"] = payload["incoming_count"]
+    payload["outgoing_listed_count"] = len(outgoing_all)
+    payload["incoming_listed_count"] = len(incoming_all)
     payload["total_edges"] = len(outgoing_all) + len(incoming_all)
+    unique_rows = {
+        (
+            str(item.get("src_module_structural_id") or ""),
+            str(item.get("dst_module_structural_id") or ""),
+        ): item
+        for item in outgoing_all + incoming_all
+    }.values()
+    payload["added_edge_count"] = sum(
+        1 for item in unique_rows if item.get("row_origin") == "overlay_added"
+    )
+    unique_rows = {
+        (
+            str(item.get("src_module_structural_id") or ""),
+            str(item.get("dst_module_structural_id") or ""),
+        ): item
+        for item in outgoing_all + incoming_all
+    }.values()
+    payload["removed_edge_count"] = sum(
+        1 for item in unique_rows if item.get("row_origin") == "overlay_removed"
+    )
+    unique_rows = {
+        (
+            str(item.get("src_module_structural_id") or ""),
+            str(item.get("dst_module_structural_id") or ""),
+        ): item
+        for item in outgoing_all + incoming_all
+    }.values()
+    payload["changed_edge_count"] = sum(
+        1
+        for item in unique_rows
+        if item.get("row_origin") in {"overlay_added", "overlay_removed", "overlay_changed"}
+    )
     payload["edge_summary"] = {
-        "CALLS": {"outgoing": len(outgoing_all), "incoming": len(incoming_all)}
+        "CALLS": {
+            "outgoing": payload["outgoing_total"],
+            "incoming": payload["incoming_total"],
+        }
     }
     if outgoing_all:
         payload["outgoing_coverage_ratio"] = 1.0
@@ -334,24 +424,24 @@ def patch_classifier_call_graph_summary(
     snapshot_id: str,
     conn,
 ) -> dict[str, object]:
-    target_id = payload.get("classifier_id")
+    target_id = payload.get("classifier_structural_id")
     if not target_id:
         return payload
     top_k = payload.get("top_k")
-    outgoing_map: dict[tuple[str, str], int] = {}
-    incoming_map: dict[tuple[str, str], int] = {}
+    outgoing_map: dict[tuple[str, str], dict[str, object]] = {}
+    incoming_map: dict[tuple[str, str], dict[str, object]] = {}
     for entry in payload.get("outgoing", []) or []:
         key = (
             str(entry.get("src_classifier_id")),
             str(entry.get("dst_classifier_id")),
         )
-        outgoing_map[key] = int(entry.get("call_count") or 0)
+        outgoing_map[key] = dict(entry)
     for entry in payload.get("incoming", []) or []:
         key = (
             str(entry.get("src_classifier_id")),
             str(entry.get("dst_classifier_id")),
         )
-        incoming_map[key] = int(entry.get("call_count") or 0)
+        incoming_map[key] = dict(entry)
     ids_needed: set[str] = set()
     for change in overlay.calls.get("add", []) + overlay.calls.get("remove", []):
         if change.get("src_structural_id"):
@@ -359,20 +449,36 @@ def patch_classifier_call_graph_summary(
         if change.get("dst_structural_id"):
             ids_needed.add(str(change.get("dst_structural_id")))
     meta_lookup = _node_meta_lookup(conn, snapshot_id, overlay, ids_needed)
+    classifier_rows = conn.execute(
+        """
+        SELECT sn.structural_id, ni.qualified_name
+        FROM structural_nodes sn
+        JOIN node_instances ni
+          ON ni.structural_id = sn.structural_id
+         AND ni.snapshot_id = ?
+        WHERE sn.node_type = 'classifier'
+        """,
+        (snapshot_id,),
+    ).fetchall()
+    classifier_id_by_name = {
+        str(row["qualified_name"]): str(row["structural_id"])
+        for row in classifier_rows
+        if row["qualified_name"] and row["structural_id"]
+    }
 
     def _classifier_id(node_id: str) -> str | None:
         meta = meta_lookup.get(node_id, {})
         if meta.get("node_type") != "callable":
             return None
         qualified = str(meta.get("qualified_name") or "")
-        language = meta.get("language")
         parts = qualified.split(".")
-        if len(parts) < 2 or not language:
+        if len(parts) < 2:
             return None
         classifier_name = ".".join(parts[:-1])
-        return ids.structural_id("classifier", str(language), classifier_name)
+        return classifier_id_by_name.get(classifier_name)
 
-    for change in overlay.calls.get("add", []) + overlay.calls.get("remove", []):
+    changes = overlay.calls.get("add", []) + overlay.calls.get("remove", [])
+    for change in changes:
         src_id = change.get("src_structural_id")
         dst_id = change.get("dst_structural_id")
         if not src_id or not dst_id:
@@ -382,31 +488,65 @@ def patch_classifier_call_graph_summary(
         if not src_classifier or not dst_classifier:
             continue
         delta = 1 if change.get("diff_kind") == "add" else -1
-        if src_classifier == target_id:
-            outgoing_map[(src_classifier, dst_classifier)] = max(
-                0, outgoing_map.get((src_classifier, dst_classifier), 0) + delta
-            )
-        if dst_classifier == target_id:
-            incoming_map[(src_classifier, dst_classifier)] = max(
-                0, incoming_map.get((src_classifier, dst_classifier), 0) + delta
-            )
+        src_name = str(meta_lookup.get(str(src_id), {}).get("qualified_name") or "")
+        dst_name = str(meta_lookup.get(str(dst_id), {}).get("qualified_name") or "")
+        src_classifier_name = ".".join(src_name.split(".")[:-1]) if src_name else None
+        dst_classifier_name = ".".join(dst_name.split(".")[:-1]) if dst_name else None
 
-    def _entries(edge_map: dict[tuple[str, str], int], direction: str) -> list[dict[str, object]]:
-        entries = []
-        for (src, dst), count in edge_map.items():
-            if count <= 0:
-                continue
-            entries.append(
+        def _apply_delta(
+            edge_map: dict[tuple[str, str], dict[str, object]],
+            *,
+            key: tuple[str, str],
+            direction: str,
+        ) -> None:
+            entry = dict(edge_map.get(key) or {})
+            committed = int(entry.get("committed_call_count") or entry.get("call_count") or 0)
+            overlay_count = int(entry.get("overlay_call_count") or committed)
+            overlay_count = max(0, overlay_count + delta)
+            entry.update(
                 {
-                    "src_classifier_id": src,
-                    "dst_classifier_id": dst,
+                    "src_classifier_id": key[0],
+                    "dst_classifier_id": key[1],
+                    "src_classifier_qualified_name": src_classifier_name,
+                    "dst_classifier_qualified_name": dst_classifier_name,
                     "direction": direction,
-                    "call_count": count,
+                    "committed_call_count": committed,
+                    "overlay_call_count": overlay_count,
+                    "delta_call_count": overlay_count - committed,
+                    "call_count": overlay_count,
+                    "is_active": overlay_count > 0,
                 }
             )
+            if committed == 0 and overlay_count > 0:
+                entry["row_origin"] = "overlay_added"
+            elif committed > 0 and overlay_count == 0:
+                entry["row_origin"] = "overlay_removed"
+            elif committed != overlay_count:
+                entry["row_origin"] = "overlay_changed"
+            else:
+                entry["row_origin"] = "committed"
+            edge_map[key] = entry
+
+        if src_classifier == target_id:
+            _apply_delta(
+                outgoing_map,
+                key=(src_classifier, dst_classifier),
+                direction="outgoing",
+            )
+        if dst_classifier == target_id:
+            _apply_delta(
+                incoming_map,
+                key=(src_classifier, dst_classifier),
+                direction="incoming",
+            )
+
+    def _entries(edge_map: dict[tuple[str, str], dict[str, object]]) -> list[dict[str, object]]:
+        entries = []
+        for row in edge_map.values():
+            entries.append(dict(row))
         entries.sort(
             key=lambda item: (
-                -int(item.get("call_count") or 0),
+                -int(item.get("overlay_call_count") or item.get("call_count") or 0),
                 str(item.get("src_classifier_id")),
                 str(item.get("dst_classifier_id")),
             )
@@ -420,17 +560,54 @@ def patch_classifier_call_graph_summary(
                 entries = entries[:limit]
         return entries
 
-    outgoing_all = _entries(outgoing_map, "outgoing")
-    incoming_all = _entries(incoming_map, "incoming")
+    outgoing_all = _entries(outgoing_map)
+    incoming_all = _entries(incoming_map)
     payload["outgoing"] = outgoing_all
     payload["incoming"] = incoming_all
-    payload["outgoing_count"] = len(outgoing_all)
-    payload["incoming_count"] = len(incoming_all)
-    payload["outgoing_total"] = len(outgoing_all)
-    payload["incoming_total"] = len(incoming_all)
+    payload["outgoing_count"] = sum(1 for item in outgoing_all if item.get("is_active"))
+    payload["incoming_count"] = sum(1 for item in incoming_all if item.get("is_active"))
+    payload["outgoing_total"] = payload["outgoing_count"]
+    payload["incoming_total"] = payload["incoming_count"]
+    payload["outgoing_listed_count"] = len(outgoing_all)
+    payload["incoming_listed_count"] = len(incoming_all)
     payload["total_edges"] = len(outgoing_all) + len(incoming_all)
+    unique_rows = {
+        (
+            str(item.get("src_classifier_id") or ""),
+            str(item.get("dst_classifier_id") or ""),
+        ): item
+        for item in outgoing_all + incoming_all
+    }.values()
+    payload["added_edge_count"] = sum(
+        1 for item in unique_rows if item.get("row_origin") == "overlay_added"
+    )
+    unique_rows = {
+        (
+            str(item.get("src_classifier_id") or ""),
+            str(item.get("dst_classifier_id") or ""),
+        ): item
+        for item in outgoing_all + incoming_all
+    }.values()
+    payload["removed_edge_count"] = sum(
+        1 for item in unique_rows if item.get("row_origin") == "overlay_removed"
+    )
+    unique_rows = {
+        (
+            str(item.get("src_classifier_id") or ""),
+            str(item.get("dst_classifier_id") or ""),
+        ): item
+        for item in outgoing_all + incoming_all
+    }.values()
+    payload["changed_edge_count"] = sum(
+        1
+        for item in unique_rows
+        if item.get("row_origin") in {"overlay_added", "overlay_removed", "overlay_changed"}
+    )
     payload["edge_summary"] = {
-        "CALLS": {"outgoing": len(outgoing_all), "incoming": len(incoming_all)}
+        "CALLS": {
+            "outgoing": payload["outgoing_total"],
+            "incoming": payload["incoming_total"],
+        }
     }
     if outgoing_all:
         payload["outgoing_coverage_ratio"] = 1.0
