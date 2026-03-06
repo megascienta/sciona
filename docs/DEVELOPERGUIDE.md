@@ -171,6 +171,11 @@ Implementation notes:
   already exists
 - Dirty-worktree overlay data is advisory and layered on top of reducer output;
   committed SCI remains authoritative
+- `overlay_available` means overlay state exists for the reducer request; it does
+  not always mean the reducer payload itself was patched to reflect dirty
+  worktree state
+- Some projections are intentionally metadata-only under overlay; they receive
+  `_diff` annotations and warnings but remain committed-snapshot payloads
 
 ## DB Surfaces
 
@@ -199,6 +204,16 @@ ArtifactDB:
 - `rebuild_status`: artifact rebuild completion and diagnostics metadata
 - `diff_overlay`, `diff_overlay_calls`, `diff_overlay_summary`: dirty-worktree
   overlay state layered on top of committed snapshot outputs
+
+Overlay support model:
+
+- patchable projections apply overlay rows directly to reducer payloads
+- metadata-only projections attach `_diff` and warning state but remain
+  committed-snapshot payloads
+- `projection_not_supported` means that behavior is intentional for the
+  projection
+- `projection_not_patched` should be treated as a patching gap for a projection
+  that is otherwise expected to support overlay patching
 
 Schema ownership:
 

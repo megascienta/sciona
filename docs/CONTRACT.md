@@ -13,6 +13,9 @@ It is authoritative for analysis and validation.
   `snapshot_id`.
 - `structural_nodes` identities are global and carry deterministic
   `created_snapshot_id` provenance.
+- CoreDB does not store call edges.
+- `CALL_SITES` and reducer-facing `CALLS` are artifact-layer constructs derived
+  after structural snapshot creation.
 - Reducer-facing query semantics are defined against ArtifactDB latest-state
   derived surfaces for the committed snapshot.
 - Reducers MAY use CoreDB in the same request for committed structural identity
@@ -192,6 +195,14 @@ each committed CoreDB snapshot.
 ArtifactDB tables and rollups are latest-state derived surfaces for the current
 committed snapshot rather than independently snapshot-keyed structural facts.
 
+Dirty-worktree overlay metadata is advisory. `overlay_available=true` means
+overlay state exists for the reducer request, but it does not guarantee that the
+payload itself was transformed to reflect the dirty worktree.
+
+Some reducer projections are intentionally overlay-aware but not
+payload-patchable. For those projections, `_diff` metadata MAY be attached while
+the payload remains committed-snapshot only.
+
 `CALL_SITES`:
 
 - is an artifact-layer callsite table, not a structural entity table.
@@ -208,7 +219,8 @@ ArtifactDB `CALLS`:
 - is the reducer-facing finalized call graph.
 - is derived after CoreDB snapshot creation from artifact call analysis plus
   committed structural context.
-- MUST remain deterministic for a fixed committed snapshot and worktree state.
+- MUST remain deterministic with respect to the committed CoreDB snapshot and
+  repository worktree state at artifact build time.
 - MUST include only in-repo callable targets.
 
 Reporting classifications on dropped callsites (for example `external_likely`)

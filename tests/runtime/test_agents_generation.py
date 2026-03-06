@@ -183,6 +183,9 @@ def test_agents_block_preserves_protocol_invariants(tmp_path: Path):
     assert "Raise an evidence-bounded concern under §2.7" in block
     assert "Cross-category verification is governed by §7.2" in block
     assert "DO: `sciona search" in block
+    assert "projection_not_supported" in block
+    assert "projection_not_patched" in block
+    assert "overlay_available=true" in block
     assert "Reducers: snapshot_provenance, structural_index" not in template
     assert "- `callable_source`\n- `concatenated_source`" not in template
     assert "- `structural_integrity_summary`\n- `hotspot_summary`\n- `call_resolution_quality`" not in template
