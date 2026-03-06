@@ -32,8 +32,13 @@ It is authoritative for analysis and validation.
 SCIONA MUST emit these structural node types:
 
 - `module`
-- `type`
+- `classifier`
 - `callable`
+
+`classifier` is the language-agnostic structural node category for named,
+nominal, class-family declarations. It covers entities such as classes and
+other class-family declarations with stable structural identity. It does not
+include modules or callables.
 
 `callable` role metadata MUST classify each callable as one of:
 
@@ -62,8 +67,8 @@ SCIONA MUST emit these edge types:
 - `LEXICALLY_CONTAINS` (lexical parent -> lexical child)
 - `IMPORTS_DECLARED` (module -> module)
 - `CALLS` (callable -> callable, in-repo only)
-- `EXTENDS` (type -> type, local syntactic inheritance)
-- `IMPLEMENTS` (type -> type, local syntactic implementation)
+- `EXTENDS` (classifier -> classifier, local syntactic inheritance)
+- `IMPLEMENTS` (classifier -> classifier, local syntactic implementation)
 
 ## Edge Semantics
 
@@ -77,11 +82,11 @@ SCIONA MUST emit these edge types:
 - Parent and child source spans MUST NOT be identical.
 - Graph MUST be acyclic.
 - Allowed pairs:
-  - `module -> type`
+  - `module -> classifier`
   - `module -> callable`
-  - `type -> type`
-  - `type -> callable`
-  - `callable -> type`
+  - `classifier -> classifier`
+  - `classifier -> callable`
+  - `callable -> classifier`
   - `callable -> callable`
 
 `CALLS`:
@@ -189,7 +194,7 @@ Language implementations MUST satisfy all criteria below.
 Global criteria:
 
 - CoreDB retains exactly one authoritative committed snapshot.
-- Emits core node types: `module`, `type`, `callable`.
+- Emits core node types: `module`, `classifier`, `callable`.
 - Callable role metadata is present and in `{declared,nested,bound,constructor}`.
 - Optional synthetic nodes are allowed but excluded from language compliance.
 - Emits edge types:
@@ -222,7 +227,7 @@ Global criteria:
 
 Python criteria:
 
-- `class_definition` maps to `type`.
+- `class_definition` maps to `classifier`.
 - `function_definition` and `async_function_definition` map to `callable`.
 - Nested named defs map to `callable` with role `nested`.
 - Named lambda assignment bindings map to `callable` with role `bound`.
@@ -231,10 +236,11 @@ Python criteria:
 - Imports come from `import_statement` and `import_from_statement`.
 - Calls are collected from `call` nodes and attributed by enclosing callable
   scope.
+- Python `classifier` currently means named class declarations.
 
 TypeScript criteria:
 
-- Class-like declarations map to `type`.
+- Class-like declarations map to `classifier`.
 - Named function/method declarations map to `callable`.
 - Nested named function declarations map to `callable` with role `nested`.
 - Bound callable expressions (arrow/function expressions with stable bindings)
@@ -255,14 +261,17 @@ TypeScript criteria:
   enclosing callable scope.
 - Profiling/introspection class query surface includes
   `class_declaration`, `abstract_class_declaration`, `class_expression`.
+- TypeScript `classifier` currently means class-family declarations captured by
+  the extractor query surface above.
 
 Java criteria:
 
-- Class-like types include class/interface/enum/record forms and map to `type`.
+- Class-family declarations include class/interface/enum/record forms and map to
+  `classifier`.
 - Methods and constructors map to `callable`.
 - Methods on named local classes declared inside callable scopes map to
   `callable` role `nested` (constructors remain `constructor`).
-- Named local classes are structural `type` nodes.
+- Named local classes are structural `classifier` nodes.
 - Lambda expressions are non-structural callables.
 - Imports are extracted from `import_declaration`.
 - Package-derived alias may assist resolution, but canonical module identity
@@ -274,3 +283,4 @@ Java criteria:
 - Profiling/introspection class query surface includes
   `class_declaration`, `interface_declaration`, `enum_declaration`,
   `record_declaration`.
+- Java `classifier` currently means classes, interfaces, enums, and records.

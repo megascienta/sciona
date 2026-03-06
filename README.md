@@ -122,7 +122,7 @@ sciona reducer list
 sciona reducer --id module_overview --module-id pkg.mod
 ```
 
-If node (module, classes, function, method) identifier is unknown:
+If node (module, classifier, callable) identifier is unknown:
 
 ```bash
 sciona search QUERY [--kind KIND] [--limit LIMIT] [--json]
@@ -133,22 +133,22 @@ sciona resolve IDENTIFIER [--kind KIND] [--limit LIMIT] [--json]
 
 #### Category: core
 
-Structural summary of a callable, including signature, location, and metadata. Use for quick callable inspection without retrieving full source. Scope: single function or method.
+Structural summary of a callable, including signature, location, and metadata. Use for quick callable inspection without retrieving full source. Scope: single callable.
 
 ```bash
-sciona reducer --id callable_overview [--callable-id CALLABLE_ID] [--function-id FUNCTION_ID] [--method-id METHOD_ID]
+sciona reducer --id callable_overview [--callable-id CALLABLE_ID]
 ```
 
-Parsed base classes and inheritance relations. Use when reasoning about type hierarchy or polymorphic structure. Scope: class hierarchy.
+Parsed base classifiers and inheritance relations. Use when reasoning about classifier hierarchy or polymorphic structure. Scope: classifier hierarchy.
 
 ```bash
 sciona reducer --id class_inheritance [--class-id CLASS_ID]
 ```
 
-Structural summary of a class, including methods and metadata. Use for quick class inspection. Scope: class-level structure.
+Structural summary of a classifier, including methods and metadata. Use for quick classifier inspection. Scope: classifier-level structure.
 
 ```bash
-sciona reducer --id class_overview [--class-id CLASS_ID] [--method-id METHOD_ID]
+sciona reducer --id class_overview [--class-id CLASS_ID]
 ```
 
 Explicit module import dependencies. Use for analysing module coupling or dependency graphs. `direction='in'` or `direction='out'` scopes `module_id` filters. Scope: module-level import edges.
@@ -157,16 +157,16 @@ Explicit module import dependencies. Use for analysing module coupling or depend
 sciona reducer --id dependency_edges [--module-id MODULE_ID] [--from-module-id FROM_MODULE_ID] [--to-module-id TO_MODULE_ID] [--query QUERY] [--edge-type EDGE_TYPE] [--direction DIRECTION] [--limit LIMIT]
 ```
 
-Structural outline of a file, including modules, classes, and callables. Use for navigation and symbol discovery. Scope: file-level structure.
+Structural outline of a file, including modules, classifiers, and callables. Use for navigation and symbol discovery. Scope: file-level structure.
 
 ```bash
 sciona reducer --id file_outline [--module-id MODULE_ID] [--file-path FILE_PATH]
 ```
 
-Structural summary of a module, including contained classes and callables. Use for architectural inspection. Scope: module-level.
+Structural summary of a module, including contained classifiers and callables. Use for architectural inspection. Scope: module-level.
 
 ```bash
-sciona reducer --id module_overview [--module-id MODULE_ID] [--callable-id CALLABLE_ID] [--function-id FUNCTION_ID] [--method-id METHOD_ID] [--class-id CLASS_ID] [--include-file-map INCLUDE_FILE_MAP]
+sciona reducer --id module_overview [--module-id MODULE_ID] [--callable-id CALLABLE_ID] [--class-id CLASS_ID] [--include-file-map INCLUDE_FILE_MAP]
 ```
 
 Snapshot provenance and reproducibility metadata for the committed SCI state. Use to verify snapshot freshness/identity before structural reasoning. Scope: snapshot-level metadata.
@@ -195,13 +195,13 @@ sciona reducer --id symbol_references [--query QUERY] [--kind KIND] [--limit LIM
 
 #### Category: grounding
 
-Full source code of a callable. Use only when implementation details are required. Scope: single function or method.
+Full source code of a callable. Use only when implementation details are required. Scope: single callable.
 
 ```bash
-sciona reducer --id callable_source [--callable-id CALLABLE_ID] [--function-id FUNCTION_ID] [--method-id METHOD_ID]
+sciona reducer --id callable_source [--callable-id CALLABLE_ID]
 ```
 
-Concatenated source code for a selected scope (codebase/module/class). Use for large-context reasoning or cross-entity inspection. Scope: configurable.
+Concatenated source code for a selected scope (codebase/module/classifier). Use for large-context reasoning or cross-entity inspection. Scope: configurable.
 
 ```bash
 sciona reducer --id concatenated_source [--scope SCOPE] [--module-id MODULE_ID] [--class-id CLASS_ID]
@@ -218,25 +218,25 @@ sciona reducer --id call_resolution_quality [--module-id MODULE_ID] [--language 
 Indexed caller/callee edges for a callable, including callsite details. Use when reasoning about call directionality or callsite-level analysis. detail_level='neighbors' returns caller/callee sets. Scope: callable-level call edges.
 
 ```bash
-sciona reducer --id callsite_index [--callable-id CALLABLE_ID] [--function-id FUNCTION_ID] [--method-id METHOD_ID] [--direction DIRECTION] [--detail-level DETAIL_LEVEL] [--include-callsite-diagnostics INCLUDE_CALLSITE_DIAGNOSTICS]
+sciona reducer --id callsite_index [--callable-id CALLABLE_ID] [--direction DIRECTION] [--detail-level DETAIL_LEVEL] [--include-callsite-diagnostics INCLUDE_CALLSITE_DIAGNOSTICS]
 ```
 
-Summary of call relationships within a class. Use for analysing method interaction patterns or internal coupling. Scope: class-level call graph.
+Summary of call relationships within a classifier. Use for analysing method interaction patterns or internal coupling. Scope: classifier-level call graph.
 
 ```bash
-sciona reducer --id class_call_graph_summary [--class-id CLASS_ID] [--method-id METHOD_ID] [--top-k TOP_K]
+sciona reducer --id class_call_graph_summary [--class-id CLASS_ID] [--top-k TOP_K]
 ```
 
 Summary of call relationships within a module. Use for module-level flow or coupling analysis. Scope: module call graph.
 
 ```bash
-sciona reducer --id module_call_graph_summary [--module-id MODULE_ID] [--callable-id CALLABLE_ID] [--function-id FUNCTION_ID] [--method-id METHOD_ID] [--class-id CLASS_ID] [--top-k TOP_K]
+sciona reducer --id module_call_graph_summary [--module-id MODULE_ID] [--callable-id CALLABLE_ID] [--class-id CLASS_ID] [--top-k TOP_K]
 ```
 
 Call-resolution diagnostics and sampled traces for one callable. Use to understand why callsites were accepted or dropped without changing `CALLS` truth. Scope: callable-level telemetry.
 
 ```bash
-sciona reducer --id resolution_trace [--callable-id CALLABLE_ID] [--function-id FUNCTION_ID] [--method-id METHOD_ID] [--identifier IDENTIFIER] [--limit LIMIT]
+sciona reducer --id resolution_trace [--callable-id CALLABLE_ID] [--identifier IDENTIFIER] [--limit LIMIT]
 ```
 
 Structural integrity diagnostics over committed SCI facts. Use to detect duplicates, lexical orphans, and inheritance-cycle anomalies before downstream reasoning. Scope: codebase-level.
@@ -245,10 +245,10 @@ Structural integrity diagnostics over committed SCI facts. Use to detect duplica
 sciona reducer --id structural_integrity_summary [--top-k TOP_K]
 ```
 
-Fan-in/fan-out metrics for calls and imports. Use to identify highly connected entities or hotspots. Scope: callable/class/module.
+Fan-in/fan-out metrics for calls and imports. Use to identify highly connected entities or hotspots. Scope: callable/classifier/module.
 
 ```bash
-sciona reducer --id fan_summary [--callable-id CALLABLE_ID] [--function-id FUNCTION_ID] [--method-id METHOD_ID] [--class-id CLASS_ID] [--module-id MODULE_ID] [--top-k TOP_K]
+sciona reducer --id fan_summary [--callable-id CALLABLE_ID] [--class-id CLASS_ID] [--module-id MODULE_ID] [--top-k TOP_K]
 ```
 
 Compressed summary of structurally significant or highly connected entities. Use for architectural orientation or complexity inspection. Scope: codebase-level.
