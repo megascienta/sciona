@@ -18,6 +18,7 @@ from .shared import (
     module_in_scope,
     node_from_value,
 )
+from .shared_delta import count_by_row_origin, normalize_row_origin
 
 def patch_structural_index(
     payload: dict[str, object], overlay: OverlayPayload
@@ -610,8 +611,7 @@ def patch_dependency_edges(
     )
     edge_map = {}
     for entry in edges:
-        item = dict(entry)
-        item["row_origin"] = str(item.get("row_origin") or "committed")
+        item = normalize_row_origin(dict(entry))
         edge_map[edge_key(item)] = item
     from_filter = payload.get("from_module_filter")
     to_filter = payload.get("to_module_filter")
@@ -680,15 +680,7 @@ def patch_dependency_edges(
     patched = sorted(edge_map.values(), key=edge_key)
     payload["edges"] = patched
     payload["listed_edge_count"] = len(patched)
-    payload["committed_count"] = sum(
-        1 for row in patched if row.get("row_origin") == "committed"
-    )
-    payload["overlay_added_count"] = sum(
-        1 for row in patched if row.get("row_origin") == "overlay_added"
-    )
-    payload["overlay_removed_count"] = sum(
-        1 for row in patched if row.get("row_origin") == "overlay_removed"
-    )
+    payload.update(count_by_row_origin(patched))
     payload["edge_count"] = sum(
         1 for row in patched if row.get("row_origin") != "overlay_removed"
     )
