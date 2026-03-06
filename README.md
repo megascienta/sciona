@@ -95,6 +95,12 @@ sciona status --output .sciona/status-report.json
 
 Reducers are the primary interface for structural queries. Each reducer takes a scope (callable, classifier, module, or global) and returns a deterministic structural payload. Start with `sciona reducer list` to see what's available.
 
+When the investigation already has a target module, caller, callee, identifier,
+status, or provenance class, prefer reducer narrowing arguments before pulling
+full broad payloads. For common diagnostics workflows, prefer compact summary
+reducers such as `call_resolution_drop_summary` and
+`overlay_projection_status_summary` before escalating to raw detailed outputs.
+
 ### Discovery
 
 Explore available reducers:
@@ -146,34 +152,38 @@ sciona reducer --id symbol_lookup [--query QUERY] [--kind KIND] [--limit LIMIT]
 
 #### Category: relations
 
-- `callsite_index` — Indexed caller/callee edges for a callable, including callsite details. Use when reasoning about call directionality or callsite-level analysis.
-- `classifier_call_graph_summary` — Summary of call relationships within a classifier. Use for analysing method interaction patterns or internal coupling.
+- `callsite_index` — Indexed caller/callee edges for a callable, including callsite details. Supports narrowing by identifier, status, provenance, and drop reason for targeted callsite analysis.
+- `classifier_call_graph_summary` — Summary of call relationships within a classifier. Supports narrowing by caller or callee classifier for focused coupling analysis.
 - `dependency_edges` — Explicit module import dependencies. Use for analysing module coupling or dependency graphs.
-- `module_call_graph_summary` — Summary of call relationships within a module. Use for module-level flow or coupling analysis.
-- `symbol_references` — Structural relationships (calls/imports) for matched symbols. Use for impact analysis or dependency tracing.
+- `module_call_graph_summary` — Summary of call relationships within a module. Supports narrowing by source or target module for focused module-level flow analysis.
+- `symbol_references` — Structural relationships (calls/imports) for matched symbols. Supports narrowing by symbol kind and module for impact analysis or dependency tracing.
 
 ```bash
-sciona reducer --id callsite_index [--callable-id CALLABLE_ID] [--direction DIRECTION] [--detail-level DETAIL_LEVEL] [--include-callsite-diagnostics INCLUDE_CALLSITE_DIAGNOSTICS]
-sciona reducer --id classifier_call_graph_summary [--classifier-id CLASSIFIER_ID] [--top-k TOP_K]
+sciona reducer --id callsite_index [--callable-id CALLABLE_ID] [--direction DIRECTION] [--detail-level DETAIL_LEVEL] [--include-callsite-diagnostics INCLUDE_CALLSITE_DIAGNOSTICS] [--identifier IDENTIFIER] [--status STATUS] [--provenance PROVENANCE] [--drop-reason DROP_REASON]
+sciona reducer --id classifier_call_graph_summary [--classifier-id CLASSIFIER_ID] [--caller-id CALLER_ID] [--callee-id CALLEE_ID] [--top-k TOP_K]
 sciona reducer --id dependency_edges [--module-id MODULE_ID] [--from-module-id FROM_MODULE_ID] [--to-module-id TO_MODULE_ID] [--query QUERY] [--edge-type EDGE_TYPE] [--direction DIRECTION] [--limit LIMIT]
-sciona reducer --id module_call_graph_summary [--module-id MODULE_ID] [--callable-id CALLABLE_ID] [--classifier-id CLASSIFIER_ID] [--top-k TOP_K]
-sciona reducer --id symbol_references [--query QUERY] [--kind KIND] [--limit LIMIT]
+sciona reducer --id module_call_graph_summary [--module-id MODULE_ID] [--callable-id CALLABLE_ID] [--classifier-id CLASSIFIER_ID] [--from-module-id FROM_MODULE_ID] [--to-module-id TO_MODULE_ID] [--top-k TOP_K]
+sciona reducer --id symbol_references [--query QUERY] [--kind KIND] [--module-id MODULE_ID] [--limit LIMIT]
 ```
 
 #### Category: metrics
 
+- `call_resolution_drop_summary` — Compact dropped-callsite triage summary grouped by reason, language, and scope. Use before raw `callsite_index` when the question is why calls are dropping.
 - `call_resolution_quality` — Aggregated call-resolution quality diagnostics derived from callsite telemetry. Use to understand accepted vs dropped callsite distribution and dominant drop reasons.
-- `fan_summary` — Fan-in/fan-out metrics for calls and imports. Use to identify highly connected entities or hotspots.
+- `fan_summary` — Fan-in/fan-out metrics for calls and imports. Supports narrowing by edge kind, node kind, and minimum fan threshold.
 - `hotspot_summary` — Compressed summary of structurally significant or highly connected entities. Use for architectural orientation or complexity inspection.
 - `overlay_impact_summary` — Advisory summary of dirty-worktree diff overlay impact for the committed snapshot. Use when triaging uncommitted changes; output is non-authoritative.
+- `overlay_projection_status_summary` — Compact overlay trust surface showing which projections are patchable versus metadata-only under dirty worktree state.
 - `resolution_trace` — Call-resolution diagnostics and sampled traces for one callable. Use to understand why callsites were accepted or dropped without changing `CALLS` truth.
 - `structural_integrity_summary` — Structural integrity diagnostics over committed SCI facts. Use to detect duplicates, lexical orphans, and inheritance-cycle anomalies before downstream reasoning.
 
 ```bash
+sciona reducer --id call_resolution_drop_summary [--limit LIMIT]
 sciona reducer --id call_resolution_quality [--module-id MODULE_ID] [--language LANGUAGE] [--limit LIMIT]
-sciona reducer --id fan_summary [--callable-id CALLABLE_ID] [--classifier-id CLASSIFIER_ID] [--module-id MODULE_ID] [--top-k TOP_K]
+sciona reducer --id fan_summary [--callable-id CALLABLE_ID] [--classifier-id CLASSIFIER_ID] [--module-id MODULE_ID] [--edge-kind EDGE_KIND] [--node-kind NODE_KIND] [--min-fan MIN_FAN] [--top-k TOP_K]
 sciona reducer --id hotspot_summary
 sciona reducer --id overlay_impact_summary
+sciona reducer --id overlay_projection_status_summary
 sciona reducer --id resolution_trace [--callable-id CALLABLE_ID] [--identifier IDENTIFIER] [--limit LIMIT]
 sciona reducer --id structural_integrity_summary [--top-k TOP_K]
 ```
