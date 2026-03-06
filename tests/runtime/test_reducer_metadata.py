@@ -31,11 +31,12 @@ def test_reducer_metadata_constants() -> None:
     assert RISK_TIER_ORDER == ("normal", "elevated")
     assert set(RISK_TIER_ORDER) == set(VALID_RISK_TIERS)
     assert INVESTIGATION_STAGE_ORDER == (
-        "discovery_orientation",
-        "entity_structure",
-        "analytical_relations_metrics",
-        "focused_source_grounding",
-        "broad_source_grounding",
+        "initial_scan",
+        "entity_discovery",
+        "structure_inspection",
+        "relationship_analysis",
+        "diagnostics_metrics",
+        "source_verification",
     )
     assert set(INVESTIGATION_STAGE_ORDER) == set(VALID_INVESTIGATION_STAGES)
 

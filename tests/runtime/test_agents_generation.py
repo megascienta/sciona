@@ -70,10 +70,11 @@ def test_agents_block_expands_placeholders(tmp_path: Path):
     assert "sciona reducer --id <reducer_id>" in block
     assert "sciona search" in block
     assert "sciona resolve" in block
+    assert "--json" in block
     assert ".sciona/config.yaml" in block
     assert "Normal tier reducers:" in block
     assert "**Structure reducers:**" in block
-    assert "Discovery and structural orientation" in block
+    assert "Initial scan" in block
     assert "Stage 1 — Initial scan" in block
 
 def test_agents_block_section_order(tmp_path: Path):
@@ -96,9 +97,18 @@ def test_agents_block_removes_reviewed_template_issues(tmp_path: Path):
     assert block.count("If SCIONA evidence is insufficient, agents MUST explicitly state what is missing and either:") == 1
     assert "Current reducer IDs by tier:\n\n- Normal tier reducers:" in block
     assert "{INVESTIGATION_STAGE_WORKFLOW}" not in block
+    assert "Reducers COULD be discovered via:" not in block
+    assert "Reducers MAY be discovered via:" in block
+    assert "Agents MUST NOT append `--json` to reducer commands." in block
     assert (
-        "**Relations reducers:**\ncallsite_index, classifier_call_graph_summary, dependency_edges, module_call_graph_summary"
+        "**Relations reducers:**\ncallsite_index, classifier_call_graph_summary, dependency_edges, module_call_graph_summary, symbol_references"
         in block
     )
+    assert "unverified: pending reducer confirmation" not in block
+    assert "Cross-category verification is governed by §7.3" in block
+    assert "DO: `sciona search" in block
     assert "Reducers: snapshot_provenance, structural_index" not in template
+    assert "Stage 1 — Initial scan\n  Purpose: orient to snapshot state and identify scope\n  Reducers: snapshot_provenance, structural_index" in block
+    assert "Stage 2 — Entity discovery\n  Purpose: resolve unknown identifiers; locate symbols\n  Reducers: file_outline, module_overview, symbol_lookup" in block
     assert "Role: structure." in block
+    assert "Role: relations." in block

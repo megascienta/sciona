@@ -51,11 +51,11 @@ def build_agents_block(
         CMD_BUILD=commands.get("build", "sciona build"),
         CMD_SEARCH=commands.get(
             "search",
-            "sciona search <query> --kind module|type|class|function|method|callable --limit 10",
+            "sciona search <query> --kind module|type|class|function|method|callable --limit 10 --json",
         ),
         CMD_RESOLVE=commands.get(
             "resolve",
-            "sciona resolve <identifier> --kind module|type|class|function|method|callable",
+            "sciona resolve <identifier> --kind module|type|class|function|method|callable --json",
         ),
         SCIONA_CONFIG_PATH=".sciona/config.yaml",
         TRACKED_FILE_SCOPE=_render_tracked_file_scope(repo_root),
@@ -229,53 +229,51 @@ def _render_investigation_stage_workflow(reducers) -> str:
         "  Purpose: orient to snapshot state and identify scope",
         "  Reducers: "
         + _format_plain_reducer_list(
-            _sorted_reducer_ids_by_investigation_stage(
-                reducers, "discovery_orientation"
-            )
+            _sorted_reducer_ids_by_investigation_stage(reducers, "initial_scan")
         ),
         "",
         "Stage 2 — Entity discovery",
         "  Purpose: resolve unknown identifiers; locate symbols",
         "  Reducers: "
         + _format_plain_reducer_list(
-            _sorted_reducer_ids_by_investigation_stage(
-                reducers, "discovery_orientation"
-            )
+            _sorted_reducer_ids_by_investigation_stage(reducers, "entity_discovery")
         ),
         "",
         "Stage 3 — Structure inspection",
         "  Purpose: inspect individual entities",
         "  Reducers: "
         + _format_plain_reducer_list(
-            _sorted_reducer_ids_by_investigation_stage(reducers, "entity_structure")
+            _sorted_reducer_ids_by_investigation_stage(
+                reducers, "structure_inspection"
+            )
         ),
         "",
         "Stage 4 — Relationship analysis",
         "  Purpose: analyse dependencies, call edges, import coupling",
         "  Reducers: "
         + _format_plain_reducer_list(
-            [
-                reducer_id
-                for reducer_id in _sorted_reducer_ids_by_investigation_roles(
-                    reducers, {"relations"}
-                )
-                if _investigation_stage_for_reducer(reducers, reducer_id)
-                in {"discovery_orientation", "analytical_relations_metrics"}
-            ]
+            _sorted_reducer_ids_by_investigation_stage(
+                reducers, "relationship_analysis"
+            )
         ),
         "",
         "Stage 5 — Diagnostics / metrics",
         "  Purpose: detect anomalies, hotspots, resolution quality",
         "  Reducers: "
         + _format_plain_reducer_list(
-            _sorted_reducer_ids_by_investigation_roles(reducers, {"metrics"})
+            _sorted_reducer_ids_by_investigation_stage(
+                reducers, "diagnostics_metrics"
+            )
         ),
         "",
         "Stage 6 — Source verification (only when ambiguity remains)",
-        "  Purpose: validate structural hypotheses at implementation level",
+        "  Purpose: validate structural hypotheses already established by",
+        "           structure or relations reducers at implementation level",
         "  Reducers: "
         + _format_plain_reducer_list(
-            _sorted_reducer_ids_by_investigation_roles(reducers, {"source"})
+            _sorted_reducer_ids_by_investigation_stage(
+                reducers, "source_verification"
+            )
         ),
         "",
         "Stage 7 — Confirmed finding OR concern",
@@ -288,32 +286,38 @@ def _render_investigation_stage_workflow(reducers) -> str:
 def _render_reducer_escalation_order(reducers) -> str:
     return "\n".join(
         [
-            "1. **Discovery and structural orientation** — "
+            "1. **Initial scan** — "
+            + _format_reducer_list_for_docs(
+                _sorted_reducer_ids_by_investigation_stage(reducers, "initial_scan")
+            ),
+            "2. **Entity discovery** — "
             + _format_reducer_list_for_docs(
                 _sorted_reducer_ids_by_investigation_stage(
-                    reducers, "discovery_orientation"
+                    reducers, "entity_discovery"
                 )
             ),
-            "2. **Entity structure and direct relations** — "
-            + _format_reducer_list_for_docs(
-                _sorted_reducer_ids_by_investigation_stage(reducers, "entity_structure")
-            ),
-            "3. **Analytical relations and metrics** — "
+            "3. **Structure inspection** — "
             + _format_reducer_list_for_docs(
                 _sorted_reducer_ids_by_investigation_stage(
-                    reducers, "analytical_relations_metrics"
+                    reducers, "structure_inspection"
                 )
             ),
-            "4. **Focused source grounding** — "
+            "4. **Relationship analysis** — "
             + _format_reducer_list_for_docs(
                 _sorted_reducer_ids_by_investigation_stage(
-                    reducers, "focused_source_grounding"
+                    reducers, "relationship_analysis"
                 )
             ),
-            "5. **Broad source grounding (last resort)** — "
+            "5. **Diagnostics / metrics** — "
             + _format_reducer_list_for_docs(
                 _sorted_reducer_ids_by_investigation_stage(
-                    reducers, "broad_source_grounding"
+                    reducers, "diagnostics_metrics"
+                )
+            ),
+            "6. **Source verification (last resort)** — "
+            + _format_reducer_list_for_docs(
+                _sorted_reducer_ids_by_investigation_stage(
+                    reducers, "source_verification"
                 )
             ),
         ]
@@ -346,11 +350,6 @@ def _sorted_reducer_ids_by_investigation_stage(
     investigation_stage: str,
 ) -> list[str]:
     return _sorted_reducer_ids(reducers, investigation_stage=investigation_stage)
-
-
-def _investigation_stage_for_reducer(reducers, reducer_id: str) -> str:
-    entry = reducers.get(reducer_id)
-    return str(getattr(entry, "investigation_stage", "") or "")
 
 
 def _sorted_reducer_ids(
@@ -423,8 +422,8 @@ _DEFAULT_COMMANDS = {
     "reducer_info": "sciona reducer info --id <reducer_id>",
     "reducer": "sciona reducer --id <reducer_id>",
     "build": "sciona build",
-    "search": "sciona search <query> --kind module|type|class|function|method|callable --limit 10",
-    "resolve": "sciona resolve <identifier> --kind module|type|class|function|method|callable",
+    "search": "sciona search <query> --kind module|type|class|function|method|callable --limit 10 --json",
+    "resolve": "sciona resolve <identifier> --kind module|type|class|function|method|callable --json",
 }
 
 

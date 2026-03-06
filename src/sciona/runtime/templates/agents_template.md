@@ -13,10 +13,9 @@
 ### Quick Reference
 
 **When SCIONA is available:**
-- DO: ``{CMD_SEARCH}`` → ``{CMD_RESOLVE}`` → ``{CMD_REDUCER}``
+- DO: `{CMD_SEARCH}` → `{CMD_RESOLVE}` → `{CMD_REDUCER}`
 - DO: Use structural evidence from reducers
-- DON'T: Grep files for structural information (see §2.1 for the authoritative prohibition)
-- DON'T: Read multiple files to infer relationships (see §2.1)
+- DON'T: Bypass the §2.1 SCIONA-first rule for structural questions
 - DON'T: Fall back to heuristics after one reducer call
 
 **Golden rule:** If your query is structural → SCIONA is mandatory, not optional.
@@ -119,7 +118,7 @@ If SCIONA evidence is insufficient, agents MUST explicitly state what is missing
 
 This prohibition is absolute when SCIONA is available. There are no exceptions except explicit SCIONA unavailability (see §2.3).
 
-**Source reducers** (`callable_source`, `concatenated_source`) are the only permitted form of raw source access, and only for validating structural hypotheses already established by core or analytics reducers. Source reducers MUST NOT be used to infer structure independently.
+Source reducer constraints are defined in §2.5.
 
 ### 2.2 Evidence before interpretation
 
@@ -172,9 +171,8 @@ Before stating a structural claim, at least one of the following conditions MUST
    - Analytics reducers may support structural claims only when their output references structural identifiers
    - Grounding reducers may support claims about signatures or interfaces
 2. **Previously established reducer evidence** — the claim was already established earlier in the same task using reducer evidence and has not been invalidated or superseded by subsequent reducer results
-3. **Explicit hypothesis** — the claim is labeled as: `unverified: pending reducer confirmation`
 
-**Priority note:** When gate condition 1 or 2 is satisfied by a single reducer, the cross-category requirement (§7.3) still applies before a structural conclusion is stated. The cross-category requirement supersedes single-reducer gate satisfaction.
+Cross-category verification is governed by §7.3 and still applies before a structural conclusion is stated.
 
 #### Failure behavior
 
@@ -284,17 +282,17 @@ Outside scope:
 
 If identifiers are unknown:
 
-``{CMD_SEARCH}``
+`{CMD_SEARCH}`
 
-Note: To obtain structured output append --json option.
+Note: Use `--json` for machine-readable output on `search`.
 
 ### 5.2 Resolution
 
 Before structural reasoning:
 
-``{CMD_RESOLVE}``
+`{CMD_RESOLVE}`
 
-Note: To obtain structured output append --json option.
+Note: Use `--json` for machine-readable output on `resolve`.
 
 Agents MUST resolve identifiers via SCIONA rather than inferring or guessing symbol names.
 
@@ -304,7 +302,7 @@ Identifier requirements:
 
 ### 5.3 Standard Investigation Workflow (MUST)
 
-All structural investigations MUST follow this canonical seven-stage pipeline. Stages map directly to reducer categories and the escalation order in §7.10.
+All structural investigations MUST follow this canonical seven-stage pipeline. This pipeline is authoritative. §7.10 restates stages 1–6 as reducer escalation order.
 
 ```
 {INVESTIGATION_STAGE_WORKFLOW}
@@ -320,15 +318,13 @@ Cross-category evidence (§7.3) MUST be obtained before moving to Stage 7.
 
 ### 6.1 Discovery
 
-Reducers COULD be discovered via:
+Reducers MAY be discovered via:
 
 - `{CMD_REDUCER_LIST}`
 
 - `{CMD_REDUCER_INFO}`
 
 Agents MUST NOT guess reducer names.
-
-Note: Reducer output is structured by default. Do not append --json to any command unless it is explicitly listed in sciona reducer info output for that specific reducer.
 
 ### 6.2 Common usage
 
@@ -345,7 +341,7 @@ Note: Reducer output is structured by default. Do not append --json to any comma
 
 Reducers emit **machine-parseable structured output**.
 
-Reducer output is structured by default. Do not append --json to any command unless it is explicitly listed in sciona reducer info output for that specific reducer.
+Reducer output is structured by default. Agents MUST NOT append `--json` to reducer commands.
 
 Agents MUST NOT assume CLI flags modify reducer output format.
 
@@ -377,7 +373,7 @@ The evidence authority hierarchy is defined in §1.3 and governs all conflict re
 
 ### 7.1 Structural Exploration Discipline (MUST)
 
-Agents MUST explore structure following the canonical seven-stage pipeline in §5.3, using reducer categories in this order:
+Agents MUST explore structure following the canonical seven-stage pipeline in §5.3, using workflow categories in this order:
 
 ```
 discovery → structure → relations → metrics → source
@@ -386,6 +382,8 @@ discovery → structure → relations → metrics → source
 Stages MUST NOT be skipped without explicit justification.
 
 ### 7.2 Reducer Categories
+
+These workflow categories are for investigation use and are orthogonal to reducer risk tiers in §7.7.
 
 {INVESTIGATION_ROLE_CATEGORIES}
 
@@ -411,7 +409,7 @@ Example:
 
 ```
 structural_integrity_summary   [metrics]
-→ symbol_references            [structure]
+→ symbol_references            [relations]
 → callable_overview            [structure]
 → callable_source              [source — validation only]
 ```
@@ -440,18 +438,11 @@ Structural analysis MAY conclude (proceed to Stage 7) when:
 
 ### 7.7 Risk tiers
 
-Reducer categories imply typical misuse risk.
+Risk tiers are explicit reducer metadata and are orthogonal to workflow categories in §7.2.
 
-**Normal risk:** `core`, `analytics`
+**Normal risk:** reducers safe for routine structural investigation.
 
-**Elevated risk:** `grounding` (and `composites` when present)
-
-Definitions:
-
-- `core` — structural summaries derived directly from SCI nodes and edges (symbols, outlines, overviews, dependencies, inheritance)
-- `analytics` — deterministic projections of SCI structure (call graphs, fan metrics, hotspots)
-- `grounding` — raw source payloads (`callable_source`, `concatenated_source`); require interpretation and MUST be cross-checked
-- `composites` — reserved category for composed evidence projections; when present, treat as elevated risk
+**Elevated risk:** reducers that require extra caution because they expose raw source or advisory composite views.
 
 Risk tiering is guidance for investigation strategy, not an absolute correctness indicator.
 
