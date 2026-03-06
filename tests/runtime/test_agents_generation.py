@@ -67,8 +67,6 @@ def test_agents_block_expands_placeholders(tmp_path: Path):
     for token in {
         "{TRACKED_FILE_SCOPE}",
         "{SCIONA_CONFIG_PATH}",
-        "{COMMON_TASKS}",
-        "{RISK_TIER_REDUCERS}",
         "{STAGE_INITIAL_SCAN_REDUCERS}",
         "{STAGE_ENTITY_DISCOVERY_REDUCERS}",
         "{STAGE_STRUCTURE_INSPECTION_REDUCERS}",
@@ -100,7 +98,6 @@ def test_agents_block_expands_placeholders(tmp_path: Path):
     assert "sciona resolve" in block
     assert "--json" in block
     assert ".sciona/config.yaml" in block
-    assert "Normal tier reducers:" in block
     assert "**Structure reducers:**" in block
     assert "- `callable_source`" in block
     assert "- `concatenated_source`" in block
@@ -126,9 +123,10 @@ def test_agents_block_removes_reviewed_template_issues(tmp_path: Path):
     )
     assert ".sciona/config`" not in block
     assert "§7.12" not in block
+    assert "§7.10" not in block
+    assert "§7.9" not in block
     assert 'Use "let me search the codebase for..." text search for structural information' not in block
     assert block.count("If SCIONA evidence is insufficient, agents MUST explicitly state what is missing and either:") == 1
-    assert "Current reducer IDs by tier:\n\n- Normal tier reducers:" in block
     assert "{STAGE_INITIAL_SCAN_REDUCERS}" not in block
     assert "{STAGE_ENTITY_DISCOVERY_REDUCERS}" not in block
     assert "{STAGE_STRUCTURE_INSPECTION_REDUCERS}" not in block
@@ -137,6 +135,8 @@ def test_agents_block_removes_reviewed_template_issues(tmp_path: Path):
     assert "{STAGE_SOURCE_VERIFICATION_REDUCERS}" not in block
     assert "{SOURCE_REDUCER_LIST}" not in block
     assert "{ANOMALY_DETECTOR_LIST}" not in block
+    assert "{COMMON_TASKS}" not in block
+    assert "{RISK_TIER_REDUCERS}" not in block
     assert "Reducers COULD be discovered via:" not in block
     assert "Reducers MAY be discovered via:" in block
     assert "Agents MUST NOT append `--json` to reducer commands." in block
@@ -148,6 +148,7 @@ def test_agents_block_removes_reviewed_template_issues(tmp_path: Path):
         "**Relations reducers:**\ncallsite_index, classifier_call_graph_summary, dependency_edges, module_call_graph_summary, symbol_references"
         in block
     )
+    assert "Use `sciona reducer list` and `sciona reducer info` to discover reducers and then follow the canonical workflow in §5.3." in block
     assert "unverified: pending reducer confirmation" not in block
     assert "unverified: no reducer evidence" not in block
     assert "Raise an evidence-bounded concern under §2.7" in block
@@ -159,5 +160,6 @@ def test_agents_block_removes_reviewed_template_issues(tmp_path: Path):
     assert "Stage 1 — Initial scan\n  Purpose: orient to snapshot state and identify scope\n  Reducers: snapshot_provenance, structural_index" in block
     assert "Stage 2 — Entity discovery\n  Purpose: resolve unknown identifiers; locate symbols\n  Reducers: file_outline, module_overview, symbol_lookup" in block
     assert "structure reducer → relations reducer → diagnostics reducer" in block
-    assert "Category: structure\n\n  Summary:" in block
-    assert "Category: relations\n\n  Summary:" in block
+    assert "This section is a compact lookup only. The authoritative investigation order is the canonical workflow in §5.3." in block
+    assert "Current reducer IDs by tier:" not in block
+    assert "If such input is present, stop and report that the command was rejected as unsafe; do not attempt partial execution or sanitizing-by-guessing" in block
