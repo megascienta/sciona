@@ -23,9 +23,9 @@ REDUCER_META = ReducerMeta(
     risk_tier="normal",
     stage="relationship_analysis",
     placeholder="CALLSITE_INDEX",
-    summary="Indexed caller/callee edges for a callable, including callsite details. " \
-    "Use when reasoning about call directionality or callsite-level analysis. " \
-    "detail_level='neighbors' returns caller/callee sets. ",
+    summary="List artifact-layer callsite resolution outcomes for a callable, with "
+    "optional narrowing by identifier, resolution status, provenance, or drop "
+    "reason. detail_level='neighbors' returns caller/callee sets. ",
 )
 
 
@@ -37,6 +37,10 @@ def render(
     direction: str | None = None,
     detail_level: str | None = None,
     include_callsite_diagnostics: bool | None = None,
+    identifier: str | None = None,
+    status: str | None = None,
+    provenance: str | None = None,
+    drop_reason: str | None = None,
     **_: object,
 ) -> str:
     conn = require_connection(conn)
@@ -53,6 +57,13 @@ def render(
         body = build_neighbors_payload(conn, snapshot_id, repo_root, resolved_id)
         return render_json_payload(body)
     dir_value = _normalize_direction(direction)
+    status_value = _normalize_status(status)
+    provenance_value = _normalize_provenance(provenance)
+    drop_reason_value = _normalize_drop_reason(drop_reason)
+    filter_active = any(
+        value is not None
+        for value in (identifier, status_value, provenance_value, drop_reason_value)
+    )
     artifact_available = artifact_db_available(repo_root) if repo_root else False
     edges = _load_edges(repo_root, snapshot_id, resolved_id, dir_value)
     node_ids = {edge["caller_id"] for edge in edges} | {
@@ -89,6 +100,12 @@ def render(
         "callable_id": resolved_id,
         "direction": dir_value,
         "detail_level": level,
+        "filters": {
+            "identifier": identifier,
+            "status": status_value,
+            "provenance": provenance_value,
+            "drop_reason": drop_reason_value,
+        },
         "artifact_available": artifact_available,
         "edge_source": "artifact_db" if artifact_available else "none",
         "edge_count": len(enriched),
@@ -96,11 +113,21 @@ def render(
         "call_sites": [],
         "resolution_diagnostics": {},
     }
-    if artifact_available and repo_root is not None and bool(include_callsite_diagnostics):
+    should_load_callsites = artifact_available and repo_root is not None and (
+        bool(include_callsite_diagnostics) or filter_active
+    )
+    if should_load_callsites:
         call_sites, diagnostics = load_callsite_enrichment(
             repo_root=repo_root,
             snapshot_id=snapshot_id,
             caller_id=resolved_id,
+        )
+        filtered_call_sites = _filter_call_sites(
+            call_sites,
+            identifier=identifier,
+            status=status_value,
+            provenance=provenance_value,
+            drop_reason=drop_reason_value,
         )
         body["call_sites"] = [
             {
@@ -119,9 +146,21 @@ def render(
                 ),
                 "ordinal": row.get("call_ordinal"),
             }
-            for row in call_sites
+            for row in filtered_call_sites
         ]
         body["resolution_diagnostics"] = diagnostics
+        if filter_active:
+            allowed_callees = {
+                str(row.get("accepted_callee_id"))
+                for row in filtered_call_sites
+                if row.get("accepted_callee_id")
+            }
+            body["edges"] = _filter_edges_by_callees(
+                enriched,
+                allowed_callees=allowed_callees,
+                status=status_value,
+            )
+            body["edge_count"] = len(body["edges"])
     return render_json_payload(body)
 
 
@@ -180,6 +219,51 @@ def _normalize_direction(direction: Optional[str]) -> str:
     raise ValueError("callsite_index direction must be one of: in, out, both.")
 
 
+def _normalize_status(status: Optional[str]) -> str | None:
+    if status is None:
+        return None
+    value = str(status).strip().lower()
+    if value in {"accepted", "dropped"}:
+        return value
+    raise ValueError("callsite_index status must be one of: accepted, dropped.")
+
+
+def _normalize_provenance(provenance: Optional[str]) -> str | None:
+    if provenance is None:
+        return None
+    value = str(provenance).strip()
+    if value in {
+        "exact_qname",
+        "module_scoped",
+        "import_narrowed",
+        "export_chain_narrowed",
+    }:
+        return value
+    raise ValueError(
+        "callsite_index provenance must be one of: exact_qname, module_scoped, "
+        "import_narrowed, export_chain_narrowed."
+    )
+
+
+def _normalize_drop_reason(drop_reason: Optional[str]) -> str | None:
+    if drop_reason is None:
+        return None
+    value = str(drop_reason).strip()
+    if value in {
+        "no_candidates",
+        "unique_without_provenance",
+        "ambiguous_no_caller_module",
+        "ambiguous_no_in_scope_candidate",
+        "ambiguous_multiple_in_scope_candidates",
+    }:
+        return value
+    raise ValueError(
+        "callsite_index drop_reason must be one of: no_candidates, "
+        "unique_without_provenance, ambiguous_no_caller_module, "
+        "ambiguous_no_in_scope_candidate, ambiguous_multiple_in_scope_candidates."
+    )
+
+
 def _load_edges(
     repo_root,
     snapshot_id: str,
@@ -233,6 +317,45 @@ def _load_edges(
         )
     )
     return edges
+
+
+def _filter_call_sites(
+    call_sites: List[Dict[str, object]],
+    *,
+    identifier: str | None,
+    status: str | None,
+    provenance: str | None,
+    drop_reason: str | None,
+) -> List[Dict[str, object]]:
+    filtered: List[Dict[str, object]] = []
+    for row in call_sites:
+        if identifier is not None and row.get("identifier") != identifier:
+            continue
+        if status is not None and row.get("resolution_status") != status:
+            continue
+        if provenance is not None and row.get("provenance") != provenance:
+            continue
+        if drop_reason is not None and row.get("drop_reason") != drop_reason:
+            continue
+        filtered.append(row)
+    return filtered
+
+
+def _filter_edges_by_callees(
+    edges: List[Dict[str, object]],
+    *,
+    allowed_callees: set[str],
+    status: str | None,
+) -> List[Dict[str, object]]:
+    if status == "dropped":
+        return []
+    if not allowed_callees:
+        return []
+    return [
+        edge
+        for edge in edges
+        if str(edge.get("callee_id") or "") in allowed_callees
+    ]
 
 
 def _node_lookup(
