@@ -9,13 +9,30 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 import sqlite3
 
-from ...code_analysis.tools import walker as file_walker
 from ..domain.repository import RepoState
-from ...runtime import config as runtime_config
-from ...runtime import git as git_ops
 from ...data_storage.connections import artifact_readonly, core_readonly
 from ...data_storage.core_db import read_ops as core_read
 from ...data_storage.artifact_db import read_reporting as artifact_reporting
+from .reporting_callsites import (
+    adjusted_call_sites_payload as _adjusted_call_sites_payload_impl,
+    build_callable_identifier_index as _build_callable_identifier_index_impl,
+    call_sites_payload as _call_sites_payload_impl,
+    classification_quality_payload as _classification_quality_payload_impl,
+    drop_classification_bucket as _drop_classification_bucket_impl,
+    identifier_has_in_repo_callable as _identifier_has_in_repo_callable_impl,
+    identifier_terminal as _identifier_terminal_impl,
+    scope_bucket as _scope_bucket_impl,
+    scope_call_sites_payload as _scope_call_sites_payload_impl,
+    scope_adjusted_call_sites_payload as _scope_adjusted_call_sites_payload_impl,
+    sum_bucket_counts as _sum_bucket_counts_impl,
+    sum_bucket_counts_by_scope as _sum_bucket_counts_by_scope_impl,
+    sum_scope as _sum_scope_impl,
+    top_items as _top_items_impl,
+)
+from .reporting_files import (
+    discovered_files_by_language as _discovered_files_by_language_impl,
+    structural_density_payload as _structural_density_payload_impl,
+)
 
 
 @dataclass(frozen=True)
@@ -465,17 +482,7 @@ def _call_sites_payload(
     accepted: int | None,
     dropped: int | None,
 ) -> dict[str, object]:
-    payload: dict[str, object] = {
-        "eligible": eligible,
-        "accepted": accepted,
-        "dropped": dropped,
-        "success_rate": None,
-    }
-    if eligible is None or accepted is None:
-        return payload
-    if eligible > 0:
-        payload["success_rate"] = accepted / eligible
-    return payload
+    return _call_sites_payload_impl(eligible, accepted, dropped)
 
 
 def _adjusted_call_sites_payload(
@@ -483,49 +490,24 @@ def _adjusted_call_sites_payload(
     *,
     excluded_external_likely: int,
 ) -> dict[str, object]:
-    eligible = call_sites.get("eligible") if call_sites else None
-    accepted = call_sites.get("accepted") if call_sites else None
-    adjusted_eligible = None
-    success_rate = None
-    if isinstance(eligible, int):
-        adjusted_eligible = max(eligible - int(excluded_external_likely or 0), 0)
-    if isinstance(adjusted_eligible, int) and adjusted_eligible > 0 and isinstance(accepted, int):
-        success_rate = accepted / adjusted_eligible
-    return {
-        "eligible": eligible,
-        "accepted": accepted,
-        "excluded_external_likely": int(excluded_external_likely or 0),
-        "adjusted_eligible": adjusted_eligible,
-        "success_rate": success_rate,
-    }
+    return _adjusted_call_sites_payload_impl(
+        call_sites,
+        excluded_external_likely=excluded_external_likely,
+    )
 
 
 def _top_items(items: dict[str, int], *, limit: int) -> list[dict[str, object]]:
-    ordered = sorted(items.items(), key=lambda kv: (-kv[1], kv[0]))[:limit]
-    return [{"name": name, "count": int(count)} for name, count in ordered]
+    return _top_items_impl(items, limit=limit)
 
 
 def _scope_bucket(file_path: str) -> str:
-    if not file_path:
-        return "non_tests"
-    parts = [segment for segment in file_path.replace("\\", "/").split("/") if segment]
-    return "tests" if any(part in {"test", "tests"} for part in parts) else "non_tests"
+    return _scope_bucket_impl(file_path)
 
 
 def _scope_call_sites_payload(
     scope_counts: dict[str, dict[str, int]] | None,
 ) -> dict[str, dict[str, object]] | None:
-    if scope_counts is None:
-        return None
-    payload: dict[str, dict[str, object]] = {}
-    for scope_key in ("non_tests", "tests"):
-        counts = scope_counts.get(scope_key, {"eligible": 0, "accepted": 0, "dropped": 0})
-        payload[scope_key] = _call_sites_payload(
-            int(counts.get("eligible", 0)),
-            int(counts.get("accepted", 0)),
-            int(counts.get("dropped", 0)),
-        )
-    return payload
+    return _scope_call_sites_payload_impl(scope_counts)
 
 
 def _scope_adjusted_call_sites_payload(
@@ -534,17 +516,11 @@ def _scope_adjusted_call_sites_payload(
     excluded_non_tests: int,
     excluded_tests: int,
 ) -> dict[str, dict[str, object]] | None:
-    if not scope_payload:
-        return None
-    non_tests = _adjusted_call_sites_payload(
-        scope_payload.get("non_tests"),
-        excluded_external_likely=excluded_non_tests,
+    return _scope_adjusted_call_sites_payload_impl(
+        scope_payload,
+        excluded_non_tests=excluded_non_tests,
+        excluded_tests=excluded_tests,
     )
-    tests = _adjusted_call_sites_payload(
-        scope_payload.get("tests"),
-        excluded_external_likely=excluded_tests,
-    )
-    return {"non_tests": non_tests, "tests": tests}
 
 
 def _classification_quality_payload(
@@ -553,40 +529,11 @@ def _classification_quality_payload(
     drop_reasons: dict[str, int],
     drop_classification: dict[str, int],
 ) -> dict[str, object]:
-    dropped = int((call_sites or {}).get("dropped") or 0)
-    external_likely = int(drop_classification.get("external_likely", 0))
-    ambiguous = int(
-        drop_reasons.get("ambiguous_no_in_scope_candidate", 0)
-        + drop_reasons.get("ambiguous_multiple_in_scope_candidates", 0)
+    return _classification_quality_payload_impl(
+        call_sites,
+        drop_reasons=drop_reasons,
+        drop_classification=drop_classification,
     )
-    external_share = (external_likely / dropped) if dropped > 0 else None
-    ambiguous_share = (ambiguous / dropped) if dropped > 0 else None
-    confidence = "n/a"
-    caveats: list[str] = []
-    if dropped > 0:
-        confidence = "high"
-        if external_share is not None and external_share >= 0.75:
-            confidence = "low"
-            caveats.append("external_likely_dominates_drops")
-        elif external_share is not None and external_share >= 0.40:
-            confidence = "medium"
-            caveats.append("external_likely_material_share")
-        if ambiguous_share is not None and ambiguous_share >= 0.75:
-            confidence = "low"
-            caveats.append("ambiguity_dominates_drops")
-        elif ambiguous_share is not None and ambiguous_share >= 0.40:
-            if confidence == "high":
-                confidence = "medium"
-            caveats.append("ambiguity_material_share")
-    return {
-        "dropped_callsites": dropped,
-        "external_likely": external_likely,
-        "ambiguous_drops": ambiguous,
-        "external_likely_share": external_share,
-        "ambiguous_share": ambiguous_share,
-        "confidence": confidence,
-        "caveats": caveats,
-    }
 
 
 def _structural_density_payload(
@@ -597,90 +544,23 @@ def _structural_density_payload(
     file_node_distribution: list[tuple[str, int]],
     discovered_files: int | None,
 ) -> dict[str, object]:
-    nodes_per_file = (nodes / files) if files > 0 else None
-    eligible_callsites_per_file = (eligible_callsites / files) if files > 0 else None
-    low_node_files = [(path, count) for path, count in file_node_distribution if count <= 1]
-    low_node_dir_counts: dict[str, int] = {}
-    for file_path, _count in low_node_files:
-        bucket = _directory_bucket(file_path)
-        low_node_dir_counts[bucket] = low_node_dir_counts.get(bucket, 0) + 1
-    top_low_node_dirs = _top_items(low_node_dir_counts, limit=5)
-    low_node_ratio = (len(low_node_files) / files) if files > 0 else None
-    inferred_zero_node_files = (
-        max(int(discovered_files or 0) - files, 0)
-        if discovered_files is not None
-        else None
+    return _structural_density_payload_impl(
+        files=files,
+        nodes=nodes,
+        eligible_callsites=eligible_callsites,
+        file_node_distribution=file_node_distribution,
+        discovered_files=discovered_files,
     )
-    inferred_zero_node_ratio = (
-        (inferred_zero_node_files / int(discovered_files))
-        if discovered_files is not None and int(discovered_files) > 0 and inferred_zero_node_files is not None
-        else None
-    )
-    inflation_warning = bool(
-        files >= 200 and low_node_ratio is not None and low_node_ratio >= 0.60
-    )
-    if (
-        not inflation_warning
-        and discovered_files is not None
-        and int(discovered_files) >= 200
-        and inferred_zero_node_ratio is not None
-        and inferred_zero_node_ratio >= 0.40
-    ):
-        inflation_warning = True
-    warnings: list[str] = []
-    if low_node_ratio is not None and low_node_ratio >= 0.60:
-        warnings.append("low_node_file_ratio_high")
-    if inferred_zero_node_ratio is not None and inferred_zero_node_ratio >= 0.40:
-        warnings.append("inferred_zero_node_ratio_high")
-    return {
-        "files": files,
-        "discovered_files": discovered_files,
-        "nodes": nodes,
-        "eligible_callsites": eligible_callsites,
-        "nodes_per_file": nodes_per_file,
-        "eligible_callsites_per_file": eligible_callsites_per_file,
-        "low_node_files_leq_1": len(low_node_files),
-        "low_node_file_ratio": low_node_ratio,
-        "inferred_zero_node_files": inferred_zero_node_files,
-        "inferred_zero_node_ratio": inferred_zero_node_ratio,
-        "top_low_node_dirs": top_low_node_dirs,
-        "inflation_warning": inflation_warning,
-        "warnings": warnings,
-        "zero_node_files_observed": 0,
-        "zero_node_files_note": "Not observable from indexed files; files without nodes are not materialized in node_instances.",
-    }
 
 
 def _directory_bucket(file_path: str) -> str:
-    normalized = file_path.replace("\\", "/").strip("/")
-    if not normalized:
-        return "."
-    parts = [part for part in normalized.split("/") if part]
-    if not parts:
-        return "."
-    if len(parts) == 1:
-        return parts[0]
-    return "/".join(parts[:2])
+    from .reporting_files import directory_bucket
+
+    return directory_bucket(file_path)
 
 
 def _discovered_files_by_language(repo_root) -> dict[str, int]:
-    try:
-        config = runtime_config.load_runtime_config(repo_root)
-        tracked = git_ops.tracked_paths(repo_root)
-        ignored = git_ops.ignored_tracked_paths(repo_root)
-        records = file_walker.collect_files(
-            repo_root,
-            config.languages,
-            discovery=config.discovery,
-            tracked_paths=tracked,
-            ignored_paths=ignored,
-        )
-    except Exception:
-        return {}
-    counts: dict[str, int] = defaultdict(int)
-    for record in records:
-        counts[str(record.language)] += 1
-    return dict(counts)
+    return _discovered_files_by_language_impl(repo_root)
 
 
 def _drop_classification_bucket(
@@ -691,37 +571,19 @@ def _drop_classification_bucket(
     callee_kind: str,
     known_callable_identifiers: set[str],
 ) -> str | None:
-    if (
-        drop_reason == "ambiguous_no_in_scope_candidate"
-        and callee_kind == "qualified"
-        and candidate_count >= 3
-        and "." in identifier
-    ):
-        if _identifier_has_in_repo_callable(
-            identifier,
-            known_callable_identifiers=known_callable_identifiers,
-        ):
-            return "in_repo_unresolvable"
-        return "external_likely"
-    return None
+    return _drop_classification_bucket_impl(
+        identifier=identifier,
+        drop_reason=drop_reason,
+        candidate_count=candidate_count,
+        callee_kind=callee_kind,
+        known_callable_identifiers=known_callable_identifiers,
+    )
 
 
 def _build_callable_identifier_index(
     caller_metadata: dict[str, dict[str, object]],
 ) -> dict[str, set[str]]:
-    index: dict[str, set[str]] = defaultdict(set)
-    for meta in caller_metadata.values():
-        if str(meta.get("node_type") or "") != "callable":
-            continue
-        language = str(meta.get("language") or "")
-        qualified_name = str(meta.get("qualified_name") or "")
-        if not language or not qualified_name:
-            continue
-        index[language].add(qualified_name)
-        terminal = _identifier_terminal(qualified_name)
-        if terminal:
-            index[language].add(terminal)
-    return dict(index)
+    return _build_callable_identifier_index_impl(caller_metadata)
 
 
 def _identifier_has_in_repo_callable(
@@ -729,31 +591,20 @@ def _identifier_has_in_repo_callable(
     *,
     known_callable_identifiers: set[str],
 ) -> bool:
-    if not identifier or not known_callable_identifiers:
-        return False
-    if identifier in known_callable_identifiers:
-        return True
-    terminal = _identifier_terminal(identifier)
-    if not terminal:
-        return False
-    return terminal in known_callable_identifiers
+    return _identifier_has_in_repo_callable_impl(
+        identifier,
+        known_callable_identifiers=known_callable_identifiers,
+    )
 
 
 def _identifier_terminal(identifier: str) -> str:
-    text = identifier.strip()
-    if not text:
-        return ""
-    return text.rsplit(".", 1)[-1].strip()
+    return _identifier_terminal_impl(identifier)
 
 
 def _sum_bucket_counts(
     language_buckets: dict[str, dict[str, int]],
 ) -> dict[str, int]:
-    totals: dict[str, int] = {}
-    for buckets in language_buckets.values():
-        for bucket, count in buckets.items():
-            totals[bucket] = totals.get(bucket, 0) + int(count)
-    return dict(sorted(totals.items()))
+    return _sum_bucket_counts_impl(language_buckets)
 
 
 def _sum_bucket_counts_by_scope(
@@ -761,11 +612,10 @@ def _sum_bucket_counts_by_scope(
     *,
     scope_key: str,
 ) -> dict[str, int]:
-    totals: dict[str, int] = {}
-    for scope_map in language_scope_buckets.values():
-        for bucket, count in (scope_map.get(scope_key) or {}).items():
-            totals[bucket] = totals.get(bucket, 0) + int(count)
-    return dict(sorted(totals.items()))
+    return _sum_bucket_counts_by_scope_impl(
+        language_scope_buckets,
+        scope_key=scope_key,
+    )
 
 
 def _sum_scope(
@@ -774,12 +624,11 @@ def _sum_scope(
     scope_key: str,
     field_names: tuple[str, ...],
 ) -> dict[str, int]:
-    result = {field: 0 for field in field_names}
-    for scope_counts in language_scope_totals.values():
-        scope = scope_counts.get(scope_key, {})
-        for field in field_names:
-            result[field] += int(scope.get(field, 0))
-    return result
+    return _sum_scope_impl(
+        language_scope_totals,
+        scope_key=scope_key,
+        field_names=field_names,
+    )
 
 
 __all__ = ["snapshot_report"]
