@@ -21,7 +21,8 @@ REDUCER_META = ReducerMeta(
     risk_tier="elevated",
     stage="source_verification",
     placeholder="CALLABLE_SOURCE",
-    summary="Full source code of a callable. Use only when ",
+    summary="Full source code of a callable. Use only when "
+    "implementation details are required.",
 )
 
 

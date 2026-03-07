@@ -1,17 +1,8 @@
 # SCIONA Call-Edge Resolution Report
 
-This report summarizes the status payloads in `validations/build_status_reports/*.json` and interprets them using SCIONA contract constraints.
-
-The directory currently contains **11 JSON payloads**. Aggregate metrics in this report are computed over **10 unique repositories** because `vccode.json` is a legacy VSCode-named artifact and `vscode.json` is treated as the canonical VSCode entry for the rollup.
+This report summarizes the status payloads in `validations/build_status_reports/*.json` and interprets them using SCIONA contract constraints. Aggregate metrics in this report are computed over **10 unique repositories**.
 
 ## Executive Summary
-
-SCIONA status for the stated goals is:
-
-* Deterministic structural indexing across Python/JavaScript/TypeScript/Java: **achieved**
-* High-volume cross-repo operation (large OSS codebases): **achieved**
-* Stable, explainable call-edge resolution quality reporting: **achieved**
-* Runtime/semantic completeness for dynamic patterns: **not a goal; intentionally out of scope**
 
 At this snapshot SCIONA processed:
 
@@ -39,11 +30,6 @@ Analysis has been performed over 10 popular open source repositories:
 * [`sympy`](https://github.com/sympy/sympy)
 * [`vscode`](https://github.com/microsoft/vscode)
 * [`webpack`](https://github.com/webpack/webpack)
-
-Data-source note:
-
-* `validations/build_status_reports/vccode.json` is retained as a legacy-named VSCode report.
-* `validations/build_status_reports/vscode.json` is the canonical VSCode status artifact used in the aggregate totals below.
 
 All status reports in JSON format were emitted by:
 
@@ -144,7 +130,7 @@ As a result, **raw and adjusted success rates are effectively identical**.
 | Python     |   64,008 |   62,864 |   1,144 | 98.21 |       98.91 |   97.26 |      98.21 |            1 |
 | TypeScript |  151,645 |  147,961 |   3,684 | 97.57 |       97.21 |   99.50 |      97.57 |            0 |
 
-Python and TypeScript repositories show the highest deterministic resolution rates.
+Python, TypeScript and JavaScript repositories show the highest deterministic resolution rates.
 
 Java repositories show lower rates due to **method overloading and generic type erasure**, which cannot be disambiguated without type inference.
 
@@ -203,9 +189,3 @@ SCIONA is **not intended to replace**:
 | SCIONA version         | `0.1.0.dev585` |
 | Report schema version  | `1.0`          |
 | Status payload version | `1`            |
-
-This Markdown report is a derived summary from the JSON artifacts and validated against the reporting pipeline in:
-
-```
-src/sciona/pipelines/exec/reporting.py
-```

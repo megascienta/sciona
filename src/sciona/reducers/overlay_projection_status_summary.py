@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from ..overlay_access import load_overlay
+from ..data_storage.artifact_db import read_overlay as artifact_read_overlay
 from ..runtime import git as git_ops
 from ..runtime.overlay_profile import OVERLAY_PROFILE
 from .helpers.context import current_artifact_connection, fallback_artifact_connection
@@ -41,18 +41,17 @@ def render(
         artifact_conn = fallback_artifact_connection(repo_root)
         owns_connection = artifact_conn is not None
 
-    overlay = None
-    if worktree_dirty and artifact_conn is not None and repo_root is not None:
-        overlay = load_overlay(
-            repo_root=repo_root,
+    overlay_row = None
+    if worktree_dirty and artifact_conn is not None:
+        overlay_row = artifact_read_overlay.latest_overlay_summary_for_snapshot(
+            artifact_conn,
             snapshot_id=snapshot_id,
-            core_conn=conn,
-            artifact_conn=artifact_conn,
         )
     if owns_connection and artifact_conn is not None:
         artifact_conn.close()
 
-    overlay_available = overlay is not None
+    overlay_available = overlay_row is not None
+    worktree_hash = str(overlay_row["worktree_hash"]) if overlay_row else None
     body = {
         "payload_kind": "summary",
         "overlay_advisory": True,
@@ -61,8 +60,8 @@ def render(
         "overlay_reason": "available"
         if overlay_available
         else ("clean_worktree" if not worktree_dirty else "overlay_unavailable"),
-        "worktree_hash": overlay.worktree_hash if overlay else None,
-        "warnings": list(overlay.warnings) if overlay else [],
+        "worktree_hash": worktree_hash,
+        "warnings": [],
         "projections": _projection_rows(
             worktree_dirty=worktree_dirty,
             overlay_available=overlay_available,
