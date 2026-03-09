@@ -100,6 +100,8 @@ def render(
     body = {
         "payload_kind": "summary",
         "callable_id": resolved_id,
+        "call_sites_semantics": "filtered_persisted_artifact_working_set",
+        "external_likely_semantics": "residual_filter_quality_signal",
         "direction": dir_value,
         "detail_level": level,
         "filters": {

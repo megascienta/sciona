@@ -14,7 +14,8 @@ REDUCER_META = ReducerMeta(
     risk_tier="normal",
     stage="relationship_analysis",
     placeholder="CALLSITE_INDEX",
-    summary="List artifact-layer callsite resolution outcomes for a callable, with "
+    summary="List filtered persisted artifact-layer callsite resolution outcomes "
+    "for a callable, with "
     "optional narrowing by identifier, resolution status, provenance, or drop "
     "reason. detail_level='neighbors' returns caller/callee sets. ",
 )

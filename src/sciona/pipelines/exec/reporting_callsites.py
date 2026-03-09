@@ -1,7 +1,11 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Callsite-oriented helpers for snapshot reporting."""
+"""Callsite-oriented helpers for snapshot reporting.
+
+Reporting operates on the filtered persisted artifact-layer `call_sites`
+working set rather than the full observed syntactic callsite stream.
+"""
 
 from __future__ import annotations
 
@@ -101,6 +105,8 @@ def classification_quality_payload(
     drop_reasons: dict[str, int],
     drop_classification: dict[str, int],
 ) -> dict[str, object]:
+    """Summarize residual classification quality on persisted dropped callsites."""
+
     dropped = int((call_sites or {}).get("dropped") or 0)
     external_likely = int(drop_classification.get("external_likely", 0))
     ambiguous = int(

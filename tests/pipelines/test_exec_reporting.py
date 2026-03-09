@@ -18,6 +18,8 @@ def test_snapshot_report_returns_db_counts(repo_with_snapshot):
     payload = repo_pipeline.snapshot_report(snapshot_id, repo_root=repo_root)
     assert payload is not None
     assert payload["snapshot_id"] == snapshot_id
+    assert payload["call_sites_semantics"] == "filtered_persisted_artifact_working_set"
+    assert payload["external_likely_semantics"] == "residual_filter_quality_signal"
     assert payload["totals"]["files"] == 3
     assert payload["totals"]["nodes"] == 5
     assert payload["totals"]["edges"] == 5

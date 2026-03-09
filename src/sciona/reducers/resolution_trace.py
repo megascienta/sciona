@@ -76,6 +76,8 @@ def render(
     body = {
         "payload_kind": "summary",
         "callable_id": resolved_callable_id,
+        "call_sites_semantics": "filtered_persisted_artifact_working_set",
+        "external_likely_semantics": "residual_filter_quality_signal",
         "callable_qualified_name": caller_meta.get("qualified_name"),
         "callable_file_path": caller_meta.get("file_path"),
         "callable_language": caller_meta.get("language"),

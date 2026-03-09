@@ -55,6 +55,8 @@ def test_callsite_index_enrichment_is_opt_in(tmp_path: Path) -> None:
                 include_callsite_diagnostics=True,
             )
         )
+        assert with_payload["call_sites_semantics"] == "filtered_persisted_artifact_working_set"
+        assert with_payload["external_likely_semantics"] == "residual_filter_quality_signal"
         assert with_payload["call_sites"]
     finally:
         artifact_conn.close()

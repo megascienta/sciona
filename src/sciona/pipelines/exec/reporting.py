@@ -353,6 +353,8 @@ def snapshot_report(
         "snapshot_id": snapshot_id,
         "created_at": created_at,
         "artifact_db_available": artifact_available,
+        "call_sites_semantics": "filtered_persisted_artifact_working_set",
+        "external_likely_semantics": "residual_filter_quality_signal",
         "languages": [
             item.to_payload(include_failure_reasons=include_failure_reasons)
             for item in rows
