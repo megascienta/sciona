@@ -10,7 +10,7 @@ from typing import Dict, Iterable, Optional, Tuple
 from typing import Protocol
 from ...runtime import identity as ids
 from ..analysis.graph import module_id_for
-from ..contracts import select_strict_call_candidate
+from ..contracts import resolve_strict_call_batch
 from ..tools.call_extraction import normalize_call_identifiers
 from .structural_assembler_emit import (
     emit_edges,
@@ -215,52 +215,44 @@ class StructuralAssembler:
         }
         for language, qualified, node_type, identifiers in normalized:
             caller_module = module_id_for(qualified, module_names)
-            caller_ancestors = (
-                _module_qname_ancestors(caller_module) if caller_module else set()
+            batch = resolve_strict_call_batch(
+                identifiers,
+                symbol_index=symbol_index,
+                caller_module=caller_module,
+                module_lookup=module_lookup,
+                import_targets=import_targets,
+                expanded_import_targets=expanded_import_targets,
+                caller_ancestor_modules=(
+                    _module_qname_ancestors(caller_module) if caller_module else set()
+                ),
             )
-            accepted: list[str] = []
-            for identifier in identifiers:
-                local_totals["identifiers_total"] = (
-                    int(local_totals["identifiers_total"]) + 1
-                )
-                direct_candidates: list[str]
-                if "." in identifier:
-                    direct_candidates = list(symbol_index.get(identifier, ()))
-                else:
-                    direct_candidates = list(symbol_index.get(identifier, ()))
-                fallback_candidates: list[str] = []
-                if not direct_candidates and "." in identifier:
-                    fallback_candidates = list(
-                        symbol_index.get(identifier.rsplit(".", 1)[-1], ())
-                    )
-                decision = select_strict_call_candidate(
-                    identifier=identifier,
-                    direct_candidates=direct_candidates,
-                    fallback_candidates=fallback_candidates,
-                    caller_module=caller_module,
-                    module_lookup=module_lookup,
-                    import_targets=import_targets,
-                    expanded_import_targets=expanded_import_targets,
-                    caller_ancestor_modules=caller_ancestors,
-                )
-                if decision.accepted_candidate:
-                    accepted.append(decision.accepted_candidate)
-                    local_totals["accepted_identifiers"] = (
-                        int(local_totals["accepted_identifiers"]) + 1
-                    )
-                    self._inc_counter_map(
-                        local_totals, "accepted_by_provenance", decision.accepted_provenance
-                    )
-                else:
-                    local_totals["dropped_identifiers"] = (
-                        int(local_totals["dropped_identifiers"]) + 1
-                    )
-                    local_totals["dropped_by_resolver"] = (
-                        int(local_totals["dropped_by_resolver"]) + 1
-                    )
-                    self._inc_counter_map(
-                        local_totals, "dropped_by_reason", decision.dropped_reason
-                    )
+            accepted = list(batch.accepted_candidates)
+            local_totals["identifiers_total"] = (
+                int(local_totals["identifiers_total"])
+                + int(batch.stats["identifiers_total"])
+            )
+            local_totals["accepted_identifiers"] = (
+                int(local_totals["accepted_identifiers"])
+                + int(batch.stats["accepted_identifiers"])
+            )
+            local_totals["dropped_identifiers"] = (
+                int(local_totals["dropped_identifiers"])
+                + int(batch.stats["dropped_identifiers"])
+            )
+            local_totals["dropped_by_resolver"] = (
+                int(local_totals["dropped_by_resolver"])
+                + int(batch.stats["dropped_identifiers"])
+            )
+            self._merge_counter_map(
+                local_totals,
+                "accepted_by_provenance",
+                batch.stats["accepted_by_provenance"],
+            )
+            self._merge_counter_map(
+                local_totals,
+                "dropped_by_reason",
+                batch.stats["dropped_by_reason"],
+            )
             if accepted:
                 strict_normalized.append(
                     (language, qualified, node_type, list(dict.fromkeys(accepted)))
