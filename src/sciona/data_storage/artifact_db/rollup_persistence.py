@@ -37,6 +37,27 @@ def list_graph_edges(conn) -> list[tuple[str, str, str]]:
     return [(row["src_node_id"], row["dst_node_id"], row["edge_kind"]) for row in rows]
 
 
+def list_persisted_callsite_callees(
+    conn,
+    *,
+    snapshot_id: str,
+    caller_id: str,
+) -> list[str]:
+    rows = conn.execute(
+        """
+        SELECT accepted_callee_id
+        FROM call_sites
+        WHERE snapshot_id = ?
+          AND caller_id = ?
+          AND resolution_status = 'accepted'
+          AND accepted_callee_id IS NOT NULL
+        ORDER BY accepted_callee_id
+        """,
+        (snapshot_id, caller_id),
+    ).fetchall()
+    return [row["accepted_callee_id"] for row in rows]
+
+
 def write_module_call_edges(conn, rows: Iterable[tuple[str, str, int]]) -> None:
     payload = list(rows)
     if not payload:
@@ -110,6 +131,7 @@ def upsert_call_sites(
 
 __all__ = [
     "list_call_edges",
+    "list_persisted_callsite_callees",
     "list_graph_edges",
     "reset_graph_rollups",
     "upsert_call_sites",
