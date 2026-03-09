@@ -11,6 +11,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from threading import Lock, local
 from typing import Callable, Iterator
+from urllib.parse import quote
 
 from ..runtime import config as runtime_config
 from ..runtime.config import defaults
@@ -47,7 +48,8 @@ def _base_connect(
     if not read_only:
         db_path.parent.mkdir(parents=True, exist_ok=True)
     mode = "ro" if read_only else "rwc"
-    uri = f"file:{db_path.as_posix()}?mode={mode}"
+    encoded_path = quote(db_path.as_posix(), safe="/")
+    uri = f"file:{encoded_path}?mode={mode}"
     conn = sqlite3.connect(uri, uri=True, timeout=timeout)
     conn.row_factory = sqlite3.Row
     if not read_only:
