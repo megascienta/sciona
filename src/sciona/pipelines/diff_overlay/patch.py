@@ -14,7 +14,6 @@ from .patchers.common import (
     module_for_node,
     module_in_scope,
     node_from_value,
-    parse_json_fenced,
     patch_summary_payload,
 )
 from .patchers.core import (
@@ -45,6 +44,5 @@ from .patchers.fan_utils import (
 
 __all__ = [
     "apply_overlay_to_payload",
-    "parse_json_fenced",
     "patch_summary_payload",
 ]

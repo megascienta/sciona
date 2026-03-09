@@ -29,7 +29,6 @@ Do not use this document to redefine structural semantics.
 - Python: `>=3.11,<3.13`
 - Required runtime dependencies include `tree_sitter`, `tree_sitter_languages`,
   `typer`, `click`, `pyyaml`, `pathspec`, and `networkx`
-- Tests in this repository are expected to run in conda env `multiphysics`
 
 ## Repository Boundaries
 
@@ -106,6 +105,11 @@ Required descriptor fields:
 
 Implementation notes:
 
+- `declared` is the default callable role for named structural callable
+  declarations that are neither nested, nor promoted from stable bindings, nor
+  constructors
+- Python direct class inheritance emits `EXTENDS`; Python does not emit a
+  distinct `IMPLEMENTS` edge
 - JavaScript reuses the TypeScript walker, import extraction, and call
   resolution wrappers with JavaScript query surfaces
 - Parser bootstrap is isolated in
@@ -167,6 +171,8 @@ Implementation notes:
   from raw analyzer output alone
 - `call_sites` is an artifact-layer table for accepted/dropped call outcomes and
   diagnostics
+- synthetic navigation nodes must use collision-safe identities that do not
+  shadow or reuse canonical structural identities
 - Fingerprint reuse can skip re-indexing even when a prior committed snapshot
   already exists
 - Dirty-worktree overlay data is advisory and layered on top of reducer output;
@@ -189,7 +195,8 @@ CoreDB:
   content hashes
 - `edges`: committed structural relationships used as the structural baseline
 - `synthetic_nodes` / `synthetic_node_instances`: non-structural navigation
-  entities such as synthetic entry points
+  entities such as synthetic entry points; synthetic identities must remain
+  collision-safe against real structural nodes
 
 ArtifactDB:
 
@@ -210,6 +217,8 @@ Overlay support model:
 - patchable projections apply overlay rows directly to reducer payloads
 - metadata-only projections attach `_diff` and warning state but remain
   committed-snapshot payloads
+- `overlay_available=true` only means overlay state exists for the reducer
+  request; it does not by itself guarantee payload patching
 - `projection_not_supported` means that behavior is intentional for the
   projection
 - `projection_not_patched` should be treated as a patching gap for a projection
@@ -247,6 +256,7 @@ languages until the user enables them in `.sciona/config.yaml`.
 - Shared reducer logic belongs in `src/sciona/reducers/helpers/`
 - Reducer classification is metadata-driven, not directory-driven
 - Reducer emission flows through `src/sciona/pipelines/reducers.py`
+- Reducers return structured JSON-compatible payload objects; 
 - Reducer emission opens CoreDB for committed snapshot identity resolution and
   ArtifactDB for reducer-facing projections
 - Reducers may receive overlay decoration when the worktree is dirty
@@ -284,16 +294,13 @@ Boundary rules enforced by tests:
 
 ## Testing Workflow
 
-Run tests in conda env `multiphysics`.
-
 Baseline:
 
 ```bash
-conda run -n multiphysics pytest -q
+pytest -q
 ```
 
-For focused validation, prefer the narrowest relevant subset, still inside the
-same environment.
+For focused validation, prefer the narrowest relevant subset.
 
 Coverage themes that matter for structural changes:
 

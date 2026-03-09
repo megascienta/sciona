@@ -2,19 +2,19 @@
     <img src="assets/logo.jpg" alt="SCIONA logo" width="240">
 </p>
 
-### Deterministic structural anchor for LLM-assisted development
+### Deterministic structural context for LLM coding workflows
 
-SCIONA builds a **deterministic structural index (SCI)** for a *git* repository. It runs locally and analyzes the source code of the last committed snapshot using [tree-sitter](https://tree-sitter.github.io/tree-sitter/) to extract structural relationships between code entities. The analysis is **static and source-only** across the supported languages (currently Python, Java, TypeScript and JavaScript).
+In large, long-lived codebases we repeatedly observe the same pattern: LLM assistance initially improves productivity but gradually becomes inconsistent. Earlier assumptions drift and structural constraints are lost, and the model continues generating plausible responses that no longer reflect the actual code. **This is not primarily an LLM failure. It is a context stability problem.**
 
-In large, long-lived codebases we repeatedly observed the same pattern: LLM assistance initially improves productivity but gradually becomes inconsistent. Earlier assumptions drift and structural constraints are gradually lost. The model continues to generate plausible responses that no longer reflect the actual code. **This is not primarily an LLM failure. It is a context stability problem**.
+Many LLM tools address this using embeddings, semantic retrieval, dynamically assembled context, or extensive prompt and agent configuration. These approaches are powerful but difficult to reproduce and hard to constrain across long sessions or refactors. **SCIONA takes a deliberately different path: it provides a stable structural snapshot that downstream tools can rely on.**
 
-Many LLM tools rely on embeddings, semantic retrieval, dynamically assembled context, or extensive prompt and agent configuration. While powerful, these approaches can be difficult to reproduce and hard to constrain across long sessions or refactors. **SCIONA takes a deliberately different path: it provides a stable structural snapshot that downstream tools can rely on.**
+SCIONA builds a **deterministic structural index (SCI)** for a *git* repository. The index is derived from the last committed source snapshot using [tree-sitter](https://tree-sitter.github.io/tree-sitter/) to extract structural relationships between code entities. The analysis is **static and source-only**, covering Python, Java, TypeScript, and JavaScript.
 
-Rather than reconstructing repository structure heuristically, tools can query deterministic reducer outputs. A **reducer** is a deterministic query over the SCIONA structural index that returns a reproducible structural payload for a given scope. Conceptually, SCIONA compresses repository structure into deterministic facts that tools can query directly instead of repeatedly reconstructing structure from raw source code. **SCIONA exposes repository structure as deterministic queries over a structural index.**
+Rather than reconstructing repository structure heuristically, tools can query the SCI through **reducers**. A reducer is a deterministic query over the structural index that returns a reproducible payload for a given scope. Conceptually, SCIONA **compresses repository structure into deterministic facts** that tools can query directly instead of repeatedly reconstructing structure from raw source code. **SCIONA exposes repository structure as deterministic queries over a structural index.**
 
-**SCIONA is intentionally limited in scope: it provides structure — not interpretation.** This deterministic representation is **designed to anchor and stabilize LLM-assisted development workflows.**
+**SCIONA is intentionally limited in scope: it provides structure — not interpretation.** This deterministic representation is designed to anchor and stabilize LLM-assisted development workflows.
 
-Although motivated by LLM-assisted workflows, SCIONA itself is **LLM-agnostic infrastructure**. Any tool that requires deterministic structural information about a repository can use SCIONA.
+Although motivated by LLM-assisted workflows, SCIONA itself is **LLM-agnostic infrastructure**. Any tool that needs deterministic structural information about a repository can use it.
 
 ![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -43,6 +43,68 @@ sciona build
 sciona reducer list
 
 # SCIONA generates AGENTS.md so LLM assistants can reason over reducer outputs
+```
+
+## Sample output
+
+```bash
+sciona reducer --id module_overview --module-id sciona.src.sciona.cli
+```
+
+```json
+{
+    "reducer_id": "module_overview",
+    "snapshot_id": "70f4e37607f082d0734d8fc56c1cf0c955fdfda8d26e5d57b989d3d6ef2ca0e3",
+    "args": {
+        "module_id": "163b1ca1dbdaaf4fe0520e532452ecf86c78d16b",
+        "diff_mode": "full"
+    },
+    "payload": {
+        "projection": "module_overview",
+        "projection_version": "1.0",
+        "payload_kind": "summary",
+        "module_structural_id": "163b1ca1dbdaaf4fe0520e532452ecf86c78d16b",
+        "module_qualified_name": "sciona.src.sciona.cli",
+        "language": "python",
+        "file_path": "src/sciona/cli/__init__.py",
+        "line_span": [
+            1,
+            6
+        ],
+        "start_byte": 0,
+        "end_byte": 122,
+        "content_hash": "1a99edf7eba8b25dae1e89bb413c3160f5222d9c",
+        "line_span_hash": "1a99edf7eba8b25dae1e89bb413c3160f5222d9c",
+        "files": [
+            "src/sciona/cli/__init__.py",
+            "src/sciona/cli/commands/__init__.py",
+            "src/sciona/cli/commands/register.py",
+            "src/sciona/cli/commands/register_agents.py",
+            "src/sciona/cli/commands/register_build.py",
+            "src/sciona/cli/commands/register_hooks.py",
+            "src/sciona/cli/commands/register_init.py",
+            "src/sciona/cli/commands/register_status.py",
+            "src/sciona/cli/commands/registry.py",
+            "src/sciona/cli/errors.py",
+            "src/sciona/cli/main.py",
+            "src/sciona/cli/reducer.py",
+            "src/sciona/cli/render.py",
+            "src/sciona/cli/resolve.py",
+            "src/sciona/cli/search.py",
+            "src/sciona/cli/utils.py"
+        ],
+        "file_count": 16,
+        "classifiers": [],
+        "callables": [
+            {
+                "structural_id": "f9e42f13f8d5973ee061734d474f9d36240b210b",
+                "qualified_name": "sciona.src.sciona.cli.commands.register.register"
+            },
+            {
+                "structural_id": "aaa479c9bfbca4474abb90a5c467dcc1c9f3c9c9",
+                "qualified_name": "sciona.src.sciona.cli.commands.register_agents.register_agents"
+            },
+...
 ```
 
 ## Supported languages
@@ -122,7 +184,7 @@ pytest -q
 
 ## Reducers usage
 
-Reducers are the primary interface for structural queries. Each reducer takes a scope (callable, classifier, module, or global) and returns a deterministic structural payload. 
+Reducers are the primary interface for structural queries. Each reducer takes a scope (callable, classifier, module, or global) and returns a deterministic structured payload.
 
 ### Discovery
 

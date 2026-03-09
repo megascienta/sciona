@@ -71,7 +71,7 @@ def emit(
     repo_root: Optional[Path] = None,
     diff_mode: str = "full",
     **kwargs: object,
-) -> Tuple[str, str, dict[str, object]]:
+) -> Tuple[dict[str, object], str, dict[str, object]]:
     repo_state = policy_repo.resolve_repo_state(repo_root, allow_missing_config=True)
     policy_repo.ensure_initialized(repo_state)
     normalized_diff_mode = str(diff_mode or "full").strip().lower()
@@ -122,14 +122,19 @@ def emit(
                 try:
                     render_kwargs = dict(resolved_kwargs)
                     render_kwargs.pop("diff_mode", None)
-                    text = reducer.render(
+                    payload = reducer.render(
                         snapshot_id, conn, repo_state.repo_root, **render_kwargs
                     )
                 except ValueError as exc:
                     raise WorkflowError(str(exc), code="reducer_error") from exc
+                if not isinstance(payload, dict):
+                    raise WorkflowError(
+                        f"Reducer '{reducer_id}' must return a JSON object.",
+                        code="invalid_json",
+                    )
                 try:
-                    text = diff_overlay.apply_overlay_to_text(
-                        text,
+                    payload = diff_overlay.apply_overlay_to_payload_object(
+                        payload,
                         overlay,
                         repo_root=repo_state.repo_root,
                         snapshot_id=snapshot_id,
@@ -140,21 +145,22 @@ def emit(
                     )
                 except ValueError as exc:
                     raise WorkflowError(
-                        f"Reducer '{reducer_id}' must return JSON.", code="invalid_json"
+                        f"Reducer '{reducer_id}' must return JSON.",
+                        code="invalid_json",
                     ) from exc
                 if scoped_dirty and overlay is None:
                     warnings = ["dirty_worktree", "overlay_unavailable"]
                     if artifact_conn is None:
                         warnings.append("artifact_db_missing")
-                    text = diff_overlay.attach_unavailable_overlay(
-                        text,
+                    payload = diff_overlay.attach_unavailable_overlay(
+                        payload,
                         repo_root=repo_state.repo_root,
                         snapshot_id=snapshot_id,
                         reducer_id=reducer_id,
                         warnings=warnings,
                         diff_mode=normalized_diff_mode,
                     )
-    return text, snapshot_id, resolved_kwargs
+    return payload, snapshot_id, resolved_kwargs
 
 
 def _resolve_reducer_identifiers(

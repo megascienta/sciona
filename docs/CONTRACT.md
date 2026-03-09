@@ -59,9 +59,21 @@ include modules or callables.
 - `bound`
 - `constructor`
 
+Callable role definitions:
+
+- `declared` is the default role for a named structural callable declaration
+  that is neither nested, nor promoted from a stable binding, nor a
+  constructor.
+- `nested` is a named structural callable declaration whose lexical parent is a
+  structural callable.
+- `bound` is a callable body promoted to a structural callable because it has a
+  stable lexical binding in the current lexical parent.
+- `constructor` is a constructor-form callable attached to a structural
+  classifier.
+
 Promotion rule for `callable`:
 
-- A callable is structural iff it introduces a callable body with a stable
+- A callable is structural if it introduces a callable body with a stable
   lexical binding in the current lexical parent.
 - Inline anonymous callbacks without stable lexical binding MUST NOT be
   structural nodes.
@@ -71,6 +83,10 @@ Synthetic nodes:
 - Implementations MAY emit synthetic navigation nodes (for example `entry_point`).
 - Synthetic nodes are out-of-contract for language compliance.
 - Synthetic nodes MUST NOT be treated as language structural entities.
+- Synthetic node identities and qualified names MUST be collision-safe with
+  language structural node identities.
+- Synthetic nodes MUST NOT shadow, reuse, or alias the canonical identity of a
+  real structural `module`, `classifier`, or `callable`.
 
 ## Structural Edges
 
@@ -203,6 +219,15 @@ Some reducer projections are intentionally overlay-aware but not
 payload-patchable. For those projections, `_diff` metadata MAY be attached while
 the payload remains committed-snapshot only.
 
+Overlay contract note:
+
+- `overlay_available=true` MAY correspond to either a patchable projection or a
+  metadata-only projection.
+- Metadata-only projections MUST continue to describe committed-snapshot payload
+  facts even when `_diff` metadata is attached.
+- Overlay metadata MUST NOT be interpreted as committed CoreDB or ArtifactDB
+  structural truth for the dirty worktree.
+
 `CALL_SITES`:
 
 - is an artifact-layer callsite table, not a structural entity table.
@@ -307,6 +332,8 @@ Python criteria:
 - `decorated_definition` contributes wrapped class/function node.
 - `__init__.py` is treated as package module identity.
 - Imports come from `import_statement` and `import_from_statement`.
+- Direct Python class inheritance maps to `EXTENDS`.
+- Python does not emit `IMPLEMENTS` as a distinct contract edge type.
 - Calls are collected from `call` nodes and attributed by enclosing callable
   scope.
 - Python `classifier` currently means named class declarations.

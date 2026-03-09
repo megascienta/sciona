@@ -13,7 +13,6 @@ from ...data_storage.artifact_db import diff_overlay as overlay_store
 from ...data_storage.artifact_db import diff_overlay_calls as overlay_call_store
 from ...data_storage.artifact_db import diff_overlay_summary as overlay_summary_store
 from ...data_storage.core_db import read_ops as core_read
-from ...reducers.helpers.render import render_json_payload
 from ...runtime import git as git_ops
 from ...runtime.overlay_profile import OVERLAY_PROFILE
 from ...runtime import time as runtime_time
@@ -22,7 +21,6 @@ from ...runtime.logging import get_logger
 
 from .affection import extract_scope_hint, scoped_affection
 from .compute import compute_overlay_rows, worktree_fingerprint
-from .patch import apply_overlay_to_payload, parse_json_fenced
 from .ops_sort import rows_to_payload
 from .schema import validate_diff_payload
 from .types import OverlayPayload

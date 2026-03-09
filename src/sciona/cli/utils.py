@@ -84,9 +84,13 @@ def normalize_flag_args(args: list[str]) -> list[str]:
     return normalized
 
 
-def parse_payload(text: str) -> dict | None:
+def parse_payload(payload: object) -> dict | None:
+    if isinstance(payload, dict):
+        return payload
+    if not isinstance(payload, str):
+        return None
     try:
-        return json.loads(strip_json_fence(text))
+        return json.loads(strip_json_fence(payload))
     except Exception:
         return None
 

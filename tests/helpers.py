@@ -61,10 +61,14 @@ def strip_json_fence(text: str) -> str:
     return trimmed
 
 
-def parse_json_payload(text: str) -> dict:
+def parse_json_payload(payload: object) -> dict:
     import json
 
-    return json.loads(strip_json_fence(text))
+    if isinstance(payload, dict):
+        return payload
+    if not isinstance(payload, str):
+        raise TypeError(f"Unsupported payload type: {type(payload)!r}")
+    return json.loads(strip_json_fence(payload))
 
 
 def core_conn(repo_root: Path) -> sqlite3.Connection:

@@ -5,9 +5,6 @@
 
 from __future__ import annotations
 
-import json
-from typing import Optional
-
 from ..types import OverlayPayload
 from ....runtime import identity as ids
 from .analytics import (
@@ -102,21 +99,4 @@ def patch_summary_payload(
     if overlay.summary is None:
         return payload
     payload["diff_summary"] = overlay.summary
-    return payload
-
-def parse_json_fenced(text: str) -> Optional[dict[str, object]]:
-    stripped = text.strip()
-    if not stripped.startswith("```json"):
-        return None
-    start = stripped.find("\n")
-    end = stripped.rfind("```")
-    if start == -1 or end == -1 or end <= start:
-        return None
-    body = stripped[start:end].strip()
-    try:
-        payload = json.loads(body)
-    except json.JSONDecodeError:
-        return None
-    if not isinstance(payload, dict):
-        return None
     return payload

@@ -37,17 +37,17 @@ def register(app: typer.Typer) -> None:
         ),
     ) -> None:
         """Search symbols in the latest committed snapshot."""
-        reducer_text, snapshot_id, _resolved_args = cli_call(
+        reducer_payload, snapshot_id, _resolved_args = cli_call(
             reducer_api.emit,
             "symbol_lookup",
             query=query,
             kind=kind,
             limit=limit,
         )
-        payload = parse_payload(reducer_text)
+        payload = parse_payload(reducer_payload)
         if json_output:
             warning = get_dirty_worktree_warning()
-            output = payload or {"payload": reducer_text}
+            output = payload or {"payload": reducer_payload}
             output.update(
                 {
                     "query": query,
@@ -62,7 +62,7 @@ def register(app: typer.Typer) -> None:
             return
         emit_dirty_worktree_warning()
         if not payload:
-            cli_render.emit([reducer_text])
+            cli_render.emit([json.dumps(reducer_payload, sort_keys=True)])
             return
         matches = payload.get("matches") or []
         lines = [

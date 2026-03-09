@@ -108,7 +108,7 @@ def register(app: typer.Typer) -> None:
                 raise typer.BadParameter(f"Duplicate value for '{name}'.")
             arg_map[name] = value
         _validate_reducer_args(arg_map, dynamic_param_names | set(explicit_args.keys()))
-        reducer_text, snapshot_id, resolved_args = cli_call(
+        reducer_payload, snapshot_id, resolved_args = cli_call(
             reducer_api.emit,
             reducer_id,
             **arg_map,
@@ -119,7 +119,7 @@ def register(app: typer.Typer) -> None:
             "reducer_id": reducer_id,
             "snapshot_id": snapshot_id,
             "args": resolved_args,
-            "payload": reducer_text,
+            "payload": reducer_payload,
             "notes": notes,
         }
         if warning:

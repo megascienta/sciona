@@ -8,16 +8,14 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional
 
-from ...reducers.helpers.render import render_json_payload
-
 from .affection import extract_scope_hint, scoped_affection
 from .ops_get import _OVERLAY_PROFILE, _overlay_reason
-from .patch import apply_overlay_to_payload, parse_json_fenced
+from .patch import apply_overlay_to_payload
 from .schema import validate_diff_payload
 from .types import OverlayPayload
 
-def apply_overlay_to_text(
-    text: str,
+def apply_overlay_to_payload_object(
+    payload: dict[str, object],
     overlay: Optional[OverlayPayload],
     *,
     repo_root: Path,
@@ -26,14 +24,9 @@ def apply_overlay_to_text(
     strict: bool = False,
     reducer_id: str | None = None,
     diff_mode: str = "full",
-) -> str:
+) -> dict[str, object]:
     if not overlay:
-        return text
-    payload = parse_json_fenced(text)
-    if payload is None:
-        if strict:
-            raise ValueError("Reducer payload must be JSON.")
-        return text
+        return payload
     patched, patched_projection = apply_overlay_to_payload(
         payload, overlay, snapshot_id=snapshot_id, conn=conn, reducer_id=reducer_id
     )
@@ -79,20 +72,19 @@ def apply_overlay_to_text(
             ),
             "severity": "warning",
         }
-    return render_json_payload(patched)
+    return patched
 
 def attach_unavailable_overlay(
-    text: str,
+    payload: dict[str, object],
     *,
     repo_root: Path,
     snapshot_id: str,
     reducer_id: str | None,
     warnings: list[str],
     diff_mode: str = "full",
-) -> str:
-    payload = parse_json_fenced(text)
-    if payload is None or "_diff" in payload:
-        return text
+) -> dict[str, object]:
+    if "_diff" in payload:
+        return payload
     projection = _resolve_projection(payload, reducer_id)
     profile = _OVERLAY_PROFILE.get(projection, None)
     scope_hint = extract_scope_hint(payload, profile)
@@ -122,7 +114,7 @@ def attach_unavailable_overlay(
         ),
         "severity": "warning",
     }
-    return render_json_payload(payload)
+    return payload
 
 def _resolve_projection(payload: dict[str, object], reducer_id: str | None) -> str:
     projection = str(payload.get("projection", "")).strip().lower()
