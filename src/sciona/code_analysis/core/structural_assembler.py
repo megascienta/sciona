@@ -179,6 +179,9 @@ class StructuralAssembler:
         analysis: AnalysisResult,
         file_snapshot: FileSnapshot,
     ) -> AnalysisResult:
+        # Core-side call normalization is intentionally limited to the current
+        # file analysis. Reducer-facing CALLS are finalized later in ArtifactDB
+        # against repo-wide committed structural context.
         if not analysis.call_records:
             return analysis
         node_language_by_qname = {

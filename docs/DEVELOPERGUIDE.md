@@ -169,6 +169,12 @@ Implementation notes:
   still using CoreDB for identifier resolution and committed structural context
 - Reducer-facing `CALLS` is finalized in ArtifactDB from artifact analysis, not
   from raw analyzer output alone
+- Core-side `AnalysisResult.call_records` normalization in
+  `StructuralAssembler` is intentionally file-local and provisional; it exists
+  for deterministic ingestion-time normalization and diagnostics, not as the
+  authoritative repo-wide call graph
+- Artifact call finalization resolves against repo-wide committed structural
+  context and remains the authoritative source for reducer-facing `CALLS`
 - `call_sites` is an artifact-layer table for accepted/dropped call outcomes and
   diagnostics
 - synthetic navigation nodes must use collision-safe identities that do not

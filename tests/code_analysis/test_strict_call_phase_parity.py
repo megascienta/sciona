@@ -196,3 +196,38 @@ def test_strict_call_phase_parity_no_candidates_drop() -> None:
     assert callsite_rows == []
     assert (core_diag.get("dropped_by_reason") or {}).get("no_candidates") == 1
     assert (artifact_stats.get("dropped_by_reason") or {}).get("no_candidates") == 1
+
+
+def test_core_normalization_is_file_local_while_artifact_finalization_is_repo_wide() -> None:
+    analysis = AnalysisResult(
+        nodes=[
+            _module_node("pkg.mod"),
+            _callable_node("pkg.mod.entry"),
+        ],
+        edges=[],
+        call_records=[
+            CallRecord(
+                qualified_name="pkg.mod.entry",
+                node_type="callable",
+                callee_identifiers=["pkg.shared.helper"],
+            )
+        ],
+    )
+
+    core_callees, core_diag = _normalize_core(analysis)
+    resolved_ids, _resolved_names, artifact_stats, callsite_rows = _resolve_callees(
+        ("pkg.shared.helper",),
+        {"pkg.shared.helper": ["shared_helper"]},
+        caller_module="pkg.mod",
+        module_lookup={"shared_helper": "pkg.shared"},
+        callable_qname_by_id={"shared_helper": "pkg.shared.helper"},
+        import_targets={"pkg.mod": {"pkg.shared"}},
+        expanded_import_targets={"pkg.mod": {"pkg.shared"}},
+        module_ancestors={"pkg.mod": {"pkg"}},
+    )
+
+    assert core_callees == []
+    assert resolved_ids == {"shared_helper"}
+    assert callsite_rows[0][3] == "exact_qname"
+    assert (core_diag.get("dropped_by_reason") or {}).get("no_candidates") == 1
+    assert (artifact_stats.get("accepted_by_provenance") or {}).get("exact_qname") == 1
