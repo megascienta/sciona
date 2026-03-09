@@ -79,16 +79,16 @@ SCIONA indexes the **last committed snapshot**. Reducers are evaluated against t
 - Developer guide: [`docs/DEVELOPERGUIDE.md`](docs/DEVELOPERGUIDE.md)
 - Generated capability manifest: [`docs/CAPABILITY_MANIFEST.json`](docs/CAPABILITY_MANIFEST.json)
 
-## Structural Resolution Performance
+## Structural Resolution and Build Performance
 
-SCIONA has been tested on several large open-source repositories including **[VSCode](https://github.com/microsoft/vscode), [SymPy](https://github.com/sympy/sympy), [Guava](https://github.com/google/guava), [Webpack](https://github.com/webpack/webpack), [Airbyte](https://github.com/airbytehq/airbyte), and [NestJS](https://github.com/nestjs/nest)**. Validation reports, methodology description, and the full dataset are available in [`validations/build_status_reports/`](validations/build_status_reports/).
+SCIONA has been validated on several large open-source repositories including **[VSCode](https://github.com/microsoft/vscode), [SymPy](https://github.com/sympy/sympy), [Guava](https://github.com/google/guava), [Webpack](https://github.com/webpack/webpack), [Airbyte](https://github.com/airbytehq/airbyte), and [NestJS](https://github.com/nestjs/nest)**. Validation reports and methodology details are available in [`validations/build_status_reports/`](validations/build_status_reports/).
 
-Across these repositories SCIONA processed **27,700 files**, extracted **304,824 structural nodes**, and analyzed **265,110 call sites**, producing **255,904 deterministic call edges**. This corresponds to an overall **~96.5% in-repository call resolution rate**. Resolution rates remain consistently high across supported languages, with **~98% for Python**, **~97.6% for TypeScript**, **~97.3% for JavaScript**, and **~90.6% for Java**.
+Across these projects, SCIONA processed **27,700 files**, extracted **304,824 structural nodes**, and analyzed **265,110 call sites**, producing **255,904 deterministic call edges**. This corresponds to an overall **~96.5% in-repository call resolution rate**. Resolution rates remain consistently high across supported languages, with **~98% for Python**, **~97.6% for TypeScript**, **~97.3% for JavaScript**, and **~90.6% for Java**. Typical SCI build times range from ~xx–xx seconds for medium repositories and ~x–x minutes for very large projects such as VSCode.
 
 Examples from large repositories include:
-* **VSCode:** 149,573 call sites resolved at **97.6%**
-* **SymPy:** 47,285 call sites resolved at **99.6%**
-* **Guava:** 38,315 call sites resolved at **89.8%**
+- **VSCode:** 149,573 call sites resolved at **97.6%**, build time ~xx seconds
+- **SymPy:** 47,285 call sites resolved at **99.6%**, build time ~xx seconds
+- **Guava:** 38,315 call sites resolved at **89.8%**, build time ~xx seconds.
 
 ## Project Status
 
