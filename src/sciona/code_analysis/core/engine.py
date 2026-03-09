@@ -63,7 +63,7 @@ class BuildEngine:
         self.warnings: list[str] = []
         self.analyzers = select_analyzers(self.languages)
         self.assembler = StructuralAssembler(conn, store)
-        self.call_gate_diagnostics = self.assembler.call_gate_diagnostics
+        self.call_gate_diagnostics: dict[str, object] = {}
         self.name_collisions_detected = 0
         self.name_collisions_disambiguated = 0
         self.residual_containment_failures = 0

@@ -64,51 +64,15 @@ def _callable_node(qname: str) -> SemanticNodeRecord:
     )
 
 
-def _normalize_core(analysis: AnalysisResult) -> tuple[list[str], dict[str, object]]:
+def _observed_core(analysis: AnalysisResult) -> tuple[list[str], dict[str, object]]:
     assembler = StructuralAssembler(_DummyConn(), _DummyStore())
-    normalized = assembler._normalize_call_records(analysis, _snapshot())
-    if not normalized.call_records:
+    observed = assembler._normalize_call_records(analysis, _snapshot())
+    if not observed.call_records:
         return [], assembler.call_gate_diagnostics
-    return list(normalized.call_records[0].callee_identifiers), assembler.call_gate_diagnostics
+    return list(observed.call_records[0].callee_identifiers), assembler.call_gate_diagnostics
 
 
-def test_strict_call_phase_parity_exact_qname() -> None:
-    analysis = AnalysisResult(
-        nodes=[
-            _module_node("pkg.mod"),
-            _callable_node("pkg.mod.entry"),
-            _callable_node("pkg.mod.run"),
-        ],
-        edges=[],
-        call_records=[
-            CallRecord(
-                qualified_name="pkg.mod.entry",
-                node_type="callable",
-                callee_identifiers=["pkg.mod.run"],
-            )
-        ],
-    )
-
-    core_callees, core_diag = _normalize_core(analysis)
-    resolved_ids, _resolved_names, artifact_stats, callsite_rows = _resolve_callees(
-        ("pkg.mod.run",),
-        {"pkg.mod.run": ["run_id"]},
-        caller_module="pkg.mod",
-        module_lookup={"run_id": "pkg.mod"},
-        callable_qname_by_id={"run_id": "pkg.mod.run"},
-        import_targets={"pkg.mod": set()},
-        expanded_import_targets={"pkg.mod": set()},
-        module_ancestors={"pkg.mod": set()},
-    )
-
-    assert core_callees == ["pkg.mod.run"]
-    assert resolved_ids == {"run_id"}
-    assert (core_diag.get("accepted_by_provenance") or {}).get("exact_qname") == 1
-    assert (artifact_stats.get("accepted_by_provenance") or {}).get("exact_qname") == 1
-    assert callsite_rows[0][3] == "exact_qname"
-
-
-def test_strict_call_phase_parity_import_narrowed() -> None:
+def test_core_preserves_observed_callsites_while_artifacts_finalize_calls() -> None:
     analysis = AnalysisResult(
         nodes=[
             _module_node("pkg.alpha.task"),
@@ -138,7 +102,7 @@ def test_strict_call_phase_parity_import_narrowed() -> None:
         ],
     )
 
-    core_callees, core_diag = _normalize_core(analysis)
+    core_callees, core_diag = _observed_core(analysis)
     resolved_ids, _resolved_names, artifact_stats, callsite_rows = _resolve_callees(
         ("helper",),
         {"helper": ["alpha_helper", "beta_helper"]},
@@ -156,49 +120,14 @@ def test_strict_call_phase_parity_import_narrowed() -> None:
         module_ancestors={"pkg.alpha.task": {"pkg.alpha"}},
     )
 
-    assert core_callees == ["pkg.alpha.util.helper"]
+    assert core_callees == ["helper"]
+    assert core_diag == {}
     assert resolved_ids == {"alpha_helper"}
-    assert (core_diag.get("accepted_by_provenance") or {}).get("import_narrowed") == 1
     assert (artifact_stats.get("accepted_by_provenance") or {}).get("import_narrowed") == 1
     assert callsite_rows[0][3] == "import_narrowed"
 
 
-def test_strict_call_phase_parity_no_candidates_drop() -> None:
-    analysis = AnalysisResult(
-        nodes=[
-            _module_node("pkg.mod"),
-            _callable_node("pkg.mod.entry"),
-        ],
-        edges=[],
-        call_records=[
-            CallRecord(
-                qualified_name="pkg.mod.entry",
-                node_type="callable",
-                callee_identifiers=["missing"],
-            )
-        ],
-    )
-
-    core_callees, core_diag = _normalize_core(analysis)
-    resolved_ids, _resolved_names, artifact_stats, callsite_rows = _resolve_callees(
-        ("missing",),
-        {},
-        caller_module="pkg.mod",
-        module_lookup={},
-        callable_qname_by_id={},
-        import_targets={"pkg.mod": set()},
-        expanded_import_targets={"pkg.mod": set()},
-        module_ancestors={"pkg.mod": set()},
-    )
-
-    assert core_callees == []
-    assert resolved_ids == set()
-    assert callsite_rows == []
-    assert (core_diag.get("dropped_by_reason") or {}).get("no_candidates") == 1
-    assert (artifact_stats.get("dropped_by_reason") or {}).get("no_candidates") == 1
-
-
-def test_core_normalization_is_file_local_while_artifact_finalization_is_repo_wide() -> None:
+def test_core_preserves_repo_wide_unresolved_observation_for_artifact_stage() -> None:
     analysis = AnalysisResult(
         nodes=[
             _module_node("pkg.mod"),
@@ -214,7 +143,7 @@ def test_core_normalization_is_file_local_while_artifact_finalization_is_repo_wi
         ],
     )
 
-    core_callees, core_diag = _normalize_core(analysis)
+    core_callees, core_diag = _observed_core(analysis)
     resolved_ids, _resolved_names, artifact_stats, callsite_rows = _resolve_callees(
         ("pkg.shared.helper",),
         {"pkg.shared.helper": ["shared_helper"]},
@@ -226,8 +155,8 @@ def test_core_normalization_is_file_local_while_artifact_finalization_is_repo_wi
         module_ancestors={"pkg.mod": {"pkg"}},
     )
 
-    assert core_callees == []
+    assert core_callees == ["pkg.shared.helper"]
+    assert core_diag == {}
     assert resolved_ids == {"shared_helper"}
     assert callsite_rows[0][3] == "exact_qname"
-    assert (core_diag.get("dropped_by_reason") or {}).get("no_candidates") == 1
     assert (artifact_stats.get("accepted_by_provenance") or {}).get("exact_qname") == 1

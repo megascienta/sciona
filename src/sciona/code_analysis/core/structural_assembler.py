@@ -9,24 +9,14 @@ from typing import Dict, Iterable, Optional, Tuple
 
 from typing import Protocol
 from ...runtime import identity as ids
-from ..analysis.graph import module_id_for
-from ..contracts import build_strict_resolution_stats, merge_strict_resolution_stats, resolve_strict_call_batch
-from ..tools.call_extraction import normalize_call_identifiers
 from .structural_assembler_emit import (
     emit_edges,
     emit_node_instances,
     lookup_structural_id,
 )
 from .structural_assembler_hash import node_content_hash
-from .structural_assembler_index import (
-    build_expanded_import_targets,
-    build_import_targets,
-    build_module_lookup,
-    build_symbol_index,
-)
 from .normalize.model import (
     AnalysisResult,
-    CallRecord,
     EdgeRecord,
     FileSnapshot,
     SemanticNodeRecord,
@@ -46,15 +36,7 @@ class StructuralAssembler:
         self.conn = conn
         self.structural_cache: Dict[Tuple[str, str, str], str] = {}
         self._store = store
-        self.call_gate_diagnostics: dict[str, object] = {
-            "identifiers_total": 0,
-            "accepted_identifiers": 0,
-            "dropped_identifiers": 0,
-            "accepted_by_provenance": {},
-            "dropped_by_reason": {},
-            "dropped_by_resolver": 0,
-            "resolver_accepted_assembler_dropped": 0,
-        }
+        self.call_gate_diagnostics: dict[str, object] = {}
 
     def prime_structural_cache(self, snapshot_id: Optional[str]) -> None:
         self.structural_cache = {}
@@ -179,69 +161,7 @@ class StructuralAssembler:
         analysis: AnalysisResult,
         file_snapshot: FileSnapshot,
     ) -> AnalysisResult:
-        # Core-side call normalization is intentionally limited to the current
-        # file analysis. Reducer-facing CALLS are finalized later in ArtifactDB
-        # against repo-wide committed structural context.
-        if not analysis.call_records:
-            return analysis
-        node_language_by_qname = {
-            node.qualified_name: node.language for node in analysis.nodes
-        }
-        resolved_calls = [
-            (
-                node_language_by_qname.get(
-                    record.qualified_name, file_snapshot.record.language
-                ),
-                record.qualified_name,
-                record.node_type,
-                list(record.callee_identifiers),
-            )
-            for record in analysis.call_records
-        ]
-        normalized = normalize_call_identifiers(resolved_calls)
-        module_names = {
-            node.qualified_name for node in analysis.nodes if node.node_type == "module"
-        }
-        symbol_index = build_symbol_index(analysis.nodes)
-        module_lookup = build_module_lookup(analysis.nodes, module_names)
-        import_targets = build_import_targets(analysis.edges)
-        expanded_import_targets = build_expanded_import_targets(analysis.edges)
-        strict_normalized: list[tuple[str, str, str, list[str]]] = []
-        local_totals: dict[str, object] = build_strict_resolution_stats()
-        local_totals["dropped_by_resolver"] = 0
-        local_totals["resolver_accepted_assembler_dropped"] = 0
-        for language, qualified, node_type, identifiers in normalized:
-            caller_module = module_id_for(qualified, module_names)
-            batch = resolve_strict_call_batch(
-                identifiers,
-                symbol_index=symbol_index,
-                caller_module=caller_module,
-                module_lookup=module_lookup,
-                import_targets=import_targets,
-                expanded_import_targets=expanded_import_targets,
-                caller_ancestor_modules=(
-                    _module_qname_ancestors(caller_module) if caller_module else set()
-                ),
-            )
-            accepted = list(batch.accepted_candidates)
-            merge_strict_resolution_stats(local_totals, batch.stats)
-            local_totals["dropped_by_resolver"] = (
-                int(local_totals["dropped_by_resolver"])
-                + int(batch.stats["dropped_identifiers"])
-            )
-            if accepted:
-                strict_normalized.append(
-                    (language, qualified, node_type, list(dict.fromkeys(accepted)))
-                )
-        self._merge_call_gate_diagnostics(local_totals)
-        analysis.call_records = [
-            CallRecord(
-                qualified_name=qualified,
-                node_type=node_type,
-                callee_identifiers=callee_identifiers,
-            )
-            for _language, qualified, node_type, callee_identifiers in strict_normalized
-        ]
+        del file_snapshot
         return analysis
 
     def register_module_node(
@@ -391,20 +311,3 @@ class StructuralAssembler:
         self, node: SemanticNodeRecord, file_snapshot: FileSnapshot
     ) -> str:
         return node_content_hash(node, file_snapshot)
-
-    def _merge_call_gate_diagnostics(self, stats: dict[str, object]) -> None:
-        merge_strict_resolution_stats(self.call_gate_diagnostics, stats, stringify_counter_keys=True)
-        self.call_gate_diagnostics["resolver_accepted_assembler_dropped"] = int(
-            self.call_gate_diagnostics.get("resolver_accepted_assembler_dropped", 0)
-        ) + int(stats.get("resolver_accepted_assembler_dropped", 0))
-        self.call_gate_diagnostics["dropped_by_resolver"] = int(
-            self.call_gate_diagnostics.get("dropped_by_resolver", 0)
-        ) + int(stats.get("dropped_by_resolver", 0))
-
-
-def _module_qname_ancestors(module_qname: str) -> set[str]:
-    parts = [part for part in module_qname.split(".") if part]
-    ancestors: set[str] = set()
-    for end in range(len(parts) - 1, 0, -1):
-        ancestors.add(".".join(parts[:end]))
-    return ancestors

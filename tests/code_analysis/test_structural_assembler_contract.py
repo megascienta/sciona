@@ -199,7 +199,7 @@ def test_persist_analysis_sorts_nodes_by_file_path_then_qualified_name(monkeypat
     ]
 
 
-def test_normalize_call_records_strict_drops_unindexed_dotted_identifier() -> None:
+def test_normalize_call_records_preserves_observed_unindexed_dotted_identifier() -> None:
     assembler = StructuralAssembler(_DummyConn(), _DummyStore())
     analysis = AnalysisResult(
         nodes=[
@@ -246,13 +246,13 @@ def test_normalize_call_records_strict_drops_unindexed_dotted_identifier() -> No
 
     normalized = assembler._normalize_call_records(analysis, snapshot)
 
-    assert normalized.call_records == []
-    diagnostics = assembler.call_gate_diagnostics
-    dropped = diagnostics.get("dropped_by_reason") or {}
-    assert dropped.get("no_candidates") == 1
+    assert [record.callee_identifiers for record in normalized.call_records] == [
+        ["pkg.other.service.run"]
+    ]
+    assert assembler.call_gate_diagnostics == {}
 
 
-def test_normalize_call_records_strict_drops_terminal_without_provenance() -> None:
+def test_normalize_call_records_preserves_observed_terminal_without_provenance() -> None:
     assembler = StructuralAssembler(_DummyConn(), _DummyStore())
     analysis = AnalysisResult(
         nodes=[
@@ -299,18 +299,11 @@ def test_normalize_call_records_strict_drops_terminal_without_provenance() -> No
 
     normalized = assembler._normalize_call_records(analysis, snapshot)
 
-    assert normalized.call_records == []
-    diagnostics = assembler.call_gate_diagnostics
-    assert diagnostics.get("identifiers_total") == 1
-    assert diagnostics.get("accepted_identifiers") == 0
-    assert diagnostics.get("dropped_identifiers") == 1
-    assert diagnostics.get("dropped_by_resolver") == 1
-    assert diagnostics.get("resolver_accepted_assembler_dropped") == 0
-    dropped = diagnostics.get("dropped_by_reason") or {}
-    assert dropped.get("no_candidates") == 1
+    assert [record.callee_identifiers for record in normalized.call_records] == [["run"]]
+    assert assembler.call_gate_diagnostics == {}
 
 
-def test_normalize_call_records_strict_accepts_module_scoped_terminal() -> None:
+def test_normalize_call_records_preserves_observed_module_scoped_terminal() -> None:
     assembler = StructuralAssembler(_DummyConn(), _DummyStore())
     analysis = AnalysisResult(
         nodes=[
@@ -367,4 +360,5 @@ def test_normalize_call_records_strict_accepts_module_scoped_terminal() -> None:
     normalized = assembler._normalize_call_records(analysis, snapshot)
 
     assert len(normalized.call_records) == 1
-    assert normalized.call_records[0].callee_identifiers == ["pkg.mod.run"]
+    assert normalized.call_records[0].callee_identifiers == ["run"]
+    assert assembler.call_gate_diagnostics == {}
