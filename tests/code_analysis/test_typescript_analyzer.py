@@ -881,6 +881,47 @@ def test_typescript_analyzer_emits_kind_metadata_for_interface_and_signatures(tm
         node for node in result.nodes if node.qualified_name == f"{module_name}.Worker"
     )
     assert isinstance((worker_node.metadata or {}).get("bases"), list)
+    assert (worker_node.metadata or {}).get("extends_bases") == ["Base"]
+    assert (worker_node.metadata or {}).get("implements_bases") == []
+
+
+def test_typescript_analyzer_preserves_extends_and_implements_edge_semantics(tmp_path):
+    module = """
+    export class Base {}
+    export interface Runnable {}
+    export class Worker extends Base implements Runnable {
+      run() {}
+    }
+    """
+    repo = tmp_path
+    src = repo / "src"
+    src.mkdir()
+    file_path = src / "mod.ts"
+    file_path.write_text(module, encoding="utf-8")
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("src/mod.ts"),
+            language="typescript",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = TypeScriptAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+
+    edge_types = {
+        (edge.dst_qualified_name, edge.edge_type)
+        for edge in result.edges
+        if edge.src_qualified_name == f"{module_name}.Worker"
+    }
+    assert (f"{module_name}.Base", "EXTENDS") in edge_types
+    assert (f"{module_name}.Runnable", "IMPLEMENTS") in edge_types
 
 
 def test_typescript_analyzer_emits_function_and_async_metadata(tmp_path):

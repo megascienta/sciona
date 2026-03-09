@@ -21,7 +21,24 @@ def _span_encloses(parent: tuple[int, int], child: tuple[int, int]) -> bool:
     return parent[0] <= child[0] and parent[1] >= child[1]
 
 
-def _typescript_bases(node, content: bytes) -> list[str]:
+def _split_heritage_names(node, content: bytes) -> list[str]:
+    names: list[str] = []
+    value = node_text(node, content)
+    if not value:
+        return names
+    value = value.strip()
+    if value.startswith("extends "):
+        value = value[len("extends ") :].strip()
+    elif value.startswith("implements "):
+        value = value[len("implements ") :].strip()
+    for part in value.split(","):
+        cleaned = part.strip()
+        if cleaned:
+            names.append(cleaned)
+    return names
+
+
+def _typescript_heritage_metadata(node, content: bytes) -> dict[str, list[str]]:
     heritage = node.child_by_field_name("heritage")
     if heritage is None:
         heritage = next(
@@ -33,22 +50,21 @@ def _typescript_bases(node, content: bytes) -> list[str]:
             None,
         )
     if heritage is None:
-        return []
-    bases: list[str] = []
+        return {"bases": [], "extends_bases": [], "implements_bases": []}
+    extends_bases: list[str] = []
+    implements_bases: list[str] = []
     for child in getattr(heritage, "named_children", []):
-        value = node_text(child, content)
-        if not value:
-            continue
-        value = value.strip()
-        if value.startswith("extends "):
-            value = value[len("extends ") :].strip()
-        elif value.startswith("implements "):
-            value = value[len("implements ") :].strip()
-        for part in value.split(","):
-            cleaned = part.strip()
-            if cleaned:
-                bases.append(cleaned)
-    return bases
+        child_type = getattr(child, "type", "")
+        names = _split_heritage_names(child, content)
+        if child_type == "implements_clause":
+            implements_bases.extend(names)
+        else:
+            extends_bases.extend(names)
+    return {
+        "bases": extends_bases + implements_bases,
+        "extends_bases": extends_bases,
+        "implements_bases": implements_bases,
+    }
 
 
 def _is_async_callable(node, content: bytes) -> bool:
@@ -182,7 +198,7 @@ def walk_typescript_nodes(
                 end_byte=node.end_byte,
                 metadata={
                     "kind": class_kind_map.get(node.type, "class"),
-                    "bases": _typescript_bases(node, snapshot.content),
+                    **_typescript_heritage_metadata(node, snapshot.content),
                 },
             )
         )
@@ -390,7 +406,7 @@ def walk_typescript_nodes(
                     end_byte=value_node.end_byte,
                     metadata={
                         "kind": "class",
-                        "bases": _typescript_bases(value_node, snapshot.content),
+                        **_typescript_heritage_metadata(value_node, snapshot.content),
                     },
                 )
             )

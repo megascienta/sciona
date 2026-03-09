@@ -78,15 +78,50 @@ def collect_targets_by_callable(
 def emit_local_inheritance_edges(*, language: str, result) -> None:
     class_nodes = [node for node in result.nodes if node.node_type == "classifier"]
     class_qnames_by_simple: dict[str, set[str]] = {}
-    kind_by_qname: dict[str, str] = {}
     for node in class_nodes:
         class_qnames_by_simple.setdefault(node.display_name, set()).add(node.qualified_name)
-        kind_by_qname[node.qualified_name] = ((node.metadata or {}).get("kind") or "class")
+
+    def _emit_edge(node, base: str, edge_type: str) -> None:
+        simple = base.split(".")[-1].strip()
+        if not simple:
+            return
+        candidates = class_qnames_by_simple.get(simple, set())
+        if len(candidates) != 1:
+            return
+        target_qname = next(iter(candidates))
+        result.edges.append(
+            EdgeRecord(
+                src_language=language,
+                src_node_type="classifier",
+                src_qualified_name=node.qualified_name,
+                dst_language=language,
+                dst_node_type="classifier",
+                dst_qualified_name=target_qname,
+                edge_type=edge_type,
+            )
+        )
+
     for node in class_nodes:
         metadata = node.metadata or {}
+        extends_bases = metadata.get("extends_bases")
+        implements_bases = metadata.get("implements_bases")
+        if isinstance(extends_bases, list) or isinstance(implements_bases, list):
+            if isinstance(extends_bases, list):
+                for base in extends_bases:
+                    if isinstance(base, str):
+                        _emit_edge(node, base, "EXTENDS")
+            if isinstance(implements_bases, list):
+                for base in implements_bases:
+                    if isinstance(base, str):
+                        _emit_edge(node, base, "IMPLEMENTS")
+            continue
         bases = metadata.get("bases")
         if not isinstance(bases, list):
             continue
+        kind_by_qname = {
+            classifier.qualified_name: ((classifier.metadata or {}).get("kind") or "class")
+            for classifier in class_nodes
+        }
         for base in bases:
             if not isinstance(base, str):
                 continue
@@ -104,17 +139,7 @@ def emit_local_inheritance_edges(*, language: str, result) -> None:
                 if src_kind in {"class", "record"} and dst_kind == "interface"
                 else "EXTENDS"
             )
-            result.edges.append(
-                EdgeRecord(
-                    src_language=language,
-                    src_node_type="classifier",
-                    src_qualified_name=node.qualified_name,
-                    dst_language=language,
-                    dst_node_type="classifier",
-                    dst_qualified_name=target_qname,
-                    edge_type=edge_type,
-                )
-            )
+            _emit_edge(node, base, edge_type)
 
 
 __all__ = [
