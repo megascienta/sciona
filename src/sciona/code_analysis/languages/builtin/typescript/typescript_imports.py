@@ -350,6 +350,8 @@ def normalize_import(specifier: Optional[str], snapshot: FileSnapshot) -> Option
     if spec.startswith("."):
         parent = PurePosixPath(snapshot.record.relative_path.parent.as_posix())
         normalized = normalize_relative_path(parent, PurePosixPath(spec))
+        if normalized is None:
+            return None
         module_path = normalize_ts_path(normalized.as_posix())
         repo_root = repo_root_from_snapshot(snapshot)
         return module_name_from_path(
@@ -367,6 +369,8 @@ def normalize_relative_index(specifier: str, snapshot: FileSnapshot) -> Optional
         return None
     parent = PurePosixPath(snapshot.record.relative_path.parent.as_posix())
     normalized = normalize_relative_path(parent, PurePosixPath(spec))
+    if normalized is None:
+        return None
     index_path = normalized / "index"
     module_path = normalize_ts_path(index_path.as_posix())
     repo_root = repo_root_from_snapshot(snapshot)
@@ -378,7 +382,9 @@ def normalize_relative_index(specifier: str, snapshot: FileSnapshot) -> Optional
     )
 
 
-def normalize_relative_path(base: PurePosixPath, relative: PurePosixPath) -> PurePosixPath:
+def normalize_relative_path(
+    base: PurePosixPath, relative: PurePosixPath
+) -> PurePosixPath | None:
     parts = list(base.parts)
     for part in relative.parts:
         if part in {"", "."}:
@@ -386,7 +392,8 @@ def normalize_relative_path(base: PurePosixPath, relative: PurePosixPath) -> Pur
         if part == "..":
             if parts:
                 parts.pop()
-            continue
+                continue
+            return None
         parts.append(part)
     return PurePosixPath(*parts)
 
