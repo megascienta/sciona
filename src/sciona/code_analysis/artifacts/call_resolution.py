@@ -136,6 +136,58 @@ def filter_in_repo_callsite_rows(
     return filtered
 
 
+def persisted_callsite_outcomes(
+    rows: Sequence[
+        tuple[
+            str,
+            str,
+            str | None,
+            str | None,
+            str | None,
+            int,
+            str,
+            int | None,
+            int | None,
+            int,
+            int | None,
+            str | None,
+        ]
+    ],
+    *,
+    in_repo_callable_ids: set[str],
+) -> tuple[
+    set[str],
+    list[
+        tuple[
+            str,
+            str,
+            str | None,
+            str | None,
+            str | None,
+            int,
+            str,
+            int | None,
+            int | None,
+            int,
+            int | None,
+            str | None,
+        ]
+    ],
+]:
+    """Return the persisted callsite rows and the accepted in-repo callees they imply."""
+
+    filtered = filter_in_repo_callsite_rows(
+        rows,
+        in_repo_callable_ids=in_repo_callable_ids,
+    )
+    persisted_callee_ids = {
+        accepted_callee_id
+        for _identifier, status, accepted_callee_id, _provenance, _drop_reason, *_rest in filtered
+        if status == "accepted" and accepted_callee_id
+    }
+    return persisted_callee_ids, filtered
+
+
 def build_module_context(
     core_conn,
     snapshot_id: str,

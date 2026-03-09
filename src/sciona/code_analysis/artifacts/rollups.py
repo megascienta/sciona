@@ -20,11 +20,11 @@ from .call_resolution import (
     build_symbol_index as _build_symbol_index,
     build_typescript_barrel_export_map as _build_typescript_barrel_export_map,
     bounded_module_reachability as _bounded_module_reachability,
-    filter_in_repo_callsite_rows as _filter_in_repo_callsite_rows,
     load_node_hashes as _load_node_hashes,
     module_distance as _module_distance,
     module_in_scope as _module_in_scope,
     module_qname_ancestors as _module_qname_ancestors,
+    persisted_callsite_outcomes as _persisted_callsite_outcomes,
     resolve_callees as _resolve_callees,
     resolve_python_export_chain_ambiguous as _resolve_python_export_chain_ambiguous,
     resolve_typescript_barrel_ambiguous as _resolve_typescript_barrel_ambiguous,
@@ -189,8 +189,7 @@ def write_call_artifacts(
             module_file_by_name=module_file_by_name,
             ts_barrel_export_map=ts_barrel_export_map,
         )
-        callee_ids = {callee_id for callee_id in callee_ids if callee_id in in_repo_callable_ids}
-        filtered_callsite_rows = _filter_in_repo_callsite_rows(
+        callee_ids, filtered_callsite_rows = _persisted_callsite_outcomes(
             callsite_rows,
             in_repo_callable_ids=in_repo_callable_ids,
         )
@@ -241,10 +240,10 @@ __all__ = [
     "_build_module_context",
     "_build_symbol_index",
     "_build_typescript_barrel_export_map",
-    "_filter_in_repo_callsite_rows",
     "_module_distance",
     "_module_in_scope",
     "_module_qname_ancestors",
+    "_persisted_callsite_outcomes",
     "_python_export_scope_modules",
     "_resolve_callees",
     "_resolve_python_export_chain_ambiguous",
