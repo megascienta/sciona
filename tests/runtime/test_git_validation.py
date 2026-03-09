@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 
 from sciona.runtime import git as git_ops
-from sciona.runtime.git.exec import validate_repo_root
+from sciona.runtime.git.exec import validate_git_args, validate_repo_root
 from sciona.runtime.errors import GitError
 from sciona.runtime.git import ops as git_ops_module
 from tests.helpers import init_git_repo, write_and_commit_file
@@ -27,6 +27,10 @@ def test_run_git_accepts_safe_args(tmp_path):
     init_git_repo(repo_root)
     output = git_ops.run_git(["--version"], repo_root)
     assert "git version" in output.lower()
+
+
+def test_validate_git_args_allows_ls_files_z() -> None:
+    validate_git_args(["ls-files", "-z"])
 
 
 def test_run_git_allows_special_path_after_double_dash(tmp_path):

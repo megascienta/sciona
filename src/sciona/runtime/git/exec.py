@@ -108,7 +108,7 @@ def validate_git_args(args: list[str]) -> None:
         "rev-parse": {"--abbrev-ref", "--show-toplevel", "--git-dir"},
         "show": {"-s", "--format=%cI"},
         "status": {"--porcelain", "-z"},
-        "ls-files": {"--others", "--exclude-standard", "--stage", "-c", "-i", "-ci"},
+        "ls-files": {"--others", "--exclude-standard", "--stage", "-c", "-i", "-ci", "-z"},
     }
     if command not in allowed_options:
         raise GitError(f"Unsupported git command: {command}")
