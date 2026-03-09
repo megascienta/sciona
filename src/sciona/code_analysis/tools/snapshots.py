@@ -12,6 +12,12 @@ from ...runtime import git as git_ops
 from ..core.normalize.model import FileRecord, FileSnapshot
 
 
+def _ensure_repo_contained(repo_root: Path, record: FileRecord) -> None:
+    resolved_repo = repo_root.resolve()
+    resolved_path = record.path.resolve()
+    resolved_path.relative_to(resolved_repo)
+
+
 def prepare_file_snapshots(
     repo_root: Path,
     records: List[FileRecord],
@@ -24,6 +30,7 @@ def prepare_file_snapshots(
         repo_root, [record.relative_path for record in records]
     )
     for record in records:
+        _ensure_repo_contained(repo_root, record)
         blob = blob_shas.get(record.relative_path) or git_ops.blob_sha(
             repo_root, record.relative_path
         )

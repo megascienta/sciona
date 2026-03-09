@@ -14,6 +14,16 @@ from ..core.normalize.model import FileRecord
 from ..core.extract import registry
 
 
+def _is_repo_contained(repo_root: Path, path: Path) -> bool:
+    try:
+        resolved_repo = repo_root.resolve()
+        resolved_path = path.resolve()
+        resolved_path.relative_to(resolved_repo)
+    except (OSError, RuntimeError, ValueError):
+        return False
+    return True
+
+
 def collect_files(
     repo_root: Path,
     languages: Mapping[str, core_config.LanguageSettings],
@@ -48,6 +58,8 @@ def collect_files(
             continue
         abs_path = repo_root / rel_path
         if not abs_path.is_file():
+            continue
+        if not _is_repo_contained(repo_root, abs_path):
             continue
         records.append(
             FileRecord(

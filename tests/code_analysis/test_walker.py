@@ -87,3 +87,17 @@ def test_walker_excludes_ignored_paths(tmp_path):
     )
     paths = [record.relative_path.as_posix() for record in records]
     assert paths == ["src/kept.py"]
+
+
+def test_walker_skips_symlinked_files_resolving_outside_repo(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    outside = tmp_path / "secret.py"
+    outside.write_text("print('secret')\n", encoding="utf-8")
+    (repo / "src").mkdir()
+    (repo / "src" / "link.py").symlink_to(outside)
+    tracked = {Path("src/link.py").as_posix()}
+
+    records = walker.collect_files(repo, _settings(), tracked_paths=tracked)
+
+    assert records == []

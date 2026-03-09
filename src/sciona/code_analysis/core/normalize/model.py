@@ -10,6 +10,21 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 
+def _expected_repo_root(record: "FileRecord") -> Path:
+    depth = len(record.relative_path.parts) - 1
+    return record.path.parents[depth] if depth >= 0 else record.path.parent
+
+
+def _validate_record_path_containment(record: "FileRecord") -> None:
+    repo_root = _expected_repo_root(record)
+    expected_path = repo_root / record.relative_path
+    if record.path != expected_path:
+        raise ValueError("FileRecord path does not match derived repo-relative path.")
+    resolved_repo = repo_root.resolve()
+    resolved_path = record.path.resolve()
+    resolved_path.relative_to(resolved_repo)
+
+
 @dataclass
 class FileRecord:
     path: Path
@@ -43,6 +58,7 @@ class FileSnapshot(FileMetadata):
     @property
     def content(self) -> bytes:
         if self._content is None:
+            _validate_record_path_containment(self.record)
             self._content = self.record.path.read_bytes()
         return self._content
 
