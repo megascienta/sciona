@@ -237,6 +237,43 @@ def test_typescript_analyzer_rejects_relative_imports_escaping_repo_root(tmp_pat
     assert import_targets == []
 
 
+def test_typescript_analyzer_fails_closed_for_nested_function_inside_if_block(tmp_path):
+    module = """
+    export function outer() {
+      if (true) {
+        function inner() {
+          return 1;
+        }
+      }
+      return 0;
+    }
+    """
+    repo = tmp_path
+    src = repo / "src"
+    src.mkdir()
+    file_path = src / "mod.ts"
+    file_path.write_text(module, encoding="utf-8")
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("src/mod.ts"),
+            language="typescript",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = TypeScriptAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+
+    qnames = {node.qualified_name for node in result.nodes}
+    assert f"{module_name}.outer.inner" not in qnames
+
+
 def test_typescript_analyzer_collects_import_equals_declaration(tmp_path):
     repo = tmp_path
     src = repo / "src"
@@ -812,7 +849,7 @@ def test_typescript_analyzer_keeps_method_in_class_declared_inside_function(tmp_
     assert f"{module_name}.helper" in call_records[f"{module_name}.outer.Inner.run"]
 
 
-def test_typescript_analyzer_disambiguates_duplicate_local_class_names(tmp_path):
+def test_typescript_analyzer_fails_closed_for_local_classes_inside_inline_callbacks(tmp_path):
     module = """
     describe('suite', () => {
       it('case-a', () => {
@@ -855,16 +892,7 @@ def test_typescript_analyzer_disambiguates_duplicate_local_class_names(tmp_path)
     ]
     result = first
     qnames = {node.qualified_name for node in result.nodes}
-    assert f"{module_name}.TestClass" in qnames
-    assert f"{module_name}.TestClass-2" in qnames
-    assert f"{module_name}.TestClass.alpha" in qnames
-    assert f"{module_name}.TestClass-2.beta" in qnames
-    test_class_nodes = [
-        node
-        for node in result.nodes
-        if node.node_type == "classifier" and node.qualified_name.startswith(f"{module_name}.TestClass")
-    ]
-    assert {node.display_name for node in test_class_nodes} == {"TestClass"}
+    assert all("TestClass" not in qname for qname in qnames)
 
 
 def test_typescript_analyzer_emits_kind_metadata_for_interface_and_signatures(tmp_path):

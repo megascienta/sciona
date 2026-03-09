@@ -10,7 +10,10 @@ from typing import List
 
 from ....core.normalize.model import EdgeRecord, FileSnapshot, SemanticNodeRecord
 from ...common.lexical_naming import LexicalNameDisambiguator
-from ...common.query_surface import PYTHON_STRUCTURAL_NODE_TYPES
+from ...common.query_surface import (
+    PYTHON_STRUCTURAL_CARRIER_NODE_TYPES,
+    PYTHON_STRUCTURAL_NODE_TYPES,
+)
 from ...common.shared import node_text as shared_node_text
 
 
@@ -63,17 +66,16 @@ def _python_structural_children(node) -> list[object]:
 
 
 def _python_structural_children_from_body(node) -> list[object]:
-    selected: list[object] = []
+    children: list[object] = []
     for child in getattr(node, "named_children", []):
         child_type = getattr(child, "type", "")
         if child_type in PYTHON_STRUCTURAL_NODE_TYPES:
-            selected.append(child)
+            children.append(child)
             continue
-        # Python statements often wrap structural nodes (for example assignment
-        # in expression_statement); unwrap one level to keep traversal focused.
-        selected.extend(_python_structural_children(child))
-    selected.sort(key=lambda item: (item.start_byte, item.end_byte))
-    return selected
+        if child_type not in PYTHON_STRUCTURAL_CARRIER_NODE_TYPES:
+            continue
+        children.extend(_python_structural_children(child))
+    return children
 
 
 def _lambda_body(node):
@@ -105,13 +107,20 @@ def walk_python_nodes(
     result,
     state: PythonNodeState,
 ) -> None:
+    if node.type == "expression_statement":
+        for child in _python_structural_children(node):
+            walk_python_nodes(
+                child,
+                language=language,
+                snapshot=snapshot,
+                module_name=module_name,
+                result=result,
+                state=state,
+            )
+        return
+
     if node.type == "decorated_definition":
         definition = node.child_by_field_name("definition")
-        if definition is None:
-            for child in getattr(node, "named_children", []):
-                if child.type in {"class_definition", "function_definition", "async_function_definition"}:
-                    definition = child
-                    break
         if definition is not None:
             walk_python_nodes(
                 definition,

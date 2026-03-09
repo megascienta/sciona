@@ -18,11 +18,19 @@ from ....core.normalize.model import (
 from ....core.extract.analyzer import ASTAnalyzer
 from ....core.extract.ir.extraction_buffer import ExtractionBuffer
 from ....core.extract.parsing.parser_bootstrap import bootstrap_tree_sitter_parser
-from ....core.extract.parsing.query_helpers import count_lines, find_direct_children_query
+from ....core.extract.parsing.query_helpers import (
+    count_lines,
+    find_direct_children_of_types_query,
+)
 from .python_calls import resolve_python_calls
 from .python_imports import collect_python_import_model
 from .python_nodes import PythonNodeState, walk_python_nodes
-from ...common.query_surface import PYTHON_CALL_NODE_TYPES, PYTHON_SKIP_CALL_NODE_TYPES
+from ...common.query_surface import (
+    PYTHON_CALL_NODE_TYPES,
+    PYTHON_SKIP_CALL_NODE_TYPES,
+    PYTHON_STRUCTURAL_CARRIER_NODE_TYPES,
+    PYTHON_STRUCTURAL_NODE_TYPES,
+)
 from .python_resolution import (
     collect_callable_instance_map,
     collect_callable_local_bindings,
@@ -62,7 +70,13 @@ class PythonAnalyzer(ASTAnalyzer):
 
         root = tree.root_node
         state = PythonNodeState()
-        for child in find_direct_children_query(root, language_name=self.language):
+        for child in find_direct_children_of_types_query(
+            root,
+            language_name=self.language,
+            node_types=tuple(
+                sorted(PYTHON_STRUCTURAL_NODE_TYPES | PYTHON_STRUCTURAL_CARRIER_NODE_TYPES)
+            ),
+        ):
             walk_python_nodes(
                 child,
                 language=self.language,

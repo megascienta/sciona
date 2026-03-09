@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from ....core.normalize.model import EdgeRecord, FileSnapshot, SemanticNodeRecord
-from ....core.extract.parsing.query_helpers import find_direct_children_query
+from ....core.extract.parsing.query_helpers import find_direct_children_of_types_query
 from .typescript_node_state import TypeScriptNodeState
 from .typescript_node_text import (
     function_body_node,
@@ -14,6 +14,12 @@ from .typescript_node_text import (
     node_text,
     parse_type_annotation,
     typed_constructor_parameters,
+)
+from ...common.query_surface import (
+    JAVASCRIPT_STRUCTURAL_CARRIER_NODE_TYPES,
+    JAVASCRIPT_STRUCTURAL_NODE_TYPES,
+    TYPESCRIPT_STRUCTURAL_CARRIER_NODE_TYPES,
+    TYPESCRIPT_STRUCTURAL_NODE_TYPES,
 )
 
 
@@ -83,6 +89,22 @@ def _disambiguate_child_name(
         parent=parent,
         child_kind=child_kind,
         local_name=local_name,
+    )
+
+
+def _structural_walk_node_types(syntax_language: str) -> tuple[str, ...]:
+    if syntax_language == "javascript":
+        return tuple(
+            sorted(
+                JAVASCRIPT_STRUCTURAL_NODE_TYPES
+                | JAVASCRIPT_STRUCTURAL_CARRIER_NODE_TYPES
+            )
+        )
+    return tuple(
+        sorted(
+            TYPESCRIPT_STRUCTURAL_NODE_TYPES
+            | TYPESCRIPT_STRUCTURAL_CARRIER_NODE_TYPES
+        )
     )
 
 
@@ -220,7 +242,11 @@ def walk_typescript_nodes(
         state.class_span_stack.append((node.start_byte, node.end_byte))
         state.class_methods.setdefault(qualified, set())
         if body:
-            for child in find_direct_children_query(body, language_name=syntax_language):
+            for child in find_direct_children_of_types_query(
+                body,
+                language_name=syntax_language,
+                node_types=_structural_walk_node_types(syntax_language),
+            ):
                 walk_typescript_nodes(
                     child,
                     language=language,
@@ -428,7 +454,11 @@ def walk_typescript_nodes(
             state.class_methods.setdefault(qualified, set())
             body = value_node.child_by_field_name("body")
             if body:
-                for child in find_direct_children_query(body, language_name=syntax_language):
+                for child in find_direct_children_of_types_query(
+                    body,
+                    language_name=syntax_language,
+                    node_types=_structural_walk_node_types(syntax_language),
+                ):
                     walk_typescript_nodes(
                         child,
                         language=language,
@@ -458,7 +488,11 @@ def walk_typescript_nodes(
                 parent = module_name
                 parent_node_type = "module"
                 class_name = None
-            for child in find_direct_children_query(value_node, language_name=syntax_language):
+            for child in find_direct_children_of_types_query(
+                value_node,
+                language_name=syntax_language,
+                node_types=("method_definition", "pair"),
+            ):
                 if child.type == "method_definition":
                     method_name_node = child.child_by_field_name("name")
                     method_name = node_text(method_name_node, snapshot.content)
@@ -657,7 +691,11 @@ def walk_typescript_children(
         }
         else function_depth
     )
-    for child in find_direct_children_query(node, language_name=syntax_language):
+    for child in find_direct_children_of_types_query(
+        node,
+        language_name=syntax_language,
+        node_types=_structural_walk_node_types(syntax_language),
+    ):
         walk_typescript_nodes(
             child,
             language=language,

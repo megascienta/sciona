@@ -1023,3 +1023,37 @@ def outer():
     }
     assert f"{module_name}.helper" in call_records[f"{module_name}.outer.bound"]
     assert f"{module_name}.helper" not in call_records.get(f"{module_name}.outer", set())
+
+
+def test_python_analyzer_fails_closed_for_nested_defs_inside_if_block(tmp_path):
+    module = """
+def outer():
+    if True:
+        def inner():
+            return 1
+    return 0
+"""
+    repo = tmp_path
+    pkg = repo / "pkg"
+    pkg.mkdir()
+    file_path = pkg / "mod.py"
+    file_path.write_text(module, encoding="utf-8")
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("pkg/mod.py"),
+            language="python",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = PythonAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+
+    qnames = {node.qualified_name for node in result.nodes}
+    assert f"{module_name}.outer.inner" not in qnames

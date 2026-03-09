@@ -90,8 +90,46 @@ def find_direct_children_query(node, *, language_name: str) -> list[object]:
     return direct
 
 
+def find_direct_children_of_types_query(
+    node,
+    *,
+    language_name: str,
+    node_types: tuple[str, ...],
+    capture_name: str = "node",
+) -> list[object]:
+    """Return direct child nodes of the requested types using Query API."""
+    if not node_types:
+        return []
+    children = find_nodes_of_types_query(
+        node,
+        language_name=language_name,
+        node_types=node_types,
+        capture_name=capture_name,
+    )
+    node_key = (
+        getattr(node, "start_byte", None),
+        getattr(node, "end_byte", None),
+        getattr(node, "type", None),
+    )
+    direct = [
+        child
+        for child in children
+        if (
+            (
+                getattr(getattr(child, "parent", None), "start_byte", None),
+                getattr(getattr(child, "parent", None), "end_byte", None),
+                getattr(getattr(child, "parent", None), "type", None),
+            )
+            == node_key
+        )
+    ]
+    direct.sort(key=lambda item: (item.start_byte, item.end_byte))
+    return direct
+
+
 __all__ = [
     "count_lines",
+    "find_direct_children_of_types_query",
     "find_nodes_of_types_query",
     "find_direct_children_query",
     "_compile_type_query",

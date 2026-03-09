@@ -18,13 +18,18 @@ from ....core.normalize.model import (
 from ....core.extract.analyzer import ASTAnalyzer
 from ....core.extract.ir.extraction_buffer import ExtractionBuffer
 from ....core.extract.parsing.parser_bootstrap import bootstrap_tree_sitter_parser
-from ....core.extract.parsing.query_helpers import count_lines, find_direct_children_query
+from ....core.extract.parsing.query_helpers import (
+    count_lines,
+    find_direct_children_of_types_query,
+)
 from .typescript_calls import callee_text, resolve_typescript_calls
 from .typescript_imports import collect_typescript_import_model
 from .typescript_nodes import TypeScriptNodeState, walk_typescript_nodes
 from ...common.query_surface import (
     TYPESCRIPT_CALL_NODE_TYPES,
     TYPESCRIPT_SKIP_CALL_NODE_TYPES,
+    TYPESCRIPT_STRUCTURAL_CARRIER_NODE_TYPES,
+    TYPESCRIPT_STRUCTURAL_NODE_TYPES,
 )
 from .typescript_resolution import (
     collect_callable_typed_binding_instance_map,
@@ -63,7 +68,16 @@ class TypeScriptAnalyzer(ASTAnalyzer):
 
         root = tree.root_node
         state = TypeScriptNodeState()
-        for child in find_direct_children_query(root, language_name=self.language):
+        for child in find_direct_children_of_types_query(
+            root,
+            language_name=self.language,
+            node_types=tuple(
+                sorted(
+                    TYPESCRIPT_STRUCTURAL_NODE_TYPES
+                    | TYPESCRIPT_STRUCTURAL_CARRIER_NODE_TYPES
+                )
+            ),
+        ):
             walk_typescript_nodes(
                 child,
                 language=self.language,

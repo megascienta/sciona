@@ -8,6 +8,7 @@ from sciona.code_analysis.core.extract.parsing.parser_bootstrap import (
 )
 from sciona.code_analysis.core.extract.parsing.query_helpers import (
     count_lines,
+    find_direct_children_of_types_query,
     find_direct_children_query,
     find_nodes_of_types_query,
 )
@@ -102,6 +103,22 @@ class A:
     children = find_direct_children_query(root, language_name="python")
     assert children
     assert any(child.type == "class_definition" for child in children)
+
+
+def test_find_direct_children_of_types_query_filters_to_direct_matches() -> None:
+    source = b"""
+def outer():
+    if True:
+        def inner():
+            pass
+"""
+    root = _parser("python").parse(source).root_node
+    children = find_direct_children_of_types_query(
+        root,
+        language_name="python",
+        node_types=("function_definition",),
+    )
+    assert [child.type for child in children] == ["function_definition"]
 
 
 def test_compile_query_source_fails_closed_when_query_api_unavailable(monkeypatch) -> None:

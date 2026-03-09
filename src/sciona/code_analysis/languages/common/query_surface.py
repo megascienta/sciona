@@ -41,6 +41,7 @@ PYTHON_STRUCTURAL_NODE_TYPES = frozenset(
         "augmented_assignment",
     }
 )
+PYTHON_STRUCTURAL_CARRIER_NODE_TYPES = frozenset({"expression_statement"})
 TYPESCRIPT_STRUCTURAL_NODE_TYPES = frozenset(
     {
         "class_declaration",
@@ -52,10 +53,16 @@ TYPESCRIPT_STRUCTURAL_NODE_TYPES = frozenset(
         "abstract_method_signature",
         "variable_declarator",
         "public_field_definition",
-        "private_field_definition",
-        "property_definition",
-        "field_definition",
         "assignment_expression",
+    }
+)
+TYPESCRIPT_STRUCTURAL_CARRIER_NODE_TYPES = frozenset(
+    {
+        "export_statement",
+        "statement_block",
+        "class_body",
+        "lexical_declaration",
+        "expression_statement",
     }
 )
 JAVA_STRUCTURAL_NODE_TYPES = frozenset(
@@ -70,6 +77,7 @@ JAVA_STRUCTURAL_NODE_TYPES = frozenset(
         "field_declaration",
     }
 )
+JAVA_STRUCTURAL_CARRIER_NODE_TYPES = frozenset()
 JAVASCRIPT_STRUCTURAL_NODE_TYPES = frozenset(
     {
         "class_declaration",
@@ -78,6 +86,15 @@ JAVASCRIPT_STRUCTURAL_NODE_TYPES = frozenset(
         "variable_declarator",
         "field_definition",
         "assignment_expression",
+    }
+)
+JAVASCRIPT_STRUCTURAL_CARRIER_NODE_TYPES = frozenset(
+    {
+        "export_statement",
+        "statement_block",
+        "class_body",
+        "lexical_declaration",
+        "expression_statement",
     }
 )
 

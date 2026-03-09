@@ -18,7 +18,10 @@ from ....core.normalize.model import (
 from ....core.extract.analyzer import ASTAnalyzer
 from ....core.extract.ir.extraction_buffer import ExtractionBuffer
 from ....core.extract.parsing.parser_bootstrap import bootstrap_tree_sitter_parser
-from ....core.extract.parsing.query_helpers import count_lines, find_direct_children_query
+from ....core.extract.parsing.query_helpers import (
+    count_lines,
+    find_direct_children_of_types_query,
+)
 from .java_calls import callee_text, resolve_java_calls
 from .java_imports import (
     collect_java_import_model,
@@ -32,7 +35,11 @@ from .java_resolution import (
     collect_local_var_types,
     qualify_java_type,
 )
-from ...common.query_surface import JAVA_CALL_NODE_TYPES, JAVA_SKIP_CALL_NODE_TYPES
+from ...common.query_surface import (
+    JAVA_CALL_NODE_TYPES,
+    JAVA_SKIP_CALL_NODE_TYPES,
+    JAVA_STRUCTURAL_NODE_TYPES,
+)
 from ...common.analyzer_support import (
     assert_scope_resolver_parity,
     collect_targets_by_callable,
@@ -69,7 +76,11 @@ class JavaAnalyzer(ASTAnalyzer):
         module_prefix = module_prefix_for_package(module_name, package_name)
 
         state = JavaNodeState()
-        for child in find_direct_children_query(root, language_name=self.language):
+        for child in find_direct_children_of_types_query(
+            root,
+            language_name=self.language,
+            node_types=tuple(sorted(JAVA_STRUCTURAL_NODE_TYPES)),
+        ):
             walk_java_nodes(
                 child,
                 language=self.language,

@@ -18,10 +18,15 @@ from ....core.normalize.model import (
 from ....core.extract.analyzer import ASTAnalyzer
 from ....core.extract.ir.extraction_buffer import ExtractionBuffer
 from ....core.extract.parsing.parser_bootstrap import bootstrap_tree_sitter_parser
-from ....core.extract.parsing.query_helpers import count_lines, find_direct_children_query
+from ....core.extract.parsing.query_helpers import (
+    count_lines,
+    find_direct_children_of_types_query,
+)
 from ...common.query_surface import (
     JAVASCRIPT_CALL_NODE_TYPES,
     JAVASCRIPT_SKIP_CALL_NODE_TYPES,
+    JAVASCRIPT_STRUCTURAL_CARRIER_NODE_TYPES,
+    JAVASCRIPT_STRUCTURAL_NODE_TYPES,
 )
 from ...common.analyzer_support import (
     assert_scope_resolver_parity,
@@ -62,7 +67,16 @@ class JavaScriptAnalyzer(ASTAnalyzer):
         buffer.add_node(module_node)
         root = tree.root_node
         state = TypeScriptNodeState()
-        for child in find_direct_children_query(root, language_name=self.language):
+        for child in find_direct_children_of_types_query(
+            root,
+            language_name=self.language,
+            node_types=tuple(
+                sorted(
+                    JAVASCRIPT_STRUCTURAL_NODE_TYPES
+                    | JAVASCRIPT_STRUCTURAL_CARRIER_NODE_TYPES
+                )
+            ),
+        ):
             walk_javascript_nodes(
                 child,
                 language=self.language,
