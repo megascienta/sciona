@@ -3,7 +3,13 @@
 
 from __future__ import annotations
 
-from sciona.code_analysis.contracts import resolve_strict_call_batch
+from sciona.code_analysis.contracts import (
+    StrictCallDecision,
+    build_strict_resolution_stats,
+    merge_strict_resolution_stats,
+    record_strict_resolution_decision,
+    resolve_strict_call_batch,
+)
 
 
 def test_resolve_strict_call_batch_tracks_ordinals_and_stats() -> None:
@@ -39,3 +45,38 @@ def test_resolve_strict_call_batch_uses_candidate_qname_mapping() -> None:
 
     assert list(batch.accepted_candidates) == ["func_alpha"]
     assert batch.stats["accepted_by_provenance"] == {"exact_qname": 1}
+
+
+def test_strict_resolution_stats_helpers_record_and_merge() -> None:
+    first = build_strict_resolution_stats()
+    second = build_strict_resolution_stats()
+
+    record_strict_resolution_decision(
+        first,
+        StrictCallDecision(
+            accepted_candidate="pkg.mod.helper",
+            accepted_provenance="module_scoped",
+            dropped_reason=None,
+            candidate_count=1,
+        ),
+    )
+    record_strict_resolution_decision(
+        second,
+        StrictCallDecision(
+            accepted_candidate=None,
+            accepted_provenance=None,
+            dropped_reason="no_candidates",
+            candidate_count=0,
+        ),
+    )
+
+    target: dict[str, object] = {}
+    merge_strict_resolution_stats(target, first, stringify_counter_keys=True)
+    merge_strict_resolution_stats(target, second, stringify_counter_keys=True)
+
+    assert target["identifiers_total"] == 2
+    assert target["accepted_identifiers"] == 1
+    assert target["dropped_identifiers"] == 1
+    assert target["accepted_by_provenance"] == {"module_scoped": 1}
+    assert target["dropped_by_reason"] == {"no_candidates": 1}
+    assert target["candidate_count_histogram"] == {"1": 1, "0": 1}

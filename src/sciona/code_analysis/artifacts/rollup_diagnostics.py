@@ -5,9 +5,9 @@
 
 from __future__ import annotations
 
-from collections import Counter
 from typing import cast
 
+from ..contracts import merge_strict_resolution_stats
 from ..tools.call_extraction import CallExtractionRecord
 
 
@@ -62,29 +62,8 @@ def merge_resolution_stats(
     totals_diag: dict[str, object],
     stats: dict[str, object],
 ) -> None:
-    identifiers_total = int(stats.get("identifiers_total", 0))
-    accepted = sum(cast(Counter[str], stats["accepted_by_provenance"]).values())
-    dropped = sum(cast(Counter[str], stats["dropped_by_reason"]).values())
-    _inc_scalar(caller_diag, "identifiers_total", identifiers_total)
-    _inc_scalar(caller_diag, "accepted_identifiers", accepted)
-    _inc_scalar(caller_diag, "dropped_identifiers", dropped)
-    _inc_scalar(totals_diag, "identifiers_total", identifiers_total)
-    _inc_scalar(totals_diag, "accepted_identifiers", accepted)
-    _inc_scalar(totals_diag, "dropped_identifiers", dropped)
-    _merge_counter_map(
-        caller_diag, "accepted_by_provenance", stats["accepted_by_provenance"]
-    )
-    _merge_counter_map(caller_diag, "dropped_by_reason", stats["dropped_by_reason"])
-    _merge_counter_map(
-        caller_diag, "candidate_count_histogram", stats["candidate_count_histogram"]
-    )
-    _merge_counter_map(
-        totals_diag, "accepted_by_provenance", stats["accepted_by_provenance"]
-    )
-    _merge_counter_map(totals_diag, "dropped_by_reason", stats["dropped_by_reason"])
-    _merge_counter_map(
-        totals_diag, "candidate_count_histogram", stats["candidate_count_histogram"]
-    )
+    merge_strict_resolution_stats(caller_diag, stats, stringify_counter_keys=True)
+    merge_strict_resolution_stats(totals_diag, stats, stringify_counter_keys=True)
 
 
 def record_resolution_drop(
@@ -99,23 +78,6 @@ def record_resolution_drop(
     if totals_diag:
         _inc_map(totals_diag, "record_drops", reason)
         _inc_scalar(totals_diag, "assembler_accepted_artifact_dropped", 1)
-
-
-def _merge_counter_map(
-    target: dict[str, object],
-    key: str,
-    counter_values: object,
-) -> None:
-    if not target:
-        return
-    target_map = cast(dict[str, int], target.setdefault(key, {}))
-    for bucket, count in cast(Counter[object], counter_values).items():
-        if not count:
-            continue
-        bucket_key = str(bucket)
-        target_map[bucket_key] = int(target_map.get(bucket_key, 0)) + int(count)
-
-
 def _inc_scalar(target: dict[str, object], key: str, amount: int) -> None:
     if not target or not amount:
         return

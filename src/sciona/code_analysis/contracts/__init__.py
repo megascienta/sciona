@@ -5,6 +5,9 @@ from .strict_call_contract import StrictCallDecision, select_strict_call_candida
 from .strict_call_resolution import (
     StrictResolutionBatch,
     StrictResolvedIdentifier,
+    build_strict_resolution_stats,
+    merge_strict_resolution_stats,
+    record_strict_resolution_decision,
     resolve_strict_call_batch,
 )
 
@@ -12,6 +15,9 @@ __all__ = [
     "StrictCallDecision",
     "StrictResolutionBatch",
     "StrictResolvedIdentifier",
+    "build_strict_resolution_stats",
+    "merge_strict_resolution_stats",
+    "record_strict_resolution_decision",
     "resolve_strict_call_batch",
     "select_strict_call_candidate",
 ]

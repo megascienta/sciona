@@ -9,6 +9,17 @@ from typing import Mapping, Sequence, cast
 
 from .strict_call_contract import StrictCallDecision, select_strict_call_candidate
 
+STRICT_RESOLUTION_SCALAR_KEYS = (
+    "identifiers_total",
+    "accepted_identifiers",
+    "dropped_identifiers",
+)
+STRICT_RESOLUTION_COUNTER_KEYS = (
+    "accepted_by_provenance",
+    "dropped_by_reason",
+    "candidate_count_histogram",
+)
+
 
 @dataclass(frozen=True)
 class StrictResolvedIdentifier:
@@ -22,6 +33,64 @@ class StrictResolutionBatch:
     resolutions: tuple[StrictResolvedIdentifier, ...]
     accepted_candidates: tuple[str, ...]
     stats: dict[str, object]
+
+
+def build_strict_resolution_stats() -> dict[str, object]:
+    return {
+        "identifiers_total": 0,
+        "accepted_identifiers": 0,
+        "dropped_identifiers": 0,
+        "accepted_by_provenance": Counter(),
+        "dropped_by_reason": Counter(),
+        "candidate_count_histogram": Counter(),
+    }
+
+
+def record_strict_resolution_decision(
+    stats: dict[str, object],
+    decision: StrictCallDecision,
+    *,
+    accepted_provenance: str | None = None,
+) -> None:
+    stats["identifiers_total"] = int(stats.get("identifiers_total", 0)) + 1
+    cast(Counter[int], stats.setdefault("candidate_count_histogram", Counter()))[
+        decision.candidate_count
+    ] += 1
+    if decision.accepted_candidate:
+        stats["accepted_identifiers"] = int(stats.get("accepted_identifiers", 0)) + 1
+        cast(Counter[str], stats.setdefault("accepted_by_provenance", Counter()))[
+            accepted_provenance or str(decision.accepted_provenance)
+        ] += 1
+        return
+    stats["dropped_identifiers"] = int(stats.get("dropped_identifiers", 0)) + 1
+    cast(Counter[str], stats.setdefault("dropped_by_reason", Counter()))[
+        str(decision.dropped_reason)
+    ] += 1
+
+
+def merge_strict_resolution_stats(
+    target: dict[str, object],
+    source: Mapping[str, object],
+    *,
+    stringify_counter_keys: bool = False,
+) -> None:
+    for key in STRICT_RESOLUTION_SCALAR_KEYS:
+        amount = int(source.get(key, 0) or 0)
+        if amount:
+            target[key] = int(target.get(key, 0) or 0) + amount
+    for key in STRICT_RESOLUTION_COUNTER_KEYS:
+        bucket = target.setdefault(key, {})
+        if not isinstance(bucket, dict):
+            bucket = {}
+            target[key] = bucket
+        values = source.get(key) or {}
+        if not isinstance(values, (dict, Counter)):
+            continue
+        for counter_key, value in values.items():
+            if not value:
+                continue
+            name = str(counter_key) if stringify_counter_keys else counter_key
+            bucket[name] = int(bucket.get(name, 0)) + int(value)
 
 
 def resolve_strict_call_batch(
@@ -41,16 +110,8 @@ def resolve_strict_call_batch(
     resolutions: list[StrictResolvedIdentifier] = []
     accepted_candidates: list[str] = []
     ordinal_by_identifier: dict[str, int] = {}
-    stats: dict[str, object] = {
-        "identifiers_total": 0,
-        "accepted_identifiers": 0,
-        "dropped_identifiers": 0,
-        "accepted_by_provenance": Counter(),
-        "dropped_by_reason": Counter(),
-        "candidate_count_histogram": Counter(),
-    }
+    stats = build_strict_resolution_stats()
     for identifier in identifiers:
-        stats["identifiers_total"] = int(stats["identifiers_total"]) + 1
         direct_candidates = list(symbol_index.get(identifier) or ())
         fallback_candidates: list[str] = []
         if not direct_candidates and "." in identifier:
@@ -67,7 +128,6 @@ def resolve_strict_call_batch(
             caller_ancestor_modules=caller_ancestor_modules,
             allow_descendant_scope_for_ambiguous=allow_descendant_scope_for_ambiguous,
         )
-        cast(Counter[int], stats["candidate_count_histogram"])[decision.candidate_count] += 1
         ordinal = ordinal_by_identifier.get(identifier, 0) + 1
         ordinal_by_identifier[identifier] = ordinal
         resolutions.append(
@@ -77,22 +137,21 @@ def resolve_strict_call_batch(
                 decision=decision,
             )
         )
+        record_strict_resolution_decision(stats, decision)
         if decision.accepted_candidate:
             accepted_candidates.append(decision.accepted_candidate)
-            stats["accepted_identifiers"] = int(stats["accepted_identifiers"]) + 1
-            cast(Counter[str], stats["accepted_by_provenance"])[
-                str(decision.accepted_provenance)
-            ] += 1
-            continue
-        stats["dropped_identifiers"] = int(stats["dropped_identifiers"]) + 1
-        cast(Counter[str], stats["dropped_by_reason"])[str(decision.dropped_reason)] += 1
     return StrictResolutionBatch(
         resolutions=tuple(resolutions),
         accepted_candidates=tuple(accepted_candidates),
         stats=stats,
     )
+
+
 __all__ = [
     "StrictResolvedIdentifier",
     "StrictResolutionBatch",
+    "build_strict_resolution_stats",
+    "merge_strict_resolution_stats",
+    "record_strict_resolution_decision",
     "resolve_strict_call_batch",
 ]

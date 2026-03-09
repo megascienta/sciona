@@ -5,11 +5,15 @@
 
 from __future__ import annotations
 
-from collections import Counter, defaultdict
+from collections import defaultdict
 from typing import Iterable, Sequence, cast
 
 from ..analysis.graph import module_id_for
-from ..contracts import resolve_strict_call_batch
+from ..contracts import (
+    build_strict_resolution_stats,
+    record_strict_resolution_decision,
+    resolve_strict_call_batch,
+)
 from ..core.structural_assembler_index import expand_import_targets
 from ..config import CALLABLE_NODE_TYPES
 from ...data_storage.core_db import read_ops as core_read
@@ -260,12 +264,7 @@ def resolve_callees(
             str | None,
         ]
     ] = []
-    stats: dict[str, object] = {
-        "identifiers_total": 0,
-        "accepted_by_provenance": Counter(),
-        "dropped_by_reason": Counter(),
-        "candidate_count_histogram": Counter(),
-    }
+    stats = build_strict_resolution_stats()
     strict_batch = resolve_strict_call_batch(
         identifiers,
         symbol_index=symbol_index,
@@ -307,14 +306,17 @@ def resolve_callees(
                 expanded_import_targets=expanded_import_targets,
                 caller_ancestor_modules=module_ancestors.get(caller_module or "", set()),
             )
-        cast(Counter[int], stats["candidate_count_histogram"])[decision.candidate_count] += 1
         ordinal = resolution.ordinal
         callee_kind = "qualified" if "." in identifier else "terminal"
+        record_strict_resolution_decision(
+            stats,
+            decision,
+            accepted_provenance=rescue_provenance,
+        )
         if decision.accepted_candidate:
             resolved_ids.add(decision.accepted_candidate)
             resolved_names.add(identifier)
             accepted_provenance = rescue_provenance or str(decision.accepted_provenance)
-            cast(Counter[str], stats["accepted_by_provenance"])[accepted_provenance] += 1
             if decision.candidate_count > 0:
                 callsite_rows.append(
                     (
@@ -335,7 +337,6 @@ def resolve_callees(
                     )
                 )
             continue
-        cast(Counter[str], stats["dropped_by_reason"])[str(decision.dropped_reason)] += 1
         if decision.candidate_count > 0:
             callsite_rows.append(
                 (

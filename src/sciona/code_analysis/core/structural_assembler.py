@@ -10,7 +10,7 @@ from typing import Dict, Iterable, Optional, Tuple
 from typing import Protocol
 from ...runtime import identity as ids
 from ..analysis.graph import module_id_for
-from ..contracts import resolve_strict_call_batch
+from ..contracts import build_strict_resolution_stats, merge_strict_resolution_stats, resolve_strict_call_batch
 from ..tools.call_extraction import normalize_call_identifiers
 from .structural_assembler_emit import (
     emit_edges,
@@ -207,15 +207,9 @@ class StructuralAssembler:
         import_targets = build_import_targets(analysis.edges)
         expanded_import_targets = build_expanded_import_targets(analysis.edges)
         strict_normalized: list[tuple[str, str, str, list[str]]] = []
-        local_totals: dict[str, object] = {
-            "identifiers_total": 0,
-            "accepted_identifiers": 0,
-            "dropped_identifiers": 0,
-            "accepted_by_provenance": {},
-            "dropped_by_reason": {},
-            "dropped_by_resolver": 0,
-            "resolver_accepted_assembler_dropped": 0,
-        }
+        local_totals: dict[str, object] = build_strict_resolution_stats()
+        local_totals["dropped_by_resolver"] = 0
+        local_totals["resolver_accepted_assembler_dropped"] = 0
         for language, qualified, node_type, identifiers in normalized:
             caller_module = module_id_for(qualified, module_names)
             batch = resolve_strict_call_batch(
@@ -230,31 +224,10 @@ class StructuralAssembler:
                 ),
             )
             accepted = list(batch.accepted_candidates)
-            local_totals["identifiers_total"] = (
-                int(local_totals["identifiers_total"])
-                + int(batch.stats["identifiers_total"])
-            )
-            local_totals["accepted_identifiers"] = (
-                int(local_totals["accepted_identifiers"])
-                + int(batch.stats["accepted_identifiers"])
-            )
-            local_totals["dropped_identifiers"] = (
-                int(local_totals["dropped_identifiers"])
-                + int(batch.stats["dropped_identifiers"])
-            )
+            merge_strict_resolution_stats(local_totals, batch.stats)
             local_totals["dropped_by_resolver"] = (
                 int(local_totals["dropped_by_resolver"])
                 + int(batch.stats["dropped_identifiers"])
-            )
-            self._merge_counter_map(
-                local_totals,
-                "accepted_by_provenance",
-                batch.stats["accepted_by_provenance"],
-            )
-            self._merge_counter_map(
-                local_totals,
-                "dropped_by_reason",
-                batch.stats["dropped_by_reason"],
             )
             if accepted:
                 strict_normalized.append(
@@ -420,48 +393,13 @@ class StructuralAssembler:
         return node_content_hash(node, file_snapshot)
 
     def _merge_call_gate_diagnostics(self, stats: dict[str, object]) -> None:
-        self.call_gate_diagnostics["identifiers_total"] = int(
-            self.call_gate_diagnostics.get("identifiers_total", 0)
-        ) + int(stats.get("identifiers_total", 0))
-        self.call_gate_diagnostics["accepted_identifiers"] = int(
-            self.call_gate_diagnostics.get("accepted_identifiers", 0)
-        ) + int(stats.get("accepted_identifiers", 0))
-        self.call_gate_diagnostics["dropped_identifiers"] = int(
-            self.call_gate_diagnostics.get("dropped_identifiers", 0)
-        ) + int(stats.get("dropped_identifiers", 0))
+        merge_strict_resolution_stats(self.call_gate_diagnostics, stats, stringify_counter_keys=True)
         self.call_gate_diagnostics["resolver_accepted_assembler_dropped"] = int(
             self.call_gate_diagnostics.get("resolver_accepted_assembler_dropped", 0)
         ) + int(stats.get("resolver_accepted_assembler_dropped", 0))
         self.call_gate_diagnostics["dropped_by_resolver"] = int(
             self.call_gate_diagnostics.get("dropped_by_resolver", 0)
         ) + int(stats.get("dropped_by_resolver", 0))
-        self._merge_counter_map(
-            self.call_gate_diagnostics, "accepted_by_provenance", stats.get("accepted_by_provenance")
-        )
-        self._merge_counter_map(
-            self.call_gate_diagnostics, "dropped_by_reason", stats.get("dropped_by_reason")
-        )
-
-    @staticmethod
-    def _merge_counter_map(target: dict[str, object], key: str, source: object) -> None:
-        if not isinstance(source, dict):
-            return
-        bucket = target.setdefault(key, {})
-        if not isinstance(bucket, dict):
-            bucket = {}
-            target[key] = bucket
-        for counter_key, value in source.items():
-            name = str(counter_key)
-            bucket[name] = int(bucket.get(name, 0)) + int(value)
-
-    @staticmethod
-    def _inc_counter_map(target: dict[str, object], key: str, entry: str | None) -> None:
-        bucket = target.setdefault(key, {})
-        if not isinstance(bucket, dict):
-            bucket = {}
-            target[key] = bucket
-        label = str(entry or "unknown")
-        bucket[label] = int(bucket.get(label, 0)) + 1
 
 
 def _module_qname_ancestors(module_qname: str) -> set[str]:
