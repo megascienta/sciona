@@ -9,7 +9,7 @@ from collections import Counter, defaultdict
 from typing import Iterable, Sequence, cast
 
 from ..analysis.graph import module_id_for
-from ..contracts import select_strict_call_candidate
+from ..contracts import resolve_strict_call_batch, select_strict_call_candidate
 from ..core.structural_assembler_index import expand_import_targets
 from ..config import CALLABLE_NODE_TYPES
 from ...data_storage.core_db import read_ops as core_read
@@ -260,31 +260,31 @@ def resolve_callees(
             str | None,
         ]
     ] = []
-    ordinal_by_identifier: dict[str, int] = {}
     stats: dict[str, object] = {
         "identifiers_total": 0,
         "accepted_by_provenance": Counter(),
         "dropped_by_reason": Counter(),
         "candidate_count_histogram": Counter(),
     }
-    for identifier in identifiers:
+    strict_batch = resolve_strict_call_batch(
+        identifiers,
+        symbol_index=symbol_index,
+        caller_module=caller_module,
+        module_lookup=module_lookup,
+        candidate_qualified_names=callable_qname_by_id,
+        import_targets=import_targets,
+        expanded_import_targets=expanded_import_targets,
+        caller_ancestor_modules=module_ancestors.get(caller_module or "", set()),
+        allow_descendant_scope_for_ambiguous=caller_language == "typescript",
+    )
+    for resolution in strict_batch.resolutions:
+        identifier = resolution.identifier
+        decision = resolution.decision
         stats["identifiers_total"] += 1
         direct_candidates = symbol_index.get(identifier) or []
         fallback_candidates = []
         if not direct_candidates and "." in identifier:
             fallback_candidates = symbol_index.get(identifier.rsplit(".", 1)[-1]) or []
-        decision = select_strict_call_candidate(
-            identifier=identifier,
-            direct_candidates=direct_candidates,
-            fallback_candidates=fallback_candidates,
-            caller_module=caller_module,
-            module_lookup=module_lookup,
-            candidate_qualified_names=callable_qname_by_id,
-            import_targets=import_targets,
-            expanded_import_targets=expanded_import_targets,
-            caller_ancestor_modules=module_ancestors.get(caller_module or "", set()),
-            allow_descendant_scope_for_ambiguous=caller_language == "typescript",
-        )
         rescue_candidate: str | None = None
         rescue_provenance: str | None = None
         if (
@@ -330,21 +330,20 @@ def resolve_callees(
                     best_candidate_by_module_distance=best_candidate_by_module_distance,
                 )
         if rescue_candidate:
-            decision = select_strict_call_candidate(
-                identifier=identifier,
-                direct_candidates=[rescue_candidate],
-                fallback_candidates=[],
-                caller_module=caller_module,
+                decision = select_strict_call_candidate(
+                    identifier=identifier,
+                    direct_candidates=[rescue_candidate],
+                    fallback_candidates=[],
+                    caller_module=caller_module,
                 module_lookup=module_lookup,
                 candidate_qualified_names=callable_qname_by_id,
                 import_targets=import_targets,
                 expanded_import_targets=expanded_import_targets,
-                caller_ancestor_modules=module_ancestors.get(caller_module or "", set()),
-                allow_descendant_scope_for_ambiguous=caller_language == "typescript",
-            )
+                    caller_ancestor_modules=module_ancestors.get(caller_module or "", set()),
+                    allow_descendant_scope_for_ambiguous=caller_language == "typescript",
+                )
         cast(Counter[int], stats["candidate_count_histogram"])[decision.candidate_count] += 1
-        ordinal = ordinal_by_identifier.get(identifier, 0) + 1
-        ordinal_by_identifier[identifier] = ordinal
+        ordinal = resolution.ordinal
         callee_kind = "qualified" if "." in identifier else "terminal"
         if decision.accepted_candidate:
             resolved_ids.add(decision.accepted_candidate)
