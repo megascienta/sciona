@@ -233,3 +233,42 @@ def test_call_sites_accept_export_chain_narrowed_provenance(
             artifact_conn.close()
     finally:
         core_conn.close()
+
+
+def test_call_sites_do_not_persist_zero_candidate_or_out_of_scope_observations(
+    tmp_path: Path,
+) -> None:
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    prefix = runtime_paths.repo_name_prefix(repo_root)
+    core_conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
+    core_conn.row_factory = sqlite3.Row
+    try:
+        artifact_conn = artifact_connect(get_artifact_db_path(repo_root), repo_root=repo_root)
+        try:
+            write_call_artifacts(
+                artifact_conn=artifact_conn,
+                core_conn=core_conn,
+                snapshot_id=snapshot_id,
+                call_records=[
+                    CallExtractionRecord(
+                        caller_structural_id="meth_alpha",
+                        caller_qualified_name=f"{prefix}.pkg.alpha.Service.run",
+                        caller_node_type="callable",
+                        callee_identifiers=("print", "missing_symbol"),
+                    )
+                ],
+                eligible_callers={"meth_alpha"},
+            )
+            row = artifact_conn.execute(
+                """
+                SELECT COUNT(*) AS row_count
+                FROM call_sites
+                WHERE snapshot_id = ? AND caller_id = ?
+                """,
+                (snapshot_id, "meth_alpha"),
+            ).fetchone()
+            assert row["row_count"] == 0
+        finally:
+            artifact_conn.close()
+    finally:
+        core_conn.close()

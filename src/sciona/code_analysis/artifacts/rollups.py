@@ -133,7 +133,12 @@ def write_call_artifacts(
     eligible_callers: Iterable[str] | None = None,
     diagnostics: dict[str, object] | None = None,
 ) -> None:
-    """Write call artifacts for eligible callers."""
+    """Write filtered artifact callsites and derived call edges for eligible callers.
+
+    The persisted `call_sites` table is the artifact-layer working/reporting
+    surface. It intentionally stores only the filtered in-scope candidate-bearing
+    subset rather than the full observed callsite stream.
+    """
     core_read.validate_snapshot_for_read(core_conn, snapshot_id, require_committed=True)
     if not call_records:
         return
