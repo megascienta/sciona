@@ -944,3 +944,82 @@ def outer():
     assert role_by_qname[f"{module_name}.outer"] == "declared"
     assert role_by_qname[f"{module_name}.outer.inner"] == "nested"
     assert role_by_qname[f"{module_name}.outer.bound"] == "bound"
+
+
+def test_python_method_nested_defs_and_bound_lambdas_attach_to_callable_parent(tmp_path):
+    module = """
+class Service:
+    def run(self):
+        def inner():
+            return 1
+        bound = lambda: 2
+        return inner() + bound()
+"""
+    repo = tmp_path
+    pkg = repo / "pkg"
+    pkg.mkdir()
+    file_path = pkg / "mod.py"
+    file_path.write_text(module, encoding="utf-8")
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("pkg/mod.py"),
+            language="python",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = PythonAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+
+    role_by_qname = {
+        node.qualified_name: (node.metadata or {}).get("callable_role")
+        for node in result.nodes
+        if node.node_type == "callable"
+    }
+    assert role_by_qname[f"{module_name}.Service.run"] == "declared"
+    assert role_by_qname[f"{module_name}.Service.run.inner"] == "nested"
+    assert role_by_qname[f"{module_name}.Service.run.bound"] == "bound"
+
+
+def test_python_bound_lambda_calls_are_attributed_to_bound_callable(tmp_path):
+    module = """
+def helper():
+    return 1
+
+def outer():
+    bound = lambda: helper()
+    return bound()
+"""
+    repo = tmp_path
+    pkg = repo / "pkg"
+    pkg.mkdir()
+    file_path = pkg / "mod.py"
+    file_path.write_text(module, encoding="utf-8")
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("pkg/mod.py"),
+            language="python",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = PythonAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+
+    call_records = {
+        rec.qualified_name: set(rec.callee_identifiers) for rec in result.call_records
+    }
+    assert f"{module_name}.helper" in call_records[f"{module_name}.outer.bound"]
+    assert f"{module_name}.helper" not in call_records.get(f"{module_name}.outer", set())

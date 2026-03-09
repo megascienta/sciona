@@ -201,19 +201,29 @@ def walk_python_nodes(
         func_name = _node_text(name_node, snapshot.content)
         if not func_name:
             return
-        if state.class_stack:
-            node_type = "callable"
-            parent = state.class_stack[-1]
-            parent_node_type = "classifier"
-            edge_type = "LEXICALLY_CONTAINS"
-            state.class_methods.setdefault(parent, set()).add(func_name)
-            role = "constructor" if func_name == "__init__" else "declared"
-        elif state.callable_stack:
+        current_class = state.class_stack[-1] if state.class_stack else None
+        class_body = state.class_body_map.get(current_class) if current_class else None
+        parent_node = getattr(node, "parent", None)
+        in_class_body = (
+            class_body is not None
+            and parent_node is not None
+            and getattr(parent_node, "start_byte", None) == getattr(class_body, "start_byte", None)
+            and getattr(parent_node, "end_byte", None) == getattr(class_body, "end_byte", None)
+            and getattr(parent_node, "type", None) == getattr(class_body, "type", None)
+        )
+        if state.callable_stack and not in_class_body:
             node_type = "callable"
             parent = state.callable_stack[-1]
             parent_node_type = "callable"
             edge_type = "LEXICALLY_CONTAINS"
             role = "nested"
+        elif current_class is not None:
+            node_type = "callable"
+            parent = current_class
+            parent_node_type = "classifier"
+            edge_type = "LEXICALLY_CONTAINS"
+            state.class_methods.setdefault(parent, set()).add(func_name)
+            role = "constructor" if func_name == "__init__" else "declared"
         else:
             node_type = "callable"
             parent = module_name
@@ -291,13 +301,13 @@ def walk_python_nodes(
         ):
             func_name = _node_text(left, snapshot.content)
             if func_name:
-                if state.class_stack:
-                    parent = state.class_stack[-1]
-                    parent_node_type = "classifier"
-                    role = "bound"
-                elif state.callable_stack:
+                if state.callable_stack:
                     parent = state.callable_stack[-1]
                     parent_node_type = "callable"
+                    role = "bound"
+                elif state.class_stack:
+                    parent = state.class_stack[-1]
+                    parent_node_type = "classifier"
                     role = "bound"
                 else:
                     parent = module_name

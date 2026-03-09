@@ -14,6 +14,7 @@ STRUCTURAL_CALLABLE_NODE_TYPES = frozenset(
         # Python
         "function_definition",
         "async_function_definition",
+        "lambda",
         # TypeScript
         "method_definition",
         "function_declaration",
