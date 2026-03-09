@@ -1,0 +1,41 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Dmitry Chigrin & MegaScienta
+
+from __future__ import annotations
+
+from sciona.code_analysis.contracts import resolve_strict_call_batch
+
+
+def test_resolve_strict_call_batch_tracks_ordinals_and_stats() -> None:
+    batch = resolve_strict_call_batch(
+        ["helper", "helper", "missing"],
+        symbol_index={"helper": ["pkg.mod.helper"]},
+        caller_module="pkg.mod",
+        module_lookup={"pkg.mod.helper": "pkg.mod"},
+        import_targets={"pkg.mod": set()},
+        caller_ancestor_modules=set(),
+    )
+
+    assert [item.ordinal for item in batch.resolutions] == [1, 2, 1]
+    assert list(batch.accepted_candidates) == ["pkg.mod.helper", "pkg.mod.helper"]
+    assert batch.stats["identifiers_total"] == 3
+    assert batch.stats["accepted_identifiers"] == 2
+    assert batch.stats["dropped_identifiers"] == 1
+    assert batch.stats["candidate_count_histogram"] == {1: 2, 0: 1}
+    assert batch.stats["accepted_by_provenance"] == {"module_scoped": 2}
+    assert batch.stats["dropped_by_reason"] == {"no_candidates": 1}
+
+
+def test_resolve_strict_call_batch_uses_candidate_qname_mapping() -> None:
+    batch = resolve_strict_call_batch(
+        ["pkg.alpha.service.helper"],
+        symbol_index={"pkg.alpha.service.helper": ["func_alpha"]},
+        caller_module="pkg.alpha.task",
+        module_lookup={"func_alpha": "pkg.alpha.service"},
+        candidate_qualified_names={"func_alpha": "pkg.alpha.service.helper"},
+        import_targets={"pkg.alpha.task": {"pkg.alpha.service"}},
+        caller_ancestor_modules={"pkg.alpha"},
+    )
+
+    assert list(batch.accepted_candidates) == ["func_alpha"]
+    assert batch.stats["accepted_by_provenance"] == {"exact_qname": 1}
