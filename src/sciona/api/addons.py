@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Iterator
 
 from ..data_storage import connections
-from ..pipelines.reducers import emit, list_entries
+from ..pipelines.reducers import list_entries
 from ..runtime import paths as runtime_paths
 from ..runtime.addon_contract import (
     PLUGIN_API_MAJOR,
@@ -54,7 +54,6 @@ __all__ = [
     "PLUGIN_API_VERSION",
     "PLUGIN_API_MAJOR",
     "PLUGIN_API_MINOR",
-    "emit",
     "list_entries",
     "open_core_readonly",
     "open_artifact_readonly",

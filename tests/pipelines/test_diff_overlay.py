@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import json
 
-from sciona import api
+from sciona.pipelines.reducers import emit
 from sciona.reducers import overlay_projection_status_summary
 from sciona.pipelines.diff_overlay.patchers.analytics import patch_callsite_index
 from sciona.pipelines.diff_overlay.patchers.analytics import (
@@ -33,7 +33,7 @@ def test_dirty_overlay_adds_node(repo_with_snapshot):
         encoding="utf-8",
     )
 
-    text, _, _ = api.addons.emit(
+    text, _, _ = emit(
         "module_overview",
         repo_root=repo_root,
         module_id=qualify_repo_name(repo_root, "pkg.alpha"),
@@ -57,7 +57,7 @@ def test_dirty_overlay_calls_and_summary(repo_with_snapshot):
         encoding="utf-8",
     )
 
-    text, _, _ = api.addons.emit(
+    text, _, _ = emit(
         "fan_summary",
         repo_root=repo_root,
     )
@@ -76,7 +76,7 @@ def test_dirty_overlay_summary_mode(repo_with_snapshot):
         encoding="utf-8",
     )
 
-    text, _, _ = api.addons.emit(
+    text, _, _ = emit(
         "module_overview",
         repo_root=repo_root,
         module_id=qualify_repo_name(repo_root, "pkg.alpha"),
@@ -868,7 +868,7 @@ def test_dirty_overlay_fan_summary_node_id_updates(repo_with_snapshot):
         encoding="utf-8",
     )
 
-    text, _, _ = api.addons.emit(
+    text, _, _ = emit(
         "fan_summary",
         repo_root=repo_root,
         callable_id=qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
@@ -881,7 +881,7 @@ def test_dirty_overlay_fan_summary_node_id_updates(repo_with_snapshot):
 
 def test_dirty_overlay_hotspot_summary_size_updates(repo_with_snapshot):
     repo_root, _snapshot_id = repo_with_snapshot
-    text, _, _ = api.addons.emit(
+    text, _, _ = emit(
         "hotspot_summary",
         repo_root=repo_root,
     )
@@ -897,7 +897,7 @@ def test_dirty_overlay_hotspot_summary_size_updates(repo_with_snapshot):
         encoding="utf-8",
     )
 
-    text, _, _ = api.addons.emit(
+    text, _, _ = emit(
         "hotspot_summary",
         repo_root=repo_root,
     )
@@ -915,7 +915,7 @@ def test_non_indexed_dirty_does_not_attach_overlay_warning(repo_with_snapshot):
     repo_root, _snapshot_id = repo_with_snapshot
     (repo_root / "README.md").write_text("dirty docs\n", encoding="utf-8")
 
-    text, _, _ = api.addons.emit(
+    text, _, _ = emit(
         "module_overview",
         repo_root=repo_root,
         module_id=qualify_repo_name(repo_root, "pkg.alpha"),
@@ -929,7 +929,7 @@ def test_out_of_scope_indexed_dirty_marks_diff_not_affected(repo_with_snapshot):
     repo_root, _snapshot_id = repo_with_snapshot
     (repo_root / "pkg/beta/__init__.py").write_text("x = 1\n", encoding="utf-8")
 
-    text, _, _ = api.addons.emit(
+    text, _, _ = emit(
         "module_overview",
         repo_root=repo_root,
         module_id=qualify_repo_name(repo_root, "pkg.alpha"),
@@ -958,7 +958,7 @@ def test_dirty_overlay_snapshot_provenance_marks_projection_not_supported(
         encoding="utf-8",
     )
 
-    text, _, _ = api.addons.emit(
+    text, _, _ = emit(
         "snapshot_provenance",
         repo_root=repo_root,
     )
@@ -1013,7 +1013,7 @@ def test_overlay_projection_status_summary_reports_dirty_overlay_modes(
         "def helper():\n    return 1\n\n\ndef helper2():\n    return 2\n",
         encoding="utf-8",
     )
-    text, _, _ = api.addons.emit(
+    text, _, _ = emit(
         "overlay_projection_status_summary",
         repo_root=repo_root,
     )
