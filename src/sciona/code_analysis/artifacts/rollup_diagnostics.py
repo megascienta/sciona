@@ -26,7 +26,12 @@ def ensure_rollup_diagnostics(diagnostics: dict[str, object] | None) -> dict[str
             "dropped_by_reason": {},
             "candidate_count_histogram": {},
             "record_drops": {},
-            "assembler_accepted_artifact_dropped": 0,
+            "observed_callsites": 0,
+            "persisted_callsites": 0,
+            "filtered_before_persist": 0,
+            "finalized_accepted_callsites": 0,
+            "finalized_dropped_callsites": 0,
+            "rescue_accepted_callsites": 0,
         },
     )
     return cast(dict[str, object], totals)
@@ -51,7 +56,12 @@ def ensure_caller_diagnostics(
             "dropped_by_reason": {},
             "candidate_count_histogram": {},
             "record_drops": {},
-            "assembler_accepted_artifact_dropped": 0,
+            "observed_callsites": 0,
+            "persisted_callsites": 0,
+            "filtered_before_persist": 0,
+            "finalized_accepted_callsites": 0,
+            "finalized_dropped_callsites": 0,
+            "rescue_accepted_callsites": 0,
         },
     )
     return entry
@@ -74,10 +84,30 @@ def record_resolution_drop(
 ) -> None:
     if caller_diag:
         _inc_map(caller_diag, "record_drops", reason)
-        _inc_scalar(caller_diag, "assembler_accepted_artifact_dropped", 1)
     if totals_diag:
         _inc_map(totals_diag, "record_drops", reason)
-        _inc_scalar(totals_diag, "assembler_accepted_artifact_dropped", 1)
+def record_callsite_flow(
+    caller_diag: dict[str, object],
+    totals_diag: dict[str, object],
+    *,
+    observed_callsites: int,
+    persisted_callsites: int,
+    finalized_accepted_callsites: int,
+    finalized_dropped_callsites: int,
+    rescue_accepted_callsites: int,
+) -> None:
+    filtered_before_persist = max(0, observed_callsites - persisted_callsites)
+    for target in (caller_diag, totals_diag):
+        _inc_scalar(target, "observed_callsites", observed_callsites)
+        _inc_scalar(target, "persisted_callsites", persisted_callsites)
+        _inc_scalar(target, "filtered_before_persist", filtered_before_persist)
+        _inc_scalar(
+            target, "finalized_accepted_callsites", finalized_accepted_callsites
+        )
+        _inc_scalar(target, "finalized_dropped_callsites", finalized_dropped_callsites)
+        _inc_scalar(target, "rescue_accepted_callsites", rescue_accepted_callsites)
+
+
 def _inc_scalar(target: dict[str, object], key: str, amount: int) -> None:
     if not target or not amount:
         return

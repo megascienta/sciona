@@ -34,6 +34,7 @@ from .rollup_diagnostics import (
     ensure_caller_diagnostics as _ensure_caller_diagnostics,
     ensure_rollup_diagnostics as _ensure_rollup_diagnostics,
     merge_resolution_stats as _merge_resolution_stats,
+    record_callsite_flow as _record_callsite_flow,
     record_resolution_drop as _record_resolution_drop,
 )
 
@@ -212,6 +213,22 @@ def write_call_artifacts(
                 snapshot_id=snapshot_id,
                 caller_id=caller_id,
             )
+        )
+        accepted_rows = [
+            row for row in filtered_callsite_rows if row[1] == "accepted" and row[2]
+        ]
+        dropped_rows = [row for row in filtered_callsite_rows if row[1] == "dropped"]
+        rescue_accepted = [
+            row for row in accepted_rows if row[3] == "export_chain_narrowed"
+        ]
+        _record_callsite_flow(
+            caller_diag,
+            diagnostics_totals,
+            observed_callsites=len(record.callee_identifiers),
+            persisted_callsites=len(filtered_callsite_rows),
+            finalized_accepted_callsites=len(accepted_rows),
+            finalized_dropped_callsites=len(dropped_rows),
+            rescue_accepted_callsites=len(rescue_accepted),
         )
         _merge_resolution_stats(caller_diag, diagnostics_totals, resolution_stats)
         if not callee_ids:

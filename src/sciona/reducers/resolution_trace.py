@@ -97,8 +97,19 @@ def render(
             "identifiers_total": int(diagnostics.get("identifiers_total") or 0),
             "accepted_identifiers": int(diagnostics.get("accepted_identifiers") or 0),
             "dropped_identifiers": int(diagnostics.get("dropped_identifiers") or 0),
-            "assembler_accepted_artifact_dropped": int(
-                diagnostics.get("assembler_accepted_artifact_dropped") or 0
+            "observed_callsites": int(diagnostics.get("observed_callsites") or 0),
+            "persisted_callsites": int(diagnostics.get("persisted_callsites") or 0),
+            "filtered_before_persist": int(
+                diagnostics.get("filtered_before_persist") or 0
+            ),
+            "finalized_accepted_callsites": int(
+                diagnostics.get("finalized_accepted_callsites") or 0
+            ),
+            "finalized_dropped_callsites": int(
+                diagnostics.get("finalized_dropped_callsites") or 0
+            ),
+            "rescue_accepted_callsites": int(
+                diagnostics.get("rescue_accepted_callsites") or 0
             ),
             "record_drops": _sorted_bucket_items(diagnostics.get("record_drops")),
         },

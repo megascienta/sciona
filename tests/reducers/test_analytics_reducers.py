@@ -381,8 +381,13 @@ def test_resolution_trace_uses_callsite_and_diagnostics(tmp_path):
                             "accepted_by_provenance": {"exact_qname": 1},
                             "dropped_by_reason": {"no_candidates": 1},
                             "candidate_count_histogram": {"1": 1, "2": 1},
+                            "observed_callsites": 2,
+                            "persisted_callsites": 2,
+                            "filtered_before_persist": 0,
+                            "finalized_accepted_callsites": 1,
+                            "finalized_dropped_callsites": 1,
+                            "rescue_accepted_callsites": 0,
                             "record_drops": {},
-                            "assembler_accepted_artifact_dropped": 0,
                         }
                     },
                 },
@@ -407,6 +412,12 @@ def test_resolution_trace_uses_callsite_and_diagnostics(tmp_path):
     assert payload["totals"] == {"eligible": 2, "accepted": 1, "dropped": 1}
     assert payload["accepted_by_provenance"][0] == {"name": "exact_qname", "count": 1}
     assert payload["dropped_by_reason"][0] == {"name": "no_candidates", "count": 1}
+    assert payload["diagnostics"]["observed_callsites"] == 2
+    assert payload["diagnostics"]["persisted_callsites"] == 2
+    assert payload["diagnostics"]["filtered_before_persist"] == 0
+    assert payload["diagnostics"]["finalized_accepted_callsites"] == 1
+    assert payload["diagnostics"]["finalized_dropped_callsites"] == 1
+    assert payload["diagnostics"]["rescue_accepted_callsites"] == 0
     assert payload["accepted_samples"][0]["identifier"] == "pkg.beta.worker"
     assert payload["dropped_samples"][0]["identifier"] == "pkg.unknown.missing"
     assert payload["dropped_samples"][0]["drop_reason"] == "no_candidates"

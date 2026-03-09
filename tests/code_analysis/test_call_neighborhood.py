@@ -386,9 +386,17 @@ def test_write_call_artifacts_rejects_unique_without_provenance_and_reports_diag
             assert histogram.get("1") == 1
             record_drops = caller_diag.get("record_drops") or {}
             assert record_drops.get("no_resolved_callees") == 1
-            assert caller_diag.get("assembler_accepted_artifact_dropped") == 1
+            assert caller_diag.get("observed_callsites") == 1
+            assert caller_diag.get("persisted_callsites") == 1
+            assert caller_diag.get("filtered_before_persist") == 0
+            assert caller_diag.get("finalized_accepted_callsites") == 0
+            assert caller_diag.get("finalized_dropped_callsites") == 1
             totals = diagnostics.get("totals") or {}
-            assert totals.get("assembler_accepted_artifact_dropped") == 1
+            assert totals.get("observed_callsites") == 1
+            assert totals.get("persisted_callsites") == 1
+            assert totals.get("filtered_before_persist") == 0
+            assert totals.get("finalized_accepted_callsites") == 0
+            assert totals.get("finalized_dropped_callsites") == 1
         finally:
             artifact_conn.close()
     finally:
