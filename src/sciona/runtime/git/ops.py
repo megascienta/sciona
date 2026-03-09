@@ -210,11 +210,22 @@ def ensure_clean_worktree(repo_root: Path) -> None:
         )
 
 
+def _validate_relative_git_path(relative_path: Path) -> str:
+    rel = relative_path.as_posix()
+    if relative_path.is_absolute():
+        raise GitError(f"Invalid path for git hash: {rel}")
+    if any(part == ".." for part in relative_path.parts):
+        raise GitError(f"Invalid path for git hash: {rel}")
+    if rel in {"", "."}:
+        raise GitError(f"Invalid path for git hash: {rel}")
+    return rel
+
+
 def tracked_paths(repo_root: Path) -> Set[str]:
     ensure_repo(repo_root)
-    output = run_git(["ls-files"], repo_root)
+    output = run_git(["ls-files", "-z"], repo_root)
     paths = set()
-    for line in output.splitlines():
+    for line in output.split("\x00"):
         normalized = line.strip()
         if normalized:
             paths.add(Path(normalized).as_posix())
@@ -223,7 +234,7 @@ def tracked_paths(repo_root: Path) -> Set[str]:
 
 def blob_sha(repo_root: Path, relative_path: Path) -> str:
     ensure_repo(repo_root)
-    rel = relative_path.as_posix()
+    rel = _validate_relative_git_path(relative_path)
     return run_git(["hash-object", "--no-filters", "--", rel], repo_root)
 
 
@@ -231,7 +242,7 @@ def blob_sha_batch(repo_root: Path, relative_paths: List[Path]) -> Dict[Path, st
     ensure_repo(repo_root)
     if not relative_paths:
         return {}
-    rel_paths = [path.as_posix() for path in relative_paths]
+    rel_paths = [_validate_relative_git_path(path) for path in relative_paths]
     for rel in rel_paths:
         if "\x00" in rel or "\n" in rel or "\r" in rel:
             raise GitError(f"Invalid path for git hash: {rel}")

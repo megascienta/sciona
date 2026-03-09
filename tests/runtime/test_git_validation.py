@@ -169,3 +169,40 @@ def test_blob_sha_batch_rejects_newline_in_path(tmp_path):
     write_and_commit_file(repo_root, "seed.txt", "seed\n", message="seed")
     with pytest.raises(GitError, match="Invalid path for git hash"):
         git_ops.blob_sha_batch(repo_root, [Path("bad\nname.py")])
+
+
+def test_tracked_paths_parses_nul_delimited_git_output(monkeypatch, tmp_path):
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    init_git_repo(repo_root)
+
+    def _fake_run_git(args, *_args, **_kwargs):
+        if args == ["--version"]:
+            return "git version 2.x"
+        assert args == ["ls-files", "-z"]
+        return "pkg/a.py\x00pkg/b.py\x00"
+
+    monkeypatch.setattr(git_ops_module, "run_git", _fake_run_git)
+    assert git_ops.tracked_paths(repo_root) == {"pkg/a.py", "pkg/b.py"}
+
+
+@pytest.mark.parametrize("bad_path", [Path("/tmp/abs.py"), Path("../escape.py")])
+def test_blob_sha_rejects_non_repo_relative_paths(tmp_path, bad_path):
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    init_git_repo(repo_root)
+    write_and_commit_file(repo_root, "seed.txt", "seed\n", message="seed")
+
+    with pytest.raises(GitError, match="Invalid path for git hash"):
+        git_ops.blob_sha(repo_root, bad_path)
+
+
+@pytest.mark.parametrize("bad_path", [Path("/tmp/abs.py"), Path("../escape.py")])
+def test_blob_sha_batch_rejects_non_repo_relative_paths(tmp_path, bad_path):
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    init_git_repo(repo_root)
+    write_and_commit_file(repo_root, "seed.txt", "seed\n", message="seed")
+
+    with pytest.raises(GitError, match="Invalid path for git hash"):
+        git_ops.blob_sha_batch(repo_root, [bad_path])
