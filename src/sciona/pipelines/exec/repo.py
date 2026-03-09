@@ -78,8 +78,24 @@ def status_repo(repo_state: RepoState) -> StatusResult:
 
 def clean_repo(repo_state: RepoState) -> bool:
     sciona_dir = repo_state.sciona_dir
+    expected_dir = repo_state.repo_root / ".sciona"
+    if sciona_dir != expected_dir:
+        raise ConfigError(
+            "Refusing to clean a non-canonical SCIONA directory.",
+            code="unsafe_clean_path",
+        )
     if not sciona_dir.exists():
         return False
+    if sciona_dir.is_symlink():
+        raise ConfigError(
+            "Refusing to clean a symlinked SCIONA directory.",
+            code="unsafe_clean_path",
+        )
+    if sciona_dir.resolve() != expected_dir.resolve():
+        raise ConfigError(
+            "Refusing to clean a SCIONA directory outside the repository root.",
+            code="unsafe_clean_path",
+        )
     shutil.rmtree(sciona_dir)
     return True
 
