@@ -11,7 +11,7 @@ from typing import Sequence
 
 @dataclass(frozen=True)
 class CallExtractionRecord:
-    """Call extraction metadata produced during ingestion."""
+    """Artifact-stage callsite work item derived from observed callsite data."""
 
     caller_structural_id: str
     caller_qualified_name: str
