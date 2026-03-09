@@ -2,29 +2,72 @@
     <img src="assets/logo.jpg" alt="SCIONA logo" width="240">
 </p>
 
-### Deterministic structural grounding for LLM-assisted development in medium-to-large codebases
+### Deterministic structural anchor for LLM-assisted development
 
-SCIONA builds a **deterministic structural index (SCI)** for a *git* repository. It captures what exists in the code and how entities are structurally connected. SCIONA is **snapshot-based, reducer-driven, and LLM-agnostic**. It does not execute code or perform semantic inference. Instead, SCIONA produces explicit structural representations derived from [tree-sitter](https://tree-sitter.github.io/tree-sitter/) parsing. Analysis is static and source-only across the supported languages. Reducers serve as the source of structural evidence, rendering reproducible  facts from a committed snapshot. **This deterministic representation can be used to stabilize tooling workflows, including LLM-assisted development.**
+SCIONA builds a **deterministic structural index (SCI)** for a *git* repository. It runs locally and analyzes the source code of the last committed snapshot using [tree-sitter](https://tree-sitter.github.io/tree-sitter/) to extract structural relationships between code entities. The analysis is **static and source-only** across the supported languages (currently Python, Java, TypeScript and JavaScript).
+
+In large, long-lived codebases we repeatedly observed the same pattern: LLM assistance initially improves productivity but gradually becomes inconsistent. Earlier assumptions drift and structural constraints are gradually lost. The model continues to generate plausible responses that no longer reflect the actual code. **This is not primarily an LLM failure. It is a context stability problem**.
+
+Many LLM tools rely on embeddings, semantic retrieval, dynamically assembled context, or extensive prompt and agent configuration. While powerful, these approaches can be difficult to reproduce and hard to constrain across long sessions or refactors. **SCIONA takes a deliberately different path: it provides a stable structural snapshot that downstream tools can rely on.**
+
+Rather than reconstructing repository structure heuristically, tools can query deterministic reducer outputs. A **reducer** is a deterministic query over the SCIONA structural index that returns a reproducible structural payload for a given scope. Conceptually, SCIONA compresses repository structure into deterministic facts that tools can query directly instead of repeatedly reconstructing structure from raw source code. **SCIONA exposes repository structure as deterministic queries over a structural index.**
+
+**SCIONA is intentionally limited in scope: it provides structure — not interpretation.** This deterministic representation is **designed to anchor and stabilize LLM-assisted development workflows.**
+
+Although motivated by LLM-assisted workflows, SCIONA itself is **LLM-agnostic infrastructure**. Any tool that requires deterministic structural information about a repository can use SCIONA.
 
 ![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Status](https://img.shields.io/badge/status-active%20development-orange)
 
-## Why SCIONA exists
-
-When working with large, long-lived codebases, we repeatedly observed the same pattern: LLM assistance initially improves productivity, but gradually becomes inconsistent. Earlier assumptions drift and structural constraints are gradually forgotten. The model continues to generate plausible responses that no longer reflect the actual code. **This is not primarily an LLM failure. It is a context stability problem**.
-
-In real software systems, correctness often depends on structural relationships. Most LLM tooling relies on embeddings, semantic retrieval, or dynamically assembled  context. While powerful, these approaches can be difficult to reproduce and hard to constrain across long sessions or refactors.
-
-SCIONA takes a deliberately different path: it provides a stable structural snapshot that downstream tools can rely on. Rather than reconstructing structure heuristically, tools can reason over deterministic reducer outputs. **SCIONA is intentionally limited in scope. It provides structure - not interpretation.**
-
 ## How SCIONA can be used
 
-SCIONA can be used directly via its CLI or integrated into LLM-assisted workflows. **During initialization, SCIONA optionally auto-generates an `AGENTS.md` file in the repository root.** This file acts as a control surface for LLM copilots by explicitly specifying how SCIONA should be used during code reasoning. In this mode, the copilot is instructed to reason over reducer outputs instead of reconstructing repository structure heuristically from source text. Initialization can also optionally install a post-commit hook to keep the SCIONA snapshot metadata up to date.
+SCIONA is designed for workflows where tools must reliably reason about repository structure: grounding LLM code assistants, deterministic refactoring analysis, repository auditing and inspection, building code intelligence tools, stabilizing long-running agent workflows.
+
+SCIONA can be used directly via its CLI or integrated into LLM-assisted workflows. **During initialization, SCIONA can auto-generate an `AGENTS.md` file in the repository root.** This file acts as a control surface for LLM copilots, specifying how SCIONA should be used during code reasoning. **In this mode, the copilot is instructed to reason over reducer outputs instead of reconstructing repository structure heuristically from source text.** Initialization can also install a post-commit hook to automatically keep the SCIONA snapshot metadata up to date.
+
+## Quick start
+
+```bash
+# Install
+pip install git+https://github.com/megascienta/sciona@vX.Y.Z
+
+# Initialize in a repository
+cd /path/to/repo
+sciona init
+
+# Build the structural index
+sciona build
+
+# Explore available structural queries
+sciona reducer list
+
+# SCIONA generates AGENTS.md so LLM assistants can reason over reducer outputs
+```
 
 ## Supported languages
 
-Built-in analyzers currently include **Python**, **TypeScript**, **JavaScript**, and **Java**. Enable languages in `.sciona/config.yaml` after `sciona init`.
+Built-in analyzers currently include **Python**, **Java**, **TypeScript** and **JavaScript**.  Indexed languages can be enabled during initialization or added later in `.sciona/config.yaml`.
+
+## SCIONA workflow
+
+```
+Tracked source at committed snapshot
+     ↓
+Tree-sitter parsing
+     ↓
+Deterministic structural extraction
+     ↓
+Structural snapshot (SCI)
+nodes • containment • imports • inheritance • implementation
+     ↓
+Derived artifact relations
+call-sites • graph rollups • diagnostics
+     ↓
+Reducer
+     ↓
+CLI / LLM workflows / Agents
+```
 
 ## Snapshot model
 
@@ -38,7 +81,7 @@ SCIONA indexes the **last committed snapshot**. Reducers are evaluated against t
 
 ## Structural Resolution Performance
 
-SCIONA has been tested on several large open-source repositories including **[VSCode](https://github.com/microsoft/vscode), [SymPy](https://github.com/sympy/sympy), [Guava](https://github.com/google/guava), [Webpack](https://github.com/webpack/webpack), [Airbyte](https://github.com/airbytehq/airbyte), and [NestJS](https://github.com/nestjs/nest)**. Validation reports, methodology description, and the full dataset are available in [`validations/build_status_reports/`](validations/build_status_reports/). That directory currently contains 11 JSON payloads; the aggregate figures in [`status_report.md`](validations/build_status_reports/status_report.md) are computed over 10 unique repositories because `vccode.json` is a legacy VSCode-named artifact and `vscode.json` is the canonical VSCode entry.
+SCIONA has been tested on several large open-source repositories including **[VSCode](https://github.com/microsoft/vscode), [SymPy](https://github.com/sympy/sympy), [Guava](https://github.com/google/guava), [Webpack](https://github.com/webpack/webpack), [Airbyte](https://github.com/airbytehq/airbyte), and [NestJS](https://github.com/nestjs/nest)**. Validation reports, methodology description, and the full dataset are available in [`validations/build_status_reports/`](validations/build_status_reports/).
 
 Across these repositories SCIONA processed **27,700 files**, extracted **304,824 structural nodes**, and analyzed **265,110 call sites**, producing **255,904 deterministic call edges**. This corresponds to an overall **~96.5% in-repository call resolution rate**. Resolution rates remain consistently high across supported languages, with **~98% for Python**, **~97.6% for TypeScript**, **~97.3% for JavaScript**, and **~90.6% for Java**.
 
@@ -49,11 +92,11 @@ Examples from large repositories include:
 
 ## Project Status
 
-SCIONA was developed as an internal tool at MegaScienta to support LLM-assisted development in large repositories. It has been used in day-to-day engineering workflows and validated on several large open-source codebases. The project is now released publicly to encourage broader experimentation and community feedback. While the core architecture is stable and actively used, additional validation across diverse repositories and workflows is ongoing. *Issues, discussions, and field experience reports are very welcome.*
+SCIONA was developed as an internal tool at MegaScienta to support LLM-assisted development in large scientific and engineering repositories. It has been used in day-to-day workflows and validated on several large open-source codebases. The project is now released publicly to encourage broader experimentation and community feedback. While the core architecture is stable and actively used, additional validation across diverse repositories and workflows is ongoing. *Issues, discussions, and field experience reports are very welcome.*
 
 ## Project Governance
 
-SCIONA is developed and maintained by Dmitry Chigrin as part of independent research and engineering under the MegaScienta brand. Development combined conventional tooling with LLM-assisted programming; as the project matured, SCIONA was routinely used to ground LLM reasoning over its own repository. Final design decisions, integration, and validation remain the responsibility of the maintainer.
+SCIONA is developed and maintained by Dmitry Chigrin as part of independent research and engineering under the MegaScienta brand. Development combined conventional tooling with LLM-assisted programming; as the project matured, SCIONA was routinely used to anchor LLM reasoning over its own repository.
 
 ## Installation
 
@@ -75,20 +118,6 @@ git clone https://github.com/megascienta/sciona
 cd sciona
 pip install -e ".[dev]"
 pytest -q
-```
-
-## Quick start
-
-```bash
-cd /path/to/repo
-sciona init
-$EDITOR .sciona/config.yaml   # enable languages
-sciona build
-sciona status
-# machine-readable status payload
-sciona status --json
-# write full status payload to file
-sciona status --output .sciona/status-report.json
 ```
 
 ## Reducers usage
@@ -218,7 +247,7 @@ sciona reducer --id symbol_references [--query QUERY] [--kind KIND] [--module-id
 `call_resolution_drop_summary` - Summarize artifact-layer dropped callsite outcomes by reason, language, and scope for fast call-resolution triage.
 
 ```bash
-sciona reducer --id call_resolution_quality [--module-id MODULE_ID] [--language LANGUAGE] [--limit LIMIT]
+sciona reducer --id call_resolution_drop_summary [--module-id MODULE_ID] [--language LANGUAGE] [--limit LIMIT]
 ```
 
 `call_resolution_quality` - Aggregated call-resolution quality diagnostics derived from callsite telemetry. Use to understand accepted vs dropped callsite distribution and dominant drop reasons.
