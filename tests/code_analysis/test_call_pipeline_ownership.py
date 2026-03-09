@@ -64,7 +64,7 @@ def _callable_node(qname: str) -> SemanticNodeRecord:
     )
 
 
-def _observed_core(analysis: AnalysisResult) -> tuple[list[str], dict[str, object]]:
+def _core_observations(analysis: AnalysisResult) -> tuple[list[str], dict[str, object]]:
     assembler = StructuralAssembler(_DummyConn(), _DummyStore())
     observed = assembler._normalize_call_records(analysis, _snapshot())
     if not observed.call_records:
@@ -102,7 +102,7 @@ def test_core_preserves_observed_callsites_while_artifacts_finalize_calls() -> N
         ],
     )
 
-    core_callees, core_diag = _observed_core(analysis)
+    core_callees, core_diag = _core_observations(analysis)
     resolved_ids, _resolved_names, artifact_stats, callsite_rows = _resolve_callees(
         ("helper",),
         {"helper": ["alpha_helper", "beta_helper"]},
@@ -143,7 +143,7 @@ def test_core_preserves_repo_wide_unresolved_observation_for_artifact_stage() ->
         ],
     )
 
-    core_callees, core_diag = _observed_core(analysis)
+    core_callees, core_diag = _core_observations(analysis)
     resolved_ids, _resolved_names, artifact_stats, callsite_rows = _resolve_callees(
         ("pkg.shared.helper",),
         {"pkg.shared.helper": ["shared_helper"]},
