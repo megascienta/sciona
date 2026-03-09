@@ -2,7 +2,7 @@
     <img src="assets/logo.jpg" alt="SCIONA logo" width="240">
 </p>
 
-### Deterministic structural context for LLM coding workflows
+### Deterministic structural context for LLM code assistants
 
 In large, long-lived codebases we repeatedly observe the same pattern: LLM assistance initially improves productivity but gradually becomes inconsistent. Earlier assumptions drift and structural constraints are lost, and the model continues generating plausible responses that no longer reflect the actual code. **This is not primarily an LLM failure. It is a context stability problem.**
 
