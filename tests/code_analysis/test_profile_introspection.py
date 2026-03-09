@@ -282,3 +282,18 @@ def test_profile_inspector_loaders_are_memoized(tmp_path: Path) -> None:
     java_first = _java_inspector_cached(root_key, "pkg/A.java")
     java_second = _java_inspector_cached(root_key, "pkg/A.java")
     assert java_first is java_second
+
+
+def test_profile_inspector_loaders_reject_absolute_and_traversing_paths(tmp_path: Path) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    (repo_root / "pkg").mkdir()
+    (repo_root / "pkg" / "a.py").write_text("def f():\n    return 1\n", encoding="utf-8")
+    outside = tmp_path / "secret.py"
+    outside.write_text("print('secret')\n", encoding="utf-8")
+
+    root_key = str(repo_root.resolve())
+    _python_inspector_cached.cache_clear()
+
+    assert _python_inspector_cached(root_key, str(outside)) is None
+    assert _python_inspector_cached(root_key, "../secret.py") is None

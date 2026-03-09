@@ -12,9 +12,24 @@ from typing import Optional
 from .profile_errors import QueryCompileError, TreeSitterBootstrapError
 
 
+def _resolve_safe_profile_path(root_key: str, relative_path: str) -> Path | None:
+    candidate = Path(relative_path)
+    if candidate.is_absolute() or any(part == ".." for part in candidate.parts):
+        return None
+    root = Path(root_key).resolve()
+    path = (root / candidate).resolve()
+    try:
+        path.relative_to(root)
+    except ValueError:
+        return None
+    return path
+
+
 @lru_cache(maxsize=512)
 def _python_inspector_cached(root_key: str, relative_path: str) -> Optional[object]:
-    path = Path(root_key) / relative_path
+    path = _resolve_safe_profile_path(root_key, relative_path)
+    if path is None:
+        return None
     try:
         source = path.read_text(encoding="utf-8")
     except OSError:
@@ -29,7 +44,9 @@ def _python_inspector_cached(root_key: str, relative_path: str) -> Optional[obje
 
 @lru_cache(maxsize=512)
 def _typescript_inspector_cached(root_key: str, relative_path: str) -> Optional[object]:
-    path = Path(root_key) / relative_path
+    path = _resolve_safe_profile_path(root_key, relative_path)
+    if path is None:
+        return None
     try:
         source = path.read_text(encoding="utf-8")
     except OSError:
@@ -44,7 +61,9 @@ def _typescript_inspector_cached(root_key: str, relative_path: str) -> Optional[
 
 @lru_cache(maxsize=512)
 def _javascript_inspector_cached(root_key: str, relative_path: str) -> Optional[object]:
-    path = Path(root_key) / relative_path
+    path = _resolve_safe_profile_path(root_key, relative_path)
+    if path is None:
+        return None
     try:
         source = path.read_text(encoding="utf-8")
     except OSError:
@@ -72,7 +91,9 @@ def _javascript_inspector_cached(root_key: str, relative_path: str) -> Optional[
 
 @lru_cache(maxsize=512)
 def _java_inspector_cached(root_key: str, relative_path: str) -> Optional[object]:
-    path = Path(root_key) / relative_path
+    path = _resolve_safe_profile_path(root_key, relative_path)
+    if path is None:
+        return None
     try:
         source = path.read_text(encoding="utf-8")
     except OSError:
