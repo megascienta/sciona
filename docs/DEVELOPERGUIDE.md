@@ -190,14 +190,18 @@ Supported structural carriers:
   still using CoreDB for identifier resolution and committed structural context
 - Reducer-facing `CALLS` is finalized in ArtifactDB from artifact analysis, not
   from raw analyzer output alone
-- Core-side `AnalysisResult.call_records` normalization in
-  `StructuralAssembler` is intentionally file-local and provisional; it exists
-  for deterministic ingestion-time normalization and diagnostics, not as the
-  authoritative repo-wide call graph
-- Artifact call finalization resolves against repo-wide committed structural
-  context and remains the authoritative source for reducer-facing `CALLS`
-- `call_sites` is an artifact-layer table for accepted/dropped call outcomes and
-  diagnostics
+- Core/analyzer execution MAY observe the full syntactic callsite stream during
+  extraction, but CoreDB MUST NOT resolve, accept, reject, or persist calls as
+  structural facts
+- Artifact processing owns pre-persistence callsite filtering and remains the
+  authoritative source for reducer-facing `CALLS`
+- `call_sites` is an artifact-layer filtered persisted working set of in-scope
+  candidate-bearing callsite outcomes used for reporting, diagnostics, and
+  final call derivation; it is not the raw observed superset
+- Standard-library, clearly external, and other out-of-scope observed callsites
+  may be excluded before `call_sites` persistence
+- `external_likely` is a reporting classification over persisted dropped
+  artifact callsite rows, not evidence that all external callsites are stored
 - synthetic navigation nodes must use collision-safe identities that do not
   shadow or reuse canonical structural identities
 - Fingerprint reuse can skip re-indexing even when a prior committed snapshot

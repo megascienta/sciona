@@ -165,23 +165,27 @@ Attribution:
 
 CoreDB structural build:
 
-- Candidate resolution may produce provisional outcomes.
-- Required resolution stages (receiver/instance mapping, alias narrowing, classifier
-  scoped fallback, module scoped fallback) are executed in language-specific
-  resolver paths before structural normalization completes.
-- Strict candidate selection is the final acceptance/materialization gate and
-  MUST NOT be interpreted as the full resolution-stage pipeline.
-- Non-accepted candidates (unresolved, ambiguous, external, disallowed provenance)
-  MUST be dropped.
+- CoreDB structural build MUST NOT resolve, accept, reject, or materialize
+  calls as structural facts.
+- CoreDB MAY observe or carry transient raw callsite observations during
+  extraction/build execution.
+- CoreDB MUST NOT persist reducer-facing `CALLS`.
+- CoreDB MUST NOT persist `CALL_SITES`.
 
 Artifact-finalized call projection:
 
 - Reducer-facing `CALLS` is finalized in ArtifactDB immediately after the
   committed CoreDB snapshot is built.
+- Artifact processing MAY start from the full observed syntactic callsite set
+  emitted by analyzers/build execution.
+- Artifact processing owns all pre-persistence callsite filtering.
+- Promotion from observed callsites to persisted ArtifactDB `CALL_SITES`, and
+  from persisted `CALL_SITES` to reducer-facing `CALLS`, MUST occur only in the
+  artifact pipeline.
 - Artifact finalization re-analyzes callsites against the committed snapshot and
   persists deterministic reducer-facing call artifacts.
 - Artifact finalization MAY accept artifact-only rescue provenance, including
-  `export_chain_narrowed`, that is not part of the CoreDB structural gate.
+  `export_chain_narrowed`, that is not part of any CoreDB structural fact.
 - Reducer-facing `CALLS` MUST represent syntactic call expressions only.
 - Reducer-facing `CALLS` MUST NOT represent attribute reads/writes or other
   non-call expressions.
@@ -232,24 +236,32 @@ Overlay contract note:
 
 - is an artifact-layer callsite table, not a structural entity table.
 - MUST NOT define structural nodes or CoreDB structural edges.
+- is the filtered persisted artifact working set for call analysis, reporting,
+  and final call derivation; it is not required to contain the raw full
+  observed callsite superset.
+- MAY exclude standard-library, clearly external, or otherwise out-of-scope
+  observed callsites before persistence.
 - MAY store accepted and dropped callsite outcomes used for diagnostics,
   reporting, and artifact call finalization.
 - MAY persist dropped rows whose downstream reporting classification is
   artifact-only metadata such as `external_likely`.
 - MAY include derived artifact-layer acceptance provenance not present in the
-  CoreDB structural gate.
+  raw observed callsite stream.
 
 ArtifactDB `CALLS`:
 
 - is the reducer-facing finalized call graph.
-- is derived after CoreDB snapshot creation from artifact call analysis plus
-  committed structural context.
+- is derived after CoreDB snapshot creation from persisted ArtifactDB
+  `CALL_SITES` plus committed structural context.
 - MUST remain deterministic with respect to the committed CoreDB snapshot and
   repository worktree state at artifact build time.
 - MUST include only in-repo callable targets.
 
 Reporting classifications on dropped callsites (for example `external_likely`)
 are artifact metadata only and MUST NOT be restated as CoreDB structural facts.
+- `external_likely` is a reporting/quality classification over persisted dropped
+  artifact callsite rows; it is not evidence that all external callsites are
+  stored.
 
 Reducer read model:
 
