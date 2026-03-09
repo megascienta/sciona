@@ -122,6 +122,27 @@ Implementation notes:
 - Reducer-facing `CALLS`, `call_sites`, graph edges, fan stats, and rollups are
   finalized in ArtifactDB, not served directly from CoreDB `edges`
 
+Supported structural carriers:
+
+- Python structural nodes are limited to
+  `decorated_definition`, `class_definition`, `function_definition`,
+  `assignment`, and `augmented_assignment`; the only supported wrapper carrier
+  is `expression_statement` for stable bound-callable assignments
+- TypeScript structural nodes are limited to class-like declarations,
+  callable declarations, `variable_declarator`, `public_field_definition`, and
+  `assignment_expression`; supported wrapper carriers are `export_statement`,
+  `statement_block`, `class_body`, `lexical_declaration`, and
+  `expression_statement`
+- JavaScript structural nodes are limited to class/function declarations,
+  method definitions, stable binding nodes, and `assignment_expression`;
+  supported wrapper carriers are `export_statement`, `statement_block`,
+  `class_body`, `lexical_declaration`, and `expression_statement`
+- Java structural traversal is direct-only; it does not rely on wrapper carrier
+  nodes beyond the declared structural node types
+- Unsupported wrappers and callback-only containers are intentionally
+  fail-closed: they may suppress structural discovery until an explicit query
+  surface is added
+
 ## Build Lifecycle
 
 `src/sciona/pipelines/exec/build.py` is the current high-level build path:

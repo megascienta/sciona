@@ -12,6 +12,16 @@
       "skip_calls": [
         "class_definition"
       ],
+      "structural_nodes": [
+        "assignment",
+        "augmented_assignment",
+        "class_definition",
+        "decorated_definition",
+        "function_definition"
+      ],
+      "structural_carriers": [
+        "expression_statement"
+      ],
       "profile": {
         "functions": [
           "async_function_definition",
@@ -55,6 +65,25 @@
         "class_declaration",
         "class_expression"
       ],
+      "structural_nodes": [
+        "abstract_class_declaration",
+        "abstract_method_signature",
+        "assignment_expression",
+        "class_declaration",
+        "function_declaration",
+        "interface_declaration",
+        "method_definition",
+        "method_signature",
+        "public_field_definition",
+        "variable_declarator"
+      ],
+      "structural_carriers": [
+        "class_body",
+        "export_statement",
+        "expression_statement",
+        "lexical_declaration",
+        "statement_block"
+      ],
       "profile": {
         "functions": [
           "abstract_method_signature",
@@ -97,6 +126,21 @@
         "class_declaration",
         "class_expression"
       ],
+      "structural_nodes": [
+        "assignment_expression",
+        "class_declaration",
+        "field_definition",
+        "function_declaration",
+        "method_definition",
+        "variable_declarator"
+      ],
+      "structural_carriers": [
+        "class_body",
+        "export_statement",
+        "expression_statement",
+        "lexical_declaration",
+        "statement_block"
+      ],
       "profile": {
         "functions": [
           "function_declaration",
@@ -134,6 +178,17 @@
         "interface_declaration",
         "record_declaration"
       ],
+      "structural_nodes": [
+        "class_declaration",
+        "compact_constructor_declaration",
+        "constructor_declaration",
+        "enum_declaration",
+        "field_declaration",
+        "interface_declaration",
+        "method_declaration",
+        "record_declaration"
+      ],
+      "structural_carriers": [],
       "profile": {
         "functions": [
           "compact_constructor_declaration",

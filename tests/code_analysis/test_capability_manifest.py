@@ -45,3 +45,14 @@ def test_capability_manifest_declares_javascript_import_and_require_surfaces() -
     javascript = manifest["queries"]["javascript"]
     assert javascript["dynamic_imports"] == ["call_expression"]
     assert javascript["require_declarations"] == ["lexical_declaration"]
+
+
+def test_capability_manifest_declares_structural_carriers() -> None:
+    manifest = build_capability_manifest()
+    python = manifest["queries"]["python"]
+    typescript = manifest["queries"]["typescript"]
+    java = manifest["queries"]["java"]
+
+    assert python["structural_carriers"] == ["expression_statement"]
+    assert "statement_block" in typescript["structural_carriers"]
+    assert java["structural_carriers"] == []

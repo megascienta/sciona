@@ -26,6 +26,10 @@ def _build_query_surfaces() -> dict[str, dict[str, object]]:
             "imports": sorted(query_surface.PYTHON_IMPORT_NODE_TYPES),
             "calls": sorted(query_surface.PYTHON_CALL_NODE_TYPES),
             "skip_calls": sorted(query_surface.PYTHON_SKIP_CALL_NODE_TYPES),
+            "structural_nodes": sorted(query_surface.PYTHON_STRUCTURAL_NODE_TYPES),
+            "structural_carriers": sorted(
+                query_surface.PYTHON_STRUCTURAL_CARRIER_NODE_TYPES
+            ),
             "profile": {
                 "functions": sorted(profile_query_surface.PYTHON_PROFILE_FUNCTION_NODE_TYPES),
                 "classifiers": sorted(
@@ -43,6 +47,10 @@ def _build_query_surfaces() -> dict[str, dict[str, object]]:
             ),
             "calls": sorted(query_surface.TYPESCRIPT_CALL_NODE_TYPES),
             "skip_calls": sorted(query_surface.TYPESCRIPT_SKIP_CALL_NODE_TYPES),
+            "structural_nodes": sorted(query_surface.TYPESCRIPT_STRUCTURAL_NODE_TYPES),
+            "structural_carriers": sorted(
+                query_surface.TYPESCRIPT_STRUCTURAL_CARRIER_NODE_TYPES
+            ),
             "profile": {
                 "functions": sorted(
                     profile_query_surface.TYPESCRIPT_PROFILE_FUNCTION_NODE_TYPES
@@ -64,6 +72,10 @@ def _build_query_surfaces() -> dict[str, dict[str, object]]:
             ),
             "calls": sorted(query_surface.JAVASCRIPT_CALL_NODE_TYPES),
             "skip_calls": sorted(query_surface.JAVASCRIPT_SKIP_CALL_NODE_TYPES),
+            "structural_nodes": sorted(query_surface.JAVASCRIPT_STRUCTURAL_NODE_TYPES),
+            "structural_carriers": sorted(
+                query_surface.JAVASCRIPT_STRUCTURAL_CARRIER_NODE_TYPES
+            ),
             "profile": {
                 "functions": sorted(
                     profile_query_surface.JAVASCRIPT_PROFILE_FUNCTION_NODE_TYPES
@@ -82,6 +94,8 @@ def _build_query_surfaces() -> dict[str, dict[str, object]]:
             "imports": sorted(query_surface.JAVA_IMPORT_NODE_TYPES),
             "calls": sorted(query_surface.JAVA_CALL_NODE_TYPES),
             "skip_calls": sorted(query_surface.JAVA_SKIP_CALL_NODE_TYPES),
+            "structural_nodes": sorted(query_surface.JAVA_STRUCTURAL_NODE_TYPES),
+            "structural_carriers": sorted(query_surface.JAVA_STRUCTURAL_CARRIER_NODE_TYPES),
             "profile": {
                 "functions": sorted(profile_query_surface.JAVA_PROFILE_FUNCTION_NODE_TYPES),
                 "classifiers": sorted(
