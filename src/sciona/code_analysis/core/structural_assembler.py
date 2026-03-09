@@ -82,7 +82,8 @@ class StructuralAssembler:
         analysis = self._normalize_call_records(analysis, file_snapshot)
         self._validate_lexical_containment(analysis)
         nodes = sorted(
-            analysis.nodes, key=lambda node: (node.node_type, node.qualified_name)
+            analysis.nodes,
+            key=lambda node: (node.file_path.as_posix(), node.qualified_name),
         )
         edges = sorted(
             analysis.edges,

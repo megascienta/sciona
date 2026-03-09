@@ -131,6 +131,74 @@ def test_persist_analysis_sorts_edges_by_source_target_edge_type(monkeypatch) ->
     ]
 
 
+def test_persist_analysis_sorts_nodes_by_file_path_then_qualified_name(monkeypatch) -> None:
+    assembler = StructuralAssembler(_DummyConn(), _DummyStore())
+    captured: list[str] = []
+
+    def _fake_emit_structural_node(node, _snapshot_id):
+        captured.append(node.qualified_name)
+        return f"id::{node.qualified_name}"
+
+    monkeypatch.setattr(assembler, "_emit_structural_node", _fake_emit_structural_node)
+    monkeypatch.setattr(assembler, "_emit_node_instances", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(assembler, "_emit_edges", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(assembler, "_validate_lexical_containment", lambda _analysis: None)
+
+    nodes = [
+        SemanticNodeRecord(
+            language="python",
+            node_type="callable",
+            qualified_name="pkg.zeta.run",
+            display_name="run",
+            file_path=Path("pkg/zeta.py"),
+            start_line=1,
+            end_line=1,
+        ),
+        SemanticNodeRecord(
+            language="python",
+            node_type="callable",
+            qualified_name="pkg.alpha.run",
+            display_name="run",
+            file_path=Path("pkg/alpha.py"),
+            start_line=1,
+            end_line=1,
+        ),
+        SemanticNodeRecord(
+            language="python",
+            node_type="module",
+            qualified_name="pkg.alpha",
+            display_name="alpha",
+            file_path=Path("pkg/alpha.py"),
+            start_line=1,
+            end_line=1,
+        ),
+    ]
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=Path("pkg/alpha.py"),
+            relative_path=Path("pkg/alpha.py"),
+            language="python",
+        ),
+        file_id="f1",
+        blob_sha="deadbeef",
+        size=0,
+        line_count=1,
+        content=b"",
+    )
+
+    assembler.persist_analysis(
+        snapshot_id="s1",
+        analysis=AnalysisResult(nodes=nodes, edges=[], call_records=[]),
+        file_snapshot=snapshot,
+    )
+
+    assert captured == [
+        "pkg.alpha",
+        "pkg.alpha.run",
+        "pkg.zeta.run",
+    ]
+
+
 def test_normalize_call_records_strict_drops_unindexed_dotted_identifier() -> None:
     assembler = StructuralAssembler(_DummyConn(), _DummyStore())
     analysis = AnalysisResult(
