@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import typer
 
-from .. import internal_api as api_cli
+from .. import repo_ops
 from ..support.utils import cli_call
 from ..support import render as cli_render
 
@@ -22,8 +22,8 @@ def register_build(app: typer.Typer) -> None:
         ),
     ) -> None:
         """Create a new snapshot and ingest enabled languages (clean worktree required)."""
-        result = cli_call(lambda: api_cli.build(force_rebuild=force_rebuild))
-        summary = cli_call(api_cli.snapshot_report, snapshot_id=result.snapshot_id)
+        result = cli_call(lambda: repo_ops.build(force_rebuild=force_rebuild))
+        summary = cli_call(repo_ops.snapshot_report, snapshot_id=result.snapshot_id)
         payload = dict(result.__dict__)
         payload["summary"] = summary
         cli_render.emit(cli_render.render_build(payload))

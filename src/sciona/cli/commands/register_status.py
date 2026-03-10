@@ -12,7 +12,7 @@ from typing import Optional
 
 import typer
 
-from .. import internal_api as api_cli
+from .. import repo_ops
 from ..support.utils import (
     cli_call,
     emit_dirty_worktree_warning,
@@ -47,14 +47,14 @@ def register_status(app: typer.Typer) -> None:
         ),
     ) -> None:
         """Show SCIONA status for the current repository (warns if dirty)."""
-        status_result = cli_call(api_cli.status)
+        status_result = cli_call(repo_ops.status)
         export_mode = bool(json_output or output is not None)
         detailed = bool(full or verbose) if not export_mode else True
         include_failure_reasons = bool(detailed or export_mode)
         summary = None
         if status_result.latest_snapshot:
             summary = cli_call(
-                api_cli.snapshot_report,
+                repo_ops.snapshot_report,
                 snapshot_id=status_result.latest_snapshot,
                 include_failure_reasons=include_failure_reasons,
             )
@@ -101,9 +101,9 @@ def register_status(app: typer.Typer) -> None:
         ),
     ) -> None:
         """Remove SCIONA state and managed integrations for the current repository."""
-        repo_root = cli_call(api_cli.get_repo_root)
-        sciona_dir = api_cli.get_sciona_dir(repo_root)
-        removed = cli_call(api_cli.clean, repo_root)
+        repo_root = cli_call(repo_ops.get_repo_root)
+        sciona_dir = repo_ops.get_sciona_dir(repo_root)
+        removed = cli_call(repo_ops.clean, repo_root)
         cleaned_any = False
         if removed:
             typer.echo(f"Removed {sciona_dir}")
@@ -115,8 +115,8 @@ def register_status(app: typer.Typer) -> None:
             )
 
         if hooks:
-            hook_before = cli_call(api_cli.commit_hook_status, repo_root)
-            cli_call(api_cli.remove_commit_hook, repo_root)
+            hook_before = cli_call(repo_ops.commit_hook_status, repo_root)
+            cli_call(repo_ops.remove_commit_hook, repo_root)
             if hook_before.installed:
                 typer.echo(f"Removed managed SCIONA post-commit hook block from {hook_before.hook_path}")
                 cleaned_any = True
@@ -127,7 +127,7 @@ def register_status(app: typer.Typer) -> None:
                 )
 
         if agents:
-            removed_agents = cli_call(api_cli.clean_agents, repo_root)
+            removed_agents = cli_call(repo_ops.clean_agents, repo_root)
             if removed_agents:
                 typer.echo("Removed SCIONA-managed AGENTS.md content")
                 cleaned_any = True

@@ -10,7 +10,7 @@ import click
 
 import inspect
 
-from . import internal_api as api_cli
+from . import reducer_ops, repo_ops, runtime_ops
 from ..api import errors as api_errors
 from .commands import register as register_commands
 from ..runtime.common.constants import TOOL_VERSION
@@ -95,12 +95,12 @@ def _main(
         raise typer.Exit()
     repo_root = None
     try:
-        repo_root = api_cli.get_repo_root()
-        logging_settings = api_cli.load_logging_settings(
+        repo_root = repo_ops.get_repo_root()
+        logging_settings = runtime_ops.load_logging_settings(
             repo_root,
             allow_missing=True,
         )
-        api_cli.configure_logging(
+        runtime_ops.configure_logging(
             level=logging_settings.level,
             module_levels=logging_settings.module_levels,
             debug=logging_settings.debug,
@@ -108,8 +108,8 @@ def _main(
             repo_root=repo_root,
         )
     except api_errors.ScionaError:
-        api_cli.configure_logging()
-    api_cli.freeze_registry()
+        runtime_ops.configure_logging()
+    reducer_ops.freeze_registry()
     if ctx.invoked_subcommand is None:
         typer.echo(ctx.get_help())
         raise typer.Exit()

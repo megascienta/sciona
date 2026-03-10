@@ -11,7 +11,7 @@ import json
 
 import typer
 
-from .. import internal_api as reducer_api
+from .. import reducer_ops
 from ...runtime.reducers.listing import render_reducer_list
 from ..support.utils import (
     cli_call,
@@ -109,7 +109,7 @@ def register(app: typer.Typer) -> None:
             arg_map[name] = value
         _validate_reducer_args(arg_map, dynamic_param_names | set(explicit_args.keys()))
         reducer_payload, snapshot_id, resolved_args = cli_call(
-            reducer_api.emit,
+            reducer_ops.emit,
             reducer_id,
             **arg_map,
         )
@@ -131,11 +131,11 @@ def register(app: typer.Typer) -> None:
     def _emit_reducer_info(reducer_id: Optional[str]) -> None:
         if reducer_id:
             emit_dirty_worktree_warning()
-            entry = cli_call(reducer_api.get_entry, reducer_id)
+            entry = cli_call(reducer_ops.get_entry, reducer_id)
             cli_render.emit(cli_render.render_reducer_show(entry))
             return
         emit_dirty_worktree_warning()
-        entries = cli_call(reducer_api.list_entries)
+        entries = cli_call(reducer_ops.list_entries)
         cli_render.emit(cli_render.render_reducer_list(entries))
 
     @reducer_app.command("info")
@@ -159,19 +159,19 @@ def register(app: typer.Typer) -> None:
     ) -> None:
         """List reducers with CLI call signatures (warns if dirty)."""
         emit_dirty_worktree_warning()
-        entries = cli_call(reducer_api.list_entries)
+        entries = cli_call(reducer_ops.list_entries)
         if reducer_id:
             entries = [entry for entry in entries if entry["reducer_id"] == reducer_id]
             if not entries:
                 raise typer.BadParameter(f"Unknown reducer '{reducer_id}'.")
-        reducers = reducer_api.get_reducers()
+        reducers = reducer_ops.get_reducers()
         cli_render.emit(render_reducer_list(entries, reducers, include_prefix=True))
 
     app.add_typer(reducer_app, name="reducer")
 
 
 def _build_dynamic_reducer_params() -> list[inspect.Parameter]:
-    reducers = reducer_api.get_reducers()
+    reducers = reducer_ops.get_reducers()
     params: dict[str, inspect.Parameter] = {}
     for entry in reducers.values():
         render = getattr(entry.module, "render", None)

@@ -3,7 +3,7 @@
 
 from pathlib import Path
 
-from sciona.cli import internal_api as api_cli
+from sciona.cli import repo_ops
 from sciona.pipelines import hooks
 from sciona.runtime.agents import setup as agents
 from sciona.reducers.registry import get_reducers
@@ -17,7 +17,7 @@ def test_cli_clean_removes_sciona_hook_and_appended_agents(
     cli_app, cli_runner, repo_with_snapshot, monkeypatch
 ):
     repo_root, _ = repo_with_snapshot
-    monkeypatch.setattr(api_cli, "get_repo_root", lambda: repo_root)
+    monkeypatch.setattr(repo_ops, "get_repo_root", lambda: repo_root)
     hook_status = hooks.install_post_commit_hook(repo_root, "sciona build")
     assert hook_status.installed is True
 
@@ -48,7 +48,7 @@ def test_cli_clean_removes_sciona_owned_agents_file(
     cli_app, cli_runner, repo_with_snapshot, monkeypatch
 ):
     repo_root, _ = repo_with_snapshot
-    monkeypatch.setattr(api_cli, "get_repo_root", lambda: repo_root)
+    monkeypatch.setattr(repo_ops, "get_repo_root", lambda: repo_root)
 
     target = repo_root / agents.AGENTS_FILENAME
     agents.upsert_agents_file(repo_root, mode="overwrite", reducers=get_reducers())

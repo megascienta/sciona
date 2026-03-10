@@ -7,7 +7,7 @@ import json
 import os
 from types import SimpleNamespace
 
-from sciona.cli import internal_api as api_cli
+from sciona.cli import repo_ops
 
 
 def _fake_status():
@@ -95,8 +95,8 @@ def test_cli_status_default_uses_short_summary(cli_app, cli_runner, monkeypatch)
         calls.append(include_failure_reasons)
         return _fake_summary()
 
-    monkeypatch.setattr(api_cli, "status", _fake_status)
-    monkeypatch.setattr(api_cli, "snapshot_report", _summary)
+    monkeypatch.setattr(repo_ops, "status", _fake_status)
+    monkeypatch.setattr(repo_ops, "snapshot_report", _summary)
 
     result = cli_runner.invoke(cli_app, ["status"])
 
@@ -120,8 +120,8 @@ def test_cli_status_full_emits_failure_reasons(cli_app, cli_runner, monkeypatch)
         calls.append(include_failure_reasons)
         return _fake_summary()
 
-    monkeypatch.setattr(api_cli, "status", _fake_status)
-    monkeypatch.setattr(api_cli, "snapshot_report", _summary)
+    monkeypatch.setattr(repo_ops, "status", _fake_status)
+    monkeypatch.setattr(repo_ops, "snapshot_report", _summary)
 
     result = cli_runner.invoke(cli_app, ["status", "--full"])
 
@@ -143,8 +143,8 @@ def test_cli_status_json_emits_payload(cli_app, cli_runner, monkeypatch):
         calls.append(include_failure_reasons)
         return _fake_summary()
 
-    monkeypatch.setattr(api_cli, "status", _fake_status)
-    monkeypatch.setattr(api_cli, "snapshot_report", _summary)
+    monkeypatch.setattr(repo_ops, "status", _fake_status)
+    monkeypatch.setattr(repo_ops, "snapshot_report", _summary)
 
     result = cli_runner.invoke(cli_app, ["status", "--json"])
 
@@ -168,8 +168,8 @@ def test_cli_status_output_writes_json_file(cli_app, cli_runner, monkeypatch, tm
         calls.append(include_failure_reasons)
         return _fake_summary()
 
-    monkeypatch.setattr(api_cli, "status", _fake_status)
-    monkeypatch.setattr(api_cli, "snapshot_report", _summary)
+    monkeypatch.setattr(repo_ops, "status", _fake_status)
+    monkeypatch.setattr(repo_ops, "snapshot_report", _summary)
 
     output_path = tmp_path / "reports" / "status.json"
     result = cli_runner.invoke(cli_app, ["status", "--output", str(output_path)])
@@ -192,8 +192,8 @@ def test_cli_status_json_ignores_full_flag_for_payload_shape(
         assert include_failure_reasons is True
         return _fake_summary()
 
-    monkeypatch.setattr(api_cli, "status", _fake_status)
-    monkeypatch.setattr(api_cli, "snapshot_report", _summary)
+    monkeypatch.setattr(repo_ops, "status", _fake_status)
+    monkeypatch.setattr(repo_ops, "snapshot_report", _summary)
 
     plain = cli_runner.invoke(cli_app, ["status", "--json"])
     flagged = cli_runner.invoke(cli_app, ["status", "--json", "--full"])
@@ -217,8 +217,8 @@ def test_cli_status_full_emits_low_node_warning(cli_app, cli_runner, monkeypatch
         }
         return payload
 
-    monkeypatch.setattr(api_cli, "status", _fake_status)
-    monkeypatch.setattr(api_cli, "snapshot_report", _summary)
+    monkeypatch.setattr(repo_ops, "status", _fake_status)
+    monkeypatch.setattr(repo_ops, "snapshot_report", _summary)
 
     result = cli_runner.invoke(cli_app, ["status", "--full"])
 

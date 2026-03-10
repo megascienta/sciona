@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from sciona.cli import internal_api as api_cli
+from sciona.cli import repo_ops
 from sciona.pipelines.exec.build import BuildResult
 
 
@@ -68,8 +68,8 @@ def _fake_summary():
 
 
 def test_cli_build_emits_summary_block(cli_app, cli_runner, monkeypatch):
-    monkeypatch.setattr(api_cli, "build", lambda force_rebuild=False: _fake_result())
-    monkeypatch.setattr(api_cli, "snapshot_report", lambda snapshot_id: _fake_summary())
+    monkeypatch.setattr(repo_ops, "build", lambda force_rebuild=False: _fake_result())
+    monkeypatch.setattr(repo_ops, "snapshot_report", lambda snapshot_id: _fake_summary())
 
     result = cli_runner.invoke(cli_app, ["build"])
 

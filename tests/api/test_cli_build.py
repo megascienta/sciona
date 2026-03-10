@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from sciona.cli import internal_api as api_cli
+from sciona.cli import repo_ops
 from sciona.pipelines.exec.build import BuildResult
 
 
@@ -45,8 +45,8 @@ def test_cli_build_forwards_force_rebuild_flag(
         calls.append(force_rebuild)
         return _fake_result()
 
-    monkeypatch.setattr(api_cli, "build", _build)
-    monkeypatch.setattr(api_cli, "snapshot_report", lambda snapshot_id: _fake_summary())
+    monkeypatch.setattr(repo_ops, "build", _build)
+    monkeypatch.setattr(repo_ops, "snapshot_report", lambda snapshot_id: _fake_summary())
     result = cli_runner.invoke(cli_app, ["build", "--force"])
     assert result.exit_code == 0
     assert calls == [True]
@@ -62,8 +62,8 @@ def test_cli_build_defaults_force_rebuild_false(
         calls.append(force_rebuild)
         return _fake_result()
 
-    monkeypatch.setattr(api_cli, "build", _build)
-    monkeypatch.setattr(api_cli, "snapshot_report", lambda snapshot_id: _fake_summary())
+    monkeypatch.setattr(repo_ops, "build", _build)
+    monkeypatch.setattr(repo_ops, "snapshot_report", lambda snapshot_id: _fake_summary())
     result = cli_runner.invoke(cli_app, ["build"])
     assert result.exit_code == 0
     assert calls == [False]

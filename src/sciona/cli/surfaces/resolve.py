@@ -9,7 +9,7 @@ import json
 
 import typer
 
-from .. import internal_api as resolver
+from .. import resolve_ops
 from ..support.utils import cli_call, emit_dirty_worktree_warning, get_dirty_worktree_warning
 from ..support import render as cli_render
 
@@ -30,7 +30,7 @@ def register(app: typer.Typer) -> None:
     ) -> None:
         """Resolve an identifier to a structural id (latest committed snapshot only)."""
         result = cli_call(
-            resolver.identifier_for_repo,
+            resolve_ops.identifier_for_repo,
             kind=kind,
             identifier=identifier,
             limit=limit,
@@ -68,5 +68,5 @@ def register(app: typer.Typer) -> None:
                 )
             cli_render.emit(lines)
             return
-        message = resolver.format_resolution_message(kind, identifier, result)
+        message = resolve_ops.format_resolution_message(kind, identifier, result)
         cli_render.emit(message.splitlines())

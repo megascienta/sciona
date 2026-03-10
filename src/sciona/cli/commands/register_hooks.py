@@ -9,7 +9,7 @@ from typing import Optional
 
 import typer
 
-from .. import internal_api as api_cli
+from .. import repo_ops
 from ..support.utils import cli_call
 from ..support import render as cli_render
 
@@ -26,9 +26,9 @@ def register_hooks(app: typer.Typer) -> None:
         ),
     ) -> None:
         """Install a post-commit hook to run SCIONA build."""
-        repo_root = cli_call(api_cli.get_repo_root)
+        repo_root = cli_call(repo_ops.get_repo_root)
         cmd = command or "sciona build"
-        status = cli_call(api_cli.install_commit_hook, cmd, repo_root)
+        status = cli_call(repo_ops.install_commit_hook, cmd, repo_root)
         cli_render.emit(
             [
                 "Installed post-commit hook.",
@@ -40,8 +40,8 @@ def register_hooks(app: typer.Typer) -> None:
     @hooks_app.command("remove")
     def remove() -> None:
         """Remove the SCIONA post-commit hook."""
-        repo_root = cli_call(api_cli.get_repo_root)
-        status = cli_call(api_cli.remove_commit_hook, repo_root)
+        repo_root = cli_call(repo_ops.get_repo_root)
+        status = cli_call(repo_ops.remove_commit_hook, repo_root)
         if status.installed:
             cli_render.emit(
                 [
@@ -57,8 +57,8 @@ def register_hooks(app: typer.Typer) -> None:
     @hooks_app.command("status")
     def status() -> None:
         """Show post-commit hook status."""
-        repo_root = cli_call(api_cli.get_repo_root)
-        status = cli_call(api_cli.commit_hook_status, repo_root)
+        repo_root = cli_call(repo_ops.get_repo_root)
+        status = cli_call(repo_ops.commit_hook_status, repo_root)
         if status.installed:
             cli_render.emit(
                 [
