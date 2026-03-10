@@ -646,6 +646,14 @@ def test_hotspot_summary_v2_uses_rollup_fan_stats(tmp_path):
     finally:
         core.close()
     payload = parse_json_payload(payload_text)
+    assert payload["by_fan_in"][0]["module_qualified_name"] == qualify_repo_name(
+        repo_root, "pkg.alpha"
+    )
+    assert payload["by_fan_in"][0]["count"] == 3
+    assert payload["by_fan_out"][0]["module_qualified_name"] == qualify_repo_name(
+        repo_root, "pkg.alpha"
+    )
+    assert payload["by_fan_out"][0]["count"] == 8
     assert payload["by_call_fan_in"][0]["module_id"] == "mod_alpha"
     assert payload["by_call_fan_out"][0]["module_id"] == "mod_beta"
     assert payload["by_import_fan_out"][0]["module_id"] == "mod_alpha"

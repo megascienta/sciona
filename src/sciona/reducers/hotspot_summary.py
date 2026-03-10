@@ -11,7 +11,7 @@ from .metadata import ReducerMeta
 from .helpers.base import load_structural_index
 from .helpers.artifact_graph_rollups import load_node_fan_stats
 from .helpers.render import render_json_payload, require_connection
-from .helpers.utils import require_latest_committed_snapshot, top_modules
+from .helpers.utils import require_latest_committed_snapshot
 
 REDUCER_META = ReducerMeta(
     reducer_id="hotspot_summary",
@@ -32,7 +32,7 @@ def render(snapshot_id: str, conn, repo_root, **_: object) -> str:
     )
     payload = load_structural_index(snapshot_id, conn, repo_root)
     module_entries = (payload.get("modules") or {}).get("entries", []) or []
-    edges = (payload.get("imports") or {}).get("edges", []) or []
+    import_edges = (payload.get("imports") or {}).get("edges", []) or []
 
     def _size_metric(entry: dict) -> int:
         return (
@@ -56,24 +56,6 @@ def render(snapshot_id: str, conn, repo_root, **_: object) -> str:
         if entry.get("module_qualified_name")
     ]
 
-    import_fan_in = Counter()
-    import_fan_out = Counter()
-    for edge in edges:
-        src = edge.get("from_module_qualified_name")
-        dst = edge.get("to_module_qualified_name")
-        if src:
-            import_fan_out[src] += 1
-        if dst:
-            import_fan_in[dst] += 1
-
-    by_fan_in = [
-        {"module_qualified_name": name, "count": count}
-        for name, count in top_modules(import_fan_in, limit=5)
-    ]
-    by_fan_out = [
-        {"module_qualified_name": name, "count": count}
-        for name, count in top_modules(import_fan_out, limit=5)
-    ]
     module_name_by_id = _module_name_lookup(conn, snapshot_id)
     rollup_rows = load_node_fan_stats(
         repo_root,
@@ -93,6 +75,11 @@ def render(snapshot_id: str, conn, repo_root, **_: object) -> str:
         edge_kind="IMPORTS_DECLARED",
         limit=5,
     )
+    if by_import_fan_in or by_import_fan_out:
+        by_fan_in = _legacy_fan_entries(by_import_fan_in)
+        by_fan_out = _legacy_fan_entries(by_import_fan_out)
+    else:
+        by_fan_in, by_fan_out = _import_edge_rankings(import_edges, limit=5)
 
     body = {
         "payload_kind": "summary",
@@ -155,5 +142,48 @@ def _fan_rankings(
                 "count": row[4],
             }
             for row in by_fan_out[:limit]
+        ],
+    )
+
+
+def _legacy_fan_entries(entries: list[dict[str, object]]) -> list[dict[str, object]]:
+    return [
+        {
+            "module_qualified_name": entry.get("module_qualified_name"),
+            "count": entry.get("count"),
+        }
+        for entry in entries
+        if entry.get("module_qualified_name")
+    ]
+
+
+def _import_edge_rankings(
+    edges: list[dict[str, object]],
+    *,
+    limit: int,
+) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
+    import_fan_in = Counter()
+    import_fan_out = Counter()
+    for edge in edges:
+        src = edge.get("from_module_qualified_name")
+        dst = edge.get("to_module_qualified_name")
+        if src:
+            import_fan_out[str(src)] += 1
+        if dst:
+            import_fan_in[str(dst)] += 1
+    return (
+        [
+            {"module_qualified_name": name, "count": count}
+            for name, count in sorted(
+                import_fan_in.items(),
+                key=lambda item: (-item[1], item[0]),
+            )[:limit]
+        ],
+        [
+            {"module_qualified_name": name, "count": count}
+            for name, count in sorted(
+                import_fan_out.items(),
+                key=lambda item: (-item[1], item[0]),
+            )[:limit]
         ],
     )

@@ -34,6 +34,150 @@ Navigation speed: 8
 Confidence: 8
 Overall usefulness: 8
 
+## Task 14 - Source reducer usefulness assessment
+
+Task:
+Assess whether `callable_source` and `concatenated_source` are likely to be faster and use fewer tokens than direct source inspection.
+
+SCIONA usage:
+Used `sciona reducer info --id callable_source` and `sciona reducer info --id concatenated_source`; then checked reducer implementations to compare narrowing behavior and payload size.
+
+Observation:
+SCIONA clarified intended use quickly. `callable_source` looks efficient for a single callable; `concatenated_source` is often not token-efficient because it returns full file contents for the chosen scope.
+Confusion or limitations: Token/runtime efficiency depends heavily on whether the caller already knows the target id and how large the selected scope is.
+
+Ratings:
+Structural clarity: 7
+Navigation speed: 7
+Confidence: 8
+Overall usefulness: 7
+
+## Task 15 - Hotspot import fan rollup fix
+
+Task:
+Update `hotspot_summary` to prefer persisted `node_fan_stats` import fan rollups instead of recomputing import fan counts from structural import edges when rollups are available.
+
+SCIONA usage:
+No new reducer queries used during implementation; this was a targeted semantic fix in a known reducer after earlier structural grounding.
+
+Observation:
+SCIONA was not needed for the code change itself. Direct inspection was required to discover that lightweight test fixtures do not always populate `node_fan_stats`, which made a rollup-preferred fallback design necessary.
+Confusion or limitations: The artifact graph rebuild used in tests populates graph edges but not all rollup tables, so “already present in DB” is conditional rather than universal.
+
+Ratings:
+Structural clarity: 6
+Navigation speed: 6
+Confidence: 8
+Overall usefulness: 6
+
+## Task 16 - Commit full working tree
+
+Task:
+Commit all remaining tracked and untracked changes in the working tree, including reducer updates, evaluation notes, executive summary, and validation artifact deletions.
+
+SCIONA usage:
+No SCIONA queries used; this was repository state management and version-control finalization.
+
+Observation:
+SCIONA had no effect on the commit step. The main requirement was preserving the full current tree exactly as requested.
+Confusion or limitations: Commit scope includes pre-existing validation deletions unrelated to the latest code edit because the instruction was to commit everything.
+
+Ratings:
+Structural clarity: 5
+Navigation speed: 5
+Confidence: 8
+Overall usefulness: 5
+
+## Task 9 - Enable CLI shell completion
+
+Task:
+Enabled Typer's built-in shell completion for the top-level SCIONA CLI and added a regression test for the exposed completion commands.
+
+SCIONA usage:
+Used earlier SCIONA CLI ownership mapping; no new reducer calls were needed because the change was localized to the Typer app definition.
+
+Observation:
+SCIONA was useful mainly in confirming that completion belonged in the central CLI entrypoint rather than per-command modules.
+Confusion or limitations: Typer completion behavior itself still required direct framework knowledge and local tests.
+
+Ratings:
+Structural clarity: 7
+Navigation speed: 7
+Confidence: 8
+Overall usefulness: 7
+
+## Task 10 - Review agent template against session experience
+
+Task:
+Compared `AGENTS.md` and `src/sciona/runtime/templates/agents_template.md` against how SCIONA actually helped during this session to identify template improvements.
+
+SCIONA usage:
+No new SCIONA queries were needed; this was an out-of-scope docs/template review grounded in prior session experience.
+
+Observation:
+The protocol is directionally good, but it over-specifies “use reducers exhaustively” and under-specifies how to stop once structural routing is already good enough.
+Confusion or limitations: The template does not clearly distinguish “structural orientation” from “runtime/data-flow investigation,” which mattered repeatedly in this thread.
+
+Ratings:
+Structural clarity: 6
+Navigation speed: 6
+Confidence: 8
+Overall usefulness: 6
+
+## Task 13 - Reducer DB-usage audit
+
+Task:
+Audited reducers for recalculations of facts already persisted in CoreDB/ArtifactDB and for reducer outputs that leave DB-backed information materially unused.
+
+SCIONA usage:
+Used `sciona search reducers` and `module_overview` for structural orientation, then switched to direct source inspection for reducer/helper and DB access details.
+
+Observation:
+SCIONA helped scope the reducer surface, but the substantive audit depended on reading reducer implementations and comparing them to ArtifactDB rollups/status tables.
+Confusion or limitations: The biggest recurring issue is not missing raw data; it is reducers emitting placeholder overlay/adjusted fields without reading overlay/state tables.
+
+Ratings:
+Structural clarity: 8
+Navigation speed: 7
+Confidence: 8
+Overall usefulness: 7
+
+## Task 12 - Remove CLI command completion
+
+Task:
+Rolled back top-level Typer command completion support and removed the completion-specific regression test after confirming the feature was misleading in the local shell environment.
+
+SCIONA usage:
+No new SCIONA queries were needed; the rollback was localized to the central CLI app configuration.
+
+Observation:
+This was a good example of a feature that was structurally easy to add and remove because the CLI entrypoint is centralized.
+Confusion or limitations: The framework exposed completion cleanly, but the environment compatibility story was weak enough that removal was the better product choice.
+
+Ratings:
+Structural clarity: 7
+Navigation speed: 7
+Confidence: 9
+Overall usefulness: 6
+
+## Task 11 - Plan removal of CLI command completion
+
+Task:
+Assessed the cleanest way to remove top-level CLI command completion after discovering the current Typer/Click completion path is misleading on macOS Bash 3.2.
+
+SCIONA usage:
+No new SCIONA queries were needed; this was a local CLI/product cleanup recommendation based on the just-tested completion behavior.
+
+Observation:
+The completion support is framework-level and centralized, so removal can be very small and low-risk.
+Confusion or limitations: The feature is technically enabled but practically unusable in the default local shell, which makes the current UX worse than no completion.
+
+Ratings:
+Structural clarity: 7
+Navigation speed: 7
+Confidence: 9
+Overall usefulness: 6
+
 ## Task 5 - PR1 remove adjusted metrics from reporting payload
 
 Task:
@@ -51,6 +195,24 @@ Structural clarity: 8
 Navigation speed: 7
 Confidence: 8
 Overall usefulness: 7
+
+## Task 8 - CLI completion feasibility review
+
+Task:
+Assessed how hard it would be to add shell command completion and structural-id completion for CLI options such as `--module-id`, `--callable-id`, and reducer `--id`.
+
+SCIONA usage:
+Used `sciona search register_`, `sciona search require_identifier`, `sciona search Typer`, and source-targeting via `module_overview`-guided CLI ownership.
+
+Observation:
+SCIONA helped quickly confirm that the CLI is centralized and that identifier resolution already exists as a reusable backend. That made the feasibility estimate more confident.
+Confusion or limitations: SCIONA located the owners but not Typer runtime behavior; source inspection was still needed to see `add_completion=False` and the dynamic reducer option wiring.
+
+Ratings:
+Structural clarity: 8
+Navigation speed: 8
+Confidence: 8
+Overall usefulness: 8
 
 ## Task 7 - PR3 remove classification quality reporting
 
