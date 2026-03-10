@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from ..data_storage.artifact_db import read_reporting as artifact_reporting
+from ..data_storage.artifact_db.reporting import read_reporting as artifact_reporting
 from ..data_storage.core_db import read_ops as core_read
 from ..runtime.call_resolution_contract import (
     REQUIRED_RESOLUTION_STAGES,

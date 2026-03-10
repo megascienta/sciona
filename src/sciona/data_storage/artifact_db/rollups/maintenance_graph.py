@@ -7,8 +7,8 @@ from __future__ import annotations
 
 from typing import Final
 
-from ..core_db import read_ops as core_read
-from . import write_graph
+from ...core_db import read_ops as core_read
+from ..writes import write_graph
 
 CALL_EDGE_KIND: Final[str] = "CALLS"
 

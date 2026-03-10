@@ -18,7 +18,7 @@ from sciona.reducers import (
 )
 from sciona.reducers.helpers.context import use_overlay_payload
 from sciona.data_storage.artifact_db import connect as artifact_connect
-from sciona.data_storage.artifact_db import write_index as artifact_write
+from sciona.data_storage.artifact_db.writes import write_index as artifact_write
 from sciona.runtime import constants as setup_config
 from tests.helpers import core_conn, parse_json_payload, qualify_repo_name, seed_repo_with_snapshot
 

@@ -8,9 +8,9 @@ from __future__ import annotations
 import sqlite3
 from typing import Iterable, Sequence
 
-from ...runtime.time import utc_now
-from ..encoding import bool_to_int
-from ..sql_utils import temp_id_table
+from ....runtime.time import utc_now
+from ...encoding import bool_to_int
+from ...sql_utils import temp_id_table
 from .write_call_sites import build_site_hash
 
 

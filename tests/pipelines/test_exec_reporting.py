@@ -6,7 +6,7 @@ from __future__ import annotations
 import pytest
 
 from sciona.data_storage.artifact_db import connect as artifact_connect
-from sciona.data_storage.artifact_db import write_index as artifact_write
+from sciona.data_storage.artifact_db.writes import write_index as artifact_write
 from sciona.pipelines import repo as repo_pipeline
 from sciona.pipelines.exec import reporting as exec_reporting
 from sciona.runtime import constants as runtime_constants

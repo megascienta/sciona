@@ -3,7 +3,7 @@
 
 import sqlite3
 
-from sciona.data_storage.artifact_db import diff_overlay
+from sciona.data_storage.artifact_db.overlay import diff_overlay
 from sciona.data_storage.artifact_db.schema import ensure_schema
 
 

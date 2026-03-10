@@ -10,7 +10,7 @@ from .helpers.render import render_json_payload, require_connection
 from .helpers.utils import require_latest_committed_snapshot
 from .metadata import ReducerMeta
 from ..data_storage.core_db import read_ops as core_read
-from ..data_storage.artifact_db import read_status as artifact_read_status
+from ..data_storage.artifact_db.reporting import read_status as artifact_read_status
 
 REDUCER_META = ReducerMeta(
     reducer_id="snapshot_provenance",

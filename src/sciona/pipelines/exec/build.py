@@ -21,8 +21,8 @@ from ..domain.policies import BuildPolicy
 from ..domain.repository import RepoState
 from ..domain.snapshots import SnapshotDecision, SnapshotLifecycle
 from ...data_storage.connections import artifact, artifact_readonly, core, core_readonly
-from ...data_storage.artifact_db import read_status as artifact_read
-from ...data_storage.artifact_db import write_index as artifact_write
+from ...data_storage.artifact_db.reporting import read_status as artifact_read
+from ...data_storage.artifact_db.writes import write_index as artifact_write
 from ...data_storage.core_db import read_ops as core_read
 from ...data_storage.core_db import write_ops as core_write
 from ..build_artifacts import build_artifacts_for_snapshot

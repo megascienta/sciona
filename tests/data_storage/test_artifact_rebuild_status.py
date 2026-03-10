@@ -2,8 +2,8 @@
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
 from sciona.data_storage.artifact_db import connect as artifact_connect
-from sciona.data_storage.artifact_db import read_status as artifact_read
-from sciona.data_storage.artifact_db import write_index as artifact_write
+from sciona.data_storage.artifact_db.reporting import read_status as artifact_read
+from sciona.data_storage.artifact_db.writes import write_index as artifact_write
 from sciona.runtime.paths import get_artifact_db_path
 
 

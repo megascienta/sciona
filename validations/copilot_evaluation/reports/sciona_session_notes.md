@@ -18,6 +18,26 @@ Fallback: filesystem inspection with `find`; lightweight Python summaries over r
 Observations: SCIONA established module scope and coupling quickly; reducer payloads were too large to read directly, so local summarization was still needed.
 RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 7 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 7
+## Task 10 - data_storage PR planning
+Copilot: Codex
+Task description: Converted the `data_storage` architecture findings into PR-sized structural refactoring proposals.
+Task type: architecture review
+SCIONA usage: reused prior `module_overview` and `dependency_edges` evidence for package boundaries, folder density, and coupling.
+Effect on workflow: reduce search space; confirm assumptions
+Fallback: no new tooling beyond prior reducer summaries
+Observations: SCIONA was sufficient to define PR boundaries here because the dominant question was package shape, not runtime behavior.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 8 | Confidence in answers 8 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 7 | Scope reduction vs baseline 8 | Query friction vs baseline 3 | Net usefulness vs baseline 7
+## Task 11 - artifact_db package split
+Copilot: Codex
+Task description: Split `data_storage.artifact_db` into canonical `overlay`, `reporting`, `rollups`, and `writes` subpackages without compatibility wrappers.
+Task type: implementation
+SCIONA usage: reused prior `module_overview` and `dependency_edges` evidence showing `artifact_db` as the densest heterogeneous folder in `data_storage`.
+Effect on workflow: identify ownership; reduce search space
+Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `multiphysics`
+Observations: SCIONA was useful for choosing subpackage boundaries; the actual work was dominated by import migration across reducers, pipelines, and tests.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 7
 ## Task 3 - code_analysis PR planning
 Copilot: Codex
 Task description: Converted the `code_analysis` architecture findings into PR-sized structural refactoring proposals with scope and sequencing.
@@ -78,3 +98,13 @@ Fallback: source inspection, `rg` import sweeps, broad targeted `pytest` in `mul
 Observations: SCIONA did not materially help here; the work was semantic migration and regression cleanup after the structural refactor.
 RATINGS (1-10): Structural clarity 5 | Navigation speed 4 | Confidence in answers 8 | Overall usefulness 4
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 3 | Confidence gain vs baseline 4 | Scope reduction vs baseline 3 | Query friction vs baseline 6 | Net usefulness vs baseline 4
+## Task 9 - data_storage architecture review
+Copilot: Codex
+Task description: Reviewed the structural architecture of the `data_storage` module, including folder boundaries, package roles, and import coupling.
+Task type: architecture review
+SCIONA usage: `search`, `resolve`, `module_overview`, and `dependency_edges` on `sciona.src.sciona.data_storage`; summarized internal vs external import edges.
+Effect on workflow: identify ownership; reduce search space; confirm assumptions
+Fallback: filesystem inspection and local summarization over reducer output
+Observations: SCIONA quickly established that `data_storage` is mostly split by storage surface (`core_db` vs `artifact_db`); manual summarization was still needed to reason about folder density and coupling hotspots.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 7 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 7

@@ -12,8 +12,8 @@ import sqlite3
 from ..domain.repository import RepoState
 from ...data_storage.connections import artifact_readonly, core_readonly
 from ...data_storage.core_db import read_ops as core_read
-from ...data_storage.artifact_db import read_reporting as artifact_reporting
-from ...data_storage.artifact_db import read_status as artifact_status
+from ...data_storage.artifact_db.reporting import read_reporting as artifact_reporting
+from ...data_storage.artifact_db.reporting import read_status as artifact_status
 from .reporting_callsites import (
     build_callable_identifier_index as _build_callable_identifier_index_impl,
     call_sites_payload as _call_sites_payload_impl,

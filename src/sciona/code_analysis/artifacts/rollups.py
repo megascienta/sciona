@@ -10,7 +10,7 @@ from typing import Iterable, Sequence
 
 from ..analysis.module_id import module_id_for
 from ..tools.call_extraction import CallExtractionRecord
-from ...data_storage.artifact_db import rollup_persistence as artifact_persistence
+from ...data_storage.artifact_db.rollups import rollup_persistence as artifact_persistence
 from ...data_storage.core_db import read_ops as core_read
 from .call_resolution import (
     best_candidate_by_module_distance as _best_candidate_by_module_distance,

@@ -9,9 +9,9 @@ import json
 from pathlib import Path
 from typing import Optional
 
-from ...data_storage.artifact_db import diff_overlay as overlay_store
-from ...data_storage.artifact_db import diff_overlay_calls as overlay_call_store
-from ...data_storage.artifact_db import diff_overlay_summary as overlay_summary_store
+from ...data_storage.artifact_db.overlay import diff_overlay as overlay_store
+from ...data_storage.artifact_db.overlay import diff_overlay_calls as overlay_call_store
+from ...data_storage.artifact_db.overlay import diff_overlay_summary as overlay_summary_store
 from ...data_storage.core_db import read_ops as core_read
 from ...runtime import git as git_ops
 from ...runtime import time as runtime_time

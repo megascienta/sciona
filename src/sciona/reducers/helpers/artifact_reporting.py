@@ -8,7 +8,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import List
 
-from ...data_storage.artifact_db import read_reporting
+from ...data_storage.artifact_db.reporting import read_reporting
 from .context import current_artifact_connection, fallback_artifact_connection
 
 
@@ -35,4 +35,3 @@ def load_callsite_caller_status_counts(
 
 
 __all__ = ["load_callsite_caller_status_counts"]
-

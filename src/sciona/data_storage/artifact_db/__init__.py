@@ -6,31 +6,21 @@
 from __future__ import annotations
 
 from . import (
-    diff_overlay,
-    diff_overlay_calls,
-    diff_overlay_summary,
     maintenance,
-    read_overlay,
-    read_reporting,
-    read_status,
-    rollup_persistence,
+    overlay,
+    reporting,
+    rollups,
     schema,
-    write_graph,
-    write_index,
+    writes,
 )
 from .connect import connect
 
 __all__ = [
     "connect",
-    "diff_overlay",
-    "diff_overlay_calls",
-    "diff_overlay_summary",
     "maintenance",
-    "read_overlay",
-    "read_reporting",
-    "read_status",
-    "rollup_persistence",
+    "overlay",
+    "reporting",
+    "rollups",
     "schema",
-    "write_graph",
-    "write_index",
+    "writes",
 ]

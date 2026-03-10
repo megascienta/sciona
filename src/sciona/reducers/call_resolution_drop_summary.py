@@ -8,7 +8,7 @@ from __future__ import annotations
 from collections import Counter, defaultdict
 from pathlib import Path
 
-from ..data_storage.artifact_db import read_reporting as artifact_reporting
+from ..data_storage.artifact_db.reporting import read_reporting as artifact_reporting
 from ..data_storage.core_db import read_ops as core_read
 from ..pipelines.diff_overlay.patchers.analytics import (
     patch_call_resolution_drop_summary,

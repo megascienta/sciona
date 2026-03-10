@@ -8,7 +8,7 @@ from __future__ import annotations
 from typing import Iterable, Sequence
 
 from . import store_rollups
-from . import write_index
+from ..writes import write_index
 
 
 def reset_graph_rollups(conn) -> None:

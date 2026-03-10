@@ -14,13 +14,13 @@ from ..code_analysis.tools.call_extraction import CallExtractionRecord
 from ..code_analysis.artifacts.engine import ArtifactEngine
 from ..data_storage.connections import artifact
 from ..data_storage.transactions import transaction
-from ..data_storage.artifact_db import diff_overlay as overlay_store
-from ..data_storage.artifact_db import diff_overlay_calls as overlay_call_store
-from ..data_storage.artifact_db import diff_overlay_summary as overlay_summary_store
-from ..data_storage.artifact_db import read_status as artifact_read
-from ..data_storage.artifact_db import write_index as artifact_write
+from ..data_storage.artifact_db.overlay import diff_overlay as overlay_store
+from ..data_storage.artifact_db.overlay import diff_overlay_calls as overlay_call_store
+from ..data_storage.artifact_db.overlay import diff_overlay_summary as overlay_summary_store
+from ..data_storage.artifact_db.reporting import read_status as artifact_read
+from ..data_storage.artifact_db.writes import write_index as artifact_write
 from ..data_storage.core_db import read_ops as core_read
-from ..data_storage.artifact_db.maintenance_graph import rebuild_graph_index
+from ..data_storage.artifact_db.rollups.maintenance_graph import rebuild_graph_index
 from ..runtime.paths import get_artifact_db_path
 from .progress import make_progress_factory
 
