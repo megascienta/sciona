@@ -8,8 +8,7 @@ from __future__ import annotations
 import sqlite3
 from typing import Iterable, Sequence
 
-from ..common.sql_utils import SQLITE_MAX_VARS, chunked
-from .errors import SnapshotNotFoundError, UncommittedSnapshotError
+from ...common.sql_utils import SQLITE_MAX_VARS, chunked
 
 def list_edges(
     conn: sqlite3.Connection,

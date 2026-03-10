@@ -58,6 +58,26 @@ Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `mult
 Observations: SCIONA helped justify separating maintenance from rollup persistence; the concrete work was straightforward once import fan-out was located locally.
 RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 7
+## Task 14 - core_db read ops package
+Copilot: Codex
+Task description: Grouped the `core_db` read shards under `core_db.read_ops` and updated direct test imports to the canonical package layout.
+Task type: implementation
+SCIONA usage: reused prior structural review evidence that the read surface was already a coherent family and the remaining issue was flat-file density.
+Effect on workflow: confirm assumptions; reduce search space
+Fallback: source inspection, targeted import sweeps with `rg`, targeted `pytest` in `multiphysics`
+Observations: SCIONA clarified why the split was structurally acceptable, but it had little impact on the mechanical import migration itself.
+RATINGS (1-10): Structural clarity 7 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 6
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 6 | Scope reduction vs baseline 6 | Query friction vs baseline 5 | Net usefulness vs baseline 6
+## Task 13 - artifact_db maintenance package
+Copilot: Codex
+Task description: Moved graph rebuild logic into a dedicated `artifact_db.maintenance` package and removed the misplaced rollup maintenance path.
+Task type: implementation
+SCIONA usage: reused prior structural review evidence that maintenance was a distinct operational surface inside `artifact_db`.
+Effect on workflow: confirm assumptions; reduce search space
+Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `multiphysics`
+Observations: SCIONA helped justify separating maintenance from rollup persistence; the concrete work was straightforward once import fan-out was located locally.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 7
 ## Task 3 - code_analysis PR planning
 Copilot: Codex
 Task description: Converted the `code_analysis` architecture findings into PR-sized structural refactoring proposals with scope and sequencing.

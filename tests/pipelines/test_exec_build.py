@@ -11,7 +11,7 @@ from sciona.runtime.config import io as config_io
 from sciona.runtime import constants as setup_config
 import sqlite3
 
-from sciona.data_storage.core_db import read_ops_snapshots as read_snapshots
+from sciona.data_storage.core_db.read_ops import snapshots as read_snapshots
 from tests.helpers import commit_all, init_git_repo
 
 

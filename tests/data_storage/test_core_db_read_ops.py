@@ -5,9 +5,9 @@ import sqlite3
 
 import pytest
 
-from sciona.data_storage.core_db import read_ops_snapshots as read_snapshots
-from sciona.data_storage.core_db import read_ops_nodes as read_nodes
-from sciona.data_storage.core_db import read_ops_hashes as read_hashes
+from sciona.data_storage.core_db.read_ops import hashes as read_hashes
+from sciona.data_storage.core_db.read_ops import nodes as read_nodes
+from sciona.data_storage.core_db.read_ops import snapshots as read_snapshots
 from sciona.data_storage.core_db import write_ops as core_write
 from sciona.data_storage.core_db.errors import (
     SnapshotNotFoundError,

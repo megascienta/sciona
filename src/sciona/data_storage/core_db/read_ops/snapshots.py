@@ -8,8 +8,7 @@ from __future__ import annotations
 import sqlite3
 from typing import Iterable, Sequence
 
-from ..common.sql_utils import SQLITE_MAX_VARS, chunked
-from .errors import SnapshotNotFoundError, UncommittedSnapshotError
+from ..errors import SnapshotNotFoundError, UncommittedSnapshotError
 
 def latest_committed_snapshot(conn: sqlite3.Connection) -> dict | None:
     row = conn.execute(

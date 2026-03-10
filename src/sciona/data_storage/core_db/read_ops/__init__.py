@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from .read_ops_snapshots import (
+from .snapshots import (
     count_committed_snapshots,
     latest_committed_snapshot,
     latest_committed_snapshot_id,
@@ -16,7 +16,7 @@ from .read_ops_snapshots import (
     snapshot_is_committed,
     validate_snapshot_for_read,
 )
-from .read_ops_nodes import (
+from .nodes import (
     caller_node_metadata_map,
     caller_language_map,
     language_file_node_distribution,
@@ -29,19 +29,19 @@ from .read_ops_nodes import (
     node_instances_for_file_paths,
     search_node_instances,
 )
-from .read_ops_edges import (
+from .edges import (
     edges_for_source_ids,
     language_edge_counts,
     list_edges,
     list_edges_by_type,
 )
-from .read_ops_hashes import (
+from .hashes import (
     node_hashes_for_ids,
     snapshot_node_hashes,
     structural_hash_edge_entries,
     structural_hash_node_entries,
 )
-from .read_ops_integrity import (
+from .integrity import (
     duplicate_qualified_names,
     inheritance_cycles,
     lexical_orphans,
