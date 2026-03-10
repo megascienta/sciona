@@ -30,8 +30,6 @@ from ..ops.build_artifacts import build_artifacts_for_snapshot
 from ..progress import make_build_progress
 from .build_fingerprint import (
     compute_build_fingerprint,
-    load_cached_build_result_payload,
-    load_fingerprint_cache,
     write_fingerprint_cache,
 )
 
@@ -85,31 +83,11 @@ def build_repo(
         source=source,
         git_commit_sha=snapshot.git_commit_sha,
     )
-    if not policy.force_rebuild:
-        cached_result = _build_result_from_fingerprint_cache(
-            repo_state=repo_state,
-            policy=policy,
-            fingerprint_hash=fingerprint.fingerprint_hash,
-        )
-        if cached_result is not None:
-            build_progress.finalize()
-            _record_build_metrics(
-                repo_state=repo_state,
-                snapshot_id=cached_result.snapshot_id,
-                total_build_seconds=perf_counter() - started_at,
-                phase_timings=build_progress.phase_timings(),
-            )
-            return cached_result
 
     with core(repo_state.db_path, repo_root=repo_state.repo_root) as conn:
         try:
             conn.execute("BEGIN IMMEDIATE")
             core_write.purge_uncommitted_snapshots(conn)
-            baseline_meta = (
-                None
-                if policy.force_rebuild
-                else core_read.latest_committed_snapshot(conn)
-            )
 
             engine = BuildEngine(
                 workspace,
@@ -131,61 +109,27 @@ def build_repo(
                 source=snapshot.source,
             )
 
-            decision = _decide_snapshot(
-                snapshot_id=snapshot.snapshot_id,
-                structural_hash=structural_hash,
-                baseline_meta=baseline_meta,
+            # Every build fully replaces snapshot-scoped committed state.
+            core_write.delete_committed_snapshots_except(conn, canonical_snapshot_id)
+            if core_read.snapshot_exists(conn, canonical_snapshot_id):
+                core_write.delete_snapshot_tree(conn, canonical_snapshot_id)
+            core_write.rekey_snapshot_id(
+                conn,
+                from_snapshot_id=snapshot.snapshot_id,
+                to_snapshot_id=canonical_snapshot_id,
             )
-            if decision.lifecycle == SnapshotLifecycle.REUSED and baseline_meta:
-                if not core_read.snapshot_exists(conn, baseline_meta["snapshot_id"]):
-                    decision = SnapshotDecision(
-                        lifecycle=SnapshotLifecycle.COMMITTED,
-                        snapshot_id=snapshot.snapshot_id,
-                        structural_hash=structural_hash,
-                        reason="baseline_missing",
-                    )
-
+            snapshot.snapshot_id = canonical_snapshot_id
             committed_snapshot_id = snapshot.snapshot_id
-            status = SnapshotLifecycle.COMMITTED.value
-            if decision.lifecycle == SnapshotLifecycle.REUSED and baseline_meta:
-                core_write.delete_snapshot_tree(conn, snapshot.snapshot_id)
-                committed_snapshot_id = baseline_meta["snapshot_id"]
-                if committed_snapshot_id != canonical_snapshot_id:
-                    if core_read.snapshot_exists(conn, canonical_snapshot_id):
-                        core_write.delete_snapshot_tree(conn, canonical_snapshot_id)
-                    core_write.rekey_snapshot_id(
-                        conn,
-                        from_snapshot_id=committed_snapshot_id,
-                        to_snapshot_id=canonical_snapshot_id,
-                    )
-                    committed_snapshot_id = canonical_snapshot_id
-                core_write.delete_committed_snapshots_except(conn, committed_snapshot_id)
-                core_write.prune_orphan_structural_nodes(conn)
-                core_write.prune_orphan_synthetic_nodes(conn)
-                status = decision.lifecycle.value
-            else:
-                # CoreDB keeps a singleton committed snapshot. Remove older committed
-                # rows before inserting the new committed snapshot metadata.
-                core_write.delete_committed_snapshots_except(conn, canonical_snapshot_id)
-                if core_read.snapshot_exists(conn, canonical_snapshot_id):
-                    core_write.delete_snapshot_tree(conn, canonical_snapshot_id)
-                core_write.rekey_snapshot_id(
-                    conn,
-                    from_snapshot_id=snapshot.snapshot_id,
-                    to_snapshot_id=canonical_snapshot_id,
-                )
-                snapshot.snapshot_id = canonical_snapshot_id
-                committed_snapshot_id = snapshot.snapshot_id
-                snapshot_ingest.persist_snapshot(
-                    conn,
-                    snapshot,
-                    structural_hash,
-                    is_committed=True,
-                    store=core_write,
-                )
-                core_write.delete_committed_snapshots_except(conn, snapshot.snapshot_id)
-                core_write.prune_orphan_structural_nodes(conn)
-                core_write.prune_orphan_synthetic_nodes(conn)
+            snapshot_ingest.persist_snapshot(
+                conn,
+                snapshot,
+                structural_hash,
+                is_committed=True,
+                store=core_write,
+            )
+            core_write.delete_committed_snapshots_except(conn, snapshot.snapshot_id)
+            core_write.prune_orphan_structural_nodes(conn)
+            core_write.prune_orphan_synthetic_nodes(conn)
             conn.commit()
             call_artifacts: Sequence[CallExtractionRecord] = []
             artifact_warnings: Sequence[str] = []
@@ -203,7 +147,7 @@ def build_repo(
                 files_processed,
                 node_count,
                 committed_snapshot_id,
-                status,
+                SnapshotLifecycle.COMMITTED.value,
                 call_artifacts=call_artifacts,
                 enabled_languages=enabled_languages,
                 discovery_counts=dict(engine.discovery_counts),
@@ -245,88 +189,6 @@ def build_repo(
             if conn.in_transaction:
                 conn.rollback()
             raise
-
-
-def _decide_snapshot(
-    *,
-    snapshot_id: str,
-    structural_hash: str,
-    baseline_meta,
-) -> SnapshotDecision:
-    if baseline_meta and baseline_meta.get("structural_hash") == structural_hash:
-        return SnapshotDecision(
-            lifecycle=SnapshotLifecycle.REUSED,
-            snapshot_id=baseline_meta["snapshot_id"],
-            structural_hash=structural_hash,
-            reason="matching_baseline",
-        )
-    return SnapshotDecision(
-        lifecycle=SnapshotLifecycle.COMMITTED,
-        snapshot_id=snapshot_id,
-        structural_hash=structural_hash,
-        reason="new_snapshot",
-    )
-
-
-def _build_result_from_fingerprint_cache(
-    *,
-    repo_state: RepoState,
-    policy: BuildPolicy,
-    fingerprint_hash: str,
-) -> BuildResult | None:
-    cached = load_fingerprint_cache(repo_state)
-    if not cached:
-        return None
-    if cached.get("fingerprint_hash") != fingerprint_hash:
-        return None
-    cached_snapshot_id = cached.get("snapshot_id")
-    cached_structural_hash = cached.get("structural_hash")
-    if not isinstance(cached_snapshot_id, str) or not cached_snapshot_id:
-        return None
-    if not isinstance(cached_structural_hash, str) or not cached_structural_hash:
-        return None
-    core_meta = _latest_committed_snapshot(repo_state)
-    if not core_meta:
-        return None
-    if core_meta.get("snapshot_id") != cached_snapshot_id:
-        return None
-    if core_meta.get("structural_hash") != cached_structural_hash:
-        return None
-    if policy.artifacts.refresh_artifacts and not _artifacts_ready_for_snapshot(
-        repo_state, cached_snapshot_id
-    ):
-        return None
-    result_payload = load_cached_build_result_payload(cached)
-    if not isinstance(result_payload, dict):
-        return None
-    hydrated = _hydrate_result_payload(result_payload)
-    if hydrated is None:
-        return None
-    return replace(hydrated, status=SnapshotLifecycle.REUSED.value)
-
-
-def _latest_committed_snapshot(repo_state: RepoState) -> dict[str, str] | None:
-    try:
-        with core_readonly(repo_state.db_path, repo_root=repo_state.repo_root) as conn:
-            baseline = core_read.latest_committed_snapshot(conn)
-            if baseline is None:
-                return None
-            return dict(baseline)
-    except sqlite3.Error:
-        return None
-
-
-def _artifacts_ready_for_snapshot(repo_state: RepoState, snapshot_id: str) -> bool:
-    try:
-        with artifact_readonly(
-            repo_state.artifact_db_path, repo_root=repo_state.repo_root
-        ) as conn:
-            return artifact_read.rebuild_consistent_for_snapshot(
-                conn, snapshot_id=snapshot_id
-            )
-    except sqlite3.Error:
-        return False
-
 
 def _record_build_metrics(
     *,
