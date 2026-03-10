@@ -7,12 +7,14 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional
 
+from ...pipelines.diff_overlay.patchers.analytics import patch_callsite_index
 from . import queries
 from .artifact_call_sites import load_callsite_enrichment
 from .artifact_graph_edges import (
     artifact_db_available,
     load_artifact_edges,
 )
+from .context import current_overlay_payload
 from .render import render_json_payload, require_connection
 from .utils import require_latest_committed_snapshot
 from ..metadata import ReducerMeta
@@ -173,6 +175,15 @@ def render(
                 status=status_value,
             )
             body["edge_count"] = len(body["edges"])
+    overlay = current_overlay_payload()
+    if overlay is not None:
+        body = patch_callsite_index(
+            body,
+            overlay,
+            snapshot_id=snapshot_id,
+            conn=conn,
+        )
+        body["_overlay_applied_by_reducer"] = True
     return render_json_payload(body)
 
 

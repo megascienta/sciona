@@ -70,6 +70,24 @@ Navigation speed: 6
 Confidence: 8
 Overall usefulness: 6
 
+## Task 19 - PR 2 callsite_index overlay semantics
+
+Task:
+Make `callsite_index` consume overlay call transitions during reducer render and verify the reducer-owned path with a dirty-worktree `emit(...)` test.
+
+SCIONA usage:
+No new reducer queries used; implementation and validation were local to the already-identified reducer/helper and overlay test surfaces.
+
+Observation:
+SCIONA was not needed for the edit. The useful insight came from existing overlay patcher tests, which made it straightforward to mirror the same semantics in the reducer path.
+Confusion or limitations: The narrow pytest selection only covered the callsite-index-specific paths for this PR; broader overlay regression remains for later PRs in the set.
+
+Ratings:
+Structural clarity: 6
+Navigation speed: 6
+Confidence: 8
+Overall usefulness: 6
+
 ## Task 15 - Hotspot import fan rollup fix
 
 Task:

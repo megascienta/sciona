@@ -70,6 +70,30 @@ def test_dirty_overlay_calls_and_summary(repo_with_snapshot):
     assert "calls" in diff.get("affected_by", [])
 
 
+def test_dirty_overlay_callsite_index_applies_reducer_overlay(repo_with_snapshot):
+    repo_root, _snapshot_id = repo_with_snapshot
+    service_path = repo_root / "pkg/alpha/service.py"
+    service_path.write_text(
+        "def helper():\n    return helper()\n",
+        encoding="utf-8",
+    )
+
+    text, _, _ = emit(
+        "callsite_index",
+        repo_root=repo_root,
+        callable_id=qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
+    )
+    payload = parse_json_payload(text)
+    diff = payload.get("_diff")
+    assert diff, "Expected diff overlay in reducer payload"
+    assert diff.get("affected") is True
+    assert "projection_not_patched" not in (diff.get("warnings") or [])
+    assert any(
+        edge.get("transition") == "dropped_to_accepted"
+        for edge in payload.get("edges", [])
+    )
+
+
 def test_dirty_overlay_summary_mode(repo_with_snapshot):
     repo_root, _snapshot_id = repo_with_snapshot
     service_path = repo_root / "pkg/alpha/service.py"
