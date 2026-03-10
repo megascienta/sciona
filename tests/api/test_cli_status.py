@@ -7,7 +7,7 @@ import json
 import os
 from types import SimpleNamespace
 
-from sciona.api import cli as api_cli
+from sciona.cli import internal_api as api_cli
 
 
 def _fake_status():

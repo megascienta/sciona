@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from sciona.api import cli as api_cli
+from sciona.cli import internal_api as api_cli
 from sciona.pipelines.exec.build import BuildResult
 
 

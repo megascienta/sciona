@@ -3,7 +3,7 @@
 
 from pathlib import Path
 
-from sciona.api import cli as api_cli
+from sciona.cli import internal_api as api_cli
 from sciona.pipelines import hooks
 from sciona.runtime.agents import setup as agents
 from sciona.reducers.registry import get_reducers

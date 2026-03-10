@@ -12,7 +12,7 @@ from typing import Optional
 import typer
 
 from ...api import errors as api_errors
-from ...api import cli as api_cli
+from .. import internal_api as api_cli
 from ..support.utils import agents_command_map, cli_call
 from ..support import render as cli_render
 

@@ -268,6 +268,26 @@ Fallback: source inspection, repo-wide import sweeps with `rg`, targeted `pytest
 Observations: SCIONA had little direct impact here; this was mostly a cleanup pass to finish the structural refactor and verify no stale imports remained.
 RATINGS (1-10): Structural clarity 7 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 6
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 6 | Scope reduction vs baseline 6 | Query friction vs baseline 4 | Net usefulness vs baseline 6
+## Task 35 - api architecture review
+Copilot: Codex
+Task description: Reviewed the `api` module structure, focusing on the split between addon-facing readonly surfaces, CLI-shaped exports, and API error boundaries.
+Task type: architecture review
+SCIONA usage: `search`, `resolve`, `module_overview`, and `dependency_edges` for the committed `api` package and its import graph.
+Effect on workflow: reduce search space; confirm assumptions
+Fallback: filesystem inspection with `find` and `rg --files`
+Observations: SCIONA clearly showed that `api` is structurally tiny but centered around two distinct surfaces, `addons` and `cli`; that made the main architecture question a boundary question rather than a folder-density question.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 8 | Confidence in answers 8 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 7 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
+## Task 36 - move api cli facade into cli
+Copilot: Codex
+Task description: Moved the CLI-oriented facade from `api/cli.py` into `cli/internal_api.py` and rewired CLI modules and CLI tests to the new owner.
+Task type: implementation
+SCIONA usage: reused the API architecture review to confirm that `api.cli` was a CLI-only dependency rather than an addon-facing surface.
+Effect on workflow: reduce search space; confirm assumptions
+Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `multiphysics`
+Observations: SCIONA made the boundary decision straightforward; the practical work was import migration across the CLI package and CLI-oriented tests.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 7
 ## Task 13 - artifact_db maintenance package
 Copilot: Codex
 Task description: Moved graph rebuild logic into a dedicated `artifact_db.maintenance` package and removed the misplaced rollup maintenance path.

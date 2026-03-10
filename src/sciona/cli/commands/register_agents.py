@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import typer
 
-from ...api import cli as api_cli
+from .. import internal_api as api_cli
 from ..support.utils import agents_command_map, cli_call
 
 

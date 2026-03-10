@@ -11,7 +11,7 @@ import json
 
 import typer
 
-from ...api import cli as reducer_api
+from .. import internal_api as reducer_api
 from ...runtime.reducers.listing import render_reducer_list
 from ..support.utils import (
     cli_call,

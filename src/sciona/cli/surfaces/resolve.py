@@ -9,7 +9,7 @@ import json
 
 import typer
 
-from ...api import cli as resolver
+from .. import internal_api as resolver
 from ..support.utils import cli_call, emit_dirty_worktree_warning, get_dirty_worktree_warning
 from ..support import render as cli_render
 

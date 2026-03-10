@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import typer
 
-from ...api import cli as api_cli
+from .. import internal_api as api_cli
 from ..support.utils import cli_call
 from ..support import render as cli_render
 
