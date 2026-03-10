@@ -77,6 +77,10 @@ SCHEMA_STATEMENTS: list[str] = [
     ON call_sites(snapshot_id, resolution_status)
     """,
     """
+    CREATE INDEX IF NOT EXISTS idx_call_sites_caller_status_callee
+    ON call_sites(snapshot_id, caller_id, resolution_status, accepted_callee_id)
+    """,
+    """
     CREATE TABLE IF NOT EXISTS graph_nodes (
         node_id TEXT PRIMARY KEY,
         node_kind TEXT NOT NULL
