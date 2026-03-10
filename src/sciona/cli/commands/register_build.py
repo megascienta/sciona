@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from time import perf_counter
+
 import typer
 
 from .. import repo_ops
@@ -22,10 +24,13 @@ def register_build(app: typer.Typer) -> None:
         ),
     ) -> None:
         """Create a new snapshot and ingest enabled languages (clean worktree required)."""
+        started_at = perf_counter()
         result = cli_call(lambda: repo_ops.build(force_rebuild=force_rebuild))
         summary = cli_call(repo_ops.snapshot_report, snapshot_id=result.snapshot_id)
+        command_wall_seconds = perf_counter() - started_at
         payload = dict(result.__dict__)
         payload["summary"] = summary
+        payload["command_wall_seconds"] = max(command_wall_seconds, 0.0)
         cli_render.emit(cli_render.render_build(payload))
         _emit_build_warnings(result)
         _exit_if_no_discovery(result)

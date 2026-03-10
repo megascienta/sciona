@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from sciona.cli import repo_ops
+from sciona.cli.commands import register_build as build_command
 from sciona.pipelines.exec.build import BuildResult
 
 
@@ -47,10 +48,13 @@ def test_cli_build_forwards_force_rebuild_flag(
 
     monkeypatch.setattr(repo_ops, "build", _build)
     monkeypatch.setattr(repo_ops, "snapshot_report", lambda snapshot_id: _fake_summary())
+    perf_values = iter([10.0, 11.25])
+    monkeypatch.setattr(build_command, "perf_counter", lambda: next(perf_values))
     result = cli_runner.invoke(cli_app, ["build", "--force"])
     assert result.exit_code == 0
     assert calls == [True]
-    assert "Total build time: 1.23s" in result.stdout
+    assert "Total build time: 1.25s" in result.stdout
+    assert "Build core time: 1.23s" in result.stdout
 
 
 def test_cli_build_defaults_force_rebuild_false(
@@ -64,6 +68,8 @@ def test_cli_build_defaults_force_rebuild_false(
 
     monkeypatch.setattr(repo_ops, "build", _build)
     monkeypatch.setattr(repo_ops, "snapshot_report", lambda snapshot_id: _fake_summary())
+    perf_values = iter([20.0, 20.5])
+    monkeypatch.setattr(build_command, "perf_counter", lambda: next(perf_values))
     result = cli_runner.invoke(cli_app, ["build"])
     assert result.exit_code == 0
     assert calls == [False]

@@ -33,13 +33,20 @@ def render_init(payload: dict) -> list[str]:
 def render_build(payload: dict) -> list[str]:
     lines: list[str] = []
     summary = payload.get("summary")
+    command_wall_seconds = _format_duration_seconds(payload.get("command_wall_seconds"))
     if summary:
         lines.append("Summary:")
-        build_total_seconds = _format_duration_seconds(
+        displayed_total = command_wall_seconds or _format_duration_seconds(
             summary.get("build_total_seconds")
         )
-        if build_total_seconds is not None:
-            lines.append(f"  Total build time: {build_total_seconds}")
+        if displayed_total is not None:
+            lines.append(f"  Total build time: {displayed_total}")
+        build_total_seconds = _format_duration_seconds(summary.get("build_total_seconds"))
+        if (
+            command_wall_seconds is not None
+            and build_total_seconds is not None
+        ):
+            lines.append(f"  Build core time: {build_total_seconds}")
         lines.extend(
             _render_summary_lines(
                 summary,
