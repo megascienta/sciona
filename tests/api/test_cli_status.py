@@ -26,6 +26,7 @@ def _fake_summary():
     return {
         "snapshot_id": "snap-1",
         "created_at": "2026-03-04T00:00:00Z",
+        "build_total_seconds": 1.234,
         "artifact_db_available": True,
         "languages": [
             {
@@ -102,6 +103,7 @@ def test_cli_status_default_uses_short_summary(cli_app, cli_runner, monkeypatch)
     assert result.exit_code == 0
     assert calls == [False]
     assert "Last build:" in result.stdout
+    assert "Total build time: 1.23s" in result.stdout
     assert "Summary:" in result.stdout
     assert "Discovery:" not in result.stdout
     assert "call_materialization:" not in result.stdout
@@ -126,6 +128,7 @@ def test_cli_status_full_emits_failure_reasons(cli_app, cli_runner, monkeypatch)
     assert result.exit_code == 0
     assert calls == [True]
     assert "call_materialization:" in result.stdout
+    assert "Total build time: 1.23s" in result.stdout
     assert "non_tests:" in result.stdout
     assert "tests:" in result.stdout
     assert "failed reasons: no_candidates=1" in result.stdout
@@ -153,6 +156,7 @@ def test_cli_status_json_emits_payload(cli_app, cli_runner, monkeypatch):
     assert payload["latest_snapshot"] == "snap-1"
     assert payload["status_report_version"] == 1
     assert payload["summary"]["snapshot_id"] == "snap-1"
+    assert payload["summary"]["build_total_seconds"] == 1.234
     assert payload["summary"]["languages"][0]["drop_reasons"]["no_candidates"] == 1
 
 
@@ -176,6 +180,7 @@ def test_cli_status_output_writes_json_file(cli_app, cli_runner, monkeypatch, tm
     assert payload["status_report_version"] == 1
     assert not payload["repo_root"].startswith("/")
     assert payload["detailed"] is True
+    assert payload["summary"]["build_total_seconds"] == 1.234
     assert payload["summary"]["languages"][0]["drop_reasons"]["no_candidates"] == 1
 
 

@@ -13,6 +13,7 @@ from ..domain.repository import RepoState
 from ...data_storage.connections import artifact_readonly, core_readonly
 from ...data_storage.core_db import read_ops as core_read
 from ...data_storage.artifact_db import read_reporting as artifact_reporting
+from ...data_storage.artifact_db import read_status as artifact_status
 from .reporting_callsites import (
     adjusted_call_sites_payload as _adjusted_call_sites_payload_impl,
     build_callable_identifier_index as _build_callable_identifier_index_impl,
@@ -94,6 +95,7 @@ def snapshot_report(
     file_node_distribution_by_language: dict[str, list[tuple[str, int]]] = {}
     discovered_files_by_language = _discovered_files_by_language(repo_state.repo_root)
     created_at: str | None = None
+    build_total_seconds: float | None = None
 
     with core_readonly(repo_state.db_path, repo_root=repo_state.repo_root) as conn:
         created_at = core_read.snapshot_created_at(conn, snapshot_id)
@@ -164,6 +166,9 @@ def snapshot_report(
             repo_state.artifact_db_path, repo_root=repo_state.repo_root
         ) as conn:
             artifact_available = True
+            build_total_seconds = artifact_status.build_total_seconds_for_snapshot(
+                conn, snapshot_id=snapshot_id
+            )
             call_sites = artifact_reporting.call_site_caller_status_counts(
                 conn,
                 snapshot_id=snapshot_id,
@@ -352,6 +357,7 @@ def snapshot_report(
     payload: dict[str, object] = {
         "snapshot_id": snapshot_id,
         "created_at": created_at,
+        "build_total_seconds": build_total_seconds,
         "artifact_db_available": artifact_available,
         "call_sites_semantics": "filtered_persisted_artifact_working_set",
         "external_likely_semantics": "residual_filter_quality_signal",

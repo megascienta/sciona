@@ -35,6 +35,11 @@ def render_build(payload: dict) -> list[str]:
     summary = payload.get("summary")
     if summary:
         lines.append("Summary:")
+        build_total_seconds = _format_duration_seconds(
+            summary.get("build_total_seconds")
+        )
+        if build_total_seconds is not None:
+            lines.append(f"  Total build time: {build_total_seconds}")
         lines.extend(
             _render_summary_lines(
                 summary,
@@ -73,6 +78,11 @@ def render_status(payload: dict) -> list[str]:
     if payload.get("latest_snapshot"):
         lines.append("Last build:")
         if summary:
+            build_total_seconds = _format_duration_seconds(
+                summary.get("build_total_seconds")
+            )
+            if build_total_seconds is not None:
+                lines.append(f"  Total build time: {build_total_seconds}")
             lines.append("  Summary:")
             lines.extend(
                 _render_summary_lines(
@@ -86,6 +96,18 @@ def render_status(payload: dict) -> list[str]:
         else:
             lines.append("  Summary: unavailable")
     return lines
+
+
+def _format_duration_seconds(value: object) -> str | None:
+    if value is None:
+        return None
+    try:
+        seconds = float(value)
+    except (TypeError, ValueError):
+        return None
+    if seconds < 0:
+        return None
+    return f"{seconds:.2f}s"
 
 
 def _render_summary_lines(

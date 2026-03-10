@@ -35,3 +35,23 @@ def test_rebuild_status_consistency_failed(tmp_path):
         )
     finally:
         conn.close()
+
+
+def test_build_total_seconds_for_snapshot(tmp_path):
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    (repo_root / ".sciona").mkdir()
+    conn = artifact_connect(get_artifact_db_path(repo_root), repo_root=repo_root)
+    try:
+        artifact_write.set_rebuild_metadata(
+            conn,
+            key="build_total_seconds:snap_3",
+            value="2.500000",
+        )
+        conn.commit()
+        assert artifact_read.build_total_seconds_for_snapshot(
+            conn,
+            snapshot_id="snap_3",
+        ) == 2.5
+    finally:
+        conn.close()

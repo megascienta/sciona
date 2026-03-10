@@ -6,6 +6,7 @@ from __future__ import annotations
 import pytest
 
 from sciona.data_storage.artifact_db import connect as artifact_connect
+from sciona.data_storage.artifact_db import write_index as artifact_write
 from sciona.pipelines import repo as repo_pipeline
 from sciona.pipelines.exec import reporting as exec_reporting
 from sciona.runtime import constants as runtime_constants
@@ -53,6 +54,26 @@ def test_snapshot_report_returns_db_counts(repo_with_snapshot):
     assert python["structural_density"]["inflation_warning"] is False
     assert python["call_sites_by_scope"]["non_tests"]["eligible"] == 0
     assert python["call_sites_by_scope"]["tests"]["eligible"] == 0
+
+
+def test_snapshot_report_includes_build_total_seconds(repo_with_snapshot):
+    repo_root, snapshot_id = repo_with_snapshot
+    artifact_db = repo_root / ".sciona" / runtime_constants.ARTIFACT_DB_FILENAME
+
+    conn = artifact_connect(artifact_db, repo_root=repo_root)
+    try:
+        artifact_write.set_rebuild_metadata(
+            conn,
+            key=f"build_total_seconds:{snapshot_id}",
+            value="3.250000",
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    payload = repo_pipeline.snapshot_report(snapshot_id, repo_root=repo_root)
+    assert payload is not None
+    assert payload["build_total_seconds"] == pytest.approx(3.25)
 
 
 def test_snapshot_report_full_includes_failure_reasons(repo_with_snapshot):

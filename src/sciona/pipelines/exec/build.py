@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 from dataclasses import replace
 import sqlite3
 from pathlib import Path
+from time import perf_counter
 from typing import Optional, Sequence
 
 from ...runtime.logging import get_logger
@@ -19,8 +20,9 @@ from ...code_analysis.core.engine import BuildEngine
 from ..domain.policies import BuildPolicy
 from ..domain.repository import RepoState
 from ..domain.snapshots import SnapshotDecision, SnapshotLifecycle
-from ...data_storage.connections import artifact_readonly, core, core_readonly
+from ...data_storage.connections import artifact, artifact_readonly, core, core_readonly
 from ...data_storage.artifact_db import read_status as artifact_read
+from ...data_storage.artifact_db import write_index as artifact_write
 from ...data_storage.core_db import read_ops as core_read
 from ...data_storage.core_db import write_ops as core_write
 from ..build_artifacts import build_artifacts_for_snapshot
@@ -68,6 +70,7 @@ def build_repo(
     workspace_root: Optional[Path] = None,
     source: str = "scan",
 ) -> BuildResult:
+    started_at = perf_counter()
     workspace = workspace_root or repo_state.repo_root
     languages = policy.analysis.languages
     snapshot = snapshot_ingest.create_snapshot(workspace, source=source)
@@ -84,6 +87,11 @@ def build_repo(
             fingerprint_hash=fingerprint.fingerprint_hash,
         )
         if cached_result is not None:
+            _record_build_total_seconds(
+                repo_state=repo_state,
+                snapshot_id=cached_result.snapshot_id,
+                total_build_seconds=perf_counter() - started_at,
+            )
             return cached_result
 
     with core(repo_state.db_path, repo_root=repo_state.repo_root) as conn:
@@ -211,6 +219,11 @@ def build_repo(
                 structural_hash=structural_hash,
                 result_payload=_build_result_payload(result),
             )
+            _record_build_total_seconds(
+                repo_state=repo_state,
+                snapshot_id=result.snapshot_id,
+                total_build_seconds=perf_counter() - started_at,
+            )
             return result
         except Exception:
             if conn.in_transaction:
@@ -301,6 +314,21 @@ def _artifacts_ready_for_snapshot(repo_state: RepoState, snapshot_id: str) -> bo
             )
     except sqlite3.Error:
         return False
+
+
+def _record_build_total_seconds(
+    *,
+    repo_state: RepoState,
+    snapshot_id: str,
+    total_build_seconds: float,
+) -> None:
+    with artifact(repo_state.artifact_db_path, repo_root=repo_state.repo_root) as conn:
+        artifact_write.set_rebuild_metadata(
+            conn,
+            key=f"build_total_seconds:{snapshot_id}",
+            value=f"{max(total_build_seconds, 0.0):.6f}",
+        )
+        conn.commit()
 
 
 def _hydrate_result_payload(payload: dict[str, object]) -> BuildResult | None:
