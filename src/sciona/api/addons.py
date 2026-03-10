@@ -12,7 +12,7 @@ from typing import Iterator
 from ..data_storage import connections
 from ..pipelines.ops.reducers import list_entries
 from ..runtime import paths as runtime_paths
-from ..runtime.addon_contract import (
+from ..runtime.addons.contract import (
     PLUGIN_API_MAJOR,
     PLUGIN_API_MINOR,
     PLUGIN_API_VERSION,
