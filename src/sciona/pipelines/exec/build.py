@@ -25,7 +25,7 @@ from ...data_storage.artifact_db.reporting import read_status as artifact_read
 from ...data_storage.artifact_db.writes import write_index as artifact_write
 from ...data_storage.core_db import read_ops as core_read
 from ...data_storage.core_db import write_ops as core_write
-from ..build_artifacts import build_artifacts_for_snapshot
+from ..ops.build_artifacts import build_artifacts_for_snapshot
 from ..progress import make_progress_factory
 from .build_fingerprint import (
     compute_build_fingerprint,

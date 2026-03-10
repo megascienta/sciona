@@ -5,7 +5,7 @@ import json
 
 import pytest
 
-from sciona.pipelines import setup
+from sciona.pipelines.ops import setup
 from sciona.runtime import constants as setup_config
 from sciona.runtime.errors import (
     CorruptVersionFileError,

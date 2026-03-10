@@ -18,7 +18,7 @@ from ..domain.repository import RepoState
 _LOGGER = get_logger("pipelines.exec.repo")
 from ...data_storage.connections import core
 from ...data_storage.core_db import read_ops as core_read
-from .. import setup as versioning
+from ..ops import setup as versioning
 from ..errors import ConfigError
 
 

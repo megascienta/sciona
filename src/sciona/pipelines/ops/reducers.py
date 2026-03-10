@@ -12,16 +12,16 @@ from typing import List, Optional, Tuple
 
 from pathlib import Path
 
-from ..reducers.registry import get_reducers, load_reducer
+from ...reducers.registry import get_reducers, load_reducer
 from .resolve import require_identifier
-from .policy import repo as policy_repo
-from .policy import snapshot as snapshot_policy
-from ..data_storage.connections import core
-from ..data_storage.connections import artifact as artifact_db
-from . import diff_overlay
-from .errors import WorkflowError
-from ..runtime.paths import get_artifact_db_path, get_db_path
-from ..reducers.helpers.shared.context import (
+from ..policy import repo as policy_repo
+from ..policy import snapshot as snapshot_policy
+from ...data_storage.connections import core
+from ...data_storage.connections import artifact as artifact_db
+from .. import diff_overlay
+from ..errors import WorkflowError
+from ...runtime.paths import get_artifact_db_path, get_db_path
+from ...reducers.helpers.shared.context import (
     use_artifact_connection,
     use_overlay_payload,
 )

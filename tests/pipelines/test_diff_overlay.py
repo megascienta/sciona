@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from sciona.pipelines.reducers import emit
+from sciona.pipelines.ops.reducers import emit
 from sciona.reducers import overlay_projection_status_summary
 from sciona.pipelines.diff_overlay.patching.analytics import patch_callsite_index
 from sciona.pipelines.diff_overlay.patching.analytics import (

@@ -17,7 +17,7 @@ from ...runtime.git.adapter import GitAdapter, GitCliAdapter
 from ..domain.repository import RepoState
 from ...runtime.config import LanguageSettings
 from ...runtime.config.defaults import LANGUAGE_DEFAULTS
-from .. import setup as versioning
+from ..ops import setup as versioning
 from ..errors import ConfigError, GitError
 
 

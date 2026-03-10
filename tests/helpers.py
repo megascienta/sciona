@@ -14,7 +14,7 @@ from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.data_storage.artifact_db.maintenance import rebuild_graph_index
 from sciona.data_storage.core_db.schema import ensure_schema
 from sciona.data_storage.common.transactions import transaction
-from sciona.pipelines import setup as versioning
+from sciona.pipelines.ops import setup as versioning
 
 
 def insert_snapshot(

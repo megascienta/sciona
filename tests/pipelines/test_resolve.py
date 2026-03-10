@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-from sciona.pipelines import resolve as resolver
+from sciona.pipelines.ops import resolve as resolver
 from sciona.runtime import paths as runtime_paths
 
 from tests.helpers import seed_repo_with_snapshot

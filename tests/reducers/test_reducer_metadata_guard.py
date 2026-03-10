@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from typing import Iterable
 
-from sciona.pipelines.reducers import emit
+from sciona.pipelines.ops.reducers import emit
 from tests.helpers import parse_json_payload, qualify_repo_name
 
 
