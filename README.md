@@ -24,7 +24,17 @@ Although motivated by LLM-assisted workflows, SCIONA itself is **LLM-agnostic in
 
 SCIONA is designed for workflows where tools must reliably reason about repository structure: grounding LLM code assistants, deterministic refactoring analysis, repository auditing and inspection, building code intelligence tools, stabilizing long-running agent workflows.
 
-SCIONA can be used directly via its CLI or integrated into LLM-assisted workflows. **During initialization, SCIONA can auto-generate an `AGENTS.md` file in the repository root.** This file acts as a control surface for LLM copilots, specifying how SCIONA should be used during code reasoning. **In this mode, the copilot is instructed to reason over reducer outputs instead of reconstructing repository structure heuristically from source text.** Initialization can also install a post-commit hook to automatically keep the SCIONA snapshot metadata up to date.
+SCIONA can be used directly via its CLI or integrated into LLM-assisted workflows. **During initialization, SCIONA can auto-generate an `AGENTS.md` file in the repository root.** This file acts as a control surface for LLM copilots, specifying how SCIONA should be used during code reasoning. **In this mode, the copilot is instructed to use reducer outputs for structural reasoning within SCIONA’s scope, rather than reconstructing repository structure heuristically from source text.** Initialization can also install a post-commit hook that runs sciona build after each commit so SCIONA stays aligned with the latest committed repository state.
+
+The `AGENTS.md` template is designed around several guiding principles:
+
+- Structural grounding is mandatory where SCIONA applies.
+- SCIONA insufficiency must be explicit.
+- Other tools remain fully available for non-structural or out-of-scope questions.
+- Fallback use is allowed after applicable SCIONA analysis is exhausted.
+- Mixed evidence must be labeled.
+
+This structure encourages deterministic structural reasoning while preserving flexibility for broader repository analysis.
 
 ## Quick start
 

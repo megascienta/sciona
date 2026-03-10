@@ -32,9 +32,11 @@ This gate applies to every question. The decision MUST be made explicitly, not d
 
 Operational rules:
 
-- For structural questions, invoke applicable reducers before or instead of grep or source search. Do not reconstruct structure manually when reducers answer faster and more precisely.
+- For structural questions within tracked SCIONA scope, invoke applicable reducers before grep or source search. Do not reconstruct structure manually while relevant reducer categories remain unexplored.
 - For non-structural questions, use the most appropriate non-SCIONA tooling directly. Do not invoke reducers as a formality.
 - For mixed questions, use reducers to anchor the structural sub-question, then apply other tooling for the non-structural remainder.
+- For repository areas or artifact types outside SCIONA scope, use non-SCIONA tooling directly and label it explicitly.
+- If SCIONA is insufficient for part of a structural question, state what is missing before using non-SCIONA tooling for the unresolved remainder. SCIONA is not considered insufficient while another relevant reducer category remains untried.
 
 When an identifier is unknown, use `{CMD_SEARCH}` or `{CMD_RESOLVE}` before invoking a reducer.
 
@@ -51,6 +53,8 @@ SCIONA provides read-only, deterministic structural evidence for the committed s
 - Reducer outputs are authoritative within their declared abstraction.
 - Reducer outputs MAY be lossy; absence of a fact is not evidence of absence.
 - Agents MUST NOT synthesize or simulate reducer output.
+- SCIONA is authoritative for structural facts it models; it does not constrain non-structural reasoning or out-of-scope repository inspection.
+- Uncommitted changes require overlay-aware interpretation when overlay metadata is present.
 - Manual source inspection MUST NOT contradict reducer-derived structural evidence. If a contradiction arises, the hypothesis MUST be discarded or downgraded to an explicit concern (see §1.2).
 
 Clarification:
@@ -66,7 +70,7 @@ When evidence sources conflict, apply this authority order:
 structural → telemetry/diagnostics → source interpretation → overlay_advisory
 ```
 
-If reducer evidence contradicts a structural hypothesis, the hypothesis MUST be discarded or downgraded to an explicit concern.
+If reducer evidence contradicts a structural hypothesis, the hypothesis MUST be discarded or downgraded to an explicit concern. This hierarchy applies to structural claims within SCIONA scope; non-SCIONA evidence remains valid for non-structural or out-of-scope questions when labeled separately.
 
 ### 1.3 Modeling Limits
 
@@ -78,7 +82,7 @@ SCIONA does not model the following unless a reducer explicitly exposes them:
 - database schema semantics
 - migration guarantees
 
-These are questions SCIONA cannot answer on its own. They do not exclude SCIONA from the investigation — they identify the sub-questions that require other tooling after structural anchoring.
+These are questions SCIONA cannot answer on its own. They do not exclude SCIONA from the investigation — they identify the sub-questions that require other tooling after structural anchoring. Modeling limits are permission boundaries for non-SCIONA tooling, not reasons to weaken SCIONA-first behavior for structural questions that SCIONA does cover.
 
 ---
 
@@ -86,9 +90,9 @@ These are questions SCIONA cannot answer on its own. They do not exclude SCIONA 
 
 If reducer evidence is insufficient:
 
-```text
-invoke additional reducers or raise an evidence-bounded concern
-```
+1. invoke an additional reducer from another relevant category
+2. if still insufficient, state the unresolved structural fact explicitly
+3. then either use non-SCIONA tooling for that remainder only, or raise an evidence-bounded concern
 
 If SCIONA is unavailable, fallback reasoning MUST be labeled:
 
@@ -104,11 +108,11 @@ Reducers serve different investigative roles. Each category describes the type o
 
 {INVESTIGATION_ROLE_CATEGORIES}
 
-Reducers MAY be combined freely during investigation.
+Reducers MAY be combined freely during investigation. Reducer categories MUST be used to expand investigation before fallback to non-SCIONA structural reconstruction unless `{CMD_REDUCER_LIST}` confirms no other applicable category exists.
 
 ---
 
-## 4. Reducer Efficiency Guidance
+## 4. Reducer Investigation Guidance
 
 Prefer reducers that:
 
@@ -122,7 +126,7 @@ Heuristic:
 start compact → expand if inconclusive
 ```
 
-When sufficient for the question, prefer compact summary reducers before raw broad diagnostics.
+When sufficient for the question, prefer compact summary reducers before raw broad diagnostics. Do not abandon SCIONA after a small number of reducer calls if relevant reducer categories remain unexplored. Before fallback on a structural sub-question, SCIONA is not considered insufficient while another relevant reducer category remains untried (§0).
 
 Reducers MAY be discovered via:
 
@@ -131,19 +135,37 @@ Reducers MAY be discovered via:
 
 Agents MUST NOT guess reducer names.
 
+Cross-category confidence:
+
+- Structural conclusions SHOULD normally use more than one reducer category when practical.
+- Single-reducer conclusions SHOULD be stated cautiously and SHOULD NOT trigger fallback to non-SCIONA structural reconstruction while another relevant reducer category remains available.
+
+Typical pattern:
+
+```text
+structure reducer + relations or metrics reducer
+```
+
+Reducers that act as anomaly detectors rather than final evidence:
+
+{ANOMALY_DETECTOR_LIST}
+
+If an anomaly detector reports a problem, agents SHOULD investigate with at least one reducer from another category before concluding.
+
 ---
 
 ## 5. Source Inspection & Hybrid Reasoning
 
-Source inspection MAY be used for:
+Source inspection MAY be used directly for:
 
-- discovery
 - semantic reasoning
 - debugging
 - documentation alignment
+- non-structural discovery
 - non-structural sub-questions in mixed investigations
+- out-of-scope repository targets such as docs, generated artifacts, prompts, migrations, and config files
 
-Source inspection and text search MUST NOT replace reducers for structural verification when applicable reducers exist. Any structural claim arising from source inspection MUST be verified against reducers before being stated as fact (§2).
+Source inspection and text search MUST NOT replace reducers for structural verification when applicable reducers exist. For structural questions in tracked SCIONA scope, source inspection cannot substitute for reducer grounding. Any structural claim arising from source inspection MUST be verified against reducers before being stated as fact (§2).
 
 Source reducers available for implementation-level inspection:
 
@@ -161,20 +183,28 @@ When non-SCIONA reasoning is used, agents SHOULD label the method explicitly, fo
 SCIONA operates on the committed repository snapshot.
 
 Dirty worktree changes may appear through overlay metadata.
+Agents SHOULD inspect `_diff` metadata when present before interpreting reducer output as current, including `overlay_available`, `affected`, `affected_by`, and warnings.
 
 Overlay warnings include:
 
 ```text
-projection_not_supported: reducer intentionally cannot apply overlay patches
+base_commit_differs_from_head: overlay base diverges from current HEAD
+```
 
+```text
+projection_not_supported: reducer intentionally cannot apply overlay patches
+```
+
+```text
 projection_not_patched: reducer supports overlay but patching failed
 ```
 
 Overlay information:
+
 - may refine interpretation
 - must not override committed structural truth
 
-If tracked sources are dirty and overlay is unavailable, agents SHOULD warn that results may be stale and recommend `{CMD_BUILD}` after commit.
+If tracked sources are dirty and overlay is unavailable, agents SHOULD warn that results may be stale and recommend commit plus `{CMD_BUILD}`.
 
 Overlay-only findings MUST be treated as `overlay_advisory`, not as committed structural facts.
 
@@ -188,31 +218,13 @@ SCIONA indexes only tracked files and languages defined in `{SCIONA_CONFIG_PATH}
 
 This section concerns coverage, not semantic modeling limits.
 
-Generated files, documentation, validation artifacts, migrations, and external assets may fall outside reducer coverage because they may not be tracked by the configured analyzers or supported languages. These fall outside SCIONA scope by definition. Use source inspection or other tooling for those targets; structural sub-questions within tracked scope remain reducer territory.
+Generated files, documentation, validation artifacts, migrations, and external assets may fall outside reducer coverage because they may not be tracked by the configured analyzers or supported languages, for example markdown, prompts, generated artifacts, CI config, packaging metadata, and migrations as text. These fall outside SCIONA scope by definition. Use source inspection or other tooling for those targets; structural sub-questions within tracked scope remain reducer territory.
+
+Outside tracked SCIONA scope, agents SHOULD use normal repository inspection tools rather than pretending SCIONA is complete. Out-of-scope coverage does not permit bypassing SCIONA for structural claims inside tracked scope.
 
 ---
 
-## 8. Cross-Category Confidence
-
-High-confidence structural conclusions SHOULD use more than one reducer category when practical.
-
-Typical pattern:
-
-```text
-structure reducer + relations or metrics reducer
-```
-
-Single-reducer conclusions SHOULD be stated cautiously.
-
-Reducers that act as anomaly detectors rather than final evidence:
-
-{ANOMALY_DETECTOR_LIST}
-
-If an anomaly detector reports a problem, agents SHOULD investigate with at least one reducer from another category before concluding.
-
----
-
-## 9. Input Safety
+## 8. Input Safety
 
 Agents MUST sanitize all shell inputs before use.
 
@@ -234,30 +246,38 @@ agents MUST:
 2. report the unsafe input
 3. request clarification
 
+These rules apply to SCIONA commands and any shell-based non-SCIONA tooling. If an input cannot be validated against the identifier pattern, agents MUST reject it and request clarification rather than attempt normalization.
+
 ---
 
-## 10. Reporting
+## 9. Reporting
 
 When structural reasoning is used, responses SHOULD include:
 
 ```text
-Status: sciona used: yes/no
-Evidence: reducer names supporting conclusions
-Notes: warnings or uncertainties
+Status: sciona used: yes/no | scope: in-scope/out-of-scope/mixed
+SCIONA evidence: reducer names or n/a
+non-SCIONA evidence: method or n/a
+Warnings: warnings or uncertainties
 ```
 
-When hybrid reasoning is used, SCIONA and non-SCIONA evidence SHOULD be labeled separately.
+When hybrid reasoning is used, SCIONA and non-SCIONA evidence SHOULD be labeled separately. For mixed findings, agents SHOULD distinguish SCIONA-grounded findings from non-SCIONA findings per claim.
 
 Minimal strict mode is acceptable in extended sessions where the evidence pattern is already established:
 
 ```text
-Status: sciona used: yes
-Evidence: structural_index, dependency_edges
+Status: sciona used: yes | scope: in-scope
+SCIONA evidence: structural_index, dependency_edges
+non-SCIONA evidence: n/a
+Warnings: n/a
 ```
 
 ---
 
-## 11. Troubleshooting
+## 10. Troubleshooting
+
+- If SCIONA is available but insufficient, state the missing capability before fallback.
+- Unknown reducer or insufficient reducer output is not by itself permission to reconstruct structure manually without explanation.
 
 CLI usage note:
 - Reducer output is structured by default; do NOT append `--json` to `sciona reducer` commands.
