@@ -52,6 +52,24 @@ Navigation speed: 7
 Confidence: 8
 Overall usefulness: 7
 
+## Task 6 - PR2 remove dead adjusted-metric helpers
+
+Task:
+Deleted the unused adjusted-metric helper functions from `pipelines.exec.reporting_callsites` after PR 1 removed all payload consumers.
+
+SCIONA usage:
+Relied on the prior SCIONA-guided ownership map; no new reducer output was needed because the remaining references were trivial to confirm locally.
+
+Observation:
+SCIONA was mainly valuable earlier in constraining the cleanup surface. Once localized, dead-code removal was faster with direct search than with additional structural queries.
+Confusion or limitations: None.
+
+Ratings:
+Structural clarity: 7
+Navigation speed: 7
+Confidence: 8
+Overall usefulness: 7
+
 ## Task 2 - Implement build total time reporting
 
 Task:

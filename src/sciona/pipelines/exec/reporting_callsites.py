@@ -30,28 +30,6 @@ def call_sites_payload(
     return payload
 
 
-def adjusted_call_sites_payload(
-    call_sites: dict[str, object] | None,
-    *,
-    excluded_external_likely: int,
-) -> dict[str, object]:
-    eligible = call_sites.get("eligible") if call_sites else None
-    accepted = call_sites.get("accepted") if call_sites else None
-    adjusted_eligible = None
-    success_rate = None
-    if isinstance(eligible, int):
-        adjusted_eligible = max(eligible - int(excluded_external_likely or 0), 0)
-    if isinstance(adjusted_eligible, int) and adjusted_eligible > 0 and isinstance(accepted, int):
-        success_rate = accepted / adjusted_eligible
-    return {
-        "eligible": eligible,
-        "accepted": accepted,
-        "excluded_external_likely": int(excluded_external_likely or 0),
-        "adjusted_eligible": adjusted_eligible,
-        "success_rate": success_rate,
-    }
-
-
 def top_items(items: dict[str, int], *, limit: int) -> list[dict[str, object]]:
     ordered = sorted(items.items(), key=lambda kv: (-kv[1], kv[0]))[:limit]
     return [{"name": name, "count": int(count)} for name, count in ordered]
@@ -78,25 +56,6 @@ def scope_call_sites_payload(
             int(counts.get("dropped", 0)),
         )
     return payload
-
-
-def scope_adjusted_call_sites_payload(
-    scope_payload: dict[str, dict[str, object]] | None,
-    *,
-    excluded_non_tests: int,
-    excluded_tests: int,
-) -> dict[str, dict[str, object]] | None:
-    if not scope_payload:
-        return None
-    non_tests = adjusted_call_sites_payload(
-        scope_payload.get("non_tests"),
-        excluded_external_likely=excluded_non_tests,
-    )
-    tests = adjusted_call_sites_payload(
-        scope_payload.get("tests"),
-        excluded_external_likely=excluded_tests,
-    )
-    return {"non_tests": non_tests, "tests": tests}
 
 
 def classification_quality_payload(
