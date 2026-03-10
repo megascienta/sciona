@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from .helpers.module_overview_impl import run
+from .helpers.impl.module_overview import run
 from .metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
@@ -29,7 +29,7 @@ def render(
     include_file_map: bool | None = None,
     **_: object,
 ) -> str:
-    from .helpers.module_overview_impl import render as _render
+    from .helpers.impl.module_overview import render as _render
 
     return _render(
         snapshot_id,

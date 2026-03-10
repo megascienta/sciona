@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from .helpers.structural_index_impl import run
+from .helpers.impl.structural_index import run
 from .metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
@@ -20,7 +20,7 @@ REDUCER_META = ReducerMeta(
 
 
 def render(snapshot_id: str, conn, repo_root, **_: object) -> str:
-    from .helpers.structural_index_impl import render as _render
+    from .helpers.impl.structural_index import render as _render
 
     return _render(snapshot_id, conn, repo_root)
 

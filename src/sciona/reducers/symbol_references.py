@@ -28,7 +28,7 @@ def render(
     limit: int | str | None = 20,
     **_: object,
 ) -> str:
-    from .helpers.symbol_references_impl import render as _render
+    from .helpers.impl.symbol_references import render as _render
 
     return _render(
         snapshot_id,

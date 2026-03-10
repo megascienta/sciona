@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from .helpers.callsite_index_impl import build_neighbors_payload
+from .helpers.impl.callsite_index import build_neighbors_payload
 from .metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
@@ -35,7 +35,7 @@ def render(
     drop_reason: str | None = None,
     **_: object,
 ) -> str:
-    from .helpers.callsite_index_impl import render as _render
+    from .helpers.impl.callsite_index import render as _render
 
     return _render(
         snapshot_id,

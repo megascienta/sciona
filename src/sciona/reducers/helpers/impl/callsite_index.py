@@ -7,17 +7,17 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional
 
-from ...pipelines.diff_overlay.patchers.analytics import patch_callsite_index
-from .shared import queries
-from .artifact_call_sites import load_callsite_enrichment
-from .artifact_graph_edges import (
+from ....pipelines.diff_overlay.patchers.analytics import patch_callsite_index
+from ..shared import queries
+from ..artifact_call_sites import load_callsite_enrichment
+from ..artifact_graph_edges import (
     artifact_db_available,
     load_artifact_edges,
 )
-from .shared.context import current_overlay_payload
-from .shared.render import render_json_payload, require_connection
-from .shared.utils import require_latest_committed_snapshot
-from ..metadata import ReducerMeta
+from ..shared.context import current_overlay_payload
+from ..shared.render import render_json_payload, require_connection
+from ..shared.utils import require_latest_committed_snapshot
+from ...metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="callsite_index",
