@@ -8,7 +8,7 @@ from __future__ import annotations
 from . import parity_contract
 from . import walker_capabilities
 from ..query import query_surface
-from ....tools import profile_query_surface
+from ....tools.profiling import query_surface as profile_query_surface
 
 
 def build_capability_manifest() -> dict[str, object]:

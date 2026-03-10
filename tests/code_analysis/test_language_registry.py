@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-from sciona.code_analysis.core.extract.contracts.language_registry import (
+from sciona.code_analysis.core.extract.interfaces.language_registry import (
     adapter_spec_v1,
     descriptor_validation_errors,
     descriptors,

@@ -3,6 +3,6 @@
 
 """Derived computation helpers."""
 
-from . import graph, module_id, orderings, structural_hash
+from . import module_id, orderings, structural_hash
 
-__all__ = ["graph", "module_id", "orderings", "structural_hash"]
+__all__ = ["module_id", "orderings", "structural_hash"]

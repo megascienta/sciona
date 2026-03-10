@@ -36,7 +36,7 @@ def test_select_analyzers_errors_for_missing_adapter(monkeypatch) -> None:
 
 def test_select_analyzers_errors_for_invalid_descriptor(monkeypatch) -> None:
     monkeypatch.setattr(
-        "sciona.code_analysis.core.extract.contracts.language_registry.assert_descriptor_compliant",
+        "sciona.code_analysis.core.extract.interfaces.language_registry.assert_descriptor_compliant",
         lambda _language: (_ for _ in ()).throw(
             ValueError("Invalid language descriptor for 'python': missing module_namer")
         ),

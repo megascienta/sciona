@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from sciona.code_analysis.contracts import (
+from sciona.code_analysis.analysis_contracts import (
     StrictCallDecision,
     build_strict_resolution_stats,
     merge_strict_resolution_stats,

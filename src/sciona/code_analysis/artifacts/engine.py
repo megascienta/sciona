@@ -13,7 +13,7 @@ from ...runtime import git as git_ops
 from ...runtime.logging import get_logger
 from ..core import routing
 from ...data_storage.core_db import read_ops as core_read
-from ..tools import snapshots, walker
+from ..tools.workspace import snapshots, walker
 from ..tools.call_extraction import CallExtractionRecord, normalize_call_identifiers
 
 logger = get_logger(__name__)

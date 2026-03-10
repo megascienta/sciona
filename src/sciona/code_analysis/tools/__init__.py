@@ -7,20 +7,12 @@ from __future__ import annotations
 
 from . import (
     call_extraction,
-    discovery,
     profiling,
-    profile_introspection,
-    snapshots,
-    walker,
     workspace,
 )
 
 __all__ = [
     "call_extraction",
-    "discovery",
     "profiling",
-    "profile_introspection",
-    "snapshots",
-    "walker",
     "workspace",
 ]

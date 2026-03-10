@@ -5,16 +5,16 @@ import ast
 from pathlib import Path
 
 from sciona import reducers
-from sciona.code_analysis.analysis import graph as analysis_graph
+from sciona.code_analysis.analysis import module_id as analysis_module_id
 import pytest
 
 
 pytestmark = [pytest.mark.policy]
 
 
-def test_analysis_graph_public_surface_is_explicit():
+def test_analysis_module_id_public_surface_is_explicit():
     expected = {"module_id_for"}
-    assert set(analysis_graph.__all__) == expected
+    assert set(analysis_module_id.__all__) == expected
 
 
 def test_structural_reducers_public_surface_exports_modules():

@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 from sciona.runtime import config as core_config
-from sciona.code_analysis.tools import walker
+from sciona.code_analysis.tools.workspace import walker
 
 
 def _settings(enabled: bool = True) -> dict[str, core_config.LanguageSettings]:

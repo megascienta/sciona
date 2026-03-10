@@ -68,3 +68,13 @@ Fallback: source inspection, targeted bulk import edits, `pytest` in `multiphysi
 Observations: SCIONA helped frame this as a discoverability change rather than a bug fix; import-depth mistakes surfaced only through test execution.
 RATINGS (1-10): Structural clarity 8 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 5 | Net usefulness vs baseline 7
+## Task 8 - remove compatibility wrappers
+Copilot: Codex
+Task description: Removed legacy wrapper modules and package exports, rewired all remaining imports and tests to canonical structural paths.
+Task type: implementation
+SCIONA usage: reused earlier structural findings only; no new reducer calls were needed for the removal work.
+Effect on workflow: have little impact
+Fallback: source inspection, `rg` import sweeps, broad targeted `pytest` in `multiphysics`
+Observations: SCIONA did not materially help here; the work was semantic migration and regression cleanup after the structural refactor.
+RATINGS (1-10): Structural clarity 5 | Navigation speed 4 | Confidence in answers 8 | Overall usefulness 4
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 3 | Confidence gain vs baseline 4 | Scope reduction vs baseline 3 | Query friction vs baseline 6 | Net usefulness vs baseline 4

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 
-from sciona.code_analysis.contracts import select_strict_call_candidate
+from sciona.code_analysis.analysis_contracts import select_strict_call_candidate
 
 
 def test_strict_call_contract_accepts_exact_qname() -> None:

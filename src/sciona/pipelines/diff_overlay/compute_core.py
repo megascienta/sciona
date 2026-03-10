@@ -15,9 +15,9 @@ from typing import Iterable
 from ...code_analysis.core.extract import registry
 from ...code_analysis import config as analysis_config
 from ...code_analysis.core.normalize_model import FileRecord, FileSnapshot, SemanticNodeRecord
-from ...code_analysis.tools import snapshots as snapshot_tools
+from ...code_analysis.tools.workspace import snapshots as snapshot_tools
 from ...code_analysis.tools.call_extraction import normalize_call_identifiers
-from ...code_analysis.tools import excludes as path_excludes
+from ...code_analysis.tools.workspace import excludes as path_excludes
 from ...data_storage.core_db import read_ops as core_read
 from ...runtime import config as runtime_config
 from ...runtime.config import io as runtime_config_io

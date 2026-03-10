@@ -53,9 +53,9 @@ def test_policy_no_typescript_structural_regex_fallback() -> None:
 def test_policy_profile_introspection_uses_bootstrap_helper() -> None:
     tools_root = _CODE_ANALYSIS_ROOT / "tools"
     paths = (
-        tools_root / "profile_introspection_python.py",
-        tools_root / "profile_introspection_typescript.py",
-        tools_root / "profile_introspection_java.py",
+        tools_root / "profiling" / "python.py",
+        tools_root / "profiling" / "typescript.py",
+        tools_root / "profiling" / "java.py",
     )
     for path in paths:
         text = path.read_text(encoding="utf-8")

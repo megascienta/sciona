@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Dict, List
 
 from ..code_analysis.analysis.orderings import order_nodes
-from ..code_analysis.tools.profile_introspection import (
+from ..code_analysis.tools.profiling import (
     java_class_extras,
     javascript_class_extras,
     python_class_extras,

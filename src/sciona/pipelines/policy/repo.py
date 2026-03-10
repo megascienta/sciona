@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Mapping, Optional, Set
 
 from ...code_analysis.core.extract.registry import extensions_for_language
-from ...code_analysis.tools import excludes as path_excludes
+from ...code_analysis.tools.workspace import excludes as path_excludes
 from ...runtime import git as git_ops
 from ...runtime import paths as runtime_paths
 from ...runtime import config as runtime_config

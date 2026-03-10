@@ -13,7 +13,7 @@ from sciona.code_analysis.tools.call_extraction import (
     ReceiverCallIR,
     collect_call_targets,
 )
-from sciona.code_analysis.tools.call_extraction_targets import _normalize_callee_text
+from sciona.code_analysis.tools.call_extraction.targets import _normalize_callee_text
 
 
 def _parser(language_name: str) -> Parser:

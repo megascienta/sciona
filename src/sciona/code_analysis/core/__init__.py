@@ -3,15 +3,21 @@
 
 """Core structural analysis modules."""
 
-from . import annotate, extract, normalize, routing
+from . import extract, routing
+from .annotate_diff import previous_snapshot_id
+from .normalize_model import AnalysisResult, EdgeRecord, FileRecord, FileSnapshot, SemanticNodeRecord
 from .snapshot import Snapshot, create_snapshot, persist_snapshot
 from .structural_assembler import StructuralAssembler
 
 __all__ = [
-    "annotate",
     "extract",
-    "normalize",
     "routing",
+    "previous_snapshot_id",
+    "AnalysisResult",
+    "EdgeRecord",
+    "FileRecord",
+    "FileSnapshot",
+    "SemanticNodeRecord",
     "Snapshot",
     "create_snapshot",
     "persist_snapshot",

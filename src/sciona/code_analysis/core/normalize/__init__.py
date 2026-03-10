@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Compatibility package for normalization record models."""
+"""Normalization package."""
 
-from .. import normalize_model as model
+__all__: list[str] = []
 
 __all__ = ["model"]

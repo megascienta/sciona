@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from ...code_analysis.tools import walker as file_walker
+from ...code_analysis.tools.workspace import walker as file_walker
 from ...runtime import config as runtime_config
 from ...runtime import git as git_ops
 from .reporting_callsites import top_items

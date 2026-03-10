@@ -8,7 +8,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Dict, List
 
-from ..code_analysis.tools.profile_introspection import (
+from ..code_analysis.tools.profiling import (
     java_function_extras,
     javascript_function_extras,
     python_function_extras,

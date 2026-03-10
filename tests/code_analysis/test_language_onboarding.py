@@ -3,7 +3,7 @@
 
 from pathlib import Path
 
-from sciona.code_analysis.core.extract.contracts.language_adapter import LanguageDescriptor
+from sciona.code_analysis.core.extract.interfaces.language_adapter import LanguageDescriptor
 from sciona.code_analysis.languages.onboarding import validate_language_onboarding
 
 

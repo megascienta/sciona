@@ -3,7 +3,7 @@
 
 from pathlib import Path
 
-from sciona.code_analysis.tools.profile_introspection import (
+from sciona.code_analysis.tools.profiling import (
     java_class_extras,
     java_function_extras,
     javascript_class_extras,
@@ -13,17 +13,17 @@ from sciona.code_analysis.tools.profile_introspection import (
     typescript_class_extras,
     typescript_function_extras,
 )
-from sciona.code_analysis.tools.profile_introspection_cache import (
+from sciona.code_analysis.tools.profiling.cache import (
     _javascript_inspector_cached,
     _java_inspector_cached,
     _python_inspector_cached,
     _typescript_inspector_cached,
 )
-from sciona.code_analysis.tools.profile_introspection_typescript import (
+from sciona.code_analysis.tools.profiling.typescript import (
     _TypeScriptInspector,
     _fuzzy_span_lookup,
 )
-from sciona.code_analysis.tools.profile_query_surface import (
+from sciona.code_analysis.tools.profiling.query_surface import (
     JAVA_PROFILE_CLASS_NODE_TYPES,
     JAVA_PROFILE_FUNCTION_NODE_TYPES,
     JAVA_PROFILE_PARAMETER_NODE_TYPES,
