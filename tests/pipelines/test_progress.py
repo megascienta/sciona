@@ -16,8 +16,8 @@ def test_make_progress_handle_advances_and_closes() -> None:
 
 
 def test_build_progress_numbers_phases_and_progress_labels() -> None:
-    progress = make_build_progress(total_steps=3)
+    progress = make_build_progress(total_steps=10)
 
-    assert progress._next_label("Phase one") == "[1/3] Phase one"
-    assert progress._next_label("Phase two") == "[2/3] Phase two"
-    assert progress._next_label("Phase three") == "[3/3] Phase three"
+    assert progress._next_label("Phase one") == "[1/10] Phase one"
+    assert progress._next_label("Phase two") == "[2/10] Phase two"
+    assert progress._next_label("Phase three") == "[3/10] Phase three"
