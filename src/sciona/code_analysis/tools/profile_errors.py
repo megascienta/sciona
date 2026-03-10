@@ -1,25 +1,10 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Exceptions for profile introspection tree-sitter operations."""
+"""Compatibility wrapper for profiling errors."""
 
 from __future__ import annotations
 
+from .profiling.errors import QueryCompileError, TreeSitterBootstrapError
 
-class ProfileIntrospectionError(RuntimeError):
-    """Base profile introspection exception."""
-
-
-class TreeSitterBootstrapError(ProfileIntrospectionError):
-    """Raised when tree-sitter parser/bootstrap setup fails."""
-
-
-class QueryCompileError(ProfileIntrospectionError):
-    """Raised when tree-sitter query compilation/execution fails."""
-
-
-__all__ = [
-    "ProfileIntrospectionError",
-    "QueryCompileError",
-    "TreeSitterBootstrapError",
-]
+__all__ = ["QueryCompileError", "TreeSitterBootstrapError"]

@@ -10,8 +10,8 @@ from typing import Callable, Sequence, Set
 
 from tree_sitter_languages import get_language
 
-from .call_extraction_queries import normalize_call_identifiers
-from .call_extraction_targets import (
+from .queries import normalize_call_identifiers
+from .targets import (
     _call_target_ir,
     _callee_shape,
     _callee_text,
@@ -19,7 +19,7 @@ from .call_extraction_targets import (
     _first_child,
     _normalize_callee_text,
 )
-from .call_extraction_types import (
+from .types import (
     CallExtractionRecord,
     CallTarget,
     CallTargetIR,
@@ -27,7 +27,7 @@ from .call_extraction_types import (
     ReceiverCallIR,
     TerminalCallIR,
 )
-from ..config import TERMINAL_IDENTIFIER_TYPES_BY_LANGUAGE
+from ...config import TERMINAL_IDENTIFIER_TYPES_BY_LANGUAGE
 
 def collect_call_identifiers(
     node,
