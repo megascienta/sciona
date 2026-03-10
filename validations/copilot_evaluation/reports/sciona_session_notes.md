@@ -288,6 +288,16 @@ Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `mult
 Observations: SCIONA made the boundary decision straightforward; the practical work was import migration across the CLI package and CLI-oriented tests.
 RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 7
+## Task 37 - api cli surface removal
+Copilot: Codex
+Task description: Locked in the public API boundary so `sciona.api` exposes only addon-safe namespaces and no longer treats `api.cli` as a supported surface.
+Task type: repository maintenance
+SCIONA usage: reused the API structure review to confirm that removing `api.cli` from the supported surface matched actual ownership and usage.
+Effect on workflow: confirm assumptions; reduce search space
+Fallback: source inspection, targeted `pytest` in `multiphysics`
+Observations: SCIONA mainly provided the structural rationale; the implementation was a surface-contract test update rather than a code move.
+RATINGS (1-10): Structural clarity 7 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 6
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 6 | Scope reduction vs baseline 6 | Query friction vs baseline 4 | Net usefulness vs baseline 6
 ## Task 13 - artifact_db maintenance package
 Copilot: Codex
 Task description: Moved graph rebuild logic into a dedicated `artifact_db.maintenance` package and removed the misplaced rollup maintenance path.

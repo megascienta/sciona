@@ -3,6 +3,10 @@
 
 from __future__ import annotations
 
+import importlib
+
+import pytest
+
 from sciona import api
 from sciona.runtime import paths as runtime_paths
 
@@ -11,6 +15,12 @@ def test_public_api_root_exposes_namespaces_only():
     assert api.__all__ == ["addons"]
     for name in api.__all__:
         assert hasattr(api, name)
+    assert not hasattr(api, "cli")
+
+
+def test_cli_module_is_not_part_of_public_api_surface():
+    with pytest.raises(ModuleNotFoundError):
+        importlib.import_module("sciona.api.cli")
 
 
 def test_public_addon_api_surface_is_explicit_and_stable():
