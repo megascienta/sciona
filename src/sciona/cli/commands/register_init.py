@@ -13,8 +13,8 @@ import typer
 
 from ...api import errors as api_errors
 from ...api import cli as api_cli
-from ..utils import agents_command_map, cli_call
-from .. import render as cli_render
+from ..support.utils import agents_command_map, cli_call
+from ..support import render as cli_render
 
 
 def register_init(app: typer.Typer) -> None:

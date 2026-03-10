@@ -10,8 +10,8 @@ import json
 import typer
 
 from ...api import cli as resolver
-from ..utils import cli_call, emit_dirty_worktree_warning, get_dirty_worktree_warning
-from .. import render as cli_render
+from ..support.utils import cli_call, emit_dirty_worktree_warning, get_dirty_worktree_warning
+from ..support import render as cli_render
 
 
 def register(app: typer.Typer) -> None:

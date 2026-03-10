@@ -4,7 +4,7 @@
 import pytest
 import typer
 
-from sciona.cli.utils import parse_extra_args
+from sciona.cli.support.utils import parse_extra_args
 
 
 def test_parse_extra_args_accepts_normalized_keys():

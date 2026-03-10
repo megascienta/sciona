@@ -10,8 +10,8 @@ from typing import Optional
 import typer
 
 from ...api import cli as api_cli
-from ..utils import cli_call
-from .. import render as cli_render
+from ..support.utils import cli_call
+from ..support import render as cli_render
 
 
 def register_hooks(app: typer.Typer) -> None:

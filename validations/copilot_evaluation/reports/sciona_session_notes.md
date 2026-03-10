@@ -238,6 +238,16 @@ Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `mult
 Observations: SCIONA helped identify the low-risk move set; the practical work was adjusting relative-import depth and validating the direct CLI command tests.
 RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 7
+## Task 32 - cli support package
+Copilot: Codex
+Task description: Moved shared CLI rendering, argument, and error helpers into `cli.support` and rewired command and surface modules to the new support boundary.
+Task type: implementation
+SCIONA usage: reused the CLI architecture review to keep `commands` separate while relocating only shared helper infrastructure.
+Effect on workflow: reduce search space; confirm assumptions
+Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `multiphysics`
+Observations: SCIONA helped bound the move, but `render.py` and `utils.py` were hub modules, so practical work was dominated by import cleanup across commands and tests.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 7
 ## Task 13 - artifact_db maintenance package
 Copilot: Codex
 Task description: Moved graph rebuild logic into a dedicated `artifact_db.maintenance` package and removed the misplaced rollup maintenance path.

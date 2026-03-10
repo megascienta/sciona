@@ -8,7 +8,7 @@ from __future__ import annotations
 import typer
 
 from ...api import cli as api_cli
-from ..utils import agents_command_map, cli_call
+from ..support.utils import agents_command_map, cli_call
 
 
 def register_agents(app: typer.Typer) -> None:

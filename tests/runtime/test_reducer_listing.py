@@ -7,7 +7,7 @@ from sciona.runtime.reducers.listing import (
     render_reducer_catalog,
     render_reducer_list,
 )
-from sciona.cli.render import render_reducer_show
+from sciona.cli.support.render import render_reducer_show
 
 
 class _DummyReducer:
