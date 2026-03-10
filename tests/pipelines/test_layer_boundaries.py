@@ -20,18 +20,16 @@ FORBIDDEN_IMPORTS = {
     "pipelines": {"cli", "api"},
     "reducers": {"cli", "api", "pipelines"},
     "api": {"cli"},
-    "cli": {"pipelines", "data_storage", "code_analysis", "reducers"},
+    "cli": {"data_storage", "code_analysis", "reducers"},
 }
 
 RESPONSIBILITY_FORBIDDEN_IMPORTS = {
     "pipelines": {"runtime.config.parse"},
     "api": {"pipelines.domain"},
     "cli": {
-        "pipelines",
         "data_storage",
         "code_analysis",
         "reducers",
-        "sciona.pipelines",
         "sciona.data_storage",
         "sciona.code_analysis",
         "sciona.reducers",
