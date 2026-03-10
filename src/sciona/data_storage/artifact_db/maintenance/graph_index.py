@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from itertools import chain
 from typing import Final
 
 from ...core_db import read_ops as core_read
@@ -34,10 +35,16 @@ def rebuild_graph_index(
         WHERE valid = 1
         """,
     ).fetchall()
-    graph_edges.extend(
-        [(row["caller_id"], row["callee_id"], CALL_EDGE_KIND) for row in call_edges]
+    write_graph.insert_graph_edges(
+        artifact_conn,
+        rows=chain(
+            graph_edges,
+            (
+                (row["caller_id"], row["callee_id"], CALL_EDGE_KIND)
+                for row in call_edges
+            ),
+        ),
     )
-    write_graph.insert_graph_edges(artifact_conn, rows=graph_edges)
 
 
 __all__ = ["CALL_EDGE_KIND", "rebuild_graph_index"]

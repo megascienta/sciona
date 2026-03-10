@@ -21,7 +21,7 @@ def insert_graph_nodes(
     """rows: (node_id, node_kind)"""
     conn.executemany(
         "INSERT OR REPLACE INTO graph_nodes(node_id, node_kind) VALUES (?, ?)",
-        list(rows),
+        rows,
     )
 
 
@@ -36,5 +36,5 @@ def insert_graph_edges(
         INSERT OR IGNORE INTO graph_edges(src_node_id, dst_node_id, edge_kind)
         VALUES (?, ?, ?)
         """,
-        list(rows),
+        rows,
     )

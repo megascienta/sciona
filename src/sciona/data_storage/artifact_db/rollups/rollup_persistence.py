@@ -79,6 +79,30 @@ def write_node_fan_stats(conn, rows: Iterable[tuple[str, str, str, int, int]]) -
     store_rollups.insert_node_fan_stats(conn, rows=payload)
 
 
+def reset_rollup_temp_tables(conn) -> None:
+    store_rollups.reset_rollup_temp_tables(conn)
+
+
+def load_module_lookup(conn, rows: Iterable[tuple[str, str]]) -> None:
+    store_rollups.load_module_lookup(conn, rows=rows)
+
+
+def load_method_to_class(conn, rows: Iterable[tuple[str, str]]) -> None:
+    store_rollups.load_method_to_class(conn, rows=rows)
+
+
+def rebuild_module_call_edges(conn) -> None:
+    store_rollups.insert_module_call_edges_from_graph(conn)
+
+
+def rebuild_class_call_edges(conn) -> None:
+    store_rollups.insert_class_call_edges_from_graph(conn)
+
+
+def rebuild_node_fan_stats(conn) -> None:
+    store_rollups.insert_node_fan_stats_from_graph(conn)
+
+
 def upsert_node_calls(
     conn,
     *,
@@ -134,6 +158,12 @@ __all__ = [
     "list_persisted_callsite_callees",
     "list_graph_edges",
     "reset_graph_rollups",
+    "reset_rollup_temp_tables",
+    "load_module_lookup",
+    "load_method_to_class",
+    "rebuild_module_call_edges",
+    "rebuild_class_call_edges",
+    "rebuild_node_fan_stats",
     "upsert_call_sites",
     "upsert_node_calls",
     "write_class_call_edges",
