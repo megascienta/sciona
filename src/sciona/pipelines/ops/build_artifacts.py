@@ -79,7 +79,7 @@ def refresh_artifact_state(
         phase_reporter("Refreshing artifacts")
     current_node_ids = _timed_phase(
         "load_current_node_ids",
-        lambda: set(core_read.snapshot_node_hashes(conn, snapshot_id).keys()),
+        lambda: set(core_read.snapshot_structural_ids(conn, snapshot_id)),
     )
     eligible_callers: Set[str] = set(current_node_ids)
     artifact_path = get_artifact_db_path(repo_root)

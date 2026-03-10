@@ -136,6 +136,21 @@ def list_structural_nodes(
     ).fetchall()
     return [(row["structural_id"], row["node_type"]) for row in rows]
 
+
+def snapshot_structural_ids(
+    conn: sqlite3.Connection,
+    snapshot_id: str,
+) -> list[str]:
+    rows = conn.execute(
+        """
+        SELECT DISTINCT structural_id
+        FROM node_instances
+        WHERE snapshot_id = ?
+        """,
+        (snapshot_id,),
+    ).fetchall()
+    return [row["structural_id"] for row in rows]
+
 def list_nodes_with_names(
     conn: sqlite3.Connection,
     snapshot_id: str,
