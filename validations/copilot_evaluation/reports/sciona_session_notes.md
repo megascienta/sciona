@@ -18,6 +18,16 @@ Fallback: filesystem inspection with `find`; lightweight Python summaries over r
 Observations: SCIONA established module scope and coupling quickly; reducer payloads were too large to read directly, so local summarization was still needed.
 RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 7 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 7
+## Task 48 - remove unused folders
+Copilot: Codex
+Task description: Removed the cache-only stale package directories and deleted the leftover tracked `code_analysis/core/normalize` placeholder package.
+Task type: repository maintenance
+SCIONA usage: reused prior structural inventory to confirm the active module set before deleting folder leftovers.
+Effect on workflow: confirm assumptions; reduce search space
+Fallback: filesystem inspection, `git ls-files`, `rg` reference sweeps, compile checks, targeted `pytest` in `multiphysics`
+Observations: SCIONA helped confirm these folders were outside the active tracked module set, but final deletion decisions depended on plain filesystem and reference evidence.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 8 | Confidence in answers 8 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 7 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 7
 ## Task 10 - data_storage PR planning
 Copilot: Codex
 Task description: Converted the `data_storage` architecture findings into PR-sized structural refactoring proposals.
@@ -78,6 +88,16 @@ Fallback: source inspection, `rg` import sweeps, compile checks, targeted `pytes
 Observations: SCIONA helped separate policy-boundary regressions from semantic defects, but the actual fixes were driven by repository policy tests and direct import inspection.
 RATINGS (1-10): Structural clarity 9 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 8
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
+## Task 47 - unused folder audit
+Copilot: Codex
+Task description: Audited repository directories for unused or stale folders, distinguishing generated cache directories from tracked package boundaries and asset folders.
+Task type: repository maintenance
+SCIONA usage: `structural_index` for current tracked module inventory and structural context around package directories.
+Effect on workflow: reduce search space; confirm assumptions
+Fallback: filesystem inspection, `git ls-files`, and `rg` reference sweeps for candidate folder names
+Observations: SCIONA confirmed the active module set, but filesystem and tracked-file inspection were still required to identify stale directories left behind after refactors.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 8 | Confidence in answers 8 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 7 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 7
 ## Task 46 - cli to pipelines boundary realignment
 Copilot: Codex
 Task description: Changed the enforced architecture to allow `cli -> pipelines`, rewired CLI facades directly to `pipelines.ops.*`, removed internal `api/*_ops.py` bridges, and updated the developer guide.
