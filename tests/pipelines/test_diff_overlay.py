@@ -926,6 +926,76 @@ def test_patch_fan_summary_adds_delta_counts(repo_with_snapshot):
     assert patched["calls"]["by_fan_out"][0]["delta_count"] == 1
 
 
+def test_patch_fan_summary_materializes_overlay_only_rows(repo_with_snapshot):
+    repo_root, snapshot_id = repo_with_snapshot
+    payload = {
+        "calls": {
+            "total": 0,
+            "committed_total": 0,
+            "adjusted_total": 0,
+            "delta_total": 0,
+            "top_k": 5,
+            "by_fan_in": [],
+            "by_fan_out": [],
+        },
+        "imports": {
+            "total": 0,
+            "committed_total": 0,
+            "adjusted_total": 0,
+            "delta_total": 0,
+            "top_k": 5,
+            "by_fan_in": [],
+            "by_fan_out": [],
+        },
+    }
+    overlay = OverlayPayload(
+        worktree_hash="hash",
+        snapshot_commit="commit",
+        base_commit="base",
+        base_commit_strategy="snapshot",
+        head_commit="head",
+        merge_base=None,
+        nodes={"add": [], "remove": [], "update": []},
+        edges={"add": [], "remove": [], "update": []},
+        calls={
+            "add": [
+                {
+                    "src_structural_id": "func_alpha",
+                    "dst_structural_id": "meth_alpha",
+                    "src_qualified_name": qualify_repo_name(
+                        repo_root, "pkg.alpha.service.helper"
+                    ),
+                    "dst_qualified_name": qualify_repo_name(
+                        repo_root, "pkg.alpha.Service.run"
+                    ),
+                    "diff_kind": "add",
+                }
+            ],
+            "remove": [],
+            "update": [],
+        },
+        summary=None,
+        warnings=[],
+    )
+    conn = core_conn(repo_root)
+    try:
+        patched = patch_fan_summary(
+            payload,
+            overlay,
+            snapshot_id=snapshot_id,
+            conn=conn,
+        )
+    finally:
+        conn.close()
+    assert patched["calls"]["total"] == 2
+    assert patched["calls"]["adjusted_total"] == 2
+    assert patched["calls"]["delta_total"] == 2
+    assert patched["calls"]["by_fan_in"][0]["node_id"] == "meth_alpha"
+    assert patched["calls"]["by_fan_in"][0]["row_origin"] == "overlay_added"
+    assert patched["calls"]["by_fan_out"][0]["node_id"] == "func_alpha"
+    assert patched["calls"]["by_fan_out"][0]["row_origin"] == "overlay_added"
+
+
 def test_dirty_overlay_fan_summary_node_id_updates(repo_with_snapshot):
     repo_root, _snapshot_id = repo_with_snapshot
     service_path = repo_root / "pkg/alpha/service.py"

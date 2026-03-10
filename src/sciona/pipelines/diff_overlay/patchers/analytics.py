@@ -758,9 +758,19 @@ def patch_fan_summary(
 
     calls_table = dict(payload.get("calls") or {})
     imports_table = dict(payload.get("imports") or {})
-    payload["calls"] = _patch_fan_table(calls_table, overlay, edge_kind="CALLS")
+    payload["calls"] = _patch_fan_table(
+        calls_table,
+        overlay,
+        edge_kind="CALLS",
+        snapshot_id=snapshot_id,
+        conn=conn,
+    )
     payload["imports"] = _patch_fan_table(
-        imports_table, overlay, edge_kind="IMPORTS_DECLARED"
+        imports_table,
+        overlay,
+        edge_kind="IMPORTS_DECLARED",
+        snapshot_id=snapshot_id,
+        conn=conn,
     )
     return payload
 

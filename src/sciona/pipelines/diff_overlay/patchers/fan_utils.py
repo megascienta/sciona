@@ -132,6 +132,8 @@ def _patch_fan_table(
     overlay: OverlayPayload,
     *,
     edge_kind: str,
+    snapshot_id: str,
+    conn,
 ) -> dict[str, object]:
     by_in = {
         entry.get("node_id"): {
@@ -139,6 +141,7 @@ def _patch_fan_table(
             "qualified_name": entry.get("qualified_name"),
             "committed_count": int(entry.get("committed_count") or entry.get("count") or 0),
             "adjusted_count": int(entry.get("adjusted_count") or entry.get("count") or 0),
+            "row_origin": str(entry.get("row_origin") or "committed"),
         }
         for entry in table.get("by_fan_in", []) or []
     }
@@ -148,14 +151,46 @@ def _patch_fan_table(
             "qualified_name": entry.get("qualified_name"),
             "committed_count": int(entry.get("committed_count") or entry.get("count") or 0),
             "adjusted_count": int(entry.get("adjusted_count") or entry.get("count") or 0),
+            "row_origin": str(entry.get("row_origin") or "committed"),
         }
         for entry in table.get("by_fan_out", []) or []
     }
+    ids_needed: set[str] = set()
+
+    def _ensure_entry(
+        bucket: dict[object, dict[str, object]],
+        node_id: object,
+        *,
+        qualified_name: str | None,
+    ) -> None:
+        if not node_id:
+            return
+        if node_id in bucket:
+            return
+        ids_needed.add(str(node_id))
+        bucket[node_id] = {
+            "node_id": node_id,
+            "qualified_name": qualified_name,
+            "committed_count": 0,
+            "adjusted_count": 0,
+            "row_origin": "overlay_added",
+        }
+
     if edge_kind == "CALLS":
         for change in overlay.calls.get("add", []) + overlay.calls.get("remove", []):
             delta = 1 if change.get("diff_kind") == "add" else -1
             src_id = change.get("src_structural_id")
             dst_id = change.get("dst_structural_id")
+            _ensure_entry(
+                by_out,
+                src_id,
+                qualified_name=str(change.get("src_qualified_name") or "") or None,
+            )
+            _ensure_entry(
+                by_in,
+                dst_id,
+                qualified_name=str(change.get("dst_qualified_name") or "") or None,
+            )
             if src_id in by_out:
                 by_out[src_id]["adjusted_count"] = max(
                     0, int(by_out[src_id]["adjusted_count"]) + delta
@@ -172,6 +207,16 @@ def _patch_fan_table(
             delta = 1 if change.get("diff_kind") == "add" else -1
             src_id = edge.get("src_structural_id")
             dst_id = edge.get("dst_structural_id")
+            _ensure_entry(
+                by_out,
+                src_id,
+                qualified_name=str(edge.get("src_qualified_name") or "") or None,
+            )
+            _ensure_entry(
+                by_in,
+                dst_id,
+                qualified_name=str(edge.get("dst_qualified_name") or "") or None,
+            )
             if src_id in by_out:
                 by_out[src_id]["adjusted_count"] = max(
                     0, int(by_out[src_id]["adjusted_count"]) + delta
@@ -180,31 +225,66 @@ def _patch_fan_table(
                 by_in[dst_id]["adjusted_count"] = max(
                     0, int(by_in[dst_id]["adjusted_count"]) + delta
                 )
-    table["by_fan_in"] = [
-        {
-            **entry,
-            "count": int(entry["adjusted_count"]),
-            "delta_count": int(entry["adjusted_count"]) - int(entry["committed_count"]),
-        }
+    if ids_needed:
+        meta_lookup = _node_meta_lookup(conn, snapshot_id, overlay, ids_needed)
+        for bucket in (by_in, by_out):
+            for node_id, entry in bucket.items():
+                if entry.get("qualified_name"):
+                    continue
+                meta = meta_lookup.get(str(node_id), {})
+                if meta.get("qualified_name"):
+                    entry["qualified_name"] = meta.get("qualified_name")
+
+    def _row_origin(entry: dict[str, object]) -> str:
+        committed = int(entry["committed_count"])
+        adjusted = int(entry["adjusted_count"])
+        if committed == 0 and adjusted > 0:
+            return "overlay_added"
+        if committed > 0 and adjusted != committed:
+            return "overlay_changed"
+        return "committed"
+
+    def _finalize_entries(
+        bucket: dict[object, dict[str, object]],
+    ) -> list[dict[str, object]]:
+        rows = []
         for _node_id, entry in sorted(
-            by_in.items(),
+            bucket.items(),
             key=lambda item: (-int(item[1]["adjusted_count"]), str(item[0])),
-        )
-    ]
-    table["by_fan_out"] = [
-        {
-            **entry,
-            "count": int(entry["adjusted_count"]),
-            "delta_count": int(entry["adjusted_count"]) - int(entry["committed_count"]),
-        }
-        for _node_id, entry in sorted(
-            by_out.items(),
-            key=lambda item: (-int(item[1]["adjusted_count"]), str(item[0])),
-        )
-    ]
+        ):
+            adjusted = int(entry["adjusted_count"])
+            if adjusted <= 0:
+                continue
+            committed = int(entry["committed_count"])
+            rows.append(
+                {
+                    **entry,
+                    "count": adjusted,
+                    "delta_count": adjusted - committed,
+                    "row_origin": _row_origin(entry),
+                }
+            )
+        return rows
+
+    top_k = table.get("top_k")
+    if top_k is not None:
+        top_k = int(top_k)
+    by_fan_in = _finalize_entries(by_in)
+    by_fan_out = _finalize_entries(by_out)
+    if top_k is not None:
+        by_fan_in = by_fan_in[:top_k]
+        by_fan_out = by_fan_out[:top_k]
+    table["by_fan_in"] = by_fan_in
+    table["by_fan_out"] = by_fan_out
     committed_total = int(table.get("committed_total") or table.get("total") or 0)
-    adjusted_total = committed_total
+    adjusted_ids = {
+        str(node_id)
+        for node_id, entry in {**by_in, **by_out}.items()
+        if int(entry.get("adjusted_count") or 0) > 0
+    }
+    adjusted_total = len(adjusted_ids)
     table["committed_total"] = committed_total
     table["adjusted_total"] = adjusted_total
     table["delta_total"] = adjusted_total - committed_total
+    table["total"] = adjusted_total
     return table

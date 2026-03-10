@@ -797,8 +797,63 @@ def test_fan_summary_applies_overlay_during_render(tmp_path):
     assert payload["_overlay_applied_by_reducer"] is True
     assert payload["calls"]["by_fan_in"][0]["count"] == 2
     assert payload["calls"]["by_fan_in"][0]["delta_count"] == 1
+    assert payload["calls"]["by_fan_in"][0]["row_origin"] == "overlay_changed"
     assert payload["calls"]["by_fan_out"][0]["count"] == 2
     assert payload["calls"]["by_fan_out"][0]["delta_count"] == 1
+    assert payload["calls"]["by_fan_out"][0]["row_origin"] == "overlay_changed"
+
+
+def test_fan_summary_materializes_overlay_only_rows_during_render(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    overlay = OverlayPayload(
+        worktree_hash="hash",
+        snapshot_commit="commit",
+        base_commit="base",
+        base_commit_strategy="snapshot",
+        head_commit="head",
+        merge_base=None,
+        nodes={"add": [], "remove": [], "update": []},
+        edges={"add": [], "remove": [], "update": []},
+        calls={
+            "add": [
+                {
+                    "src_structural_id": "func_alpha",
+                    "dst_structural_id": "meth_alpha",
+                    "src_qualified_name": qualify_repo_name(
+                        repo_root, "pkg.alpha.service.helper"
+                    ),
+                    "dst_qualified_name": qualify_repo_name(
+                        repo_root, "pkg.alpha.Service.run"
+                    ),
+                    "diff_kind": "add",
+                }
+            ],
+            "remove": [],
+            "update": [],
+        },
+        summary=None,
+        warnings=[],
+    )
+    conn = core_conn(repo_root)
+    try:
+        with use_overlay_payload(overlay):
+            payload_text = fan_summary.render(
+                snapshot_id,
+                conn,
+                repo_root,
+                edge_kind="CALLS",
+                node_kind="callable",
+                top_k=5,
+            )
+    finally:
+        conn.close()
+    payload = parse_json_payload(payload_text)
+    assert payload["_overlay_applied_by_reducer"] is True
+    assert payload["calls"]["total"] >= 2
+    fan_in_ids = {entry["node_id"] for entry in payload["calls"]["by_fan_in"]}
+    fan_out_ids = {entry["node_id"] for entry in payload["calls"]["by_fan_out"]}
+    assert "meth_alpha" in fan_in_ids
+    assert "func_alpha" in fan_out_ids
 
 
 def test_fan_summary_node_view_applies_overlay_during_render(tmp_path):

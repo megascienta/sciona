@@ -246,6 +246,9 @@ ArtifactDB:
 Overlay support model:
 
 - patchable projections apply overlay rows directly to reducer payloads
+- patchable projections may emit overlay-adjusted row sets rather than only
+  mutating committed rows in place; ranking-style reducers may therefore
+  materialize overlay-only rows when those rows qualify after adjustment
 - metadata-only projections attach `_diff` and warning state but remain
   committed-snapshot payloads
 - `overlay_available=true` only means overlay state exists for the reducer
@@ -298,6 +301,9 @@ languages until the user enables them in `.sciona/config.yaml`.
   `callsite_index(identifier, status, provenance, drop_reason)`,
   `fan_summary(edge_kind, min_fan, node_kind)`, and
   `symbol_references(kind, module_id)`
+- Under overlay, `fan_summary` table mode reports adjusted rankings and may
+  include overlay-added nodes while preserving committed baseline counts,
+  adjusted counts, deltas, and row-origin semantics
 - Metrics reducers now include compact decision-surface summaries for common
   workflows:
   `call_resolution_drop_summary` for dropped-call triage and

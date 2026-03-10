@@ -70,6 +70,78 @@ Navigation speed: 6
 Confidence: 8
 Overall usefulness: 6
 
+## Task 26 - Document overlay-adjusted fan rankings and commit all changes
+
+Task:
+Update developer documentation for overlay-adjusted ranking semantics and commit all remaining tracked and untracked changes in the working tree.
+
+SCIONA usage:
+No SCIONA queries used; this was documentation alignment and repository finalization after the reducer behavior change.
+
+Observation:
+SCIONA was not needed here. The useful work was making the new `fan_summary` semantics explicit in the developer guide before committing the full remaining tree.
+Confusion or limitations: `CONTRACT.md` was intentionally left unchanged because the new behavior fits the existing patchable-projection contract without needing reducer-specific normative wording.
+
+Ratings:
+Structural clarity: 6
+Navigation speed: 6
+Confidence: 8
+Overall usefulness: 6
+
+## Task 25 - fan_summary overlay row materialization
+
+Task:
+Implement the follow-up semantics change so `fan_summary` table mode can materialize overlay-only rows and rank by adjusted counts instead of preserving only the committed row set.
+
+SCIONA usage:
+No SCIONA queries used; this was a focused change in the shared overlay fan patch helper plus reducer/patcher tests.
+
+Observation:
+SCIONA was not needed for implementation. The change was mostly about making the adjusted view semantically truthful while preserving committed baseline fields and explicit row origins.
+Confusion or limitations: `adjusted_total` now reflects distinct active nodes after overlay adjustment rather than the committed row count, which is a visible semantic change and should stay explicitly documented.
+
+Ratings:
+Structural clarity: 6
+Navigation speed: 6
+Confidence: 8
+Overall usefulness: 6
+
+## Task 24 - fan_summary overlay semantics recommendation
+
+Task:
+Recommend how `fan_summary` should handle overlay-only nodes in table mode after the overlay-aware implementation.
+
+SCIONA usage:
+No SCIONA queries used; this was a semantic design recommendation based on the implemented reducer behavior and contract constraints.
+
+Observation:
+SCIONA was not needed here. The important tradeoff is API stability versus semantic completeness: preserving row sets is simpler, but materializing overlay-only rows is a more truthful adjusted view.
+Confusion or limitations: Recommendation depends on whether `fan_summary` is meant to be a stable top-k view over committed rows or a true overlay-adjusted ranking surface.
+
+Ratings:
+Structural clarity: 6
+Navigation speed: 6
+Confidence: 8
+Overall usefulness: 6
+
+## Task 23 - PR set verification
+
+Task:
+Run a broader targeted regression over the impacted reducer and diff-overlay test files, then check the result against the originally declared PR goals.
+
+SCIONA usage:
+No new reducer queries used during verification; validation relied on pytest after the reducer-family implementations were complete.
+
+Observation:
+SCIONA did not materially affect the verification step. Its earlier structural grounding kept the regression slice focused on the relevant reducer and overlay files.
+Confusion or limitations: One semantic caveat remains intentional: `fan_summary` preserves the existing behavior of adjusting only existing ranked rows in table mode rather than materializing entirely new rows from overlay-only nodes.
+
+Ratings:
+Structural clarity: 6
+Navigation speed: 6
+Confidence: 9
+Overall usefulness: 6
+
 ## Task 22 - PR 5 fan summary overlay semantics
 
 Task:
