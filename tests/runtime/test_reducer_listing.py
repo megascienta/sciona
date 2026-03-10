@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-from sciona.runtime.reducer_listing import (
+from sciona.runtime.reducers.listing import (
     format_reducer_call,
     normalize_category,
     render_reducer_catalog,

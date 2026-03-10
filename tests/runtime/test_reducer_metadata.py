@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-from sciona.runtime.reducer_metadata import (
+from sciona.runtime.reducers.metadata import (
     CATEGORY_ORDER,
     INVESTIGATION_STAGE_ORDER,
     RISK_TIER_ORDER,

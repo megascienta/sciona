@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Iterable
 
-from ..runtime.reducer_listing import (
+from ..runtime.reducers.listing import (
     render_reducer_catalog,
 )
 

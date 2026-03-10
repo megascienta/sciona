@@ -13,7 +13,7 @@ from pathlib import Path
 from types import MappingProxyType, ModuleType
 from typing import Iterable, Iterator, Mapping
 
-from ..runtime.reducer_metadata import (
+from ..runtime.reducers.metadata import (
     VALID_CATEGORIES,
     VALID_INVESTIGATION_STAGES,
     VALID_RISK_TIERS,

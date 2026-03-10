@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from ..runtime.reducer_metadata import (
+from ..runtime.reducers.metadata import (
     CategoryLiteral,
     InvestigationStageLiteral,
     RiskTierLiteral,

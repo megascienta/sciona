@@ -198,6 +198,16 @@ Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `mult
 Observations: SCIONA had modest impact here because the move was small; most of the work was simply verifying the true in-repo import surface and keeping the package narrow.
 RATINGS (1-10): Structural clarity 7 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 6
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 6 | Scope reduction vs baseline 6 | Query friction vs baseline 4 | Net usefulness vs baseline 6
+## Task 28 - runtime reducer support package
+Copilot: Codex
+Task description: Moved reducer taxonomy and listing helpers into `runtime.reducers` and updated CLI, runtime, and reducer-registry imports to the new package.
+Task type: implementation
+SCIONA usage: reused the runtime structure review to keep reducer-support code separate from addon and utility surfaces.
+Effect on workflow: reduce search space; confirm assumptions
+Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `multiphysics`
+Observations: SCIONA helped justify the ownership boundary; most practical work was import migration, and one internal self-import broke immediately after the move and was easy to correct.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 7
 ## Task 13 - artifact_db maintenance package
 Copilot: Codex
 Task description: Moved graph rebuild logic into a dedicated `artifact_db.maintenance` package and removed the misplaced rollup maintenance path.
