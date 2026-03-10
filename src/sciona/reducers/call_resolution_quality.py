@@ -9,9 +9,11 @@ from collections import Counter, defaultdict
 from typing import Dict, List
 
 from ..data_storage.core_db import read_ops as core_read
+from ..pipelines.diff_overlay.patchers.analytics import patch_call_resolution_quality
 from .helpers import queries
 from .helpers.artifact_graph_edges import artifact_db_available
 from .helpers.artifact_reporting import load_callsite_caller_status_counts
+from .helpers.context import current_overlay_payload
 from .helpers.render import render_json_payload, require_connection
 from .helpers.utils import require_latest_committed_snapshot
 from .metadata import ReducerMeta
@@ -158,6 +160,15 @@ def render(
         ),
         "by_caller": _caller_entries(by_caller, top_k=limit_value),
     }
+    overlay = current_overlay_payload()
+    if overlay is not None:
+        body = patch_call_resolution_quality(
+            body,
+            overlay,
+            snapshot_id=snapshot_id,
+            conn=conn,
+        )
+        body["_overlay_applied_by_reducer"] = True
     return render_json_payload(body)
 
 

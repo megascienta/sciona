@@ -10,8 +10,12 @@ from pathlib import Path
 
 from ..data_storage.artifact_db import read_reporting as artifact_reporting
 from ..data_storage.core_db import read_ops as core_read
+from ..pipelines.diff_overlay.patchers.analytics import (
+    patch_call_resolution_drop_summary,
+)
 from .helpers import queries
 from .helpers.context import current_artifact_connection, fallback_artifact_connection
+from .helpers.context import current_overlay_payload
 from .helpers.render import render_json_payload, require_connection
 from .helpers.utils import require_latest_committed_snapshot
 from .metadata import ReducerMeta
@@ -164,6 +168,15 @@ def render(
         for scope, counter in by_scope.items()
     }
     body["top_callers_by_drop_count"] = _top_callers(top_callers, limit_value)
+    overlay = current_overlay_payload()
+    if overlay is not None:
+        body = patch_call_resolution_drop_summary(
+            body,
+            overlay,
+            snapshot_id=snapshot_id,
+            conn=conn,
+        )
+        body["_overlay_applied_by_reducer"] = True
     return render_json_payload(body)
 
 

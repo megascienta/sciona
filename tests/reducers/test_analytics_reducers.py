@@ -124,6 +124,79 @@ def test_call_resolution_quality_aggregates_callsite_rows(tmp_path):
     assert payload["drop_reason_counts"][0]["count"] == 1
 
 
+def test_call_resolution_quality_applies_overlay_during_render(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    artifact_db = repo_root / ".sciona" / setup_config.ARTIFACT_DB_FILENAME
+    conn = artifact_connect(artifact_db, repo_root=repo_root)
+    try:
+        artifact_write.upsert_call_sites(
+            conn,
+            snapshot_id=snapshot_id,
+            caller_id="func_alpha",
+            caller_qname=qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
+            caller_node_type="callable",
+            rows=[
+                (
+                    "pkg.beta.worker",
+                    "accepted",
+                    "func_beta",
+                    "exact_qname",
+                    None,
+                    1,
+                    "qualified",
+                    1,
+                    5,
+                    0,
+                ),
+                (
+                    "pkg.unknown.missing",
+                    "dropped",
+                    None,
+                    None,
+                    "no_candidates",
+                    1,
+                    "qualified",
+                    6,
+                    10,
+                    1,
+                ),
+            ],
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    overlay = OverlayPayload(
+        worktree_hash="hash",
+        snapshot_commit="commit",
+        base_commit="base",
+        base_commit_strategy="snapshot",
+        head_commit="head",
+        merge_base=None,
+        nodes={"add": [], "remove": [], "update": []},
+        edges={"add": [], "remove": [], "update": []},
+        calls={
+            "add": [{"src_structural_id": "func_alpha", "diff_kind": "add"}],
+            "remove": [],
+            "update": [],
+        },
+        summary=None,
+        warnings=[],
+    )
+    core = core_conn(repo_root)
+    try:
+        with use_overlay_payload(overlay):
+            payload_text = call_resolution_quality.render(snapshot_id, core, repo_root)
+    finally:
+        core.close()
+    payload = parse_json_payload(payload_text)
+    assert payload["_overlay_applied_by_reducer"] is True
+    assert payload["overlay_transition_counts"]["dropped_to_accepted"] == 1
+    assert payload["overlay_delta_totals"]["accepted"] == 1
+    assert payload["totals"]["accepted"] == 2
+    assert payload["totals"]["dropped"] == 0
+
+
 def test_call_resolution_drop_summary_aggregates_dropped_callsites(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     conn = core_conn(repo_root)
@@ -293,6 +366,81 @@ def test_call_resolution_drop_summary_aggregates_dropped_callsites(tmp_path):
         "accepted": 0,
         "dropped": 0,
     }
+
+
+def test_call_resolution_drop_summary_applies_overlay_during_render(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    artifact_db = repo_root / ".sciona" / setup_config.ARTIFACT_DB_FILENAME
+    artifact_conn = artifact_connect(artifact_db, repo_root=repo_root)
+    try:
+        artifact_write.upsert_call_sites(
+            artifact_conn,
+            snapshot_id=snapshot_id,
+            caller_id="func_alpha",
+            caller_qname=qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
+            caller_node_type="callable",
+            rows=[
+                (
+                    "pkg.beta.worker",
+                    "accepted",
+                    "func_beta",
+                    "exact_qname",
+                    None,
+                    1,
+                    "qualified",
+                    1,
+                    5,
+                    0,
+                ),
+                (
+                    "pkg.unknown.missing",
+                    "dropped",
+                    None,
+                    None,
+                    "no_candidates",
+                    1,
+                    "qualified",
+                    6,
+                    10,
+                    1,
+                ),
+            ],
+        )
+        artifact_conn.commit()
+    finally:
+        artifact_conn.close()
+
+    overlay = OverlayPayload(
+        worktree_hash="hash",
+        snapshot_commit="commit",
+        base_commit="base",
+        base_commit_strategy="snapshot",
+        head_commit="head",
+        merge_base=None,
+        nodes={"add": [], "remove": [], "update": []},
+        edges={"add": [], "remove": [], "update": []},
+        calls={
+            "add": [],
+            "remove": [{"src_structural_id": "func_alpha", "diff_kind": "remove"}],
+            "update": [],
+        },
+        summary=None,
+        warnings=[],
+    )
+    conn = core_conn(repo_root)
+    try:
+        with use_overlay_payload(overlay):
+            payload_text = call_resolution_drop_summary.render(
+                snapshot_id, conn, repo_root
+            )
+    finally:
+        conn.close()
+    payload = parse_json_payload(payload_text)
+    assert payload["_overlay_applied_by_reducer"] is True
+    assert payload["overlay_transition_counts"]["accepted_to_dropped"] == 1
+    assert payload["overlay_delta_totals"]["dropped"] == 1
+    assert payload["totals"]["accepted"] == 0
+    assert payload["totals"]["dropped"] == 2
 
 
 def test_resolution_trace_returns_payload(tmp_path):

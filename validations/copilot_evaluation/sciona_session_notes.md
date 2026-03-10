@@ -70,6 +70,24 @@ Navigation speed: 6
 Confidence: 8
 Overall usefulness: 6
 
+## Task 21 - PR 4 resolution summary overlay semantics
+
+Task:
+Make `call_resolution_quality` and `call_resolution_drop_summary` consume overlay transition deltas during reducer render and validate adjusted totals/transition fields.
+
+SCIONA usage:
+No new reducer queries used; the work was a focused implementation pass over already-mapped metrics reducers and their overlay math.
+
+Observation:
+SCIONA was not needed for the edit. The reducers already had the right payload fields, so the implementation mainly replaced placeholder values with the existing transition logic.
+Confusion or limitations: These reducers still derive their base aggregates from committed ArtifactDB reporting surfaces; only the overlay adjustment layer changed in this PR.
+
+Ratings:
+Structural clarity: 6
+Navigation speed: 6
+Confidence: 8
+Overall usefulness: 6
+
 ## Task 20 - PR 3 call graph overlay semantics
 
 Task:
