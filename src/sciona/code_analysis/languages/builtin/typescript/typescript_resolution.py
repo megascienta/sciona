@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from ...common.symbol_ir import resolve_alias
+from ...common.ir.symbol_ir import resolve_alias
 from .typescript_node_text import node_text, parse_type_annotation, typed_constructor_parameters
 
 _NESTED_FUNCTION_NODE_TYPES = {

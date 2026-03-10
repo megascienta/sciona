@@ -25,7 +25,7 @@ from ....core.extract.parsing.query_helpers import (
 from .typescript_calls import callee_text, resolve_typescript_calls
 from .typescript_imports import collect_typescript_import_model
 from .typescript_nodes import TypeScriptNodeState, walk_typescript_nodes
-from ...common.query_surface import (
+from ...common.query.query_surface import (
     TYPESCRIPT_CALL_NODE_TYPES,
     TYPESCRIPT_SKIP_CALL_NODE_TYPES,
     TYPESCRIPT_STRUCTURAL_CARRIER_NODE_TYPES,
@@ -35,7 +35,7 @@ from .typescript_resolution import (
     collect_callable_typed_binding_instance_map,
     resolve_pending_instances,
 )
-from ...common.analyzer_support import (
+from ...common.support.analyzer_support import (
     assert_scope_resolver_parity,
     collect_targets_by_callable,
     emit_local_inheritance_edges,

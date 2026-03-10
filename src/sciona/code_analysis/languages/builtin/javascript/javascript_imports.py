@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from ...common.query_surface import (
+from ...common.query.query_surface import (
     JAVASCRIPT_DYNAMIC_IMPORT_NODE_TYPES,
     JAVASCRIPT_IMPORT_EXPORT_NODE_TYPES,
     JAVASCRIPT_REQUIRE_DECLARATION_NODE_TYPES,

@@ -10,9 +10,9 @@ from typing import List
 
 from ....core.normalize_model import EdgeRecord, FileSnapshot, SemanticNodeRecord
 from ....core.extract.parsing.query_helpers import find_nodes_of_types_query
-from ...common.lexical_naming import LexicalNameDisambiguator
-from ...common.query_surface import JAVA_STRUCTURAL_NODE_TYPES
-from ...common.shared import node_text as shared_node_text
+from ...common.naming.lexical_naming import LexicalNameDisambiguator
+from ...common.query.query_surface import JAVA_STRUCTURAL_NODE_TYPES
+from ...common.support.shared import node_text as shared_node_text
 
 
 @dataclass

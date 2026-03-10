@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-from sciona.code_analysis.languages.common.walker_capabilities import (
+from sciona.code_analysis.languages.common.support.walker_capabilities import (
     build_walker_capabilities,
 )
 from sciona.code_analysis.config import LANGUAGE_CONFIG

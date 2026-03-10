@@ -22,13 +22,13 @@ from ....core.extract.parsing.query_helpers import (
     count_lines,
     find_direct_children_of_types_query,
 )
-from ...common.query_surface import (
+from ...common.query.query_surface import (
     JAVASCRIPT_CALL_NODE_TYPES,
     JAVASCRIPT_SKIP_CALL_NODE_TYPES,
     JAVASCRIPT_STRUCTURAL_CARRIER_NODE_TYPES,
     JAVASCRIPT_STRUCTURAL_NODE_TYPES,
 )
-from ...common.analyzer_support import (
+from ...common.support.analyzer_support import (
     assert_scope_resolver_parity,
     collect_targets_by_callable,
     emit_local_inheritance_edges,

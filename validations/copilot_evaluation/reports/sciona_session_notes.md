@@ -58,3 +58,13 @@ Fallback: bulk import search/update with `rg` and `perl`, targeted `pytest` in `
 Observations: SCIONA identified the shallow packages, but the real implementation cost came from high fan-out around `normalize.model`, which required broader regression coverage.
 RATINGS (1-10): Structural clarity 7 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 6
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 7 | Scope reduction vs baseline 6 | Query friction vs baseline 5 | Net usefulness vs baseline 6
+## Task 7 - languages.common subdivision
+Copilot: Codex
+Task description: Split `languages.common` into `support`, `query`, `scope`, `naming`, and `ir` subpackages with compatibility wrappers.
+Task type: implementation
+SCIONA usage: reused prior structural review evidence that `languages.common` was dense but cohesive, making this a scaling refactor.
+Effect on workflow: reduce search space; confirm assumptions
+Fallback: source inspection, targeted bulk import edits, `pytest` in `multiphysics`
+Observations: SCIONA helped frame this as a discoverability change rather than a bug fix; import-depth mistakes surfaced only through test execution.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 5 | Net usefulness vs baseline 7

@@ -6,9 +6,9 @@
 from __future__ import annotations
 
 from ....core.normalize_model import FileSnapshot
-from ...common.shared import node_text
+from ...common.support.shared import node_text
 from ....core.extract.parsing.query_helpers import find_nodes_of_types_query
-from ...common.symbol_ir import TypedSymbolBinding
+from ...common.ir.symbol_ir import TypedSymbolBinding
 
 def collect_declared_vars(
     node,

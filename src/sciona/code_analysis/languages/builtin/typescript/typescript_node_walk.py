@@ -15,7 +15,7 @@ from .typescript_node_text import (
     parse_type_annotation,
     typed_constructor_parameters,
 )
-from ...common.query_surface import (
+from ...common.query.query_surface import (
     JAVASCRIPT_STRUCTURAL_CARRIER_NODE_TYPES,
     JAVASCRIPT_STRUCTURAL_NODE_TYPES,
     TYPESCRIPT_STRUCTURAL_CARRIER_NODE_TYPES,

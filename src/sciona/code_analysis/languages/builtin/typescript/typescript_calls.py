@@ -14,7 +14,7 @@ from ....tools.call_extraction import (
     ReceiverCallIR,
     TerminalCallIR,
 )
-from ...common.shared import node_text
+from ...common.support.shared import node_text
 from ....core.extract.call_resolution_kernel import (
     CallResolutionAdapter,
     CallResolutionOutcome,

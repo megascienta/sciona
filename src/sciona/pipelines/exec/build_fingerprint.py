@@ -11,7 +11,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from ...code_analysis.languages.common.parity_contract import PARITY_CONTRACT_VERSION
+from ...code_analysis.languages.common.support.parity_contract import PARITY_CONTRACT_VERSION
 from ...data_storage.artifact_db.schema import SCHEMA_STATEMENTS as ARTIFACT_SCHEMA_STATEMENTS
 from ...data_storage.core_db.schema import SCHEMA_STATEMENTS as CORE_SCHEMA_STATEMENTS
 from ...runtime import constants as runtime_constants

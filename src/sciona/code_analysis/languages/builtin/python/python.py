@@ -25,7 +25,7 @@ from ....core.extract.parsing.query_helpers import (
 from .python_calls import resolve_python_calls
 from .python_imports import collect_python_import_model
 from .python_nodes import PythonNodeState, walk_python_nodes
-from ...common.query_surface import (
+from ...common.query.query_surface import (
     PYTHON_CALL_NODE_TYPES,
     PYTHON_SKIP_CALL_NODE_TYPES,
     PYTHON_STRUCTURAL_CARRIER_NODE_TYPES,
@@ -37,7 +37,7 @@ from .python_resolution import (
     collect_module_instance_map,
 )
 from .python_resolution import collect_class_instance_map
-from ...common.analyzer_support import (
+from ...common.support.analyzer_support import (
     assert_scope_resolver_parity,
     collect_targets_by_callable,
     emit_local_inheritance_edges,

@@ -11,14 +11,14 @@ from typing import Optional
 from ....core.module_naming import module_name_from_path
 from ....core.normalize_model import FileSnapshot
 from ....core.extract.parsing.query_helpers import find_nodes_of_types_query
-from ...common.import_model import NormalizedImportModel
-from ...common.query_surface import (
+from ...common.ir.import_model import NormalizedImportModel
+from ...common.query.query_surface import (
     TYPESCRIPT_DYNAMIC_IMPORT_NODE_TYPES,
     TYPESCRIPT_IMPORT_EXPORT_NODE_TYPES,
     TYPESCRIPT_REQUIRE_DECLARATION_NODE_TYPES,
     TYPESCRIPT_STRING_NODE_TYPES,
 )
-from ...common.shared import is_internal_module, repo_root_from_snapshot
+from ...common.support.shared import is_internal_module, repo_root_from_snapshot
 
 
 def collect_typescript_imports(

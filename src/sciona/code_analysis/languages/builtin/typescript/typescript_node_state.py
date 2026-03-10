@@ -8,7 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List
 
-from ...common.lexical_naming import LexicalNameDisambiguator
+from ...common.naming.lexical_naming import LexicalNameDisambiguator
 
 
 @dataclass

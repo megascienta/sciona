@@ -9,12 +9,12 @@ from dataclasses import dataclass, field
 from typing import List
 
 from ....core.normalize_model import EdgeRecord, FileSnapshot, SemanticNodeRecord
-from ...common.lexical_naming import LexicalNameDisambiguator
-from ...common.query_surface import (
+from ...common.naming.lexical_naming import LexicalNameDisambiguator
+from ...common.query.query_surface import (
     PYTHON_STRUCTURAL_CARRIER_NODE_TYPES,
     PYTHON_STRUCTURAL_NODE_TYPES,
 )
-from ...common.shared import node_text as shared_node_text
+from ...common.support.shared import node_text as shared_node_text
 
 
 @dataclass
