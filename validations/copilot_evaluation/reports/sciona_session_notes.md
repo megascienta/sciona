@@ -118,6 +118,26 @@ Fallback: source inspection, `rg` usage search, targeted `pytest` in `multiphysi
 Observations: SCIONA was less important here; the decisive evidence was a direct local usage check confirming `core` was not an internal dependency hub.
 RATINGS (1-10): Structural clarity 7 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 6
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 6 | Scope reduction vs baseline 6 | Query friction vs baseline 4 | Net usefulness vs baseline 6
+## Task 20 - pipelines architecture review
+Copilot: Codex
+Task description: Reviewed the structural architecture of the `pipelines` module, including subtree density, orchestration boundaries, and import coupling.
+Task type: architecture review
+SCIONA usage: `search`, `resolve`, `module_overview`, and `dependency_edges` on `sciona.src.sciona.pipelines`; summarized subtree counts and internal vs external imports.
+Effect on workflow: identify ownership; reduce search space; confirm assumptions
+Fallback: filesystem inspection and local summarization over reducer output
+Observations: SCIONA showed quickly that `pipelines` is a broad orchestration layer with strong outward coupling and one especially dense subtree in `diff_overlay`.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 7 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 7
+## Task 21 - diff_overlay compute and ops split
+Copilot: Codex
+Task description: Split `pipelines.diff_overlay` into canonical `compute` and `ops` subpackages and rewired overlay-related imports and tests.
+Task type: implementation
+SCIONA usage: reused prior structural review evidence that `diff_overlay` was the main density hotspot in `pipelines`.
+Effect on workflow: identify ownership; reduce search space
+Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `multiphysics`
+Observations: SCIONA helped justify the split; the real work was relative-import correction after converting flat modules into packages.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 7
 ## Task 13 - artifact_db maintenance package
 Copilot: Codex
 Task description: Moved graph rebuild logic into a dedicated `artifact_db.maintenance` package and removed the misplaced rollup maintenance path.

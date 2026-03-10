@@ -8,11 +8,11 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional
 
-from .affection import extract_scope_hint, scoped_affection
-from .ops_get import _OVERLAY_PROFILE, _overlay_reason
-from .patch import apply_overlay_to_payload
-from .schema import validate_diff_payload
-from .types import OverlayPayload
+from ..affection import extract_scope_hint, scoped_affection
+from .get import _OVERLAY_PROFILE, _overlay_reason
+from ..patch import apply_overlay_to_payload
+from ..schema import validate_diff_payload
+from ..types import OverlayPayload
 
 def apply_overlay_to_payload_object(
     payload: dict[str, object],

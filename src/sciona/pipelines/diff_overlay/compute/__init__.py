@@ -5,8 +5,8 @@
 
 from __future__ import annotations
 
-from .compute_summary import summarize_overlay, worktree_fingerprint
-from .compute_core import (
+from .summary import summarize_overlay, worktree_fingerprint
+from .core import (
     _ChangeSet,
     analyze_files,
     build_file_records,
@@ -16,14 +16,14 @@ from .compute_core import (
     filter_excluded_paths,
     ingest_status,
 )
-from .compute_payloads import (
+from .payloads import (
     edge_key,
     edge_payload,
     node_content_hash,
     node_payload,
     overlay_row,
 )
-from .compute_config import (
+from .config import (
     resolve_enabled_languages,
     discovery_excludes,
     analyzers_by_language,

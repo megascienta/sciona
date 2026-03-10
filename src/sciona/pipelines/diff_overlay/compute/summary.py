@@ -12,23 +12,27 @@ from pathlib import Path
 from collections import Counter
 from typing import Iterable
 
-from ...code_analysis.core.extract import registry
-from ...code_analysis import config as analysis_config
-from ...code_analysis.core.normalize_model import FileRecord, FileSnapshot, SemanticNodeRecord
-from ...code_analysis.tools.workspace import snapshots as snapshot_tools
-from ...code_analysis.tools.workspace import excludes as path_excludes
-from ...data_storage.core_db import read_ops as core_read
-from ...runtime import config as runtime_config
-from ...runtime.config import io as runtime_config_io
-from ...runtime import constants as runtime_constants
-from ...runtime import git as git_ops
-from ...runtime import identity as ids
-from ...runtime.text import canonical_span_bytes
-from ...runtime import time as runtime_time
-from ...runtime.errors import ConfigError
-from ...runtime.logging import get_logger
+from ....code_analysis.core.extract import registry
+from ....code_analysis import config as analysis_config
+from ....code_analysis.core.normalize_model import (
+    FileRecord,
+    FileSnapshot,
+    SemanticNodeRecord,
+)
+from ....code_analysis.tools.workspace import snapshots as snapshot_tools
+from ....code_analysis.tools.workspace import excludes as path_excludes
+from ....data_storage.core_db import read_ops as core_read
+from ....runtime import config as runtime_config
+from ....runtime.config import io as runtime_config_io
+from ....runtime import constants as runtime_constants
+from ....runtime import git as git_ops
+from ....runtime import identity as ids
+from ....runtime.text import canonical_span_bytes
+from ....runtime import time as runtime_time
+from ....runtime.errors import ConfigError
+from ....runtime.logging import get_logger
 
-from .calls import compute_call_overlay_rows
+from ..calls import compute_call_overlay_rows
 
 def summarize_overlay(
     rows: Iterable[dict[str, object]],

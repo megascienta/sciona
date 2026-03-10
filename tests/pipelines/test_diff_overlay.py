@@ -21,8 +21,8 @@ from sciona.pipelines.diff_overlay.patchers.core import (
     patch_symbol_lookup,
 )
 from sciona.pipelines.diff_overlay.patchers.core import patch_dependency_edges
-from sciona.pipelines.diff_overlay.ops_get import _OVERLAY_PROFILE
-from sciona.pipelines.diff_overlay.ops_patch import apply_overlay_to_payload_object
+from sciona.pipelines.diff_overlay.ops.get import _OVERLAY_PROFILE
+from sciona.pipelines.diff_overlay.ops.patch import apply_overlay_to_payload_object
 from sciona.pipelines.diff_overlay.types import OverlayPayload
 from tests.helpers import core_conn, parse_json_payload, qualify_repo_name
 
