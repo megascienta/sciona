@@ -4,6 +4,7 @@
 import pytest
 import json
 
+from sciona.pipelines.diff_overlay.types import OverlayPayload
 from sciona.reducers import (
     call_resolution_drop_summary,
     call_resolution_quality,
@@ -15,6 +16,7 @@ from sciona.reducers import (
     resolution_trace,
     structural_integrity_summary,
 )
+from sciona.reducers.helpers.context import use_overlay_payload
 from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.data_storage.artifact_db import write_index as artifact_write
 from sciona.runtime import constants as setup_config
@@ -680,6 +682,58 @@ def test_module_call_graph_summary_returns_payload(tmp_path):
         assert payload["outgoing"][0]["delta_call_count"] == 0
 
 
+def test_module_call_graph_summary_applies_overlay_during_render(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    module_id = qualify_repo_name(repo_root, "pkg.alpha")
+    overlay = OverlayPayload(
+        worktree_hash="hash",
+        snapshot_commit="commit",
+        base_commit="base",
+        base_commit_strategy="snapshot",
+        head_commit="head",
+        merge_base=None,
+        nodes={"add": [], "remove": [], "update": []},
+        edges={"add": [], "remove": [], "update": []},
+        calls={
+            "add": [
+                {
+                    "src_structural_id": "func_alpha",
+                    "dst_structural_id": "func_alpha",
+                    "src_node_type": "callable",
+                    "dst_node_type": "callable",
+                    "src_qualified_name": qualify_repo_name(
+                        repo_root, "pkg.alpha.service.helper"
+                    ),
+                    "dst_qualified_name": qualify_repo_name(
+                        repo_root, "pkg.alpha.service.helper"
+                    ),
+                    "src_file_path": "pkg/alpha/service.py",
+                    "dst_file_path": "pkg/alpha/service.py",
+                    "diff_kind": "add",
+                }
+            ],
+            "remove": [],
+            "update": [],
+        },
+        summary=None,
+        warnings=[],
+    )
+    conn = core_conn(repo_root)
+    try:
+        with use_overlay_payload(overlay):
+            payload_text = module_call_graph_summary.render(
+                snapshot_id, conn, repo_root, module_id=module_id, top_k=5
+            )
+    finally:
+        conn.close()
+    payload = parse_json_payload(payload_text)
+    assert payload["_overlay_applied_by_reducer"] is True
+    assert payload["changed_edge_count"] >= 1
+    assert payload["added_edge_count"] >= 1
+    assert payload["outgoing"]
+    assert payload["outgoing"][0]["delta_call_count"] == 1
+
+
 def test_class_call_graph_summary_returns_payload(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     classifier_id = qualify_repo_name(repo_root, "pkg.alpha.Service")
@@ -699,6 +753,58 @@ def test_class_call_graph_summary_returns_payload(tmp_path):
     if payload["outgoing"]:
         assert payload["outgoing"][0]["row_origin"] == "committed"
         assert payload["outgoing"][0]["delta_call_count"] == 0
+
+
+def test_classifier_call_graph_summary_applies_overlay_during_render(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    classifier_id = qualify_repo_name(repo_root, "pkg.alpha.Service")
+    overlay = OverlayPayload(
+        worktree_hash="hash",
+        snapshot_commit="commit",
+        base_commit="base",
+        base_commit_strategy="snapshot",
+        head_commit="head",
+        merge_base=None,
+        nodes={"add": [], "remove": [], "update": []},
+        edges={"add": [], "remove": [], "update": []},
+        calls={
+            "add": [
+                {
+                    "src_structural_id": "meth_alpha",
+                    "dst_structural_id": "meth_alpha",
+                    "src_node_type": "callable",
+                    "dst_node_type": "callable",
+                    "src_qualified_name": qualify_repo_name(
+                        repo_root, "pkg.alpha.Service.run"
+                    ),
+                    "dst_qualified_name": qualify_repo_name(
+                        repo_root, "pkg.alpha.Service.run"
+                    ),
+                    "src_file_path": "pkg/alpha/service.py",
+                    "dst_file_path": "pkg/alpha/service.py",
+                    "diff_kind": "add",
+                }
+            ],
+            "remove": [],
+            "update": [],
+        },
+        summary=None,
+        warnings=[],
+    )
+    conn = core_conn(repo_root)
+    try:
+        with use_overlay_payload(overlay):
+            payload_text = classifier_call_graph_summary.render(
+                snapshot_id, conn, repo_root, classifier_id=classifier_id, top_k=5
+            )
+    finally:
+        conn.close()
+    payload = parse_json_payload(payload_text)
+    assert payload["_overlay_applied_by_reducer"] is True
+    assert payload["changed_edge_count"] >= 1
+    assert payload["added_edge_count"] >= 1
+    assert payload["outgoing"]
+    assert payload["outgoing"][0]["delta_call_count"] == 1
 
 
 def test_module_call_graph_summary_can_narrow_by_peer_modules(tmp_path):

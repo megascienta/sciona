@@ -70,6 +70,24 @@ Navigation speed: 6
 Confidence: 8
 Overall usefulness: 6
 
+## Task 20 - PR 3 call graph overlay semantics
+
+Task:
+Make `module_call_graph_summary` and `classifier_call_graph_summary` consume overlay edge deltas during reducer render and validate reducer-owned overlay application.
+
+SCIONA usage:
+No new reducer queries used; work stayed within the previously identified reducer family and overlay patcher logic.
+
+Observation:
+SCIONA was not needed for implementation. Existing patcher logic made this PR mostly a controlled integration exercise rather than a semantic redesign.
+Confusion or limitations: The narrow tests intentionally focused on reducer-owned overlay behavior and existing patcher parity, not the full dirty-worktree emit stack yet.
+
+Ratings:
+Structural clarity: 6
+Navigation speed: 6
+Confidence: 8
+Overall usefulness: 6
+
 ## Task 19 - PR 2 callsite_index overlay semantics
 
 Task:
