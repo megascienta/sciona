@@ -158,6 +158,16 @@ Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `mult
 Observations: SCIONA helped justify the package boundary; the main cost was broad import migration across tests, exec flows, and plugin-facing API code.
 RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 7
+## Task 24 - pipelines config cleanup
+Copilot: Codex
+Task description: Flattened the shallow `pipelines.config` package, moved its tracked error surface to `config_errors.py`, and fixed the remaining API imports to `pipelines.ops`.
+Task type: implementation
+SCIONA usage: reused prior structural review evidence that `pipelines.config` was shallow and lower-value than the larger package boundaries.
+Effect on workflow: confirm assumptions; reduce search space
+Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `multiphysics`
+Observations: SCIONA had limited impact here; the concrete work was a small package removal plus cleanup of a missed import path exposed by the commit hook.
+RATINGS (1-10): Structural clarity 6 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 6
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 6 | Scope reduction vs baseline 5 | Query friction vs baseline 4 | Net usefulness vs baseline 6
 ## Task 13 - artifact_db maintenance package
 Copilot: Codex
 Task description: Moved graph rebuild logic into a dedicated `artifact_db.maintenance` package and removed the misplaced rollup maintenance path.

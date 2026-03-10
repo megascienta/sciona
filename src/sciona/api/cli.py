@@ -5,9 +5,9 @@
 
 from __future__ import annotations
 
-from ..pipelines import repo as repo_pipeline
-from ..pipelines import reducers as reducers_pipeline
-from ..pipelines import resolve as resolve_pipeline
+from ..pipelines.ops import repo as repo_pipeline
+from ..pipelines.ops import reducers as reducers_pipeline
+from ..pipelines.ops import resolve as resolve_pipeline
 from ..reducers.registry import freeze_registry, get_reducers, load_reducer
 from ..runtime.config import load_logging_settings, load_runtime_config
 from ..runtime.logging import configure_logging, debug_enabled
