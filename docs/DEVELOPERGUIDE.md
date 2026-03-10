@@ -194,6 +194,9 @@ Current user-visible build phases are:
 - `Rebuilding graph index`
 - `Rebuilding graph rollups`
 
+Each phase now emits an elapsed duration in normal `sciona build` output after
+that phase completes.
+
 Timing semantics:
 
 - CLI `sciona build` now reports `Wall time` as full command wall time
@@ -204,6 +207,21 @@ Timing semantics:
   artifact refresh, graph-index rebuild, and rollup rebuild.
 - The inner persisted metric does not include later CLI-only work such as
   final summary querying or terminal rendering.
+- `status --json` and `snapshot_report(...)` now expose:
+  - `build_total_seconds`: persisted inner build metric
+  - `build_wall_seconds`: persisted full command wall time
+  - `build_phase_timings`: persisted per-phase timing map
+- `build_phase_timings` uses stable flat keys:
+  - `compute_build_fingerprint`
+  - `discover_files`
+  - `prepare_snapshots`
+  - `register_modules`
+  - `analyze`
+  - `analyze_artifacts`
+  - `refresh_artifacts`
+  - `write_call_artifacts`
+  - `rebuild_graph_index`
+  - `rebuild_graph_rollups`
 
 ## Snapshot and Artifact Semantics
 
