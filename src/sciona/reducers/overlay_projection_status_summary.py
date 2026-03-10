@@ -8,9 +8,9 @@ from __future__ import annotations
 from ..data_storage.artifact_db.overlay import read_overlay as artifact_read_overlay
 from ..runtime import git as git_ops
 from ..runtime.overlay_profile import OVERLAY_PROFILE
-from .helpers.context import current_artifact_connection, fallback_artifact_connection
-from .helpers.render import render_json_payload, require_connection
-from .helpers.utils import require_latest_committed_snapshot
+from .helpers.shared.context import current_artifact_connection, fallback_artifact_connection
+from .helpers.shared.render import render_json_payload, require_connection
+from .helpers.shared.utils import require_latest_committed_snapshot
 from .metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(

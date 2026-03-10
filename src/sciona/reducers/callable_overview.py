@@ -15,11 +15,11 @@ from ..code_analysis.tools.profiling import (
     typescript_function_extras,
 )
 from .helpers.artifact_graph_edges import artifact_db_available, load_artifact_edges
-from .helpers.profile_utils import fetch_node_instance
-from .helpers import queries
-from .helpers.render import render_json_payload, require_connection
-from .helpers.types import CallableOverviewPayload
-from .helpers.utils import line_span_hash, require_latest_committed_snapshot
+from .helpers.shared.profile_utils import fetch_node_instance
+from .helpers.shared import queries
+from .helpers.shared.render import render_json_payload, require_connection
+from .helpers.shared.types import CallableOverviewPayload
+from .helpers.shared.utils import line_span_hash, require_latest_committed_snapshot
 from .metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(

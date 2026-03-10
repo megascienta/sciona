@@ -8,7 +8,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Dict, Iterable, List, Sequence, Set
 
-from ...code_analysis.analysis.module_id import module_id_for
+from ....code_analysis.analysis.module_id import module_id_for
 
 NODE_TYPE_MODULE = ("module",)
 NODE_TYPE_CLASS = ("classifier",)

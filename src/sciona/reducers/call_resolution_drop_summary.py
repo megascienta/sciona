@@ -13,11 +13,11 @@ from ..data_storage.core_db import read_ops as core_read
 from ..pipelines.diff_overlay.patchers.analytics import (
     patch_call_resolution_drop_summary,
 )
-from .helpers import queries
-from .helpers.context import current_artifact_connection, fallback_artifact_connection
-from .helpers.context import current_overlay_payload
-from .helpers.render import render_json_payload, require_connection
-from .helpers.utils import require_latest_committed_snapshot
+from .helpers.shared import queries
+from .helpers.shared.context import current_artifact_connection, fallback_artifact_connection
+from .helpers.shared.context import current_overlay_payload
+from .helpers.shared.render import render_json_payload, require_connection
+from .helpers.shared.utils import require_latest_committed_snapshot
 from .metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(

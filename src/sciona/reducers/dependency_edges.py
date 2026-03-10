@@ -8,8 +8,8 @@ from __future__ import annotations
 from typing import Dict, List, Optional
 
 from ..runtime.edge_types import MODULE_DEPENDENCY_EDGE_TYPES
-from .helpers.render import render_json_payload, require_connection
-from .helpers.utils import require_latest_committed_snapshot
+from .helpers.shared.render import render_json_payload, require_connection
+from .helpers.shared.utils import require_latest_committed_snapshot
 from .metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(

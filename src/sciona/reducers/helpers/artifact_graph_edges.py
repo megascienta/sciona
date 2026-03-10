@@ -9,7 +9,7 @@ from pathlib import Path
 import json
 from typing import List, Optional, Sequence, Tuple
 
-from .context import current_artifact_connection, fallback_artifact_connection
+from .shared.context import current_artifact_connection, fallback_artifact_connection
 
 
 def load_artifact_edges(

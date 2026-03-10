@@ -7,12 +7,12 @@ from __future__ import annotations
 
 from typing import Iterable, List
 
-from .helpers.base import (
+from .helpers.shared.base import (
     load_callable_overview,
     require_connection,
 )
-from .helpers.render import render_json_payload
-from .helpers.utils import require_latest_committed_snapshot, resolve_repo_file
+from .helpers.shared.render import render_json_payload
+from .helpers.shared.utils import require_latest_committed_snapshot, resolve_repo_file
 from .metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(

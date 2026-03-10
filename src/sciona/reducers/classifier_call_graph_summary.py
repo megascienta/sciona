@@ -10,12 +10,12 @@ from typing import Dict, List, Optional
 from ..pipelines.diff_overlay.patchers.analytics import (
     patch_classifier_call_graph_summary,
 )
-from .helpers import queries
+from .helpers.shared import queries
 from .helpers.artifact_graph_edges import artifact_db_available
 from .helpers.artifact_graph_rollups import load_class_call_edges
-from .helpers.context import current_overlay_payload
-from .helpers.render import render_json_payload, require_connection
-from .helpers.utils import require_latest_committed_snapshot
+from .helpers.shared.context import current_overlay_payload
+from .helpers.shared.render import render_json_payload, require_connection
+from .helpers.shared.utils import require_latest_committed_snapshot
 from .metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(

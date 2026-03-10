@@ -68,6 +68,26 @@ Fallback: source inspection, targeted import sweeps with `rg`, targeted `pytest`
 Observations: SCIONA clarified why the split was structurally acceptable, but it had little impact on the mechanical import migration itself.
 RATINGS (1-10): Structural clarity 7 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 6
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 6 | Scope reduction vs baseline 6 | Query friction vs baseline 5 | Net usefulness vs baseline 6
+## Task 15 - reducers architecture review
+Copilot: Codex
+Task description: Reviewed the structural architecture of the `reducers` module, including package shape, helper concentration, and import coupling.
+Task type: architecture review
+SCIONA usage: `search`, `resolve`, `module_overview`, and `dependency_edges` on `sciona.src.sciona.reducers`; summarized internal vs external import hubs.
+Effect on workflow: identify ownership; reduce search space; confirm assumptions
+Fallback: filesystem inspection and local summarization over reducer output
+Observations: SCIONA quickly showed that `reducers` is structurally cohesive but centralized around a large `helpers` hub; local summarization was still needed to reason about hotspot density.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 7 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 7
+## Task 16 - reducers shared helpers split
+Copilot: Codex
+Task description: Introduced `reducers.helpers.shared` and moved generic reducer utilities there, updating reducer, pipeline, and test imports to canonical paths.
+Task type: implementation
+SCIONA usage: reused prior structural review evidence that `helpers` mixed shared infrastructure with artifact and implementation-specific code.
+Effect on workflow: identify ownership; reduce search space
+Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `multiphysics`
+Observations: SCIONA justified the ownership split; most implementation effort was mechanical import repair across still-flat helper modules.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 7
 ## Task 13 - artifact_db maintenance package
 Copilot: Codex
 Task description: Moved graph rebuild logic into a dedicated `artifact_db.maintenance` package and removed the misplaced rollup maintenance path.

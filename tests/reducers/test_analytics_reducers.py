@@ -16,7 +16,7 @@ from sciona.reducers import (
     resolution_trace,
     structural_integrity_summary,
 )
-from sciona.reducers.helpers.context import use_overlay_payload
+from sciona.reducers.helpers.shared.context import use_overlay_payload
 from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.data_storage.artifact_db.writes import write_index as artifact_write
 from sciona.runtime import constants as setup_config

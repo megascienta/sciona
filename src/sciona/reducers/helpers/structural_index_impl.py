@@ -13,11 +13,11 @@ from typing import Dict, List, Sequence, Set, Tuple
 import networkx as nx
 
 from ...code_analysis.analysis.orderings import order_edges, order_nodes
-from . import queries
+from .shared import queries
 from .artifact_graph_edges import artifact_db_available, load_artifact_edges
-from .render import render_json_payload, require_connection
-from .types import StructuralIndexPayload
-from .utils import require_latest_committed_snapshot
+from .shared.render import render_json_payload, require_connection
+from .shared.types import StructuralIndexPayload
+from .shared.utils import require_latest_committed_snapshot
 from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(

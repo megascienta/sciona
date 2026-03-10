@@ -8,9 +8,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Dict, List, Optional
 
-from .helpers import queries
-from .helpers.render import render_json_payload, require_connection
-from .helpers.utils import require_latest_committed_snapshot
+from .helpers.shared import queries
+from .helpers.shared.render import render_json_payload, require_connection
+from .helpers.shared.utils import require_latest_committed_snapshot
 from .metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(

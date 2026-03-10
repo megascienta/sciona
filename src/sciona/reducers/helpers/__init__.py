@@ -1,32 +1,14 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Reducer helpers."""
+"""Reducer helper subpackages."""
 
 from __future__ import annotations
 
-from . import (
-    artifact_reporting,
-    artifact_call_sites,
-    artifact_graph_edges,
-    artifact_graph_rollups,
-    base,
-    profile_utils,
-    queries,
-    render,
-    types,
-    utils,
-)
+from . import artifact, impl, shared
 
 __all__ = [
-    "artifact_graph_edges",
-    "artifact_call_sites",
-    "artifact_reporting",
-    "artifact_graph_rollups",
-    "base",
-    "profile_utils",
-    "queries",
-    "render",
-    "types",
-    "utils",
+    "artifact",
+    "impl",
+    "shared",
 ]

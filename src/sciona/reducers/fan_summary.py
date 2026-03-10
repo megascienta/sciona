@@ -9,12 +9,12 @@ from typing import Dict, List, Optional
 
 from ..code_analysis.analysis.orderings import order_nodes
 from ..pipelines.diff_overlay.patchers.analytics import patch_fan_summary
-from .helpers import queries
+from .helpers.shared import queries
 from .helpers.artifact_graph_edges import artifact_db_available
 from .helpers.artifact_graph_rollups import load_node_fan_stats
-from .helpers.context import current_overlay_payload
-from .helpers.render import render_json_payload, require_connection
-from .helpers.utils import require_latest_committed_snapshot
+from .helpers.shared.context import current_overlay_payload
+from .helpers.shared.render import render_json_payload, require_connection
+from .helpers.shared.utils import require_latest_committed_snapshot
 from .metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(

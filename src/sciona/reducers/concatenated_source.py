@@ -8,11 +8,11 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Iterable, List
 
-from .helpers import queries
+from .helpers.shared import queries
 from .metadata import ReducerMeta
-from .helpers.base import require_connection
-from .helpers.render import render_json_payload
-from .helpers.utils import require_latest_committed_snapshot
+from .helpers.shared.base import require_connection
+from .helpers.shared.render import render_json_payload
+from .helpers.shared.utils import require_latest_committed_snapshot
 
 REDUCER_META = ReducerMeta(
     reducer_id="concatenated_source",

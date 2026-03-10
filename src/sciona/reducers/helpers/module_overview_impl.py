@@ -9,12 +9,12 @@ from pathlib import Path
 from typing import Dict, List
 
 from ...code_analysis.analysis.orderings import order_nodes, order_strings
-from . import queries
+from .shared import queries
 from .artifact_graph_edges import artifact_db_available, load_artifact_edges
-from .profile_utils import fetch_node_instance
-from .render import render_json_payload, require_connection
-from .types import ModuleOverviewPayload
-from .utils import line_span_hash, require_latest_committed_snapshot
+from .shared.profile_utils import fetch_node_instance
+from .shared.render import render_json_payload, require_connection
+from .shared.types import ModuleOverviewPayload
+from .shared.utils import line_span_hash, require_latest_committed_snapshot
 from ..metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(

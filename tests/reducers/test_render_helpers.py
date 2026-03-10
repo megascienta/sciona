@@ -5,7 +5,10 @@ from __future__ import annotations
 
 import pytest
 
-from sciona.reducers.helpers.render import render_json_payload, require_connection
+from sciona.reducers.helpers.shared.render import (
+    render_json_payload,
+    require_connection,
+)
 
 
 def test_require_connection_raises_for_none() -> None:

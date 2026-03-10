@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from ...code_analysis.tools.profiling import (
+from ....code_analysis.tools.profiling import (
     java_class_extras,
     java_function_extras,
     python_class_extras,

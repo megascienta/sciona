@@ -21,7 +21,10 @@ from ..data_storage.connections import artifact as artifact_db
 from . import diff_overlay
 from .errors import WorkflowError
 from ..runtime.paths import get_artifact_db_path, get_db_path
-from ..reducers.helpers.context import use_artifact_connection, use_overlay_payload
+from ..reducers.helpers.shared.context import (
+    use_artifact_connection,
+    use_overlay_payload,
+)
 
 
 def _ensure_clean_repo(repo_root: Optional[Path] = None) -> None:

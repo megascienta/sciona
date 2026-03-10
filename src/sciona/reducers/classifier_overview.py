@@ -16,12 +16,12 @@ from ..code_analysis.tools.profiling import (
     typescript_class_extras,
 )
 from .helpers.artifact_graph_edges import artifact_db_available, load_artifact_edges
-from .helpers.profile_utils import fetch_node_instance
-from .helpers import queries
-from .helpers.render import render_json_payload, require_connection
+from .helpers.shared.profile_utils import fetch_node_instance
+from .helpers.shared import queries
+from .helpers.shared.render import render_json_payload, require_connection
 from .metadata import ReducerMeta
-from .helpers.types import ClassifierOverviewPayload
-from .helpers.utils import line_span_hash, require_latest_committed_snapshot
+from .helpers.shared.types import ClassifierOverviewPayload
+from .helpers.shared.utils import line_span_hash, require_latest_committed_snapshot
 
 REDUCER_META = ReducerMeta(
     reducer_id="classifier_overview",
