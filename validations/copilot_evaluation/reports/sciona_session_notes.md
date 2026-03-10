@@ -248,6 +248,16 @@ Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `mult
 Observations: SCIONA helped bound the move, but `render.py` and `utils.py` were hub modules, so practical work was dominated by import cleanup across commands and tests.
 RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 7
+## Task 33 - cli registration normalization
+Copilot: Codex
+Task description: Normalized `cli.main` registration flow after the surface and support moves so the command and surface boundaries are declared more clearly.
+Task type: repository maintenance
+SCIONA usage: reused the prior CLI structure review and import-shape checks to confirm the `commands` subtree remained separate and did not need another package move.
+Effect on workflow: confirm assumptions; have little impact
+Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `multiphysics`
+Observations: SCIONA mainly confirmed that the registration boundary was already structurally sound; this was a small follow-up cleanup rather than a discovery-heavy refactor.
+RATINGS (1-10): Structural clarity 6 | Navigation speed 5 | Confidence in answers 8 | Overall usefulness 5
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 6 | Scope reduction vs baseline 5 | Query friction vs baseline 4 | Net usefulness vs baseline 5
 ## Task 13 - artifact_db maintenance package
 Copilot: Codex
 Task description: Moved graph rebuild logic into a dedicated `artifact_db.maintenance` package and removed the misplaced rollup maintenance path.

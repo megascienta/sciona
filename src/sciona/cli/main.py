@@ -250,12 +250,6 @@ def _primary_argument(argument: click.Argument) -> str:
 
 
 register_commands(app)
-
-
-def run() -> None:
-    app()
-
-
 from .surfaces.reducer import register as register_reducer  # noqa: E402
 from .surfaces.resolve import register as register_resolve  # noqa: E402
 from .surfaces.search import register as register_search  # noqa: E402
@@ -263,6 +257,10 @@ from .surfaces.search import register as register_search  # noqa: E402
 register_reducer(app)
 register_resolve(app)
 register_search(app)
+
+
+def run() -> None:
+    app()
 
 if __name__ == "__main__":
     run()
