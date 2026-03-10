@@ -63,9 +63,11 @@ Do not use this document to redefine structural semantics.
   reporting, repo checks, init dialog, guardrails, and fingerprint reuse
 - `src/sciona/pipelines/diff_overlay/`: dirty-worktree overlay computation,
   sorting, patching, and summary payload generation
-- `src/sciona/pipelines/reducers.py`: reducer listing and emission pipeline
-- `src/sciona/reducers/`: reducer implementations; helpers shared by reducers
-  live in `src/sciona/reducers/helpers/`
+- `src/sciona/pipelines/ops/reducers.py`: reducer listing and emission pipeline
+- `src/sciona/reducers/`: reducer implementations; shared reducer helpers are
+  grouped under `src/sciona/reducers/helpers/shared/`,
+  `src/sciona/reducers/helpers/artifact/`, and
+  `src/sciona/reducers/helpers/impl/`
 - `tests/`: API, code-analysis, data-storage, pipeline, reducer, and runtime
   coverage
 
@@ -287,9 +289,11 @@ languages until the user enables them in `.sciona/config.yaml`.
 ## Reducer Layout
 
 - Reducer implementations live directly under `src/sciona/reducers/`
-- Shared reducer logic belongs in `src/sciona/reducers/helpers/`
+- Shared reducer logic belongs in `src/sciona/reducers/helpers/shared/`,
+  `src/sciona/reducers/helpers/artifact/`, and
+  `src/sciona/reducers/helpers/impl/`
 - Reducer classification is metadata-driven, not directory-driven
-- Reducer emission flows through `src/sciona/pipelines/reducers.py`
+- Reducer emission flows through `src/sciona/pipelines/ops/reducers.py`
 - Reducers return structured JSON-compatible payload objects; 
 - Reducer emission opens CoreDB for committed snapshot identity resolution and
   ArtifactDB for reducer-facing projections
@@ -317,6 +321,7 @@ Public exports:
 
 - `PLUGIN_API_VERSION`, `PLUGIN_API_MAJOR`, `PLUGIN_API_MINOR`
 - `list_entries(...)`
+- `get_entry(...)`
 - `emit(...)`
 - `open_core_readonly(...)`, `open_artifact_readonly(...)`
 - `core_readonly(...)`, `artifact_readonly(...)`

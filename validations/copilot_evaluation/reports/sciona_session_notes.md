@@ -318,6 +318,26 @@ Fallback: source inspection, targeted `pytest` in `multiphysics`
 Observations: SCIONA mainly confirmed that `api.errors` was already a separate boundary; the change was a small contract clarification rather than a structural move.
 RATINGS (1-10): Structural clarity 6 | Navigation speed 5 | Confidence in answers 8 | Overall usefulness 5
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 6 | Scope reduction vs baseline 5 | Query friction vs baseline 4 | Net usefulness vs baseline 5
+## Task 40 - api docs drift check
+Copilot: Codex
+Task description: Checked whether documentation needs updates after the API and CLI boundary refactors, focusing on the developer guide and addon API section.
+Task type: semantic investigation
+SCIONA usage: none; this was a docs and repository-text check outside structural reducer scope.
+Effect on workflow: have little impact
+Fallback: source inspection and `rg` search across `docs/` and API tests
+Observations: The addon API section is mostly aligned, but `DEVELOPERGUIDE.md` still contains stale path references from prior refactors and one missing `get_entry(...)` export in the addon API list.
+RATINGS (1-10): Structural clarity 4 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 5
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 3 | Confidence gain vs baseline 5 | Scope reduction vs baseline 4 | Query friction vs baseline 3 | Net usefulness vs baseline 4
+## Task 41 - developer guide updates
+Copilot: Codex
+Task description: Updated `docs/DEVELOPERGUIDE.md` to match the current pipelines, reducers, and addon API structure after the repository refactors.
+Task type: repository maintenance
+SCIONA usage: no; this was a documentation alignment pass based on current committed code and earlier architecture work.
+Effect on workflow: have little impact
+Fallback: source inspection, `rg` search, targeted `pytest` in `multiphysics`
+Observations: The main value was cleanup rather than discovery; the guide had one API export omission and a few stale path references from earlier structural changes.
+RATINGS (1-10): Structural clarity 5 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 5
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 5 | Scope reduction vs baseline 4 | Query friction vs baseline 3 | Net usefulness vs baseline 4
 ## Task 13 - artifact_db maintenance package
 Copilot: Codex
 Task description: Moved graph rebuild logic into a dedicated `artifact_db.maintenance` package and removed the misplaced rollup maintenance path.
