@@ -133,6 +133,12 @@ def write_call_artifacts(
     )
     if not caller_set:
         return
+    duplicate_caller_ids = _duplicate_caller_ids(call_records, caller_set)
+    if duplicate_caller_ids:
+        joined = ", ".join(sorted(duplicate_caller_ids))
+        raise ValueError(
+            f"Duplicate call artifact records for caller ids: {joined}"
+        )
     symbol_index, in_repo_callable_ids, callable_qname_by_id = _build_symbol_index(
         core_conn, snapshot_id
     )
@@ -286,6 +292,23 @@ def _python_export_scope_modules(
         module_file_by_name=module_file_by_name,
         bounded_module_reachability=_bounded_module_reachability,
     )
+
+
+def _duplicate_caller_ids(
+    call_records: Sequence[CallExtractionRecord],
+    caller_set: set[str],
+) -> set[str]:
+    seen: set[str] = set()
+    duplicates: set[str] = set()
+    for record in call_records:
+        caller_id = record.caller_structural_id
+        if caller_id not in caller_set:
+            continue
+        if caller_id in seen:
+            duplicates.add(caller_id)
+            continue
+        seen.add(caller_id)
+    return duplicates
 
 
 def _build_typescript_barrel_export_map(

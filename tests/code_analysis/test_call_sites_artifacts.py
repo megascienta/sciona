@@ -373,6 +373,66 @@ def test_node_calls_match_accepted_persisted_callsite_outcomes(
     assert [row["callee_id"] for row in node_call_rows] == ["func_alpha"]
 
 
+def test_write_call_artifacts_rejects_duplicate_callers_before_writes(
+    tmp_path: Path,
+) -> None:
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    prefix = runtime_paths.repo_name_prefix(repo_root)
+    core_conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
+    core_conn.row_factory = sqlite3.Row
+    try:
+        artifact_conn = artifact_connect(get_artifact_db_path(repo_root), repo_root=repo_root)
+        try:
+            try:
+                write_call_artifacts(
+                    artifact_conn=artifact_conn,
+                    core_conn=core_conn,
+                    snapshot_id=snapshot_id,
+                    call_records=[
+                        CallExtractionRecord(
+                            caller_structural_id="meth_alpha",
+                            caller_qualified_name=f"{prefix}.pkg.alpha.Service.run",
+                            caller_node_type="callable",
+                            callee_identifiers=("helper",),
+                        ),
+                        CallExtractionRecord(
+                            caller_structural_id="meth_alpha",
+                            caller_qualified_name=f"{prefix}.pkg.alpha.Service.run",
+                            caller_node_type="callable",
+                            callee_identifiers=("helper_alias",),
+                        ),
+                    ],
+                    eligible_callers={"meth_alpha"},
+                )
+            except ValueError as exc:
+                assert "Duplicate call artifact records" in str(exc)
+            else:
+                raise AssertionError("Expected duplicate caller records to raise")
+            callsite_rows = artifact_conn.execute(
+                """
+                SELECT COUNT(*) AS count
+                FROM call_sites
+                WHERE snapshot_id = ? AND caller_id = ?
+                """,
+                (snapshot_id, "meth_alpha"),
+            ).fetchone()
+            node_call_rows = artifact_conn.execute(
+                """
+                SELECT COUNT(*) AS count
+                FROM node_calls
+                WHERE caller_id = ?
+                """,
+                ("meth_alpha",),
+            ).fetchone()
+        finally:
+            artifact_conn.close()
+    finally:
+        core_conn.close()
+
+    assert callsite_rows["count"] == 0
+    assert node_call_rows["count"] == 0
+
+
 def test_call_sites_do_not_persist_zero_candidate_or_out_of_scope_observations(
     tmp_path: Path,
 ) -> None:
