@@ -11,7 +11,7 @@ from typing import Callable, Optional, Tuple, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .core.extract.analyzer import ASTAnalyzer
-    from .core.normalize.model import FileSnapshot
+    from .core.normalize_model import FileSnapshot
 
 AnalyzerFactory = Callable[[], "ASTAnalyzer"]
 ModuleNamer = Callable[[Path, "FileSnapshot"], str]

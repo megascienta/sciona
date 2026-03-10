@@ -8,7 +8,7 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import Iterable, Sequence, cast
 
-from ..analysis.graph import module_id_for
+from ..analysis.module_id import module_id_for
 from ..analysis_contracts import (
     build_strict_resolution_stats,
     record_strict_resolution_decision,

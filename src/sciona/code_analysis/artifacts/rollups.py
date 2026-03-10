@@ -8,7 +8,7 @@ from __future__ import annotations
 from collections import Counter, defaultdict
 from typing import Iterable, Sequence
 
-from ..analysis.graph import module_id_for
+from ..analysis.module_id import module_id_for
 from ..tools.call_extraction import CallExtractionRecord
 from ...data_storage.artifact_db import rollup_persistence as artifact_persistence
 from ...data_storage.core_db import read_ops as core_read
