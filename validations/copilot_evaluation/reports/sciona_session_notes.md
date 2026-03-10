@@ -298,6 +298,16 @@ Fallback: source inspection, targeted `pytest` in `multiphysics`
 Observations: SCIONA mainly provided the structural rationale; the implementation was a surface-contract test update rather than a code move.
 RATINGS (1-10): Structural clarity 7 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 6
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 6 | Scope reduction vs baseline 6 | Query friction vs baseline 4 | Net usefulness vs baseline 6
+## Task 38 - api capability split
+Copilot: Codex
+Task description: Split addon-safe API capabilities into `api.reducers` and `api.storage`, and expanded `api.addons` to expose reducer listing, lookup, emission, and read-only DB access.
+Task type: implementation
+SCIONA usage: reused the API structure review to keep the public root narrow while separating reducer access from storage access internally.
+Effect on workflow: reduce search space; confirm assumptions
+Fallback: source inspection, targeted `pytest` in `multiphysics`
+Observations: SCIONA helped show that `api` was small but boundary-mixed; the split made the internal structure clearer without widening the public root beyond `api.addons`.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 8 | Confidence in answers 8 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 7 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
 ## Task 13 - artifact_db maintenance package
 Copilot: Codex
 Task description: Moved graph rebuild logic into a dedicated `artifact_db.maintenance` package and removed the misplaced rollup maintenance path.

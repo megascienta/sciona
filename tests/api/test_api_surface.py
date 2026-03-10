@@ -29,6 +29,8 @@ def test_public_addon_api_surface_is_explicit_and_stable():
         "PLUGIN_API_MAJOR",
         "PLUGIN_API_MINOR",
         "list_entries",
+        "get_entry",
+        "emit",
         "open_core_readonly",
         "open_artifact_readonly",
         "core_readonly",
@@ -47,3 +49,19 @@ def test_addon_api_can_list_reducers(repo_with_snapshot, monkeypatch):
     assert entries
     reducer_ids = {entry["reducer_id"] for entry in entries}
     assert "structural_index" in reducer_ids
+
+
+def test_addon_api_can_get_reducer_entry(repo_with_snapshot, monkeypatch):
+    repo_root, _snapshot_id = repo_with_snapshot
+    monkeypatch.setattr(runtime_paths, "get_repo_root", lambda: repo_root)
+    entry = api.addons.get_entry("structural_index")
+    assert entry["reducer_id"] == "structural_index"
+
+
+def test_addon_api_can_emit_reducer_payload(repo_with_snapshot, monkeypatch):
+    repo_root, _snapshot_id = repo_with_snapshot
+    monkeypatch.setattr(runtime_paths, "get_repo_root", lambda: repo_root)
+    payload, snapshot_id, resolved_args = api.addons.emit("structural_index")
+    assert snapshot_id
+    assert isinstance(payload, dict)
+    assert isinstance(resolved_args, dict)
