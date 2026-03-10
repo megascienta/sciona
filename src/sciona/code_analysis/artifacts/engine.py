@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections import OrderedDict
 from pathlib import Path
 from typing import Callable, Dict, List, Optional, Tuple
 
@@ -122,16 +123,39 @@ class ArtifactEngine:
                 for language, record in all_call_records
             ]
         )
+        merged_by_caller: OrderedDict[str, dict[str, object]] = OrderedDict()
         for _language, qualified_name, node_type, callee_identifiers in normalized_calls:
             node_info = node_map.get((qualified_name, node_type))
             if not node_info:
                 continue
+            merged = merged_by_caller.get(node_info)
+            if merged is None:
+                merged_by_caller[node_info] = {
+                    "qualified_name": qualified_name,
+                    "node_type": node_type,
+                    "callee_identifiers": list(callee_identifiers),
+                }
+                continue
+            if (
+                merged["qualified_name"] != qualified_name
+                or merged["node_type"] != node_type
+            ):
+                raise RuntimeError(
+                    "Conflicting caller metadata for structural id "
+                    f"{node_info}: "
+                    f"{merged['qualified_name']}/{merged['node_type']} vs "
+                    f"{qualified_name}/{node_type}"
+                )
+            merged["callee_identifiers"].extend(callee_identifiers)
+        for caller_structural_id, merged in merged_by_caller.items():
             call_artifacts.append(
                 CallExtractionRecord(
-                    caller_structural_id=node_info,
-                    caller_qualified_name=qualified_name,
-                    caller_node_type=node_type,
-                    callee_identifiers=tuple(dict.fromkeys(callee_identifiers)),
+                    caller_structural_id=caller_structural_id,
+                    caller_qualified_name=str(merged["qualified_name"]),
+                    caller_node_type=str(merged["node_type"]),
+                    callee_identifiers=tuple(
+                        dict.fromkeys(merged["callee_identifiers"])
+                    ),
                 )
             )
         return call_artifacts
