@@ -173,13 +173,37 @@ Supported structural carriers:
 - accumulation of import and call-gate diagnostics.
 
 `build_artifacts_for_snapshot()` in
-`src/sciona/pipelines/build_artifacts.py` currently owns:
+`src/sciona/pipelines/ops/build_artifacts.py` currently owns:
 
 - artifact re-analysis through `ArtifactEngine`;
 - `call_sites` and `node_calls` materialization;
 - rebuild of reducer-facing graph edges and rollups;
 - rebuild-status metadata and diagnostics persistence;
 - overlay table clearing before fresh artifact population.
+
+Current user-visible build phases are:
+
+- `Computing build fingerprint`
+- `Discovering files`
+- `Preparing snapshots`
+- `Registering modules`
+- `Analyzing`
+- `Analyzing artifacts`
+- `Refreshing artifacts`
+- `Writing call artifacts`
+- `Rebuilding graph index`
+- `Rebuilding graph rollups`
+
+Timing semantics:
+
+- CLI `sciona build` now reports `Total build time` as full command wall time
+  from command start until final summary generation.
+- When available, `Build core time` is also shown; this is the inner
+  persisted build metric recorded by the build pipeline itself.
+- The inner persisted metric includes core analysis, artifact analysis,
+  artifact refresh, graph-index rebuild, and rollup rebuild.
+- The inner persisted metric does not include later CLI-only work such as
+  final summary querying or terminal rendering.
 
 ## Snapshot and Artifact Semantics
 
