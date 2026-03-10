@@ -3,7 +3,7 @@
 
 from pathlib import Path
 
-from sciona.runtime import agents_setup as agents
+from sciona.runtime.agents import setup as agents
 from sciona.reducers.registry import get_reducers
 
 

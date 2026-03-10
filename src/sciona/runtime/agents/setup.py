@@ -8,11 +8,11 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Mapping
 
-from ..code_analysis.core.extract.registry import extensions_for_language
-from .config import io as config_io
-from .config import defaults as config_defaults
-from .errors import ConfigError
-from .reducers.listing import render_reducer_list
+from ...code_analysis.core.extract.registry import extensions_for_language
+from ..config import io as config_io
+from ..config import defaults as config_defaults
+from ..errors import ConfigError
+from ..reducers.listing import render_reducer_list
 
 
 BEGIN_MARKER = "<!-- sciona:begin -->"

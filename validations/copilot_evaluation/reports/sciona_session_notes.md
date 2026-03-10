@@ -208,6 +208,16 @@ Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `mult
 Observations: SCIONA helped justify the ownership boundary; most practical work was import migration, and one internal self-import broke immediately after the move and was easy to correct.
 RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 7
+## Task 29 - runtime agents package
+Copilot: Codex
+Task description: Moved `agents_setup` and its markdown template into `runtime.agents`, updated callers, and removed the shallow standalone templates package from the runtime root.
+Task type: implementation
+SCIONA usage: reused the runtime architecture review to keep AGENTS generation separate from addon contracts, reducer support, and generic runtime utilities.
+Effect on workflow: reduce search space; confirm assumptions
+Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `multiphysics`
+Observations: SCIONA gave the right boundary, but the practical breakage was semantic import depth after the move; that was quickly resolved with targeted tests.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 7
 ## Task 13 - artifact_db maintenance package
 Copilot: Codex
 Task description: Moved graph rebuild logic into a dedicated `artifact_db.maintenance` package and removed the misplaced rollup maintenance path.

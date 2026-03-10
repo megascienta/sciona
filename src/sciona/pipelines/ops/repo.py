@@ -17,7 +17,7 @@ from ..hooks import (
     post_commit_hook_status,
     remove_post_commit_hook,
 )
-from ...runtime import agents_setup as agents_runtime
+from ...runtime.agents import setup as agents_runtime
 from ...reducers.registry import get_reducers
 from ..exec.build import (
     BuildResult,
