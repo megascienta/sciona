@@ -48,6 +48,16 @@ Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `mult
 Observations: SCIONA helped justify the package boundary; implementation risk came from broad fan-in across `core_db`, `artifact_db`, pipelines, and tests.
 RATINGS (1-10): Structural clarity 8 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 7
+## Task 13 - artifact_db maintenance package
+Copilot: Codex
+Task description: Moved graph rebuild logic into a dedicated `artifact_db.maintenance` package and removed the misplaced rollup maintenance path.
+Task type: implementation
+SCIONA usage: reused prior structural review evidence that maintenance was a distinct operational surface inside `artifact_db`.
+Effect on workflow: confirm assumptions; reduce search space
+Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `multiphysics`
+Observations: SCIONA helped justify separating maintenance from rollup persistence; the concrete work was straightforward once import fan-out was located locally.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 7
 ## Task 3 - code_analysis PR planning
 Copilot: Codex
 Task description: Converted the `code_analysis` architecture findings into PR-sized structural refactoring proposals with scope and sequencing.
