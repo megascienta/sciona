@@ -12,7 +12,7 @@ from typing import List, Optional, Tuple
 
 from pathlib import Path
 
-from ...reducers.registry import get_reducers, load_reducer
+from ...reducers.registry import freeze_registry, get_reducers, load_reducer
 from .resolve import require_identifier
 from ..policy import repo as policy_repo
 from ..policy import snapshot as snapshot_policy
@@ -219,3 +219,13 @@ def _validate_reducer_kwargs(reducer, kwargs: dict[str, object]) -> None:
             f"Unknown reducer parameter(s): {names}.",
             code="invalid_parameters",
         )
+
+
+__all__ = [
+    "emit",
+    "freeze_registry",
+    "get_entry",
+    "get_reducers",
+    "list_entries",
+    "load_reducer",
+]

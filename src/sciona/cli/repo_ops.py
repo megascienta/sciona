@@ -5,7 +5,8 @@
 
 from __future__ import annotations
 
-from ..api import repo_ops as _repo_ops
+from ..pipelines.ops import repo as _repo_ops
+from ..runtime.paths import get_repo_root, get_sciona_dir
 
 init = _repo_ops.init
 build = _repo_ops.build
@@ -21,6 +22,21 @@ dirty_worktree_warning = _repo_ops.dirty_worktree_warning
 install_commit_hook = _repo_ops.install_commit_hook
 remove_commit_hook = _repo_ops.remove_commit_hook
 commit_hook_status = _repo_ops.commit_hook_status
-get_repo_root = _repo_ops.get_repo_root
-get_sciona_dir = _repo_ops.get_sciona_dir
-__all__ = _repo_ops.__all__
+__all__ = [
+    "init",
+    "build",
+    "status",
+    "snapshot_report",
+    "init_dialog_defaults",
+    "init_supported_languages",
+    "init_apply_languages",
+    "init_agents",
+    "clean",
+    "clean_agents",
+    "dirty_worktree_warning",
+    "install_commit_hook",
+    "remove_commit_hook",
+    "commit_hook_status",
+    "get_repo_root",
+    "get_sciona_dir",
+]
