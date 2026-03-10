@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import json
 import sqlite3
 
 
@@ -49,3 +50,42 @@ def build_total_seconds_for_snapshot(
     except ValueError:
         return None
     return value if value >= 0.0 else None
+
+
+def build_wall_seconds_for_snapshot(
+    conn: sqlite3.Connection, *, snapshot_id: str
+) -> float | None:
+    raw = rebuild_status_value(conn, key=f"build_wall_seconds:{snapshot_id}")
+    if raw is None:
+        return None
+    try:
+        value = float(raw)
+    except ValueError:
+        return None
+    return value if value >= 0.0 else None
+
+
+def build_phase_timings_for_snapshot(
+    conn: sqlite3.Connection, *, snapshot_id: str
+) -> dict[str, float] | None:
+    raw = rebuild_status_value(conn, key=f"build_phase_timings:{snapshot_id}")
+    if raw is None:
+        return None
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError:
+        return None
+    if not isinstance(payload, dict):
+        return None
+    result: dict[str, float] = {}
+    for key, value in payload.items():
+        if not isinstance(key, str):
+            continue
+        try:
+            number = float(value)
+        except (TypeError, ValueError):
+            continue
+        if number < 0.0:
+            continue
+        result[key] = number
+    return result

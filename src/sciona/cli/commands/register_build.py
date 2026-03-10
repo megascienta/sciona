@@ -28,6 +28,11 @@ def register_build(app: typer.Typer) -> None:
         result = cli_call(lambda: repo_ops.build(force_rebuild=force_rebuild))
         summary = cli_call(repo_ops.snapshot_report, snapshot_id=result.snapshot_id)
         command_wall_seconds = perf_counter() - started_at
+        cli_call(
+            repo_ops.record_build_wall_time,
+            snapshot_id=result.snapshot_id,
+            wall_seconds=command_wall_seconds,
+        )
         payload = dict(result.__dict__)
         payload["summary"] = summary
         payload["command_wall_seconds"] = max(command_wall_seconds, 0.0)

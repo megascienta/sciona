@@ -48,6 +48,7 @@ def test_cli_build_forwards_force_rebuild_flag(
 
     monkeypatch.setattr(repo_ops, "build", _build)
     monkeypatch.setattr(repo_ops, "snapshot_report", lambda snapshot_id: _fake_summary())
+    monkeypatch.setattr(repo_ops, "record_build_wall_time", lambda snapshot_id, wall_seconds: None)
     perf_values = iter([10.0, 11.25])
     monkeypatch.setattr(build_command, "perf_counter", lambda: next(perf_values))
     result = cli_runner.invoke(cli_app, ["build", "--force"])
@@ -68,6 +69,7 @@ def test_cli_build_defaults_force_rebuild_false(
 
     monkeypatch.setattr(repo_ops, "build", _build)
     monkeypatch.setattr(repo_ops, "snapshot_report", lambda snapshot_id: _fake_summary())
+    monkeypatch.setattr(repo_ops, "record_build_wall_time", lambda snapshot_id, wall_seconds: None)
     perf_values = iter([20.0, 20.5])
     monkeypatch.setattr(build_command, "perf_counter", lambda: next(perf_values))
     result = cli_runner.invoke(cli_app, ["build"])

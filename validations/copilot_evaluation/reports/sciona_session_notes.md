@@ -148,6 +148,16 @@ Fallback: source inspection, CLI output shaping, targeted `pytest` in `multiphys
 Observations: SCIONA had little direct impact here; the work was mostly presentation cleanup on an already-understood build path.
 RATINGS (1-10): Structural clarity 5 | Navigation speed 4 | Confidence in answers 8 | Overall usefulness 4
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 3 | Confidence gain vs baseline 4 | Scope reduction vs baseline 3 | Query friction vs baseline 5 | Net usefulness vs baseline 4
+## Task 53 - build timing payloads and phase durations
+Copilot: Codex
+Task description: Persisted build wall time and per-phase timings, exposed them through reporting/status JSON, and added elapsed-duration reporting after each build phase.
+Task type: implementation
+SCIONA usage: reused prior build-path investigation only; no new reducers were needed for the reporting change.
+Effect on workflow: confirm assumptions
+Fallback: source inspection, reporting-path edits, targeted `pytest` in `multiphysics`
+Observations: SCIONA did not materially help for the implementation itself; the work was mainly build/reporting semantics on an already traced execution path.
+RATINGS (1-10): Structural clarity 5 | Navigation speed 4 | Confidence in answers 8 | Overall usefulness 4
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 3 | Confidence gain vs baseline 4 | Scope reduction vs baseline 3 | Query friction vs baseline 5 | Net usefulness vs baseline 4
 ## Task 51 - build progress and performance PR planning
 Copilot: Codex
 Task description: Translated the build-tail investigation into PR-sized proposals for earlier progress reporting, post-artifact progress reporting, full-wall-time measurement, and artifact refresh optimization.

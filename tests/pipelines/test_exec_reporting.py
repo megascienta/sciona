@@ -70,6 +70,35 @@ def test_snapshot_report_includes_build_total_seconds(repo_with_snapshot):
     assert payload["build_total_seconds"] == pytest.approx(3.25)
 
 
+def test_snapshot_report_includes_wall_seconds_and_phase_timings(repo_with_snapshot):
+    repo_root, snapshot_id = repo_with_snapshot
+    artifact_db = repo_root / ".sciona" / runtime_constants.ARTIFACT_DB_FILENAME
+
+    conn = artifact_connect(artifact_db, repo_root=repo_root)
+    try:
+        artifact_write.set_rebuild_metadata(
+            conn,
+            key=f"build_wall_seconds:{snapshot_id}",
+            value="4.500000",
+        )
+        artifact_write.set_rebuild_metadata(
+            conn,
+            key=f"build_phase_timings:{snapshot_id}",
+            value='{"discover_files": 0.12, "analyze": 2.75}',
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    payload = repo_pipeline.snapshot_report(snapshot_id, repo_root=repo_root)
+    assert payload is not None
+    assert payload["build_wall_seconds"] == pytest.approx(4.5)
+    assert payload["build_phase_timings"] == {
+        "discover_files": pytest.approx(0.12),
+        "analyze": pytest.approx(2.75),
+    }
+
+
 def test_snapshot_report_full_includes_failure_reasons(repo_with_snapshot):
     repo_root, snapshot_id = repo_with_snapshot
     artifact_db = repo_root / ".sciona" / runtime_constants.ARTIFACT_DB_FILENAME

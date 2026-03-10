@@ -22,6 +22,7 @@ from ...reducers.registry import get_reducers
 from ..exec.build import (
     BuildResult,
     build_repo as exec_build,
+    record_build_wall_seconds as exec_record_build_wall_seconds,
 )
 from ..exec.init_dialog import (
     InitDialogDefaults,
@@ -123,6 +124,20 @@ def snapshot_report(
         repo_state,
         snapshot_id=snapshot_id,
         include_failure_reasons=include_failure_reasons,
+    )
+
+
+def record_build_wall_time(
+    snapshot_id: str,
+    wall_seconds: float,
+    repo_root: Optional[Path] = None,
+) -> None:
+    repo_state = policy_repo.resolve_repo_state(repo_root, allow_missing_config=True)
+    policy_repo.ensure_initialized(repo_state)
+    exec_record_build_wall_seconds(
+        repo_state=repo_state,
+        snapshot_id=snapshot_id,
+        wall_seconds=wall_seconds,
     )
 
 

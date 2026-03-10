@@ -93,6 +93,8 @@ def snapshot_report(
     discovered_files_by_language = _discovered_files_by_language(repo_state.repo_root)
     created_at: str | None = None
     build_total_seconds: float | None = None
+    build_wall_seconds: float | None = None
+    build_phase_timings: dict[str, float] | None = None
 
     with core_readonly(repo_state.db_path, repo_root=repo_state.repo_root) as conn:
         created_at = core_read.snapshot_created_at(conn, snapshot_id)
@@ -164,6 +166,12 @@ def snapshot_report(
         ) as conn:
             artifact_available = True
             build_total_seconds = artifact_status.build_total_seconds_for_snapshot(
+                conn, snapshot_id=snapshot_id
+            )
+            build_wall_seconds = artifact_status.build_wall_seconds_for_snapshot(
+                conn, snapshot_id=snapshot_id
+            )
+            build_phase_timings = artifact_status.build_phase_timings_for_snapshot(
                 conn, snapshot_id=snapshot_id
             )
             call_sites = artifact_reporting.call_site_caller_status_counts(
@@ -355,6 +363,8 @@ def snapshot_report(
         "snapshot_id": snapshot_id,
         "created_at": created_at,
         "build_total_seconds": build_total_seconds,
+        "build_wall_seconds": build_wall_seconds,
+        "build_phase_timings": build_phase_timings or {},
         "artifact_db_available": artifact_available,
         "call_sites_semantics": "filtered_persisted_artifact_working_set",
         "external_likely_semantics": "residual_filter_quality_signal",

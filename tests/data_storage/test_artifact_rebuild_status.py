@@ -55,3 +55,35 @@ def test_build_total_seconds_for_snapshot(tmp_path):
         ) == 2.5
     finally:
         conn.close()
+
+
+def test_build_wall_seconds_and_phase_timings_for_snapshot(tmp_path):
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    (repo_root / ".sciona").mkdir()
+    conn = artifact_connect(get_artifact_db_path(repo_root), repo_root=repo_root)
+    try:
+        artifact_write.set_rebuild_metadata(
+            conn,
+            key="build_wall_seconds:snap_4",
+            value="4.750000",
+        )
+        artifact_write.set_rebuild_metadata(
+            conn,
+            key="build_phase_timings:snap_4",
+            value='{"analyze": 3.5, "rebuild_graph_rollups": 0.2}',
+        )
+        conn.commit()
+        assert artifact_read.build_wall_seconds_for_snapshot(
+            conn,
+            snapshot_id="snap_4",
+        ) == 4.75
+        assert artifact_read.build_phase_timings_for_snapshot(
+            conn,
+            snapshot_id="snap_4",
+        ) == {
+            "analyze": 3.5,
+            "rebuild_graph_rollups": 0.2,
+        }
+    finally:
+        conn.close()

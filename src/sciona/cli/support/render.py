@@ -85,11 +85,19 @@ def render_status(payload: dict) -> list[str]:
     if payload.get("latest_snapshot"):
         lines.append("Last build:")
         if summary:
-            build_total_seconds = _format_duration_seconds(
-                summary.get("build_total_seconds")
+            build_wall_seconds = _format_duration_seconds(
+                summary.get("build_wall_seconds")
             )
-            if build_total_seconds is not None:
-                lines.append(f"  Total build time: {build_total_seconds}")
+            build_total_seconds = _format_duration_seconds(summary.get("build_total_seconds"))
+            if build_wall_seconds is not None:
+                lines.append(f"  Wall time: {build_wall_seconds}")
+            elif build_total_seconds is not None:
+                lines.append(f"  Core build time: {build_total_seconds}")
+            if (
+                build_wall_seconds is not None
+                and build_total_seconds is not None
+            ):
+                lines.append(f"  Core build time: {build_total_seconds}")
             lines.append("  Summary:")
             lines.extend(
                 _render_summary_lines(

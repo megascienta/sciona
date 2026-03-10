@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from dataclasses import replace
+import json
 import sqlite3
 from pathlib import Path
 from time import perf_counter
@@ -91,10 +92,12 @@ def build_repo(
             fingerprint_hash=fingerprint.fingerprint_hash,
         )
         if cached_result is not None:
-            _record_build_total_seconds(
+            build_progress.finalize()
+            _record_build_metrics(
                 repo_state=repo_state,
                 snapshot_id=cached_result.snapshot_id,
                 total_build_seconds=perf_counter() - started_at,
+                phase_timings=build_progress.phase_timings(),
             )
             return cached_result
 
@@ -226,10 +229,12 @@ def build_repo(
                 structural_hash=structural_hash,
                 result_payload=_build_result_payload(result),
             )
-            _record_build_total_seconds(
+            build_progress.finalize()
+            _record_build_metrics(
                 repo_state=repo_state,
                 snapshot_id=result.snapshot_id,
                 total_build_seconds=perf_counter() - started_at,
+                phase_timings=build_progress.phase_timings(),
             )
             return result
         except Exception:
@@ -323,17 +328,39 @@ def _artifacts_ready_for_snapshot(repo_state: RepoState, snapshot_id: str) -> bo
         return False
 
 
-def _record_build_total_seconds(
+def _record_build_metrics(
     *,
     repo_state: RepoState,
     snapshot_id: str,
     total_build_seconds: float,
+    phase_timings: dict[str, float] | None = None,
 ) -> None:
     with artifact(repo_state.artifact_db_path, repo_root=repo_state.repo_root) as conn:
         artifact_write.set_rebuild_metadata(
             conn,
             key=f"build_total_seconds:{snapshot_id}",
             value=f"{max(total_build_seconds, 0.0):.6f}",
+        )
+        if phase_timings is not None:
+            artifact_write.set_rebuild_metadata(
+                conn,
+                key=f"build_phase_timings:{snapshot_id}",
+                value=json.dumps(phase_timings, sort_keys=True),
+            )
+        conn.commit()
+
+
+def record_build_wall_seconds(
+    *,
+    repo_state: RepoState,
+    snapshot_id: str,
+    wall_seconds: float,
+) -> None:
+    with artifact(repo_state.artifact_db_path, repo_root=repo_state.repo_root) as conn:
+        artifact_write.set_rebuild_metadata(
+            conn,
+            key=f"build_wall_seconds:{snapshot_id}",
+            value=f"{max(wall_seconds, 0.0):.6f}",
         )
         conn.commit()
 
