@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from time import perf_counter
 from typing import Sequence, Set
 
 from ...code_analysis import artifacts as artifact_derivation
@@ -24,7 +25,10 @@ from ...data_storage.artifact_db.writes import write_index as artifact_write
 from ...data_storage.core_db import read_ops as core_read
 from ...data_storage.artifact_db.maintenance import rebuild_graph_index
 from ...runtime.paths import get_artifact_db_path
+from ...runtime.logging import get_logger
 from ..progress import make_progress_factory
+
+_LOGGER = get_logger("pipelines.ops.build_artifacts")
 
 
 def build_artifacts_for_snapshot(
@@ -64,9 +68,19 @@ def refresh_artifact_state(
     call_artifacts: Sequence[CallExtractionRecord],
     phase_reporter=None,
 ) -> None:
+    def _timed_phase(label: str, func):
+        started_at = perf_counter()
+        try:
+            return func()
+        finally:
+            _LOGGER.info("%s completed in %.3fs", label, perf_counter() - started_at)
+
     if phase_reporter:
         phase_reporter("Refreshing artifacts")
-    current_node_ids = set(core_read.snapshot_node_hashes(conn, snapshot_id).keys())
+    current_node_ids = _timed_phase(
+        "load_current_node_ids",
+        lambda: set(core_read.snapshot_node_hashes(conn, snapshot_id).keys()),
+    )
     eligible_callers: Set[str] = set(current_node_ids)
     artifact_path = get_artifact_db_path(repo_root)
     with artifact(artifact_path, repo_root=repo_root) as artifact_conn:
@@ -78,16 +92,24 @@ def refresh_artifact_state(
         try:
             with transaction(artifact_conn):
                 call_resolution_diagnostics: dict[str, object] = {}
-                artifact_write.cleanup_removed_nodes(artifact_conn, current_node_ids)
+                _timed_phase(
+                    "cleanup_removed_nodes",
+                    lambda: artifact_write.cleanup_removed_nodes(
+                        artifact_conn, current_node_ids
+                    ),
+                )
                 if phase_reporter:
                     phase_reporter("Writing call artifacts")
-                artifact_derivation.write_call_artifacts(
-                    artifact_conn=artifact_conn,
-                    core_conn=conn,
-                    snapshot_id=snapshot_id,
-                    call_records=call_artifacts,
-                    eligible_callers=eligible_callers,
-                    diagnostics=call_resolution_diagnostics,
+                _timed_phase(
+                    "write_call_artifacts",
+                    lambda: artifact_derivation.write_call_artifacts(
+                        artifact_conn=artifact_conn,
+                        core_conn=conn,
+                        snapshot_id=snapshot_id,
+                        call_records=call_artifacts,
+                        eligible_callers=eligible_callers,
+                        diagnostics=call_resolution_diagnostics,
+                    ),
                 )
                 artifact_write.set_rebuild_metadata(
                     artifact_conn,
@@ -96,15 +118,21 @@ def refresh_artifact_state(
                 )
                 if phase_reporter:
                     phase_reporter("Rebuilding graph index")
-                rebuild_graph_index(
-                    artifact_conn, core_conn=conn, snapshot_id=snapshot_id
+                _timed_phase(
+                    "rebuild_graph_index",
+                    lambda: rebuild_graph_index(
+                        artifact_conn, core_conn=conn, snapshot_id=snapshot_id
+                    ),
                 )
                 if phase_reporter:
                     phase_reporter("Rebuilding graph rollups")
-                artifact_derivation.rebuild_graph_rollups(
-                    artifact_conn,
-                    core_conn=conn,
-                    snapshot_id=snapshot_id,
+                _timed_phase(
+                    "rebuild_graph_rollups",
+                    lambda: artifact_derivation.rebuild_graph_rollups(
+                        artifact_conn,
+                        core_conn=conn,
+                        snapshot_id=snapshot_id,
+                    ),
                 )
             artifact_write.mark_rebuild_completed(
                 artifact_conn, snapshot_id=snapshot_id
