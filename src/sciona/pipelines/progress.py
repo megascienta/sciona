@@ -141,8 +141,7 @@ class BuildProgress:
         self._current_key = self._phase_key(label)
         self._current_label = label
         self._current_started_at = perf_counter()
-        sys.stdout.write(self._next_label(label))
-        sys.stdout.flush()
+        self._next_label(label)
 
     def phase_timings(self) -> dict[str, float]:
         self._complete_active_phase()
