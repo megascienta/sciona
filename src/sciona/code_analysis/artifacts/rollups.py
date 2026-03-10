@@ -181,7 +181,7 @@ def write_call_artifacts(
             module_file_by_name=module_file_by_name,
             ts_barrel_export_map=ts_barrel_export_map,
         )
-        _callee_ids, filtered_callsite_rows = _persisted_callsite_outcomes(
+        callee_ids, filtered_callsite_rows = _persisted_callsite_outcomes(
             callsite_rows,
             in_repo_callable_ids=in_repo_callable_ids,
         )
@@ -192,13 +192,6 @@ def write_call_artifacts(
             caller_qname=record.caller_qualified_name,
             caller_node_type=record.caller_node_type,
             rows=filtered_callsite_rows,
-        )
-        callee_ids = set(
-            artifact_persistence.list_persisted_callsite_callees(
-                artifact_conn,
-                snapshot_id=snapshot_id,
-                caller_id=caller_id,
-            )
         )
         accepted_rows = [
             row for row in filtered_callsite_rows if row[1] == "accepted" and row[2]
