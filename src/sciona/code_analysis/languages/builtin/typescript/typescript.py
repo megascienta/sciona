@@ -8,7 +8,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from ....core.module_naming import module_name_from_path
-from ....core.normalize.model import (
+from ....core.normalize_model import (
     AnalysisResult,
     CallRecord,
     EdgeRecord,

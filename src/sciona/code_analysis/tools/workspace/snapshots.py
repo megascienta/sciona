@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Callable, List, Optional
 
 from ....runtime import git as git_ops
-from ...core.normalize.model import FileRecord, FileSnapshot
+from ...core.normalize_model import FileRecord, FileSnapshot
 
 
 def _ensure_repo_contained(repo_root: Path, record: FileRecord) -> None:

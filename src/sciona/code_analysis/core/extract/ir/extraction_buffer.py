@@ -8,7 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Generic, Iterable, Iterator, TypeVar
 
-from ...normalize.model import AnalysisResult, CallRecord, EdgeRecord, SemanticNodeRecord
+from ...normalize_model import AnalysisResult, CallRecord, EdgeRecord, SemanticNodeRecord
 from .ir_builder import build_analysis_result
 from .structural_ir import IRCall, IREdge, IRNode
 

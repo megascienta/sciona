@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from sciona.code_analysis.core.normalize.model import AnalysisResult, EdgeRecord, SemanticNodeRecord
+from sciona.code_analysis.core.normalize_model import AnalysisResult, EdgeRecord, SemanticNodeRecord
 from sciona.code_analysis.core.structural_assembler import StructuralAssembler
 
 

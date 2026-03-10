@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 
-from sciona.code_analysis.core.normalize.model import EdgeRecord
+from sciona.code_analysis.core.normalize_model import EdgeRecord
 from sciona.code_analysis.core.structural_assembler_index import (
     build_import_targets,
     expand_import_targets,

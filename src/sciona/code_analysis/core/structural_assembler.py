@@ -15,7 +15,7 @@ from .structural_assembler_emit import (
     lookup_structural_id,
 )
 from .structural_assembler_hash import node_content_hash
-from .normalize.model import (
+from .normalize_model import (
     AnalysisResult,
     EdgeRecord,
     FileSnapshot,

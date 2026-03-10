@@ -4,7 +4,7 @@
 from pathlib import Path
 
 from sciona.code_analysis.core.extract.ir.extraction_buffer import ExtractionBuffer
-from sciona.code_analysis.core.normalize.model import (
+from sciona.code_analysis.core.normalize_model import (
     CallRecord,
     EdgeRecord,
     SemanticNodeRecord,

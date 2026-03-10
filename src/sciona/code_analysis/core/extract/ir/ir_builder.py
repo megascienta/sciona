@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from ...normalize.model import AnalysisResult, CallRecord, EdgeRecord, SemanticNodeRecord
+from ...normalize_model import AnalysisResult, CallRecord, EdgeRecord, SemanticNodeRecord
 from .structural_ir import IRCall, IREdge, IRNode
 
 

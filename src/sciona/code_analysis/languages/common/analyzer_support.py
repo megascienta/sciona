@@ -9,7 +9,7 @@ from collections import defaultdict
 from typing import Callable
 
 from ...tools.call_extraction import collect_call_targets
-from ...core.normalize.model import EdgeRecord, FileSnapshot
+from ...core.normalize_model import EdgeRecord, FileSnapshot
 from .scope_resolver import ScopeResolver
 
 

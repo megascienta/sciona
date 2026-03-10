@@ -6,7 +6,7 @@ from pathlib import Path
 from sciona.code_analysis.languages.builtin import javascript as js_lang
 from sciona.code_analysis.languages.builtin import python as python_lang
 from sciona.code_analysis.languages.builtin import typescript as ts_lang
-from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
+from sciona.code_analysis.core.normalize_model import FileRecord, FileSnapshot
 
 
 def _write_pyproject(repo_root: Path) -> None:

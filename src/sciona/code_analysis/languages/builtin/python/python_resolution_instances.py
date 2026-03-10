@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from ....core.normalize.model import FileSnapshot
+from ....core.normalize_model import FileSnapshot
 from .python_resolution_aliases import (
     _callable_chain,
     _resolve_alias_target,

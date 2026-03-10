@@ -3,7 +3,7 @@
 
 from pathlib import Path
 
-from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
+from sciona.code_analysis.core.normalize_model import FileRecord, FileSnapshot
 from sciona.code_analysis.languages.builtin.javascript import JavaScriptAnalyzer
 
 

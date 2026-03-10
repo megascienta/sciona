@@ -8,7 +8,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from ..normalize.model import AnalysisResult, FileSnapshot
+from ..normalize_model import AnalysisResult, FileSnapshot
 
 
 class ASTAnalyzer(ABC):

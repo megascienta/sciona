@@ -9,7 +9,7 @@ from typing import List, Optional
 
 from .....runtime import packaging as runtime_packaging
 from .....runtime import paths as runtime_paths
-from ....core.normalize.model import FileSnapshot
+from ....core.normalize_model import FileSnapshot
 from ....core.extract.parsing.query_helpers import find_direct_children_query
 from ...common.import_model import NormalizedImportModel
 from ...common.query_surface import PYTHON_IMPORT_NODE_TYPES

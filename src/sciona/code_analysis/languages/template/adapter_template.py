@@ -8,7 +8,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from ...core.extract.analyzer import ASTAnalyzer
-from ...core.normalize.model import AnalysisResult, FileSnapshot
+from ...core.normalize_model import AnalysisResult, FileSnapshot
 
 
 class TemplateAnalyzer(ASTAnalyzer):

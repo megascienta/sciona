@@ -8,7 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from ...normalize.model import CallRecord, EdgeRecord, SemanticNodeRecord
+from ...normalize_model import CallRecord, EdgeRecord, SemanticNodeRecord
 
 
 @dataclass

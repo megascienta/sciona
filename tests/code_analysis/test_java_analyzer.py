@@ -4,7 +4,7 @@
 from pathlib import Path
 
 from sciona.code_analysis.languages.builtin.java import JavaAnalyzer
-from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
+from sciona.code_analysis.core.normalize_model import FileRecord, FileSnapshot
 
 
 def test_java_analyzer_extracts_structure_and_calls(tmp_path):

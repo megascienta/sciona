@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from sciona.code_analysis.core.normalize.model import (
+from sciona.code_analysis.core.normalize_model import (
     AnalysisResult,
     CallRecord,
     EdgeRecord,

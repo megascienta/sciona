@@ -8,7 +8,7 @@ from __future__ import annotations
 import hashlib
 
 from ...runtime.text import canonical_span_bytes
-from .normalize.model import FileSnapshot, SemanticNodeRecord
+from .normalize_model import FileSnapshot, SemanticNodeRecord
 
 
 def node_content_hash(node: SemanticNodeRecord, file_snapshot: FileSnapshot) -> str:

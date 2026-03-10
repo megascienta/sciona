@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from ....core.normalize.model import FileSnapshot
+from ....core.normalize_model import FileSnapshot
 from .python_resolution_aliases import _callable_chain, node_text, resolve_constructor_target
 from ...common.type_names import type_base_name
 

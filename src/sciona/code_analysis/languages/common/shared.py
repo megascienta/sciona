@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ...core.normalize.model import FileSnapshot
+from ...core.normalize_model import FileSnapshot
 
 
 def repo_root_from_snapshot(snapshot: FileSnapshot) -> Path:

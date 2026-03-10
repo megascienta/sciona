@@ -8,7 +8,7 @@ from sciona.code_analysis.languages.builtin.java import JavaAnalyzer
 from sciona.code_analysis.languages.builtin.javascript import JavaScriptAnalyzer
 from sciona.code_analysis.languages.builtin.python import PythonAnalyzer
 from sciona.code_analysis.languages.builtin.typescript import TypeScriptAnalyzer
-from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
+from sciona.code_analysis.core.normalize_model import FileRecord, FileSnapshot
 
 
 def _snapshot(path: Path, rel: str, language: str, content: str) -> FileSnapshot:

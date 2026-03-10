@@ -11,7 +11,7 @@ from sciona.code_analysis.languages.builtin.python.python_resolution import (
     collect_module_instance_map,
 )
 from sciona.code_analysis.core.extract.parsing.query_helpers import find_nodes_of_types_query
-from sciona.code_analysis.core.normalize.model import FileRecord, FileSnapshot
+from sciona.code_analysis.core.normalize_model import FileRecord, FileSnapshot
 
 
 def _parser(language_name: str) -> Parser:

@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from ....core.normalize.model import EdgeRecord, FileSnapshot, SemanticNodeRecord
+from ....core.normalize_model import EdgeRecord, FileSnapshot, SemanticNodeRecord
 from ....core.extract.parsing.query_helpers import find_direct_children_of_types_query
 from .typescript_node_state import TypeScriptNodeState
 from .typescript_node_text import (

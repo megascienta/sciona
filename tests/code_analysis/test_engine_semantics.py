@@ -7,7 +7,7 @@ from pathlib import Path
 from sciona.data_storage.core_db.schema import ensure_schema
 from sciona.code_analysis.core.extract.analyzer import ASTAnalyzer
 from sciona.code_analysis.core.engine import BuildEngine
-from sciona.code_analysis.core.normalize.model import AnalysisResult, CallRecord
+from sciona.code_analysis.core.normalize_model import AnalysisResult, CallRecord
 from sciona.data_storage.core_db import write_ops as core_write
 from sciona.runtime import config as core_config
 from sciona.code_analysis.core.extract import registry

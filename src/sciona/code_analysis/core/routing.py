@@ -9,7 +9,7 @@ from typing import Dict, Optional
 
 from .extract import registry
 from .extract.interfaces import language_registry
-from .normalize.model import FileSnapshot
+from .normalize_model import FileSnapshot
 from ...runtime import config as core_config
 from ...runtime.errors import IngestionError
 

@@ -10,7 +10,7 @@ from typing import List, Mapping, Optional, Set
 
 from ....runtime import config as core_config
 from . import excludes
-from ...core.normalize.model import FileRecord
+from ...core.normalize_model import FileRecord
 from ...core.extract import registry
 
 

@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Ingest normalization layer (lossless structural facts)."""
+"""Compatibility package for normalization record models."""
 
-from . import model
+from .. import normalize_model as model
 
 __all__ = ["model"]

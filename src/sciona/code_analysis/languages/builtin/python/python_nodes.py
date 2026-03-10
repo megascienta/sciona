@@ -8,7 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List
 
-from ....core.normalize.model import EdgeRecord, FileSnapshot, SemanticNodeRecord
+from ....core.normalize_model import EdgeRecord, FileSnapshot, SemanticNodeRecord
 from ...common.lexical_naming import LexicalNameDisambiguator
 from ...common.query_surface import (
     PYTHON_STRUCTURAL_CARRIER_NODE_TYPES,

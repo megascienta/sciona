@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Callable, Protocol
 
 from ..analyzer import ASTAnalyzer
-from ...normalize.model import FileSnapshot
+from ...normalize_model import FileSnapshot
 
 
 ModuleNamer = Callable[[Path, FileSnapshot], str]

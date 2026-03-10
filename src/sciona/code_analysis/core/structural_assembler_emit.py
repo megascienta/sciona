@@ -8,7 +8,7 @@ from __future__ import annotations
 from typing import Callable, Dict, Iterable, Optional, Tuple
 
 from ...runtime import identity as ids
-from .normalize.model import EdgeRecord, FileSnapshot, SemanticNodeRecord
+from .normalize_model import EdgeRecord, FileSnapshot, SemanticNodeRecord
 
 
 def lookup_structural_id(

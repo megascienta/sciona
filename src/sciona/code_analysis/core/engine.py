@@ -17,7 +17,7 @@ from .routing import resolve_analyzer, select_analyzers, should_register_module
 from .module_naming import module_name_from_path
 from ..tools import snapshots, walker
 from ..tools.discovery import compute_discovery_details
-from .normalize.model import AnalysisResult, FileRecord, FileSnapshot
+from .normalize_model import AnalysisResult, FileRecord, FileSnapshot
 from .structural_assembler import StructuralAssembler
 from .snapshot import Snapshot
 

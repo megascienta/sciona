@@ -8,9 +8,9 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import Iterable
 
-from ..analysis.graph import module_id_for
+from ..analysis.module_id import module_id_for
 from ..config import CALLABLE_NODE_TYPES
-from .normalize.model import EdgeRecord, SemanticNodeRecord
+from .normalize_model import EdgeRecord, SemanticNodeRecord
 
 
 def expand_import_targets(
