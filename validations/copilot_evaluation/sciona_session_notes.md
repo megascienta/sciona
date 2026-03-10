@@ -70,6 +70,24 @@ Navigation speed: 6
 Confidence: 8
 Overall usefulness: 6
 
+## Task 22 - PR 5 fan summary overlay semantics
+
+Task:
+Make `fan_summary` consume overlay fan deltas during reducer render for both the aggregate table view and targeted node view.
+
+SCIONA usage:
+No new reducer queries used; implementation stayed within the previously mapped reducer and overlay fan-delta helpers.
+
+Observation:
+SCIONA was not needed for the code change. The hardest part was test selection because `fan_summary` has two render modes with different overlay behavior surfaces.
+Confusion or limitations: Current fan-table patching still adjusts existing rows rather than materializing entirely new ranked rows; this PR preserves that semantics instead of redefining it.
+
+Ratings:
+Structural clarity: 6
+Navigation speed: 6
+Confidence: 8
+Overall usefulness: 6
+
 ## Task 21 - PR 4 resolution summary overlay semantics
 
 Task:

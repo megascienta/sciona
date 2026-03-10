@@ -741,6 +741,112 @@ def test_fan_summary_filters_by_edge_kind_node_kind_and_min_fan(tmp_path):
     assert all(entry["count"] >= 2 for entry in payload["calls"]["by_fan_in"])
 
 
+def test_fan_summary_applies_overlay_during_render(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    artifact_db = repo_root / ".sciona" / setup_config.ARTIFACT_DB_FILENAME
+    artifact_conn = artifact_connect(artifact_db, repo_root=repo_root)
+    try:
+        artifact_conn.execute(
+            """
+            INSERT OR REPLACE INTO node_fan_stats(node_id, node_kind, edge_kind, fan_in, fan_out)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            ("func_alpha", "callable", "CALLS", 1, 1),
+        )
+        artifact_conn.commit()
+    finally:
+        artifact_conn.close()
+
+    overlay = OverlayPayload(
+        worktree_hash="hash",
+        snapshot_commit="commit",
+        base_commit="base",
+        base_commit_strategy="snapshot",
+        head_commit="head",
+        merge_base=None,
+        nodes={"add": [], "remove": [], "update": []},
+        edges={"add": [], "remove": [], "update": []},
+        calls={
+            "add": [
+                {
+                    "src_structural_id": "func_alpha",
+                    "dst_structural_id": "func_alpha",
+                    "diff_kind": "add",
+                }
+            ],
+            "remove": [],
+            "update": [],
+        },
+        summary=None,
+        warnings=[],
+    )
+    conn = core_conn(repo_root)
+    try:
+        with use_overlay_payload(overlay):
+            payload_text = fan_summary.render(
+                snapshot_id,
+                conn,
+                repo_root,
+                edge_kind="CALLS",
+                node_kind="callable",
+                top_k=5,
+            )
+    finally:
+        conn.close()
+    payload = parse_json_payload(payload_text)
+    assert payload["_overlay_applied_by_reducer"] is True
+    assert payload["calls"]["by_fan_in"][0]["count"] == 2
+    assert payload["calls"]["by_fan_in"][0]["delta_count"] == 1
+    assert payload["calls"]["by_fan_out"][0]["count"] == 2
+    assert payload["calls"]["by_fan_out"][0]["delta_count"] == 1
+
+
+def test_fan_summary_node_view_applies_overlay_during_render(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    callable_id = qualify_repo_name(repo_root, "pkg.alpha.service.helper")
+    overlay = OverlayPayload(
+        worktree_hash="hash",
+        snapshot_commit="commit",
+        base_commit="base",
+        base_commit_strategy="snapshot",
+        head_commit="head",
+        merge_base=None,
+        nodes={"add": [], "remove": [], "update": []},
+        edges={"add": [], "remove": [], "update": []},
+        calls={
+            "add": [
+                {
+                    "src_structural_id": "func_alpha",
+                    "dst_structural_id": "func_alpha",
+                    "diff_kind": "add",
+                }
+            ],
+            "remove": [],
+            "update": [],
+        },
+        summary=None,
+        warnings=[],
+    )
+    conn = core_conn(repo_root)
+    try:
+        with use_overlay_payload(overlay):
+            payload_text = fan_summary.render(
+                snapshot_id,
+                conn,
+                repo_root,
+                callable_id=callable_id,
+                edge_kind="CALLS",
+            )
+    finally:
+        conn.close()
+    payload = parse_json_payload(payload_text)
+    assert payload["_overlay_applied_by_reducer"] is True
+    assert payload["edge_kinds"]["CALLS"]["fan_in"] == 1
+    assert payload["edge_kinds"]["CALLS"]["fan_out"] == 1
+    assert payload["edge_kinds"]["CALLS"]["delta_fan_in"] == 1
+    assert payload["edge_kinds"]["CALLS"]["delta_fan_out"] == 1
+
+
 def test_hotspot_summary_returns_payload(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     conn = core_conn(repo_root)

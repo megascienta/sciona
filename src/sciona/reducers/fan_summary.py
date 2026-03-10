@@ -8,9 +8,11 @@ from __future__ import annotations
 from typing import Dict, List, Optional
 
 from ..code_analysis.analysis.orderings import order_nodes
+from ..pipelines.diff_overlay.patchers.analytics import patch_fan_summary
 from .helpers import queries
 from .helpers.artifact_graph_edges import artifact_db_available
 from .helpers.artifact_graph_rollups import load_node_fan_stats
+from .helpers.context import current_overlay_payload
 from .helpers.render import render_json_payload, require_connection
 from .helpers.utils import require_latest_committed_snapshot
 from .metadata import ReducerMeta
@@ -88,6 +90,15 @@ def render(
             "artifact_available": artifact_available,
             "edge_source": "artifact_db" if artifact_available else "none",
         }
+        overlay = current_overlay_payload()
+        if overlay is not None:
+            body = patch_fan_summary(
+                body,
+                overlay,
+                snapshot_id=snapshot_id,
+                conn=conn,
+            )
+            body["_overlay_applied_by_reducer"] = True
         return render_json_payload(body)
 
     call_stats = (
@@ -131,6 +142,15 @@ def render(
         "artifact_available": artifact_available,
         "edge_source": "artifact_db" if artifact_available else "none",
     }
+    overlay = current_overlay_payload()
+    if overlay is not None:
+        body = patch_fan_summary(
+            body,
+            overlay,
+            snapshot_id=snapshot_id,
+            conn=conn,
+        )
+        body["_overlay_applied_by_reducer"] = True
     return render_json_payload(body)
 
 
