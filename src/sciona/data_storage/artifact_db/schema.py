@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import sqlite3
 
-from ..schema_utils import ensure_schema as _ensure_schema
+from ..common.schema_utils import ensure_schema as _ensure_schema
 
 SCHEMA_STATEMENTS: list[str] = [
     """

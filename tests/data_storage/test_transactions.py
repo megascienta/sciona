@@ -5,8 +5,8 @@ import sqlite3
 
 import pytest
 
-from sciona.data_storage.transactions import transaction
-from sciona.data_storage.sql_utils import validate_sql_identifier
+from sciona.data_storage.common.transactions import transaction
+from sciona.data_storage.common.sql_utils import validate_sql_identifier
 
 
 def test_transaction_rolls_back_on_exception(tmp_path) -> None:

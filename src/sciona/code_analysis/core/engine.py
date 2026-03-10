@@ -12,7 +12,7 @@ from ...runtime import config as runtime_config
 from ...runtime import git as git_ops
 from ...runtime.errors import IngestionError
 from ...runtime.logging import get_logger
-from ...data_storage.sql_utils import validate_sql_identifier
+from ...data_storage.common.sql_utils import validate_sql_identifier
 from .routing import resolve_analyzer, select_analyzers, should_register_module
 from .module_naming import module_name_from_path
 from ..tools.workspace import snapshots, walker

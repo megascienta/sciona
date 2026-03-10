@@ -3,7 +3,7 @@
 
 import sqlite3
 
-from sciona.data_storage.schema_utils import ensure_schema
+from sciona.data_storage.common.schema_utils import ensure_schema
 
 
 def test_ensure_schema_executes_statements(tmp_path) -> None:

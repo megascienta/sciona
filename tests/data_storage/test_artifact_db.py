@@ -5,7 +5,7 @@ from pathlib import Path
 
 from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.data_storage.artifact_db.writes import write_index as artifact_write
-from sciona.data_storage.transactions import transaction
+from sciona.data_storage.common.transactions import transaction
 from sciona.runtime.paths import get_artifact_db_path
 
 

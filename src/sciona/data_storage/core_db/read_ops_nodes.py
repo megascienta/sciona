@@ -8,7 +8,7 @@ from __future__ import annotations
 import sqlite3
 from typing import Iterable, Sequence
 
-from ..sql_utils import SQLITE_MAX_VARS, chunked
+from ..common.sql_utils import SQLITE_MAX_VARS, chunked
 from .errors import SnapshotNotFoundError, UncommittedSnapshotError
 
 def lookup_node_instances(

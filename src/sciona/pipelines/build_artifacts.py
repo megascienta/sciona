@@ -13,7 +13,7 @@ from ..code_analysis import artifacts as artifact_derivation
 from ..code_analysis.tools.call_extraction import CallExtractionRecord
 from ..code_analysis.artifacts.engine import ArtifactEngine
 from ..data_storage.connections import artifact
-from ..data_storage.transactions import transaction
+from ..data_storage.common.transactions import transaction
 from ..data_storage.artifact_db.overlay import diff_overlay as overlay_store
 from ..data_storage.artifact_db.overlay import diff_overlay_calls as overlay_call_store
 from ..data_storage.artifact_db.overlay import diff_overlay_summary as overlay_summary_store

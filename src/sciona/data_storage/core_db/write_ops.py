@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import sqlite3
 
-from ..encoding import bool_to_int
+from ..common.encoding import bool_to_int
 from ...runtime.edge_types import CORE_STRUCTURAL_EDGE_TYPES
 
 

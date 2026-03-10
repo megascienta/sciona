@@ -5,7 +5,7 @@ import sqlite3
 
 import pytest
 
-from sciona.data_storage.sql_utils import chunked, temp_id_table
+from sciona.data_storage.common.sql_utils import chunked, temp_id_table
 
 
 def test_chunked_splits_sequences() -> None:

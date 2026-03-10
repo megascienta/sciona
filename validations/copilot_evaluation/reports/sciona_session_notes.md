@@ -38,6 +38,16 @@ Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `mult
 Observations: SCIONA was useful for choosing subpackage boundaries; the actual work was dominated by import migration across reducers, pipelines, and tests.
 RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 7
+## Task 12 - shared storage package
+Copilot: Codex
+Task description: Moved shared `data_storage` primitives into `data_storage.common` and rewired both DB backends plus tests to the canonical package.
+Task type: implementation
+SCIONA usage: reused prior structural review evidence that top-level helper files were shared infrastructure rather than backend-specific logic.
+Effect on workflow: confirm assumptions; reduce search space
+Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `multiphysics`
+Observations: SCIONA helped justify the package boundary; implementation risk came from broad fan-in across `core_db`, `artifact_db`, pipelines, and tests.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 7
 ## Task 3 - code_analysis PR planning
 Copilot: Codex
 Task description: Converted the `code_analysis` architecture findings into PR-sized structural refactoring proposals with scope and sequencing.
@@ -108,3 +118,13 @@ Fallback: filesystem inspection and local summarization over reducer output
 Observations: SCIONA quickly established that `data_storage` is mostly split by storage surface (`core_db` vs `artifact_db`); manual summarization was still needed to reason about folder density and coupling hotspots.
 RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 7 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 7
+## Task 12 - shared storage package
+Copilot: Codex
+Task description: Moved shared `data_storage` primitives into `data_storage.common` and rewired both DB backends plus tests to the canonical package.
+Task type: implementation
+SCIONA usage: reused prior structural review evidence that top-level helper files were shared infrastructure rather than backend-specific logic.
+Effect on workflow: confirm assumptions; reduce search space
+Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `multiphysics`
+Observations: SCIONA helped justify the package boundary; implementation risk came from broad fan-in across `core_db`, `artifact_db`, pipelines, and tests.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 7
