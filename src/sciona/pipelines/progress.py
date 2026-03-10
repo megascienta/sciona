@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from time import perf_counter
+import sys
 import weakref
 from typing import Callable, Optional, Protocol
 
@@ -25,38 +26,63 @@ PhaseReporter = Callable[[str], None]
 
 
 class _ProgressBarHandle:
-    def __init__(self, bar: object, *, on_close: Callable[[], None] | None = None) -> None:
-        self.bar = bar
+    def __init__(
+        self,
+        *,
+        label: str,
+        total: int,
+        on_close: Callable[[str], None] | None = None,
+    ) -> None:
+        self.label = label
+        self.total = total
+        self.current = 0
         self._closed = False
         self._on_close = on_close
-        self._finalizer = weakref.finalize(self, self._cleanup, bar)
+        self._finalizer = weakref.finalize(self, self._cleanup)
+        self._render()
 
     def advance(self, steps: int = 1) -> None:
-        self.bar.update(steps)
+        self.current = min(self.total, self.current + steps)
+        self._render()
 
     def close(self) -> None:
         if self._closed:
             return
         self._closed = True
-        self.bar.__exit__(None, None, None)
         self._finalizer.detach()
         if self._on_close is not None:
-            self._on_close()
+            self._on_close(self._completed_line())
+        else:
+            sys.stdout.write("\n")
+            sys.stdout.flush()
 
     @staticmethod
-    def _cleanup(bar: object) -> None:
+    def _cleanup() -> None:
         try:
-            bar.__exit__(None, None, None)
+            sys.stdout.write("\n")
+            sys.stdout.flush()
         except Exception:
             pass
+
+    def _completed_line(self) -> str:
+        width = 36
+        bar = "#" * width
+        return f"{self.label}  [{bar}]  100%"
+
+    def _render(self) -> None:
+        width = 36
+        fraction = 0.0 if self.total <= 0 else self.current / self.total
+        filled = max(0, min(width, int(round(fraction * width))))
+        percentage = f"{int(fraction * 100):3d}%"
+        bar = "#" * filled + "." * (width - filled)
+        sys.stdout.write(f"\r{self.label}  [{bar}]  {percentage}")
+        sys.stdout.flush()
 
 
 def make_progress_handle(label: str, total: int) -> Optional[ProgressHandle]:
     if total <= 0:
         return None
-    bar = typer.progressbar(length=total, label=label)
-    bar.__enter__()
-    return _ProgressBarHandle(bar)
+    return _ProgressBarHandle(label=label, total=total)
 
 
 def make_progress_factory() -> ProgressFactory:
@@ -127,9 +153,19 @@ class BuildProgress:
     def _phase_key(self, label: str) -> str:
         return self._PHASE_KEYS.get(label, label.lower().replace(" ", "_"))
 
-    def _record_phase(self, *, key: str, elapsed: float) -> None:
+    def _record_phase(
+        self,
+        *,
+        key: str,
+        elapsed: float,
+        line: str | None = None,
+    ) -> None:
         self._phase_timings[key] = max(elapsed, 0.0)
-        typer.echo(f"       {elapsed:.2f}s")
+        if line is None:
+            typer.echo(f"[{self._step}/{self.total_steps}] {self._current_label} - {elapsed:.2f}s")
+        else:
+            sys.stdout.write(f"\r{line} - {elapsed:.2f}s\n")
+            sys.stdout.flush()
 
     def _complete_active_phase(self) -> None:
         if (
@@ -153,13 +189,13 @@ class BuildProgress:
             if total <= 0:
                 self._record_phase(key=phase_key, elapsed=0.0)
                 return None
-            bar = typer.progressbar(length=total, label=self._next_label(label))
-            bar.__enter__()
             return _ProgressBarHandle(
-                bar,
-                on_close=lambda: self._record_phase(
+                label=self._next_label(label),
+                total=total,
+                on_close=lambda line: self._record_phase(
                     key=phase_key,
                     elapsed=perf_counter() - started_at,
+                    line=line,
                 ),
             )
 

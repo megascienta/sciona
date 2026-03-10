@@ -148,6 +148,16 @@ Fallback: source inspection, CLI output shaping, targeted `pytest` in `multiphys
 Observations: SCIONA had little direct impact here; the work was mostly presentation cleanup on an already-understood build path.
 RATINGS (1-10): Structural clarity 5 | Navigation speed 4 | Confidence in answers 8 | Overall usefulness 4
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 3 | Confidence gain vs baseline 4 | Scope reduction vs baseline 3 | Query friction vs baseline 5 | Net usefulness vs baseline 4
+## Task 54 - one-line build phase completions
+Copilot: Codex
+Task description: Changed completed build phase reporting so each phase and its elapsed time render on a single final line instead of as separate phase and timing lines.
+Task type: implementation
+SCIONA usage: none for this follow-up output formatting change.
+Effect on workflow: have little impact
+Fallback: source inspection, CLI progress formatting, targeted `pytest` in `multiphysics`
+Observations: SCIONA did not help here; this was pure UX formatting on an already-settled execution path.
+RATINGS (1-10): Structural clarity 4 | Navigation speed 3 | Confidence in answers 8 | Overall usefulness 3
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 2 | Confidence gain vs baseline 3 | Scope reduction vs baseline 2 | Query friction vs baseline 5 | Net usefulness vs baseline 3
 ## Task 53 - build timing payloads and phase durations
 Copilot: Codex
 Task description: Persisted build wall time and per-phase timings, exposed them through reporting/status JSON, and added elapsed-duration reporting after each build phase.
