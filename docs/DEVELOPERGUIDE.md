@@ -32,10 +32,11 @@ Do not use this document to redefine structural semantics.
 
 ## Repository Boundaries
 
-- `src/sciona/cli/`: Typer CLI entrypoint plus `build`, `init`, `agents`,
-  `hooks`, `status`, `search`, `resolve`, and `reducer` command wiring
+- `src/sciona/cli/`: Typer CLI entrypoint and UX shell over `pipelines.ops.*`
+  for `build`, `init`, `agents`, `hooks`, `status`, `search`, `resolve`, and
+  `reducer` command wiring
 - `src/sciona/api/`: stable public addon-facing namespace; public root exports
-  only `sciona.api.addons`
+  only `sciona.api.addons` and must not carry CLI-only bridge surfaces
 - `src/sciona/runtime/`: paths, config loading, logging, git helpers, time,
   reducer metadata, addon API version contract, and shared constants
 - `src/sciona/data_storage/core_db/`: committed structural snapshot schema and

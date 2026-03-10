@@ -78,6 +78,16 @@ Fallback: source inspection, `rg` import sweeps, compile checks, targeted `pytes
 Observations: SCIONA helped separate policy-boundary regressions from semantic defects, but the actual fixes were driven by repository policy tests and direct import inspection.
 RATINGS (1-10): Structural clarity 9 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 8
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
+## Task 46 - cli to pipelines boundary realignment
+Copilot: Codex
+Task description: Changed the enforced architecture to allow `cli -> pipelines`, rewired CLI facades directly to `pipelines.ops.*`, removed internal `api/*_ops.py` bridges, and updated the developer guide.
+Task type: architecture review
+SCIONA usage: reused prior structural boundary evidence and ownership reasoning; no new reducer output was needed once the target layering was established.
+Effect on workflow: identify ownership; confirm assumptions; reduce search space
+Fallback: source inspection, `rg` reference sweeps, compile checks, targeted `pytest` in `multiphysics`
+Observations: SCIONA helped justify the layering direction, but the decisive constraints came from explicit boundary-policy tests and the agreed public meaning of `api`.
+RATINGS (1-10): Structural clarity 9 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
 ## Task 43 - final cleanup and stricter dead-code sweep
 Copilot: Codex
 Task description: Fixed remaining Developer Guide drift, split the CLI-only facade into narrower modules, and performed a stricter low-fan-in dead-code audit.
