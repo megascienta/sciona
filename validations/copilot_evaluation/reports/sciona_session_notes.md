@@ -68,6 +68,16 @@ Fallback: `rg` reference sweep, import compilation, targeted `pytest` in `multip
 Observations: SCIONA helped narrow the candidate list, but the final delete decision depended on plain reference inspection because dead-code classification is outside reducer semantics.
 RATINGS (1-10): Structural clarity 7 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 6
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 6 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 6
+## Task 45 - boundary regression repair
+Copilot: Codex
+Task description: Repaired full-suite regressions by restoring layer-compliant CLI/API ownership, moving reducer overlay helpers to a neutral runtime package, and updating a stale real-repo smoke expectation.
+Task type: implementation
+SCIONA usage: reused prior structural audit context and targeted `search`/`dependency_edges` reasoning to confirm ownership boundaries before changing package placement.
+Effect on workflow: confirm assumptions; identify ownership; reduce search space
+Fallback: source inspection, `rg` import sweeps, compile checks, targeted `pytest` in `multiphysics`
+Observations: SCIONA helped separate policy-boundary regressions from semantic defects, but the actual fixes were driven by repository policy tests and direct import inspection.
+RATINGS (1-10): Structural clarity 9 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
 ## Task 43 - final cleanup and stricter dead-code sweep
 Copilot: Codex
 Task description: Fixed remaining Developer Guide drift, split the CLI-only facade into narrower modules, and performed a stricter low-fan-in dead-code audit.

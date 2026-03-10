@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Iterator
 
 from ....data_storage.artifact_db import connect as artifact_connect
-from ....pipelines.diff_overlay.types import OverlayPayload
+from ....runtime.overlay.types import OverlayPayload
 
 _ARTIFACT_CONN: ContextVar[object | None] = ContextVar(
     "reducer_artifact_conn", default=None

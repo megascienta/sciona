@@ -59,7 +59,7 @@ def test_real_repo_structural_index_smoke(real_repo_snapshot, real_repo_conn):
 
 def test_real_repo_module_overview_smoke(real_repo_snapshot, real_repo_conn):
     repo_root, snapshot_id = real_repo_snapshot
-    module_id = "sciona.src.sciona.runtime.time"
+    module_id = "sciona.src.sciona.runtime.common.time"
     payload = module_overview.run(
         snapshot_id,
         conn=real_repo_conn,

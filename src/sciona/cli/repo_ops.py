@@ -1,43 +1,26 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""CLI facade for repository-oriented pipeline operations."""
+"""CLI facade for repository-oriented operations."""
 
 from __future__ import annotations
 
-from ..pipelines.ops import repo as repo_pipeline
-from ..runtime.paths import get_repo_root, get_sciona_dir
+from ..api import repo_ops as _repo_ops
 
-init = repo_pipeline.init
-build = repo_pipeline.build
-status = repo_pipeline.status
-snapshot_report = repo_pipeline.snapshot_report
-init_dialog_defaults = repo_pipeline.init_dialog_defaults
-init_supported_languages = repo_pipeline.init_supported_languages
-init_apply_languages = repo_pipeline.init_apply_languages
-init_agents = repo_pipeline.init_agents
-clean = repo_pipeline.clean
-clean_agents = repo_pipeline.clean_agents
-dirty_worktree_warning = repo_pipeline.dirty_worktree_warning
-install_commit_hook = repo_pipeline.install_commit_hook
-remove_commit_hook = repo_pipeline.remove_commit_hook
-commit_hook_status = repo_pipeline.commit_hook_status
-
-__all__ = [
-    "init",
-    "build",
-    "status",
-    "snapshot_report",
-    "init_dialog_defaults",
-    "init_supported_languages",
-    "init_apply_languages",
-    "init_agents",
-    "clean",
-    "clean_agents",
-    "dirty_worktree_warning",
-    "install_commit_hook",
-    "remove_commit_hook",
-    "commit_hook_status",
-    "get_repo_root",
-    "get_sciona_dir",
-]
+init = _repo_ops.init
+build = _repo_ops.build
+status = _repo_ops.status
+snapshot_report = _repo_ops.snapshot_report
+init_dialog_defaults = _repo_ops.init_dialog_defaults
+init_supported_languages = _repo_ops.init_supported_languages
+init_apply_languages = _repo_ops.init_apply_languages
+init_agents = _repo_ops.init_agents
+clean = _repo_ops.clean
+clean_agents = _repo_ops.clean_agents
+dirty_worktree_warning = _repo_ops.dirty_worktree_warning
+install_commit_hook = _repo_ops.install_commit_hook
+remove_commit_hook = _repo_ops.remove_commit_hook
+commit_hook_status = _repo_ops.commit_hook_status
+get_repo_root = _repo_ops.get_repo_root
+get_sciona_dir = _repo_ops.get_sciona_dir
+__all__ = _repo_ops.__all__
