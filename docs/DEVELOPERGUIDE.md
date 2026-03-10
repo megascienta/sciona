@@ -151,18 +151,17 @@ Supported structural carriers:
 `src/sciona/pipelines/exec/build.py` is the current high-level build path:
 
 1. Create snapshot metadata and compute a build fingerprint.
-2. Reuse cached build results immediately when fingerprint matches and
-   `force_rebuild` is false.
+2. Discover tracked files and run structural analysis for enabled languages.
 3. Open a CoreDB transaction and purge uncommitted snapshots.
-4. Load the latest committed snapshot as the reuse baseline.
-5. Run `BuildEngine` over tracked files for enabled languages.
-6. Compute the structural hash and deterministic canonical snapshot id.
-7. Reuse or commit the snapshot based on the structural hash decision.
-8. Enforce the singleton committed-snapshot invariant and prune orphan
+4. Run `BuildEngine` over tracked files for enabled languages.
+5. Compute the structural hash and deterministic canonical snapshot id.
+6. Replace committed snapshot-scoped CoreDB state with the current build output
+   under the canonical snapshot id.
+7. Enforce the singleton committed-snapshot invariant and prune orphan
    structural and synthetic nodes.
-9. Run artifact analysis and rebuild ArtifactDB when artifact refresh is
+8. Run artifact analysis and rebuild ArtifactDB when artifact refresh is
    enabled.
-10. Persist fingerprint cache data for future fast-path reuse.
+9. Persist fingerprint metadata for reporting and future comparisons.
 
 `BuildEngine` in `src/sciona/code_analysis/core/engine.py` currently owns:
 
@@ -176,6 +175,7 @@ Supported structural carriers:
 `src/sciona/pipelines/ops/build_artifacts.py` currently owns:
 
 - artifact re-analysis through `ArtifactEngine`;
+- full reset of derived ArtifactDB state before repopulation;
 - `call_sites` and `node_calls` materialization;
 - rebuild of reducer-facing graph edges and rollups;
 - rebuild-status metadata and diagnostics persistence;
