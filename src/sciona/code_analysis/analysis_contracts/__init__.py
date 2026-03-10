@@ -1,11 +1,10 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Compatibility wrapper for analysis strict-call resolution aggregates."""
+"""Contracts for analysis-time strict call decision and aggregation flows."""
 
-from __future__ import annotations
-
-from ..analysis_contracts.strict_call_resolution import (
+from .strict_call_contract import StrictCallDecision, select_strict_call_candidate
+from .strict_call_resolution import (
     StrictResolutionBatch,
     StrictResolvedIdentifier,
     build_strict_resolution_stats,
@@ -15,10 +14,12 @@ from ..analysis_contracts.strict_call_resolution import (
 )
 
 __all__ = [
+    "StrictCallDecision",
     "StrictResolutionBatch",
     "StrictResolvedIdentifier",
     "build_strict_resolution_stats",
     "merge_strict_resolution_stats",
     "record_strict_resolution_decision",
     "resolve_strict_call_batch",
+    "select_strict_call_candidate",
 ]

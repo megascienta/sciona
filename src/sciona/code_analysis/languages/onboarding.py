@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from ..core.extract.contracts.language_adapter import LanguageDescriptor
+from ..core.extract.interfaces.language_adapter import LanguageDescriptor
 
 
 @dataclass(frozen=True)

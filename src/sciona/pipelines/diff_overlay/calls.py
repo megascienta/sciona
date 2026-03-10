@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Iterable
 
 from ...code_analysis.config import CALLABLE_NODE_TYPES
-from ...code_analysis.contracts import select_strict_call_candidate
+from ...code_analysis.analysis_contracts import select_strict_call_candidate
 from ...code_analysis.core.structural_assembler_index import expand_import_targets
 from ...data_storage.core_db import read_ops as core_read
 

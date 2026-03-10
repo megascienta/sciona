@@ -38,3 +38,13 @@ Fallback: source inspection, import search with `rg`, targeted `pytest` in `mult
 Observations: SCIONA helped justify the split, but compatibility and policy-test constraints were discovered only through source inspection and test failures.
 RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 7
+## Task 5 - contract layer clarification
+Copilot: Codex
+Task description: Introduced `analysis_contracts` and `core.extract.interfaces` as clearer canonical package names, with compatibility aliases for legacy imports.
+Task type: implementation
+SCIONA usage: reused prior structural review evidence about ambiguous parallel contract folders.
+Effect on workflow: confirm assumptions; reduce search space
+Fallback: import search with `rg`, source inspection, targeted `pytest` in `multiphysics`
+Observations: SCIONA helped identify the ambiguity, but monkeypatch compatibility requirements only surfaced through tests and required alias-based wrappers.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 7

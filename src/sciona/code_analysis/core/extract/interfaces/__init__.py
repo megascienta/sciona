@@ -1,7 +1,7 @@
-"""Compatibility wrappers for extraction interfaces."""
+"""Language adapter interfaces used by extraction registry boundaries."""
 
-from ..interfaces import language_registry
-from ..interfaces.language_adapter import (
+from . import language_registry
+from .language_adapter import (
     AdapterSpecV1,
     AnalyzerFactory,
     LanguageAdapter,

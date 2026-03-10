@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Callable, Dict, Iterable, Optional, Tuple
 
 from .analyzer import ASTAnalyzer
-from .contracts.language_registry import get_descriptor
+from .interfaces.language_registry import get_descriptor
 
 AnalyzerFactory = Callable[[], ASTAnalyzer]
 
