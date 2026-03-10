@@ -40,13 +40,13 @@ def render_build(payload: dict) -> list[str]:
             summary.get("build_total_seconds")
         )
         if displayed_total is not None:
-            lines.append(f"  Total build time: {displayed_total}")
+            lines.append(f"  Wall time: {displayed_total}")
         build_total_seconds = _format_duration_seconds(summary.get("build_total_seconds"))
         if (
             command_wall_seconds is not None
             and build_total_seconds is not None
         ):
-            lines.append(f"  Build core time: {build_total_seconds}")
+            lines.append(f"  Core build time: {build_total_seconds}")
         lines.extend(
             _render_summary_lines(
                 summary,

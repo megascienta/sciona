@@ -196,9 +196,9 @@ Current user-visible build phases are:
 
 Timing semantics:
 
-- CLI `sciona build` now reports `Total build time` as full command wall time
+- CLI `sciona build` now reports `Wall time` as full command wall time
   from command start until final summary generation.
-- When available, `Build core time` is also shown; this is the inner
+- When available, `Core build time` is also shown; this is the inner
   persisted build metric recorded by the build pipeline itself.
 - The inner persisted metric includes core analysis, artifact analysis,
   artifact refresh, graph-index rebuild, and rollup rebuild.

@@ -76,3 +76,30 @@ def make_phase_reporter() -> PhaseReporter:
         emit_progress_phase(label)
 
     return reporter
+
+
+class BuildProgress:
+    """Shared build-phase reporter for numbered status lines and progress bars."""
+
+    def __init__(self, *, total_steps: int) -> None:
+        self.total_steps = total_steps
+        self._step = 0
+
+    def _next_label(self, label: str) -> str:
+        self._step += 1
+        return f"[{self._step}/{self.total_steps}] {label}"
+
+    def emit_phase(self, label: str) -> None:
+        typer.echo(self._next_label(label))
+
+    def make_progress_factory(self) -> ProgressFactory:
+        def factory(label: str, total: int) -> Optional[ProgressHandle]:
+            return make_progress_handle(self._next_label(label), total)
+
+        return factory
+
+
+def make_build_progress(*, total_steps: int) -> BuildProgress:
+    """Create a numbered build progress reporter."""
+
+    return BuildProgress(total_steps=total_steps)

@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from time import perf_counter
 from typing import Sequence, Set
 
 from ...code_analysis import artifacts as artifact_derivation
@@ -25,10 +24,6 @@ from ...data_storage.artifact_db.writes import write_index as artifact_write
 from ...data_storage.core_db import read_ops as core_read
 from ...data_storage.artifact_db.maintenance import rebuild_graph_index
 from ...runtime.paths import get_artifact_db_path
-from ...runtime.logging import get_logger
-from ..progress import make_progress_factory
-
-_LOGGER = get_logger("pipelines.ops.build_artifacts")
 
 
 def build_artifacts_for_snapshot(
@@ -38,6 +33,7 @@ def build_artifacts_for_snapshot(
     conn,
     snapshot_id: str,
     languages,
+    progress_factory=None,
     phase_reporter=None,
 ) -> tuple[Sequence[CallExtractionRecord], list[str]]:
     core_read.validate_snapshot_for_read(conn, snapshot_id, require_committed=True)
@@ -46,7 +42,7 @@ def build_artifacts_for_snapshot(
         conn,
         languages=languages,
         config_root=repo_root,
-        progress_factory=make_progress_factory(),
+        progress_factory=progress_factory,
     )
     call_artifacts = artifacts_engine.run(snapshot_id)
     warnings = list(artifacts_engine.warnings)
@@ -69,11 +65,7 @@ def refresh_artifact_state(
     phase_reporter=None,
 ) -> None:
     def _timed_phase(label: str, func):
-        started_at = perf_counter()
-        try:
-            return func()
-        finally:
-            _LOGGER.info("%s completed in %.3fs", label, perf_counter() - started_at)
+        return func()
 
     if phase_reporter:
         phase_reporter("Refreshing artifacts")

@@ -53,8 +53,8 @@ def test_cli_build_forwards_force_rebuild_flag(
     result = cli_runner.invoke(cli_app, ["build", "--force"])
     assert result.exit_code == 0
     assert calls == [True]
-    assert "Total build time: 1.25s" in result.stdout
-    assert "Build core time: 1.23s" in result.stdout
+    assert "Wall time: 1.25s" in result.stdout
+    assert "Core build time: 1.23s" in result.stdout
 
 
 def test_cli_build_defaults_force_rebuild_false(

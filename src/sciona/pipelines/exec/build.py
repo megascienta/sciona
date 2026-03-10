@@ -26,7 +26,7 @@ from ...data_storage.artifact_db.writes import write_index as artifact_write
 from ...data_storage.core_db import read_ops as core_read
 from ...data_storage.core_db import write_ops as core_write
 from ..ops.build_artifacts import build_artifacts_for_snapshot
-from ..progress import make_phase_reporter, make_progress_factory
+from ..progress import make_build_progress
 from .build_fingerprint import (
     compute_build_fingerprint,
     load_cached_build_result_payload,
@@ -71,7 +71,9 @@ def build_repo(
     source: str = "scan",
 ) -> BuildResult:
     started_at = perf_counter()
-    phase_reporter = make_phase_reporter()
+    build_progress = make_build_progress(total_steps=9)
+    phase_reporter = build_progress.emit_phase
+    progress_factory = build_progress.make_progress_factory()
     workspace = workspace_root or repo_state.repo_root
     languages = policy.analysis.languages
     snapshot = snapshot_ingest.create_snapshot(workspace, source=source)
@@ -112,7 +114,7 @@ def build_repo(
                 core_write,
                 languages=languages,
                 config_root=repo_state.repo_root,
-                progress_factory=make_progress_factory(),
+                progress_factory=progress_factory,
                 phase_reporter=phase_reporter,
             )
             files_processed, node_count = engine.run(snapshot)
@@ -191,6 +193,7 @@ def build_repo(
                     conn=conn,
                     snapshot_id=committed_snapshot_id,
                     languages=languages,
+                    progress_factory=progress_factory,
                     phase_reporter=phase_reporter,
                 )
             result = BuildResult(
