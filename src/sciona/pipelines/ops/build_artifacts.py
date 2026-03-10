@@ -34,6 +34,7 @@ def build_artifacts_for_snapshot(
     conn,
     snapshot_id: str,
     languages,
+    phase_reporter=None,
 ) -> tuple[Sequence[CallExtractionRecord], list[str]]:
     core_read.validate_snapshot_for_read(conn, snapshot_id, require_committed=True)
     artifacts_engine = ArtifactEngine(
@@ -50,6 +51,7 @@ def build_artifacts_for_snapshot(
         conn=conn,
         snapshot_id=snapshot_id,
         call_artifacts=call_artifacts,
+        phase_reporter=phase_reporter,
     )
     return call_artifacts, warnings
 
@@ -60,7 +62,10 @@ def refresh_artifact_state(
     conn,
     snapshot_id: str,
     call_artifacts: Sequence[CallExtractionRecord],
+    phase_reporter=None,
 ) -> None:
+    if phase_reporter:
+        phase_reporter("Refreshing artifacts")
     current_node_ids = set(core_read.snapshot_node_hashes(conn, snapshot_id).keys())
     eligible_callers: Set[str] = set(current_node_ids)
     artifact_path = get_artifact_db_path(repo_root)
@@ -74,6 +79,8 @@ def refresh_artifact_state(
             with transaction(artifact_conn):
                 call_resolution_diagnostics: dict[str, object] = {}
                 artifact_write.cleanup_removed_nodes(artifact_conn, current_node_ids)
+                if phase_reporter:
+                    phase_reporter("Writing call artifacts")
                 artifact_derivation.write_call_artifacts(
                     artifact_conn=artifact_conn,
                     core_conn=conn,
@@ -87,9 +94,13 @@ def refresh_artifact_state(
                     key=f"call_resolution_diagnostics:{snapshot_id}",
                     value=json.dumps(call_resolution_diagnostics, sort_keys=True),
                 )
+                if phase_reporter:
+                    phase_reporter("Rebuilding graph index")
                 rebuild_graph_index(
                     artifact_conn, core_conn=conn, snapshot_id=snapshot_id
                 )
+                if phase_reporter:
+                    phase_reporter("Rebuilding graph rollups")
                 artifact_derivation.rebuild_graph_rollups(
                     artifact_conn,
                     core_conn=conn,

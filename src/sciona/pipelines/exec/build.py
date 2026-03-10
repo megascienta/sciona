@@ -191,6 +191,7 @@ def build_repo(
                     conn=conn,
                     snapshot_id=committed_snapshot_id,
                     languages=languages,
+                    phase_reporter=phase_reporter,
                 )
             result = BuildResult(
                 files_processed,
