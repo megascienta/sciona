@@ -58,50 +58,6 @@ def scope_call_sites_payload(
     return payload
 
 
-def classification_quality_payload(
-    call_sites: dict[str, object] | None,
-    *,
-    drop_reasons: dict[str, int],
-    drop_classification: dict[str, int],
-) -> dict[str, object]:
-    """Summarize residual classification quality on persisted dropped callsites."""
-
-    dropped = int((call_sites or {}).get("dropped") or 0)
-    external_likely = int(drop_classification.get("external_likely", 0))
-    ambiguous = int(
-        drop_reasons.get("ambiguous_no_in_scope_candidate", 0)
-        + drop_reasons.get("ambiguous_multiple_in_scope_candidates", 0)
-    )
-    external_share = (external_likely / dropped) if dropped > 0 else None
-    ambiguous_share = (ambiguous / dropped) if dropped > 0 else None
-    confidence = "n/a"
-    caveats: list[str] = []
-    if dropped > 0:
-        confidence = "high"
-        if external_share is not None and external_share >= 0.75:
-            confidence = "low"
-            caveats.append("external_likely_dominates_drops")
-        elif external_share is not None and external_share >= 0.40:
-            confidence = "medium"
-            caveats.append("external_likely_material_share")
-        if ambiguous_share is not None and ambiguous_share >= 0.75:
-            confidence = "low"
-            caveats.append("ambiguity_dominates_drops")
-        elif ambiguous_share is not None and ambiguous_share >= 0.40:
-            if confidence == "high":
-                confidence = "medium"
-            caveats.append("ambiguity_material_share")
-    return {
-        "dropped_callsites": dropped,
-        "external_likely": external_likely,
-        "ambiguous_drops": ambiguous,
-        "external_likely_share": external_share,
-        "ambiguous_share": ambiguous_share,
-        "confidence": confidence,
-        "caveats": caveats,
-    }
-
-
 def drop_classification_bucket(
     *,
     identifier: str,

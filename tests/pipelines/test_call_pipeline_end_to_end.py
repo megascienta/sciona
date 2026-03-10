@@ -155,4 +155,3 @@ def test_call_pipeline_reports_external_likely_from_persisted_dropped_rows(
     assert python["call_sites"]["accepted"] == 0
     assert python["call_sites"]["dropped"] == 1
     assert python["drop_classification"] == {"external_likely": 1}
-    assert python["classification_quality"]["external_likely"] == 1

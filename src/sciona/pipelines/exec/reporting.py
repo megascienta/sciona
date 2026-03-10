@@ -17,7 +17,6 @@ from ...data_storage.artifact_db import read_status as artifact_status
 from .reporting_callsites import (
     build_callable_identifier_index as _build_callable_identifier_index_impl,
     call_sites_payload as _call_sites_payload_impl,
-    classification_quality_payload as _classification_quality_payload_impl,
     drop_classification_bucket as _drop_classification_bucket_impl,
     identifier_has_in_repo_callable as _identifier_has_in_repo_callable_impl,
     identifier_terminal as _identifier_terminal_impl,
@@ -408,11 +407,6 @@ def snapshot_report(
             else None
         )
         item["call_sites_by_scope"] = _scope_call_sites_payload(scope_counts)
-        item["classification_quality"] = _classification_quality_payload(
-            item.get("call_sites"),
-            drop_reasons=call_site_reasons.get(language, {}),
-            drop_classification=drop_classification.get(language, {}),
-        )
         item["structural_density"] = _structural_density_payload(
             files=int(item.get("files") or 0),
             nodes=int(item.get("nodes") or 0),
@@ -420,11 +414,6 @@ def snapshot_report(
             file_node_distribution=file_node_distribution_by_language.get(language, []),
             discovered_files=discovered_files_by_language.get(language),
         )
-    payload["totals"]["classification_quality"] = _classification_quality_payload(
-        payload["totals"].get("call_sites"),
-        drop_reasons=_sum_bucket_counts(call_site_reasons),
-        drop_classification=_sum_bucket_counts(drop_classification),
-    )
     all_distribution: list[tuple[str, int]] = []
     for items in file_node_distribution_by_language.values():
         all_distribution.extend(items)
@@ -473,19 +462,6 @@ def _scope_call_sites_payload(
     scope_counts: dict[str, dict[str, int]] | None,
 ) -> dict[str, dict[str, object]] | None:
     return _scope_call_sites_payload_impl(scope_counts)
-
-
-def _classification_quality_payload(
-    call_sites: dict[str, object] | None,
-    *,
-    drop_reasons: dict[str, int],
-    drop_classification: dict[str, int],
-) -> dict[str, object]:
-    return _classification_quality_payload_impl(
-        call_sites,
-        drop_reasons=drop_reasons,
-        drop_classification=drop_classification,
-    )
 
 
 def _structural_density_payload(

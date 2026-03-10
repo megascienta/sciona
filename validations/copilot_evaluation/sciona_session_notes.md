@@ -52,6 +52,24 @@ Navigation speed: 7
 Confidence: 8
 Overall usefulness: 7
 
+## Task 7 - PR3 remove classification quality reporting
+
+Task:
+Removed `classification_quality` calculation and reporting from snapshot/status reporting and updated the tests that previously asserted those fields.
+
+SCIONA usage:
+Used the earlier SCIONA ownership map plus one local reference sweep to confirm the remaining surface was still confined to reporting code and tests.
+
+Observation:
+SCIONA made the PR boundary easier to trust because it showed the CLI layer was only a consumer of the reporting payload, not a second computation site.
+Confusion or limitations: None.
+
+Ratings:
+Structural clarity: 8
+Navigation speed: 7
+Confidence: 8
+Overall usefulness: 7
+
 ## Task 6 - PR2 remove dead adjusted-metric helpers
 
 Task:
