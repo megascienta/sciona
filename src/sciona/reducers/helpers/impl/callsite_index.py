@@ -9,8 +9,8 @@ from typing import Dict, List, Optional
 
 from ....pipelines.diff_overlay.patchers.analytics import patch_callsite_index
 from ..shared import queries
-from ..artifact_call_sites import load_callsite_enrichment
-from ..artifact_graph_edges import (
+from ..artifact.call_sites import load_callsite_enrichment
+from ..artifact.graph_edges import (
     artifact_db_available,
     load_artifact_edges,
 )

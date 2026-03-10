@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from .artifact_graph_edges import load_call_resolution_diagnostics, load_call_sites
+from .graph_edges import load_call_resolution_diagnostics, load_call_sites
 
 
 def load_callsite_enrichment(

@@ -9,8 +9,8 @@ from typing import Dict, List, Optional
 
 from ..pipelines.diff_overlay.patchers.analytics import patch_module_call_graph_summary
 from .helpers.shared import queries
-from .helpers.artifact_graph_edges import artifact_db_available
-from .helpers.artifact_graph_rollups import load_module_call_edges
+from .helpers.artifact.graph_edges import artifact_db_available
+from .helpers.artifact.graph_rollups import load_module_call_edges
 from .helpers.shared.context import current_overlay_payload
 from .helpers.shared.render import render_json_payload, require_connection
 from .helpers.shared.utils import require_latest_committed_snapshot

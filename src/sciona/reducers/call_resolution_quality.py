@@ -11,8 +11,8 @@ from typing import Dict, List
 from ..data_storage.core_db import read_ops as core_read
 from ..pipelines.diff_overlay.patchers.analytics import patch_call_resolution_quality
 from .helpers.shared import queries
-from .helpers.artifact_graph_edges import artifact_db_available
-from .helpers.artifact_reporting import load_callsite_caller_status_counts
+from .helpers.artifact.graph_edges import artifact_db_available
+from .helpers.artifact.reporting import load_callsite_caller_status_counts
 from .helpers.shared.context import current_overlay_payload
 from .helpers.shared.render import render_json_payload, require_connection
 from .helpers.shared.utils import require_latest_committed_snapshot

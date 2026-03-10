@@ -8,7 +8,7 @@ from __future__ import annotations
 from typing import Dict, List, Optional, Sequence
 
 from ..shared import queries
-from ..artifact_graph_edges import artifact_db_available, load_artifact_edges
+from ..artifact.graph_edges import artifact_db_available, load_artifact_edges
 from ..shared.render import render_json_payload, require_connection
 from ..shared.utils import require_latest_committed_snapshot
 from ...metadata import ReducerMeta

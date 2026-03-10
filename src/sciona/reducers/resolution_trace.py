@@ -14,7 +14,7 @@ from ..runtime.call_resolution_contract import (
     STRICT_CANDIDATE_GATE_STAGE,
 )
 from .helpers.shared import queries
-from .helpers.artifact_graph_edges import load_call_resolution_diagnostics
+from .helpers.artifact.graph_edges import load_call_resolution_diagnostics
 from .helpers.shared.context import current_artifact_connection, fallback_artifact_connection
 from .helpers.shared.render import render_json_payload, require_connection
 from .helpers.shared.utils import require_latest_committed_snapshot

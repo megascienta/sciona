@@ -8,7 +8,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import List, Optional, Sequence, Tuple
 
-from .shared.context import current_artifact_connection, fallback_artifact_connection
+from ..shared.context import current_artifact_connection, fallback_artifact_connection
 
 
 def load_module_call_edges(

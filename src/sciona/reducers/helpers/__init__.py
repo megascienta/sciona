@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from . import artifact, impl, shared
-
 __all__ = [
     "artifact",
     "impl",

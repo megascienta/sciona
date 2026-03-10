@@ -15,7 +15,7 @@ from ..code_analysis.tools.profiling import (
     python_class_extras,
     typescript_class_extras,
 )
-from .helpers.artifact_graph_edges import artifact_db_available, load_artifact_edges
+from .helpers.artifact.graph_edges import artifact_db_available, load_artifact_edges
 from .helpers.shared.profile_utils import fetch_node_instance
 from .helpers.shared import queries
 from .helpers.shared.render import render_json_payload, require_connection

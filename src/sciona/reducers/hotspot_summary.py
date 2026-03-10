@@ -9,7 +9,7 @@ from collections import Counter
 
 from .metadata import ReducerMeta
 from .helpers.shared.base import load_structural_index
-from .helpers.artifact_graph_rollups import load_node_fan_stats
+from .helpers.artifact.graph_rollups import load_node_fan_stats
 from .helpers.shared.render import render_json_payload, require_connection
 from .helpers.shared.utils import require_latest_committed_snapshot
 

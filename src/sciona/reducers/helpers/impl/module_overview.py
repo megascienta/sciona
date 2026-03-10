@@ -10,7 +10,7 @@ from typing import Dict, List
 
 from ....code_analysis.analysis.orderings import order_nodes, order_strings
 from ..shared import queries
-from ..artifact_graph_edges import artifact_db_available, load_artifact_edges
+from ..artifact.graph_edges import artifact_db_available, load_artifact_edges
 from ..shared.profile_utils import fetch_node_instance
 from ..shared.render import render_json_payload, require_connection
 from ..shared.types import ModuleOverviewPayload

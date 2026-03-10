@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from . import callsite_index, module_overview, structural_index, symbol_references
-
 __all__ = [
     "callsite_index",
     "module_overview",

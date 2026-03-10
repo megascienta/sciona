@@ -98,6 +98,16 @@ Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `mult
 Observations: SCIONA helped justify the ownership boundary; the actual work was mostly relative-import repair after the deeper package move.
 RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 7
+## Task 18 - reducers artifact helpers split
+Copilot: Codex
+Task description: Moved artifact-backed helper modules into `reducers.helpers.artifact` and rewired reducers plus impl helpers to the canonical artifact paths.
+Task type: implementation
+SCIONA usage: reused prior structural review evidence that artifact-backed reducer support should be separated from generic helper code.
+Effect on workflow: identify ownership; reduce search space
+Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `multiphysics`
+Observations: SCIONA justified the split, but package-init cycles only surfaced during test execution and required making helper package exports non-eager.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 7
 ## Task 13 - artifact_db maintenance package
 Copilot: Codex
 Task description: Moved graph rebuild logic into a dedicated `artifact_db.maintenance` package and removed the misplaced rollup maintenance path.

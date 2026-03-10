@@ -8,8 +8,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import List
 
-from ...data_storage.artifact_db.reporting import read_reporting
-from .shared.context import current_artifact_connection, fallback_artifact_connection
+from ....data_storage.artifact_db.reporting import read_reporting
+from ..shared.context import current_artifact_connection, fallback_artifact_connection
 
 
 def load_callsite_caller_status_counts(

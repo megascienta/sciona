@@ -9,7 +9,7 @@ from pathlib import Path
 
 from .helpers.shared import queries
 from . import classifier_overview
-from .helpers.artifact_graph_edges import load_artifact_edges
+from .helpers.artifact.graph_edges import load_artifact_edges
 from .helpers.shared.render import render_json_payload, require_connection
 from .helpers.shared.utils import require_latest_committed_snapshot
 from .metadata import ReducerMeta
