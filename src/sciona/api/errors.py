@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Internal error types for CLI and tooling (not public)."""
+"""Stable API error boundary for programmatic consumers."""
 
 from __future__ import annotations
 

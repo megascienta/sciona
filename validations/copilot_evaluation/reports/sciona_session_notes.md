@@ -308,6 +308,16 @@ Fallback: source inspection, targeted `pytest` in `multiphysics`
 Observations: SCIONA helped show that `api` was small but boundary-mixed; the split made the internal structure clearer without widening the public root beyond `api.addons`.
 RATINGS (1-10): Structural clarity 8 | Navigation speed 8 | Confidence in answers 8 | Overall usefulness 8
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 7 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
+## Task 39 - api error boundary
+Copilot: Codex
+Task description: Kept `api.errors` as a stable API-facing error module and updated tests to treat it as importable but not part of the root addon namespace.
+Task type: repository maintenance
+SCIONA usage: reused the API structure review to preserve the error boundary while narrowing the rest of the package to addon-safe surfaces.
+Effect on workflow: confirm assumptions; have little impact
+Fallback: source inspection, targeted `pytest` in `multiphysics`
+Observations: SCIONA mainly confirmed that `api.errors` was already a separate boundary; the change was a small contract clarification rather than a structural move.
+RATINGS (1-10): Structural clarity 6 | Navigation speed 5 | Confidence in answers 8 | Overall usefulness 5
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 6 | Scope reduction vs baseline 5 | Query friction vs baseline 4 | Net usefulness vs baseline 5
 ## Task 13 - artifact_db maintenance package
 Copilot: Codex
 Task description: Moved graph rebuild logic into a dedicated `artifact_db.maintenance` package and removed the misplaced rollup maintenance path.
