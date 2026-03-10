@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Callable, Dict, Iterable, Optional, Tuple
 
-from ...runtime import identity as ids
+from ...runtime.common import identity as ids
 from .normalize_model import EdgeRecord, FileSnapshot, SemanticNodeRecord
 
 

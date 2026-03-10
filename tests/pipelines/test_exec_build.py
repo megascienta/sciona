@@ -8,7 +8,7 @@ from sciona.pipelines.domain.repository import RepoState
 from sciona.pipelines.exec.build import build_repo
 from sciona.pipelines.policy import build as policy_build
 from sciona.runtime.config import io as config_io
-from sciona.runtime import constants as setup_config
+from sciona.runtime.common import constants as setup_config
 import sqlite3
 
 from sciona.data_storage.core_db.read_ops import snapshots as read_snapshots

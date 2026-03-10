@@ -10,7 +10,7 @@ import os
 from pathlib import Path
 from typing import Mapping, Optional
 
-from . import constants as setup_config
+from .common import constants as setup_config
 
 _DEBUG_ENABLED = False
 

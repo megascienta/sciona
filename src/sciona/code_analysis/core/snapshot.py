@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from ...runtime import git as git_ops
-from ...runtime.time import utc_now
+from ...runtime.common.time import utc_now
 
 
 @dataclass

@@ -9,7 +9,7 @@ import json
 from typing import Optional
 
 from ..types import OverlayPayload
-from ....runtime import identity as ids
+from ....runtime.common import identity as ids
 from .shared import (
     edge_from_value,
     iter_edge_changes,

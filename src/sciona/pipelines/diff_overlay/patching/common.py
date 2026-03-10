@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from ..types import OverlayPayload
-from ....runtime import identity as ids
+from ....runtime.common import identity as ids
 from .analytics import (
     patch_call_neighbors,
     patch_call_resolution_drop_summary,

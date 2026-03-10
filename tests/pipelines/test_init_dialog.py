@@ -6,7 +6,7 @@ from pathlib import Path
 import yaml
 
 from sciona.pipelines.exec import init_dialog
-from sciona.runtime import constants as setup_config
+from sciona.runtime.common import constants as setup_config
 from tests.helpers import init_git_repo, commit_all
 
 

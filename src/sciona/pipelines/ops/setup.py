@@ -9,7 +9,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict
 
-from ...runtime import constants
+from ...runtime.common import constants
 from ...runtime.errors import (
     CorruptVersionFileError,
     NotInitializedError,

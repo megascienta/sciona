@@ -8,7 +8,7 @@ from __future__ import annotations
 from typing import Dict, Iterable, Optional, Tuple
 
 from typing import Protocol
-from ...runtime import identity as ids
+from ...runtime.common import identity as ids
 from .structural_assembler_emit import (
     emit_edges,
     emit_node_instances,

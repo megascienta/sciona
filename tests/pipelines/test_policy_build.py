@@ -6,7 +6,7 @@ from pathlib import Path
 from sciona.pipelines.domain.repository import RepoState
 from sciona.pipelines.policy import build as policy_build
 from sciona.runtime.config import io as config_io
-from sciona.runtime import constants as setup_config
+from sciona.runtime.common import constants as setup_config
 from tests.helpers import init_git_repo
 
 

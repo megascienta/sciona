@@ -16,7 +16,7 @@ from ....data_storage.artifact_db.overlay import (
 )
 from ....data_storage.core_db import read_ops as core_read
 from ....runtime import git as git_ops
-from ....runtime import time as runtime_time
+from ....runtime.common import time as runtime_time
 from ....runtime.errors import GitError
 from ....runtime.logging import get_logger
 

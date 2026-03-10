@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import hashlib
 
-from ...runtime.text import canonical_span_bytes
+from ...runtime.common.text import canonical_span_bytes
 from .normalize_model import FileSnapshot, SemanticNodeRecord
 
 

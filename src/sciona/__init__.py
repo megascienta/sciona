@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from . import api
-from .runtime.constants import TOOL_VERSION
+from .runtime.common.constants import TOOL_VERSION
 
 __version__ = TOOL_VERSION
 

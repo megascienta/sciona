@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Optional
 
 from ....data_storage.core_db import read_ops as core_read
-from ....runtime.text import canonical_span_text
+from ....runtime.common.text import canonical_span_text
 
 
 def top_modules(counter: Counter, *, limit: int) -> list[tuple[str, int]]:

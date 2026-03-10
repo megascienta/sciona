@@ -3,7 +3,7 @@
 
 from datetime import datetime, timezone
 
-from sciona.runtime.time import utc_now
+from sciona.runtime.common.time import utc_now
 
 
 def test_utc_now_returns_isoformat() -> None:

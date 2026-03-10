@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from sciona.runtime import constants as setup_config
+from sciona.runtime.common import constants as setup_config
 from sciona.runtime.paths import (
     get_artifact_db_path,
     get_config_path,

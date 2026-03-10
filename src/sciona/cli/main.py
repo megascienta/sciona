@@ -13,7 +13,7 @@ import inspect
 from ..api import cli as api_cli
 from ..api import errors as api_errors
 from .commands import register as register_commands
-from ..runtime.constants import TOOL_VERSION
+from ..runtime.common.constants import TOOL_VERSION
 
 
 def _patch_click_make_metavar() -> None:

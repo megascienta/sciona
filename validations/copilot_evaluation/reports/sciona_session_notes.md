@@ -168,6 +168,26 @@ Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `mult
 Observations: SCIONA had limited impact here; the concrete work was a small package removal plus cleanup of a missed import path exposed by the commit hook.
 RATINGS (1-10): Structural clarity 6 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 6
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 6 | Scope reduction vs baseline 5 | Query friction vs baseline 4 | Net usefulness vs baseline 6
+## Task 25 - runtime architecture review
+Copilot: Codex
+Task description: Reviewed the `runtime` module structure, focusing on package boundaries, folder depth, internal coupling, and discoverability.
+Task type: architecture review
+SCIONA usage: `search`, `resolve`, `module_overview`, and `dependency_edges` for the committed `runtime` package plus its import edges.
+Effect on workflow: reduce search space; confirm assumptions
+Fallback: filesystem inspection with `find` and `rg --files`
+Observations: SCIONA was useful for package-level cohesion and import-edge shape; folder-density and naming observations still required direct filesystem inspection.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 7
+## Task 26 - runtime common package
+Copilot: Codex
+Task description: Moved low-level runtime helpers into `runtime.common` and rewired repo-wide imports to the new canonical paths.
+Task type: implementation
+SCIONA usage: reused prior runtime structure review to keep `config`, `git`, `errors`, `paths`, and `logging` untouched while isolating only the small utility modules.
+Effect on workflow: reduce search space; confirm assumptions
+Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `multiphysics`
+Observations: SCIONA helped bound the refactor, but semantic import fallout still required broad text search; two tests were snapshot-sensitive and had to stay on committed module ids.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 7
 ## Task 13 - artifact_db maintenance package
 Copilot: Codex
 Task description: Moved graph rebuild logic into a dedicated `artifact_db.maintenance` package and removed the misplaced rollup maintenance path.

@@ -24,11 +24,11 @@ from ....code_analysis.tools.workspace import excludes as path_excludes
 from ....data_storage.core_db import read_ops as core_read
 from ....runtime import config as runtime_config
 from ....runtime.config import io as runtime_config_io
-from ....runtime import constants as runtime_constants
+from ....runtime.common import constants as runtime_constants
 from ....runtime import git as git_ops
-from ....runtime import identity as ids
-from ....runtime.text import canonical_span_bytes
-from ....runtime import time as runtime_time
+from ....runtime.common import identity as ids
+from ....runtime.common.text import canonical_span_bytes
+from ....runtime.common import time as runtime_time
 from ....runtime.errors import ConfigError
 from ....runtime.logging import get_logger
 

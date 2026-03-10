@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-from sciona.runtime import constants as setup_config
+from sciona.runtime.common import constants as setup_config
 from sciona.runtime import paths as runtime_paths
 from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.data_storage.artifact_db.maintenance import rebuild_graph_index

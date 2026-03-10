@@ -23,7 +23,7 @@ from sciona.reducers import (
     symbol_references,
 )
 from sciona.reducers import callable_source, concatenated_source
-from sciona.runtime import constants as setup_config
+from sciona.runtime.common import constants as setup_config
 from sciona.runtime import paths as runtime_paths
 from tests.helpers import core_conn as _core_conn, insert_snapshot, parse_json_payload, qualify_repo_name as _q, seed_repo_with_snapshot
 

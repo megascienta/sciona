@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-from sciona.runtime.identity import instance_id, structural_id
+from sciona.runtime.common.identity import instance_id, structural_id
 
 
 def test_structural_id_is_deterministic() -> None:

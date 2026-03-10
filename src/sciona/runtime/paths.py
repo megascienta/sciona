@@ -8,7 +8,7 @@ from __future__ import annotations
 from pathlib import Path
 import re
 
-from . import constants
+from .common import constants
 from .errors import EnvError
 
 
