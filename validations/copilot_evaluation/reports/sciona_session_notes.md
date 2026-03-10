@@ -108,6 +108,16 @@ Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `mult
 Observations: SCIONA justified the split, but package-init cycles only surfaced during test execution and required making helper package exports non-eager.
 RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 7
+## Task 19 - reducers public API cleanup
+Copilot: Codex
+Task description: Removed the partial `reducers.core` namespace and replaced it with explicit top-level exports for all reducer entry modules.
+Task type: implementation
+SCIONA usage: reused prior structural review evidence and local usage check showing `reducers.core` was only exercised by a package-surface test.
+Effect on workflow: confirm assumptions; reduce search space
+Fallback: source inspection, `rg` usage search, targeted `pytest` in `multiphysics`
+Observations: SCIONA was less important here; the decisive evidence was a direct local usage check confirming `core` was not an internal dependency hub.
+RATINGS (1-10): Structural clarity 7 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 6
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 6 | Scope reduction vs baseline 6 | Query friction vs baseline 4 | Net usefulness vs baseline 6
 ## Task 13 - artifact_db maintenance package
 Copilot: Codex
 Task description: Moved graph rebuild logic into a dedicated `artifact_db.maintenance` package and removed the misplaced rollup maintenance path.

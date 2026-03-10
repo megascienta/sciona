@@ -17,16 +17,40 @@ def test_analysis_module_id_public_surface_is_explicit():
     assert set(analysis_module_id.__all__) == expected
 
 
-def test_structural_reducers_public_surface_exports_modules():
+def test_reducers_public_surface_exports_modules():
     expected = {
+        "call_resolution_drop_summary",
+        "call_resolution_quality",
         "structural_index",
         "module_overview",
         "classifier_overview",
         "callable_overview",
+        "callable_source",
+        "callsite_index",
+        "classifier_call_graph_summary",
+        "classifier_inheritance",
+        "concatenated_source",
+        "dependency_edges",
+        "fan_summary",
+        "file_outline",
+        "hotspot_summary",
+        "module_call_graph_summary",
+        "overlay_impact_summary",
+        "overlay_projection_status_summary",
+        "resolution_trace",
+        "snapshot_provenance",
+        "structural_integrity_summary",
+        "symbol_lookup",
+        "symbol_references",
     }
     for name in expected:
-        module = getattr(reducers.core, name)
-        assert hasattr(module, "run"), f"Reducer module '{name}' must expose run()"
+        module = getattr(reducers, name)
+        assert hasattr(
+            module, "REDUCER_META"
+        ), f"Reducer module '{name}' must expose REDUCER_META"
+        assert hasattr(
+            module, "render"
+        ), f"Reducer module '{name}' must expose render()"
 
 
 def test_reducers_do_not_import_pipeline_modules_directly():
