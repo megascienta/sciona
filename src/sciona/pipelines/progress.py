@@ -20,6 +20,7 @@ class ProgressHandle(Protocol):
 
 
 ProgressFactory = Callable[[str, int], Optional[ProgressHandle]]
+PhaseReporter = Callable[[str], None]
 
 
 class _ProgressBarHandle:
@@ -61,3 +62,17 @@ def make_progress_factory() -> ProgressFactory:
         return make_progress_handle(label, total)
 
     return factory
+
+
+def emit_progress_phase(label: str) -> None:
+    """Emit a visible phase label for uncounted build work."""
+    typer.echo(label)
+
+
+def make_phase_reporter() -> PhaseReporter:
+    """Return a reporter for phase-oriented progress messages."""
+
+    def reporter(label: str) -> None:
+        emit_progress_phase(label)
+
+    return reporter

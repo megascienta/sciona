@@ -18,25 +18,75 @@ Fallback: filesystem inspection with `find`; lightweight Python summaries over r
 Observations: SCIONA established module scope and coupling quickly; reducer payloads were too large to read directly, so local summarization was still needed.
 RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 7 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 7
-## Task 49 - session evaluation synthesis
+## Task 3 - code_analysis PR planning
 Copilot: Codex
-Task description: Aggregated the full session notes into a final internal evaluation memo covering reducer usage, strengths, limitations, and overall usefulness.
-Task type: semantic investigation
-SCIONA usage: none; this task summarized the recorded session evidence rather than performing new structural investigation.
-Effect on workflow: have little impact
-Fallback: source inspection of the session notes file and local aggregation of ratings
-Observations: The final synthesis depended on the quality of the recorded notes; one minor note-file issue was duplicated Task 12 and Task 13 entries, but their scores were consistent.
-RATINGS (1-10): Structural clarity 5 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 6
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 6 | Scope reduction vs baseline 5 | Query friction vs baseline 3 | Net usefulness vs baseline 5
-## Task 48 - remove unused folders
+Task description: Converted the `code_analysis` architecture findings into PR-sized structural refactoring proposals with scope and sequencing.
+Task type: architecture review
+SCIONA usage: reused prior `module_overview` and `dependency_edges` evidence for package size, folder hotspots, and coupling concentration.
+Effect on workflow: reduce search space; confirm assumptions
+Fallback: no new tooling required beyond prior reducer summaries
+Observations: SCIONA was useful for deciding PR boundaries around dense folders; it did not answer whether shallow packages are intentional growth points.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 8 | Confidence in answers 7 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 6 | Scope reduction vs baseline 8 | Query friction vs baseline 3 | Net usefulness vs baseline 7
+## Task 4 - tools package split
 Copilot: Codex
-Task description: Removed the cache-only stale package directories and deleted the leftover tracked `code_analysis/core/normalize` placeholder package.
-Task type: repository maintenance
-SCIONA usage: reused prior structural inventory to confirm the active module set before deleting folder leftovers.
+Task description: Implemented the `code_analysis.tools` split into `call_extraction`, `profiling`, and `workspace` subpackages with compatibility shims.
+Task type: implementation
+SCIONA usage: reused prior `module_overview` and file-count evidence showing `tools` as the largest heterogeneous folder.
+Effect on workflow: identify ownership; reduce search space
+Fallback: source inspection, import search with `rg`, targeted `pytest` in `multiphysics`
+Observations: SCIONA helped justify the split, but compatibility and policy-test constraints were discovered only through source inspection and test failures.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 7
+## Task 5 - contract layer clarification
+Copilot: Codex
+Task description: Introduced `analysis_contracts` and `core.extract.interfaces` as clearer canonical package names, with compatibility aliases for legacy imports.
+Task type: implementation
+SCIONA usage: reused prior structural review evidence about ambiguous parallel contract folders.
 Effect on workflow: confirm assumptions; reduce search space
-Fallback: filesystem inspection, `git ls-files`, `rg` reference sweeps, compile checks, targeted `pytest` in `multiphysics`
-Observations: SCIONA helped confirm these folders were outside the active tracked module set, but final deletion decisions depended on plain filesystem and reference evidence.
-RATINGS (1-10): Structural clarity 8 | Navigation speed 8 | Confidence in answers 8 | Overall usefulness 7
+Fallback: import search with `rg`, source inspection, targeted `pytest` in `multiphysics`
+Observations: SCIONA helped identify the ambiguity, but monkeypatch compatibility requirements only surfaced through tests and required alias-based wrappers.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 7
+## Task 6 - shallow package flattening
+Copilot: Codex
+Task description: Flattened `analysis/graph`, `core/annotate`, and `core/normalize` by introducing direct canonical modules with compatibility wrappers.
+Task type: implementation
+SCIONA usage: reused prior structural review evidence that these folders had minimal substantive depth.
+Effect on workflow: confirm assumptions; reduce search space
+Fallback: bulk import search/update with `rg` and `perl`, targeted `pytest` in `multiphysics`
+Observations: SCIONA identified the shallow packages, but the real implementation cost came from high fan-out around `normalize.model`, which required broader regression coverage.
+RATINGS (1-10): Structural clarity 7 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 6
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 7 | Scope reduction vs baseline 6 | Query friction vs baseline 5 | Net usefulness vs baseline 6
+## Task 7 - languages.common subdivision
+Copilot: Codex
+Task description: Split `languages.common` into `support`, `query`, `scope`, `naming`, and `ir` subpackages with compatibility wrappers.
+Task type: implementation
+SCIONA usage: reused prior structural review evidence that `languages.common` was dense but cohesive, making this a scaling refactor.
+Effect on workflow: reduce search space; confirm assumptions
+Fallback: source inspection, targeted bulk import edits, `pytest` in `multiphysics`
+Observations: SCIONA helped frame this as a discoverability change rather than a bug fix; import-depth mistakes surfaced only through test execution.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 5 | Net usefulness vs baseline 7
+## Task 8 - remove compatibility wrappers
+Copilot: Codex
+Task description: Removed legacy wrapper modules and package exports, rewired all remaining imports and tests to canonical structural paths.
+Task type: implementation
+SCIONA usage: reused earlier structural findings only; no new reducer calls were needed for the removal work.
+Effect on workflow: have little impact
+Fallback: source inspection, `rg` import sweeps, broad targeted `pytest` in `multiphysics`
+Observations: SCIONA did not materially help here; the work was semantic migration and regression cleanup after the structural refactor.
+RATINGS (1-10): Structural clarity 5 | Navigation speed 4 | Confidence in answers 8 | Overall usefulness 4
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 3 | Confidence gain vs baseline 4 | Scope reduction vs baseline 3 | Query friction vs baseline 6 | Net usefulness vs baseline 4
+## Task 9 - data_storage architecture review
+Copilot: Codex
+Task description: Reviewed the structural architecture of the `data_storage` module, including folder boundaries, package roles, and import coupling.
+Task type: architecture review
+SCIONA usage: `search`, `resolve`, `module_overview`, and `dependency_edges` on `sciona.src.sciona.data_storage`; summarized internal vs external import edges.
+Effect on workflow: identify ownership; reduce search space; confirm assumptions
+Fallback: filesystem inspection and local summarization over reducer output
+Observations: SCIONA quickly established that `data_storage` is mostly split by storage surface (`core_db` vs `artifact_db`); manual summarization was still needed to reason about folder density and coupling hotspots.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 7 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 7
 ## Task 10 - data_storage PR planning
 Copilot: Codex
@@ -68,76 +118,6 @@ Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `mult
 Observations: SCIONA helped justify the package boundary; implementation risk came from broad fan-in across `core_db`, `artifact_db`, pipelines, and tests.
 RATINGS (1-10): Structural clarity 8 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 7
-## Task 49 - session evaluation memo
-Copilot: Codex
-Task description: Read the accumulated session notes, aggregated ratings and reducer usage, and prepared the final evaluation memo.
-Task type: repository maintenance
-SCIONA usage: reused prior session evidence only; no new reducers were needed for the summary step.
-Effect on workflow: confirm assumptions
-Fallback: source inspection of the notes file and local parsing/aggregation
-Observations: SCIONA value in this session was concentrated in earlier structural orientation; the final memo itself depended on note quality rather than fresh reducer output.
-RATINGS (1-10): Structural clarity 7 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 7
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 7
-## Task 42 - final codebase audit
-Copilot: Codex
-Task description: Audited the full repository for structural dead ends, module-boundary issues, and contract/devguide compliance after the refactor series.
-Task type: architecture review
-SCIONA usage: `snapshot_provenance`, `overlay_impact_summary`, `structural_integrity_summary`, `hotspot_summary`, `search`, `module_overview`, and `dependency_edges` for current package ownership and orphan signals.
-Effect on workflow: confirm assumptions; reduce search space; identify ownership
-Fallback: source inspection, `rg` for stale paths and public-surface references, targeted `pytest` in `multiphysics`
-Observations: SCIONA was decisive for ruling out broad structural corruption, but it could not prove dead code; documentation drift and API-surface checks still required direct inspection and tests.
-RATINGS (1-10): Structural clarity 9 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 8
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 8 | Confidence gain vs baseline 8 | Scope reduction vs baseline 9 | Query friction vs baseline 4 | Net usefulness vs baseline 8
-## Task 44 - remove unused pipeline config alias module
-Copilot: Codex
-Task description: Removed the unused `pipelines.config_errors` alias module after the stricter dead-code sweep identified it as the one evidence-backed dead-end candidate.
-Task type: repository maintenance
-SCIONA usage: reused prior audit evidence only; no additional reducer calls were needed for the deletion itself.
-Effect on workflow: confirm assumptions; have little impact
-Fallback: `rg` reference sweep, import compilation, targeted `pytest` in `multiphysics`
-Observations: SCIONA helped narrow the candidate list, but the final delete decision depended on plain reference inspection because dead-code classification is outside reducer semantics.
-RATINGS (1-10): Structural clarity 7 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 6
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 6 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 6
-## Task 45 - boundary regression repair
-Copilot: Codex
-Task description: Repaired full-suite regressions by restoring layer-compliant CLI/API ownership, moving reducer overlay helpers to a neutral runtime package, and updating a stale real-repo smoke expectation.
-Task type: implementation
-SCIONA usage: reused prior structural audit context and targeted `search`/`dependency_edges` reasoning to confirm ownership boundaries before changing package placement.
-Effect on workflow: confirm assumptions; identify ownership; reduce search space
-Fallback: source inspection, `rg` import sweeps, compile checks, targeted `pytest` in `multiphysics`
-Observations: SCIONA helped separate policy-boundary regressions from semantic defects, but the actual fixes were driven by repository policy tests and direct import inspection.
-RATINGS (1-10): Structural clarity 9 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 8
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
-## Task 47 - unused folder audit
-Copilot: Codex
-Task description: Audited repository directories for unused or stale folders, distinguishing generated cache directories from tracked package boundaries and asset folders.
-Task type: repository maintenance
-SCIONA usage: `structural_index` for current tracked module inventory and structural context around package directories.
-Effect on workflow: reduce search space; confirm assumptions
-Fallback: filesystem inspection, `git ls-files`, and `rg` reference sweeps for candidate folder names
-Observations: SCIONA confirmed the active module set, but filesystem and tracked-file inspection were still required to identify stale directories left behind after refactors.
-RATINGS (1-10): Structural clarity 8 | Navigation speed 8 | Confidence in answers 8 | Overall usefulness 7
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 7 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 7
-## Task 46 - cli to pipelines boundary realignment
-Copilot: Codex
-Task description: Changed the enforced architecture to allow `cli -> pipelines`, rewired CLI facades directly to `pipelines.ops.*`, removed internal `api/*_ops.py` bridges, and updated the developer guide.
-Task type: architecture review
-SCIONA usage: reused prior structural boundary evidence and ownership reasoning; no new reducer output was needed once the target layering was established.
-Effect on workflow: identify ownership; confirm assumptions; reduce search space
-Fallback: source inspection, `rg` reference sweeps, compile checks, targeted `pytest` in `multiphysics`
-Observations: SCIONA helped justify the layering direction, but the decisive constraints came from explicit boundary-policy tests and the agreed public meaning of `api`.
-RATINGS (1-10): Structural clarity 9 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 8
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
-## Task 43 - final cleanup and stricter dead-code sweep
-Copilot: Codex
-Task description: Fixed remaining Developer Guide drift, split the CLI-only facade into narrower modules, and performed a stricter low-fan-in dead-code audit.
-Task type: repository maintenance
-SCIONA usage: reused `structural_integrity_summary`, `hotspot_summary`, `search`, `module_overview`, and `dependency_edges` to narrow structural candidates before fallback.
-Effect on workflow: confirm assumptions; reduce search space; identify ownership
-Fallback: source inspection, AST-based import scan, `rg`, targeted `pytest` in `multiphysics`
-Observations: SCIONA was strong for ruling out broad structural damage, but candidate dead modules still required manual classification because registry-loaded reducers and package exports look unused in plain import graphs.
-RATINGS (1-10): Structural clarity 9 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 8
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 8 | Confidence gain vs baseline 8 | Scope reduction vs baseline 9 | Query friction vs baseline 4 | Net usefulness vs baseline 8
 ## Task 13 - artifact_db maintenance package
 Copilot: Codex
 Task description: Moved graph rebuild logic into a dedicated `artifact_db.maintenance` package and removed the misplaced rollup maintenance path.
@@ -148,6 +128,26 @@ Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `mult
 Observations: SCIONA helped justify separating maintenance from rollup persistence; the concrete work was straightforward once import fan-out was located locally.
 RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 7
+## Task 50 - build tail investigation
+Copilot: Codex
+Task description: Investigated the unreported pause after artifact progress reaches 100% during `sciona build`, and checked whether the displayed build time includes that tail.
+Task type: semantic investigation
+SCIONA usage: used `search` for structural entry-point discovery, then traced the concrete execution path in source.
+Effect on workflow: reduce search space; confirm assumptions
+Fallback: source inspection, one empirical `sciona build --force` timing run
+Observations: SCIONA helped locate the ownership path quickly, but the actual answer required reading the post-progress build path and timing behavior.
+RATINGS (1-10): Structural clarity 7 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 6
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 6 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 6
+## Task 51 - build progress and performance PR planning
+Copilot: Codex
+Task description: Translated the build-tail investigation into PR-sized proposals for earlier progress reporting, post-artifact progress reporting, full-wall-time measurement, and artifact refresh optimization.
+Task type: architecture review
+SCIONA usage: reused prior structural ownership discovery for the build path; no new reducer invocation was needed.
+Effect on workflow: confirm assumptions; reduce search space
+Fallback: source inspection of build, progress, artifact refresh, graph index, and rollup code paths
+Observations: SCIONA was useful for locating the owning modules; the concrete PR plan depended on direct code-path inspection and performance reasoning.
+RATINGS (1-10): Structural clarity 7 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 6
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 6 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 6
 ## Task 14 - core_db read ops package
 Copilot: Codex
 Task description: Grouped the `core_db` read shards under `core_db.read_ops` and updated direct test imports to the canonical package layout.
@@ -428,93 +428,83 @@ Fallback: source inspection, `rg` search, targeted `pytest` in `multiphysics`
 Observations: The main value was cleanup rather than discovery; the guide had one API export omission and a few stale path references from earlier structural changes.
 RATINGS (1-10): Structural clarity 5 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 5
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 5 | Scope reduction vs baseline 4 | Query friction vs baseline 3 | Net usefulness vs baseline 4
-## Task 13 - artifact_db maintenance package
+## Task 42 - final codebase audit
 Copilot: Codex
-Task description: Moved graph rebuild logic into a dedicated `artifact_db.maintenance` package and removed the misplaced rollup maintenance path.
-Task type: implementation
-SCIONA usage: reused prior structural review evidence that maintenance was a distinct operational surface inside `artifact_db`.
-Effect on workflow: confirm assumptions; reduce search space
-Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `multiphysics`
-Observations: SCIONA helped justify separating maintenance from rollup persistence; the concrete work was straightforward once import fan-out was located locally.
-RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 7
-## Task 3 - code_analysis PR planning
-Copilot: Codex
-Task description: Converted the `code_analysis` architecture findings into PR-sized structural refactoring proposals with scope and sequencing.
+Task description: Audited the full repository for structural dead ends, module-boundary issues, and contract/devguide compliance after the refactor series.
 Task type: architecture review
-SCIONA usage: reused prior `module_overview` and `dependency_edges` evidence for package size, folder hotspots, and coupling concentration.
-Effect on workflow: reduce search space; confirm assumptions
-Fallback: no new tooling required beyond prior reducer summaries
-Observations: SCIONA was useful for deciding PR boundaries around dense folders; it did not answer whether shallow packages are intentional growth points.
-RATINGS (1-10): Structural clarity 8 | Navigation speed 8 | Confidence in answers 7 | Overall usefulness 7
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 6 | Scope reduction vs baseline 8 | Query friction vs baseline 3 | Net usefulness vs baseline 7
-## Task 4 - tools package split
+SCIONA usage: `snapshot_provenance`, `overlay_impact_summary`, `structural_integrity_summary`, `hotspot_summary`, `search`, `module_overview`, and `dependency_edges` for current package ownership and orphan signals.
+Effect on workflow: confirm assumptions; reduce search space; identify ownership
+Fallback: source inspection, `rg` for stale paths and public-surface references, targeted `pytest` in `multiphysics`
+Observations: SCIONA was decisive for ruling out broad structural corruption, but it could not prove dead code; documentation drift and API-surface checks still required direct inspection and tests.
+RATINGS (1-10): Structural clarity 9 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 8 | Confidence gain vs baseline 8 | Scope reduction vs baseline 9 | Query friction vs baseline 4 | Net usefulness vs baseline 8
+## Task 43 - final cleanup and stricter dead-code sweep
 Copilot: Codex
-Task description: Implemented the `code_analysis.tools` split into `call_extraction`, `profiling`, and `workspace` subpackages with compatibility shims.
-Task type: implementation
-SCIONA usage: reused prior `module_overview` and file-count evidence showing `tools` as the largest heterogeneous folder.
-Effect on workflow: identify ownership; reduce search space
-Fallback: source inspection, import search with `rg`, targeted `pytest` in `multiphysics`
-Observations: SCIONA helped justify the split, but compatibility and policy-test constraints were discovered only through source inspection and test failures.
-RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 7
-## Task 5 - contract layer clarification
+Task description: Fixed remaining Developer Guide drift, split the CLI-only facade into narrower modules, and performed a stricter low-fan-in dead-code audit.
+Task type: repository maintenance
+SCIONA usage: reused `structural_integrity_summary`, `hotspot_summary`, `search`, `module_overview`, and `dependency_edges` to narrow structural candidates before fallback.
+Effect on workflow: confirm assumptions; reduce search space; identify ownership
+Fallback: source inspection, AST-based import scan, `rg`, targeted `pytest` in `multiphysics`
+Observations: SCIONA was strong for ruling out broad structural damage, but candidate dead modules still required manual classification because registry-loaded reducers and package exports look unused in plain import graphs.
+RATINGS (1-10): Structural clarity 9 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 8 | Confidence gain vs baseline 8 | Scope reduction vs baseline 9 | Query friction vs baseline 4 | Net usefulness vs baseline 8
+## Task 44 - remove unused pipeline config alias module
 Copilot: Codex
-Task description: Introduced `analysis_contracts` and `core.extract.interfaces` as clearer canonical package names, with compatibility aliases for legacy imports.
-Task type: implementation
-SCIONA usage: reused prior structural review evidence about ambiguous parallel contract folders.
-Effect on workflow: confirm assumptions; reduce search space
-Fallback: import search with `rg`, source inspection, targeted `pytest` in `multiphysics`
-Observations: SCIONA helped identify the ambiguity, but monkeypatch compatibility requirements only surfaced through tests and required alias-based wrappers.
-RATINGS (1-10): Structural clarity 8 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 7
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 7
-## Task 6 - shallow package flattening
-Copilot: Codex
-Task description: Flattened `analysis/graph`, `core/annotate`, and `core/normalize` by introducing direct canonical modules with compatibility wrappers.
-Task type: implementation
-SCIONA usage: reused prior structural review evidence that these folders had minimal substantive depth.
-Effect on workflow: confirm assumptions; reduce search space
-Fallback: bulk import search/update with `rg` and `perl`, targeted `pytest` in `multiphysics`
-Observations: SCIONA identified the shallow packages, but the real implementation cost came from high fan-out around `normalize.model`, which required broader regression coverage.
+Task description: Removed the unused `pipelines.config_errors` alias module after the stricter dead-code sweep identified it as the one evidence-backed dead-end candidate.
+Task type: repository maintenance
+SCIONA usage: reused prior audit evidence only; no additional reducer calls were needed for the deletion itself.
+Effect on workflow: confirm assumptions; have little impact
+Fallback: `rg` reference sweep, import compilation, targeted `pytest` in `multiphysics`
+Observations: SCIONA helped narrow the candidate list, but the final delete decision depended on plain reference inspection because dead-code classification is outside reducer semantics.
 RATINGS (1-10): Structural clarity 7 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 6
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 7 | Scope reduction vs baseline 6 | Query friction vs baseline 5 | Net usefulness vs baseline 6
-## Task 7 - languages.common subdivision
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 6 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 6
+## Task 45 - boundary regression repair
 Copilot: Codex
-Task description: Split `languages.common` into `support`, `query`, `scope`, `naming`, and `ir` subpackages with compatibility wrappers.
+Task description: Repaired full-suite regressions by restoring layer-compliant CLI/API ownership, moving reducer overlay helpers to a neutral runtime package, and updating a stale real-repo smoke expectation.
 Task type: implementation
-SCIONA usage: reused prior structural review evidence that `languages.common` was dense but cohesive, making this a scaling refactor.
-Effect on workflow: reduce search space; confirm assumptions
-Fallback: source inspection, targeted bulk import edits, `pytest` in `multiphysics`
-Observations: SCIONA helped frame this as a discoverability change rather than a bug fix; import-depth mistakes surfaced only through test execution.
-RATINGS (1-10): Structural clarity 8 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 7
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 5 | Net usefulness vs baseline 7
-## Task 8 - remove compatibility wrappers
+SCIONA usage: reused prior structural audit context and targeted `search`/`dependency_edges` reasoning to confirm ownership boundaries before changing package placement.
+Effect on workflow: confirm assumptions; identify ownership; reduce search space
+Fallback: source inspection, `rg` import sweeps, compile checks, targeted `pytest` in `multiphysics`
+Observations: SCIONA helped separate policy-boundary regressions from semantic defects, but the actual fixes were driven by repository policy tests and direct import inspection.
+RATINGS (1-10): Structural clarity 9 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
+## Task 46 - cli to pipelines boundary realignment
 Copilot: Codex
-Task description: Removed legacy wrapper modules and package exports, rewired all remaining imports and tests to canonical structural paths.
-Task type: implementation
-SCIONA usage: reused earlier structural findings only; no new reducer calls were needed for the removal work.
-Effect on workflow: have little impact
-Fallback: source inspection, `rg` import sweeps, broad targeted `pytest` in `multiphysics`
-Observations: SCIONA did not materially help here; the work was semantic migration and regression cleanup after the structural refactor.
-RATINGS (1-10): Structural clarity 5 | Navigation speed 4 | Confidence in answers 8 | Overall usefulness 4
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 3 | Confidence gain vs baseline 4 | Scope reduction vs baseline 3 | Query friction vs baseline 6 | Net usefulness vs baseline 4
-## Task 9 - data_storage architecture review
-Copilot: Codex
-Task description: Reviewed the structural architecture of the `data_storage` module, including folder boundaries, package roles, and import coupling.
+Task description: Changed the enforced architecture to allow `cli -> pipelines`, rewired CLI facades directly to `pipelines.ops.*`, removed internal `api/*_ops.py` bridges, and updated the developer guide.
 Task type: architecture review
-SCIONA usage: `search`, `resolve`, `module_overview`, and `dependency_edges` on `sciona.src.sciona.data_storage`; summarized internal vs external import edges.
-Effect on workflow: identify ownership; reduce search space; confirm assumptions
-Fallback: filesystem inspection and local summarization over reducer output
-Observations: SCIONA quickly established that `data_storage` is mostly split by storage surface (`core_db` vs `artifact_db`); manual summarization was still needed to reason about folder density and coupling hotspots.
-RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 7 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 7
-## Task 12 - shared storage package
+SCIONA usage: reused prior structural boundary evidence and ownership reasoning; no new reducer output was needed once the target layering was established.
+Effect on workflow: identify ownership; confirm assumptions; reduce search space
+Fallback: source inspection, `rg` reference sweeps, compile checks, targeted `pytest` in `multiphysics`
+Observations: SCIONA helped justify the layering direction, but the decisive constraints came from explicit boundary-policy tests and the agreed public meaning of `api`.
+RATINGS (1-10): Structural clarity 9 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
+## Task 47 - unused folder audit
 Copilot: Codex
-Task description: Moved shared `data_storage` primitives into `data_storage.common` and rewired both DB backends plus tests to the canonical package.
-Task type: implementation
-SCIONA usage: reused prior structural review evidence that top-level helper files were shared infrastructure rather than backend-specific logic.
+Task description: Audited repository directories for unused or stale folders, distinguishing generated cache directories from tracked package boundaries and asset folders.
+Task type: repository maintenance
+SCIONA usage: `structural_index` for current tracked module inventory and structural context around package directories.
+Effect on workflow: reduce search space; confirm assumptions
+Fallback: filesystem inspection, `git ls-files`, and `rg` reference sweeps for candidate folder names
+Observations: SCIONA confirmed the active module set, but filesystem and tracked-file inspection were still required to identify stale directories left behind after refactors.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 8 | Confidence in answers 8 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 7 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 7
+## Task 48 - remove unused folders
+Copilot: Codex
+Task description: Removed the cache-only stale package directories and deleted the leftover tracked `code_analysis/core/normalize` placeholder package.
+Task type: repository maintenance
+SCIONA usage: reused prior structural inventory to confirm the active module set before deleting folder leftovers.
 Effect on workflow: confirm assumptions; reduce search space
-Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `multiphysics`
-Observations: SCIONA helped justify the package boundary; implementation risk came from broad fan-in across `core_db`, `artifact_db`, pipelines, and tests.
-RATINGS (1-10): Structural clarity 8 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 7
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 7
+Fallback: filesystem inspection, `git ls-files`, `rg` reference sweeps, compile checks, targeted `pytest` in `multiphysics`
+Observations: SCIONA helped confirm these folders were outside the active tracked module set, but final deletion decisions depended on plain filesystem and reference evidence.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 8 | Confidence in answers 8 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 7 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 7
+## Task 49 - session evaluation synthesis
+Copilot: Codex
+Task description: Aggregated the full session notes into a final internal evaluation memo covering reducer usage, strengths, limitations, and overall usefulness.
+Task type: semantic investigation
+SCIONA usage: none; this task summarized the recorded session evidence rather than performing new structural investigation.
+Effect on workflow: have little impact
+Fallback: source inspection of the session notes file and local aggregation of ratings
+Observations: The final synthesis depended on the quality of the recorded notes; one minor note-file issue was duplicated Task 12 and Task 13 entries, but their scores were consistent.
+RATINGS (1-10): Structural clarity 5 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 6
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 6 | Scope reduction vs baseline 5 | Query friction vs baseline 3 | Net usefulness vs baseline 5

@@ -40,6 +40,7 @@ class BuildEngine:
         discovery: Optional[runtime_config.DiscoverySettings] = None,
         config_root: Optional[Path] = None,
         progress_factory=None,
+        phase_reporter: Optional[Callable[[str], None]] = None,
         warning_sink: Optional[Callable[[str], None]] = None,
         max_file_bytes: int | None = DEFAULT_MAX_FILE_BYTES,
         max_nodes_per_file: int | None = DEFAULT_MAX_NODES_PER_FILE,
@@ -73,6 +74,7 @@ class BuildEngine:
         self.imports_filtered_not_internal = 0
         self.imports_by_language: dict[str, dict[str, int]] = {}
         self._progress_factory = progress_factory
+        self._phase_reporter = phase_reporter
         self._warning_sink = warning_sink
         self.max_file_bytes = max_file_bytes
         self.max_nodes_per_file = max_nodes_per_file
@@ -96,6 +98,8 @@ class BuildEngine:
             ]
             if not enabled_languages:
                 raise IngestionError("No enabled languages for discovery.")
+            if self._phase_reporter:
+                self._phase_reporter("Discovering files")
             records = walker.collect_files(
                 self.workspace_root,
                 self.languages,
@@ -127,6 +131,8 @@ class BuildEngine:
             def _warn_line_count(path: Path, exc: Exception) -> None:
                 self._warn(f"Could not count lines in {path}: {exc}")
 
+            if self._phase_reporter:
+                self._phase_reporter("Preparing snapshots")
             changed_snapshots = snapshots.prepare_file_snapshots(
                 self.repo_root,
                 records,
@@ -136,6 +142,8 @@ class BuildEngine:
             inserted_nodes = 0
             processed_files = 0
             if changed_snapshots:
+                if self._phase_reporter:
+                    self._phase_reporter("Registering modules")
                 inserted_nodes += self._register_modules(snapshot_id, changed_snapshots)
             module_index: set[str] = set()
             if changed_snapshots:
