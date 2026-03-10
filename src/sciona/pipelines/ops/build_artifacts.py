@@ -77,6 +77,7 @@ def refresh_artifact_state(
     artifact_path = get_artifact_db_path(repo_root)
     with artifact(artifact_path, repo_root=repo_root) as artifact_conn:
         artifact_write.mark_rebuild_started(artifact_conn, snapshot_id=snapshot_id)
+        artifact_write.reset_artifact_derived_state(artifact_conn)
         overlay_store.clear_all(artifact_conn)
         overlay_call_store.clear_all(artifact_conn)
         overlay_summary_store.clear_all(artifact_conn)
@@ -84,12 +85,6 @@ def refresh_artifact_state(
         try:
             with transaction(artifact_conn):
                 call_resolution_diagnostics: dict[str, object] = {}
-                _timed_phase(
-                    "cleanup_removed_nodes",
-                    lambda: artifact_write.cleanup_removed_nodes(
-                        artifact_conn, current_node_ids
-                    ),
-                )
                 _timed_phase(
                     "write_call_artifacts",
                     lambda: artifact_derivation.write_call_artifacts(

@@ -124,14 +124,19 @@ def write_call_artifacts(
     subset rather than the full observed callsite stream.
     """
     core_read.validate_snapshot_for_read(core_conn, snapshot_id, require_committed=True)
-    if not call_records:
-        return
     caller_set = (
         set(eligible_callers)
         if eligible_callers is not None
         else {record.caller_structural_id for record in call_records}
     )
     if not caller_set:
+        return
+    if not call_records:
+        artifact_persistence.clear_call_artifacts_for_callers(
+            artifact_conn,
+            snapshot_id=snapshot_id,
+            caller_ids=caller_set,
+        )
         return
     duplicate_caller_ids = _duplicate_caller_ids(call_records, caller_set)
     if duplicate_caller_ids:
@@ -217,6 +222,12 @@ def write_call_artifacts(
         )
         _merge_resolution_stats(caller_diag, diagnostics_totals, resolution_stats)
         if not callee_ids:
+            artifact_persistence.upsert_node_calls(
+                artifact_conn,
+                caller_id=caller_id,
+                callee_ids=(),
+                call_hash=node_hashes.get(caller_id, ""),
+            )
             _record_resolution_drop(
                 caller_diag,
                 diagnostics_totals,

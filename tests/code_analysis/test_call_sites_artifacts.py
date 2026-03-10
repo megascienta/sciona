@@ -9,6 +9,7 @@ from sciona.code_analysis.artifacts import rollups
 from sciona.code_analysis.artifacts import write_call_artifacts
 from sciona.code_analysis.tools.call_extraction import CallExtractionRecord
 from sciona.data_storage.artifact_db import connect as artifact_connect
+from sciona.data_storage.artifact_db.writes import write_index as artifact_write
 from sciona.runtime import paths as runtime_paths
 from sciona.runtime.paths import get_artifact_db_path
 from tests.helpers import seed_repo_with_snapshot
@@ -63,7 +64,6 @@ def test_call_sites_persist_in_repo_candidates_only(tmp_path: Path) -> None:
             artifact_conn.close()
     finally:
         core_conn.close()
-
 
 def test_call_sites_filter_out_of_repo_accepted_rows_at_persistence_boundary(
     tmp_path: Path, monkeypatch
@@ -372,6 +372,187 @@ def test_node_calls_match_accepted_persisted_callsite_outcomes(
     ]
     assert [row["callee_id"] for row in node_call_rows] == ["func_alpha"]
 
+
+def test_write_call_artifacts_clears_existing_node_calls_when_resolution_becomes_empty(
+    tmp_path: Path, monkeypatch
+) -> None:
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    prefix = runtime_paths.repo_name_prefix(repo_root)
+    core_conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
+    core_conn.row_factory = sqlite3.Row
+    record = CallExtractionRecord(
+        caller_structural_id="meth_alpha",
+        caller_qualified_name=f"{prefix}.pkg.alpha.Service.run",
+        caller_node_type="callable",
+        callee_identifiers=("helper",),
+    )
+
+    def _empty_resolve(*args, **kwargs):
+        del args, kwargs
+        return (
+            set(),
+            set(),
+            {
+                "identifiers_total": 1,
+                "accepted_by_provenance": {},
+                "dropped_by_reason": {"no_candidates": 1},
+                "candidate_count_histogram": {0: 1},
+            },
+            [],
+        )
+
+    try:
+        artifact_conn = artifact_connect(get_artifact_db_path(repo_root), repo_root=repo_root)
+        try:
+            write_call_artifacts(
+                artifact_conn=artifact_conn,
+                core_conn=core_conn,
+                snapshot_id=snapshot_id,
+                call_records=[record],
+                eligible_callers={"meth_alpha"},
+            )
+            assert artifact_conn.execute(
+                "SELECT COUNT(*) FROM node_calls WHERE caller_id = ?",
+                ("meth_alpha",),
+            ).fetchone()[0] == 1
+            monkeypatch.setattr(rollups, "_resolve_callees", _empty_resolve)
+            write_call_artifacts(
+                artifact_conn=artifact_conn,
+                core_conn=core_conn,
+                snapshot_id=snapshot_id,
+                call_records=[record],
+                eligible_callers={"meth_alpha"},
+            )
+            assert artifact_conn.execute(
+                "SELECT COUNT(*) FROM node_calls WHERE caller_id = ?",
+                ("meth_alpha",),
+            ).fetchone()[0] == 0
+        finally:
+            artifact_conn.close()
+    finally:
+        core_conn.close()
+
+
+def test_write_call_artifacts_clears_existing_rows_when_no_call_records_remain(
+    tmp_path: Path,
+) -> None:
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    prefix = runtime_paths.repo_name_prefix(repo_root)
+    core_conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
+    core_conn.row_factory = sqlite3.Row
+    record = CallExtractionRecord(
+        caller_structural_id="meth_alpha",
+        caller_qualified_name=f"{prefix}.pkg.alpha.Service.run",
+        caller_node_type="callable",
+        callee_identifiers=("helper",),
+    )
+    try:
+        artifact_conn = artifact_connect(get_artifact_db_path(repo_root), repo_root=repo_root)
+        try:
+            write_call_artifacts(
+                artifact_conn=artifact_conn,
+                core_conn=core_conn,
+                snapshot_id=snapshot_id,
+                call_records=[record],
+                eligible_callers={"meth_alpha"},
+            )
+            assert artifact_conn.execute(
+                "SELECT COUNT(*) FROM node_calls WHERE caller_id = ?",
+                ("meth_alpha",),
+            ).fetchone()[0] == 1
+            write_call_artifacts(
+                artifact_conn=artifact_conn,
+                core_conn=core_conn,
+                snapshot_id=snapshot_id,
+                call_records=[],
+                eligible_callers={"meth_alpha"},
+            )
+            assert artifact_conn.execute(
+                "SELECT COUNT(*) FROM node_calls WHERE caller_id = ?",
+                ("meth_alpha",),
+            ).fetchone()[0] == 0
+            assert artifact_conn.execute(
+                "SELECT COUNT(*) FROM call_sites WHERE snapshot_id = ? AND caller_id = ?",
+                (snapshot_id, "meth_alpha"),
+            ).fetchone()[0] == 0
+        finally:
+            artifact_conn.close()
+    finally:
+        core_conn.close()
+
+
+def test_reset_artifact_derived_state_clears_call_artifacts_and_rollups(
+    tmp_path: Path,
+) -> None:
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    artifact_conn = artifact_connect(get_artifact_db_path(repo_root), repo_root=repo_root)
+    try:
+        artifact_conn.execute(
+            """
+            INSERT INTO call_sites(
+                snapshot_id,
+                caller_id,
+                caller_qname,
+                caller_node_type,
+                identifier,
+                resolution_status,
+                accepted_callee_id,
+                provenance,
+                drop_reason,
+                candidate_count,
+                callee_kind,
+                call_start_byte,
+                call_end_byte,
+                call_ordinal,
+                in_scope_candidate_count,
+                candidate_module_hints,
+                site_hash
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                snapshot_id,
+                "meth_alpha",
+                "pkg.alpha.Service.run",
+                "callable",
+                "helper",
+                "accepted",
+                "func_alpha",
+                "exact_qname",
+                None,
+                1,
+                "terminal",
+                None,
+                None,
+                1,
+                1,
+                "pkg.alpha",
+                "site-hash",
+            ),
+        )
+        artifact_conn.execute(
+            """
+            INSERT INTO node_calls(caller_id, callee_id, valid, call_hash)
+            VALUES (?, ?, ?, ?)
+            """,
+            ("meth_alpha", "func_alpha", 1, "call-hash"),
+        )
+        artifact_conn.execute(
+            """
+            INSERT INTO module_call_edges(src_module_id, dst_module_id, call_count)
+            VALUES (?, ?, ?)
+            """,
+            ("mod_alpha", "mod_beta", 1),
+        )
+        artifact_conn.commit()
+
+        artifact_write.reset_artifact_derived_state(artifact_conn)
+
+        assert artifact_conn.execute("SELECT COUNT(*) FROM call_sites").fetchone()[0] == 0
+        assert artifact_conn.execute("SELECT COUNT(*) FROM node_calls").fetchone()[0] == 0
+        assert artifact_conn.execute("SELECT COUNT(*) FROM graph_edges").fetchone()[0] == 0
+        assert artifact_conn.execute("SELECT COUNT(*) FROM module_call_edges").fetchone()[0] == 0
+    finally:
+        artifact_conn.close()
 
 def test_write_call_artifacts_rejects_duplicate_callers_before_writes(
     tmp_path: Path,

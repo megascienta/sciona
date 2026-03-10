@@ -14,6 +14,17 @@ from ...common.sql_utils import temp_id_table
 from .write_call_sites import build_site_hash
 
 
+def reset_artifact_derived_state(conn: sqlite3.Connection) -> None:
+    """Clear all rebuild-derived artifact tables before repopulating them."""
+    conn.execute("DELETE FROM node_calls")
+    conn.execute("DELETE FROM call_sites")
+    conn.execute("DELETE FROM graph_edges")
+    conn.execute("DELETE FROM graph_nodes")
+    conn.execute("DELETE FROM module_call_edges")
+    conn.execute("DELETE FROM class_call_edges")
+    conn.execute("DELETE FROM node_fan_stats")
+
+
 def upsert_node_calls(
     conn: sqlite3.Connection,
     *,
@@ -51,6 +62,7 @@ def cleanup_removed_nodes(
     ids = list(current_node_ids)
     if not ids:
         conn.execute("DELETE FROM node_calls")
+        conn.execute("DELETE FROM call_sites")
         return
     with temp_id_table(conn, ids, column="node_id", prefix="current_nodes") as table:
         conn.execute(
@@ -62,6 +74,26 @@ def cleanup_removed_nodes(
         conn.execute(
             f"DELETE FROM call_sites WHERE caller_id NOT IN (SELECT node_id FROM {table})",
         )
+
+
+def clear_call_artifacts_for_callers(
+    conn: sqlite3.Connection,
+    *,
+    snapshot_id: str,
+    caller_ids: Iterable[str],
+) -> None:
+    caller_list = list(caller_ids)
+    if not caller_list:
+        return
+    placeholders = ",".join("?" for _ in caller_list)
+    conn.execute(
+        f"DELETE FROM node_calls WHERE caller_id IN ({placeholders})",
+        caller_list,
+    )
+    conn.execute(
+        f"DELETE FROM call_sites WHERE snapshot_id = ? AND caller_id IN ({placeholders})",
+        (snapshot_id, *caller_list),
+    )
 
 
 def upsert_call_sites(

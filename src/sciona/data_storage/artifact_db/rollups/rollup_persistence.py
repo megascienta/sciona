@@ -132,6 +132,19 @@ def upsert_call_sites(
     )
 
 
+def clear_call_artifacts_for_callers(
+    conn,
+    *,
+    snapshot_id: str,
+    caller_ids: Iterable[str],
+) -> None:
+    write_index.clear_call_artifacts_for_callers(
+        conn,
+        snapshot_id=snapshot_id,
+        caller_ids=caller_ids,
+    )
+
+
 __all__ = [
     "list_call_edges",
     "list_graph_edges",
@@ -142,6 +155,7 @@ __all__ = [
     "rebuild_module_call_edges",
     "rebuild_class_call_edges",
     "rebuild_node_fan_stats",
+    "clear_call_artifacts_for_callers",
     "upsert_call_sites",
     "upsert_node_calls",
     "write_class_call_edges",
