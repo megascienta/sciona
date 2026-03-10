@@ -15,7 +15,6 @@ from ...data_storage.core_db import read_ops as core_read
 from ...data_storage.artifact_db import read_reporting as artifact_reporting
 from ...data_storage.artifact_db import read_status as artifact_status
 from .reporting_callsites import (
-    adjusted_call_sites_payload as _adjusted_call_sites_payload_impl,
     build_callable_identifier_index as _build_callable_identifier_index_impl,
     call_sites_payload as _call_sites_payload_impl,
     classification_quality_payload as _classification_quality_payload_impl,
@@ -24,7 +23,6 @@ from .reporting_callsites import (
     identifier_terminal as _identifier_terminal_impl,
     scope_bucket as _scope_bucket_impl,
     scope_call_sites_payload as _scope_call_sites_payload_impl,
-    scope_adjusted_call_sites_payload as _scope_adjusted_call_sites_payload_impl,
     sum_bucket_counts as _sum_bucket_counts_impl,
     sum_bucket_counts_by_scope as _sum_bucket_counts_by_scope_impl,
     sum_scope as _sum_scope_impl,
@@ -410,21 +408,6 @@ def snapshot_report(
             else None
         )
         item["call_sites_by_scope"] = _scope_call_sites_payload(scope_counts)
-        item["adjusted_call_sites"] = _adjusted_call_sites_payload(
-            item.get("call_sites"),
-            excluded_external_likely=drop_classification.get(language, {}).get(
-                "external_likely", 0
-            ),
-        )
-        item["adjusted_call_sites_by_scope"] = _scope_adjusted_call_sites_payload(
-            item.get("call_sites_by_scope"),
-            excluded_non_tests=drop_classification_by_scope.get(language, {})
-            .get("non_tests", {})
-            .get("external_likely", 0),
-            excluded_tests=drop_classification_by_scope.get(language, {})
-            .get("tests", {})
-            .get("external_likely", 0),
-        )
         item["classification_quality"] = _classification_quality_payload(
             item.get("call_sites"),
             drop_reasons=call_site_reasons.get(language, {}),
@@ -437,21 +420,6 @@ def snapshot_report(
             file_node_distribution=file_node_distribution_by_language.get(language, []),
             discovered_files=discovered_files_by_language.get(language),
         )
-    payload["totals"]["adjusted_call_sites"] = _adjusted_call_sites_payload(
-        payload["totals"].get("call_sites"),
-        excluded_external_likely=_sum_bucket_counts(drop_classification).get(
-            "external_likely", 0
-        ),
-    )
-    payload["totals"]["adjusted_call_sites_by_scope"] = _scope_adjusted_call_sites_payload(
-        payload["totals"].get("call_sites_by_scope"),
-        excluded_non_tests=_sum_bucket_counts_by_scope(
-            drop_classification_by_scope, scope_key="non_tests"
-        ).get("external_likely", 0),
-        excluded_tests=_sum_bucket_counts_by_scope(
-            drop_classification_by_scope, scope_key="tests"
-        ).get("external_likely", 0),
-    )
     payload["totals"]["classification_quality"] = _classification_quality_payload(
         payload["totals"].get("call_sites"),
         drop_reasons=_sum_bucket_counts(call_site_reasons),
@@ -493,17 +461,6 @@ def _call_sites_payload(
     return _call_sites_payload_impl(eligible, accepted, dropped)
 
 
-def _adjusted_call_sites_payload(
-    call_sites: dict[str, object] | None,
-    *,
-    excluded_external_likely: int,
-) -> dict[str, object]:
-    return _adjusted_call_sites_payload_impl(
-        call_sites,
-        excluded_external_likely=excluded_external_likely,
-    )
-
-
 def _top_items(items: dict[str, int], *, limit: int) -> list[dict[str, object]]:
     return _top_items_impl(items, limit=limit)
 
@@ -516,19 +473,6 @@ def _scope_call_sites_payload(
     scope_counts: dict[str, dict[str, int]] | None,
 ) -> dict[str, dict[str, object]] | None:
     return _scope_call_sites_payload_impl(scope_counts)
-
-
-def _scope_adjusted_call_sites_payload(
-    scope_payload: dict[str, dict[str, object]] | None,
-    *,
-    excluded_non_tests: int,
-    excluded_tests: int,
-) -> dict[str, dict[str, object]] | None:
-    return _scope_adjusted_call_sites_payload_impl(
-        scope_payload,
-        excluded_non_tests=excluded_non_tests,
-        excluded_tests=excluded_tests,
-    )
 
 
 def _classification_quality_payload(

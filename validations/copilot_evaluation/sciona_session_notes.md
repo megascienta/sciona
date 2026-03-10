@@ -34,6 +34,24 @@ Navigation speed: 8
 Confidence: 8
 Overall usefulness: 8
 
+## Task 5 - PR1 remove adjusted metrics from reporting payload
+
+Task:
+Removed `adjusted_call_sites` and `adjusted_call_sites_by_scope` from snapshot reporting output while keeping raw call-site and classification reporting intact.
+
+SCIONA usage:
+Used the prior SCIONA mapping for `pipelines.exec.reporting`; no additional reducer calls were needed during the edit itself.
+
+Observation:
+SCIONA had already reduced the risk of editing the wrong layer. The actual payload surgery was conventional source editing plus test updates.
+Confusion or limitations: None beyond confirming that `classification_quality` should remain for PR 1.
+
+Ratings:
+Structural clarity: 8
+Navigation speed: 7
+Confidence: 8
+Overall usefulness: 7
+
 ## Task 2 - Implement build total time reporting
 
 Task:
@@ -69,3 +87,21 @@ Structural clarity: 6
 Navigation speed: 6
 Confidence: 9
 Overall usefulness: 6
+
+## Task 4 - Plan adjusted-metric removal PRs
+
+Task:
+Mapped where `adjusted_call_sites`, `adjusted_call_sites_by_scope`, and related quality fields are computed and exposed so the removal can be split into clean PRs.
+
+SCIONA usage:
+Used `sciona search adjusted_call_sites`, `sciona search reporting_callsites`, and `module_overview` for `pipelines.exec.build` and `cli.commands.register_status`.
+
+Observation:
+SCIONA quickly confirmed that the affected surface is localized to reporting helpers and status/reporting consumers, which makes a narrow PR split straightforward.
+Confusion or limitations: SCIONA located the owners, but plain source inspection was still needed to see that `classification_quality` is adjacent but logically separable from the adjusted metrics.
+
+Ratings:
+Structural clarity: 8
+Navigation speed: 8
+Confidence: 8
+Overall usefulness: 8

@@ -27,8 +27,6 @@ def test_snapshot_report_returns_db_counts(repo_with_snapshot):
     assert payload["totals"]["call_sites"]["eligible"] == 0
     assert payload["totals"]["call_sites"]["accepted"] == 0
     assert payload["totals"]["call_sites"]["dropped"] == 0
-    assert payload["totals"]["adjusted_call_sites"]["adjusted_eligible"] == 0
-    assert payload["totals"]["adjusted_call_sites"]["success_rate"] is None
     assert payload["totals"]["classification_quality"]["confidence"] == "n/a"
     assert payload["totals"]["structural_density"]["files"] == 3
     assert "discovered_files" in payload["totals"]["structural_density"]
@@ -45,8 +43,6 @@ def test_snapshot_report_returns_db_counts(repo_with_snapshot):
     assert python["call_sites"]["eligible"] == 0
     assert python["call_sites"]["accepted"] == 0
     assert python["call_sites"]["dropped"] == 0
-    assert python["adjusted_call_sites"]["adjusted_eligible"] == 0
-    assert python["adjusted_call_sites"]["success_rate"] is None
     assert python["classification_quality"]["confidence"] == "n/a"
     assert python["structural_density"]["nodes_per_file"] == pytest.approx(5 / 3)
     assert "discovered_files" in python["structural_density"]
@@ -217,15 +213,6 @@ def test_snapshot_report_full_includes_failure_reasons(repo_with_snapshot):
     assert python["call_sites_by_scope"]["non_tests"]["accepted"] == 1
     assert python["call_sites_by_scope"]["non_tests"]["dropped"] == 2
     assert python["call_sites_by_scope"]["tests"]["eligible"] == 0
-    assert python["adjusted_call_sites"]["excluded_external_likely"] == 1
-    assert python["adjusted_call_sites"]["adjusted_eligible"] == 2
-    assert python["adjusted_call_sites"]["success_rate"] == 0.5
-    assert (
-        python["adjusted_call_sites_by_scope"]["non_tests"]["excluded_external_likely"]
-        == 1
-    )
-    assert python["adjusted_call_sites_by_scope"]["non_tests"]["adjusted_eligible"] == 2
-    assert python["adjusted_call_sites_by_scope"]["non_tests"]["success_rate"] == 0.5
     assert python["classification_quality"]["external_likely_share"] == 0.5
     assert python["classification_quality"]["ambiguous_share"] == 0.5
     assert python["classification_quality"]["confidence"] == "medium"
@@ -271,9 +258,6 @@ def test_snapshot_report_full_includes_failure_reasons(repo_with_snapshot):
     assert top_files[0]["count"] == 2
     total_classification = payload["totals"]["drop_classification"]
     assert total_classification == {"external_likely": 1}
-    assert payload["totals"]["adjusted_call_sites"]["excluded_external_likely"] == 1
-    assert payload["totals"]["adjusted_call_sites"]["adjusted_eligible"] == 2
-    assert payload["totals"]["adjusted_call_sites"]["success_rate"] == 0.5
     assert payload["totals"]["classification_quality"]["confidence"] == "medium"
     assert payload["totals"]["structural_density"]["eligible_callsites"] == 3
     assert payload["totals"]["structural_density"]["inflation_warning"] is False
