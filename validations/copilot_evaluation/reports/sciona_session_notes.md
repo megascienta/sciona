@@ -48,6 +48,36 @@ Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `mult
 Observations: SCIONA helped justify the package boundary; implementation risk came from broad fan-in across `core_db`, `artifact_db`, pipelines, and tests.
 RATINGS (1-10): Structural clarity 8 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 7
+## Task 42 - final codebase audit
+Copilot: Codex
+Task description: Audited the full repository for structural dead ends, module-boundary issues, and contract/devguide compliance after the refactor series.
+Task type: architecture review
+SCIONA usage: `snapshot_provenance`, `overlay_impact_summary`, `structural_integrity_summary`, `hotspot_summary`, `search`, `module_overview`, and `dependency_edges` for current package ownership and orphan signals.
+Effect on workflow: confirm assumptions; reduce search space; identify ownership
+Fallback: source inspection, `rg` for stale paths and public-surface references, targeted `pytest` in `multiphysics`
+Observations: SCIONA was decisive for ruling out broad structural corruption, but it could not prove dead code; documentation drift and API-surface checks still required direct inspection and tests.
+RATINGS (1-10): Structural clarity 9 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 8 | Confidence gain vs baseline 8 | Scope reduction vs baseline 9 | Query friction vs baseline 4 | Net usefulness vs baseline 8
+## Task 44 - remove unused pipeline config alias module
+Copilot: Codex
+Task description: Removed the unused `pipelines.config_errors` alias module after the stricter dead-code sweep identified it as the one evidence-backed dead-end candidate.
+Task type: repository maintenance
+SCIONA usage: reused prior audit evidence only; no additional reducer calls were needed for the deletion itself.
+Effect on workflow: confirm assumptions; have little impact
+Fallback: `rg` reference sweep, import compilation, targeted `pytest` in `multiphysics`
+Observations: SCIONA helped narrow the candidate list, but the final delete decision depended on plain reference inspection because dead-code classification is outside reducer semantics.
+RATINGS (1-10): Structural clarity 7 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 6
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 6 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 6
+## Task 43 - final cleanup and stricter dead-code sweep
+Copilot: Codex
+Task description: Fixed remaining Developer Guide drift, split the CLI-only facade into narrower modules, and performed a stricter low-fan-in dead-code audit.
+Task type: repository maintenance
+SCIONA usage: reused `structural_integrity_summary`, `hotspot_summary`, `search`, `module_overview`, and `dependency_edges` to narrow structural candidates before fallback.
+Effect on workflow: confirm assumptions; reduce search space; identify ownership
+Fallback: source inspection, AST-based import scan, `rg`, targeted `pytest` in `multiphysics`
+Observations: SCIONA was strong for ruling out broad structural damage, but candidate dead modules still required manual classification because registry-loaded reducers and package exports look unused in plain import graphs.
+RATINGS (1-10): Structural clarity 9 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 8 | Confidence gain vs baseline 8 | Scope reduction vs baseline 9 | Query friction vs baseline 4 | Net usefulness vs baseline 8
 ## Task 13 - artifact_db maintenance package
 Copilot: Codex
 Task description: Moved graph rebuild logic into a dedicated `artifact_db.maintenance` package and removed the misplaced rollup maintenance path.
