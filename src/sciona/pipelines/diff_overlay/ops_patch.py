@@ -27,9 +27,14 @@ def apply_overlay_to_payload_object(
 ) -> dict[str, object]:
     if not overlay:
         return payload
-    patched, patched_projection = apply_overlay_to_payload(
-        payload, overlay, snapshot_id=snapshot_id, conn=conn, reducer_id=reducer_id
-    )
+    reducer_applied_overlay = bool(payload.pop("_overlay_applied_by_reducer", False))
+    if reducer_applied_overlay:
+        patched = payload
+        patched_projection = True
+    else:
+        patched, patched_projection = apply_overlay_to_payload(
+            payload, overlay, snapshot_id=snapshot_id, conn=conn, reducer_id=reducer_id
+        )
     projection = _resolve_projection(payload, reducer_id)
     warnings = list(overlay.warnings)
     profile = _OVERLAY_PROFILE.get(projection, None)

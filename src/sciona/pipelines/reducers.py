@@ -21,7 +21,7 @@ from ..data_storage.connections import artifact as artifact_db
 from . import diff_overlay
 from .errors import WorkflowError
 from ..runtime.paths import get_artifact_db_path, get_db_path
-from ..reducers.helpers.context import use_artifact_connection
+from ..reducers.helpers.context import use_artifact_connection, use_overlay_payload
 
 
 def _ensure_clean_repo(repo_root: Optional[Path] = None) -> None:
@@ -122,9 +122,10 @@ def emit(
                 try:
                     render_kwargs = dict(resolved_kwargs)
                     render_kwargs.pop("diff_mode", None)
-                    payload = reducer.render(
-                        snapshot_id, conn, repo_state.repo_root, **render_kwargs
-                    )
+                    with use_overlay_payload(overlay):
+                        payload = reducer.render(
+                            snapshot_id, conn, repo_state.repo_root, **render_kwargs
+                        )
                 except ValueError as exc:
                     raise WorkflowError(str(exc), code="reducer_error") from exc
                 if not isinstance(payload, dict):

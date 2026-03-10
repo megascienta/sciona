@@ -52,6 +52,24 @@ Navigation speed: 7
 Confidence: 8
 Overall usefulness: 7
 
+## Task 18 - PR 1 overlay reducer foundation
+
+Task:
+Add reducer overlay context plumbing and a duplicate-patch guard so reducers can consume overlay data directly without violating overlay patch semantics.
+
+SCIONA usage:
+No new reducer queries used during implementation; planning had already established the affected pipeline and reducer surfaces.
+
+Observation:
+SCIONA was not needed for the code edit. Direct source inspection was essential because the main risk was architectural: avoiding double-application of overlay state after reducers become overlay-aware.
+Confusion or limitations: The existing design splits overlay logic between reducer rendering and patchers, so the foundation work had to preserve compatibility before any reducer-family changes.
+
+Ratings:
+Structural clarity: 6
+Navigation speed: 6
+Confidence: 8
+Overall usefulness: 6
+
 ## Task 15 - Hotspot import fan rollup fix
 
 Task:
@@ -87,6 +105,24 @@ Structural clarity: 5
 Navigation speed: 5
 Confidence: 8
 Overall usefulness: 5
+
+## Task 17 - Overlay-aware reducer PR planning
+
+Task:
+Propose clean PRs to make relation/metric reducers consume overlay/status-backed data instead of emitting placeholder adjusted/transition fields.
+
+SCIONA usage:
+Used `sciona search` to ground reducer locations, then inspected reducer implementations, overlay profile, and overlay patchers to map the existing committed-vs-overlay seam.
+
+Observation:
+SCIONA helped quickly confirm file ownership. The substantive planning depended on direct inspection because the important distinction was semantic: reducers already have patcher support, but do not themselves read overlay/status-backed facts.
+Confusion or limitations: “overlay/status DB data” is partly a terminology issue because overlay support currently comes from overlay bundles/patchers, not just direct DB tables.
+
+Ratings:
+Structural clarity: 7
+Navigation speed: 7
+Confidence: 8
+Overall usefulness: 7
 
 ## Task 9 - Enable CLI shell completion
 

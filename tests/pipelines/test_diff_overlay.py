@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 from sciona.pipelines.reducers import emit
 from sciona.reducers import overlay_projection_status_summary
@@ -21,6 +22,7 @@ from sciona.pipelines.diff_overlay.patchers.core import (
 )
 from sciona.pipelines.diff_overlay.patchers.core import patch_dependency_edges
 from sciona.pipelines.diff_overlay.ops_get import _OVERLAY_PROFILE
+from sciona.pipelines.diff_overlay.ops_patch import apply_overlay_to_payload_object
 from sciona.pipelines.diff_overlay.types import OverlayPayload
 from tests.helpers import core_conn, parse_json_payload, qualify_repo_name
 
@@ -89,6 +91,46 @@ def test_dirty_overlay_summary_mode(repo_with_snapshot):
     assert diff["worktree_hash"]
     assert diff.get("affected") is True
     assert "nodes" in diff.get("affected_by", [])
+
+
+def test_apply_overlay_skips_duplicate_patch_when_reducer_already_applied():
+    overlay = OverlayPayload(
+        worktree_hash="hash",
+        snapshot_commit="snap",
+        base_commit="base",
+        base_commit_strategy="head",
+        head_commit="head",
+        merge_base="merge",
+        nodes={"add": [], "remove": []},
+        edges={"add": [], "remove": []},
+        calls={"add": [], "remove": []},
+        summary=None,
+        warnings=[],
+    )
+    payload = {
+        "projection": "fan_summary",
+        "_overlay_applied_by_reducer": True,
+        "calls": {
+            "total": 1,
+            "committed_total": 1,
+            "adjusted_total": 2,
+            "delta_total": 1,
+        },
+    }
+
+    patched = apply_overlay_to_payload_object(
+        payload,
+        overlay,
+        repo_root=Path("."),
+        snapshot_id="snap",
+        conn=None,
+        reducer_id="fan_summary",
+    )
+
+    assert "_overlay_applied_by_reducer" not in patched
+    assert patched["calls"]["adjusted_total"] == 2
+    assert patched["_diff"]["overlay_available"] is True
+    assert "projection_not_patched" not in (patched["_diff"].get("warnings") or [])
 
 
 def test_patch_dependency_edges_marks_overlay_added_and_removed():
