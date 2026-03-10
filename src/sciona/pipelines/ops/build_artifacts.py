@@ -51,6 +51,7 @@ def build_artifacts_for_snapshot(
         conn=conn,
         snapshot_id=snapshot_id,
         call_artifacts=call_artifacts,
+        progress_factory=progress_factory,
         phase_reporter=phase_reporter,
     )
     return call_artifacts, warnings
@@ -62,13 +63,12 @@ def refresh_artifact_state(
     conn,
     snapshot_id: str,
     call_artifacts: Sequence[CallExtractionRecord],
+    progress_factory=None,
     phase_reporter=None,
 ) -> None:
     def _timed_phase(label: str, func):
         return func()
 
-    if phase_reporter:
-        phase_reporter("Refreshing artifacts")
     current_node_ids = _timed_phase(
         "load_current_node_ids",
         lambda: set(core_read.snapshot_structural_ids(conn, snapshot_id)),
@@ -90,8 +90,6 @@ def refresh_artifact_state(
                         artifact_conn, current_node_ids
                     ),
                 )
-                if phase_reporter:
-                    phase_reporter("Writing call artifacts")
                 _timed_phase(
                     "write_call_artifacts",
                     lambda: artifact_derivation.write_call_artifacts(
@@ -101,6 +99,7 @@ def refresh_artifact_state(
                         call_records=call_artifacts,
                         eligible_callers=eligible_callers,
                         diagnostics=call_resolution_diagnostics,
+                        progress_factory=progress_factory,
                     ),
                 )
                 artifact_write.set_rebuild_metadata(
@@ -108,22 +107,22 @@ def refresh_artifact_state(
                     key=f"call_resolution_diagnostics:{snapshot_id}",
                     value=json.dumps(call_resolution_diagnostics, sort_keys=True),
                 )
-                if phase_reporter:
-                    phase_reporter("Rebuilding graph index")
                 _timed_phase(
                     "rebuild_graph_index",
                     lambda: rebuild_graph_index(
-                        artifact_conn, core_conn=conn, snapshot_id=snapshot_id
+                        artifact_conn,
+                        core_conn=conn,
+                        snapshot_id=snapshot_id,
+                        progress_factory=progress_factory,
                     ),
                 )
-                if phase_reporter:
-                    phase_reporter("Rebuilding graph rollups")
                 _timed_phase(
                     "rebuild_graph_rollups",
                     lambda: artifact_derivation.rebuild_graph_rollups(
                         artifact_conn,
                         core_conn=conn,
                         snapshot_id=snapshot_id,
+                        progress_factory=progress_factory,
                     ),
                 )
             artifact_write.mark_rebuild_completed(

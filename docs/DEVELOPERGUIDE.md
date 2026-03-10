@@ -187,9 +187,8 @@ Current user-visible build phases are:
 - `Discovering files`
 - `Preparing snapshots`
 - `Registering modules`
-- `Analyzing`
-- `Analyzing artifacts`
-- `Refreshing artifacts`
+- `Building structural index`
+- `Deriving call artifacts`
 - `Writing call artifacts`
 - `Rebuilding graph index`
 - `Rebuilding graph rollups`
@@ -216,9 +215,8 @@ Timing semantics:
   - `discover_files`
   - `prepare_snapshots`
   - `register_modules`
-  - `analyze`
-  - `analyze_artifacts`
-  - `refresh_artifacts`
+  - `build_structural_index`
+  - `derive_call_artifacts`
   - `write_call_artifacts`
   - `rebuild_graph_index`
   - `rebuild_graph_rollups`

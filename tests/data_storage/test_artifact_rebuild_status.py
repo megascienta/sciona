@@ -71,7 +71,7 @@ def test_build_wall_seconds_and_phase_timings_for_snapshot(tmp_path):
         artifact_write.set_rebuild_metadata(
             conn,
             key="build_phase_timings:snap_4",
-            value='{"analyze": 3.5, "rebuild_graph_rollups": 0.2}',
+            value='{"build_structural_index": 3.5, "rebuild_graph_rollups": 0.2}',
         )
         conn.commit()
         assert artifact_read.build_wall_seconds_for_snapshot(
@@ -82,7 +82,7 @@ def test_build_wall_seconds_and_phase_timings_for_snapshot(tmp_path):
             conn,
             snapshot_id="snap_4",
         ) == {
-            "analyze": 3.5,
+            "build_structural_index": 3.5,
             "rebuild_graph_rollups": 0.2,
         }
     finally:

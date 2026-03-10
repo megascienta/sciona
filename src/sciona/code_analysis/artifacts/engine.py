@@ -78,7 +78,7 @@ class ArtifactEngine:
         progress = None
         if self._progress_factory:
             progress = self._progress_factory(
-                "Analyzing artifacts", len(file_snapshots)
+                "Deriving call artifacts", len(file_snapshots)
             )
         call_artifacts: List[CallExtractionRecord] = []
         all_call_records: list[tuple[str, object]] = []

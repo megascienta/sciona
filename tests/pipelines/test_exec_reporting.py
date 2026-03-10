@@ -84,7 +84,7 @@ def test_snapshot_report_includes_wall_seconds_and_phase_timings(repo_with_snaps
         artifact_write.set_rebuild_metadata(
             conn,
             key=f"build_phase_timings:{snapshot_id}",
-            value='{"discover_files": 0.12, "analyze": 2.75}',
+            value='{"discover_files": 0.12, "build_structural_index": 2.75}',
         )
         conn.commit()
     finally:
@@ -95,7 +95,7 @@ def test_snapshot_report_includes_wall_seconds_and_phase_timings(repo_with_snaps
     assert payload["build_wall_seconds"] == pytest.approx(4.5)
     assert payload["build_phase_timings"] == {
         "discover_files": pytest.approx(0.12),
-        "analyze": pytest.approx(2.75),
+        "build_structural_index": pytest.approx(2.75),
     }
 
 

@@ -28,7 +28,10 @@ def _fake_summary():
         "created_at": "2026-03-04T00:00:00Z",
         "build_total_seconds": 1.234,
         "build_wall_seconds": 1.5,
-        "build_phase_timings": {"analyze": 0.8, "rebuild_graph_rollups": 0.1},
+        "build_phase_timings": {
+            "build_structural_index": 0.8,
+            "rebuild_graph_rollups": 0.1,
+        },
         "artifact_db_available": True,
         "languages": [
             {
@@ -162,7 +165,7 @@ def test_cli_status_json_emits_payload(cli_app, cli_runner, monkeypatch):
     assert payload["summary"]["snapshot_id"] == "snap-1"
     assert payload["summary"]["build_total_seconds"] == 1.234
     assert payload["summary"]["build_wall_seconds"] == 1.5
-    assert payload["summary"]["build_phase_timings"]["analyze"] == 0.8
+    assert payload["summary"]["build_phase_timings"]["build_structural_index"] == 0.8
     assert payload["summary"]["languages"][0]["drop_reasons"]["no_candidates"] == 1
 
 

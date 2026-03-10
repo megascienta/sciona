@@ -43,11 +43,17 @@ def rebuild_graph_rollups(
     *,
     core_conn,
     snapshot_id: str,
+    progress_factory=None,
 ) -> None:
     core_read.validate_snapshot_for_read(core_conn, snapshot_id, require_committed=True)
+    progress = progress_factory("Rebuilding graph rollups", 4) if progress_factory else None
     artifact_persistence.reset_graph_rollups(artifact_conn)
+    if progress:
+        progress.advance(1)
     node_rows = core_read.list_nodes_with_names(core_conn, snapshot_id)
     if not node_rows:
+        if progress:
+            progress.close()
         return
     module_names = {
         qualified_name
@@ -86,11 +92,19 @@ def rebuild_graph_rollups(
             artifact_conn,
             rows=method_to_class.items(),
         )
+        if progress:
+            progress.advance(1)
         artifact_persistence.rebuild_module_call_edges(artifact_conn)
         artifact_persistence.rebuild_class_call_edges(artifact_conn)
+        if progress:
+            progress.advance(1)
         artifact_persistence.rebuild_node_fan_stats(artifact_conn)
+        if progress:
+            progress.advance(1)
     finally:
         artifact_persistence.reset_rollup_temp_tables(artifact_conn)
+        if progress:
+            progress.close()
 
 
 def write_call_artifacts(
@@ -101,6 +115,7 @@ def write_call_artifacts(
     call_records: Sequence[CallExtractionRecord],
     eligible_callers: Iterable[str] | None = None,
     diagnostics: dict[str, object] | None = None,
+    progress_factory=None,
 ) -> None:
     """Write filtered artifact callsites and derived call edges for eligible callers.
 
@@ -143,9 +158,12 @@ def write_call_artifacts(
     node_hashes = _load_node_hashes(core_conn, snapshot_id, caller_set)
     processed_callers: set[str] = set()
     diagnostics_totals = _ensure_rollup_diagnostics(diagnostics)
+    progress = progress_factory("Writing call artifacts", len(call_records)) if progress_factory and call_records else None
     for record in call_records:
         caller_id = record.caller_structural_id
         if caller_id not in caller_set:
+            if progress:
+                progress.advance(1)
             continue
         caller_diag = _ensure_caller_diagnostics(diagnostics, record)
         caller_module = module_lookup.get(caller_id)
@@ -205,6 +223,8 @@ def write_call_artifacts(
                 diagnostics_totals,
                 reason="no_resolved_callees",
             )
+            if progress:
+                progress.advance(1)
             continue
         if caller_id in processed_callers:
             _record_resolution_drop(
@@ -212,6 +232,8 @@ def write_call_artifacts(
                 diagnostics_totals,
                 reason="duplicate_caller_record",
             )
+            if progress:
+                progress.advance(1)
             continue
         call_hash = node_hashes.get(caller_id)
         if not call_hash:
@@ -220,6 +242,8 @@ def write_call_artifacts(
                 diagnostics_totals,
                 reason="missing_call_hash",
             )
+            if progress:
+                progress.advance(1)
             continue
         processed_callers.add(caller_id)
         artifact_persistence.upsert_node_calls(
@@ -228,6 +252,10 @@ def write_call_artifacts(
             callee_ids=sorted(callee_ids),
             call_hash=call_hash,
         )
+        if progress:
+            progress.advance(1)
+    if progress:
+        progress.close()
 
 
 __all__ = [

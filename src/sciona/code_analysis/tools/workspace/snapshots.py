@@ -22,6 +22,7 @@ def prepare_file_snapshots(
     repo_root: Path,
     records: List[FileRecord],
     *,
+    progress_factory=None,
     on_error: Optional[Callable[[Path, Exception], None]] = None,
 ) -> List[FileSnapshot]:
     """Build FileSnapshot entries with git blob and line metadata."""
@@ -29,6 +30,9 @@ def prepare_file_snapshots(
     blob_shas = git_ops.blob_sha_batch(
         repo_root, [record.relative_path for record in records]
     )
+    progress = None
+    if progress_factory is not None and records:
+        progress = progress_factory("Preparing snapshots", len(records))
     for record in records:
         _ensure_repo_contained(repo_root, record)
         blob = blob_shas.get(record.relative_path) or git_ops.blob_sha(
@@ -46,6 +50,10 @@ def prepare_file_snapshots(
                 content=None,
             )
         )
+        if progress is not None:
+            progress.advance(1)
+    if progress is not None:
+        progress.close()
     return snapshots
 
 

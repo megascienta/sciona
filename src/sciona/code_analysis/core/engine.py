@@ -131,19 +131,16 @@ class BuildEngine:
             def _warn_line_count(path: Path, exc: Exception) -> None:
                 self._warn(f"Could not count lines in {path}: {exc}")
 
-            if self._phase_reporter:
-                self._phase_reporter("Preparing snapshots")
             changed_snapshots = snapshots.prepare_file_snapshots(
                 self.repo_root,
                 records,
+                progress_factory=self._progress_factory,
                 on_error=_warn_line_count,
             )
 
             inserted_nodes = 0
             processed_files = 0
             if changed_snapshots:
-                if self._phase_reporter:
-                    self._phase_reporter("Registering modules")
                 inserted_nodes += self._register_modules(snapshot_id, changed_snapshots)
             module_index: set[str] = set()
             if changed_snapshots:
@@ -156,7 +153,9 @@ class BuildEngine:
                     )
             progress = None
             if changed_snapshots and self._progress_factory:
-                progress = self._progress_factory("Analyzing", len(changed_snapshots))
+                progress = self._progress_factory(
+                    "Building structural index", len(changed_snapshots)
+                )
             try:
                 for file_snapshot in changed_snapshots:
                     analyzer = resolve_analyzer(file_snapshot, self.analyzers)
@@ -317,13 +316,31 @@ class BuildEngine:
             module_name = analyzer.module_name(self.workspace_root, file_snapshot)
             module_names.add(module_name)
             module_snapshots.append((file_snapshot, module_name))
+        directory_count = len(
+            {
+                parent
+                for file_snapshot in snapshots
+                for parent in file_snapshot.record.relative_path.parents
+                if parent != Path(".")
+            }
+        )
+        progress = None
+        if self._progress_factory and (module_snapshots or directory_count):
+            progress = self._progress_factory(
+                "Registering modules",
+                len(module_snapshots) + directory_count,
+            )
         for file_snapshot, module_name in module_snapshots:
             inserted += self.assembler.register_module_node(
                 snapshot_id, file_snapshot, module_name
             )
+            if progress:
+                progress.advance(1)
         inserted += self._register_entry_point_modules(
-            snapshot_id, snapshots, module_names
+            snapshot_id, snapshots, module_names, progress=progress
         )
+        if progress:
+            progress.close()
         return inserted
 
     def _register_entry_point_modules(
@@ -331,6 +348,8 @@ class BuildEngine:
         snapshot_id: str,
         snapshots: List[FileSnapshot],
         existing_modules: set[str],
+        *,
+        progress=None,
     ) -> int:
         directories: set[Path] = set()
         for file_snapshot in snapshots:
@@ -347,6 +366,8 @@ class BuildEngine:
                 treat_init_as_package=False,
             )
             if module_name in existing_modules:
+                if progress:
+                    progress.advance(1)
                 continue
             record = FileRecord(
                 path=self.workspace_root / directory,
@@ -367,4 +388,6 @@ class BuildEngine:
                 module_name,
                 node_type="entry_point",
             )
+            if progress:
+                progress.advance(1)
         return inserted

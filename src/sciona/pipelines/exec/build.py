@@ -72,7 +72,7 @@ def build_repo(
     source: str = "scan",
 ) -> BuildResult:
     started_at = perf_counter()
-    build_progress = make_build_progress(total_steps=10)
+    build_progress = make_build_progress(total_steps=9)
     phase_reporter = build_progress.emit_phase
     progress_factory = build_progress.make_progress_factory()
     workspace = workspace_root or repo_state.repo_root

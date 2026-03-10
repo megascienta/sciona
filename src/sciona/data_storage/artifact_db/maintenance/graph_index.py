@@ -19,14 +19,20 @@ def rebuild_graph_index(
     *,
     core_conn,
     snapshot_id: str,
+    progress_factory=None,
 ) -> None:
     core_read.validate_snapshot_for_read(core_conn, snapshot_id, require_committed=True)
+    progress = progress_factory("Rebuilding graph index", 4) if progress_factory else None
     write_graph.reset_graph_index(artifact_conn)
+    if progress:
+        progress.advance(1)
     nodes = core_read.list_structural_nodes(core_conn, snapshot_id)
     write_graph.insert_graph_nodes(
         artifact_conn,
         rows=nodes,
     )
+    if progress:
+        progress.advance(1)
     graph_edges = core_read.list_edges(core_conn, snapshot_id)
     call_edges = artifact_conn.execute(
         """
@@ -45,6 +51,9 @@ def rebuild_graph_index(
             ),
         ),
     )
+    if progress:
+        progress.advance(2)
+        progress.close()
 
 
 __all__ = ["CALL_EDGE_KIND", "rebuild_graph_index"]
