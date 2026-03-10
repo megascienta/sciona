@@ -92,7 +92,7 @@ tracked git files
 ```
 
 Current adapter contract is `AdapterSpecV1` in
-`src/sciona/code_analysis/core/extract/contracts/language_adapter.py`.
+`src/sciona/code_analysis/core/extract/interfaces/language_adapter.py`.
 
 Required descriptor fields:
 
@@ -119,7 +119,7 @@ Implementation notes:
 - Query helpers stay separate in
   `src/sciona/code_analysis/core/extract/parsing/query_helpers.py`
 - Strict call candidate acceptance remains core-owned in
-  `src/sciona/code_analysis/contracts/strict_call_contract.py` and
+  `src/sciona/code_analysis/analysis_contracts/strict_call_contract.py` and
   `src/sciona/code_analysis/core/structural_assembler.py`
 - Reducer-facing `CALLS`, `call_sites`, graph edges, fan stats, and rollups are
   finalized in ArtifactDB, not served directly from CoreDB `edges`
