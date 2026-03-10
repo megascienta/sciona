@@ -258,6 +258,16 @@ Fallback: source inspection, import sweeps with `rg`, targeted `pytest` in `mult
 Observations: SCIONA mainly confirmed that the registration boundary was already structurally sound; this was a small follow-up cleanup rather than a discovery-heavy refactor.
 RATINGS (1-10): Structural clarity 6 | Navigation speed 5 | Confidence in answers 8 | Overall usefulness 5
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 6 | Scope reduction vs baseline 5 | Query friction vs baseline 4 | Net usefulness vs baseline 5
+## Task 34 - cli root cleanup
+Copilot: Codex
+Task description: Removed the retired root CLI module paths after moving surfaces and shared helpers into their new canonical subpackages.
+Task type: repository maintenance
+SCIONA usage: reused the prior CLI review and follow-up import checks to confirm the package could lose the old root paths without preserving wrappers.
+Effect on workflow: confirm assumptions; reduce search space
+Fallback: source inspection, repo-wide import sweeps with `rg`, targeted `pytest` in `multiphysics`
+Observations: SCIONA had little direct impact here; this was mostly a cleanup pass to finish the structural refactor and verify no stale imports remained.
+RATINGS (1-10): Structural clarity 7 | Navigation speed 6 | Confidence in answers 8 | Overall usefulness 6
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 6 | Scope reduction vs baseline 6 | Query friction vs baseline 4 | Net usefulness vs baseline 6
 ## Task 13 - artifact_db maintenance package
 Copilot: Codex
 Task description: Moved graph rebuild logic into a dedicated `artifact_db.maintenance` package and removed the misplaced rollup maintenance path.
