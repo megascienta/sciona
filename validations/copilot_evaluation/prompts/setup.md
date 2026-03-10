@@ -1,46 +1,81 @@
-For this repository session we will evaluate the usefulness of SCIONA during a series of repository checks.
+For this repository session we will evaluate how SCIONA affects an AI coding assistant’s workflow.
 
-Please follow these rules during the whole thread:
+Please follow the rules below during the entire session.
 
-1. Maintain a session log file named:
+Create and maintain a file:
 
-   sciona_session_notes.md
+validations/copilot_evaluation/reports/sciona_session_notes.md
 
-2. After every major task block or before you perform any context compression, append a short note to this file.
+After each major task block (or before context compression if you detect it), append a short structured entry.
 
-3. Each note should contain:
+Do not overwrite earlier entries. Always append.
 
-   - Timestamp (relative, e.g. Task 1, Task 2)
-   - Task description
-   - What SCIONA queries were used
-   - Whether SCIONA helped locate information faster or more reliably
-   - Any confusion or limitations encountered
-   - A short subjective rating (1–5) for:
+Each entry should remain concise (8–12 lines).
 
-        Structural clarity
-        Navigation speed
-        Confidence in answer correctness
-        Overall usefulness
+## Task <n> – <short title>
 
-4. Keep entries short (5–10 lines).
+Copilot
+Identify yourself
 
-5. Do not overwrite previous notes. Always append.
+Task description
+Short description of the task performed.
 
-Example format:
+Task type
+Classify the task as one of:
+- structural discovery
+- architecture review
+- implementation
+- semantic investigation
+- runtime / test validation
+- repository maintenance
 
-## Task 1 – Structural module review
+SCIONA usage
+Which SCIONA queries or structural information were used.
 
-Task:
-Review module structure and detect missing exports.
+Effect on workflow
+Did SCIONA:
+- identify ownership
+- reduce search space
+- confirm assumptions
+- have little impact
+- create friction
 
-SCIONA usage:
-Used call graph and symbol queries to locate module boundaries.
+Fallback
+What tools or actions were still required:
+(e.g. source inspection, rg search, pytest, reading tests)
 
-Observation:
-SCIONA significantly reduced time needed to find entry points.
+Observations
+Short note on where SCIONA helped or failed.
 
-Ratings:
-Structural clarity: 5
-Navigation speed: 4
-Confidence: 5
-Overall usefulness: 5
+RATINGS (1–10):
+
+Structural clarity
+Navigation speed
+Confidence in answers
+Overall usefulness
+
+
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1–10):
+
+Estimate the following relative to normal repository navigation without SCIONA.
+
+Time saved vs baseline
+Confidence gain vs baseline
+Scope reduction vs baseline
+Query friction vs baseline
+Net usefulness vs baseline
+
+
+IMPORTANT EVALUATION RULES:
+
+1. Base observations on actual workflow effects during the task.
+
+2. Distinguish clearly between:
+   - structural questions (where SCIONA may help)
+   - semantic/runtime questions (where SCIONA may not help)
+
+3. Avoid promotional language. Record neutral observations.
+
+4. If SCIONA did not help for a task, record that explicitly.
+
+5. Do not speculate about features not used during the task.

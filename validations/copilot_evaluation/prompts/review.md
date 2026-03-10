@@ -2,7 +2,7 @@ Task: Module Architecture Review
 
 Review the module:
 
-<module_name>
+<module_name> = 
 
 Focus strictly on structural aspects of the repository.
 
@@ -40,7 +40,7 @@ Important constraints:
 
 Output format:
 
-Module: <name>
+Module: <module_name>
 
 Current structure summary
 - number of files
@@ -55,11 +55,3 @@ Findings
 Improvement proposals
 - specific structural changes
 - expected benefit
-
-After completing the review:
-1. Append a short session note to sciona_session_notes.md.
-2. Include ratings for:
-   - Structural clarity
-   - Navigation speed
-   - Confidence in conclusions
-   - Overall usefulness of SCIONA
