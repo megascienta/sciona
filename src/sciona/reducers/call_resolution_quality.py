@@ -9,7 +9,7 @@ from collections import Counter, defaultdict
 from typing import Dict, List
 
 from ..data_storage.core_db import read_ops as core_read
-from ..pipelines.diff_overlay.patchers.analytics import patch_call_resolution_quality
+from ..pipelines.diff_overlay.patching.analytics import patch_call_resolution_quality
 from .helpers.shared import queries
 from .helpers.artifact.graph_edges import artifact_db_available
 from .helpers.artifact.reporting import load_callsite_caller_status_counts

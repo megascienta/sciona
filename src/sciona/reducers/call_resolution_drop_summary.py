@@ -10,7 +10,7 @@ from pathlib import Path
 
 from ..data_storage.artifact_db.reporting import read_reporting as artifact_reporting
 from ..data_storage.core_db import read_ops as core_read
-from ..pipelines.diff_overlay.patchers.analytics import (
+from ..pipelines.diff_overlay.patching.analytics import (
     patch_call_resolution_drop_summary,
 )
 from .helpers.shared import queries

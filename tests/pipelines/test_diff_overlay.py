@@ -8,19 +8,19 @@ from pathlib import Path
 
 from sciona.pipelines.reducers import emit
 from sciona.reducers import overlay_projection_status_summary
-from sciona.pipelines.diff_overlay.patchers.analytics import patch_callsite_index
-from sciona.pipelines.diff_overlay.patchers.analytics import (
+from sciona.pipelines.diff_overlay.patching.analytics import patch_callsite_index
+from sciona.pipelines.diff_overlay.patching.analytics import (
     patch_call_resolution_drop_summary,
     patch_call_resolution_quality,
     patch_classifier_call_graph_summary,
     patch_fan_summary,
     patch_module_call_graph_summary,
 )
-from sciona.pipelines.diff_overlay.patchers.core import (
+from sciona.pipelines.diff_overlay.patching.core import (
     patch_file_outline,
     patch_symbol_lookup,
 )
-from sciona.pipelines.diff_overlay.patchers.core import patch_dependency_edges
+from sciona.pipelines.diff_overlay.patching.core import patch_dependency_edges
 from sciona.pipelines.diff_overlay.ops.get import _OVERLAY_PROFILE
 from sciona.pipelines.diff_overlay.ops.patch import apply_overlay_to_payload_object
 from sciona.pipelines.diff_overlay.types import OverlayPayload

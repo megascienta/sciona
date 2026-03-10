@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional
 
-from ..pipelines.diff_overlay.patchers.analytics import (
+from ..pipelines.diff_overlay.patching.analytics import (
     patch_classifier_call_graph_summary,
 )
 from .helpers.shared import queries

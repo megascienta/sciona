@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from .patchers.common import (
+from .common import (
     _resolve_projection,
     apply_overlay_to_payload,
     edge_from_value,
@@ -16,7 +16,7 @@ from .patchers.common import (
     node_from_value,
     patch_summary_payload,
 )
-from .patchers.core import (
+from .core import (
     patch_callable_overview,
     patch_classifier_overview,
     patch_dependency_edges,
@@ -26,7 +26,7 @@ from .patchers.core import (
     patch_symbol_lookup,
     patch_symbol_references,
 )
-from .patchers.analytics import (
+from .analytics import (
     patch_call_neighbors,
     patch_callsite_index,
     patch_classifier_call_graph_summary,
@@ -34,7 +34,7 @@ from .patchers.analytics import (
     patch_hotspot_summary,
     patch_module_call_graph_summary,
 )
-from .patchers.fan_utils import (
+from .fan_utils import (
     _fan_deltas_for_node,
     _match_module_name,
     _module_for_node,
