@@ -57,9 +57,11 @@ def compact_mode_hint(reducer_module) -> str | None:
     sig = inspect.signature(signature)
     if "compact" not in sig.parameters:
         return None
-    if "top_k" in sig.parameters:
-        return "`--compact` [`--top-k` TOP_K]"
-    return "`--compact`"
+    parts = ["`--compact`"]
+    for name in ("top_k", "limit", "depth"):
+        if name in sig.parameters:
+            parts.append(f"[`--{name.replace('_', '-')}` {name.upper()}]")
+    return " ".join(parts)
 
 
 def _is_bool_parameter(param: inspect.Parameter) -> bool:

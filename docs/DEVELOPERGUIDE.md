@@ -73,6 +73,10 @@ Do not use this document to redefine structural semantics.
   agent-facing orientation. Prefer compact output first for ownership,
   dependency, and migration-scope questions; switch to full payloads only when
   the compact view is insufficient.
+- Compact-capable reducers should expose a first-class `compact` flag rather
+  than relying on truncation alone. Compact payloads should use
+  `payload_kind: "compact_summary"` and preserve the filter context, headline
+  totals, and bounded preview blocks needed for agent decisions.
 - `tests/`: API, code-analysis, data-storage, pipeline, reducer, and runtime
   coverage
 

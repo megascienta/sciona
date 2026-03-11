@@ -56,7 +56,7 @@ def test_render_reducer_list_orders_roles() -> None:
     source_index = lines.index("Category: source")
     assert orientation_index < source_index
     assert any(line.startswith("  Command: reducer --id a") for line in lines)
-    assert "  Compact: yes (`--compact` [`--top-k` TOP_K])" in lines
+    assert "  Compact: yes (`--compact` [`--top-k` TOP_K] [`--limit` LIMIT])" in lines
     assert "  Summary: A" in lines
 
 
