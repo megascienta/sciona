@@ -36,6 +36,13 @@ RESPONSIBILITY_FORBIDDEN_IMPORTS = {
     },
 }
 
+ALLOWED_IMPORT_PREFIXES = {
+    "reducers": {
+        "pipelines.diff_overlay.patching",
+        "sciona.pipelines.diff_overlay.patching",
+    },
+}
+
 
 def _module_from_importfrom(path: Path, node: ast.ImportFrom) -> str | None:
     if node.level == 0:
@@ -87,10 +94,16 @@ def _target_layer(module: str) -> str:
 def _scan_forbidden(top_package: str) -> list[str]:
     violations: list[str] = []
     forbidden = FORBIDDEN_IMPORTS[top_package]
+    allowed_prefixes = ALLOWED_IMPORT_PREFIXES.get(top_package, set())
     package_root = ROOT / top_package
     for path in package_root.rglob("*.py"):
         rel = path.relative_to(ROOT)
         for module, lineno in _iter_imports(path):
+            if any(
+                module == prefix or module.startswith(f"{prefix}.")
+                for prefix in allowed_prefixes
+            ):
+                continue
             target = _target_layer(module)
             if target in forbidden:
                 violations.append(f"{rel}:{lineno} imports {module!r}")

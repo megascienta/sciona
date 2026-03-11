@@ -1,7 +1,11 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Repository execution helpers (mechanism only)."""
+"""Repository execution helpers over resolved repository state.
+
+This module intentionally avoids repo discovery and policy decisions. Those
+concerns live in `pipelines.ops` and `pipelines.policy`.
+"""
 
 from __future__ import annotations
 

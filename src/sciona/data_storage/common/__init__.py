@@ -3,6 +3,12 @@
 
 """Shared storage primitives used by CoreDB and ArtifactDB layers."""
 
-from . import encoding, schema_utils, sql_utils, transactions
+from . import connection_settings, encoding, schema_utils, sql_utils, transactions
 
-__all__ = ["encoding", "schema_utils", "sql_utils", "transactions"]
+__all__ = [
+    "connection_settings",
+    "encoding",
+    "schema_utils",
+    "sql_utils",
+    "transactions",
+]

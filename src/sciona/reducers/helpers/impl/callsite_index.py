@@ -8,7 +8,7 @@ from __future__ import annotations
 from collections import Counter
 from typing import Dict, List, Optional
 
-from ....runtime.overlay.patching.analytics import patch_callsite_index
+from ....pipelines.diff_overlay.patching.analytics import patch_callsite_index
 from ..shared import queries
 from ..artifact.call_sites import load_callsite_enrichment
 from ..artifact.graph_edges import (

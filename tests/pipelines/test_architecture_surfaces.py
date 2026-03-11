@@ -53,20 +53,24 @@ def test_reducers_public_surface_exports_modules():
         ), f"Reducer module '{name}' must expose render()"
 
 
-def test_reducers_do_not_import_pipeline_modules_directly():
+def test_reducers_only_import_overlay_patching_from_pipelines():
     root = Path("src/sciona/reducers")
     violations: list[str] = []
     for path in sorted(root.rglob("*.py")):
         tree = ast.parse(path.read_text(encoding="utf-8"))
         for node in ast.walk(tree):
             if isinstance(node, ast.ImportFrom) and node.module:
-                if node.module.startswith("sciona.pipelines") or node.module.startswith(
-                    "..pipelines"
+                if node.module.startswith("sciona.pipelines") and not node.module.startswith(
+                    "sciona.pipelines.diff_overlay.patching"
                 ):
                     violations.append(f"{path}:{node.lineno}:{node.module}")
             if isinstance(node, ast.Import):
                 for alias in node.names:
-                    if alias.name.startswith("sciona.pipelines"):
+                    if alias.name.startswith(
+                        "sciona.pipelines"
+                    ) and not alias.name.startswith(
+                        "sciona.pipelines.diff_overlay.patching"
+                    ):
                         violations.append(f"{path}:{node.lineno}:{alias.name}")
     assert not violations, violations
 

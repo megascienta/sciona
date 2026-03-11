@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional
 
-from ..runtime.overlay.patching.analytics import patch_module_call_graph_summary
+from ..pipelines.diff_overlay.patching.analytics import patch_module_call_graph_summary
 from .helpers.shared import queries
 from .helpers.artifact.graph_edges import artifact_db_available
 from .helpers.artifact.graph_rollups import load_module_call_edges

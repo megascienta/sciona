@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Overlay patching for reducer payloads."""
+"""Canonical overlay patching for reducer payloads."""
 
 from __future__ import annotations
 

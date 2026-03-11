@@ -1,11 +1,14 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Database connection helpers and pooling."""
+"""Database connection helpers and pooling.
+
+This module owns connection lifecycle only. Timeout/config resolution lives in
+`data_storage.common.connection_settings`.
+"""
 
 from __future__ import annotations
 
-import os
 import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
@@ -13,38 +16,19 @@ from threading import Lock, local
 from typing import Callable, Iterator
 from urllib.parse import quote
 
-from ..runtime import config as runtime_config
-from ..runtime.config import defaults
 from ..runtime.logging import get_logger
+from .common.connection_settings import resolve_db_timeout
 from .core_db import schema as core_schema
 from .artifact_db import schema as artifact_schema
 
 _LOGGER = get_logger("data_storage.connections")
-
-
-def _resolve_db_timeout(repo_root: Path | None) -> float:
-    env_override = os.getenv("SCIONA_DB_TIMEOUT")
-    if env_override:
-        try:
-            return float(env_override)
-        except ValueError:
-            pass
-    if repo_root is not None:
-        try:
-            settings = runtime_config.load_runtime_config(repo_root).database
-            return float(settings.timeout)
-        except Exception:
-            pass
-    return float(defaults.DEFAULT_DB_TIMEOUT)
-
-
 def _base_connect(
     db_path: Path,
     *,
     repo_root: Path | None = None,
     read_only: bool = False,
 ) -> sqlite3.Connection:
-    timeout = _resolve_db_timeout(repo_root)
+    timeout = resolve_db_timeout(repo_root)
     if not read_only:
         db_path.parent.mkdir(parents=True, exist_ok=True)
     mode = "ro" if read_only else "rwc"

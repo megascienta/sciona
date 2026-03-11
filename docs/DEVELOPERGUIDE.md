@@ -38,7 +38,9 @@ Do not use this document to redefine structural semantics.
 - `src/sciona/api/`: stable public addon-facing namespace; public root exports
   only `sciona.api.addons` and must not carry CLI-only bridge surfaces
 - `src/sciona/runtime/`: paths, config loading, logging, git helpers, time,
-  reducer metadata, addon API version contract, and shared constants
+  reducer metadata, addon API version contract, shared constants, and runtime
+  overlay-facing types; canonical overlay computation/patching does not live
+  here
 - `src/sciona/data_storage/core_db/`: committed structural snapshot schema and
   read/write operations
 - `src/sciona/data_storage/artifact_db/`: reducer-facing query storage for call
@@ -62,13 +64,18 @@ Do not use this document to redefine structural semantics.
   policy resolution
 - `src/sciona/pipelines/exec/`: execution-layer orchestration for build,
   reporting, repo checks, init dialog, guardrails, and fingerprint reuse
-- `src/sciona/pipelines/diff_overlay/`: dirty-worktree overlay computation,
-  sorting, patching, and summary payload generation
-- `src/sciona/pipelines/ops/reducers.py`: reducer listing and emission pipeline
+- `src/sciona/pipelines/diff_overlay/`: canonical dirty-worktree overlay
+  computation, sorting, patching, and summary payload generation
+- `src/sciona/pipelines/ops/reducers.py`: reducer listing and emission
+  workflow; `ops` modules own repo-state resolution and policy-aware workflow
+  entrypoints while `exec` modules own mechanism over resolved `RepoState`
 - `src/sciona/reducers/`: reducer implementations; shared reducer helpers are
   grouped under `src/sciona/reducers/helpers/shared/`,
   `src/sciona/reducers/helpers/artifact/`, and
   `src/sciona/reducers/helpers/impl/`
+- Reducers may depend on canonical overlay patching helpers under
+  `src/sciona/pipelines/diff_overlay/patching/`; broader pipeline workflow
+  imports remain out of bounds for reducer modules
 - High-traffic orientation and coupling reducers may expose a compact mode for
   agent-facing orientation. Prefer compact output first for ownership,
   dependency, and migration-scope questions; switch to full payloads only when

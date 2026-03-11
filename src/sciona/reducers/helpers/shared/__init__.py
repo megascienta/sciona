@@ -5,4 +5,15 @@
 
 from __future__ import annotations
 
-__all__ = ["base", "context", "profile_utils", "queries", "render", "types", "utils"]
+__all__ = [
+    "base",
+    "context",
+    "id_resolution",
+    "module_context",
+    "profile_utils",
+    "queries",
+    "relationships",
+    "render",
+    "types",
+    "utils",
+]

@@ -621,6 +621,105 @@ def test_resolution_trace_uses_callsite_and_diagnostics(tmp_path):
     assert payload["dropped_samples"][0]["drop_reason"] == "no_candidates"
 
 
+def test_resolution_trace_preserves_unique_without_provenance_drop(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    artifact_db = repo_root / ".sciona" / setup_config.ARTIFACT_DB_FILENAME
+    conn = artifact_connect(artifact_db, repo_root=repo_root)
+    try:
+        artifact_write.upsert_call_sites(
+            conn,
+            snapshot_id=snapshot_id,
+            caller_id="func_alpha",
+            caller_qname=qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
+            caller_node_type="callable",
+            rows=[
+                (
+                    "pkg.alpha.service.PythonNodeState.append",
+                    "dropped",
+                    None,
+                    None,
+                    "unique_without_provenance",
+                    1,
+                    "qualified",
+                    4,
+                    4,
+                    0,
+                ),
+            ],
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    core = core_conn(repo_root)
+    try:
+        payload_text = resolution_trace.render(
+            snapshot_id,
+            core,
+            repo_root,
+            callable_id=qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
+        )
+    finally:
+        core.close()
+    payload = parse_json_payload(payload_text)
+    assert payload["totals"] == {"eligible": 1, "accepted": 0, "dropped": 1}
+    assert payload["dropped_samples"][0]["drop_reason"] == "unique_without_provenance"
+    assert payload["dropped_samples"][0]["identifier"].endswith(
+        "PythonNodeState.append"
+    )
+    assert payload["dropped_samples"][0]["candidate_count"] == 1
+
+
+def test_resolution_trace_preserves_ambiguous_in_scope_drop(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    artifact_db = repo_root / ".sciona" / setup_config.ARTIFACT_DB_FILENAME
+    conn = artifact_connect(artifact_db, repo_root=repo_root)
+    try:
+        artifact_write.upsert_call_sites(
+            conn,
+            snapshot_id=snapshot_id,
+            caller_id="func_alpha",
+            caller_qname=qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
+            caller_node_type="callable",
+            rows=[
+                (
+                    "pkg.alpha.service.Path.resolve",
+                    "dropped",
+                    None,
+                    None,
+                    "ambiguous_no_in_scope_candidate",
+                    6,
+                    "qualified",
+                    5,
+                    5,
+                    1,
+                ),
+            ],
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    core = core_conn(repo_root)
+    try:
+        payload_text = resolution_trace.render(
+            snapshot_id,
+            core,
+            repo_root,
+            callable_id=qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
+        )
+    finally:
+        core.close()
+    payload = parse_json_payload(payload_text)
+    assert payload["totals"] == {"eligible": 1, "accepted": 0, "dropped": 1}
+    assert (
+        payload["dropped_samples"][0]["drop_reason"]
+        == "ambiguous_no_in_scope_candidate"
+    )
+    assert payload["dropped_samples"][0]["identifier"].endswith("Path.resolve")
+    assert payload["dropped_samples"][0]["candidate_count"] == 6
+
+
 def test_structural_integrity_summary_returns_payload(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     conn = core_conn(repo_root)

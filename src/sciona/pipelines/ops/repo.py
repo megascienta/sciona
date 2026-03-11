@@ -1,7 +1,12 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Pipeline implementations backing CLI commands."""
+"""Policy-aware workflow entrypoints backing CLI commands.
+
+`pipelines.ops` owns repo-state resolution, policy checks, and user-facing
+workflow coordination. Mechanism-only implementations over resolved `RepoState`
+live under `pipelines.exec`.
+"""
 
 from __future__ import annotations
 

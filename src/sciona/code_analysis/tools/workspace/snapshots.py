@@ -10,12 +10,11 @@ from typing import Callable, List, Optional
 
 from ....runtime import git as git_ops
 from ...core.normalize_model import FileRecord, FileSnapshot
+from ...core.path_validation import ensure_repo_contained
 
 
 def _ensure_repo_contained(repo_root: Path, record: FileRecord) -> None:
-    resolved_repo = repo_root.resolve()
-    resolved_path = record.path.resolve()
-    resolved_path.relative_to(resolved_repo)
+    ensure_repo_contained(repo_root, record.path)
 
 
 def prepare_file_snapshots(
