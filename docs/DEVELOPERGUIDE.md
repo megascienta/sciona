@@ -8,7 +8,7 @@ Authoritative references:
 - Normative contract: `docs/CONTRACT.md`
 - Generated capabilities: `docs/CAPABILITY_MANIFEST.json`
 - Executable parity contract:
-  `src/sciona/code_analysis/languages/common/parity_contract.py`
+  `src/sciona/code_analysis/languages/common/support/parity_contract.py`
 
 If this guide conflicts with `CONTRACT.md`, the contract wins.
 
@@ -183,14 +183,16 @@ Supported structural carriers:
 - tracked/ignored path collection via git helpers;
 - discovery filtering through `discovery.exclude_globs`;
 - file-size, node-count, and call-identifier limits;
-- analyzer dispatch and fail-closed handling for per-file analysis failures;
+- analyzer dispatch, degraded module retention for per-file analysis failures,
+  and `parse_failures` accounting;
 - accumulation of import and call-gate diagnostics.
 
 `build_artifacts_for_snapshot()` in
 `src/sciona/pipelines/ops/build_artifacts.py` currently owns:
 
 - artifact re-analysis through `ArtifactEngine`;
-- fail-closed artifact derivation when an eligible file cannot be re-analyzed;
+- per-file warning-and-continue artifact derivation when an eligible file
+  cannot be re-analyzed;
 - full reset of derived ArtifactDB state before repopulation;
 - `call_sites` and `node_calls` materialization;
 - rebuild of reducer-facing graph edges and rollups;

@@ -320,8 +320,10 @@ Global criteria:
   parser construction, language binding, and parser/grammar diagnostics.
 - General parser wrappers/factories are not used.
 - Structural extraction fallback traversal is not allowed.
-- Unsupported query node types fail closed (partial parse metadata; no
-  heuristic fallback).
+- Unsupported query node types fail closed for the affected extraction surface;
+  implementations MAY preserve deterministic structural facts that remain
+  directly supported by the parsed tree and record degraded diagnostics, but no
+  heuristic fallback is allowed.
 - Artifact-finalized reducer-facing `CALLS` targets are in-repo callable IDs
   only.
 - CoreDB strict candidate selection drops non-accepted candidates before any
