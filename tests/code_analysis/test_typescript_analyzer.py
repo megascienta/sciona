@@ -3,6 +3,8 @@
 
 from pathlib import Path
 
+import pytest
+
 from sciona.code_analysis.languages.builtin.typescript import TypeScriptAnalyzer
 from sciona.code_analysis.core.normalize_model import FileRecord, FileSnapshot
 
@@ -111,6 +113,33 @@ def test_typescript_nested_function_declaration_is_structural(tmp_path):
         for record in result.call_records
     }
     assert f"{module_name}.helper" in by_caller[f"{module_name}.outer.inner"]
+
+
+def test_typescript_analyzer_rejects_malformed_parse_tree(tmp_path) -> None:
+    module = "export function broken( {\n"
+    repo = tmp_path
+    src = repo / "src"
+    src.mkdir()
+    file_path = src / "broken.ts"
+    file_path.write_text(module, encoding="utf-8")
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("src/broken.ts"),
+            language="typescript",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = TypeScriptAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+
+    with pytest.raises(ValueError, match="Tree-sitter parse validation failed"):
+        analyzer.analyze(snapshot, module_name)
 
 
 def test_typescript_nested_arrow_and_function_expression_are_structural_when_bound(tmp_path):

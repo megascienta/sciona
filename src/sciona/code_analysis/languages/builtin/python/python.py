@@ -18,6 +18,7 @@ from ....core.normalize_model import (
 from ....core.extract.analyzer import ASTAnalyzer
 from ....core.extract.ir.extraction_buffer import ExtractionBuffer
 from ....core.extract.parsing.parser_bootstrap import bootstrap_tree_sitter_parser
+from ....core.extract.parsing.parse_validation import validate_tree_or_raise
 from ....core.extract.parsing.query_helpers import (
     count_lines,
     find_direct_children_of_types_query,
@@ -54,6 +55,7 @@ class PythonAnalyzer(ASTAnalyzer):
 
     def analyze(self, snapshot: FileSnapshot, module_name: str) -> AnalysisResult:
         tree = self._parser.parse(snapshot.content)
+        validate_tree_or_raise(tree, language_name=self.language)
         buffer = ExtractionBuffer()
         module_node = SemanticNodeRecord(
             language=self.language,

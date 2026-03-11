@@ -134,6 +134,23 @@ Observations
 The highest-value finding was a confirmed counting bug in artifact call resolution. The remaining items are mostly policy and parser-hardening changes that require explicit decisions about fail-fast behavior.
 RATINGS (1-10): Structural clarity 7 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 6 | Scope reduction vs baseline 5 | Query friction vs baseline 3 | Net usefulness vs baseline 6
+## Task 10 - Parse validation hardening
+Copilot
+Codex (GPT-5)
+Task description
+Added a shared tree-sitter parse-validation helper, invoked it in all builtin analyzers, and added malformed-source regression tests for Python, TypeScript, JavaScript, and Java.
+Task type
+implementation
+SCIONA usage
+Used the earlier structural map only to confirm the analyzer entrypoints; no new reducer output was needed for the parser-layer change.
+Effect on workflow
+SCIONA had little direct impact in this block because the work was semantic parser hardening across already-known analyzer boundaries.
+Fallback
+Source edits, per-language analyzer test updates, and narrow `pytest` in `multiphysics` covering analyzers plus parser policy.
+Observations
+The main value came from introducing one shared validation seam rather than ad hoc checks in each analyzer. This block improves malformed-source handling but still leaves engine behavior unchanged until the next PR.
+RATINGS (1-10): Structural clarity 7 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 6 | Scope reduction vs baseline 5 | Query friction vs baseline 3 | Net usefulness vs baseline 6
 ## Task 9 - Call resolution stats fix
 Copilot
 Codex (GPT-5)

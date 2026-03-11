@@ -3,6 +3,8 @@
 
 from pathlib import Path
 
+import pytest
+
 from sciona.code_analysis.languages.builtin.python import PythonAnalyzer
 from sciona.code_analysis.core.normalize_model import FileRecord, FileSnapshot
 
@@ -69,6 +71,33 @@ def helper():
     }
     assert f"{module_name}.outer.inner" in callable_nodes
     assert f"{module_name}.outer.inner" in call_records
+
+
+def test_python_analyzer_rejects_malformed_parse_tree(tmp_path) -> None:
+    module = "def broken(:\n    pass\n"
+    repo = tmp_path
+    pkg = repo / "pkg"
+    pkg.mkdir()
+    file_path = pkg / "broken.py"
+    file_path.write_text(module, encoding="utf-8")
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("pkg/broken.py"),
+            language="python",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = PythonAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+
+    with pytest.raises(ValueError, match="Tree-sitter parse validation failed"):
+        analyzer.analyze(snapshot, module_name)
 
 
 def test_python_analyzer_resolves_instance_assignments_per_callable_scope(tmp_path):
