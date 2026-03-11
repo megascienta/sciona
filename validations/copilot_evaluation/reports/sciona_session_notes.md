@@ -151,6 +151,23 @@ Observations
 The fix removes grammar-shape fragility without widening the public surface. The issue was isolated enough that source inspection and targeted tests were sufficient.
 RATINGS (1-10): Structural clarity 7 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 3 | Confidence gain vs baseline 5 | Scope reduction vs baseline 4 | Query friction vs baseline 3 | Net usefulness vs baseline 5
+## Task 13 - Java base extraction narrowing
+Copilot
+Codex (GPT-5)
+Task description
+Replaced subtree-wide Java inheritance capture with shallow field-based extraction so classifier base metadata records only directly declared superclass and interfaces.
+Task type
+implementation
+SCIONA usage
+Used the earlier structural audit only to keep the edit inside the Java analyzer path; no new reducers were needed for the source-level extraction change.
+Effect on workflow
+SCIONA had little direct impact because the main work was grammar inspection and a localized analyzer correction rather than further structure discovery.
+Fallback
+Inspected the Java tree-sitter shape directly, patched the extractor, added a generic inheritance regression, and ran narrow `pytest` in `multiphysics`.
+Observations
+The previous query strategy was broader than the parse tree required. Switching to direct field extraction reduces phantom-base risk without expanding module surface area.
+RATINGS (1-10): Structural clarity 7 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 3 | Confidence gain vs baseline 5 | Scope reduction vs baseline 4 | Query friction vs baseline 3 | Net usefulness vs baseline 5
 ## Task 11 - Fail-fast build semantics
 Copilot
 Codex (GPT-5)

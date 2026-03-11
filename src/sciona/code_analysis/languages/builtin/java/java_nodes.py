@@ -9,7 +9,6 @@ from dataclasses import dataclass, field
 from typing import List
 
 from ....core.normalize_model import EdgeRecord, FileSnapshot, SemanticNodeRecord
-from ....core.extract.parsing.query_helpers import find_nodes_of_types_query
 from ...common.naming.lexical_naming import LexicalNameDisambiguator
 from ...common.query.query_surface import JAVA_STRUCTURAL_NODE_TYPES
 from ...common.support.shared import node_text as shared_node_text
@@ -37,17 +36,33 @@ def _node_text(node, content: bytes) -> str | None:
     return shared_node_text(node, content)
 
 
-def _query_direct_type_names(node, content: bytes) -> list[str]:
+def _declared_base_names(node, content: bytes) -> list[str]:
     if node is None:
         return []
-    captured = find_nodes_of_types_query(
-        node,
-        language_name="java",
-        node_types=("type_identifier", "scoped_type_identifier", "generic_type"),
-    )
     names: list[str] = []
     seen: set[str] = set()
-    for child in captured:
+    if getattr(node, "type", "") == "type_list":
+        candidates = list(getattr(node, "named_children", []))
+    else:
+        candidates = [
+            child
+            for child in getattr(node, "named_children", [])
+            if getattr(child, "type", "")
+            in {
+                "type_identifier",
+                "scoped_type_identifier",
+                "generic_type",
+                "array_type",
+            }
+        ]
+        if not candidates and getattr(node, "type", "") in {
+            "type_identifier",
+            "scoped_type_identifier",
+            "generic_type",
+            "array_type",
+        }:
+            candidates = [node]
+    for child in candidates:
         value = _node_text(child, content)
         if value:
             if value in seen:
@@ -61,10 +76,18 @@ def _java_bases(node, content: bytes) -> list[str]:
     bases: list[str] = []
     superclass = node.child_by_field_name("superclass")
     if superclass is not None:
-        bases.extend(_query_direct_type_names(superclass, content))
+        bases.extend(_declared_base_names(superclass, content))
     interfaces = node.child_by_field_name("interfaces")
     if interfaces is not None:
-        bases.extend(_query_direct_type_names(interfaces, content))
+        type_list = next(
+            (
+                child
+                for child in getattr(interfaces, "named_children", [])
+                if getattr(child, "type", "") == "type_list"
+            ),
+            None,
+        )
+        bases.extend(_declared_base_names(type_list or interfaces, content))
     return bases
 
 

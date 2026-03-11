@@ -457,6 +457,48 @@ def test_java_analyzer_emits_local_implements_edges(tmp_path):
     assert "IMPLEMENTS" in edge_types
 
 
+def test_java_analyzer_records_only_declared_direct_bases(tmp_path):
+    module = """
+    class Base<T> {}
+    interface Runnable<T> {}
+    class Worker extends Base<Service> implements Runnable<Task>, AutoCloseable {
+        public void run() {}
+    }
+    class Service {}
+    class Task {}
+    """
+    repo = tmp_path
+    src = repo / "src"
+    src.mkdir()
+    file_path = src / "App.java"
+    file_path.write_text(module, encoding="utf-8")
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("src/App.java"),
+            language="java",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = JavaAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+
+    worker = next(
+        node for node in result.nodes if node.qualified_name == f"{module_name}.Worker"
+    )
+    assert (worker.metadata or {}).get("bases") == [
+        "Base<Service>",
+        "Runnable<Task>",
+        "AutoCloseable",
+    ]
+
+
 def test_java_callable_roles_cover_declared_and_constructor(tmp_path):
     module = """
     class Service {
