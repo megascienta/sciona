@@ -45,27 +45,34 @@ def _split_heritage_names(node, content: bytes) -> list[str]:
 
 
 def _typescript_heritage_metadata(node, content: bytes) -> dict[str, list[str]]:
+    heritage_nodes: list[object] = []
     heritage = node.child_by_field_name("heritage")
-    if heritage is None:
-        heritage = next(
-            (
-                child
-                for child in getattr(node, "named_children", [])
-                if child.type in {"class_heritage", "extends_clause", "implements_clause"}
-            ),
-            None,
+    if heritage is not None:
+        heritage_nodes.append(heritage)
+    else:
+        heritage_nodes.extend(
+            child
+            for child in getattr(node, "named_children", [])
+            if child.type in {"class_heritage", "extends_clause", "implements_clause"}
         )
-    if heritage is None:
+    if not heritage_nodes:
         return {"bases": [], "extends_bases": [], "implements_bases": []}
     extends_bases: list[str] = []
     implements_bases: list[str] = []
-    for child in getattr(heritage, "named_children", []):
-        child_type = getattr(child, "type", "")
-        names = _split_heritage_names(child, content)
-        if child_type == "implements_clause":
-            implements_bases.extend(names)
-        else:
-            extends_bases.extend(names)
+    for heritage_node in heritage_nodes:
+        if getattr(heritage_node, "type", "") == "implements_clause":
+            implements_bases.extend(_split_heritage_names(heritage_node, content))
+            continue
+        if getattr(heritage_node, "type", "") == "extends_clause":
+            extends_bases.extend(_split_heritage_names(heritage_node, content))
+            continue
+        for child in getattr(heritage_node, "named_children", []):
+            child_type = getattr(child, "type", "")
+            names = _split_heritage_names(child, content)
+            if child_type == "implements_clause":
+                implements_bases.extend(names)
+            else:
+                extends_bases.extend(names)
     return {
         "bases": extends_bases + implements_bases,
         "extends_bases": extends_bases,

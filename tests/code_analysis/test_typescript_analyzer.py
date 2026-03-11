@@ -6,6 +6,9 @@ from pathlib import Path
 import pytest
 
 from sciona.code_analysis.languages.builtin.typescript import TypeScriptAnalyzer
+from sciona.code_analysis.languages.builtin.typescript.typescript_node_walk import (
+    _typescript_heritage_metadata,
+)
 from sciona.code_analysis.core.normalize_model import FileRecord, FileSnapshot
 
 
@@ -140,6 +143,35 @@ def test_typescript_analyzer_rejects_malformed_parse_tree(tmp_path) -> None:
 
     with pytest.raises(ValueError, match="Tree-sitter parse validation failed"):
         analyzer.analyze(snapshot, module_name)
+
+
+def test_typescript_heritage_metadata_collects_extends_and_implements_from_sibling_clauses():
+    class _Node:
+        def __init__(self, node_type: str, text: str = "", children=None):
+            self.type = node_type
+            self._text = text.encode("utf-8")
+            self.named_children = list(children or [])
+
+        def child_by_field_name(self, name: str):
+            return None
+
+        @property
+        def text(self):
+            return self._text
+
+    node = _Node(
+        "class_declaration",
+        children=[
+            _Node("extends_clause", "extends Base"),
+            _Node("implements_clause", "implements Foo, Bar"),
+        ],
+    )
+
+    metadata = _typescript_heritage_metadata(node, b"")
+
+    assert metadata["extends_bases"] == ["Base"]
+    assert metadata["implements_bases"] == ["Foo", "Bar"]
+    assert metadata["bases"] == ["Base", "Foo", "Bar"]
 
 
 def test_typescript_nested_arrow_and_function_expression_are_structural_when_bound(tmp_path):

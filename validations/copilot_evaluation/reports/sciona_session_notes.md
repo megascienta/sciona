@@ -134,6 +134,23 @@ Observations
 The highest-value finding was a confirmed counting bug in artifact call resolution. The remaining items are mostly policy and parser-hardening changes that require explicit decisions about fail-fast behavior.
 RATINGS (1-10): Structural clarity 7 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 6 | Scope reduction vs baseline 5 | Query friction vs baseline 3 | Net usefulness vs baseline 6
+## Task 12 - TypeScript heritage hardening
+Copilot
+Codex (GPT-5)
+Task description
+Reworked TypeScript heritage extraction to aggregate all relevant heritage clauses and added a regression test for separate `extends` and `implements` siblings.
+Task type
+implementation
+SCIONA usage
+Used only the earlier code_analysis structural audit to keep the change scoped to the TypeScript walker and analyzer tests; no new reducers were needed.
+Effect on workflow
+SCIONA had little direct impact because this was a localized source-level parser logic fix inside an already identified analyzer seam.
+Fallback
+Patched the walker, added a focused unit regression, and ran narrow `pytest` in `multiphysics` for the TypeScript analyzer suite.
+Observations
+The fix removes grammar-shape fragility without widening the public surface. The issue was isolated enough that source inspection and targeted tests were sufficient.
+RATINGS (1-10): Structural clarity 7 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 3 | Confidence gain vs baseline 5 | Scope reduction vs baseline 4 | Query friction vs baseline 3 | Net usefulness vs baseline 5
 ## Task 11 - Fail-fast build semantics
 Copilot
 Codex (GPT-5)
