@@ -66,3 +66,9 @@ def test_parity_contract_documents_javascript_implements_asymmetry() -> None:
     javascript = asymmetries.get("javascript")
     assert javascript is not None
     assert javascript["implements_edges"]["present"] is False
+
+
+def test_parity_contract_declares_parse_diagnostics_parity() -> None:
+    contract = build_parity_contract()
+    dimension = contract["dimensions"]["parse_diagnostics_and_degraded_analysis"]
+    assert dimension == {language: "yes" for language in contract["languages"]}

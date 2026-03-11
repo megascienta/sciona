@@ -474,7 +474,7 @@
     ]
   },
   "parity_contract": {
-    "version": 6,
+    "version": 7,
     "languages": [
       "java",
       "javascript",
@@ -532,6 +532,12 @@
         "typescript": "yes"
       },
       "callable_role_coverage": {
+        "java": "yes",
+        "javascript": "yes",
+        "python": "yes",
+        "typescript": "yes"
+      },
+      "parse_diagnostics_and_degraded_analysis": {
         "java": "yes",
         "javascript": "yes",
         "python": "yes",

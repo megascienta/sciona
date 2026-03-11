@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 
-PARITY_CONTRACT_VERSION = 6
+PARITY_CONTRACT_VERSION = 7
 
 
 def build_parity_contract() -> dict[str, object]:
@@ -65,6 +65,12 @@ def build_parity_contract() -> dict[str, object]:
                 "typescript": "yes",
             },
             "callable_role_coverage": {
+                "java": "yes",
+                "javascript": "yes",
+                "python": "yes",
+                "typescript": "yes",
+            },
+            "parse_diagnostics_and_degraded_analysis": {
                 "java": "yes",
                 "javascript": "yes",
                 "python": "yes",
