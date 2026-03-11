@@ -36,6 +36,7 @@ def render(
     edge_kind: str | None = None,
     min_fan: int | None = None,
     node_kind: str | None = None,
+    compact: bool | None = None,
     top_k: int | None = None,
     **_: object,
 ) -> str:
@@ -97,6 +98,8 @@ def render(
                 conn=conn,
             )
             body["_overlay_applied_by_reducer"] = True
+        if compact:
+            body = _compact_payload(body)
         return render_json_payload(body)
 
     call_stats = (
@@ -149,6 +152,8 @@ def render(
             conn=conn,
         )
         body["_overlay_applied_by_reducer"] = True
+    if compact:
+        body = _compact_payload(body)
     return render_json_payload(body)
 
 
@@ -304,3 +309,27 @@ def _coverage_ratio(selected: int, total: int) -> float:
     if total <= 0:
         return 1.0
     return round(selected / total, 4)
+
+
+def _compact_payload(payload: Dict[str, object]) -> Dict[str, object]:
+    compact_payload = dict(payload)
+    compact_payload["payload_kind"] = "compact_summary"
+    if "calls" in compact_payload:
+        compact_payload["calls_preview"] = _table_preview(compact_payload.pop("calls"))
+    if "imports" in compact_payload:
+        compact_payload["imports_preview"] = _table_preview(compact_payload.pop("imports"))
+    if "edge_kinds" in compact_payload:
+        compact_payload["edge_kinds_preview"] = compact_payload.get("edge_kinds")
+    return compact_payload
+
+
+def _table_preview(table: object) -> Dict[str, object]:
+    if not isinstance(table, dict):
+        return {"total": 0, "by_fan_in": [], "by_fan_out": []}
+    return {
+        "total": table.get("total", 0),
+        "fan_in_coverage_ratio": table.get("fan_in_coverage_ratio"),
+        "fan_out_coverage_ratio": table.get("fan_out_coverage_ratio"),
+        "by_fan_in": table.get("by_fan_in", []),
+        "by_fan_out": table.get("by_fan_out", []),
+    }

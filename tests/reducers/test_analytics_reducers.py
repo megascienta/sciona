@@ -746,6 +746,27 @@ def test_fan_summary_returns_payload(tmp_path):
         assert payload["calls"]["by_fan_in"][0]["delta_count"] == 0
 
 
+def test_fan_summary_compact_mode_returns_previews(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = core_conn(repo_root)
+    try:
+        payload_text = fan_summary.render(
+            snapshot_id,
+            conn,
+            repo_root,
+            compact=True,
+            top_k=3,
+        )
+    finally:
+        conn.close()
+    payload = parse_json_payload(payload_text)
+    assert payload["payload_kind"] == "compact_summary"
+    assert "calls" not in payload
+    assert "imports" not in payload
+    assert "calls_preview" in payload
+    assert "imports_preview" in payload
+
+
 def test_fan_summary_filters_by_edge_kind_node_kind_and_min_fan(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     artifact_db = repo_root / ".sciona" / setup_config.ARTIFACT_DB_FILENAME
