@@ -16,6 +16,7 @@ from sciona.reducers import (
     classifier_overview,
     dependency_edges,
     file_outline,
+    import_migration_impact,
     module_overview,
     ownership_summary,
     snapshot_provenance,
@@ -803,6 +804,46 @@ def test_ownership_summary_top_k_and_validation(tmp_path):
             )
     finally:
         conn.close()
+
+
+def test_import_migration_impact_prioritizes_importers_and_signals(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = _core_conn(repo_root)
+    try:
+        payload = import_migration_impact.run(
+            snapshot_id,
+            conn=conn,
+            repo_root=repo_root,
+            module_id=_q(repo_root, "pkg.alpha"),
+        )
+    finally:
+        conn.close()
+
+    assert payload["projection"] == "import_migration_impact"
+    assert payload["module_qualified_name"] == _q(repo_root, "pkg.alpha")
+    assert payload["direct_importers"]["external"]["entries"]
+    assert payload["likely_break_surfaces"]["entries"]
+    assert payload["migration_signals"]["external_importers_present"] is True
+    assert payload["migration_signals"]["compatibility_wrappers_recommended"] is True
+
+
+def test_import_migration_impact_honors_top_k(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = _core_conn(repo_root)
+    try:
+        payload = import_migration_impact.render(
+            snapshot_id,
+            conn,
+            repo_root,
+            module_id=_q(repo_root, "pkg.alpha"),
+            top_k=1,
+        )
+    finally:
+        conn.close()
+    payload = parse_json_payload(payload)
+    assert payload["top_k"] == 1
+    assert len(payload["likely_break_surfaces"]["entries"]) == 1
+    assert len(payload["likely_update_targets"]["entries"]) == 1
 
 
 def test_class_overview_requires_class_id(tmp_path):

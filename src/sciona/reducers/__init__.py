@@ -18,6 +18,7 @@ from . import dependency_edges
 from . import fan_summary
 from . import file_outline
 from . import hotspot_summary
+from . import import_migration_impact
 from . import module_call_graph_summary
 from . import module_overview
 from . import ownership_summary
@@ -44,6 +45,7 @@ __all__ = [
     "fan_summary",
     "file_outline",
     "hotspot_summary",
+    "import_migration_impact",
     "module_call_graph_summary",
     "module_overview",
     "ownership_summary",
