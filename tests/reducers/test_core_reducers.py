@@ -17,6 +17,7 @@ from sciona.reducers import (
     dependency_edges,
     file_outline,
     module_overview,
+    ownership_summary,
     snapshot_provenance,
     structural_index,
     symbol_lookup,
@@ -738,6 +739,67 @@ def test_dependency_edges_rejects_unsupported_edge_type(tmp_path):
                 conn,
                 repo_root,
                 edge_type="CALLABLE_IMPORTS_DECLARED",
+            )
+    finally:
+        conn.close()
+
+
+def test_ownership_summary_returns_compact_module_view(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = _core_conn(repo_root)
+    try:
+        payload = ownership_summary.run(
+            snapshot_id,
+            conn=conn,
+            repo_root=repo_root,
+            module_id=_q(repo_root, "pkg.alpha"),
+        )
+    finally:
+        conn.close()
+
+    assert payload["projection"] == "ownership_summary"
+    assert payload["module_qualified_name"] == _q(repo_root, "pkg.alpha")
+    assert payload["top_k"] == 5
+    assert payload["submodules"]["entries"]
+    assert payload["submodules"]["entries"][0]["module_qualified_name"].startswith(
+        _q(repo_root, "pkg.alpha")
+    )
+    assert payload["outgoing_dependencies"]["external"]["entries"]
+    assert payload["outgoing_dependencies"]["external"]["entries"][0][
+        "module_qualified_name"
+    ].startswith(_q(repo_root, "pkg.beta"))
+    assert payload["incoming_dependents"]["external"]["entries"]
+    assert not payload["incoming_dependents"]["external"]["entries"][0][
+        "module_qualified_name"
+    ].startswith(_q(repo_root, "pkg.alpha"))
+
+
+def test_ownership_summary_top_k_and_validation(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = _core_conn(repo_root)
+    try:
+        payload_text = ownership_summary.render(
+            snapshot_id,
+            conn,
+            repo_root,
+            module_id=_q(repo_root, "pkg.alpha"),
+            top_k=1,
+        )
+    finally:
+        conn.close()
+    payload = parse_json_payload(payload_text)
+    assert payload["top_k"] == 1
+    assert len(payload["submodules"]["entries"]) == 1
+
+    conn = _core_conn(repo_root)
+    try:
+        with pytest.raises(ValueError, match="top_k must be positive"):
+            ownership_summary.run(
+                snapshot_id,
+                conn=conn,
+                repo_root=repo_root,
+                module_id=_q(repo_root, "pkg.alpha"),
+                top_k=0,
             )
     finally:
         conn.close()

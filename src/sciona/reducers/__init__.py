@@ -20,6 +20,7 @@ from . import file_outline
 from . import hotspot_summary
 from . import module_call_graph_summary
 from . import module_overview
+from . import ownership_summary
 from . import overlay_impact_summary
 from . import overlay_projection_status_summary
 from . import resolution_trace
@@ -45,6 +46,7 @@ __all__ = [
     "hotspot_summary",
     "module_call_graph_summary",
     "module_overview",
+    "ownership_summary",
     "overlay_impact_summary",
     "overlay_projection_status_summary",
     "resolution_trace",
