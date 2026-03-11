@@ -12,7 +12,7 @@ from ...code_analysis.core.extract.registry import extensions_for_language
 from ..config import io as config_io
 from ..config import defaults as config_defaults
 from ..errors import ConfigError
-from ..reducers.metadata import CATEGORY_ORDER
+from sciona.runtime.reducers.metadata import CATEGORY_ORDER
 from sciona.runtime.reducers.listing import render_reducer_list
 
 
