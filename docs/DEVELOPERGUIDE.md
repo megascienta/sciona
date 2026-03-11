@@ -183,13 +183,14 @@ Supported structural carriers:
 - tracked/ignored path collection via git helpers;
 - discovery filtering through `discovery.exclude_globs`;
 - file-size, node-count, and call-identifier limits;
-- analyzer dispatch and partial-parse fallback registration;
+- analyzer dispatch and fail-closed handling for per-file analysis failures;
 - accumulation of import and call-gate diagnostics.
 
 `build_artifacts_for_snapshot()` in
 `src/sciona/pipelines/ops/build_artifacts.py` currently owns:
 
 - artifact re-analysis through `ArtifactEngine`;
+- fail-closed artifact derivation when an eligible file cannot be re-analyzed;
 - full reset of derived ArtifactDB state before repopulation;
 - `call_sites` and `node_calls` materialization;
 - rebuild of reducer-facing graph edges and rollups;

@@ -32,6 +32,40 @@ Observations
 SCIONA was most useful for structural triage and scope reduction; it created mild friction because package-qualified names and anomaly outputs still required manual source inspection to decide whether a risk was contractual or merely advisory.
 RATINGS (1-10): Structural clarity 8 | Navigation speed 8 | Confidence in answers 8 | Overall usefulness 8
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
+## Task 18 - PR1 build-doc alignment
+Copilot
+Codex (GPT-5)
+Task description
+Updated the developer guide so BuildEngine and ArtifactEngine are documented as fail-closed on per-file analysis failure instead of using partial-parse fallback semantics.
+Task type
+repository maintenance
+SCIONA usage
+Used the fresh audit evidence only to identify the documented mismatch; no new reducers were required for the docs-only correction.
+Effect on workflow
+SCIONA helped surface the mismatch quickly, but the actual correction was a small source-of-truth docs edit verified against current engine code.
+Fallback
+Read the guide and current engine sources, then ran narrow engine/artifact semantics `pytest` in `multiphysics`.
+Observations
+This was the highest-confidence, lowest-risk release fix from the audit because it corrected real doc drift without changing behavior.
+RATINGS (1-10): Structural clarity 9 | Navigation speed 8 | Confidence in answers 10 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
+## Task 17 - PR5 narrowing adjustment
+Copilot
+Codex (GPT-5)
+Task description
+Refined the proposed PR5 scope so `pipelines.diff_overlay.compute` remains an explicit package boundary, but its internal dependencies are narrowed rather than hidden behind a facade.
+Task type
+architecture review
+SCIONA usage
+Used the same fresh audit evidence from `fan_summary` and `ownership_summary`; no additional reducers were required.
+Effect on workflow
+SCIONA still helped because the change in recommendation is about blast radius and import concentration, not semantics.
+Fallback
+Adjusted the proposal based on the audited package structure and the existing developer-guide boundary language.
+Observations
+Keeping `compute` visible is consistent with the current package layout. The better change is to reduce cross-import sprawl inside that package and from nearby callers.
+RATINGS (1-10): Structural clarity 9 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
 ## Task 3 - Audit follow-up
 Copilot
 Codex (GPT-5)
@@ -151,6 +185,40 @@ Observations
 The fix removes grammar-shape fragility without widening the public surface. The issue was isolated enough that source inspection and targeted tests were sufficient.
 RATINGS (1-10): Structural clarity 7 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 3 | Confidence gain vs baseline 5 | Scope reduction vs baseline 4 | Query friction vs baseline 3 | Net usefulness vs baseline 5
+## Task 15 - Fresh pre-release audit
+Copilot
+Codex (GPT-5)
+Task description
+Performed a fresh three-level audit of `src/` covering per-module structure, cross-module coupling/integrity, and compliance against `docs/CONTRACT.md` and `docs/DEVELOPERGUIDE.md`.
+Task type
+architecture review
+SCIONA usage
+Used `snapshot_provenance`, `structural_index`, `ownership_summary`, `fan_summary`, `structural_integrity_summary`, `call_resolution_quality`, and `call_resolution_drop_summary` as the primary structural evidence.
+Effect on workflow
+SCIONA materially reduced search space for module boundaries, high-fan-in hubs, and release-risk anomaly detection. Source inspection was still required for doc compliance and a few concrete boundary checks.
+Fallback
+Read the authoritative docs, inspected a small number of source files for contract verification, and used filesystem listings for folder-depth and file-count checks.
+Observations
+SCIONA was strongest on top-level ownership and coupling. The main documented mismatch found in this run was behavioral drift in the developer guide: it still describes BuildEngine partial-parse fallback even though the current engine now fails closed.
+RATINGS (1-10): Structural clarity 9 | Navigation speed 9 | Confidence in answers 9 | Overall usefulness 9
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 8 | Confidence gain vs baseline 8 | Scope reduction vs baseline 9 | Query friction vs baseline 4 | Net usefulness vs baseline 8
+## Task 16 - Audit ROI prioritization
+Copilot
+Codex (GPT-5)
+Task description
+Converted the fresh pre-release audit findings into an ROI-ordered fix and improvement list, prioritizing release-risk reduction and documentation alignment.
+Task type
+architecture review
+SCIONA usage
+Relied on the fresh audit evidence from `ownership_summary`, `fan_summary`, `structural_integrity_summary`, and call-resolution reducers; no new reducer categories were needed.
+Effect on workflow
+SCIONA continued to help with prioritization by making blast radius and coupling concentration explicit, which made the highest-ROI fixes easier to rank.
+Fallback
+Used prior docs/source checks from the audit to separate immediate doc fixes from items that still require targeted inspection or tests before changing code.
+Observations
+The best ROI items are documentation drift and concentrated helper choke points. Most remaining structural changes should be gated by targeted source inspection or `pytest`, not applied blindly.
+RATINGS (1-10): Structural clarity 9 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
 ## Task 14 - Parse diagnostics enrichment
 Copilot
 Codex (GPT-5)
