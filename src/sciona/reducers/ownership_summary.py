@@ -15,8 +15,8 @@ REDUCER_META = ReducerMeta(
     reducer_id="ownership_summary",
     category="coupling",
     placeholder="OWNERSHIP_SUMMARY",
-    summary="Compact ownership summary for a module or package. "
-    "Returns top submodules plus top internal/external dependencies and dependents. ",
+    summary="Summarizes a module or package's immediate submodules, outgoing dependencies, "
+    "and incoming dependents for boundary and ownership triage. ",
 )
 
 

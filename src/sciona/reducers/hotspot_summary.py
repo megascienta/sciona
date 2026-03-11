@@ -18,8 +18,8 @@ REDUCER_META = ReducerMeta(
     reducer_id="hotspot_summary",
     category="orientation",
     placeholder="HOTSPOT_SUMMARY",
-    summary="Compressed summary of structurally significant or highly connected entities. " \
-    "Use for architectural orientation or complexity inspection. ",
+    summary="Ranks structurally large and highly connected modules by size, import fan, "
+    "and call fan. Use for fast architecture triage or complexity inspection. ",
     anomaly_detector=False,
 )
 

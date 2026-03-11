@@ -23,8 +23,8 @@ REDUCER_META = ReducerMeta(
     reducer_id="call_resolution_quality",
     category="diagnostic",
     placeholder="CALL_RESOLUTION_QUALITY",
-    summary="Aggregated call-resolution quality diagnostics derived from callsite telemetry. "
-    "Use to understand accepted vs dropped callsite distribution and dominant drop reasons. ",
+    summary="Aggregated call-resolution diagnostics derived from persisted callsite data. "
+    "Use to understand accepted vs dropped distribution and dominant drop reasons. ",
     anomaly_detector=True,
 )
 

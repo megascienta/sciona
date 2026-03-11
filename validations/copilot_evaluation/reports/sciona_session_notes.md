@@ -270,6 +270,40 @@ Observations
 This was a contract-consistency fix, not a heuristic cleanup. The remaining integrity failure disappeared once callable parents were accepted by orphan detection.
 RATINGS (1-10): Structural clarity 9 | Navigation speed 8 | Confidence in answers 10 | Overall usefulness 9
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 9 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 9
+## Task 25 - Reducer summary metadata review
+Copilot
+Codex (GPT-5)
+Task description
+Reviewed reducer summary metadata across the registry to determine whether the descriptions are sufficient for reducer selection and where wording should be tightened.
+Task type
+architecture review
+SCIONA usage
+Used `sciona reducer list` and targeted reducer/file inspection to compare registry summaries against actual reducer roles and payload behavior.
+Effect on workflow
+SCIONA was the primary evidence source because the task was explicitly about reducer metadata quality and discoverability at the registry layer.
+Fallback
+Source inspection of a few ambiguous reducers was still needed where the registry summary alone was too compressed to judge accuracy.
+Observations
+Most summaries are serviceable, but a small set remains too vague or too jargon-heavy for first-pass reducer choice, especially around hotspots, ownership, symbol references, inheritance, and callsite diagnostics.
+RATINGS (1-10): Structural clarity 9 | Navigation speed 9 | Confidence in answers 9 | Overall usefulness 9
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 8 | Confidence gain vs baseline 8 | Scope reduction vs baseline 9 | Query friction vs baseline 3 | Net usefulness vs baseline 9
+## Task 26 - Reducer summary metadata improvements
+Copilot
+Codex (GPT-5)
+Task description
+Tightened reducer summary metadata for the reducers whose registry descriptions were too vague or too jargon-heavy for quick selection.
+Task type
+repository maintenance
+SCIONA usage
+Used `sciona reducer list` as the primary evidence surface, then inspected a small set of reducer modules where the summaries did not clearly match payload behavior.
+Effect on workflow
+SCIONA was decisive because the task lived at the reducer registry layer; it made it easy to review discoverability without reconstructing reducer roles manually.
+Fallback
+Source inspection, compile check, and narrow `pytest` for reducer listing and architecture-surface tests.
+Observations
+Most reducer summaries were already adequate. The best improvements were on hotspot, ownership, callsite, inheritance, and symbol-reference reducers where wording now maps more directly to actual payloads.
+RATINGS (1-10): Structural clarity 9 | Navigation speed 9 | Confidence in answers 9 | Overall usefulness 9
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 8 | Confidence gain vs baseline 8 | Scope reduction vs baseline 9 | Query friction vs baseline 3 | Net usefulness vs baseline 9
 ## Task 12 - TypeScript heritage hardening
 Copilot
 Codex (GPT-5)

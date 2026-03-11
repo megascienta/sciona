@@ -21,7 +21,7 @@ REDUCER_META = ReducerMeta(
     reducer_id="module_call_graph_summary",
     category="coupling",
     placeholder="MODULE_CALL_GRAPH",
-    summary="Summarize module-to-module artifact call relationships for the committed "
+    summary="Summarizes module-to-module CALLS relationships for the committed "
     "snapshot, with optional narrowing by caller or callee module. ",
 )
 

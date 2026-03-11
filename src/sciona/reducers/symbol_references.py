@@ -11,8 +11,9 @@ REDUCER_META = ReducerMeta(
     reducer_id="symbol_references",
     category="symbol",
     placeholder="SYMBOL_REFERENCES",
-    summary="Summarize structural symbol references in the committed snapshot, with "
-    "optional narrowing by symbol kind or module. ",
+    summary="Finds structural symbol matches and summarizes where they appear across "
+    "modules and files in the committed snapshot. Supports narrowing by symbol kind "
+    "or module. ",
 )
 
 

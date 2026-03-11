@@ -23,7 +23,7 @@ REDUCER_META = ReducerMeta(
     reducer_id="classifier_call_graph_summary",
     category="coupling",
     placeholder="CLASSIFIER_CALL_GRAPH",
-    summary="Summarize classifier-level artifact call relationships for the committed "
+    summary="Summarizes classifier-to-classifier CALLS relationships for the committed "
     "snapshot, with optional narrowing by caller or callee classifier. ",
 )
 

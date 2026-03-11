@@ -19,8 +19,8 @@ REDUCER_META = ReducerMeta(
     reducer_id="classifier_inheritance",
     category="symbol",
     placeholder="CLASSIFIER_INHERITANCE",
-    summary="Parsed base classifiers and inheritance relations. " \
-    "Use when reasoning about classifier hierarchy or polymorphic structure. ",
+    summary="Shows outgoing and incoming inheritance relationships for a classifier, "
+    "falling back to parsed base metadata when explicit structural edges are unavailable. ",
 )
 
 
