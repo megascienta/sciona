@@ -1,5 +1,7 @@
 For this repository session we will evaluate how SCIONA affects an AI coding assistant’s workflow.
 
+This is a fresh session. No prior knowledge are allowed.
+
 Please follow the rules below during the entire session.
 
 Create and maintain a file:
