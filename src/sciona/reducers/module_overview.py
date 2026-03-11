@@ -25,6 +25,8 @@ def render(
     callable_id: str | None = None,
     classifier_id: str | None = None,
     include_file_map: bool | None = None,
+    compact: bool | None = None,
+    top_k: int | str | None = None,
     **_: object,
 ) -> str:
     from .helpers.impl.module_overview import render as _render
@@ -37,6 +39,8 @@ def render(
         callable_id=callable_id,
         classifier_id=classifier_id,
         include_file_map=include_file_map,
+        compact=compact,
+        top_k=top_k,
     )
 
 

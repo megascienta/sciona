@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from ....code_analysis.analysis.orderings import order_nodes, order_strings
 from ..shared import queries
@@ -34,6 +34,8 @@ def render(
     callable_id: str | None = None,
     classifier_id: str | None = None,
     include_file_map: bool | None = None,
+    compact: bool | None = None,
+    top_k: int | str | None = None,
     **_: object,
 ) -> str:
     conn = require_connection(conn)
@@ -60,11 +62,13 @@ def render(
         repo_root=repo_root,
         module_id=resolved_module_id,
         include_file_map=include_file_map,
+        compact=compact,
+        top_k=top_k,
     )
     return render_json_payload(payload)
 
 
-def run(snapshot_id: str, **params) -> ModuleOverviewPayload:
+def run(snapshot_id: str, **params) -> ModuleOverviewPayload | dict[str, Any]:
     conn = params.get("conn")
     if conn is None:
         raise ValueError(
@@ -81,6 +85,8 @@ def run(snapshot_id: str, **params) -> ModuleOverviewPayload:
     )
     module_identifier = params.get("module_id")
     include_file_map = bool(params.get("include_file_map"))
+    compact = bool(params.get("compact"))
+    top_k = _normalize_top_k(params.get("top_k"))
     if not module_identifier:
         raise ValueError("module_overview requires 'module_id'.")
     repo_root = params.get("repo_root")
@@ -151,7 +157,72 @@ def run(snapshot_id: str, **params) -> ModuleOverviewPayload:
     if include_file_map:
         payload["module_files"] = module_file_entries
         payload["module_file_count"] = len(module_file_entries)
+    if compact:
+        return _compact_payload(payload, top_k)
     return payload
+
+
+def _compact_payload(
+    payload: ModuleOverviewPayload,
+    top_k: int,
+) -> dict[str, Any]:
+    return {
+        "projection": "module_overview",
+        "projection_version": payload["projection_version"],
+        "payload_kind": "compact_summary",
+        "module_structural_id": payload["module_structural_id"],
+        "module_qualified_name": payload["module_qualified_name"],
+        "language": payload["language"],
+        "file_path": payload["file_path"],
+        "file_count": payload["file_count"],
+        "node_counts": payload["node_counts"],
+        "language_breakdown": payload["language_breakdown"],
+        "edge_source": payload["edge_source"],
+        "top_k": top_k,
+        "files_preview": _preview_scalars(payload.get("files", []), top_k),
+        "classifiers_preview": _preview_named_entries(
+            payload.get("classifiers", []),
+            top_k,
+        ),
+        "callables_preview": _preview_named_entries(
+            payload.get("callables", []),
+            top_k,
+        ),
+        "imports_preview": _preview_named_entries(
+            payload.get("imports", []),
+            top_k,
+        ),
+    }
+
+
+def _preview_scalars(entries: list[str], top_k: int) -> dict[str, Any]:
+    values = list(entries)
+    return {
+        "count": len(values),
+        "truncated": len(values) > top_k,
+        "entries": values[:top_k],
+    }
+
+
+def _preview_named_entries(entries: list[dict[str, Any]], top_k: int) -> dict[str, Any]:
+    values = list(entries)
+    return {
+        "count": len(values),
+        "truncated": len(values) > top_k,
+        "entries": values[:top_k],
+    }
+
+
+def _normalize_top_k(top_k: int | str | None) -> int:
+    if top_k is None:
+        return 5
+    try:
+        value = int(top_k)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("module_overview top_k must be an integer.") from exc
+    if value <= 0:
+        raise ValueError("module_overview top_k must be positive.")
+    return min(value, 50)
 
 
 def _resolve_module(conn, snapshot_id: str, identifier: str) -> dict:

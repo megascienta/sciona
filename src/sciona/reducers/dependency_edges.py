@@ -33,6 +33,8 @@ def render(
     edge_type: str | None = None,
     direction: str | None = None,
     limit: int | str | None = None,
+    compact: bool | None = None,
+    top_k: int | str | None = None,
     **_: object,
 ) -> str:
     conn = require_connection(conn)
@@ -70,6 +72,8 @@ def render(
                 module_ids = [value for value in module_ids if value in query_ids]
     edge_type_value = _normalize_edge_type(edge_type)
     limit_value = _normalize_limit(limit)
+    compact_mode = bool(compact)
+    top_k_value = _normalize_top_k(top_k)
     if from_ids == [] or to_ids == [] or module_ids == []:
         edges = []
     else:
@@ -124,6 +128,13 @@ def render(
         "overlay_removed_count": 0,
         "edges": enriched,
     }
+    if compact_mode:
+        body = _compact_payload(
+            body,
+            module_filter=module_id,
+            direction=dir_value,
+            top_k=top_k_value,
+        )
     return render_json_payload(body)
 
 
@@ -248,6 +259,135 @@ def _normalize_limit(limit: int | str | None) -> int | None:
     return min(value, 10000)
 
 
+def _normalize_top_k(top_k: int | str | None) -> int:
+    if top_k is None:
+        return 5
+    try:
+        value = int(top_k)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("dependency_edges top_k must be an integer.") from exc
+    if value <= 0:
+        raise ValueError("dependency_edges top_k must be positive.")
+    return min(value, 50)
+
+
+def _compact_payload(
+    body: Dict[str, object],
+    *,
+    module_filter: str | None,
+    direction: str,
+    top_k: int,
+) -> Dict[str, object]:
+    edges = list(body.get("edges", []))
+    payload: Dict[str, object] = {
+        "payload_kind": "compact_summary",
+        "module_filter": module_filter,
+        "from_module_filter": body.get("from_module_filter"),
+        "to_module_filter": body.get("to_module_filter"),
+        "query": body.get("query"),
+        "edge_type": body.get("edge_type"),
+        "direction": direction,
+        "edge_source": body.get("edge_source"),
+        "edge_count": body.get("edge_count"),
+        "committed_count": body.get("committed_count"),
+        "overlay_added_count": body.get("overlay_added_count"),
+        "overlay_removed_count": body.get("overlay_removed_count"),
+        "top_k": top_k,
+    }
+    if module_filter and direction in {"in", "out", "both"}:
+        payload["counterpart_modules"] = _group_counterparts(
+            edges,
+            direction=direction,
+            top_k=top_k,
+        )
+    else:
+        payload["edges_preview"] = {
+            "count": len(edges),
+            "truncated": len(edges) > top_k,
+            "entries": edges[:top_k],
+        }
+    return payload
+
+
+def _group_counterparts(
+    edges: List[Dict[str, str]],
+    *,
+    direction: str,
+    top_k: int,
+) -> Dict[str, object]:
+    grouped: dict[str, Dict[str, object]] = {}
+    for edge in edges:
+        if direction == "in":
+            structural_id = edge["from_module_structural_id"]
+            qualified_name = edge["from_module_qualified_name"]
+            file_path = edge["from_file_path"]
+            incoming = 1
+            outgoing = 0
+        elif direction == "out":
+            structural_id = edge["to_module_structural_id"]
+            qualified_name = edge["to_module_qualified_name"]
+            file_path = edge["to_file_path"]
+            incoming = 0
+            outgoing = 1
+        else:
+            src_key = edge["from_module_structural_id"]
+            dst_key = edge["to_module_structural_id"]
+            for structural_id, qualified_name, file_path, incoming, outgoing in (
+                (
+                    src_key,
+                    edge["from_module_qualified_name"],
+                    edge["from_file_path"],
+                    1,
+                    0,
+                ),
+                (
+                    dst_key,
+                    edge["to_module_qualified_name"],
+                    edge["to_file_path"],
+                    0,
+                    1,
+                ),
+            ):
+                entry = grouped.setdefault(
+                    structural_id,
+                    {
+                        "module_structural_id": structural_id,
+                        "module_qualified_name": qualified_name,
+                        "file_path": file_path,
+                        "incoming_edge_count": 0,
+                        "outgoing_edge_count": 0,
+                        "edge_count": 0,
+                    },
+                )
+                entry["incoming_edge_count"] += incoming
+                entry["outgoing_edge_count"] += outgoing
+                entry["edge_count"] += incoming + outgoing
+            continue
+        entry = grouped.setdefault(
+            structural_id,
+            {
+                "module_structural_id": structural_id,
+                "module_qualified_name": qualified_name,
+                "file_path": file_path,
+                "incoming_edge_count": 0,
+                "outgoing_edge_count": 0,
+                "edge_count": 0,
+            },
+        )
+        entry["incoming_edge_count"] += incoming
+        entry["outgoing_edge_count"] += outgoing
+        entry["edge_count"] += incoming + outgoing
+    entries = sorted(
+        grouped.values(),
+        key=lambda entry: (-int(entry["edge_count"]), str(entry["module_qualified_name"])),
+    )
+    return {
+        "count": len(entries),
+        "truncated": len(entries) > top_k,
+        "entries": entries[:top_k],
+    }
+
+
 def _resolve_module_ids(conn, snapshot_id: str, module_name: str) -> List[str]:
     rows = conn.execute(
         """
@@ -326,6 +466,7 @@ __all__ = [
     "_normalize_direction",
     "_normalize_edge_type",
     "_normalize_limit",
+    "_normalize_top_k",
     "_node_lookup",
     "_resolve_module_ids",
     "_resolve_module_query",

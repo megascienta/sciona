@@ -624,6 +624,31 @@ def test_dependency_edges_filters_and_limit(tmp_path):
     assert payload["edges"][0]["edge_type"] == "IMPORTS_DECLARED"
 
 
+def test_dependency_edges_compact_mode_groups_counterparts(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = _core_conn(repo_root)
+    try:
+        payload_text = dependency_edges.render(
+            snapshot_id,
+            conn,
+            repo_root,
+            module_id=_q(repo_root, "pkg.alpha"),
+            direction="out",
+            compact=True,
+            top_k=1,
+        )
+    finally:
+        conn.close()
+    payload = parse_json_payload(payload_text)
+    assert payload["payload_kind"] == "compact_summary"
+    assert payload["top_k"] == 1
+    assert payload["counterpart_modules"]["count"] >= 1
+    assert len(payload["counterpart_modules"]["entries"]) == 1
+    assert payload["counterpart_modules"]["entries"][0]["module_qualified_name"].startswith(
+        _q(repo_root, "pkg.beta")
+    )
+
+
 def test_dependency_edges_query_filters_sources(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     conn = _core_conn(repo_root)
@@ -1167,6 +1192,28 @@ def test_module_overview_include_file_map(tmp_path):
         entry["module_qualified_name"].startswith(_q(repo["repo_root"], "pkg.alpha"))
         for entry in payload["module_files"]
     )
+
+
+def test_module_overview_compact_mode_returns_previews(tmp_path):
+    repo = _build_profile_repo(tmp_path)
+    conn = sqlite3.connect(repo["db_path"])
+    conn.row_factory = sqlite3.Row
+    payload = module_overview.run(
+        repo["snapshot_id"],
+        conn=conn,
+        module_id=_q(repo["repo_root"], "pkg.alpha"),
+        repo_root=repo["repo_root"],
+        compact=True,
+        top_k=1,
+    )
+    conn.close()
+
+    assert payload["payload_kind"] == "compact_summary"
+    assert payload["top_k"] == 1
+    assert payload["files_preview"]["count"] >= 1
+    assert len(payload["files_preview"]["entries"]) == 1
+    assert len(payload["classifiers_preview"]["entries"]) == 1
+    assert len(payload["imports_preview"]["entries"]) == 1
 
 
 def test_module_overview_reducer_exposes_nests_edges(tmp_path):
