@@ -102,6 +102,14 @@ class _ConflictingAnalyzer(_FakeAnalyzer):
         )
 
 
+class _FailingAnalyzer(_FakeAnalyzer):
+    def analyze(
+        self, file_snapshot: _FakeFileSnapshot, module_name: str
+    ) -> _FakeAnalysis:
+        del file_snapshot, module_name
+        raise ValueError("boom")
+
+
 def _configure_fake_engine(monkeypatch, analyzer) -> None:
     from sciona.code_analysis.artifacts import engine as engine_module
 
@@ -172,5 +180,24 @@ def test_artifact_engine_rejects_conflicting_duplicate_caller_metadata(
             assert "Conflicting caller metadata" in str(exc)
         else:
             raise AssertionError("Expected conflicting caller metadata to raise")
+    finally:
+        conn.close()
+
+
+def test_artifact_engine_invalidates_run_on_analyzer_failure(monkeypatch, tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    _write_test_config(repo_root)
+    db_path = repo_root / ".sciona" / "sciona.db"
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    try:
+        _configure_fake_engine(monkeypatch, _FailingAnalyzer())
+        engine = ArtifactEngine(repo_root, conn, config_root=repo_root)
+        try:
+            engine.run(snapshot_id)
+        except RuntimeError as exc:
+            assert "Failed to analyze pkg/alpha/service.py: boom" in str(exc)
+        else:
+            raise AssertionError("Expected analyzer failure to invalidate artifact run")
     finally:
         conn.close()

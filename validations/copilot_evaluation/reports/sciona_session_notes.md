@@ -134,6 +134,23 @@ Observations
 The highest-value finding was a confirmed counting bug in artifact call resolution. The remaining items are mostly policy and parser-hardening changes that require explicit decisions about fail-fast behavior.
 RATINGS (1-10): Structural clarity 7 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 6 | Scope reduction vs baseline 5 | Query friction vs baseline 3 | Net usefulness vs baseline 6
+## Task 11 - Fail-fast build semantics
+Copilot
+Codex (GPT-5)
+Task description
+Refined parse validation to avoid false positives on supported Python typing syntax, then changed structural and artifact analysis to invalidate the run on per-file analysis failures instead of persisting partial results.
+Task type
+implementation
+SCIONA usage
+Relied only on the earlier structural audit to identify the engine and analyzer seams; no new reducers were required for the semantic behavior change.
+Effect on workflow
+SCIONA had minimal direct effect here. The key work was source-level reasoning about parser behavior, engine rollback semantics, and updating tests to the new fail-fast contract.
+Fallback
+Applied engine and parser patches, updated regression tests, and ran focused `pytest` in `multiphysics` for engines and language analyzers.
+Observations
+This block changed repository behavior materially: malformed or analyzer-failing files now invalidate the run rather than leaving partial structural state behind. The parser helper also needed one refinement after the commit hook exposed false positives.
+RATINGS (1-10): Structural clarity 7 | Navigation speed 6 | Confidence in answers 9 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 3 | Confidence gain vs baseline 6 | Scope reduction vs baseline 4 | Query friction vs baseline 4 | Net usefulness vs baseline 6
 ## Task 10 - Parse validation hardening
 Copilot
 Codex (GPT-5)

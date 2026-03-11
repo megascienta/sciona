@@ -100,6 +100,45 @@ def test_python_analyzer_rejects_malformed_parse_tree(tmp_path) -> None:
         analyzer.analyze(snapshot, module_name)
 
 
+def test_python_analyzer_accepts_modern_multiline_type_syntax(tmp_path) -> None:
+    module = """
+from typing import Sequence
+
+def ok(
+    rows: list[
+        tuple[
+            str | None,
+            int | None,
+        ]
+    ],
+) -> Sequence[str]:
+    return []
+"""
+    repo = tmp_path
+    pkg = repo / "pkg"
+    pkg.mkdir()
+    file_path = pkg / "typed.py"
+    file_path.write_text(module, encoding="utf-8")
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("pkg/typed.py"),
+            language="python",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = PythonAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+
+    result = analyzer.analyze(snapshot, module_name)
+    assert any(node.qualified_name == f"{module_name}.ok" for node in result.nodes)
+
+
 def test_python_analyzer_resolves_instance_assignments_per_callable_scope(tmp_path):
     module = """
 class Service:

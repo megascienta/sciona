@@ -8,13 +8,15 @@ from sciona.data_storage.core_db.schema import ensure_schema
 from sciona.code_analysis.core.extract.analyzer import ASTAnalyzer
 from sciona.code_analysis.core.engine import BuildEngine
 from sciona.code_analysis.core.normalize_model import AnalysisResult, CallRecord
+from sciona.runtime.errors import IngestionError
 from sciona.data_storage.core_db import write_ops as core_write
 from sciona.runtime import config as core_config
 from sciona.code_analysis.core.extract import registry
 from sciona.code_analysis.core.snapshot import Snapshot
+import pytest
 
 
-def test_engine_records_nodes_for_failed_parse(tmp_path, monkeypatch):
+def test_engine_invalidates_snapshot_build_on_failed_parse(tmp_path, monkeypatch):
     class FailingAnalyzer(ASTAnalyzer):
         language = "python"
 
@@ -78,23 +80,24 @@ def test_engine_records_nodes_for_failed_parse(tmp_path, monkeypatch):
         repo_root, conn, core_write, languages=languages, discovery=discovery
     )
     conn.execute("BEGIN")
-    engine.run(
-        snapshot=Snapshot(
-            snapshot_id=snapshot_id,
-            created_at="2024-01-01T00:00:00Z",
-            source="scan",
-            git_commit_sha="",
-            git_commit_time="",
-            git_branch="",
+    with pytest.raises(IngestionError, match="Failed to analyze pkg/mod.py: boom"):
+        engine.run(
+            snapshot=Snapshot(
+                snapshot_id=snapshot_id,
+                created_at="2024-01-01T00:00:00Z",
+                source="scan",
+                git_commit_sha="",
+                git_commit_time="",
+                git_branch="",
+            )
         )
-    )
-    conn.commit()
+    conn.rollback()
 
     row = conn.execute(
         "SELECT structural_id FROM node_instances WHERE qualified_name = ?",
         ("pkg.mod",),
     ).fetchone()
-    assert row is not None
+    assert row is None
 
 
 def test_engine_warns_on_empty_language_matches(tmp_path, monkeypatch):
@@ -309,17 +312,18 @@ def test_engine_applies_max_file_bytes_guardrail(tmp_path, monkeypatch):
         max_file_bytes=1,
     )
     conn.execute("BEGIN")
-    engine.run(
-        snapshot=Snapshot(
-            snapshot_id=snapshot_id,
-            created_at="2024-01-01T00:00:00Z",
-            source="scan",
-            git_commit_sha="",
-            git_commit_time="",
-            git_branch="",
+    with pytest.raises(IngestionError, match="max_file_bytes=1"):
+        engine.run(
+            snapshot=Snapshot(
+                snapshot_id=snapshot_id,
+                created_at="2024-01-01T00:00:00Z",
+                source="scan",
+                git_commit_sha="",
+                git_commit_time="",
+                git_branch="",
+            )
         )
-    )
-    conn.commit()
+    conn.rollback()
 
     assert engine.parse_failures == 1
     assert any("max_file_bytes=1" in warning for warning in engine.warnings)
@@ -387,17 +391,18 @@ def test_engine_applies_max_call_identifiers_guardrail(tmp_path, monkeypatch):
         max_call_identifiers_per_file=2,
     )
     conn.execute("BEGIN")
-    engine.run(
-        snapshot=Snapshot(
-            snapshot_id=snapshot_id,
-            created_at="2024-01-01T00:00:00Z",
-            source="scan",
-            git_commit_sha="",
-            git_commit_time="",
-            git_branch="",
+    with pytest.raises(IngestionError, match="max_call_identifiers_per_file=2"):
+        engine.run(
+            snapshot=Snapshot(
+                snapshot_id=snapshot_id,
+                created_at="2024-01-01T00:00:00Z",
+                source="scan",
+                git_commit_sha="",
+                git_commit_time="",
+                git_branch="",
+            )
         )
-    )
-    conn.commit()
+    conn.rollback()
 
     assert engine.parse_failures == 1
     assert any(
@@ -414,7 +419,7 @@ def test_engine_accumulates_name_collision_and_residual_containment_diagnostics(
 
         def analyze(self, snapshot, module_name):
             rel = snapshot.record.relative_path.as_posix()
-            if rel.endswith("bad.py"):
+            if rel.endswith("z_bad.py"):
                 raise ValueError(
                     "Lexical containment span invariant violated: parent does not enclose child"
                 )
@@ -433,15 +438,15 @@ def test_engine_accumulates_name_collision_and_residual_containment_diagnostics(
 
         def module_name(self, repo_root, snapshot):
             rel = snapshot.record.relative_path.as_posix()
-            if rel.endswith("good.py"):
+            if rel.endswith("a_good.py"):
                 return "pkg.good"
             return "pkg.bad"
 
     repo_root = tmp_path
     pkg = repo_root / "pkg"
     pkg.mkdir(parents=True)
-    (pkg / "good.py").write_text("def ok():\n    pass\n", encoding="utf-8")
-    (pkg / "bad.py").write_text("def bad():\n    pass\n", encoding="utf-8")
+    (pkg / "a_good.py").write_text("def ok():\n    pass\n", encoding="utf-8")
+    (pkg / "z_bad.py").write_text("def bad():\n    pass\n", encoding="utf-8")
 
     conn = sqlite3.connect(":memory:")
     conn.row_factory = sqlite3.Row
@@ -463,7 +468,10 @@ def test_engine_accumulates_name_collision_and_residual_containment_diagnostics(
     )
     monkeypatch.setattr(
         "sciona.runtime.git.tracked_paths",
-        lambda _root: {Path("pkg/good.py").as_posix(), Path("pkg/bad.py").as_posix()},
+        lambda _root: {
+            Path("pkg/a_good.py").as_posix(),
+            Path("pkg/z_bad.py").as_posix(),
+        },
     )
     monkeypatch.setattr("sciona.runtime.git.ignored_tracked_paths", lambda _root: set())
     monkeypatch.setattr(
@@ -479,17 +487,21 @@ def test_engine_accumulates_name_collision_and_residual_containment_diagnostics(
         discovery=core_config.DiscoverySettings(exclude_globs=[]),
     )
     conn.execute("BEGIN")
-    engine.run(
-        snapshot=Snapshot(
-            snapshot_id=snapshot_id,
-            created_at="2024-01-01T00:00:00Z",
-            source="scan",
-            git_commit_sha="",
-            git_commit_time="",
-            git_branch="",
+    with pytest.raises(
+        IngestionError,
+        match="Lexical containment span invariant violated",
+    ):
+        engine.run(
+            snapshot=Snapshot(
+                snapshot_id=snapshot_id,
+                created_at="2024-01-01T00:00:00Z",
+                source="scan",
+                git_commit_sha="",
+                git_commit_time="",
+                git_branch="",
+            )
         )
-    )
-    conn.commit()
+    conn.rollback()
 
     assert engine.name_collisions_detected == 2
     assert engine.name_collisions_disambiguated == 2

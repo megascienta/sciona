@@ -20,6 +20,7 @@ def validate_tree_or_raise(tree, *, language_name: str) -> None:
     error_examples: list[str] = []
     error_count = 0
     missing_count = 0
+    significant_missing_count = 0
     stack = [root]
     while stack:
         node = stack.pop()
@@ -30,17 +31,15 @@ def validate_tree_or_raise(tree, *, language_name: str) -> None:
                 error_examples.append(_format_node_example(node, label="ERROR"))
         elif bool(getattr(node, "is_missing", False)):
             missing_count += 1
+            if node_type != "identifier":
+                significant_missing_count += 1
             if len(error_examples) < 3:
                 error_examples.append(_format_node_example(node, label="MISSING"))
         children = getattr(node, "children", None)
         if children:
             stack.extend(reversed(list(children)))
 
-    if (
-        not bool(getattr(root, "has_error", False))
-        and error_count == 0
-        and missing_count == 0
-    ):
+    if error_count == 0 and significant_missing_count == 0:
         return
 
     summary = (
