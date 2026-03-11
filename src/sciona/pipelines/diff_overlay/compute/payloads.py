@@ -6,33 +6,13 @@
 from __future__ import annotations
 
 import hashlib
-import json
-from dataclasses import dataclass
-from pathlib import Path
-from collections import Counter
-from typing import Iterable
 
-from ....code_analysis.core.extract import registry
-from ....code_analysis import config as analysis_config
 from ....code_analysis.core.normalize_model import (
-    FileRecord,
     FileSnapshot,
     SemanticNodeRecord,
 )
-from ....code_analysis.tools.workspace import snapshots as snapshot_tools
-from ....code_analysis.tools.workspace import excludes as path_excludes
-from ....data_storage.core_db import read_ops as core_read
-from ....runtime import config as runtime_config
-from ....runtime.config import io as runtime_config_io
-from ....runtime.common import constants as runtime_constants
-from ....runtime import git as git_ops
 from ....runtime.common import identity as ids
 from ....runtime.common.text import canonical_span_bytes
-from ....runtime.common import time as runtime_time
-from ....runtime.errors import ConfigError
-from ....runtime.logging import get_logger
-
-from ..calls import compute_call_overlay_rows
 
 def node_payload(node: SemanticNodeRecord, file_snapshot: FileSnapshot) -> dict[str, object]:
     structural_id = ids.structural_id(

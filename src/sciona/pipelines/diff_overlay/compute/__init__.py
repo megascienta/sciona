@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from .summary import summarize_overlay, worktree_fingerprint
+from .summary import summarize_overlay
 from .core import (
     _ChangeSet,
     analyze_files,
@@ -24,9 +24,10 @@ from .payloads import (
     overlay_row,
 )
 from .config import (
-    resolve_enabled_languages,
-    discovery_excludes,
     analyzers_by_language,
+    discovery_excludes,
+    resolve_enabled_languages,
+    worktree_fingerprint,
 )
 
 __all__ = [

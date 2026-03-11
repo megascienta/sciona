@@ -219,6 +219,23 @@ Observations
 This block mixed structural and semantic work cleanly. SCIONA was decisive for locating the anomaly classes, but fixing the reducer query and Typer registration shape still required direct source reasoning.
 RATINGS (1-10): Structural clarity 8 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 8
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 8
+## Task 22 - PR5 compute boundary narrowing
+Copilot
+Codex (GPT-5)
+Task description
+Narrowed `pipelines.diff_overlay.compute` internals by moving worktree fingerprinting into config ownership and trimming sibling modules so `summary.py` only summarizes and `payloads.py` only shapes overlay payload data.
+Task type
+implementation
+SCIONA usage
+Used `fan_summary` plus direct import search to confirm `compute.core` remained the main fan-out hub and to identify the surrounding helper modules contributing unnecessary coupling.
+Effect on workflow
+SCIONA reduced search space and justified a narrow refactor instead of a broader redesign: the evidence pointed to internal import sprawl rather than a broken external seam.
+Fallback
+Source inspection, import cleanup, compile check, and focused overlay `pytest` in `multiphysics` for compute helpers, diff overlay behavior, and layer boundaries.
+Observations
+This was mostly a structural hygiene change. SCIONA was useful for prioritization, but the actual implementation depended on reading the sibling modules and trimming them to their real responsibilities.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 8 | Confidence in answers 8 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 6 | Scope reduction vs baseline 6 | Query friction vs baseline 4 | Net usefulness vs baseline 7
 ## Task 12 - TypeScript heritage hardening
 Copilot
 Codex (GPT-5)

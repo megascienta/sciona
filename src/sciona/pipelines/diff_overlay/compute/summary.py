@@ -5,34 +5,9 @@
 
 from __future__ import annotations
 
-import hashlib
 import json
-from dataclasses import dataclass
-from pathlib import Path
 from collections import Counter
 from typing import Iterable
-
-from ....code_analysis.core.extract import registry
-from ....code_analysis import config as analysis_config
-from ....code_analysis.core.normalize_model import (
-    FileRecord,
-    FileSnapshot,
-    SemanticNodeRecord,
-)
-from ....code_analysis.tools.workspace import snapshots as snapshot_tools
-from ....code_analysis.tools.workspace import excludes as path_excludes
-from ....data_storage.core_db import read_ops as core_read
-from ....runtime import config as runtime_config
-from ....runtime.config import io as runtime_config_io
-from ....runtime.common import constants as runtime_constants
-from ....runtime import git as git_ops
-from ....runtime.common import identity as ids
-from ....runtime.common.text import canonical_span_bytes
-from ....runtime.common import time as runtime_time
-from ....runtime.errors import ConfigError
-from ....runtime.logging import get_logger
-
-from ..calls import compute_call_overlay_rows
 
 def summarize_overlay(
     rows: Iterable[dict[str, object]],
@@ -107,37 +82,3 @@ def summarize_overlay(
     ):
         return None
     return summary
-
-def worktree_fingerprint(
-    repo_root: Path,
-    base_commit: str,
-    *,
-    cache: dict[tuple[Path, tuple[str, ...], str | None], str],
-) -> str:
-    parts = []
-    parts.append(
-        git_ops.git_output(
-            repo_root,
-            ["diff", "--name-status", base_commit],
-            cache=cache,
-        )
-    )
-    parts.append(
-        git_ops.git_output(
-            repo_root,
-            ["diff", "--cached", "--name-status", base_commit],
-            cache=cache,
-        )
-    )
-    parts.append(
-        git_ops.git_output(
-            repo_root,
-            ["ls-files", "--others", "--exclude-standard"],
-            cache=cache,
-        )
-    )
-    config_text = runtime_config_io.load_config_text(repo_root) or ""
-    parts.append(config_text)
-    parts.append(runtime_constants.TOOL_VERSION)
-    digest = hashlib.sha256("\n".join(parts).encode("utf-8")).hexdigest()
-    return digest
