@@ -1,4 +1,4 @@
-## Task 0 - Session setup
+## Task 1 - Session setup
 Copilot
 Codex (GPT-5)
 Task description
@@ -15,7 +15,7 @@ Observations
 This task was procedural rather than structural, so SCIONA was not relevant.
 RATINGS (1-10): Structural clarity 1 | Navigation speed 1 | Confidence in answers 10 | Overall usefulness 1
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 1 | Confidence gain vs baseline 1 | Scope reduction vs baseline 1 | Query friction vs baseline 1 | Net usefulness vs baseline 1
-## Task 1 - Pre-release audit
+## Task 2 - Pre-release audit
 Copilot
 Codex (GPT-5)
 Task description
@@ -32,7 +32,7 @@ Observations
 SCIONA was most useful for structural triage and scope reduction; it created mild friction because package-qualified names and anomaly outputs still required manual source inspection to decide whether a risk was contractual or merely advisory.
 RATINGS (1-10): Structural clarity 8 | Navigation speed 8 | Confidence in answers 8 | Overall usefulness 8
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
-## Task 2 - Audit follow-up
+## Task 3 - Audit follow-up
 Copilot
 Codex (GPT-5)
 Task description
@@ -49,7 +49,7 @@ Observations
 SCIONA remained strong for triage but not for confirming code duplication; the highest-ROI action became obvious only after direct source comparison.
 RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 8
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 8 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 8
-## Task 3 - Implementation planning
+## Task 4 - Implementation planning
 Copilot
 Codex (GPT-5)
 Task description
@@ -66,7 +66,7 @@ Observations
 At this stage SCIONA’s main value was confidence in scope boundaries; detailed implementation planning still depended on direct source understanding.
 RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 3 | Net usefulness vs baseline 7
-## Task 4 - PR planning
+## Task 5 - PR planning
 Copilot
 Codex (GPT-5)
 Task description
@@ -83,13 +83,71 @@ Observations
 This phase was planning-heavy; SCIONA remained useful for scope discipline but did not replace implementation judgment.
 RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 8 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 3 | Net usefulness vs baseline 7
-## Task 57 - pre-release structural audit
-Copilot: Codex (GPT-5)
-Task description: Audited `src/` at module, cross-module, and contract-compliance levels for release risk.
-Task type: architecture review
-SCIONA usage: `snapshot_provenance`, `structural_index`, `ownership_summary`, `module_overview`, `fan_summary`, `hotspot_summary`, `structural_integrity_summary`, `call_resolution_quality`, `call_resolution_drop_summary`, plus `search` for module resolution.
-Effect on workflow: identify ownership; reduce search space; confirm assumptions; create friction
-Fallback: targeted source inspection in `docs/` and selected package `__init__` files, `find`, `rg`, manual comparison of folder shape
-Observations: SCIONA was decisive for package boundaries and coupling hotspots; friction came from committed-snapshot-only results on a dirty worktree and one reducer refusing an unresolved package-level call-graph request.
-RATINGS (1-10): Structural clarity 9 | Navigation speed 8 | Confidence in answers 8 | Overall usefulness 8
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 8 | Confidence gain vs baseline 8 | Scope reduction vs baseline 9 | Query friction vs baseline 5 | Net usefulness vs baseline 8
+## Task 6 - Structural implementation
+Copilot
+Codex (GPT-5)
+Task description
+Implemented the accepted structural changes: canonicalized overlay patching in `pipelines`, removed duplicated runtime overlay patching modules, clarified ownership boundaries, split reducer shared query helpers, extracted path-validation and connection-settings helpers, and added targeted tests.
+Task type
+implementation
+SCIONA usage
+Built on prior `ownership_summary`, `fan_summary`, `structural_integrity_summary`, and `resolution_trace` evidence already gathered for scope and risk targeting.
+Effect on workflow
+SCIONA had already reduced the structural uncertainty; implementation still required direct source edits, boundary-test updates, and focused test execution.
+Fallback
+Source inspection, apply_patch edits, `python -m compileall`, and focused `pytest` in `multiphysics`.
+Observations
+SCIONA was useful for choosing edit scope, but the decisive evidence for deleting duplicated overlay patching code came from direct file comparison and passing targeted tests.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 8 | Scope reduction vs baseline 7 | Query friction vs baseline 3 | Net usefulness vs baseline 8
+## Task 7 - Code analysis audit
+Copilot
+Codex (GPT-5)
+Task description
+Audited `src/sciona/code_analysis` in three phases: SCIONA-based structural orientation, direct algorithm/logic review, and test coverage validation with targeted `pytest`.
+Task type
+architecture review
+SCIONA usage
+Used `ownership_summary`, `hotspot_summary`, `fan_summary`, and `snapshot_provenance` to map package shape, internal hubs, and amplification risks before reading source.
+Effect on workflow
+SCIONA materially reduced search space and identified `core.normalize_model` plus analyzer entrypoints as the right starting points; it had little impact on parser correctness, resolver semantics, or coverage adequacy.
+Fallback
+Source inspection with line-level reads, `rg` for parser-error handling and tests, plus focused `pytest` in `multiphysics` over parser policy, engines, analyzers, strict-call contracts, and snapshot tools.
+Observations
+SCIONA helped most in Phase 1. Semantic findings such as double-counted resolver stats and partial-index behavior came from direct source inspection and test execution rather than reducers.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
+## Task 8 - Code analysis fix planning
+Copilot
+Codex (GPT-5)
+Task description
+Did deeper follow-up on the Phase 2 `code_analysis` audit findings, confirmed the resolver-stats defect, and converted parser/extraction risks into immediate ROI-ordered fix proposals.
+Task type
+semantic investigation
+SCIONA usage
+Reused prior structural orientation from `ownership_summary` and `hotspot_summary`; no additional reducers materially changed the semantic fix plan.
+Effect on workflow
+SCIONA had little additional impact here because the remaining questions were source-level correctness and release-policy choices rather than structure discovery.
+Fallback
+Direct source inspection with line references, one-shot interpreter verification of resolver stats, and prior targeted `pytest` results in `multiphysics`.
+Observations
+The highest-value finding was a confirmed counting bug in artifact call resolution. The remaining items are mostly policy and parser-hardening changes that require explicit decisions about fail-fast behavior.
+RATINGS (1-10): Structural clarity 7 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 6 | Scope reduction vs baseline 5 | Query friction vs baseline 3 | Net usefulness vs baseline 6
+## Task 9 - Call resolution stats fix
+Copilot
+Codex (GPT-5)
+Task description
+Implemented the confirmed artifact call-resolution stats bug fix and added a direct regression test for `resolve_callees()`.
+Task type
+implementation
+SCIONA usage
+Used prior structural hotspot orientation only; no new reducers were needed because the defect was already isolated to one artifact-layer function.
+Effect on workflow
+SCIONA had little impact on this block beyond earlier scope reduction; source inspection and a direct interpreter check were the decisive evidence.
+Fallback
+Applied a small source edit, added a regression test, and ran narrow `pytest` in `multiphysics` for callsite artifact and strict-resolution tests.
+Observations
+This was a high-ROI source-level defect fix. SCIONA was mainly useful earlier when narrowing the investigation to artifact call resolution.
+RATINGS (1-10): Structural clarity 7 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 6 | Scope reduction vs baseline 5 | Query friction vs baseline 3 | Net usefulness vs baseline 6

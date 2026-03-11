@@ -331,7 +331,6 @@ def resolve_callees(
     for resolution in strict_batch.resolutions:
         identifier = resolution.identifier
         decision = resolution.decision
-        stats["identifiers_total"] += 1
         rescue_candidate, rescue_provenance = _resolve_post_strict_rescue_candidate(
             identifier=identifier,
             decision=decision,

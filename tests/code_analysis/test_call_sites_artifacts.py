@@ -7,6 +7,7 @@ from pathlib import Path
 
 from sciona.code_analysis.artifacts import rollups
 from sciona.code_analysis.artifacts import write_call_artifacts
+from sciona.code_analysis.artifacts.call_resolution import resolve_callees
 from sciona.code_analysis.tools.call_extraction import CallExtractionRecord
 from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.data_storage.artifact_db.writes import write_index as artifact_write
@@ -64,6 +65,26 @@ def test_call_sites_persist_in_repo_candidates_only(tmp_path: Path) -> None:
             artifact_conn.close()
     finally:
         core_conn.close()
+
+
+def test_resolve_callees_counts_each_identifier_once() -> None:
+    resolved_ids, resolved_names, stats, rows = resolve_callees(
+        ["helper"],
+        {"helper": ["pkg.mod.helper"]},
+        caller_module="pkg.mod",
+        module_lookup={"pkg.mod.helper": "pkg.mod"},
+        import_targets={"pkg.mod": set()},
+        expanded_import_targets={"pkg.mod": set()},
+        module_ancestors={"pkg.mod": set()},
+    )
+
+    assert resolved_ids == {"pkg.mod.helper"}
+    assert resolved_names == {"helper"}
+    assert stats["identifiers_total"] == 1
+    assert stats["accepted_identifiers"] == 1
+    assert stats["dropped_identifiers"] == 0
+    assert rows[0][0] == "helper"
+
 
 def test_call_sites_filter_out_of_repo_accepted_rows_at_persistence_boundary(
     tmp_path: Path, monkeypatch
