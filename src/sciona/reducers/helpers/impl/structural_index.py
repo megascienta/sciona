@@ -8,7 +8,7 @@ from __future__ import annotations
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Sequence, Set, Tuple
+from typing import Any, Dict, List, Sequence, Set, Tuple
 
 import networkx as nx
 
@@ -41,13 +41,26 @@ class _ModuleGraph:
     structural_lookup: Dict[str, str]
 
 
-def render(snapshot_id: str, conn, repo_root, **_: object) -> str:
+def render(
+    snapshot_id: str,
+    conn,
+    repo_root,
+    compact: bool | None = None,
+    top_k: int | str | None = None,
+    **_: object,
+) -> str:
     conn = require_connection(conn)
-    payload = run(snapshot_id, conn=conn, repo_root=repo_root)
+    payload = run(
+        snapshot_id,
+        conn=conn,
+        repo_root=repo_root,
+        compact=compact,
+        top_k=top_k,
+    )
     return render_json_payload(payload)
 
 
-def run(snapshot_id: str, **params) -> StructuralIndexPayload:
+def run(snapshot_id: str, **params) -> StructuralIndexPayload | dict[str, Any]:
     conn = params.get("conn")
     if conn is None:
         raise ValueError(
@@ -71,6 +84,8 @@ def run(snapshot_id: str, **params) -> StructuralIndexPayload:
     artifact_available = artifact_db_available(Path(repo_root))
     if not artifact_available:
         raise ValueError("structural_index reducer requires the artifact database.")
+    compact = bool(params.get("compact"))
+    top_k = _normalize_top_k(params.get("top_k"))
     module_graph = _build_module_graph(conn, snapshot_id, repo_root)
     (
         module_entries,
@@ -95,7 +110,7 @@ def run(snapshot_id: str, **params) -> StructuralIndexPayload:
     import_edges = _import_edges(module_graph)
     import_cycles = _import_cycles(import_edges)
 
-    return {
+    payload: StructuralIndexPayload = {
         "projection": "structural_index",
         "projection_version": "1.0",
         "payload_kind": "summary",
@@ -124,6 +139,9 @@ def run(snapshot_id: str, **params) -> StructuralIndexPayload:
         },
         "import_cycles": import_cycles,
     }
+    if compact:
+        return _compact_payload(payload, top_k)
+    return payload
 
 
 def _module_summaries(
@@ -302,6 +320,108 @@ def _count_to_entries(counts: Dict[str, int], key_name: str) -> List[Dict[str, o
     ]
     order_nodes(entries, key=lambda item: (-item["count"], item[key_name]))
     return entries
+
+
+def _compact_payload(
+    payload: StructuralIndexPayload,
+    top_k: int,
+) -> dict[str, Any]:
+    modules = list(payload["modules"]["entries"])
+    package_prefixes = _package_prefix_counts(modules)
+    dense_modules = sorted(
+        (
+            {
+                "module_qualified_name": entry["module_qualified_name"],
+                "language": entry["language"],
+                "file_count": entry["file_count"],
+                "classifier_count": entry["classifier_count"],
+                "function_count": entry["function_count"],
+                "method_count": entry["method_count"],
+                "node_count": (
+                    int(entry["classifier_count"])
+                    + int(entry["function_count"])
+                    + int(entry["method_count"])
+                ),
+            }
+            for entry in modules
+        ),
+        key=lambda entry: (-int(entry["node_count"]), str(entry["module_qualified_name"])),
+    )
+    language_breakdown = _language_totals(modules)
+    return {
+        "projection": "structural_index",
+        "projection_version": payload["projection_version"],
+        "payload_kind": "compact_summary",
+        "top_k": top_k,
+        "totals": {
+            "module_count": payload["modules"]["count"],
+            "file_count": payload["files"]["count"],
+            "classifier_count": payload["classifiers"]["count"],
+            "function_count": payload["functions"]["total"],
+            "method_count": payload["methods"]["total"],
+            "import_edge_count": payload["imports"]["edge_count"],
+            "import_cycle_count": len(payload["import_cycles"]),
+        },
+        "language_breakdown": {
+            "count": len(language_breakdown),
+            "truncated": len(language_breakdown) > top_k,
+            "entries": language_breakdown[:top_k],
+        },
+        "top_package_prefixes": {
+            "count": len(package_prefixes),
+            "truncated": len(package_prefixes) > top_k,
+            "entries": package_prefixes[:top_k],
+        },
+        "top_dense_modules": {
+            "count": len(dense_modules),
+            "truncated": len(dense_modules) > top_k,
+            "entries": dense_modules[:top_k],
+        },
+        "import_cycles_preview": {
+            "count": len(payload["import_cycles"]),
+            "truncated": len(payload["import_cycles"]) > top_k,
+            "entries": list(payload["import_cycles"])[:top_k],
+        },
+    }
+
+
+def _language_totals(modules: list[dict[str, object]]) -> list[dict[str, object]]:
+    counts: Counter[str] = Counter()
+    for entry in modules:
+        language = str(entry.get("language") or "unknown")
+        counts[language] += 1
+    rows = [{"language": language, "module_count": count} for language, count in counts.items()]
+    order_nodes(rows, key=lambda item: (-item["module_count"], item["language"]))
+    return rows
+
+
+def _package_prefix_counts(modules: list[dict[str, object]]) -> list[dict[str, object]]:
+    counts: Counter[str] = Counter()
+    for entry in modules:
+        name = str(entry.get("module_qualified_name") or "")
+        prefix = _top_level_prefix(name)
+        counts[prefix] += 1
+    rows = [{"package_prefix": prefix, "module_count": count} for prefix, count in counts.items()]
+    order_nodes(rows, key=lambda item: (-item["module_count"], item["package_prefix"]))
+    return rows
+
+
+def _top_level_prefix(module_name: str) -> str:
+    if not module_name:
+        return "unknown"
+    return module_name.split(".", 1)[0]
+
+
+def _normalize_top_k(top_k: int | str | None) -> int:
+    if top_k is None:
+        return 5
+    try:
+        value = int(top_k)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("structural_index top_k must be an integer.") from exc
+    if value <= 0:
+        raise ValueError("structural_index top_k must be positive.")
+    return min(value, 50)
 
 
 def _build_module_graph(conn, snapshot_id: str, repo_root: str | Path) -> _ModuleGraph:

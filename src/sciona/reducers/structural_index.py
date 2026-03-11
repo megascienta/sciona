@@ -17,10 +17,17 @@ REDUCER_META = ReducerMeta(
 )
 
 
-def render(snapshot_id: str, conn, repo_root, **_: object) -> str:
+def render(
+    snapshot_id: str,
+    conn,
+    repo_root,
+    compact: bool | None = None,
+    top_k: int | str | None = None,
+    **_: object,
+) -> str:
     from .helpers.impl.structural_index import render as _render
 
-    return _render(snapshot_id, conn, repo_root)
+    return _render(snapshot_id, conn, repo_root, compact=compact, top_k=top_k)
 
 
 __all__ = ["render", "run", "REDUCER_META"]

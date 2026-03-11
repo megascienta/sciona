@@ -938,6 +938,30 @@ def test_structural_index_reducer_reports_modules_and_cycles(tmp_path):
     assert set(file_entry.keys()) <= {"path", "module_qualified_name"}
 
 
+def test_structural_index_compact_mode_returns_headlines(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    db_path = repo_root / setup_config.SCIONA_DIR_NAME / setup_config.DB_FILENAME
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+
+    payload = structural_index.run(
+        snapshot_id,
+        conn=conn,
+        repo_root=repo_root,
+        compact=True,
+        top_k=1,
+    )
+    conn.close()
+
+    assert payload["projection"] == "structural_index"
+    assert payload["payload_kind"] == "compact_summary"
+    assert payload["top_k"] == 1
+    assert payload["totals"]["module_count"] >= 1
+    assert len(payload["language_breakdown"]["entries"]) == 1
+    assert len(payload["top_package_prefixes"]["entries"]) == 1
+    assert len(payload["top_dense_modules"]["entries"]) == 1
+
+
 def test_callable_overview_reducer_returns_python_metadata(tmp_path):
     repo = _build_profile_repo(tmp_path)
     conn = sqlite3.connect(repo["db_path"])
