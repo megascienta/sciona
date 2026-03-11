@@ -11,8 +11,8 @@ from typing import Iterable, List
 from .helpers.shared import queries
 from .metadata import ReducerMeta
 from .helpers.shared.base import require_connection
-from .helpers.shared.render import render_json_payload
-from .helpers.shared.utils import require_latest_committed_snapshot
+from .helpers.shared.payload import render_json_payload
+from .helpers.shared.snapshot_guard import require_latest_committed_snapshot
 
 REDUCER_META = ReducerMeta(
     reducer_id="concatenated_source",

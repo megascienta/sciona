@@ -16,8 +16,9 @@ from ..artifact.graph_edges import (
     load_artifact_edges,
 )
 from ..shared.context import current_overlay_payload
-from ..shared.render import render_json_payload, require_connection
-from ..shared.utils import require_latest_committed_snapshot
+from ..shared.connection import require_connection
+from ..shared.payload import render_json_payload
+from ..shared.snapshot_guard import require_latest_committed_snapshot
 from ...metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(

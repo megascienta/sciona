@@ -1,15 +1,11 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Shared reducer rendering helpers."""
+"""Compatibility exports for shared reducer render helpers."""
 
 from __future__ import annotations
 
-def require_connection(conn):
-    if conn is None:
-        raise ValueError("Reducer requires an open database connection.")
-    return conn
+from .connection import require_connection
+from .payload import render_json_payload
 
-
-def render_json_payload(payload: object) -> object:
-    return payload
+__all__ = ["render_json_payload", "require_connection"]

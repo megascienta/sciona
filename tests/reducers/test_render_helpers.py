@@ -7,11 +7,11 @@ import sqlite3
 
 import pytest
 
-from sciona.reducers.helpers.shared.render import (
-    render_json_payload,
-    require_connection,
+from sciona.reducers.helpers.shared.connection import require_connection
+from sciona.reducers.helpers.shared.payload import render_json_payload
+from sciona.reducers.helpers.shared.snapshot_guard import (
+    require_latest_committed_snapshot,
 )
-from sciona.reducers.helpers.shared.utils import require_latest_committed_snapshot
 from sciona.data_storage.core_db.schema import ensure_schema
 from sciona.data_storage.core_db import write_ops as core_write
 
@@ -52,7 +52,7 @@ def test_require_latest_committed_snapshot_rejects_missing_and_multiple_committe
     )
     conn.commit()
     monkeypatch.setattr(
-        "sciona.reducers.helpers.shared.utils.core_read.list_committed_snapshots",
+        "sciona.reducers.helpers.shared.snapshot_guard.core_read.list_committed_snapshots",
         lambda _conn: ["snap_new", "snap_old"],
     )
     with pytest.raises(ValueError, match="exactly one committed snapshot"):

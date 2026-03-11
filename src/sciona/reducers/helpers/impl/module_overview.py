@@ -12,9 +12,11 @@ from ....code_analysis.analysis.orderings import order_nodes, order_strings
 from ..shared import queries
 from ..artifact.graph_edges import artifact_db_available, load_artifact_edges
 from ..shared.profile_utils import fetch_node_instance
-from ..shared.render import render_json_payload, require_connection
+from ..shared.connection import require_connection
+from ..shared.payload import render_json_payload
+from ..shared.snapshot_guard import require_latest_committed_snapshot
+from ..shared.source_files import line_span_hash
 from ..shared.types import ModuleOverviewPayload
-from ..shared.utils import line_span_hash, require_latest_committed_snapshot
 from ...metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(

@@ -32,6 +32,23 @@ Observations
 SCIONA was most useful for structural triage and scope reduction; it created mild friction because package-qualified names and anomaly outputs still required manual source inspection to decide whether a risk was contractual or merely advisory.
 RATINGS (1-10): Structural clarity 8 | Navigation speed 8 | Confidence in answers 8 | Overall usefulness 8
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
+## Task 20 - PR3 reducer helper narrowing
+Copilot
+Codex (GPT-5)
+Task description
+Split shared reducer helper shims into narrower modules for connection guards, payload rendering, snapshot guards, source-file helpers, and counter helpers, then rewired reducers to import only the concern they use.
+Task type
+implementation
+SCIONA usage
+Used the fresh audit hotspot and fan-in evidence to target the shared reducer helper roots with the most reuse pressure.
+Effect on workflow
+SCIONA reduced the search space to the helper chokepoints, but the actual change required direct source inspection to group functions by concern and update imports safely.
+Fallback
+Added new helper modules, rewired reducer imports, and ran reducer-heavy `pytest` in `multiphysics`.
+Observations
+`queries.py` was already narrowed before this PR; the real remaining centralization was import traffic through `render.py` and `utils.py`. The new layout keeps shared behavior but removes most dependency traffic from those catch-all shims.
+RATINGS (1-10): Structural clarity 9 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
 ## Task 19 - PR2 hotspot regression coverage
 Copilot
 Codex (GPT-5)

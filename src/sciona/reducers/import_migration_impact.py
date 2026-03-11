@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from .helpers.shared.render import render_json_payload
+from .helpers.shared.payload import render_json_payload
 from .metadata import ReducerMeta
 from .ownership_summary import run as ownership_run
 

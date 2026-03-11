@@ -12,8 +12,9 @@ from .helpers.shared import queries
 from .helpers.artifact.graph_edges import artifact_db_available
 from .helpers.artifact.graph_rollups import load_module_call_edges
 from .helpers.shared.context import current_overlay_payload
-from .helpers.shared.render import render_json_payload, require_connection
-from .helpers.shared.utils import require_latest_committed_snapshot
+from .helpers.shared.connection import require_connection
+from .helpers.shared.payload import render_json_payload
+from .helpers.shared.snapshot_guard import require_latest_committed_snapshot
 from .metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(

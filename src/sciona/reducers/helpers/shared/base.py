@@ -12,7 +12,7 @@ from ... import (
     structural_index,
 )
 from . import queries
-from .render import require_connection
+from .connection import require_connection
 from .types import (
     CallableOverviewPayload,
     ClassifierOverviewPayload,

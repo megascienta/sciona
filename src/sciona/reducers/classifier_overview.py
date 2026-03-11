@@ -18,10 +18,12 @@ from ..code_analysis.tools.profiling import (
 from .helpers.artifact.graph_edges import artifact_db_available, load_artifact_edges
 from .helpers.shared.profile_utils import fetch_node_instance
 from .helpers.shared import queries
-from .helpers.shared.render import render_json_payload, require_connection
+from .helpers.shared.connection import require_connection
+from .helpers.shared.payload import render_json_payload
+from .helpers.shared.snapshot_guard import require_latest_committed_snapshot
+from .helpers.shared.source_files import line_span_hash
 from .metadata import ReducerMeta
 from .helpers.shared.types import ClassifierOverviewPayload
-from .helpers.shared.utils import line_span_hash, require_latest_committed_snapshot
 
 REDUCER_META = ReducerMeta(
     reducer_id="classifier_overview",

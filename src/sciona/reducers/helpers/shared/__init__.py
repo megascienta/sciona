@@ -7,13 +7,18 @@ from __future__ import annotations
 
 __all__ = [
     "base",
+    "connection",
     "context",
+    "counters",
     "id_resolution",
     "module_context",
+    "payload",
     "profile_utils",
     "queries",
     "relationships",
     "render",
+    "snapshot_guard",
+    "source_files",
     "types",
     "utils",
 ]

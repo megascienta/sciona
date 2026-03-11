@@ -8,7 +8,7 @@ from __future__ import annotations
 from typing import Any
 
 from . import dependency_edges, module_overview
-from .helpers.shared.render import render_json_payload
+from .helpers.shared.payload import render_json_payload
 from .metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
