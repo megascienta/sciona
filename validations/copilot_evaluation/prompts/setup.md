@@ -15,7 +15,7 @@ Each entry should remain concise (8–12 lines).
 ## Task <n> – <short title>
 
 Copilot
-Identify yourself
+Identify yourself with model version
 
 Task description
 Short description of the task performed.
