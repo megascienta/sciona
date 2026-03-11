@@ -1,6 +1,6 @@
 ## Task 1 - Session setup
 Copilot
-Codex (GPT-5)
+Codex (GPT-5.4)
 Task description
 Created the session notes file and established append-only reporting for later task blocks.
 Task type
@@ -17,7 +17,7 @@ RATINGS (1-10): Structural clarity 1 | Navigation speed 1 | Confidence in answer
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 1 | Confidence gain vs baseline 1 | Scope reduction vs baseline 1 | Query friction vs baseline 1 | Net usefulness vs baseline 1
 ## Task 2 - Pre-release audit
 Copilot
-Codex (GPT-5)
+Codex (GPT-5.4)
 Task description
 Audited `src/sciona` package structure, cross-module coupling, and doc-level boundary compliance before release.
 Task type
@@ -32,77 +32,9 @@ Observations
 SCIONA was most useful for structural triage and scope reduction; it created mild friction because package-qualified names and anomaly outputs still required manual source inspection to decide whether a risk was contractual or merely advisory.
 RATINGS (1-10): Structural clarity 8 | Navigation speed 8 | Confidence in answers 8 | Overall usefulness 8
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
-## Task 20 - PR3 reducer helper narrowing
-Copilot
-Codex (GPT-5)
-Task description
-Split shared reducer helper shims into narrower modules for connection guards, payload rendering, snapshot guards, source-file helpers, and counter helpers, then rewired reducers to import only the concern they use.
-Task type
-implementation
-SCIONA usage
-Used the fresh audit hotspot and fan-in evidence to target the shared reducer helper roots with the most reuse pressure.
-Effect on workflow
-SCIONA reduced the search space to the helper chokepoints, but the actual change required direct source inspection to group functions by concern and update imports safely.
-Fallback
-Added new helper modules, rewired reducer imports, and ran reducer-heavy `pytest` in `multiphysics`.
-Observations
-`queries.py` was already narrowed before this PR; the real remaining centralization was import traffic through `render.py` and `utils.py`. The new layout keeps shared behavior but removes most dependency traffic from those catch-all shims.
-RATINGS (1-10): Structural clarity 9 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 8
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
-## Task 19 - PR2 hotspot regression coverage
-Copilot
-Codex (GPT-5)
-Task description
-Added focused regression tests for diff-overlay compute helpers, reducer shared-helper snapshot guards, and CoreDB read paths used by overlay/reducer code.
-Task type
-runtime / test validation
-SCIONA usage
-Used the fresh audit hotspot evidence to target only high-fan and high-blast-radius seams; no new reducer invocations were needed.
-Effect on workflow
-SCIONA materially reduced test-selection scope by pointing directly at overlay compute, shared reducer helpers, and storage read APIs instead of broad suite expansion.
-Fallback
-Read the touched source modules, added focused tests, and ran narrow `pytest` in `multiphysics`.
-Observations
-The first run exposed a useful constraint nuance: the “multiple committed snapshots” guard in reducer helpers cannot be exercised by DB setup because CoreDB enforces singleton committed state. The final test uses monkeypatching to cover that defensive branch explicitly.
-RATINGS (1-10): Structural clarity 9 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 8
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
-## Task 18 - PR1 build-doc alignment
-Copilot
-Codex (GPT-5)
-Task description
-Updated the developer guide so BuildEngine and ArtifactEngine are documented as fail-closed on per-file analysis failure instead of using partial-parse fallback semantics.
-Task type
-repository maintenance
-SCIONA usage
-Used the fresh audit evidence only to identify the documented mismatch; no new reducers were required for the docs-only correction.
-Effect on workflow
-SCIONA helped surface the mismatch quickly, but the actual correction was a small source-of-truth docs edit verified against current engine code.
-Fallback
-Read the guide and current engine sources, then ran narrow engine/artifact semantics `pytest` in `multiphysics`.
-Observations
-This was the highest-confidence, lowest-risk release fix from the audit because it corrected real doc drift without changing behavior.
-RATINGS (1-10): Structural clarity 9 | Navigation speed 8 | Confidence in answers 10 | Overall usefulness 8
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
-## Task 17 - PR5 narrowing adjustment
-Copilot
-Codex (GPT-5)
-Task description
-Refined the proposed PR5 scope so `pipelines.diff_overlay.compute` remains an explicit package boundary, but its internal dependencies are narrowed rather than hidden behind a facade.
-Task type
-architecture review
-SCIONA usage
-Used the same fresh audit evidence from `fan_summary` and `ownership_summary`; no additional reducers were required.
-Effect on workflow
-SCIONA still helped because the change in recommendation is about blast radius and import concentration, not semantics.
-Fallback
-Adjusted the proposal based on the audited package structure and the existing developer-guide boundary language.
-Observations
-Keeping `compute` visible is consistent with the current package layout. The better change is to reduce cross-import sprawl inside that package and from nearby callers.
-RATINGS (1-10): Structural clarity 9 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 8
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
 ## Task 3 - Audit follow-up
 Copilot
-Codex (GPT-5)
+Codex (GPT-5.4)
 Task description
 Revisited flagged audit points, compared mirrored overlay modules, inspected hotspot files, and reprioritized fixes by ROI.
 Task type
@@ -119,7 +51,7 @@ RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answer
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 8 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 8
 ## Task 4 - Implementation planning
 Copilot
-Codex (GPT-5)
+Codex (GPT-5.4)
 Task description
 Converted the audit follow-up into an explicit implementation plan for accepted items without editing code yet.
 Task type
@@ -136,7 +68,7 @@ RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answer
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 3 | Net usefulness vs baseline 7
 ## Task 5 - PR planning
 Copilot
-Codex (GPT-5)
+Codex (GPT-5.4)
 Task description
 Prepared detailed PR-sized implementation proposals for all accepted audit follow-up points, assuming optional items should be implemented.
 Task type
@@ -153,7 +85,7 @@ RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answer
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 3 | Net usefulness vs baseline 7
 ## Task 6 - Structural implementation
 Copilot
-Codex (GPT-5)
+Codex (GPT-5.4)
 Task description
 Implemented the accepted structural changes: canonicalized overlay patching in `pipelines`, removed duplicated runtime overlay patching modules, clarified ownership boundaries, split reducer shared query helpers, extracted path-validation and connection-settings helpers, and added targeted tests.
 Task type
@@ -170,7 +102,7 @@ RATINGS (1-10): Structural clarity 8 | Navigation speed 7 | Confidence in answer
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 8 | Scope reduction vs baseline 7 | Query friction vs baseline 3 | Net usefulness vs baseline 8
 ## Task 7 - Code analysis audit
 Copilot
-Codex (GPT-5)
+Codex (GPT-5.4)
 Task description
 Audited `src/sciona/code_analysis` in three phases: SCIONA-based structural orientation, direct algorithm/logic review, and test coverage validation with targeted `pytest`.
 Task type
@@ -187,7 +119,7 @@ RATINGS (1-10): Structural clarity 8 | Navigation speed 8 | Confidence in answer
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
 ## Task 8 - Code analysis fix planning
 Copilot
-Codex (GPT-5)
+Codex (GPT-5.4)
 Task description
 Did deeper follow-up on the Phase 2 `code_analysis` audit findings, confirmed the resolver-stats defect, and converted parser/extraction risks into immediate ROI-ordered fix proposals.
 Task type
@@ -202,111 +134,60 @@ Observations
 The highest-value finding was a confirmed counting bug in artifact call resolution. The remaining items are mostly policy and parser-hardening changes that require explicit decisions about fail-fast behavior.
 RATINGS (1-10): Structural clarity 7 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 6 | Scope reduction vs baseline 5 | Query friction vs baseline 3 | Net usefulness vs baseline 6
-## Task 21 - PR4 orphan hotspot fixes
+## Task 9 - Call resolution stats fix
 Copilot
-Codex (GPT-5)
+Codex (GPT-5.4)
 Task description
-Flattened nested CLI callbacks and helper closures that were surfacing as lexical orphans, and fixed the integrity query to treat `classifier` containment as valid for orphan detection.
+Implemented the confirmed artifact call-resolution stats bug fix and added a direct regression test for `resolve_callees()`.
 Task type
 implementation
 SCIONA usage
-Used `structural_integrity_summary`, `file_outline`, `search`, and `resolve` to separate real containment bugs from reducer false positives before editing.
+Used prior structural hotspot orientation only; no new reducers were needed because the defect was already isolated to one artifact-layer function.
 Effect on workflow
-SCIONA reduced search space materially: it showed the CLI nested callbacks were genuine code-shape hotspots and that engine-method orphaning came from the integrity query rather than source layout.
+SCIONA had little impact on this block beyond earlier scope reduction; source inspection and a direct interpreter check were the decisive evidence.
 Fallback
-Source inspection, direct SQL/reducer code review, targeted CLI/reducer test updates, compile check, and focused `pytest` in `multiphysics`.
+Applied a small source edit, added a regression test, and ran narrow `pytest` in `multiphysics` for callsite artifact and strict-resolution tests.
 Observations
-This block mixed structural and semantic work cleanly. SCIONA was decisive for locating the anomaly classes, but fixing the reducer query and Typer registration shape still required direct source reasoning.
-RATINGS (1-10): Structural clarity 8 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 8
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 8
-## Task 22 - PR5 compute boundary narrowing
+This was a high-ROI source-level defect fix. SCIONA was mainly useful earlier when narrowing the investigation to artifact call resolution.
+RATINGS (1-10): Structural clarity 7 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 6 | Scope reduction vs baseline 5 | Query friction vs baseline 3 | Net usefulness vs baseline 6
+## Task 10 - Parse validation hardening
 Copilot
-Codex (GPT-5)
+Codex (GPT-5.4)
 Task description
-Narrowed `pipelines.diff_overlay.compute` internals by moving worktree fingerprinting into config ownership and trimming sibling modules so `summary.py` only summarizes and `payloads.py` only shapes overlay payload data.
+Added a shared tree-sitter parse-validation helper, invoked it in all builtin analyzers, and added malformed-source regression tests for Python, TypeScript, JavaScript, and Java.
 Task type
 implementation
 SCIONA usage
-Used `fan_summary` plus direct import search to confirm `compute.core` remained the main fan-out hub and to identify the surrounding helper modules contributing unnecessary coupling.
+Used the earlier structural map only to confirm the analyzer entrypoints; no new reducer output was needed for the parser-layer change.
 Effect on workflow
-SCIONA reduced search space and justified a narrow refactor instead of a broader redesign: the evidence pointed to internal import sprawl rather than a broken external seam.
+SCIONA had little direct impact in this block because the work was semantic parser hardening across already-known analyzer boundaries.
 Fallback
-Source inspection, import cleanup, compile check, and focused overlay `pytest` in `multiphysics` for compute helpers, diff overlay behavior, and layer boundaries.
+Source edits, per-language analyzer test updates, and narrow `pytest` in `multiphysics` covering analyzers plus parser policy.
 Observations
-This was mostly a structural hygiene change. SCIONA was useful for prioritization, but the actual implementation depended on reading the sibling modules and trimming them to their real responsibilities.
-RATINGS (1-10): Structural clarity 8 | Navigation speed 8 | Confidence in answers 8 | Overall usefulness 8
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 6 | Scope reduction vs baseline 6 | Query friction vs baseline 4 | Net usefulness vs baseline 7
-## Task 23 - Post-implementation blocker re-audit
+The main value came from introducing one shared validation seam rather than ad hoc checks in each analyzer. This block improves malformed-source handling but still leaves engine behavior unchanged until the next PR.
+RATINGS (1-10): Structural clarity 7 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 6 | Scope reduction vs baseline 5 | Query friction vs baseline 3 | Net usefulness vs baseline 6
+## Task 11 - Fail-fast build semantics
 Copilot
-Codex (GPT-5)
+Codex (GPT-5.4)
 Task description
-Re-ran structural diagnostics after PR1-PR5 to identify only the remaining release-blocking issues and separate them from acceptable residual limitations.
-Task type
-architecture review
-SCIONA usage
-Used `structural_integrity_summary`, `call_resolution_quality`, `call_resolution_drop_summary`, `fan_summary`, `search`, and `resolve` on the fresh committed snapshot.
-Effect on workflow
-SCIONA was decisive here: it showed the remaining blocker had collapsed to one integrity bucket instead of multiple broad architecture problems.
-Fallback
-Contract/doc grep and source interpretation were still needed to classify the integrity failure as a false-negative diagnostic issue rather than a runtime defect.
-Observations
-Most prior structural risks were reduced to normal hotspot status. The remaining high-priority issue is that nested local helper callables still make `structural_integrity_summary` report a degraded repository.
-RATINGS (1-10): Structural clarity 9 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 9
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 9
-## Task 24 - Lexical integrity contract fix
-Copilot
-Codex (GPT-5)
-Task description
-Aligned lexical orphan diagnostics with the documented nested-callable contract by treating callable parents as valid lexical containers and adding reducer regressions for callable-contained callables.
+Refined parse validation to avoid false positives on supported Python typing syntax, then changed structural and artifact analysis to invalidate the run on per-file analysis failures instead of persisting partial results.
 Task type
 implementation
 SCIONA usage
-Used `structural_integrity_summary` plus `file_outline` to confirm the issue was in diagnostics, while contract excerpts established that nested named defs are required structural nodes.
+Relied only on the earlier structural audit to identify the engine and analyzer seams; no new reducers were required for the semantic behavior change.
 Effect on workflow
-SCIONA confirmed the blocker precisely and then verified the fix at reducer level: the repository now reports `integrity_ok=true` on the latest committed snapshot.
+SCIONA had minimal direct effect here. The key work was source-level reasoning about parser behavior, engine rollback semantics, and updating tests to the new fail-fast contract.
 Fallback
-Contract/docs parse, source inspection, targeted query patching, reducer test additions, focused `pytest` in `multiphysics`, and a live reducer rerun.
+Applied engine and parser patches, updated regression tests, and ran focused `pytest` in `multiphysics` for engines and language analyzers.
 Observations
-This was a contract-consistency fix, not a heuristic cleanup. The remaining integrity failure disappeared once callable parents were accepted by orphan detection.
-RATINGS (1-10): Structural clarity 9 | Navigation speed 8 | Confidence in answers 10 | Overall usefulness 9
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 9 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 9
-## Task 25 - Reducer summary metadata review
-Copilot
-Codex (GPT-5)
-Task description
-Reviewed reducer summary metadata across the registry to determine whether the descriptions are sufficient for reducer selection and where wording should be tightened.
-Task type
-architecture review
-SCIONA usage
-Used `sciona reducer list` and targeted reducer/file inspection to compare registry summaries against actual reducer roles and payload behavior.
-Effect on workflow
-SCIONA was the primary evidence source because the task was explicitly about reducer metadata quality and discoverability at the registry layer.
-Fallback
-Source inspection of a few ambiguous reducers was still needed where the registry summary alone was too compressed to judge accuracy.
-Observations
-Most summaries are serviceable, but a small set remains too vague or too jargon-heavy for first-pass reducer choice, especially around hotspots, ownership, symbol references, inheritance, and callsite diagnostics.
-RATINGS (1-10): Structural clarity 9 | Navigation speed 9 | Confidence in answers 9 | Overall usefulness 9
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 8 | Confidence gain vs baseline 8 | Scope reduction vs baseline 9 | Query friction vs baseline 3 | Net usefulness vs baseline 9
-## Task 26 - Reducer summary metadata improvements
-Copilot
-Codex (GPT-5)
-Task description
-Tightened reducer summary metadata for the reducers whose registry descriptions were too vague or too jargon-heavy for quick selection.
-Task type
-repository maintenance
-SCIONA usage
-Used `sciona reducer list` as the primary evidence surface, then inspected a small set of reducer modules where the summaries did not clearly match payload behavior.
-Effect on workflow
-SCIONA was decisive because the task lived at the reducer registry layer; it made it easy to review discoverability without reconstructing reducer roles manually.
-Fallback
-Source inspection, compile check, and narrow `pytest` for reducer listing and architecture-surface tests.
-Observations
-Most reducer summaries were already adequate. The best improvements were on hotspot, ownership, callsite, inheritance, and symbol-reference reducers where wording now maps more directly to actual payloads.
-RATINGS (1-10): Structural clarity 9 | Navigation speed 9 | Confidence in answers 9 | Overall usefulness 9
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 8 | Confidence gain vs baseline 8 | Scope reduction vs baseline 9 | Query friction vs baseline 3 | Net usefulness vs baseline 9
+This block changed repository behavior materially: malformed or analyzer-failing files now invalidate the run rather than leaving partial structural state behind. The parser helper also needed one refinement after the commit hook exposed false positives.
+RATINGS (1-10): Structural clarity 7 | Navigation speed 6 | Confidence in answers 9 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 3 | Confidence gain vs baseline 6 | Scope reduction vs baseline 4 | Query friction vs baseline 4 | Net usefulness vs baseline 6
 ## Task 12 - TypeScript heritage hardening
 Copilot
-Codex (GPT-5)
+Codex (GPT-5.4)
 Task description
 Reworked TypeScript heritage extraction to aggregate all relevant heritage clauses and added a regression test for separate `extends` and `implements` siblings.
 Task type
@@ -321,9 +202,43 @@ Observations
 The fix removes grammar-shape fragility without widening the public surface. The issue was isolated enough that source inspection and targeted tests were sufficient.
 RATINGS (1-10): Structural clarity 7 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 3 | Confidence gain vs baseline 5 | Scope reduction vs baseline 4 | Query friction vs baseline 3 | Net usefulness vs baseline 5
+## Task 13 - Java base extraction narrowing
+Copilot
+Codex (GPT-5.4)
+Task description
+Replaced subtree-wide Java inheritance capture with shallow field-based extraction so classifier base metadata records only directly declared superclass and interfaces.
+Task type
+implementation
+SCIONA usage
+Used the earlier structural audit only to keep the edit inside the Java analyzer path; no new reducers were needed for the source-level extraction change.
+Effect on workflow
+SCIONA had little direct impact because the main work was grammar inspection and a localized analyzer correction rather than further structure discovery.
+Fallback
+Inspected the Java tree-sitter shape directly, patched the extractor, added a generic inheritance regression, and ran narrow `pytest` in `multiphysics`.
+Observations
+The previous query strategy was broader than the parse tree required. Switching to direct field extraction reduces phantom-base risk without expanding module surface area.
+RATINGS (1-10): Structural clarity 7 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 3 | Confidence gain vs baseline 5 | Scope reduction vs baseline 4 | Query friction vs baseline 3 | Net usefulness vs baseline 5
+## Task 14 - Parse diagnostics enrichment
+Copilot
+Codex (GPT-5.4)
+Task description
+Standardized parse validation diagnostics in the shared validator, exposed them through builtin analyzer diagnostics on success, and attached the same structured payload to parse-validation failures.
+Task type
+implementation
+SCIONA usage
+Used the earlier structural audit only to confirm the builtin analyzer set and shared parsing seam; no new reducers were required.
+Effect on workflow
+SCIONA had little direct effect because this was a semantic diagnostics change across already-known analyzer entrypoints.
+Fallback
+Patched the shared validator and all builtin analyzers, extended malformed-source tests to assert structured diagnostics, and ran focused `pytest` in `multiphysics`.
+Observations
+The first test pass exposed that malformed trees do not fail uniformly across languages: some produce `ERROR` nodes rather than significant `MISSING` nodes. The final assertions reflect that stable cross-language contract.
+RATINGS (1-10): Structural clarity 7 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 3 | Confidence gain vs baseline 5 | Scope reduction vs baseline 4 | Query friction vs baseline 3 | Net usefulness vs baseline 5
 ## Task 15 - Fresh pre-release audit
 Copilot
-Codex (GPT-5)
+Codex (GPT-5.4)
 Task description
 Performed a fresh three-level audit of `src/` covering per-module structure, cross-module coupling/integrity, and compliance against `docs/CONTRACT.md` and `docs/DEVELOPERGUIDE.md`.
 Task type
@@ -340,7 +255,7 @@ RATINGS (1-10): Structural clarity 9 | Navigation speed 9 | Confidence in answer
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 8 | Confidence gain vs baseline 8 | Scope reduction vs baseline 9 | Query friction vs baseline 4 | Net usefulness vs baseline 8
 ## Task 16 - Audit ROI prioritization
 Copilot
-Codex (GPT-5)
+Codex (GPT-5.4)
 Task description
 Converted the fresh pre-release audit findings into an ROI-ordered fix and improvement list, prioritizing release-risk reduction and documentation alignment.
 Task type
@@ -355,88 +270,173 @@ Observations
 The best ROI items are documentation drift and concentrated helper choke points. Most remaining structural changes should be gated by targeted source inspection or `pytest`, not applied blindly.
 RATINGS (1-10): Structural clarity 9 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 8
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
-## Task 14 - Parse diagnostics enrichment
+## Task 17 - PR5 narrowing adjustment
 Copilot
-Codex (GPT-5)
+Codex (GPT-5.4)
 Task description
-Standardized parse validation diagnostics in the shared validator, exposed them through builtin analyzer diagnostics on success, and attached the same structured payload to parse-validation failures.
+Refined the proposed PR5 scope so `pipelines.diff_overlay.compute` remains an explicit package boundary, but its internal dependencies are narrowed rather than hidden behind a facade.
+Task type
+architecture review
+SCIONA usage
+Used the same fresh audit evidence from `fan_summary` and `ownership_summary`; no additional reducers were required.
+Effect on workflow
+SCIONA still helped because the change in recommendation is about blast radius and import concentration, not semantics.
+Fallback
+Adjusted the proposal based on the audited package structure and the existing developer-guide boundary language.
+Observations
+Keeping `compute` visible is consistent with the current package layout. The better change is to reduce cross-import sprawl inside that package and from nearby callers.
+RATINGS (1-10): Structural clarity 9 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
+## Task 18 - PR1 build-doc alignment
+Copilot
+Codex (GPT-5.4)
+Task description
+Updated the developer guide so BuildEngine and ArtifactEngine are documented as fail-closed on per-file analysis failure instead of using partial-parse fallback semantics.
+Task type
+repository maintenance
+SCIONA usage
+Used the fresh audit evidence only to identify the documented mismatch; no new reducers were required for the docs-only correction.
+Effect on workflow
+SCIONA helped surface the mismatch quickly, but the actual correction was a small source-of-truth docs edit verified against current engine code.
+Fallback
+Read the guide and current engine sources, then ran narrow engine/artifact semantics `pytest` in `multiphysics`.
+Observations
+This was the highest-confidence, lowest-risk release fix from the audit because it corrected real doc drift without changing behavior.
+RATINGS (1-10): Structural clarity 9 | Navigation speed 8 | Confidence in answers 10 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
+## Task 19 - PR2 hotspot regression coverage
+Copilot
+Codex (GPT-5.4)
+Task description
+Added focused regression tests for diff-overlay compute helpers, reducer shared-helper snapshot guards, and CoreDB read paths used by overlay/reducer code.
+Task type
+runtime / test validation
+SCIONA usage
+Used the fresh audit hotspot evidence to target only high-fan and high-blast-radius seams; no new reducer invocations were needed.
+Effect on workflow
+SCIONA materially reduced test-selection scope by pointing directly at overlay compute, shared reducer helpers, and storage read APIs instead of broad suite expansion.
+Fallback
+Read the touched source modules, added focused tests, and ran narrow `pytest` in `multiphysics`.
+Observations
+The first run exposed a useful constraint nuance: the “multiple committed snapshots” guard in reducer helpers cannot be exercised by DB setup because CoreDB enforces singleton committed state. The final test uses monkeypatching to cover that defensive branch explicitly.
+RATINGS (1-10): Structural clarity 9 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
+## Task 20 - PR3 reducer helper narrowing
+Copilot
+Codex (GPT-5.4)
+Task description
+Split shared reducer helper shims into narrower modules for connection guards, payload rendering, snapshot guards, source-file helpers, and counter helpers, then rewired reducers to import only the concern they use.
 Task type
 implementation
 SCIONA usage
-Used the earlier structural audit only to confirm the builtin analyzer set and shared parsing seam; no new reducers were required.
+Used the fresh audit hotspot and fan-in evidence to target the shared reducer helper roots with the most reuse pressure.
 Effect on workflow
-SCIONA had little direct effect because this was a semantic diagnostics change across already-known analyzer entrypoints.
+SCIONA reduced the search space to the helper chokepoints, but the actual change required direct source inspection to group functions by concern and update imports safely.
 Fallback
-Patched the shared validator and all builtin analyzers, extended malformed-source tests to assert structured diagnostics, and ran focused `pytest` in `multiphysics`.
+Added new helper modules, rewired reducer imports, and ran reducer-heavy `pytest` in `multiphysics`.
 Observations
-The first test pass exposed that malformed trees do not fail uniformly across languages: some produce `ERROR` nodes rather than significant `MISSING` nodes. The final assertions reflect that stable cross-language contract.
-RATINGS (1-10): Structural clarity 7 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 7
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 3 | Confidence gain vs baseline 5 | Scope reduction vs baseline 4 | Query friction vs baseline 3 | Net usefulness vs baseline 5
-## Task 13 - Java base extraction narrowing
+`queries.py` was already narrowed before this PR; the real remaining centralization was import traffic through `render.py` and `utils.py`. The new layout keeps shared behavior but removes most dependency traffic from those catch-all shims.
+RATINGS (1-10): Structural clarity 9 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
+## Task 21 - PR4 orphan hotspot fixes
 Copilot
-Codex (GPT-5)
+Codex (GPT-5.4)
 Task description
-Replaced subtree-wide Java inheritance capture with shallow field-based extraction so classifier base metadata records only directly declared superclass and interfaces.
+Flattened nested CLI callbacks and helper closures that were surfacing as lexical orphans, and fixed the integrity query to treat `classifier` containment as valid for orphan detection.
 Task type
 implementation
 SCIONA usage
-Used the earlier structural audit only to keep the edit inside the Java analyzer path; no new reducers were needed for the source-level extraction change.
+Used `structural_integrity_summary`, `file_outline`, `search`, and `resolve` to separate real containment bugs from reducer false positives before editing.
 Effect on workflow
-SCIONA had little direct impact because the main work was grammar inspection and a localized analyzer correction rather than further structure discovery.
+SCIONA reduced search space materially: it showed the CLI nested callbacks were genuine code-shape hotspots and that engine-method orphaning came from the integrity query rather than source layout.
 Fallback
-Inspected the Java tree-sitter shape directly, patched the extractor, added a generic inheritance regression, and ran narrow `pytest` in `multiphysics`.
+Source inspection, direct SQL/reducer code review, targeted CLI/reducer test updates, compile check, and focused `pytest` in `multiphysics`.
 Observations
-The previous query strategy was broader than the parse tree required. Switching to direct field extraction reduces phantom-base risk without expanding module surface area.
-RATINGS (1-10): Structural clarity 7 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 7
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 3 | Confidence gain vs baseline 5 | Scope reduction vs baseline 4 | Query friction vs baseline 3 | Net usefulness vs baseline 5
-## Task 11 - Fail-fast build semantics
+This block mixed structural and semantic work cleanly. SCIONA was decisive for locating the anomaly classes, but fixing the reducer query and Typer registration shape still required direct source reasoning.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 8
+## Task 22 - PR5 compute boundary narrowing
 Copilot
-Codex (GPT-5)
+Codex (GPT-5.4)
 Task description
-Refined parse validation to avoid false positives on supported Python typing syntax, then changed structural and artifact analysis to invalidate the run on per-file analysis failures instead of persisting partial results.
+Narrowed `pipelines.diff_overlay.compute` internals by moving worktree fingerprinting into config ownership and trimming sibling modules so `summary.py` only summarizes and `payloads.py` only shapes overlay payload data.
 Task type
 implementation
 SCIONA usage
-Relied only on the earlier structural audit to identify the engine and analyzer seams; no new reducers were required for the semantic behavior change.
+Used `fan_summary` plus direct import search to confirm `compute.core` remained the main fan-out hub and to identify the surrounding helper modules contributing unnecessary coupling.
 Effect on workflow
-SCIONA had minimal direct effect here. The key work was source-level reasoning about parser behavior, engine rollback semantics, and updating tests to the new fail-fast contract.
+SCIONA reduced search space and justified a narrow refactor instead of a broader redesign: the evidence pointed to internal import sprawl rather than a broken external seam.
 Fallback
-Applied engine and parser patches, updated regression tests, and ran focused `pytest` in `multiphysics` for engines and language analyzers.
+Source inspection, import cleanup, compile check, and focused overlay `pytest` in `multiphysics` for compute helpers, diff overlay behavior, and layer boundaries.
 Observations
-This block changed repository behavior materially: malformed or analyzer-failing files now invalidate the run rather than leaving partial structural state behind. The parser helper also needed one refinement after the commit hook exposed false positives.
-RATINGS (1-10): Structural clarity 7 | Navigation speed 6 | Confidence in answers 9 | Overall usefulness 7
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 3 | Confidence gain vs baseline 6 | Scope reduction vs baseline 4 | Query friction vs baseline 4 | Net usefulness vs baseline 6
-## Task 10 - Parse validation hardening
+This was mostly a structural hygiene change. SCIONA was useful for prioritization, but the actual implementation depended on reading the sibling modules and trimming them to their real responsibilities.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 8 | Confidence in answers 8 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 6 | Scope reduction vs baseline 6 | Query friction vs baseline 4 | Net usefulness vs baseline 7
+## Task 23 - Post-implementation blocker re-audit
 Copilot
-Codex (GPT-5)
+Codex (GPT-5.4)
 Task description
-Added a shared tree-sitter parse-validation helper, invoked it in all builtin analyzers, and added malformed-source regression tests for Python, TypeScript, JavaScript, and Java.
+Re-ran structural diagnostics after PR1-PR5 to identify only the remaining release-blocking issues and separate them from acceptable residual limitations.
+Task type
+architecture review
+SCIONA usage
+Used `structural_integrity_summary`, `call_resolution_quality`, `call_resolution_drop_summary`, `fan_summary`, `search`, and `resolve` on the fresh committed snapshot.
+Effect on workflow
+SCIONA was decisive here: it showed the remaining blocker had collapsed to one integrity bucket instead of multiple broad architecture problems.
+Fallback
+Contract/doc grep and source interpretation were still needed to classify the integrity failure as a false-negative diagnostic issue rather than a runtime defect.
+Observations
+Most prior structural risks were reduced to normal hotspot status. The remaining high-priority issue is that nested local helper callables still make `structural_integrity_summary` report a degraded repository.
+RATINGS (1-10): Structural clarity 9 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 9
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 9
+## Task 24 - Lexical integrity contract fix
+Copilot
+Codex (GPT-5.4)
+Task description
+Aligned lexical orphan diagnostics with the documented nested-callable contract by treating callable parents as valid lexical containers and adding reducer regressions for callable-contained callables.
 Task type
 implementation
 SCIONA usage
-Used the earlier structural map only to confirm the analyzer entrypoints; no new reducer output was needed for the parser-layer change.
+Used `structural_integrity_summary` plus `file_outline` to confirm the issue was in diagnostics, while contract excerpts established that nested named defs are required structural nodes.
 Effect on workflow
-SCIONA had little direct impact in this block because the work was semantic parser hardening across already-known analyzer boundaries.
+SCIONA confirmed the blocker precisely and then verified the fix at reducer level: the repository now reports `integrity_ok=true` on the latest committed snapshot.
 Fallback
-Source edits, per-language analyzer test updates, and narrow `pytest` in `multiphysics` covering analyzers plus parser policy.
+Contract/docs parse, source inspection, targeted query patching, reducer test additions, focused `pytest` in `multiphysics`, and a live reducer rerun.
 Observations
-The main value came from introducing one shared validation seam rather than ad hoc checks in each analyzer. This block improves malformed-source handling but still leaves engine behavior unchanged until the next PR.
-RATINGS (1-10): Structural clarity 7 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 7
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 6 | Scope reduction vs baseline 5 | Query friction vs baseline 3 | Net usefulness vs baseline 6
-## Task 9 - Call resolution stats fix
+This was a contract-consistency fix, not a heuristic cleanup. The remaining integrity failure disappeared once callable parents were accepted by orphan detection.
+RATINGS (1-10): Structural clarity 9 | Navigation speed 8 | Confidence in answers 10 | Overall usefulness 9
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 9 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 9
+## Task 25 - Reducer summary metadata review
 Copilot
-Codex (GPT-5)
+Codex (GPT-5.4)
 Task description
-Implemented the confirmed artifact call-resolution stats bug fix and added a direct regression test for `resolve_callees()`.
+Reviewed reducer summary metadata across the registry to determine whether the descriptions are sufficient for reducer selection and where wording should be tightened.
 Task type
-implementation
+architecture review
 SCIONA usage
-Used prior structural hotspot orientation only; no new reducers were needed because the defect was already isolated to one artifact-layer function.
+Used `sciona reducer list` and targeted reducer/file inspection to compare registry summaries against actual reducer roles and payload behavior.
 Effect on workflow
-SCIONA had little impact on this block beyond earlier scope reduction; source inspection and a direct interpreter check were the decisive evidence.
+SCIONA was the primary evidence source because the task was explicitly about reducer metadata quality and discoverability at the registry layer.
 Fallback
-Applied a small source edit, added a regression test, and ran narrow `pytest` in `multiphysics` for callsite artifact and strict-resolution tests.
+Source inspection of a few ambiguous reducers was still needed where the registry summary alone was too compressed to judge accuracy.
 Observations
-This was a high-ROI source-level defect fix. SCIONA was mainly useful earlier when narrowing the investigation to artifact call resolution.
-RATINGS (1-10): Structural clarity 7 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 7
-COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 6 | Scope reduction vs baseline 5 | Query friction vs baseline 3 | Net usefulness vs baseline 6
+Most summaries are serviceable, but a small set remains too vague or too jargon-heavy for first-pass reducer choice, especially around hotspots, ownership, symbol references, inheritance, and callsite diagnostics.
+RATINGS (1-10): Structural clarity 9 | Navigation speed 9 | Confidence in answers 9 | Overall usefulness 9
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 8 | Confidence gain vs baseline 8 | Scope reduction vs baseline 9 | Query friction vs baseline 3 | Net usefulness vs baseline 9
+## Task 26 - Reducer summary metadata improvements
+Copilot
+Codex (GPT-5.4)
+Task description
+Tightened reducer summary metadata for the reducers whose registry descriptions were too vague or too jargon-heavy for quick selection.
+Task type
+repository maintenance
+SCIONA usage
+Used `sciona reducer list` as the primary evidence surface, then inspected a small set of reducer modules where the summaries did not clearly match payload behavior.
+Effect on workflow
+SCIONA was decisive because the task lived at the reducer registry layer; it made it easy to review discoverability without reconstructing reducer roles manually.
+Fallback
+Source inspection, compile check, and narrow `pytest` for reducer listing and architecture-surface tests.
+Observations
+Most reducer summaries were already adequate. The best improvements were on hotspot, ownership, callsite, inheritance, and symbol-reference reducers where wording now maps more directly to actual payloads.
+RATINGS (1-10): Structural clarity 9 | Navigation speed 9 | Confidence in answers 9 | Overall usefulness 9
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 8 | Confidence gain vs baseline 8 | Scope reduction vs baseline 9 | Query friction vs baseline 3 | Net usefulness vs baseline 9

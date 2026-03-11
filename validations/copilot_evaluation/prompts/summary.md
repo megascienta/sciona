@@ -11,7 +11,6 @@ Summary:
    - Aggregated scores
    - Situations where SCIONA helped
    - Situations where conventional tooling was still required
-   - Structural risk findings requiring follow-up: list specific modules or areas flagged during audit that require deeper source inspection or targeted testing before release
    - Final recommendation from the perspective of an AI coding assistant
 
 4. Produce a short testemony-like summary
