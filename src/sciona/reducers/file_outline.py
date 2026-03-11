@@ -28,6 +28,8 @@ def render(
     repo_root,
     module_id: str | None = None,
     file_path: str | None = None,
+    compact: bool | None = None,
+    depth: int | None = None,
     **_: object,
 ) -> str:
     conn = require_connection(conn)
@@ -103,6 +105,8 @@ def render(
         "count": len(files),
         "files": files,
     }
+    if compact:
+        body = _compact_payload(body, depth=depth)
     return render_json_payload(body)
 
 
@@ -155,3 +159,70 @@ def _normalize_file_path(repo_root, path_value: str) -> str:
                 "file_outline file_path must be within the repo root."
             ) from exc
     return raw_path.as_posix()
+
+
+def _compact_payload(payload: Dict[str, object], *, depth: int | None) -> Dict[str, object]:
+    normalized_depth = _normalize_depth(depth)
+    files = list(payload.get("files", []) or [])
+    compact_files = [
+        {
+            "file_path": str(file_entry.get("file_path") or ""),
+            "language": file_entry.get("language"),
+            "node_counts": _node_counts(file_entry.get("nodes", []) or []),
+            "outline_preview": _outline_preview(
+                file_entry.get("nodes", []) or [],
+                max_depth=normalized_depth,
+            ),
+        }
+        for file_entry in files
+    ]
+    return {
+        "payload_kind": "compact_summary",
+        "module_filter": payload.get("module_filter"),
+        "file_path": payload.get("file_path"),
+        "count": payload.get("count", len(compact_files)),
+        "depth": normalized_depth,
+        "files": compact_files,
+    }
+
+
+def _normalize_depth(value: int | None) -> int:
+    if value is None:
+        return 1
+    normalized = int(value)
+    if normalized < 0:
+        raise ValueError("file_outline depth must be zero or greater.")
+    return normalized
+
+
+def _node_counts(nodes: List[dict]) -> Dict[str, int]:
+    counts: Dict[str, int] = {}
+    for node in nodes:
+        node_type = str(node.get("node_type") or "unknown")
+        counts[node_type] = counts.get(node_type, 0) + 1
+    return counts
+
+
+def _outline_preview(nodes: List[dict], *, max_depth: int) -> Dict[str, object]:
+    preview = [node for node in nodes if _relative_depth(node) <= max_depth]
+    return {
+        "count": len(preview),
+        "total": len(nodes),
+        "truncated": len(preview) < len(nodes),
+        "nodes": preview,
+    }
+
+
+def _relative_depth(node: dict) -> int:
+    node_type = str(node.get("node_type") or "")
+    qualified_name = str(node.get("qualified_name") or "")
+    module_name = str(node.get("module_qualified_name") or "")
+    if node_type == "module":
+        return 0
+    if not qualified_name or not module_name:
+        return 0
+    if qualified_name == module_name:
+        return 0
+    qualified_parts = qualified_name.split(".")
+    module_parts = module_name.split(".")
+    return max(0, len(qualified_parts) - len(module_parts))

@@ -687,6 +687,28 @@ def test_file_outline_returns_nodes(tmp_path):
     assert payload["files"][0]["nodes"][0]["row_origin"] == "committed"
 
 
+def test_file_outline_compact_mode_returns_shallow_preview(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = _core_conn(repo_root)
+    try:
+        payload_text = file_outline.render(
+            snapshot_id,
+            conn,
+            repo_root,
+            module_id=_q(repo_root, "pkg.alpha"),
+            compact=True,
+        )
+    finally:
+        conn.close()
+    payload = parse_json_payload(payload_text)
+    assert payload["payload_kind"] == "compact_summary"
+    assert payload["depth"] == 1
+    assert payload["files"]
+    assert "node_counts" in payload["files"][0]
+    assert "outline_preview" in payload["files"][0]
+    assert "nodes" not in payload["files"][0]
+
+
 def test_dependency_edges_direction_filters(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     conn = _core_conn(repo_root)
@@ -1485,6 +1507,34 @@ def test_file_outline_and_module_overview_include_default_and_object_bound_calla
     module_callables = {entry["qualified_name"] for entry in module_payload["callables"]}
     assert ids["q_default"] in module_callables
     assert ids["q_tools_run"] in module_callables
+
+
+def test_file_outline_compact_mode_hides_deeper_bound_callables_by_default(tmp_path):
+    repo = _build_profile_repo(tmp_path)
+    conn = sqlite3.connect(repo["db_path"])
+    conn.row_factory = sqlite3.Row
+    try:
+        ids = _insert_typescript_bound_callables(conn, repo)
+        payload = parse_json_payload(
+            file_outline.render(
+                repo["snapshot_id"],
+                conn,
+                repo["repo_root"],
+                module_id=_q(repo["repo_root"], "pkg.ts.service"),
+                compact=True,
+            )
+        )
+    finally:
+        conn.close()
+
+    outlined_qnames = {
+        node["qualified_name"]
+        for file_entry in payload["files"]
+        for node in file_entry["outline_preview"]["nodes"]
+        if node["node_type"] == "callable"
+    }
+    assert ids["q_default"] in outlined_qnames
+    assert ids["q_tools_run"] not in outlined_qnames
 
 
 def test_snapshot_provenance_returns_committed_snapshot_metadata(tmp_path):
