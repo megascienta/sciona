@@ -154,7 +154,7 @@ Cross-category confidence:
 Typical pattern:
 
 ```text
-structure reducer + relations or metrics reducer
+orientation or navigation reducer → coupling or symbol reducer
 ```
 
 Reducers that act as anomaly detectors rather than final evidence:

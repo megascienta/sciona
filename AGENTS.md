@@ -221,13 +221,12 @@ Cross-category confidence:
 Typical pattern:
 
 ```text
-structure reducer + relations or metrics reducer
+orientation or navigation reducer → coupling or symbol reducer
 ```
 
 Reducers that act as anomaly detectors rather than final evidence:
 
 - `call_resolution_quality`
-- `hotspot_summary`
 - `structural_integrity_summary`
 
 If an anomaly detector reports a problem, agents SHOULD investigate with at least one reducer from another category before concluding.

@@ -19,7 +19,7 @@ REDUCER_META = ReducerMeta(
     placeholder="HOTSPOT_SUMMARY",
     summary="Compressed summary of structurally significant or highly connected entities. " \
     "Use for architectural orientation or complexity inspection. ",
-    anomaly_detector=True,
+    anomaly_detector=False,
 )
 
 
