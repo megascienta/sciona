@@ -76,7 +76,7 @@ def helper():
     assert f"{module_name}.outer.inner" in call_records
 
 
-def test_python_analyzer_rejects_malformed_parse_tree(tmp_path) -> None:
+def test_python_analyzer_reports_malformed_parse_tree(tmp_path) -> None:
     module = "def broken(:\n    pass\n"
     repo = tmp_path
     pkg = repo / "pkg"
@@ -99,13 +99,13 @@ def test_python_analyzer_rejects_malformed_parse_tree(tmp_path) -> None:
     module_name = analyzer.module_name(repo, snapshot)
     analyzer.module_index = {module_name}
 
-    with pytest.raises(ValueError, match="Tree-sitter parse validation failed") as excinfo:
-        analyzer.analyze(snapshot, module_name)
-    diagnostics = excinfo.value.diagnostics
+    result = analyzer.analyze(snapshot, module_name)
+    diagnostics = result.diagnostics
     assert diagnostics["parse_validation_ok"] is False
     assert diagnostics["parse_error_nodes"] >= 0
     assert diagnostics["parse_significant_missing_nodes"] >= 1
     assert diagnostics["parse_examples"]
+    assert any(node.qualified_name == module_name for node in result.nodes)
 
 
 def test_python_analyzer_accepts_modern_multiline_type_syntax(tmp_path) -> None:

@@ -184,7 +184,15 @@ class BuildEngine:
                         warning = f"Failed to analyze {file_snapshot.record.relative_path}: {exc}"
                         self._warn(warning)
                         self.parse_failures += 1
-                        raise IngestionError(warning) from exc
+                        inserted_nodes += self.assembler.register_module_node(
+                            snapshot_id,
+                            file_snapshot,
+                            module_name,
+                            metadata={"status": "partial_parse", "error": str(exc)},
+                        )
+                        if progress:
+                            progress.advance(1)
+                        continue
                     inserted_nodes += node_count
                     processed_files += 1
                     if progress:

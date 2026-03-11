@@ -99,7 +99,9 @@ class ArtifactEngine:
                         f"Failed to analyze {file_snapshot.record.relative_path}: {exc}"
                     )
                     self._warn(warning)
-                    raise RuntimeError(warning) from exc
+                    if progress:
+                        progress.advance(1)
+                    continue
                 all_call_records.extend(
                     (file_snapshot.record.language, record)
                     for record in analysis.call_records

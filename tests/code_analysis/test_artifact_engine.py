@@ -184,7 +184,7 @@ def test_artifact_engine_rejects_conflicting_duplicate_caller_metadata(
         conn.close()
 
 
-def test_artifact_engine_invalidates_run_on_analyzer_failure(monkeypatch, tmp_path):
+def test_artifact_engine_warns_and_continues_on_analyzer_failure(monkeypatch, tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     _write_test_config(repo_root)
     db_path = repo_root / ".sciona" / "sciona.db"
@@ -193,11 +193,11 @@ def test_artifact_engine_invalidates_run_on_analyzer_failure(monkeypatch, tmp_pa
     try:
         _configure_fake_engine(monkeypatch, _FailingAnalyzer())
         engine = ArtifactEngine(repo_root, conn, config_root=repo_root)
-        try:
-            engine.run(snapshot_id)
-        except RuntimeError as exc:
-            assert "Failed to analyze pkg/alpha/service.py: boom" in str(exc)
-        else:
-            raise AssertionError("Expected analyzer failure to invalidate artifact run")
+        results = engine.run(snapshot_id)
     finally:
         conn.close()
+    assert results == []
+    assert any(
+        "Failed to analyze pkg/alpha/service.py: boom" in warning
+        for warning in engine.warnings
+    )

@@ -58,21 +58,21 @@ def test_javascript_analyzer_extracts_declared_nested_and_bound_callables(tmp_pa
     assert f"{module_name}.helper" in by_caller[f"{module_name}.outer.inner"]
 
 
-def test_javascript_analyzer_rejects_malformed_parse_tree(tmp_path) -> None:
+def test_javascript_analyzer_reports_malformed_parse_tree(tmp_path) -> None:
     repo = tmp_path
     snapshot = _snapshot(repo, "src/broken.js", "export function broken( {\n")
     analyzer = JavaScriptAnalyzer()
     module_name = analyzer.module_name(repo, snapshot)
     analyzer.module_index = {module_name}
 
-    with pytest.raises(ValueError, match="Tree-sitter parse validation failed") as excinfo:
-        analyzer.analyze(snapshot, module_name)
-    diagnostics = excinfo.value.diagnostics
+    result = analyzer.analyze(snapshot, module_name)
+    diagnostics = result.diagnostics
     assert diagnostics["parse_validation_ok"] is False
     assert (
         diagnostics["parse_error_nodes"] + diagnostics["parse_significant_missing_nodes"]
     ) >= 1
     assert diagnostics["parse_error_summary"]
+    assert any(node.qualified_name == module_name for node in result.nodes)
 
 
 def test_javascript_analyzer_promotes_class_field_arrow_callable(tmp_path) -> None:
