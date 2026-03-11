@@ -55,8 +55,9 @@ class PythonAnalyzer(ASTAnalyzer):
 
     def analyze(self, snapshot: FileSnapshot, module_name: str) -> AnalysisResult:
         tree = self._parser.parse(snapshot.content)
-        validate_tree_or_raise(tree, language_name=self.language)
         buffer = ExtractionBuffer()
+        parse_diagnostics = validate_tree_or_raise(tree, language_name=self.language)
+        buffer.diagnostics.update(parse_diagnostics)
         module_node = SemanticNodeRecord(
             language=self.language,
             node_type="module",

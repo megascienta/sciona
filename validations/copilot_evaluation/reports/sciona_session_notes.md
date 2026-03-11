@@ -151,6 +151,23 @@ Observations
 The fix removes grammar-shape fragility without widening the public surface. The issue was isolated enough that source inspection and targeted tests were sufficient.
 RATINGS (1-10): Structural clarity 7 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 3 | Confidence gain vs baseline 5 | Scope reduction vs baseline 4 | Query friction vs baseline 3 | Net usefulness vs baseline 5
+## Task 14 - Parse diagnostics enrichment
+Copilot
+Codex (GPT-5)
+Task description
+Standardized parse validation diagnostics in the shared validator, exposed them through builtin analyzer diagnostics on success, and attached the same structured payload to parse-validation failures.
+Task type
+implementation
+SCIONA usage
+Used the earlier structural audit only to confirm the builtin analyzer set and shared parsing seam; no new reducers were required.
+Effect on workflow
+SCIONA had little direct effect because this was a semantic diagnostics change across already-known analyzer entrypoints.
+Fallback
+Patched the shared validator and all builtin analyzers, extended malformed-source tests to assert structured diagnostics, and ran focused `pytest` in `multiphysics`.
+Observations
+The first test pass exposed that malformed trees do not fail uniformly across languages: some produce `ERROR` nodes rather than significant `MISSING` nodes. The final assertions reflect that stable cross-language contract.
+RATINGS (1-10): Structural clarity 7 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 3 | Confidence gain vs baseline 5 | Scope reduction vs baseline 4 | Query friction vs baseline 3 | Net usefulness vs baseline 5
 ## Task 13 - Java base extraction narrowing
 Copilot
 Codex (GPT-5)

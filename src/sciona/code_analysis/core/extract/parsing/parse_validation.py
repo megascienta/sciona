@@ -9,13 +9,27 @@ from __future__ import annotations
 class ParseValidationError(ValueError):
     """Raised when a parsed tree contains syntax error markers."""
 
+    def __init__(self, message: str, *, diagnostics: dict[str, object]) -> None:
+        super().__init__(message)
+        self.diagnostics = diagnostics
 
-def validate_tree_or_raise(tree, *, language_name: str) -> None:
+
+def collect_parse_validation_diagnostics(
+    tree, *, language_name: str
+) -> dict[str, object]:
     root = getattr(tree, "root_node", None)
     if root is None:
-        raise ParseValidationError(
-            f"Tree-sitter parse validation failed for {language_name}: missing root node"
-        )
+        return {
+            "parse_validation_ok": False,
+            "parse_error_nodes": 0,
+            "parse_missing_nodes": 0,
+            "parse_significant_missing_nodes": 0,
+            "parse_examples": [],
+            "parse_error_summary": (
+                f"Tree-sitter parse validation failed for {language_name}: "
+                "missing root node"
+            ),
+        }
 
     error_examples: list[str] = []
     error_count = 0
@@ -39,16 +53,30 @@ def validate_tree_or_raise(tree, *, language_name: str) -> None:
         if children:
             stack.extend(reversed(list(children)))
 
-    if error_count == 0 and significant_missing_count == 0:
-        return
-
     summary = (
-        f"Tree-sitter parse validation failed for {language_name}: "
-        f"errors={error_count}, missing={missing_count}"
+        f"Tree-sitter parse validation {'passed' if error_count == 0 and significant_missing_count == 0 else 'failed'} "
+        f"for {language_name}: errors={error_count}, missing={missing_count}"
     )
     if error_examples:
         summary = f"{summary}; examples={'; '.join(error_examples)}"
-    raise ParseValidationError(summary)
+    return {
+        "parse_validation_ok": error_count == 0 and significant_missing_count == 0,
+        "parse_error_nodes": error_count,
+        "parse_missing_nodes": missing_count,
+        "parse_significant_missing_nodes": significant_missing_count,
+        "parse_examples": error_examples,
+        "parse_error_summary": summary,
+    }
+
+
+def validate_tree_or_raise(tree, *, language_name: str) -> dict[str, object]:
+    diagnostics = collect_parse_validation_diagnostics(tree, language_name=language_name)
+    if bool(diagnostics.get("parse_validation_ok", False)):
+        return diagnostics
+    raise ParseValidationError(
+        str(diagnostics.get("parse_error_summary", "Tree-sitter parse validation failed")),
+        diagnostics=diagnostics,
+    )
 
 
 def _format_node_example(node, *, label: str) -> str:
@@ -61,4 +89,8 @@ def _format_node_example(node, *, label: str) -> str:
     )
 
 
-__all__ = ["ParseValidationError", "validate_tree_or_raise"]
+__all__ = [
+    "ParseValidationError",
+    "collect_parse_validation_diagnostics",
+    "validate_tree_or_raise",
+]
