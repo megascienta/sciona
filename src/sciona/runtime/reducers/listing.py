@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 import inspect
-from typing import Mapping
+from typing import Mapping, Union, get_args, get_origin
 
 from .metadata import CATEGORY_ORDER
 
@@ -36,6 +36,9 @@ def format_reducer_call(reducer_id: str, reducer_module) -> str:
         if name == "extras":
             options.append(f"[{flag}]")
             continue
+        if _is_bool_parameter(param):
+            options.append(f"[{flag}]")
+            continue
         metavar = name.upper()
         if param.default is inspect._empty:
             options.append(f"{flag} {metavar}")
@@ -45,6 +48,31 @@ def format_reducer_call(reducer_id: str, reducer_module) -> str:
     if rendered:
         return f"reducer --id {reducer_id} {rendered}"
     return f"reducer --id {reducer_id}"
+
+
+def compact_mode_hint(reducer_module) -> str | None:
+    signature = getattr(reducer_module, "render", None)
+    if signature is None:
+        return None
+    sig = inspect.signature(signature)
+    if "compact" not in sig.parameters:
+        return None
+    if "top_k" in sig.parameters:
+        return "`--compact` [`--top-k` TOP_K]"
+    return "`--compact`"
+
+
+def _is_bool_parameter(param: inspect.Parameter) -> bool:
+    annotation = param.annotation
+    if annotation is bool:
+        return True
+    args = [arg for arg in get_args(annotation) if arg is not type(None)]
+    if args:
+        return len(args) == 1 and args[0] is bool
+    origin = get_origin(annotation)
+    if origin is Union:
+        return False
+    return False
 
 
 def render_reducer_list(
@@ -83,6 +111,9 @@ def render_reducer_list(
             lines.append(f"  Summary: {summary}")
             call = format_reducer_call(reducer_id, reducer_module)
             lines.append(f"  Command: {prefix}{call}")
+            compact_hint = compact_mode_hint(reducer_module)
+            if compact_hint:
+                lines.append(f"  Compact: yes ({compact_hint})")
             lines.append("")
     return lines
 
@@ -116,6 +147,7 @@ def render_reducer_catalog(entries: list[Mapping[str, object]]) -> list[str]:
 
 __all__ = [
     "CATEGORY_ORDER",
+    "compact_mode_hint",
     "format_reducer_call",
     "normalize_category",
     "render_reducer_catalog",

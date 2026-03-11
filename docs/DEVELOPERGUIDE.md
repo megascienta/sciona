@@ -69,6 +69,10 @@ Do not use this document to redefine structural semantics.
   grouped under `src/sciona/reducers/helpers/shared/`,
   `src/sciona/reducers/helpers/artifact/`, and
   `src/sciona/reducers/helpers/impl/`
+- High-traffic orientation and coupling reducers may expose a compact mode for
+  agent-facing orientation. Prefer compact output first for ownership,
+  dependency, and migration-scope questions; switch to full payloads only when
+  the compact view is insufficient.
 - `tests/`: API, code-analysis, data-storage, pipeline, reducer, and runtime
   coverage
 

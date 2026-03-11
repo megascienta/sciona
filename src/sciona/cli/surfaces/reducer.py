@@ -71,7 +71,7 @@ def register(app: typer.Typer) -> None:
         ),
         **dynamic_kwargs,
     ) -> None:
-        """Render a reducer payload (latest committed snapshot only). Example: sciona reducer --id structural_index"""
+        """Render a reducer payload (latest committed snapshot only). Prefer `--compact` when available for orientation or coupling tasks."""
         if ctx.invoked_subcommand is not None:
             return
         if not reducer_id:
@@ -157,7 +157,7 @@ def register(app: typer.Typer) -> None:
             help="Filter to a single reducer id (e.g., structural_index).",
         ),
     ) -> None:
-        """List reducers with CLI call signatures (warns if dirty)."""
+        """List reducers with CLI call signatures and compact-mode hints (warns if dirty)."""
         emit_dirty_worktree_warning()
         entries = cli_call(reducer_ops.list_entries)
         if reducer_id:

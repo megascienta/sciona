@@ -39,6 +39,7 @@ def test_cli_reducer_list_outputs_calls(cli_app, cli_runner):
 
     assert result.exit_code == 0
     assert "reducer --id structural_index" in result.stdout
+    assert "--compact" in result.stdout
     assert "--function-id" not in result.stdout
     assert "--method-id" not in result.stdout
 
