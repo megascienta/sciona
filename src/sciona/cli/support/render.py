@@ -12,6 +12,13 @@ from ...runtime.reducers.listing import (
 )
 
 
+def _format_status_timestamp(value: object) -> str:
+    if value is None:
+        return "unknown"
+    text = str(value).strip()
+    return text or "unknown"
+
+
 def render_init(payload: dict) -> list[str]:
     lines = [f"Initialized SCIONA in {payload['sciona_dir']}"]
     if payload.get("iterative"):
@@ -62,12 +69,6 @@ def render_build(payload: dict) -> list[str]:
 
 
 def render_status(payload: dict) -> list[str]:
-    def _format_ts(value: object) -> str:
-        if value is None:
-            return "unknown"
-        text = str(value).strip()
-        return text or "unknown"
-
     lines = [
         "Repository:",
         f"  Path: {payload['repo_root']}",
@@ -78,7 +79,7 @@ def render_status(payload: dict) -> list[str]:
     lines.append(f"  Committed: {payload['snapshot_count']}")
     if payload.get("latest_snapshot"):
         lines.append(
-            f"  Latest: {payload['latest_snapshot']} @ {_format_ts(payload.get('latest_created'))}"
+            f"  Latest: {payload['latest_snapshot']} @ {_format_status_timestamp(payload.get('latest_created'))}"
         )
     lines.append(f"  Database present: {'yes' if payload['db_exists'] else 'no'}")
     summary = payload.get("summary")

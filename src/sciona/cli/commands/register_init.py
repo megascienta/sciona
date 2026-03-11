@@ -17,53 +17,55 @@ from ..support.utils import agents_command_map, cli_call
 from ..support import render as cli_render
 
 
+def _init_command(
+    no_interactive: bool = typer.Option(
+        False,
+        "--no-interactive",
+        help="Skip the interactive setup dialog.",
+    ),
+    agents: bool = typer.Option(
+        False,
+        "--agents",
+        help="Generate a managed SCIONA block in AGENTS.md (no-interactive only).",
+    ),
+    agents_mode: str = typer.Option(
+        "append",
+        "--agents-mode",
+        help="Update mode for AGENTS.md (append or overwrite; no-interactive only).",
+    ),
+    post_commit_hook: bool = typer.Option(
+        False,
+        "--post-commit-hook",
+        help="Install a post-commit hook that runs sciona build.",
+    ),
+) -> None:
+    """Initialize SCIONA state for the current repository."""
+    try:
+        sciona_dir = cli_call(repo_ops.init)
+    except api_errors.ConfigError as exc:
+        typer.secho(str(exc), fg=typer.colors.YELLOW)
+        raise typer.Exit(code=0) from exc
+    payload = {
+        "sciona_dir": sciona_dir,
+        "iterative": bool(not no_interactive and sys.stdin.isatty()),
+        "config_path": sciona_dir / "config.yaml",
+    }
+    cli_render.emit(cli_render.render_init(payload))
+    _maybe_init_dialog(sciona_dir, no_interactive=no_interactive)
+    _maybe_init_agents(
+        no_interactive=no_interactive,
+        agents=agents,
+        agents_mode=agents_mode,
+    )
+    _maybe_init_hook(
+        sciona_dir,
+        no_interactive=no_interactive,
+        install=post_commit_hook,
+    )
+
+
 def register_init(app: typer.Typer) -> None:
-    @app.command()
-    def init(
-        no_interactive: bool = typer.Option(
-            False,
-            "--no-interactive",
-            help="Skip the interactive setup dialog.",
-        ),
-        agents: bool = typer.Option(
-            False,
-            "--agents",
-            help="Generate a managed SCIONA block in AGENTS.md (no-interactive only).",
-        ),
-        agents_mode: str = typer.Option(
-            "append",
-            "--agents-mode",
-            help="Update mode for AGENTS.md (append or overwrite; no-interactive only).",
-        ),
-        post_commit_hook: bool = typer.Option(
-            False,
-            "--post-commit-hook",
-            help="Install a post-commit hook that runs sciona build.",
-        ),
-    ) -> None:
-        """Initialize SCIONA state for the current repository."""
-        try:
-            sciona_dir = cli_call(repo_ops.init)
-        except api_errors.ConfigError as exc:
-            typer.secho(str(exc), fg=typer.colors.YELLOW)
-            raise typer.Exit(code=0) from exc
-        payload = {
-            "sciona_dir": sciona_dir,
-            "iterative": bool(not no_interactive and sys.stdin.isatty()),
-            "config_path": sciona_dir / "config.yaml",
-        }
-        cli_render.emit(cli_render.render_init(payload))
-        _maybe_init_dialog(sciona_dir, no_interactive=no_interactive)
-        _maybe_init_agents(
-            no_interactive=no_interactive,
-            agents=agents,
-            agents_mode=agents_mode,
-        )
-        _maybe_init_hook(
-            sciona_dir,
-            no_interactive=no_interactive,
-            install=post_commit_hook,
-        )
+    app.command(name="init")(_init_command)
 
 
 def _maybe_init_dialog(sciona_dir, *, no_interactive: bool) -> None:

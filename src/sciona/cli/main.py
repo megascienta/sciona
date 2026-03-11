@@ -16,7 +16,35 @@ from .commands import register as register_commands
 from ..runtime.common.constants import TOOL_VERSION
 
 
+_CLICK_PARAMETER_MAKE_METAVAR = None
+_TYPER_ARGUMENT_CLASS = None
+
+
+def _patched_click_make_metavar(self, ctx=None):
+    if _CLICK_PARAMETER_MAKE_METAVAR is None:
+        raise RuntimeError("Click metavar patch is not initialized.")
+    return _CLICK_PARAMETER_MAKE_METAVAR(self, ctx)
+
+
+def _patched_typer_argument_make_metavar(self, ctx=None):
+    if self.metavar is not None:
+        return self.metavar
+    var = (self.name or "").upper()
+    if not self.required:
+        var = f"[{var}]"
+    try:
+        type_var = self.type.get_metavar(self, ctx)
+    except TypeError:
+        type_var = self.type.get_metavar(self)
+    if type_var:
+        var += f":{type_var}"
+    if self.nargs != 1:
+        var += "..."
+    return var
+
+
 def _patch_click_make_metavar() -> None:
+    global _CLICK_PARAMETER_MAKE_METAVAR
     sig = inspect.signature(click.Parameter.make_metavar)
     if "ctx" not in sig.parameters:
         _patch_typer_argument_make_metavar()
@@ -24,16 +52,13 @@ def _patch_click_make_metavar() -> None:
     if sig.parameters["ctx"].default is not inspect._empty:
         _patch_typer_argument_make_metavar()
         return
-    original = click.Parameter.make_metavar
-
-    def _make_metavar(self, ctx=None):
-        return original(self, ctx)
-
-    click.Parameter.make_metavar = _make_metavar  # type: ignore[assignment]
+    _CLICK_PARAMETER_MAKE_METAVAR = click.Parameter.make_metavar
+    click.Parameter.make_metavar = _patched_click_make_metavar  # type: ignore[assignment]
     _patch_typer_argument_make_metavar()
 
 
 def _patch_typer_argument_make_metavar() -> None:
+    global _TYPER_ARGUMENT_CLASS
     try:
         import typer.core as typer_core
     except Exception:
@@ -44,24 +69,8 @@ def _patch_typer_argument_make_metavar() -> None:
     sig = inspect.signature(typer_arg.make_metavar)
     if "ctx" in sig.parameters:
         return
-
-    def _make_metavar(self, ctx=None):
-        if self.metavar is not None:
-            return self.metavar
-        var = (self.name or "").upper()
-        if not self.required:
-            var = f"[{var}]"
-        try:
-            type_var = self.type.get_metavar(self, ctx)
-        except TypeError:
-            type_var = self.type.get_metavar(self)
-        if type_var:
-            var += f":{type_var}"
-        if self.nargs != 1:
-            var += "..."
-        return var
-
-    typer_arg.make_metavar = _make_metavar  # type: ignore[assignment]
+    _TYPER_ARGUMENT_CLASS = typer_arg
+    typer_arg.make_metavar = _patched_typer_argument_make_metavar  # type: ignore[assignment]
 
 
 _patch_click_make_metavar()

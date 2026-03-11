@@ -14,37 +14,37 @@ from ..support.utils import cli_call
 from ..support import render as cli_render
 
 
+def _build_command(
+    force_rebuild: bool = typer.Option(
+        False,
+        "--force",
+        help="Bypass fingerprint fast-path and run a full rebuild.",
+    ),
+) -> None:
+    """Create a new snapshot and ingest enabled languages (clean worktree required)."""
+    started_at = perf_counter()
+    result = cli_call(lambda: repo_ops.build(force_rebuild=force_rebuild))
+    summary = cli_call(repo_ops.snapshot_report, snapshot_id=result.snapshot_id)
+    command_wall_seconds = perf_counter() - started_at
+    cli_call(
+        repo_ops.record_build_wall_time,
+        snapshot_id=result.snapshot_id,
+        wall_seconds=command_wall_seconds,
+    )
+    payload = dict(result.__dict__)
+    payload["summary"] = summary
+    payload["command_wall_seconds"] = max(command_wall_seconds, 0.0)
+    cli_render.emit(cli_render.render_build(payload))
+    _emit_build_warnings(result)
+    _exit_if_no_discovery(result)
+    if result.status == "reused":
+        typer.echo(f"No structural diffs detected; snapshot {result.snapshot_id} reused.")
+        return
+    typer.echo(f"Snapshot {result.snapshot_id} recorded.")
+
+
 def register_build(app: typer.Typer) -> None:
-    @app.command()
-    def build(
-        force_rebuild: bool = typer.Option(
-            False,
-            "--force",
-            help="Bypass fingerprint fast-path and run a full rebuild.",
-        ),
-    ) -> None:
-        """Create a new snapshot and ingest enabled languages (clean worktree required)."""
-        started_at = perf_counter()
-        result = cli_call(lambda: repo_ops.build(force_rebuild=force_rebuild))
-        summary = cli_call(repo_ops.snapshot_report, snapshot_id=result.snapshot_id)
-        command_wall_seconds = perf_counter() - started_at
-        cli_call(
-            repo_ops.record_build_wall_time,
-            snapshot_id=result.snapshot_id,
-            wall_seconds=command_wall_seconds,
-        )
-        payload = dict(result.__dict__)
-        payload["summary"] = summary
-        payload["command_wall_seconds"] = max(command_wall_seconds, 0.0)
-        cli_render.emit(cli_render.render_build(payload))
-        _emit_build_warnings(result)
-        _exit_if_no_discovery(result)
-        if result.status == "reused":
-            typer.echo(
-                f"No structural diffs detected; snapshot {result.snapshot_id} reused."
-            )
-        else:
-            typer.echo(f"Snapshot {result.snapshot_id} recorded.")
+    app.command(name="build")(_build_command)
 
 
 def _exit_if_no_discovery(result) -> None:

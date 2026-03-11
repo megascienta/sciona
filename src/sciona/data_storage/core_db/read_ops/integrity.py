@@ -51,7 +51,7 @@ def lexical_orphans(
         JOIN node_instances ni
           ON ni.structural_id = sn.structural_id
          AND ni.snapshot_id = ?
-        WHERE sn.node_type IN ('type', 'callable')
+        WHERE sn.node_type IN ('classifier', 'type', 'callable')
           AND NOT EXISTS (
               SELECT 1
               FROM edges e
@@ -59,7 +59,7 @@ def lexical_orphans(
               WHERE e.snapshot_id = ni.snapshot_id
                 AND e.dst_structural_id = sn.structural_id
                 AND e.edge_type = 'LEXICALLY_CONTAINS'
-                AND parent.node_type IN ('module', 'type')
+                AND parent.node_type IN ('module', 'classifier', 'type')
           )
         ORDER BY ni.qualified_name, sn.structural_id
         LIMIT ?

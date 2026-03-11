@@ -21,124 +21,132 @@ from ..support.utils import (
 from ..support import render as cli_render
 
 
-def register_status(app: typer.Typer) -> None:
-    @app.command()
-    def status(
-        full: bool = typer.Option(
-            False,
-            "--full",
-            help="Show per-language diagnostic details in text output.",
-        ),
-        verbose: bool = typer.Option(
-            False,
-            "--verbose",
-            help="Alias for --full (text output only).",
-        ),
-        json_output: bool = typer.Option(
-            False,
-            "--json",
-            help="Emit machine-readable JSON output.",
-        ),
-        output: Optional[Path] = typer.Option(
-            None,
-            "--output",
-            "-o",
-            help="Write full machine-readable status payload to a JSON file.",
-        ),
-    ) -> None:
-        """Show SCIONA status for the current repository (warns if dirty)."""
-        status_result = cli_call(repo_ops.status)
-        export_mode = bool(json_output or output is not None)
-        detailed = bool(full or verbose) if not export_mode else True
-        include_failure_reasons = bool(detailed or export_mode)
-        summary = None
-        if status_result.latest_snapshot:
-            summary = cli_call(
-                repo_ops.snapshot_report,
-                snapshot_id=status_result.latest_snapshot,
-                include_failure_reasons=include_failure_reasons,
-            )
-        payload = {
-            "repo_root": str(status_result.repo_root),
-            "tool_version": status_result.tool_version,
-            "schema_version": status_result.schema_version,
-            "snapshot_count": status_result.snapshot_count,
-            "latest_snapshot": status_result.latest_snapshot,
-            "latest_created": status_result.latest_created,
-            "db_exists": status_result.db_exists,
-            "summary": summary,
-            "detailed": detailed,
-            "status_report_version": 1,
-        }
-        if export_mode:
-            payload["repo_root"] = os.path.relpath(
-                str(status_result.repo_root), start=os.getcwd()
-            )
-            warning = get_dirty_worktree_warning(status_result.repo_root)
-            if warning:
-                payload["warning"] = warning
-            text = json.dumps(payload)
-            if output is not None:
-                output.parent.mkdir(parents=True, exist_ok=True)
-                output.write_text(text + "\n", encoding="utf-8")
-            if json_output:
-                typer.echo(text)
-            return
-        emit_dirty_worktree_warning(status_result.repo_root)
-        cli_render.emit(cli_render.render_status(payload))
+def _status_command(
+    full: bool = typer.Option(
+        False,
+        "--full",
+        help="Show per-language diagnostic details in text output.",
+    ),
+    verbose: bool = typer.Option(
+        False,
+        "--verbose",
+        help="Alias for --full (text output only).",
+    ),
+    json_output: bool = typer.Option(
+        False,
+        "--json",
+        help="Emit machine-readable JSON output.",
+    ),
+    output: Optional[Path] = typer.Option(
+        None,
+        "--output",
+        "-o",
+        help="Write full machine-readable status payload to a JSON file.",
+    ),
+) -> None:
+    """Show SCIONA status for the current repository (warns if dirty)."""
+    status_result = cli_call(repo_ops.status)
+    export_mode = bool(json_output or output is not None)
+    detailed = bool(full or verbose) if not export_mode else True
+    include_failure_reasons = bool(detailed or export_mode)
+    summary = None
+    if status_result.latest_snapshot:
+        summary = cli_call(
+            repo_ops.snapshot_report,
+            snapshot_id=status_result.latest_snapshot,
+            include_failure_reasons=include_failure_reasons,
+        )
+    payload = {
+        "repo_root": str(status_result.repo_root),
+        "tool_version": status_result.tool_version,
+        "schema_version": status_result.schema_version,
+        "snapshot_count": status_result.snapshot_count,
+        "latest_snapshot": status_result.latest_snapshot,
+        "latest_created": status_result.latest_created,
+        "db_exists": status_result.db_exists,
+        "summary": summary,
+        "detailed": detailed,
+        "status_report_version": 1,
+    }
+    if export_mode:
+        payload["repo_root"] = os.path.relpath(
+            str(status_result.repo_root), start=os.getcwd()
+        )
+        warning = get_dirty_worktree_warning(status_result.repo_root)
+        if warning:
+            payload["warning"] = warning
+        text = json.dumps(payload)
+        if output is not None:
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_text(text + "\n", encoding="utf-8")
+        if json_output:
+            typer.echo(text)
+        return
+    emit_dirty_worktree_warning(status_result.repo_root)
+    cli_render.emit(cli_render.render_status(payload))
 
-    @app.command()
-    def clean(
-        hooks: bool = typer.Option(
-            True,
-            "--hooks/--no-hooks",
-            help="Remove the managed SCIONA post-commit hook block.",
-        ),
-        agents: bool = typer.Option(
-            True,
-            "--agents/--no-agents",
-            help="Remove SCIONA-managed content from AGENTS.md.",
-        ),
-    ) -> None:
-        """Remove SCIONA state and managed integrations for the current repository."""
-        repo_root = cli_call(repo_ops.get_repo_root)
-        sciona_dir = repo_ops.get_sciona_dir(repo_root)
-        removed = cli_call(repo_ops.clean, repo_root)
-        cleaned_any = False
-        if removed:
-            typer.echo(f"Removed {sciona_dir}")
+
+def _clean_command(
+    hooks: bool = typer.Option(
+        True,
+        "--hooks/--no-hooks",
+        help="Remove the managed SCIONA post-commit hook block.",
+    ),
+    agents: bool = typer.Option(
+        True,
+        "--agents/--no-agents",
+        help="Remove SCIONA-managed content from AGENTS.md.",
+    ),
+) -> None:
+    """Remove SCIONA state and managed integrations for the current repository."""
+    repo_root = cli_call(repo_ops.get_repo_root)
+    sciona_dir = repo_ops.get_sciona_dir(repo_root)
+    removed = cli_call(repo_ops.clean, repo_root)
+    cleaned_any = False
+    if removed:
+        typer.echo(f"Removed {sciona_dir}")
+        cleaned_any = True
+    else:
+        typer.secho(
+            ".sciona directory not found; nothing to clean there.",
+            fg=typer.colors.YELLOW,
+        )
+
+    if hooks:
+        hook_before = cli_call(repo_ops.commit_hook_status, repo_root)
+        cli_call(repo_ops.remove_commit_hook, repo_root)
+        if hook_before.installed:
+            typer.echo(
+                f"Removed managed SCIONA post-commit hook block from {hook_before.hook_path}"
+            )
             cleaned_any = True
         else:
             typer.secho(
-                ".sciona directory not found; nothing to clean there.",
+                "No managed SCIONA post-commit hook block found.",
                 fg=typer.colors.YELLOW,
             )
 
-        if hooks:
-            hook_before = cli_call(repo_ops.commit_hook_status, repo_root)
-            cli_call(repo_ops.remove_commit_hook, repo_root)
-            if hook_before.installed:
-                typer.echo(f"Removed managed SCIONA post-commit hook block from {hook_before.hook_path}")
-                cleaned_any = True
-            else:
-                typer.secho(
-                    "No managed SCIONA post-commit hook block found.",
-                    fg=typer.colors.YELLOW,
-                )
+    if agents:
+        removed_agents = cli_call(repo_ops.clean_agents, repo_root)
+        if removed_agents:
+            typer.echo("Removed SCIONA-managed AGENTS.md content")
+            cleaned_any = True
+        else:
+            typer.secho(
+                "No managed SCIONA block found in AGENTS.md.",
+                fg=typer.colors.YELLOW,
+            )
 
-        if agents:
-            removed_agents = cli_call(repo_ops.clean_agents, repo_root)
-            if removed_agents:
-                typer.echo("Removed SCIONA-managed AGENTS.md content")
-                cleaned_any = True
-            else:
-                typer.secho(
-                    "No managed SCIONA block found in AGENTS.md.",
-                    fg=typer.colors.YELLOW,
-                )
+    if not cleaned_any:
+        typer.secho(
+            "No SCIONA-managed artifacts found to clean.",
+            fg=typer.colors.YELLOW,
+        )
 
-        if not cleaned_any:
-            typer.secho("No SCIONA-managed artifacts found to clean.", fg=typer.colors.YELLOW)
+
+def register_status(app: typer.Typer) -> None:
+    app.command(name="status")(_status_command)
+    app.command(name="clean")(_clean_command)
 
 
 __all__ = ["register_status"]

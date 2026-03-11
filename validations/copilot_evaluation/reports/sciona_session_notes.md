@@ -202,6 +202,23 @@ Observations
 The highest-value finding was a confirmed counting bug in artifact call resolution. The remaining items are mostly policy and parser-hardening changes that require explicit decisions about fail-fast behavior.
 RATINGS (1-10): Structural clarity 7 | Navigation speed 7 | Confidence in answers 9 | Overall usefulness 7
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 6 | Scope reduction vs baseline 5 | Query friction vs baseline 3 | Net usefulness vs baseline 6
+## Task 21 - PR4 orphan hotspot fixes
+Copilot
+Codex (GPT-5)
+Task description
+Flattened nested CLI callbacks and helper closures that were surfacing as lexical orphans, and fixed the integrity query to treat `classifier` containment as valid for orphan detection.
+Task type
+implementation
+SCIONA usage
+Used `structural_integrity_summary`, `file_outline`, `search`, and `resolve` to separate real containment bugs from reducer false positives before editing.
+Effect on workflow
+SCIONA reduced search space materially: it showed the CLI nested callbacks were genuine code-shape hotspots and that engine-method orphaning came from the integrity query rather than source layout.
+Fallback
+Source inspection, direct SQL/reducer code review, targeted CLI/reducer test updates, compile check, and focused `pytest` in `multiphysics`.
+Observations
+This block mixed structural and semantic work cleanly. SCIONA was decisive for locating the anomaly classes, but fixing the reducer query and Typer registration shape still required direct source reasoning.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 7 | Scope reduction vs baseline 7 | Query friction vs baseline 4 | Net usefulness vs baseline 8
 ## Task 12 - TypeScript heritage hardening
 Copilot
 Codex (GPT-5)

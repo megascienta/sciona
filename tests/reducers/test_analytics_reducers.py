@@ -810,6 +810,74 @@ def test_structural_integrity_summary_detects_duplicates_and_orphans(tmp_path):
     assert "discovery_reconciliation" in payload["low_node_file_diagnostics"]
 
 
+def test_structural_integrity_summary_excludes_classifier_contained_methods(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = core_conn(repo_root)
+    try:
+        conn.execute(
+            """
+            INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
+            VALUES (?, ?, ?, ?)
+            """,
+            ("cls_extra", "classifier", "python", snapshot_id),
+        )
+        conn.execute(
+            """
+            INSERT INTO node_instances(
+                instance_id, structural_id, snapshot_id, qualified_name, file_path, start_line, end_line, content_hash
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                f"{snapshot_id}:cls_extra",
+                "cls_extra",
+                snapshot_id,
+                qualify_repo_name(repo_root, "pkg.alpha.extra.Extra"),
+                "pkg/alpha/extra.py",
+                1,
+                10,
+                "hash-cls-extra",
+            ),
+        )
+        conn.execute(
+            """
+            INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
+            VALUES (?, ?, ?, ?)
+            """,
+            ("meth_extra", "callable", "python", snapshot_id),
+        )
+        conn.execute(
+            """
+            INSERT INTO node_instances(
+                instance_id, structural_id, snapshot_id, qualified_name, file_path, start_line, end_line, content_hash
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                f"{snapshot_id}:meth_extra",
+                "meth_extra",
+                snapshot_id,
+                qualify_repo_name(repo_root, "pkg.alpha.extra.Extra.run"),
+                "pkg/alpha/extra.py",
+                2,
+                4,
+                "hash-meth-extra",
+            ),
+        )
+        conn.execute(
+            """
+            INSERT INTO edges(snapshot_id, src_structural_id, dst_structural_id, edge_type)
+            VALUES (?, ?, ?, ?)
+            """,
+            (snapshot_id, "cls_extra", "meth_extra", "LEXICALLY_CONTAINS"),
+        )
+        conn.commit()
+        payload_text = structural_integrity_summary.render(snapshot_id, conn, repo_root)
+    finally:
+        conn.close()
+    payload = parse_json_payload(payload_text)
+    orphan_ids = {entry["structural_id"] for entry in payload["lexical_orphans"]}
+    assert "meth_extra" not in orphan_ids
+
+
 def test_callsite_index_neighbors_detail_level(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     callable_id = qualify_repo_name(repo_root, "pkg.alpha.service.helper")

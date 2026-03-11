@@ -16,6 +16,7 @@ from .. import repo_ops, runtime_ops
 from . import render as cli_render
 from .errors import handle_cli_error
 
+
 def emit_user_warning(message: str) -> None:
     if message:
         cli_render.emit_warning([message])
@@ -39,6 +40,13 @@ def cli_call(func, *args, **kwargs):
 
 runtime_call = cli_call
 setup_call = cli_call
+
+
+def _pick_command(prefix: str, entries: list[str]) -> str | None:
+    for entry in entries:
+        if entry.startswith(prefix):
+            return entry
+    return None
 
 
 def parse_extra_args(args: list[str]) -> dict[str, str]:
@@ -130,17 +138,11 @@ def agents_command_map() -> Mapping[str, str]:
     except Exception:
         return {}
 
-    def _pick(prefix: str, entries: list[str]) -> str | None:
-        for entry in entries:
-            if entry.startswith(prefix):
-                return entry
-        return None
-
-    list_cmd = _pick("reducer list", reducer_cmds) or "reducer list"
-    info_cmd = _pick("reducer info", reducer_cmds) or "reducer info --id <reducer_id>"
-    build_cmd = _pick("build", core_cmds) or "build"
-    search_cmd = _pick("search", core_cmds) or "search"
-    resolve_cmd = _pick("resolve", core_cmds) or "resolve"
+    list_cmd = _pick_command("reducer list", reducer_cmds) or "reducer list"
+    info_cmd = _pick_command("reducer info", reducer_cmds) or "reducer info --id <reducer_id>"
+    build_cmd = _pick_command("build", core_cmds) or "build"
+    search_cmd = _pick_command("search", core_cmds) or "search"
+    resolve_cmd = _pick_command("resolve", core_cmds) or "resolve"
     return {
         "reducer_list": f"sciona {list_cmd}",
         "reducer_info": f"sciona {info_cmd}",
