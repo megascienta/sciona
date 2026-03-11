@@ -51,6 +51,30 @@ def test_callsite_index_reducer_returns_payload(tmp_path):
         assert edge["transition"] == "unchanged"
 
 
+def test_callsite_index_compact_mode_returns_summary_payload(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    callable_id = qualify_repo_name(repo_root, "pkg.alpha.service.helper")
+    conn = core_conn(repo_root)
+    try:
+        payload_text = callsite_index.render(
+            snapshot_id,
+            conn,
+            repo_root,
+            callable_id=callable_id,
+            compact=True,
+        )
+    finally:
+        conn.close()
+    payload = parse_json_payload(payload_text)
+    assert payload["payload_kind"] == "compact_summary"
+    assert "edges" not in payload
+    assert "call_sites" not in payload
+    assert "resolution_diagnostics" not in payload
+    assert "status_counts" in payload
+    assert "identifier_preview" in payload
+    assert "edge_preview" in payload
+
+
 def test_call_resolution_quality_returns_payload(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     conn = core_conn(repo_root)

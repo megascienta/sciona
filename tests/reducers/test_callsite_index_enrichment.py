@@ -158,6 +158,20 @@ def test_callsite_index_filters_callsites_and_edges(tmp_path: Path) -> None:
             )
         )
         assert [row["identifier"] for row in identifier_payload["call_sites"]] == ["helper"]
+
+        compact_payload = parse_json_payload(
+            callsite_index.render(
+                snapshot_id,
+                conn=conn,
+                repo_root=repo_root,
+                callable_id="meth_alpha",
+                compact=True,
+            )
+        )
+        assert compact_payload["payload_kind"] == "compact_summary"
+        assert compact_payload["status_counts"][0]["name"] == "accepted"
+        assert compact_payload["identifier_preview"]["entries"][0]["name"] == "helper"
+        assert compact_payload["edge_preview"]["count"] == 1
     finally:
         artifact_conn.close()
         conn.close()

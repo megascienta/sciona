@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections import Counter
 from typing import Dict, List, Optional
 
 from ....runtime.overlay.patching.analytics import patch_callsite_index
@@ -41,6 +42,7 @@ def render(
     status: str | None = None,
     provenance: str | None = None,
     drop_reason: str | None = None,
+    compact: bool | None = None,
     **_: object,
 ) -> str:
     conn = require_connection(conn)
@@ -124,7 +126,7 @@ def render(
         "resolution_diagnostics": {},
     }
     should_load_callsites = artifact_available and repo_root is not None and (
-        bool(include_callsite_diagnostics) or filter_active
+        bool(include_callsite_diagnostics) or filter_active or bool(compact)
     )
     if should_load_callsites:
         call_sites, diagnostics = load_callsite_enrichment(
@@ -182,6 +184,8 @@ def render(
             conn=conn,
         )
         body["_overlay_applied_by_reducer"] = True
+    if compact:
+        body = _compact_payload(body)
     return render_json_payload(body)
 
 
@@ -338,6 +342,52 @@ def _load_edges(
         )
     )
     return edges
+
+
+def _compact_payload(payload: dict[str, object]) -> dict[str, object]:
+    call_sites = list(payload.get("call_sites", []) or [])
+    edges = list(payload.get("edges", []) or [])
+    compact_payload = dict(payload)
+    compact_payload["payload_kind"] = "compact_summary"
+    compact_payload["status_counts"] = _counter_entries(
+        Counter(str(row.get("resolution_status") or "") for row in call_sites if row.get("resolution_status"))
+    )
+    compact_payload["provenance_counts"] = _counter_entries(
+        Counter(str(row.get("provenance") or "") for row in call_sites if row.get("provenance"))
+    )
+    compact_payload["drop_reason_counts"] = _counter_entries(
+        Counter(str(row.get("drop_reason") or "") for row in call_sites if row.get("drop_reason"))
+    )
+    compact_payload["identifier_preview"] = _identifier_preview(call_sites)
+    compact_payload["edge_preview"] = {
+        "count": len(edges),
+        "entries": edges[:10],
+        "truncated": len(edges) > 10,
+    }
+    compact_payload.pop("edges", None)
+    compact_payload.pop("call_sites", None)
+    compact_payload.pop("resolution_diagnostics", None)
+    return compact_payload
+
+
+def _counter_entries(counter: Counter[str]) -> List[dict[str, object]]:
+    entries = [{"name": name, "count": count} for name, count in counter.items()]
+    entries.sort(key=lambda item: (-int(item["count"]), str(item["name"])))
+    return entries
+
+
+def _identifier_preview(call_sites: List[dict[str, object]]) -> dict[str, object]:
+    counter = Counter(
+        str(row.get("identifier") or "") for row in call_sites if row.get("identifier")
+    )
+    entries = _counter_entries(counter)
+    shown = entries[:10]
+    return {
+        "count": len(shown),
+        "total": len(entries),
+        "truncated": len(entries) > 10,
+        "entries": shown,
+    }
 
 
 def _filter_call_sites(

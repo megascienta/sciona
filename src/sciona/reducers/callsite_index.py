@@ -31,6 +31,7 @@ def render(
     status: str | None = None,
     provenance: str | None = None,
     drop_reason: str | None = None,
+    compact: bool | None = None,
     **_: object,
 ) -> str:
     from .helpers.impl.callsite_index import render as _render
@@ -47,6 +48,7 @@ def render(
         status=status,
         provenance=provenance,
         drop_reason=drop_reason,
+        compact=compact,
     )
 
 
