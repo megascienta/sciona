@@ -9,9 +9,7 @@ from .metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="symbol_references",
-    category="relations",
-    risk_tier="normal",
-    stage="relationship_analysis",
+    category="symbol",
     placeholder="SYMBOL_REFERENCES",
     summary="Summarize structural symbol references in the committed snapshot, with "
     "optional narrowing by symbol kind or module. ",

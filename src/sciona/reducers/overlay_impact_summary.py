@@ -13,9 +13,7 @@ from .metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="overlay_impact_summary",
-    category="metrics",
-    risk_tier="elevated",
-    stage="diagnostics_metrics",
+    category="overlay",
     placeholder="OVERLAY_IMPACT_SUMMARY",
     summary="Advisory summary of dirty-worktree diff overlay impact for the committed snapshot. "
     "Use when triaging uncommitted changes; output is non-authoritative. ",

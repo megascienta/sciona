@@ -15,9 +15,7 @@ _NODE_TYPES = {"module", "classifier", "callable"}
 
 REDUCER_META = ReducerMeta(
     reducer_id="symbol_lookup",
-    category="structure",
-    risk_tier="normal",
-    stage="entity_discovery",
+    category="navigation",
     placeholder="SYMBOL_LOOKUP",
     summary="Ranked structural symbol matches for a query. " \
     "Use when resolving unknown identifiers. ",

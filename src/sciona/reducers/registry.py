@@ -13,11 +13,7 @@ from pathlib import Path
 from types import MappingProxyType, ModuleType
 from typing import Iterable, Iterator, Mapping
 
-from ..runtime.reducers.metadata import (
-    VALID_CATEGORIES,
-    VALID_INVESTIGATION_STAGES,
-    VALID_RISK_TIERS,
-)
+from ..runtime.reducers.metadata import VALID_CATEGORIES
 from .metadata import ReducerMeta
 
 _FROZEN = False
@@ -28,8 +24,6 @@ class ReducerEntry:
     reducer_id: str
     category: str
     placeholder: str
-    risk_tier: str
-    stage: str
     summary: str
     anomaly_detector: bool
     module: ModuleType
@@ -56,15 +50,6 @@ def _validate_meta(meta: ReducerMeta, module_name: str) -> None:
         raise ValueError(
             f"Reducer '{module_name}' has invalid category '{meta.category}'."
         )
-    if meta.risk_tier not in VALID_RISK_TIERS:
-        raise ValueError(
-            f"Reducer '{module_name}' has invalid risk tier '{meta.risk_tier}'."
-        )
-    if meta.stage not in VALID_INVESTIGATION_STAGES:
-        raise ValueError(
-            f"Reducer '{module_name}' has invalid investigation stage "
-            f"'{meta.stage}'."
-        )
     if not str(meta.placeholder).strip():
         raise ValueError(
             f"Reducer '{module_name}' must declare a non-empty placeholder."
@@ -85,8 +70,6 @@ def _build_registry() -> dict[str, ReducerEntry]:
             reducer_id=reducer_id,
             category=meta.category,
             placeholder=meta.placeholder,
-            risk_tier=meta.risk_tier,
-            stage=meta.stage,
             summary=meta.summary,
             anomaly_detector=meta.anomaly_detector,
             module=module,

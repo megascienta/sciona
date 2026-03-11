@@ -46,8 +46,6 @@ def list_entries(
                 "reducer_id": reducer_id,
                 "category": entry.category,
                 "placeholder": entry.placeholder,
-                "risk_tier": entry.risk_tier,
-                "stage": entry.stage,
                 "summary": entry.summary,
                 "anomaly_detector": entry.anomaly_detector,
             }

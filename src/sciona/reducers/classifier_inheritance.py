@@ -16,9 +16,7 @@ from .metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="classifier_inheritance",
-    category="structure",
-    risk_tier="normal",
-    stage="structure_inspection",
+    category="symbol",
     placeholder="CLASSIFIER_INHERITANCE",
     summary="Parsed base classifiers and inheritance relations. " \
     "Use when reasoning about classifier hierarchy or polymorphic structure. ",

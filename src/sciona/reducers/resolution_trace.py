@@ -22,9 +22,7 @@ from .metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="resolution_trace",
-    category="metrics",
-    risk_tier="normal",
-    stage="diagnostics_metrics",
+    category="diagnostic",
     placeholder="RESOLUTION_TRACE",
     summary="Call-resolution diagnostics and sampled traces for one callable. "
     "Use to understand why callsites were accepted or dropped without changing CALLS truth. ",

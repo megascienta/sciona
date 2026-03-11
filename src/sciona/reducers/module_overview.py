@@ -10,9 +10,7 @@ from .metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="module_overview",
-    category="structure",
-    risk_tier="normal",
-    stage="entity_discovery",
+    category="orientation",
     placeholder="MODULE_OVERVIEW",
     summary="Structural summary of a module, including contained classifiers and callables. "
     "Use for architectural inspection. ",

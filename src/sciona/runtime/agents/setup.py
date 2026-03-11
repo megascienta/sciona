@@ -12,6 +12,7 @@ from ...code_analysis.core.extract.registry import extensions_for_language
 from ..config import io as config_io
 from ..config import defaults as config_defaults
 from ..errors import ConfigError
+from ..reducers.metadata import CATEGORY_ORDER
 from sciona.runtime.reducers.listing import render_reducer_list
 
 
@@ -30,29 +31,9 @@ def build_agents_block(
     commands = _merge_commands(commands)
     content = template.format(
         COMMON_TASKS=_render_common_tasks(reducers),
-        RISK_TIER_REDUCERS=_render_risk_tier_reducers(reducers),
-        STAGE_INITIAL_SCAN_REDUCERS=_render_stage_reducer_list(
-            reducers, "initial_scan"
-        ),
-        STAGE_ENTITY_DISCOVERY_REDUCERS=_render_stage_reducer_list(
-            reducers, "entity_discovery"
-        ),
-        STAGE_STRUCTURE_INSPECTION_REDUCERS=_render_stage_reducer_list(
-            reducers, "structure_inspection"
-        ),
-        STAGE_RELATIONSHIP_ANALYSIS_REDUCERS=_render_stage_reducer_list(
-            reducers, "relationship_analysis"
-        ),
-        STAGE_DIAGNOSTICS_REDUCERS=_render_stage_reducer_list(
-            reducers, "diagnostics_metrics"
-        ),
-        STAGE_SOURCE_VERIFICATION_REDUCERS=_render_stage_reducer_list(
-            reducers, "source_verification"
-        ),
         INVESTIGATION_ROLE_CATEGORIES=_render_investigation_role_categories(reducers),
         SOURCE_REDUCER_LIST=_render_source_reducer_list(reducers),
         ANOMALY_DETECTOR_LIST=_render_anomaly_detector_list(reducers),
-        REDUCER_ESCALATION_ORDER=_render_reducer_escalation_order(reducers),
         CMD_VERSION=commands.get("version", "sciona --version"),
         CMD_INIT=commands.get("init", "sciona init"),
         CMD_AGENTS=commands.get("agents", "sciona agents"),
@@ -205,28 +186,10 @@ def _render_common_tasks(reducers) -> str:
         )
     return "\n".join(render_reducer_list(entries, reducers, include_prefix=True))
 
-
-def _render_risk_tier_reducers(reducers) -> str:
-    normal = _sorted_reducer_ids_by_risk_tier(reducers, "normal")
-    elevated = _sorted_reducer_ids_by_risk_tier(reducers, "elevated")
-    normal_text = ", ".join(normal) if normal else "(none)"
-    elevated_text = ", ".join(elevated) if elevated else "(none)"
-    return "\n".join(
-        [
-            f"- Normal tier reducers: {normal_text}",
-            f"- Elevated tier reducers: {elevated_text}",
-        ]
-    )
-
-
 def _render_investigation_role_categories(reducers) -> str:
     lines: list[str] = []
-    for role_name, label in (
-        ("structure", "Structure reducers"),
-        ("relations", "Relations reducers"),
-        ("metrics", "Metrics reducers"),
-        ("source", "Source reducers"),
-    ):
+    for role_name in CATEGORY_ORDER:
+        label = f"{role_name.capitalize()} reducers"
         reducer_ids = _sorted_reducer_ids_by_categories(reducers, {role_name})
         rendered = ", ".join(reducer_ids) if reducer_ids else "(none)"
         lines.append(f"**{label}:**")
@@ -249,53 +212,6 @@ def _render_anomaly_detector_list(reducers) -> str:
     return "\n".join(f"- `{reducer_id}`" for reducer_id in reducer_ids)
 
 
-def _render_stage_reducer_list(reducers, stage: str) -> str:
-    return _format_plain_reducer_list(
-        _sorted_reducer_ids_by_investigation_stage(reducers, stage)
-    )
-
-
-def _render_reducer_escalation_order(reducers) -> str:
-    return "\n".join(
-        [
-            "1. **Initial scan** — "
-            + _format_reducer_list_for_docs(
-                _sorted_reducer_ids_by_investigation_stage(reducers, "initial_scan")
-            ),
-            "2. **Entity discovery** — "
-            + _format_reducer_list_for_docs(
-                _sorted_reducer_ids_by_investigation_stage(
-                    reducers, "entity_discovery"
-                )
-            ),
-            "3. **Structure inspection** — "
-            + _format_reducer_list_for_docs(
-                _sorted_reducer_ids_by_investigation_stage(
-                    reducers, "structure_inspection"
-                )
-            ),
-            "4. **Relationship analysis** — "
-            + _format_reducer_list_for_docs(
-                _sorted_reducer_ids_by_investigation_stage(
-                    reducers, "relationship_analysis"
-                )
-            ),
-            "5. **Diagnostics / metrics** — "
-            + _format_reducer_list_for_docs(
-                _sorted_reducer_ids_by_investigation_stage(
-                    reducers, "diagnostics_metrics"
-                )
-            ),
-            "6. **Source verification (last resort)** — "
-            + _format_reducer_list_for_docs(
-                _sorted_reducer_ids_by_investigation_stage(
-                    reducers, "source_verification"
-                )
-            ),
-        ]
-    )
-
-
 def _sorted_reducer_ids_by_categories(
     reducers,
     categories: set[str],
@@ -303,58 +219,21 @@ def _sorted_reducer_ids_by_categories(
     return _sorted_reducer_ids(reducers, categories=categories)
 
 
-def _sorted_reducer_ids_by_risk_tier(
-    reducers,
-    risk_tier: str,
-) -> list[str]:
-    return _sorted_reducer_ids(reducers, risk_tier=risk_tier)
-
-
-def _sorted_reducer_ids_by_investigation_stage(
-    reducers,
-    investigation_stage: str,
-) -> list[str]:
-    return _sorted_reducer_ids(reducers, investigation_stage=investigation_stage)
-
-
 def _sorted_reducer_ids(
     reducers,
     *,
     categories: set[str] | None = None,
-    risk_tier: str | None = None,
-    investigation_stage: str | None = None,
     reducer_ids: set[str] | None = None,
 ) -> list[str]:
     selected: list[str] = []
     for reducer_id, entry in reducers.items():
         category = str(getattr(entry, "category", "") or "")
-        entry_risk_tier = str(getattr(entry, "risk_tier", "") or "")
-        entry_investigation_stage = str(getattr(entry, "stage", "") or "")
         if categories is not None and category not in categories:
-            continue
-        if risk_tier is not None and entry_risk_tier != risk_tier:
-            continue
-        if (
-            investigation_stage is not None
-            and entry_investigation_stage != investigation_stage
-        ):
             continue
         if reducer_ids is not None and str(reducer_id) not in reducer_ids:
             continue
         selected.append(str(reducer_id))
     return sorted(selected)
-
-
-def _format_reducer_list_for_docs(reducer_ids: list[str]) -> str:
-    if not reducer_ids:
-        return "(no reducers in this level for current installation)"
-    return ", ".join(f"`{reducer_id}`" for reducer_id in reducer_ids)
-
-
-def _format_plain_reducer_list(reducer_ids: list[str]) -> str:
-    if not reducer_ids:
-        return "(no reducers in this level for current installation)"
-    return ", ".join(reducer_ids)
 
 
 def _merge_commands(commands: Mapping[str, str] | None) -> dict[str, str]:

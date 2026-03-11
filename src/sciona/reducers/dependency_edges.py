@@ -14,9 +14,7 @@ from .metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="dependency_edges",
-    category="relations",
-    risk_tier="normal",
-    stage="relationship_analysis",
+    category="coupling",
     placeholder="DEPENDENCY_EDGES",
     summary="Explicit module import dependencies. "
     "Use for analysing module coupling or dependency graphs. "

@@ -14,9 +14,7 @@ from ..data_storage.artifact_db.reporting import read_status as artifact_read_st
 
 REDUCER_META = ReducerMeta(
     reducer_id="snapshot_provenance",
-    category="structure",
-    risk_tier="normal",
-    stage="initial_scan",
+    category="orientation",
     placeholder="SNAPSHOT_PROVENANCE",
     summary="Snapshot provenance and reproducibility metadata for the committed SCI state. "
     "Use to verify snapshot freshness/identity before structural reasoning. ",

@@ -9,8 +9,6 @@ from dataclasses import dataclass
 
 from ..runtime.reducers.metadata import (
     CategoryLiteral,
-    InvestigationStageLiteral,
-    RiskTierLiteral,
 )
 
 
@@ -19,8 +17,6 @@ class ReducerMeta:
     reducer_id: str
     category: CategoryLiteral
     placeholder: str
-    risk_tier: RiskTierLiteral
-    stage: InvestigationStageLiteral
     summary: str
     anomaly_detector: bool = False
 

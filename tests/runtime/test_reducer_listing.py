@@ -25,7 +25,7 @@ class _DummyReducer:
 
 
 class _ReducerEntry:
-    def __init__(self, module, category="structure"):
+    def __init__(self, module, category="orientation"):
         self.module = module
         self.category = category
 
@@ -40,25 +40,17 @@ def test_format_reducer_call_includes_flags() -> None:
 
 def test_render_reducer_list_orders_roles() -> None:
     entries = [
-        {
-            "reducer_id": "b",
-            "category": "metrics",
-            "summary": "B",
-        },
-        {
-            "reducer_id": "a",
-            "category": "structure",
-            "summary": "A",
-        },
+        {"reducer_id": "b", "category": "source", "summary": "B"},
+        {"reducer_id": "a", "category": "orientation", "summary": "A"},
     ]
     reducers = {
-        "a": _ReducerEntry(_DummyReducer(), "structure"),
-        "b": _ReducerEntry(_DummyReducer(), "metrics"),
+        "a": _ReducerEntry(_DummyReducer(), "orientation"),
+        "b": _ReducerEntry(_DummyReducer(), "source"),
     }
     lines = render_reducer_list(entries, reducers, include_prefix=False)
-    structure_index = lines.index("Category: structure")
-    metrics_index = lines.index("Category: metrics")
-    assert structure_index < metrics_index
+    orientation_index = lines.index("Category: orientation")
+    source_index = lines.index("Category: source")
+    assert orientation_index < source_index
     assert any(line.startswith("  Command: reducer --id a") for line in lines)
     assert "  Summary: A" in lines
 
@@ -67,7 +59,7 @@ def test_render_reducer_catalog_lists_entries() -> None:
     entries = [
         {
             "reducer_id": "alpha",
-            "category": "structure",
+            "category": "orientation",
             "summary": "Alpha",
         },
     ]
@@ -79,21 +71,19 @@ def test_render_reducer_catalog_lists_entries() -> None:
 
 def test_normalize_category_defaults_to_unknown() -> None:
     assert normalize_category("") == "unknown"
-    assert normalize_category(" metrics ") == "metrics"
+    assert normalize_category(" source ") == "source"
 
 
-def test_render_reducer_show_includes_risk_and_stage() -> None:
+def test_render_reducer_show_excludes_removed_metadata() -> None:
     lines = render_reducer_show(
         {
             "reducer_id": "alpha",
-            "category": "metrics",
+            "category": "source",
             "placeholder": "ALPHA",
-            "risk_tier": "elevated",
-            "stage": "diagnostics_metrics",
             "summary": "Alpha.",
         }
     )
-    assert "Category: metrics" in lines
-    assert "Risk tier: elevated" in lines
-    assert "Stage: diagnostics_metrics" in lines
+    assert "Category: source" in lines
+    assert not any(line.startswith("Risk tier:") for line in lines)
+    assert not any(line.startswith("Stage:") for line in lines)
     assert "Placeholder: ALPHA" in lines

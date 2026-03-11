@@ -10,9 +10,7 @@ from .metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="callsite_index",
-    category="relations",
-    risk_tier="normal",
-    stage="relationship_analysis",
+    category="symbol",
     placeholder="CALLSITE_INDEX",
     summary="List filtered persisted artifact-layer callsite resolution outcomes "
     "for a callable, with "

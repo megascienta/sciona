@@ -18,8 +18,6 @@ from .metadata import ReducerMeta
 REDUCER_META = ReducerMeta(
     reducer_id="callable_source",
     category="source",
-    risk_tier="elevated",
-    stage="source_verification",
     placeholder="CALLABLE_SOURCE",
     summary="Full source code of a callable. Use only when "
     "implementation details are required.",

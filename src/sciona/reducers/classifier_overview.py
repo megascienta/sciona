@@ -25,9 +25,7 @@ from .helpers.shared.utils import line_span_hash, require_latest_committed_snaps
 
 REDUCER_META = ReducerMeta(
     reducer_id="classifier_overview",
-    category="structure",
-    risk_tier="normal",
-    stage="structure_inspection",
+    category="symbol",
     placeholder="CLASSIFIER_OVERVIEW",
     summary="Structural summary of a classifier, including methods and metadata. " \
     "Use for quick classifier inspection.",

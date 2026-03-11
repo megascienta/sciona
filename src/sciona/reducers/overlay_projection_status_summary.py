@@ -15,9 +15,7 @@ from .metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="overlay_projection_status_summary",
-    category="metrics",
-    risk_tier="normal",
-    stage="diagnostics_metrics",
+    category="overlay",
     placeholder="OVERLAY_PROJECTION_STATUS_SUMMARY",
     summary="Summarize dirty-worktree overlay support by reducer projection, "
     "including patchable versus metadata-only behavior. ",

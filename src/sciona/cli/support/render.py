@@ -324,8 +324,6 @@ def render_reducer_show(entry: dict) -> list[str]:
     lines = [
         f"Reducer: {entry['reducer_id']}",
         f"Category: {entry['category']}",
-        f"Risk tier: {entry['risk_tier']}",
-        f"Stage: {entry['stage']}",
         f"Placeholder: {entry['placeholder']}",
         "",
         "Summary:",

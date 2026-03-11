@@ -17,8 +17,6 @@ from .helpers.shared.utils import require_latest_committed_snapshot
 REDUCER_META = ReducerMeta(
     reducer_id="concatenated_source",
     category="source",
-    risk_tier="elevated",
-    stage="source_verification",
     placeholder="CONCATENATED_SOURCE",
     summary="Concatenated source code for a selected scope (codebase/module/classifier). " \
     "Use for large-context reasoning or cross-entity inspection. ",

@@ -20,9 +20,7 @@ from .metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="classifier_call_graph_summary",
-    category="relations",
-    risk_tier="normal",
-    stage="relationship_analysis",
+    category="coupling",
     placeholder="CLASSIFIER_CALL_GRAPH",
     summary="Summarize classifier-level artifact call relationships for the committed "
     "snapshot, with optional narrowing by caller or callee classifier. ",

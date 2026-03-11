@@ -4,6 +4,7 @@
 from pathlib import Path
 
 from sciona.runtime.agents import setup as agents
+from sciona.runtime.reducers.metadata import CATEGORY_ORDER
 from sciona.reducers.registry import get_reducers
 
 
@@ -36,3 +37,13 @@ def test_agents_upsert_overwrite(tmp_path: Path):
     content = target.read_text(encoding="utf-8")
     assert agents.BEGIN_MARKER in content
     assert "Old content" not in content
+
+
+def test_investigation_role_categories_follow_category_order() -> None:
+    rendered = agents._render_investigation_role_categories(get_reducers())
+    headers = [
+        line.strip("*:")
+        for line in rendered.splitlines()
+        if line.startswith("**") and line.endswith(":**")
+    ]
+    assert headers == [f"{category.capitalize()} reducers" for category in CATEGORY_ORDER]

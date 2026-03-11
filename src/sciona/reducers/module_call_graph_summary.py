@@ -18,9 +18,7 @@ from .metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="module_call_graph_summary",
-    category="relations",
-    risk_tier="normal",
-    stage="relationship_analysis",
+    category="coupling",
     placeholder="MODULE_CALL_GRAPH",
     summary="Summarize module-to-module artifact call relationships for the committed "
     "snapshot, with optional narrowing by caller or callee module. ",

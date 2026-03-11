@@ -19,9 +19,7 @@ from .metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="fan_summary",
-    category="metrics",
-    risk_tier="normal",
-    stage="diagnostics_metrics",
+    category="coupling",
     placeholder="FAN_SUMMARY",
     summary="Summarize fan-in and fan-out over reducer-facing graph edges, with "
     "optional narrowing by edge kind, node kind, and minimum fan threshold. ",

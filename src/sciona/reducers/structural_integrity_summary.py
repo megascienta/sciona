@@ -15,9 +15,7 @@ from ..runtime import git as git_ops
 
 REDUCER_META = ReducerMeta(
     reducer_id="structural_integrity_summary",
-    category="metrics",
-    risk_tier="normal",
-    stage="diagnostics_metrics",
+    category="diagnostic",
     placeholder="STRUCTURAL_INTEGRITY_SUMMARY",
     summary="Structural integrity diagnostics over committed SCI facts. "
     "Use to detect duplicates, lexical orphans, and inheritance-cycle anomalies before downstream reasoning. ",

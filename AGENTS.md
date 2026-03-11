@@ -157,14 +157,23 @@ non-SCIONA evidence: <method>
 
 Reducers serve different investigative roles. Each category describes the type of structural question a reducer is suited to answer.
 
-**Structure reducers:**
-callable_overview, classifier_inheritance, classifier_overview, file_outline, module_overview, snapshot_provenance, structural_index, symbol_lookup
+**Orientation reducers:**
+hotspot_summary, module_overview, snapshot_provenance, structural_index
 
-**Relations reducers:**
-callsite_index, classifier_call_graph_summary, dependency_edges, module_call_graph_summary, symbol_references
+**Navigation reducers:**
+file_outline, symbol_lookup
 
-**Metrics reducers:**
-call_resolution_drop_summary, call_resolution_quality, fan_summary, hotspot_summary, overlay_impact_summary, overlay_projection_status_summary, resolution_trace, structural_integrity_summary
+**Coupling reducers:**
+classifier_call_graph_summary, dependency_edges, fan_summary, module_call_graph_summary
+
+**Symbol reducers:**
+callable_overview, callsite_index, classifier_inheritance, classifier_overview, symbol_references
+
+**Diagnostic reducers:**
+call_resolution_drop_summary, call_resolution_quality, resolution_trace, structural_integrity_summary
+
+**Overlay reducers:**
+overlay_impact_summary, overlay_projection_status_summary
 
 **Source reducers:**
 callable_source, concatenated_source

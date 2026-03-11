@@ -23,8 +23,6 @@ from ...metadata import ReducerMeta
 REDUCER_META = ReducerMeta(
     reducer_id="structural_index",
     category="structure",
-    risk_tier="normal",
-    stage="initial_scan",
     placeholder="STRUCTURAL_INDEX",
     summary="Canonical structural index of the codebase. "
     "Use for global structural reasoning or validation. ",

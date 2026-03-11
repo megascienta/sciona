@@ -20,9 +20,7 @@ from .metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="call_resolution_quality",
-    category="metrics",
-    risk_tier="normal",
-    stage="diagnostics_metrics",
+    category="diagnostic",
     placeholder="CALL_RESOLUTION_QUALITY",
     summary="Aggregated call-resolution quality diagnostics derived from callsite telemetry. "
     "Use to understand accepted vs dropped callsite distribution and dominant drop reasons. ",

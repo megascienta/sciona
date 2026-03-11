@@ -22,9 +22,7 @@ from .metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="call_resolution_drop_summary",
-    category="metrics",
-    risk_tier="normal",
-    stage="diagnostics_metrics",
+    category="diagnostic",
     placeholder="CALL_RESOLUTION_DROP_SUMMARY",
     summary="Summarize artifact-layer dropped callsite outcomes by reason, language, "
     "and scope for fast call-resolution triage. ",

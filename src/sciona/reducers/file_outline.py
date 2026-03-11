@@ -15,9 +15,7 @@ from .metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="file_outline",
-    category="structure",
-    risk_tier="normal",
-    stage="entity_discovery",
+    category="navigation",
     placeholder="FILE_OUTLINE",
     summary="Structural outline of a file, including modules, classifiers, and callables. " \
     "Use for navigation and symbol discovery. ",

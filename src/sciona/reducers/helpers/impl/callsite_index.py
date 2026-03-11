@@ -22,8 +22,6 @@ from ...metadata import ReducerMeta
 REDUCER_META = ReducerMeta(
     reducer_id="callsite_index",
     category="relations",
-    risk_tier="normal",
-    stage="relationship_analysis",
     placeholder="CALLSITE_INDEX",
     summary="List artifact-layer callsite resolution outcomes for a callable, with "
     "optional narrowing by identifier, resolution status, provenance, or drop "

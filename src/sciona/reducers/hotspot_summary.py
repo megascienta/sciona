@@ -15,9 +15,7 @@ from .helpers.shared.utils import require_latest_committed_snapshot
 
 REDUCER_META = ReducerMeta(
     reducer_id="hotspot_summary",
-    category="metrics",
-    risk_tier="normal",
-    stage="diagnostics_metrics",
+    category="orientation",
     placeholder="HOTSPOT_SUMMARY",
     summary="Compressed summary of structurally significant or highly connected entities. " \
     "Use for architectural orientation or complexity inspection. ",

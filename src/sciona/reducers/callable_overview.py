@@ -24,9 +24,7 @@ from .metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="callable_overview",
-    category="structure",
-    risk_tier="normal",
-    stage="structure_inspection",
+    category="symbol",
     placeholder="CALLABLE_OVERVIEW",
     summary="Structural summary of a callable, including signature, location, and metadata. " \
     "Use for quick callable inspection without retrieving full source. ",
