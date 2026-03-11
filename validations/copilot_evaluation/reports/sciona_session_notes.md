@@ -236,6 +236,40 @@ Observations
 This was mostly a structural hygiene change. SCIONA was useful for prioritization, but the actual implementation depended on reading the sibling modules and trimming them to their real responsibilities.
 RATINGS (1-10): Structural clarity 8 | Navigation speed 8 | Confidence in answers 8 | Overall usefulness 8
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 5 | Confidence gain vs baseline 6 | Scope reduction vs baseline 6 | Query friction vs baseline 4 | Net usefulness vs baseline 7
+## Task 23 - Post-implementation blocker re-audit
+Copilot
+Codex (GPT-5)
+Task description
+Re-ran structural diagnostics after PR1-PR5 to identify only the remaining release-blocking issues and separate them from acceptable residual limitations.
+Task type
+architecture review
+SCIONA usage
+Used `structural_integrity_summary`, `call_resolution_quality`, `call_resolution_drop_summary`, `fan_summary`, `search`, and `resolve` on the fresh committed snapshot.
+Effect on workflow
+SCIONA was decisive here: it showed the remaining blocker had collapsed to one integrity bucket instead of multiple broad architecture problems.
+Fallback
+Contract/doc grep and source interpretation were still needed to classify the integrity failure as a false-negative diagnostic issue rather than a runtime defect.
+Observations
+Most prior structural risks were reduced to normal hotspot status. The remaining high-priority issue is that nested local helper callables still make `structural_integrity_summary` report a degraded repository.
+RATINGS (1-10): Structural clarity 9 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 9
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 9
+## Task 24 - Lexical integrity contract fix
+Copilot
+Codex (GPT-5)
+Task description
+Aligned lexical orphan diagnostics with the documented nested-callable contract by treating callable parents as valid lexical containers and adding reducer regressions for callable-contained callables.
+Task type
+implementation
+SCIONA usage
+Used `structural_integrity_summary` plus `file_outline` to confirm the issue was in diagnostics, while contract excerpts established that nested named defs are required structural nodes.
+Effect on workflow
+SCIONA confirmed the blocker precisely and then verified the fix at reducer level: the repository now reports `integrity_ok=true` on the latest committed snapshot.
+Fallback
+Contract/docs parse, source inspection, targeted query patching, reducer test additions, focused `pytest` in `multiphysics`, and a live reducer rerun.
+Observations
+This was a contract-consistency fix, not a heuristic cleanup. The remaining integrity failure disappeared once callable parents were accepted by orphan detection.
+RATINGS (1-10): Structural clarity 9 | Navigation speed 8 | Confidence in answers 10 | Overall usefulness 9
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 9 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 9
 ## Task 12 - TypeScript heritage hardening
 Copilot
 Codex (GPT-5)

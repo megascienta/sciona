@@ -59,7 +59,7 @@ def lexical_orphans(
               WHERE e.snapshot_id = ni.snapshot_id
                 AND e.dst_structural_id = sn.structural_id
                 AND e.edge_type = 'LEXICALLY_CONTAINS'
-                AND parent.node_type IN ('module', 'classifier', 'type')
+                AND parent.node_type IN ('module', 'classifier', 'type', 'callable')
           )
         ORDER BY ni.qualified_name, sn.structural_id
         LIMIT ?

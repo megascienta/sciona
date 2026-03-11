@@ -439,7 +439,17 @@ class Diagnostics:
                AND e.dst_structural_id = ni.structural_id
                AND e.edge_type IN ('LEXICALLY_CONTAINS', 'LEXICALLY_CONTAINS')
             WHERE ni.snapshot_id = ?
-              AND sn.node_type IN ('type', 'callable', 'callable')
+              AND sn.node_type IN ('classifier', 'type', 'callable')
+              AND NOT EXISTS (
+                  SELECT 1
+                  FROM edges parent_edge
+                  JOIN structural_nodes parent
+                    ON parent.structural_id = parent_edge.src_structural_id
+                  WHERE parent_edge.snapshot_id = ni.snapshot_id
+                    AND parent_edge.dst_structural_id = ni.structural_id
+                    AND parent_edge.edge_type = 'LEXICALLY_CONTAINS'
+                    AND parent.node_type IN ('module', 'classifier', 'type', 'callable')
+              )
             GROUP BY ni.structural_id
             HAVING COUNT(e.dst_structural_id) = 0
             """,

@@ -878,6 +878,74 @@ def test_structural_integrity_summary_excludes_classifier_contained_methods(tmp_
     assert "meth_extra" not in orphan_ids
 
 
+def test_structural_integrity_summary_excludes_callable_contained_callables(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = core_conn(repo_root)
+    try:
+        conn.execute(
+            """
+            INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
+            VALUES (?, ?, ?, ?)
+            """,
+            ("func_parent", "callable", "python", snapshot_id),
+        )
+        conn.execute(
+            """
+            INSERT INTO node_instances(
+                instance_id, structural_id, snapshot_id, qualified_name, file_path, start_line, end_line, content_hash
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                f"{snapshot_id}:func_parent",
+                "func_parent",
+                snapshot_id,
+                qualify_repo_name(repo_root, "pkg.alpha.outer"),
+                "pkg/alpha/outer.py",
+                1,
+                10,
+                "hash-func-parent",
+            ),
+        )
+        conn.execute(
+            """
+            INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
+            VALUES (?, ?, ?, ?)
+            """,
+            ("func_child", "callable", "python", snapshot_id),
+        )
+        conn.execute(
+            """
+            INSERT INTO node_instances(
+                instance_id, structural_id, snapshot_id, qualified_name, file_path, start_line, end_line, content_hash
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                f"{snapshot_id}:func_child",
+                "func_child",
+                snapshot_id,
+                qualify_repo_name(repo_root, "pkg.alpha.outer.inner"),
+                "pkg/alpha/outer.py",
+                2,
+                4,
+                "hash-func-child",
+            ),
+        )
+        conn.execute(
+            """
+            INSERT INTO edges(snapshot_id, src_structural_id, dst_structural_id, edge_type)
+            VALUES (?, ?, ?, ?)
+            """,
+            (snapshot_id, "func_parent", "func_child", "LEXICALLY_CONTAINS"),
+        )
+        conn.commit()
+        payload_text = structural_integrity_summary.render(snapshot_id, conn, repo_root)
+    finally:
+        conn.close()
+    payload = parse_json_payload(payload_text)
+    orphan_ids = {entry["structural_id"] for entry in payload["lexical_orphans"]}
+    assert "func_child" not in orphan_ids
+
+
 def test_callsite_index_neighbors_detail_level(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     callable_id = qualify_repo_name(repo_root, "pkg.alpha.service.helper")
