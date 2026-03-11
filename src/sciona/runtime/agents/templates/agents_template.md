@@ -35,6 +35,7 @@ Operational rules:
 - For structural questions within tracked SCIONA scope, invoke applicable reducers before grep or source search. Do not reconstruct structure manually while relevant reducer categories remain unexplored.
 - For non-structural questions, use the most appropriate non-SCIONA tooling directly. Do not invoke reducers as a formality.
 - For mixed questions, use reducers to anchor the structural sub-question, then apply other tooling for the non-structural remainder.
+- - When a reducer exposes a first-class compact mode, agents SHOULD prefer the compact form unless the question requires full payload detail.
 - Once the owning modules, relevant reducer surfaces, or likely edit/test scope are established with sufficient confidence, agents SHOULD stop reducer escalation and continue with source inspection or tests.
 - For repository areas or artifact types outside SCIONA scope, use non-SCIONA tooling directly and label it explicitly.
 - If SCIONA is insufficient for part of a structural question, state what is missing before using non-SCIONA tooling for the unresolved remainder. SCIONA is not considered insufficient while another relevant reducer category remains untried and the unresolved question is still structural.
@@ -113,7 +114,7 @@ Reducers serve different investigative roles. Each category describes the type o
 
 Reducers MAY be combined freely during investigation. Reducer categories MUST be used to expand investigation before fallback to non-SCIONA structural reconstruction unless `{CMD_REDUCER_LIST}` confirms no other applicable category exists.
 
-For initial ownership and scope discovery, prefer compact reducers and search/resolve workflows before broad payload reducers.
+For initial ownership and scope discovery, prefer compact reducers and search/resolve workflows before broad payload reducers. If `{CMD_REDUCER_LIST}` or `{CMD_REDUCER_INFO}` indicates a reducer supports `compact`, agents SHOULD prefer compact mode as the default and escalate to full payload only if compact output is insufficient for the question — unless the task explicitly requires detailed rows or source-like output.
 
 ---
 
@@ -124,6 +125,7 @@ Prefer reducers that:
 - provide summaries
 - support argument narrowing
 - minimize broad payload expansion when the question already has a target scope
+- expose a first-class compact mode when the task is primarily orientation or triage
 
 Heuristic:
 
@@ -137,7 +139,14 @@ Secondary heuristic:
 start compact → stop when structurally sufficient → switch tools
 ```
 
-When sufficient for the question, prefer compact summary reducers before raw broad diagnostics. Do not abandon SCIONA after a small number of reducer calls if relevant reducer categories remain unexplored. Before fallback on a structural sub-question, SCIONA is not considered insufficient while another relevant reducer category remains untried (§0). Do not continue invoking reducers once the remaining question is no longer structural or additional reducer output is unlikely to change the implementation path.
+Do not abandon SCIONA after a small number of reducer calls if relevant reducer categories remain unexplored. Before fallback on a structural sub-question, SCIONA is not considered insufficient while another relevant reducer category remains untried (§0). Do not continue invoking reducers once the remaining question is no longer structural or additional reducer output is unlikely to change the implementation path.
+
+Compact-mode expectations:
+
+- compact mode is an orientation surface, not a weaker substitute for structural truth
+- compact payloads are intended to preserve filter context, headline totals, and bounded previews
+- if the compact payload already establishes ownership, key coupling, or likely edit scope, agents SHOULD switch to source inspection or tests rather than immediately requesting the full reducer payload
+- if the compact payload does not answer the structural question, agents SHOULD expand to the full payload of the same reducer or add another relevant reducer category before fallback
 
 Reducers MAY be discovered via:
 

@@ -232,13 +232,115 @@ sciona reducer info --id REDUCER_ID
 
 Reducers are grouped by workflow category.
 
-#### Category: structure
+Reducers that advertise `Compact: yes` should usually be tried in compact mode first for orientation, ownership, coupling, and triage workflows.
+
+#### Category: orientation
+
+`hotspot_summary` - Compressed summary of structurally significant or highly connected entities. Use for architectural orientation or complexity inspection.
+
+```bash
+sciona reducer --id hotspot_summary
+```
+
+`module_overview` - Structural summary of a module, including contained classifiers and callables. Use for architectural inspection.
+
+```bash
+sciona reducer --id module_overview [--module-id MODULE_ID] [--callable-id CALLABLE_ID] [--classifier-id CLASSIFIER_ID] [--include-file-map INCLUDE_FILE_MAP] [--compact COMPACT] [--top-k TOP_K]
+```
+
+Compact: `--compact` [`--top-k` TOP_K]
+
+`snapshot_provenance` - Snapshot provenance and reproducibility metadata for the committed SCI state. Use to verify snapshot freshness/identity before structural reasoning.
+
+```bash
+sciona reducer --id snapshot_provenance
+```
+
+`structural_index` - Canonical structural index of the codebase. Use for global structural reasoning or validation.
+
+```bash
+sciona reducer --id structural_index [--compact COMPACT] [--top-k TOP_K]
+```
+
+Compact: `--compact` [`--top-k` TOP_K]
+
+#### Category: navigation
+
+`file_outline` - Structural outline of a file, including modules, classifiers, and callables. Use for navigation and symbol discovery.
+
+```bash
+sciona reducer --id file_outline [--module-id MODULE_ID] [--file-path FILE_PATH] [--compact COMPACT] [--depth DEPTH]
+```
+
+Compact: `--compact` [`--depth` DEPTH]
+
+`symbol_lookup` - Ranked structural symbol matches for a query. Use when resolving unknown identifiers.
+
+```bash
+sciona reducer --id symbol_lookup [--query QUERY] [--kind KIND] [--limit LIMIT]
+```
+
+#### Category: coupling
+
+`classifier_call_graph_summary` - Summarize classifier-level artifact call relationships for the committed snapshot, with optional narrowing by caller or callee classifier.
+
+```bash
+sciona reducer --id classifier_call_graph_summary [--classifier-id CLASSIFIER_ID] [--caller-id CALLER_ID] [--callee-id CALLEE_ID] [--compact COMPACT] [--top-k TOP_K]
+```
+
+Compact: `--compact` [`--top-k` TOP_K]
+
+`dependency_edges` - Explicit module import dependencies. Use for analysing module coupling or dependency graphs. `direction='in'` or `direction='out'` scopes `module_id` filters.
+
+```bash
+sciona reducer --id dependency_edges [--module-id MODULE_ID] [--from-module-id FROM_MODULE_ID] [--to-module-id TO_MODULE_ID] [--query QUERY] [--edge-type EDGE_TYPE] [--direction DIRECTION] [--limit LIMIT] [--compact COMPACT] [--top-k TOP_K]
+```
+
+Compact: `--compact` [`--top-k` TOP_K] [`--limit` LIMIT]
+
+`fan_summary` - Summarize fan-in and fan-out over reducer-facing graph edges, with optional narrowing by edge kind, node kind, and minimum fan threshold.
+
+```bash
+sciona reducer --id fan_summary [--callable-id CALLABLE_ID] [--classifier-id CLASSIFIER_ID] [--module-id MODULE_ID] [--edge-kind EDGE_KIND] [--min-fan MIN_FAN] [--node-kind NODE_KIND] [--compact COMPACT] [--top-k TOP_K]
+```
+
+Compact: `--compact` [`--top-k` TOP_K]
+
+`import_migration_impact` - Migration-oriented import impact summary for a module or package. Highlights importers, dependencies, and wrapper pressure.
+
+```bash
+sciona reducer --id import_migration_impact [--module-id MODULE_ID] [--callable-id CALLABLE_ID] [--classifier-id CLASSIFIER_ID] [--top-k TOP_K]
+```
+
+`module_call_graph_summary` - Summarize module-to-module artifact call relationships for the committed snapshot, with optional narrowing by caller or callee module.
+
+```bash
+sciona reducer --id module_call_graph_summary [--module-id MODULE_ID] [--callable-id CALLABLE_ID] [--classifier-id CLASSIFIER_ID] [--from-module-id FROM_MODULE_ID] [--to-module-id TO_MODULE_ID] [--compact COMPACT] [--top-k TOP_K]
+```
+
+Compact: `--compact` [`--top-k` TOP_K]
+
+`ownership_summary` - Compact ownership summary for a module or package. Returns top submodules plus top internal/external dependencies and dependents.
+
+```bash
+sciona reducer --id ownership_summary [--module-id MODULE_ID] [--callable-id CALLABLE_ID] [--classifier-id CLASSIFIER_ID] [--top-k TOP_K]
+```
+
+#### Category: symbol
 
 `callable_overview` - Structural summary of a callable, including signature, location, and metadata. Use for quick callable inspection without retrieving full source.
 
 ```bash
 sciona reducer --id callable_overview [--callable-id CALLABLE_ID]
 ```
+
+`callsite_index` - List filtered persisted artifact-layer callsite resolution outcomes for a callable, with optional narrowing by identifier, resolution status, provenance, or drop reason. `detail_level='neighbors'` returns caller/callee sets.
+
+```bash
+sciona reducer --id callsite_index [--callable-id CALLABLE_ID] [--direction DIRECTION] [--detail-level DETAIL_LEVEL] [--include-callsite-diagnostics INCLUDE_CALLSITE_DIAGNOSTICS] [--identifier IDENTIFIER] [--status STATUS] [--provenance PROVENANCE] [--drop-reason DROP_REASON] [--compact COMPACT]
+```
+
+Compact: `--compact`
 
 `classifier_inheritance` - Parsed base classifiers and inheritance relations. Use when reasoning about classifier hierarchy or polymorphic structure.
 
@@ -252,105 +354,27 @@ sciona reducer --id classifier_inheritance [--classifier-id CLASSIFIER_ID]
 sciona reducer --id classifier_overview [--classifier-id CLASSIFIER_ID]
 ```
 
-`file_outline` - Structural outline of a file, including modules, classifiers, and callables. Use for navigation and symbol discovery.
-
-```bash
-sciona reducer --id file_outline [--module-id MODULE_ID] [--file-path FILE_PATH]
-```
-
-`module_overview` - Structural summary of a module, including contained classifiers and callables. Use for architectural inspection.
-
-```bash
-sciona reducer --id module_overview [--module-id MODULE_ID] [--callable-id CALLABLE_ID] [--classifier-id CLASSIFIER_ID] [--include-file-map INCLUDE_FILE_MAP]
-```
-
-`snapshot_provenance` - Snapshot provenance and reproducibility metadata for the committed SCI state. Use to verify snapshot freshness/identity before structural reasoning.
-
-```bash
-sciona reducer --id snapshot_provenance
-```
-
-`structural_index` - Canonical structural index of the codebase. Use for global structural reasoning or validation.
-
-```bash
-sciona reducer --id structural_index
-```
-
-`symbol_lookup` - Ranked structural symbol matches for a query. Use when resolving unknown identifiers.
-
-```bash
-sciona reducer --id symbol_lookup [--query QUERY] [--kind KIND] [--limit LIMIT]
-```
-
-#### Category: relations
-
-`callsite_index` - List artifact-layer callsite resolution outcomes for a callable, with optional narrowing by identifier, resolution status, provenance, or drop reason. detail_level='neighbors' returns caller/callee sets.
-
-```bash
-sciona reducer --id callsite_index [--callable-id CALLABLE_ID] [--direction DIRECTION] [--detail-level DETAIL_LEVEL] [--include-callsite-diagnostics INCLUDE_CALLSITE_DIAGNOSTICS] [--identifier IDENTIFIER] [--status STATUS] [--provenance PROVENANCE] [--drop-reason DROP_REASON]
-```
-
-`classifier_call_graph_summary` - Summarize classifier-level artifact call relationships for the committed snapshot, with optional narrowing by caller or callee classifier.
-
-```bash
-sciona reducer --id classifier_call_graph_summary [--classifier-id CLASSIFIER_ID] [--caller-id CALLER_ID] [--callee-id CALLEE_ID] [--top-k TOP_K]
-```
-
-`dependency_edges` - Explicit module import dependencies. Use for analysing module coupling or dependency graphs. direction='in' or 'out' scopes module_id filters.
-
-```bash
-sciona reducer --id dependency_edges [--module-id MODULE_ID] [--from-module-id FROM_MODULE_ID] [--to-module-id TO_MODULE_ID] [--query QUERY] [--edge-type EDGE_TYPE] [--direction DIRECTION] [--limit LIMIT]
-```
-
-`module_call_graph_summary` - Summarize module-to-module artifact call relationships for the committed snapshot, with optional narrowing by caller or callee module.
-
-```bash
-sciona reducer --id module_call_graph_summary [--module-id MODULE_ID] [--callable-id CALLABLE_ID] [--classifier-id CLASSIFIER_ID] [--from-module-id FROM_MODULE_ID] [--to-module-id TO_MODULE_ID] [--top-k TOP_K]
-```
-
 `symbol_references` - Summarize structural symbol references in the committed snapshot, with optional narrowing by symbol kind or module.
 
 ```bash
 sciona reducer --id symbol_references [--query QUERY] [--kind KIND] [--module-id MODULE_ID] [--limit LIMIT]
 ```
 
-#### Category: metrics
+#### Category: diagnostic
 
 `call_resolution_drop_summary` - Summarize artifact-layer dropped callsite outcomes by reason, language, and scope for fast call-resolution triage.
 
 ```bash
-sciona reducer --id call_resolution_drop_summary [--module-id MODULE_ID] [--language LANGUAGE] [--limit LIMIT]
+sciona reducer --id call_resolution_drop_summary [--limit LIMIT]
 ```
 
 `call_resolution_quality` - Aggregated call-resolution quality diagnostics derived from callsite telemetry. Use to understand accepted vs dropped callsite distribution and dominant drop reasons.
 
 ```bash
-sciona reducer --id call_resolution_quality [--module-id MODULE_ID] [--language LANGUAGE] [--limit LIMIT]
+sciona reducer --id call_resolution_quality [--module-id MODULE_ID] [--language LANGUAGE] [--limit LIMIT] [--compact COMPACT]
 ```
 
-`fan_summary` - Summarize fan-in and fan-out over reducer-facing graph edges, with optional narrowing by edge kind, node kind, and minimum fan threshold.
-
-```bash
-sciona reducer --id fan_summary [--callable-id CALLABLE_ID] [--classifier-id CLASSIFIER_ID] [--module-id MODULE_ID] [--edge-kind EDGE_KIND] [--min-fan MIN_FAN] [--node-kind NODE_KIND] [--top-k TOP_K]
-```
-
-`hotspot_summary` - Compressed summary of structurally significant or highly connected entities. Use for architectural orientation or complexity inspection.
-
-```bash
-sciona reducer --id hotspot_summary
-```
-
-`overlay_impact_summary` - Advisory summary of dirty-worktree diff overlay impact for the committed snapshot. Use when triaging uncommitted changes; output is non-authoritative.
-
-```bash
-sciona reducer --id overlay_impact_summary
-```
-
-`overlay_projection_status_summary` - Summarize dirty-worktree overlay support by reducer projection, including patchable versus metadata-only behavior.
-
-```bash
-sciona reducer --id overlay_projection_status_summary
-```
+Compact: `--compact` [`--limit` LIMIT]
 
 `resolution_trace` - Call-resolution diagnostics and sampled traces for one callable. Use to understand why callsites were accepted or dropped without changing `CALLS` truth.
 
@@ -362,6 +386,20 @@ sciona reducer --id resolution_trace [--callable-id CALLABLE_ID] [--identifier I
 
 ```bash
 sciona reducer --id structural_integrity_summary [--top-k TOP_K]
+```
+
+#### Category: overlay
+
+`overlay_impact_summary` - Advisory summary of dirty-worktree diff overlay impact for the committed snapshot. Use when triaging uncommitted changes; output is non-authoritative.
+
+```bash
+sciona reducer --id overlay_impact_summary
+```
+
+`overlay_projection_status_summary` - Summarize dirty-worktree overlay support by reducer projection, including patchable versus metadata-only behavior.
+
+```bash
+sciona reducer --id overlay_projection_status_summary
 ```
 
 #### Category: source
