@@ -32,6 +32,23 @@ Observations
 SCIONA was most useful for structural triage and scope reduction; it created mild friction because package-qualified names and anomaly outputs still required manual source inspection to decide whether a risk was contractual or merely advisory.
 RATINGS (1-10): Structural clarity 8 | Navigation speed 8 | Confidence in answers 8 | Overall usefulness 8
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
+## Task 19 - PR2 hotspot regression coverage
+Copilot
+Codex (GPT-5)
+Task description
+Added focused regression tests for diff-overlay compute helpers, reducer shared-helper snapshot guards, and CoreDB read paths used by overlay/reducer code.
+Task type
+runtime / test validation
+SCIONA usage
+Used the fresh audit hotspot evidence to target only high-fan and high-blast-radius seams; no new reducer invocations were needed.
+Effect on workflow
+SCIONA materially reduced test-selection scope by pointing directly at overlay compute, shared reducer helpers, and storage read APIs instead of broad suite expansion.
+Fallback
+Read the touched source modules, added focused tests, and ran narrow `pytest` in `multiphysics`.
+Observations
+The first run exposed a useful constraint nuance: the “multiple committed snapshots” guard in reducer helpers cannot be exercised by DB setup because CoreDB enforces singleton committed state. The final test uses monkeypatching to cover that defensive branch explicitly.
+RATINGS (1-10): Structural clarity 9 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
 ## Task 18 - PR1 build-doc alignment
 Copilot
 Codex (GPT-5)
