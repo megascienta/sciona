@@ -35,6 +35,7 @@ def render(
     module_id: str | None = None,
     language: str | None = None,
     limit: int | str | None = 10,
+    compact: bool | None = None,
     **_: object,
 ) -> str:
     conn = require_connection(conn)
@@ -167,6 +168,8 @@ def render(
             conn=conn,
         )
         body["_overlay_applied_by_reducer"] = True
+    if compact:
+        body = _compact_payload(body)
     return render_json_payload(body)
 
 
@@ -256,6 +259,30 @@ def _normalize_limit(limit: int | str | None) -> int:
     if value <= 0:
         raise ValueError("call_resolution_quality limit must be a positive integer.")
     return min(value, 100)
+
+
+def _compact_payload(payload: Dict[str, object]) -> Dict[str, object]:
+    compact_payload = dict(payload)
+    compact_payload["payload_kind"] = "compact_summary"
+    compact_payload["drop_reasons_preview"] = _preview_block(
+        payload.get("drop_reason_counts", []) or []
+    )
+    compact_payload["language_preview"] = _preview_block(payload.get("by_language", []) or [])
+    compact_payload["module_preview"] = _preview_block(payload.get("by_module", []) or [])
+    compact_payload["caller_preview"] = _preview_block(payload.get("by_caller", []) or [])
+    compact_payload.pop("drop_reason_counts", None)
+    compact_payload.pop("by_language", None)
+    compact_payload.pop("by_module", None)
+    compact_payload.pop("by_caller", None)
+    return compact_payload
+
+
+def _preview_block(entries: List[dict]) -> Dict[str, object]:
+    return {
+        "count": len(entries),
+        "entries": entries,
+        "truncated": False,
+    }
 
 
 def _normalize_language(language: str | None) -> str | None:

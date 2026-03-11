@@ -124,6 +124,30 @@ def test_call_resolution_quality_aggregates_callsite_rows(tmp_path):
     assert payload["drop_reason_counts"][0]["count"] == 1
 
 
+def test_call_resolution_quality_compact_mode_returns_headlines(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = core_conn(repo_root)
+    try:
+        payload_text = call_resolution_quality.render(
+            snapshot_id,
+            conn,
+            repo_root,
+            compact=True,
+        )
+    finally:
+        conn.close()
+    payload = parse_json_payload(payload_text)
+    assert payload["payload_kind"] == "compact_summary"
+    assert "drop_reason_counts" not in payload
+    assert "by_language" not in payload
+    assert "by_module" not in payload
+    assert "by_caller" not in payload
+    assert "drop_reasons_preview" in payload
+    assert "language_preview" in payload
+    assert "module_preview" in payload
+    assert "caller_preview" in payload
+
+
 def test_call_resolution_quality_applies_overlay_during_render(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     artifact_db = repo_root / ".sciona" / setup_config.ARTIFACT_DB_FILENAME
