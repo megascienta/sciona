@@ -33,6 +33,7 @@ def render(
     classifier_id: str | None = None,
     caller_id: str | None = None,
     callee_id: str | None = None,
+    compact: bool | None = None,
     top_k: int | None = None,
     **_: object,
 ) -> str:
@@ -117,6 +118,8 @@ def render(
             conn=conn,
         )
         body["_overlay_applied_by_reducer"] = True
+    if compact:
+        body = _compact_payload(body, preview_limit=limit)
     return render_json_payload(body)
 
 
@@ -206,3 +209,29 @@ def _coverage_ratio(selected: int, total: int) -> float:
     if total <= 0:
         return 1.0
     return round(selected / total, 4)
+
+
+def _compact_payload(
+    payload: Dict[str, object], *, preview_limit: Optional[int]
+) -> Dict[str, object]:
+    limit = preview_limit or 10
+    outgoing_all = list(payload.get("outgoing", []) or [])
+    incoming_all = list(payload.get("incoming", []) or [])
+    compact_payload = dict(payload)
+    compact_payload["payload_kind"] = "compact_summary"
+    compact_payload["preview_limit"] = limit
+    compact_payload["outgoing_preview"] = _preview_block(outgoing_all, limit)
+    compact_payload["incoming_preview"] = _preview_block(incoming_all, limit)
+    compact_payload.pop("outgoing", None)
+    compact_payload.pop("incoming", None)
+    return compact_payload
+
+
+def _preview_block(entries: List[Dict[str, int | str]], limit: int) -> Dict[str, object]:
+    shown = entries[:limit]
+    return {
+        "count": len(shown),
+        "total": len(entries),
+        "truncated": len(entries) > limit,
+        "entries": shown,
+    }

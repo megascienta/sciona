@@ -1162,6 +1162,29 @@ def test_module_call_graph_summary_can_narrow_by_peer_modules(tmp_path):
     assert payload["incoming"][0]["src_module_qualified_name"] == other_module_id
 
 
+def test_module_call_graph_summary_compact_mode_returns_previews(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    module_id = qualify_repo_name(repo_root, "pkg.alpha")
+    conn = core_conn(repo_root)
+    try:
+        payload_text = module_call_graph_summary.render(
+            snapshot_id,
+            conn,
+            repo_root,
+            module_id=module_id,
+            compact=True,
+        )
+    finally:
+        conn.close()
+    payload = parse_json_payload(payload_text)
+    assert payload["payload_kind"] == "compact_summary"
+    assert payload["preview_limit"] == 10
+    assert "outgoing" not in payload
+    assert "incoming" not in payload
+    assert payload["outgoing_preview"]["total"] == payload["outgoing_total"]
+    assert payload["incoming_preview"]["total"] == payload["incoming_total"]
+
+
 def test_classifier_call_graph_summary_can_narrow_by_peer_classifiers(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     artifact_db = repo_root / ".sciona" / setup_config.ARTIFACT_DB_FILENAME
@@ -1241,6 +1264,29 @@ def test_classifier_call_graph_summary_can_narrow_by_peer_classifiers(tmp_path):
     assert payload["incoming_total"] == 1
     assert payload["outgoing"][0]["dst_classifier_id"] == "cls_other"
     assert payload["incoming"][0]["src_classifier_id"] == "cls_other"
+
+
+def test_classifier_call_graph_summary_compact_mode_returns_previews(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    classifier_id = qualify_repo_name(repo_root, "pkg.alpha.Service")
+    conn = core_conn(repo_root)
+    try:
+        payload_text = classifier_call_graph_summary.render(
+            snapshot_id,
+            conn,
+            repo_root,
+            classifier_id=classifier_id,
+            compact=True,
+        )
+    finally:
+        conn.close()
+    payload = parse_json_payload(payload_text)
+    assert payload["payload_kind"] == "compact_summary"
+    assert payload["preview_limit"] == 10
+    assert "outgoing" not in payload
+    assert "incoming" not in payload
+    assert payload["outgoing_preview"]["total"] == payload["outgoing_total"]
+    assert payload["incoming_preview"]["total"] == payload["incoming_total"]
 
 
 def test_callsite_index_rejects_invalid_detail_level(tmp_path):
