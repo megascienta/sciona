@@ -40,7 +40,7 @@ def evaluate_non_test_callsite_guardrails(
         if language not in min_success_rate_by_language:
             continue
         threshold = float(min_success_rate_by_language[language])
-        scope = item.get("call_sites_by_scope")
+        scope = item.get("call_site_funnel_by_scope")
         if not isinstance(scope, dict):
             results.append(
                 GuardrailResult(
@@ -49,7 +49,7 @@ def evaluate_non_test_callsite_guardrails(
                     success_rate=None,
                     threshold=threshold,
                     passed=True,
-                    skipped_reason="call_sites_by_scope_unavailable",
+                    skipped_reason="call_site_funnel_by_scope_unavailable",
                 )
             )
             continue
@@ -62,15 +62,15 @@ def evaluate_non_test_callsite_guardrails(
                     success_rate=None,
                     threshold=threshold,
                     passed=True,
-                    skipped_reason="non_tests_scope_unavailable",
+                    skipped_reason="non_tests_funnel_unavailable",
                 )
             )
             continue
-        eligible = int(non_tests.get("eligible") or 0)
-        success_rate_value = non_tests.get("success_rate")
-        success_rate = (
-            float(success_rate_value) if success_rate_value is not None else None
-        )
+        eligible = int(non_tests.get("persisted_callsites") or 0)
+        accepted = non_tests.get("persisted_accepted")
+        success_rate = None
+        if accepted is not None and eligible > 0:
+            success_rate = float(accepted) / float(eligible)
         if eligible <= 0 or success_rate is None:
             results.append(
                 GuardrailResult(
@@ -79,7 +79,7 @@ def evaluate_non_test_callsite_guardrails(
                     success_rate=success_rate,
                     threshold=threshold,
                     passed=True,
-                    skipped_reason="no_non_test_call_sites",
+                    skipped_reason="no_non_test_persisted_callsites",
                 )
             )
             continue

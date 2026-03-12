@@ -8,6 +8,50 @@ from __future__ import annotations
 import sqlite3
 
 
+def callsite_pair_caller_counts(
+    conn: sqlite3.Connection,
+    *,
+    snapshot_id: str,
+) -> list[dict[str, object]]:
+    rows = conn.execute(
+        """
+        SELECT caller_id,
+               COUNT(*) AS pair_count
+        FROM callsite_pairs
+        WHERE snapshot_id = ?
+        GROUP BY caller_id
+        """,
+        (snapshot_id,),
+    ).fetchall()
+    return [
+        {
+            "caller_id": row["caller_id"],
+            "pair_count": int(row["pair_count"] or 0),
+        }
+        for row in rows
+    ]
+
+
+def node_call_caller_counts(
+    conn: sqlite3.Connection,
+) -> list[dict[str, object]]:
+    rows = conn.execute(
+        """
+        SELECT caller_id,
+               COUNT(*) AS edge_count
+        FROM node_calls
+        GROUP BY caller_id
+        """
+    ).fetchall()
+    return [
+        {
+            "caller_id": row["caller_id"],
+            "edge_count": int(row["edge_count"] or 0),
+        }
+        for row in rows
+    ]
+
+
 def call_site_caller_status_counts(
     conn: sqlite3.Connection,
     *,
@@ -227,4 +271,6 @@ __all__ = [
     "call_site_drop_identifier_counts",
     "call_site_drop_debug_counts",
     "call_site_rows_for_caller",
+    "callsite_pair_caller_counts",
+    "node_call_caller_counts",
 ]

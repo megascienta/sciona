@@ -72,17 +72,16 @@ def test_call_pipeline_end_to_end_filters_persists_and_reports(tmp_path: Path) -
         include_failure_reasons=True,
     )
     assert payload is not None
-    assert payload["call_sites_semantics"] == "filtered_persisted_artifact_working_set"
+    assert (
+        payload["callsite_pairs_semantics"]
+        == "deduplicated_persisted_in_scope_candidate_pairs"
+    )
     python = next(item for item in payload["languages"] if item["language"] == "python")
-    assert python["call_sites"] == {
-        "eligible": 1,
-        "accepted": 1,
-        "dropped": 0,
-        "success_rate": 1.0,
-    }
+    assert python["callsite_pairs"] == {"count": 1}
+    assert python["finalized_call_edges"] == {"count": 1}
 
 
-def test_call_pipeline_reports_external_likely_from_persisted_dropped_rows(
+def test_call_pipeline_reports_pair_centric_counts_for_persisted_dropped_rows(
     tmp_path: Path,
     monkeypatch,
 ) -> None:
@@ -151,7 +150,5 @@ def test_call_pipeline_reports_external_likely_from_persisted_dropped_rows(
     )
     assert payload is not None
     python = next(item for item in payload["languages"] if item["language"] == "python")
-    assert python["call_sites"]["eligible"] == 1
-    assert python["call_sites"]["accepted"] == 0
-    assert python["call_sites"]["dropped"] == 1
-    assert python["drop_classification"] == {"external_likely": 1}
+    assert python["callsite_pairs"] == {"count": 0}
+    assert python["finalized_call_edges"] == {"count": 0}

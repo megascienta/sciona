@@ -143,8 +143,12 @@ def _render_summary_lines(
         lines.append(f"{indent}{language}: {files} files, {nodes} nodes, {edges} edges")
         if include_call_stats:
             lines.append(
-                f"{indent}  call_materialization: "
-                f"{_format_call_site_summary(item.get('call_sites') or {})}"
+                f"{indent}  callsite_pairs: "
+                f"{_format_count_summary(item.get('callsite_pairs') or {}, label='pairs')}"
+            )
+            lines.append(
+                f"{indent}  finalized_call_edges: "
+                f"{_format_count_summary(item.get('finalized_call_edges') or {}, label='edges')}"
             )
             funnel = item.get("call_site_funnel") or {}
             funnel_text = _format_call_site_funnel_summary(funnel)
@@ -152,8 +156,9 @@ def _render_summary_lines(
                 lines.append(f"{indent}  call_funnel: {funnel_text}")
             if include_scope_split:
                 lines.extend(
-                    _render_scope_call_site_lines(
-                        item.get("call_sites_by_scope"),
+                    _render_scope_count_lines(
+                        item.get("callsite_pairs_by_scope"),
+                        item.get("finalized_call_edges_by_scope"),
                         indent=f"{indent}    ",
                     )
                 )
@@ -164,18 +169,6 @@ def _render_summary_lines(
                     f"{name}={count}" for name, count in sorted(filtered.items())
                 )
                 lines.append(f"{indent}  filtered_pre_persist: {filtered_text}")
-            reasons = item.get("drop_reasons") or {}
-            if reasons:
-                reason_text = ", ".join(
-                    f"{name}={count}" for name, count in sorted(reasons.items())
-                )
-                lines.append(f"{indent}  failed reasons: {reason_text}")
-            classification = item.get("drop_classification") or {}
-            if classification:
-                class_text = ", ".join(
-                    f"{name}={count}" for name, count in sorted(classification.items())
-                )
-                lines.append(f"{indent}  drop classification: {class_text}")
         density = item.get("structural_density") or {}
         if density.get("inflation_warning"):
             lines.append(
@@ -189,8 +182,12 @@ def _render_summary_lines(
     lines.append(f"{indent}total: {total_files} files, {total_nodes} nodes, {total_edges} edges")
     if include_call_stats:
         lines.append(
-            f"{indent}  call_materialization: "
-            f"{_format_call_site_summary(totals.get('call_sites') or {})}"
+            f"{indent}  callsite_pairs: "
+            f"{_format_count_summary(totals.get('callsite_pairs') or {}, label='pairs')}"
+        )
+        lines.append(
+            f"{indent}  finalized_call_edges: "
+            f"{_format_count_summary(totals.get('finalized_call_edges') or {}, label='edges')}"
         )
         funnel = totals.get("call_site_funnel") or {}
         funnel_text = _format_call_site_funnel_summary(funnel)
@@ -198,8 +195,9 @@ def _render_summary_lines(
             lines.append(f"{indent}  call_funnel: {funnel_text}")
         if include_scope_split:
             lines.extend(
-                _render_scope_call_site_lines(
-                    totals.get("call_sites_by_scope"),
+                _render_scope_count_lines(
+                    totals.get("callsite_pairs_by_scope"),
+                    totals.get("finalized_call_edges_by_scope"),
                     indent=f"{indent}    ",
                 )
             )
@@ -210,12 +208,6 @@ def _render_summary_lines(
                 f"{name}={count}" for name, count in sorted(filtered.items())
             )
             lines.append(f"{indent}  filtered_pre_persist: {filtered_text}")
-        total_classification = totals.get("drop_classification") or {}
-        if total_classification:
-            class_text = ", ".join(
-                f"{name}={count}" for name, count in sorted(total_classification.items())
-            )
-            lines.append(f"{indent}  drop classification: {class_text}")
     totals_density = totals.get("structural_density") or {}
     if totals_density.get("inflation_warning"):
         lines.append(
@@ -227,20 +219,11 @@ def _render_summary_lines(
     return lines
 
 
-def _format_call_site_summary(call_sites: dict) -> str:
-    eligible = call_sites.get("eligible")
-    accepted = call_sites.get("accepted")
-    dropped = call_sites.get("dropped")
-    rate = call_sites.get("success_rate")
-    if eligible is None or accepted is None or dropped is None:
-        return "call_sites: n/a"
-    if eligible == 0:
-        return "call_sites: n/a (0/0), failed: 0"
-    percentage = float(rate or 0.0) * 100.0
-    return (
-        f"call_sites: {percentage:.1f}% successful ({accepted}/{eligible}), "
-        f"failed: {dropped}"
-    )
+def _format_count_summary(payload: dict, *, label: str) -> str:
+    count = payload.get("count")
+    if count is None:
+        return f"{label}: n/a"
+    return f"{label}: {int(count)}"
 
 
 def _format_call_site_funnel_summary(call_site_funnel: dict) -> str:
@@ -306,22 +289,21 @@ def _render_import_diagnostics(payload: dict, *, indent: str) -> list[str]:
     return lines
 
 
-def _render_scope_call_site_lines(
-    scope_payload: dict[str, dict[str, object]] | None,
+def _render_scope_count_lines(
+    pair_payload: dict[str, dict[str, object]] | None,
+    edge_payload: dict[str, dict[str, object]] | None,
     *,
     indent: str,
 ) -> list[str]:
-    if not scope_payload:
+    if not pair_payload and not edge_payload:
         return []
     lines: list[str] = []
-    non_tests = scope_payload.get("non_tests")
-    tests = scope_payload.get("tests")
-    if non_tests is not None:
-        lines.append(
-            f"{indent}non_tests: {_format_call_site_summary(non_tests)}"
-        )
-    if tests is not None:
-        lines.append(f"{indent}tests: {_format_call_site_summary(tests)}")
+    for scope_key in ("non_tests", "tests"):
+        pair_scope = pair_payload.get(scope_key) if pair_payload else None
+        edge_scope = edge_payload.get(scope_key) if edge_payload else None
+        pair_count = int((pair_scope or {}).get("count") or 0)
+        edge_count = int((edge_scope or {}).get("count") or 0)
+        lines.append(f"{indent}{scope_key}: pairs={pair_count}, edges={edge_count}")
     return lines
 
 

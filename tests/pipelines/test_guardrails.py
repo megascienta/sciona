@@ -9,23 +9,19 @@ def test_guardrails_pass_and_fail_by_language() -> None:
             "languages": [
                 {
                     "language": "python",
-                    "call_sites_by_scope": {
+                    "call_site_funnel_by_scope": {
                         "non_tests": {
-                            "eligible": 100,
-                            "accepted": 92,
-                            "dropped": 8,
-                            "success_rate": 0.92,
+                            "persisted_callsites": 100,
+                            "persisted_accepted": 92,
                         }
                     },
                 },
                 {
                     "language": "java",
-                    "call_sites_by_scope": {
+                    "call_site_funnel_by_scope": {
                         "non_tests": {
-                            "eligible": 100,
-                            "accepted": 80,
-                            "dropped": 20,
-                            "success_rate": 0.80,
+                            "persisted_callsites": 100,
+                            "persisted_accepted": 80,
                         }
                     },
                 },
@@ -47,12 +43,10 @@ def test_guardrails_skip_when_non_test_scope_unavailable() -> None:
             "languages": [
                 {
                     "language": "typescript",
-                    "call_sites_by_scope": {
+                    "call_site_funnel_by_scope": {
                         "non_tests": {
-                            "eligible": 0,
-                            "accepted": 0,
-                            "dropped": 0,
-                            "success_rate": None,
+                            "persisted_callsites": 0,
+                            "persisted_accepted": 0,
                         }
                     },
                 }
@@ -65,4 +59,4 @@ def test_guardrails_skip_when_non_test_scope_unavailable() -> None:
     )
     assert len(results) == 1
     assert results[0].passed is True
-    assert results[0].skipped_reason == "no_non_test_call_sites"
+    assert results[0].skipped_reason == "no_non_test_persisted_callsites"

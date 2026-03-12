@@ -1,33 +1,13 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Callsite-oriented helpers for snapshot reporting.
-
-Reporting operates on the filtered persisted artifact-layer `call_sites`
-working set rather than the full observed syntactic callsite stream.
-"""
+"""Callsite-oriented helpers for snapshot reporting."""
 
 from __future__ import annotations
 
-from collections import defaultdict
 
-
-def call_sites_payload(
-    eligible: int | None,
-    accepted: int | None,
-    dropped: int | None,
-) -> dict[str, object]:
-    payload: dict[str, object] = {
-        "eligible": eligible,
-        "accepted": accepted,
-        "dropped": dropped,
-        "success_rate": None,
-    }
-    if eligible is None or accepted is None:
-        return payload
-    if eligible > 0:
-        payload["success_rate"] = accepted / eligible
-    return payload
+def count_payload(count: int | None) -> dict[str, object]:
+    return {"count": count}
 
 
 def call_site_funnel_payload(
@@ -73,19 +53,14 @@ def scope_bucket(file_path: str) -> str:
     return "tests" if any(part in {"test", "tests"} for part in parts) else "non_tests"
 
 
-def scope_call_sites_payload(
-    scope_counts: dict[str, dict[str, int]] | None,
+def scope_count_payload(
+    scope_counts: dict[str, int] | None,
 ) -> dict[str, dict[str, object]] | None:
     if scope_counts is None:
         return None
     payload: dict[str, dict[str, object]] = {}
     for scope_key in ("non_tests", "tests"):
-        counts = scope_counts.get(scope_key, {"eligible": 0, "accepted": 0, "dropped": 0})
-        payload[scope_key] = call_sites_payload(
-            int(counts.get("eligible", 0)),
-            int(counts.get("accepted", 0)),
-            int(counts.get("dropped", 0)),
-        )
+        payload[scope_key] = count_payload(int(scope_counts.get(scope_key, 0)))
     return payload
 
 
@@ -121,79 +96,6 @@ def scope_call_site_funnel_payload(
     return payload
 
 
-def drop_classification_bucket(
-    *,
-    identifier: str,
-    drop_reason: str,
-    candidate_count: int,
-    callee_kind: str,
-    known_callable_identifiers: set[str],
-) -> str | None:
-    if drop_reason == "no_candidates":
-        return "no_candidate_materialized"
-    if drop_reason == "unique_without_provenance":
-        return "insufficient_provenance"
-    if drop_reason == "ambiguous_no_caller_module":
-        return "caller_scope_missing"
-    if drop_reason == "ambiguous_multiple_in_scope_candidates":
-        return "ambiguous_in_scope"
-    if (
-        drop_reason == "ambiguous_no_in_scope_candidate"
-        and callee_kind == "qualified"
-        and candidate_count >= 3
-        and "." in identifier
-    ):
-        if identifier_has_in_repo_callable(
-            identifier,
-            known_callable_identifiers=known_callable_identifiers,
-        ):
-            return "in_repo_unresolvable"
-        return "external_likely"
-    if drop_reason == "ambiguous_no_in_scope_candidate":
-        return "unclassified_persisted_drop"
-    return "unclassified_persisted_drop"
-
-
-def build_callable_identifier_index(
-    caller_metadata: dict[str, dict[str, object]],
-) -> dict[str, set[str]]:
-    index: dict[str, set[str]] = defaultdict(set)
-    for meta in caller_metadata.values():
-        if str(meta.get("node_type") or "") != "callable":
-            continue
-        language = str(meta.get("language") or "")
-        qualified_name = str(meta.get("qualified_name") or "")
-        if not language or not qualified_name:
-            continue
-        index[language].add(qualified_name)
-        terminal = identifier_terminal(qualified_name)
-        if terminal:
-            index[language].add(terminal)
-    return dict(index)
-
-
-def identifier_has_in_repo_callable(
-    identifier: str,
-    *,
-    known_callable_identifiers: set[str],
-) -> bool:
-    if not identifier or not known_callable_identifiers:
-        return False
-    if identifier in known_callable_identifiers:
-        return True
-    terminal = identifier_terminal(identifier)
-    if not terminal:
-        return False
-    return terminal in known_callable_identifiers
-
-
-def identifier_terminal(identifier: str) -> str:
-    text = identifier.strip()
-    if not text:
-        return ""
-    return text.rsplit(".", 1)[-1].strip()
-
-
 def sum_bucket_counts(
     language_buckets: dict[str, dict[str, int]],
 ) -> dict[str, int]:
@@ -204,14 +106,24 @@ def sum_bucket_counts(
     return dict(sorted(totals.items()))
 
 
-def sum_bucket_counts_by_scope(
+def sum_record_drop_buckets(
+    language_buckets: dict[str, dict[str, int]],
+) -> dict[str, int]:
+    return sum_bucket_counts(language_buckets)
+
+
+def sum_record_drop_buckets_by_scope(
     language_scope_buckets: dict[str, dict[str, dict[str, int]]],
     *,
     scope_key: str,
 ) -> dict[str, int]:
     totals: dict[str, int] = {}
     for scope_map in language_scope_buckets.values():
-        for bucket, count in (scope_map.get(scope_key) or {}).items():
+        scope = scope_map.get(scope_key) or {}
+        buckets = scope.get("record_drops")
+        if not isinstance(buckets, dict):
+            continue
+        for bucket, count in buckets.items():
             totals[bucket] = totals.get(bucket, 0) + int(count)
     return dict(sorted(totals.items()))
 
@@ -230,27 +142,15 @@ def sum_scope(
     return result
 
 
-def sum_record_drop_buckets(
-    language_buckets: dict[str, dict[str, int]],
-) -> dict[str, int]:
-    totals: dict[str, int] = {}
-    for buckets in language_buckets.values():
-        for bucket, count in buckets.items():
-            totals[bucket] = totals.get(bucket, 0) + int(count)
-    return dict(sorted(totals.items()))
-
-
-def sum_record_drop_buckets_by_scope(
-    language_scope_buckets: dict[str, dict[str, dict[str, int]]],
-    *,
-    scope_key: str,
-) -> dict[str, int]:
-    totals: dict[str, int] = {}
-    for scope_map in language_scope_buckets.values():
-        scope = scope_map.get(scope_key) or {}
-        buckets = scope.get("record_drops")
-        if not isinstance(buckets, dict):
-            continue
-        for bucket, count in buckets.items():
-            totals[bucket] = totals.get(bucket, 0) + int(count)
-    return dict(sorted(totals.items()))
+__all__ = [
+    "call_site_funnel_payload",
+    "count_payload",
+    "scope_bucket",
+    "scope_call_site_funnel_payload",
+    "scope_count_payload",
+    "sum_bucket_counts",
+    "sum_record_drop_buckets",
+    "sum_record_drop_buckets_by_scope",
+    "sum_scope",
+    "top_items",
+]

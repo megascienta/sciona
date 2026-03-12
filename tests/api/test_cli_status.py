@@ -39,12 +39,8 @@ def _fake_summary():
                 "files": 10,
                 "nodes": 20,
                 "edges": 30,
-                "call_sites": {
-                    "eligible": 10,
-                    "accepted": 9,
-                    "dropped": 1,
-                    "success_rate": 0.9,
-                },
+                "callsite_pairs": {"count": 11},
+                "finalized_call_edges": {"count": 9},
                 "call_site_funnel": {
                     "observed_syntactic_callsites": 12,
                     "filtered_pre_persist": 2,
@@ -54,35 +50,23 @@ def _fake_summary():
                     "record_drops": {"no_resolved_callees": 1},
                     "conservation_ok": True,
                 },
-                "call_sites_by_scope": {
-                    "non_tests": {
-                        "eligible": 8,
-                        "accepted": 8,
-                        "dropped": 0,
-                        "success_rate": 1.0,
-                    },
-                    "tests": {
-                        "eligible": 2,
-                        "accepted": 1,
-                        "dropped": 1,
-                        "success_rate": 0.5,
-                    },
+                "callsite_pairs_by_scope": {
+                    "non_tests": {"count": 8},
+                    "tests": {"count": 3},
                 },
-                "drop_reasons": {"no_candidates": 1},
+                "finalized_call_edges_by_scope": {
+                    "non_tests": {"count": 8},
+                    "tests": {"count": 1},
+                },
                 "filtered_pre_persist_buckets": {"zero_candidate_count": 2},
-                "drop_classification": {"external_likely": 1},
             }
         ],
         "totals": {
             "files": 10,
             "nodes": 20,
             "edges": 30,
-            "call_sites": {
-                "eligible": 10,
-                "accepted": 9,
-                "dropped": 1,
-                "success_rate": 0.9,
-            },
+            "callsite_pairs": {"count": 11},
+            "finalized_call_edges": {"count": 9},
             "call_site_funnel": {
                 "observed_syntactic_callsites": 12,
                 "filtered_pre_persist": 2,
@@ -92,22 +76,15 @@ def _fake_summary():
                 "record_drops": {"no_resolved_callees": 1},
                 "conservation_ok": True,
             },
-            "call_sites_by_scope": {
-                "non_tests": {
-                    "eligible": 8,
-                    "accepted": 8,
-                    "dropped": 0,
-                    "success_rate": 1.0,
-                },
-                "tests": {
-                    "eligible": 2,
-                    "accepted": 1,
-                    "dropped": 1,
-                    "success_rate": 0.5,
-                },
+            "callsite_pairs_by_scope": {
+                "non_tests": {"count": 8},
+                "tests": {"count": 3},
+            },
+            "finalized_call_edges_by_scope": {
+                "non_tests": {"count": 8},
+                "tests": {"count": 1},
             },
             "filtered_pre_persist_buckets": {"zero_candidate_count": 2},
-            "drop_classification": {"external_likely": 1},
         },
     }
 
@@ -132,8 +109,7 @@ def test_cli_status_default_uses_short_summary(cli_app, cli_runner, monkeypatch)
     assert "Core build time: 1.23s" in result.stdout
     assert "Summary:" in result.stdout
     assert "Discovery:" not in result.stdout
-    assert "call_materialization:" not in result.stdout
-    assert "failed reasons:" not in result.stdout
+    assert "callsite_pairs:" not in result.stdout
     assert "Last build:\n  Snapshot:" not in result.stdout
     assert "Last build:\n  Created:" not in result.stdout
 
@@ -153,15 +129,14 @@ def test_cli_status_full_emits_failure_reasons(cli_app, cli_runner, monkeypatch)
 
     assert result.exit_code == 0
     assert calls == [True]
-    assert "call_materialization:" in result.stdout
+    assert "callsite_pairs:" in result.stdout
+    assert "finalized_call_edges:" in result.stdout
     assert "call_funnel: observed=12, filtered_pre_persist=2, persisted=10, accepted=9, dropped=1" in result.stdout
     assert "Wall time: 1.50s" in result.stdout
     assert "Core build time: 1.23s" in result.stdout
-    assert "non_tests:" in result.stdout
-    assert "tests:" in result.stdout
+    assert "non_tests: pairs=8, edges=8" in result.stdout
+    assert "tests: pairs=3, edges=1" in result.stdout
     assert "filtered_pre_persist: zero_candidate_count=2" in result.stdout
-    assert "failed reasons: no_candidates=1" in result.stdout
-    assert "drop classification: external_likely=1" in result.stdout
 
 
 def test_cli_status_json_emits_payload(cli_app, cli_runner, monkeypatch):
@@ -188,7 +163,7 @@ def test_cli_status_json_emits_payload(cli_app, cli_runner, monkeypatch):
     assert payload["summary"]["build_total_seconds"] == 1.234
     assert payload["summary"]["build_wall_seconds"] == 1.5
     assert payload["summary"]["build_phase_timings"]["build_structural_index"] == 0.8
-    assert payload["summary"]["languages"][0]["drop_reasons"]["no_candidates"] == 1
+    assert payload["summary"]["languages"][0]["callsite_pairs"]["count"] == 11
 
 
 def test_cli_status_output_writes_json_file(cli_app, cli_runner, monkeypatch, tmp_path):
@@ -214,7 +189,7 @@ def test_cli_status_output_writes_json_file(cli_app, cli_runner, monkeypatch, tm
     assert payload["summary"]["build_total_seconds"] == 1.234
     assert payload["summary"]["build_wall_seconds"] == 1.5
     assert payload["summary"]["build_phase_timings"]["rebuild_graph_rollups"] == 0.1
-    assert payload["summary"]["languages"][0]["drop_reasons"]["no_candidates"] == 1
+    assert payload["summary"]["languages"][0]["callsite_pairs"]["count"] == 11
 
 
 def test_cli_status_json_ignores_full_flag_for_payload_shape(
