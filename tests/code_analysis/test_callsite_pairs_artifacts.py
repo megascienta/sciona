@@ -19,7 +19,7 @@ from sciona.runtime.paths import get_artifact_db_path
 from tests.helpers import seed_repo_with_snapshot
 
 
-def test_call_sites_persist_in_repo_candidates_only(tmp_path: Path) -> None:
+def test_callsite_pairs_persist_in_repo_candidates_only(tmp_path: Path) -> None:
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     prefix = runtime_paths.repo_name_prefix(repo_root)
     core_conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
@@ -174,7 +174,7 @@ def test_callsite_pairs_dedupe_repeated_same_target_calls(tmp_path: Path) -> Non
         core_conn.close()
 
 
-def test_call_sites_filter_out_of_repo_accepted_rows_at_persistence_boundary(
+def test_callsite_pairs_filter_out_of_repo_accepted_rows_at_persistence_boundary(
     tmp_path: Path, monkeypatch
 ) -> None:
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
@@ -277,7 +277,7 @@ def test_call_sites_filter_out_of_repo_accepted_rows_at_persistence_boundary(
         core_conn.close()
 
 
-def test_call_sites_record_non_candidate_shape_bucket_for_invalid_rows(
+def test_callsite_pairs_record_non_candidate_shape_bucket_for_invalid_rows(
     tmp_path: Path, monkeypatch
 ) -> None:
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
@@ -353,7 +353,7 @@ def test_call_sites_record_non_candidate_shape_bucket_for_invalid_rows(
         core_conn.close()
 
 
-def test_call_sites_accept_export_chain_narrowed_provenance(
+def test_callsite_pairs_accept_export_chain_narrowed_provenance(
     tmp_path: Path, monkeypatch
 ) -> None:
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
@@ -877,7 +877,7 @@ def test_write_call_artifacts_rejects_duplicate_callers_before_writes(
     assert node_call_rows["count"] == 0
 
 
-def test_call_sites_do_not_persist_zero_candidate_or_out_of_scope_observations(
+def test_callsite_pairs_do_not_persist_zero_candidate_or_out_of_scope_observations(
     tmp_path: Path,
 ) -> None:
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)

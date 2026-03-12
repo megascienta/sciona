@@ -5,4 +5,4 @@
 
 from __future__ import annotations
 
-__all__ = ["call_sites", "graph_edges", "graph_rollups", "reporting"]
+__all__ = ["callsite_diagnostics", "graph_edges", "graph_rollups", "reporting"]

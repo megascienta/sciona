@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Helper wrappers for canonical callsite diagnostics retrieval."""
+"""Helper wrappers for canonical callsite pair diagnostics retrieval."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from pathlib import Path
 from .graph_edges import load_call_resolution_diagnostics, load_callsite_pairs
 
 
-def load_callsite_enrichment(
+def load_callsite_pair_diagnostics(
     *,
     repo_root: Path,
     snapshot_id: str,
@@ -31,4 +31,4 @@ def load_callsite_enrichment(
     return callsite_pairs, diagnostics
 
 
-__all__ = ["load_callsite_enrichment"]
+__all__ = ["load_callsite_pair_diagnostics"]

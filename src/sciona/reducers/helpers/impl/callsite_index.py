@@ -10,7 +10,7 @@ from typing import Dict, List, Optional
 
 from ....pipelines.diff_overlay.patching.analytics import patch_callsite_index
 from ..shared import queries
-from ..artifact.call_sites import load_callsite_enrichment
+from ..artifact.callsite_diagnostics import load_callsite_pair_diagnostics
 from ..artifact.graph_edges import (
     artifact_db_available,
     load_artifact_edges,
@@ -125,7 +125,7 @@ def render(
         bool(include_callsite_diagnostics) or filter_active or bool(compact)
     )
     if should_load_callsites:
-        callsite_pairs, diagnostics = load_callsite_enrichment(
+        callsite_pairs, diagnostics = load_callsite_pair_diagnostics(
             repo_root=repo_root,
             snapshot_id=snapshot_id,
             caller_id=resolved_id,
@@ -349,9 +349,11 @@ def _counter_entries(counter: Counter[str]) -> List[dict[str, object]]:
     return entries
 
 
-def _identifier_preview(call_sites: List[dict[str, object]]) -> dict[str, object]:
+def _identifier_preview(callsite_pairs: List[dict[str, object]]) -> dict[str, object]:
     counter = Counter(
-        str(row.get("identifier") or "") for row in call_sites if row.get("identifier")
+        str(row.get("identifier") or "")
+        for row in callsite_pairs
+        if row.get("identifier")
     )
     entries = _counter_entries(counter)
     shown = entries[:10]
