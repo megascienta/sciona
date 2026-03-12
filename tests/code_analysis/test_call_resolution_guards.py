@@ -673,7 +673,7 @@ def test_java_qualify_type_returns_none_for_unresolved_bare_name() -> None:
     assert resolved is None
 
 
-def test_java_qualify_type_keeps_dotted_types() -> None:
+def test_java_qualify_type_rejects_unproven_dotted_types() -> None:
     resolved = qualify_java_type(
         "java.util.List",
         module_name="repo.pkg.mod",
@@ -681,7 +681,7 @@ def test_java_qualify_type_keeps_dotted_types() -> None:
         import_aliases={},
         module_prefix=None,
     )
-    assert resolved == "java.util.List"
+    assert resolved is None
 
 
 def test_java_qualify_type_prefers_unique_nested_class_path() -> None:

@@ -200,6 +200,4 @@ def qualify_java_type(
         return None
     if base in import_aliases:
         return import_aliases[base]
-    if "." in base:
-        return f"{module_prefix}.{base}" if module_prefix else base
     return None
