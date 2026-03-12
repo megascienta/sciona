@@ -117,7 +117,7 @@ def test_build_repo_is_deterministic_across_three_runs(tmp_path: Path) -> None:
         conn.close()
 
 
-def test_build_repo_rebuilds_even_when_fingerprint_matches(tmp_path: Path) -> None:
+def test_build_repo_reuses_cached_result_when_fingerprint_matches(tmp_path: Path) -> None:
     repo_root = tmp_path / "repo"
     repo_root.mkdir()
     init_git_repo(repo_root, commit=False)
@@ -141,8 +141,8 @@ def test_build_repo_rebuilds_even_when_fingerprint_matches(tmp_path: Path) -> No
     cache_after = cache_path.read_text(encoding="utf-8")
 
     assert first.snapshot_id == second.snapshot_id
-    assert second.status == "committed"
-    assert cache_before != cache_after
+    assert second.status == "reused"
+    assert cache_before == cache_after
     assert core_hash_before == core_hash_after
 
 

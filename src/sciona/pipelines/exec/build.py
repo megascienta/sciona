@@ -30,6 +30,8 @@ from ..ops.build_artifacts import build_artifacts_for_snapshot
 from ..progress import make_build_progress
 from .build_fingerprint import (
     compute_build_fingerprint,
+    load_cached_build_result_payload,
+    load_fingerprint_cache,
     write_fingerprint_cache,
 )
 
@@ -83,6 +85,14 @@ def build_repo(
         source=source,
         git_commit_sha=snapshot.git_commit_sha,
     )
+    reused_result = _maybe_reuse_build_result(
+        repo_state=repo_state,
+        policy=policy,
+        fingerprint_hash=fingerprint.fingerprint_hash,
+    )
+    if reused_result is not None:
+        build_progress.finalize()
+        return reused_result
 
     with core(repo_state.db_path, repo_root=repo_state.repo_root) as conn:
         try:
@@ -189,6 +199,32 @@ def build_repo(
             if conn.in_transaction:
                 conn.rollback()
             raise
+
+
+def _maybe_reuse_build_result(
+    *,
+    repo_state: RepoState,
+    policy: BuildPolicy,
+    fingerprint_hash: str,
+) -> BuildResult | None:
+    if policy.force_rebuild:
+        return None
+    cached_payload = load_fingerprint_cache(repo_state)
+    if not isinstance(cached_payload, dict):
+        return None
+    if cached_payload.get("fingerprint_hash") != fingerprint_hash:
+        return None
+    result_payload = load_cached_build_result_payload(cached_payload)
+    if result_payload is None:
+        return None
+    cached_result = _hydrate_result_payload(result_payload)
+    if cached_result is None:
+        return None
+    with core_readonly(repo_state.db_path, repo_root=repo_state.repo_root) as conn:
+        if not core_read.snapshot_exists(conn, cached_result.snapshot_id):
+            return None
+    return replace(cached_result, status=SnapshotLifecycle.REUSED.value)
+
 
 def _record_build_metrics(
     *,

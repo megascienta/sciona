@@ -3,9 +3,15 @@
 
 from __future__ import annotations
 
+import importlib
+
 from sciona.cli import repo_ops
 from sciona.cli.commands import register_build as build_command
+from sciona.runtime import config as runtime_config
+from sciona.runtime import paths as runtime_paths
 from sciona.pipelines.exec.build import BuildResult
+
+from tests.helpers import commit_all
 
 
 def _fake_result() -> BuildResult:
@@ -75,3 +81,26 @@ def test_cli_build_defaults_force_rebuild_false(
     result = cli_runner.invoke(cli_app, ["build"])
     assert result.exit_code == 0
     assert calls == [False]
+
+
+def test_cli_build_reports_reused_status_on_second_run(
+    cli_runner, repo_with_snapshot, monkeypatch
+):
+    repo_root, _snapshot_id = repo_with_snapshot
+    runtime_config.io.write_config_text(
+        repo_root,
+        """languages:\n  python:\n    enabled: true\n\ndiscovery:\n  exclude_globs: []\n""",
+    )
+    commit_all(repo_root)
+    monkeypatch.setattr(runtime_paths, "get_repo_root", lambda: repo_root)
+    import sciona.cli.main as cli_module
+
+    importlib.reload(cli_module)
+
+    first = cli_runner.invoke(cli_module.app, ["build"])
+    second = cli_runner.invoke(cli_module.app, ["build"])
+
+    assert first.exit_code == 0
+    assert second.exit_code == 0
+    assert "No structural diffs detected; snapshot " in second.stdout
+    assert " reused." in second.stdout
