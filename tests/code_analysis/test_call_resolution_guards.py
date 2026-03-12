@@ -537,6 +537,64 @@ def test_java_resolves_enum_synthetic_values_from_known_owner() -> None:
     assert resolved == ["repo.pkg.CollectionFeature.values"]
 
 
+def test_java_does_not_resolve_unknown_owner_fallback() -> None:
+    targets = [
+        CallTarget(
+            terminal="getKey",
+            callee_text="Map.Entry.getKey",
+            ir=QualifiedCallIR(parts=("Map", "Entry", "getKey"), terminal="getKey"),
+        )
+    ]
+    resolved = resolve_java_calls(
+        targets=targets,
+        module_name="repo.pkg.mod",
+        module_functions=set(),
+        class_methods={},
+        class_method_overloads={},
+        class_ancestors={},
+        class_kind_map={},
+        class_name_map={},
+        class_name_candidates={},
+        import_aliases={},
+        member_aliases={},
+        static_wildcard_targets=set(),
+        class_name=None,
+        instance_types={},
+        module_prefix=None,
+        qualify_java_type=qualify_java_type,
+    )
+    assert resolved == []
+
+
+def test_java_does_not_resolve_unknown_enum_synthetic_values() -> None:
+    targets = [
+        CallTarget(
+            terminal="values",
+            callee_text="CollectionFeature.values",
+            ir=QualifiedCallIR(parts=("CollectionFeature", "values"), terminal="values"),
+        )
+    ]
+    resolved = resolve_java_calls(
+        targets=targets,
+        module_name="repo.pkg.mod",
+        module_functions=set(),
+        class_methods={},
+        class_method_overloads={},
+        class_ancestors={},
+        class_kind_map={},
+        class_name_map={},
+        class_name_candidates={},
+        import_aliases={},
+        member_aliases={},
+        static_wildcard_targets=set(),
+        class_name=None,
+        instance_types={},
+        module_prefix=None,
+        qualify_java_type=qualify_java_type,
+    )
+    assert resolved == []
+
+
 def test_java_resolves_dotted_nested_receiver_type_path() -> None:
     targets = [
         CallTarget(

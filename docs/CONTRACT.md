@@ -239,8 +239,9 @@ Overlay contract note:
 - is the filtered persisted artifact working set for call analysis, reporting,
   and final call derivation; it is not required to contain the raw full
   observed callsite superset.
-- MAY exclude standard-library, clearly external, or otherwise out-of-scope
-  observed callsites before persistence.
+- MUST exclude clearly standard-library, clearly external, or otherwise clearly
+  out-of-scope observed callsites before persistence when they can be identified
+  at pre-persistence artifact filtering time.
 - MAY store accepted and dropped callsite outcomes used for diagnostics,
   reporting, and artifact call finalization.
 - MAY persist dropped rows whose downstream reporting classification is
@@ -259,6 +260,9 @@ ArtifactDB `CALLS`:
 
 Reporting classifications on dropped callsites (for example `external_likely`)
 are artifact metadata only and MUST NOT be restated as CoreDB structural facts.
+- If residual external/out-of-scope leakage reaches persisted dropped
+  `CALL_SITES`, downstream artifact reporting SHOULD classify those rows as
+  `external_likely` when they can be identified reliably.
 - `external_likely` is a reporting/quality classification over persisted dropped
   artifact callsite rows; it is not evidence that all external callsites are
   stored.

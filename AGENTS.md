@@ -1,5 +1,9 @@
 # SCIONA Development Rules
 
+This file defines mandatory rules for automated agents working in this repository.
+
+Agents MUST follow these rules.
+
 ## Authoritative Documents
 
 Agents MUST treat the following as authoritative:
@@ -8,7 +12,8 @@ Agents MUST treat the following as authoritative:
 - Developer Guide: docs/DEVELOPERGUIDE.md
 - Capability Manifest (generated): docs/CAPABILITY_MANIFEST.json
 
-Agents MUST NOT contradict these documents.
+Agents MUST NOT contradict these documents. 
+
 If inconsistencies are detected, agents MUST report them explicitly.
 
 ## Precedence
@@ -20,12 +25,65 @@ In case of conflict:
 3. CAPABILITY_MANIFEST.json
 4. Existing code
 
-## Code Modification Rules
+## Contract Preservation
 
 - Agents MUST preserve documented contracts
 - Agents MUST NOT silently redefine APIs or semantics
-- Contract changes REQUIRE explicit justification
-- Structural refactors MUST be explained
+- Contract changes REQUIRE explicit justification documented in the PR description and confirmed by the user before implementation.
+
+## Code Modification Rules
+
+Agents MUST NOT modify repository code unless explicitly instructed by the user.
+
+Before any change the agent MUST:
+- analyze the relevant code
+- explain the intended modification
+- wait for explicit approval
+
+Implicit permission MUST NOT be assumed.
+
+## Structural Scope Discipline
+
+Agents MUST restrict modifications to files directly related to the task. Files that are logically coupled (e.g., imports, re-exports, test fixtures for modified modules) may be included without escalation. Files outside this set MUST NOT be modified without explicit user approval.
+
+## Non-Destructive Modification
+
+Existing code MUST be treated as stable.
+
+Agents MUST NOT:
+- rewrite working implementations
+- refactor code for style
+- change APIs or semantics silently
+
+Bug fixes, new features, and extensions MUST be additive whenever possible.
+
+If modification of existing logic is unavoidable, the agent MUST:
+- explain why additive change is impossible
+- modify the minimal necessary region
+- describe the behavioral impact
+
+## Minimal Diff Principle
+
+Changes MUST affect the smallest possible code region.
+
+Agents SHOULD:
+- modify the fewest files possible
+- avoid formatting-only changes
+- avoid large rewrites
+
+A diff touching more than 3 files or 100 lines outside the primary task file is considered large and requires justification.
+
+## PR Execution Workflow
+
+When work is split into declared PRs or PR-sized sets:
+- Agents MUST implement one PR at a time
+- After each PR-sized change, agents MUST run the narrowest relevant tests
+- If tests fail, the agent MUST first determine whether the failure is plausibly caused by the current changes, based on the files modified and the test output
+- If so, the agent MAY attempt a fix within the scope of the current PR
+- If the fix would require out-of-scope modifications, or if a fix attempt does not resolve the failure, the agent MUST halt, report the failure with full output, and wait for instruction
+- Agents MUST commit only after the tests for that PR pass
+- Agents MUST then continue to the next declared PR until the set is complete
+- At the end, agents MUST check the result against the originally declared PR goals and report any gaps explicitly
 
 ## Testing Environment
 
@@ -35,15 +93,9 @@ Tests MUST be executed in:
 
 Agents MUST NOT assume alternative environments unless specified.
 
-## PR Execution Workflow
+## Contradiction Handling
 
-When work is split into declared PRs or PR-sized sets:
-
-- Agents MUST implement one PR at a time
-- After each PR-sized change, agents MUST run the narrowest relevant tests in the `conda` environment `multiphysics`
-- Agents MUST commit only after the tests for that PR pass
-- Agents MUST then continue to the next declared PR until the set is complete
-- At the end, agents MUST check the result against the originally declared PR goals and report any gaps explicitly
+If an agent detects an inconsistency between authoritative documents, it MUST halt immediately, describe the inconsistency explicitly, and wait for user resolution before proceeding.
 
 <!-- sciona:begin -->
 # SCIONA Agent Protocol

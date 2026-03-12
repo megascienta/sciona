@@ -260,7 +260,11 @@ Timing semantics:
   candidate-bearing callsite outcomes used for reporting, diagnostics, and
   final call derivation; it is not the raw observed superset
 - Standard-library, clearly external, and other out-of-scope observed callsites
-  may be excluded before `call_sites` persistence
+  must be excluded before `call_sites` persistence when they can be identified
+  during pre-persistence artifact filtering
+- If residual external/out-of-scope leakage is still persisted as dropped
+  `call_sites`, reporting should classify those rows as `external_likely` when
+  they can be identified reliably
 - `external_likely` is a reporting classification over persisted dropped
   artifact callsite rows, not evidence that all external callsites are stored
 - synthetic navigation nodes must use collision-safe identities that do not
