@@ -150,6 +150,24 @@ def test_strict_call_contract_can_allow_descendant_scope_for_ambiguous() -> None
     assert decision.dropped_reason is None
 
 
+def test_strict_call_contract_accepts_single_ancestor_module_candidate_from_ambiguous_set() -> None:
+    decision = select_strict_call_candidate(
+        identifier="build",
+        direct_candidates=[],
+        fallback_candidates=["pkg.compat.Builder.build", "offscope.Builder.build"],
+        caller_module="pkg.compat.v2",
+        module_lookup={
+            "pkg.compat.Builder.build": "pkg.compat",
+            "offscope.Builder.build": "offscope",
+        },
+        import_targets={},
+        caller_ancestor_modules={"pkg.compat"},
+    )
+    assert decision.accepted_candidate == "pkg.compat.Builder.build"
+    assert decision.accepted_provenance == "import_narrowed"
+    assert decision.dropped_reason is None
+
+
 def test_strict_call_contract_prefers_exact_qname_in_ambiguous_set() -> None:
     decision = select_strict_call_candidate(
         identifier="pkg.mod.Service.run",

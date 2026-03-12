@@ -168,6 +168,8 @@ def select_strict_call_candidate(
 
     allowed_modules = set(import_targets.get(caller_module, set()))
     allowed_modules.add(caller_module)
+    if caller_ancestor_modules:
+        allowed_modules.update(caller_ancestor_modules)
     narrowed = []
     for candidate in candidates:
         candidate_module = _candidate_module(
