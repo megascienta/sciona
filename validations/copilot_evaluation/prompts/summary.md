@@ -1,6 +1,6 @@
 Summary:
 
-1. Read validations/copilot_evaluation/reports/sciona_session_notes.md and README.md for SCIONA scope definitions. Use the README as the authoritative reference when distinguishing in-scope from out-of-scope tasks.
+1. Read validations/copilot_evaluation/reports/session_tasks_notes.md and README.md for SCIONA scope definitions. Use the README as the authoritative reference when distinguishing in-scope from out-of-scope tasks.
 2. Aggregate the ratings across all tasks
 3. Produce an executive evaluation memo containing:
    - Short description of tasks performed
@@ -14,7 +14,7 @@ Summary:
    - Final recommendation from the perspective of an AI coding assistant — specifically addressing when to reach for SCIONA and when to use conventional tooling instead
 
 4. Produce a short testemony-like summary
-5. Write result to validations/copilot_evaluation/reports/sciona_session_summary.md
+5. Write result to validations/copilot_evaluation/reports/copilot_memo.md
 
 Tone:
 Write the final memo as an internal engineering evaluation written by an AI coding assistant. The tone should be neutral, slightly dry, and analytical.
