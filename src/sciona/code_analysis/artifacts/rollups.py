@@ -211,6 +211,7 @@ def write_call_artifacts(
             expanded_import_targets=expanded_import_targets,
             module_ancestors=module_ancestors,
         )
+        pair_callee_ids = sorted({callee_id for _identifier, _ordinal, callee_id, _kind in pair_rows})
         strict_dropped = resolution_stats.get("dropped_by_reason") or {}
         if isinstance(strict_dropped, dict):
             no_candidates = int(strict_dropped.get("no_candidates") or 0)
@@ -269,7 +270,7 @@ def write_call_artifacts(
             rescue_accepted_callsites=len(rescue_accepted),
         )
         _merge_resolution_stats(caller_diag, diagnostics_totals, resolution_stats)
-        if not callee_ids:
+        if not pair_callee_ids:
             artifact_persistence.upsert_node_calls(
                 artifact_conn,
                 caller_id=caller_id,
@@ -307,7 +308,7 @@ def write_call_artifacts(
         artifact_persistence.upsert_node_calls(
             artifact_conn,
             caller_id=caller_id,
-            callee_ids=sorted(callee_ids),
+            callee_ids=pair_callee_ids,
             call_hash=call_hash,
         )
         if progress:

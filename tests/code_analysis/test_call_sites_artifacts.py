@@ -505,6 +505,122 @@ def test_node_calls_match_accepted_persisted_callsite_outcomes(
     ]
 
 
+def test_node_calls_derive_from_callsite_pairs_when_strict_accepts_none(
+    tmp_path: Path, monkeypatch
+) -> None:
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    prefix = runtime_paths.repo_name_prefix(repo_root)
+    core_conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
+    core_conn.row_factory = sqlite3.Row
+
+    def _fake_resolve_callees(*args, **kwargs):
+        del args, kwargs
+        return (
+            set(),
+            set(),
+            {
+                "identifiers_total": 1,
+                "accepted_by_provenance": {},
+                "dropped_by_reason": {"ambiguous_multiple_in_scope_candidates": 1},
+                "candidate_count_histogram": {2: 1},
+            },
+            [
+                (
+                    "helper",
+                    "dropped",
+                    None,
+                    None,
+                    "ambiguous_multiple_in_scope_candidates",
+                    2,
+                    "terminal",
+                    None,
+                    None,
+                    1,
+                    2,
+                    f"{prefix}.pkg.alpha,{prefix}.pkg.beta",
+                ),
+            ],
+        )
+
+    def _fake_callsite_pair_rows(*args, **kwargs):
+        del args, kwargs
+        return [
+            ("helper", 1, "func_alpha", "in_repo_candidate"),
+            ("helper", 1, "func_beta_helper", "in_repo_candidate"),
+        ]
+
+    core_conn.execute(
+        """
+        INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
+        VALUES (?, ?, ?, ?)
+        """,
+        ("func_beta_helper", "callable", "python", snapshot_id),
+    )
+    core_conn.execute(
+        """
+        INSERT INTO node_instances(
+            instance_id, structural_id, snapshot_id, qualified_name, file_path, start_line, end_line, content_hash
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            f"{snapshot_id}:func_beta_helper",
+            "func_beta_helper",
+            snapshot_id,
+            f"{prefix}.pkg.beta.helper",
+            "pkg/beta/helper.py",
+            1,
+            5,
+            "hash-func-beta-helper",
+        ),
+    )
+    core_conn.execute(
+        """
+        INSERT INTO edges(snapshot_id, src_structural_id, dst_structural_id, edge_type)
+        VALUES (?, ?, ?, ?)
+        """,
+        (snapshot_id, "mod_beta", "func_beta_helper", "LEXICALLY_CONTAINS"),
+    )
+    core_conn.commit()
+
+    monkeypatch.setattr(rollups, "_resolve_callees", _fake_resolve_callees)
+    monkeypatch.setattr(rollups, "_callsite_pair_rows", _fake_callsite_pair_rows)
+    try:
+        artifact_conn = artifact_connect(get_artifact_db_path(repo_root), repo_root=repo_root)
+        try:
+            write_call_artifacts(
+                artifact_conn=artifact_conn,
+                core_conn=core_conn,
+                snapshot_id=snapshot_id,
+                call_records=[
+                    CallExtractionRecord(
+                        caller_structural_id="meth_alpha",
+                        caller_qualified_name=f"{prefix}.pkg.alpha.Service.run",
+                        caller_node_type="callable",
+                        callee_identifiers=("helper",),
+                    )
+                ],
+                eligible_callers={"meth_alpha"},
+            )
+            node_call_rows = artifact_conn.execute(
+                """
+                SELECT callee_id
+                FROM node_calls
+                WHERE caller_id = ?
+                ORDER BY callee_id
+                """,
+                ("meth_alpha",),
+            ).fetchall()
+        finally:
+            artifact_conn.close()
+    finally:
+        core_conn.close()
+
+    assert [row["callee_id"] for row in node_call_rows] == [
+        "func_alpha",
+        "func_beta_helper",
+    ]
+
+
 def test_write_call_artifacts_clears_existing_node_calls_when_resolution_becomes_empty(
     tmp_path: Path, monkeypatch
 ) -> None:
