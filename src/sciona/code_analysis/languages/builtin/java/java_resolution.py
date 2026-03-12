@@ -182,9 +182,16 @@ def qualify_java_type(
     class_name_candidates: dict[str, set[str]],
     import_aliases: dict[str, str],
     module_prefix: str | None,
+    *,
+    class_path_candidates: dict[str, set[str]] | None = None,
 ) -> str | None:
     base = strip_type_decorations(type_text)
     if not base:
+        return None
+    path_candidates = (class_path_candidates or {}).get(base) or set()
+    if len(path_candidates) == 1:
+        return next(iter(path_candidates))
+    if len(path_candidates) > 1:
         return None
     class_candidates = class_name_candidates.get(base) or set()
     if len(class_candidates) == 1:

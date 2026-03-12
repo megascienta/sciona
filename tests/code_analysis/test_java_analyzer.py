@@ -546,6 +546,52 @@ def test_java_analyzer_resolves_inherited_method_from_base_class(tmp_path):
     )
 
 
+def test_java_analyzer_resolves_nested_receiver_type_path(tmp_path):
+    module = """
+    class Map {
+        interface Entry {
+            void getKey();
+        }
+    }
+    class Pair implements Map.Entry {
+        public void getKey() {}
+    }
+    class Service {
+        void run(Pair pair) {
+            pair.getKey();
+        }
+    }
+    """
+    repo = tmp_path
+    src = repo / "src"
+    src.mkdir()
+    file_path = src / "App.java"
+    file_path.write_text(module, encoding="utf-8")
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("src/App.java"),
+            language="java",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = JavaAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+    call_records = {
+        record.qualified_name: tuple(record.callee_identifiers)
+        for record in result.call_records
+    }
+    assert call_records[f"{module_name}.Service.run"] == (
+        f"{module_name}.Pair.getKey",
+    )
+
+
 def test_java_callable_roles_cover_declared_and_constructor(tmp_path):
     module = """
     class Service {

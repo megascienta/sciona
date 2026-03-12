@@ -22,6 +22,8 @@ class JavaNodeState:
     class_methods: dict[str, set[str]] = field(default_factory=dict)
     class_name_map: dict[str, str] = field(default_factory=dict)
     class_name_candidates: dict[str, set[str]] = field(default_factory=dict)
+    class_path_candidates: dict[str, set[str]] = field(default_factory=dict)
+    class_display_paths: dict[str, str] = field(default_factory=dict)
     class_kind_map: dict[str, str] = field(default_factory=dict)
     class_field_types: dict[str, dict[str, str]] = field(default_factory=dict)
     class_declared_bases: dict[str, list[str]] = field(default_factory=dict)
@@ -172,6 +174,10 @@ def walk_java_nodes(
             local_name=class_name,
         )
         qualified = f"{parent}.{emitted_name}"
+        if state.class_stack:
+            display_path = f"{state.class_display_paths[state.class_stack[-1]]}.{class_name}"
+        else:
+            display_path = class_name
         result.nodes.append(
             SemanticNodeRecord(
                 language=language,
@@ -205,6 +211,8 @@ def walk_java_nodes(
         state.class_methods.setdefault(qualified, set())
         state.class_name_map.setdefault(class_name, qualified)
         state.class_name_candidates.setdefault(class_name, set()).add(qualified)
+        state.class_path_candidates.setdefault(display_path, set()).add(qualified)
+        state.class_display_paths[qualified] = display_path
         state.class_kind_map[qualified] = class_kind_map.get(node.type, "class")
         state.class_declared_bases[qualified] = _java_bases(node, snapshot.content)
         if body:

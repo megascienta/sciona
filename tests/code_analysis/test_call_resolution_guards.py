@@ -481,3 +481,15 @@ def test_java_qualify_type_keeps_dotted_types() -> None:
         module_prefix=None,
     )
     assert resolved == "java.util.List"
+
+
+def test_java_qualify_type_prefers_unique_nested_class_path() -> None:
+    resolved = qualify_java_type(
+        "Map.Entry",
+        module_name="repo.pkg.mod",
+        class_name_candidates={"Entry": {"repo.pkg.Map.Entry", "repo.pkg.Other.Entry"}},
+        import_aliases={},
+        module_prefix="repo.pkg",
+        class_path_candidates={"Map.Entry": {"repo.pkg.Map.Entry"}},
+    )
+    assert resolved == "repo.pkg.Map.Entry"

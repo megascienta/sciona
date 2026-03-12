@@ -130,9 +130,25 @@ class JavaAnalyzer(ASTAnalyzer):
             state.class_declared_bases,
             import_aliases,
             state.class_name_candidates,
+            state.class_path_candidates,
             module_name,
             module_prefix,
         )
+        def qualify_receiver_type(
+            type_text: str,
+            owner_module_name: str,
+            class_name_candidates: dict[str, set[str]],
+            import_aliases: dict[str, str],
+            owner_module_prefix: str | None,
+        ) -> str | None:
+            return qualify_java_type(
+                type_text,
+                owner_module_name,
+                class_name_candidates,
+                import_aliases,
+                owner_module_prefix,
+                class_path_candidates=state.class_path_candidates,
+            )
 
         resolved_calls: list[tuple[str, str, str, list[str]]] = []
         scope_resolver = scope_resolver_from_pending_calls(state.pending_calls)
@@ -177,7 +193,7 @@ class JavaAnalyzer(ASTAnalyzer):
                 class_name,
                 instance_types,
                 module_prefix,
-                qualify_java_type,
+                qualify_receiver_type,
             )
             if resolved:
                 resolved_calls.append((self.language, qualified, node_type, list(resolved)))
@@ -226,6 +242,7 @@ def _build_class_ancestors(
     class_declared_bases: dict[str, list[str]],
     import_aliases: dict[str, str],
     class_name_candidates: dict[str, set[str]],
+    class_path_candidates: dict[str, set[str]],
     module_name: str,
     module_prefix: str | None,
 ) -> dict[str, tuple[str, ...]]:
@@ -240,6 +257,7 @@ def _build_class_ancestors(
                 class_name_candidates,
                 import_aliases,
                 module_prefix,
+                class_path_candidates=class_path_candidates,
             )
             if qualified is None or qualified in seen:
                 continue
