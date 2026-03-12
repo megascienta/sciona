@@ -272,7 +272,7 @@ def test_patch_callsite_index_marks_edge_transitions(repo_with_snapshot):
                 "transition": "unchanged",
             }
         ],
-        "call_sites": [],
+        "callsite_pairs": [],
         "edge_transition_summary": {
             "unchanged": 1,
             "accepted_to_dropped": 0,

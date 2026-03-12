@@ -43,27 +43,17 @@ def test_call_sites_persist_in_repo_candidates_only(tmp_path: Path) -> None:
             )
             rows = artifact_conn.execute(
                 """
-                SELECT identifier,
-                       resolution_status,
-                       candidate_count,
-                       in_scope_candidate_count,
-                       candidate_module_hints,
-                       callee_kind,
-                       call_ordinal
-                FROM call_sites
+                SELECT identifier, callee_id, pair_kind
+                FROM callsite_pairs
                 WHERE snapshot_id = ? AND caller_id = ?
-                ORDER BY call_ordinal
+                ORDER BY callee_id
                 """,
                 (snapshot_id, "meth_alpha"),
             ).fetchall()
             assert rows
-            assert [row["identifier"] for row in rows] == ["helper"]
-            assert rows[0]["resolution_status"] == "accepted"
-            assert rows[0]["candidate_count"] > 0
-            assert rows[0]["in_scope_candidate_count"] == 1
-            assert rows[0]["candidate_module_hints"]
-            assert rows[0]["callee_kind"] == "terminal"
-            assert rows[0]["call_ordinal"] == 1
+            assert [tuple(row) for row in rows] == [
+                ("helper", "func_alpha", "in_repo_candidate")
+            ]
             pair_rows = artifact_conn.execute(
                 """
                 SELECT identifier, callee_id, pair_kind
@@ -267,15 +257,15 @@ def test_call_sites_filter_out_of_repo_accepted_rows_at_persistence_boundary(
             assert [row["callee_id"] for row in node_call_rows] == ["func_alpha"]
             callsite_rows = artifact_conn.execute(
                 """
-                SELECT identifier, accepted_callee_id
-                FROM call_sites
+                SELECT identifier, callee_id, pair_kind
+                FROM callsite_pairs
                 WHERE snapshot_id = ? AND caller_id = ?
-                ORDER BY call_ordinal
+                ORDER BY callee_id
                 """,
                 (snapshot_id, "meth_alpha"),
             ).fetchall()
-            assert [(row["identifier"], row["accepted_callee_id"]) for row in callsite_rows] == [
-                ("helper", "func_alpha")
+            assert [tuple(row) for row in callsite_rows] == [
+                ("helper", "func_alpha", "in_repo_candidate")
             ]
             totals = diagnostics.get("totals") or {}
             assert totals.get("filtered_pre_persist_buckets") == {
@@ -347,7 +337,7 @@ def test_call_sites_record_non_candidate_shape_bucket_for_invalid_rows(
             rows = artifact_conn.execute(
                 """
                 SELECT identifier
-                FROM call_sites
+                FROM callsite_pairs
                 WHERE snapshot_id = ? AND caller_id = ?
                 """,
                 (snapshot_id, "meth_alpha"),
@@ -420,15 +410,15 @@ def test_call_sites_accept_export_chain_narrowed_provenance(
             )
             rows = artifact_conn.execute(
                 """
-                SELECT identifier, provenance
-                FROM call_sites
+                SELECT identifier, callee_id, pair_kind
+                FROM callsite_pairs
                 WHERE snapshot_id = ? AND caller_id = ?
-                ORDER BY call_ordinal
+                ORDER BY callee_id
                 """,
                 (snapshot_id, "meth_alpha"),
             ).fetchall()
-            assert [(row["identifier"], row["provenance"]) for row in rows] == [
-                ("helper", "export_chain_narrowed")
+            assert [tuple(row) for row in rows] == [
+                ("helper", "func_alpha", "in_repo_candidate")
             ]
         finally:
             artifact_conn.close()
@@ -536,15 +526,6 @@ def test_node_calls_match_accepted_persisted_callsite_outcomes(
                 ],
                 eligible_callers={"meth_alpha"},
             )
-            persisted_callsite_rows = artifact_conn.execute(
-                """
-                SELECT identifier, resolution_status, accepted_callee_id
-                FROM call_sites
-                WHERE snapshot_id = ? AND caller_id = ?
-                ORDER BY call_ordinal
-                """,
-                (snapshot_id, "meth_alpha"),
-            ).fetchall()
             node_call_rows = artifact_conn.execute(
                 """
                 SELECT callee_id
@@ -568,18 +549,6 @@ def test_node_calls_match_accepted_persisted_callsite_outcomes(
     finally:
         core_conn.close()
 
-    assert [
-        (
-            row["identifier"],
-            row["resolution_status"],
-            row["accepted_callee_id"],
-        )
-        for row in persisted_callsite_rows
-    ] == [
-        ("helper", "accepted", "func_alpha"),
-        ("helper_alias", "accepted", "func_alpha"),
-        ("vendor.external.unknownfn", "dropped", None),
-    ]
     assert [row["callee_id"] for row in node_call_rows] == ["func_alpha"]
     assert [tuple(row) for row in pair_rows] == [
         ("helper", "func_alpha", "in_repo_candidate"),
@@ -802,7 +771,7 @@ def test_write_call_artifacts_clears_existing_rows_when_no_call_records_remain(
                 ("meth_alpha",),
             ).fetchone()[0] == 0
             assert artifact_conn.execute(
-                "SELECT COUNT(*) FROM call_sites WHERE snapshot_id = ? AND caller_id = ?",
+                "SELECT COUNT(*) FROM callsite_pairs WHERE snapshot_id = ? AND caller_id = ?",
                 (snapshot_id, "meth_alpha"),
             ).fetchone()[0] == 0
         finally:
@@ -817,47 +786,11 @@ def test_reset_artifact_derived_state_clears_call_artifacts_and_rollups(
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     artifact_conn = artifact_connect(get_artifact_db_path(repo_root), repo_root=repo_root)
     try:
-        artifact_conn.execute(
-            """
-            INSERT INTO call_sites(
-                snapshot_id,
-                caller_id,
-                caller_qname,
-                caller_node_type,
-                identifier,
-                resolution_status,
-                accepted_callee_id,
-                provenance,
-                drop_reason,
-                candidate_count,
-                callee_kind,
-                call_start_byte,
-                call_end_byte,
-                call_ordinal,
-                in_scope_candidate_count,
-                candidate_module_hints,
-                site_hash
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                snapshot_id,
-                "meth_alpha",
-                "pkg.alpha.Service.run",
-                "callable",
-                "helper",
-                "accepted",
-                "func_alpha",
-                "exact_qname",
-                None,
-                1,
-                "terminal",
-                None,
-                None,
-                1,
-                1,
-                "pkg.alpha",
-                "site-hash",
-            ),
+        artifact_write.upsert_callsite_pairs(
+            artifact_conn,
+            snapshot_id=snapshot_id,
+            caller_id="meth_alpha",
+            rows=(("helper", "site-hash", "func_alpha", "in_repo_candidate"),),
         )
         artifact_conn.execute(
             """
@@ -877,7 +810,7 @@ def test_reset_artifact_derived_state_clears_call_artifacts_and_rollups(
 
         artifact_write.reset_artifact_derived_state(artifact_conn)
 
-        assert artifact_conn.execute("SELECT COUNT(*) FROM call_sites").fetchone()[0] == 0
+        assert artifact_conn.execute("SELECT COUNT(*) FROM callsite_pairs").fetchone()[0] == 0
         assert artifact_conn.execute("SELECT COUNT(*) FROM node_calls").fetchone()[0] == 0
         assert artifact_conn.execute("SELECT COUNT(*) FROM graph_edges").fetchone()[0] == 0
         assert artifact_conn.execute("SELECT COUNT(*) FROM module_call_edges").fetchone()[0] == 0
@@ -922,7 +855,7 @@ def test_write_call_artifacts_rejects_duplicate_callers_before_writes(
             callsite_rows = artifact_conn.execute(
                 """
                 SELECT COUNT(*) AS count
-                FROM call_sites
+                FROM callsite_pairs
                 WHERE snapshot_id = ? AND caller_id = ?
                 """,
                 (snapshot_id, "meth_alpha"),
@@ -971,7 +904,7 @@ def test_call_sites_do_not_persist_zero_candidate_or_out_of_scope_observations(
             row = artifact_conn.execute(
                 """
                 SELECT COUNT(*) AS row_count
-                FROM call_sites
+                FROM callsite_pairs
                 WHERE snapshot_id = ? AND caller_id = ?
                 """,
                 (snapshot_id, "meth_alpha"),

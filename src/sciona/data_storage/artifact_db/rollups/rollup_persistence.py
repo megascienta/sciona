@@ -98,40 +98,6 @@ def upsert_node_calls(
     )
 
 
-def upsert_call_sites(
-    conn,
-    *,
-    snapshot_id: str,
-    caller_id: str,
-    caller_qname: str,
-    caller_node_type: str,
-    rows: Sequence[
-        tuple[
-            str,
-            str,
-            str | None,
-            str | None,
-            str | None,
-            int,
-            str,
-            int | None,
-            int | None,
-            int,
-            int | None,
-            str | None,
-        ]
-    ],
-) -> None:
-    write_index.upsert_call_sites(
-        conn,
-        snapshot_id=snapshot_id,
-        caller_id=caller_id,
-        caller_qname=caller_qname,
-        caller_node_type=caller_node_type,
-        rows=rows,
-    )
-
-
 def upsert_callsite_pairs(
     conn,
     *,
@@ -172,7 +138,6 @@ __all__ = [
     "rebuild_node_fan_stats",
     "clear_call_artifacts_for_callers",
     "upsert_callsite_pairs",
-    "upsert_call_sites",
     "upsert_node_calls",
     "write_class_call_edges",
     "write_module_call_edges",

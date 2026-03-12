@@ -10,7 +10,7 @@ from typing import Iterable, Sequence
 from ..analysis.module_id import module_id_for
 from ..tools.call_extraction import CallExtractionRecord
 from ...data_storage.artifact_db.rollups import rollup_persistence as artifact_persistence
-from ...data_storage.artifact_db.writes.write_call_sites import build_site_hash
+from ...data_storage.artifact_db.writes.write_callsite_pairs import build_site_hash
 from ...data_storage.core_db import read_ops as core_read
 from .call_resolution import (
     best_candidate_by_module_distance as _best_candidate_by_module_distance,
@@ -120,12 +120,7 @@ def write_call_artifacts(
     diagnostics: dict[str, object] | None = None,
     progress_factory=None,
 ) -> None:
-    """Write filtered artifact callsites and derived call edges for eligible callers.
-
-    The persisted `call_sites` table is the artifact-layer working/reporting
-    surface. It intentionally stores only the filtered in-scope candidate-bearing
-    subset rather than the full observed callsite stream.
-    """
+    """Write persisted callsite pairs and derived call edges for eligible callers."""
     core_read.validate_snapshot_for_read(core_conn, snapshot_id, require_committed=True)
     caller_set = (
         set(eligible_callers)
@@ -220,14 +215,6 @@ def write_call_artifacts(
                     int(filtered_out_buckets.get("unknown_out_of_scope") or 0)
                     + no_candidates
                 )
-        artifact_persistence.upsert_call_sites(
-            artifact_conn,
-            snapshot_id=snapshot_id,
-            caller_id=caller_id,
-            caller_qname=record.caller_qualified_name,
-            caller_node_type=record.caller_node_type,
-            rows=filtered_callsite_rows,
-        )
         artifact_persistence.upsert_callsite_pairs(
             artifact_conn,
             snapshot_id=snapshot_id,
@@ -483,33 +470,11 @@ def _callsite_site_hash(
         str | None,
     ],
 ) -> str:
-    (
-        identifier,
-        status,
-        accepted_callee_id,
-        provenance,
-        drop_reason,
-        candidate_count,
-        callee_kind,
-        call_start_byte,
-        call_end_byte,
-        call_ordinal,
-        in_scope_candidate_count,
-        candidate_module_hints,
-    ) = row
+    identifier = row[0]
+    call_ordinal = row[9]
     return build_site_hash(
         snapshot_id=snapshot_id,
         caller_id=caller_id,
         identifier=identifier,
-        resolution_status=status,
-        accepted_callee_id=accepted_callee_id,
-        provenance=provenance,
-        drop_reason=drop_reason,
-        candidate_count=candidate_count,
-        callee_kind=callee_kind,
-        call_start_byte=call_start_byte,
-        call_end_byte=call_end_byte,
         call_ordinal=call_ordinal,
-        in_scope_candidate_count=in_scope_candidate_count,
-        candidate_module_hints=candidate_module_hints,
     )

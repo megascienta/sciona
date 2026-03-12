@@ -58,7 +58,13 @@ def _fake_summary() -> dict[str, object]:
         "build_total_seconds": 1.234,
         "artifact_db_available": True,
         "languages": [],
-        "totals": {"files": 0, "nodes": 0, "edges": 0, "call_sites": {}},
+        "totals": {
+            "files": 0,
+            "nodes": 0,
+            "edges": 0,
+            "callsite_pairs": {"count": 0},
+            "finalized_call_edges": {"count": 0},
+        },
     }
 
 

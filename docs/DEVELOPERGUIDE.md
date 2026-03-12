@@ -137,7 +137,7 @@ Implementation notes:
 - Strict call candidate acceptance remains core-owned in
   `src/sciona/code_analysis/analysis_contracts/strict_call_contract.py` and
   `src/sciona/code_analysis/core/structural_assembler.py`
-- Reducer-facing `CALLS`, `call_sites`, graph edges, fan stats, and rollups are
+- Reducer-facing `CALLS`, callsite pairs, graph edges, fan stats, and rollups are
   finalized in ArtifactDB, not served directly from CoreDB `edges`
 
 Supported structural carriers:
@@ -194,7 +194,7 @@ Supported structural carriers:
 - per-file warning-and-continue artifact derivation when an eligible file
   cannot be re-analyzed;
 - full reset of derived ArtifactDB state before repopulation;
-- `call_sites` and `node_calls` materialization;
+- `callsite_pairs` and `node_calls` materialization;
 - rebuild of reducer-facing graph edges and rollups;
 - rebuild-status metadata and diagnostics persistence;
 - overlay table clearing before fresh artifact population.
@@ -265,8 +265,6 @@ Timing semantics:
 - pre-persistence out-of-scope observations are excluded before
   `callsite_pairs` persistence and currently bucketed as:
   `clearly_out_of_repo`, `unknown_out_of_scope`, `non_candidate_shape`
-- `call_sites` remains a legacy accepted/dropped diagnostics surface and is not
-  the primary reducer-facing materialization surface
 - synthetic navigation nodes must use collision-safe identities that do not
   shadow or reuse canonical structural identities
 - Fingerprint reuse can skip re-indexing even when a prior committed snapshot
@@ -296,7 +294,6 @@ CoreDB:
 
 ArtifactDB:
 
-- `call_sites`: legacy accepted/dropped callsite diagnostics surface
 - `callsite_pairs`: deduplicated persisted in-scope candidate caller-to-callee
   pairs
 - `node_calls`: finalized callable-to-callable artifact call edges derived from

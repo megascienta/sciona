@@ -28,59 +28,6 @@ SCHEMA_STATEMENTS: list[str] = [
     ON node_calls(callee_id)
     """,
     """
-    CREATE TABLE IF NOT EXISTS call_sites (
-        snapshot_id TEXT NOT NULL,
-        caller_id TEXT NOT NULL,
-        caller_qname TEXT NOT NULL,
-        caller_node_type TEXT NOT NULL,
-        identifier TEXT NOT NULL,
-        resolution_status TEXT NOT NULL CHECK (resolution_status IN ('accepted', 'dropped')),
-        accepted_callee_id TEXT,
-        provenance TEXT CHECK (
-            provenance IN (
-                'exact_qname',
-                'module_scoped',
-                'import_narrowed',
-                'export_chain_narrowed'
-            ) OR provenance IS NULL
-        ),
-        drop_reason TEXT CHECK (
-            drop_reason IN (
-                'no_candidates',
-                'unique_without_provenance',
-                'ambiguous_no_caller_module',
-                'ambiguous_no_in_scope_candidate',
-                'ambiguous_multiple_in_scope_candidates'
-            ) OR drop_reason IS NULL
-        ),
-        candidate_count INTEGER NOT NULL CHECK (candidate_count > 0),
-        callee_kind TEXT NOT NULL CHECK (callee_kind IN ('qualified', 'terminal')),
-        call_start_byte INTEGER,
-        call_end_byte INTEGER,
-        call_ordinal INTEGER NOT NULL,
-        in_scope_candidate_count INTEGER,
-        candidate_module_hints TEXT,
-        site_hash TEXT NOT NULL,
-        CHECK (
-            (resolution_status = 'accepted' AND accepted_callee_id IS NOT NULL AND provenance IS NOT NULL AND drop_reason IS NULL) OR
-            (resolution_status = 'dropped' AND accepted_callee_id IS NULL AND provenance IS NULL AND drop_reason IS NOT NULL)
-        ),
-        PRIMARY KEY (snapshot_id, caller_id, site_hash)
-    )
-    """,
-    """
-    CREATE INDEX IF NOT EXISTS idx_call_sites_caller
-    ON call_sites(snapshot_id, caller_id)
-    """,
-    """
-    CREATE INDEX IF NOT EXISTS idx_call_sites_status
-    ON call_sites(snapshot_id, resolution_status)
-    """,
-    """
-    CREATE INDEX IF NOT EXISTS idx_call_sites_caller_status_callee
-    ON call_sites(snapshot_id, caller_id, resolution_status, accepted_callee_id)
-    """,
-    """
     CREATE TABLE IF NOT EXISTS callsite_pairs (
         snapshot_id TEXT NOT NULL,
         caller_id TEXT NOT NULL,
@@ -252,35 +199,9 @@ SCHEMA_STATEMENTS: list[str] = [
 
 def ensure_schema(conn: sqlite3.Connection) -> None:
     _ensure_schema(conn, SCHEMA_STATEMENTS)
-    _ensure_call_sites_schema(conn)
+    conn.execute("DROP TABLE IF EXISTS call_sites")
     _ensure_callsite_pairs_schema(conn)
     _ensure_graph_fk_schema(conn)
-
-
-def _ensure_call_sites_schema(conn: sqlite3.Connection) -> None:
-    columns = {
-        row[1]
-        for row in conn.execute("PRAGMA table_info(call_sites)").fetchall()
-    }
-    required = {
-        "callee_kind",
-        "call_ordinal",
-        "in_scope_candidate_count",
-        "candidate_module_hints",
-    }
-    recreate = not required.issubset(columns)
-    if not recreate:
-        row = conn.execute(
-            "SELECT sql FROM sqlite_master WHERE type='table' AND name='call_sites'"
-        ).fetchone()
-        table_sql = (row[0] if row is not None else "") or ""
-        if "export_chain_narrowed" not in table_sql:
-            recreate = True
-    if recreate:
-        conn.execute("DROP TABLE IF EXISTS call_sites")
-        conn.execute(SCHEMA_STATEMENTS[3])
-        conn.execute(SCHEMA_STATEMENTS[4])
-        conn.execute(SCHEMA_STATEMENTS[5])
 
 
 def _ensure_callsite_pairs_schema(conn: sqlite3.Connection) -> None:
@@ -307,9 +228,9 @@ def _ensure_callsite_pairs_schema(conn: sqlite3.Connection) -> None:
             recreate = True
     if recreate:
         conn.execute("DROP TABLE IF EXISTS callsite_pairs")
-        conn.execute(SCHEMA_STATEMENTS[6])
-        conn.execute(SCHEMA_STATEMENTS[7])
-        conn.execute(SCHEMA_STATEMENTS[8])
+        conn.execute(SCHEMA_STATEMENTS[3])
+        conn.execute(SCHEMA_STATEMENTS[4])
+        conn.execute(SCHEMA_STATEMENTS[5])
 
 
 def _ensure_graph_fk_schema(conn: sqlite3.Connection) -> None:
@@ -323,19 +244,19 @@ def _ensure_graph_fk_schema(conn: sqlite3.Connection) -> None:
     conn.execute("DROP TABLE IF EXISTS class_call_edges")
     conn.execute("DROP TABLE IF EXISTS node_fan_stats")
     statements = [
-        SCHEMA_STATEMENTS[9],  # graph_edges
-        SCHEMA_STATEMENTS[13],  # module_call_edges
-        SCHEMA_STATEMENTS[16],  # class_call_edges
-        SCHEMA_STATEMENTS[19],  # node_fan_stats
-        SCHEMA_STATEMENTS[10],  # idx_graph_edges_src
-        SCHEMA_STATEMENTS[11],  # idx_graph_edges_dst
-        SCHEMA_STATEMENTS[12],  # idx_graph_edges_kind
-        SCHEMA_STATEMENTS[14],  # idx_module_call_edges_src
-        SCHEMA_STATEMENTS[15],  # idx_module_call_edges_dst
-        SCHEMA_STATEMENTS[17],  # idx_class_call_edges_src
-        SCHEMA_STATEMENTS[18],  # idx_class_call_edges_dst
-        SCHEMA_STATEMENTS[20],  # idx_node_fan_stats_kind
-        SCHEMA_STATEMENTS[21],  # idx_node_fan_stats_node
+        SCHEMA_STATEMENTS[6],  # graph_edges
+        SCHEMA_STATEMENTS[10],  # module_call_edges
+        SCHEMA_STATEMENTS[13],  # class_call_edges
+        SCHEMA_STATEMENTS[16],  # node_fan_stats
+        SCHEMA_STATEMENTS[7],  # idx_graph_edges_src
+        SCHEMA_STATEMENTS[8],  # idx_graph_edges_dst
+        SCHEMA_STATEMENTS[9],  # idx_graph_edges_kind
+        SCHEMA_STATEMENTS[11],  # idx_module_call_edges_src
+        SCHEMA_STATEMENTS[12],  # idx_module_call_edges_dst
+        SCHEMA_STATEMENTS[14],  # idx_class_call_edges_src
+        SCHEMA_STATEMENTS[15],  # idx_class_call_edges_dst
+        SCHEMA_STATEMENTS[17],  # idx_node_fan_stats_kind
+        SCHEMA_STATEMENTS[18],  # idx_node_fan_stats_node
     ]
     for statement in statements:
         conn.execute(statement)

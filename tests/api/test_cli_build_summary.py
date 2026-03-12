@@ -45,24 +45,16 @@ def _fake_summary():
                 "files": 1,
                 "nodes": 1,
                 "edges": 0,
-                "call_sites": {
-                    "eligible": 0,
-                    "accepted": 0,
-                    "dropped": 0,
-                    "success_rate": None,
-                },
+                "callsite_pairs": {"count": 0},
+                "finalized_call_edges": {"count": 0},
             }
         ],
         "totals": {
             "files": 1,
             "nodes": 1,
             "edges": 0,
-            "call_sites": {
-                "eligible": 0,
-                "accepted": 0,
-                "dropped": 0,
-                "success_rate": None,
-            },
+            "callsite_pairs": {"count": 0},
+            "finalized_call_edges": {"count": 0},
         },
     }
 

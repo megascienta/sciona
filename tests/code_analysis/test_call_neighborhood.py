@@ -284,15 +284,15 @@ def test_write_call_artifacts_accepts_export_chain_narrowed_resolution(tmp_path:
             assert [row["callee_id"] for row in rows] == ["func_alpha_alt"]
             callsite_rows = artifact_conn.execute(
                 """
-                SELECT accepted_callee_id, provenance
-                FROM call_sites
+                SELECT callee_id, pair_kind
+                FROM callsite_pairs
                 WHERE snapshot_id = ? AND caller_id = ?
-                ORDER BY call_ordinal
+                ORDER BY callee_id
                 """,
                 (snapshot_id, "func_beta_task"),
             ).fetchall()
-            assert [(row["accepted_callee_id"], row["provenance"]) for row in callsite_rows] == [
-                ("func_alpha_alt", "export_chain_narrowed")
+            assert [(row["callee_id"], row["pair_kind"]) for row in callsite_rows] == [
+                ("func_alpha_alt", "in_repo_candidate")
             ]
         finally:
             artifact_conn.close()

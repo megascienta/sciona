@@ -234,15 +234,6 @@ Overlay contract note:
 
 `CALL_SITES`:
 
-- is an artifact-layer callsite table, not a structural entity table.
-- MUST NOT define structural nodes or CoreDB structural edges.
-- is a legacy artifact diagnostics surface for strict accepted/dropped callsite
-  outcomes.
-- MAY store accepted and dropped callsite outcomes used for diagnostics and
-  debugging.
-- MAY include derived artifact-layer acceptance provenance not present in the
-  raw observed callsite stream.
-
 `CALLSITE_PAIRS`:
 
 - is the primary persisted artifact working set for reducer-facing call

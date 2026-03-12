@@ -40,10 +40,10 @@ def test_call_pipeline_end_to_end_filters_persists_and_reports(tmp_path: Path) -
             artifact_conn.commit()
             callsite_rows = artifact_conn.execute(
                 """
-                SELECT identifier, resolution_status, accepted_callee_id
-                FROM call_sites
+                SELECT identifier, callee_id, pair_kind
+                FROM callsite_pairs
                 WHERE snapshot_id = ? AND caller_id = ?
-                ORDER BY call_ordinal
+                ORDER BY identifier, callee_id
                 """,
                 (snapshot_id, "meth_alpha"),
             ).fetchall()
@@ -61,8 +61,8 @@ def test_call_pipeline_end_to_end_filters_persists_and_reports(tmp_path: Path) -
     finally:
         core_conn.close()
 
-    assert [(row["identifier"], row["resolution_status"], row["accepted_callee_id"]) for row in callsite_rows] == [
-        ("helper", "accepted", "func_alpha")
+    assert [(row["identifier"], row["callee_id"], row["pair_kind"]) for row in callsite_rows] == [
+        ("helper", "func_alpha", "in_repo_candidate")
     ]
     assert [row["callee_id"] for row in node_call_rows] == ["func_alpha"]
 

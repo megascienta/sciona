@@ -48,18 +48,6 @@ def test_node_calls_and_cleanup(tmp_path: Path):
     finally:
         conn.close()
 
-
-def test_artifact_db_creates_covering_call_sites_index(tmp_path: Path):
-    conn, _ = _artifact_db_conn(tmp_path)
-    try:
-        rows = conn.execute("PRAGMA index_list(call_sites)").fetchall()
-    finally:
-        conn.close()
-
-    index_names = {row["name"] for row in rows}
-    assert "idx_call_sites_caller_status_callee" in index_names
-
-
 def test_artifact_db_creates_callsite_pairs_indexes(tmp_path: Path):
     conn, _ = _artifact_db_conn(tmp_path)
     try:

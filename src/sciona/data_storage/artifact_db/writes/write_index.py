@@ -11,14 +11,12 @@ from typing import Iterable, Sequence
 from ....runtime.common.time import utc_now
 from ...common.encoding import bool_to_int
 from ...common.sql_utils import temp_id_table
-from .write_call_sites import build_site_hash
 from .write_callsite_pairs import build_pair_hash
 
 
 def reset_artifact_derived_state(conn: sqlite3.Connection) -> None:
     """Clear all rebuild-derived artifact tables before repopulating them."""
     conn.execute("DELETE FROM node_calls")
-    conn.execute("DELETE FROM call_sites")
     conn.execute("DELETE FROM callsite_pairs")
     conn.execute("DELETE FROM graph_edges")
     conn.execute("DELETE FROM graph_nodes")
@@ -64,7 +62,6 @@ def cleanup_removed_nodes(
     ids = list(current_node_ids)
     if not ids:
         conn.execute("DELETE FROM node_calls")
-        conn.execute("DELETE FROM call_sites")
         conn.execute("DELETE FROM callsite_pairs")
         return
     with temp_id_table(conn, ids, column="node_id", prefix="current_nodes") as table:
@@ -73,9 +70,6 @@ def cleanup_removed_nodes(
         )
         conn.execute(
             f"DELETE FROM node_calls WHERE callee_id NOT IN (SELECT node_id FROM {table})",
-        )
-        conn.execute(
-            f"DELETE FROM call_sites WHERE caller_id NOT IN (SELECT node_id FROM {table})",
         )
         conn.execute(
             f"DELETE FROM callsite_pairs WHERE caller_id NOT IN (SELECT node_id FROM {table})",
@@ -100,142 +94,8 @@ def clear_call_artifacts_for_callers(
         caller_list,
     )
     conn.execute(
-        f"DELETE FROM call_sites WHERE snapshot_id = ? AND caller_id IN ({placeholders})",
-        (snapshot_id, *caller_list),
-    )
-    conn.execute(
         f"DELETE FROM callsite_pairs WHERE snapshot_id = ? AND caller_id IN ({placeholders})",
         (snapshot_id, *caller_list),
-    )
-
-
-def upsert_call_sites(
-    conn: sqlite3.Connection,
-    *,
-    snapshot_id: str,
-    caller_id: str,
-    caller_qname: str,
-    caller_node_type: str,
-    rows: Sequence[
-        tuple[
-            str,
-            str,
-            str | None,
-            str | None,
-            str | None,
-            int,
-            str,
-            int | None,
-            int | None,
-            int,
-            int | None,
-            str | None,
-        ]
-    ],
-) -> None:
-    conn.execute(
-        "DELETE FROM call_sites WHERE snapshot_id = ? AND caller_id = ?",
-        (snapshot_id, caller_id),
-    )
-    if not rows:
-        return
-    entries = []
-    for row in rows:
-        if len(row) == 10:
-            (
-                identifier,
-                status,
-                accepted_callee_id,
-                provenance,
-                drop_reason,
-                candidate_count,
-                callee_kind,
-                call_start_byte,
-                call_end_byte,
-                call_ordinal,
-            ) = row
-            in_scope_candidate_count = None
-            candidate_module_hints = None
-        elif len(row) == 12:
-            (
-                identifier,
-                status,
-                accepted_callee_id,
-                provenance,
-                drop_reason,
-                candidate_count,
-                callee_kind,
-                call_start_byte,
-                call_end_byte,
-                call_ordinal,
-                in_scope_candidate_count,
-                candidate_module_hints,
-            ) = row
-        else:
-            raise ValueError(
-                "call_sites rows must have 10 (legacy) or 12 (extended) fields"
-            )
-        site_hash = build_site_hash(
-            snapshot_id=snapshot_id,
-            caller_id=caller_id,
-            identifier=identifier,
-            resolution_status=status,
-            accepted_callee_id=accepted_callee_id,
-            provenance=provenance,
-            drop_reason=drop_reason,
-            candidate_count=candidate_count,
-            callee_kind=callee_kind,
-            call_start_byte=call_start_byte,
-            call_end_byte=call_end_byte,
-            call_ordinal=call_ordinal,
-            in_scope_candidate_count=in_scope_candidate_count,
-            candidate_module_hints=candidate_module_hints,
-        )
-        entries.append(
-            (
-                snapshot_id,
-                caller_id,
-                caller_qname,
-                caller_node_type,
-                identifier,
-                status,
-                accepted_callee_id,
-                provenance,
-                drop_reason,
-                candidate_count,
-                callee_kind,
-                call_start_byte,
-                call_end_byte,
-                call_ordinal,
-                in_scope_candidate_count,
-                candidate_module_hints,
-                site_hash,
-            )
-        )
-    conn.executemany(
-        """
-        INSERT INTO call_sites(
-            snapshot_id,
-            caller_id,
-            caller_qname,
-            caller_node_type,
-            identifier,
-            resolution_status,
-            accepted_callee_id,
-            provenance,
-            drop_reason,
-            candidate_count,
-            callee_kind,
-            call_start_byte,
-            call_end_byte,
-            call_ordinal,
-            in_scope_candidate_count,
-            candidate_module_hints,
-            site_hash
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        entries,
     )
 
 

@@ -215,7 +215,7 @@ def _render_summary_lines(
             f"({float(totals_density.get('low_node_file_ratio') or 0.0):.1%})"
         )
     if not summary.get("artifact_db_available", False):
-        lines.append(f"{indent}call_sites diagnostics: unavailable (artifact DB missing)")
+        lines.append(f"{indent}call diagnostics: unavailable (artifact DB missing)")
     return lines
 
 
