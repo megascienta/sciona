@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import Iterable, Sequence, cast
+from typing import Iterable, Mapping, Sequence, cast
 
 from ..analysis.module_id import module_id_for
 from ..analysis_contracts import (
@@ -215,6 +215,78 @@ def persisted_callsite_outcomes(
         if status == "accepted" and accepted_callee_id
     }
     return persisted_callee_ids, filtered, filtered_out
+
+
+def callsite_pair_rows(
+    rows: Sequence[
+        tuple[
+            str,
+            str,
+            str | None,
+            str | None,
+            str | None,
+            int,
+            str,
+            int | None,
+            int | None,
+            int,
+            int | None,
+            str | None,
+        ]
+    ],
+    *,
+    in_repo_callable_ids: set[str],
+    symbol_index: dict[str, Sequence[str]],
+    caller_module: str | None,
+    caller_language: str | None = None,
+    module_lookup: dict[str, str],
+    callable_qname_by_id: dict[str, str] | None = None,
+    import_targets: dict[str, set[str]],
+    expanded_import_targets: dict[str, set[str]] | None = None,
+    module_ancestors: dict[str, set[str]],
+) -> list[tuple[str, int, str, str]]:
+    callable_qname_by_id = callable_qname_by_id or {}
+    expanded_import_targets = expanded_import_targets or import_targets
+    pair_rows: list[tuple[str, int, str, str]] = []
+    for row in rows:
+        (
+            identifier,
+            status,
+            accepted_callee_id,
+            _provenance,
+            drop_reason,
+            _candidate_count,
+            _callee_kind,
+            _call_start_byte,
+            _call_end_byte,
+            call_ordinal,
+            _in_scope_candidate_count,
+            _candidate_module_hints,
+        ) = row
+        if status == "accepted" and accepted_callee_id in in_repo_callable_ids:
+            pair_rows.append(
+                (identifier, int(call_ordinal), accepted_callee_id, "in_repo_candidate")
+            )
+            continue
+        if drop_reason != "ambiguous_multiple_in_scope_candidates":
+            continue
+        pair_candidates = _pair_candidates_for_identifier(
+            identifier=identifier,
+            symbol_index=symbol_index,
+            caller_module=caller_module,
+            caller_language=caller_language,
+            module_lookup=module_lookup,
+            callable_qname_by_id=callable_qname_by_id,
+            import_targets=import_targets,
+            expanded_import_targets=expanded_import_targets,
+            module_ancestors=module_ancestors,
+        )
+        for callee_id in pair_candidates:
+            if callee_id in in_repo_callable_ids:
+                pair_rows.append(
+                    (identifier, int(call_ordinal), callee_id, "in_repo_candidate")
+                )
+    return pair_rows
 
 
 def build_module_context(
@@ -435,8 +507,64 @@ def resolve_callees(
                     if decision.candidate_module_hints
                     else None,
                 )
-            )
+                )
     return resolved_ids, resolved_names, stats, callsite_rows
+
+
+def _pair_candidates_for_identifier(
+    *,
+    identifier: str,
+    symbol_index: Mapping[str, Sequence[str]],
+    caller_module: str | None,
+    caller_language: str | None,
+    module_lookup: Mapping[str, str],
+    callable_qname_by_id: Mapping[str, str],
+    import_targets: Mapping[str, set[str]],
+    expanded_import_targets: Mapping[str, set[str]],
+    module_ancestors: Mapping[str, set[str]],
+) -> tuple[str, ...]:
+    direct_candidates = list(symbol_index.get(identifier) or ())
+    fallback_candidates: list[str] = []
+    if not direct_candidates and "." in identifier:
+        fallback_candidates = list(symbol_index.get(identifier.rsplit(".", 1)[-1]) or ())
+    candidates = list(dict.fromkeys(direct_candidates or fallback_candidates))
+    if len(candidates) < 2 or not caller_module:
+        return ()
+    allowed_modules = set(import_targets.get(caller_module, set()))
+    allowed_modules.update(expanded_import_targets.get(caller_module, set()))
+    allowed_modules.add(caller_module)
+    allowed_modules.update(module_ancestors.get(caller_module, set()))
+    narrowed: list[str] = []
+    for candidate in candidates:
+        candidate_module = module_lookup.get(candidate)
+        if candidate_module and module_in_scope(
+            candidate_module,
+            allowed_modules,
+            allow_descendants=caller_language == "typescript",
+        ):
+            narrowed.append(candidate)
+    if len(narrowed) < 2:
+        return ()
+    if "." in identifier:
+        tail_matches = []
+        for candidate in narrowed:
+            candidate_qname = callable_qname_by_id.get(candidate, candidate)
+            if _has_structural_tail_match(
+                identifier=identifier,
+                candidate_qname=candidate_qname,
+            ):
+                tail_matches.append(candidate)
+        if len(tail_matches) >= 2:
+            narrowed = tail_matches
+    return tuple(dict.fromkeys(narrowed))
+
+
+def _has_structural_tail_match(*, identifier: str, candidate_qname: str) -> bool:
+    identifier_parts = [part for part in identifier.split(".") if part]
+    candidate_parts = [part for part in candidate_qname.split(".") if part]
+    if len(identifier_parts) < 3 or len(candidate_parts) < 3:
+        return False
+    return candidate_parts[-3:] == identifier_parts[-3:]
 
 
 def _resolve_post_strict_rescue_candidate(

@@ -7,7 +7,10 @@ from pathlib import Path
 
 from sciona.code_analysis.artifacts import rollups
 from sciona.code_analysis.artifacts import write_call_artifacts
-from sciona.code_analysis.artifacts.call_resolution import resolve_callees
+from sciona.code_analysis.artifacts.call_resolution import (
+    callsite_pair_rows,
+    resolve_callees,
+)
 from sciona.code_analysis.tools.call_extraction import CallExtractionRecord
 from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.data_storage.artifact_db.writes import write_index as artifact_write
@@ -61,6 +64,18 @@ def test_call_sites_persist_in_repo_candidates_only(tmp_path: Path) -> None:
             assert rows[0]["candidate_module_hints"]
             assert rows[0]["callee_kind"] == "terminal"
             assert rows[0]["call_ordinal"] == 1
+            pair_rows = artifact_conn.execute(
+                """
+                SELECT identifier, callee_id, pair_kind
+                FROM callsite_pairs
+                WHERE snapshot_id = ? AND caller_id = ?
+                ORDER BY callee_id
+                """,
+                (snapshot_id, "meth_alpha"),
+            ).fetchall()
+            assert [tuple(row) for row in pair_rows] == [
+                ("helper", "func_alpha", "in_repo_candidate")
+            ]
         finally:
             artifact_conn.close()
     finally:
@@ -84,6 +99,89 @@ def test_resolve_callees_counts_each_identifier_once() -> None:
     assert stats["accepted_identifiers"] == 1
     assert stats["dropped_identifiers"] == 0
     assert rows[0][0] == "helper"
+
+
+def test_callsite_pair_rows_expand_ambiguous_in_scope_candidates() -> None:
+    rows = [
+        (
+            "helper",
+            "dropped",
+            None,
+            None,
+            "ambiguous_multiple_in_scope_candidates",
+            2,
+            "terminal",
+            None,
+            None,
+            1,
+            2,
+            "pkg.alpha,pkg.beta",
+        )
+    ]
+
+    pair_rows = callsite_pair_rows(
+        rows,
+        in_repo_callable_ids={"alpha_helper", "beta_helper"},
+        symbol_index={"helper": ["alpha_helper", "beta_helper"]},
+        caller_module="pkg.app",
+        caller_language="python",
+        module_lookup={
+            "alpha_helper": "pkg.alpha",
+            "beta_helper": "pkg.beta",
+        },
+        callable_qname_by_id={
+            "alpha_helper": "pkg.alpha.helper",
+            "beta_helper": "pkg.beta.helper",
+        },
+        import_targets={"pkg.app": {"pkg.alpha", "pkg.beta"}},
+        expanded_import_targets={"pkg.app": {"pkg.alpha", "pkg.beta"}},
+        module_ancestors={"pkg.app": {"pkg"}},
+    )
+
+    assert pair_rows == [
+        ("helper", 1, "alpha_helper", "in_repo_candidate"),
+        ("helper", 1, "beta_helper", "in_repo_candidate"),
+    ]
+
+
+def test_callsite_pairs_dedupe_repeated_same_target_calls(tmp_path: Path) -> None:
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    prefix = runtime_paths.repo_name_prefix(repo_root)
+    core_conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
+    core_conn.row_factory = sqlite3.Row
+    try:
+        artifact_conn = artifact_connect(get_artifact_db_path(repo_root), repo_root=repo_root)
+        try:
+            write_call_artifacts(
+                artifact_conn=artifact_conn,
+                core_conn=core_conn,
+                snapshot_id=snapshot_id,
+                call_records=[
+                    CallExtractionRecord(
+                        caller_structural_id="meth_alpha",
+                        caller_qualified_name=f"{prefix}.pkg.alpha.Service.run",
+                        caller_node_type="callable",
+                        callee_identifiers=("helper", "helper"),
+                    )
+                ],
+                eligible_callers={"meth_alpha"},
+            )
+            pair_rows = artifact_conn.execute(
+                """
+                SELECT identifier, callee_id, pair_kind
+                FROM callsite_pairs
+                WHERE snapshot_id = ? AND caller_id = ?
+                ORDER BY callee_id
+                """,
+                (snapshot_id, "meth_alpha"),
+            ).fetchall()
+            assert [tuple(row) for row in pair_rows] == [
+                ("helper", "func_alpha", "in_repo_candidate")
+            ]
+        finally:
+            artifact_conn.close()
+    finally:
+        core_conn.close()
 
 
 def test_call_sites_filter_out_of_repo_accepted_rows_at_persistence_boundary(
@@ -374,6 +472,15 @@ def test_node_calls_match_accepted_persisted_callsite_outcomes(
                 """,
                 ("meth_alpha",),
             ).fetchall()
+            pair_rows = artifact_conn.execute(
+                """
+                SELECT identifier, callee_id, pair_kind
+                FROM callsite_pairs
+                WHERE snapshot_id = ? AND caller_id = ?
+                ORDER BY identifier, callee_id
+                """,
+                (snapshot_id, "meth_alpha"),
+            ).fetchall()
         finally:
             artifact_conn.close()
     finally:
@@ -392,6 +499,10 @@ def test_node_calls_match_accepted_persisted_callsite_outcomes(
         ("vendor.external.unknownfn", "dropped", None),
     ]
     assert [row["callee_id"] for row in node_call_rows] == ["func_alpha"]
+    assert [tuple(row) for row in pair_rows] == [
+        ("helper", "func_alpha", "in_repo_candidate"),
+        ("helper_alias", "func_alpha", "in_repo_candidate"),
+    ]
 
 
 def test_write_call_artifacts_clears_existing_node_calls_when_resolution_becomes_empty(
@@ -668,6 +779,15 @@ def test_call_sites_do_not_persist_zero_candidate_or_out_of_scope_observations(
                 (snapshot_id, "meth_alpha"),
             ).fetchone()
             assert row["row_count"] == 0
+            pair_row = artifact_conn.execute(
+                """
+                SELECT COUNT(*) AS row_count
+                FROM callsite_pairs
+                WHERE snapshot_id = ? AND caller_id = ?
+                """,
+                (snapshot_id, "meth_alpha"),
+            ).fetchone()
+            assert pair_row["row_count"] == 0
         finally:
             artifact_conn.close()
     finally:

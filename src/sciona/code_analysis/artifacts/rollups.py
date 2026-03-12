@@ -10,6 +10,7 @@ from typing import Iterable, Sequence
 from ..analysis.module_id import module_id_for
 from ..tools.call_extraction import CallExtractionRecord
 from ...data_storage.artifact_db.rollups import rollup_persistence as artifact_persistence
+from ...data_storage.artifact_db.writes.write_call_sites import build_site_hash
 from ...data_storage.core_db import read_ops as core_read
 from .call_resolution import (
     best_candidate_by_module_distance as _best_candidate_by_module_distance,
@@ -19,6 +20,7 @@ from .call_resolution import (
     build_symbol_index as _build_symbol_index,
     build_typescript_barrel_export_map as _build_typescript_barrel_export_map,
     bounded_module_reachability as _bounded_module_reachability,
+    callsite_pair_rows as _callsite_pair_rows,
     load_node_hashes as _load_node_hashes,
     module_distance as _module_distance,
     module_in_scope as _module_in_scope,
@@ -197,6 +199,18 @@ def write_call_artifacts(
             callsite_rows,
             in_repo_callable_ids=in_repo_callable_ids,
         )
+        pair_rows = _callsite_pair_rows(
+            filtered_callsite_rows,
+            in_repo_callable_ids=in_repo_callable_ids,
+            symbol_index=symbol_index,
+            caller_module=caller_module,
+            caller_language=caller_language_map.get(caller_id),
+            module_lookup=module_lookup,
+            callable_qname_by_id=callable_qname_by_id,
+            import_targets=import_targets,
+            expanded_import_targets=expanded_import_targets,
+            module_ancestors=module_ancestors,
+        )
         strict_dropped = resolution_stats.get("dropped_by_reason") or {}
         if isinstance(strict_dropped, dict):
             no_candidates = int(strict_dropped.get("no_candidates") or 0)
@@ -212,6 +226,26 @@ def write_call_artifacts(
             caller_qname=record.caller_qualified_name,
             caller_node_type=record.caller_node_type,
             rows=filtered_callsite_rows,
+        )
+        artifact_persistence.upsert_callsite_pairs(
+            artifact_conn,
+            snapshot_id=snapshot_id,
+            caller_id=caller_id,
+            rows=[
+                (
+                    identifier,
+                    _callsite_site_hash(
+                        snapshot_id=snapshot_id,
+                        caller_id=caller_id,
+                        row=row,
+                    ),
+                    callee_id,
+                    pair_kind,
+                )
+                for identifier, call_ordinal, callee_id, pair_kind in pair_rows
+                for row in filtered_callsite_rows
+                if row[0] == identifier and int(row[9]) == int(call_ordinal)
+            ],
         )
         accepted_rows = [
             row for row in filtered_callsite_rows if row[1] == "accepted" and row[2]
@@ -426,4 +460,55 @@ def _resolve_typescript_barrel_ambiguous(
         simple_identifier=_simple_identifier,
         module_in_scope=_module_in_scope,
         best_candidate_by_module_distance=_best_candidate_by_module_distance,
+    )
+
+
+def _callsite_site_hash(
+    *,
+    snapshot_id: str,
+    caller_id: str,
+    row: tuple[
+        str,
+        str,
+        str | None,
+        str | None,
+        str | None,
+        int,
+        str,
+        int | None,
+        int | None,
+        int,
+        int | None,
+        str | None,
+    ],
+) -> str:
+    (
+        identifier,
+        status,
+        accepted_callee_id,
+        provenance,
+        drop_reason,
+        candidate_count,
+        callee_kind,
+        call_start_byte,
+        call_end_byte,
+        call_ordinal,
+        in_scope_candidate_count,
+        candidate_module_hints,
+    ) = row
+    return build_site_hash(
+        snapshot_id=snapshot_id,
+        caller_id=caller_id,
+        identifier=identifier,
+        resolution_status=status,
+        accepted_callee_id=accepted_callee_id,
+        provenance=provenance,
+        drop_reason=drop_reason,
+        candidate_count=candidate_count,
+        callee_kind=callee_kind,
+        call_start_byte=call_start_byte,
+        call_end_byte=call_end_byte,
+        call_ordinal=call_ordinal,
+        in_scope_candidate_count=in_scope_candidate_count,
+        candidate_module_hints=candidate_module_hints,
     )

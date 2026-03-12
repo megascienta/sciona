@@ -253,15 +253,18 @@ def upsert_callsite_pairs(
     if not rows:
         return
     entries = []
+    seen_pair_hashes: set[str] = set()
     for identifier, site_hash, callee_id, pair_kind in rows:
         pair_hash = build_pair_hash(
             snapshot_id=snapshot_id,
             caller_id=caller_id,
             identifier=identifier,
-            site_hash=site_hash,
             callee_id=callee_id,
             pair_kind=pair_kind,
         )
+        if pair_hash in seen_pair_hashes:
+            continue
+        seen_pair_hashes.add(pair_hash)
         entries.append(
             (
                 snapshot_id,
