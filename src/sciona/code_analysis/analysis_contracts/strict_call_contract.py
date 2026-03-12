@@ -102,18 +102,6 @@ def select_strict_call_candidate(
                 in_scope_candidate_count=1,
                 candidate_module_hints=candidate_module_hints,
             )
-        if "." in identifier and _has_structural_tail_match(
-            identifier=identifier,
-            candidate_qname=candidate_qname,
-        ):
-            return StrictCallDecision(
-                accepted_candidate=candidate,
-                accepted_provenance="exact_qname",
-                dropped_reason=None,
-                candidate_count=candidate_count,
-                in_scope_candidate_count=1,
-                candidate_module_hints=candidate_module_hints,
-            )
         candidate_module = _candidate_module(
             candidate=candidate,
             module_lookup=module_lookup,
@@ -204,6 +192,35 @@ def select_strict_call_candidate(
             in_scope_candidate_count=1,
             candidate_module_hints=candidate_module_hints,
         )
+    if len(narrowed) > 1 and "." in identifier:
+        tail_matches = []
+        for candidate in narrowed:
+            candidate_qname = (candidate_qualified_names or {}).get(candidate, candidate)
+            if _has_structural_tail_match(
+                identifier=identifier,
+                candidate_qname=candidate_qname,
+            ):
+                tail_matches.append(candidate)
+        if len(tail_matches) == 1:
+            candidate = tail_matches[0]
+            candidate_module = _candidate_module(
+                candidate=candidate,
+                module_lookup=module_lookup,
+                scope_modules=allowed_modules,
+            )
+            provenance = (
+                "module_scoped"
+                if caller_module and candidate_module == caller_module
+                else "import_narrowed"
+            )
+            return StrictCallDecision(
+                accepted_candidate=candidate,
+                accepted_provenance=provenance,
+                dropped_reason=None,
+                candidate_count=candidate_count,
+                in_scope_candidate_count=1,
+                candidate_module_hints=candidate_module_hints,
+            )
     if not narrowed:
         dropped_reason = "ambiguous_no_in_scope_candidate"
     else:

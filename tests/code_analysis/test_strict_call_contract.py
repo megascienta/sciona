@@ -302,7 +302,7 @@ def test_strict_call_contract_accepts_single_ancestor_module_candidate() -> None
     assert decision.dropped_reason is None
 
 
-def test_strict_call_contract_accepts_single_candidate_with_nested_tail_match() -> None:
+def test_strict_call_contract_rejects_single_candidate_with_nested_tail_match_only() -> None:
     decision = select_strict_call_candidate(
         identifier="pkg.test.BasicThreadFactory.Builder.wrappedFactory",
         direct_candidates=[],
@@ -313,9 +313,59 @@ def test_strict_call_contract_accepts_single_candidate_with_nested_tail_match() 
         },
         import_targets={},
     )
+    assert decision.accepted_candidate is None
+    assert decision.accepted_provenance is None
+    assert decision.dropped_reason == "unique_without_provenance"
+
+
+def test_strict_call_contract_uses_nested_tail_match_to_break_ambiguous_scope_tie() -> None:
+    decision = select_strict_call_candidate(
+        identifier="pkg.concurrent.BasicThreadFactory.Builder.wrappedFactory",
+        direct_candidates=[],
+        fallback_candidates=[
+            "pkg.concurrent.impl.BasicThreadFactory.BasicThreadFactory.Builder.wrappedFactory",
+            "pkg.concurrent.impl.BasicThreadFactory.BasicThreadFactory.Builder.namingPattern",
+        ],
+        caller_module="pkg.app",
+        module_lookup={
+            "pkg.concurrent.impl.BasicThreadFactory.BasicThreadFactory.Builder.wrappedFactory": "pkg.concurrent.impl",
+            "pkg.concurrent.impl.BasicThreadFactory.BasicThreadFactory.Builder.namingPattern": "pkg.concurrent.impl",
+        },
+        candidate_qualified_names={
+            "pkg.concurrent.impl.BasicThreadFactory.BasicThreadFactory.Builder.wrappedFactory": "pkg.concurrent.impl.BasicThreadFactory.BasicThreadFactory.Builder.wrappedFactory",
+            "pkg.concurrent.impl.BasicThreadFactory.BasicThreadFactory.Builder.namingPattern": "pkg.concurrent.impl.BasicThreadFactory.BasicThreadFactory.Builder.namingPattern",
+        },
+        import_targets={"pkg.app": {"pkg.concurrent.impl"}},
+        expanded_import_targets={"pkg.app": {"pkg.concurrent.impl"}},
+    )
     assert (
         decision.accepted_candidate
-        == "pkg.main.concurrent.BasicThreadFactory.BasicThreadFactory.Builder.wrappedFactory"
+        == "pkg.concurrent.impl.BasicThreadFactory.BasicThreadFactory.Builder.wrappedFactory"
     )
-    assert decision.accepted_provenance == "exact_qname"
+    assert decision.accepted_provenance == "import_narrowed"
     assert decision.dropped_reason is None
+
+
+def test_strict_call_contract_keeps_ambiguous_when_multiple_tail_matches_exist() -> None:
+    decision = select_strict_call_candidate(
+        identifier="pkg.concurrent.Builder.run",
+        direct_candidates=[],
+        fallback_candidates=[
+            "pkg.concurrent.impl.Builder.run",
+            "pkg.concurrent.alt.Builder.run",
+        ],
+        caller_module="pkg.app",
+        module_lookup={
+            "pkg.concurrent.impl.Builder.run": "pkg.concurrent.impl",
+            "pkg.concurrent.alt.Builder.run": "pkg.concurrent.alt",
+        },
+        candidate_qualified_names={
+            "pkg.concurrent.impl.Builder.run": "pkg.concurrent.impl.Builder.run",
+            "pkg.concurrent.alt.Builder.run": "pkg.concurrent.alt.Builder.run",
+        },
+        import_targets={"pkg.app": {"pkg.concurrent.impl", "pkg.concurrent.alt"}},
+        expanded_import_targets={"pkg.app": {"pkg.concurrent.impl", "pkg.concurrent.alt"}},
+    )
+    assert decision.accepted_candidate is None
+    assert decision.accepted_provenance is None
+    assert decision.dropped_reason == "ambiguous_multiple_in_scope_candidates"
