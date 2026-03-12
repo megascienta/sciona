@@ -224,10 +224,13 @@ Timing semantics:
   artifact refresh, graph-index rebuild, and rollup rebuild.
 - The inner persisted metric does not include later CLI-only work such as
   final summary querying or terminal rendering.
-- `status --json` and `snapshot_report(...)` now expose:
+- `status --json` and `snapshot_report(...)` expose:
   - `build_total_seconds`: persisted inner build metric
-  - `build_wall_seconds`: persisted full command wall time
+  - `build_wall_seconds`: persisted full command wall time when it has already
+    been recorded; callers must treat it as optional
   - `build_phase_timings`: persisted per-phase timing map
+- During `sciona build`, wall time is rendered from the in-process command
+  timer before `build_wall_seconds` persistence completes.
 - `build_phase_timings` uses stable flat keys:
   - `compute_build_fingerprint`
   - `discover_files`
@@ -378,24 +381,10 @@ languages until the user enables them in `.sciona/config.yaml`.
 
 ## Addon API
 
-Stable public addon surface is `sciona.api.addons`.
+Addon authoring, import boundaries, compatibility, and public API usage are
+documented in `docs/ADDONS.md`.
 
-Public exports:
-
-- `PLUGIN_API_VERSION`, `PLUGIN_API_MAJOR`, `PLUGIN_API_MINOR`
-- `list_entries(...)`
-- `get_entry(...)`
-- `emit(...)`
-- `open_core_readonly(...)`, `open_artifact_readonly(...)`
-- `core_readonly(...)`, `artifact_readonly(...)`
-
-Boundary rules enforced by tests:
-
-- the public root namespace is `sciona.api`, which exposes only `addons`
-- addon code under `addons/` must import SCIONA through `sciona.api.addons` or
-  `sciona.addons...` prefixes
-- addon-facing database helpers are read-only wrappers around connection
-  helpers and repo-root resolution
+Keep this guide focused on core implementation and runtime architecture.
 
 ## Testing Workflow
 
