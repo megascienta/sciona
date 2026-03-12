@@ -22,7 +22,11 @@ def rebuild_graph_index(
     progress_factory=None,
 ) -> None:
     core_read.validate_snapshot_for_read(core_conn, snapshot_id, require_committed=True)
-    progress = progress_factory("Rebuilding graph index", 4) if progress_factory else None
+    progress = (
+        progress_factory("Rebuilding call graph index", 4)
+        if progress_factory
+        else None
+    )
     write_graph.reset_graph_index(artifact_conn)
     if progress:
         progress.advance(1)

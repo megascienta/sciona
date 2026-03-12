@@ -167,7 +167,11 @@ def write_call_artifacts(
     node_hashes = _load_node_hashes(core_conn, snapshot_id, caller_set)
     processed_callers: set[str] = set()
     diagnostics_totals = _ensure_rollup_diagnostics(diagnostics)
-    progress = progress_factory("Writing call artifacts", len(call_records)) if progress_factory and call_records else None
+    progress = (
+        progress_factory("Writing callsite pairs", len(call_records))
+        if progress_factory and call_records
+        else None
+    )
     for record in call_records:
         caller_id = record.caller_structural_id
         if caller_id not in caller_set:
