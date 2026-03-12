@@ -461,6 +461,44 @@ def test_java_resolves_typed_receiver_to_nearest_ancestor_owner() -> None:
     assert resolved == ["repo.pkg.Map.Entry.getKey"]
 
 
+def test_java_resolves_ancestor_owner_by_argument_count() -> None:
+    targets = [
+        CallTarget(
+            terminal="append",
+            callee_text="builder.append",
+            ir=QualifiedCallIR(parts=("builder", "append"), terminal="append"),
+            argument_count=1,
+        )
+    ]
+    resolved = resolve_java_calls(
+        targets=targets,
+        module_name="repo.pkg.mod",
+        module_functions=set(),
+        class_methods={
+            "repo.pkg.Formattable": {"append"},
+            "repo.pkg.Appendable": {"append"},
+            "repo.pkg.Builder": set(),
+        },
+        class_method_overloads={
+            "repo.pkg.Formattable": {"append": {2: {"repo.pkg.Formattable.append"}}},
+            "repo.pkg.Appendable": {"append": {1: {"repo.pkg.Appendable.append"}}},
+        },
+        class_ancestors={
+            "repo.pkg.Builder": ("repo.pkg.Formattable", "repo.pkg.Appendable"),
+        },
+        class_name_map={},
+        class_name_candidates={"Builder": {"repo.pkg.Builder"}},
+        import_aliases={"Builder": "repo.pkg.Builder"},
+        member_aliases={},
+        static_wildcard_targets=set(),
+        class_name=None,
+        instance_types={"builder": "Builder"},
+        module_prefix=None,
+        qualify_java_type=qualify_java_type,
+    )
+    assert resolved == ["repo.pkg.Appendable.append"]
+
+
 def test_java_qualify_type_returns_none_for_unresolved_bare_name() -> None:
     resolved = qualify_java_type(
         "Service",

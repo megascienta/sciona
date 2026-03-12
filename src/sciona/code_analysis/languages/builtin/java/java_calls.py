@@ -347,16 +347,61 @@ def _resolve_from_lineage(
                 class_method_overloads,
             )
         return None
+    all_owners = [
+        owner
+        for depth in sorted(owners_by_depth)
+        for owner in owners_by_depth[depth]
+    ]
+    narrowed_all = _narrow_owners_by_arity(
+        all_owners,
+        terminal,
+        argument_count,
+        class_method_overloads,
+    )
+    if len(narrowed_all) == 1:
+        return _resolved_method_target(
+            narrowed_all[0],
+            terminal,
+            argument_count,
+            class_method_overloads,
+        )
     nearest_depth = min(owners_by_depth)
     owners = owners_by_depth[nearest_depth]
     if len(owners) != 1:
-        return None
+        narrowed = _narrow_owners_by_arity(
+            owners,
+            terminal,
+            argument_count,
+            class_method_overloads,
+        )
+        if len(narrowed) != 1:
+            return None
+        owners = narrowed
     return _resolved_method_target(
         owners[0],
         terminal,
         argument_count,
         class_method_overloads,
     )
+
+
+def _narrow_owners_by_arity(
+    owners: list[str],
+    terminal: str,
+    argument_count: int | None,
+    class_method_overloads: dict[str, dict[str, dict[int, set[str]]]],
+) -> list[str]:
+    if argument_count is None:
+        return owners
+    narrowed: list[str] = []
+    for owner in owners:
+        overloads = class_method_overloads.get(owner, {}).get(terminal, {})
+        if not overloads:
+            narrowed.append(owner)
+            continue
+        if argument_count in overloads:
+            narrowed.append(owner)
+    return narrowed
 
 
 def _receiver_symbol(
