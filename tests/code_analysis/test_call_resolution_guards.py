@@ -537,6 +537,41 @@ def test_java_resolves_enum_synthetic_values_from_known_owner() -> None:
     assert resolved == ["repo.pkg.CollectionFeature.values"]
 
 
+def test_java_resolves_static_wildcard_target_by_argument_count() -> None:
+    targets = [
+        CallTarget(
+            terminal="of",
+            callee_text="of",
+            argument_count=1,
+        )
+    ]
+    resolved = resolve_java_calls(
+        targets=targets,
+        module_name="repo.pkg.mod",
+        module_functions=set(),
+        class_methods={
+            "repo.pkg.Streams": {"of"},
+            "repo.pkg.IntStreams": {"of"},
+        },
+        class_method_overloads={
+            "repo.pkg.Streams": {"of": {2: {"repo.pkg.Streams.of"}}},
+            "repo.pkg.IntStreams": {"of": {1: {"repo.pkg.IntStreams.of"}}},
+        },
+        class_ancestors={},
+        class_kind_map={},
+        class_name_map={},
+        class_name_candidates={},
+        import_aliases={},
+        member_aliases={},
+        static_wildcard_targets={"repo.pkg.Streams", "repo.pkg.IntStreams"},
+        class_name=None,
+        instance_types={},
+        module_prefix=None,
+        qualify_java_type=qualify_java_type,
+    )
+    assert resolved == ["repo.pkg.IntStreams.of"]
+
+
 def test_java_qualify_type_returns_none_for_unresolved_bare_name() -> None:
     resolved = qualify_java_type(
         "Service",

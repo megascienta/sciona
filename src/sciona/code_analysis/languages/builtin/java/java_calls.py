@@ -224,6 +224,24 @@ class _JavaCallAdapter(CallResolutionAdapter):
                     )
                     if resolved_target:
                         return [_outcome(resolved_target, "import_narrowed")]
+                narrowed_targets = _narrow_owners_by_arity(
+                    matched_targets,
+                    terminal,
+                    argument_count,
+                    self.class_method_overloads,
+                )
+                if len(narrowed_targets) == 1:
+                    resolved_target = _resolve_from_lineage(
+                        narrowed_targets[0],
+                        terminal,
+                        argument_count,
+                        self.class_methods,
+                        self.class_method_overloads,
+                        self.class_ancestors,
+                        self.class_kind_map,
+                    )
+                    if resolved_target:
+                        return [_outcome(resolved_target, "import_narrowed")]
                 if len(self.static_wildcard_targets) == 1 and not matched_targets:
                     only = next(iter(self.static_wildcard_targets))
                     resolved_target = _resolve_from_lineage(
