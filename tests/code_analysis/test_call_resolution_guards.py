@@ -89,6 +89,7 @@ def test_java_ambiguous_class_candidate_does_not_overresolve() -> None:
         module_functions=set(),
         class_methods={},
         class_method_overloads={},
+        class_ancestors={},
         class_name_map={"Service": "repo.pkg.a.Service"},
         class_name_candidates={"Service": {"repo.pkg.a.Service", "repo.pkg.b.Service"}},
         import_aliases={},
@@ -211,6 +212,7 @@ def test_java_resolves_using_ir_qualified_call_when_text_is_unqualified() -> Non
         module_functions=set(),
         class_methods={},
         class_method_overloads={},
+        class_ancestors={},
         class_name_map={"Service": "repo.pkg.Service"},
         class_name_candidates={"Service": {"repo.pkg.Service"}},
         import_aliases={"Service": "repo.pkg.Service"},
@@ -232,6 +234,7 @@ def test_java_resolves_unqualified_calls_from_static_member_aliases() -> None:
         module_functions=set(),
         class_methods={},
         class_method_overloads={},
+        class_ancestors={},
         class_name_map={},
         class_name_candidates={},
         import_aliases={},
@@ -324,6 +327,7 @@ def test_java_resolves_unqualified_calls_from_single_static_wildcard() -> None:
         module_functions=set(),
         class_methods={"repo.pkg.Service": {"run"}},
         class_method_overloads={},
+        class_ancestors={},
         class_name_map={},
         class_name_candidates={},
         import_aliases={},
@@ -351,6 +355,7 @@ def test_java_resolves_receiver_call_from_typed_parameter() -> None:
         module_functions=set(),
         class_methods={},
         class_method_overloads={},
+        class_ancestors={},
         class_name_map={},
         class_name_candidates={"Service": {"repo.pkg.Service"}},
         import_aliases={"Service": "repo.pkg.Service"},
@@ -386,6 +391,7 @@ def test_java_resolves_unique_overload_by_argument_count() -> None:
                 }
             }
         },
+        class_ancestors={},
         class_name_map={},
         class_name_candidates={"Builder": {"repo.pkg.Builder"}},
         import_aliases={"Builder": "repo.pkg.Builder"},
@@ -397,6 +403,62 @@ def test_java_resolves_unique_overload_by_argument_count() -> None:
         qualify_java_type=qualify_java_type,
     )
     assert resolved == ["repo.pkg.Builder.append-2"]
+
+
+def test_java_resolves_unqualified_call_from_nearest_ancestor() -> None:
+    targets = [CallTarget(terminal="build", callee_text="build")]
+    resolved = resolve_java_calls(
+        targets=targets,
+        module_name="repo.pkg.mod",
+        module_functions=set(),
+        class_methods={
+            "repo.pkg.BaseBuilder": {"build"},
+            "repo.pkg.Builder": set(),
+        },
+        class_method_overloads={},
+        class_ancestors={"repo.pkg.Builder": ("repo.pkg.BaseBuilder",)},
+        class_name_map={},
+        class_name_candidates={},
+        import_aliases={},
+        member_aliases={},
+        static_wildcard_targets=set(),
+        class_name="repo.pkg.Builder",
+        instance_types={},
+        module_prefix=None,
+        qualify_java_type=qualify_java_type,
+    )
+    assert resolved == ["repo.pkg.BaseBuilder.build"]
+
+
+def test_java_resolves_typed_receiver_to_nearest_ancestor_owner() -> None:
+    targets = [
+        CallTarget(
+            terminal="getKey",
+            callee_text="pair.getKey",
+            ir=QualifiedCallIR(parts=("pair", "getKey"), terminal="getKey"),
+        )
+    ]
+    resolved = resolve_java_calls(
+        targets=targets,
+        module_name="repo.pkg.mod",
+        module_functions=set(),
+        class_methods={
+            "repo.pkg.PairImpl": set(),
+            "repo.pkg.Map.Entry": {"getKey"},
+        },
+        class_method_overloads={},
+        class_ancestors={"repo.pkg.PairImpl": ("repo.pkg.Map.Entry",)},
+        class_name_map={},
+        class_name_candidates={"PairImpl": {"repo.pkg.PairImpl"}},
+        import_aliases={"PairImpl": "repo.pkg.PairImpl"},
+        member_aliases={},
+        static_wildcard_targets=set(),
+        class_name=None,
+        instance_types={"pair": "PairImpl"},
+        module_prefix=None,
+        qualify_java_type=qualify_java_type,
+    )
+    assert resolved == ["repo.pkg.Map.Entry.getKey"]
 
 
 def test_java_qualify_type_returns_none_for_unresolved_bare_name() -> None:

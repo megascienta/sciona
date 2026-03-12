@@ -24,6 +24,7 @@ class JavaNodeState:
     class_name_candidates: dict[str, set[str]] = field(default_factory=dict)
     class_kind_map: dict[str, str] = field(default_factory=dict)
     class_field_types: dict[str, dict[str, str]] = field(default_factory=dict)
+    class_declared_bases: dict[str, list[str]] = field(default_factory=dict)
     class_method_overloads: dict[str, dict[str, dict[int, set[str]]]] = field(
         default_factory=dict
     )
@@ -205,6 +206,7 @@ def walk_java_nodes(
         state.class_name_map.setdefault(class_name, qualified)
         state.class_name_candidates.setdefault(class_name, set()).add(qualified)
         state.class_kind_map[qualified] = class_kind_map.get(node.type, "class")
+        state.class_declared_bases[qualified] = _java_bases(node, snapshot.content)
         if body:
             for child in _java_structural_children(body):
                 walk_java_nodes(

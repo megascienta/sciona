@@ -51,6 +51,7 @@ def resolve_java_calls(
     module_functions: set[str],
     class_methods: dict[str, set[str]],
     class_method_overloads: dict[str, dict[str, dict[int, set[str]]]],
+    class_ancestors: dict[str, tuple[str, ...]],
     class_name_map: dict[str, str],
     class_name_candidates: dict[str, set[str]],
     import_aliases: dict[str, str],
@@ -72,6 +73,7 @@ def resolve_java_calls(
         class_method_names=class_method_names,
         class_methods=class_methods,
         class_method_overloads=class_method_overloads,
+        class_ancestors=class_ancestors,
         class_name_map=class_name_map,
         class_name_candidates=class_name_candidates,
         import_aliases=import_aliases,
@@ -98,6 +100,7 @@ class _JavaCallAdapter(CallResolutionAdapter):
     class_method_names: set[str]
     class_methods: dict[str, set[str]]
     class_method_overloads: dict[str, dict[str, dict[int, set[str]]]]
+    class_ancestors: dict[str, tuple[str, ...]]
     class_name_map: dict[str, str]
     class_name_candidates: dict[str, set[str]]
     import_aliases: dict[str, str]
@@ -122,12 +125,16 @@ class _JavaCallAdapter(CallResolutionAdapter):
                 self.module_prefix,
             )
             if qualified_type:
-                return [_outcome(_resolved_method_target(
+                resolved_target = _resolve_from_lineage(
                     qualified_type,
                     terminal,
                     argument_count,
+                    self.class_methods,
                     self.class_method_overloads,
-                ), "module_scoped")]
+                    self.class_ancestors,
+                )
+                if resolved_target:
+                    return [_outcome(resolved_target, "module_scoped")]
         receiver, receiver_simple = _dotted_receiver(request, raw)
         if receiver is not None and receiver_simple is not None:
             if receiver_hint and receiver_simple != receiver_hint:
@@ -142,12 +149,16 @@ class _JavaCallAdapter(CallResolutionAdapter):
                     self.module_prefix,
                 )
                 if qualified_type:
-                    return [_outcome(_resolved_method_target(
+                    resolved_target = _resolve_from_lineage(
                         qualified_type,
                         terminal,
                         argument_count,
+                        self.class_methods,
                         self.class_method_overloads,
-                    ), "exact_qname")]
+                        self.class_ancestors,
+                    )
+                    if resolved_target:
+                        return [_outcome(resolved_target, "exact_qname")]
             if receiver_simple[:1].isupper():
                 import_target = self.import_aliases.get(receiver_simple)
                 local_class = _unique_class_candidate(
@@ -155,19 +166,27 @@ class _JavaCallAdapter(CallResolutionAdapter):
                     self.class_name_candidates,
                 )
                 if import_target:
-                    return [_outcome(_resolved_method_target(
+                    resolved_target = _resolve_from_lineage(
                         import_target,
                         terminal,
                         argument_count,
+                        self.class_methods,
                         self.class_method_overloads,
-                    ), "import_narrowed")]
+                        self.class_ancestors,
+                    )
+                    if resolved_target:
+                        return [_outcome(resolved_target, "import_narrowed")]
                 if local_class:
-                    return [_outcome(_resolved_method_target(
+                    resolved_target = _resolve_from_lineage(
                         local_class,
                         terminal,
                         argument_count,
+                        self.class_methods,
                         self.class_method_overloads,
-                    ), "exact_qname")]
+                        self.class_ancestors,
+                    )
+                    if resolved_target:
+                        return [_outcome(resolved_target, "exact_qname")]
         if is_unqualified_request(request):
             import_target = self.import_aliases.get(terminal)
             local_class = _unique_class_candidate(
@@ -187,28 +206,39 @@ class _JavaCallAdapter(CallResolutionAdapter):
                     if terminal in self.class_methods.get(class_qname, set())
                 ]
                 if len(matched_targets) == 1:
-                    return [_outcome(_resolved_method_target(
+                    resolved_target = _resolve_from_lineage(
                         matched_targets[0],
                         terminal,
                         argument_count,
+                        self.class_methods,
                         self.class_method_overloads,
-                    ), "import_narrowed")]
+                        self.class_ancestors,
+                    )
+                    if resolved_target:
+                        return [_outcome(resolved_target, "import_narrowed")]
                 if len(self.static_wildcard_targets) == 1 and not matched_targets:
                     only = next(iter(self.static_wildcard_targets))
-                    return [_outcome(_resolved_method_target(
+                    resolved_target = _resolve_from_lineage(
                         only,
                         terminal,
                         argument_count,
+                        self.class_methods,
                         self.class_method_overloads,
-                    ), "import_narrowed")]
-        if self.class_name and terminal in self.class_method_names:
-            if is_receiver_call_request(request) or is_unqualified_request(request):
-                return [_outcome(_resolved_method_target(
-                    self.class_name,
-                    terminal,
-                    argument_count,
-                    self.class_method_overloads,
-                ), "module_scoped")]
+                        self.class_ancestors,
+                    )
+                    if resolved_target:
+                        return [_outcome(resolved_target, "import_narrowed")]
+        if self.class_name and (is_receiver_call_request(request) or is_unqualified_request(request)):
+            resolved_target = _resolve_from_lineage(
+                self.class_name,
+                terminal,
+                argument_count,
+                self.class_methods,
+                self.class_method_overloads,
+                self.class_ancestors,
+            )
+            if resolved_target:
+                return [_outcome(resolved_target, "module_scoped")]
         if is_unqualified_request(request) and terminal in self.module_functions:
             return [_outcome(f"{self.module_name}.{terminal}", "module_scoped")]
         class_qualified = _unique_class_candidate(
@@ -216,12 +246,16 @@ class _JavaCallAdapter(CallResolutionAdapter):
             self.class_name_candidates,
         )
         if class_qualified and terminal in self.class_methods.get(class_qualified, set()):
-            return [_outcome(_resolved_method_target(
+            resolved_target = _resolve_from_lineage(
                 class_qualified,
                 terminal,
                 argument_count,
+                self.class_methods,
                 self.class_method_overloads,
-            ), "exact_qname")]
+                self.class_ancestors,
+            )
+            if resolved_target:
+                return [_outcome(resolved_target, "exact_qname")]
         return []
 
 
@@ -288,6 +322,41 @@ def _resolved_method_target(
     if len(matched) == 1:
         return next(iter(sorted(matched)))
     return f"{class_qname}.{terminal}"
+
+
+def _resolve_from_lineage(
+    class_qname: str,
+    terminal: str,
+    argument_count: int | None,
+    class_methods: dict[str, set[str]],
+    class_method_overloads: dict[str, dict[str, dict[int, set[str]]]],
+    class_ancestors: dict[str, tuple[str, ...]],
+) -> str | None:
+    owners_by_depth: dict[int, list[str]] = {}
+    lineage = (class_qname, *class_ancestors.get(class_qname, ()))
+    for depth, owner in enumerate(lineage):
+        if terminal not in class_methods.get(owner, set()):
+            continue
+        owners_by_depth.setdefault(depth, []).append(owner)
+    if not owners_by_depth:
+        if class_qname not in class_methods and class_qname not in class_ancestors:
+            return _resolved_method_target(
+                class_qname,
+                terminal,
+                argument_count,
+                class_method_overloads,
+            )
+        return None
+    nearest_depth = min(owners_by_depth)
+    owners = owners_by_depth[nearest_depth]
+    if len(owners) != 1:
+        return None
+    return _resolved_method_target(
+        owners[0],
+        terminal,
+        argument_count,
+        class_method_overloads,
+    )
 
 
 def _receiver_symbol(

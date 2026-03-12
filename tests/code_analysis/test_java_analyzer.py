@@ -505,6 +505,47 @@ def test_java_analyzer_records_only_declared_direct_bases(tmp_path):
     ]
 
 
+def test_java_analyzer_resolves_inherited_method_from_base_class(tmp_path):
+    module = """
+    class BaseBuilder {
+        void build() {}
+    }
+    class Builder extends BaseBuilder {
+        void run() {
+            build();
+        }
+    }
+    """
+    repo = tmp_path
+    src = repo / "src"
+    src.mkdir()
+    file_path = src / "App.java"
+    file_path.write_text(module, encoding="utf-8")
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("src/App.java"),
+            language="java",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = JavaAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+    call_records = {
+        record.qualified_name: tuple(record.callee_identifiers)
+        for record in result.call_records
+    }
+    assert call_records[f"{module_name}.Builder.run"] == (
+        f"{module_name}.BaseBuilder.build",
+    )
+
+
 def test_java_callable_roles_cover_declared_and_constructor(tmp_path):
     module = """
     class Service {

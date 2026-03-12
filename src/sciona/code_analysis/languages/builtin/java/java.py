@@ -126,6 +126,13 @@ class JavaAnalyzer(ASTAnalyzer):
         import_aliases = import_model.import_aliases
         member_aliases = import_model.member_aliases
         static_wildcard_targets = import_model.static_wildcard_targets
+        class_ancestors = _build_class_ancestors(
+            state.class_declared_bases,
+            import_aliases,
+            state.class_name_candidates,
+            module_name,
+            module_prefix,
+        )
 
         resolved_calls: list[tuple[str, str, str, list[str]]] = []
         scope_resolver = scope_resolver_from_pending_calls(state.pending_calls)
@@ -161,6 +168,7 @@ class JavaAnalyzer(ASTAnalyzer):
                 state.module_functions,
                 state.class_methods,
                 state.class_method_overloads,
+                class_ancestors,
                 state.class_name_map,
                 state.class_name_candidates,
                 import_aliases,
@@ -212,3 +220,44 @@ def module_name(repo_root: Path, snapshot: FileSnapshot) -> str:
 
 
 __all__ = ["JavaAnalyzer", "module_name"]
+
+
+def _build_class_ancestors(
+    class_declared_bases: dict[str, list[str]],
+    import_aliases: dict[str, str],
+    class_name_candidates: dict[str, set[str]],
+    module_name: str,
+    module_prefix: str | None,
+) -> dict[str, tuple[str, ...]]:
+    direct: dict[str, tuple[str, ...]] = {}
+    for class_qname, bases in class_declared_bases.items():
+        resolved: list[str] = []
+        seen: set[str] = set()
+        for base in bases:
+            qualified = qualify_java_type(
+                base,
+                module_name,
+                class_name_candidates,
+                import_aliases,
+                module_prefix,
+            )
+            if qualified is None or qualified in seen:
+                continue
+            seen.add(qualified)
+            resolved.append(qualified)
+        direct[class_qname] = tuple(resolved)
+
+    ancestors: dict[str, tuple[str, ...]] = {}
+    for class_qname in class_declared_bases:
+        seen: set[str] = set()
+        ordered: list[str] = []
+        queue = list(direct.get(class_qname, ()))
+        while queue:
+            candidate = queue.pop(0)
+            if candidate in seen:
+                continue
+            seen.add(candidate)
+            ordered.append(candidate)
+            queue.extend(direct.get(candidate, ()))
+        ancestors[class_qname] = tuple(ordered)
+    return ancestors
