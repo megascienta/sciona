@@ -12,6 +12,11 @@ from .loaders import (
     load_runtime_config,
     load_sciona_config,
 )
+from .language_scope import (
+    all_tracked_extensions,
+    enabled_tracked_extensions,
+    tracked_extensions_for_enabled_names,
+)
 from .models import (
     DatabaseSettings,
     DiscoverySettings,
@@ -35,4 +40,7 @@ __all__ = [
     "load_logging_settings",
     "load_runtime_config",
     "load_sciona_config",
+    "all_tracked_extensions",
+    "enabled_tracked_extensions",
+    "tracked_extensions_for_enabled_names",
 ]

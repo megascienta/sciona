@@ -8,11 +8,14 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Mapping, Optional, Set
 
-from ...code_analysis.core.extract.registry import extensions_for_language
 from ...code_analysis.tools.workspace import excludes as path_excludes
 from ...runtime import git as git_ops
 from ...runtime import paths as runtime_paths
 from ...runtime import config as runtime_config
+from ...runtime.config.language_scope import (
+    all_tracked_extensions,
+    enabled_tracked_extensions,
+)
 from ...runtime.git.adapter import GitAdapter, GitCliAdapter
 from ..domain.repository import RepoState
 from ...runtime.config import LanguageSettings
@@ -109,10 +112,7 @@ def dirty_worktree_warning(repo_state: RepoState) -> str | None:
 
 
 def _all_language_extensions() -> Set[str]:
-    extensions: Set[str] = set()
-    for name in LANGUAGE_DEFAULTS:
-        extensions.update(ext.lower() for ext in extensions_for_language(name))
-    return extensions
+    return all_tracked_extensions()
 
 
 def is_worktree_dirty(repo_state: RepoState) -> bool:
@@ -128,12 +128,7 @@ def is_worktree_dirty_for_languages(
 
 
 def _language_extensions(languages: Mapping[str, LanguageSettings]) -> Set[str]:
-    extensions: Set[str] = set()
-    for name, lang_settings in languages.items():
-        if not lang_settings.enabled:
-            continue
-        extensions.update(ext.lower() for ext in extensions_for_language(name))
-    return extensions
+    return enabled_tracked_extensions(languages)
 
 
 def _dirty_language_paths(repo_root: Path, language_exts: Set[str]) -> list[Path]:

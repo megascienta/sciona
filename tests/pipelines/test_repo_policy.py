@@ -7,6 +7,7 @@ import pytest
 
 from sciona.pipelines.domain.repository import RepoState
 from sciona.pipelines.policy import repo as repo_policy
+from sciona.runtime.config.language_scope import enabled_tracked_extensions
 from sciona.runtime.config import LanguageSettings
 from sciona.runtime.errors import GitError
 
@@ -103,3 +104,15 @@ def test_ensure_clean_worktree_for_languages_respects_ignored_tracked(tmp_path):
     languages = {"python": LanguageSettings(name="python", enabled=True)}
 
     repo_policy.ensure_clean_worktree_for_languages(repo_state, languages)
+
+
+def test_language_extensions_delegate_to_shared_language_scope() -> None:
+    languages = {
+        "python": LanguageSettings(name="python", enabled=True),
+        "javascript": LanguageSettings(name="javascript", enabled=True),
+        "java": LanguageSettings(name="java", enabled=False),
+    }
+
+    assert repo_policy._language_extensions(languages) == enabled_tracked_extensions(
+        languages
+    )

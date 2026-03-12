@@ -4,6 +4,7 @@
 from pathlib import Path
 
 from sciona.runtime.agents import setup as agents
+from sciona.runtime.config.language_scope import tracked_extensions_for_enabled_names
 from sciona.runtime.reducers.metadata import CATEGORY_ORDER
 from sciona.reducers.registry import get_reducers
 
@@ -47,3 +48,24 @@ def test_investigation_role_categories_follow_category_order() -> None:
         if line.startswith("**") and line.endswith(":**")
     ]
     assert headers == [f"{category.capitalize()} reducers" for category in CATEGORY_ORDER]
+
+
+def test_render_tracked_file_scope_uses_shared_language_scope(tmp_path: Path) -> None:
+    sciona_dir = tmp_path / ".sciona"
+    sciona_dir.mkdir()
+    (sciona_dir / "config.yaml").write_text(
+        "languages:\n"
+        "  python:\n"
+        "    enabled: true\n"
+        "  javascript:\n"
+        "    enabled: true\n",
+        encoding="utf-8",
+    )
+
+    rendered = agents._render_tracked_file_scope(tmp_path)
+
+    expected_extensions = ", ".join(
+        sorted(tracked_extensions_for_enabled_names(["javascript", "python"]))
+    )
+    assert "- Enabled languages: javascript, python" in rendered
+    assert f"- Tracked file types: {expected_extensions}" in rendered

@@ -8,9 +8,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Mapping
 
-from ...code_analysis.core.extract.registry import extensions_for_language
 from ..config import io as config_io
 from ..config import defaults as config_defaults
+from ..config.language_scope import tracked_extensions_for_enabled_names
 from ..errors import ConfigError
 from sciona.runtime.reducers.metadata import CATEGORY_ORDER
 from sciona.runtime.reducers.listing import render_reducer_list
@@ -151,10 +151,7 @@ def _render_tracked_file_scope(repo_root: Path) -> str:
             enabled.append(name)
     enabled = sorted(enabled)
 
-    extensions = []
-    for name in enabled:
-        extensions.extend(extensions_for_language(name))
-    extensions = sorted(set(extensions))
+    extensions = sorted(tracked_extensions_for_enabled_names(enabled))
 
     discovery_block = raw.get("discovery", {}) if isinstance(raw, dict) else {}
     exclude_globs = discovery_block.get("exclude_globs", [])

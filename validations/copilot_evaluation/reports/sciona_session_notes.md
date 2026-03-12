@@ -583,3 +583,42 @@ Effect on workflow / Fallback / Observations
 SCIONA had no impact here. Direct diffing showed one small call-resolution improvement in `vscode`, no broad metric regressions in report payloads, and a cross-report build-time slowdown that needs explanation. Three large diffs were formatting-only minification noise.
 RATINGS (1-10): Structural clarity 3 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 5
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 2 | Confidence gain vs baseline 6 | Scope reduction vs baseline 2 | Query friction vs baseline 1 | Net usefulness vs baseline 5
+## Task 38 - Pre-release structural audit
+Copilot
+Codex (GPT-5.4)
+Task description
+Audited `src/` at module, cross-module, and contract levels using SCIONA for package structure and coupling, then direct source inspection for boundary and documentation checks.
+Task type
+architecture review
+SCIONA usage
+Used `structural_index`, `module_overview`, `ownership_summary`, `hotspot_summary`, `fan_summary`, and `structural_integrity_summary` to establish package shape, coupling hubs, and integrity status before source follow-up.
+Effect on workflow / Fallback / Observations
+SCIONA reduced search space substantially for the structural portion, especially around top-level package ownership and high-fan-in hubs. Fallback was still required for doc compliance and semantic interpretation of boundary-crossing imports such as `api/reducers.py` and `runtime/agents/setup.py`.
+RATINGS (1-10): Structural clarity 9 | Navigation speed 9 | Confidence in answers 8 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 2 | Net usefulness vs baseline 8
+## Task 39 - Runtime agents boundary analysis
+Copilot
+Codex (GPT-5.4)
+Task description
+Performed a deeper audit of `runtime.agents.setup`, traced its dependency on `code_analysis.core.extract.registry`, checked nearby pipeline usage, and verified the narrow related tests.
+Task type
+semantic investigation
+SCIONA usage
+Used `search`, `module_overview`, `ownership_summary`, and `dependency_edges` to confirm that the notable external dependency is localized to `runtime.agents.setup` and not the whole runtime package.
+Effect on workflow / Fallback / Observations
+SCIONA reduced the search space quickly, but source inspection was required to determine that the dependency is read-only descriptor lookup rather than analyzer execution. The main gap is contract placement and missing test coverage for tracked-file-scope rendering, not an obvious runtime bug.
+RATINGS (1-10): Structural clarity 9 | Navigation speed 9 | Confidence in answers 8 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 7 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 2 | Net usefulness vs baseline 8
+## Task 40 - Shared tracked-extension helper
+Copilot
+Codex (GPT-5.4)
+Task description
+Implemented the boundary fix for `runtime.agents.setup` by moving enabled-language extension lookup into a neutral runtime-config helper and updating both AGENTS generation and repo policy to use it.
+Task type
+implementation
+SCIONA usage
+Used the earlier `ownership_summary` and `dependency_edges` results for `runtime.agents.setup` to confirm the affected seam and keep the edit scope limited.
+Effect on workflow / Fallback / Observations
+SCIONA reduced scope cleanly to one cross-layer dependency. Source inspection and narrow `pytest` were still required because the real issue was authority placement and test coverage, not a structural anomaly in the snapshot.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 9 | Confidence in answers 9 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 2 | Net usefulness vs baseline 8
