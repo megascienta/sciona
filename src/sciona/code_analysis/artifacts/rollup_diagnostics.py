@@ -26,6 +26,7 @@ def ensure_rollup_diagnostics(diagnostics: dict[str, object] | None) -> dict[str
             "dropped_by_reason": {},
             "candidate_count_histogram": {},
             "record_drops": {},
+            "filtered_pre_persist_buckets": {},
             "observed_callsites": 0,
             "persisted_callsites": 0,
             "filtered_before_persist": 0,
@@ -56,6 +57,7 @@ def ensure_caller_diagnostics(
             "dropped_by_reason": {},
             "candidate_count_histogram": {},
             "record_drops": {},
+            "filtered_pre_persist_buckets": {},
             "observed_callsites": 0,
             "persisted_callsites": 0,
             "filtered_before_persist": 0,
@@ -86,6 +88,22 @@ def record_resolution_drop(
         _inc_map(caller_diag, "record_drops", reason)
     if totals_diag:
         _inc_map(totals_diag, "record_drops", reason)
+
+
+def record_pre_persist_filter_buckets(
+    caller_diag: dict[str, object],
+    totals_diag: dict[str, object],
+    *,
+    buckets: dict[str, int],
+) -> None:
+    for bucket, count in sorted(buckets.items()):
+        amount = int(count or 0)
+        if amount <= 0:
+            continue
+        _inc_map(caller_diag, "filtered_pre_persist_buckets", bucket, amount=amount)
+        _inc_map(totals_diag, "filtered_pre_persist_buckets", bucket, amount=amount)
+
+
 def record_callsite_flow(
     caller_diag: dict[str, object],
     totals_diag: dict[str, object],
@@ -114,8 +132,8 @@ def _inc_scalar(target: dict[str, object], key: str, amount: int) -> None:
     target[key] = int(target.get(key, 0)) + amount
 
 
-def _inc_map(target: dict[str, object], key: str, bucket: str) -> None:
+def _inc_map(target: dict[str, object], key: str, bucket: str, *, amount: int = 1) -> None:
     if not target:
         return
     values = cast(dict[str, int], target.setdefault(key, {}))
-    values[bucket] = int(values.get(bucket, 0)) + 1
+    values[bucket] = int(values.get(bucket, 0)) + amount

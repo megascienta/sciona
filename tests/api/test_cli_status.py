@@ -45,6 +45,15 @@ def _fake_summary():
                     "dropped": 1,
                     "success_rate": 0.9,
                 },
+                "call_site_funnel": {
+                    "observed_syntactic_callsites": 12,
+                    "filtered_pre_persist": 2,
+                    "persisted_callsites": 10,
+                    "persisted_accepted": 9,
+                    "persisted_dropped": 1,
+                    "record_drops": {"no_resolved_callees": 1},
+                    "conservation_ok": True,
+                },
                 "call_sites_by_scope": {
                     "non_tests": {
                         "eligible": 8,
@@ -60,6 +69,7 @@ def _fake_summary():
                     },
                 },
                 "drop_reasons": {"no_candidates": 1},
+                "filtered_pre_persist_buckets": {"zero_candidate_count": 2},
                 "drop_classification": {"external_likely": 1},
             }
         ],
@@ -72,6 +82,15 @@ def _fake_summary():
                 "accepted": 9,
                 "dropped": 1,
                 "success_rate": 0.9,
+            },
+            "call_site_funnel": {
+                "observed_syntactic_callsites": 12,
+                "filtered_pre_persist": 2,
+                "persisted_callsites": 10,
+                "persisted_accepted": 9,
+                "persisted_dropped": 1,
+                "record_drops": {"no_resolved_callees": 1},
+                "conservation_ok": True,
             },
             "call_sites_by_scope": {
                 "non_tests": {
@@ -87,6 +106,7 @@ def _fake_summary():
                     "success_rate": 0.5,
                 },
             },
+            "filtered_pre_persist_buckets": {"zero_candidate_count": 2},
             "drop_classification": {"external_likely": 1},
         },
     }
@@ -134,10 +154,12 @@ def test_cli_status_full_emits_failure_reasons(cli_app, cli_runner, monkeypatch)
     assert result.exit_code == 0
     assert calls == [True]
     assert "call_materialization:" in result.stdout
+    assert "call_funnel: observed=12, filtered_pre_persist=2, persisted=10, accepted=9, dropped=1" in result.stdout
     assert "Wall time: 1.50s" in result.stdout
     assert "Core build time: 1.23s" in result.stdout
     assert "non_tests:" in result.stdout
     assert "tests:" in result.stdout
+    assert "filtered_pre_persist: zero_candidate_count=2" in result.stdout
     assert "failed reasons: no_candidates=1" in result.stdout
     assert "drop classification: external_likely=1" in result.stdout
 

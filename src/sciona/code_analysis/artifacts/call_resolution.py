@@ -38,6 +38,17 @@ ALLOWED_CALLSITE_DROP_REASONS = frozenset(
         "ambiguous_multiple_in_scope_candidates",
     }
 )
+ALLOWED_PRE_PERSIST_FILTER_BUCKETS = frozenset(
+    {
+        "zero_candidate_count",
+        "accepted_out_of_repo_target",
+        "invalid_accepted_shape",
+        "invalid_dropped_shape",
+        "unsupported_provenance",
+        "unsupported_drop_reason",
+        "other_pre_persist_filter",
+    }
+)
 
 
 def build_symbol_index(
@@ -83,23 +94,27 @@ def filter_in_repo_callsite_rows(
     ],
     *,
     in_repo_callable_ids: set[str],
-) -> list[
-    tuple[
-        str,
-        str,
-        str | None,
-        str | None,
-        str | None,
-        int,
-        str,
-        int | None,
-        int | None,
-        int,
-        int | None,
-        str | None,
-    ]
+) -> tuple[
+    list[
+        tuple[
+            str,
+            str,
+            str | None,
+            str | None,
+            str | None,
+            int,
+            str,
+            int | None,
+            int | None,
+            int,
+            int | None,
+            str | None,
+        ]
+    ],
+    dict[str, int],
 ]:
     filtered = []
+    filtered_out: dict[str, int] = {}
     for row in rows:
         (
             _identifier,
@@ -116,24 +131,37 @@ def filter_in_repo_callsite_rows(
             _candidate_module_hints,
         ) = row
         if candidate_count <= 0:
+            _inc_pre_persist_bucket(filtered_out, "zero_candidate_count")
             continue
         if status == "accepted":
-            if (
-                accepted_callee_id
-                and accepted_callee_id in in_repo_callable_ids
-                and provenance in ALLOWED_CALLSITE_PROVENANCE
-                and drop_reason is None
-            ):
-                filtered.append(row)
-            continue
-        if (
-            status == "dropped"
-            and accepted_callee_id is None
-            and provenance is None
-            and drop_reason in ALLOWED_CALLSITE_DROP_REASONS
-        ):
+            if not accepted_callee_id or drop_reason is not None:
+                _inc_pre_persist_bucket(filtered_out, "invalid_accepted_shape")
+                continue
+            if provenance not in ALLOWED_CALLSITE_PROVENANCE:
+                _inc_pre_persist_bucket(filtered_out, "unsupported_provenance")
+                continue
+            if accepted_callee_id not in in_repo_callable_ids:
+                _inc_pre_persist_bucket(filtered_out, "accepted_out_of_repo_target")
+                continue
             filtered.append(row)
-    return filtered
+            continue
+        if status == "dropped":
+            if accepted_callee_id is not None or provenance is not None or drop_reason is None:
+                _inc_pre_persist_bucket(filtered_out, "invalid_dropped_shape")
+                continue
+            if drop_reason not in ALLOWED_CALLSITE_DROP_REASONS:
+                _inc_pre_persist_bucket(filtered_out, "unsupported_drop_reason")
+                continue
+            filtered.append(row)
+            continue
+        _inc_pre_persist_bucket(filtered_out, "other_pre_persist_filter")
+    return filtered, filtered_out
+
+
+def _inc_pre_persist_bucket(target: dict[str, int], bucket: str) -> None:
+    if bucket not in ALLOWED_PRE_PERSIST_FILTER_BUCKETS:
+        bucket = "other_pre_persist_filter"
+    target[bucket] = int(target.get(bucket, 0)) + 1
 
 
 def persisted_callsite_outcomes(
@@ -173,10 +201,11 @@ def persisted_callsite_outcomes(
             str | None,
         ]
     ],
+    dict[str, int],
 ]:
     """Return the persisted callsite rows and the accepted in-repo callees they imply."""
 
-    filtered = filter_in_repo_callsite_rows(
+    filtered, filtered_out = filter_in_repo_callsite_rows(
         rows,
         in_repo_callable_ids=in_repo_callable_ids,
     )
@@ -185,7 +214,7 @@ def persisted_callsite_outcomes(
         for _identifier, status, accepted_callee_id, _provenance, _drop_reason, *_rest in filtered
         if status == "accepted" and accepted_callee_id
     }
-    return persisted_callee_ids, filtered
+    return persisted_callee_ids, filtered, filtered_out
 
 
 def build_module_context(

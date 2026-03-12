@@ -89,3 +89,18 @@ def build_phase_timings_for_snapshot(
             continue
         result[key] = number
     return result
+
+
+def call_resolution_diagnostics_for_snapshot(
+    conn: sqlite3.Connection,
+    *,
+    snapshot_id: str,
+) -> dict[str, object] | None:
+    raw = rebuild_status_value(conn, key=f"call_resolution_diagnostics:{snapshot_id}")
+    if raw is None:
+        return None
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError:
+        return None
+    return payload if isinstance(payload, dict) else None

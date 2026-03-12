@@ -146,6 +146,10 @@ def _render_summary_lines(
                 f"{indent}  call_materialization: "
                 f"{_format_call_site_summary(item.get('call_sites') or {})}"
             )
+            funnel = item.get("call_site_funnel") or {}
+            funnel_text = _format_call_site_funnel_summary(funnel)
+            if funnel_text:
+                lines.append(f"{indent}  call_funnel: {funnel_text}")
             if include_scope_split:
                 lines.extend(
                     _render_scope_call_site_lines(
@@ -154,6 +158,12 @@ def _render_summary_lines(
                     )
                 )
         if include_reasons:
+            filtered = item.get("filtered_pre_persist_buckets") or {}
+            if filtered:
+                filtered_text = ", ".join(
+                    f"{name}={count}" for name, count in sorted(filtered.items())
+                )
+                lines.append(f"{indent}  filtered_pre_persist: {filtered_text}")
             reasons = item.get("drop_reasons") or {}
             if reasons:
                 reason_text = ", ".join(
@@ -182,6 +192,10 @@ def _render_summary_lines(
             f"{indent}  call_materialization: "
             f"{_format_call_site_summary(totals.get('call_sites') or {})}"
         )
+        funnel = totals.get("call_site_funnel") or {}
+        funnel_text = _format_call_site_funnel_summary(funnel)
+        if funnel_text:
+            lines.append(f"{indent}  call_funnel: {funnel_text}")
         if include_scope_split:
             lines.extend(
                 _render_scope_call_site_lines(
@@ -190,6 +204,12 @@ def _render_summary_lines(
                 )
             )
     if include_reasons:
+        filtered = totals.get("filtered_pre_persist_buckets") or {}
+        if filtered:
+            filtered_text = ", ".join(
+                f"{name}={count}" for name, count in sorted(filtered.items())
+            )
+            lines.append(f"{indent}  filtered_pre_persist: {filtered_text}")
         total_classification = totals.get("drop_classification") or {}
         if total_classification:
             class_text = ", ".join(
@@ -220,6 +240,24 @@ def _format_call_site_summary(call_sites: dict) -> str:
     return (
         f"call_sites: {percentage:.1f}% successful ({accepted}/{eligible}), "
         f"failed: {dropped}"
+    )
+
+
+def _format_call_site_funnel_summary(call_site_funnel: dict) -> str:
+    observed = call_site_funnel.get("observed_syntactic_callsites")
+    filtered = call_site_funnel.get("filtered_pre_persist")
+    persisted = call_site_funnel.get("persisted_callsites")
+    accepted = call_site_funnel.get("persisted_accepted")
+    dropped = call_site_funnel.get("persisted_dropped")
+    if any(value is None for value in (observed, filtered, persisted, accepted, dropped)):
+        return ""
+    conservation = call_site_funnel.get("conservation_ok")
+    suffix = ""
+    if conservation is False:
+        suffix = " [conservation mismatch]"
+    return (
+        f"observed={observed}, filtered_pre_persist={filtered}, "
+        f"persisted={persisted}, accepted={accepted}, dropped={dropped}{suffix}"
     )
 
 

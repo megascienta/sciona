@@ -27,6 +27,15 @@ def test_snapshot_report_returns_db_counts(repo_with_snapshot):
     assert payload["totals"]["call_sites"]["eligible"] == 0
     assert payload["totals"]["call_sites"]["accepted"] == 0
     assert payload["totals"]["call_sites"]["dropped"] == 0
+    assert payload["totals"]["call_site_funnel"] == {
+        "observed_syntactic_callsites": 0,
+        "filtered_pre_persist": 0,
+        "persisted_callsites": 0,
+        "persisted_accepted": 0,
+        "persisted_dropped": 0,
+        "record_drops": {},
+        "conservation_ok": True,
+    }
     assert payload["totals"]["structural_density"]["files"] == 3
     assert "discovered_files" in payload["totals"]["structural_density"]
     assert "inferred_zero_node_files" in payload["totals"]["structural_density"]
@@ -42,6 +51,7 @@ def test_snapshot_report_returns_db_counts(repo_with_snapshot):
     assert python["call_sites"]["eligible"] == 0
     assert python["call_sites"]["accepted"] == 0
     assert python["call_sites"]["dropped"] == 0
+    assert python["call_site_funnel"]["conservation_ok"] is True
     assert python["structural_density"]["nodes_per_file"] == pytest.approx(5 / 3)
     assert "discovered_files" in python["structural_density"]
     assert "inferred_zero_node_ratio" in python["structural_density"]
@@ -97,6 +107,50 @@ def test_snapshot_report_includes_wall_seconds_and_phase_timings(repo_with_snaps
         "discover_files": pytest.approx(0.12),
         "build_structural_index": pytest.approx(2.75),
     }
+
+
+def test_snapshot_report_includes_call_site_funnel_from_diagnostics(repo_with_snapshot):
+    repo_root, snapshot_id = repo_with_snapshot
+    artifact_db = repo_root / ".sciona" / runtime_constants.ARTIFACT_DB_FILENAME
+
+    conn = artifact_connect(artifact_db, repo_root=repo_root)
+    try:
+        artifact_write.set_rebuild_metadata(
+            conn,
+            key=f"call_resolution_diagnostics:{snapshot_id}",
+            value=(
+                '{"totals": {"observed_callsites": 5, "filtered_before_persist": 2, '
+                '"persisted_callsites": 3, "finalized_accepted_callsites": 2, '
+                '"finalized_dropped_callsites": 1, "record_drops": {"no_resolved_callees": 1}, '
+                '"filtered_pre_persist_buckets": {"zero_candidate_count": 2}}, '
+                '"by_caller": {"meth_alpha": {"observed_callsites": 5, '
+                '"filtered_before_persist": 2, "persisted_callsites": 3, '
+                '"finalized_accepted_callsites": 2, "finalized_dropped_callsites": 1, '
+                '"record_drops": {"no_resolved_callees": 1}, '
+                '"filtered_pre_persist_buckets": {"zero_candidate_count": 2}}}}'
+            ),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    payload = repo_pipeline.snapshot_report(snapshot_id, repo_root=repo_root)
+    assert payload is not None
+    assert payload["totals"]["call_site_funnel"] == {
+        "observed_syntactic_callsites": 5,
+        "filtered_pre_persist": 2,
+        "persisted_callsites": 3,
+        "persisted_accepted": 2,
+        "persisted_dropped": 1,
+        "record_drops": {"no_resolved_callees": 1},
+        "conservation_ok": True,
+    }
+    assert payload["totals"]["filtered_pre_persist_buckets"] == {
+        "zero_candidate_count": 2
+    }
+    python = {entry["language"]: entry for entry in payload["languages"]}["python"]
+    assert python["call_site_funnel"]["persisted_callsites"] == 3
+    assert python["call_site_funnel"]["record_drops"] == {"no_resolved_callees": 1}
 
 
 def test_snapshot_report_full_includes_failure_reasons(repo_with_snapshot):
@@ -250,8 +304,14 @@ def test_snapshot_report_full_includes_failure_reasons(repo_with_snapshot):
         "ambiguous_no_in_scope_candidate": 1,
         "unique_without_provenance": 1,
     }
-    assert python["drop_classification"] == {"external_likely": 1}
-    assert python["drop_classification_by_scope"]["non_tests"] == {"external_likely": 1}
+    assert python["drop_classification"] == {
+        "external_likely": 1,
+        "insufficient_provenance": 1,
+    }
+    assert python["drop_classification_by_scope"]["non_tests"] == {
+        "external_likely": 1,
+        "insufficient_provenance": 1,
+    }
     assert python["drop_classification_by_scope"]["tests"] == {}
     assert "unique_without_provenance" in python["drop_reason_examples"]
     example = python["drop_reason_examples"]["unique_without_provenance"][0]
@@ -277,11 +337,17 @@ def test_snapshot_report_full_includes_failure_reasons(repo_with_snapshot):
     assert top_files[0]["name"] == "pkg/alpha/service.py"
     assert top_files[0]["count"] == 2
     total_classification = payload["totals"]["drop_classification"]
-    assert total_classification == {"external_likely": 1}
+    assert total_classification == {
+        "external_likely": 1,
+        "insufficient_provenance": 1,
+    }
     assert payload["totals"]["structural_density"]["eligible_callsites"] == 3
     assert payload["totals"]["structural_density"]["inflation_warning"] is False
     total_scope_classification = payload["totals"]["drop_classification_by_scope"]
-    assert total_scope_classification["non_tests"] == {"external_likely": 1}
+    assert total_scope_classification["non_tests"] == {
+        "external_likely": 1,
+        "insufficient_provenance": 1,
+    }
     assert total_scope_classification["tests"] == {}
 
 

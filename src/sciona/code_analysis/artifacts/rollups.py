@@ -34,6 +34,7 @@ from .rollup_diagnostics import (
     ensure_rollup_diagnostics as _ensure_rollup_diagnostics,
     merge_resolution_stats as _merge_resolution_stats,
     record_callsite_flow as _record_callsite_flow,
+    record_pre_persist_filter_buckets as _record_pre_persist_filter_buckets,
     record_resolution_drop as _record_resolution_drop,
 )
 
@@ -192,7 +193,7 @@ def write_call_artifacts(
             module_file_by_name=module_file_by_name,
             ts_barrel_export_map=ts_barrel_export_map,
         )
-        callee_ids, filtered_callsite_rows = _persisted_callsite_outcomes(
+        callee_ids, filtered_callsite_rows, filtered_out_buckets = _persisted_callsite_outcomes(
             callsite_rows,
             in_repo_callable_ids=in_repo_callable_ids,
         )
@@ -211,6 +212,11 @@ def write_call_artifacts(
         rescue_accepted = [
             row for row in accepted_rows if row[3] == "export_chain_narrowed"
         ]
+        _record_pre_persist_filter_buckets(
+            caller_diag,
+            diagnostics_totals,
+            buckets=filtered_out_buckets,
+        )
         _record_callsite_flow(
             caller_diag,
             diagnostics_totals,

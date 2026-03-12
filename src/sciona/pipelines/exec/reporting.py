@@ -16,12 +16,16 @@ from ...data_storage.artifact_db.reporting import read_reporting as artifact_rep
 from ...data_storage.artifact_db.reporting import read_status as artifact_status
 from .reporting_callsites import (
     build_callable_identifier_index as _build_callable_identifier_index_impl,
+    call_site_funnel_payload as _call_site_funnel_payload_impl,
     call_sites_payload as _call_sites_payload_impl,
     drop_classification_bucket as _drop_classification_bucket_impl,
     identifier_has_in_repo_callable as _identifier_has_in_repo_callable_impl,
     identifier_terminal as _identifier_terminal_impl,
     scope_bucket as _scope_bucket_impl,
+    scope_call_site_funnel_payload as _scope_call_site_funnel_payload_impl,
     scope_call_sites_payload as _scope_call_sites_payload_impl,
+    sum_record_drop_buckets as _sum_record_drop_buckets_impl,
+    sum_record_drop_buckets_by_scope as _sum_record_drop_buckets_by_scope_impl,
     sum_bucket_counts as _sum_bucket_counts_impl,
     sum_bucket_counts_by_scope as _sum_bucket_counts_by_scope_impl,
     sum_scope as _sum_scope_impl,
@@ -42,6 +46,13 @@ class LanguageMetrics:
     call_sites_eligible: int | None = None
     call_sites_accepted: int | None = None
     call_sites_dropped: int | None = None
+    observed_syntactic_callsites: int | None = None
+    filtered_pre_persist: int | None = None
+    persisted_callsites: int | None = None
+    persisted_accepted: int | None = None
+    persisted_dropped: int | None = None
+    record_drops: dict[str, int] = field(default_factory=dict)
+    filtered_pre_persist_buckets: dict[str, int] = field(default_factory=dict)
     drop_reasons: dict[str, int] = field(default_factory=dict)
     drop_classification: dict[str, int] = field(default_factory=dict)
     drop_classification_by_scope: dict[str, dict[str, int]] = field(default_factory=dict)
@@ -60,6 +71,18 @@ class LanguageMetrics:
             self.call_sites_accepted,
             self.call_sites_dropped,
         )
+        payload["call_site_funnel"] = _call_site_funnel_payload(
+            observed_syntactic_callsites=self.observed_syntactic_callsites,
+            filtered_pre_persist=self.filtered_pre_persist,
+            persisted_callsites=self.persisted_callsites,
+            persisted_accepted=self.persisted_accepted,
+            persisted_dropped=self.persisted_dropped,
+            record_drops=self.record_drops,
+        )
+        if self.filtered_pre_persist_buckets:
+            payload["filtered_pre_persist_buckets"] = dict(
+                sorted(self.filtered_pre_persist_buckets.items())
+            )
         if include_failure_reasons and self.drop_reasons:
             payload["drop_reasons"] = dict(sorted(self.drop_reasons.items()))
         if include_failure_reasons and self.drop_classification:
@@ -95,6 +118,7 @@ def snapshot_report(
     build_total_seconds: float | None = None
     build_wall_seconds: float | None = None
     build_phase_timings: dict[str, float] | None = None
+    call_resolution_diagnostics: dict[str, object] | None = None
 
     with core_readonly(repo_state.db_path, repo_root=repo_state.repo_root) as conn:
         created_at = core_read.snapshot_created_at(conn, snapshot_id)
@@ -120,6 +144,13 @@ def snapshot_report(
                 call_sites_eligible=current.call_sites_eligible,
                 call_sites_accepted=current.call_sites_accepted,
                 call_sites_dropped=current.call_sites_dropped,
+                observed_syntactic_callsites=current.observed_syntactic_callsites,
+                filtered_pre_persist=current.filtered_pre_persist,
+                persisted_callsites=current.persisted_callsites,
+                persisted_accepted=current.persisted_accepted,
+                persisted_dropped=current.persisted_dropped,
+                record_drops=current.record_drops,
+                filtered_pre_persist_buckets=current.filtered_pre_persist_buckets,
                 drop_reasons=current.drop_reasons,
                 drop_classification=current.drop_classification,
                 drop_classification_by_scope=current.drop_classification_by_scope,
@@ -173,6 +204,11 @@ def snapshot_report(
             )
             build_phase_timings = artifact_status.build_phase_timings_for_snapshot(
                 conn, snapshot_id=snapshot_id
+            )
+            call_resolution_diagnostics = (
+                artifact_status.call_resolution_diagnostics_for_snapshot(
+                    conn, snapshot_id=snapshot_id
+                )
             )
             call_sites = artifact_reporting.call_site_caller_status_counts(
                 conn,
@@ -313,6 +349,158 @@ def snapshot_report(
     except sqlite3.Error:
         artifact_available = False
 
+    diagnostics_by_language: dict[str, dict[str, int]] = defaultdict(
+        lambda: {
+            "observed_syntactic_callsites": 0,
+            "filtered_pre_persist": 0,
+            "persisted_callsites": 0,
+            "persisted_accepted": 0,
+            "persisted_dropped": 0,
+        }
+    )
+    diagnostics_record_drops_by_language: dict[str, dict[str, int]] = defaultdict(dict)
+    diagnostics_pre_persist_buckets_by_language: dict[str, dict[str, int]] = defaultdict(dict)
+    diagnostics_by_scope: dict[str, dict[str, dict[str, int | dict[str, int]]]] = defaultdict(
+        lambda: {
+            "non_tests": {
+                "observed_syntactic_callsites": 0,
+                "filtered_pre_persist": 0,
+                "persisted_callsites": 0,
+                "persisted_accepted": 0,
+                "persisted_dropped": 0,
+                "record_drops": {},
+                "filtered_pre_persist_buckets": {},
+            },
+            "tests": {
+                "observed_syntactic_callsites": 0,
+                "filtered_pre_persist": 0,
+                "persisted_callsites": 0,
+                "persisted_accepted": 0,
+                "persisted_dropped": 0,
+                "record_drops": {},
+                "filtered_pre_persist_buckets": {},
+            },
+        }
+    )
+    diagnostics_totals = {
+        "observed_syntactic_callsites": 0,
+        "filtered_pre_persist": 0,
+        "persisted_callsites": 0,
+        "persisted_accepted": 0,
+        "persisted_dropped": 0,
+    }
+    diagnostics_total_record_drops: dict[str, int] = {}
+    diagnostics_total_pre_persist_buckets: dict[str, int] = {}
+    if artifact_available and isinstance(call_resolution_diagnostics, dict):
+        raw_totals = call_resolution_diagnostics.get("totals")
+        if isinstance(raw_totals, dict):
+            diagnostics_totals = {
+                "observed_syntactic_callsites": int(
+                    raw_totals.get("observed_callsites") or 0
+                ),
+                "filtered_pre_persist": int(
+                    raw_totals.get("filtered_before_persist") or 0
+                ),
+                "persisted_callsites": int(raw_totals.get("persisted_callsites") or 0),
+                "persisted_accepted": int(
+                    raw_totals.get("finalized_accepted_callsites") or 0
+                ),
+                "persisted_dropped": int(
+                    raw_totals.get("finalized_dropped_callsites") or 0
+                ),
+            }
+            raw_record_drops = raw_totals.get("record_drops")
+            if isinstance(raw_record_drops, dict):
+                diagnostics_total_record_drops = {
+                    str(bucket): int(count or 0)
+                    for bucket, count in raw_record_drops.items()
+                    if int(count or 0) > 0
+                }
+            raw_pre_persist_buckets = raw_totals.get("filtered_pre_persist_buckets")
+            if isinstance(raw_pre_persist_buckets, dict):
+                diagnostics_total_pre_persist_buckets = {
+                    str(bucket): int(count or 0)
+                    for bucket, count in raw_pre_persist_buckets.items()
+                    if int(count or 0) > 0
+                }
+        raw_by_caller = call_resolution_diagnostics.get("by_caller")
+        if isinstance(raw_by_caller, dict):
+            for caller_id, raw in raw_by_caller.items():
+                if not isinstance(raw, dict):
+                    continue
+                language = caller_language.get(str(caller_id))
+                if not language:
+                    continue
+                caller_info = caller_metadata.get(str(caller_id), {})
+                scope_key = _scope_bucket(str(caller_info.get("file_path") or ""))
+                observed = int(raw.get("observed_callsites") or 0)
+                filtered = int(raw.get("filtered_before_persist") or 0)
+                persisted = int(raw.get("persisted_callsites") or 0)
+                accepted = int(raw.get("finalized_accepted_callsites") or 0)
+                dropped = int(raw.get("finalized_dropped_callsites") or 0)
+                lang_diag = diagnostics_by_language[language]
+                lang_diag["observed_syntactic_callsites"] += observed
+                lang_diag["filtered_pre_persist"] += filtered
+                lang_diag["persisted_callsites"] += persisted
+                lang_diag["persisted_accepted"] += accepted
+                lang_diag["persisted_dropped"] += dropped
+                scope_diag = diagnostics_by_scope[language][scope_key]
+                scope_diag["observed_syntactic_callsites"] = int(
+                    scope_diag.get("observed_syntactic_callsites") or 0
+                ) + observed
+                scope_diag["filtered_pre_persist"] = int(
+                    scope_diag.get("filtered_pre_persist") or 0
+                ) + filtered
+                scope_diag["persisted_callsites"] = int(
+                    scope_diag.get("persisted_callsites") or 0
+                ) + persisted
+                scope_diag["persisted_accepted"] = int(
+                    scope_diag.get("persisted_accepted") or 0
+                ) + accepted
+                scope_diag["persisted_dropped"] = int(
+                    scope_diag.get("persisted_dropped") or 0
+                ) + dropped
+                raw_record_drops = raw.get("record_drops")
+                if not isinstance(raw_record_drops, dict):
+                    raw_record_drops = {}
+                scope_record_drops = scope_diag.get("record_drops")
+                if not isinstance(scope_record_drops, dict):
+                    scope_record_drops = {}
+                    scope_diag["record_drops"] = scope_record_drops
+                language_record_drops = diagnostics_record_drops_by_language[language]
+                for bucket, count in raw_record_drops.items():
+                    amount = int(count or 0)
+                    if amount <= 0:
+                        continue
+                    bucket_name = str(bucket)
+                    language_record_drops[bucket_name] = (
+                        language_record_drops.get(bucket_name, 0) + amount
+                    )
+                    scope_record_drops[bucket_name] = (
+                        int(scope_record_drops.get(bucket_name, 0)) + amount
+                    )
+                raw_pre_persist_buckets = raw.get("filtered_pre_persist_buckets")
+                if not isinstance(raw_pre_persist_buckets, dict):
+                    continue
+                scope_pre_persist = scope_diag.get("filtered_pre_persist_buckets")
+                if not isinstance(scope_pre_persist, dict):
+                    scope_pre_persist = {}
+                    scope_diag["filtered_pre_persist_buckets"] = scope_pre_persist
+                language_pre_persist = diagnostics_pre_persist_buckets_by_language[
+                    language
+                ]
+                for bucket, count in raw_pre_persist_buckets.items():
+                    amount = int(count or 0)
+                    if amount <= 0:
+                        continue
+                    bucket_name = str(bucket)
+                    language_pre_persist[bucket_name] = (
+                        language_pre_persist.get(bucket_name, 0) + amount
+                    )
+                    scope_pre_persist[bucket_name] = (
+                        int(scope_pre_persist.get(bucket_name, 0)) + amount
+                    )
+
     languages = sorted(language_metrics.keys())
     rows: list[LanguageMetrics] = []
     for language in languages:
@@ -320,6 +508,16 @@ def snapshot_report(
         call_totals = call_site_totals.get(
             language,
             {"eligible": 0, "accepted": 0, "dropped": 0},
+        )
+        diag_totals = diagnostics_by_language.get(
+            language,
+            {
+                "observed_syntactic_callsites": 0,
+                "filtered_pre_persist": 0,
+                "persisted_callsites": 0,
+                "persisted_accepted": 0,
+                "persisted_dropped": 0,
+            },
         )
         rows.append(
             LanguageMetrics(
@@ -336,6 +534,27 @@ def snapshot_report(
                 call_sites_dropped=call_totals.get("dropped")
                 if artifact_available
                 else None,
+                observed_syntactic_callsites=diag_totals.get(
+                    "observed_syntactic_callsites"
+                )
+                if artifact_available
+                else None,
+                filtered_pre_persist=diag_totals.get("filtered_pre_persist")
+                if artifact_available
+                else None,
+                persisted_callsites=diag_totals.get("persisted_callsites")
+                if artifact_available
+                else None,
+                persisted_accepted=diag_totals.get("persisted_accepted")
+                if artifact_available
+                else None,
+                persisted_dropped=diag_totals.get("persisted_dropped")
+                if artifact_available
+                else None,
+                record_drops=diagnostics_record_drops_by_language.get(language, {}),
+                filtered_pre_persist_buckets=diagnostics_pre_persist_buckets_by_language.get(
+                    language, {}
+                ),
                 drop_reasons=call_site_reasons.get(language, {}),
                 drop_classification=drop_classification.get(language, {}),
                 drop_classification_by_scope=drop_classification_by_scope.get(
@@ -377,6 +596,26 @@ def snapshot_report(
             "nodes": total_nodes,
             "edges": total_edges,
             "call_sites": _call_sites_payload(total_eligible, total_accepted, total_dropped),
+            "call_site_funnel": _call_site_funnel_payload(
+                observed_syntactic_callsites=diagnostics_totals.get(
+                    "observed_syntactic_callsites"
+                )
+                if artifact_available
+                else None,
+                filtered_pre_persist=diagnostics_totals.get("filtered_pre_persist")
+                if artifact_available
+                else None,
+                persisted_callsites=diagnostics_totals.get("persisted_callsites")
+                if artifact_available
+                else None,
+                persisted_accepted=diagnostics_totals.get("persisted_accepted")
+                if artifact_available
+                else None,
+                persisted_dropped=diagnostics_totals.get("persisted_dropped")
+                if artifact_available
+                else None,
+                record_drops=diagnostics_total_record_drops if artifact_available else None,
+            ),
             "call_sites_by_scope": _scope_call_sites_payload(
                 {
                     "non_tests": _sum_scope(
@@ -385,6 +624,44 @@ def snapshot_report(
                     "tests": _sum_scope(
                         call_site_scope_totals, scope_key="tests", field_names=("eligible", "accepted", "dropped")
                     ),
+                }
+                if artifact_available
+                else None
+            ),
+            "call_site_funnel_by_scope": _scope_call_site_funnel_payload(
+                {
+                    "non_tests": {
+                        **_sum_scope(
+                            diagnostics_by_scope,
+                            scope_key="non_tests",
+                            field_names=(
+                                "observed_syntactic_callsites",
+                                "filtered_pre_persist",
+                                "persisted_callsites",
+                                "persisted_accepted",
+                                "persisted_dropped",
+                            ),
+                        ),
+                        "record_drops": _sum_record_drop_buckets_by_scope(
+                            diagnostics_by_scope, scope_key="non_tests"
+                        ),
+                    },
+                    "tests": {
+                        **_sum_scope(
+                            diagnostics_by_scope,
+                            scope_key="tests",
+                            field_names=(
+                                "observed_syntactic_callsites",
+                                "filtered_pre_persist",
+                                "persisted_callsites",
+                                "persisted_accepted",
+                                "persisted_dropped",
+                            ),
+                        ),
+                        "record_drops": _sum_record_drop_buckets_by_scope(
+                            diagnostics_by_scope, scope_key="tests"
+                        ),
+                    },
                 }
                 if artifact_available
                 else None
@@ -401,6 +678,13 @@ def snapshot_report(
                 drop_classification_by_scope, scope_key="tests"
             ),
         }
+        payload["totals"]["filtered_pre_persist_buckets"] = dict(
+            sorted(diagnostics_total_pre_persist_buckets.items())
+        )
+    elif diagnostics_total_pre_persist_buckets:
+        payload["totals"]["filtered_pre_persist_buckets"] = dict(
+            sorted(diagnostics_total_pre_persist_buckets.items())
+        )
     for item in payload["languages"]:
         language = str(item.get("language") or "")
         if not language:
@@ -417,6 +701,9 @@ def snapshot_report(
             else None
         )
         item["call_sites_by_scope"] = _scope_call_sites_payload(scope_counts)
+        item["call_site_funnel_by_scope"] = _scope_call_site_funnel_payload(
+            diagnostics_by_scope.get(language) if artifact_available else None
+        )
         item["structural_density"] = _structural_density_payload(
             files=int(item.get("files") or 0),
             nodes=int(item.get("nodes") or 0),
@@ -460,6 +747,25 @@ def _call_sites_payload(
     return _call_sites_payload_impl(eligible, accepted, dropped)
 
 
+def _call_site_funnel_payload(
+    *,
+    observed_syntactic_callsites: int | None,
+    filtered_pre_persist: int | None,
+    persisted_callsites: int | None,
+    persisted_accepted: int | None,
+    persisted_dropped: int | None,
+    record_drops: dict[str, int] | None = None,
+) -> dict[str, object]:
+    return _call_site_funnel_payload_impl(
+        observed_syntactic_callsites=observed_syntactic_callsites,
+        filtered_pre_persist=filtered_pre_persist,
+        persisted_callsites=persisted_callsites,
+        persisted_accepted=persisted_accepted,
+        persisted_dropped=persisted_dropped,
+        record_drops=record_drops,
+    )
+
+
 def _top_items(items: dict[str, int], *, limit: int) -> list[dict[str, object]]:
     return _top_items_impl(items, limit=limit)
 
@@ -472,6 +778,12 @@ def _scope_call_sites_payload(
     scope_counts: dict[str, dict[str, int]] | None,
 ) -> dict[str, dict[str, object]] | None:
     return _scope_call_sites_payload_impl(scope_counts)
+
+
+def _scope_call_site_funnel_payload(
+    scope_counts: dict[str, dict[str, int]] | None,
+) -> dict[str, dict[str, object]] | None:
+    return _scope_call_site_funnel_payload_impl(scope_counts)
 
 
 def _structural_density_payload(
@@ -545,12 +857,29 @@ def _sum_bucket_counts(
     return _sum_bucket_counts_impl(language_buckets)
 
 
+def _sum_record_drop_buckets(
+    language_buckets: dict[str, dict[str, int]],
+) -> dict[str, int]:
+    return _sum_record_drop_buckets_impl(language_buckets)
+
+
 def _sum_bucket_counts_by_scope(
     language_scope_buckets: dict[str, dict[str, dict[str, int]]],
     *,
     scope_key: str,
 ) -> dict[str, int]:
     return _sum_bucket_counts_by_scope_impl(
+        language_scope_buckets,
+        scope_key=scope_key,
+    )
+
+
+def _sum_record_drop_buckets_by_scope(
+    language_scope_buckets: dict[str, dict[str, dict[str, int]]],
+    *,
+    scope_key: str,
+) -> dict[str, int]:
+    return _sum_record_drop_buckets_by_scope_impl(
         language_scope_buckets,
         scope_key=scope_key,
     )
