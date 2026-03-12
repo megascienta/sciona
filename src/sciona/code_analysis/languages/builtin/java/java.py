@@ -35,6 +35,7 @@ from .java_nodes import JavaNodeState, walk_java_nodes
 from .java_resolution import (
     collect_constructor_field_types,
     collect_declared_vars,
+    collect_parameter_types,
     collect_local_var_types,
     qualify_java_type,
 )
@@ -97,6 +98,8 @@ class JavaAnalyzer(ASTAnalyzer):
                 state=state,
                 collect_declared_vars=collect_declared_vars,
                 collect_constructor_field_types=collect_constructor_field_types,
+                collect_parameter_types=collect_parameter_types,
+                collect_local_var_types=collect_local_var_types,
             )
         buffer.diagnostics["name_collisions_detected"] = (
             state.name_disambiguator.collisions_detected
@@ -149,6 +152,7 @@ class JavaAnalyzer(ASTAnalyzer):
             instance_types = {}
             if class_name and state.class_field_types.get(class_name):
                 instance_types.update(state.class_field_types[class_name])
+            instance_types.update(state.callable_parameter_types.get(qualified, {}))
             instance_types.update(local_types)
             call_targets = call_targets_by_callable.get(qualified, ())
             resolved = resolve_java_calls(

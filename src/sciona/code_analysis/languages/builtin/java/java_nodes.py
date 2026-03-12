@@ -24,6 +24,7 @@ class JavaNodeState:
     class_name_candidates: dict[str, set[str]] = field(default_factory=dict)
     class_kind_map: dict[str, str] = field(default_factory=dict)
     class_field_types: dict[str, dict[str, str]] = field(default_factory=dict)
+    callable_parameter_types: dict[str, dict[str, str]] = field(default_factory=dict)
     pending_calls: list[tuple[str, str, object | None, str | None]] = field(
         default_factory=list
     )
@@ -123,6 +124,8 @@ def walk_java_nodes(
     state: JavaNodeState,
     collect_declared_vars,
     collect_constructor_field_types,
+    collect_parameter_types,
+    collect_local_var_types,
 ) -> None:
     class_kind_map = {
         "class_declaration": "class",
@@ -203,6 +206,8 @@ def walk_java_nodes(
                     state=state,
                     collect_declared_vars=collect_declared_vars,
                     collect_constructor_field_types=collect_constructor_field_types,
+                    collect_parameter_types=collect_parameter_types,
+                    collect_local_var_types=collect_local_var_types,
                 )
         state.class_stack.pop()
         return
@@ -266,7 +271,16 @@ def walk_java_nodes(
             )
         )
         if node.type in {"constructor_declaration", "compact_constructor_declaration"}:
-            constructor_fields = collect_constructor_field_types(body_node, snapshot)
+            parameter_types = collect_parameter_types(node, snapshot)
+            local_types = collect_local_var_types(body_node, snapshot)
+            constructor_fields = collect_constructor_field_types(
+                body_node,
+                snapshot,
+                available_types={
+                    **parameter_types,
+                    **local_types,
+                },
+            )
             for field_name, type_text in constructor_fields.items():
                 state.class_field_types.setdefault(parent, {})[field_name] = type_text
         metadata = result.nodes[-1].metadata or {}
@@ -278,6 +292,7 @@ def walk_java_nodes(
             role = "declared"
         metadata["callable_role"] = role
         result.nodes[-1].metadata = metadata
+        state.callable_parameter_types[qualified] = collect_parameter_types(node, snapshot)
         state.pending_calls.append((qualified, node_type, body_node, parent))
         state.callable_stack.append(qualified)
         if body_node:
@@ -291,6 +306,8 @@ def walk_java_nodes(
                     state=state,
                     collect_declared_vars=collect_declared_vars,
                     collect_constructor_field_types=collect_constructor_field_types,
+                    collect_parameter_types=collect_parameter_types,
+                    collect_local_var_types=collect_local_var_types,
                 )
         state.callable_stack.pop()
         return
@@ -311,4 +328,6 @@ def walk_java_nodes(
             state=state,
             collect_declared_vars=collect_declared_vars,
             collect_constructor_field_types=collect_constructor_field_types,
+            collect_parameter_types=collect_parameter_types,
+            collect_local_var_types=collect_local_var_types,
         )

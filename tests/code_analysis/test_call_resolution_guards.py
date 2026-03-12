@@ -333,6 +333,32 @@ def test_java_resolves_unqualified_calls_from_single_static_wildcard() -> None:
     assert resolved == ["repo.pkg.Service.run"]
 
 
+def test_java_resolves_receiver_call_from_typed_parameter() -> None:
+    targets = [
+        CallTarget(
+            terminal="run",
+            callee_text="svc.run",
+            ir=QualifiedCallIR(parts=("svc", "run"), terminal="run"),
+        )
+    ]
+    resolved = resolve_java_calls(
+        targets=targets,
+        module_name="repo.pkg.mod",
+        module_functions=set(),
+        class_methods={},
+        class_name_map={},
+        class_name_candidates={"Service": {"repo.pkg.Service"}},
+        import_aliases={"Service": "repo.pkg.Service"},
+        member_aliases={},
+        static_wildcard_targets=set(),
+        class_name=None,
+        instance_types={"svc": "Service"},
+        module_prefix=None,
+        qualify_java_type=qualify_java_type,
+    )
+    assert resolved == ["repo.pkg.Service.run"]
+
+
 def test_java_qualify_type_returns_none_for_unresolved_bare_name() -> None:
     resolved = qualify_java_type(
         "Service",

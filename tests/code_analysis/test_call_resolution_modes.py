@@ -102,6 +102,35 @@ public class Foo {
     assert run_1 == run_2
 
 
+def test_java_resolution_recovers_constructor_parameter_assigned_field(tmp_path):
+    source = """
+package com.example.foo;
+class Service {
+  void run() {}
+}
+public class Foo {
+  private final Service svc;
+  Foo(Service svc) {
+    this.svc = svc;
+  }
+  void call() {
+    this.svc.run();
+  }
+}
+"""
+    file_path = tmp_path / "src" / "Foo.java"
+    file_path.parent.mkdir()
+    file_path.write_text(source, encoding="utf-8")
+    analyzer = JavaAnalyzer()
+    snapshot = _snapshot(file_path, "src/Foo.java", "java", source)
+    module_name = analyzer.module_name(tmp_path, snapshot)
+    analyzer.module_index = {module_name}
+
+    result = _call_map(analyzer.analyze(snapshot, module_name))
+    assert f"{module_name}.Foo.call" in result
+    assert f"{module_name}.Service.run" in result[f"{module_name}.Foo.call"]
+
+
 def test_javascript_resolution_is_stable_across_runs(tmp_path):
     source = """
 class Service {

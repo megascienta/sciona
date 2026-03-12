@@ -10,6 +10,28 @@ from ...common.support.shared import node_text
 from ....core.extract.parsing.query_helpers import find_nodes_of_types_query
 from ...common.ir.symbol_ir import TypedSymbolBinding
 
+
+def collect_parameter_types(
+    node,
+    snapshot: FileSnapshot,
+) -> dict[str, str]:
+    if node is None:
+        return {}
+    collected: dict[str, str] = {}
+    for param in find_nodes_of_types_query(
+        node,
+        language_name="java",
+        node_types=("formal_parameter",),
+    ):
+        type_node = param.child_by_field_name("type")
+        name_node = param.child_by_field_name("name")
+        type_text = node_text(type_node, snapshot.content) if type_node else None
+        name = node_text(name_node, snapshot.content) if name_node else None
+        if type_text and name:
+            collected[name] = type_text
+    return collected
+
+
 def collect_declared_vars(
     node,
     snapshot: FileSnapshot,
@@ -43,7 +65,6 @@ def collect_local_var_types(
         language_name="java",
         node_types=(
             "local_variable_declaration",
-            "formal_parameter",
             "enhanced_for_statement",
             "catch_formal_parameter",
             "instanceof_expression",
@@ -54,7 +75,7 @@ def collect_local_var_types(
             for name, type_text in collect_declared_vars(node, snapshot):
                 collected[name] = type_text
             continue
-        if node.type in {"formal_parameter", "enhanced_for_statement"}:
+        if node.type == "enhanced_for_statement":
             type_node = node.child_by_field_name("type")
             name_node = node.child_by_field_name("name")
             type_text = node_text(type_node, snapshot.content) if type_node else None
@@ -102,9 +123,12 @@ def collect_local_bindings(
 def collect_constructor_field_types(
     body_node,
     snapshot: FileSnapshot,
+    *,
+    available_types: dict[str, str] | None = None,
 ) -> dict[str, str]:
     if body_node is None:
         return {}
+    available_types = available_types or {}
     collected: dict[str, str] = {}
     assignments = find_nodes_of_types_query(
         body_node,
@@ -114,10 +138,16 @@ def collect_constructor_field_types(
     for node in assignments:
         left = node.child_by_field_name("left")
         right = node.child_by_field_name("right")
-        if left is None or right is None or right.type != "object_creation_expression":
+        if left is None or right is None:
             continue
-        type_node = right.child_by_field_name("type")
-        type_text = node_text(type_node, snapshot.content) if type_node else None
+        type_text = None
+        if right.type == "object_creation_expression":
+            type_node = right.child_by_field_name("type")
+            type_text = node_text(type_node, snapshot.content) if type_node else None
+        elif right.type == "identifier":
+            rhs_name = node_text(right, snapshot.content)
+            if rhs_name:
+                type_text = available_types.get(rhs_name)
         if not type_text:
             continue
         field_name = None
