@@ -12,8 +12,8 @@ REDUCER_META = ReducerMeta(
     reducer_id="callsite_index",
     category="symbol",
     placeholder="CALLSITE_INDEX",
-    summary="Lists persisted callsite resolution results for one callable, with optional "
-    "filters for identifier, status, provenance, and drop reason. "
+    summary="Lists persisted artifact-layer callsite candidate pairs for one callable, "
+    "with optional filtering by identifier. "
     "detail_level='neighbors' returns caller/callee sets. ",
 )
 

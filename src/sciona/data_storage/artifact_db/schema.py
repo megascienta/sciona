@@ -199,7 +199,6 @@ SCHEMA_STATEMENTS: list[str] = [
 
 def ensure_schema(conn: sqlite3.Connection) -> None:
     _ensure_schema(conn, SCHEMA_STATEMENTS)
-    conn.execute("DROP TABLE IF EXISTS call_sites")
     _ensure_callsite_pairs_schema(conn)
     _ensure_graph_fk_schema(conn)
 

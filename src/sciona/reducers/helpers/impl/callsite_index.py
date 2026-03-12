@@ -57,8 +57,8 @@ def render(
     )
     if status is not None or provenance is not None or drop_reason is not None:
         raise ValueError(
-            "callsite_index no longer supports legacy status/provenance/drop_reason "
-            "filters; use identifier filtering and resolution_trace diagnostics."
+            "callsite_index supports identifier filtering only; use "
+            "resolution_trace for resolution diagnostics."
         )
     level = _normalize_detail_level(detail_level)
     if level == "neighbors":
@@ -221,51 +221,6 @@ def _normalize_direction(direction: Optional[str]) -> str:
     if value in {"in", "out", "both"}:
         return value
     raise ValueError("callsite_index direction must be one of: in, out, both.")
-
-
-def _normalize_status(status: Optional[str]) -> str | None:
-    if status is None:
-        return None
-    value = str(status).strip().lower()
-    if value in {"accepted", "dropped"}:
-        return value
-    raise ValueError("callsite_index status must be one of: accepted, dropped.")
-
-
-def _normalize_provenance(provenance: Optional[str]) -> str | None:
-    if provenance is None:
-        return None
-    value = str(provenance).strip()
-    if value in {
-        "exact_qname",
-        "module_scoped",
-        "import_narrowed",
-        "export_chain_narrowed",
-    }:
-        return value
-    raise ValueError(
-        "callsite_index provenance must be one of: exact_qname, module_scoped, "
-        "import_narrowed, export_chain_narrowed."
-    )
-
-
-def _normalize_drop_reason(drop_reason: Optional[str]) -> str | None:
-    if drop_reason is None:
-        return None
-    value = str(drop_reason).strip()
-    if value in {
-        "no_candidates",
-        "unique_without_provenance",
-        "ambiguous_no_caller_module",
-        "ambiguous_no_in_scope_candidate",
-        "ambiguous_multiple_in_scope_candidates",
-    }:
-        return value
-    raise ValueError(
-        "callsite_index drop_reason must be one of: no_candidates, "
-        "unique_without_provenance, ambiguous_no_caller_module, "
-        "ambiguous_no_in_scope_candidate, ambiguous_multiple_in_scope_candidates."
-    )
 
 
 def _load_edges(

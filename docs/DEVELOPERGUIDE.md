@@ -363,7 +363,7 @@ languages until the user enables them in `.sciona/config.yaml`.
   size for targeted analysis; current examples include
   `module_call_graph_summary(from_module_id, to_module_id)`,
   `classifier_call_graph_summary(caller_id, callee_id)`,
-  `callsite_index(identifier, status, provenance, drop_reason)`,
+  `callsite_index(identifier)`,
   `fan_summary(edge_kind, min_fan, node_kind)`, and
   `symbol_references(kind, module_id)`
 - Under overlay, `fan_summary` table mode reports adjusted rankings and may

@@ -361,10 +361,10 @@ sciona reducer --id ownership_summary [--module-id MODULE_ID] [--callable-id CAL
 sciona reducer --id callable_overview [--callable-id CALLABLE_ID]
 ```
 
-`callsite_index` - List filtered persisted artifact-layer callsite resolution outcomes for a callable, with optional narrowing by identifier, resolution status, provenance, or drop reason. `detail_level='neighbors'` returns caller/callee sets.
+`callsite_index` - List persisted artifact-layer callsite candidate pairs for a callable, with optional narrowing by identifier. `detail_level='neighbors'` returns caller/callee sets.
 
 ```bash
-sciona reducer --id callsite_index [--callable-id CALLABLE_ID] [--direction DIRECTION] [--detail-level DETAIL_LEVEL] [--include-callsite-diagnostics INCLUDE_CALLSITE_DIAGNOSTICS] [--identifier IDENTIFIER] [--status STATUS] [--provenance PROVENANCE] [--drop-reason DROP_REASON] [--compact COMPACT]
+sciona reducer --id callsite_index [--callable-id CALLABLE_ID] [--direction DIRECTION] [--detail-level DETAIL_LEVEL] [--include-callsite-diagnostics INCLUDE_CALLSITE_DIAGNOSTICS] [--identifier IDENTIFIER] [--compact COMPACT]
 ```
 
 Compact: `--compact`
