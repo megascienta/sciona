@@ -23,11 +23,11 @@ from ...metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="callsite_index",
-    category="relations",
+    category="diagnostic",
     placeholder="CALLSITE_INDEX",
-    summary="List artifact-layer callsite resolution outcomes for a callable, with "
-    "optional narrowing by identifier, resolution status, provenance, or drop "
-    "reason. detail_level='neighbors' returns caller/callee sets. ",
+    summary="List persisted artifact-layer callsite candidate pairs for a callable, "
+    "with optional narrowing by identifier. detail_level='neighbors' returns "
+    "caller/callee sets. ",
 )
 
 
@@ -55,18 +55,17 @@ def render(
         snapshot_id,
         callable_id=callable_id,
     )
+    if status is not None or provenance is not None or drop_reason is not None:
+        raise ValueError(
+            "callsite_index no longer supports legacy status/provenance/drop_reason "
+            "filters; use identifier filtering and resolution_trace diagnostics."
+        )
     level = _normalize_detail_level(detail_level)
     if level == "neighbors":
         body = build_neighbors_payload(conn, snapshot_id, repo_root, resolved_id)
         return render_json_payload(body)
     dir_value = _normalize_direction(direction)
-    status_value = _normalize_status(status)
-    provenance_value = _normalize_provenance(provenance)
-    drop_reason_value = _normalize_drop_reason(drop_reason)
-    filter_active = any(
-        value is not None
-        for value in (identifier, status_value, provenance_value, drop_reason_value)
-    )
+    filter_active = identifier is not None
     artifact_available = artifact_db_available(repo_root) if repo_root else False
     edges = _load_edges(repo_root, snapshot_id, resolved_id, dir_value)
     node_ids = {edge["caller_id"] for edge in edges} | {
@@ -103,15 +102,11 @@ def render(
     body = {
         "payload_kind": "summary",
         "callable_id": resolved_id,
-        "call_sites_semantics": "filtered_persisted_artifact_working_set",
-        "external_likely_semantics": "residual_filter_quality_signal",
+        "callsite_pairs_semantics": "deduplicated_persisted_in_scope_candidate_pairs",
         "direction": dir_value,
         "detail_level": level,
         "filters": {
             "identifier": identifier,
-            "status": status_value,
-            "provenance": provenance_value,
-            "drop_reason": drop_reason_value,
         },
         "artifact_available": artifact_available,
         "edge_source": "artifact_db" if artifact_available else "none",
@@ -123,57 +118,40 @@ def render(
             "dropped_to_accepted": 0,
             "provenance_changed": 0,
         },
-        "call_sites": [],
+        "callsite_pairs": [],
         "resolution_diagnostics": {},
     }
     should_load_callsites = artifact_available and repo_root is not None and (
         bool(include_callsite_diagnostics) or filter_active or bool(compact)
     )
     if should_load_callsites:
-        call_sites, diagnostics = load_callsite_enrichment(
+        callsite_pairs, diagnostics = load_callsite_enrichment(
             repo_root=repo_root,
             snapshot_id=snapshot_id,
             caller_id=resolved_id,
-        )
-        filtered_call_sites = _filter_call_sites(
-            call_sites,
             identifier=identifier,
-            status=status_value,
-            provenance=provenance_value,
-            drop_reason=drop_reason_value,
         )
-        body["call_sites"] = [
+        body["callsite_pairs"] = [
             {
                 "identifier": row.get("identifier"),
-                "resolution_status": row.get("resolution_status"),
-                "accepted_callee_id": row.get("accepted_callee_id"),
-                "provenance": row.get("provenance"),
-                "drop_reason": row.get("drop_reason"),
-                "candidate_count": row.get("candidate_count"),
-                "callee_kind": row.get("callee_kind"),
-                "line_span": (
-                    [row.get("call_start_byte"), row.get("call_end_byte")]
-                    if row.get("call_start_byte") is not None
-                    and row.get("call_end_byte") is not None
-                    else None
-                ),
-                "ordinal": row.get("call_ordinal"),
+                "callee_id": row.get("callee_id"),
+                "pair_kind": row.get("pair_kind"),
+                "site_hash": row.get("site_hash"),
                 "row_origin": "committed",
                 "transition": "unchanged",
             }
-            for row in filtered_call_sites
+            for row in callsite_pairs
         ]
         body["resolution_diagnostics"] = diagnostics
         if filter_active:
             allowed_callees = {
-                str(row.get("accepted_callee_id"))
-                for row in filtered_call_sites
-                if row.get("accepted_callee_id")
+                str(row.get("callee_id"))
+                for row in callsite_pairs
+                if row.get("callee_id")
             }
             body["edges"] = _filter_edges_by_callees(
                 enriched,
                 allowed_callees=allowed_callees,
-                status=status_value,
             )
             body["edge_count"] = len(body["edges"])
     overlay = current_overlay_payload()
@@ -346,27 +324,21 @@ def _load_edges(
 
 
 def _compact_payload(payload: dict[str, object]) -> dict[str, object]:
-    call_sites = list(payload.get("call_sites", []) or [])
+    callsite_pairs = list(payload.get("callsite_pairs", []) or [])
     edges = list(payload.get("edges", []) or [])
     compact_payload = dict(payload)
     compact_payload["payload_kind"] = "compact_summary"
-    compact_payload["status_counts"] = _counter_entries(
-        Counter(str(row.get("resolution_status") or "") for row in call_sites if row.get("resolution_status"))
+    compact_payload["pair_kind_counts"] = _counter_entries(
+        Counter(str(row.get("pair_kind") or "") for row in callsite_pairs if row.get("pair_kind"))
     )
-    compact_payload["provenance_counts"] = _counter_entries(
-        Counter(str(row.get("provenance") or "") for row in call_sites if row.get("provenance"))
-    )
-    compact_payload["drop_reason_counts"] = _counter_entries(
-        Counter(str(row.get("drop_reason") or "") for row in call_sites if row.get("drop_reason"))
-    )
-    compact_payload["identifier_preview"] = _identifier_preview(call_sites)
+    compact_payload["identifier_preview"] = _identifier_preview(callsite_pairs)
     compact_payload["edge_preview"] = {
         "count": len(edges),
         "entries": edges[:10],
         "truncated": len(edges) > 10,
     }
     compact_payload.pop("edges", None)
-    compact_payload.pop("call_sites", None)
+    compact_payload.pop("callsite_pairs", None)
     compact_payload.pop("resolution_diagnostics", None)
     return compact_payload
 
@@ -391,36 +363,11 @@ def _identifier_preview(call_sites: List[dict[str, object]]) -> dict[str, object
     }
 
 
-def _filter_call_sites(
-    call_sites: List[Dict[str, object]],
-    *,
-    identifier: str | None,
-    status: str | None,
-    provenance: str | None,
-    drop_reason: str | None,
-) -> List[Dict[str, object]]:
-    filtered: List[Dict[str, object]] = []
-    for row in call_sites:
-        if identifier is not None and row.get("identifier") != identifier:
-            continue
-        if status is not None and row.get("resolution_status") != status:
-            continue
-        if provenance is not None and row.get("provenance") != provenance:
-            continue
-        if drop_reason is not None and row.get("drop_reason") != drop_reason:
-            continue
-        filtered.append(row)
-    return filtered
-
-
 def _filter_edges_by_callees(
     edges: List[Dict[str, object]],
     *,
     allowed_callees: set[str],
-    status: str | None,
 ) -> List[Dict[str, object]]:
-    if status == "dropped":
-        return []
     if not allowed_callees:
         return []
     return [

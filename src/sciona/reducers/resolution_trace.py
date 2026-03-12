@@ -7,14 +7,16 @@ from __future__ import annotations
 
 from typing import Any
 
-from ..data_storage.artifact_db.reporting import read_reporting as artifact_reporting
 from ..data_storage.core_db import read_ops as core_read
 from ..runtime.call_resolution_contract import (
     REQUIRED_RESOLUTION_STAGES,
     STRICT_CANDIDATE_GATE_STAGE,
 )
 from .helpers.shared import queries
-from .helpers.artifact.graph_edges import load_call_resolution_diagnostics
+from .helpers.artifact.graph_edges import (
+    load_call_resolution_diagnostics,
+    load_callsite_pairs,
+)
 from .helpers.shared.context import current_artifact_connection, fallback_artifact_connection
 from .helpers.shared.connection import require_connection
 from .helpers.shared.payload import render_json_payload
@@ -62,21 +64,20 @@ def render(
     if artifact_conn is None:
         artifact_conn = fallback_artifact_connection(repo_root)
         owns_connection = artifact_conn is not None
-    call_sites: list[dict[str, Any]] = []
+    callsite_pairs: list[dict[str, Any]] = []
     if artifact_conn is not None:
-        call_sites = artifact_reporting.call_site_rows_for_caller(
-            artifact_conn,
+        callsite_pairs = load_callsite_pairs(
+            repo_root,
             snapshot_id=snapshot_id,
             caller_id=resolved_callable_id,
             identifier=identifier,
         )
-    accepted, dropped = _split_call_sites(call_sites, limit=limit_value)
-    totals = _totals(call_sites)
+    pair_samples = _pair_samples(callsite_pairs, limit=limit_value)
+    totals = _totals(callsite_pairs, diagnostics)
     body = {
         "payload_kind": "summary",
         "callable_id": resolved_callable_id,
-        "call_sites_semantics": "filtered_persisted_artifact_working_set",
-        "external_likely_semantics": "residual_filter_quality_signal",
+        "callsite_pairs_semantics": "deduplicated_persisted_in_scope_candidate_pairs",
         "callable_qualified_name": caller_meta.get("qualified_name"),
         "callable_file_path": caller_meta.get("file_path"),
         "callable_language": caller_meta.get("language"),
@@ -103,6 +104,9 @@ def render(
             "filtered_before_persist": int(
                 diagnostics.get("filtered_before_persist") or 0
             ),
+            "filtered_pre_persist_buckets": _sorted_bucket_items(
+                diagnostics.get("filtered_pre_persist_buckets")
+            ),
             "finalized_accepted_callsites": int(
                 diagnostics.get("finalized_accepted_callsites") or 0
             ),
@@ -114,8 +118,7 @@ def render(
             ),
             "record_drops": _sorted_bucket_items(diagnostics.get("record_drops")),
         },
-        "accepted_samples": accepted,
-        "dropped_samples": dropped,
+        "pair_samples": pair_samples,
         "sample_limit": limit_value,
     }
     if owns_connection and artifact_conn is not None:
@@ -139,51 +142,34 @@ def _normalize_limit(limit: int) -> int:
     return value
 
 
-def _split_call_sites(
+def _pair_samples(
     rows: list[dict[str, Any]],
     *,
     limit: int,
-) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-    accepted: list[dict[str, Any]] = []
-    dropped: list[dict[str, Any]] = []
-    for row in rows:
-        normalized = _normalize_sample(row)
-        if row.get("resolution_status") == "accepted":
-            if len(accepted) < limit:
-                accepted.append(normalized)
-            continue
-        if len(dropped) < limit:
-            dropped.append(normalized)
-    return accepted, dropped
+) -> list[dict[str, Any]]:
+    return [_normalize_sample(row) for row in rows[:limit]]
 
 
 def _normalize_sample(row: dict[str, Any]) -> dict[str, Any]:
     return {
         "identifier": row.get("identifier"),
-        "resolution_status": row.get("resolution_status"),
-        "accepted_callee_id": row.get("accepted_callee_id"),
-        "provenance": row.get("provenance"),
-        "drop_reason": row.get("drop_reason"),
-        "candidate_count": int(row.get("candidate_count") or 0),
-        "callee_kind": row.get("callee_kind"),
-        "line_span": (
-            [row.get("call_start_byte"), row.get("call_end_byte")]
-            if row.get("call_start_byte") is not None
-            and row.get("call_end_byte") is not None
-            else None
-        ),
-        "ordinal": int(row.get("call_ordinal") or 0),
+        "callee_id": row.get("callee_id"),
+        "pair_kind": row.get("pair_kind"),
+        "site_hash": row.get("site_hash"),
     }
 
 
-def _totals(rows: list[dict[str, Any]]) -> dict[str, int]:
-    eligible = len(rows)
-    accepted = sum(1 for row in rows if row.get("resolution_status") == "accepted")
-    dropped = eligible - accepted
+def _totals(rows: list[dict[str, Any]], diagnostics: dict[str, Any]) -> dict[str, int]:
     return {
-        "eligible": eligible,
-        "accepted": accepted,
-        "dropped": dropped,
+        "observed_syntactic_callsites": int(diagnostics.get("observed_callsites") or 0),
+        "persisted_callsite_pairs": len(rows),
+        "filtered_before_persist": int(diagnostics.get("filtered_before_persist") or 0),
+        "finalized_accepted_callsites": int(
+            diagnostics.get("finalized_accepted_callsites") or 0
+        ),
+        "finalized_dropped_callsites": int(
+            diagnostics.get("finalized_dropped_callsites") or 0
+        ),
     }
 
 

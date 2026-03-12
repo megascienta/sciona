@@ -23,6 +23,70 @@ from sciona.runtime.common import constants as setup_config
 from tests.helpers import core_conn, parse_json_payload, qualify_repo_name, seed_repo_with_snapshot
 
 
+def _set_call_resolution_diagnostics(
+    conn,
+    *,
+    snapshot_id: str,
+    by_caller: dict[str, dict[str, object]],
+) -> None:
+    totals = {
+        "identifiers_total": 0,
+        "accepted_identifiers": 0,
+        "dropped_identifiers": 0,
+        "accepted_by_provenance": {},
+        "dropped_by_reason": {},
+        "candidate_count_histogram": {},
+        "record_drops": {},
+        "filtered_pre_persist_buckets": {},
+        "observed_callsites": 0,
+        "persisted_callsites": 0,
+        "filtered_before_persist": 0,
+        "finalized_accepted_callsites": 0,
+        "finalized_dropped_callsites": 0,
+        "rescue_accepted_callsites": 0,
+    }
+    for entry in by_caller.values():
+        totals["identifiers_total"] += int(entry.get("identifiers_total") or 0)
+        totals["accepted_identifiers"] += int(entry.get("accepted_identifiers") or 0)
+        totals["dropped_identifiers"] += int(entry.get("dropped_identifiers") or 0)
+        totals["observed_callsites"] += int(entry.get("observed_callsites") or 0)
+        totals["persisted_callsites"] += int(entry.get("persisted_callsites") or 0)
+        totals["filtered_before_persist"] += int(entry.get("filtered_before_persist") or 0)
+        totals["finalized_accepted_callsites"] += int(
+            entry.get("finalized_accepted_callsites") or 0
+        )
+        totals["finalized_dropped_callsites"] += int(
+            entry.get("finalized_dropped_callsites") or 0
+        )
+        totals["rescue_accepted_callsites"] += int(
+            entry.get("rescue_accepted_callsites") or 0
+        )
+        for bucket_name in (
+            "accepted_by_provenance",
+            "dropped_by_reason",
+            "candidate_count_histogram",
+            "record_drops",
+            "filtered_pre_persist_buckets",
+        ):
+            values = entry.get(bucket_name) or {}
+            if not isinstance(values, dict):
+                continue
+            for key, count in values.items():
+                totals[bucket_name][str(key)] = int(totals[bucket_name].get(str(key), 0)) + int(count or 0)
+    artifact_write.set_rebuild_metadata(
+        conn,
+        key=f"call_resolution_diagnostics:{snapshot_id}",
+        value=json.dumps(
+            {
+                "version": 1,
+                "totals": totals,
+                "by_caller": by_caller,
+            },
+            sort_keys=True,
+        ),
+    )
+
+
 def test_callsite_index_reducer_returns_payload(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     callable_id = qualify_repo_name(repo_root, "pkg.alpha.service.helper")
@@ -68,9 +132,9 @@ def test_callsite_index_compact_mode_returns_summary_payload(tmp_path):
     payload = parse_json_payload(payload_text)
     assert payload["payload_kind"] == "compact_summary"
     assert "edges" not in payload
-    assert "call_sites" not in payload
+    assert "callsite_pairs" not in payload
     assert "resolution_diagnostics" not in payload
-    assert "status_counts" in payload
+    assert "pair_kind_counts" in payload
     assert "identifier_preview" in payload
     assert "edge_preview" in payload
 
@@ -98,38 +162,27 @@ def test_call_resolution_quality_aggregates_callsite_rows(tmp_path):
     artifact_db = repo_root / ".sciona" / setup_config.ARTIFACT_DB_FILENAME
     conn = artifact_connect(artifact_db, repo_root=repo_root)
     try:
-        artifact_write.upsert_call_sites(
+        _set_call_resolution_diagnostics(
             conn,
             snapshot_id=snapshot_id,
-            caller_id="func_alpha",
-            caller_qname=qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
-            caller_node_type="callable",
-            rows=[
-                (
-                    "pkg.beta.worker",
-                    "accepted",
-                    "func_beta",
-                    "exact_qname",
-                    None,
-                    1,
-                    "qualified",
-                    1,
-                    5,
-                    0,
-                ),
-                (
-                    "pkg.unknown.missing",
-                    "dropped",
-                    None,
-                    None,
-                    "no_candidates",
-                    1,
-                    "qualified",
-                    6,
-                    10,
-                    1,
-                ),
-            ],
+            by_caller={
+                "func_alpha": {
+                    "identifiers_total": 2,
+                    "accepted_identifiers": 1,
+                    "dropped_identifiers": 1,
+                    "accepted_by_provenance": {"exact_qname": 1},
+                    "dropped_by_reason": {"no_candidates": 1},
+                    "candidate_count_histogram": {"1": 1},
+                    "record_drops": {},
+                    "filtered_pre_persist_buckets": {},
+                    "observed_callsites": 2,
+                    "persisted_callsites": 2,
+                    "filtered_before_persist": 0,
+                    "finalized_accepted_callsites": 1,
+                    "finalized_dropped_callsites": 1,
+                    "rescue_accepted_callsites": 0,
+                }
+            },
         )
         conn.commit()
     finally:
@@ -177,38 +230,27 @@ def test_call_resolution_quality_applies_overlay_during_render(tmp_path):
     artifact_db = repo_root / ".sciona" / setup_config.ARTIFACT_DB_FILENAME
     conn = artifact_connect(artifact_db, repo_root=repo_root)
     try:
-        artifact_write.upsert_call_sites(
+        _set_call_resolution_diagnostics(
             conn,
             snapshot_id=snapshot_id,
-            caller_id="func_alpha",
-            caller_qname=qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
-            caller_node_type="callable",
-            rows=[
-                (
-                    "pkg.beta.worker",
-                    "accepted",
-                    "func_beta",
-                    "exact_qname",
-                    None,
-                    1,
-                    "qualified",
-                    1,
-                    5,
-                    0,
-                ),
-                (
-                    "pkg.unknown.missing",
-                    "dropped",
-                    None,
-                    None,
-                    "no_candidates",
-                    1,
-                    "qualified",
-                    6,
-                    10,
-                    1,
-                ),
-            ],
+            by_caller={
+                "func_alpha": {
+                    "identifiers_total": 2,
+                    "accepted_identifiers": 1,
+                    "dropped_identifiers": 1,
+                    "accepted_by_provenance": {"exact_qname": 1},
+                    "dropped_by_reason": {"no_candidates": 1},
+                    "candidate_count_histogram": {"1": 1},
+                    "record_drops": {},
+                    "filtered_pre_persist_buckets": {},
+                    "observed_callsites": 2,
+                    "persisted_callsites": 2,
+                    "filtered_before_persist": 0,
+                    "finalized_accepted_callsites": 1,
+                    "finalized_dropped_callsites": 1,
+                    "rescue_accepted_callsites": 0,
+                }
+            },
         )
         conn.commit()
     finally:
@@ -311,59 +353,43 @@ def test_call_resolution_drop_summary_aggregates_dropped_callsites(tmp_path):
     artifact_db = repo_root / ".sciona" / setup_config.ARTIFACT_DB_FILENAME
     artifact_conn = artifact_connect(artifact_db, repo_root=repo_root)
     try:
-        artifact_write.upsert_call_sites(
+        _set_call_resolution_diagnostics(
             artifact_conn,
             snapshot_id=snapshot_id,
-            caller_id="func_alpha",
-            caller_qname=qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
-            caller_node_type="callable",
-            rows=[
-                (
-                    "helper",
-                    "accepted",
-                    "func_beta",
-                    "exact_qname",
-                    None,
-                    1,
-                    "qualified",
-                    1,
-                    5,
-                    0,
-                ),
-                (
-                    "missing_helper",
-                    "dropped",
-                    None,
-                    None,
-                    "no_candidates",
-                    1,
-                    "qualified",
-                    6,
-                    10,
-                    1,
-                ),
-            ],
-        )
-        artifact_write.upsert_call_sites(
-            artifact_conn,
-            snapshot_id=snapshot_id,
-            caller_id="func_test_case",
-            caller_qname=qualify_repo_name(repo_root, "pkg.tests.test_case.helper"),
-            caller_node_type="callable",
-            rows=[
-                (
-                    "pkg.external.helper",
-                    "dropped",
-                    None,
-                    None,
-                    "ambiguous_no_in_scope_candidate",
-                    3,
-                    "qualified",
-                    11,
-                    15,
-                    0,
-                ),
-            ],
+            by_caller={
+                "func_alpha": {
+                    "identifiers_total": 2,
+                    "accepted_identifiers": 1,
+                    "dropped_identifiers": 1,
+                    "accepted_by_provenance": {"exact_qname": 1},
+                    "dropped_by_reason": {"no_candidates": 1},
+                    "candidate_count_histogram": {},
+                    "record_drops": {},
+                    "filtered_pre_persist_buckets": {},
+                    "observed_callsites": 2,
+                    "persisted_callsites": 2,
+                    "filtered_before_persist": 0,
+                    "finalized_accepted_callsites": 1,
+                    "finalized_dropped_callsites": 1,
+                    "rescue_accepted_callsites": 0,
+                },
+                "func_test_case": {
+                    "identifiers_total": 1,
+                    "accepted_identifiers": 0,
+                    "dropped_identifiers": 1,
+                    "accepted_by_provenance": {},
+                    "dropped_by_reason": {"ambiguous_no_in_scope_candidate": 1},
+                    "candidate_count_histogram": {},
+                    "record_drops": {},
+                    "filtered_pre_persist_buckets": {},
+                    "observed_callsites": 1,
+                    "persisted_callsites": 1,
+                    "filtered_before_persist": 0,
+                    "finalized_accepted_callsites": 0,
+                    "finalized_dropped_callsites": 1,
+                    "rescue_accepted_callsites": 0,
+                },
+            },
         )
         artifact_conn.commit()
     finally:
@@ -421,38 +447,27 @@ def test_call_resolution_drop_summary_applies_overlay_during_render(tmp_path):
     artifact_db = repo_root / ".sciona" / setup_config.ARTIFACT_DB_FILENAME
     artifact_conn = artifact_connect(artifact_db, repo_root=repo_root)
     try:
-        artifact_write.upsert_call_sites(
+        _set_call_resolution_diagnostics(
             artifact_conn,
             snapshot_id=snapshot_id,
-            caller_id="func_alpha",
-            caller_qname=qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
-            caller_node_type="callable",
-            rows=[
-                (
-                    "pkg.beta.worker",
-                    "accepted",
-                    "func_beta",
-                    "exact_qname",
-                    None,
-                    1,
-                    "qualified",
-                    1,
-                    5,
-                    0,
-                ),
-                (
-                    "pkg.unknown.missing",
-                    "dropped",
-                    None,
-                    None,
-                    "no_candidates",
-                    1,
-                    "qualified",
-                    6,
-                    10,
-                    1,
-                ),
-            ],
+            by_caller={
+                "func_alpha": {
+                    "identifiers_total": 2,
+                    "accepted_identifiers": 1,
+                    "dropped_identifiers": 1,
+                    "accepted_by_provenance": {"exact_qname": 1},
+                    "dropped_by_reason": {"no_candidates": 1},
+                    "candidate_count_histogram": {},
+                    "record_drops": {},
+                    "filtered_pre_persist_buckets": {},
+                    "observed_callsites": 2,
+                    "persisted_callsites": 2,
+                    "filtered_before_persist": 0,
+                    "finalized_accepted_callsites": 1,
+                    "finalized_dropped_callsites": 1,
+                    "rescue_accepted_callsites": 0,
+                }
+            },
         )
         artifact_conn.commit()
     finally:
@@ -508,8 +523,7 @@ def test_resolution_trace_returns_payload(tmp_path):
     assert payload["payload_kind"] == "summary"
     assert payload["callable_id"]
     assert "resolution_pipeline_stages" in payload
-    assert "accepted_samples" in payload
-    assert "dropped_samples" in payload
+    assert "pair_samples" in payload
 
 
 def test_call_resolution_drop_summary_rejects_invalid_limit(tmp_path):
@@ -532,65 +546,46 @@ def test_resolution_trace_uses_callsite_and_diagnostics(tmp_path):
     artifact_db = repo_root / ".sciona" / setup_config.ARTIFACT_DB_FILENAME
     conn = artifact_connect(artifact_db, repo_root=repo_root)
     try:
-        artifact_write.upsert_call_sites(
+        artifact_write.upsert_callsite_pairs(
             conn,
             snapshot_id=snapshot_id,
             caller_id="func_alpha",
-            caller_qname=qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
-            caller_node_type="callable",
             rows=[
                 (
                     "pkg.beta.worker",
-                    "accepted",
+                    "site-beta",
                     "func_beta",
-                    "exact_qname",
-                    None,
-                    1,
-                    "qualified",
-                    1,
-                    5,
-                    0,
+                    "in_repo_candidate",
                 ),
                 (
-                    "pkg.unknown.missing",
-                    "dropped",
-                    None,
-                    None,
-                    "no_candidates",
-                    2,
-                    "qualified",
-                    6,
-                    10,
-                    1,
+                    "pkg.beta.worker",
+                    "site-beta-2",
+                    "func_gamma",
+                    "in_repo_candidate",
                 ),
             ],
         )
-        artifact_write.set_rebuild_metadata(
+        _set_call_resolution_diagnostics(
             conn,
-            key=f"call_resolution_diagnostics:{snapshot_id}",
-            value=json.dumps(
-                {
-                    "version": 1,
-                    "by_caller": {
-                        "func_alpha": {
-                            "identifiers_total": 2,
-                            "accepted_identifiers": 1,
-                            "dropped_identifiers": 1,
-                            "accepted_by_provenance": {"exact_qname": 1},
-                            "dropped_by_reason": {"no_candidates": 1},
-                            "candidate_count_histogram": {"1": 1, "2": 1},
-                            "observed_callsites": 2,
-                            "persisted_callsites": 2,
-                            "filtered_before_persist": 0,
-                            "finalized_accepted_callsites": 1,
-                            "finalized_dropped_callsites": 1,
-                            "rescue_accepted_callsites": 0,
-                            "record_drops": {},
-                        }
-                    },
-                },
-                sort_keys=True,
-            ),
+            snapshot_id=snapshot_id,
+            by_caller={
+                "func_alpha": {
+                    "identifiers_total": 2,
+                    "accepted_identifiers": 1,
+                    "dropped_identifiers": 1,
+                    "accepted_by_provenance": {"exact_qname": 1},
+                    "dropped_by_reason": {"no_candidates": 1},
+                    "candidate_count_histogram": {"1": 1, "2": 1},
+                    "record_drops": {},
+                    "filtered_pre_persist_buckets": {},
+                    "observed_callsites": 2,
+                    "persisted_callsites": 2,
+                    "filtered_before_persist": 0,
+                    "finalized_accepted_callsites": 1,
+                    "finalized_dropped_callsites": 1,
+                    "rescue_accepted_callsites": 0,
+                }
+            },
         )
         conn.commit()
     finally:
@@ -607,18 +602,24 @@ def test_resolution_trace_uses_callsite_and_diagnostics(tmp_path):
     finally:
         core.close()
     payload = parse_json_payload(payload_text)
-    assert payload["totals"] == {"eligible": 2, "accepted": 1, "dropped": 1}
+    assert payload["totals"] == {
+        "observed_syntactic_callsites": 2,
+        "persisted_callsite_pairs": 2,
+        "filtered_before_persist": 0,
+        "finalized_accepted_callsites": 1,
+        "finalized_dropped_callsites": 1,
+    }
     assert payload["accepted_by_provenance"][0] == {"name": "exact_qname", "count": 1}
     assert payload["dropped_by_reason"][0] == {"name": "no_candidates", "count": 1}
     assert payload["diagnostics"]["observed_callsites"] == 2
     assert payload["diagnostics"]["persisted_callsites"] == 2
     assert payload["diagnostics"]["filtered_before_persist"] == 0
+    assert payload["diagnostics"]["filtered_pre_persist_buckets"] == []
     assert payload["diagnostics"]["finalized_accepted_callsites"] == 1
     assert payload["diagnostics"]["finalized_dropped_callsites"] == 1
     assert payload["diagnostics"]["rescue_accepted_callsites"] == 0
-    assert payload["accepted_samples"][0]["identifier"] == "pkg.beta.worker"
-    assert payload["dropped_samples"][0]["identifier"] == "pkg.unknown.missing"
-    assert payload["dropped_samples"][0]["drop_reason"] == "no_candidates"
+    assert payload["pair_samples"][0]["identifier"] == "pkg.beta.worker"
+    assert payload["pair_samples"][0]["callee_id"] == "func_beta"
 
 
 def test_resolution_trace_preserves_unique_without_provenance_drop(tmp_path):
@@ -626,26 +627,27 @@ def test_resolution_trace_preserves_unique_without_provenance_drop(tmp_path):
     artifact_db = repo_root / ".sciona" / setup_config.ARTIFACT_DB_FILENAME
     conn = artifact_connect(artifact_db, repo_root=repo_root)
     try:
-        artifact_write.upsert_call_sites(
+        _set_call_resolution_diagnostics(
             conn,
             snapshot_id=snapshot_id,
-            caller_id="func_alpha",
-            caller_qname=qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
-            caller_node_type="callable",
-            rows=[
-                (
-                    "pkg.alpha.service.PythonNodeState.append",
-                    "dropped",
-                    None,
-                    None,
-                    "unique_without_provenance",
-                    1,
-                    "qualified",
-                    4,
-                    4,
-                    0,
-                ),
-            ],
+            by_caller={
+                "func_alpha": {
+                    "identifiers_total": 1,
+                    "accepted_identifiers": 0,
+                    "dropped_identifiers": 1,
+                    "accepted_by_provenance": {},
+                    "dropped_by_reason": {"unique_without_provenance": 1},
+                    "candidate_count_histogram": {"1": 1},
+                    "record_drops": {},
+                    "filtered_pre_persist_buckets": {},
+                    "observed_callsites": 1,
+                    "persisted_callsites": 1,
+                    "filtered_before_persist": 0,
+                    "finalized_accepted_callsites": 0,
+                    "finalized_dropped_callsites": 1,
+                    "rescue_accepted_callsites": 0,
+                }
+            },
         )
         conn.commit()
     finally:
@@ -662,12 +664,8 @@ def test_resolution_trace_preserves_unique_without_provenance_drop(tmp_path):
     finally:
         core.close()
     payload = parse_json_payload(payload_text)
-    assert payload["totals"] == {"eligible": 1, "accepted": 0, "dropped": 1}
-    assert payload["dropped_samples"][0]["drop_reason"] == "unique_without_provenance"
-    assert payload["dropped_samples"][0]["identifier"].endswith(
-        "PythonNodeState.append"
-    )
-    assert payload["dropped_samples"][0]["candidate_count"] == 1
+    assert payload["totals"]["finalized_dropped_callsites"] == 1
+    assert payload["dropped_by_reason"][0]["name"] == "unique_without_provenance"
 
 
 def test_resolution_trace_preserves_ambiguous_in_scope_drop(tmp_path):
@@ -675,26 +673,40 @@ def test_resolution_trace_preserves_ambiguous_in_scope_drop(tmp_path):
     artifact_db = repo_root / ".sciona" / setup_config.ARTIFACT_DB_FILENAME
     conn = artifact_connect(artifact_db, repo_root=repo_root)
     try:
-        artifact_write.upsert_call_sites(
+        artifact_write.upsert_callsite_pairs(
             conn,
             snapshot_id=snapshot_id,
             caller_id="func_alpha",
-            caller_qname=qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
-            caller_node_type="callable",
             rows=[
                 (
                     "pkg.alpha.service.Path.resolve",
-                    "dropped",
-                    None,
-                    None,
-                    "ambiguous_no_in_scope_candidate",
-                    6,
-                    "qualified",
-                    5,
-                    5,
-                    1,
+                    "site-resolve",
+                    "func_beta",
+                    "in_repo_candidate",
                 ),
             ],
+        )
+        _set_call_resolution_diagnostics(
+            conn,
+            snapshot_id=snapshot_id,
+            by_caller={
+                "func_alpha": {
+                    "identifiers_total": 1,
+                    "accepted_identifiers": 0,
+                    "dropped_identifiers": 1,
+                    "accepted_by_provenance": {},
+                    "dropped_by_reason": {"ambiguous_no_in_scope_candidate": 1},
+                    "candidate_count_histogram": {"6": 1},
+                    "record_drops": {},
+                    "filtered_pre_persist_buckets": {},
+                    "observed_callsites": 1,
+                    "persisted_callsites": 1,
+                    "filtered_before_persist": 0,
+                    "finalized_accepted_callsites": 0,
+                    "finalized_dropped_callsites": 1,
+                    "rescue_accepted_callsites": 0,
+                }
+            },
         )
         conn.commit()
     finally:
@@ -711,13 +723,9 @@ def test_resolution_trace_preserves_ambiguous_in_scope_drop(tmp_path):
     finally:
         core.close()
     payload = parse_json_payload(payload_text)
-    assert payload["totals"] == {"eligible": 1, "accepted": 0, "dropped": 1}
-    assert (
-        payload["dropped_samples"][0]["drop_reason"]
-        == "ambiguous_no_in_scope_candidate"
-    )
-    assert payload["dropped_samples"][0]["identifier"].endswith("Path.resolve")
-    assert payload["dropped_samples"][0]["candidate_count"] == 6
+    assert payload["totals"]["finalized_dropped_callsites"] == 1
+    assert payload["pair_samples"][0]["identifier"].endswith("Path.resolve")
+    assert payload["dropped_by_reason"][0]["name"] == "ambiguous_no_in_scope_candidate"
 
 
 def test_structural_integrity_summary_returns_payload(tmp_path):

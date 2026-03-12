@@ -8,13 +8,13 @@ from __future__ import annotations
 from collections import Counter, defaultdict
 from pathlib import Path
 
-from ..data_storage.artifact_db.reporting import read_reporting as artifact_reporting
 from ..data_storage.core_db import read_ops as core_read
 from ..pipelines.diff_overlay.patching.analytics import (
     patch_call_resolution_drop_summary,
 )
 from .helpers.shared import queries
-from .helpers.shared.context import current_artifact_connection, fallback_artifact_connection
+from .helpers.artifact.graph_edges import artifact_db_available
+from .helpers.artifact.reporting import load_call_resolution_diagnostics_payload
 from .helpers.shared.context import current_overlay_payload
 from .helpers.shared.connection import require_connection
 from .helpers.shared.payload import render_json_payload
@@ -25,8 +25,8 @@ REDUCER_META = ReducerMeta(
     reducer_id="call_resolution_drop_summary",
     category="diagnostic",
     placeholder="CALL_RESOLUTION_DROP_SUMMARY",
-    summary="Summarize artifact-layer dropped callsite outcomes by reason, language, "
-    "and scope for fast call-resolution triage. ",
+    summary="Summarize canonical dropped-call diagnostics by reason, language, and "
+    "scope for fast call-resolution triage. ",
 )
 
 
@@ -42,17 +42,13 @@ def render(
         conn, snapshot_id, reducer_name="call_resolution_drop_summary reducer"
     )
     limit_value = _normalize_limit(limit)
-    artifact_conn = current_artifact_connection()
-    owns_connection = False
-    if artifact_conn is None and repo_root is not None:
-        artifact_conn = fallback_artifact_connection(repo_root)
-        owns_connection = artifact_conn is not None
+    artifact_available = artifact_db_available(repo_root) if repo_root else False
 
     body = {
         "payload_kind": "summary",
         "limit": limit_value,
-        "artifact_available": artifact_conn is not None,
-        "edge_source": "artifact_db" if artifact_conn is not None else "none",
+        "artifact_available": artifact_available,
+        "edge_source": "artifact_db" if artifact_available else "none",
         "totals": {
             "eligible": 0,
             "accepted": 0,
@@ -89,37 +85,43 @@ def render(
         },
         "top_callers_by_drop_count": [],
     }
-    if artifact_conn is None:
+    if not artifact_available or repo_root is None:
         return render_json_payload(body)
 
-    try:
-        status_rows = artifact_reporting.call_site_caller_status_counts(
-            artifact_conn,
-            snapshot_id=snapshot_id,
-        )
-        drop_rows = artifact_reporting.call_site_drop_identifier_counts(
-            artifact_conn,
-            snapshot_id=snapshot_id,
-        )
-    finally:
-        if owns_connection:
-            artifact_conn.close()
+    diagnostics_payload = load_call_resolution_diagnostics_payload(
+        repo_root=repo_root,
+        snapshot_id=snapshot_id,
+    )
+    diagnostics_by_caller = (
+        diagnostics_payload.get("by_caller") if isinstance(diagnostics_payload, dict) else {}
+    )
+    if not isinstance(diagnostics_by_caller, dict):
+        diagnostics_by_caller = {}
 
     caller_lookup = core_read.caller_node_metadata_map(conn, snapshot_id)
     module_lookup = queries.module_id_lookup(conn, snapshot_id)
 
     totals = {"eligible": 0, "accepted": 0, "dropped": 0}
     top_callers: dict[str, dict[str, object]] = {}
-    for row in status_rows:
-        count = int(row.get("site_count") or 0)
-        status = str(row.get("resolution_status") or "")
-        caller_id = str(row.get("caller_id") or "")
+    by_reason: Counter[str] = Counter()
+    by_language: dict[str, Counter[str]] = defaultdict(Counter)
+    by_scope: dict[str, Counter[str]] = {
+        "non_tests": Counter(),
+        "tests": Counter(),
+    }
+
+    for caller_id, row in diagnostics_by_caller.items():
+        caller_id = str(caller_id or "")
+        if not caller_id or not isinstance(row, dict):
+            continue
         meta = caller_lookup.get(caller_id, {})
-        totals["eligible"] += count
-        if status == "accepted":
-            totals["accepted"] += count
-        elif status == "dropped":
-            totals["dropped"] += count
+        eligible = int(row.get("persisted_callsites") or 0)
+        accepted = int(row.get("finalized_accepted_callsites") or 0)
+        dropped = int(row.get("finalized_dropped_callsites") or 0)
+        totals["eligible"] += eligible
+        totals["accepted"] += accepted
+        totals["dropped"] += dropped
+        if dropped > 0:
             entry = top_callers.setdefault(
                 caller_id,
                 {
@@ -131,24 +133,20 @@ def render(
                     "dropped": 0,
                 },
             )
-            entry["dropped"] = int(entry["dropped"] or 0) + count
-
-    by_reason: Counter[str] = Counter()
-    by_language: dict[str, Counter[str]] = defaultdict(Counter)
-    by_scope: dict[str, Counter[str]] = {
-        "non_tests": Counter(),
-        "tests": Counter(),
-    }
-    for row in drop_rows:
-        caller_id = str(row.get("caller_id") or "")
-        meta = caller_lookup.get(caller_id, {})
-        reason = str(row.get("drop_reason") or "unknown")
-        count = int(row.get("site_count") or 0)
+            entry["dropped"] = int(entry["dropped"] or 0) + dropped
         language = str(meta.get("language") or "unknown")
         scope = _scope_bucket(str(meta.get("file_path") or ""))
-        by_reason[reason] += count
-        by_language[language][reason] += count
-        by_scope[scope][reason] += count
+        dropped_by_reason = row.get("dropped_by_reason")
+        if not isinstance(dropped_by_reason, dict):
+            continue
+        for reason, count in dropped_by_reason.items():
+            amount = int(count or 0)
+            if amount <= 0:
+                continue
+            reason_name = str(reason or "unknown")
+            by_reason[reason_name] += amount
+            by_language[language][reason_name] += amount
+            by_scope[scope][reason_name] += amount
 
     body["totals"] = {
         **totals,

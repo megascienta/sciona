@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import json
 
 from sciona.code_analysis.artifacts import write_call_artifacts
 from sciona.code_analysis.tools.call_extraction import CallExtractionRecord
@@ -12,6 +13,50 @@ from sciona.reducers import callsite_index
 from sciona.runtime import paths as runtime_paths
 from sciona.runtime.paths import get_artifact_db_path
 from tests.helpers import core_conn as _core_conn, parse_json_payload, seed_repo_with_snapshot
+
+
+def _set_call_resolution_diagnostics(
+    conn,
+    *,
+    snapshot_id: str,
+    caller_id: str,
+    accepted_by_provenance: dict[str, int] | None = None,
+    dropped_by_reason: dict[str, int] | None = None,
+    observed_callsites: int = 0,
+    persisted_callsites: int = 0,
+    finalized_accepted_callsites: int = 0,
+    finalized_dropped_callsites: int = 0,
+) -> None:
+    artifact_write.set_rebuild_metadata(
+        conn,
+        key=f"call_resolution_diagnostics:{snapshot_id}",
+        value=json.dumps(
+            {
+                "version": 1,
+                "by_caller": {
+                    caller_id: {
+                        "identifiers_total": observed_callsites,
+                        "accepted_identifiers": finalized_accepted_callsites,
+                        "dropped_identifiers": finalized_dropped_callsites,
+                        "accepted_by_provenance": accepted_by_provenance or {},
+                        "dropped_by_reason": dropped_by_reason or {},
+                        "candidate_count_histogram": {},
+                        "record_drops": {},
+                        "filtered_pre_persist_buckets": {},
+                        "observed_callsites": observed_callsites,
+                        "persisted_callsites": persisted_callsites,
+                        "filtered_before_persist": max(
+                            0, observed_callsites - persisted_callsites
+                        ),
+                        "finalized_accepted_callsites": finalized_accepted_callsites,
+                        "finalized_dropped_callsites": finalized_dropped_callsites,
+                        "rescue_accepted_callsites": 0,
+                    }
+                },
+            },
+            sort_keys=True,
+        ),
+    )
 
 
 def test_callsite_index_enrichment_is_opt_in(tmp_path: Path) -> None:
@@ -43,7 +88,7 @@ def test_callsite_index_enrichment_is_opt_in(tmp_path: Path) -> None:
                 callable_id="meth_alpha",
             )
         )
-        assert without_payload["call_sites"] == []
+        assert without_payload["callsite_pairs"] == []
         assert without_payload["resolution_diagnostics"] == {}
 
         with_payload = parse_json_payload(
@@ -55,9 +100,11 @@ def test_callsite_index_enrichment_is_opt_in(tmp_path: Path) -> None:
                 include_callsite_diagnostics=True,
             )
         )
-        assert with_payload["call_sites_semantics"] == "filtered_persisted_artifact_working_set"
-        assert with_payload["external_likely_semantics"] == "residual_filter_quality_signal"
-        assert with_payload["call_sites"]
+        assert (
+            with_payload["callsite_pairs_semantics"]
+            == "deduplicated_persisted_in_scope_candidate_pairs"
+        )
+        assert with_payload["callsite_pairs"]
     finally:
         artifact_conn.close()
         conn.close()
@@ -69,42 +116,35 @@ def test_callsite_index_filters_callsites_and_edges(tmp_path: Path) -> None:
     conn = _core_conn(repo_root)
     artifact_conn = artifact_connect(get_artifact_db_path(repo_root), repo_root=repo_root)
     try:
-        artifact_write.upsert_call_sites(
+        artifact_write.upsert_callsite_pairs(
             artifact_conn,
             snapshot_id=snapshot_id,
             caller_id="meth_alpha",
-            caller_qname=f"{prefix}.pkg.alpha.Service.run",
-            caller_node_type="callable",
             rows=[
                 (
                     "helper",
-                    "accepted",
+                    "site-helper",
                     "func_alpha",
-                    "export_chain_narrowed",
-                    None,
-                    1,
-                    "terminal",
-                    None,
-                    None,
-                    1,
-                    1,
-                    f"{prefix}.pkg.alpha",
+                    "in_repo_candidate",
                 ),
                 (
                     "missing_helper",
-                    "dropped",
-                    None,
-                    None,
-                    "unique_without_provenance",
-                    1,
-                    "terminal",
-                    None,
-                    None,
-                    2,
-                    0,
-                    f"{prefix}.pkg.beta",
+                    "site-missing",
+                    "func_gamma",
+                    "in_repo_candidate",
                 ),
             ],
+        )
+        _set_call_resolution_diagnostics(
+            artifact_conn,
+            snapshot_id=snapshot_id,
+            caller_id="meth_alpha",
+            accepted_by_provenance={"export_chain_narrowed": 1},
+            dropped_by_reason={"unique_without_provenance": 1},
+            observed_callsites=2,
+            persisted_callsites=2,
+            finalized_accepted_callsites=1,
+            finalized_dropped_callsites=1,
         )
         artifact_conn.execute(
             """
@@ -121,32 +161,16 @@ def test_callsite_index_filters_callsites_and_edges(tmp_path: Path) -> None:
                 conn=conn,
                 repo_root=repo_root,
                 callable_id="meth_alpha",
-                status="accepted",
-                provenance="export_chain_narrowed",
+                identifier="helper",
             )
         )
-        assert [row["identifier"] for row in accepted_payload["call_sites"]] == ["helper"]
-        assert accepted_payload["call_sites"][0]["row_origin"] == "committed"
-        assert accepted_payload["call_sites"][0]["transition"] == "unchanged"
+        assert [row["identifier"] for row in accepted_payload["callsite_pairs"]] == ["helper"]
+        assert accepted_payload["callsite_pairs"][0]["row_origin"] == "committed"
+        assert accepted_payload["callsite_pairs"][0]["transition"] == "unchanged"
         assert [edge["callee_id"] for edge in accepted_payload["edges"]] == ["func_alpha"]
         assert accepted_payload["edges"][0]["row_origin"] == "committed"
         assert accepted_payload["edges"][0]["transition"] == "unchanged"
         assert accepted_payload["edge_transition_summary"]["unchanged"] == 1
-
-        dropped_payload = parse_json_payload(
-            callsite_index.render(
-                snapshot_id,
-                conn=conn,
-                repo_root=repo_root,
-                callable_id="meth_alpha",
-                status="dropped",
-                drop_reason="unique_without_provenance",
-            )
-        )
-        assert [row["identifier"] for row in dropped_payload["call_sites"]] == [
-            "missing_helper"
-        ]
-        assert dropped_payload["edges"] == []
 
         identifier_payload = parse_json_payload(
             callsite_index.render(
@@ -157,7 +181,7 @@ def test_callsite_index_filters_callsites_and_edges(tmp_path: Path) -> None:
                 identifier="helper",
             )
         )
-        assert [row["identifier"] for row in identifier_payload["call_sites"]] == ["helper"]
+        assert [row["identifier"] for row in identifier_payload["callsite_pairs"]] == ["helper"]
 
         compact_payload = parse_json_payload(
             callsite_index.render(
@@ -169,7 +193,7 @@ def test_callsite_index_filters_callsites_and_edges(tmp_path: Path) -> None:
             )
         )
         assert compact_payload["payload_kind"] == "compact_summary"
-        assert compact_payload["status_counts"][0]["name"] == "accepted"
+        assert compact_payload["pair_kind_counts"][0]["name"] == "in_repo_candidate"
         assert compact_payload["identifier_preview"]["entries"][0]["name"] == "helper"
         assert compact_payload["edge_preview"]["count"] == 1
     finally:

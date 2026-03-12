@@ -63,12 +63,12 @@ def load_artifact_edges(
             conn.close()
 
 
-def load_call_sites(
+def load_callsite_pairs(
     repo_root: Path,
     *,
     snapshot_id: str,
     caller_id: str | None = None,
-    status: str | None = None,
+    identifier: str | None = None,
 ) -> List[dict]:
     conn = current_artifact_connection()
     owns_connection = False
@@ -83,31 +83,23 @@ def load_call_sites(
         if caller_id:
             clauses.append("caller_id = ?")
             params.append(caller_id)
-        if status:
-            clauses.append("resolution_status = ?")
-            params.append(status)
+        if identifier:
+            clauses.append("identifier = ?")
+            params.append(identifier)
         where = " AND ".join(clauses)
         rows = conn.execute(
             f"""
             SELECT
                 snapshot_id,
                 caller_id,
-                caller_qname,
-                caller_node_type,
                 identifier,
-                resolution_status,
-                accepted_callee_id,
-                provenance,
-                drop_reason,
-                candidate_count,
-                callee_kind,
-                call_start_byte,
-                call_end_byte,
-                call_ordinal,
-                site_hash
-            FROM call_sites
+                site_hash,
+                callee_id,
+                pair_kind,
+                pair_hash
+            FROM callsite_pairs
             WHERE {where}
-            ORDER BY caller_id, identifier, site_hash
+            ORDER BY caller_id, identifier, callee_id, pair_hash
             """,
             tuple(params),
         ).fetchall()

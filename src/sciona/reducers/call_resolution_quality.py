@@ -12,7 +12,7 @@ from ..data_storage.core_db import read_ops as core_read
 from ..pipelines.diff_overlay.patching.analytics import patch_call_resolution_quality
 from .helpers.shared import queries
 from .helpers.artifact.graph_edges import artifact_db_available
-from .helpers.artifact.reporting import load_callsite_caller_status_counts
+from .helpers.artifact.reporting import load_call_resolution_diagnostics_payload
 from .helpers.shared.context import current_overlay_payload
 from .helpers.shared.connection import require_connection
 from .helpers.shared.payload import render_json_payload
@@ -23,8 +23,9 @@ REDUCER_META = ReducerMeta(
     reducer_id="call_resolution_quality",
     category="diagnostic",
     placeholder="CALL_RESOLUTION_QUALITY",
-    summary="Aggregated call-resolution diagnostics derived from persisted callsite data. "
-    "Use to understand accepted vs dropped distribution and dominant drop reasons. ",
+    summary="Aggregated call-resolution diagnostics derived from canonical rebuild "
+    "diagnostics. Use to understand finalized accepted vs dropped distribution and "
+    "dominant drop reasons. ",
     anomaly_detector=True,
 )
 
@@ -46,23 +47,30 @@ def render(
     artifact_available = artifact_db_available(repo_root) if repo_root else False
     normalized_language = _normalize_language(language)
     limit_value = _normalize_limit(limit)
-    rows = (
-        load_callsite_caller_status_counts(
+    diagnostics_payload = (
+        load_call_resolution_diagnostics_payload(
             repo_root=repo_root,
             snapshot_id=snapshot_id,
         )
         if artifact_available and repo_root is not None
-        else []
+        else {}
     )
+    diagnostics_by_caller = (
+        diagnostics_payload.get("by_caller") if isinstance(diagnostics_payload, dict) else {}
+    )
+    if not isinstance(diagnostics_by_caller, dict):
+        diagnostics_by_caller = {}
 
     caller_lookup = core_read.caller_node_metadata_map(conn, snapshot_id)
     module_lookup = queries.module_id_lookup(conn, snapshot_id)
     module_filter_ids = _resolve_module_filter_ids(conn, snapshot_id, module_id)
 
     filtered = []
-    for row in rows:
-        caller_id = str(row.get("caller_id") or "")
+    for caller_id, row in diagnostics_by_caller.items():
+        caller_id = str(caller_id or "")
         if not caller_id:
+            continue
+        if not isinstance(row, dict):
             continue
         meta = caller_lookup.get(caller_id)
         if not meta:
@@ -73,7 +81,7 @@ def render(
             continue
         if normalized_language and row_language != normalized_language:
             continue
-        filtered.append((row, meta, row_module))
+        filtered.append((caller_id, row, meta, row_module))
 
     totals = {"eligible": 0, "accepted": 0, "dropped": 0}
     drop_reasons: Counter[str] = Counter()
@@ -91,39 +99,39 @@ def render(
         }
     )
 
-    for row, meta, row_module in filtered:
-        status = str(row.get("resolution_status") or "")
-        site_count = int(row.get("site_count") or 0)
-        caller_id = str(row.get("caller_id") or "")
+    for caller_id, row, meta, row_module in filtered:
+        eligible = int(row.get("persisted_callsites") or 0)
+        accepted_count = int(row.get("finalized_accepted_callsites") or 0)
+        dropped_count = int(row.get("finalized_dropped_callsites") or 0)
         language_value = str(meta.get("language") or "")
         qualified_name = str(meta.get("qualified_name") or "")
         file_path = str(meta.get("file_path") or "")
         module_value = row_module or ""
 
-        totals["eligible"] += site_count
-        by_language[language_value]["eligible"] += site_count
-        by_module[module_value]["eligible"] += site_count
+        totals["eligible"] += eligible
+        totals["accepted"] += accepted_count
+        totals["dropped"] += dropped_count
+        by_language[language_value]["eligible"] += eligible
+        by_language[language_value]["accepted"] += accepted_count
+        by_language[language_value]["dropped"] += dropped_count
+        by_module[module_value]["eligible"] += eligible
+        by_module[module_value]["accepted"] += accepted_count
+        by_module[module_value]["dropped"] += dropped_count
 
         caller_entry = by_caller[caller_id]
-        caller_entry["eligible"] += site_count
+        caller_entry["eligible"] += eligible
+        caller_entry["accepted"] += accepted_count
+        caller_entry["dropped"] += dropped_count
         caller_entry["qualified_name"] = qualified_name
         caller_entry["language"] = language_value
         caller_entry["module_qualified_name"] = module_value
         caller_entry["file_path"] = file_path
-
-        if status == "accepted":
-            totals["accepted"] += site_count
-            by_language[language_value]["accepted"] += site_count
-            by_module[module_value]["accepted"] += site_count
-            caller_entry["accepted"] += site_count
-        elif status == "dropped":
-            totals["dropped"] += site_count
-            by_language[language_value]["dropped"] += site_count
-            by_module[module_value]["dropped"] += site_count
-            caller_entry["dropped"] += site_count
-            reason = str(row.get("drop_reason") or "")
-            if reason:
-                drop_reasons[reason] += site_count
+        dropped_by_reason = row.get("dropped_by_reason")
+        if isinstance(dropped_by_reason, dict):
+            for reason, count in dropped_by_reason.items():
+                amount = int(count or 0)
+                if amount > 0:
+                    drop_reasons[str(reason)] += amount
 
     body = {
         "payload_kind": "summary",
