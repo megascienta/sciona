@@ -326,8 +326,9 @@ Global criteria:
   heuristic fallback is allowed.
 - Artifact-finalized reducer-facing `CALLS` targets are in-repo callable IDs
   only.
-- CoreDB strict candidate selection drops non-accepted candidates before any
-  structural call normalization is reused downstream.
+- Strict candidate selection drops non-accepted candidates during artifact
+  finalization and overlay call derivation before reducer-facing call
+  normalization is reused downstream.
 - Artifact finalization MAY add reducer-facing rescue provenance such as
   `export_chain_narrowed`.
 - Reducers read reducer-facing projections from ArtifactDB when present and MAY

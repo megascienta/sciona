@@ -33,8 +33,8 @@ Do not use this document to redefine structural semantics.
 ## Repository Boundaries
 
 - `src/sciona/cli/`: Typer CLI entrypoint and UX shell over `pipelines.ops.*`
-  for `build`, `init`, `agents`, `hooks`, `status`, `search`, `resolve`, and
-  `reducer` command wiring
+  for `build`, `init`, `agents`, `hooks`, `status`, `clean`, `search`,
+  `resolve`, and `reducer` command wiring
 - `src/sciona/api/`: stable public addon-facing namespace; public root exports
   only `sciona.api.addons` and must not carry CLI-only bridge surfaces
 - `src/sciona/runtime/`: paths, config loading, logging, git helpers, time,
@@ -326,7 +326,7 @@ Schema ownership:
 - ArtifactDB schema/migrations live in
   `src/sciona/data_storage/artifact_db/schema.py`
 - Build-time population of ArtifactDB lives in
-  `src/sciona/pipelines/build_artifacts.py`
+  `src/sciona/pipelines/ops/build_artifacts.py`
 
 ## Runtime Configuration
 

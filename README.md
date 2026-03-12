@@ -155,12 +155,18 @@ SCIONA indexes the **last committed snapshot**. Reducers are evaluated against t
 
 SCIONA has been validated on several large open-source repositories including **[VSCode](https://github.com/microsoft/vscode), [SymPy](https://github.com/sympy/sympy), [Guava](https://github.com/google/guava), [Webpack](https://github.com/webpack/webpack), [Airbyte](https://github.com/airbytehq/airbyte), and [NestJS](https://github.com/nestjs/nest)**. Validation reports and methodology details are available in [`validations/build_status_reports/`](validations/build_status_reports/).
 
-Across these projects, SCIONA processed **27,700 files**, extracted **304,824 structural nodes**, and analyzed **265,110 call sites**, producing **255,904 deterministic call edges**. This corresponds to an overall **~96.5% in-repository call resolution rate**. Resolution rates remain consistently high across supported languages, with **~98% for Python**, **~97.6% for TypeScript**, **~97.3% for JavaScript**, and **~90.6% for Java**. Typical SCI build times range from ~xx–xx seconds for medium repositories and ~x–x minutes for very large projects such as VSCode.
+Across these projects, SCIONA processed **27,700 indexed files** from **27,711 discovered files**, extracted **291,891 structural nodes**, and analyzed **260,361 eligible call sites**, producing **251,046 deterministic call edges**.
+
+This corresponds to an overall **96.42% deterministic in-repository call resolution rate within the candidate call set**. Resolution rates remain high across supported languages, with **98.21% for Python**, **97.41% for TypeScript**, **97.65% for JavaScript**, and **90.63% for Java**.
+
+Observed wall-clock build times in this validation set range from **3.06 seconds** (`axios`) to **129.73 seconds** (`sympy`), with the largest repository (**VSCode**) completing in **593.50 seconds**. The mean processing time is **2.63 seconds per 1K structural nodes**.
 
 Examples from large repositories include:
-- **VSCode:** 149,573 call sites resolved at **97.6%**, build time ~xx seconds
-- **SymPy:** 47,285 call sites resolved at **99.6%**, build time ~xx seconds
-- **Guava:** 38,315 call sites resolved at **89.8%**, build time ~xx seconds.
+- **VSCode:** 145,243 call sites resolved at **97.41%**, build time **593.50 seconds**
+- **SymPy:** 47,319 call sites resolved at **99.56%**, build time **129.73 seconds**
+- **Guava:** 38,315 call sites resolved at **89.83%**, build time **83.10 seconds**.
+
+These numbers reflect deterministic structural resolution and do not attempt to recover dynamic dispatch or runtime call relationships.
 
 ## Project Status
 
