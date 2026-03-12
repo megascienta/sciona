@@ -24,6 +24,9 @@ class JavaNodeState:
     class_name_candidates: dict[str, set[str]] = field(default_factory=dict)
     class_kind_map: dict[str, str] = field(default_factory=dict)
     class_field_types: dict[str, dict[str, str]] = field(default_factory=dict)
+    class_method_overloads: dict[str, dict[str, dict[int, set[str]]]] = field(
+        default_factory=dict
+    )
     callable_parameter_types: dict[str, dict[str, str]] = field(default_factory=dict)
     pending_calls: list[tuple[str, str, object | None, str | None]] = field(
         default_factory=list
@@ -98,6 +101,13 @@ def _java_structural_children(node) -> list[object]:
         for child in getattr(node, "named_children", [])
         if getattr(child, "type", "") in JAVA_STRUCTURAL_NODE_TYPES
     ]
+
+
+def _callable_parameter_count(node) -> int:
+    params = node.child_by_field_name("parameters")
+    if params is None:
+        return 0
+    return sum(1 for child in getattr(params, "named_children", []) if child.type == "formal_parameter")
 
 
 def _disambiguate_child_name(
@@ -235,6 +245,10 @@ def walk_java_nodes(
             local_name=func_name,
         )
         qualified = f"{parent}.{emitted_name}"
+        parameter_count = _callable_parameter_count(node)
+        state.class_method_overloads.setdefault(parent, {}).setdefault(func_name, {}).setdefault(
+            parameter_count, set()
+        ).add(qualified)
         callable_kind = {
             "constructor_declaration": "constructor",
             "compact_constructor_declaration": "compact_constructor",

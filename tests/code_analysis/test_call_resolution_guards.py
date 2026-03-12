@@ -88,6 +88,7 @@ def test_java_ambiguous_class_candidate_does_not_overresolve() -> None:
         module_name="repo.pkg.mod",
         module_functions=set(),
         class_methods={},
+        class_method_overloads={},
         class_name_map={"Service": "repo.pkg.a.Service"},
         class_name_candidates={"Service": {"repo.pkg.a.Service", "repo.pkg.b.Service"}},
         import_aliases={},
@@ -209,6 +210,7 @@ def test_java_resolves_using_ir_qualified_call_when_text_is_unqualified() -> Non
         module_name="repo.pkg.mod",
         module_functions=set(),
         class_methods={},
+        class_method_overloads={},
         class_name_map={"Service": "repo.pkg.Service"},
         class_name_candidates={"Service": {"repo.pkg.Service"}},
         import_aliases={"Service": "repo.pkg.Service"},
@@ -229,6 +231,7 @@ def test_java_resolves_unqualified_calls_from_static_member_aliases() -> None:
         module_name="repo.pkg.mod",
         module_functions=set(),
         class_methods={},
+        class_method_overloads={},
         class_name_map={},
         class_name_candidates={},
         import_aliases={},
@@ -320,6 +323,7 @@ def test_java_resolves_unqualified_calls_from_single_static_wildcard() -> None:
         module_name="repo.pkg.mod",
         module_functions=set(),
         class_methods={"repo.pkg.Service": {"run"}},
+        class_method_overloads={},
         class_name_map={},
         class_name_candidates={},
         import_aliases={},
@@ -346,6 +350,7 @@ def test_java_resolves_receiver_call_from_typed_parameter() -> None:
         module_name="repo.pkg.mod",
         module_functions=set(),
         class_methods={},
+        class_method_overloads={},
         class_name_map={},
         class_name_candidates={"Service": {"repo.pkg.Service"}},
         import_aliases={"Service": "repo.pkg.Service"},
@@ -357,6 +362,41 @@ def test_java_resolves_receiver_call_from_typed_parameter() -> None:
         qualify_java_type=qualify_java_type,
     )
     assert resolved == ["repo.pkg.Service.run"]
+
+
+def test_java_resolves_unique_overload_by_argument_count() -> None:
+    targets = [
+        CallTarget(
+            terminal="append",
+            callee_text="builder.append",
+            ir=QualifiedCallIR(parts=("builder", "append"), terminal="append"),
+            argument_count=1,
+        )
+    ]
+    resolved = resolve_java_calls(
+        targets=targets,
+        module_name="repo.pkg.mod",
+        module_functions=set(),
+        class_methods={"repo.pkg.Builder": {"append"}},
+        class_method_overloads={
+            "repo.pkg.Builder": {
+                "append": {
+                    1: {"repo.pkg.Builder.append-2"},
+                    2: {"repo.pkg.Builder.append"},
+                }
+            }
+        },
+        class_name_map={},
+        class_name_candidates={"Builder": {"repo.pkg.Builder"}},
+        import_aliases={"Builder": "repo.pkg.Builder"},
+        member_aliases={},
+        static_wildcard_targets=set(),
+        class_name=None,
+        instance_types={"builder": "Builder"},
+        module_prefix=None,
+        qualify_java_type=qualify_java_type,
+    )
+    assert resolved == ["repo.pkg.Builder.append-2"]
 
 
 def test_java_qualify_type_returns_none_for_unresolved_bare_name() -> None:

@@ -228,6 +228,7 @@ def _call_target_from_call_node(
     )
     type_arguments_node = call_node.child_by_field_name("type_arguments")
     type_arguments = _callee_text(type_arguments_node, content)
+    argument_count = _argument_count(call_node)
     return CallTarget(
         terminal=terminal,
         callee_text=normalized_callee,
@@ -238,7 +239,17 @@ def _call_target_from_call_node(
         call_span=(call_node.start_byte, call_node.end_byte),
         invocation_kind=getattr(call_node, "type", None),
         type_arguments=type_arguments.strip() if type_arguments else None,
+        argument_count=argument_count,
     )
+
+
+def _argument_count(call_node) -> int | None:
+    if call_node is None:
+        return None
+    arguments = call_node.child_by_field_name("arguments")
+    if arguments is None:
+        return None
+    return len(getattr(arguments, "named_children", []) or [])
 
 def _has_ancestor_in_set(node, root, node_types: Set[str]) -> bool:
     root_span = (root.start_byte, root.end_byte, root.type)

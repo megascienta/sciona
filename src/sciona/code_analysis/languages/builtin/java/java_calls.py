@@ -50,6 +50,7 @@ def resolve_java_calls(
     module_name: str,
     module_functions: set[str],
     class_methods: dict[str, set[str]],
+    class_method_overloads: dict[str, dict[str, dict[int, set[str]]]],
     class_name_map: dict[str, str],
     class_name_candidates: dict[str, set[str]],
     import_aliases: dict[str, str],
@@ -70,6 +71,7 @@ def resolve_java_calls(
         class_name=class_name,
         class_method_names=class_method_names,
         class_methods=class_methods,
+        class_method_overloads=class_method_overloads,
         class_name_map=class_name_map,
         class_name_candidates=class_name_candidates,
         import_aliases=import_aliases,
@@ -95,6 +97,7 @@ class _JavaCallAdapter(CallResolutionAdapter):
     class_name: str | None
     class_method_names: set[str]
     class_methods: dict[str, set[str]]
+    class_method_overloads: dict[str, dict[str, dict[int, set[str]]]]
     class_name_map: dict[str, str]
     class_name_candidates: dict[str, set[str]]
     import_aliases: dict[str, str]
@@ -108,6 +111,7 @@ class _JavaCallAdapter(CallResolutionAdapter):
         terminal = request.terminal
         raw = request.callee_text
         receiver_hint = request.receiver
+        argument_count = request.argument_count
         receiver_symbol = _receiver_symbol(request, raw, receiver_hint)
         if receiver_symbol and receiver_symbol in self.instance_types:
             qualified_type = self.qualify_java_type(
@@ -118,7 +122,12 @@ class _JavaCallAdapter(CallResolutionAdapter):
                 self.module_prefix,
             )
             if qualified_type:
-                return [_outcome(f"{qualified_type}.{terminal}", "module_scoped")]
+                return [_outcome(_resolved_method_target(
+                    qualified_type,
+                    terminal,
+                    argument_count,
+                    self.class_method_overloads,
+                ), "module_scoped")]
         receiver, receiver_simple = _dotted_receiver(request, raw)
         if receiver is not None and receiver_simple is not None:
             if receiver_hint and receiver_simple != receiver_hint:
@@ -133,7 +142,12 @@ class _JavaCallAdapter(CallResolutionAdapter):
                     self.module_prefix,
                 )
                 if qualified_type:
-                    return [_outcome(f"{qualified_type}.{terminal}", "exact_qname")]
+                    return [_outcome(_resolved_method_target(
+                        qualified_type,
+                        terminal,
+                        argument_count,
+                        self.class_method_overloads,
+                    ), "exact_qname")]
             if receiver_simple[:1].isupper():
                 import_target = self.import_aliases.get(receiver_simple)
                 local_class = _unique_class_candidate(
@@ -141,9 +155,19 @@ class _JavaCallAdapter(CallResolutionAdapter):
                     self.class_name_candidates,
                 )
                 if import_target:
-                    return [_outcome(f"{import_target}.{terminal}", "import_narrowed")]
+                    return [_outcome(_resolved_method_target(
+                        import_target,
+                        terminal,
+                        argument_count,
+                        self.class_method_overloads,
+                    ), "import_narrowed")]
                 if local_class:
-                    return [_outcome(f"{local_class}.{terminal}", "exact_qname")]
+                    return [_outcome(_resolved_method_target(
+                        local_class,
+                        terminal,
+                        argument_count,
+                        self.class_method_overloads,
+                    ), "exact_qname")]
         if is_unqualified_request(request):
             import_target = self.import_aliases.get(terminal)
             local_class = _unique_class_candidate(
@@ -163,13 +187,28 @@ class _JavaCallAdapter(CallResolutionAdapter):
                     if terminal in self.class_methods.get(class_qname, set())
                 ]
                 if len(matched_targets) == 1:
-                    return [_outcome(f"{matched_targets[0]}.{terminal}", "import_narrowed")]
+                    return [_outcome(_resolved_method_target(
+                        matched_targets[0],
+                        terminal,
+                        argument_count,
+                        self.class_method_overloads,
+                    ), "import_narrowed")]
                 if len(self.static_wildcard_targets) == 1 and not matched_targets:
                     only = next(iter(self.static_wildcard_targets))
-                    return [_outcome(f"{only}.{terminal}", "import_narrowed")]
+                    return [_outcome(_resolved_method_target(
+                        only,
+                        terminal,
+                        argument_count,
+                        self.class_method_overloads,
+                    ), "import_narrowed")]
         if self.class_name and terminal in self.class_method_names:
             if is_receiver_call_request(request) or is_unqualified_request(request):
-                return [_outcome(f"{self.class_name}.{terminal}", "module_scoped")]
+                return [_outcome(_resolved_method_target(
+                    self.class_name,
+                    terminal,
+                    argument_count,
+                    self.class_method_overloads,
+                ), "module_scoped")]
         if is_unqualified_request(request) and terminal in self.module_functions:
             return [_outcome(f"{self.module_name}.{terminal}", "module_scoped")]
         class_qualified = _unique_class_candidate(
@@ -177,7 +216,12 @@ class _JavaCallAdapter(CallResolutionAdapter):
             self.class_name_candidates,
         )
         if class_qualified and terminal in self.class_methods.get(class_qualified, set()):
-            return [_outcome(f"{class_qualified}.{terminal}", "exact_qname")]
+            return [_outcome(_resolved_method_target(
+                class_qualified,
+                terminal,
+                argument_count,
+                self.class_method_overloads,
+            ), "exact_qname")]
         return []
 
 
@@ -192,6 +236,7 @@ def _to_requests(targets: List[CallTarget]) -> list[CallResolutionRequest]:
             ir=target.ir,
             invocation_kind=target.invocation_kind,
             type_arguments=target.type_arguments,
+            argument_count=target.argument_count,
         )
         for target in targets
     ]
@@ -228,6 +273,21 @@ def _unique_class_candidate(
     if len(candidates) == 1:
         return next(iter(candidates))
     return None
+
+
+def _resolved_method_target(
+    class_qname: str,
+    terminal: str,
+    argument_count: int | None,
+    class_method_overloads: dict[str, dict[str, dict[int, set[str]]]],
+) -> str:
+    if argument_count is None:
+        return f"{class_qname}.{terminal}"
+    overloads = class_method_overloads.get(class_qname, {}).get(terminal, {})
+    matched = overloads.get(argument_count) or set()
+    if len(matched) == 1:
+        return next(iter(sorted(matched)))
+    return f"{class_qname}.{terminal}"
 
 
 def _receiver_symbol(

@@ -33,6 +33,7 @@ class CallResolutionRequest:
     ir: CallTargetIR | None = None
     invocation_kind: str | None = None
     type_arguments: str | None = None
+    argument_count: int | None = None
 
 
 @dataclass(frozen=True)

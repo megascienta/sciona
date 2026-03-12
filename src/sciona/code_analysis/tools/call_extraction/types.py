@@ -52,6 +52,7 @@ class CallTarget:
     call_span: tuple[int, int] | None = None
     invocation_kind: str | None = None
     type_arguments: str | None = None
+    argument_count: int | None = None
 
 
 __all__ = [
