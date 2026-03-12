@@ -120,12 +120,12 @@ def test_snapshot_report_includes_call_site_funnel_from_diagnostics(repo_with_sn
                 '{"totals": {"observed_callsites": 5, "filtered_before_persist": 2, '
                 '"persisted_callsites": 3, "finalized_accepted_callsites": 2, '
                 '"finalized_dropped_callsites": 1, "record_drops": {"no_resolved_callees": 1}, '
-                '"filtered_pre_persist_buckets": {"zero_candidate_count": 2}}, '
+                '"filtered_pre_persist_buckets": {"unknown_out_of_scope": 2}}, '
                 '"by_caller": {"meth_alpha": {"observed_callsites": 5, '
                 '"filtered_before_persist": 2, "persisted_callsites": 3, '
                 '"finalized_accepted_callsites": 2, "finalized_dropped_callsites": 1, '
                 '"record_drops": {"no_resolved_callees": 1}, '
-                '"filtered_pre_persist_buckets": {"zero_candidate_count": 2}}}}'
+                '"filtered_pre_persist_buckets": {"unknown_out_of_scope": 2}}}}'
             ),
         )
         conn.commit()
@@ -144,12 +144,12 @@ def test_snapshot_report_includes_call_site_funnel_from_diagnostics(repo_with_sn
         "conservation_ok": True,
     }
     assert payload["totals"]["filtered_pre_persist_buckets"] == {
-        "zero_candidate_count": 2
+        "unknown_out_of_scope": 2
     }
     python = {entry["language"]: entry for entry in payload["languages"]}["python"]
     assert python["call_site_funnel"]["persisted_callsites"] == 3
     assert python["call_site_funnel"]["record_drops"] == {"no_resolved_callees": 1}
-    assert python["filtered_pre_persist_buckets"] == {"zero_candidate_count": 2}
+    assert python["filtered_pre_persist_buckets"] == {"unknown_out_of_scope": 2}
 
 
 def test_snapshot_report_counts_pairs_and_finalized_call_edges(repo_with_snapshot):

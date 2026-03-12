@@ -216,8 +216,8 @@ def write_call_artifacts(
         if isinstance(strict_dropped, dict):
             no_candidates = int(strict_dropped.get("no_candidates") or 0)
             if no_candidates > 0:
-                filtered_out_buckets["zero_candidate_count"] = (
-                    int(filtered_out_buckets.get("zero_candidate_count") or 0)
+                filtered_out_buckets["unknown_out_of_scope"] = (
+                    int(filtered_out_buckets.get("unknown_out_of_scope") or 0)
                     + no_candidates
                 )
         artifact_persistence.upsert_call_sites(

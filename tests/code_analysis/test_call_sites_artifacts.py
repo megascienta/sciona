@@ -191,6 +191,7 @@ def test_call_sites_filter_out_of_repo_accepted_rows_at_persistence_boundary(
     prefix = runtime_paths.repo_name_prefix(repo_root)
     core_conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
     core_conn.row_factory = sqlite3.Row
+    diagnostics: dict[str, object] = {}
 
     def _fake_resolve_callees(*args, **kwargs):
         del args, kwargs
@@ -252,6 +253,7 @@ def test_call_sites_filter_out_of_repo_accepted_rows_at_persistence_boundary(
                     )
                 ],
                 eligible_callers={"meth_alpha"},
+                diagnostics=diagnostics,
             )
             node_call_rows = artifact_conn.execute(
                 """
@@ -275,6 +277,86 @@ def test_call_sites_filter_out_of_repo_accepted_rows_at_persistence_boundary(
             assert [(row["identifier"], row["accepted_callee_id"]) for row in callsite_rows] == [
                 ("helper", "func_alpha")
             ]
+            totals = diagnostics.get("totals") or {}
+            assert totals.get("filtered_pre_persist_buckets") == {
+                "clearly_out_of_repo": 1
+            }
+        finally:
+            artifact_conn.close()
+    finally:
+        core_conn.close()
+
+
+def test_call_sites_record_non_candidate_shape_bucket_for_invalid_rows(
+    tmp_path: Path, monkeypatch
+) -> None:
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    prefix = runtime_paths.repo_name_prefix(repo_root)
+    core_conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
+    core_conn.row_factory = sqlite3.Row
+    diagnostics: dict[str, object] = {}
+
+    def _fake_resolve_callees(*args, **kwargs):
+        del args, kwargs
+        return (
+            set(),
+            set(),
+            {
+                "identifiers_total": 1,
+                "accepted_by_provenance": {},
+                "dropped_by_reason": {},
+                "candidate_count_histogram": {1: 1},
+            },
+            [
+                (
+                    "helper",
+                    "accepted",
+                    "func_alpha",
+                    "unsupported_provenance_value",
+                    None,
+                    1,
+                    "terminal",
+                    None,
+                    None,
+                    1,
+                    1,
+                    f"{prefix}.pkg.alpha",
+                ),
+            ],
+        )
+
+    monkeypatch.setattr(rollups, "_resolve_callees", _fake_resolve_callees)
+    try:
+        artifact_conn = artifact_connect(get_artifact_db_path(repo_root), repo_root=repo_root)
+        try:
+            write_call_artifacts(
+                artifact_conn=artifact_conn,
+                core_conn=core_conn,
+                snapshot_id=snapshot_id,
+                call_records=[
+                    CallExtractionRecord(
+                        caller_structural_id="meth_alpha",
+                        caller_qualified_name=f"{prefix}.pkg.alpha.Service.run",
+                        caller_node_type="callable",
+                        callee_identifiers=("helper",),
+                    )
+                ],
+                eligible_callers={"meth_alpha"},
+                diagnostics=diagnostics,
+            )
+            rows = artifact_conn.execute(
+                """
+                SELECT identifier
+                FROM call_sites
+                WHERE snapshot_id = ? AND caller_id = ?
+                """,
+                (snapshot_id, "meth_alpha"),
+            ).fetchall()
+            assert rows == []
+            totals = diagnostics.get("totals") or {}
+            assert totals.get("filtered_pre_persist_buckets") == {
+                "non_candidate_shape": 1
+            }
         finally:
             artifact_conn.close()
     finally:

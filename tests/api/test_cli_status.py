@@ -58,7 +58,7 @@ def _fake_summary():
                     "non_tests": {"count": 8},
                     "tests": {"count": 1},
                 },
-                "filtered_pre_persist_buckets": {"zero_candidate_count": 2},
+                "filtered_pre_persist_buckets": {"unknown_out_of_scope": 2},
             }
         ],
         "totals": {
@@ -84,7 +84,7 @@ def _fake_summary():
                 "non_tests": {"count": 8},
                 "tests": {"count": 1},
             },
-            "filtered_pre_persist_buckets": {"zero_candidate_count": 2},
+            "filtered_pre_persist_buckets": {"unknown_out_of_scope": 2},
         },
     }
 
@@ -136,7 +136,7 @@ def test_cli_status_full_emits_failure_reasons(cli_app, cli_runner, monkeypatch)
     assert "Core build time: 1.23s" in result.stdout
     assert "non_tests: pairs=8, edges=8" in result.stdout
     assert "tests: pairs=3, edges=1" in result.stdout
-    assert "filtered_pre_persist: zero_candidate_count=2" in result.stdout
+    assert "filtered_pre_persist: unknown_out_of_scope=2" in result.stdout
 
 
 def test_cli_status_json_emits_payload(cli_app, cli_runner, monkeypatch):

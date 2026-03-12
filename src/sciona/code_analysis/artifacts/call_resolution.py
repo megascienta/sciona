@@ -40,13 +40,9 @@ ALLOWED_CALLSITE_DROP_REASONS = frozenset(
 )
 ALLOWED_PRE_PERSIST_FILTER_BUCKETS = frozenset(
     {
-        "zero_candidate_count",
-        "accepted_out_of_repo_target",
-        "invalid_accepted_shape",
-        "invalid_dropped_shape",
-        "unsupported_provenance",
-        "unsupported_drop_reason",
-        "other_pre_persist_filter",
+        "clearly_out_of_repo",
+        "unknown_out_of_scope",
+        "non_candidate_shape",
     }
 )
 
@@ -131,36 +127,36 @@ def filter_in_repo_callsite_rows(
             _candidate_module_hints,
         ) = row
         if candidate_count <= 0:
-            _inc_pre_persist_bucket(filtered_out, "zero_candidate_count")
+            _inc_pre_persist_bucket(filtered_out, "unknown_out_of_scope")
             continue
         if status == "accepted":
             if not accepted_callee_id or drop_reason is not None:
-                _inc_pre_persist_bucket(filtered_out, "invalid_accepted_shape")
+                _inc_pre_persist_bucket(filtered_out, "non_candidate_shape")
                 continue
             if provenance not in ALLOWED_CALLSITE_PROVENANCE:
-                _inc_pre_persist_bucket(filtered_out, "unsupported_provenance")
+                _inc_pre_persist_bucket(filtered_out, "non_candidate_shape")
                 continue
             if accepted_callee_id not in in_repo_callable_ids:
-                _inc_pre_persist_bucket(filtered_out, "accepted_out_of_repo_target")
+                _inc_pre_persist_bucket(filtered_out, "clearly_out_of_repo")
                 continue
             filtered.append(row)
             continue
         if status == "dropped":
             if accepted_callee_id is not None or provenance is not None or drop_reason is None:
-                _inc_pre_persist_bucket(filtered_out, "invalid_dropped_shape")
+                _inc_pre_persist_bucket(filtered_out, "non_candidate_shape")
                 continue
             if drop_reason not in ALLOWED_CALLSITE_DROP_REASONS:
-                _inc_pre_persist_bucket(filtered_out, "unsupported_drop_reason")
+                _inc_pre_persist_bucket(filtered_out, "non_candidate_shape")
                 continue
             filtered.append(row)
             continue
-        _inc_pre_persist_bucket(filtered_out, "other_pre_persist_filter")
+        _inc_pre_persist_bucket(filtered_out, "non_candidate_shape")
     return filtered, filtered_out
 
 
 def _inc_pre_persist_bucket(target: dict[str, int], bucket: str) -> None:
     if bucket not in ALLOWED_PRE_PERSIST_FILTER_BUCKETS:
-        bucket = "other_pre_persist_filter"
+        bucket = "non_candidate_shape"
     target[bucket] = int(target.get(bucket, 0)) + 1
 
 
