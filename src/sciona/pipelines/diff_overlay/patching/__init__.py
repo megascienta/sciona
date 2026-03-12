@@ -28,7 +28,7 @@ from .core import (
 )
 from .analytics import (
     patch_call_neighbors,
-    patch_callsite_index,
+    patch_callsite_pairs_index,
     patch_classifier_call_graph_summary,
     patch_fan_summary,
     patch_hotspot_summary,

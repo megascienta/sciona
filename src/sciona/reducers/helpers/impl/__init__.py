@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 __all__ = [
-    "callsite_index",
+    "callsite_pairs_index",
     "module_overview",
     "structural_index",
     "symbol_references",

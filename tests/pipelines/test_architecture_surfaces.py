@@ -26,7 +26,7 @@ def test_reducers_public_surface_exports_modules():
         "classifier_overview",
         "callable_overview",
         "callable_source",
-        "callsite_index",
+        "callsite_pairs_index",
         "classifier_call_graph_summary",
         "classifier_inheritance",
         "concatenated_source",

@@ -94,7 +94,7 @@ def patch_call_neighbors(
     payload["callee_count"] = len(payload["callees"])
     return payload
 
-def patch_callsite_index(
+def patch_callsite_pairs_index(
     payload: dict[str, object],
     overlay: OverlayPayload,
     *,

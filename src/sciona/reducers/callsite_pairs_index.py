@@ -1,17 +1,17 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Callsite index reducer."""
+"""Callsite pairs index reducer."""
 
 from __future__ import annotations
 
-from .helpers.impl.callsite_index import build_neighbors_payload
+from .helpers.impl.callsite_pairs_index import build_neighbors_payload
 from .metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
-    reducer_id="callsite_index",
+    reducer_id="callsite_pairs_index",
     category="symbol",
-    placeholder="CALLSITE_INDEX",
+    placeholder="CALLSITE_PAIRS_INDEX",
     summary="Lists persisted artifact-layer callsite candidate pairs for one callable, "
     "with optional filtering by identifier. "
     "detail_level='neighbors' returns caller/callee sets. ",
@@ -33,7 +33,7 @@ def render(
     compact: bool | None = None,
     **_: object,
 ) -> str:
-    from .helpers.impl.callsite_index import render as _render
+    from .helpers.impl.callsite_pairs_index import render as _render
 
     return _render(
         snapshot_id,

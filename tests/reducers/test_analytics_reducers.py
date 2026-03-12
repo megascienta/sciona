@@ -8,7 +8,7 @@ from sciona.pipelines.diff_overlay.types import OverlayPayload
 from sciona.reducers import (
     call_resolution_drop_summary,
     call_resolution_quality,
-    callsite_index,
+    callsite_pairs_index,
     classifier_call_graph_summary,
     fan_summary,
     hotspot_summary,
@@ -87,12 +87,12 @@ def _set_call_resolution_diagnostics(
     )
 
 
-def test_callsite_index_reducer_returns_payload(tmp_path):
+def test_callsite_pairs_index_reducer_returns_payload(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     callable_id = qualify_repo_name(repo_root, "pkg.alpha.service.helper")
     conn = core_conn(repo_root)
     try:
-        payload_text = callsite_index.render(
+        payload_text = callsite_pairs_index.render(
             snapshot_id,
             conn,
             repo_root,
@@ -115,12 +115,12 @@ def test_callsite_index_reducer_returns_payload(tmp_path):
         assert edge["transition"] == "unchanged"
 
 
-def test_callsite_index_compact_mode_returns_summary_payload(tmp_path):
+def test_callsite_pairs_index_compact_mode_returns_summary_payload(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     callable_id = qualify_repo_name(repo_root, "pkg.alpha.service.helper")
     conn = core_conn(repo_root)
     try:
-        payload_text = callsite_index.render(
+        payload_text = callsite_pairs_index.render(
             snapshot_id,
             conn,
             repo_root,
@@ -954,12 +954,12 @@ def test_structural_integrity_summary_excludes_callable_contained_callables(tmp_
     assert "func_child" not in orphan_ids
 
 
-def test_callsite_index_neighbors_detail_level(tmp_path):
+def test_callsite_pairs_index_neighbors_detail_level(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     callable_id = qualify_repo_name(repo_root, "pkg.alpha.service.helper")
     conn = core_conn(repo_root)
     try:
-        payload_text = callsite_index.render(
+        payload_text = callsite_pairs_index.render(
             snapshot_id,
             conn,
             repo_root,
@@ -1601,13 +1601,13 @@ def test_classifier_call_graph_summary_compact_mode_returns_previews(tmp_path):
     assert payload["incoming_preview"]["total"] == payload["incoming_total"]
 
 
-def test_callsite_index_rejects_invalid_detail_level(tmp_path):
+def test_callsite_pairs_index_rejects_invalid_detail_level(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     callable_id = qualify_repo_name(repo_root, "pkg.alpha.service.helper")
     conn = core_conn(repo_root)
     try:
         with pytest.raises(ValueError, match="detail_level must be"):
-            callsite_index.render(
+            callsite_pairs_index.render(
                 snapshot_id,
                 conn,
                 repo_root,
@@ -1618,13 +1618,13 @@ def test_callsite_index_rejects_invalid_detail_level(tmp_path):
         conn.close()
 
 
-def test_callsite_index_rejects_invalid_direction(tmp_path):
+def test_callsite_pairs_index_rejects_invalid_direction(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     callable_id = qualify_repo_name(repo_root, "pkg.alpha.service.helper")
     conn = core_conn(repo_root)
     try:
         with pytest.raises(ValueError, match="direction must be one of"):
-            callsite_index.render(
+            callsite_pairs_index.render(
                 snapshot_id,
                 conn,
                 repo_root,

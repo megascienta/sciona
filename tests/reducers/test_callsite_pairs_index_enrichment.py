@@ -9,7 +9,7 @@ from sciona.code_analysis.artifacts import write_call_artifacts
 from sciona.code_analysis.tools.call_extraction import CallExtractionRecord
 from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.data_storage.artifact_db.writes import write_index as artifact_write
-from sciona.reducers import callsite_index
+from sciona.reducers import callsite_pairs_index
 from sciona.runtime import paths as runtime_paths
 from sciona.runtime.paths import get_artifact_db_path
 from tests.helpers import core_conn as _core_conn, parse_json_payload, seed_repo_with_snapshot
@@ -59,7 +59,7 @@ def _set_call_resolution_diagnostics(
     )
 
 
-def test_callsite_index_enrichment_is_opt_in(tmp_path: Path) -> None:
+def test_callsite_pairs_index_enrichment_is_opt_in(tmp_path: Path) -> None:
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     prefix = runtime_paths.repo_name_prefix(repo_root)
     conn = _core_conn(repo_root)
@@ -81,7 +81,7 @@ def test_callsite_index_enrichment_is_opt_in(tmp_path: Path) -> None:
         )
         artifact_conn.commit()
         without_payload = parse_json_payload(
-            callsite_index.render(
+            callsite_pairs_index.render(
                 snapshot_id,
                 conn=conn,
                 repo_root=repo_root,
@@ -92,7 +92,7 @@ def test_callsite_index_enrichment_is_opt_in(tmp_path: Path) -> None:
         assert without_payload["resolution_diagnostics"] == {}
 
         with_payload = parse_json_payload(
-            callsite_index.render(
+            callsite_pairs_index.render(
                 snapshot_id,
                 conn=conn,
                 repo_root=repo_root,
@@ -110,7 +110,7 @@ def test_callsite_index_enrichment_is_opt_in(tmp_path: Path) -> None:
         conn.close()
 
 
-def test_callsite_index_filters_callsites_and_edges(tmp_path: Path) -> None:
+def test_callsite_pairs_index_filters_callsites_and_edges(tmp_path: Path) -> None:
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     prefix = runtime_paths.repo_name_prefix(repo_root)
     conn = _core_conn(repo_root)
@@ -156,7 +156,7 @@ def test_callsite_index_filters_callsites_and_edges(tmp_path: Path) -> None:
         artifact_conn.commit()
 
         accepted_payload = parse_json_payload(
-            callsite_index.render(
+            callsite_pairs_index.render(
                 snapshot_id,
                 conn=conn,
                 repo_root=repo_root,
@@ -173,7 +173,7 @@ def test_callsite_index_filters_callsites_and_edges(tmp_path: Path) -> None:
         assert accepted_payload["edge_transition_summary"]["unchanged"] == 1
 
         identifier_payload = parse_json_payload(
-            callsite_index.render(
+            callsite_pairs_index.render(
                 snapshot_id,
                 conn=conn,
                 repo_root=repo_root,
@@ -184,7 +184,7 @@ def test_callsite_index_filters_callsites_and_edges(tmp_path: Path) -> None:
         assert [row["identifier"] for row in identifier_payload["callsite_pairs"]] == ["helper"]
 
         compact_payload = parse_json_payload(
-            callsite_index.render(
+            callsite_pairs_index.render(
                 snapshot_id,
                 conn=conn,
                 repo_root=repo_root,

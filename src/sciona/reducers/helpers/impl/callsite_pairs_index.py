@@ -1,14 +1,14 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Callsite index reducer."""
+"""Callsite pairs index reducer."""
 
 from __future__ import annotations
 
 from collections import Counter
 from typing import Dict, List, Optional
 
-from ....pipelines.diff_overlay.patching.analytics import patch_callsite_index
+from ....pipelines.diff_overlay.patching.analytics import patch_callsite_pairs_index
 from ..shared import queries
 from ..artifact.callsite_diagnostics import load_callsite_pair_diagnostics
 from ..artifact.graph_edges import (
@@ -22,9 +22,9 @@ from ..shared.snapshot_guard import require_latest_committed_snapshot
 from ...metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
-    reducer_id="callsite_index",
+    reducer_id="callsite_pairs_index",
     category="diagnostic",
-    placeholder="CALLSITE_INDEX",
+    placeholder="CALLSITE_PAIRS_INDEX",
     summary="List persisted artifact-layer callsite candidate pairs for a callable, "
     "with optional narrowing by identifier. detail_level='neighbors' returns "
     "caller/callee sets. ",
@@ -48,7 +48,7 @@ def render(
 ) -> str:
     conn = require_connection(conn)
     require_latest_committed_snapshot(
-        conn, snapshot_id, reducer_name="callsite_index reducer"
+        conn, snapshot_id, reducer_name="callsite_pairs_index reducer"
     )
     resolved_id = _resolve_callable_id(
         conn,
@@ -57,7 +57,7 @@ def render(
     )
     if status is not None or provenance is not None or drop_reason is not None:
         raise ValueError(
-            "callsite_index supports identifier filtering only; use "
+            "callsite_pairs_index supports identifier filtering only; use "
             "resolution_trace for resolution diagnostics."
         )
     level = _normalize_detail_level(detail_level)
@@ -156,7 +156,7 @@ def render(
             body["edge_count"] = len(body["edges"])
     overlay = current_overlay_payload()
     if overlay is not None:
-        body = patch_callsite_index(
+        body = patch_callsite_pairs_index(
             body,
             overlay,
             snapshot_id=snapshot_id,
@@ -211,7 +211,9 @@ def _normalize_detail_level(detail_level: Optional[str]) -> str:
     value = str(detail_level).strip().lower()
     if value in {"callsites", "neighbors"}:
         return value
-    raise ValueError("callsite_index detail_level must be 'callsites' or 'neighbors'.")
+    raise ValueError(
+        "callsite_pairs_index detail_level must be 'callsites' or 'neighbors'."
+    )
 
 
 def _normalize_direction(direction: Optional[str]) -> str:
@@ -220,7 +222,9 @@ def _normalize_direction(direction: Optional[str]) -> str:
     value = str(direction).strip().lower()
     if value in {"in", "out", "both"}:
         return value
-    raise ValueError("callsite_index direction must be one of: in, out, both.")
+    raise ValueError(
+        "callsite_pairs_index direction must be one of: in, out, both."
+    )
 
 
 def _load_edges(

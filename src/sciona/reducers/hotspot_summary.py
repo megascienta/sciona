@@ -75,8 +75,8 @@ def render(snapshot_id: str, conn, repo_root, **_: object) -> str:
         limit=5,
     )
     if by_import_fan_in or by_import_fan_out:
-        by_fan_in = _legacy_fan_entries(by_import_fan_in)
-        by_fan_out = _legacy_fan_entries(by_import_fan_out)
+        by_fan_in = _fan_summary_entries(by_import_fan_in)
+        by_fan_out = _fan_summary_entries(by_import_fan_out)
     else:
         by_fan_in, by_fan_out = _import_edge_rankings(import_edges, limit=5)
 
@@ -145,7 +145,7 @@ def _fan_rankings(
     )
 
 
-def _legacy_fan_entries(entries: list[dict[str, object]]) -> list[dict[str, object]]:
+def _fan_summary_entries(entries: list[dict[str, object]]) -> list[dict[str, object]]:
     return [
         {
             "module_qualified_name": entry.get("module_qualified_name"),

@@ -8,7 +8,7 @@ from pathlib import Path
 
 from sciona.pipelines.ops.reducers import emit
 from sciona.reducers import overlay_projection_status_summary
-from sciona.pipelines.diff_overlay.patching.analytics import patch_callsite_index
+from sciona.pipelines.diff_overlay.patching.analytics import patch_callsite_pairs_index
 from sciona.pipelines.diff_overlay.patching.analytics import (
     patch_call_resolution_drop_summary,
     patch_call_resolution_quality,
@@ -70,7 +70,7 @@ def test_dirty_overlay_calls_and_summary(repo_with_snapshot):
     assert "calls" in diff.get("affected_by", [])
 
 
-def test_dirty_overlay_callsite_index_applies_reducer_overlay(repo_with_snapshot):
+def test_dirty_overlay_callsite_pairs_index_applies_reducer_overlay(repo_with_snapshot):
     repo_root, _snapshot_id = repo_with_snapshot
     service_path = repo_root / "pkg/alpha/service.py"
     service_path.write_text(
@@ -79,7 +79,7 @@ def test_dirty_overlay_callsite_index_applies_reducer_overlay(repo_with_snapshot
     )
 
     text, _, _ = emit(
-        "callsite_index",
+        "callsite_pairs_index",
         repo_root=repo_root,
         callable_id=qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
     )
@@ -244,7 +244,7 @@ def test_patch_dependency_edges_marks_overlay_added_and_removed():
     assert origins[("mod_alpha", "mod_gamma")] == "overlay_added"
 
 
-def test_patch_callsite_index_marks_edge_transitions(repo_with_snapshot):
+def test_patch_callsite_pairs_index_marks_edge_transitions(repo_with_snapshot):
     repo_root, snapshot_id = repo_with_snapshot
     payload = {
         "callable_id": "func_alpha",
@@ -321,7 +321,7 @@ def test_patch_callsite_index_marks_edge_transitions(repo_with_snapshot):
     )
     conn = core_conn(repo_root)
     try:
-        patched = patch_callsite_index(
+        patched = patch_callsite_pairs_index(
             payload,
             overlay,
             snapshot_id=snapshot_id,

@@ -52,7 +52,7 @@ OVERLAY_PROFILE: dict[str, dict[str, object]] = {
         "scope_type": "query",
         "affected_by": ["nodes"],
     },
-    "callsite_index": {
+    "callsite_pairs_index": {
         "supports_patch": True,
         "scope_type": "callable",
         "affected_by": ["calls"],

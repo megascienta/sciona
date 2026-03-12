@@ -11,7 +11,7 @@ from .analytics import (
     patch_call_neighbors,
     patch_call_resolution_drop_summary,
     patch_call_resolution_quality,
-    patch_callsite_index,
+    patch_callsite_pairs_index,
     patch_classifier_call_graph_summary,
     patch_fan_summary,
     patch_hotspot_summary,
@@ -63,8 +63,10 @@ def apply_overlay_to_payload(
         return patch_symbol_lookup(payload, overlay), True
     if projection == "symbol_references":
         return patch_symbol_references(payload, overlay), True
-    if projection == "callsite_index":
-        return patch_callsite_index(payload, overlay, snapshot_id=snapshot_id, conn=conn), True
+    if projection == "callsite_pairs_index":
+        return patch_callsite_pairs_index(
+            payload, overlay, snapshot_id=snapshot_id, conn=conn
+        ), True
     if projection == "classifier_call_graph_summary":
         return patch_classifier_call_graph_summary(
             payload, overlay, snapshot_id=snapshot_id, conn=conn
