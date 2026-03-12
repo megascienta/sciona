@@ -345,6 +345,29 @@ def test_java_resolves_unqualified_calls_from_single_static_wildcard() -> None:
     assert resolved == ["repo.pkg.Service.run"]
 
 
+def test_java_resolves_unqualified_calls_from_single_static_wildcard_without_local_methods() -> None:
+    targets = [CallTarget(terminal="run", callee_text="run")]
+    resolved = resolve_java_calls(
+        targets=targets,
+        module_name="repo.pkg.mod",
+        module_functions=set(),
+        class_methods={},
+        class_method_overloads={},
+        class_ancestors={},
+        class_kind_map={},
+        class_name_map={},
+        class_name_candidates={},
+        import_aliases={},
+        member_aliases={},
+        static_wildcard_targets={"repo.pkg.Service"},
+        class_name=None,
+        instance_types={},
+        module_prefix=None,
+        qualify_java_type=lambda *_args: None,
+    )
+    assert resolved == ["repo.pkg.Service.run"]
+
+
 def test_java_resolves_receiver_call_from_typed_parameter() -> None:
     targets = [
         CallTarget(

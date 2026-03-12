@@ -205,6 +205,17 @@ class _JavaCallAdapter(CallResolutionAdapter):
                     )
                     if resolved_target:
                         return [_outcome(resolved_target, "import_narrowed")]
+                    return [
+                        _outcome(
+                            _resolved_method_target(
+                                import_target,
+                                terminal,
+                                argument_count,
+                                self.class_method_overloads,
+                            ),
+                            "import_narrowed",
+                        )
+                    ]
                 if local_class:
                     resolved_target = _resolve_from_lineage(
                         local_class,
@@ -282,6 +293,17 @@ class _JavaCallAdapter(CallResolutionAdapter):
                     )
                     if resolved_target:
                         return [_outcome(resolved_target, "import_narrowed")]
+                    return [
+                        _outcome(
+                            _resolved_method_target(
+                                only,
+                                terminal,
+                                argument_count,
+                                self.class_method_overloads,
+                            ),
+                            "import_narrowed",
+                        )
+                    ]
         if self.class_name and (is_receiver_call_request(request) or is_unqualified_request(request)):
             resolved_target = _resolve_from_lineage(
                 self.class_name,
