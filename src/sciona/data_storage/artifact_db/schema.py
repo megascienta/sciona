@@ -81,6 +81,26 @@ SCHEMA_STATEMENTS: list[str] = [
     ON call_sites(snapshot_id, caller_id, resolution_status, accepted_callee_id)
     """,
     """
+    CREATE TABLE IF NOT EXISTS callsite_pairs (
+        snapshot_id TEXT NOT NULL,
+        caller_id TEXT NOT NULL,
+        identifier TEXT NOT NULL,
+        site_hash TEXT NOT NULL,
+        callee_id TEXT NOT NULL,
+        pair_kind TEXT NOT NULL CHECK (pair_kind IN ('in_repo_candidate')),
+        pair_hash TEXT NOT NULL,
+        PRIMARY KEY (snapshot_id, pair_hash)
+    )
+    """,
+    """
+    CREATE INDEX IF NOT EXISTS idx_callsite_pairs_caller
+    ON callsite_pairs(snapshot_id, caller_id)
+    """,
+    """
+    CREATE INDEX IF NOT EXISTS idx_callsite_pairs_callee
+    ON callsite_pairs(snapshot_id, callee_id)
+    """,
+    """
     CREATE TABLE IF NOT EXISTS graph_nodes (
         node_id TEXT PRIMARY KEY,
         node_kind TEXT NOT NULL
@@ -233,6 +253,7 @@ SCHEMA_STATEMENTS: list[str] = [
 def ensure_schema(conn: sqlite3.Connection) -> None:
     _ensure_schema(conn, SCHEMA_STATEMENTS)
     _ensure_call_sites_schema(conn)
+    _ensure_callsite_pairs_schema(conn)
     _ensure_graph_fk_schema(conn)
 
 
@@ -262,6 +283,35 @@ def _ensure_call_sites_schema(conn: sqlite3.Connection) -> None:
         conn.execute(SCHEMA_STATEMENTS[5])
 
 
+def _ensure_callsite_pairs_schema(conn: sqlite3.Connection) -> None:
+    columns = {
+        row[1]
+        for row in conn.execute("PRAGMA table_info(callsite_pairs)").fetchall()
+    }
+    required = {
+        "snapshot_id",
+        "caller_id",
+        "identifier",
+        "site_hash",
+        "callee_id",
+        "pair_kind",
+        "pair_hash",
+    }
+    recreate = bool(columns) and not required.issubset(columns)
+    if not recreate:
+        row = conn.execute(
+            "SELECT sql FROM sqlite_master WHERE type='table' AND name='callsite_pairs'"
+        ).fetchone()
+        table_sql = (row[0] if row is not None else "") or ""
+        if table_sql and "in_repo_candidate" not in table_sql:
+            recreate = True
+    if recreate:
+        conn.execute("DROP TABLE IF EXISTS callsite_pairs")
+        conn.execute(SCHEMA_STATEMENTS[6])
+        conn.execute(SCHEMA_STATEMENTS[7])
+        conn.execute(SCHEMA_STATEMENTS[8])
+
+
 def _ensure_graph_fk_schema(conn: sqlite3.Connection) -> None:
     # Graph and rollup tables are fully derived from core data, so rebuilding
     # them during migration is safe and keeps schema upgrades simple.
@@ -273,19 +323,19 @@ def _ensure_graph_fk_schema(conn: sqlite3.Connection) -> None:
     conn.execute("DROP TABLE IF EXISTS class_call_edges")
     conn.execute("DROP TABLE IF EXISTS node_fan_stats")
     statements = [
-        SCHEMA_STATEMENTS[7],  # graph_edges
-        SCHEMA_STATEMENTS[11],  # module_call_edges
-        SCHEMA_STATEMENTS[14],  # class_call_edges
-        SCHEMA_STATEMENTS[17],  # node_fan_stats
-        SCHEMA_STATEMENTS[8],  # idx_graph_edges_src
-        SCHEMA_STATEMENTS[9],  # idx_graph_edges_dst
-        SCHEMA_STATEMENTS[10],  # idx_graph_edges_kind
-        SCHEMA_STATEMENTS[12],  # idx_module_call_edges_src
-        SCHEMA_STATEMENTS[13],  # idx_module_call_edges_dst
-        SCHEMA_STATEMENTS[15],  # idx_class_call_edges_src
-        SCHEMA_STATEMENTS[16],  # idx_class_call_edges_dst
-        SCHEMA_STATEMENTS[18],  # idx_node_fan_stats_kind
-        SCHEMA_STATEMENTS[19],  # idx_node_fan_stats_node
+        SCHEMA_STATEMENTS[9],  # graph_edges
+        SCHEMA_STATEMENTS[13],  # module_call_edges
+        SCHEMA_STATEMENTS[16],  # class_call_edges
+        SCHEMA_STATEMENTS[19],  # node_fan_stats
+        SCHEMA_STATEMENTS[10],  # idx_graph_edges_src
+        SCHEMA_STATEMENTS[11],  # idx_graph_edges_dst
+        SCHEMA_STATEMENTS[12],  # idx_graph_edges_kind
+        SCHEMA_STATEMENTS[14],  # idx_module_call_edges_src
+        SCHEMA_STATEMENTS[15],  # idx_module_call_edges_dst
+        SCHEMA_STATEMENTS[17],  # idx_class_call_edges_src
+        SCHEMA_STATEMENTS[18],  # idx_class_call_edges_dst
+        SCHEMA_STATEMENTS[20],  # idx_node_fan_stats_kind
+        SCHEMA_STATEMENTS[21],  # idx_node_fan_stats_node
     ]
     for statement in statements:
         conn.execute(statement)

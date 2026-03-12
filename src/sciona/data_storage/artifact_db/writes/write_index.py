@@ -12,12 +12,14 @@ from ....runtime.common.time import utc_now
 from ...common.encoding import bool_to_int
 from ...common.sql_utils import temp_id_table
 from .write_call_sites import build_site_hash
+from .write_callsite_pairs import build_pair_hash
 
 
 def reset_artifact_derived_state(conn: sqlite3.Connection) -> None:
     """Clear all rebuild-derived artifact tables before repopulating them."""
     conn.execute("DELETE FROM node_calls")
     conn.execute("DELETE FROM call_sites")
+    conn.execute("DELETE FROM callsite_pairs")
     conn.execute("DELETE FROM graph_edges")
     conn.execute("DELETE FROM graph_nodes")
     conn.execute("DELETE FROM module_call_edges")
@@ -63,6 +65,7 @@ def cleanup_removed_nodes(
     if not ids:
         conn.execute("DELETE FROM node_calls")
         conn.execute("DELETE FROM call_sites")
+        conn.execute("DELETE FROM callsite_pairs")
         return
     with temp_id_table(conn, ids, column="node_id", prefix="current_nodes") as table:
         conn.execute(
@@ -73,6 +76,12 @@ def cleanup_removed_nodes(
         )
         conn.execute(
             f"DELETE FROM call_sites WHERE caller_id NOT IN (SELECT node_id FROM {table})",
+        )
+        conn.execute(
+            f"DELETE FROM callsite_pairs WHERE caller_id NOT IN (SELECT node_id FROM {table})",
+        )
+        conn.execute(
+            f"DELETE FROM callsite_pairs WHERE callee_id NOT IN (SELECT node_id FROM {table})",
         )
 
 
@@ -92,6 +101,10 @@ def clear_call_artifacts_for_callers(
     )
     conn.execute(
         f"DELETE FROM call_sites WHERE snapshot_id = ? AND caller_id IN ({placeholders})",
+        (snapshot_id, *caller_list),
+    )
+    conn.execute(
+        f"DELETE FROM callsite_pairs WHERE snapshot_id = ? AND caller_id IN ({placeholders})",
         (snapshot_id, *caller_list),
     )
 
@@ -221,6 +234,57 @@ def upsert_call_sites(
             site_hash
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        entries,
+    )
+
+
+def upsert_callsite_pairs(
+    conn: sqlite3.Connection,
+    *,
+    snapshot_id: str,
+    caller_id: str,
+    rows: Sequence[tuple[str, str, str, str]],
+) -> None:
+    conn.execute(
+        "DELETE FROM callsite_pairs WHERE snapshot_id = ? AND caller_id = ?",
+        (snapshot_id, caller_id),
+    )
+    if not rows:
+        return
+    entries = []
+    for identifier, site_hash, callee_id, pair_kind in rows:
+        pair_hash = build_pair_hash(
+            snapshot_id=snapshot_id,
+            caller_id=caller_id,
+            identifier=identifier,
+            site_hash=site_hash,
+            callee_id=callee_id,
+            pair_kind=pair_kind,
+        )
+        entries.append(
+            (
+                snapshot_id,
+                caller_id,
+                identifier,
+                site_hash,
+                callee_id,
+                pair_kind,
+                pair_hash,
+            )
+        )
+    conn.executemany(
+        """
+        INSERT INTO callsite_pairs(
+            snapshot_id,
+            caller_id,
+            identifier,
+            site_hash,
+            callee_id,
+            pair_kind,
+            pair_hash
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
         """,
         entries,
     )
