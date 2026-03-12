@@ -101,8 +101,3 @@ Once the structural boundary is known, conventional tooling should take over for
 ## Short testimony
 
 As an AI coding assistant, I would reach for SCIONA whenever the first question is "what owns this, what touches it, and how wide is the blast radius?" I would not reach for it to decide whether behavior is correct, whether docs match semantics, or whether a regression test is sufficient. In this session, that division of labor was productive and aligned with the tool's stated design.
-
-Status: sciona used: yes | scope: mixed
-SCIONA evidence: `sciona reducer list`, session-note reducer usage, README scope definition
-non-SCIONA evidence: source inspection of [validations/copilot_evaluation/reports/sciona_session_notes.md](/Users/dc/Calculations/sciona-suite/sciona/validations/copilot_evaluation/reports/sciona_session_notes.md) and [README.md](/Users/dc/Calculations/sciona-suite/sciona/README.md)
-Warnings: reducer counts reflect task-note usage mentions, not terminal-level invocation logs
