@@ -18,7 +18,7 @@ def _build_command(
     force_rebuild: bool = typer.Option(
         False,
         "--force",
-        help="Bypass fingerprint fast-path and run a full rebuild.",
+        help="Bypass committed-build-input reuse and run a full rebuild.",
     ),
 ) -> None:
     """Create a new snapshot and ingest enabled languages (clean worktree required)."""
@@ -38,7 +38,9 @@ def _build_command(
     _emit_build_warnings(result)
     _exit_if_no_discovery(result)
     if result.status == "reused":
-        typer.echo(f"No structural diffs detected; snapshot {result.snapshot_id} reused.")
+        typer.echo(
+            f"Committed build inputs unchanged; snapshot {result.snapshot_id} reused."
+        )
         return
     typer.echo(f"Snapshot {result.snapshot_id} recorded.")
 

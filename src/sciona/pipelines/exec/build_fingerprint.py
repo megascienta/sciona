@@ -1,7 +1,13 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Deterministic build-fingerprint cache for rebuild fast-path checks."""
+"""Deterministic build-fingerprint cache for committed-build-input reuse checks.
+
+Reuse is keyed to the committed build inputs: commit SHA, runtime config,
+enabled language settings, artifact policy, and tool/schema versions. This is
+intentional because `sciona build` requires a clean worktree for enabled
+languages, so the committed snapshot is the authoritative source boundary.
+"""
 
 from __future__ import annotations
 

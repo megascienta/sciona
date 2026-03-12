@@ -102,5 +102,5 @@ def test_cli_build_reports_reused_status_on_second_run(
 
     assert first.exit_code == 0
     assert second.exit_code == 0
-    assert "No structural diffs detected; snapshot " in second.stdout
+    assert "Committed build inputs unchanged; snapshot " in second.stdout
     assert " reused." in second.stdout
