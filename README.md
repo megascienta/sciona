@@ -155,18 +155,38 @@ SCIONA indexes the **last committed snapshot**. Reducers are evaluated against t
 
 SCIONA has been validated on several large open-source repositories including **[VSCode](https://github.com/microsoft/vscode), [SymPy](https://github.com/sympy/sympy), [Guava](https://github.com/google/guava), [Webpack](https://github.com/webpack/webpack), [Airbyte](https://github.com/airbytehq/airbyte), and [NestJS](https://github.com/nestjs/nest)**. Validation reports and methodology details are available in [`validations/build_status_reports/`](validations/build_status_reports/).
 
-Across these projects, SCIONA processed **27,700 indexed files** from **27,711 discovered files**, extracted **291,891 structural nodes**, and analyzed **257,187 eligible call sites**, producing **251,492 deterministic call edges**.
+The current published validation set covers **10 repositories** and should be
+read as a snapshot-local callsite funnel:
 
-This corresponds to an overall **97.79% deterministic in-repository call resolution rate within the candidate call set**. Resolution rates remain high across supported languages, with **98.21% for Python**, **97.41% for TypeScript**, **97.65% for JavaScript**, and **98.46% for Java**.
+- **297,596 observed syntactic callsites**
+- **40,409 filtered before persistence**
+- **257,187 persisted `call_sites`**
+- **251,493 persisted accepted**
+- **5,694 persisted dropped**
 
-Observed wall-clock build times in this validation set range from **3.04 seconds** (`axios`) to **134.66 seconds** (`sympy`), with the largest repository (**VSCode**) completing in **674.50 seconds**. The mean processing time is **2.84 seconds per 1K structural nodes**.
+That yields a **97.79% persisted acceptance rate** inside the persisted working
+set, with an **86.42% observed-to-persisted retention rate** across the dataset.
+Language-level persisted acceptance remains high: **98.46% for Java**,
+**97.65% for JavaScript**, **98.21% for Python**, and **97.41% for
+TypeScript**.
 
-Examples from large repositories include:
-- **VSCode:** 145,243 call sites resolved at **97.41%**, build time **674.50 seconds**
-- **SymPy:** 47,319 call sites resolved at **99.56%**, build time **134.66 seconds**
-- **Guava:** 35,373 call sites resolved at **98.50%**, build time **116.76 seconds**.
+Persisted dropped rows are now summarized with explicit reporting buckets rather
+than only a raw success percentage. In the current published set, persisted
+drops are dominated by:
 
-These numbers reflect deterministic structural resolution and do not attempt to recover dynamic dispatch or runtime call relationships.
+- `ambiguous_in_scope`: 3,263
+- `insufficient_provenance`: 1,192
+- `in_repo_unresolvable`: 1,014
+
+Wall-clock build times in this validation set range from **2.93 seconds**
+(`axios`) to **645.94 seconds** (`vscode`), with a mean of **2.73 seconds per
+1K structural nodes**.
+
+These reports support claims about the observed-to-persisted funnel and
+persisted working-set resolution. They do **not** claim theoretical callsite
+completeness, runtime correctness, or recovery of dynamic dispatch. The
+consolidated validation summary is in
+[`validations/build_status_reports/summary.md`](validations/build_status_reports/summary.md).
 
 ## Project Status
 

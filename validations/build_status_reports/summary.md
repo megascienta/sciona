@@ -1,33 +1,37 @@
-# SCIONA Build Status Validation Report
+# SCIONA Build Status Validation Summary
 
-This document summarizes the JSON reports stored under `validations/build_status_reports/reports/`, generated on **2026-03-12 UTC**.
+This summary consolidates the JSON status reports under `validations/build_status_reports/reports/`, generated on **2026-03-12** for 10 repositories:
 
-The current dataset contains **10 repositories** and reflects `tool_version = 0.1.0.dev789`, `schema_version = 1.0`, and `status_report_version = 1`.
+- `airbyte`
+- `axios`
+- `commons-lang`
+- `fastapi`
+- `guava`
+- `nest`
+- `pydantic`
+- `sympy`
+- `vscode`
+- `webpack`
 
-## Dataset Scope
+All numbers below are taken from `sciona status --json` `summary` payloads.
 
-Repositories covered:
+## Reporting Semantics
 
-* [`airbyte`](https://github.com/airbytehq/airbyte)
-* [`axios`](https://github.com/axios/axios)
-* [`commons-lang`](https://github.com/apache/commons-lang)
-* [`fastapi`](https://github.com/fastapi/fastapi)
-* [`guava`](https://github.com/google/guava)
-* [`nest`](https://github.com/nestjs/nest)
-* [`pydantic`](https://github.com/pydantic/pydantic)
-* [`sympy`](https://github.com/sympy/sympy)
-* [`vscode`](https://github.com/microsoft/vscode)
-* [`webpack`](https://github.com/webpack/webpack)
+The reports should now be read as a snapshot-local funnel, not as a claim of theoretical completeness.
 
-The source artifacts are the JSON outputs (`validations/build_status_reports/reports/`) produced by:
+- `observed_syntactic_callsites`: raw syntactic callsites observed for the committed snapshot
+- `filtered_pre_persist`: observed callsites excluded before `call_sites` persistence
+- `persisted_callsites`: the filtered artifact working set used by reporting and final call derivation
+- `persisted_accepted` / `persisted_dropped`: final outcomes inside that persisted working set
+- `drop_classification`: closed reporting buckets over persisted dropped rows
+- `filtered_pre_persist_buckets`: pre-persist reason buckets when available
 
-```bash
-sciona status --output ...
-```
+Important boundary:
 
-The current report is based on the `summary` payloads inside those files.
+- These reports support statements about the observed-to-persisted funnel and persisted drop mix.
+- They do not support claims like "all theoretical callsites are covered" or "all filtered rows are external" unless the relevant bucket data is populated.
 
-## Headline Results
+## Headline Funnel
 
 | Metric | Value |
 | --- | ---: |
@@ -35,207 +39,130 @@ The current report is based on the `summary` payloads inside those files.
 | Discovered files | 27,711 |
 | Structural nodes | 291,891 |
 | Structural edges | 368,329 |
-| Eligible call sites | 257,187 |
-| Accepted call edges | 251,492 |
-| Dropped call sites | 5,695 |
-| Raw call-edge success | 97.79% |
-| Non-test success | 97.55% |
-| Test success | 98.49% |
-| Adjusted success (`external_likely` excluded) | 97.79% |
-| `external_likely` exclusions | 3 |
-| `in_repo_unresolvable` drops | 1,014 |
+| Observed syntactic callsites | 297,596 |
+| Filtered before persistence | 40,409 |
+| Persisted `call_sites` | 257,187 |
+| Persisted accepted | 251,493 |
+| Persisted dropped | 5,694 |
+| Persisted acceptance rate | 97.79% |
+| Observed-to-persisted retention | 86.42% |
 
-Eligible call sites represent candidate in-repository calls identified by the
-deterministic resolver. Accepted call edges are those successfully resolved to
-a concrete in-repository target. SCIONA resolves **97.79%** of candidate in-repository calls across tested repositories using purely deterministic structural analysis. Candidate calls are those whose syntactic context indicates a potential in-repository target. `external_likely` are in-repository call candidates which potentilly refer to external sources. The adjustment for `external_likely` is negligible:
+The primary conservation identity holds at dataset level:
 
 ```text
-3 exclusions out of 257,187 eligible call sites = 0.00%
+observed_syntactic_callsites = filtered_pre_persist + persisted_callsites
+297,596 = 40,409 + 257,187
 ```
+
+## Persisted Drop Classification
+
+The persisted dropped working set falls into explicit reporting buckets. Across the 5,694 persisted dropped rows:
+
+| Bucket | Count | Share of persisted drops |
+| --- | ---: | ---: |
+| `ambiguous_in_scope` | 3,263 | 57.3% |
+| `insufficient_provenance` | 1,192 | 20.9% |
+| `in_repo_unresolvable` | 1,014 | 17.8% |
+| `unclassified_persisted_drop` | 222 | 3.9% |
+| `external_likely` | 3 | 0.1% |
+
+## Language Funnel
+
+| Language | Observed | Filtered | Persisted | Accepted | Dropped | Persisted acceptance | Observed retention |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Java | 43,954 | 1,525 | 42,429 | 41,776 | 653 | 98.46% | 96.53% |
+| JavaScript | 3,797 | 223 | 3,574 | 3,490 | 84 | 97.65% | 94.13% |
+| Python | 92,154 | 28,112 | 64,042 | 62,898 | 1,144 | 98.21% | 69.49% |
+| TypeScript | 157,691 | 10,549 | 147,142 | 143,329 | 3,813 | 97.41% | 93.31% |
+
+Takeaways:
+
+- TypeScript dominates scale.
+- Python has the largest pre-persist reduction by volume.
+- Persisted acceptance remains high in every language aggregate despite funnel differences.
+
+## Repository Takeaways
+
+### `vscode` dominates persisted scale
+
+- 145,243 persisted callsites
+- 155,451 observed syntactic callsites
+- 10,208 filtered before persistence
+- 141,486 persisted accepted
+- 3,757 persisted dropped
+
+`vscode` is the main driver of aggregate TypeScript behavior and of overall persisted drop volume.
+
+### `fastapi` is the main persisted-acceptance outlier
+
+- 2,310 observed
+- 1,078 filtered before persistence
+- 1,232 persisted
+- 716 accepted
+- 516 dropped
+- 58.12% persisted acceptance
+
+This is the only repository whose persisted working-set acceptance is a clear outlier.
+
+### `sympy` has the largest pre-persist filter volume
+
+- 72,663 observed
+- 25,344 filtered before persistence
+- 47,319 persisted
+- 47,109 accepted
+- 210 dropped
+
+`sympy` is the strongest example of why the funnel matters. It has a large observed-to-persisted reduction but an excellent persisted acceptance rate once inside the working set.
+
+### `webpack` is the main structural-density warning case
+
+`webpack` is the only repo whose aggregate structural density raises an explicit warning. That warning is about file mix and low-node files, not about callsite funnel integrity.
+
+## Pre-Persist Buckets: Current Limitation
+
+The published reports include `filtered_pre_persist_buckets`, but in this stored validation set they are still empty.
+
+That means:
+
+- the volume of pre-persist filtering is available and reliable
+- the reason breakdown for that filtering is not yet informative in these stored artifacts
+
+So the current validation set can answer:
+- how much was observed
+- how much was filtered before persistence
+- how much survived into persisted `call_sites`
+- how persisted dropped rows break down
+
+But it cannot answer:
+- why the 40,409 pre-persist filtered rows were filtered, beyond their volume
+
+Refreshing the validation reports after the new bucket-emission changes is the next step if that breakdown is needed in published validation material.
 
 ## Build Performance
 
-Observed wall-clock build times for the 10 repository builds:
+Observed wall-clock build times for the 10 repositories:
 
 | Metric | Value |
 | --- | ---: |
-| Fastest | 3.06 s (`axios`) |
-| Median | 30.16 s |
-| Mean | 109.23 s |
-| Slowest | 674.50 s (`vscode`) |
-| Fastest per 1K nodes | 1.20 s (`pydantic`) |
-| Median per 1K nodes | 2.26 s |
-| Mean per 1K nodes | 2.84 s |
-| Slowest per 1K nodes | 6.24 s (`vscode`) |
+| Fastest | 2.93 s (`axios`) |
+| Median | 30.70 s |
+| Mean | 103.63 s |
+| Slowest | 645.94 s (`vscode`) |
+| Fastest per 1K nodes | 1.24 s (`pydantic`) |
+| Median per 1K nodes | 2.13 s |
+| Mean per 1K nodes | 2.73 s |
+| Slowest per 1K nodes | 5.98 s (`vscode`) |
 
-For the nine non-VSCode repositories, wall time ranged from **3.04 s** to **134.66 s**, with a median of **17.09 s**. The average is heavily skewed by the `vscode` repository.
+## What This Validation Now Supports
 
-| Repo | Wall time | per 1K nodes |
-| --- | ---: | ---: |
-| airbyte | 62.39 s | 2.47 s |
-| axios | 3.06 s | 5.31 s |
-| commons-lang | 17.52 s | 1.51 s |
-| fastapi | 10.75 s | 1.63 s |
-| guava | 116.76 s | 1.82 s |
-| nest | 13.20 s | 2.06 s |
-| pydantic | 16.67 s | 1.25 s |
-| sympy | 134.66 s | 3.29 s |
-| vscode | 674.50 s | 6.24 s |
-| webpack | 42.80 s | 2.86 s |
+These reports support the following claims:
 
-## Language Rollup
+- SCIONA scales to large mixed-language repositories.
+- The persisted `call_sites` working set resolves at high rates across the published validation set.
+- Persisted drop volume is dominated by ambiguity and provenance issues rather than obvious external leakage.
+- The observed-to-persisted funnel is measurable and should be reported separately from persisted acceptance.
 
-| Language | Files | Nodes | Edges | Eligible | Accepted | Dropped | Raw % | Non-tests % | Tests % | Adjusted % | Adj Excluded |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Java | 4,251 | 79,844 | 82,648 | 42,429 | 41,776 | 653 | 98.46 | 98.12 | 99.11 | 98.46 | 0 |
-| JavaScript | 8,991 | 15,838 | 12,126 | 3,574 | 3,490 | 84 | 97.65 | 97.70 | 97.26 | 97.70 | 2 |
-| Python | 6,046 | 81,834 | 94,157 | 64,042 | 62,898 | 1,144 | 98.21 | 98.91 | 97.26 | 98.22 | 1 |
-| TypeScript | 8,412 | 114,375 | 179,398 | 147,142 | 143,328 | 3,814 | 97.41 | 97.02 | 99.61 | 97.41 | 0 |
-
-Language-level takeaways:
-
-* Python is currently the strongest cohort at **98.21%** raw success.
-* TypeScript carries most of the call-site volume: **147,142 eligible** out of **260,361** total.
-* Java now resolves at **98.46%** raw success after tightening the Java ownership and type-qualification rules.
-* JavaScript is at **97.65%**, though some repositories (for example `webpack`) contain many low-node files due to configuration and fixture trees.
-
-## Repository Breakdown
-
-### `airbyte`
-
-Wall time: **62.39 s**. **2.47 s per 1K nodes**. Mixed-language repository; Java now resolves near-perfectly.
-
-| Language | Files | Nodes | Edges | Eligible | Accepted | Dropped | Raw % | Non-tests % | Tests % | `external_likely` | `in_repo_unresolvable` | Low-node files % | Warnings |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| java | 473 | 4,144 | 3,829 | 1,569 | 1,556 | 13 | 99.17 | 98.83 | 100.00 | 0 | 2 | 0.00 | - |
-| javascript | 44 | 147 | 127 | 53 | 53 | 0 | 100.00 | 100.00 | n/a | 0 | 0 | 20.45 | - |
-| python | 2,768 | 20,976 | 20,488 | 13,106 | 12,830 | 276 | 97.89 | 97.90 | 97.32 | 1 | 262 | 26.16 | - |
-| typescript | 3 | 8 | 6 | 2 | 2 | 0 | 100.00 | 100.00 | n/a | 0 | 0 | 33.33 | - |
-
-### `axios`
-
-Wall time: **3.06 s**. **5.31 s per 1K nodes**. Tiny JS-heavy repository with many minimal files.
-
-| Language | Files | Nodes | Edges | Eligible | Accepted | Dropped | Raw % | Non-tests % | Tests % | `external_likely` | `in_repo_unresolvable` | Low-node files % | Warnings |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| javascript | 167 | 438 | 510 | 165 | 161 | 4 | 97.58 | 97.47 | 100.00 | 0 | 2 | 55.09 | - |
-| typescript | 6 | 138 | 132 | 0 | 0 | 0 | n/a | n/a | n/a | 0 | 0 | 50.00 | - |
-
-### `commons-lang`
-
-Wall time: **17.52 s**. **1.51 s per 1K nodes**. Java now resolves strongly across both production and test code.
-
-| Language | Files | Nodes | Edges | Eligible | Accepted | Dropped | Raw % | Non-tests % | Tests % | `external_likely` | `in_repo_unresolvable` | Low-node files % | Warnings |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| java | 534 | 11,566 | 11,603 | 5,487 | 5,376 | 111 | 97.98 | 97.91 | 98.09 | 0 | 14 | 4.87 | - |
-
-### `fastapi`
-
-Wall time: **10.12 s**. **1.53 s per 1K nodes**. Strong non-test Python resolution, but tests dominate the drop volume.
-
-| Language | Files | Nodes | Edges | Eligible | Accepted | Dropped | Raw % | Non-tests % | Tests % | `external_likely` | `in_repo_unresolvable` | Low-node files % | Warnings |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| javascript | 3 | 25 | 22 | 22 | 22 | 0 | 100.00 | 100.00 | n/a | 0 | 0 | 0.00 | - |
-| python | 1,284 | 6,579 | 7,016 | 1,210 | 694 | 516 | 57.36 | 98.40 | 34.07 | 0 | 415 | 16.43 | - |
-
-### `guava`
-
-Wall time: **116.76 s**. **1.82 s per 1K nodes**. Large Java surface area, but the current resolver now keeps drops low.
-
-| Language | Files | Nodes | Edges | Eligible | Accepted | Dropped | Raw % | Non-tests % | Tests % | `external_likely` | `in_repo_unresolvable` | Low-node files % | Warnings |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| java | 3,243 | 64,129 | 67,212 | 35,373 | 34,844 | 529 | 98.50 | 98.12 | 99.26 | 0 | 97 | 4.44 | - |
-| javascript | 2 | 2 | 0 | 0 | 0 | 0 | n/a | n/a | n/a | 0 | 0 | 100.00 | `low_node_file_ratio_high` |
-
-### `nest`
-
-Wall time: **12.92 s**. **2.01 s per 1K nodes**. Small TypeScript surface with consistently high resolution.
-
-| Language | Files | Nodes | Edges | Eligible | Accepted | Dropped | Raw % | Non-tests % | Tests % | `external_likely` | `in_repo_unresolvable` | Low-node files % | Warnings |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| javascript | 49 | 61 | 17 | 2 | 2 | 0 | 100.00 | 100.00 | n/a | 0 | 0 | 89.80 | `low_node_file_ratio_high` |
-| typescript | 1,659 | 6,355 | 7,988 | 2,009 | 1,950 | 59 | 97.06 | 97.05 | 100.00 | 0 | 40 | 29.54 | - |
-
-### `pydantic`
-
-Wall time: **15.90 s**. **1.20 s per 1K nodes**. Test scope is the main source of drops.
-
-| Language | Files | Nodes | Edges | Eligible | Accepted | Dropped | Raw % | Non-tests % | Tests % | `external_likely` | `in_repo_unresolvable` | Low-node files % | Warnings |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| javascript | 6 | 16 | 10 | 8 | 8 | 0 | 100.00 | 100.00 | 100.00 | 0 | 0 | 66.67 | `low_node_file_ratio_high` |
-| python | 401 | 13,285 | 14,009 | 2,407 | 2,265 | 142 | 94.10 | 97.52 | 88.11 | 0 | 64 | 7.98 | - |
-
-### `sympy`
-
-Wall time: **129.73 s**. **3.17 s per 1K nodes**. Best large-repository resolution rate in the dataset.
-
-| Language | Files | Nodes | Edges | Eligible | Accepted | Dropped | Raw % | Non-tests % | Tests % | `external_likely` | `in_repo_unresolvable` | Low-node files % | Warnings |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| python | 1,590 | 40,980 | 52,633 | 47,319 | 47,109 | 210 | 99.56 | 99.61 | 99.51 | 0 | 139 | 13.71 | - |
-
-### `vscode`
-
-Wall time: **593.50 s**. **5.49 s per 1K nodes**. Largest repository and largest TypeScript volume by far.
-
-| Language | Files | Nodes | Edges | Eligible | Accepted | Dropped | Raw % | Non-tests % | Tests % | `external_likely` | `in_repo_unresolvable` | Low-node files % | Warnings |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| java | 1 | 5 | 4 | 0 | 0 | 0 | n/a | n/a | n/a | 0 | 0 | 0.00 | - |
-| javascript | 105 | 392 | 291 | 124 | 121 | 3 | 97.58 | 98.84 | 94.74 | 2 | 0 | 61.90 | `low_node_file_ratio_high` |
-| python | 3 | 14 | 11 | 0 | 0 | 0 | n/a | n/a | n/a | 0 | 0 | 33.33 | - |
-| typescript | 6,656 | 107,686 | 171,168 | 145,119 | 141,364 | 3,755 | 97.41 | 97.02 | 99.61 | 0 | 2,365 | 21.66 | - |
-
-### `webpack`
-
-Wall time: **43.27 s**. **2.90 s per 1K nodes**. The only repository whose aggregate structural density raises a warning.
-
-| Language | Files | Nodes | Edges | Eligible | Accepted | Dropped | Raw % | Non-tests % | Tests % | `external_likely` | `in_repo_unresolvable` | Low-node files % | Warnings |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| javascript | 8,615 | 14,757 | 11,149 | 3,200 | 3,123 | 77 | 97.59 | 97.62 | 97.44 | 0 | 19 | 83.93 | `low_node_file_ratio_high` |
-| typescript | 88 | 188 | 104 | 12 | 12 | 0 | 100.00 | 100.00 | n/a | 0 | 0 | 63.64 | `low_node_file_ratio_high` |
-
-## What Stands Out
-
-### 1. `vscode` dominates scale
-
-`vscode` alone contributes:
-
-* **145,243 / 260,361** eligible call sites (**55.8%** of the dataset)
-* **141,485 / 251,046** accepted call edges (**56.4%** of the dataset)
-* **108,097 / 291,891** nodes (**37.0%** of the dataset)
-
-Any aggregate trend in this report is therefore strongly influenced by the TypeScript-heavy VSCode result set.
-
-### 2. `fastapi` is the only true raw-rate outlier
-
-`fastapi` records:
-
-* **58.12%** raw success
-* **98.48%** non-test success
-* **34.07%** test success
-
-This split suggests that the low aggregate rate is primarily driven by test-suite patterns rather than library code.
-
-### 3. Java is no longer the main weak point
-
-Java now contributes only **653** dropped call sites across the full dataset and resolves at **98.46%** overall. The earlier Java-specific inflation problem is no longer visible in the refreshed validation set.
-
-### 4. Structural-density warnings are mostly benign except for webpack
-
-Across all discovered files, **10,795 / 27,711** files (**38.96%**) have one or fewer structural nodes. That sounds alarming in aggregate, but only one repository trips the explicit inflation warning:
-
-* `webpack`: `low_node_file_ratio = 83.73%`, `inferred_zero_node_files = 11`, warning `low_node_file_ratio_high`
-
-This appears high in aggregate, but most cases correspond to configuration, fixture, or minimal modules that naturally produce few structural nodes.
-
-## Interpretation Boundary
-
-These reports still support the same high-level conclusion:
-
-* SCIONA resolves in-repository call edges at high rates on Python, JavaScript, and TypeScript codebases.
-* Java no longer stands apart as a weak outlier in this validation set; the refreshed reports show strong deterministic resolution across all four supported languages.
-* Aggregate results should be read with repo composition in mind, especially the heavy influence of `vscode`, the test-heavy failure mode in `fastapi`, and the fixture-heavy file mix in `webpack`.
-
-The numbers above should be interpreted as structural diagnostics. They do not claim:
-* runtime correctness
-* semantic precision beyond the deterministic acceptance rules
-* recovery of dynamic dispatch
+These reports do not claim:
+- a theoretical callsite completeness
+- that all pre-persist filtered rows are external or standard-library
+- runtime or semantic correctness claims beyond deterministic structural acceptance rules

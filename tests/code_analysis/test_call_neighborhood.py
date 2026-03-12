@@ -417,3 +417,47 @@ def test_resolve_callees_accepts_parent_package_with_precomputed_ancestors() -> 
     accepted = stats.get("accepted_by_provenance") or {}
     assert accepted.get("import_narrowed") == 1
     assert callsite_rows[0][1] == "accepted"
+
+
+def test_write_call_artifacts_records_zero_candidate_pre_persist_bucket(tmp_path: Path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    prefix = runtime_paths.repo_name_prefix(repo_root)
+    core_conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
+    core_conn.row_factory = sqlite3.Row
+    diagnostics: dict[str, object] = {}
+    try:
+        artifact_conn = artifact_connect(
+            get_artifact_db_path(repo_root), repo_root=repo_root
+        )
+        try:
+            write_call_artifacts(
+                artifact_conn=artifact_conn,
+                core_conn=core_conn,
+                snapshot_id=snapshot_id,
+                call_records=[
+                    CallExtractionRecord(
+                        caller_structural_id="meth_alpha",
+                        caller_qualified_name=f"{prefix}.pkg.alpha.Service.run",
+                        caller_node_type="callable",
+                        callee_identifiers=("print",),
+                    )
+                ],
+                eligible_callers={"meth_alpha"},
+                diagnostics=diagnostics,
+            )
+            by_caller = diagnostics.get("by_caller") or {}
+            caller_diag = by_caller.get("meth_alpha") or {}
+            assert caller_diag.get("observed_callsites") == 1
+            assert caller_diag.get("persisted_callsites") == 0
+            assert caller_diag.get("filtered_before_persist") == 1
+            assert caller_diag.get("filtered_pre_persist_buckets") == {
+                "zero_candidate_count": 1
+            }
+            totals = diagnostics.get("totals") or {}
+            assert totals.get("filtered_pre_persist_buckets") == {
+                "zero_candidate_count": 1
+            }
+        finally:
+            artifact_conn.close()
+    finally:
+        core_conn.close()

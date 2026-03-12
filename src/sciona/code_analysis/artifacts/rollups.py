@@ -197,6 +197,14 @@ def write_call_artifacts(
             callsite_rows,
             in_repo_callable_ids=in_repo_callable_ids,
         )
+        strict_dropped = resolution_stats.get("dropped_by_reason") or {}
+        if isinstance(strict_dropped, dict):
+            no_candidates = int(strict_dropped.get("no_candidates") or 0)
+            if no_candidates > 0:
+                filtered_out_buckets["zero_candidate_count"] = (
+                    int(filtered_out_buckets.get("zero_candidate_count") or 0)
+                    + no_candidates
+                )
         artifact_persistence.upsert_call_sites(
             artifact_conn,
             snapshot_id=snapshot_id,
