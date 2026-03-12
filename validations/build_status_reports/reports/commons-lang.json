@@ -4,23 +4,23 @@
     "schema_version": "1.0",
     "snapshot_count": 1,
     "latest_snapshot": "1b31d23af02dd1a48d261a94d34244f1ac0a819ce68afd53cb40ea36269e0028",
-    "latest_created": "2026-03-12T12:07:04.422721+00:00",
+    "latest_created": "2026-03-12T14:06:19.497071+00:00",
     "db_exists": true,
     "summary": {
         "snapshot_id": "1b31d23af02dd1a48d261a94d34244f1ac0a819ce68afd53cb40ea36269e0028",
-        "created_at": "2026-03-12T12:07:04.422721+00:00",
-        "build_total_seconds": 21.373456,
-        "build_wall_seconds": 22.412714,
+        "created_at": "2026-03-12T14:06:19.497071+00:00",
+        "build_total_seconds": 16.677354,
+        "build_wall_seconds": 17.516297,
         "build_phase_timings": {
-            "build_structural_index": 8.401779343999806,
-            "compute_build_fingerprint": 0.30010024499642896,
-            "derive_call_artifacts": 6.993253923996235,
-            "discover_files": 0.27664965100120753,
-            "prepare_snapshots": 0.12878307000210043,
-            "rebuild_graph_index": 0.3653490979995695,
-            "rebuild_graph_rollups": 0.4525166659950628,
-            "register_modules": 0.23671960300271166,
-            "write_call_artifacts": 1.015939704993798
+            "build_structural_index": 6.320892354997341,
+            "compute_build_fingerprint": 0.35285119600303005,
+            "derive_call_artifacts": 5.399545558000682,
+            "discover_files": 0.3133528780017514,
+            "prepare_snapshots": 0.10711959399486659,
+            "rebuild_graph_index": 0.25011058100062655,
+            "rebuild_graph_rollups": 0.30581873199844267,
+            "register_modules": 0.19804996799939545,
+            "write_call_artifacts": 0.56836282400036
         },
         "artifact_db_available": true,
         "call_sites_semantics": "filtered_persisted_artifact_working_set",
@@ -32,45 +32,29 @@
                 "nodes": 11566,
                 "edges": 11603,
                 "call_sites": {
-                    "eligible": 7439,
-                    "accepted": 5595,
-                    "dropped": 1844,
-                    "success_rate": 0.7521172200564592
+                    "eligible": 5487,
+                    "accepted": 5376,
+                    "dropped": 111,
+                    "success_rate": 0.9797703663203936
                 },
                 "drop_reasons": {
-                    "ambiguous_multiple_in_scope_candidates": 291,
-                    "ambiguous_no_in_scope_candidate": 1158,
-                    "unique_without_provenance": 395
+                    "ambiguous_multiple_in_scope_candidates": 69,
+                    "ambiguous_no_in_scope_candidate": 14,
+                    "unique_without_provenance": 28
                 },
                 "drop_classification": {
-                    "in_repo_unresolvable": 990
+                    "in_repo_unresolvable": 14
                 },
                 "drop_classification_by_scope": {
                     "non_tests": {
-                        "in_repo_unresolvable": 82
+                        "in_repo_unresolvable": 2
                     },
                     "tests": {
-                        "in_repo_unresolvable": 908
+                        "in_repo_unresolvable": 12
                     }
                 },
                 "drop_reason_examples": {
                     "ambiguous_multiple_in_scope_candidates": [
-                        {
-                            "caller_id": "bc3eef8624cbb9dad76db9301ef672454378fbd7",
-                            "caller_qname": "commons_lang.src.main.java.org.apache.commons.lang3.AnnotationUtils.AnnotationUtils.toString",
-                            "caller_file_path": "src/main/java/org/apache/commons/lang3/AnnotationUtils.java",
-                            "caller_node_type": "callable",
-                            "caller_span": [
-                                332,
-                                345
-                            ],
-                            "identifier": "commons_lang.src.main.java.org.apache.commons.lang3.builder.ToStringBuilder.append",
-                            "candidate_count": 9,
-                            "in_scope_candidate_count": 3,
-                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.builder.CompareToBuilder,commons_lang.src.main.java.org.apache.commons.lang3.builder.DiffBuilder,commons_lang.src.main.java.org.apache.commons.lang3.builder.EqualsBuilder,commons_lang.src.main.java.org.apache.commons.lang3.builder.HashCodeBuilder,commons_lang.src.main.java.org.apache.commons.lang3.builder.ToStringBuilder,commons_lang.src.main.java.org.apache.commons.lang3.builder.ToStringStyle,commons_lang.src.main.java.org.apache.commons.lang3.text.FormattableUtils,commons_lang.src.main.java.org.apache.commons.lang3.text.StrBuilder",
-                            "callee_kind": "qualified",
-                            "count": 1
-                        },
                         {
                             "caller_id": "b4bc663468dae3d98f06e82d78b479a7092877a5",
                             "caller_qname": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils.ArrayUtils.containsAny",
@@ -104,294 +88,358 @@
                             "count": 1
                         },
                         {
-                            "caller_id": "741e734357443eb241c17817335a5d4ea7114189",
-                            "caller_qname": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils.ArrayUtils.isSameType",
-                            "caller_file_path": "src/main/java/org/apache/commons/lang3/ArrayUtils.java",
+                            "caller_id": "4359c2359916a7dcef9c90f415e59512a045d9b1",
+                            "caller_qname": "commons_lang.src.main.java.org.apache.commons.lang3.Functions.Functions.tryWithResources",
+                            "caller_file_path": "src/main/java/org/apache/commons/lang3/Functions.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                3860,
-                                3865
+                                627,
+                                634
                             ],
-                            "identifier": "commons_lang.src.main.java.array1.getClass().getName().equals",
-                            "candidate_count": 58,
+                            "identifier": "commons_lang.src.main.java.org.apache.commons.lang3.function.Failable.tryWithResources",
+                            "candidate_count": 2,
                             "in_scope_candidate_count": 2,
-                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.AnnotationUtils,commons_lang.src.main.java.org.apache.commons.lang3.CharRange,commons_lang.src.main.java.org.apache.commons.lang3.CharSet,commons_lang.src.main.java.org.apache.commons.lang3.ObjectUtils,commons_lang.src.main.java.org.apache.commons.lang3.Range,commons_lang.src.main.java.org.apache.commons.lang3.StringUtils,commons_lang.src.main.java.org.apache.commons.lang3.Strings,commons_lang.src.main.java.org.apache.commons.lang3.builder.HashCodeBuilder",
+                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.Functions,commons_lang.src.main.java.org.apache.commons.lang3.function.Failable",
                             "callee_kind": "qualified",
                             "count": 1
                         },
                         {
-                            "caller_id": "8e9b22ccab3537026dd8c520f34b65e97402cba5",
-                            "caller_qname": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils.ArrayUtils.toPrimitive-15",
-                            "caller_file_path": "src/main/java/org/apache/commons/lang3/ArrayUtils.java",
+                            "caller_id": "be1d11517384f2e2d4730f427d84578ac300cd43",
+                            "caller_qname": "commons_lang.src.main.java.org.apache.commons.lang3.ObjectUtils.ObjectUtils.firstNonNull",
+                            "caller_file_path": "src/main/java/org/apache/commons/lang3/ObjectUtils.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                9499,
-                                9530
+                                591,
+                                594
                             ],
-                            "identifier": "commons_lang.src.main.java.Boolean.TYPE.equals",
-                            "candidate_count": 58,
+                            "identifier": "commons_lang.src.main.java.org.apache.commons.lang3.stream.Streams.of",
+                            "candidate_count": 17,
                             "in_scope_candidate_count": 2,
-                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.AnnotationUtils,commons_lang.src.main.java.org.apache.commons.lang3.CharRange,commons_lang.src.main.java.org.apache.commons.lang3.CharSet,commons_lang.src.main.java.org.apache.commons.lang3.ObjectUtils,commons_lang.src.main.java.org.apache.commons.lang3.Range,commons_lang.src.main.java.org.apache.commons.lang3.StringUtils,commons_lang.src.main.java.org.apache.commons.lang3.Strings,commons_lang.src.main.java.org.apache.commons.lang3.builder.HashCodeBuilder",
+                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.DoubleRange,commons_lang.src.main.java.org.apache.commons.lang3.IntegerRange,commons_lang.src.main.java.org.apache.commons.lang3.LongRange,commons_lang.src.main.java.org.apache.commons.lang3.Range,commons_lang.src.main.java.org.apache.commons.lang3.reflect.MemberUtils,commons_lang.src.main.java.org.apache.commons.lang3.stream.IntStreams,commons_lang.src.main.java.org.apache.commons.lang3.stream.Streams,commons_lang.src.main.java.org.apache.commons.lang3.time.DurationUtils",
                             "callee_kind": "qualified",
                             "count": 1
                         },
                         {
-                            "caller_id": "8e9b22ccab3537026dd8c520f34b65e97402cba5",
-                            "caller_qname": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils.ArrayUtils.toPrimitive-15",
-                            "caller_file_path": "src/main/java/org/apache/commons/lang3/ArrayUtils.java",
+                            "caller_id": "484369958029b54eb62f3f41ffb6677b2ad3e123",
+                            "caller_qname": "commons_lang.src.main.java.org.apache.commons.lang3.ObjectUtils.ObjectUtils.getFirstNonNull",
+                            "caller_file_path": "src/main/java/org/apache/commons/lang3/ObjectUtils.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                9499,
-                                9530
+                                633,
+                                636
                             ],
-                            "identifier": "commons_lang.src.main.java.Byte.TYPE.equals",
-                            "candidate_count": 58,
+                            "identifier": "commons_lang.src.main.java.org.apache.commons.lang3.stream.Streams.of",
+                            "candidate_count": 17,
                             "in_scope_candidate_count": 2,
-                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.AnnotationUtils,commons_lang.src.main.java.org.apache.commons.lang3.CharRange,commons_lang.src.main.java.org.apache.commons.lang3.CharSet,commons_lang.src.main.java.org.apache.commons.lang3.ObjectUtils,commons_lang.src.main.java.org.apache.commons.lang3.Range,commons_lang.src.main.java.org.apache.commons.lang3.StringUtils,commons_lang.src.main.java.org.apache.commons.lang3.Strings,commons_lang.src.main.java.org.apache.commons.lang3.builder.HashCodeBuilder",
+                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.DoubleRange,commons_lang.src.main.java.org.apache.commons.lang3.IntegerRange,commons_lang.src.main.java.org.apache.commons.lang3.LongRange,commons_lang.src.main.java.org.apache.commons.lang3.Range,commons_lang.src.main.java.org.apache.commons.lang3.reflect.MemberUtils,commons_lang.src.main.java.org.apache.commons.lang3.stream.IntStreams,commons_lang.src.main.java.org.apache.commons.lang3.stream.Streams,commons_lang.src.main.java.org.apache.commons.lang3.time.DurationUtils",
                             "callee_kind": "qualified",
                             "count": 1
                         },
                         {
-                            "caller_id": "8e9b22ccab3537026dd8c520f34b65e97402cba5",
-                            "caller_qname": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils.ArrayUtils.toPrimitive-15",
-                            "caller_file_path": "src/main/java/org/apache/commons/lang3/ArrayUtils.java",
+                            "caller_id": "90c4d2b3434a81d5f4de4e85788fe741d4199a98",
+                            "caller_qname": "commons_lang.src.main.java.org.apache.commons.lang3.ObjectUtils.ObjectUtils.getIfNull",
+                            "caller_file_path": "src/main/java/org/apache/commons/lang3/ObjectUtils.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                9499,
-                                9530
+                                667,
+                                669
                             ],
-                            "identifier": "commons_lang.src.main.java.Character.TYPE.equals",
-                            "candidate_count": 58,
+                            "identifier": "commons_lang.src.main.java.org.apache.commons.lang3.function.Suppliers.get",
+                            "candidate_count": 32,
                             "in_scope_candidate_count": 2,
-                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.AnnotationUtils,commons_lang.src.main.java.org.apache.commons.lang3.CharRange,commons_lang.src.main.java.org.apache.commons.lang3.CharSet,commons_lang.src.main.java.org.apache.commons.lang3.ObjectUtils,commons_lang.src.main.java.org.apache.commons.lang3.Range,commons_lang.src.main.java.org.apache.commons.lang3.StringUtils,commons_lang.src.main.java.org.apache.commons.lang3.Strings,commons_lang.src.main.java.org.apache.commons.lang3.builder.HashCodeBuilder",
+                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.AppendableJoiner,commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils,commons_lang.src.main.java.org.apache.commons.lang3.Functions,commons_lang.src.main.java.org.apache.commons.lang3.Strings,commons_lang.src.main.java.org.apache.commons.lang3.concurrent.AbstractFutureProxy,commons_lang.src.main.java.org.apache.commons.lang3.concurrent.AtomicInitializer,commons_lang.src.main.java.org.apache.commons.lang3.concurrent.AtomicSafeInitializer,commons_lang.src.main.java.org.apache.commons.lang3.concurrent.BackgroundInitializer",
                             "callee_kind": "qualified",
                             "count": 1
                         },
                         {
-                            "caller_id": "8e9b22ccab3537026dd8c520f34b65e97402cba5",
-                            "caller_qname": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils.ArrayUtils.toPrimitive-15",
-                            "caller_file_path": "src/main/java/org/apache/commons/lang3/ArrayUtils.java",
+                            "caller_id": "c4f950ddb3d3b6e012b8d3fb89e560dbf14fe3fb",
+                            "caller_qname": "commons_lang.src.main.java.org.apache.commons.lang3.ObjectUtils.ObjectUtils.toString-3",
+                            "caller_file_path": "src/main/java/org/apache/commons/lang3/ObjectUtils.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                9499,
-                                9530
+                                1288,
+                                1290
                             ],
-                            "identifier": "commons_lang.src.main.java.Double.TYPE.equals",
-                            "candidate_count": 58,
+                            "identifier": "commons_lang.src.main.java.org.apache.commons.lang3.function.Suppliers.get",
+                            "candidate_count": 32,
                             "in_scope_candidate_count": 2,
-                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.AnnotationUtils,commons_lang.src.main.java.org.apache.commons.lang3.CharRange,commons_lang.src.main.java.org.apache.commons.lang3.CharSet,commons_lang.src.main.java.org.apache.commons.lang3.ObjectUtils,commons_lang.src.main.java.org.apache.commons.lang3.Range,commons_lang.src.main.java.org.apache.commons.lang3.StringUtils,commons_lang.src.main.java.org.apache.commons.lang3.Strings,commons_lang.src.main.java.org.apache.commons.lang3.builder.HashCodeBuilder",
+                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.AppendableJoiner,commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils,commons_lang.src.main.java.org.apache.commons.lang3.Functions,commons_lang.src.main.java.org.apache.commons.lang3.Strings,commons_lang.src.main.java.org.apache.commons.lang3.concurrent.AbstractFutureProxy,commons_lang.src.main.java.org.apache.commons.lang3.concurrent.AtomicInitializer,commons_lang.src.main.java.org.apache.commons.lang3.concurrent.AtomicSafeInitializer,commons_lang.src.main.java.org.apache.commons.lang3.concurrent.BackgroundInitializer",
+                            "callee_kind": "qualified",
+                            "count": 1
+                        },
+                        {
+                            "caller_id": "8685a02163c7900fa4202e82846f3adad0a323b2",
+                            "caller_qname": "commons_lang.src.main.java.org.apache.commons.lang3.ObjectUtils.ObjectUtils.toString-4",
+                            "caller_file_path": "src/main/java/org/apache/commons/lang3/ObjectUtils.java",
+                            "caller_node_type": "callable",
+                            "caller_span": [
+                                1313,
+                                1315
+                            ],
+                            "identifier": "commons_lang.src.main.java.org.apache.commons.lang3.function.Suppliers.get",
+                            "candidate_count": 32,
+                            "in_scope_candidate_count": 2,
+                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.AppendableJoiner,commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils,commons_lang.src.main.java.org.apache.commons.lang3.Functions,commons_lang.src.main.java.org.apache.commons.lang3.Strings,commons_lang.src.main.java.org.apache.commons.lang3.concurrent.AbstractFutureProxy,commons_lang.src.main.java.org.apache.commons.lang3.concurrent.AtomicInitializer,commons_lang.src.main.java.org.apache.commons.lang3.concurrent.AtomicSafeInitializer,commons_lang.src.main.java.org.apache.commons.lang3.concurrent.BackgroundInitializer",
                             "callee_kind": "qualified",
                             "count": 1
                         }
                     ],
                     "ambiguous_no_in_scope_candidate": [
                         {
-                            "caller_id": "6c1f772d9ead4bda7d4086580beaea682d6bfcf5",
-                            "caller_qname": "commons_lang.src.main.java.org.apache.commons.lang3.AnnotationUtils.AnnotationUtils.hashMember",
-                            "caller_file_path": "src/main/java/org/apache/commons/lang3/AnnotationUtils.java",
+                            "caller_id": "43bfe533c2c71423176658f1bbfa0f6c9187d7b9",
+                            "caller_qname": "commons_lang.src.main.java.org.apache.commons.lang3.builder.Diff.Diff.Diff",
+                            "caller_file_path": "src/main/java/org/apache/commons/lang3/builder/Diff.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                265,
-                                274
+                                52,
+                                55
                             ],
-                            "identifier": "commons_lang.src.main.java.value.getClass().getComponentType",
-                            "candidate_count": 2,
+                            "identifier": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.TypeUtils.get",
+                            "candidate_count": 32,
                             "in_scope_candidate_count": 0,
-                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils,commons_lang.src.main.java.org.apache.commons.lang3.ClassUtils",
+                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.AppendableJoiner,commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils,commons_lang.src.main.java.org.apache.commons.lang3.Functions,commons_lang.src.main.java.org.apache.commons.lang3.Strings,commons_lang.src.main.java.org.apache.commons.lang3.concurrent.AbstractFutureProxy,commons_lang.src.main.java.org.apache.commons.lang3.concurrent.AtomicInitializer,commons_lang.src.main.java.org.apache.commons.lang3.concurrent.AtomicSafeInitializer,commons_lang.src.main.java.org.apache.commons.lang3.concurrent.BackgroundInitializer",
                             "callee_kind": "qualified",
                             "count": 1
                         },
                         {
-                            "caller_id": "7aa19ea800944365ab0108fd6f5df02ed7edf44a",
-                            "caller_qname": "commons_lang.src.main.java.org.apache.commons.lang3.BooleanUtils.BooleanUtils.isFalse",
-                            "caller_file_path": "src/main/java/org/apache/commons/lang3/BooleanUtils.java",
+                            "caller_id": "d5c3845a9199e26420c69200886c8b09e0fa10c6",
+                            "caller_qname": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.MethodUtils.MethodUtils.getOverrideHierarchy",
+                            "caller_file_path": "src/main/java/org/apache/commons/lang3/reflect/MethodUtils.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                189,
-                                191
+                                501,
+                                533
                             ],
-                            "identifier": "commons_lang.src.main.java.Boolean.FALSE.equals",
-                            "candidate_count": 58,
+                            "identifier": "commons_lang.src.main.java.org.apache.commons.lang3.ClassUtils.iterator",
+                            "candidate_count": 5,
                             "in_scope_candidate_count": 0,
-                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.AnnotationUtils,commons_lang.src.main.java.org.apache.commons.lang3.CharRange,commons_lang.src.main.java.org.apache.commons.lang3.CharSet,commons_lang.src.main.java.org.apache.commons.lang3.ObjectUtils,commons_lang.src.main.java.org.apache.commons.lang3.Range,commons_lang.src.main.java.org.apache.commons.lang3.StringUtils,commons_lang.src.main.java.org.apache.commons.lang3.Strings,commons_lang.src.main.java.org.apache.commons.lang3.builder.HashCodeBuilder",
+                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.CharRange,commons_lang.src.main.java.org.apache.commons.lang3.builder.DiffResult,commons_lang.src.main.java.org.apache.commons.lang3.time.DateUtils,commons_lang.src.main.java.org.apache.commons.lang3.util.IterableStringTokenizer,commons_lang.src.test.java.org.apache.commons.lang3.reflect.TypeUtilsTest",
                             "callee_kind": "qualified",
                             "count": 1
                         },
                         {
-                            "caller_id": "00c4aa966797e65e97f186cc40cc48dfbcb53f77",
-                            "caller_qname": "commons_lang.src.main.java.org.apache.commons.lang3.BooleanUtils.BooleanUtils.isTrue",
-                            "caller_file_path": "src/main/java/org/apache/commons/lang3/BooleanUtils.java",
+                            "caller_id": "930b5dfc745f47efffd12cba24859733b0a32f84",
+                            "caller_qname": "commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionToStringBuilderExcludeTest.ReflectionToStringBuilderExcludeTest.test_toStringExclude",
+                            "caller_file_path": "src/test/java/org/apache/commons/lang3/builder/ReflectionToStringBuilderExcludeTest.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                243,
-                                245
+                                51,
+                                55
                             ],
-                            "identifier": "commons_lang.src.main.java.Boolean.TRUE.equals",
-                            "candidate_count": 58,
+                            "identifier": "commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionToStringBuilderExcludeTest.ReflectionToStringBuilderExcludeTest.TestFixture.TestFixture",
+                            "candidate_count": 3,
                             "in_scope_candidate_count": 0,
-                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.AnnotationUtils,commons_lang.src.main.java.org.apache.commons.lang3.CharRange,commons_lang.src.main.java.org.apache.commons.lang3.CharSet,commons_lang.src.main.java.org.apache.commons.lang3.ObjectUtils,commons_lang.src.main.java.org.apache.commons.lang3.Range,commons_lang.src.main.java.org.apache.commons.lang3.StringUtils,commons_lang.src.main.java.org.apache.commons.lang3.Strings,commons_lang.src.main.java.org.apache.commons.lang3.builder.HashCodeBuilder",
+                            "candidate_module_hints": "commons_lang.src.test.java.org.apache.commons.lang3.builder.HashCodeBuilderAndEqualsBuilderTest,commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionToStringBuilderExcludeNullValuesTest,commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionToStringBuilderMutateInspectConcurrencyTest",
                             "callee_kind": "qualified",
                             "count": 1
                         },
                         {
-                            "caller_id": "253d3d2f8c265739601a5be9f07504ce3de8a100",
-                            "caller_qname": "commons_lang.src.main.java.org.apache.commons.lang3.CachedRandomBits.CachedRandomBits.CachedRandomBits",
-                            "caller_file_path": "src/main/java/org/apache/commons/lang3/CachedRandomBits.java",
+                            "caller_id": "393e6fe264abd93942f3febc154e04452753ebf8",
+                            "caller_qname": "commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionToStringBuilderExcludeTest.ReflectionToStringBuilderExcludeTest.test_toStringExcludeArray",
+                            "caller_file_path": "src/test/java/org/apache/commons/lang3/builder/ReflectionToStringBuilderExcludeTest.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                77,
-                                85
+                                57,
+                                61
                             ],
-                            "identifier": "commons_lang.src.main.java.this.random.nextBytes",
-                            "candidate_count": 2,
+                            "identifier": "commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionToStringBuilderExcludeTest.ReflectionToStringBuilderExcludeTest.TestFixture.TestFixture",
+                            "candidate_count": 3,
                             "in_scope_candidate_count": 0,
-                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.RandomUtils,commons_lang.src.test.java.org.apache.commons.lang3.CachedRandomBitsTest",
+                            "candidate_module_hints": "commons_lang.src.test.java.org.apache.commons.lang3.builder.HashCodeBuilderAndEqualsBuilderTest,commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionToStringBuilderExcludeNullValuesTest,commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionToStringBuilderMutateInspectConcurrencyTest",
                             "callee_kind": "qualified",
                             "count": 1
                         },
                         {
-                            "caller_id": "0f0fe5b4981a93143d45b57ea0244ab5c1323c9f",
-                            "caller_qname": "commons_lang.src.main.java.org.apache.commons.lang3.CharSet.CharSet.CharSet",
-                            "caller_file_path": "src/main/java/org/apache/commons/lang3/CharSet.java",
+                            "caller_id": "8f1b87375a1bfa25012d6495d62ac5fbd6967a28",
+                            "caller_qname": "commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionToStringBuilderExcludeTest.ReflectionToStringBuilderExcludeTest.test_toStringExcludeArrayWithNull",
+                            "caller_file_path": "src/test/java/org/apache/commons/lang3/builder/ReflectionToStringBuilderExcludeTest.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                182,
-                                184
+                                63,
+                                67
                             ],
-                            "identifier": "commons_lang.src.main.java.Stream.of(set).forEach",
-                            "candidate_count": 4,
+                            "identifier": "commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionToStringBuilderExcludeTest.ReflectionToStringBuilderExcludeTest.TestFixture.TestFixture",
+                            "candidate_count": 3,
                             "in_scope_candidate_count": 0,
-                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.BooleanUtils,commons_lang.src.main.java.org.apache.commons.lang3.Streams,commons_lang.src.main.java.org.apache.commons.lang3.exception.ExceptionUtils,commons_lang.src.main.java.org.apache.commons.lang3.stream.Streams",
+                            "candidate_module_hints": "commons_lang.src.test.java.org.apache.commons.lang3.builder.HashCodeBuilderAndEqualsBuilderTest,commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionToStringBuilderExcludeNullValuesTest,commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionToStringBuilderMutateInspectConcurrencyTest",
                             "callee_kind": "qualified",
                             "count": 1
                         },
                         {
-                            "caller_id": "4ed003044240cc64700bab9046d9b88cbd42aeec",
-                            "caller_qname": "commons_lang.src.main.java.org.apache.commons.lang3.CharSet.CharSet.contains",
-                            "caller_file_path": "src/main/java/org/apache/commons/lang3/CharSet.java",
+                            "caller_id": "0101531fcf373632ff317ef7d4c68f9270e19cc2",
+                            "caller_qname": "commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionToStringBuilderExcludeTest.ReflectionToStringBuilderExcludeTest.test_toStringExcludeArrayWithNulls",
+                            "caller_file_path": "src/test/java/org/apache/commons/lang3/builder/ReflectionToStringBuilderExcludeTest.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                227,
-                                231
+                                69,
+                                73
                             ],
-                            "identifier": "commons_lang.src.main.java.set.stream().anyMatch",
-                            "candidate_count": 2,
+                            "identifier": "commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionToStringBuilderExcludeTest.ReflectionToStringBuilderExcludeTest.TestFixture.TestFixture",
+                            "candidate_count": 3,
                             "in_scope_candidate_count": 0,
-                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.Streams,commons_lang.src.main.java.org.apache.commons.lang3.stream.Streams",
+                            "candidate_module_hints": "commons_lang.src.test.java.org.apache.commons.lang3.builder.HashCodeBuilderAndEqualsBuilderTest,commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionToStringBuilderExcludeNullValuesTest,commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionToStringBuilderMutateInspectConcurrencyTest",
                             "callee_kind": "qualified",
                             "count": 1
                         },
                         {
-                            "caller_id": "3784927e2cddd2598c981522dc657894b654a2e4",
-                            "caller_qname": "commons_lang.src.main.java.org.apache.commons.lang3.ClassUtils.ClassUtils.convertClassesToClassNames",
-                            "caller_file_path": "src/main/java/org/apache/commons/lang3/ClassUtils.java",
+                            "caller_id": "fb2658148906195a722eac69163a512d5d040c3c",
+                            "caller_qname": "commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionToStringBuilderExcludeTest.ReflectionToStringBuilderExcludeTest.test_toStringExcludeCollection",
+                            "caller_file_path": "src/test/java/org/apache/commons/lang3/builder/ReflectionToStringBuilderExcludeTest.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                207,
-                                209
+                                75,
+                                81
                             ],
-                            "identifier": "commons_lang.src.main.java.classes.stream().map",
-                            "candidate_count": 4,
+                            "identifier": "commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionToStringBuilderExcludeTest.ReflectionToStringBuilderExcludeTest.TestFixture.TestFixture",
+                            "candidate_count": 3,
                             "in_scope_candidate_count": 0,
-                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils,commons_lang.src.main.java.org.apache.commons.lang3.Streams,commons_lang.src.main.java.org.apache.commons.lang3.concurrent.UncheckedFuture,commons_lang.src.main.java.org.apache.commons.lang3.stream.Streams",
+                            "candidate_module_hints": "commons_lang.src.test.java.org.apache.commons.lang3.builder.HashCodeBuilderAndEqualsBuilderTest,commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionToStringBuilderExcludeNullValuesTest,commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionToStringBuilderMutateInspectConcurrencyTest",
                             "callee_kind": "qualified",
                             "count": 1
                         },
                         {
-                            "caller_id": "6afb8f0bb63c8f9146ca88586e41a7dbd6294bd7",
-                            "caller_qname": "commons_lang.src.main.java.org.apache.commons.lang3.ClassUtils.ClassUtils.isAssignable-2",
-                            "caller_file_path": "src/main/java/org/apache/commons/lang3/ClassUtils.java",
+                            "caller_id": "f601e05aba04660ec518f2d35dfba8e3be17d095",
+                            "caller_qname": "commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionToStringBuilderExcludeTest.ReflectionToStringBuilderExcludeTest.test_toStringExcludeCollectionWithNull",
+                            "caller_file_path": "src/test/java/org/apache/commons/lang3/builder/ReflectionToStringBuilderExcludeTest.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                1336,
-                                1392
+                                83,
+                                89
                             ],
-                            "identifier": "commons_lang.src.main.java.Boolean.TYPE.equals",
-                            "candidate_count": 58,
+                            "identifier": "commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionToStringBuilderExcludeTest.ReflectionToStringBuilderExcludeTest.TestFixture.TestFixture",
+                            "candidate_count": 3,
                             "in_scope_candidate_count": 0,
-                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.AnnotationUtils,commons_lang.src.main.java.org.apache.commons.lang3.CharRange,commons_lang.src.main.java.org.apache.commons.lang3.CharSet,commons_lang.src.main.java.org.apache.commons.lang3.ObjectUtils,commons_lang.src.main.java.org.apache.commons.lang3.Range,commons_lang.src.main.java.org.apache.commons.lang3.StringUtils,commons_lang.src.main.java.org.apache.commons.lang3.Strings,commons_lang.src.main.java.org.apache.commons.lang3.builder.HashCodeBuilder",
+                            "candidate_module_hints": "commons_lang.src.test.java.org.apache.commons.lang3.builder.HashCodeBuilderAndEqualsBuilderTest,commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionToStringBuilderExcludeNullValuesTest,commons_lang.src.test.java.org.apache.commons.lang3.builder.ReflectionToStringBuilderMutateInspectConcurrencyTest",
                             "callee_kind": "qualified",
                             "count": 1
                         }
                     ],
                     "unique_without_provenance": [
                         {
-                            "caller_id": "cd540fc9098430208edc0571fcd2798040ddaaa9",
-                            "caller_qname": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils.ArrayUtils.lastIndexOf-18",
-                            "caller_file_path": "src/main/java/org/apache/commons/lang3/ArrayUtils.java",
+                            "caller_id": "b93e1d58b1767c55159ba27bf9f16e02c30ed301",
+                            "caller_qname": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.FieldUtilsTest.FieldUtilsTest.testRemoveFinalModifier",
+                            "caller_file_path": "src/test/java/org/apache/commons/lang3/reflect/FieldUtilsTest.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                4471,
-                                4492
+                                611,
+                                621
                             ],
-                            "identifier": "commons_lang.src.main.java.array.getClass().getComponentType().isInstance",
+                            "identifier": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.testbed.StaticContainer.getDeclaredField",
                             "candidate_count": 1,
                             "in_scope_candidate_count": 0,
-                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.TypeUtils",
+                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.FieldUtils",
                             "callee_kind": "qualified",
                             "count": 1
                         },
                         {
-                            "caller_id": "e337a0056e17390eccbee669c6f06e3f4197c324",
-                            "caller_qname": "commons_lang.src.main.java.org.apache.commons.lang3.SerializationUtils.SerializationUtils.clone",
-                            "caller_file_path": "src/main/java/org/apache/commons/lang3/SerializationUtils.java",
+                            "caller_id": "cb65cb7d09bdbc176f7b1f3a9c9eb57cc4ca6c91",
+                            "caller_qname": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.FieldUtilsTest.FieldUtilsTest.testRemoveFinalModifierAccessNotNeeded",
+                            "caller_file_path": "src/test/java/org/apache/commons/lang3/reflect/FieldUtilsTest.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                128,
-                                142
+                                623,
+                                633
                             ],
-                            "identifier": "commons_lang.src.main.java.ex.getClass().getSimpleName",
+                            "identifier": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.testbed.StaticContainer.getDeclaredField",
                             "candidate_count": 1,
                             "in_scope_candidate_count": 0,
-                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.ClassUtils",
+                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.FieldUtils",
                             "callee_kind": "qualified",
                             "count": 1
                         },
                         {
-                            "caller_id": "8a1d8f701f05a7bddeb018df64f23ef09605111b",
-                            "caller_qname": "commons_lang.src.main.java.org.apache.commons.lang3.StringUtils.StringUtils.toCodePoints",
-                            "caller_file_path": "src/main/java/org/apache/commons/lang3/StringUtils.java",
+                            "caller_id": "429021f3f571c87144c0ddd91810bc5a6a574e72",
+                            "caller_qname": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.FieldUtilsTest.FieldUtilsTest.testRemoveFinalModifierWithAccess",
+                            "caller_file_path": "src/test/java/org/apache/commons/lang3/reflect/FieldUtilsTest.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                8667,
-                                8675
+                                640,
+                                650
                             ],
-                            "identifier": "commons_lang.src.main.java.cs.toString().codePoints",
+                            "identifier": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.testbed.StaticContainer.getDeclaredField",
                             "candidate_count": 1,
                             "in_scope_candidate_count": 0,
-                            "candidate_module_hints": "commons_lang.src.test.java.org.apache.commons.lang3.CharSequenceUtilsTest",
+                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.FieldUtils",
                             "callee_kind": "qualified",
                             "count": 1
                         },
                         {
-                            "caller_id": "d5b4f533007b49e7b0b2e0eb767ba70481010e61",
-                            "caller_qname": "commons_lang.src.main.java.org.apache.commons.lang3.builder.ReflectionDiffBuilder.ReflectionDiffBuilder.ReflectionDiffBuilder-2",
-                            "caller_file_path": "src/main/java/org/apache/commons/lang3/builder/ReflectionDiffBuilder.java",
+                            "caller_id": "e5a48c4268652a6ff8eb1879bbebf88abc94bb53",
+                            "caller_qname": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.FieldUtilsTest.FieldUtilsTest.testRemoveFinalModifierWithoutAccess",
+                            "caller_file_path": "src/test/java/org/apache/commons/lang3/reflect/FieldUtilsTest.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                183,
-                                186
+                                657,
+                                667
                             ],
-                            "identifier": "commons_lang.src.main.java.DiffBuilder..setStyle",
+                            "identifier": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.testbed.StaticContainer.getDeclaredField",
                             "candidate_count": 1,
                             "in_scope_candidate_count": 0,
-                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.builder.DiffBuilder",
+                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.FieldUtils",
                             "callee_kind": "qualified",
                             "count": 1
                         },
                         {
-                            "caller_id": "520b0985fe69de160cfd0ef3ae5a25d6ed17c37a",
-                            "caller_qname": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.TypeLiteral.TypeLiteral.TypeLiteral",
-                            "caller_file_path": "src/main/java/org/apache/commons/lang3/reflect/TypeLiteral.java",
+                            "caller_id": "e3835a8f27417ab4576427cad5e000c6481b6824",
+                            "caller_qname": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.FieldUtilsTest.FieldUtilsTest.testWriteStaticField",
+                            "caller_file_path": "src/test/java/org/apache/commons/lang3/reflect/FieldUtilsTest.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                91,
-                                95
+                                883,
+                                896
                             ],
-                            "identifier": "commons_lang.src.main.java.TypeLiteral.class.getSimpleName",
+                            "identifier": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.testbed.StaticContainer.getDeclaredField",
                             "candidate_count": 1,
                             "in_scope_candidate_count": 0,
-                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.ClassUtils",
+                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.FieldUtils",
+                            "callee_kind": "qualified",
+                            "count": 1
+                        },
+                        {
+                            "caller_id": "f45461ad0ff671de0157292c7b9926d99ebc63f2",
+                            "caller_qname": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.FieldUtilsTest.FieldUtilsTest.testWriteStaticFieldForceAccess",
+                            "caller_file_path": "src/test/java/org/apache/commons/lang3/reflect/FieldUtilsTest.java",
+                            "caller_node_type": "callable",
+                            "caller_span": [
+                                898,
+                                918
+                            ],
+                            "identifier": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.testbed.StaticContainer.getDeclaredField",
+                            "candidate_count": 1,
+                            "in_scope_candidate_count": 0,
+                            "candidate_module_hints": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.FieldUtils",
+                            "callee_kind": "qualified",
+                            "count": 1
+                        },
+                        {
+                            "caller_id": "cc6c1b506a7db7d3804efdde34f26dc9bd04cafd",
+                            "caller_qname": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.MethodUtilsTest.MethodUtilsTest.setUp",
+                            "caller_file_path": "src/test/java/org/apache/commons/lang3/reflect/MethodUtilsTest.java",
+                            "caller_node_type": "callable",
+                            "caller_span": [
+                                546,
+                                550
+                            ],
+                            "identifier": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.MethodUtilsTest.MethodUtilsTest.TestBean.TestBean",
+                            "candidate_count": 1,
+                            "in_scope_candidate_count": 0,
+                            "candidate_module_hints": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.ConstructorUtilsTest",
+                            "callee_kind": "qualified",
+                            "count": 1
+                        },
+                        {
+                            "caller_id": "a9f852a8a8f1add125cb0e738261d22de27af733",
+                            "caller_qname": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.MethodUtilsTest.MethodUtilsTest.testGetAnnotationNotSearchSupersAndNotIgnoreAccess",
+                            "caller_file_path": "src/test/java/org/apache/commons/lang3/reflect/MethodUtilsTest.java",
+                            "caller_node_type": "callable",
+                            "caller_span": [
+                                715,
+                                722
+                            ],
+                            "identifier": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.testbed.PublicChild.getDeclaredMethod",
+                            "candidate_count": 1,
+                            "in_scope_candidate_count": 0,
+                            "candidate_module_hints": "commons_lang.src.test.java.org.apache.commons.lang3.function.MethodFixtures",
                             "callee_kind": "qualified",
                             "count": 1
                         }
@@ -529,25 +577,25 @@
                 ],
                 "call_sites_by_scope": {
                     "non_tests": {
-                        "eligible": 3745,
-                        "accepted": 3496,
-                        "dropped": 249,
-                        "success_rate": 0.9335113484646195
+                        "eligible": 3396,
+                        "accepted": 3325,
+                        "dropped": 71,
+                        "success_rate": 0.9790930506478209
                     },
                     "tests": {
-                        "eligible": 3694,
-                        "accepted": 2099,
-                        "dropped": 1595,
-                        "success_rate": 0.5682187330806714
+                        "eligible": 2091,
+                        "accepted": 2051,
+                        "dropped": 40,
+                        "success_rate": 0.9808703969392635
                     }
                 },
                 "structural_density": {
                     "files": 534,
                     "discovered_files": 534,
                     "nodes": 11566,
-                    "eligible_callsites": 7439,
+                    "eligible_callsites": 5487,
                     "nodes_per_file": 21.65917602996255,
-                    "eligible_callsites_per_file": 13.930711610486892,
+                    "eligible_callsites_per_file": 10.275280898876405,
                     "low_node_files_leq_1": 26,
                     "low_node_file_ratio": 0.04868913857677903,
                     "inferred_zero_node_files": 0,
@@ -574,43 +622,43 @@
             "nodes": 11566,
             "edges": 11603,
             "call_sites": {
-                "eligible": 7439,
-                "accepted": 5595,
-                "dropped": 1844,
-                "success_rate": 0.7521172200564592
+                "eligible": 5487,
+                "accepted": 5376,
+                "dropped": 111,
+                "success_rate": 0.9797703663203936
             },
             "call_sites_by_scope": {
                 "non_tests": {
-                    "eligible": 3745,
-                    "accepted": 3496,
-                    "dropped": 249,
-                    "success_rate": 0.9335113484646195
+                    "eligible": 3396,
+                    "accepted": 3325,
+                    "dropped": 71,
+                    "success_rate": 0.9790930506478209
                 },
                 "tests": {
-                    "eligible": 3694,
-                    "accepted": 2099,
-                    "dropped": 1595,
-                    "success_rate": 0.5682187330806714
+                    "eligible": 2091,
+                    "accepted": 2051,
+                    "dropped": 40,
+                    "success_rate": 0.9808703969392635
                 }
             },
             "drop_classification": {
-                "in_repo_unresolvable": 990
+                "in_repo_unresolvable": 14
             },
             "drop_classification_by_scope": {
                 "non_tests": {
-                    "in_repo_unresolvable": 82
+                    "in_repo_unresolvable": 2
                 },
                 "tests": {
-                    "in_repo_unresolvable": 908
+                    "in_repo_unresolvable": 12
                 }
             },
             "structural_density": {
                 "files": 534,
                 "discovered_files": 534,
                 "nodes": 11566,
-                "eligible_callsites": 7439,
+                "eligible_callsites": 5487,
                 "nodes_per_file": 21.65917602996255,
-                "eligible_callsites_per_file": 13.930711610486892,
+                "eligible_callsites_per_file": 10.275280898876405,
                 "low_node_files_leq_1": 26,
                 "low_node_file_ratio": 0.04868913857677903,
                 "inferred_zero_node_files": 0,
@@ -635,88 +683,88 @@
             "top_failed_callers": {
                 "java": [
                     {
-                        "name": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils.ArrayUtils.toPrimitive-15",
-                        "count": 8
-                    },
-                    {
-                        "name": "commons_lang.src.main.java.org.apache.commons.lang3.ClassUtils.ClassUtils.isAssignable-2",
-                        "count": 8
-                    },
-                    {
-                        "name": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.MethodUtils.MethodUtils.getMatchingMethod",
-                        "count": 8
-                    },
-                    {
-                        "name": "commons_lang.src.main.java.org.apache.commons.lang3.builder.ReflectionDiffBuilder.ReflectionDiffBuilder.ReflectionDiffBuilder-2",
-                        "count": 4
-                    },
-                    {
-                        "name": "commons_lang.src.main.java.org.apache.commons.lang3.exception.DefaultExceptionContext.DefaultExceptionContext.getContextValues",
-                        "count": 3
-                    },
-                    {
-                        "name": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils.ArrayUtils.toString-2",
+                        "name": "commons_lang.src.main.java.org.apache.commons.lang3.builder.ReflectionToStringBuilder.ReflectionToStringBuilder.toNoNullStringArray-2",
                         "count": 2
                     },
                     {
-                        "name": "commons_lang.src.main.java.org.apache.commons.lang3.ClassUtils.ClassUtils.toCleanName",
+                        "name": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.locks.LockingVisitors.LockingVisitors.LockVisitor.lockAcceptUnlock",
                         "count": 2
                     },
                     {
-                        "name": "commons_lang.src.main.java.org.apache.commons.lang3.LocaleUtils.LocaleUtils.availableLocaleList-2",
+                        "name": "commons_lang.src.main.java.org.apache.commons.lang3.concurrent.locks.LockingVisitors.LockingVisitors.LockVisitor.lockApplyUnlock",
                         "count": 2
                     },
                     {
-                        "name": "commons_lang.src.main.java.org.apache.commons.lang3.RuntimeEnvironment.RuntimeEnvironment.readFile",
+                        "name": "commons_lang.src.main.java.org.apache.commons.lang3.reflect.MethodUtils.MethodUtils.requireNonNull",
                         "count": 2
                     },
                     {
-                        "name": "commons_lang.src.main.java.org.apache.commons.lang3.SystemUtils.SystemUtils.isJavaAwtHeadless",
+                        "name": "commons_lang.src.main.java.org.apache.commons.lang3.text.WordUtils.WordUtils.containsAllWords",
                         "count": 2
+                    },
+                    {
+                        "name": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.MethodUtilsTest.MethodUtilsTest.testGetAnnotationSearchSupersAndIgnoreAccess",
+                        "count": 2
+                    },
+                    {
+                        "name": "commons_lang.src.test.java.org.apache.commons.lang3.reflect.MethodUtilsTest.MethodUtilsTest.testGetAnnotationSearchSupersButNotIgnoreAccess",
+                        "count": 2
+                    },
+                    {
+                        "name": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils.ArrayUtils.containsAny",
+                        "count": 1
+                    },
+                    {
+                        "name": "commons_lang.src.main.java.org.apache.commons.lang3.ArrayUtils.ArrayUtils.containsAny-2",
+                        "count": 1
+                    },
+                    {
+                        "name": "commons_lang.src.main.java.org.apache.commons.lang3.Functions.Functions.tryWithResources",
+                        "count": 1
                     }
                 ]
             },
             "top_failed_files": {
                 "java": [
                     {
-                        "name": "src/main/java/org/apache/commons/lang3/StringEscapeUtils.java",
-                        "count": 18
+                        "name": "src/test/java/org/apache/commons/lang3/reflect/MethodUtilsTest.java",
+                        "count": 15
                     },
                     {
                         "name": "src/main/java/org/apache/commons/lang3/builder/ToStringStyle.java",
-                        "count": 16
-                    },
-                    {
-                        "name": "src/main/java/org/apache/commons/lang3/ArrayUtils.java",
                         "count": 14
                     },
                     {
-                        "name": "src/main/java/org/apache/commons/lang3/StringUtils.java",
-                        "count": 13
-                    },
-                    {
-                        "name": "src/main/java/org/apache/commons/lang3/reflect/MethodUtils.java",
-                        "count": 13
-                    },
-                    {
                         "name": "src/main/java/org/apache/commons/lang3/text/StrBuilder.java",
-                        "count": 13
-                    },
-                    {
-                        "name": "src/main/java/org/apache/commons/lang3/reflect/TypeUtils.java",
                         "count": 12
                     },
                     {
-                        "name": "src/main/java/org/apache/commons/lang3/ClassUtils.java",
+                        "name": "src/test/java/org/apache/commons/lang3/builder/ReflectionToStringBuilderExcludeTest.java",
                         "count": 11
                     },
                     {
-                        "name": "src/main/java/org/apache/commons/lang3/ThreadUtils.java",
-                        "count": 9
+                        "name": "src/main/java/org/apache/commons/lang3/text/WordUtils.java",
+                        "count": 8
                     },
                     {
                         "name": "src/main/java/org/apache/commons/lang3/ObjectUtils.java",
-                        "count": 7
+                        "count": 6
+                    },
+                    {
+                        "name": "src/test/java/org/apache/commons/lang3/reflect/FieldUtilsTest.java",
+                        "count": 6
+                    },
+                    {
+                        "name": "src/test/java/org/apache/commons/lang3/reflect/TypeUtilsTest.java",
+                        "count": 5
+                    },
+                    {
+                        "name": "src/main/java/org/apache/commons/lang3/concurrent/locks/LockingVisitors.java",
+                        "count": 4
+                    },
+                    {
+                        "name": "src/main/java/org/apache/commons/lang3/text/StrTokenizer.java",
+                        "count": 4
                     }
                 ]
             }

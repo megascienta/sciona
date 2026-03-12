@@ -4,23 +4,23 @@
     "schema_version": "1.0",
     "snapshot_count": 1,
     "latest_snapshot": "0540ba1d87621453a27ad9b1664b4ec0e2f2ea88d42b741c93f1f210d69ce570",
-    "latest_created": "2026-03-12T12:07:45.541102+00:00",
+    "latest_created": "2026-03-12T14:06:52.413234+00:00",
     "db_exists": true,
     "summary": {
         "snapshot_id": "0540ba1d87621453a27ad9b1664b4ec0e2f2ea88d42b741c93f1f210d69ce570",
-        "created_at": "2026-03-12T12:07:45.541102+00:00",
-        "build_total_seconds": 112.741063,
-        "build_wall_seconds": 115.605318,
+        "created_at": "2026-03-12T14:06:52.413234+00:00",
+        "build_total_seconds": 114.271825,
+        "build_wall_seconds": 116.756979,
         "build_phase_timings": {
-            "build_structural_index": 42.78205623799295,
-            "compute_build_fingerprint": 0.7422350150009152,
-            "derive_call_artifacts": 28.40556356900197,
-            "discover_files": 0.9934668380010407,
-            "prepare_snapshots": 0.8724644059984712,
-            "rebuild_graph_index": 2.882576612995763,
-            "rebuild_graph_rollups": 2.5076187909944565,
-            "register_modules": 1.574814976003836,
-            "write_call_artifacts": 10.265928447995975
+            "build_structural_index": 39.55392376900272,
+            "compute_build_fingerprint": 1.0688854890031507,
+            "derive_call_artifacts": 30.24392098399403,
+            "discover_files": 0.9367961879979703,
+            "prepare_snapshots": 0.6884154310027952,
+            "rebuild_graph_index": 2.3609977820015047,
+            "rebuild_graph_rollups": 2.5607706049995613,
+            "register_modules": 1.519196977998945,
+            "write_call_artifacts": 5.69701647299371
         },
         "artifact_db_available": true,
         "call_sites_semantics": "filtered_persisted_artifact_working_set",
@@ -32,284 +32,414 @@
                 "nodes": 64129,
                 "edges": 67212,
                 "call_sites": {
-                    "eligible": 51802,
-                    "accepted": 35964,
-                    "dropped": 15838,
-                    "success_rate": 0.6942589089224355
+                    "eligible": 35373,
+                    "accepted": 34844,
+                    "dropped": 529,
+                    "success_rate": 0.9850450908885308
                 },
                 "drop_reasons": {
-                    "ambiguous_multiple_in_scope_candidates": 1992,
-                    "ambiguous_no_in_scope_candidate": 13822,
-                    "unique_without_provenance": 24
+                    "ambiguous_multiple_in_scope_candidates": 353,
+                    "ambiguous_no_in_scope_candidate": 151,
+                    "unique_without_provenance": 25
                 },
                 "drop_classification": {
-                    "in_repo_unresolvable": 11583
+                    "in_repo_unresolvable": 97
                 },
                 "drop_classification_by_scope": {
                     "non_tests": {
-                        "in_repo_unresolvable": 1982
+                        "in_repo_unresolvable": 58
                     },
                     "tests": {
-                        "in_repo_unresolvable": 9601
+                        "in_repo_unresolvable": 39
                     }
                 },
                 "drop_reason_examples": {
                     "ambiguous_multiple_in_scope_candidates": [
                         {
-                            "caller_id": "d125995979412e2ce254a00f641a0ba7b84d01b8",
-                            "caller_qname": "guava.android.guava-testlib.src.com.google.common.collect.testing.DerivedCollectionGenerators.DerivedCollectionGenerators.MapKeySetGenerator.MapKeySetGenerator",
-                            "caller_file_path": "android/guava-testlib/src/com/google/common/collect/testing/DerivedCollectionGenerators.java",
+                            "caller_id": "91614b8959358ff9cc92357c590116f6cd4342bc",
+                            "caller_qname": "guava.android.guava-testlib.src.com.google.common.collect.testing.google.AbstractMultisetSetCountTester.AbstractMultisetSetCountTester.getMethod",
+                            "caller_file_path": "android/guava-testlib/src/com/google/common/collect/testing/google/AbstractMultisetSetCountTester.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                102,
-                                112
+                                372,
+                                376
                             ],
-                            "identifier": "guava.android.guava-testlib.src.this.mapGenerator.samples",
-                            "candidate_count": 130,
-                            "in_scope_candidate_count": 5,
-                            "candidate_module_hints": "guava.android.guava-testlib.src.com.google.common.collect.testing.CollectionTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.DerivedCollectionGenerators,guava.android.guava-testlib.src.com.google.common.collect.testing.ListTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.MapTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.OneSizeGenerator,guava.android.guava-testlib.src.com.google.common.collect.testing.ReserializingTestCollectionGenerator,guava.android.guava-testlib.src.com.google.common.collect.testing.SetTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.TestCharacterListGenerator",
+                            "identifier": "guava.android.guava-testlib.src.com.google.common.collect.testing.Helpers.getMethod",
+                            "candidate_count": 8,
+                            "in_scope_candidate_count": 2,
+                            "candidate_module_hints": "guava.android.guava-testlib.src.com.google.common.collect.testing.Helpers,guava.android.guava-testlib.src.com.google.common.collect.testing.google.AbstractMultisetSetCountTester,guava.android.guava-testlib.src.com.google.common.collect.testing.google.BiMapInverseTester,guava.android.guava-tests.test.com.google.common.util.concurrent.TestThread,guava.guava-testlib.src.com.google.common.collect.testing.Helpers,guava.guava-testlib.src.com.google.common.collect.testing.google.AbstractMultisetSetCountTester,guava.guava-testlib.src.com.google.common.collect.testing.google.BiMapInverseTester,guava.guava-tests.test.com.google.common.util.concurrent.TestThread",
                             "callee_kind": "qualified",
                             "count": 1
                         },
                         {
-                            "caller_id": "215683b52a5fd5b100dd1e4fd08a51e35765973a",
-                            "caller_qname": "guava.android.guava-testlib.src.com.google.common.collect.testing.DerivedCollectionGenerators.DerivedCollectionGenerators.MapValueCollectionGenerator.MapValueCollectionGenerator",
-                            "caller_file_path": "android/guava-testlib/src/com/google/common/collect/testing/DerivedCollectionGenerators.java",
+                            "caller_id": "f632fe732af8c797dd180cc6a46d6a3ee0f625ed",
+                            "caller_qname": "guava.android.guava-testlib.src.com.google.common.collect.testing.google.BiMapInverseTester.BiMapInverseTester.getMethod",
+                            "caller_file_path": "android/guava-testlib/src/com/google/common/collect/testing/google/BiMapInverseTester.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                210,
-                                221
+                                84,
+                                88
                             ],
-                            "identifier": "guava.android.guava-testlib.src.this.mapGenerator.samples",
-                            "candidate_count": 130,
-                            "in_scope_candidate_count": 5,
-                            "candidate_module_hints": "guava.android.guava-testlib.src.com.google.common.collect.testing.CollectionTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.DerivedCollectionGenerators,guava.android.guava-testlib.src.com.google.common.collect.testing.ListTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.MapTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.OneSizeGenerator,guava.android.guava-testlib.src.com.google.common.collect.testing.ReserializingTestCollectionGenerator,guava.android.guava-testlib.src.com.google.common.collect.testing.SetTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.TestCharacterListGenerator",
+                            "identifier": "guava.android.guava-testlib.src.com.google.common.collect.testing.Helpers.getMethod",
+                            "candidate_count": 8,
+                            "in_scope_candidate_count": 2,
+                            "candidate_module_hints": "guava.android.guava-testlib.src.com.google.common.collect.testing.Helpers,guava.android.guava-testlib.src.com.google.common.collect.testing.google.AbstractMultisetSetCountTester,guava.android.guava-testlib.src.com.google.common.collect.testing.google.BiMapInverseTester,guava.android.guava-tests.test.com.google.common.util.concurrent.TestThread,guava.guava-testlib.src.com.google.common.collect.testing.Helpers,guava.guava-testlib.src.com.google.common.collect.testing.google.AbstractMultisetSetCountTester,guava.guava-testlib.src.com.google.common.collect.testing.google.BiMapInverseTester,guava.guava-tests.test.com.google.common.util.concurrent.TestThread",
                             "callee_kind": "qualified",
                             "count": 1
                         },
                         {
-                            "caller_id": "546b84a2f5bf7a7d5b5690ce612efaa110d8c61b",
-                            "caller_qname": "guava.android.guava-testlib.src.com.google.common.collect.testing.SpliteratorTester.SpliteratorTester.GeneralSpliteratorOfPrimitive.forEachRemaining",
-                            "caller_file_path": "android/guava-testlib/src/com/google/common/collect/testing/SpliteratorTester.java",
+                            "caller_id": "6baae3c3add6070ba63d4e3578be77133228a00d",
+                            "caller_qname": "guava.android.guava-testlib.src.com.google.common.collect.testing.google.BiMapTestSuiteBuilder.BiMapTestSuiteBuilder.computeCommonDerivedCollectionFeatures",
+                            "caller_file_path": "android/guava-testlib/src/com/google/common/collect/testing/google/BiMapTestSuiteBuilder.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                140,
-                                143
+                                161,
+                                164
                             ],
-                            "identifier": "guava.android.guava-testlib.src.Spliterator.OfPrimitive.forEachRemaining",
+                            "identifier": "guava.android.guava-testlib.src.com.google.common.collect.testing.MapTestSuiteBuilder.computeCommonDerivedCollectionFeatures",
+                            "candidate_count": 4,
+                            "in_scope_candidate_count": 2,
+                            "candidate_module_hints": "guava.android.guava-testlib.src.com.google.common.collect.testing.MapTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.google.BiMapTestSuiteBuilder,guava.guava-testlib.src.com.google.common.collect.testing.MapTestSuiteBuilder,guava.guava-testlib.src.com.google.common.collect.testing.google.BiMapTestSuiteBuilder",
+                            "callee_kind": "qualified",
+                            "count": 1
+                        },
+                        {
+                            "caller_id": "7324b588dbc8b6592d568c40329ce2ffc452bc4a",
+                            "caller_qname": "guava.android.guava-testlib.src.com.google.common.collect.testing.google.BiMapTestSuiteBuilder.BiMapTestSuiteBuilder.createDerivedSuites",
+                            "caller_file_path": "android/guava-testlib/src/com/google/common/collect/testing/google/BiMapTestSuiteBuilder.java",
+                            "caller_node_type": "callable",
+                            "caller_span": [
+                                78,
+                                124
+                            ],
+                            "identifier": "guava.android.guava-testlib.src.com.google.common.collect.testing.MapTestSuiteBuilder.createTestSuite",
                             "candidate_count": 12,
-                            "in_scope_candidate_count": 3,
-                            "candidate_module_hints": "guava.android.guava-testlib.src.com.google.common.collect.testing.SpliteratorTester,guava.android.guava.src.com.google.common.collect.CollectSpliterators,guava.guava-testlib.src.com.google.common.collect.testing.SpliteratorTester,guava.src.com.google.common.collect.CollectSpliterators",
-                            "callee_kind": "qualified",
-                            "count": 1
-                        },
-                        {
-                            "caller_id": "d62c566e642a0270338bae65d6394907fb6cb11f",
-                            "caller_qname": "guava.android.guava-testlib.src.com.google.common.collect.testing.SpliteratorTester.SpliteratorTester.GeneralSpliteratorOfPrimitive.tryAdvance",
-                            "caller_file_path": "android/guava-testlib/src/com/google/common/collect/testing/SpliteratorTester.java",
-                            "caller_node_type": "callable",
-                            "caller_span": [
-                                145,
-                                148
-                            ],
-                            "identifier": "guava.android.guava-testlib.src.Spliterator.OfPrimitive.tryAdvance",
-                            "candidate_count": 22,
-                            "in_scope_candidate_count": 3,
-                            "candidate_module_hints": "guava.android.guava-testlib.src.com.google.common.collect.testing.SpliteratorTester,guava.android.guava.src.com.google.common.collect.CollectSpliterators,guava.android.guava.src.com.google.common.collect.Streams,guava.guava-testlib.src.com.google.common.collect.testing.SpliteratorTester,guava.src.com.google.common.collect.CollectSpliterators,guava.src.com.google.common.collect.Streams",
-                            "callee_kind": "qualified",
-                            "count": 1
-                        },
-                        {
-                            "caller_id": "fcc986192c5031ae413f155d90adb3b8d11770d4",
-                            "caller_qname": "guava.android.guava-testlib.src.com.google.common.collect.testing.SpliteratorTester.SpliteratorTester.GeneralSpliteratorOfPrimitive.trySplit",
-                            "caller_file_path": "android/guava-testlib/src/com/google/common/collect/testing/SpliteratorTester.java",
-                            "caller_node_type": "callable",
-                            "caller_span": [
-                                150,
-                                154
-                            ],
-                            "identifier": "guava.android.guava-testlib.src.Spliterator.OfPrimitive.trySplit",
-                            "candidate_count": 14,
-                            "in_scope_candidate_count": 3,
-                            "candidate_module_hints": "guava.android.guava-testlib.src.com.google.common.collect.testing.SpliteratorTester,guava.android.guava.src.com.google.common.collect.CollectSpliterators,guava.android.guava.src.com.google.common.collect.Streams,guava.guava-testlib.src.com.google.common.collect.testing.SpliteratorTester,guava.src.com.google.common.collect.CollectSpliterators,guava.src.com.google.common.collect.Streams",
-                            "callee_kind": "qualified",
-                            "count": 1
-                        },
-                        {
-                            "caller_id": "3e23bf7ba659492818f7795cd0dc319d0f836dfc",
-                            "caller_qname": "guava.android.guava-testlib.src.com.google.common.collect.testing.features.TesterRequirements.TesterRequirements.equals",
-                            "caller_file_path": "android/guava-testlib/src/com/google/common/collect/testing/features/TesterRequirements.java",
-                            "caller_node_type": "callable",
-                            "caller_span": [
-                                60,
-                                71
-                            ],
-                            "identifier": "guava.android.guava-testlib.src.this.absentFeatures.equals",
-                            "candidate_count": 494,
                             "in_scope_candidate_count": 2,
-                            "candidate_module_hints": "guava.android.guava-testlib.src.com.google.common.collect.testing.BaseComparable,guava.android.guava-testlib.src.com.google.common.collect.testing.Helpers,guava.android.guava-testlib.src.com.google.common.collect.testing.MinimalSet,guava.android.guava-testlib.src.com.google.common.collect.testing.SafeTreeMap,guava.android.guava-testlib.src.com.google.common.collect.testing.SafeTreeSet,guava.android.guava-testlib.src.com.google.common.collect.testing.SampleElements,guava.android.guava-testlib.src.com.google.common.collect.testing.UnhashableObject,guava.android.guava-testlib.src.com.google.common.collect.testing.features.TesterRequirements",
+                            "candidate_module_hints": "guava.android.guava-testlib.src.com.google.common.collect.testing.FeatureSpecificTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.ListTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.PerCollectionSizeTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.SortedMapTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.SortedSetTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.google.SortedMultisetTestSuiteBuilder,guava.guava-testlib.src.com.google.common.collect.testing.FeatureSpecificTestSuiteBuilder,guava.guava-testlib.src.com.google.common.collect.testing.ListTestSuiteBuilder",
                             "callee_kind": "qualified",
                             "count": 1
                         },
                         {
-                            "caller_id": "3e23bf7ba659492818f7795cd0dc319d0f836dfc",
-                            "caller_qname": "guava.android.guava-testlib.src.com.google.common.collect.testing.features.TesterRequirements.TesterRequirements.equals",
-                            "caller_file_path": "android/guava-testlib/src/com/google/common/collect/testing/features/TesterRequirements.java",
+                            "caller_id": "7324b588dbc8b6592d568c40329ce2ffc452bc4a",
+                            "caller_qname": "guava.android.guava-testlib.src.com.google.common.collect.testing.google.BiMapTestSuiteBuilder.BiMapTestSuiteBuilder.createDerivedSuites",
+                            "caller_file_path": "android/guava-testlib/src/com/google/common/collect/testing/google/BiMapTestSuiteBuilder.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                60,
-                                71
+                                78,
+                                124
                             ],
-                            "identifier": "guava.android.guava-testlib.src.this.presentFeatures.equals",
-                            "candidate_count": 494,
-                            "in_scope_candidate_count": 2,
-                            "candidate_module_hints": "guava.android.guava-testlib.src.com.google.common.collect.testing.BaseComparable,guava.android.guava-testlib.src.com.google.common.collect.testing.Helpers,guava.android.guava-testlib.src.com.google.common.collect.testing.MinimalSet,guava.android.guava-testlib.src.com.google.common.collect.testing.SafeTreeMap,guava.android.guava-testlib.src.com.google.common.collect.testing.SafeTreeSet,guava.android.guava-testlib.src.com.google.common.collect.testing.SampleElements,guava.android.guava-testlib.src.com.google.common.collect.testing.UnhashableObject,guava.android.guava-testlib.src.com.google.common.collect.testing.features.TesterRequirements",
+                            "identifier": "guava.android.guava-testlib.src.com.google.common.collect.testing.MapTestSuiteBuilder.using",
+                            "candidate_count": 38,
+                            "in_scope_candidate_count": 3,
+                            "candidate_module_hints": "guava.android.guava-testlib.src.com.google.common.collect.testing.CollectionTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.ConcurrentMapTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.ConcurrentNavigableMapTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.ListTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.MapTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.NavigableMapTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.NavigableSetTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.QueueTestSuiteBuilder",
                             "callee_kind": "qualified",
                             "count": 1
                         },
                         {
-                            "caller_id": "90c2ab15093b5989cacbdf640735d138de10551a",
-                            "caller_qname": "guava.android.guava-testlib.src.com.google.common.collect.testing.google.AbstractBiMapTester.AbstractBiMapTester.expectContents",
-                            "caller_file_path": "android/guava-testlib/src/com/google/common/collect/testing/google/AbstractBiMapTester.java",
+                            "caller_id": "7324b588dbc8b6592d568c40329ce2ffc452bc4a",
+                            "caller_qname": "guava.android.guava-testlib.src.com.google.common.collect.testing.google.BiMapTestSuiteBuilder.BiMapTestSuiteBuilder.createDerivedSuites",
+                            "caller_file_path": "android/guava-testlib/src/com/google/common/collect/testing/google/BiMapTestSuiteBuilder.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                52,
-                                67
+                                78,
+                                124
                             ],
-                            "identifier": "guava.android.guava-testlib.src.getMap().inverse().get",
-                            "candidate_count": 445,
+                            "identifier": "guava.android.guava-testlib.src.com.google.common.collect.testing.SetTestSuiteBuilder.createTestSuite",
+                            "candidate_count": 12,
                             "in_scope_candidate_count": 2,
-                            "candidate_module_hints": "guava.android.guava-testlib.src.com.google.common.collect.testing.AbstractMapTester,guava.android.guava-testlib.src.com.google.common.collect.testing.DerivedTestIteratorGenerator,guava.android.guava-testlib.src.com.google.common.collect.testing.Helpers,guava.android.guava-testlib.src.com.google.common.collect.testing.ReflectionFreeAssertThrows,guava.android.guava-testlib.src.com.google.common.collect.testing.SafeTreeMap,guava.android.guava-testlib.src.com.google.common.collect.testing.TestIteratorGenerator,guava.android.guava-testlib.src.com.google.common.collect.testing.google.ReflectionFreeAssertThrows,guava.android.guava-testlib.src.com.google.common.collect.testing.testers.ReflectionFreeAssertThrows",
+                            "candidate_module_hints": "guava.android.guava-testlib.src.com.google.common.collect.testing.FeatureSpecificTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.ListTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.PerCollectionSizeTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.SortedMapTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.SortedSetTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.google.SortedMultisetTestSuiteBuilder,guava.guava-testlib.src.com.google.common.collect.testing.FeatureSpecificTestSuiteBuilder,guava.guava-testlib.src.com.google.common.collect.testing.ListTestSuiteBuilder",
+                            "callee_kind": "qualified",
+                            "count": 1
+                        },
+                        {
+                            "caller_id": "7324b588dbc8b6592d568c40329ce2ffc452bc4a",
+                            "caller_qname": "guava.android.guava-testlib.src.com.google.common.collect.testing.google.BiMapTestSuiteBuilder.BiMapTestSuiteBuilder.createDerivedSuites",
+                            "caller_file_path": "android/guava-testlib/src/com/google/common/collect/testing/google/BiMapTestSuiteBuilder.java",
+                            "caller_node_type": "callable",
+                            "caller_span": [
+                                78,
+                                124
+                            ],
+                            "identifier": "guava.android.guava-testlib.src.com.google.common.collect.testing.SetTestSuiteBuilder.using",
+                            "candidate_count": 38,
+                            "in_scope_candidate_count": 3,
+                            "candidate_module_hints": "guava.android.guava-testlib.src.com.google.common.collect.testing.CollectionTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.ConcurrentMapTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.ConcurrentNavigableMapTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.ListTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.MapTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.NavigableMapTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.NavigableSetTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.QueueTestSuiteBuilder",
+                            "callee_kind": "qualified",
+                            "count": 1
+                        },
+                        {
+                            "caller_id": "b271b4ae1d3f8a3a65305d23d886b93581087f23",
+                            "caller_qname": "guava.android.guava-testlib.src.com.google.common.collect.testing.google.ListMultimapTestSuiteBuilder.ListMultimapTestSuiteBuilder.computeMultimapAsMapGetTestSuite",
+                            "caller_file_path": "android/guava-testlib/src/com/google/common/collect/testing/google/ListMultimapTestSuiteBuilder.java",
+                            "caller_node_type": "callable",
+                            "caller_span": [
+                                82,
+                                98
+                            ],
+                            "identifier": "guava.android.guava-testlib.src.com.google.common.collect.testing.ListTestSuiteBuilder.createTestSuite",
+                            "candidate_count": 12,
+                            "in_scope_candidate_count": 2,
+                            "candidate_module_hints": "guava.android.guava-testlib.src.com.google.common.collect.testing.FeatureSpecificTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.ListTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.PerCollectionSizeTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.SortedMapTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.SortedSetTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.google.SortedMultisetTestSuiteBuilder,guava.guava-testlib.src.com.google.common.collect.testing.FeatureSpecificTestSuiteBuilder,guava.guava-testlib.src.com.google.common.collect.testing.ListTestSuiteBuilder",
                             "callee_kind": "qualified",
                             "count": 1
                         }
                     ],
                     "ambiguous_no_in_scope_candidate": [
                         {
-                            "caller_id": "2b8afeea39db630cd5fc393678d1a388f13edb37",
-                            "caller_qname": "guava.android.guava-testlib.src.com.google.common.collect.testing.AbstractContainerTester.AbstractContainerTester.setUp",
-                            "caller_file_path": "android/guava-testlib/src/com/google/common/collect/testing/AbstractContainerTester.java",
+                            "caller_id": "adb7bca6dca0425eeb110470fa0c65ae1007f542",
+                            "caller_qname": "guava.android.guava-testlib.src.com.google.common.collect.testing.MapTestSuiteBuilder.MapTestSuiteBuilder.computeCommonDerivedCollectionFeatures",
+                            "caller_file_path": "android/guava-testlib/src/com/google/common/collect/testing/MapTestSuiteBuilder.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                52,
-                                58
+                                198,
+                                228
                             ],
-                            "identifier": "guava.android.guava-testlib.src.this.getSubjectGenerator().samples",
-                            "candidate_count": 130,
+                            "identifier": "guava.android.guava-testlib.src.com.google.common.collect.testing.features.CollectionFeature.values",
+                            "candidate_count": 104,
                             "in_scope_candidate_count": 0,
-                            "candidate_module_hints": "guava.android.guava-testlib.src.com.google.common.collect.testing.CollectionTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.DerivedCollectionGenerators,guava.android.guava-testlib.src.com.google.common.collect.testing.ListTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.MapTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.OneSizeGenerator,guava.android.guava-testlib.src.com.google.common.collect.testing.ReserializingTestCollectionGenerator,guava.android.guava-testlib.src.com.google.common.collect.testing.SetTestSuiteBuilder,guava.android.guava-testlib.src.com.google.common.collect.testing.TestCharacterListGenerator",
+                            "candidate_module_hints": "guava.android.guava-testlib.src.com.google.common.collect.testing.SafeTreeMap,guava.android.guava-testlib.src.com.google.common.collect.testing.testers.MapReplaceAllTester,guava.android.guava-tests.test.com.google.common.collect.ForwardingMapTest,guava.android.guava-tests.test.com.google.common.collect.ForwardingNavigableMapTest,guava.android.guava-tests.test.com.google.common.collect.ForwardingSortedMapTest,guava.android.guava-tests.test.com.google.common.collect.MapsTransformValuesUnmodifiableIteratorTest,guava.android.guava-tests.test.com.google.common.collect.SynchronizedBiMapTest,guava.android.guava-tests.test.com.google.common.collect.SynchronizedMapTest",
                             "callee_kind": "qualified",
                             "count": 1
                         },
                         {
-                            "caller_id": "33253f3919c4783871d40544de5d6fbb447b2bef",
-                            "caller_qname": "guava.android.guava-testlib.src.com.google.common.collect.testing.AbstractIteratorTester.AbstractIteratorTester.PermittedMetaException.assertPermitted",
-                            "caller_file_path": "android/guava-testlib/src/com/google/common/collect/testing/AbstractIteratorTester.java",
+                            "caller_id": "adb7bca6dca0425eeb110470fa0c65ae1007f542",
+                            "caller_qname": "guava.android.guava-testlib.src.com.google.common.collect.testing.MapTestSuiteBuilder.MapTestSuiteBuilder.computeCommonDerivedCollectionFeatures",
+                            "caller_file_path": "android/guava-testlib/src/com/google/common/collect/testing/MapTestSuiteBuilder.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                101,
-                                110
+                                198,
+                                228
                             ],
-                            "identifier": "guava.android.guava-testlib.src.exception.getClass().getSimpleName",
+                            "identifier": "guava.android.guava-testlib.src.com.google.common.collect.testing.features.CollectionSize.values",
+                            "candidate_count": 104,
+                            "in_scope_candidate_count": 0,
+                            "candidate_module_hints": "guava.android.guava-testlib.src.com.google.common.collect.testing.SafeTreeMap,guava.android.guava-testlib.src.com.google.common.collect.testing.testers.MapReplaceAllTester,guava.android.guava-tests.test.com.google.common.collect.ForwardingMapTest,guava.android.guava-tests.test.com.google.common.collect.ForwardingNavigableMapTest,guava.android.guava-tests.test.com.google.common.collect.ForwardingSortedMapTest,guava.android.guava-tests.test.com.google.common.collect.MapsTransformValuesUnmodifiableIteratorTest,guava.android.guava-tests.test.com.google.common.collect.SynchronizedBiMapTest,guava.android.guava-tests.test.com.google.common.collect.SynchronizedMapTest",
+                            "callee_kind": "qualified",
+                            "count": 1
+                        },
+                        {
+                            "caller_id": "c4381839d3ef370e50e397c0941f7b9119e95520",
+                            "caller_qname": "guava.android.guava-testlib.src.com.google.common.collect.testing.PerCollectionSizeTestSuiteBuilder.PerCollectionSizeTestSuiteBuilder.createTestSuite",
+                            "caller_file_path": "android/guava-testlib/src/com/google/common/collect/testing/PerCollectionSizeTestSuiteBuilder.java",
+                            "caller_node_type": "callable",
+                            "caller_span": [
+                                57,
+                                113
+                            ],
+                            "identifier": "guava.android.guava-testlib.src.com.google.common.collect.testing.features.CollectionSize.values",
+                            "candidate_count": 104,
+                            "in_scope_candidate_count": 0,
+                            "candidate_module_hints": "guava.android.guava-testlib.src.com.google.common.collect.testing.SafeTreeMap,guava.android.guava-testlib.src.com.google.common.collect.testing.testers.MapReplaceAllTester,guava.android.guava-tests.test.com.google.common.collect.ForwardingMapTest,guava.android.guava-tests.test.com.google.common.collect.ForwardingNavigableMapTest,guava.android.guava-tests.test.com.google.common.collect.ForwardingSortedMapTest,guava.android.guava-tests.test.com.google.common.collect.MapsTransformValuesUnmodifiableIteratorTest,guava.android.guava-tests.test.com.google.common.collect.SynchronizedBiMapTest,guava.android.guava-tests.test.com.google.common.collect.SynchronizedMapTest",
+                            "callee_kind": "qualified",
+                            "count": 1
+                        },
+                        {
+                            "caller_id": "fd05baccf0baef01a688642334b6f83d0b81b32d",
+                            "caller_qname": "guava.android.guava-testlib.src.com.google.common.collect.testing.SpliteratorTester.SpliteratorTester.expect-2",
+                            "caller_file_path": "android/guava-testlib/src/com/google/common/collect/testing/SpliteratorTester.java",
+                            "caller_node_type": "callable",
+                            "caller_span": [
+                                304,
+                                348
+                            ],
+                            "identifier": "guava.android.guava-testlib.src.com.google.common.collect.testing.SpliteratorTester.SpliteratorTester.Ordered.Ordered",
                             "candidate_count": 2,
                             "in_scope_candidate_count": 0,
-                            "candidate_module_hints": "guava.android.guava.src.com.google.common.reflect.ClassPath,guava.src.com.google.common.reflect.ClassPath",
+                            "candidate_module_hints": "guava.android.guava.src.com.google.common.graph.EndpointPair,guava.src.com.google.common.graph.EndpointPair",
                             "callee_kind": "qualified",
                             "count": 1
                         },
                         {
-                            "caller_id": "ef845dc6d4d76b5b380ed5b988cc8335d3311356",
-                            "caller_qname": "guava.android.guava-testlib.src.com.google.common.collect.testing.AbstractMapTester.AbstractMapTester.replaceValue",
-                            "caller_file_path": "android/guava-testlib/src/com/google/common/collect/testing/AbstractMapTester.java",
+                            "caller_id": "53c11929a20908c2aff5c62cdc3a4e0f1c5da3cf",
+                            "caller_qname": "guava.android.guava-testlib.src.com.google.common.testing.CollectorTester.CollectorTester.doExpectCollects",
+                            "caller_file_path": "android/guava-testlib/src/com/google/common/testing/CollectorTester.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                208,
-                                218
+                                164,
+                                174
                             ],
-                            "identifier": "guava.android.guava-testlib.src.i.next().getKey",
-                            "candidate_count": 43,
+                            "identifier": "guava.android.guava-testlib.src.com.google.common.testing.CollectorTester.CollectorTester.CollectStrategy.values",
+                            "candidate_count": 104,
                             "in_scope_candidate_count": 0,
-                            "candidate_module_hints": "guava.android.guava-tests.test.com.google.common.cache.LocalCacheTest,guava.android.guava-tests.test.com.google.common.collect.ImmutableMapTest,guava.android.guava-tests.test.com.google.common.collect.SynchronizedNavigableMapTest,guava.android.guava.src.com.google.common.cache.LocalCache,guava.android.guava.src.com.google.common.cache.ReferenceEntry,guava.android.guava.src.com.google.common.collect.AbstractMapBasedMultimap,guava.android.guava.src.com.google.common.collect.AbstractMapEntry,guava.android.guava.src.com.google.common.collect.ArrayTable",
+                            "candidate_module_hints": "guava.android.guava-testlib.src.com.google.common.collect.testing.SafeTreeMap,guava.android.guava-testlib.src.com.google.common.collect.testing.testers.MapReplaceAllTester,guava.android.guava-tests.test.com.google.common.collect.ForwardingMapTest,guava.android.guava-tests.test.com.google.common.collect.ForwardingNavigableMapTest,guava.android.guava-tests.test.com.google.common.collect.ForwardingSortedMapTest,guava.android.guava-tests.test.com.google.common.collect.MapsTransformValuesUnmodifiableIteratorTest,guava.android.guava-tests.test.com.google.common.collect.SynchronizedBiMapTest,guava.android.guava-tests.test.com.google.common.collect.SynchronizedMapTest",
                             "callee_kind": "qualified",
                             "count": 1
                         },
                         {
-                            "caller_id": "fe01ae5b1736f0305e165eb87f864e5aa7f38c0e",
-                            "caller_qname": "guava.android.guava-testlib.src.com.google.common.collect.testing.CollectionTestSuiteBuilder.CollectionTestSuiteBuilder.createDerivedSuites",
-                            "caller_file_path": "android/guava-testlib/src/com/google/common/collect/testing/CollectionTestSuiteBuilder.java",
+                            "caller_id": "6400be080155219b7f6f6ac40d9ed3ad467501af",
+                            "caller_qname": "guava.android.guava-testlib.test.com.google.common.testing.GcFinalizationTest.GcFinalizationTest.testAwaitClear_interrupted",
+                            "caller_file_path": "android/guava-testlib/test/com/google/common/testing/GcFinalizationTest.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                47,
-                                65
+                                180,
+                                193
                             ],
-                            "identifier": "guava.android.guava-testlib.src.parentBuilder.getFeatures().contains",
-                            "candidate_count": 285,
+                            "identifier": "guava.android.guava-testlib.test.com.google.common.testing.GcFinalizationTest.GcFinalizationTest.Foo.Foo",
+                            "candidate_count": 3,
                             "in_scope_candidate_count": 0,
-                            "candidate_module_hints": "guava.android.guava-testlib.src.com.google.common.collect.testing.MinimalCollection,guava.android.guava-testlib.src.com.google.common.collect.testing.SafeTreeSet,guava.android.guava-tests.benchmark.com.google.common.collect.MultipleSetContainsBenchmark,guava.android.guava-tests.benchmark.com.google.common.collect.SetContainsBenchmark,guava.android.guava-tests.benchmark.com.google.common.util.concurrent.MonitorBasedArrayBlockingQueue,guava.android.guava-tests.benchmark.com.google.common.util.concurrent.MonitorBasedPriorityBlockingQueue,guava.android.guava-tests.test.com.google.common.base.PredicatesTest,guava.android.guava-tests.test.com.google.common.collect.ForwardingCollectionTest",
+                            "candidate_module_hints": "guava.android.guava-tests.test.com.google.common.collect.ComparatorsTest,guava.guava-tests.test.com.google.common.collect.ComparatorsTest,guava.guava-tests.test.com.google.common.collect.ComparisonChainTest",
                             "callee_kind": "qualified",
                             "count": 1
                         },
                         {
-                            "caller_id": "fbdd15814b2883bae71db8441808f0629b1ac37b",
-                            "caller_qname": "guava.android.guava-testlib.src.com.google.common.collect.testing.DerivedCollectionGenerators.DerivedCollectionGenerators.MapEntrySetGenerator.create",
-                            "caller_file_path": "android/guava-testlib/src/com/google/common/collect/testing/DerivedCollectionGenerators.java",
+                            "caller_id": "35317fb0230416d3f53ea028fb3a740e635ce66d",
+                            "caller_qname": "guava.android.guava-tests.benchmark.com.google.common.collect.ConcurrentHashMultisetBenchmark.ConcurrentHashMultisetBenchmark.OldConcurrentHashMultiset.entrySet",
+                            "caller_file_path": "android/guava-tests/benchmark/com/google/common/collect/ConcurrentHashMultisetBenchmark.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                61,
-                                64
+                                450,
+                                457
                             ],
-                            "identifier": "guava.android.guava-testlib.src.mapGenerator.create(elements).entrySet",
-                            "candidate_count": 70,
+                            "identifier": "guava.android.guava-tests.benchmark.com.google.common.collect.ConcurrentHashMultisetBenchmark.ConcurrentHashMultisetBenchmark.OldConcurrentHashMultiset.EntrySet.EntrySet",
+                            "candidate_count": 5,
                             "in_scope_candidate_count": 0,
-                            "candidate_module_hints": "guava.android.guava-testlib.src.com.google.common.collect.testing.SafeTreeMap,guava.android.guava-tests.benchmark.com.google.common.collect.ConcurrentHashMultisetBenchmark,guava.android.guava-tests.test.com.google.common.collect.ForwardingMapTest,guava.android.guava-tests.test.com.google.common.collect.ForwardingNavigableMapTest,guava.android.guava-tests.test.com.google.common.collect.ForwardingSortedMapTest,guava.android.guava-tests.test.com.google.common.collect.MapsTransformValuesUnmodifiableIteratorTest,guava.android.guava-tests.test.com.google.common.collect.SynchronizedMapTest,guava.android.guava.src.com.google.common.cache.LocalCache",
+                            "candidate_module_hints": "guava.android.guava.src.com.google.common.collect.HashBiMap,guava.android.guava.src.com.google.common.collect.ImmutableSetMultimap,guava.android.guava.src.com.google.common.collect.RegularImmutableMap,guava.guava-gwt.src-super.com.google.common.cache.super.com.google.common.cache.LocalCache,guava.src.com.google.common.collect.ImmutableSetMultimap",
                             "callee_kind": "qualified",
                             "count": 1
                         },
                         {
-                            "caller_id": "d125995979412e2ce254a00f641a0ba7b84d01b8",
-                            "caller_qname": "guava.android.guava-testlib.src.com.google.common.collect.testing.DerivedCollectionGenerators.DerivedCollectionGenerators.MapKeySetGenerator.MapKeySetGenerator",
-                            "caller_file_path": "android/guava-testlib/src/com/google/common/collect/testing/DerivedCollectionGenerators.java",
+                            "caller_id": "cea73ac48f9f8dd4f468506fdd097e2f8b398028",
+                            "caller_qname": "guava.android.guava-tests.test.com.google.common.base.EnumsTest.EnumsTest.doTestClassUnloading",
+                            "caller_file_path": "android/guava-tests/test/com/google/common/base/EnumsTest.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                102,
-                                112
+                                97,
+                                116
                             ],
-                            "identifier": "guava.android.guava-testlib.src.mapSamples.e0().getKey",
-                            "candidate_count": 43,
+                            "identifier": "guava.android.guava-tests.test.com.google.common.base.EnumsTest.EnumsTest.TestEnum.values",
+                            "candidate_count": 104,
                             "in_scope_candidate_count": 0,
-                            "candidate_module_hints": "guava.android.guava-tests.test.com.google.common.cache.LocalCacheTest,guava.android.guava-tests.test.com.google.common.collect.ImmutableMapTest,guava.android.guava-tests.test.com.google.common.collect.SynchronizedNavigableMapTest,guava.android.guava.src.com.google.common.cache.LocalCache,guava.android.guava.src.com.google.common.cache.ReferenceEntry,guava.android.guava.src.com.google.common.collect.AbstractMapBasedMultimap,guava.android.guava.src.com.google.common.collect.AbstractMapEntry,guava.android.guava.src.com.google.common.collect.ArrayTable",
+                            "candidate_module_hints": "guava.android.guava-testlib.src.com.google.common.collect.testing.SafeTreeMap,guava.android.guava-testlib.src.com.google.common.collect.testing.testers.MapReplaceAllTester,guava.android.guava-tests.test.com.google.common.collect.ForwardingMapTest,guava.android.guava-tests.test.com.google.common.collect.ForwardingNavigableMapTest,guava.android.guava-tests.test.com.google.common.collect.ForwardingSortedMapTest,guava.android.guava-tests.test.com.google.common.collect.MapsTransformValuesUnmodifiableIteratorTest,guava.android.guava-tests.test.com.google.common.collect.SynchronizedBiMapTest,guava.android.guava-tests.test.com.google.common.collect.SynchronizedMapTest",
+                            "callee_kind": "qualified",
+                            "count": 1
+                        }
+                    ],
+                    "unique_without_provenance": [
+                        {
+                            "caller_id": "8abc25e875247e6dea9c5e79fc4b27baa8a403c6",
+                            "caller_qname": "guava.android.guava-tests.test.com.google.common.util.concurrent.FuturesTest.FuturesTest.testTransformAsync_cancelPropagatesToAsyncOutput",
+                            "caller_file_path": "android/guava-tests/test/com/google/common/util/concurrent/FuturesTest.java",
+                            "caller_node_type": "callable",
+                            "caller_span": [
+                                413,
+                                426
+                            ],
+                            "identifier": "guava.android.guava-tests.test.com.google.common.util.concurrent.FuturesTest.FuturesTest.Bar.Bar",
+                            "candidate_count": 1,
+                            "in_scope_candidate_count": 0,
+                            "candidate_module_hints": "guava.guava-tests.test.com.google.common.collect.ComparisonChainTest",
                             "callee_kind": "qualified",
                             "count": 1
                         },
                         {
-                            "caller_id": "d125995979412e2ce254a00f641a0ba7b84d01b8",
-                            "caller_qname": "guava.android.guava-testlib.src.com.google.common.collect.testing.DerivedCollectionGenerators.DerivedCollectionGenerators.MapKeySetGenerator.MapKeySetGenerator",
-                            "caller_file_path": "android/guava-testlib/src/com/google/common/collect/testing/DerivedCollectionGenerators.java",
+                            "caller_id": "80b839c6b2c453ac87245f79f28c1ef086a2a9e3",
+                            "caller_qname": "guava.android.guava-tests.test.com.google.common.util.concurrent.FuturesTest.FuturesTest.testTransformAsync_cancelPropagatesToInput",
+                            "caller_file_path": "android/guava-tests/test/com/google/common/util/concurrent/FuturesTest.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                102,
-                                112
+                                347,
+                                359
                             ],
-                            "identifier": "guava.android.guava-testlib.src.mapSamples.e1().getKey",
-                            "candidate_count": 43,
+                            "identifier": "guava.android.guava-tests.test.com.google.common.util.concurrent.FuturesTest.FuturesTest.Bar.Bar",
+                            "candidate_count": 1,
                             "in_scope_candidate_count": 0,
-                            "candidate_module_hints": "guava.android.guava-tests.test.com.google.common.cache.LocalCacheTest,guava.android.guava-tests.test.com.google.common.collect.ImmutableMapTest,guava.android.guava-tests.test.com.google.common.collect.SynchronizedNavigableMapTest,guava.android.guava.src.com.google.common.cache.LocalCache,guava.android.guava.src.com.google.common.cache.ReferenceEntry,guava.android.guava.src.com.google.common.collect.AbstractMapBasedMultimap,guava.android.guava.src.com.google.common.collect.AbstractMapEntry,guava.android.guava.src.com.google.common.collect.ArrayTable",
+                            "candidate_module_hints": "guava.guava-tests.test.com.google.common.collect.ComparisonChainTest",
                             "callee_kind": "qualified",
                             "count": 1
                         },
                         {
-                            "caller_id": "d125995979412e2ce254a00f641a0ba7b84d01b8",
-                            "caller_qname": "guava.android.guava-testlib.src.com.google.common.collect.testing.DerivedCollectionGenerators.DerivedCollectionGenerators.MapKeySetGenerator.MapKeySetGenerator",
-                            "caller_file_path": "android/guava-testlib/src/com/google/common/collect/testing/DerivedCollectionGenerators.java",
+                            "caller_id": "4955a66051d63bcb105f67987b547b3d311409da",
+                            "caller_qname": "guava.android.guava-tests.test.com.google.common.util.concurrent.FuturesTest.FuturesTest.testTransformAsync_inputCancelButNotInterruptPropagatesToOutput",
+                            "caller_file_path": "android/guava-tests/test/com/google/common/util/concurrent/FuturesTest.java",
                             "caller_node_type": "callable",
                             "caller_span": [
-                                102,
-                                112
+                                443,
+                                461
                             ],
-                            "identifier": "guava.android.guava-testlib.src.mapSamples.e2().getKey",
-                            "candidate_count": 43,
+                            "identifier": "guava.android.guava-tests.test.com.google.common.util.concurrent.FuturesTest.FuturesTest.Bar.Bar",
+                            "candidate_count": 1,
                             "in_scope_candidate_count": 0,
-                            "candidate_module_hints": "guava.android.guava-tests.test.com.google.common.cache.LocalCacheTest,guava.android.guava-tests.test.com.google.common.collect.ImmutableMapTest,guava.android.guava-tests.test.com.google.common.collect.SynchronizedNavigableMapTest,guava.android.guava.src.com.google.common.cache.LocalCache,guava.android.guava.src.com.google.common.cache.ReferenceEntry,guava.android.guava.src.com.google.common.collect.AbstractMapBasedMultimap,guava.android.guava.src.com.google.common.collect.AbstractMapEntry,guava.android.guava.src.com.google.common.collect.ArrayTable",
+                            "candidate_module_hints": "guava.guava-tests.test.com.google.common.collect.ComparisonChainTest",
+                            "callee_kind": "qualified",
+                            "count": 1
+                        },
+                        {
+                            "caller_id": "1c979395ec885a0db3f33d8139129e3ed0d4fa15",
+                            "caller_qname": "guava.android.guava-tests.test.com.google.common.util.concurrent.FuturesTest.FuturesTest.testTransformAsync_interruptPropagatesToAsyncOutput",
+                            "caller_file_path": "android/guava-tests/test/com/google/common/util/concurrent/FuturesTest.java",
+                            "caller_node_type": "callable",
+                            "caller_span": [
+                                428,
+                                441
+                            ],
+                            "identifier": "guava.android.guava-tests.test.com.google.common.util.concurrent.FuturesTest.FuturesTest.Bar.Bar",
+                            "candidate_count": 1,
+                            "in_scope_candidate_count": 0,
+                            "candidate_module_hints": "guava.guava-tests.test.com.google.common.collect.ComparisonChainTest",
+                            "callee_kind": "qualified",
+                            "count": 1
+                        },
+                        {
+                            "caller_id": "82988b62e4aba135daf53b83d74b5cfc5b98f576",
+                            "caller_qname": "guava.android.guava-tests.test.com.google.common.util.concurrent.FuturesTest.FuturesTest.testTransformAsync_interruptPropagatesToInput",
+                            "caller_file_path": "android/guava-tests/test/com/google/common/util/concurrent/FuturesTest.java",
+                            "caller_node_type": "callable",
+                            "caller_span": [
+                                361,
+                                373
+                            ],
+                            "identifier": "guava.android.guava-tests.test.com.google.common.util.concurrent.FuturesTest.FuturesTest.Bar.Bar",
+                            "candidate_count": 1,
+                            "in_scope_candidate_count": 0,
+                            "candidate_module_hints": "guava.guava-tests.test.com.google.common.collect.ComparisonChainTest",
+                            "callee_kind": "qualified",
+                            "count": 1
+                        },
+                        {
+                            "caller_id": "bd012d673ef639dbf88671e6cf31f025b7914f88",
+                            "caller_qname": "guava.android.guava.src.com.google.common.cache.LocalCache.LocalCache.EntrySet.iterator",
+                            "caller_file_path": "android/guava/src/com/google/common/cache/LocalCache.java",
+                            "caller_node_type": "callable",
+                            "caller_span": [
+                                4455,
+                                4458
+                            ],
+                            "identifier": "guava.android.guava.src.com.google.common.cache.LocalCache.LocalCache.EntryIterator.EntryIterator",
+                            "candidate_count": 1,
+                            "in_scope_candidate_count": 0,
+                            "candidate_module_hints": "guava.guava-gwt.src-super.com.google.common.cache.super.com.google.common.cache.LocalCache",
+                            "callee_kind": "qualified",
+                            "count": 1
+                        },
+                        {
+                            "caller_id": "bb8dc6cfd871873380ae8887913d8b50fd8a1e9a",
+                            "caller_qname": "guava.android.guava.src.com.google.common.cache.LocalCache.LocalCache.KeySet.iterator",
+                            "caller_file_path": "android/guava/src/com/google/common/cache/LocalCache.java",
+                            "caller_node_type": "callable",
+                            "caller_span": [
+                                4410,
+                                4413
+                            ],
+                            "identifier": "guava.android.guava.src.com.google.common.cache.LocalCache.LocalCache.KeyIterator.KeyIterator",
+                            "candidate_count": 1,
+                            "in_scope_candidate_count": 0,
+                            "candidate_module_hints": "guava.guava-gwt.src-super.com.google.common.cache.super.com.google.common.cache.LocalCache",
+                            "callee_kind": "qualified",
+                            "count": 1
+                        },
+                        {
+                            "caller_id": "26629879584b5e37c460cd1798df99736a90904c",
+                            "caller_qname": "guava.android.guava.src.com.google.common.cache.LocalCache.LocalCache.Values.iterator",
+                            "caller_file_path": "android/guava/src/com/google/common/cache/LocalCache.java",
+                            "caller_node_type": "callable",
+                            "caller_span": [
+                                4442,
+                                4445
+                            ],
+                            "identifier": "guava.android.guava.src.com.google.common.cache.LocalCache.LocalCache.ValueIterator.ValueIterator",
+                            "candidate_count": 1,
+                            "in_scope_candidate_count": 0,
+                            "candidate_module_hints": "guava.guava-gwt.src-super.com.google.common.cache.super.com.google.common.cache.LocalCache",
                             "callee_kind": "qualified",
                             "count": 1
                         }
@@ -447,25 +577,25 @@
                 ],
                 "call_sites_by_scope": {
                     "non_tests": {
-                        "eligible": 27736,
-                        "accepted": 23586,
-                        "dropped": 4150,
-                        "success_rate": 0.8503749639457745
+                        "eligible": 23379,
+                        "accepted": 22939,
+                        "dropped": 440,
+                        "success_rate": 0.9811796911758416
                     },
                     "tests": {
-                        "eligible": 24066,
-                        "accepted": 12378,
-                        "dropped": 11688,
-                        "success_rate": 0.5143355771628023
+                        "eligible": 11994,
+                        "accepted": 11905,
+                        "dropped": 89,
+                        "success_rate": 0.9925796231449058
                     }
                 },
                 "structural_density": {
                     "files": 3243,
                     "discovered_files": 3243,
                     "nodes": 64129,
-                    "eligible_callsites": 51802,
+                    "eligible_callsites": 35373,
                     "nodes_per_file": 19.77459142769041,
-                    "eligible_callsites_per_file": 15.973481344434166,
+                    "eligible_callsites_per_file": 10.907493061979649,
                     "low_node_files_leq_1": 144,
                     "low_node_file_ratio": 0.04440333024976873,
                     "inferred_zero_node_files": 0,
@@ -554,43 +684,43 @@
             "nodes": 64131,
             "edges": 67212,
             "call_sites": {
-                "eligible": 51802,
-                "accepted": 35964,
-                "dropped": 15838,
-                "success_rate": 0.6942589089224355
+                "eligible": 35373,
+                "accepted": 34844,
+                "dropped": 529,
+                "success_rate": 0.9850450908885308
             },
             "call_sites_by_scope": {
                 "non_tests": {
-                    "eligible": 27736,
-                    "accepted": 23586,
-                    "dropped": 4150,
-                    "success_rate": 0.8503749639457745
+                    "eligible": 23379,
+                    "accepted": 22939,
+                    "dropped": 440,
+                    "success_rate": 0.9811796911758416
                 },
                 "tests": {
-                    "eligible": 24066,
-                    "accepted": 12378,
-                    "dropped": 11688,
-                    "success_rate": 0.5143355771628023
+                    "eligible": 11994,
+                    "accepted": 11905,
+                    "dropped": 89,
+                    "success_rate": 0.9925796231449058
                 }
             },
             "drop_classification": {
-                "in_repo_unresolvable": 11583
+                "in_repo_unresolvable": 97
             },
             "drop_classification_by_scope": {
                 "non_tests": {
-                    "in_repo_unresolvable": 1982
+                    "in_repo_unresolvable": 58
                 },
                 "tests": {
-                    "in_repo_unresolvable": 9601
+                    "in_repo_unresolvable": 39
                 }
             },
             "structural_density": {
                 "files": 3245,
                 "discovered_files": 3245,
                 "nodes": 64131,
-                "eligible_callsites": 51802,
+                "eligible_callsites": 35373,
                 "nodes_per_file": 19.76302003081664,
-                "eligible_callsites_per_file": 15.963636363636363,
+                "eligible_callsites_per_file": 10.900770416024653,
                 "low_node_files_leq_1": 146,
                 "low_node_file_ratio": 0.04499229583975347,
                 "inferred_zero_node_files": 0,
@@ -627,88 +757,88 @@
             "top_failed_callers": {
                 "java": [
                     {
+                        "name": "guava.android.guava.src.com.google.common.eventbus.SubscriberRegistry.SubscriberRegistry.getAnnotatedMethodsNotCached",
+                        "count": 5
+                    },
+                    {
                         "name": "guava.android.guava-testlib.src.com.google.common.collect.testing.google.BiMapTestSuiteBuilder.BiMapTestSuiteBuilder.createDerivedSuites",
-                        "count": 7
-                    },
-                    {
-                        "name": "guava.android.guava-testlib.src.com.google.common.collect.testing.DerivedCollectionGenerators.DerivedCollectionGenerators.MapKeySetGenerator.MapKeySetGenerator",
-                        "count": 6
-                    },
-                    {
-                        "name": "guava.android.guava-testlib.src.com.google.common.collect.testing.DerivedCollectionGenerators.DerivedCollectionGenerators.MapValueCollectionGenerator.MapValueCollectionGenerator",
-                        "count": 6
-                    },
-                    {
-                        "name": "guava.android.guava-testlib.src.com.google.common.collect.testing.MapTestSuiteBuilder.MapTestSuiteBuilder.createDerivedSuites",
-                        "count": 6
-                    },
-                    {
-                        "name": "guava.android.guava-testlib.src.com.google.common.collect.testing.google.DerivedGoogleCollectionGenerators.DerivedGoogleCollectionGenerators.BiMapValueSetGenerator.BiMapValueSetGenerator",
-                        "count": 6
-                    },
-                    {
-                        "name": "guava.android.guava-testlib.src.com.google.common.collect.testing.SortedMapTestSuiteBuilder.SortedMapTestSuiteBuilder.createSubmapSuite",
                         "count": 4
                     },
                     {
-                        "name": "guava.android.guava-testlib.src.com.google.common.collect.testing.SortedSetTestSuiteBuilder.SortedSetTestSuiteBuilder.createSubsetSuite",
+                        "name": "guava.android.guava.src.com.google.common.io.Files.Files.simplifyPath",
                         "count": 4
+                    },
+                    {
+                        "name": "guava.android.guava.src.com.google.common.net.InetAddresses.InetAddresses.getCoercedIPv4Address",
+                        "count": 3
+                    },
+                    {
+                        "name": "guava.android.guava-testlib.src.com.google.common.collect.testing.MapTestSuiteBuilder.MapTestSuiteBuilder.computeCommonDerivedCollectionFeatures",
+                        "count": 2
                     },
                     {
                         "name": "guava.android.guava-testlib.src.com.google.common.collect.testing.google.ListMultimapTestSuiteBuilder.ListMultimapTestSuiteBuilder.computeMultimapAsMapGetTestSuite",
-                        "count": 4
+                        "count": 2
                     },
                     {
-                        "name": "guava.android.guava-testlib.src.com.google.common.collect.testing.MapInterfaceTest.MapInterfaceTest.assertInvariants",
-                        "count": 3
+                        "name": "guava.android.guava-testlib.src.com.google.common.collect.testing.google.ListMultimapTestSuiteBuilder.ListMultimapTestSuiteBuilder.computeMultimapGetTestSuite",
+                        "count": 2
                     },
                     {
-                        "name": "guava.android.guava-testlib.src.com.google.common.collect.testing.PerCollectionSizeTestSuiteBuilder.PerCollectionSizeTestSuiteBuilder.createTestSuite",
-                        "count": 3
+                        "name": "guava.android.guava-testlib.src.com.google.common.collect.testing.google.MultimapTestSuiteBuilder.MultimapTestSuiteBuilder.computeEntriesTestSuite",
+                        "count": 2
+                    },
+                    {
+                        "name": "guava.android.guava-testlib.src.com.google.common.collect.testing.google.MultimapTestSuiteBuilder.MultimapTestSuiteBuilder.computeMultimapAsMapGetTestSuite",
+                        "count": 2
+                    },
+                    {
+                        "name": "guava.android.guava-testlib.src.com.google.common.collect.testing.google.MultimapTestSuiteBuilder.MultimapTestSuiteBuilder.computeMultimapGetTestSuite",
+                        "count": 2
                     }
                 ]
             },
             "top_failed_files": {
                 "java": [
                     {
-                        "name": "android/guava-testlib/src/com/google/common/collect/testing/MapInterfaceTest.java",
-                        "count": 30
+                        "name": "android/guava-testlib/src/com/google/common/collect/testing/google/MultimapTestSuiteBuilder.java",
+                        "count": 10
                     },
                     {
-                        "name": "android/guava-testlib/src/com/google/common/collect/testing/DerivedCollectionGenerators.java",
-                        "count": 23
+                        "name": "android/guava-tests/test/com/google/common/util/concurrent/FuturesTest.java",
+                        "count": 10
                     },
                     {
-                        "name": "android/guava-testlib/src/com/google/common/collect/testing/google/DerivedGoogleCollectionGenerators.java",
-                        "count": 16
-                    },
-                    {
-                        "name": "android/guava-testlib/src/com/google/common/collect/testing/google/BiMapRemoveTester.java",
+                        "name": "android/guava/src/com/google/common/net/MediaType.java",
                         "count": 9
                     },
                     {
-                        "name": "android/guava-testlib/src/com/google/common/collect/testing/MapTestSuiteBuilder.java",
+                        "name": "android/guava-tests/test/com/google/common/util/concurrent/ServiceManagerTest.java",
                         "count": 8
+                    },
+                    {
+                        "name": "android/guava/src/com/google/common/cache/LocalCache.java",
+                        "count": 8
+                    },
+                    {
+                        "name": "android/guava/src/com/google/common/eventbus/SubscriberRegistry.java",
+                        "count": 7
+                    },
+                    {
+                        "name": "android/guava-tests/test/com/google/common/eventbus/SubscriberRegistryTest.java",
+                        "count": 6
+                    },
+                    {
+                        "name": "android/guava/src/com/google/common/collect/MapMakerInternalMap.java",
+                        "count": 6
+                    },
+                    {
+                        "name": "android/guava/src/com/google/common/io/Files.java",
+                        "count": 6
                     },
                     {
                         "name": "android/guava-testlib/src/com/google/common/collect/testing/google/BiMapTestSuiteBuilder.java",
-                        "count": 8
-                    },
-                    {
-                        "name": "android/guava-testlib/src/com/google/common/collect/testing/google/ListGenerators.java",
-                        "count": 8
-                    },
-                    {
-                        "name": "android/guava-testlib/src/com/google/common/collect/testing/google/BiMapPutTester.java",
-                        "count": 7
-                    },
-                    {
-                        "name": "android/guava-testlib/src/com/google/common/collect/testing/google/ListMultimapAsMapTester.java",
-                        "count": 7
-                    },
-                    {
-                        "name": "android/guava-testlib/src/com/google/common/collect/testing/google/ListMultimapTestSuiteBuilder.java",
-                        "count": 7
+                        "count": 5
                     }
                 ]
             }
