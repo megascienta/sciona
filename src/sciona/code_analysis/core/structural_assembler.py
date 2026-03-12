@@ -37,6 +37,7 @@ class StructuralAssembler:
         self.structural_cache: Dict[Tuple[str, str, str], str] = {}
         self._store = store
         self.call_gate_diagnostics: dict[str, object] = {}
+        self.emission_diagnostics: dict[str, object] = {}
 
     def prime_structural_cache(self, snapshot_id: Optional[str]) -> None:
         self.structural_cache = {}
@@ -62,6 +63,7 @@ class StructuralAssembler:
         file_snapshot: FileSnapshot,
     ) -> tuple[int, Dict[str, Tuple[str, str]]]:
         analysis = self._normalize_call_records(analysis, file_snapshot)
+        self.emission_diagnostics = {}
         self._validate_lexical_containment(analysis)
         nodes = sorted(
             analysis.nodes,
@@ -290,6 +292,7 @@ class StructuralAssembler:
             edges,
             node_id_map,
             self.structural_cache,
+            self.emission_diagnostics,
         )
 
     def _lookup_structural_id(

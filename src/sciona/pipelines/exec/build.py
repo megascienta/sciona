@@ -44,6 +44,7 @@ class BuildResult:
     nodes_recorded: int
     snapshot_id: str
     status: str
+    health: str = "ok"
     call_artifacts: Sequence[CallExtractionRecord] = field(default_factory=list)
     enabled_languages: Sequence[str] = field(default_factory=list)
     discovery_counts: dict[str, int] = field(default_factory=dict)
@@ -52,9 +53,13 @@ class BuildResult:
     discovery_excluded_total: int = 0
     exclude_globs: Sequence[str] = field(default_factory=list)
     parse_failures: int = 0
+    parse_files_with_diagnostics: int = 0
+    parse_error_nodes: int = 0
+    parse_significant_missing_nodes: int = 0
     name_collisions_detected: int = 0
     name_collisions_disambiguated: int = 0
     residual_containment_failures: int = 0
+    parse_diagnostics_by_language: dict[str, dict[str, int]] = field(default_factory=dict)
     name_collisions_by_language: dict[str, dict[str, int]] = field(default_factory=dict)
     imports_seen: int = 0
     imports_internal: int = 0
@@ -158,6 +163,7 @@ def build_repo(
                 node_count,
                 committed_snapshot_id,
                 SnapshotLifecycle.COMMITTED.value,
+                health="degraded" if engine.parse_failures else "ok",
                 call_artifacts=call_artifacts,
                 enabled_languages=enabled_languages,
                 discovery_counts=dict(engine.discovery_counts),
@@ -166,9 +172,13 @@ def build_repo(
                 discovery_excluded_total=engine.discovery_excluded_total,
                 exclude_globs=list(engine.exclude_globs),
                 parse_failures=engine.parse_failures,
+                parse_files_with_diagnostics=engine.parse_files_with_diagnostics,
+                parse_error_nodes=engine.parse_error_nodes,
+                parse_significant_missing_nodes=engine.parse_significant_missing_nodes,
                 name_collisions_detected=engine.name_collisions_detected,
                 name_collisions_disambiguated=engine.name_collisions_disambiguated,
                 residual_containment_failures=engine.residual_containment_failures,
+                parse_diagnostics_by_language=dict(engine.parse_diagnostics_by_language),
                 name_collisions_by_language=dict(engine.name_collisions_by_language),
                 imports_seen=engine.imports_seen,
                 imports_internal=engine.imports_internal,
@@ -270,6 +280,7 @@ def _hydrate_result_payload(payload: dict[str, object]) -> BuildResult | None:
             nodes_recorded=int(payload["nodes_recorded"]),
             snapshot_id=str(payload["snapshot_id"]),
             status=str(payload["status"]),
+            health=str(payload.get("health", "ok")),
             call_artifacts=[],
             enabled_languages=list(payload.get("enabled_languages", [])),
             discovery_counts=dict(payload.get("discovery_counts", {})),
@@ -278,6 +289,13 @@ def _hydrate_result_payload(payload: dict[str, object]) -> BuildResult | None:
             discovery_excluded_total=int(payload.get("discovery_excluded_total", 0)),
             exclude_globs=list(payload.get("exclude_globs", [])),
             parse_failures=int(payload.get("parse_failures", 0)),
+            parse_files_with_diagnostics=int(
+                payload.get("parse_files_with_diagnostics", 0)
+            ),
+            parse_error_nodes=int(payload.get("parse_error_nodes", 0)),
+            parse_significant_missing_nodes=int(
+                payload.get("parse_significant_missing_nodes", 0)
+            ),
             name_collisions_detected=int(
                 payload.get("name_collisions_detected", 0)
             ),
@@ -286,6 +304,9 @@ def _hydrate_result_payload(payload: dict[str, object]) -> BuildResult | None:
             ),
             residual_containment_failures=int(
                 payload.get("residual_containment_failures", 0)
+            ),
+            parse_diagnostics_by_language=dict(
+                payload.get("parse_diagnostics_by_language", {})
             ),
             name_collisions_by_language=dict(
                 payload.get("name_collisions_by_language", {})
@@ -309,6 +330,7 @@ def _build_result_payload(result: BuildResult) -> dict[str, object]:
         "nodes_recorded": result.nodes_recorded,
         "snapshot_id": result.snapshot_id,
         "status": result.status,
+        "health": result.health,
         "enabled_languages": list(result.enabled_languages),
         "discovery_counts": dict(result.discovery_counts),
         "discovery_candidates": dict(result.discovery_candidates),
@@ -316,9 +338,13 @@ def _build_result_payload(result: BuildResult) -> dict[str, object]:
         "discovery_excluded_total": result.discovery_excluded_total,
         "exclude_globs": list(result.exclude_globs),
         "parse_failures": result.parse_failures,
+        "parse_files_with_diagnostics": result.parse_files_with_diagnostics,
+        "parse_error_nodes": result.parse_error_nodes,
+        "parse_significant_missing_nodes": result.parse_significant_missing_nodes,
         "name_collisions_detected": result.name_collisions_detected,
         "name_collisions_disambiguated": result.name_collisions_disambiguated,
         "residual_containment_failures": result.residual_containment_failures,
+        "parse_diagnostics_by_language": dict(result.parse_diagnostics_by_language),
         "name_collisions_by_language": dict(result.name_collisions_by_language),
         "imports_seen": result.imports_seen,
         "imports_internal": result.imports_internal,

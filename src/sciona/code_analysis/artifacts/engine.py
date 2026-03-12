@@ -45,8 +45,14 @@ class ArtifactEngine:
         self._progress_factory = progress_factory
         self._warning_sink = warning_sink
         self.warnings: list[str] = []
+        self.diagnostics: dict[str, object] = {}
 
     def run(self, snapshot_id: str) -> List[CallExtractionRecord]:
+        self.diagnostics = {
+            "artifact_analyzer_failures": 0,
+            "artifact_call_records_seen": 0,
+            "artifact_call_records_dropped_missing_caller": 0,
+        }
         tracked = git_ops.tracked_paths(self.workspace_root)
         ignored = git_ops.ignored_tracked_paths(self.workspace_root)
         if self.discovery is None:
@@ -98,6 +104,9 @@ class ArtifactEngine:
                     warning = (
                         f"Failed to analyze {file_snapshot.record.relative_path}: {exc}"
                     )
+                    self.diagnostics["artifact_analyzer_failures"] = (
+                        int(self.diagnostics["artifact_analyzer_failures"]) + 1
+                    )
                     self._warn(warning)
                     if progress:
                         progress.advance(1)
@@ -125,8 +134,19 @@ class ArtifactEngine:
         )
         merged_by_caller: OrderedDict[str, dict[str, object]] = OrderedDict()
         for _language, qualified_name, node_type, callee_identifiers in normalized_calls:
+            self.diagnostics["artifact_call_records_seen"] = (
+                int(self.diagnostics["artifact_call_records_seen"]) + 1
+            )
             node_info = node_map.get((qualified_name, node_type))
             if not node_info:
+                self.diagnostics["artifact_call_records_dropped_missing_caller"] = (
+                    int(
+                        self.diagnostics[
+                            "artifact_call_records_dropped_missing_caller"
+                        ]
+                    )
+                    + 1
+                )
                 continue
             merged = merged_by_caller.get(node_info)
             if merged is None:

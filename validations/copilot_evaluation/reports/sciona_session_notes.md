@@ -440,3 +440,146 @@ Observations
 Most reducer summaries were already adequate. The best improvements were on hotspot, ownership, callsite, inheritance, and symbol-reference reducers where wording now maps more directly to actual payloads.
 RATINGS (1-10): Structural clarity 9 | Navigation speed 9 | Confidence in answers 9 | Overall usefulness 9
 COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 8 | Confidence gain vs baseline 8 | Scope reduction vs baseline 9 | Query friction vs baseline 3 | Net usefulness vs baseline 9
+## Task 27 - Build reuse regression investigation
+Copilot
+Codex (GPT-5)
+Task description
+Investigated why `sciona build` still executes a full build when HEAD and indexed files are unchanged, and traced the decision path without editing code.
+Task type
+semantic investigation
+SCIONA usage
+Used `search` plus `ownership_summary` to confirm the owning build modules before switching to direct source inspection of build, fingerprint, policy, CLI, and tests.
+Effect on workflow / Fallback / Observations
+SCIONA reduced the initial search space, but the root cause was semantic: the fingerprint cache is written and modeled, yet never read on the build path, and there is an explicit test asserting rebuild-on-match behavior.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 8 | Confidence in answers 10 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 8 | Scope reduction vs baseline 7 | Query friction vs baseline 3 | Net usefulness vs baseline 8
+## Task 28 - Build reuse fast-path fix
+Copilot
+Codex (GPT-5)
+Task description
+Implemented the minimal non-destructive fix so `sciona build` reuses the cached snapshot result when the build fingerprint matches and `--force` is not set.
+Task type
+implementation
+SCIONA usage
+Used the earlier structural ownership result to keep the change inside `pipelines.exec.build`, then switched to direct source edits and narrow tests because the issue was semantic.
+Effect on workflow / Fallback / Observations
+SCIONA reduced initial navigation time, but the decisive work was adding one cache-read guard, updating the existing execution test, and adding a real CLI reuse test. The fix stayed additive and did not change schema or force-build behavior.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 8 | Confidence in answers 10 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 8 | Scope reduction vs baseline 7 | Query friction vs baseline 3 | Net usefulness vs baseline 8
+## Task 29 - Build reuse wording clarification
+Copilot
+Codex (GPT-5)
+Task description
+Clarified that build reuse is keyed to the same committed build inputs under the clean-worktree contract, and removed CLI wording that implied a direct indexed-file diff check.
+Task type
+repository maintenance
+SCIONA usage
+None. This was a localized wording/documentation update after the semantic behavior had already been implemented and verified.
+Effect on workflow / Fallback / Observations
+SCIONA had little impact here; direct source inspection and a narrow CLI test run were sufficient. The main value was making the reuse contract explicit so the user-facing message now matches the implementation.
+RATINGS (1-10): Structural clarity 4 | Navigation speed 9 | Confidence in answers 10 | Overall usefulness 5
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 2 | Confidence gain vs baseline 4 | Scope reduction vs baseline 2 | Query friction vs baseline 1 | Net usefulness vs baseline 4
+## Task 30 - Code analysis audit
+Copilot
+Codex (GPT-5)
+Task description
+Audited `src/sciona/code_analysis` in three phases: SCIONA structural orientation, direct parser/extraction/call-resolution review, and targeted coverage validation.
+Task type
+architecture review
+SCIONA usage
+Used `search`, `ownership_summary`, `module_overview`, `file_outline`, `fan_summary`, and `hotspot_summary` to map package shape, analyzer ownership, and high-coupling hubs before reading source.
+Effect on workflow / Fallback / Observations
+SCIONA materially reduced search space and highlighted `core.normalize_model`, `core`, builtin analyzers, and artifact call resolution as the right seams. Semantic findings still required source inspection and focused `pytest`.
+RATINGS (1-10): Structural clarity 8 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 8
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 6 | Confidence gain vs baseline 8 | Scope reduction vs baseline 8 | Query friction vs baseline 4 | Net usefulness vs baseline 8
+## Task 31 - Code analysis follow-up proposals
+Copilot
+Codex (GPT-5)
+Task description
+Converted the code-analysis follow-up discussion into concrete fix proposals, separating diagnostics/policy issues from the structural analyzer-interface issue.
+Task type
+architecture review
+SCIONA usage
+None for this follow-up. The proposal was based on the already-audited source paths and test evidence rather than new structural discovery.
+Effect on workflow / Fallback / Observations
+SCIONA had little incremental impact here; the useful work was refining the earlier findings into implementable changes with clear scope boundaries and behavior goals.
+RATINGS (1-10): Structural clarity 6 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 7 | Scope reduction vs baseline 5 | Query friction vs baseline 1 | Net usefulness vs baseline 6
+## Task 37 - Build status report audit
+Copilot
+Codex (GPT-5.4)
+Task description
+Reviewed regenerated JSON reports under `validations/build_status_reports/reports`, separated formatting-only churn from semantic payload changes, and checked for regressions versus the git baseline.
+Task type
+runtime / test validation
+SCIONA usage
+None. These generated report artifacts are outside the structural reducer target and were inspected directly with git diff and JSON comparison.
+Effect on workflow / Fallback / Observations
+SCIONA had no impact here. Direct diffing showed one small call-resolution improvement in `vscode`, no broad metric regressions in report payloads, and a cross-report build-time slowdown that needs explanation. Three large diffs were formatting-only minification noise.
+RATINGS (1-10): Structural clarity 3 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 5
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 2 | Confidence gain vs baseline 6 | Scope reduction vs baseline 2 | Query friction vs baseline 1 | Net usefulness vs baseline 5
+## Task 36 - Degraded committed build health
+Copilot
+Codex (GPT-5.4)
+Task description
+Implemented PR 4 by introducing explicit build health (`ok` or `degraded`) for committed snapshots, preserving best-effort commit behavior while surfacing degraded results in the CLI.
+Task type
+implementation
+SCIONA usage
+No new reducer calls. The change followed the earlier structural audit and stayed within build-result and CLI seams.
+Effect on workflow / Fallback / Observations
+SCIONA had little incremental impact here; the change was semantic plumbing and validation. The main effect is that analyzer exceptions no longer look identical to clean builds, while reuse and committed snapshot semantics remain intact.
+RATINGS (1-10): Structural clarity 7 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 7 | Scope reduction vs baseline 5 | Query friction vs baseline 1 | Net usefulness vs baseline 6
+## Task 35 - Parse health aggregation
+Copilot
+Codex (GPT-5.4)
+Task description
+Implemented PR 3 for `code_analysis` by aggregating recoverable parse-health counters separately from analyzer failures and plumbing them through the build result payload without changing parsing behavior.
+Task type
+implementation
+SCIONA usage
+No new reducer calls. The work stayed within the previously audited engine and build-result reporting seam.
+Effect on workflow / Fallback / Observations
+SCIONA had little incremental impact here; direct inspection and narrow tests were sufficient. The useful outcome is that recoverable tree-sitter damage is now measured explicitly instead of being inferred indirectly from per-file analyzer diagnostics.
+RATINGS (1-10): Structural clarity 7 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 7 | Scope reduction vs baseline 5 | Query friction vs baseline 1 | Net usefulness vs baseline 6
+## Task 34 - Silent loss diagnostics
+Copilot
+Codex (GPT-5.4)
+Task description
+Implemented PR 2 for `code_analysis` by adding counters for unresolved structural edges and artifact caller-map misses, plus narrow tests, without changing best-effort fallback behavior.
+Task type
+implementation
+SCIONA usage
+No new reducer calls. The change stayed inside the previously identified `core.structural_assembler` and `artifacts.engine` seams.
+Effect on workflow / Fallback / Observations
+SCIONA had little incremental impact here; direct source inspection and focused tests were enough. The useful change was observability: previously silent data loss is now counted instead of disappearing without trace.
+RATINGS (1-10): Structural clarity 7 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 7 | Scope reduction vs baseline 5 | Query friction vs baseline 1 | Net usefulness vs baseline 6
+## Task 33 - Analyzer contract formalization
+Copilot
+Codex (GPT-5.4)
+Task description
+Implemented PR 1 for `code_analysis` by formalizing `module_index` on the analyzer base contract, wiring builtin analyzers to the explicit field, and adding a narrow contract test.
+Task type
+implementation
+SCIONA usage
+No new reducer calls. The change followed the earlier SCIONA-grounded ownership map and direct inspection of analyzer and engine call sites.
+Effect on workflow / Fallback / Observations
+SCIONA had little incremental impact here; the work was a minimal structural cleanup with behavior preserved. The main value was removing an undeclared dependency that production code and tests already relied on.
+RATINGS (1-10): Structural clarity 7 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 7 | Scope reduction vs baseline 5 | Query friction vs baseline 1 | Net usefulness vs baseline 6
+## Task 32 - Code analysis PR planning
+Copilot
+Codex (GPT-5.4)
+Task description
+Translated the four code-analysis follow-up points into an ordered PR plan, keeping degraded-but-committed handling for non-recoverable analyzer failures and separating diagnostics work from structural interface work.
+Task type
+architecture review
+SCIONA usage
+No new reducer output was needed. The plan was based on the prior SCIONA-grounded module orientation and direct source analysis of `core`, `artifacts`, and builtin analyzers.
+Effect on workflow / Fallback / Observations
+SCIONA had little incremental impact at this stage; the useful work was sequencing changes to improve observability first, then formalize the analyzer contract, then adjust build-status semantics with minimal churn.
+RATINGS (1-10): Structural clarity 7 | Navigation speed 8 | Confidence in answers 9 | Overall usefulness 7
+COMPARATIVE METRICS (VS BASELINE WORKFLOW) (1-10): Time saved vs baseline 4 | Confidence gain vs baseline 7 | Scope reduction vs baseline 5 | Query friction vs baseline 1 | Net usefulness vs baseline 6

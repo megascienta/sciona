@@ -50,6 +50,7 @@ class TypeScriptAnalyzer(ASTAnalyzer):
     language = "typescript"
 
     def __init__(self) -> None:
+        super().__init__()
         self._parser, _language, diagnostics = bootstrap_tree_sitter_parser("typescript")
         self._parser_bootstrap_diagnostics = diagnostics
 
@@ -105,7 +106,7 @@ class TypeScriptAnalyzer(ASTAnalyzer):
             root,
             snapshot,
             module_name,
-            module_index=getattr(self, "module_index", None),
+            module_index=self.module_index,
         )
         buffer.diagnostics["imports_seen"] = import_model.imports_seen
         buffer.diagnostics["imports_internal"] = import_model.imports_internal

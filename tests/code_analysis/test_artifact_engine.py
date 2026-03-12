@@ -201,3 +201,32 @@ def test_artifact_engine_warns_and_continues_on_analyzer_failure(monkeypatch, tm
         "Failed to analyze pkg/alpha/service.py: boom" in warning
         for warning in engine.warnings
     )
+    assert engine.diagnostics == {
+        "artifact_analyzer_failures": 1,
+        "artifact_call_records_seen": 0,
+        "artifact_call_records_dropped_missing_caller": 0,
+    }
+
+
+def test_artifact_engine_counts_missing_caller_records(monkeypatch, tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    _write_test_config(repo_root)
+    db_path = repo_root / ".sciona" / "sciona.db"
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    try:
+        _configure_fake_engine(monkeypatch, _FakeAnalyzer())
+        from sciona.code_analysis.artifacts import engine as engine_module
+
+        monkeypatch.setattr(engine_module, "_load_node_map", lambda *args: {})
+        engine = ArtifactEngine(repo_root, conn, config_root=repo_root)
+        results = engine.run(snapshot_id)
+    finally:
+        conn.close()
+
+    assert results == []
+    assert engine.diagnostics == {
+        "artifact_analyzer_failures": 0,
+        "artifact_call_records_seen": 2,
+        "artifact_call_records_dropped_missing_caller": 2,
+    }

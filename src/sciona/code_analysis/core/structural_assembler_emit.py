@@ -59,6 +59,7 @@ def emit_edges(
     edges: Iterable[EdgeRecord],
     node_id_map: Dict[str, Tuple[str, str]],
     structural_cache: Dict[Tuple[str, str, str], str],
+    diagnostics: Optional[Dict[str, object]] = None,
 ) -> None:
     for edge in edges:
         src_id = lookup_structural_id(
@@ -76,6 +77,17 @@ def emit_edges(
             structural_cache,
         )
         if not src_id or not dst_id:
+            if diagnostics is not None:
+                diagnostics["unresolved_edges_total"] = (
+                    int(diagnostics.get("unresolved_edges_total", 0) or 0) + 1
+                )
+                unresolved_by_type = diagnostics.setdefault(
+                    "unresolved_edges_by_type", {}
+                )
+                assert isinstance(unresolved_by_type, dict)
+                unresolved_by_type[edge.edge_type] = (
+                    int(unresolved_by_type.get(edge.edge_type, 0) or 0) + 1
+                )
             continue
         store.insert_edge(
             conn,

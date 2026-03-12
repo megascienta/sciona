@@ -8,9 +8,11 @@ Create and maintain a file:
 
 validations/copilot_evaluation/reports/sciona_session_notes.md
 
-After each major task block (or before context compression if you detect it), append a short structured entry.
+After each major task block (or before context compression if you detect it), append a short structured entry at the end of the file.
 
 Do not overwrite earlier entries. Always append.
+
+Keep succesive numbering.
 
 Each entry should remain concise (8–12 lines).
 

@@ -61,6 +61,9 @@ class BuildEngine:
         self.discovery_excluded_total = 0
         self.exclude_globs: list[str] = []
         self.parse_failures = 0
+        self.parse_files_with_diagnostics = 0
+        self.parse_error_nodes = 0
+        self.parse_significant_missing_nodes = 0
         self.warnings: list[str] = []
         self.analyzers = select_analyzers(self.languages)
         self.assembler = StructuralAssembler(conn, store)
@@ -73,6 +76,7 @@ class BuildEngine:
         self.imports_internal = 0
         self.imports_filtered_not_internal = 0
         self.imports_by_language: dict[str, dict[str, int]] = {}
+        self.parse_diagnostics_by_language: dict[str, dict[str, int]] = {}
         self._progress_factory = progress_factory
         self._phase_reporter = phase_reporter
         self._warning_sink = warning_sink
@@ -271,11 +275,33 @@ class BuildEngine:
         diagnostics = analysis.diagnostics or {}
         detected = int(diagnostics.get("name_collisions_detected", 0) or 0)
         disambiguated = int(diagnostics.get("name_collisions_disambiguated", 0) or 0)
+        parse_validation_ok = bool(diagnostics.get("parse_validation_ok", True))
+        parse_error_nodes = int(diagnostics.get("parse_error_nodes", 0) or 0)
+        parse_significant_missing_nodes = int(
+            diagnostics.get("parse_significant_missing_nodes", 0) or 0
+        )
         imports_seen = int(diagnostics.get("imports_seen", 0) or 0)
         imports_internal = int(diagnostics.get("imports_internal", 0) or 0)
         imports_filtered_not_internal = int(
             diagnostics.get("imports_filtered_not_internal", 0) or 0
         )
+        if (not parse_validation_ok) or parse_error_nodes != 0 or parse_significant_missing_nodes != 0:
+            self.parse_files_with_diagnostics += 1
+            parse_bucket = self.parse_diagnostics_by_language.setdefault(
+                language,
+                {
+                    "parse_files_with_diagnostics": 0,
+                    "parse_error_nodes": 0,
+                    "parse_significant_missing_nodes": 0,
+                },
+            )
+            parse_bucket["parse_files_with_diagnostics"] += 1
+            parse_bucket["parse_error_nodes"] += parse_error_nodes
+            parse_bucket["parse_significant_missing_nodes"] += (
+                parse_significant_missing_nodes
+            )
+        self.parse_error_nodes += parse_error_nodes
+        self.parse_significant_missing_nodes += parse_significant_missing_nodes
         self.name_collisions_detected += detected
         self.name_collisions_disambiguated += disambiguated
         self.imports_seen += imports_seen

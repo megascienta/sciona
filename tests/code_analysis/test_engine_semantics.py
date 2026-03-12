@@ -8,6 +8,14 @@ from sciona.data_storage.core_db.schema import ensure_schema
 from sciona.code_analysis.core.extract.analyzer import ASTAnalyzer
 from sciona.code_analysis.core.engine import BuildEngine
 from sciona.code_analysis.core.normalize_model import AnalysisResult, CallRecord
+from sciona.code_analysis.languages.builtin.java.java import JavaAnalyzer
+from sciona.code_analysis.languages.builtin.javascript.javascript import (
+    JavaScriptAnalyzer,
+)
+from sciona.code_analysis.languages.builtin.python.python import PythonAnalyzer
+from sciona.code_analysis.languages.builtin.typescript.typescript import (
+    TypeScriptAnalyzer,
+)
 from sciona.data_storage.core_db import write_ops as core_write
 from sciona.runtime import config as core_config
 from sciona.code_analysis.core.extract import registry
@@ -98,6 +106,16 @@ def test_engine_retains_module_and_continues_on_failed_parse(tmp_path, monkeypat
     assert row is not None
     assert engine.parse_failures == 1
     assert any("Failed to analyze pkg/mod.py: boom" in warning for warning in engine.warnings)
+
+
+@pytest.mark.parametrize(
+    "analyzer_cls",
+    [PythonAnalyzer, TypeScriptAnalyzer, JavaScriptAnalyzer, JavaAnalyzer],
+)
+def test_builtin_analyzers_expose_module_index(analyzer_cls):
+    analyzer = analyzer_cls()
+
+    assert analyzer.module_index is None
 
 
 def test_engine_warns_on_empty_language_matches(tmp_path, monkeypatch):
@@ -426,6 +444,9 @@ def test_engine_accumulates_name_collision_and_residual_containment_diagnostics(
                 edges=[],
                 call_records=[],
                 diagnostics={
+                    "parse_validation_ok": False,
+                    "parse_error_nodes": 4,
+                    "parse_significant_missing_nodes": 1,
                     "name_collisions_detected": 2,
                     "name_collisions_disambiguated": 2,
                     "imports_seen": 5,
@@ -500,10 +521,24 @@ def test_engine_accumulates_name_collision_and_residual_containment_diagnostics(
     assert engine.name_collisions_detected == 2
     assert engine.name_collisions_disambiguated == 2
     assert engine.parse_failures == 1
+    assert engine.parse_files_with_diagnostics == 1
+    assert engine.parse_error_nodes == 4
+    assert engine.parse_significant_missing_nodes == 1
     assert engine.residual_containment_failures == 1
     assert any(
         "Lexical containment span invariant violated" in warning
         for warning in engine.warnings
+    )
+    assert (
+        engine.parse_diagnostics_by_language["python"]["parse_files_with_diagnostics"]
+        == 1
+    )
+    assert engine.parse_diagnostics_by_language["python"]["parse_error_nodes"] == 4
+    assert (
+        engine.parse_diagnostics_by_language["python"][
+            "parse_significant_missing_nodes"
+        ]
+        == 1
     )
     assert engine.name_collisions_by_language["python"]["name_collisions_detected"] == 2
     assert engine.name_collisions_by_language["python"]["name_collisions_disambiguated"] == 2

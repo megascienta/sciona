@@ -63,6 +63,11 @@ def _exit_if_no_discovery(result) -> None:
 
 
 def _emit_build_warnings(result) -> None:
+    if str(getattr(result, "health", "ok")) == "degraded":
+        typer.secho(
+            "Warning: build completed with degraded analysis; partial results were committed.",
+            fg=typer.colors.YELLOW,
+        )
     for message in list(getattr(result, "analysis_warnings", [])):
         typer.secho(f"Warning: {message}", fg=typer.colors.YELLOW)
     for message in list(getattr(result, "artifact_warnings", [])):

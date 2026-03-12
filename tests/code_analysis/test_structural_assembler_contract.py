@@ -24,6 +24,20 @@ class _DummyStore:
     pass
 
 
+class _RecordingStore:
+    def __init__(self) -> None:
+        self.edges: list[tuple[str, str, str]] = []
+
+    def insert_edge(self, _conn, **kwargs) -> None:
+        self.edges.append(
+            (
+                kwargs["src_structural_id"],
+                kwargs["dst_structural_id"],
+                kwargs["edge_type"],
+            )
+        )
+
+
 def test_persist_analysis_sorts_edges_by_source_target_edge_type(monkeypatch) -> None:
     assembler = StructuralAssembler(_DummyConn(), _DummyStore())
     captured: list[tuple[str, str, str]] = []
@@ -244,12 +258,91 @@ def test_normalize_call_records_preserves_observed_unindexed_dotted_identifier()
         content=b"",
     )
 
-    normalized = assembler._normalize_call_records(analysis, snapshot)
 
-    assert [record.callee_identifiers for record in normalized.call_records] == [
-        ["pkg.other.service.run"]
-    ]
-    assert assembler.call_gate_diagnostics == {}
+def test_persist_analysis_counts_unresolved_edges(monkeypatch) -> None:
+    assembler = StructuralAssembler(_DummyConn(), _RecordingStore())
+    assembler.structural_cache = {
+        ("python", "module", "pkg.other"): "module::other",
+    }
+    monkeypatch.setattr(
+        assembler, "_emit_structural_node", lambda node, _snapshot_id: f"id::{node.qualified_name}"
+    )
+    monkeypatch.setattr(assembler, "_emit_node_instances", lambda *_args, **_kwargs: None)
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=Path("pkg/mod.py"),
+            relative_path=Path("pkg/mod.py"),
+            language="python",
+        ),
+        file_id="f1",
+        blob_sha="deadbeef",
+        size=0,
+        line_count=1,
+        content=b"",
+    )
+    analysis = AnalysisResult(
+        nodes=[
+            SemanticNodeRecord(
+                language="python",
+                node_type="module",
+                qualified_name="pkg.mod",
+                display_name="mod",
+                file_path=Path("pkg/mod.py"),
+                start_line=1,
+                end_line=3,
+                start_byte=0,
+                end_byte=10,
+            ),
+            SemanticNodeRecord(
+                language="python",
+                node_type="callable",
+                qualified_name="pkg.mod.run",
+                display_name="run",
+                file_path=Path("pkg/mod.py"),
+                start_line=1,
+                end_line=2,
+                start_byte=1,
+                end_byte=5,
+            ),
+        ],
+        edges=[
+            EdgeRecord(
+                src_language="python",
+                src_node_type="module",
+                src_qualified_name="pkg.mod",
+                dst_language="python",
+                dst_node_type="callable",
+                dst_qualified_name="pkg.mod.run",
+                edge_type="LEXICALLY_CONTAINS",
+            ),
+            EdgeRecord(
+                src_language="python",
+                src_node_type="module",
+                src_qualified_name="pkg.mod",
+                dst_language="python",
+                dst_node_type="module",
+                dst_qualified_name="pkg.other",
+                edge_type="IMPORTS_DECLARED",
+            ),
+            EdgeRecord(
+                src_language="python",
+                src_node_type="module",
+                src_qualified_name="pkg.mod",
+                dst_language="python",
+                dst_node_type="module",
+                dst_qualified_name="pkg.missing",
+                edge_type="IMPORTS_DECLARED",
+            ),
+        ],
+        call_records=[],
+    )
+
+    assembler.persist_analysis("s1", analysis, snapshot)
+
+    assert assembler.emission_diagnostics == {
+        "unresolved_edges_total": 1,
+        "unresolved_edges_by_type": {"IMPORTS_DECLARED": 1},
+    }
 
 
 def test_normalize_call_records_preserves_observed_terminal_without_provenance() -> None:

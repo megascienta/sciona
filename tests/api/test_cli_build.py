@@ -32,6 +32,25 @@ def _fake_result() -> BuildResult:
     )
 
 
+def _fake_degraded_result() -> BuildResult:
+    return BuildResult(
+        files_processed=1,
+        nodes_recorded=1,
+        snapshot_id="snap",
+        status="committed",
+        health="degraded",
+        enabled_languages=["python"],
+        discovery_counts={"python": 1},
+        discovery_candidates={"python": 1},
+        discovery_excluded_by_glob={},
+        discovery_excluded_total=0,
+        exclude_globs=[],
+        parse_failures=1,
+        analysis_warnings=[],
+        artifact_warnings=[],
+    )
+
+
 def _fake_summary() -> dict[str, object]:
     return {
         "snapshot_id": "snap",
@@ -104,3 +123,21 @@ def test_cli_build_reports_reused_status_on_second_run(
     assert second.exit_code == 0
     assert "Committed build inputs unchanged; snapshot " in second.stdout
     assert " reused." in second.stdout
+
+
+def test_cli_build_warns_on_degraded_committed_result(
+    cli_app, cli_runner, repo_with_snapshot, monkeypatch
+):
+    monkeypatch.setattr(repo_ops, "build", lambda force_rebuild=False: _fake_degraded_result())
+    monkeypatch.setattr(repo_ops, "snapshot_report", lambda snapshot_id: _fake_summary())
+    monkeypatch.setattr(repo_ops, "record_build_wall_time", lambda snapshot_id, wall_seconds: None)
+    perf_values = iter([30.0, 30.5])
+    monkeypatch.setattr(build_command, "perf_counter", lambda: next(perf_values))
+
+    result = cli_runner.invoke(cli_app, ["build"])
+
+    assert result.exit_code == 0
+    assert (
+        "Warning: build completed with degraded analysis; partial results were committed."
+        in result.stdout
+    )
