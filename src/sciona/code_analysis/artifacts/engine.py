@@ -34,7 +34,6 @@ class ArtifactEngine:
         warning_sink: Optional[Callable[[str], None]] = None,
     ) -> None:
         self.workspace_root = workspace_root
-        self.repo_root = workspace_root
         self.config_root = config_root or workspace_root
         self.conn = conn
         self.languages = languages or runtime_config.load_language_settings(
@@ -76,7 +75,7 @@ class ArtifactEngine:
             self._warn(f"Could not count lines in {path}: {exc}")
 
         file_snapshots = snapshots.prepare_file_snapshots(
-            self.repo_root,
+            self.workspace_root,
             records,
             on_error=_warn_line_count,
         )

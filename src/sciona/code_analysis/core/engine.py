@@ -47,8 +47,6 @@ class BuildEngine:
         max_call_identifiers_per_file: int | None = DEFAULT_MAX_CALL_IDENTIFIERS_PER_FILE,
     ) -> None:
         self.workspace_root = workspace_root
-        # Keep legacy attribute name for helpers that still reference repo_root.
-        self.repo_root = workspace_root
         self.config_root = config_root or workspace_root
         self.conn = conn
         self.languages = languages or runtime_config.load_language_settings(
@@ -136,7 +134,7 @@ class BuildEngine:
                 self._warn(f"Could not count lines in {path}: {exc}")
 
             changed_snapshots = snapshots.prepare_file_snapshots(
-                self.repo_root,
+                self.workspace_root,
                 records,
                 progress_factory=self._progress_factory,
                 on_error=_warn_line_count,

@@ -32,11 +32,6 @@ class FileMetadata:
     size: int = 0
     line_count: int = 0
 
-    @property
-    def content_hash(self) -> str:
-        """Backward-compatible accessor for legacy code using content_hash terminology."""
-        return self.blob_sha
-
 
 @dataclass
 class FileSnapshot(FileMetadata):

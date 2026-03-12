@@ -286,17 +286,6 @@ def _ensure_edge_type_policy(conn: sqlite3.Connection) -> None:
     table_sql = (row[0] if row is not None else "") or ""
     if "LEXICALLY_CONTAINS" in table_sql and "IMPORTS_DECLARED" in table_sql:
         return
-    legacy_calls = conn.execute(
-        """
-        SELECT COUNT(*) AS count
-        FROM edges
-        WHERE edge_type = 'CALLS'
-        """
-    ).fetchone()
-    if legacy_calls and int(legacy_calls["count"] or 0) > 0:
-        raise sqlite3.IntegrityError(
-            "CoreDB edges contains legacy CALLS rows; rebuild the snapshot to migrate."
-        )
     conn.execute("DROP TABLE IF EXISTS edges_new")
     conn.execute(
         """
