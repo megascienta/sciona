@@ -236,36 +236,35 @@ Overlay contract note:
 
 - is an artifact-layer callsite table, not a structural entity table.
 - MUST NOT define structural nodes or CoreDB structural edges.
-- is the filtered persisted artifact working set for call analysis, reporting,
-  and final call derivation; it is not required to contain the raw full
-  observed callsite superset.
-- MUST exclude clearly standard-library, clearly external, or otherwise clearly
-  out-of-scope observed callsites before persistence when they can be identified
-  at pre-persistence artifact filtering time.
-- MAY store accepted and dropped callsite outcomes used for diagnostics,
-  reporting, and artifact call finalization.
-- MAY persist dropped rows whose downstream reporting classification is
-  artifact-only metadata such as `external_likely`.
+- is a legacy artifact diagnostics surface for strict accepted/dropped callsite
+  outcomes.
+- MAY store accepted and dropped callsite outcomes used for diagnostics and
+  debugging.
 - MAY include derived artifact-layer acceptance provenance not present in the
   raw observed callsite stream.
+
+`CALLSITE_PAIRS`:
+
+- is the primary persisted artifact working set for reducer-facing call
+  materialization.
+- stores deduplicated in-scope candidate caller-to-callee pairs derived from the
+  observed syntactic callsite stream plus committed structural context.
+- MUST exclude pre-persistence out-of-scope observations before persistence.
+- pre-persistence out-of-scope buckets are:
+  `clearly_out_of_repo`, `unknown_out_of_scope`, `non_candidate_shape`.
+- MAY collapse repeated same-caller same-callee invocation occurrences to one
+  persisted pair row.
+- MUST remain deterministic with respect to the committed CoreDB snapshot and
+  repository worktree state at artifact build time.
 
 ArtifactDB `CALLS`:
 
 - is the reducer-facing finalized call graph.
 - is derived after CoreDB snapshot creation from persisted ArtifactDB
-  `CALL_SITES` plus committed structural context.
+  `CALLSITE_PAIRS` plus committed structural context.
 - MUST remain deterministic with respect to the committed CoreDB snapshot and
   repository worktree state at artifact build time.
 - MUST include only in-repo callable targets.
-
-Reporting classifications on dropped callsites (for example `external_likely`)
-are artifact metadata only and MUST NOT be restated as CoreDB structural facts.
-- If residual external/out-of-scope leakage reaches persisted dropped
-  `CALL_SITES`, downstream artifact reporting SHOULD classify those rows as
-  `external_likely` when they can be identified reliably.
-- `external_likely` is a reporting/quality classification over persisted dropped
-  artifact callsite rows; it is not evidence that all external callsites are
-  stored.
 
 Reducer read model:
 
@@ -339,8 +338,7 @@ Global criteria:
   combine them with CoreDB structural lookups in the same request.
 - `CALL_SITES` remains artifact-layer data and MUST NOT be restated as CoreDB
   structural truth.
-- `CALL_SITES` MAY include dropped rows that later contribute to artifact-only
-  reporting classifications such as `external_likely`.
+- `CALLSITE_PAIRS` is the reducer-facing persisted call materialization surface.
 
 Python criteria:
 

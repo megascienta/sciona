@@ -259,17 +259,14 @@ Timing semantics:
   structural facts
 - Artifact processing owns pre-persistence callsite filtering and remains the
   authoritative source for reducer-facing `CALLS`
-- `call_sites` is an artifact-layer filtered persisted working set of in-scope
-  candidate-bearing callsite outcomes used for reporting, diagnostics, and
+- `callsite_pairs` is the primary artifact-layer persisted working set of
+  deduplicated in-scope candidate caller-to-callee pairs used for reporting and
   final call derivation; it is not the raw observed superset
-- Standard-library, clearly external, and other out-of-scope observed callsites
-  must be excluded before `call_sites` persistence when they can be identified
-  during pre-persistence artifact filtering
-- If residual external/out-of-scope leakage is still persisted as dropped
-  `call_sites`, reporting should classify those rows as `external_likely` when
-  they can be identified reliably
-- `external_likely` is a reporting classification over persisted dropped
-  artifact callsite rows, not evidence that all external callsites are stored
+- pre-persistence out-of-scope observations are excluded before
+  `callsite_pairs` persistence and currently bucketed as:
+  `clearly_out_of_repo`, `unknown_out_of_scope`, `non_candidate_shape`
+- `call_sites` remains a legacy accepted/dropped diagnostics surface and is not
+  the primary reducer-facing materialization surface
 - synthetic navigation nodes must use collision-safe identities that do not
   shadow or reuse canonical structural identities
 - Fingerprint reuse can skip re-indexing even when a prior committed snapshot
@@ -299,10 +296,11 @@ CoreDB:
 
 ArtifactDB:
 
-- `call_sites`: reducer-facing accepted/dropped callsite outcomes, diagnostics,
-  artifact-only rescue provenance, and persisted dropped rows used by reporting
-  classifications such as `external_likely`
-- `node_calls`: finalized callable-to-callable artifact call edges
+- `call_sites`: legacy accepted/dropped callsite diagnostics surface
+- `callsite_pairs`: deduplicated persisted in-scope candidate caller-to-callee
+  pairs
+- `node_calls`: finalized callable-to-callable artifact call edges derived from
+  `callsite_pairs`
 - `graph_nodes` / `graph_edges`: reducer-facing graph projection rebuilt from
   CoreDB plus artifact call finalization
 - `module_call_edges`, `class_call_edges`, `node_fan_stats`: derived rollups for

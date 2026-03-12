@@ -156,11 +156,11 @@ SCIONA indexes the **last committed snapshot**. Reducers are evaluated against t
 SCIONA has been validated on several large open-source repositories including **[VSCode](https://github.com/microsoft/vscode), [SymPy](https://github.com/sympy/sympy), [Guava](https://github.com/google/guava), [Webpack](https://github.com/webpack/webpack), [Airbyte](https://github.com/airbytehq/airbyte), and [NestJS](https://github.com/nestjs/nest)**. Validation reports and methodology details are available in [`validations/build_status_reports/`](validations/build_status_reports/).
 
 The current published validation set covers **10 repositories** and should be
-read as a snapshot-local callsite funnel:
+read as a snapshot-local callsite funnel plus pair-centric materialization:
 
 - **297,596 observed syntactic callsites**
 - **40,409 filtered before persistence**
-- **257,187 persisted `call_sites`**
+- **257,187 persisted callsite observations**
 - **251,493 persisted accepted**
 - **5,694 persisted dropped**
 
@@ -170,20 +170,21 @@ Language-level persisted acceptance remains high: **98.46% for Java**,
 **97.65% for JavaScript**, **98.21% for Python**, and **97.41% for
 TypeScript**.
 
-Persisted dropped rows are now summarized with explicit reporting buckets rather
-than only a raw success percentage. In the current published set, persisted
-drops are dominated by:
+Pre-persist filtering is reported separately from persisted graph
+materialization. Current published reports still reflect an earlier validation
+snapshot, but current SCIONA status output reports:
 
-- `ambiguous_in_scope`: 3,263
-- `insufficient_provenance`: 1,192
-- `in_repo_unresolvable`: 1,014
+- observed syntactic callsites
+- filtered pre-persist out-of-scope buckets
+- persisted `callsite_pairs`
+- finalized `node_calls` edges
 
 Wall-clock build times in this validation set range from **2.93 seconds**
 (`axios`) to **645.94 seconds** (`vscode`), with a mean of **2.73 seconds per
 1K structural nodes**.
 
-These reports support claims about the observed-to-persisted funnel and
-persisted working-set resolution. They do **not** claim theoretical callsite
+These reports support claims about the observed-to-persisted funnel and current
+pair/edge materialization. They do **not** claim theoretical callsite
 completeness, runtime correctness, or recovery of dynamic dispatch. The
 consolidated validation summary is in
 [`validations/build_status_reports/summary.md`](validations/build_status_reports/summary.md).
