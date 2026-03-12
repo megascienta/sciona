@@ -537,6 +537,38 @@ def test_java_resolves_enum_synthetic_values_from_known_owner() -> None:
     assert resolved == ["repo.pkg.CollectionFeature.values"]
 
 
+def test_java_resolves_dotted_nested_receiver_type_path() -> None:
+    targets = [
+        CallTarget(
+            terminal="tryAdvance",
+            callee_text="Spliterator.OfPrimitive.tryAdvance",
+            ir=QualifiedCallIR(
+                parts=("Spliterator", "OfPrimitive", "tryAdvance"),
+                terminal="tryAdvance",
+            ),
+        )
+    ]
+    resolved = resolve_java_calls(
+        targets=targets,
+        module_name="repo.pkg.mod",
+        module_functions=set(),
+        class_methods={"repo.pkg.Spliterator.OfPrimitive": {"tryAdvance"}},
+        class_method_overloads={},
+        class_ancestors={},
+        class_kind_map={"repo.pkg.Spliterator.OfPrimitive": "interface"},
+        class_name_map={},
+        class_name_candidates={"OfPrimitive": {"repo.pkg.Spliterator.OfPrimitive"}},
+        import_aliases={},
+        member_aliases={},
+        static_wildcard_targets=set(),
+        class_name=None,
+        instance_types={},
+        module_prefix="repo.pkg",
+        qualify_java_type=qualify_java_type,
+    )
+    assert resolved == ["repo.pkg.Spliterator.OfPrimitive.tryAdvance"]
+
+
 def test_java_resolves_static_wildcard_target_by_argument_count() -> None:
     targets = [
         CallTarget(

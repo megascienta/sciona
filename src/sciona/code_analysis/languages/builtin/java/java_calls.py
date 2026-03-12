@@ -141,6 +141,25 @@ class _JavaCallAdapter(CallResolutionAdapter):
                     return [_outcome(resolved_target, "module_scoped")]
         receiver, receiver_simple = _dotted_receiver(request, raw)
         if receiver is not None and receiver_simple is not None:
+            qualified_receiver = self.qualify_java_type(
+                receiver,
+                self.module_name,
+                self.class_name_candidates,
+                self.import_aliases,
+                self.module_prefix,
+            )
+            if qualified_receiver:
+                resolved_target = _resolve_from_lineage(
+                    qualified_receiver,
+                    terminal,
+                    argument_count,
+                    self.class_methods,
+                    self.class_method_overloads,
+                    self.class_ancestors,
+                    self.class_kind_map,
+                )
+                if resolved_target:
+                    return [_outcome(resolved_target, "exact_qname")]
             if receiver_hint and receiver_simple != receiver_hint:
                 receiver_simple = receiver_hint
             instance_type = self.instance_types.get(receiver_simple)
