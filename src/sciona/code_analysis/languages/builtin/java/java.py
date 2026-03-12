@@ -185,6 +185,7 @@ class JavaAnalyzer(ASTAnalyzer):
                 state.class_methods,
                 state.class_method_overloads,
                 class_ancestors,
+                state.class_kind_map,
                 state.class_name_map,
                 state.class_name_candidates,
                 import_aliases,

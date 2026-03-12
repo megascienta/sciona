@@ -52,6 +52,7 @@ def resolve_java_calls(
     class_methods: dict[str, set[str]],
     class_method_overloads: dict[str, dict[str, dict[int, set[str]]]],
     class_ancestors: dict[str, tuple[str, ...]],
+    class_kind_map: dict[str, str],
     class_name_map: dict[str, str],
     class_name_candidates: dict[str, set[str]],
     import_aliases: dict[str, str],
@@ -74,6 +75,7 @@ def resolve_java_calls(
         class_methods=class_methods,
         class_method_overloads=class_method_overloads,
         class_ancestors=class_ancestors,
+        class_kind_map=class_kind_map,
         class_name_map=class_name_map,
         class_name_candidates=class_name_candidates,
         import_aliases=import_aliases,
@@ -101,6 +103,7 @@ class _JavaCallAdapter(CallResolutionAdapter):
     class_methods: dict[str, set[str]]
     class_method_overloads: dict[str, dict[str, dict[int, set[str]]]]
     class_ancestors: dict[str, tuple[str, ...]]
+    class_kind_map: dict[str, str]
     class_name_map: dict[str, str]
     class_name_candidates: dict[str, set[str]]
     import_aliases: dict[str, str]
@@ -132,6 +135,7 @@ class _JavaCallAdapter(CallResolutionAdapter):
                     self.class_methods,
                     self.class_method_overloads,
                     self.class_ancestors,
+                    self.class_kind_map,
                 )
                 if resolved_target:
                     return [_outcome(resolved_target, "module_scoped")]
@@ -156,6 +160,7 @@ class _JavaCallAdapter(CallResolutionAdapter):
                         self.class_methods,
                         self.class_method_overloads,
                         self.class_ancestors,
+                        self.class_kind_map,
                     )
                     if resolved_target:
                         return [_outcome(resolved_target, "exact_qname")]
@@ -173,6 +178,7 @@ class _JavaCallAdapter(CallResolutionAdapter):
                         self.class_methods,
                         self.class_method_overloads,
                         self.class_ancestors,
+                        self.class_kind_map,
                     )
                     if resolved_target:
                         return [_outcome(resolved_target, "import_narrowed")]
@@ -184,6 +190,7 @@ class _JavaCallAdapter(CallResolutionAdapter):
                         self.class_methods,
                         self.class_method_overloads,
                         self.class_ancestors,
+                        self.class_kind_map,
                     )
                     if resolved_target:
                         return [_outcome(resolved_target, "exact_qname")]
@@ -213,6 +220,7 @@ class _JavaCallAdapter(CallResolutionAdapter):
                         self.class_methods,
                         self.class_method_overloads,
                         self.class_ancestors,
+                        self.class_kind_map,
                     )
                     if resolved_target:
                         return [_outcome(resolved_target, "import_narrowed")]
@@ -225,6 +233,7 @@ class _JavaCallAdapter(CallResolutionAdapter):
                         self.class_methods,
                         self.class_method_overloads,
                         self.class_ancestors,
+                        self.class_kind_map,
                     )
                     if resolved_target:
                         return [_outcome(resolved_target, "import_narrowed")]
@@ -236,6 +245,7 @@ class _JavaCallAdapter(CallResolutionAdapter):
                 self.class_methods,
                 self.class_method_overloads,
                 self.class_ancestors,
+                self.class_kind_map,
             )
             if resolved_target:
                 return [_outcome(resolved_target, "module_scoped")]
@@ -253,6 +263,7 @@ class _JavaCallAdapter(CallResolutionAdapter):
                 self.class_methods,
                 self.class_method_overloads,
                 self.class_ancestors,
+                self.class_kind_map,
             )
             if resolved_target:
                 return [_outcome(resolved_target, "exact_qname")]
@@ -331,6 +342,7 @@ def _resolve_from_lineage(
     class_methods: dict[str, set[str]],
     class_method_overloads: dict[str, dict[str, dict[int, set[str]]]],
     class_ancestors: dict[str, tuple[str, ...]],
+    class_kind_map: dict[str, str],
 ) -> str | None:
     owners_by_depth: dict[int, list[str]] = {}
     lineage = (class_qname, *class_ancestors.get(class_qname, ()))
@@ -339,6 +351,13 @@ def _resolve_from_lineage(
             continue
         owners_by_depth.setdefault(depth, []).append(owner)
     if not owners_by_depth:
+        if class_kind_map.get(class_qname) == "enum" and terminal in {"values", "valueOf"}:
+            return _resolved_method_target(
+                class_qname,
+                terminal,
+                argument_count,
+                class_method_overloads,
+            )
         if class_qname not in class_methods and class_qname not in class_ancestors:
             return _resolved_method_target(
                 class_qname,
