@@ -102,6 +102,18 @@ def select_strict_call_candidate(
                 in_scope_candidate_count=1,
                 candidate_module_hints=candidate_module_hints,
             )
+        if "." in identifier and _has_structural_tail_match(
+            identifier=identifier,
+            candidate_qname=candidate_qname,
+        ):
+            return StrictCallDecision(
+                accepted_candidate=candidate,
+                accepted_provenance="exact_qname",
+                dropped_reason=None,
+                candidate_count=candidate_count,
+                in_scope_candidate_count=1,
+                candidate_module_hints=candidate_module_hints,
+            )
         candidate_module = _candidate_module(
             candidate=candidate,
             module_lookup=module_lookup,
@@ -262,6 +274,14 @@ def _is_constructor_proxy_match(*, identifier: str, candidate_qname: str) -> boo
         return False
     suffix = candidate_qname[len(identifier) + 1 :]
     return suffix in {"__new__", "__init__", "new"}
+
+
+def _has_structural_tail_match(*, identifier: str, candidate_qname: str) -> bool:
+    identifier_parts = [part for part in identifier.split(".") if part]
+    candidate_parts = [part for part in candidate_qname.split(".") if part]
+    if len(identifier_parts) < 3 or len(candidate_parts) < 3:
+        return False
+    return candidate_parts[-3:] == identifier_parts[-3:]
 
 
 __all__ = ["StrictCallDecision", "select_strict_call_candidate"]

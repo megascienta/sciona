@@ -300,3 +300,22 @@ def test_strict_call_contract_accepts_single_ancestor_module_candidate() -> None
     assert decision.accepted_candidate == "pkg.compat.lenient_issubclass_impl"
     assert decision.accepted_provenance == "import_narrowed"
     assert decision.dropped_reason is None
+
+
+def test_strict_call_contract_accepts_single_candidate_with_nested_tail_match() -> None:
+    decision = select_strict_call_candidate(
+        identifier="pkg.test.BasicThreadFactory.Builder.wrappedFactory",
+        direct_candidates=[],
+        fallback_candidates=["pkg.main.concurrent.BasicThreadFactory.BasicThreadFactory.Builder.wrappedFactory"],
+        caller_module="pkg.test",
+        module_lookup={
+            "pkg.main.concurrent.BasicThreadFactory.BasicThreadFactory.Builder.wrappedFactory": "pkg.main.concurrent"
+        },
+        import_targets={},
+    )
+    assert (
+        decision.accepted_candidate
+        == "pkg.main.concurrent.BasicThreadFactory.BasicThreadFactory.Builder.wrappedFactory"
+    )
+    assert decision.accepted_provenance == "exact_qname"
+    assert decision.dropped_reason is None
