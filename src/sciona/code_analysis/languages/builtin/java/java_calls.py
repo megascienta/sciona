@@ -393,12 +393,6 @@ def _resolve_from_lineage(
     class_name_candidates: dict[str, set[str]],
 ) -> str | None:
     owners_by_depth: dict[int, list[str]] = {}
-    known_owner = (
-        class_qname in class_kind_map
-        or class_qname in class_methods
-        or class_qname in class_ancestors
-        or any(class_qname in candidates for candidates in class_name_candidates.values())
-    )
     lineage = (class_qname, *class_ancestors.get(class_qname, ()))
     for depth, owner in enumerate(lineage):
         if terminal not in class_methods.get(owner, set()):
@@ -406,17 +400,18 @@ def _resolve_from_lineage(
         owners_by_depth.setdefault(depth, []).append(owner)
     if not owners_by_depth:
         if (
-            known_owner
+            (
+                class_qname in class_kind_map
+                or class_qname in class_methods
+                or class_qname in class_ancestors
+                or any(
+                    class_qname in candidates
+                    for candidates in class_name_candidates.values()
+                )
+            )
             and class_kind_map.get(class_qname) == "enum"
             and terminal in {"values", "valueOf"}
         ):
-            return _resolved_method_target(
-                class_qname,
-                terminal,
-                argument_count,
-                class_method_overloads,
-            )
-        if known_owner:
             return _resolved_method_target(
                 class_qname,
                 terminal,
