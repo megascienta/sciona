@@ -240,7 +240,8 @@ Timing semantics:
   - `register_modules`
   - `build_structural_index`
   - `derive_call_artifacts`
-  - `write_call_artifacts`
+  - `prepare_callsite_pairs`
+  - `write_callsite_pairs`
   - `rebuild_graph_index`
   - `rebuild_graph_rollups`
 

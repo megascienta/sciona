@@ -192,6 +192,11 @@ Dataset-level build timing:
 
 Average phase timings:
 
+Current builds emit separate `prepare_callsite_pairs` and
+`write_callsite_pairs` timing keys. The published validation reports below were
+generated before that split and therefore still record the combined
+`write_call_artifacts` phase.
+
 | Phase key | Mean time |
 | --- | ---: |
 | `compute_build_fingerprint` | `0.25 s` |

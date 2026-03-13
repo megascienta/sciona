@@ -30,6 +30,8 @@ def _fake_summary():
         "build_wall_seconds": 1.5,
         "build_phase_timings": {
             "build_structural_index": 0.8,
+            "prepare_callsite_pairs": 0.3,
+            "write_callsite_pairs": 0.05,
             "rebuild_graph_rollups": 0.1,
         },
         "artifact_db_available": True,
@@ -227,6 +229,8 @@ def test_cli_status_json_emits_payload(cli_app, cli_runner, monkeypatch):
     assert payload["summary"]["build_total_seconds"] == 1.234
     assert payload["summary"]["build_wall_seconds"] == 1.5
     assert payload["summary"]["build_phase_timings"]["build_structural_index"] == 0.8
+    assert payload["summary"]["build_phase_timings"]["prepare_callsite_pairs"] == 0.3
+    assert payload["summary"]["build_phase_timings"]["write_callsite_pairs"] == 0.05
     assert payload["summary"]["languages"][0]["callsite_pairs"]["count"] == 11
 
 
@@ -252,6 +256,8 @@ def test_cli_status_output_writes_json_file(cli_app, cli_runner, monkeypatch, tm
     assert payload["detailed"] is True
     assert payload["summary"]["build_total_seconds"] == 1.234
     assert payload["summary"]["build_wall_seconds"] == 1.5
+    assert payload["summary"]["build_phase_timings"]["prepare_callsite_pairs"] == 0.3
+    assert payload["summary"]["build_phase_timings"]["write_callsite_pairs"] == 0.05
     assert payload["summary"]["build_phase_timings"]["rebuild_graph_rollups"] == 0.1
     assert payload["summary"]["languages"][0]["callsite_pairs"]["count"] == 11
 
