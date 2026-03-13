@@ -269,6 +269,15 @@ Timing semantics:
   `callsite_pairs` persistence and currently bucketed as:
   `no_in_repo_candidate_terminal`, `no_in_repo_candidate_qualified`,
   `accepted_outside_in_repo`, `invalid_observation_shape`
+- bucket meanings:
+  - `no_in_repo_candidate_terminal`: no in-repo candidate materialized for a
+    terminal identifier
+  - `no_in_repo_candidate_qualified`: no in-repo candidate materialized for a
+    qualified identifier
+  - `accepted_outside_in_repo`: an accepted row pointed outside the in-repo
+    callable set
+  - `invalid_observation_shape`: malformed or internally inconsistent call
+    observation row shape
 - status reporting is pair-centric and exposes:
   - `call_site_funnel`
   - `filtered_pre_persist_buckets`

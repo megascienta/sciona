@@ -228,6 +228,15 @@ Overlay contract note:
 - pre-persistence out-of-scope buckets are:
   `no_in_repo_candidate_terminal`, `no_in_repo_candidate_qualified`,
   `accepted_outside_in_repo`, `invalid_observation_shape`.
+- bucket meanings:
+  - `no_in_repo_candidate_terminal`: no in-repo candidate materialized for a
+    terminal identifier
+  - `no_in_repo_candidate_qualified`: no in-repo candidate materialized for a
+    qualified identifier
+  - `accepted_outside_in_repo`: an accepted row pointed outside the in-repo
+    callable set
+  - `invalid_observation_shape`: malformed or internally inconsistent call
+    observation row shape
 - MAY collapse repeated same-caller same-callee invocation occurrences to one
   persisted pair row.
 - MUST remain deterministic with respect to the committed CoreDB snapshot and
