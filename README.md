@@ -155,43 +155,31 @@ SCIONA indexes the **last committed snapshot**. Reducers are evaluated against t
 
 SCIONA has been validated on several large open-source repositories including **[VSCode](https://github.com/microsoft/vscode), [SymPy](https://github.com/sympy/sympy), [Guava](https://github.com/google/guava), [Webpack](https://github.com/webpack/webpack), [Airbyte](https://github.com/airbytehq/airbyte), and [NestJS](https://github.com/nestjs/nest)**. Validation reports and methodology details are available in [`validations/build_status_reports/`](validations/build_status_reports/).
 
-The current published validation set covers **10 repositories** and should be
-read as a snapshot-local funnel plus pair/edge materialization:
+The current published validation set covers **10 repositories** and reports:
 
-- **297,596 observed syntactic callsites**
-- **40,409 filtered before persistence**
-- **257,187 persisted callsite observations**
-- **288,781 persisted `callsite_pairs`**
-- **285,632 finalized call edges**
+- structural totals: files, nodes, edges
+- callsite funnel totals:
+  - `observed_syntactic_callsites`
+  - `filtered_pre_persist`
+  - `persisted_callsites`
+  - `persisted_accepted`
+  - `persisted_dropped`
+- persisted call materialization:
+  - `callsite_pairs`
+  - `finalized_call_edges`
+- pair-expansion diagnostics:
+  - `persisted_callsites_with_zero_pairs`
+  - `persisted_callsites_with_one_pair`
+  - `persisted_callsites_with_multiple_pairs`
+  - `pair_expansion_factor`
+  - `multi_pair_share`
+  - `max_pairs_for_single_persisted_callsite`
+- scope splits for `non_tests` and `tests`
+- per-language totals
+- per-repository totals
+- build timing totals and per-phase timings
 
-That yields an **86.42% observed-to-persisted retention rate** and a
-**97.79% persisted acceptance rate** inside the retained callsite working set.
-The retained surface then expands to **1.1228 persisted pairs per retained
-callsite observation** and collapses only slightly to finalized edges.
-
-Current published reports also include populated pre-persist buckets. In this
-validation set, the full reported pre-persist filter volume lands in
-`unknown_out_of_scope`.
-
-The validation reports support claims about:
-
-- the observed-to-persisted callsite funnel
-- persisted `callsite_pairs`
-- finalized `node_calls` edge materialization
-- test vs non-test split on the pair and edge surfaces
-
-They do **not** claim theoretical callsite completeness, runtime correctness,
-or dynamic dispatch correctness.
-
-The same published JSON reports also include build timing in
-`summary.build_total_seconds` and `summary.build_phase_timings`. On the current
-10-repository validation set, run on a **MacBook Pro 2019, Intel Core i9
-2.4 GHz**, mean total build time is **92.88 s**, median total build time is
-**28.20 s**, and mean build time per 1K nodes is **2.41 s**. In this dataset,
-structural indexing, call derivation, and call artifact writing dominate the
-build budget.
-
-The consolidated validation summary is in
+The consolidated data-only summary is in
 [`validations/build_status_reports/summary.md`](validations/build_status_reports/summary.md).
 
 ## Project Status
