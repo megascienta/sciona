@@ -38,9 +38,7 @@ def _build_command(
     _emit_build_warnings(result)
     _exit_if_no_discovery(result)
     if result.status == "reused":
-        typer.echo(
-            f"Committed build inputs unchanged; snapshot {result.snapshot_id} reused."
-        )
+        typer.echo("Committed build inputs unchanged.")
         return
     typer.echo(f"Snapshot {result.snapshot_id} recorded.")
 

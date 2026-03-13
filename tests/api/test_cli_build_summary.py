@@ -66,7 +66,7 @@ def test_cli_build_emits_summary_block(cli_app, cli_runner, monkeypatch):
     result = cli_runner.invoke(cli_app, ["build"])
 
     assert result.exit_code == 0
-    assert "Summary:" in result.stdout
+    assert result.stdout.strip() == "Committed build inputs unchanged."
     assert "call_materialization:" not in result.stdout
     assert "imports_seen:" not in result.stdout
     assert "Diagnostics:" not in result.stdout

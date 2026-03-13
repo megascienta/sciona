@@ -38,6 +38,8 @@ def render_init(payload: dict) -> list[str]:
 
 
 def render_build(payload: dict) -> list[str]:
+    if str(payload.get("status") or "") == "reused":
+        return []
     lines: list[str] = []
     summary = payload.get("summary")
     command_wall_seconds = _format_duration_seconds(payload.get("command_wall_seconds"))

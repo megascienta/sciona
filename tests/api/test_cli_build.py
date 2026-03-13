@@ -32,6 +32,24 @@ def _fake_result() -> BuildResult:
     )
 
 
+def _fake_committed_result() -> BuildResult:
+    return BuildResult(
+        files_processed=1,
+        nodes_recorded=1,
+        snapshot_id="snap",
+        status="committed",
+        enabled_languages=["python"],
+        discovery_counts={"python": 1},
+        discovery_candidates={"python": 1},
+        discovery_excluded_by_glob={},
+        discovery_excluded_total=0,
+        exclude_globs=[],
+        parse_failures=0,
+        analysis_warnings=[],
+        artifact_warnings=[],
+    )
+
+
 def _fake_degraded_result() -> BuildResult:
     return BuildResult(
         files_processed=1,
@@ -75,7 +93,7 @@ def test_cli_build_forwards_force_rebuild_flag(
 
     def _build(*, force_rebuild: bool = False):
         calls.append(force_rebuild)
-        return _fake_result()
+        return _fake_committed_result()
 
     monkeypatch.setattr(repo_ops, "build", _build)
     monkeypatch.setattr(repo_ops, "snapshot_report", lambda snapshot_id: _fake_summary())
@@ -127,8 +145,8 @@ def test_cli_build_reports_reused_status_on_second_run(
 
     assert first.exit_code == 0
     assert second.exit_code == 0
-    assert "Committed build inputs unchanged; snapshot " in second.stdout
-    assert " reused." in second.stdout
+    assert "Committed build inputs unchanged." in second.stdout
+    assert "Summary:" not in second.stdout
 
 
 def test_cli_build_warns_on_degraded_committed_result(
