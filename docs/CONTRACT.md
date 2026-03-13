@@ -14,8 +14,8 @@ It is authoritative for analysis and validation.
 - `structural_nodes` identities are global and carry deterministic
   `created_snapshot_id` provenance.
 - CoreDB does not store call edges.
-- `CALL_SITES` and reducer-facing `CALLS` are artifact-layer constructs derived
-  after structural snapshot creation.
+- `CALLSITE_PAIRS` and reducer-facing `CALLS` are artifact-layer constructs
+  derived after structural snapshot creation.
 - Reducer-facing query semantics are defined against ArtifactDB latest-state
   derived surfaces for the committed snapshot.
 - Reducers MAY use CoreDB in the same request for committed structural identity
@@ -24,18 +24,9 @@ It is authoritative for analysis and validation.
   reducer-facing derived projection layer.
 - Static, syntax-only analysis; no execution, no runtime inference.
 - Extraction is tree-sitter query/field driven.
-- Tree-sitter parser setup MUST be deterministic and use
-  `tree_sitter.Parser` + `tree_sitter_languages.get_language`.
-- A narrow parser bootstrap helper is allowed for multi-language growth.
-- Allowed bootstrap scope is strictly:
-  parser construction, language binding, and parser/grammar diagnostics.
-- Bootstrap helper location is
-  `src/sciona/code_analysis/core/extract/parsing/parser_bootstrap.py`.
-- Query/extraction helpers MUST be separate from bootstrap helper code
-  (for example `core/extract/parsing/query_helpers.py`).
-- Bootstrap helper MUST NOT perform parsing fallback, extraction logic,
+- Tree-sitter parser setup MUST be deterministic.
+- Parser bootstrap helpers MUST NOT perform parsing fallback, extraction logic,
   language routing, or semantic behavior changes.
-- General parser wrapper/factory abstractions remain out-of-contract.
 - Structural extraction MUST fail closed for unsupported query node types.
 - No heuristic traversal fallback is allowed for structural extraction.
 
@@ -170,20 +161,15 @@ CoreDB structural build:
 - CoreDB MAY observe or carry transient raw callsite observations during
   extraction/build execution.
 - CoreDB MUST NOT persist reducer-facing `CALLS`.
-- CoreDB MUST NOT persist `CALL_SITES`.
+- CoreDB MUST NOT persist persisted call-materialization surfaces.
 
 Artifact-finalized call projection:
 
-- Reducer-facing `CALLS` is finalized in ArtifactDB immediately after the
-  committed CoreDB snapshot is built.
 - Artifact processing MAY start from the full observed syntactic callsite set
   emitted by analyzers/build execution.
 - Artifact processing owns all pre-persistence callsite filtering.
-- Promotion from observed callsites to persisted ArtifactDB `CALL_SITES`, and
-  from persisted `CALL_SITES` to reducer-facing `CALLS`, MUST occur only in the
-  artifact pipeline.
-- Artifact finalization re-analyzes callsites against the committed snapshot and
-  persists deterministic reducer-facing call artifacts.
+- Artifact processing owns persisted call materialization and reducer-facing
+  call derivation.
 - Artifact finalization MAY accept artifact-only rescue provenance, including
   `export_chain_narrowed`, that is not part of any CoreDB structural fact.
 - Reducer-facing `CALLS` MUST represent syntactic call expressions only.
@@ -209,8 +195,8 @@ Optional metadata:
 
 ## Artifact Semantics
 
-ArtifactDB is the reducer-facing query store and is rebuilt immediately after
-each committed CoreDB snapshot.
+ArtifactDB is the reducer-facing query store for the current committed snapshot
+when artifact refresh is enabled.
 
 ArtifactDB tables and rollups are latest-state derived surfaces for the current
 committed snapshot rather than independently snapshot-keyed structural facts.
@@ -231,8 +217,6 @@ Overlay contract note:
   facts even when `_diff` metadata is attached.
 - Overlay metadata MUST NOT be interpreted as committed CoreDB or ArtifactDB
   structural truth for the dirty worktree.
-
-`CALL_SITES`:
 
 `CALLSITE_PAIRS`:
 
@@ -321,15 +305,10 @@ Global criteria:
   heuristic fallback is allowed.
 - Artifact-finalized reducer-facing `CALLS` targets are in-repo callable IDs
   only.
-- Strict candidate selection drops non-accepted candidates during artifact
-  finalization and overlay call derivation before reducer-facing call
-  normalization is reused downstream.
 - Artifact finalization MAY add reducer-facing rescue provenance such as
   `export_chain_narrowed`.
 - Reducers read reducer-facing projections from ArtifactDB when present and MAY
   combine them with CoreDB structural lookups in the same request.
-- `CALL_SITES` remains artifact-layer data and MUST NOT be restated as CoreDB
-  structural truth.
 - `CALLSITE_PAIRS` is the reducer-facing persisted call materialization surface.
 
 Python criteria:

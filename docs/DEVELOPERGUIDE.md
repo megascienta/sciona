@@ -175,17 +175,10 @@ Supported structural carriers:
 `src/sciona/pipelines/exec/build.py` is the current high-level build path:
 
 1. Create snapshot metadata and compute a build fingerprint.
-2. Open a CoreDB transaction and purge uncommitted snapshots.
-3. Run `BuildEngine` over tracked files for enabled languages; discovery and
-   structural analysis happen inside that transaction.
-5. Compute the structural hash and deterministic canonical snapshot id.
-6. Replace committed snapshot-scoped CoreDB state with the current build output
-   under the canonical snapshot id.
-7. Enforce the singleton committed-snapshot invariant and prune orphan
-   structural and synthetic nodes.
-8. Run artifact analysis and rebuild ArtifactDB when artifact refresh is
-   enabled.
-9. Persist fingerprint metadata for reporting and future comparisons.
+2. Build the committed CoreDB structural snapshot inside one transaction.
+3. Canonicalize and commit the singleton structural snapshot.
+4. Rebuild ArtifactDB when artifact refresh is enabled.
+5. Persist build/reporting metadata for reuse and status reporting.
 
 `BuildEngine` in `src/sciona/code_analysis/core/engine.py` currently owns:
 
@@ -276,6 +269,14 @@ Timing semantics:
   `callsite_pairs` persistence and currently bucketed as:
   `no_in_repo_candidate_terminal`, `no_in_repo_candidate_qualified`,
   `accepted_outside_in_repo`, `invalid_observation_shape`
+- status reporting is pair-centric and exposes:
+  - `call_site_funnel`
+  - `filtered_pre_persist_buckets`
+  - `persisted_callsite_pair_expansion`
+  - `callsite_pairs`
+  - `finalized_call_edges`
+- these reporting surfaces are emitted at totals, per-language, and scope split
+  (`non_tests`, `tests`) when the underlying diagnostics exist
 - synthetic navigation nodes must use collision-safe identities that do not
   shadow or reuse canonical structural identities
 - Fingerprint reuse can skip re-indexing even when a prior committed snapshot
