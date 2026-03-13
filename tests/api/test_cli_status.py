@@ -50,6 +50,15 @@ def _fake_summary():
                     "record_drops": {"no_resolved_callees": 1},
                     "conservation_ok": True,
                 },
+                "persisted_callsite_pair_expansion": {
+                    "persisted_callsites": 10,
+                    "persisted_callsites_with_zero_pairs": 1,
+                    "persisted_callsites_with_one_pair": 7,
+                    "persisted_callsites_with_multiple_pairs": 2,
+                    "pair_expansion_factor": 1.1,
+                    "multi_pair_share": 0.2,
+                    "max_pairs_for_single_persisted_callsite": 3,
+                },
                 "callsite_pairs_by_scope": {
                     "non_tests": {"count": 8},
                     "tests": {"count": 3},
@@ -57,6 +66,26 @@ def _fake_summary():
                 "finalized_call_edges_by_scope": {
                     "non_tests": {"count": 8},
                     "tests": {"count": 1},
+                },
+                "persisted_callsite_pair_expansion_by_scope": {
+                    "non_tests": {
+                        "persisted_callsites": 8,
+                        "persisted_callsites_with_zero_pairs": 1,
+                        "persisted_callsites_with_one_pair": 5,
+                        "persisted_callsites_with_multiple_pairs": 2,
+                        "pair_expansion_factor": 1.0,
+                        "multi_pair_share": 0.25,
+                        "max_pairs_for_single_persisted_callsite": 3,
+                    },
+                    "tests": {
+                        "persisted_callsites": 2,
+                        "persisted_callsites_with_zero_pairs": 0,
+                        "persisted_callsites_with_one_pair": 2,
+                        "persisted_callsites_with_multiple_pairs": 0,
+                        "pair_expansion_factor": 1.5,
+                        "multi_pair_share": 0.0,
+                        "max_pairs_for_single_persisted_callsite": 1,
+                    },
                 },
                 "filtered_pre_persist_buckets": {
                     "no_in_repo_candidate_terminal": 2
@@ -78,6 +107,15 @@ def _fake_summary():
                 "record_drops": {"no_resolved_callees": 1},
                 "conservation_ok": True,
             },
+            "persisted_callsite_pair_expansion": {
+                "persisted_callsites": 10,
+                "persisted_callsites_with_zero_pairs": 1,
+                "persisted_callsites_with_one_pair": 7,
+                "persisted_callsites_with_multiple_pairs": 2,
+                "pair_expansion_factor": 1.1,
+                "multi_pair_share": 0.2,
+                "max_pairs_for_single_persisted_callsite": 3,
+            },
             "callsite_pairs_by_scope": {
                 "non_tests": {"count": 8},
                 "tests": {"count": 3},
@@ -85,6 +123,26 @@ def _fake_summary():
             "finalized_call_edges_by_scope": {
                 "non_tests": {"count": 8},
                 "tests": {"count": 1},
+            },
+            "persisted_callsite_pair_expansion_by_scope": {
+                "non_tests": {
+                    "persisted_callsites": 8,
+                    "persisted_callsites_with_zero_pairs": 1,
+                    "persisted_callsites_with_one_pair": 5,
+                    "persisted_callsites_with_multiple_pairs": 2,
+                    "pair_expansion_factor": 1.0,
+                    "multi_pair_share": 0.25,
+                    "max_pairs_for_single_persisted_callsite": 3,
+                },
+                "tests": {
+                    "persisted_callsites": 2,
+                    "persisted_callsites_with_zero_pairs": 0,
+                    "persisted_callsites_with_one_pair": 2,
+                    "persisted_callsites_with_multiple_pairs": 0,
+                    "pair_expansion_factor": 1.5,
+                    "multi_pair_share": 0.0,
+                    "max_pairs_for_single_persisted_callsite": 1,
+                },
             },
             "filtered_pre_persist_buckets": {
                 "no_in_repo_candidate_terminal": 2
@@ -140,6 +198,8 @@ def test_cli_status_full_emits_failure_reasons(cli_app, cli_runner, monkeypatch)
     assert "Core build time: 1.23s" in result.stdout
     assert "non_tests: pairs=8, edges=8" in result.stdout
     assert "tests: pairs=3, edges=1" in result.stdout
+    assert "pair_expansion: persisted=10, zero=1, one=7, multiple=2, factor=1.1000x, multi_pair_share=20.0%, max=3" in result.stdout
+    assert "non_tests: persisted=8, zero=1, one=5, multiple=2, factor=1.0000x, multi_pair_share=25.0%, max=3" in result.stdout
     assert "filtered_pre_persist: no_in_repo_candidate_terminal=2" in result.stdout
 
 

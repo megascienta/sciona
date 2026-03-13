@@ -17,9 +17,11 @@ from ...data_storage.artifact_db.reporting import read_status as artifact_status
 from .reporting_callsites import (
     call_site_funnel_payload as _call_site_funnel_payload_impl,
     count_payload as _count_payload_impl,
+    persisted_callsite_pair_expansion_payload as _persisted_callsite_pair_expansion_payload_impl,
     scope_bucket as _scope_bucket_impl,
     scope_call_site_funnel_payload as _scope_call_site_funnel_payload_impl,
     scope_count_payload as _scope_count_payload_impl,
+    scope_persisted_callsite_pair_expansion_payload as _scope_persisted_callsite_pair_expansion_payload_impl,
     sum_record_drop_buckets as _sum_record_drop_buckets_impl,
     sum_record_drop_buckets_by_scope as _sum_record_drop_buckets_by_scope_impl,
     sum_scope as _sum_scope_impl,
@@ -45,6 +47,7 @@ class LanguageMetrics:
     persisted_dropped: int | None = None
     record_drops: dict[str, int] = field(default_factory=dict)
     filtered_pre_persist_buckets: dict[str, int] = field(default_factory=dict)
+    persisted_callsite_pair_expansion: dict[str, int] = field(default_factory=dict)
 
     def to_payload(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -61,6 +64,26 @@ class LanguageMetrics:
                 persisted_accepted=self.persisted_accepted,
                 persisted_dropped=self.persisted_dropped,
                 record_drops=self.record_drops,
+            ),
+            "persisted_callsite_pair_expansion": _persisted_callsite_pair_expansion_payload(
+                persisted_callsites=self.persisted_callsites,
+                persisted_callsites_with_zero_pairs=self.persisted_callsite_pair_expansion.get(
+                    "persisted_callsites_with_zero_pairs",
+                    0,
+                ),
+                persisted_callsites_with_one_pair=self.persisted_callsite_pair_expansion.get(
+                    "persisted_callsites_with_one_pair",
+                    0,
+                ),
+                persisted_callsites_with_multiple_pairs=self.persisted_callsite_pair_expansion.get(
+                    "persisted_callsites_with_multiple_pairs",
+                    0,
+                ),
+                pair_count=self.persisted_in_scope_pairs,
+                max_pairs_for_single_persisted_callsite=self.persisted_callsite_pair_expansion.get(
+                    "max_pairs_for_single_persisted_callsite",
+                    0,
+                ),
             ),
         }
         if self.filtered_pre_persist_buckets:
@@ -191,6 +214,7 @@ def snapshot_report(
     )
     diagnostics_record_drops_by_language: dict[str, dict[str, int]] = defaultdict(dict)
     diagnostics_pre_persist_buckets_by_language: dict[str, dict[str, int]] = defaultdict(dict)
+    diagnostics_pair_expansion_by_language: dict[str, dict[str, int]] = defaultdict(dict)
     diagnostics_by_scope: dict[str, dict[str, dict[str, int | dict[str, int]]]] = defaultdict(
         lambda: {
             "non_tests": {
@@ -201,6 +225,7 @@ def snapshot_report(
                 "persisted_dropped": 0,
                 "record_drops": {},
                 "filtered_pre_persist_buckets": {},
+                "persisted_callsite_pair_expansion": {},
             },
             "tests": {
                 "observed_syntactic_callsites": 0,
@@ -210,6 +235,7 @@ def snapshot_report(
                 "persisted_dropped": 0,
                 "record_drops": {},
                 "filtered_pre_persist_buckets": {},
+                "persisted_callsite_pair_expansion": {},
             },
         }
     )
@@ -222,6 +248,7 @@ def snapshot_report(
     }
     diagnostics_total_record_drops: dict[str, int] = {}
     diagnostics_total_pre_persist_buckets: dict[str, int] = {}
+    diagnostics_total_pair_expansion: dict[str, int] = {}
     if artifact_available and isinstance(call_resolution_diagnostics, dict):
         raw_totals = call_resolution_diagnostics.get("totals")
         if isinstance(raw_totals, dict):
@@ -252,6 +279,13 @@ def snapshot_report(
                 diagnostics_total_pre_persist_buckets = {
                     str(bucket): int(count or 0)
                     for bucket, count in raw_pre_persist_buckets.items()
+                    if int(count or 0) > 0
+                }
+            raw_pair_expansion = raw_totals.get("persisted_callsite_pair_expansion")
+            if isinstance(raw_pair_expansion, dict):
+                diagnostics_total_pair_expansion = {
+                    str(bucket): int(count or 0)
+                    for bucket, count in raw_pair_expansion.items()
                     if int(count or 0) > 0
                 }
         raw_by_caller = call_resolution_diagnostics.get("by_caller")
@@ -330,6 +364,40 @@ def snapshot_report(
                         scope_pre_persist[bucket_name] = (
                             int(scope_pre_persist.get(bucket_name, 0)) + amount
                         )
+                raw_pair_expansion = raw.get("persisted_callsite_pair_expansion")
+                if isinstance(raw_pair_expansion, dict):
+                    scope_pair_expansion = scope_diag.get(
+                        "persisted_callsite_pair_expansion"
+                    )
+                    if not isinstance(scope_pair_expansion, dict):
+                        scope_pair_expansion = {}
+                        scope_diag["persisted_callsite_pair_expansion"] = (
+                            scope_pair_expansion
+                        )
+                    language_pair_expansion = diagnostics_pair_expansion_by_language[
+                        language
+                    ]
+                    for bucket, count in raw_pair_expansion.items():
+                        amount = int(count or 0)
+                        if amount <= 0:
+                            continue
+                        bucket_name = str(bucket)
+                        if bucket_name == "max_pairs_for_single_persisted_callsite":
+                            language_pair_expansion[bucket_name] = max(
+                                int(language_pair_expansion.get(bucket_name, 0)),
+                                amount,
+                            )
+                            scope_pair_expansion[bucket_name] = max(
+                                int(scope_pair_expansion.get(bucket_name, 0)),
+                                amount,
+                            )
+                            continue
+                        language_pair_expansion[bucket_name] = (
+                            int(language_pair_expansion.get(bucket_name, 0)) + amount
+                        )
+                        scope_pair_expansion[bucket_name] = (
+                            int(scope_pair_expansion.get(bucket_name, 0)) + amount
+                        )
 
     rows: list[LanguageMetrics] = []
     for language in sorted(language_metrics.keys()):
@@ -375,6 +443,9 @@ def snapshot_report(
                 else None,
                 record_drops=diagnostics_record_drops_by_language.get(language, {}),
                 filtered_pre_persist_buckets=diagnostics_pre_persist_buckets_by_language.get(
+                    language, {}
+                ),
+                persisted_callsite_pair_expansion=diagnostics_pair_expansion_by_language.get(
                     language, {}
                 ),
             )
@@ -423,6 +494,40 @@ def snapshot_report(
                 if artifact_available
                 else None,
                 record_drops=diagnostics_total_record_drops if artifact_available else None,
+            ),
+            "persisted_callsite_pair_expansion": _persisted_callsite_pair_expansion_payload(
+                persisted_callsites=diagnostics_totals.get("persisted_callsites")
+                if artifact_available
+                else None,
+                persisted_callsites_with_zero_pairs=diagnostics_total_pair_expansion.get(
+                    "persisted_callsites_with_zero_pairs",
+                    0,
+                )
+                if artifact_available
+                else None,
+                persisted_callsites_with_one_pair=diagnostics_total_pair_expansion.get(
+                    "persisted_callsites_with_one_pair",
+                    0,
+                )
+                if artifact_available
+                else None,
+                persisted_callsites_with_multiple_pairs=diagnostics_total_pair_expansion.get(
+                    "persisted_callsites_with_multiple_pairs",
+                    0,
+                )
+                if artifact_available
+                else None,
+                pair_count=(
+                    sum(item.persisted_in_scope_pairs or 0 for item in rows)
+                    if artifact_available
+                    else None
+                ),
+                max_pairs_for_single_persisted_callsite=diagnostics_total_pair_expansion.get(
+                    "max_pairs_for_single_persisted_callsite",
+                    0,
+                )
+                if artifact_available
+                else None,
             ),
             "callsite_pairs_by_scope": _scope_count_payload(
                 {
@@ -490,6 +595,66 @@ def snapshot_report(
                 if artifact_available
                 else None
             ),
+            "persisted_callsite_pair_expansion_by_scope": _scope_persisted_callsite_pair_expansion_payload(
+                {
+                    "non_tests": {
+                        **_sum_scope(
+                            diagnostics_by_scope,
+                            scope_key="non_tests",
+                            field_names=(
+                                "persisted_callsites",
+                            ),
+                        ),
+                        **_sum_scope_nested_max(
+                            diagnostics_by_scope,
+                            scope_key="non_tests",
+                            nested_key="persisted_callsite_pair_expansion",
+                            field_names=(
+                                "persisted_callsites_with_zero_pairs",
+                                "persisted_callsites_with_one_pair",
+                                "persisted_callsites_with_multiple_pairs",
+                            ),
+                            max_field="max_pairs_for_single_persisted_callsite",
+                        ),
+                    },
+                    "tests": {
+                        **_sum_scope(
+                            diagnostics_by_scope,
+                            scope_key="tests",
+                            field_names=(
+                                "persisted_callsites",
+                            ),
+                        ),
+                        **_sum_scope_nested_max(
+                            diagnostics_by_scope,
+                            scope_key="tests",
+                            nested_key="persisted_callsite_pair_expansion",
+                            field_names=(
+                                "persisted_callsites_with_zero_pairs",
+                                "persisted_callsites_with_one_pair",
+                                "persisted_callsites_with_multiple_pairs",
+                            ),
+                            max_field="max_pairs_for_single_persisted_callsite",
+                        ),
+                    },
+                }
+                if artifact_available
+                else None,
+                pair_scope_counts=(
+                    {
+                        "non_tests": sum(
+                            int(scope_counts.get("non_tests", 0))
+                            for scope_counts in pair_scope_totals.values()
+                        ),
+                        "tests": sum(
+                            int(scope_counts.get("tests", 0))
+                            for scope_counts in pair_scope_totals.values()
+                        ),
+                    }
+                    if artifact_available
+                    else None
+                ),
+            ),
         },
     }
     if diagnostics_total_pre_persist_buckets:
@@ -513,6 +678,16 @@ def snapshot_report(
         )
         item["call_site_funnel_by_scope"] = _scope_call_site_funnel_payload(
             diagnostics_by_scope.get(language) if artifact_available else None
+        )
+        item["persisted_callsite_pair_expansion_by_scope"] = (
+            _scope_persisted_callsite_pair_expansion_payload(
+                diagnostics_by_scope.get(language) if artifact_available else None,
+                pair_scope_counts=(
+                    pair_scope_totals.get(language, {"non_tests": 0, "tests": 0})
+                    if artifact_available
+                    else None
+                ),
+            )
         )
         item["structural_density"] = _structural_density_payload(
             files=int(item.get("files") or 0),
@@ -564,6 +739,25 @@ def _call_site_funnel_payload(
     )
 
 
+def _persisted_callsite_pair_expansion_payload(
+    *,
+    persisted_callsites: int | None,
+    persisted_callsites_with_zero_pairs: int | None,
+    persisted_callsites_with_one_pair: int | None,
+    persisted_callsites_with_multiple_pairs: int | None,
+    pair_count: int | None,
+    max_pairs_for_single_persisted_callsite: int | None,
+) -> dict[str, object]:
+    return _persisted_callsite_pair_expansion_payload_impl(
+        persisted_callsites=persisted_callsites,
+        persisted_callsites_with_zero_pairs=persisted_callsites_with_zero_pairs,
+        persisted_callsites_with_one_pair=persisted_callsites_with_one_pair,
+        persisted_callsites_with_multiple_pairs=persisted_callsites_with_multiple_pairs,
+        pair_count=pair_count,
+        max_pairs_for_single_persisted_callsite=max_pairs_for_single_persisted_callsite,
+    )
+
+
 def _scope_bucket(file_path: str) -> str:
     return _scope_bucket_impl(file_path)
 
@@ -572,6 +766,17 @@ def _scope_count_payload(
     scope_counts: dict[str, int] | None,
 ) -> dict[str, dict[str, object]] | None:
     return _scope_count_payload_impl(scope_counts)
+
+
+def _scope_persisted_callsite_pair_expansion_payload(
+    scope_counts: dict[str, dict[str, object]] | None,
+    *,
+    pair_scope_counts: dict[str, int] | None,
+) -> dict[str, dict[str, object]] | None:
+    return _scope_persisted_callsite_pair_expansion_payload_impl(
+        scope_counts,
+        pair_scope_counts=pair_scope_counts,
+    )
 
 
 def _scope_call_site_funnel_payload(
@@ -610,6 +815,27 @@ def _sum_scope(
     return _sum_scope_impl(
         language_scope_totals, scope_key=scope_key, field_names=field_names
     )
+
+
+def _sum_scope_nested_max(
+    language_scope_totals: dict[str, dict[str, dict[str, int | dict[str, int]]]],
+    *,
+    scope_key: str,
+    nested_key: str,
+    field_names: tuple[str, ...],
+    max_field: str,
+) -> dict[str, int]:
+    result = {field: 0 for field in field_names}
+    result[max_field] = 0
+    for scope_counts in language_scope_totals.values():
+        scope = scope_counts.get(scope_key, {})
+        nested = scope.get(nested_key)
+        if not isinstance(nested, dict):
+            continue
+        for field in field_names:
+            result[field] += int(nested.get(field, 0))
+        result[max_field] = max(result[max_field], int(nested.get(max_field, 0)))
+    return result
 
 
 def _sum_record_drop_buckets(

@@ -44,6 +44,15 @@ def test_snapshot_report_returns_pair_centric_counts(repo_with_snapshot):
         "record_drops": {},
         "conservation_ok": True,
     }
+    assert payload["totals"]["persisted_callsite_pair_expansion"] == {
+        "persisted_callsites": 0,
+        "persisted_callsites_with_zero_pairs": 0,
+        "persisted_callsites_with_one_pair": 0,
+        "persisted_callsites_with_multiple_pairs": 0,
+        "pair_expansion_factor": None,
+        "multi_pair_share": None,
+        "max_pairs_for_single_persisted_callsite": 0,
+    }
     assert payload["totals"]["structural_density"]["files"] == 3
     assert payload["totals"]["structural_density"]["eligible_callsites"] == 0
     assert payload["totals"]["structural_density"]["inflation_warning"] is False
@@ -51,6 +60,15 @@ def test_snapshot_report_returns_pair_centric_counts(repo_with_snapshot):
     assert python["callsite_pairs"] == {"count": 0}
     assert python["finalized_call_edges"] == {"count": 0}
     assert python["call_site_funnel"]["conservation_ok"] is True
+    assert python["persisted_callsite_pair_expansion"] == {
+        "persisted_callsites": 0,
+        "persisted_callsites_with_zero_pairs": 0,
+        "persisted_callsites_with_one_pair": 0,
+        "persisted_callsites_with_multiple_pairs": 0,
+        "pair_expansion_factor": None,
+        "multi_pair_share": None,
+        "max_pairs_for_single_persisted_callsite": 0,
+    }
     assert python["callsite_pairs_by_scope"]["non_tests"] == {"count": 0}
     assert python["callsite_pairs_by_scope"]["tests"] == {"count": 0}
     assert python["finalized_call_edges_by_scope"]["non_tests"] == {"count": 0}
@@ -120,13 +138,33 @@ def test_snapshot_report_includes_call_site_funnel_from_diagnostics(repo_with_sn
                 '{"totals": {"observed_callsites": 5, "filtered_before_persist": 2, '
                 '"persisted_callsites": 3, "finalized_accepted_callsites": 2, '
                 '"finalized_dropped_callsites": 1, "record_drops": {"no_resolved_callees": 1}, '
-                '"filtered_pre_persist_buckets": {"no_in_repo_candidate_terminal": 2}}, '
+                '"filtered_pre_persist_buckets": {"no_in_repo_candidate_terminal": 2}, '
+                '"persisted_callsite_pair_expansion": {"persisted_callsites": 3, '
+                '"persisted_callsites_with_zero_pairs": 1, '
+                '"persisted_callsites_with_one_pair": 1, '
+                '"persisted_callsites_with_multiple_pairs": 1, '
+                '"max_pairs_for_single_persisted_callsite": 2}}, '
                 '"by_caller": {"meth_alpha": {"observed_callsites": 5, '
                 '"filtered_before_persist": 2, "persisted_callsites": 3, '
                 '"finalized_accepted_callsites": 2, "finalized_dropped_callsites": 1, '
                 '"record_drops": {"no_resolved_callees": 1}, '
-                '"filtered_pre_persist_buckets": {"no_in_repo_candidate_terminal": 2}}}}'
+                '"filtered_pre_persist_buckets": {"no_in_repo_candidate_terminal": 2}, '
+                '"persisted_callsite_pair_expansion": {"persisted_callsites": 3, '
+                '"persisted_callsites_with_zero_pairs": 1, '
+                '"persisted_callsites_with_one_pair": 1, '
+                '"persisted_callsites_with_multiple_pairs": 1, '
+                '"max_pairs_for_single_persisted_callsite": 2}}}}'
             ),
+        )
+        artifact_write.upsert_callsite_pairs(
+            conn,
+            snapshot_id=snapshot_id,
+            caller_id="meth_alpha",
+            rows=[
+                ("helper", "site-1", "func_alpha", "in_repo_candidate"),
+                ("helper", "site-1", "func_beta", "in_repo_candidate"),
+                ("other", "site-2", "func_gamma", "in_repo_candidate"),
+            ],
         )
         conn.commit()
     finally:
@@ -151,6 +189,44 @@ def test_snapshot_report_includes_call_site_funnel_from_diagnostics(repo_with_sn
     assert python["call_site_funnel"]["record_drops"] == {"no_resolved_callees": 1}
     assert python["filtered_pre_persist_buckets"] == {
         "no_in_repo_candidate_terminal": 2
+    }
+    assert payload["totals"]["persisted_callsite_pair_expansion"] == {
+        "persisted_callsites": 3,
+        "persisted_callsites_with_zero_pairs": 1,
+        "persisted_callsites_with_one_pair": 1,
+        "persisted_callsites_with_multiple_pairs": 1,
+        "pair_expansion_factor": pytest.approx(1.0),
+        "multi_pair_share": pytest.approx(1 / 3),
+        "max_pairs_for_single_persisted_callsite": 2,
+    }
+    assert python["persisted_callsite_pair_expansion"] == {
+        "persisted_callsites": 3,
+        "persisted_callsites_with_zero_pairs": 1,
+        "persisted_callsites_with_one_pair": 1,
+        "persisted_callsites_with_multiple_pairs": 1,
+        "pair_expansion_factor": pytest.approx(1.0),
+        "multi_pair_share": pytest.approx(1 / 3),
+        "max_pairs_for_single_persisted_callsite": 2,
+    }
+    assert payload["totals"]["persisted_callsite_pair_expansion_by_scope"] == {
+        "non_tests": {
+            "persisted_callsites": 3,
+            "persisted_callsites_with_zero_pairs": 1,
+            "persisted_callsites_with_one_pair": 1,
+            "persisted_callsites_with_multiple_pairs": 1,
+            "pair_expansion_factor": pytest.approx(1.0),
+            "multi_pair_share": pytest.approx(1 / 3),
+            "max_pairs_for_single_persisted_callsite": 2,
+        },
+        "tests": {
+            "persisted_callsites": 0,
+            "persisted_callsites_with_zero_pairs": 0,
+            "persisted_callsites_with_one_pair": 0,
+            "persisted_callsites_with_multiple_pairs": 0,
+            "pair_expansion_factor": None,
+            "multi_pair_share": None,
+            "max_pairs_for_single_persisted_callsite": 0,
+        },
     }
 
 

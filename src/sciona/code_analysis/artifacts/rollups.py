@@ -33,6 +33,7 @@ from .call_resolution import (
 )
 from .rollup_diagnostics import (
     ensure_caller_diagnostics as _ensure_caller_diagnostics,
+    record_callsite_pair_expansion as _record_callsite_pair_expansion,
     ensure_rollup_diagnostics as _ensure_rollup_diagnostics,
     merge_resolution_stats as _merge_resolution_stats,
     record_callsite_flow as _record_callsite_flow,
@@ -220,25 +221,54 @@ def write_call_artifacts(
                 filtered_out_buckets[str(bucket)] = (
                     int(filtered_out_buckets.get(str(bucket)) or 0) + amount
                 )
+        site_hash_by_key = {
+            (str(row[0]), int(row[9])): _callsite_site_hash(
+                snapshot_id=snapshot_id,
+                caller_id=caller_id,
+                row=row,
+            )
+            for row in filtered_callsite_rows
+        }
+        pair_count_by_site_hash = {
+            site_hash: 0 for site_hash in site_hash_by_key.values()
+        }
+        pair_write_rows: list[tuple[str, str, str, str]] = []
+        for identifier, call_ordinal, callee_id, pair_kind in pair_rows:
+            site_hash = site_hash_by_key.get((str(identifier), int(call_ordinal)))
+            if site_hash is None:
+                continue
+            pair_write_rows.append((identifier, site_hash, callee_id, pair_kind))
+            pair_count_by_site_hash[site_hash] = pair_count_by_site_hash.get(site_hash, 0) + 1
         artifact_persistence.upsert_callsite_pairs(
             artifact_conn,
             snapshot_id=snapshot_id,
             caller_id=caller_id,
-            rows=[
-                (
-                    identifier,
-                    _callsite_site_hash(
-                        snapshot_id=snapshot_id,
-                        caller_id=caller_id,
-                        row=row,
-                    ),
-                    callee_id,
-                    pair_kind,
-                )
-                for identifier, call_ordinal, callee_id, pair_kind in pair_rows
-                for row in filtered_callsite_rows
-                if row[0] == identifier and int(row[9]) == int(call_ordinal)
-            ],
+            rows=pair_write_rows,
+        )
+        zero_pair_callsites = 0
+        one_pair_callsites = 0
+        multiple_pair_callsites = 0
+        max_pairs_for_single_persisted_callsite = 0
+        for pair_count in pair_count_by_site_hash.values():
+            count = int(pair_count)
+            max_pairs_for_single_persisted_callsite = max(
+                max_pairs_for_single_persisted_callsite,
+                count,
+            )
+            if count <= 0:
+                zero_pair_callsites += 1
+            elif count == 1:
+                one_pair_callsites += 1
+            else:
+                multiple_pair_callsites += 1
+        _record_callsite_pair_expansion(
+            caller_diag,
+            diagnostics_totals,
+            persisted_callsites=len(filtered_callsite_rows),
+            persisted_callsites_with_zero_pairs=zero_pair_callsites,
+            persisted_callsites_with_one_pair=one_pair_callsites,
+            persisted_callsites_with_multiple_pairs=multiple_pair_callsites,
+            max_pairs_for_single_persisted_callsite=max_pairs_for_single_persisted_callsite,
         )
         accepted_rows = [
             row for row in filtered_callsite_rows if row[1] == "accepted" and row[2]

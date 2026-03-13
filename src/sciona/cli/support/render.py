@@ -154,11 +154,22 @@ def _render_summary_lines(
             funnel_text = _format_call_site_funnel_summary(funnel)
             if funnel_text:
                 lines.append(f"{indent}  call_funnel: {funnel_text}")
+            if include_reasons:
+                pair_expansion = item.get("persisted_callsite_pair_expansion") or {}
+                pair_expansion_text = _format_pair_expansion_summary(pair_expansion)
+                if pair_expansion_text:
+                    lines.append(f"{indent}  pair_expansion: {pair_expansion_text}")
             if include_scope_split:
                 lines.extend(
                     _render_scope_count_lines(
                         item.get("callsite_pairs_by_scope"),
                         item.get("finalized_call_edges_by_scope"),
+                        indent=f"{indent}    ",
+                    )
+                )
+                lines.extend(
+                    _render_scope_pair_expansion_lines(
+                        item.get("persisted_callsite_pair_expansion_by_scope"),
                         indent=f"{indent}    ",
                     )
                 )
@@ -193,11 +204,22 @@ def _render_summary_lines(
         funnel_text = _format_call_site_funnel_summary(funnel)
         if funnel_text:
             lines.append(f"{indent}  call_funnel: {funnel_text}")
+        if include_reasons:
+            pair_expansion = totals.get("persisted_callsite_pair_expansion") or {}
+            pair_expansion_text = _format_pair_expansion_summary(pair_expansion)
+            if pair_expansion_text:
+                lines.append(f"{indent}  pair_expansion: {pair_expansion_text}")
         if include_scope_split:
             lines.extend(
                 _render_scope_count_lines(
                     totals.get("callsite_pairs_by_scope"),
                     totals.get("finalized_call_edges_by_scope"),
+                    indent=f"{indent}    ",
+                )
+            )
+            lines.extend(
+                _render_scope_pair_expansion_lines(
+                    totals.get("persisted_callsite_pair_expansion_by_scope"),
                     indent=f"{indent}    ",
                 )
             )
@@ -241,6 +263,29 @@ def _format_call_site_funnel_summary(call_site_funnel: dict) -> str:
     return (
         f"observed={observed}, filtered_pre_persist={filtered}, "
         f"persisted={persisted}, accepted={accepted}, dropped={dropped}{suffix}"
+    )
+
+
+def _format_pair_expansion_summary(expansion: dict) -> str:
+    persisted = expansion.get("persisted_callsites")
+    zero = expansion.get("persisted_callsites_with_zero_pairs")
+    one = expansion.get("persisted_callsites_with_one_pair")
+    multiple = expansion.get("persisted_callsites_with_multiple_pairs")
+    factor = expansion.get("pair_expansion_factor")
+    share = expansion.get("multi_pair_share")
+    max_pairs = expansion.get("max_pairs_for_single_persisted_callsite")
+    if all(
+        value is None
+        for value in (persisted, zero, one, multiple, factor, share, max_pairs)
+    ):
+        return ""
+    factor_text = f"{float(factor):.4f}x" if factor is not None else "n/a"
+    share_text = f"{float(share):.1%}" if share is not None else "n/a"
+    return (
+        f"persisted={int(persisted or 0)}, zero={int(zero or 0)}, "
+        f"one={int(one or 0)}, multiple={int(multiple or 0)}, "
+        f"factor={factor_text}, multi_pair_share={share_text}, "
+        f"max={int(max_pairs or 0)}"
     )
 
 
@@ -304,6 +349,21 @@ def _render_scope_count_lines(
         pair_count = int((pair_scope or {}).get("count") or 0)
         edge_count = int((edge_scope or {}).get("count") or 0)
         lines.append(f"{indent}{scope_key}: pairs={pair_count}, edges={edge_count}")
+    return lines
+
+
+def _render_scope_pair_expansion_lines(
+    scope_payload: dict[str, dict[str, object]] | None,
+    *,
+    indent: str,
+) -> list[str]:
+    if not scope_payload:
+        return []
+    lines: list[str] = []
+    for scope_key in ("non_tests", "tests"):
+        summary = _format_pair_expansion_summary(scope_payload.get(scope_key) or {})
+        if summary:
+            lines.append(f"{indent}{scope_key}: {summary}")
     return lines
 
 

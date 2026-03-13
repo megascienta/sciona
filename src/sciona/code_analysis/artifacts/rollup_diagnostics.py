@@ -33,6 +33,13 @@ def ensure_rollup_diagnostics(diagnostics: dict[str, object] | None) -> dict[str
             "finalized_accepted_callsites": 0,
             "finalized_dropped_callsites": 0,
             "rescue_accepted_callsites": 0,
+            "persisted_callsite_pair_expansion": {
+                "persisted_callsites": 0,
+                "persisted_callsites_with_zero_pairs": 0,
+                "persisted_callsites_with_one_pair": 0,
+                "persisted_callsites_with_multiple_pairs": 0,
+                "max_pairs_for_single_persisted_callsite": 0,
+            },
         },
     )
     return cast(dict[str, object], totals)
@@ -64,6 +71,13 @@ def ensure_caller_diagnostics(
             "finalized_accepted_callsites": 0,
             "finalized_dropped_callsites": 0,
             "rescue_accepted_callsites": 0,
+            "persisted_callsite_pair_expansion": {
+                "persisted_callsites": 0,
+                "persisted_callsites_with_zero_pairs": 0,
+                "persisted_callsites_with_one_pair": 0,
+                "persisted_callsites_with_multiple_pairs": 0,
+                "max_pairs_for_single_persisted_callsite": 0,
+            },
         },
     )
     return entry
@@ -124,6 +138,50 @@ def record_callsite_flow(
         )
         _inc_scalar(target, "finalized_dropped_callsites", finalized_dropped_callsites)
         _inc_scalar(target, "rescue_accepted_callsites", rescue_accepted_callsites)
+
+
+def record_callsite_pair_expansion(
+    caller_diag: dict[str, object],
+    totals_diag: dict[str, object],
+    *,
+    persisted_callsites: int,
+    persisted_callsites_with_zero_pairs: int,
+    persisted_callsites_with_one_pair: int,
+    persisted_callsites_with_multiple_pairs: int,
+    max_pairs_for_single_persisted_callsite: int,
+) -> None:
+    for target in (caller_diag, totals_diag):
+        if not target:
+            continue
+        payload = cast(
+            dict[str, int],
+            target.setdefault(
+                "persisted_callsite_pair_expansion",
+                {
+                    "persisted_callsites": 0,
+                    "persisted_callsites_with_zero_pairs": 0,
+                    "persisted_callsites_with_one_pair": 0,
+                    "persisted_callsites_with_multiple_pairs": 0,
+                    "max_pairs_for_single_persisted_callsite": 0,
+                },
+            ),
+        )
+        payload["persisted_callsites"] = int(payload.get("persisted_callsites", 0)) + int(
+            persisted_callsites
+        )
+        payload["persisted_callsites_with_zero_pairs"] = int(
+            payload.get("persisted_callsites_with_zero_pairs", 0)
+        ) + int(persisted_callsites_with_zero_pairs)
+        payload["persisted_callsites_with_one_pair"] = int(
+            payload.get("persisted_callsites_with_one_pair", 0)
+        ) + int(persisted_callsites_with_one_pair)
+        payload["persisted_callsites_with_multiple_pairs"] = int(
+            payload.get("persisted_callsites_with_multiple_pairs", 0)
+        ) + int(persisted_callsites_with_multiple_pairs)
+        payload["max_pairs_for_single_persisted_callsite"] = max(
+            int(payload.get("max_pairs_for_single_persisted_callsite", 0)),
+            int(max_pairs_for_single_persisted_callsite),
+        )
 
 
 def _inc_scalar(target: dict[str, object], key: str, amount: int) -> None:

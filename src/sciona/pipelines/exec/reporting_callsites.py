@@ -96,6 +96,91 @@ def scope_call_site_funnel_payload(
     return payload
 
 
+def persisted_callsite_pair_expansion_payload(
+    *,
+    persisted_callsites: int | None,
+    persisted_callsites_with_zero_pairs: int | None,
+    persisted_callsites_with_one_pair: int | None,
+    persisted_callsites_with_multiple_pairs: int | None,
+    pair_count: int | None,
+    max_pairs_for_single_persisted_callsite: int | None,
+) -> dict[str, object]:
+    persisted = int(persisted_callsites or 0) if persisted_callsites is not None else None
+    zero = (
+        int(persisted_callsites_with_zero_pairs or 0)
+        if persisted_callsites_with_zero_pairs is not None
+        else None
+    )
+    one = (
+        int(persisted_callsites_with_one_pair or 0)
+        if persisted_callsites_with_one_pair is not None
+        else None
+    )
+    multiple = (
+        int(persisted_callsites_with_multiple_pairs or 0)
+        if persisted_callsites_with_multiple_pairs is not None
+        else None
+    )
+    pairs = int(pair_count or 0) if pair_count is not None else None
+    payload: dict[str, object] = {
+        "persisted_callsites": persisted,
+        "persisted_callsites_with_zero_pairs": zero,
+        "persisted_callsites_with_one_pair": one,
+        "persisted_callsites_with_multiple_pairs": multiple,
+        "pair_expansion_factor": None,
+        "multi_pair_share": None,
+        "max_pairs_for_single_persisted_callsite": (
+            int(max_pairs_for_single_persisted_callsite or 0)
+            if max_pairs_for_single_persisted_callsite is not None
+            else None
+        ),
+    }
+    if persisted is not None and persisted > 0:
+        if pairs is not None:
+            payload["pair_expansion_factor"] = pairs / persisted
+        if multiple is not None:
+            payload["multi_pair_share"] = multiple / persisted
+    return payload
+
+
+def scope_persisted_callsite_pair_expansion_payload(
+    scope_counts: dict[str, dict[str, object]] | None,
+    *,
+    pair_scope_counts: dict[str, int] | None,
+) -> dict[str, dict[str, object]] | None:
+    if scope_counts is None:
+        return None
+    payload: dict[str, dict[str, object]] = {}
+    for scope_key in ("non_tests", "tests"):
+        counts = scope_counts.get(
+            scope_key,
+            {
+                "persisted_callsites": 0,
+                "persisted_callsite_pair_expansion": {},
+            },
+        )
+        expansion = counts.get("persisted_callsite_pair_expansion")
+        if not isinstance(expansion, dict):
+            expansion = counts
+        payload[scope_key] = persisted_callsite_pair_expansion_payload(
+            persisted_callsites=int(counts.get("persisted_callsites", 0)),
+            persisted_callsites_with_zero_pairs=int(
+                expansion.get("persisted_callsites_with_zero_pairs", 0)
+            ),
+            persisted_callsites_with_one_pair=int(
+                expansion.get("persisted_callsites_with_one_pair", 0)
+            ),
+            persisted_callsites_with_multiple_pairs=int(
+                expansion.get("persisted_callsites_with_multiple_pairs", 0)
+            ),
+            pair_count=int((pair_scope_counts or {}).get(scope_key, 0)),
+            max_pairs_for_single_persisted_callsite=int(
+                expansion.get("max_pairs_for_single_persisted_callsite", 0)
+            ),
+        )
+    return payload
+
+
 def sum_bucket_counts(
     language_buckets: dict[str, dict[str, int]],
 ) -> dict[str, int]:
@@ -145,9 +230,11 @@ def sum_scope(
 __all__ = [
     "call_site_funnel_payload",
     "count_payload",
+    "persisted_callsite_pair_expansion_payload",
     "scope_bucket",
     "scope_call_site_funnel_payload",
     "scope_count_payload",
+    "scope_persisted_callsite_pair_expansion_payload",
     "sum_bucket_counts",
     "sum_record_drop_buckets",
     "sum_record_drop_buckets_by_scope",
