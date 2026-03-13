@@ -242,7 +242,8 @@ Overlay contract note:
   observed syntactic callsite stream plus committed structural context.
 - MUST exclude pre-persistence out-of-scope observations before persistence.
 - pre-persistence out-of-scope buckets are:
-  `clearly_out_of_repo`, `unknown_out_of_scope`, `non_candidate_shape`.
+  `no_in_repo_candidate_terminal`, `no_in_repo_candidate_qualified`,
+  `accepted_outside_in_repo`, `invalid_observation_shape`.
 - MAY collapse repeated same-caller same-callee invocation occurrences to one
   persisted pair row.
 - MUST remain deterministic with respect to the committed CoreDB snapshot and

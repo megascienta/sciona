@@ -269,7 +269,7 @@ def test_callsite_pairs_filter_out_of_repo_accepted_rows_at_persistence_boundary
             ]
             totals = diagnostics.get("totals") or {}
             assert totals.get("filtered_pre_persist_buckets") == {
-                "clearly_out_of_repo": 1
+                "accepted_outside_in_repo": 1
             }
         finally:
             artifact_conn.close()
@@ -277,7 +277,7 @@ def test_callsite_pairs_filter_out_of_repo_accepted_rows_at_persistence_boundary
         core_conn.close()
 
 
-def test_callsite_pairs_record_non_candidate_shape_bucket_for_invalid_rows(
+def test_callsite_pairs_record_invalid_observation_shape_bucket_for_invalid_rows(
     tmp_path: Path, monkeypatch
 ) -> None:
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
@@ -345,7 +345,7 @@ def test_callsite_pairs_record_non_candidate_shape_bucket_for_invalid_rows(
             assert rows == []
             totals = diagnostics.get("totals") or {}
             assert totals.get("filtered_pre_persist_buckets") == {
-                "non_candidate_shape": 1
+                "invalid_observation_shape": 1
             }
         finally:
             artifact_conn.close()

@@ -96,14 +96,20 @@ treated as optional sidecars.
 Pipeline:
 
 ```text
-tracked git files
-  -> discovery + file snapshots
-  -> builtin language analyzer
-  -> AnalysisResult (nodes / edges / call_records)
-  -> StructuralAssembler
-  -> CoreDB committed snapshot
-  -> ArtifactEngine re-analysis
-  -> ArtifactDB finalized reducer-facing projections
+committed source snapshot
+  -> structural extraction
+  -> nodes / structural edges
+  -> CoreDB model
+  -> callsite observation
+  -> observed_syntactic_callsites
+  -> pre-persist filtering
+  -> persisted_callsites
+  -> candidate materialization
+  -> callsite_pairs
+  -> graph collapse
+  -> node_calls
+  -> ArtifactDB model
+  -> reducer-facing projections
   -> overlay support
 ```
 
@@ -134,9 +140,12 @@ Implementation notes:
   `src/sciona/code_analysis/core/extract/parsing/parser_bootstrap.py`
 - Query helpers stay separate in
   `src/sciona/code_analysis/core/extract/parsing/query_helpers.py`
-- Strict call candidate acceptance remains core-owned in
+- Strict call candidate selection is defined in
   `src/sciona/code_analysis/analysis_contracts/strict_call_contract.py` and
-  `src/sciona/code_analysis/core/structural_assembler.py`
+  batched/used by artifact-layer call resolution in
+  `src/sciona/code_analysis/analysis_contracts/strict_call_resolution.py` and
+  `src/sciona/code_analysis/artifacts/call_resolution.py`; Core structural
+  assembly does not finalize calls
 - Reducer-facing `CALLS`, callsite pairs, graph edges, fan stats, and rollups are
   finalized in ArtifactDB, not served directly from CoreDB `edges`
 
@@ -166,9 +175,9 @@ Supported structural carriers:
 `src/sciona/pipelines/exec/build.py` is the current high-level build path:
 
 1. Create snapshot metadata and compute a build fingerprint.
-2. Discover tracked files and run structural analysis for enabled languages.
-3. Open a CoreDB transaction and purge uncommitted snapshots.
-4. Run `BuildEngine` over tracked files for enabled languages.
+2. Open a CoreDB transaction and purge uncommitted snapshots.
+3. Run `BuildEngine` over tracked files for enabled languages; discovery and
+   structural analysis happen inside that transaction.
 5. Compute the structural hash and deterministic canonical snapshot id.
 6. Replace committed snapshot-scoped CoreDB state with the current build output
    under the canonical snapshot id.
@@ -206,9 +215,9 @@ Current user-visible build phases are:
 - `Preparing snapshots`
 - `Registering modules`
 - `Building structural index`
-- `Deriving call artifacts`
-- `Writing call artifacts`
-- `Rebuilding graph index`
+- `Extracting call observations`
+- `Writing callsite pairs`
+- `Rebuilding call graph index`
 - `Rebuilding graph rollups`
 
 Each phase now emits an elapsed duration in normal `sciona build` output after
@@ -248,8 +257,9 @@ Timing semantics:
 - Snapshot ids are canonicalized from structural hash, git commit sha, and
   source
 - CoreDB is the committed structural ingestion store
-- ArtifactDB is rebuilt immediately after the committed snapshot and acts as the
-  reducer-facing latest-state derived query store for that committed snapshot
+- When artifact refresh is enabled, ArtifactDB is rebuilt immediately after the
+  committed snapshot and acts as the reducer-facing latest-state derived query
+  store for that committed snapshot
 - Reducers are expected to consume ArtifactDB projections when they exist, while
   still using CoreDB for identifier resolution and committed structural context
 - Reducer-facing `CALLS` is finalized in ArtifactDB from artifact analysis, not
@@ -264,7 +274,8 @@ Timing semantics:
   final call derivation; it is not the raw observed superset
 - pre-persistence out-of-scope observations are excluded before
   `callsite_pairs` persistence and currently bucketed as:
-  `clearly_out_of_repo`, `unknown_out_of_scope`, `non_candidate_shape`
+  `no_in_repo_candidate_terminal`, `no_in_repo_candidate_qualified`,
+  `accepted_outside_in_repo`, `invalid_observation_shape`
 - synthetic navigation nodes must use collision-safe identities that do not
   shadow or reuse canonical structural identities
 - Fingerprint reuse can skip re-indexing even when a prior committed snapshot

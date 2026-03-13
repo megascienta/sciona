@@ -40,9 +40,10 @@ ALLOWED_CALLSITE_DROP_REASONS = frozenset(
 )
 ALLOWED_PRE_PERSIST_FILTER_BUCKETS = frozenset(
     {
-        "clearly_out_of_repo",
-        "unknown_out_of_scope",
-        "non_candidate_shape",
+        "no_in_repo_candidate_terminal",
+        "no_in_repo_candidate_qualified",
+        "accepted_outside_in_repo",
+        "invalid_observation_shape",
     }
 )
 
@@ -127,36 +128,41 @@ def filter_in_repo_callsite_rows(
             _candidate_module_hints,
         ) = row
         if candidate_count <= 0:
-            _inc_pre_persist_bucket(filtered_out, "unknown_out_of_scope")
+            bucket = (
+                "no_in_repo_candidate_qualified"
+                if "." in _identifier
+                else "no_in_repo_candidate_terminal"
+            )
+            _inc_pre_persist_bucket(filtered_out, bucket)
             continue
         if status == "accepted":
             if not accepted_callee_id or drop_reason is not None:
-                _inc_pre_persist_bucket(filtered_out, "non_candidate_shape")
+                _inc_pre_persist_bucket(filtered_out, "invalid_observation_shape")
                 continue
             if provenance not in ALLOWED_CALLSITE_PROVENANCE:
-                _inc_pre_persist_bucket(filtered_out, "non_candidate_shape")
+                _inc_pre_persist_bucket(filtered_out, "invalid_observation_shape")
                 continue
             if accepted_callee_id not in in_repo_callable_ids:
-                _inc_pre_persist_bucket(filtered_out, "clearly_out_of_repo")
+                _inc_pre_persist_bucket(filtered_out, "accepted_outside_in_repo")
                 continue
             filtered.append(row)
             continue
         if status == "dropped":
             if accepted_callee_id is not None or provenance is not None or drop_reason is None:
-                _inc_pre_persist_bucket(filtered_out, "non_candidate_shape")
+                _inc_pre_persist_bucket(filtered_out, "invalid_observation_shape")
                 continue
             if drop_reason not in ALLOWED_CALLSITE_DROP_REASONS:
-                _inc_pre_persist_bucket(filtered_out, "non_candidate_shape")
+                _inc_pre_persist_bucket(filtered_out, "invalid_observation_shape")
                 continue
             filtered.append(row)
             continue
-        _inc_pre_persist_bucket(filtered_out, "non_candidate_shape")
+        _inc_pre_persist_bucket(filtered_out, "invalid_observation_shape")
     return filtered, filtered_out
 
 
 def _inc_pre_persist_bucket(target: dict[str, int], bucket: str) -> None:
     if bucket not in ALLOWED_PRE_PERSIST_FILTER_BUCKETS:
-        bucket = "non_candidate_shape"
+        bucket = "invalid_observation_shape"
     target[bucket] = int(target.get(bucket, 0)) + 1
 
 
@@ -414,6 +420,7 @@ def resolve_callees(
         ]
     ] = []
     stats = build_strict_resolution_stats()
+    pre_persist_buckets: dict[str, int] = {}
     strict_batch = resolve_strict_call_batch(
         identifiers,
         symbol_index=symbol_index,
@@ -461,6 +468,15 @@ def resolve_callees(
             decision,
             accepted_provenance=rescue_provenance,
         )
+        if decision.candidate_count <= 0:
+            _inc_pre_persist_bucket(
+                pre_persist_buckets,
+                (
+                    "no_in_repo_candidate_qualified"
+                    if "." in identifier
+                    else "no_in_repo_candidate_terminal"
+                ),
+            )
         if decision.accepted_candidate:
             resolved_ids.add(decision.accepted_candidate)
             resolved_names.add(identifier)
@@ -504,6 +520,8 @@ def resolve_callees(
                     else None,
                 )
                 )
+    if pre_persist_buckets:
+        stats["pre_persist_buckets"] = dict(pre_persist_buckets)
     return resolved_ids, resolved_names, stats, callsite_rows
 
 

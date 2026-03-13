@@ -211,13 +211,14 @@ def write_call_artifacts(
             module_ancestors=module_ancestors,
         )
         pair_callee_ids = sorted({callee_id for _identifier, _ordinal, callee_id, _kind in pair_rows})
-        strict_dropped = resolution_stats.get("dropped_by_reason") or {}
-        if isinstance(strict_dropped, dict):
-            no_candidates = int(strict_dropped.get("no_candidates") or 0)
-            if no_candidates > 0:
-                filtered_out_buckets["unknown_out_of_scope"] = (
-                    int(filtered_out_buckets.get("unknown_out_of_scope") or 0)
-                    + no_candidates
+        strict_pre_persist_buckets = resolution_stats.get("pre_persist_buckets") or {}
+        if isinstance(strict_pre_persist_buckets, dict):
+            for bucket, count in strict_pre_persist_buckets.items():
+                amount = int(count or 0)
+                if amount <= 0:
+                    continue
+                filtered_out_buckets[str(bucket)] = (
+                    int(filtered_out_buckets.get(str(bucket)) or 0) + amount
                 )
         artifact_persistence.upsert_callsite_pairs(
             artifact_conn,

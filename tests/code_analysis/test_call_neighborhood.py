@@ -451,11 +451,11 @@ def test_write_call_artifacts_records_zero_candidate_pre_persist_bucket(tmp_path
             assert caller_diag.get("persisted_callsites") == 0
             assert caller_diag.get("filtered_before_persist") == 1
             assert caller_diag.get("filtered_pre_persist_buckets") == {
-                "unknown_out_of_scope": 1
+                "no_in_repo_candidate_terminal": 1
             }
             totals = diagnostics.get("totals") or {}
             assert totals.get("filtered_pre_persist_buckets") == {
-                "unknown_out_of_scope": 1
+                "no_in_repo_candidate_terminal": 1
             }
         finally:
             artifact_conn.close()
