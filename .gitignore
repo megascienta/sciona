@@ -19,7 +19,3 @@ ENV/
 .env
 .sciona/
 pip-wheel-metadata/
-validations/reducers/node_modules/
-validations/reducers/package*.json
-validations/reducers/jar/
-AGENTS.md

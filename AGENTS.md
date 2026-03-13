@@ -135,7 +135,7 @@ Operational rules:
 - For structural questions within tracked SCIONA scope, invoke applicable reducers before grep or source search. Do not reconstruct structure manually while relevant reducer categories remain unexplored.
 - For non-structural questions, use the most appropriate non-SCIONA tooling directly. Do not invoke reducers as a formality.
 - For mixed questions, use reducers to anchor the structural sub-question, then apply other tooling for the non-structural remainder.
-- - When a reducer exposes a first-class compact mode, agents SHOULD prefer the compact form unless the question requires full payload detail.
+- When a reducer exposes a first-class compact mode, agents SHOULD prefer the compact form unless the question requires full payload detail.
 - Once the owning modules, relevant reducer surfaces, or likely edit/test scope are established with sufficient confidence, agents SHOULD stop reducer escalation and continue with source inspection or tests.
 - For repository areas or artifact types outside SCIONA scope, use non-SCIONA tooling directly and label it explicitly.
 - If SCIONA is insufficient for part of a structural question, state what is missing before using non-SCIONA tooling for the unresolved remainder. SCIONA is not considered insufficient while another relevant reducer category remains untried and the unresolved question is still structural.

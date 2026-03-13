@@ -77,13 +77,9 @@ _patch_click_make_metavar()
 
 app = typer.Typer(
     help=(
-        "[bold]SCIONA[/bold] builds a deterministic structural index (SCI) of a Git repository."
-        "It records what exists in code—modules, classifiers, and callables—and how "
-        "these entities are structurally connected. The result is an explicit, "
-        "machine-readable representation of code structure. "
-        "[bold]SCIONA[/bold] is designed to anchor LLM-assisted workflows: downstream tools can "
-        "reason over deterministic structure instead of heuristically inferring it "
-        "from source text or hallucinating missing connections."
+        "SCIONA builds a deterministic structural index (SCI) for git repositories. "
+        "It extracts repository structure from source code and exposes it as deterministic "
+        "queries for tools, agents, and LLM-assisted workflows."
     ),
     rich_markup_mode="rich",
     add_completion=False,
