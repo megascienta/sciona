@@ -156,37 +156,42 @@ SCIONA indexes the **last committed snapshot**. Reducers are evaluated against t
 SCIONA has been validated on several large open-source repositories including **[VSCode](https://github.com/microsoft/vscode), [SymPy](https://github.com/sympy/sympy), [Guava](https://github.com/google/guava), [Webpack](https://github.com/webpack/webpack), [Airbyte](https://github.com/airbytehq/airbyte), and [NestJS](https://github.com/nestjs/nest)**. Validation reports and methodology details are available in [`validations/build_status_reports/`](validations/build_status_reports/).
 
 The current published validation set covers **10 repositories** and should be
-read as a snapshot-local callsite funnel plus pair-centric materialization:
+read as a snapshot-local funnel plus pair/edge materialization:
 
 - **297,596 observed syntactic callsites**
 - **40,409 filtered before persistence**
 - **257,187 persisted callsite observations**
-- **251,493 persisted accepted**
-- **5,694 persisted dropped**
+- **288,781 persisted `callsite_pairs`**
+- **285,632 finalized call edges**
 
-That yields a **97.79% persisted acceptance rate** inside the persisted working
-set, with an **86.42% observed-to-persisted retention rate** across the dataset.
-Language-level persisted acceptance remains high: **98.46% for Java**,
-**97.65% for JavaScript**, **98.21% for Python**, and **97.41% for
-TypeScript**.
+That yields an **86.42% observed-to-persisted retention rate** and a
+**97.79% persisted acceptance rate** inside the retained callsite working set.
+The retained surface then expands to **1.1228 persisted pairs per retained
+callsite observation** and collapses only slightly to finalized edges.
 
-Pre-persist filtering is reported separately from persisted graph
-materialization. Current published reports still reflect an earlier validation
-snapshot, but current SCIONA status output reports:
+Current published reports also include populated pre-persist buckets. In this
+validation set, the full reported pre-persist filter volume lands in
+`unknown_out_of_scope`.
 
-- observed syntactic callsites
-- filtered pre-persist out-of-scope buckets
+The validation reports support claims about:
+
+- the observed-to-persisted callsite funnel
 - persisted `callsite_pairs`
-- finalized `node_calls` edges
+- finalized `node_calls` edge materialization
+- test vs non-test split on the pair and edge surfaces
 
-Wall-clock build times in this validation set range from **2.93 seconds**
-(`axios`) to **645.94 seconds** (`vscode`), with a mean of **2.73 seconds per
-1K structural nodes**.
+They do **not** claim theoretical callsite completeness, runtime correctness,
+or dynamic dispatch correctness.
 
-These reports support claims about the observed-to-persisted funnel and current
-pair/edge materialization. They do **not** claim theoretical callsite
-completeness, runtime correctness, or recovery of dynamic dispatch. The
-consolidated validation summary is in
+The same published JSON reports also include build timing in
+`summary.build_total_seconds` and `summary.build_phase_timings`. On the current
+10-repository validation set, run on a **MacBook Pro 2019, Intel Core i9
+2.4 GHz**, mean total build time is **92.88 s**, median total build time is
+**28.20 s**, and mean build time per 1K nodes is **2.41 s**. In this dataset,
+structural indexing, call derivation, and call artifact writing dominate the
+build budget.
+
+The consolidated validation summary is in
 [`validations/build_status_reports/summary.md`](validations/build_status_reports/summary.md).
 
 ## Project Status

@@ -1,6 +1,6 @@
 # SCIONA Build Status Validation Summary
 
-This summary consolidates the JSON status reports under `validations/build_status_reports/reports/`, generated on **2026-03-12** for 10 repositories:
+This summary consolidates the JSON status reports under `validations/build_status_reports/reports/` for 10 repositories:
 
 - `airbyte`
 - `axios`
@@ -13,156 +13,201 @@ This summary consolidates the JSON status reports under `validations/build_statu
 - `vscode`
 - `webpack`
 
-All numbers below are taken from `sciona status --json` `summary` payloads.
+All numbers below come directly from `sciona status --json` `summary` payloads.
 
-## Reporting Semantics
+## Reporting Model
 
-The reports should now be read as a snapshot-local funnel, not as a claim of theoretical completeness.
+These reports should be read as a snapshot-local structural funnel plus pair/edge materialization:
 
-- `observed_syntactic_callsites`: raw syntactic callsites observed for the committed snapshot
-- `filtered_pre_persist`: observed callsites excluded before `call_sites` persistence
-- `persisted_callsites`: the filtered artifact working set used by reporting and final call derivation
-- `persisted_accepted` / `persisted_dropped`: final outcomes inside that persisted working set
-- `drop_classification`: closed reporting buckets over persisted dropped rows
-- `filtered_pre_persist_buckets`: pre-persist reason buckets when available
+- `observed_syntactic_callsites`: all syntactic call observations emitted for the committed snapshot
+- `filtered_pre_persist`: observations filtered before persistence
+- `persisted_callsites`: retained callsite observations inside the working set
+- `callsite_pairs`: persisted `caller -> callee` candidate pairs
+- `finalized_call_edges`: deduplicated finalized `node_calls` edges
 
-Important boundary:
+Important consequence:
 
-- These reports support statements about the observed-to-persisted funnel and persisted drop mix.
-- They do not support claims like "all theoretical callsites are covered" or "all filtered rows are external" unless the relevant bucket data is populated.
+- `callsite_pairs` is not the same thing as `persisted_callsites`
+- one retained callsite can yield more than one pair
+- many persisted pairs can collapse to fewer finalized edges
 
-## Headline Funnel
+## Dataset Headline
 
 | Metric | Value |
 | --- | ---: |
-| Indexed files | 27,700 |
-| Discovered files | 27,711 |
 | Structural nodes | 291,891 |
 | Structural edges | 368,329 |
 | Observed syntactic callsites | 297,596 |
 | Filtered before persistence | 40,409 |
-| Persisted `call_sites` | 257,187 |
-| Persisted accepted | 251,493 |
-| Persisted dropped | 5,694 |
-| Persisted acceptance rate | 97.79% |
-| Observed-to-persisted retention | 86.42% |
+| Persisted callsite observations | 257,187 |
+| Persisted accepted observations | 251,493 |
+| Persisted dropped observations | 5,694 |
+| Persisted callsite pairs | 288,781 |
+| Finalized call edges | 285,632 |
 
-The primary conservation identity holds at dataset level:
+The callsite funnel closes cleanly at dataset level:
 
 ```text
 observed_syntactic_callsites = filtered_pre_persist + persisted_callsites
 297,596 = 40,409 + 257,187
 ```
 
-## Persisted Drop Classification
+Dataset ratios:
 
-The persisted dropped working set falls into explicit reporting buckets. Across the 5,694 persisted dropped rows:
+- observed-to-persisted retention: `86.42%`
+- persisted acceptance inside the retained callsite working set: `97.79%`
+- persisted pairs per retained callsite observation: `1.1228`
+- finalized edges per persisted pair: `0.9891`
 
-| Bucket | Count | Share of persisted drops |
+## Pre-Persist Filtering
+
+The published reports now include populated pre-persist buckets. In this validation set, all pre-persist filtering lands in one reported class:
+
+| Bucket | Count |
+| --- | ---: |
+| `unknown_out_of_scope` | 40,409 |
+
+That means the current reports can support:
+
+- how much was observed
+- how much was filtered before persistence
+- how much survived into the retained callsite working set
+- how many persisted pairs and finalized edges were materialized
+
+They do not yet distinguish multiple pre-persist out-of-scope classes inside this validation set.
+
+## Scope Split
+
+Persisted pair materialization by scope:
+
+| Scope | Pairs | Share |
 | --- | ---: | ---: |
-| `ambiguous_in_scope` | 3,263 | 57.3% |
-| `insufficient_provenance` | 1,192 | 20.9% |
-| `in_repo_unresolvable` | 1,014 | 17.8% |
-| `unclassified_persisted_drop` | 222 | 3.9% |
-| `external_likely` | 3 | 0.1% |
+| `non_tests` | 223,707 | 77.46% |
+| `tests` | 65,074 | 22.54% |
 
-## Language Funnel
+Finalized call edges by scope:
 
-| Language | Observed | Filtered | Persisted | Accepted | Dropped | Persisted acceptance | Observed retention |
+| Scope | Edges | Share |
+| --- | ---: | ---: |
+| `non_tests` | 221,074 | 77.40% |
+| `tests` | 64,558 | 22.60% |
+
+The test/non-test split remains important in this dataset. Several repositories are strongly test-heavy in their pair surface.
+
+## Language Summary
+
+| Language | Observed | Filtered | Persisted | Pairs | Finalized edges | Retention | Persisted acceptance |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Java | 43,954 | 1,525 | 42,429 | 41,776 | 653 | 98.46% | 96.53% |
-| JavaScript | 3,797 | 223 | 3,574 | 3,490 | 84 | 97.65% | 94.13% |
-| Python | 92,154 | 28,112 | 64,042 | 62,898 | 1,144 | 98.21% | 69.49% |
-| TypeScript | 157,691 | 10,549 | 147,142 | 143,329 | 3,813 | 97.41% | 93.31% |
+| Java | 43,954 | 1,525 | 42,429 | 43,385 | 43,345 | 96.53% | 98.46% |
+| JavaScript | 3,797 | 223 | 3,574 | 3,550 | 3,534 | 94.13% | 97.65% |
+| Python | 92,154 | 28,112 | 64,042 | 62,898 | 61,498 | 69.49% | 98.21% |
+| TypeScript | 157,691 | 10,549 | 147,142 | 178,948 | 177,255 | 93.31% | 97.41% |
 
 Takeaways:
 
-- TypeScript dominates scale.
-- Python has the largest pre-persist reduction by volume.
-- Persisted acceptance remains high in every language aggregate despite funnel differences.
+- TypeScript dominates total pair and finalized-edge volume.
+- Python dominates pre-persist filtering volume.
+- Java has the strongest observed-to-persisted retention.
+- TypeScript shows the highest pair expansion above retained callsite observations.
 
-## Repository Takeaways
+## Repository Highlights
 
-### `vscode` dominates persisted scale
+### `vscode` dominates pair and edge scale
 
-- 145,243 persisted callsites
 - 155,451 observed syntactic callsites
-- 10,208 filtered before persistence
-- 141,486 persisted accepted
-- 3,757 persisted dropped
+- 145,243 persisted callsite observations
+- 176,856 persisted callsite pairs
+- 175,171 finalized call edges
 
-`vscode` is the main driver of aggregate TypeScript behavior and of overall persisted drop volume.
+`vscode` is the main driver of TypeScript scale and of total pair expansion above retained callsite observations.
 
-### `fastapi` is the main persisted-acceptance outlier
+### `sympy` dominates pre-persist filtering
 
-- 2,310 observed
-- 1,078 filtered before persistence
-- 1,232 persisted
-- 716 accepted
-- 516 dropped
-- 58.12% persisted acceptance
-
-This is the only repository whose persisted working-set acceptance is a clear outlier.
-
-### `sympy` has the largest pre-persist filter volume
-
-- 72,663 observed
+- 72,663 observed syntactic callsites
 - 25,344 filtered before persistence
-- 47,319 persisted
-- 47,109 accepted
-- 210 dropped
+- 47,319 persisted callsite observations
+- 47,109 persisted callsite pairs
+- 46,558 finalized call edges
 
-`sympy` is the strongest example of why the funnel matters. It has a large observed-to-persisted reduction but an excellent persisted acceptance rate once inside the working set.
+`sympy` is the strongest example of a large observed-to-persisted reduction with a stable retained surface after filtering.
 
-### `webpack` is the main structural-density warning case
+### `fastapi` remains the main retained-callsite outlier
 
-`webpack` is the only repo whose aggregate structural density raises an explicit warning. That warning is about file mix and low-node files, not about callsite funnel integrity.
+- 2,310 observed syntactic callsites
+- 1,078 filtered before persistence
+- 1,232 persisted callsite observations
+- 716 persisted callsite pairs
+- 716 finalized call edges
 
-## Pre-Persist Buckets: Current Limitation
+`fastapi` is the clearest case where the retained working set is materially smaller than the observed stream and pair materialization does not expand beyond the accepted surface.
 
-The published reports include `filtered_pre_persist_buckets`, but in this stored validation set they are still empty.
+### Test-heavy repositories are visible in the pair split
 
-That means:
+Largest test shares of persisted pairs:
 
-- the volume of pre-persist filtering is available and reliable
-- the reason breakdown for that filtering is not yet informative in these stored artifacts
-
-So the current validation set can answer:
-- how much was observed
-- how much was filtered before persistence
-- how much survived into persisted `call_sites`
-- how persisted dropped rows break down
-
-But it cannot answer:
-- why the 40,409 pre-persist filtered rows were filtered, beyond their volume
-
-Refreshing the validation reports after the new bucket-emission changes is the next step if that breakdown is needed in published validation material.
-
-## Build Performance
-
-Observed wall-clock build times for the 10 repositories:
-
-| Metric | Value |
+| Repository | Test share |
 | --- | ---: |
-| Fastest | 2.93 s (`axios`) |
-| Median | 30.70 s |
-| Mean | 103.63 s |
-| Slowest | 645.94 s (`vscode`) |
-| Fastest per 1K nodes | 1.24 s (`pydantic`) |
-| Median per 1K nodes | 2.13 s |
-| Mean per 1K nodes | 2.73 s |
-| Slowest per 1K nodes | 5.98 s (`vscode`) |
+| `sympy` | 53.33% |
+| `fastapi` | 36.73% |
+| `commons-lang` | 35.87% |
+| `pydantic` | 34.05% |
+| `guava` | 32.98% |
 
-## What This Validation Now Supports
+## What These Reports Support
 
 These reports support the following claims:
 
 - SCIONA scales to large mixed-language repositories.
-- The persisted `call_sites` working set resolves at high rates across the published validation set.
-- Persisted drop volume is dominated by ambiguity and provenance issues rather than obvious external leakage.
-- The observed-to-persisted funnel is measurable and should be reported separately from persisted acceptance.
+- The observed-to-persisted callsite funnel is measurable and stable at snapshot level.
+- Persisted `callsite_pairs` materially expand beyond retained callsite observations in some repositories, especially TypeScript-heavy ones.
+- Finalized call edges are very close in volume to persisted pairs, which indicates limited pair collapse after materialization at dataset level.
+- Test-heavy repositories are clearly visible in the pair and edge surfaces.
 
 These reports do not claim:
-- a theoretical callsite completeness
-- that all pre-persist filtered rows are external or standard-library
-- runtime or semantic correctness claims beyond deterministic structural acceptance rules
+
+- theoretical callsite completeness
+- runtime or dynamic dispatch correctness
+- semantic interpretation of `unknown_out_of_scope` beyond its reported bucket identity
+
+## Build Performance
+
+The published reports also include build timing in each `summary` payload. The
+numbers below summarize `summary.build_total_seconds` and
+`summary.build_phase_timings` across the same 10 repositories.
+
+Hardware used for these runs:
+
+- `MacBook Pro 2019, Intel Core i9 2.4 GHz`
+
+Dataset-level build timing:
+
+| Metric | Value |
+| --- | ---: |
+| Mean total build time | `92.88 s` |
+| Median total build time | `28.20 s` |
+| Fastest repository | `axios` (`2.40 s`) |
+| Slowest repository | `vscode` (`585.29 s`) |
+| Mean build time per 1K nodes | `2.41 s` |
+| Median build time per 1K nodes | `1.90 s` |
+
+Average phase timings:
+
+| Phase key | Mean time |
+| --- | ---: |
+| `compute_build_fingerprint` | `0.25 s` |
+| `discover_files` | `1.10 s` |
+| `prepare_snapshots` | `0.48 s` |
+| `register_modules` | `0.90 s` |
+| `build_structural_index` | `25.01 s` |
+| `derive_call_artifacts` | `22.11 s` |
+| `write_call_artifacts` | `33.17 s` |
+| `rebuild_graph_index` | `1.51 s` |
+| `rebuild_graph_rollups` | `1.23 s` |
+
+Takeaways:
+
+- `vscode` is the dominant performance outlier by total build time.
+- Structural indexing, call derivation, and call artifact writing dominate the
+  total build budget.
+- Normalized by node volume, the dataset remains within a fairly tight range
+  for most repositories even though total size varies substantially.

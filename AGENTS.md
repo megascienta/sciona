@@ -220,7 +220,7 @@ file_outline, symbol_lookup
 classifier_call_graph_summary, dependency_edges, fan_summary, import_migration_impact, module_call_graph_summary, ownership_summary
 
 **Symbol reducers:**
-callable_overview, callsite_index, classifier_inheritance, classifier_overview, symbol_references
+callable_overview, callsite_pairs_index, classifier_inheritance, classifier_overview, symbol_references
 
 **Diagnostic reducers:**
 call_resolution_drop_summary, call_resolution_quality, resolution_trace, structural_integrity_summary
