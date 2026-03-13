@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Iterable, Sequence
 
 from ..analysis.module_id import module_id_for
@@ -40,6 +41,16 @@ from .rollup_diagnostics import (
     record_pre_persist_filter_buckets as _record_pre_persist_filter_buckets,
     record_resolution_drop as _record_resolution_drop,
 )
+
+
+@dataclass(frozen=True)
+class _PreparedCallArtifact:
+    caller_id: str
+    pair_write_rows: tuple[tuple[str, str, str, str], ...]
+    pair_callee_ids: tuple[str, ...]
+    call_hash: str
+    write_node_calls: bool
+    write_empty_node_calls: bool
 
 
 def rebuild_graph_rollups(
@@ -168,16 +179,17 @@ def write_call_artifacts(
     node_hashes = _load_node_hashes(core_conn, snapshot_id, caller_set)
     processed_callers: set[str] = set()
     diagnostics_totals = _ensure_rollup_diagnostics(diagnostics)
-    progress = (
-        progress_factory("Writing callsite pairs", len(call_records))
+    prepare_progress = (
+        progress_factory("Preparing callsite pairs", len(call_records))
         if progress_factory and call_records
         else None
     )
+    prepared_artifacts: list[_PreparedCallArtifact] = []
     for record in call_records:
         caller_id = record.caller_structural_id
         if caller_id not in caller_set:
-            if progress:
-                progress.advance(1)
+            if prepare_progress:
+                prepare_progress.advance(1)
             continue
         caller_diag = _ensure_caller_diagnostics(diagnostics, record)
         caller_module = module_lookup.get(caller_id)
@@ -239,12 +251,6 @@ def write_call_artifacts(
                 continue
             pair_write_rows.append((identifier, site_hash, callee_id, pair_kind))
             pair_count_by_site_hash[site_hash] = pair_count_by_site_hash.get(site_hash, 0) + 1
-        artifact_persistence.upsert_callsite_pairs(
-            artifact_conn,
-            snapshot_id=snapshot_id,
-            caller_id=caller_id,
-            rows=pair_write_rows,
-        )
         zero_pair_callsites = 0
         one_pair_callsites = 0
         multiple_pair_callsites = 0
@@ -293,19 +299,23 @@ def write_call_artifacts(
         )
         _merge_resolution_stats(caller_diag, diagnostics_totals, resolution_stats)
         if not pair_callee_ids:
-            artifact_persistence.upsert_node_calls(
-                artifact_conn,
-                caller_id=caller_id,
-                callee_ids=(),
-                call_hash=node_hashes.get(caller_id, ""),
-            )
             _record_resolution_drop(
                 caller_diag,
                 diagnostics_totals,
                 reason="no_resolved_callees",
             )
-            if progress:
-                progress.advance(1)
+            prepared_artifacts.append(
+                _PreparedCallArtifact(
+                    caller_id=caller_id,
+                    pair_write_rows=tuple(pair_write_rows),
+                    pair_callee_ids=(),
+                    call_hash=node_hashes.get(caller_id, ""),
+                    write_node_calls=False,
+                    write_empty_node_calls=True,
+                )
+            )
+            if prepare_progress:
+                prepare_progress.advance(1)
             continue
         if caller_id in processed_callers:
             _record_resolution_drop(
@@ -313,8 +323,8 @@ def write_call_artifacts(
                 diagnostics_totals,
                 reason="duplicate_caller_record",
             )
-            if progress:
-                progress.advance(1)
+            if prepare_progress:
+                prepare_progress.advance(1)
             continue
         call_hash = node_hashes.get(caller_id)
         if not call_hash:
@@ -323,20 +333,65 @@ def write_call_artifacts(
                 diagnostics_totals,
                 reason="missing_call_hash",
             )
-            if progress:
-                progress.advance(1)
+            prepared_artifacts.append(
+                _PreparedCallArtifact(
+                    caller_id=caller_id,
+                    pair_write_rows=tuple(pair_write_rows),
+                    pair_callee_ids=tuple(pair_callee_ids),
+                    call_hash="",
+                    write_node_calls=False,
+                    write_empty_node_calls=False,
+                )
+            )
+            if prepare_progress:
+                prepare_progress.advance(1)
             continue
         processed_callers.add(caller_id)
-        artifact_persistence.upsert_node_calls(
-            artifact_conn,
-            caller_id=caller_id,
-            callee_ids=pair_callee_ids,
-            call_hash=call_hash,
+        prepared_artifacts.append(
+            _PreparedCallArtifact(
+                caller_id=caller_id,
+                pair_write_rows=tuple(pair_write_rows),
+                pair_callee_ids=tuple(pair_callee_ids),
+                call_hash=call_hash,
+                write_node_calls=True,
+                write_empty_node_calls=False,
+            )
         )
-        if progress:
-            progress.advance(1)
-    if progress:
-        progress.close()
+        if prepare_progress:
+            prepare_progress.advance(1)
+    if prepare_progress:
+        prepare_progress.close()
+
+    write_progress = (
+        progress_factory("Writing callsite pairs", len(prepared_artifacts))
+        if progress_factory and prepared_artifacts
+        else None
+    )
+    for prepared in prepared_artifacts:
+        artifact_persistence.upsert_callsite_pairs(
+            artifact_conn,
+            snapshot_id=snapshot_id,
+            caller_id=prepared.caller_id,
+            rows=list(prepared.pair_write_rows),
+        )
+        if prepared.write_empty_node_calls:
+            artifact_persistence.upsert_node_calls(
+                artifact_conn,
+                caller_id=prepared.caller_id,
+                callee_ids=(),
+                call_hash=prepared.call_hash,
+            )
+        elif prepared.write_node_calls:
+            artifact_persistence.upsert_node_calls(
+                artifact_conn,
+                caller_id=prepared.caller_id,
+                callee_ids=list(prepared.pair_callee_ids),
+                call_hash=prepared.call_hash,
+            )
+        if write_progress:
+            write_progress.advance(1)
+    if write_progress:
+        write_progress.close()
 
 
 __all__ = [

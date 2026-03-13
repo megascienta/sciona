@@ -126,7 +126,8 @@ class BuildProgress:
         "Registering modules": "register_modules",
         "Building structural index": "build_structural_index",
         "Extracting call observations": "derive_call_artifacts",
-        "Writing callsite pairs": "write_call_artifacts",
+        "Preparing callsite pairs": "prepare_callsite_pairs",
+        "Writing callsite pairs": "write_callsite_pairs",
         "Rebuilding call graph index": "rebuild_graph_index",
         "Rebuilding graph rollups": "rebuild_graph_rollups",
     }
