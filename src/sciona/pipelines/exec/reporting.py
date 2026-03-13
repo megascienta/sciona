@@ -17,10 +17,12 @@ from ...data_storage.artifact_db.reporting import read_status as artifact_status
 from .reporting_callsites import (
     call_site_funnel_payload as _call_site_funnel_payload_impl,
     count_payload as _count_payload_impl,
+    filtered_pre_persist_buckets_payload as _filtered_pre_persist_buckets_payload_impl,
     persisted_callsite_pair_expansion_payload as _persisted_callsite_pair_expansion_payload_impl,
     scope_bucket as _scope_bucket_impl,
     scope_call_site_funnel_payload as _scope_call_site_funnel_payload_impl,
     scope_count_payload as _scope_count_payload_impl,
+    scope_filtered_pre_persist_buckets_payload as _scope_filtered_pre_persist_buckets_payload_impl,
     scope_persisted_callsite_pair_expansion_payload as _scope_persisted_callsite_pair_expansion_payload_impl,
     sum_record_drop_buckets as _sum_record_drop_buckets_impl,
     sum_record_drop_buckets_by_scope as _sum_record_drop_buckets_by_scope_impl,
@@ -86,10 +88,9 @@ class LanguageMetrics:
                 ),
             ),
         }
-        if self.filtered_pre_persist_buckets:
-            payload["filtered_pre_persist_buckets"] = dict(
-                sorted(self.filtered_pre_persist_buckets.items())
-            )
+        payload["filtered_pre_persist_buckets"] = _filtered_pre_persist_buckets_payload(
+            self.filtered_pre_persist_buckets
+        )
         return payload
 
 
@@ -655,12 +656,27 @@ def snapshot_report(
                     else None
                 ),
             ),
+            "filtered_pre_persist_buckets_by_scope": _scope_filtered_pre_persist_buckets_payload(
+                {
+                    "non_tests": _sum_scope_nested_buckets(
+                        diagnostics_by_scope,
+                        scope_key="non_tests",
+                        nested_key="filtered_pre_persist_buckets",
+                    ),
+                    "tests": _sum_scope_nested_buckets(
+                        diagnostics_by_scope,
+                        scope_key="tests",
+                        nested_key="filtered_pre_persist_buckets",
+                    ),
+                }
+                if artifact_available
+                else None
+            ),
         },
     }
-    if diagnostics_total_pre_persist_buckets:
-        payload["totals"]["filtered_pre_persist_buckets"] = dict(
-            sorted(diagnostics_total_pre_persist_buckets.items())
-        )
+    payload["totals"]["filtered_pre_persist_buckets"] = _filtered_pre_persist_buckets_payload(
+        diagnostics_total_pre_persist_buckets if artifact_available else None
+    )
 
     for item in payload["languages"]:
         language = str(item.get("language") or "")
@@ -687,6 +703,34 @@ def snapshot_report(
                     if artifact_available
                     else None
                 ),
+            )
+        )
+        item["filtered_pre_persist_buckets_by_scope"] = (
+            _scope_filtered_pre_persist_buckets_payload(
+                (
+                    {
+                        "non_tests": (
+                            (
+                                diagnostics_by_scope.get(language, {})
+                                .get("non_tests", {})
+                                .get("filtered_pre_persist_buckets", {})
+                            )
+                            if artifact_available
+                            else {}
+                        ),
+                        "tests": (
+                            (
+                                diagnostics_by_scope.get(language, {})
+                                .get("tests", {})
+                                .get("filtered_pre_persist_buckets", {})
+                            )
+                            if artifact_available
+                            else {}
+                        ),
+                    }
+                    if artifact_available
+                    else None
+                )
             )
         )
         item["structural_density"] = _structural_density_payload(
@@ -758,6 +802,12 @@ def _persisted_callsite_pair_expansion_payload(
     )
 
 
+def _filtered_pre_persist_buckets_payload(
+    buckets: dict[str, int] | None,
+) -> dict[str, int]:
+    return _filtered_pre_persist_buckets_payload_impl(buckets)
+
+
 def _scope_bucket(file_path: str) -> str:
     return _scope_bucket_impl(file_path)
 
@@ -777,6 +827,12 @@ def _scope_persisted_callsite_pair_expansion_payload(
         scope_counts,
         pair_scope_counts=pair_scope_counts,
     )
+
+
+def _scope_filtered_pre_persist_buckets_payload(
+    scope_buckets: dict[str, dict[str, int]] | None,
+) -> dict[str, dict[str, int]] | None:
+    return _scope_filtered_pre_persist_buckets_payload_impl(scope_buckets)
 
 
 def _scope_call_site_funnel_payload(
@@ -836,6 +892,23 @@ def _sum_scope_nested_max(
             result[field] += int(nested.get(field, 0))
         result[max_field] = max(result[max_field], int(nested.get(max_field, 0)))
     return result
+
+
+def _sum_scope_nested_buckets(
+    language_scope_totals: dict[str, dict[str, dict[str, int | dict[str, int]]]],
+    *,
+    scope_key: str,
+    nested_key: str,
+) -> dict[str, int]:
+    totals: dict[str, int] = {}
+    for scope_counts in language_scope_totals.values():
+        scope = scope_counts.get(scope_key, {})
+        nested = scope.get(nested_key)
+        if not isinstance(nested, dict):
+            continue
+        for bucket, count in nested.items():
+            totals[str(bucket)] = totals.get(str(bucket), 0) + int(count)
+    return totals
 
 
 def _sum_record_drop_buckets(

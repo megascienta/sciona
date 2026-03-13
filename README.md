@@ -155,32 +155,15 @@ SCIONA indexes the **last committed snapshot**. Reducers are evaluated against t
 
 SCIONA has been validated on several large open-source repositories including **[VSCode](https://github.com/microsoft/vscode), [SymPy](https://github.com/sympy/sympy), [Guava](https://github.com/google/guava), [Webpack](https://github.com/webpack/webpack), [Airbyte](https://github.com/airbytehq/airbyte), and [NestJS](https://github.com/nestjs/nest)**. Validation reports and methodology details are available in [`validations/build_status_reports/`](validations/build_status_reports/).
 
-The current published validation set covers **10 repositories** and reports:
+<place_holder>
 
-- structural totals: files, nodes, edges
-- callsite funnel totals:
-  - `observed_syntactic_callsites`
-  - `filtered_pre_persist`
-  - `persisted_callsites`
-  - `persisted_accepted`
-  - `persisted_dropped`
-- persisted call materialization:
-  - `callsite_pairs`
-  - `finalized_call_edges`
-- pair-expansion diagnostics:
-  - `persisted_callsites_with_zero_pairs`
-  - `persisted_callsites_with_one_pair`
-  - `persisted_callsites_with_multiple_pairs`
-  - `pair_expansion_factor`
-  - `multi_pair_share`
-  - `max_pairs_for_single_persisted_callsite`
-- scope splits for `non_tests` and `tests`
-- per-language totals
-- per-repository totals
-- build timing totals and per-phase timings
+Individual reports and the consolidated summary are in [`validations/build_status_reports/`](validations/build_status_reports/).
 
-The consolidated data-only summary is in
-[`validations/build_status_reports/summary.md`](validations/build_status_reports/summary.md).
+## Copilot Evaludation Session
+
+<place_holder>
+
+The copilot experiment prompts, full report of the session and memo are in [`validations/copilot_evaluation/`](validations/copilot_evaluation).
 
 ## Project Status
 

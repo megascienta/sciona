@@ -50,6 +50,8 @@ Pre-persist filter buckets:
   callable set
 - `invalid_observation_shape`: malformed or internally inconsistent call
   observation row shape
+- `filtered_pre_persist_buckets_by_scope`: the same pre-persist bucket set
+  partitioned into `non_tests` and `tests`
 
 Pair and edge quantities:
 
@@ -124,7 +126,10 @@ Dataset-level pre-persist buckets:
 
 | Bucket | Count |
 | --- | ---: |
+| `no_in_repo_candidate_terminal` | `0` |
 | `no_in_repo_candidate_qualified` | `40,409` |
+| `accepted_outside_in_repo` | `0` |
+| `invalid_observation_shape` | `0` |
 
 ## Scope Totals
 
@@ -141,6 +146,13 @@ Finalized call edges by scope:
 | --- | ---: |
 | `non_tests` | `221,074` |
 | `tests` | `64,558` |
+
+Pre-persist buckets by scope:
+
+| Scope | `no_in_repo_candidate_terminal` | `no_in_repo_candidate_qualified` | `accepted_outside_in_repo` | `invalid_observation_shape` |
+| --- | ---: | ---: | ---: | ---: |
+| `non_tests` | `0` | `0` | `0` | `0` |
+| `tests` | `0` | `0` | `0` | `0` |
 
 ## Per-Language Totals
 
@@ -159,6 +171,15 @@ Per-language pair-expansion totals:
 | `javascript` | `63` | `3,490` | `21` | `5` | `0.9933` | `0.0059` |
 | `python` | `1,144` | `62,898` | `0` | `1` | `0.9821` | `0.0000` |
 | `typescript` | `999` | `143,329` | `2,814` | `1,253` | `1.2162` | `0.0191` |
+
+Per-language pre-persist buckets:
+
+| Language | `no_in_repo_candidate_terminal` | `no_in_repo_candidate_qualified` | `accepted_outside_in_repo` | `invalid_observation_shape` |
+| --- | ---: | ---: | ---: | ---: |
+| `java` | `0` | `1,525` | `0` | `0` |
+| `javascript` | `0` | `223` | `0` | `0` |
+| `python` | `0` | `28,112` | `0` | `0` |
+| `typescript` | `0` | `10,549` | `0` | `0` |
 
 Per-language scope totals:
 
@@ -201,18 +222,18 @@ Per-repository pair-expansion and scope totals:
 
 Per-repository pre-persist buckets:
 
-| Repository | `no_in_repo_candidate_qualified` |
-| --- | ---: |
-| `airbyte` | `896` |
-| `axios` | `66` |
-| `commons-lang` | `205` |
-| `fastapi` | `1,078` |
-| `guava` | `1,266` |
-| `nest` | `342` |
-| `pydantic` | `848` |
-| `sympy` | `25,344` |
-| `vscode` | `10,208` |
-| `webpack` | `156` |
+| Repository | `no_in_repo_candidate_terminal` | `no_in_repo_candidate_qualified` | `accepted_outside_in_repo` | `invalid_observation_shape` |
+| --- | ---: | ---: | ---: | ---: |
+| `airbyte` | `0` | `896` | `0` | `0` |
+| `axios` | `0` | `66` | `0` | `0` |
+| `commons-lang` | `0` | `205` | `0` | `0` |
+| `fastapi` | `0` | `1,078` | `0` | `0` |
+| `guava` | `0` | `1,266` | `0` | `0` |
+| `nest` | `0` | `342` | `0` | `0` |
+| `pydantic` | `0` | `848` | `0` | `0` |
+| `sympy` | `0` | `25,344` | `0` | `0` |
+| `vscode` | `0` | `10,208` | `0` | `0` |
+| `webpack` | `0` | `156` | `0` | `0` |
 
 ## Build Timing Totals
 

@@ -179,7 +179,7 @@ def _render_summary_lines(
             filtered = item.get("filtered_pre_persist_buckets") or {}
             if filtered:
                 filtered_text = ", ".join(
-                    f"{name}={count}" for name, count in sorted(filtered.items())
+                    f"{name}={count}" for name, count in filtered.items()
                 )
                 lines.append(f"{indent}  filtered_pre_persist: {filtered_text}")
         density = item.get("structural_density") or {}
@@ -229,7 +229,7 @@ def _render_summary_lines(
         filtered = totals.get("filtered_pre_persist_buckets") or {}
         if filtered:
             filtered_text = ", ".join(
-                f"{name}={count}" for name, count in sorted(filtered.items())
+                f"{name}={count}" for name, count in filtered.items()
             )
             lines.append(f"{indent}  filtered_pre_persist: {filtered_text}")
     totals_density = totals.get("structural_density") or {}

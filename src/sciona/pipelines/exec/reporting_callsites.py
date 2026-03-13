@@ -5,6 +5,13 @@
 
 from __future__ import annotations
 
+PRE_PERSIST_BUCKET_KEYS = (
+    "no_in_repo_candidate_terminal",
+    "no_in_repo_candidate_qualified",
+    "accepted_outside_in_repo",
+    "invalid_observation_shape",
+)
+
 
 def count_payload(count: int | None) -> dict[str, object]:
     return {"count": count}
@@ -93,6 +100,30 @@ def scope_call_site_funnel_payload(
             if isinstance(counts.get("record_drops"), dict)
             else None,
         )
+    return payload
+
+
+def filtered_pre_persist_buckets_payload(
+    buckets: dict[str, int] | None,
+) -> dict[str, int]:
+    source = buckets or {}
+    return {
+        key: int(source.get(key, 0))
+        for key in PRE_PERSIST_BUCKET_KEYS
+    }
+
+
+def scope_filtered_pre_persist_buckets_payload(
+    scope_buckets: dict[str, dict[str, int]] | None,
+) -> dict[str, dict[str, int]] | None:
+    if scope_buckets is None:
+        return None
+    payload: dict[str, dict[str, int]] = {}
+    for scope_key in ("non_tests", "tests"):
+        buckets = scope_buckets.get(scope_key)
+        if not isinstance(buckets, dict):
+            buckets = {}
+        payload[scope_key] = filtered_pre_persist_buckets_payload(buckets)
     return payload
 
 

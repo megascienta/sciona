@@ -53,6 +53,26 @@ def test_snapshot_report_returns_pair_centric_counts(repo_with_snapshot):
         "multi_pair_share": None,
         "max_pairs_for_single_persisted_callsite": 0,
     }
+    assert payload["totals"]["filtered_pre_persist_buckets"] == {
+        "no_in_repo_candidate_terminal": 0,
+        "no_in_repo_candidate_qualified": 0,
+        "accepted_outside_in_repo": 0,
+        "invalid_observation_shape": 0,
+    }
+    assert payload["totals"]["filtered_pre_persist_buckets_by_scope"] == {
+        "non_tests": {
+            "no_in_repo_candidate_terminal": 0,
+            "no_in_repo_candidate_qualified": 0,
+            "accepted_outside_in_repo": 0,
+            "invalid_observation_shape": 0,
+        },
+        "tests": {
+            "no_in_repo_candidate_terminal": 0,
+            "no_in_repo_candidate_qualified": 0,
+            "accepted_outside_in_repo": 0,
+            "invalid_observation_shape": 0,
+        },
+    }
     assert payload["totals"]["structural_density"]["files"] == 3
     assert payload["totals"]["structural_density"]["eligible_callsites"] == 0
     assert payload["totals"]["structural_density"]["inflation_warning"] is False
@@ -68,6 +88,26 @@ def test_snapshot_report_returns_pair_centric_counts(repo_with_snapshot):
         "pair_expansion_factor": None,
         "multi_pair_share": None,
         "max_pairs_for_single_persisted_callsite": 0,
+    }
+    assert python["filtered_pre_persist_buckets"] == {
+        "no_in_repo_candidate_terminal": 0,
+        "no_in_repo_candidate_qualified": 0,
+        "accepted_outside_in_repo": 0,
+        "invalid_observation_shape": 0,
+    }
+    assert python["filtered_pre_persist_buckets_by_scope"] == {
+        "non_tests": {
+            "no_in_repo_candidate_terminal": 0,
+            "no_in_repo_candidate_qualified": 0,
+            "accepted_outside_in_repo": 0,
+            "invalid_observation_shape": 0,
+        },
+        "tests": {
+            "no_in_repo_candidate_terminal": 0,
+            "no_in_repo_candidate_qualified": 0,
+            "accepted_outside_in_repo": 0,
+            "invalid_observation_shape": 0,
+        },
     }
     assert python["callsite_pairs_by_scope"]["non_tests"] == {"count": 0}
     assert python["callsite_pairs_by_scope"]["tests"] == {"count": 0}
@@ -184,13 +224,47 @@ def test_snapshot_report_includes_call_site_funnel_from_diagnostics(repo_with_sn
         "conservation_ok": True,
     }
     assert payload["totals"]["filtered_pre_persist_buckets"] == {
-        "no_in_repo_candidate_terminal": 2
+        "no_in_repo_candidate_terminal": 2,
+        "no_in_repo_candidate_qualified": 0,
+        "accepted_outside_in_repo": 0,
+        "invalid_observation_shape": 0,
     }
     python = {entry["language"]: entry for entry in payload["languages"]}["python"]
     assert python["call_site_funnel"]["persisted_callsites"] == 3
     assert python["call_site_funnel"]["record_drops"] == {"no_resolved_callees": 1}
     assert python["filtered_pre_persist_buckets"] == {
-        "no_in_repo_candidate_terminal": 2
+        "no_in_repo_candidate_terminal": 2,
+        "no_in_repo_candidate_qualified": 0,
+        "accepted_outside_in_repo": 0,
+        "invalid_observation_shape": 0,
+    }
+    assert payload["totals"]["filtered_pre_persist_buckets_by_scope"] == {
+        "non_tests": {
+            "no_in_repo_candidate_terminal": 2,
+            "no_in_repo_candidate_qualified": 0,
+            "accepted_outside_in_repo": 0,
+            "invalid_observation_shape": 0,
+        },
+        "tests": {
+            "no_in_repo_candidate_terminal": 0,
+            "no_in_repo_candidate_qualified": 0,
+            "accepted_outside_in_repo": 0,
+            "invalid_observation_shape": 0,
+        },
+    }
+    assert python["filtered_pre_persist_buckets_by_scope"] == {
+        "non_tests": {
+            "no_in_repo_candidate_terminal": 2,
+            "no_in_repo_candidate_qualified": 0,
+            "accepted_outside_in_repo": 0,
+            "invalid_observation_shape": 0,
+        },
+        "tests": {
+            "no_in_repo_candidate_terminal": 0,
+            "no_in_repo_candidate_qualified": 0,
+            "accepted_outside_in_repo": 0,
+            "invalid_observation_shape": 0,
+        },
     }
     assert payload["totals"]["persisted_callsite_pair_expansion"] == {
         "persisted_callsites": 3,

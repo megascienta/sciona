@@ -90,7 +90,24 @@ def _fake_summary():
                     },
                 },
                 "filtered_pre_persist_buckets": {
-                    "no_in_repo_candidate_terminal": 2
+                    "no_in_repo_candidate_terminal": 2,
+                    "no_in_repo_candidate_qualified": 0,
+                    "accepted_outside_in_repo": 0,
+                    "invalid_observation_shape": 0,
+                },
+                "filtered_pre_persist_buckets_by_scope": {
+                    "non_tests": {
+                        "no_in_repo_candidate_terminal": 2,
+                        "no_in_repo_candidate_qualified": 0,
+                        "accepted_outside_in_repo": 0,
+                        "invalid_observation_shape": 0,
+                    },
+                    "tests": {
+                        "no_in_repo_candidate_terminal": 0,
+                        "no_in_repo_candidate_qualified": 0,
+                        "accepted_outside_in_repo": 0,
+                        "invalid_observation_shape": 0,
+                    },
                 },
             }
         ],
@@ -147,7 +164,24 @@ def _fake_summary():
                 },
             },
             "filtered_pre_persist_buckets": {
-                "no_in_repo_candidate_terminal": 2
+                "no_in_repo_candidate_terminal": 2,
+                "no_in_repo_candidate_qualified": 0,
+                "accepted_outside_in_repo": 0,
+                "invalid_observation_shape": 0,
+            },
+            "filtered_pre_persist_buckets_by_scope": {
+                "non_tests": {
+                    "no_in_repo_candidate_terminal": 2,
+                    "no_in_repo_candidate_qualified": 0,
+                    "accepted_outside_in_repo": 0,
+                    "invalid_observation_shape": 0,
+                },
+                "tests": {
+                    "no_in_repo_candidate_terminal": 0,
+                    "no_in_repo_candidate_qualified": 0,
+                    "accepted_outside_in_repo": 0,
+                    "invalid_observation_shape": 0,
+                },
             },
         },
     }
@@ -202,7 +236,11 @@ def test_cli_status_full_emits_failure_reasons(cli_app, cli_runner, monkeypatch)
     assert "tests: pairs=3, edges=1" in result.stdout
     assert "pair_expansion: persisted=10, zero=1, one=7, multiple=2, factor=1.1000x, multi_pair_share=20.0%, max=3" in result.stdout
     assert "non_tests: persisted=8, zero=1, one=5, multiple=2, factor=1.0000x, multi_pair_share=25.0%, max=3" in result.stdout
-    assert "filtered_pre_persist: no_in_repo_candidate_terminal=2" in result.stdout
+    assert (
+        "filtered_pre_persist: no_in_repo_candidate_terminal=2, "
+        "no_in_repo_candidate_qualified=0, accepted_outside_in_repo=0, "
+        "invalid_observation_shape=0"
+    ) in result.stdout
 
 
 def test_cli_status_json_emits_payload(cli_app, cli_runner, monkeypatch):
