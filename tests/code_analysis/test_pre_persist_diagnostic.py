@@ -144,6 +144,44 @@ def test_classifier_marks_repeated_segments_as_parser_gap() -> None:
     assert classified.bucket == "likely_parser_extraction_gap"
 
 
+def test_classifier_marks_constructor_duplication_as_parser_gap() -> None:
+    observation = DiagnosticMissObservation(
+        language="java",
+        file_path="pkg/Main.java",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.Main.run",
+        caller_module="repo.pkg.Main",
+        identifier="repo.pkg.Outer.Inner.Inner",
+        ordinal=1,
+        callee_kind="qualified",
+        repo_prefix_matches=("repo", "repo.pkg", "repo.pkg.Outer"),
+        identifier_root="repo",
+    )
+
+    classified = classify_no_in_repo_candidate(observation)
+
+    assert classified.bucket == "likely_parser_extraction_gap"
+
+
+def test_classifier_marks_namespace_chain_duplication_as_parser_gap() -> None:
+    observation = DiagnosticMissObservation(
+        language="python",
+        file_path="pkg/main.py",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.main.run",
+        caller_module="repo.pkg.main",
+        identifier="repo.pkg.logger.logger.warning",
+        ordinal=1,
+        callee_kind="qualified",
+        repo_prefix_matches=("repo", "repo.pkg"),
+        identifier_root="repo",
+    )
+
+    classified = classify_no_in_repo_candidate(observation)
+
+    assert classified.bucket == "likely_parser_extraction_gap"
+
+
 def test_classifier_uses_javascript_global_refinement() -> None:
     observation = DiagnosticMissObservation(
         language="javascript",
