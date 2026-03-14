@@ -6,16 +6,27 @@ from __future__ import annotations
 
 from ..models import DiagnosticClassification, DiagnosticMissObservation
 
-_JAVA_STDLIB_PREFIXES = ("java.", "javax.", "System.", "Collections.", "List.", "Map.", "Set.")
+_JAVA_STDLIB_ROOTS = frozenset(
+    {
+        "Collections",
+        "List",
+        "Map",
+        "Set",
+        "System",
+        "java",
+        "javax",
+    }
+)
 
 
 def classify(
     observation: DiagnosticMissObservation,
 ) -> DiagnosticClassification | None:
     identifier = observation.identifier.strip()
-    if identifier.startswith(_JAVA_STDLIB_PREFIXES):
+    root = observation.identifier_root or identifier.split(".", 1)[0]
+    if root in _JAVA_STDLIB_ROOTS:
         return DiagnosticClassification(
             bucket="likely_standard_library_or_builtin",
-            reasons=("java_stdlib_pattern",),
+            reasons=("java_stdlib_root",),
         )
     return None

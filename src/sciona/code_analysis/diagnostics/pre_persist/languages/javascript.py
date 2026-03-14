@@ -35,10 +35,11 @@ def classify(
 ) -> DiagnosticClassification | None:
     identifier = observation.identifier.strip()
     terminal = identifier.rsplit(".", 1)[-1]
-    if identifier in _JS_GLOBALS or identifier.startswith("console."):
+    root = observation.identifier_root or identifier.split(".", 1)[0]
+    if root in _JS_GLOBALS:
         return DiagnosticClassification(
             bucket="likely_standard_library_or_builtin",
-            reasons=("javascript_global_pattern",),
+            reasons=("javascript_global_root",),
         )
     if (
         identifier.startswith(("this.", "super."))

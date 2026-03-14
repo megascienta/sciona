@@ -30,14 +30,16 @@ _PYTHON_BUILTINS = frozenset(
         "issubclass",
     }
 )
-_PYTHON_STDLIB_PREFIXES = (
-    "os.",
-    "sys.",
-    "json.",
-    "pathlib.",
-    "typing.",
-    "collections.",
-    "datetime.",
+_PYTHON_STDLIB_ROOTS = frozenset(
+    {
+        "collections",
+        "datetime",
+        "json",
+        "os",
+        "pathlib",
+        "sys",
+        "typing",
+    }
 )
 _PYTHON_DYNAMIC_MEMBER_TERMINALS = frozenset(
     {
@@ -67,10 +69,11 @@ def classify(
 ) -> DiagnosticClassification | None:
     identifier = observation.identifier.strip()
     terminal = identifier.rsplit(".", 1)[-1]
-    if identifier in _PYTHON_BUILTINS or identifier.startswith(_PYTHON_STDLIB_PREFIXES):
+    root = observation.identifier_root or identifier.split(".", 1)[0]
+    if root in _PYTHON_BUILTINS or root in _PYTHON_STDLIB_ROOTS:
         return DiagnosticClassification(
             bucket="likely_standard_library_or_builtin",
-            reasons=("python_builtin_or_stdlib_pattern",),
+            reasons=("python_builtin_or_stdlib_root",),
         )
     if identifier.startswith(("self.", "cls.")):
         return DiagnosticClassification(

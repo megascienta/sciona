@@ -199,6 +199,24 @@ def test_classifier_uses_javascript_global_refinement() -> None:
     assert classified.bucket == "likely_standard_library_or_builtin"
 
 
+def test_classifier_uses_javascript_global_root_refinement() -> None:
+    observation = DiagnosticMissObservation(
+        language="javascript",
+        file_path="pkg/main.js",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.main.run",
+        caller_module="repo.pkg.main",
+        identifier="Math.max",
+        ordinal=1,
+        callee_kind="qualified",
+        identifier_root="Math",
+    )
+
+    classified = classify_no_in_repo_candidate(observation)
+
+    assert classified.bucket == "likely_standard_library_or_builtin"
+
+
 def test_classifier_uses_java_stdlib_refinement() -> None:
     observation = DiagnosticMissObservation(
         language="java",
@@ -209,6 +227,24 @@ def test_classifier_uses_java_stdlib_refinement() -> None:
         identifier="System.out.println",
         ordinal=1,
         callee_kind="qualified",
+    )
+
+    classified = classify_no_in_repo_candidate(observation)
+
+    assert classified.bucket == "likely_standard_library_or_builtin"
+
+
+def test_classifier_uses_python_stdlib_root_refinement() -> None:
+    observation = DiagnosticMissObservation(
+        language="python",
+        file_path="pkg/main.py",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.main.run",
+        caller_module="repo.pkg.main",
+        identifier="json.dumps",
+        ordinal=1,
+        callee_kind="qualified",
+        identifier_root="json",
     )
 
     classified = classify_no_in_repo_candidate(observation)
