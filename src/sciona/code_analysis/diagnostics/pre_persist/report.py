@@ -62,23 +62,31 @@ def build_verbose_payload(
         bucket = str(item.get("bucket") or "unclassified_no_in_repo_candidate")
         bucket_entry = by_bucket.setdefault(
             bucket,
-            {"count": 0, "callsites": []},
+            {"count": 0, "callsites": [], "reasons": {}},
         )
         bucket_entry["count"] = int(bucket_entry.get("count", 0)) + 1
         cast_callsites = bucket_entry.setdefault("callsites", [])
         if isinstance(cast_callsites, list):
             cast_callsites.append(item)
+        bucket_reasons = bucket_entry.setdefault("reasons", {})
+        if isinstance(bucket_reasons, dict):
+            for reason in item.get("reasons") or []:
+                bucket_reasons[str(reason)] = int(bucket_reasons.get(str(reason), 0)) + 1
         file_path = str(item.get("file_path") or "")
         if not file_path:
             continue
         file_entry = by_file.setdefault(
             file_path,
-            {"file_path": file_path, "count": 0, "buckets": {}},
+            {"file_path": file_path, "count": 0, "buckets": {}, "reasons": {}},
         )
         file_entry["count"] = int(file_entry.get("count", 0)) + 1
         buckets = file_entry.setdefault("buckets", {})
         if isinstance(buckets, dict):
             buckets[bucket] = int(buckets.get(bucket, 0)) + 1
+        file_reasons = file_entry.setdefault("reasons", {})
+        if isinstance(file_reasons, dict):
+            for reason in item.get("reasons") or []:
+                file_reasons[str(reason)] = int(file_reasons.get(str(reason), 0)) + 1
     problematic_files = sorted(
         by_file.values(),
         key=lambda row: (-int(row.get("count", 0)), str(row.get("file_path") or "")),
@@ -87,6 +95,7 @@ def build_verbose_payload(
         "buckets": {
             bucket: {
                 "count": int((payload or {}).get("count", 0)),
+                "reasons": dict((payload or {}).get("reasons") or {}),
                 "callsites": list((payload or {}).get("callsites") or []),
             }
             for bucket, payload in sorted(by_bucket.items())

@@ -5,6 +5,7 @@ from sciona.code_analysis.diagnostics.pre_persist.classifier import (
     classify_no_in_repo_candidate,
 )
 from sciona.code_analysis.diagnostics.pre_persist import pipeline as diagnostic_pipeline
+from sciona.code_analysis.diagnostics.pre_persist.report import build_verbose_payload
 from sciona.code_analysis.diagnostics.pre_persist.models import (
     DiagnosticMissObservation,
 )
@@ -242,3 +243,40 @@ def test_classify_pre_persist_misses_uses_progress_factory(monkeypatch) -> None:
         ("advance", 1),
         ("close", None),
     ]
+
+
+def test_build_verbose_payload_includes_reason_and_prefix_traces() -> None:
+    payload = build_verbose_payload(
+        {
+            "observations": [
+                {
+                    "bucket": "likely_unindexed_symbol",
+                    "reasons": ["repo_owned_qualified_prefix"],
+                    "language": "python",
+                    "file_path": "pkg/mod.py",
+                    "caller_structural_id": "caller",
+                    "caller_qualified_name": "repo.pkg.mod.run",
+                    "caller_module": "repo.pkg.mod",
+                    "identifier": "repo.pkg.models.Secret",
+                    "identifier_root": "repo",
+                    "ordinal": 1,
+                    "callee_kind": "qualified",
+                    "candidate_module_hints": [],
+                    "repo_prefix_matches": ["repo", "repo.pkg", "repo.pkg.models"],
+                    "scope": "non_tests",
+                }
+            ]
+        }
+    )
+
+    bucket_payload = payload["buckets"]["likely_unindexed_symbol"]
+    assert bucket_payload["reasons"] == {"repo_owned_qualified_prefix": 1}
+    assert bucket_payload["callsites"][0]["identifier_root"] == "repo"
+    assert bucket_payload["callsites"][0]["repo_prefix_matches"] == [
+        "repo",
+        "repo.pkg",
+        "repo.pkg.models",
+    ]
+    assert payload["problematic_files"][0]["reasons"] == {
+        "repo_owned_qualified_prefix": 1
+    }

@@ -135,9 +135,11 @@ def classify_pre_persist_misses(
                     "caller_qualified_name": observation.caller_qualified_name,
                     "caller_module": observation.caller_module,
                     "identifier": observation.identifier,
+                    "identifier_root": observation.identifier_root,
                     "ordinal": observation.ordinal,
                     "callee_kind": observation.callee_kind,
                     "candidate_module_hints": list(observation.candidate_module_hints),
+                    "repo_prefix_matches": list(observation.repo_prefix_matches),
                     "scope": scope_key,
                 }
             )
