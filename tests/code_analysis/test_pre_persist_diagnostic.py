@@ -253,6 +253,66 @@ def test_classifier_keeps_repo_owned_typescript_exception_factory_as_unindexed()
     assert classified.reasons == ("repo_owned_member_terminal",)
 
 
+def test_classifier_marks_report_style_vscode_reduce_as_dynamic() -> None:
+    observation = DiagnosticMissObservation(
+        language="typescript",
+        file_path="pkg/main.ts",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.main.run",
+        caller_module="repo.pkg.main",
+        identifier="repo.pkg.range.Range.reduce",
+        ordinal=1,
+        callee_kind="qualified",
+        repo_prefix_matches=("repo", "repo.pkg", "repo.pkg.range"),
+        identifier_root="repo",
+    )
+
+    classified = classify_no_in_repo_candidate(observation)
+
+    assert classified.bucket == "likely_dynamic_dispatch_or_indirect"
+    assert classified.reasons == ("repo_owned_dynamic_member_terminal",)
+
+
+def test_classifier_marks_report_style_fastapi_model_validate_as_unindexed() -> None:
+    observation = DiagnosticMissObservation(
+        language="python",
+        file_path="pkg/main.py",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.main.run",
+        caller_module="repo.pkg.main",
+        identifier="repo.pkg.models.Item.model_validate",
+        ordinal=1,
+        callee_kind="qualified",
+        repo_prefix_matches=("repo", "repo.pkg", "repo.pkg.models"),
+        identifier_root="repo",
+    )
+
+    classified = classify_no_in_repo_candidate(observation)
+
+    assert classified.bucket == "likely_unindexed_symbol"
+    assert classified.reasons == ("repo_owned_member_terminal",)
+
+
+def test_classifier_marks_report_style_airbyte_parse_obj_as_unindexed() -> None:
+    observation = DiagnosticMissObservation(
+        language="python",
+        file_path="pkg/main.py",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.main.run",
+        caller_module="repo.pkg.main",
+        identifier="repo.pkg.models.AirbyteCatalog.parse_obj",
+        ordinal=1,
+        callee_kind="qualified",
+        repo_prefix_matches=("repo", "repo.pkg", "repo.pkg.models"),
+        identifier_root="repo",
+    )
+
+    classified = classify_no_in_repo_candidate(observation)
+
+    assert classified.bucket == "likely_unindexed_symbol"
+    assert classified.reasons == ("repo_owned_member_terminal",)
+
+
 def test_classifier_keeps_repo_owned_python_class_member_terminal_as_unindexed() -> None:
     observation = DiagnosticMissObservation(
         language="python",
