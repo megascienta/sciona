@@ -9,21 +9,59 @@ from ..models import DiagnosticClassification, DiagnosticMissObservation
 _TS_GLOBALS = frozenset(
     {"Promise", "Array", "Object", "String", "Number", "Boolean", "Math", "JSON", "console"}
 )
+_TS_DYNAMIC_MEMBER_TERMINALS = frozenset(
+    {
+        "accept",
+        "call",
+        "disconnect",
+        "exceptionFactory",
+        "filter",
+        "find",
+        "flat",
+        "flatMap",
+        "forEach",
+        "includes",
+        "join",
+        "map",
+        "match",
+        "onProcessingEndHook",
+        "pop",
+        "push",
+        "reduce",
+        "slice",
+        "some",
+    }
+)
 
 
 def classify(
     observation: DiagnosticMissObservation,
 ) -> DiagnosticClassification | None:
     identifier = observation.identifier.strip()
+    terminal = identifier.rsplit(".", 1)[-1]
     if identifier in _TS_GLOBALS or identifier.startswith("console."):
         return DiagnosticClassification(
             bucket="likely_standard_library_or_builtin",
             reasons=("typescript_global_pattern",),
         )
-    if identifier.startswith(("this.", "super.")):
+    if (
+        identifier.startswith(("this.", "super."))
+        or ".prototype." in identifier
+        or identifier.startswith("prototype.")
+    ):
         return DiagnosticClassification(
             bucket="likely_dynamic_dispatch_or_indirect",
             reasons=("typescript_receiver_pattern",),
+        )
+    if terminal in _TS_DYNAMIC_MEMBER_TERMINALS:
+        if observation.repo_prefix_matches and observation.callee_kind == "qualified":
+            return DiagnosticClassification(
+                bucket="likely_unindexed_symbol",
+                reasons=("repo_owned_member_terminal",),
+            )
+        return DiagnosticClassification(
+            bucket="likely_dynamic_dispatch_or_indirect",
+            reasons=("dynamic_member_terminal",),
         )
     if identifier.startswith("@"):
         return DiagnosticClassification(

@@ -6,75 +6,6 @@ from __future__ import annotations
 
 from ..models import DiagnosticClassification, DiagnosticMissObservation
 
-_COMMON_BUILTINS = frozenset(
-    {
-        "print",
-        "len",
-        "range",
-        "open",
-        "min",
-        "max",
-        "sum",
-        "map",
-        "filter",
-        "sorted",
-        "list",
-        "dict",
-        "set",
-        "tuple",
-        "str",
-        "int",
-        "float",
-        "bool",
-        "Promise",
-        "Array",
-        "Object",
-        "String",
-        "Number",
-        "Boolean",
-        "Math",
-        "System",
-    }
-)
-_DYNAMIC_MEMBER_TERMINALS = frozenset(
-    {
-        "accept",
-        "append",
-        "call",
-        "disconnect",
-        "encode",
-        "exceptionFactory",
-        "feed",
-        "filter",
-        "find",
-        "flat",
-        "flatMap",
-        "forEach",
-        "get_secret_value",
-        "includes",
-        "items",
-        "join",
-        "keys",
-        "map",
-        "match",
-        "model_dump",
-        "model_dump_json",
-        "model_validate",
-        "onProcessingEndHook",
-        "parse_obj",
-        "pop",
-        "push",
-        "receive_text",
-        "reduce",
-        "send_json",
-        "send_text",
-        "slice",
-        "some",
-        "to_python",
-        "values",
-    }
-)
-
 
 def classify_common(
     observation: DiagnosticMissObservation,
@@ -85,35 +16,10 @@ def classify_common(
             bucket="likely_parser_extraction_gap",
             reasons=("missing_identifier_or_file_path",),
         )
-    if identifier in _COMMON_BUILTINS:
-        return DiagnosticClassification(
-            bucket="likely_standard_library_or_builtin",
-            reasons=("common_builtin_name",),
-        )
-    terminal = identifier.rsplit(".", 1)[-1]
-    if (
-        identifier.startswith(("self.", "this.", "cls.", "super."))
-        or ".prototype." in identifier
-        or identifier.startswith("prototype.")
-    ):
-        return DiagnosticClassification(
-            bucket="likely_dynamic_dispatch_or_indirect",
-            reasons=("dynamic_receiver_pattern",),
-        )
     if _has_repeated_qualified_segment(identifier):
         return DiagnosticClassification(
             bucket="likely_parser_extraction_gap",
             reasons=("repeated_qualified_segment",),
-        )
-    if terminal in _DYNAMIC_MEMBER_TERMINALS:
-        if observation.repo_prefix_matches and observation.callee_kind == "qualified":
-            return DiagnosticClassification(
-                bucket="likely_unindexed_symbol",
-                reasons=("repo_owned_member_terminal",),
-            )
-        return DiagnosticClassification(
-            bucket="likely_dynamic_dispatch_or_indirect",
-            reasons=("dynamic_member_terminal",),
         )
     if observation.repo_prefix_matches:
         if observation.callee_kind == "qualified":
@@ -140,11 +46,6 @@ def classify_common(
         return DiagnosticClassification(
             bucket="likely_external_dependency",
             reasons=("qualified_identifier_without_repo_candidate",),
-        )
-    if observation.identifier_root and observation.identifier_root in _COMMON_BUILTINS:
-        return DiagnosticClassification(
-            bucket="likely_standard_library_or_builtin",
-            reasons=("common_builtin_root",),
         )
     return DiagnosticClassification(
         bucket="likely_unindexed_symbol",
