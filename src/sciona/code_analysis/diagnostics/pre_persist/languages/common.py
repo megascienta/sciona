@@ -38,16 +38,38 @@ _COMMON_BUILTINS = frozenset(
 )
 _DYNAMIC_MEMBER_TERMINALS = frozenset(
     {
+        "accept",
         "append",
         "call",
+        "disconnect",
         "encode",
+        "exceptionFactory",
         "feed",
+        "filter",
+        "find",
+        "flat",
+        "flatMap",
+        "forEach",
+        "get_secret_value",
+        "includes",
         "items",
+        "join",
         "keys",
+        "map",
+        "match",
+        "model_dump",
+        "model_dump_json",
         "model_validate",
+        "onProcessingEndHook",
         "parse_obj",
         "pop",
         "push",
+        "receive_text",
+        "reduce",
+        "send_json",
+        "send_text",
+        "slice",
+        "some",
         "to_python",
         "values",
     }
@@ -84,6 +106,11 @@ def classify_common(
             reasons=("repeated_qualified_segment",),
         )
     if terminal in _DYNAMIC_MEMBER_TERMINALS:
+        if observation.repo_prefix_matches and observation.callee_kind == "qualified":
+            return DiagnosticClassification(
+                bucket="likely_unindexed_symbol",
+                reasons=("repo_owned_member_terminal",),
+            )
         return DiagnosticClassification(
             bucket="likely_dynamic_dispatch_or_indirect",
             reasons=("dynamic_member_terminal",),

@@ -81,7 +81,48 @@ def test_classifier_marks_dynamic_member_terminal() -> None:
 
     classified = classify_no_in_repo_candidate(observation)
 
+    assert classified.bucket == "likely_unindexed_symbol"
+    assert classified.reasons == ("repo_owned_member_terminal",)
+
+
+def test_classifier_keeps_unknown_receiver_member_terminal_as_dynamic() -> None:
+    observation = DiagnosticMissObservation(
+        language="typescript",
+        file_path="pkg/main.ts",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.main.run",
+        caller_module="repo.pkg.main",
+        identifier="value.map",
+        ordinal=1,
+        callee_kind="qualified",
+        repo_prefix_matches=(),
+        identifier_root="value",
+    )
+
+    classified = classify_no_in_repo_candidate(observation)
+
     assert classified.bucket == "likely_dynamic_dispatch_or_indirect"
+    assert classified.reasons == ("dynamic_member_terminal",)
+
+
+def test_classifier_marks_extended_repo_owned_member_terminal_as_unindexed() -> None:
+    observation = DiagnosticMissObservation(
+        language="typescript",
+        file_path="pkg/main.ts",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.main.run",
+        caller_module="repo.pkg.main",
+        identifier="repo.pkg.provider.Provider.map",
+        ordinal=1,
+        callee_kind="qualified",
+        repo_prefix_matches=("repo", "repo.pkg", "repo.pkg.provider"),
+        identifier_root="repo",
+    )
+
+    classified = classify_no_in_repo_candidate(observation)
+
+    assert classified.bucket == "likely_unindexed_symbol"
+    assert classified.reasons == ("repo_owned_member_terminal",)
 
 
 def test_classifier_marks_repeated_segments_as_parser_gap() -> None:
