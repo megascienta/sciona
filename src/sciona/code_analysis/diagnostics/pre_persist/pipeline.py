@@ -12,6 +12,7 @@ from ...artifacts.call_resolution import (
     build_module_context,
     build_symbol_index,
     build_typescript_barrel_export_map,
+    bounded_module_reachability,
     resolve_callees,
     simple_identifier,
 )
@@ -60,6 +61,7 @@ def classify_pre_persist_misses(
         import_targets=import_targets,
         module_bindings_by_name=module_bindings_by_name,
         module_file_by_name=module_file_by_name,
+        bounded_module_reachability=bounded_module_reachability,
     )
     aggregation = DiagnosticAggregation(
         totals=empty_diagnostic_buckets(),
