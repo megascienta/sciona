@@ -122,7 +122,10 @@ def _write_diagnostic_outputs(
     if not diagnostic_verbose:
         return
     verbose_path = diagnostic_report.pre_persist_verbose_output_path(repo_root)
-    verbose_payload = dict(getattr(result, "diagnostic_verbose", None) or {})
+    verbose_payload = dict(
+        getattr(result, "diagnostic_verbose", None)
+        or diagnostic_report.build_verbose_payload(getattr(result, "diagnostic_report", None))
+    )
     verbose_payload["diagnostic_mode"] = True
     verbose_payload["diagnostic_kind"] = "pre_persist_filter_best_effort"
     verbose_path.write_text(

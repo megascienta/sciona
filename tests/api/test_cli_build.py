@@ -239,6 +239,10 @@ def test_cli_build_diagnostic_writes_repo_root_outputs(
     assert build_status["diagnostic_mode"] is True
     assert build_status["diagnostic_kind"] == "pre_persist_filter_best_effort"
     assert "no_in_repo_candidate" not in build_status["report"]["totals"]["pre_persist_filter"]
+    verbose_payload = json.loads(verbose_path.read_text(encoding="utf-8"))
+    assert verbose_payload["diagnostic_mode"] is True
+    assert verbose_payload["diagnostic_kind"] == "pre_persist_filter_best_effort"
+    assert "buckets" in verbose_payload
 
 
 def test_cli_build_diagnostic_enriches_pre_persist_filter(
@@ -293,3 +297,52 @@ def test_cli_build_diagnostic_enriches_pre_persist_filter(
         "accepted_outside_in_repo": 0,
         "invalid_observation_shape": 0,
     }
+
+
+def test_cli_build_verbose_sidecar_groups_callsites_by_bucket(
+    cli_app, cli_runner, repo_with_snapshot, monkeypatch
+):
+    repo_root, _snapshot_id = repo_with_snapshot
+    monkeypatch.setattr(repo_ops, "get_repo_root", lambda: repo_root)
+    result = _fake_committed_result()
+    result = BuildResult(
+        **{
+            **result.__dict__,
+            "diagnostic_report": {"totals": {}, "by_language": {}, "by_scope": {}, "observations": []},
+            "diagnostic_verbose": {
+                "buckets": {
+                    "likely_unindexed_symbol": {
+                        "count": 2,
+                        "callsites": [
+                            {"identifier": "helper", "file_path": "pkg/a.py"},
+                            {"identifier": "worker", "file_path": "pkg/b.py"},
+                        ],
+                    }
+                },
+                "problematic_callsites": [
+                    {"identifier": "helper", "file_path": "pkg/a.py"},
+                    {"identifier": "worker", "file_path": "pkg/b.py"},
+                ],
+                "problematic_files": [
+                    {
+                        "file_path": "pkg/a.py",
+                        "count": 1,
+                        "buckets": {"likely_unindexed_symbol": 1},
+                    }
+                ],
+            },
+        }
+    )
+    monkeypatch.setattr(repo_ops, "build", lambda **kwargs: result)
+    monkeypatch.setattr(repo_ops, "snapshot_report", lambda snapshot_id: _fake_report())
+    monkeypatch.setattr(repo_ops, "record_build_wall_time", lambda snapshot_id, wall_seconds: None)
+    perf_values = iter([60.0, 60.25])
+    monkeypatch.setattr(build_command, "perf_counter", lambda: next(perf_values))
+
+    result_cli = cli_runner.invoke(cli_app, ["build", "--diagnostic", "--verbose"])
+
+    assert result_cli.exit_code == 0
+    verbose_path = repo_root / f"{repo_root.name}_pre_persist_verbose.json"
+    verbose_payload = json.loads(verbose_path.read_text(encoding="utf-8"))
+    assert verbose_payload["buckets"]["likely_unindexed_symbol"]["count"] == 2
+    assert verbose_payload["problematic_files"][0]["file_path"] == "pkg/a.py"

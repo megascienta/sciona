@@ -50,6 +50,52 @@ def enrich_report(
     return enriched
 
 
+def build_verbose_payload(
+    diagnostic_payload: dict[str, object] | None,
+) -> dict[str, object]:
+    observations = list((diagnostic_payload or {}).get("observations") or [])
+    by_bucket: dict[str, dict[str, object]] = {}
+    by_file: dict[str, dict[str, object]] = {}
+    for item in observations:
+        if not isinstance(item, dict):
+            continue
+        bucket = str(item.get("bucket") or "unclassified_no_in_repo_candidate")
+        bucket_entry = by_bucket.setdefault(
+            bucket,
+            {"count": 0, "callsites": []},
+        )
+        bucket_entry["count"] = int(bucket_entry.get("count", 0)) + 1
+        cast_callsites = bucket_entry.setdefault("callsites", [])
+        if isinstance(cast_callsites, list):
+            cast_callsites.append(item)
+        file_path = str(item.get("file_path") or "")
+        if not file_path:
+            continue
+        file_entry = by_file.setdefault(
+            file_path,
+            {"file_path": file_path, "count": 0, "buckets": {}},
+        )
+        file_entry["count"] = int(file_entry.get("count", 0)) + 1
+        buckets = file_entry.setdefault("buckets", {})
+        if isinstance(buckets, dict):
+            buckets[bucket] = int(buckets.get(bucket, 0)) + 1
+    problematic_files = sorted(
+        by_file.values(),
+        key=lambda row: (-int(row.get("count", 0)), str(row.get("file_path") or "")),
+    )
+    return {
+        "buckets": {
+            bucket: {
+                "count": int((payload or {}).get("count", 0)),
+                "callsites": list((payload or {}).get("callsites") or []),
+            }
+            for bucket, payload in sorted(by_bucket.items())
+        },
+        "problematic_callsites": observations,
+        "problematic_files": problematic_files,
+    }
+
+
 def empty_diagnostic_buckets() -> dict[str, int]:
     return {key: 0 for key in DIAGNOSTIC_BUCKET_KEYS}
 

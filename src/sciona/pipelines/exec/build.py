@@ -205,7 +205,7 @@ def build_repo(
                 artifact_warnings=list(artifact_warnings),
                 diagnostic_report=diagnostic_payload,
                 diagnostic_verbose=(
-                    {"observations": list(diagnostic_payload.get("observations") or [])}
+                    diagnostic_report.build_verbose_payload(diagnostic_payload)
                     if diagnostic_verbose and diagnostic_payload is not None
                     else None
                 ),
