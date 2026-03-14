@@ -209,9 +209,11 @@ Current user-visible build phases are:
 - `Registering modules`
 - `Building structural index`
 - `Extracting call observations`
+- `Preparing callsite pairs`
 - `Writing callsite pairs`
 - `Rebuilding call graph index`
 - `Rebuilding graph rollups`
+- `Diagnostic classification` when `sciona build --diagnostic` is enabled
 
 Each phase now emits an elapsed duration in normal `sciona build` output after
 that phase completes.
@@ -244,6 +246,22 @@ Timing semantics:
   - `write_callsite_pairs`
   - `rebuild_graph_index`
   - `rebuild_graph_rollups`
+  - `diagnostic_classification` only for diagnostic builds
+
+Diagnostic build mode:
+
+- `sciona build --diagnostic` adds an optional post-build phase that classifies
+  canonical `no_in_repo_candidate` misses into best-effort explanatory buckets
+  for generated repo-root report artifacts
+- `sciona build --diagnostic --verbose` also writes a repo-root verbose sidecar
+  with bucketed callsite and file examples for investigation
+- Diagnostic outputs are generated artifacts only; they are not persisted in
+  CoreDB or ArtifactDB and they do not redefine canonical reducer-facing
+  semantics
+- Canonical DB-backed `sciona status --json` remains unchanged; diagnostic mode
+  writes additional repo-root JSON files after the build completes
+- Temporary diagnostic workspace files may be created under `.sciona` during
+  the diagnostic phase and are removed before the build exits
 
 ## Snapshot and Artifact Semantics
 
@@ -277,6 +295,9 @@ Timing semantics:
     callable set
   - `invalid_observation_shape`: malformed or internally inconsistent call
     observation row shape
+- Diagnostic build mode may replace canonical `no_in_repo_candidate` only in
+  generated repo-root diagnostic build-status artifacts; canonical public
+  status reporting remains unchanged
 - `status --json` exposes direct snapshot data only
 - the public status payload is grouped as:
   - `labels`

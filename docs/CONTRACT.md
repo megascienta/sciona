@@ -213,6 +213,9 @@ Public status reporting contract:
 
 - `status --json` and `snapshot_report(...)` MUST expose direct snapshot data
   only
+- Optional repo-root files written by `sciona build --diagnostic` are
+  non-canonical generated artifacts; they MUST NOT redefine the DB-backed
+  `status --json` contract
 - the public payload MUST provide:
   - `artifact_db_available`
   - `labels`
@@ -253,6 +256,8 @@ Public status reporting contract:
   - `no_in_repo_candidate`
   - `accepted_outside_in_repo`
   - `invalid_observation_shape`
+- Diagnostic build artifacts MAY replace canonical `no_in_repo_candidate` with
+  best-effort explanatory buckets, but only inside those generated artifacts
 - `call_materialization` MUST contain only:
   - `callsite_pairs`
   - `finalized_call_edges`
