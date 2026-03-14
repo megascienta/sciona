@@ -11,6 +11,8 @@ import shutil
 
 from .models import DIAGNOSTIC_BUCKET_KEYS
 
+_CANONICAL_ONLY_KEYS = frozenset({"accepted_outside_in_repo", "invalid_observation_shape"})
+
 
 def build_status_output_path(repo_root: Path) -> Path:
     return repo_root / f"{repo_root.name}_build_status.json"
@@ -62,7 +64,7 @@ def build_verbose_payload(
         bucket = str(item.get("bucket") or "unclassified_no_in_repo_candidate")
         bucket_entry = by_bucket.setdefault(
             bucket,
-            {"count": 0, "callsites": [], "reasons": {}},
+            {"count": 0, "callsites": [], "reasons": {}, "signals": {}},
         )
         bucket_entry["count"] = int(bucket_entry.get("count", 0)) + 1
         cast_callsites = bucket_entry.setdefault("callsites", [])
@@ -72,12 +74,16 @@ def build_verbose_payload(
         if isinstance(bucket_reasons, dict):
             for reason in item.get("reasons") or []:
                 bucket_reasons[str(reason)] = int(bucket_reasons.get(str(reason), 0)) + 1
+        bucket_signals = bucket_entry.setdefault("signals", {})
+        if isinstance(bucket_signals, dict):
+            for signal in item.get("signals") or []:
+                bucket_signals[str(signal)] = int(bucket_signals.get(str(signal), 0)) + 1
         file_path = str(item.get("file_path") or "")
         if not file_path:
             continue
         file_entry = by_file.setdefault(
             file_path,
-            {"file_path": file_path, "count": 0, "buckets": {}, "reasons": {}},
+            {"file_path": file_path, "count": 0, "buckets": {}, "reasons": {}, "signals": {}},
         )
         file_entry["count"] = int(file_entry.get("count", 0)) + 1
         buckets = file_entry.setdefault("buckets", {})
@@ -87,6 +93,10 @@ def build_verbose_payload(
         if isinstance(file_reasons, dict):
             for reason in item.get("reasons") or []:
                 file_reasons[str(reason)] = int(file_reasons.get(str(reason), 0)) + 1
+        file_signals = file_entry.setdefault("signals", {})
+        if isinstance(file_signals, dict):
+            for signal in item.get("signals") or []:
+                file_signals[str(signal)] = int(file_signals.get(str(signal), 0)) + 1
     problematic_files = sorted(
         by_file.values(),
         key=lambda row: (-int(row.get("count", 0)), str(row.get("file_path") or "")),
@@ -96,6 +106,7 @@ def build_verbose_payload(
             bucket: {
                 "count": int((payload or {}).get("count", 0)),
                 "reasons": dict((payload or {}).get("reasons") or {}),
+                "signals": dict((payload or {}).get("signals") or {}),
                 "callsites": list((payload or {}).get("callsites") or []),
             }
             for bucket, payload in sorted(by_bucket.items())
@@ -171,7 +182,7 @@ def _merge_non_candidate_buckets(
         canonical_buckets.get("invalid_observation_shape", 0)
     )
     for key, value in diagnostic_buckets.items():
-        if key in payload:
+        if key in payload and key not in _CANONICAL_ONLY_KEYS:
             payload[key] = int(value or 0)
     return payload
 

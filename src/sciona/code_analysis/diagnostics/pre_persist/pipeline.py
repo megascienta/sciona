@@ -129,6 +129,7 @@ def classify_pre_persist_misses(
                 {
                     "bucket": classified.bucket,
                     "reasons": list(classified.reasons),
+                    "signals": _signals_for_observation(observation, classified.reasons),
                     "language": observation.language,
                     "file_path": observation.file_path,
                     "caller_structural_id": observation.caller_structural_id,
@@ -180,3 +181,31 @@ def _repo_prefix_matches(identifier: str, repo_module_prefixes: set[str]) -> tup
         if prefix in repo_module_prefixes:
             matches.append(prefix)
     return tuple(matches)
+
+
+def _signals_for_observation(
+    observation: DiagnosticMissObservation,
+    reasons: tuple[str, ...],
+) -> list[str]:
+    signals: set[str] = set()
+    if observation.repo_prefix_matches:
+        signals.add("repo_owned_prefix")
+    else:
+        signals.add("non_repo_root")
+    if observation.callee_kind == "qualified":
+        signals.add("qualified_identifier")
+    else:
+        signals.add("terminal_identifier")
+    if observation.candidate_module_hints:
+        signals.add("candidate_module_hint")
+    if any(reason.endswith("_member_terminal") for reason in reasons):
+        signals.add("member_terminal")
+    if any("receiver" in reason for reason in reasons):
+        signals.add("receiver_special_form")
+    if "dynamic_member_terminal" in reasons:
+        signals.add("receiver_unknown")
+    if "repeated_qualified_segment" in reasons:
+        signals.add("repeated_segment")
+    if any("builtin" in reason or "stdlib" in reason or "global" in reason for reason in reasons):
+        signals.add("runtime_namespace_root")
+    return sorted(signals)

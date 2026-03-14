@@ -5,7 +5,10 @@ from sciona.code_analysis.diagnostics.pre_persist.classifier import (
     classify_no_in_repo_candidate,
 )
 from sciona.code_analysis.diagnostics.pre_persist import pipeline as diagnostic_pipeline
-from sciona.code_analysis.diagnostics.pre_persist.report import build_verbose_payload
+from sciona.code_analysis.diagnostics.pre_persist.report import (
+    _merge_non_candidate_buckets,
+    build_verbose_payload,
+)
 from sciona.code_analysis.diagnostics.pre_persist.models import (
     DiagnosticMissObservation,
 )
@@ -367,6 +370,7 @@ def test_build_verbose_payload_includes_reason_and_prefix_traces() -> None:
                 {
                     "bucket": "likely_unindexed_symbol",
                     "reasons": ["repo_owned_qualified_prefix"],
+                    "signals": ["repo_owned_prefix", "qualified_identifier"],
                     "language": "python",
                     "file_path": "pkg/mod.py",
                     "caller_structural_id": "caller",
@@ -386,6 +390,10 @@ def test_build_verbose_payload_includes_reason_and_prefix_traces() -> None:
 
     bucket_payload = payload["buckets"]["likely_unindexed_symbol"]
     assert bucket_payload["reasons"] == {"repo_owned_qualified_prefix": 1}
+    assert bucket_payload["signals"] == {
+        "qualified_identifier": 1,
+        "repo_owned_prefix": 1,
+    }
     assert bucket_payload["callsites"][0]["identifier_root"] == "repo"
     assert bucket_payload["callsites"][0]["repo_prefix_matches"] == [
         "repo",
@@ -395,3 +403,25 @@ def test_build_verbose_payload_includes_reason_and_prefix_traces() -> None:
     assert payload["problematic_files"][0]["reasons"] == {
         "repo_owned_qualified_prefix": 1
     }
+    assert payload["problematic_files"][0]["signals"] == {
+        "qualified_identifier": 1,
+        "repo_owned_prefix": 1,
+    }
+
+
+def test_merge_non_candidate_buckets_preserves_canonical_keys() -> None:
+    merged = _merge_non_candidate_buckets(
+        {
+            "accepted_outside_in_repo": 2,
+            "invalid_observation_shape": 3,
+        },
+        {
+            "accepted_outside_in_repo": 99,
+            "invalid_observation_shape": 88,
+            "likely_unindexed_symbol": 7,
+        },
+    )
+
+    assert merged["accepted_outside_in_repo"] == 2
+    assert merged["invalid_observation_shape"] == 3
+    assert merged["likely_unindexed_symbol"] == 7
