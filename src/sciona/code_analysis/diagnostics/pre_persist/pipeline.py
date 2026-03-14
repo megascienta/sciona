@@ -104,6 +104,7 @@ def classify_pre_persist_misses(
         file_path = str(caller_info.get("file_path") or "")
         scope_key = scope_bucket(file_path)
         for item in observations:
+            prefix_matches = _repo_prefix_matches(item.identifier, repo_module_prefixes)
             observation = DiagnosticMissObservation(
                 language=language,
                 file_path=file_path,
@@ -114,7 +115,9 @@ def classify_pre_persist_misses(
                 ordinal=item.ordinal,
                 callee_kind=item.callee_kind,
                 candidate_module_hints=item.candidate_module_hints,
-                repo_prefix_matches=_repo_prefix_matches(item.identifier, repo_module_prefixes),
+                repo_prefix_matches=prefix_matches,
+                longest_repo_prefix_match=prefix_matches[-1] if prefix_matches else "",
+                repo_prefix_match_depth=len(prefix_matches),
                 identifier_root=_identifier_root(item.identifier),
             )
             classified = classify_no_in_repo_candidate(observation)
@@ -141,6 +144,8 @@ def classify_pre_persist_misses(
                     "callee_kind": observation.callee_kind,
                     "candidate_module_hints": list(observation.candidate_module_hints),
                     "repo_prefix_matches": list(observation.repo_prefix_matches),
+                    "longest_repo_prefix_match": observation.longest_repo_prefix_match,
+                    "repo_prefix_match_depth": observation.repo_prefix_match_depth,
                     "scope": scope_key,
                 }
             )
@@ -190,6 +195,9 @@ def _signals_for_observation(
     signals: set[str] = set()
     if observation.repo_prefix_matches:
         signals.add("repo_owned_prefix")
+        signals.add(f"repo_prefix_depth:{observation.repo_prefix_match_depth}")
+        if observation.longest_repo_prefix_match:
+            signals.add("deep_repo_prefix" if observation.repo_prefix_match_depth > 1 else "shallow_repo_prefix")
     else:
         signals.add("non_repo_root")
     if observation.callee_kind == "qualified":

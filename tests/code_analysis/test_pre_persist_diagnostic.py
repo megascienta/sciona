@@ -294,6 +294,84 @@ def test_classifier_keeps_non_repo_qualified_name_as_external() -> None:
     assert classified.bucket == "likely_external_dependency"
 
 
+def test_diagnostic_observation_carries_repo_prefix_strength(monkeypatch) -> None:
+    monkeypatch.setattr(
+        diagnostic_pipeline,
+        "build_symbol_index",
+        lambda core_conn, snapshot_id: ({}, set(), {"caller": "repo.pkg.mod.run"}),
+    )
+    monkeypatch.setattr(
+        diagnostic_pipeline,
+        "build_module_context",
+        lambda core_conn, snapshot_id: (
+            {"caller": "repo.pkg.mod"},
+            {},
+            {},
+            {},
+            {
+                "repo.pkg": "pkg/__init__.py",
+                "repo.pkg.mod": "pkg/mod.py",
+                "repo.pkg.models": "pkg/models.py",
+            },
+        ),
+    )
+    monkeypatch.setattr(
+        diagnostic_pipeline.core_read,
+        "caller_node_metadata_map",
+        lambda core_conn, snapshot_id: {
+            "caller": {"language": "python", "file_path": "pkg/mod.py"}
+        },
+    )
+    monkeypatch.setattr(
+        diagnostic_pipeline.core_read,
+        "caller_language_map",
+        lambda core_conn, snapshot_id: {"caller": "python"},
+    )
+    monkeypatch.setattr(
+        diagnostic_pipeline,
+        "build_module_binding_index",
+        lambda **kwargs: {},
+    )
+    monkeypatch.setattr(
+        diagnostic_pipeline,
+        "build_typescript_barrel_export_map",
+        lambda **kwargs: {},
+    )
+
+    def _resolve(*args, pre_persist_observations, **kwargs):
+        pre_persist_observations.append(
+            PrePersistObservation(
+                identifier="repo.pkg.models.Secret",
+                ordinal=1,
+                callee_kind="qualified",
+                candidate_module_hints=(),
+            )
+        )
+        return []
+
+    monkeypatch.setattr(diagnostic_pipeline, "resolve_callees", _resolve)
+
+    payload = diagnostic_pipeline.classify_pre_persist_misses(
+        core_conn=None,
+        snapshot_id="snap",
+        call_records=[
+            CallExtractionRecord(
+                caller_structural_id="caller",
+                caller_qualified_name="repo.pkg.mod.run",
+                caller_node_type="callable",
+                callee_identifiers=["repo.pkg.models.Secret"],
+            )
+        ],
+    )
+
+    observation = payload["observations"][0]
+    assert observation["repo_prefix_matches"] == ["repo", "repo.pkg", "repo.pkg.models"]
+    assert observation["longest_repo_prefix_match"] == "repo.pkg.models"
+    assert observation["repo_prefix_match_depth"] == 3
+    assert "deep_repo_prefix" in observation["signals"]
+    assert "repo_prefix_depth:3" in observation["signals"]
+
+
 def test_classify_pre_persist_misses_uses_progress_factory(monkeypatch) -> None:
     monkeypatch.setattr(
         diagnostic_pipeline,
@@ -390,7 +468,12 @@ def test_build_verbose_payload_includes_reason_and_prefix_traces() -> None:
                 {
                     "bucket": "likely_unindexed_symbol",
                     "reasons": ["repo_owned_qualified_prefix"],
-                    "signals": ["repo_owned_prefix", "qualified_identifier"],
+                    "signals": [
+                        "deep_repo_prefix",
+                        "qualified_identifier",
+                        "repo_owned_prefix",
+                        "repo_prefix_depth:3",
+                    ],
                     "language": "python",
                     "file_path": "pkg/mod.py",
                     "caller_structural_id": "caller",
@@ -402,6 +485,8 @@ def test_build_verbose_payload_includes_reason_and_prefix_traces() -> None:
                     "callee_kind": "qualified",
                     "candidate_module_hints": [],
                     "repo_prefix_matches": ["repo", "repo.pkg", "repo.pkg.models"],
+                    "longest_repo_prefix_match": "repo.pkg.models",
+                    "repo_prefix_match_depth": 3,
                     "scope": "non_tests",
                 }
             ]
@@ -411,8 +496,10 @@ def test_build_verbose_payload_includes_reason_and_prefix_traces() -> None:
     bucket_payload = payload["buckets"]["likely_unindexed_symbol"]
     assert bucket_payload["reasons"] == {"repo_owned_qualified_prefix": 1}
     assert bucket_payload["signals"] == {
+        "deep_repo_prefix": 1,
         "qualified_identifier": 1,
         "repo_owned_prefix": 1,
+        "repo_prefix_depth:3": 1,
     }
     assert bucket_payload["callsites"][0]["identifier_root"] == "repo"
     assert bucket_payload["callsites"][0]["repo_prefix_matches"] == [
@@ -424,8 +511,10 @@ def test_build_verbose_payload_includes_reason_and_prefix_traces() -> None:
         "repo_owned_qualified_prefix": 1
     }
     assert payload["problematic_files"][0]["signals"] == {
+        "deep_repo_prefix": 1,
         "qualified_identifier": 1,
         "repo_owned_prefix": 1,
+        "repo_prefix_depth:3": 1,
     }
 
 

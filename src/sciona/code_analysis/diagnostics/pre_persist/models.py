@@ -32,6 +32,8 @@ class DiagnosticMissObservation:
     callee_kind: str
     candidate_module_hints: tuple[str, ...] = ()
     repo_prefix_matches: tuple[str, ...] = ()
+    longest_repo_prefix_match: str = ""
+    repo_prefix_match_depth: int = 0
     identifier_root: str = ""
 
 
