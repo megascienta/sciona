@@ -34,34 +34,70 @@ def _fake_result() -> BuildResult:
     )
 
 
-def _fake_summary():
+def _fake_report():
     return {
-        "snapshot_id": "snap",
-        "created_at": "2026-03-04T00:00:00Z",
         "artifact_db_available": True,
+        "timing": {
+            "build_total_seconds": 1.0,
+            "build_wall_seconds": 1.0,
+            "build_phase_timings": {},
+        },
         "languages": [
             {
                 "language": "python",
-                "files": 1,
-                "nodes": 1,
-                "edges": 0,
-                "callsite_pairs": {"count": 0},
-                "finalized_call_edges": {"count": 0},
+                "structure": {
+                    "files": 1,
+                    "nodes": 1,
+                    "edges": 0,
+                },
+                "callsites": {
+                    "observed_syntactic_callsites": 0,
+                    "filtered_pre_persist": 0,
+                    "persisted_callsites": 0,
+                    "persisted_accepted": 0,
+                    "persisted_dropped": 0,
+                },
+                "pre_persist_filter": {
+                    "no_in_repo_candidate": 0,
+                    "accepted_outside_in_repo": 0,
+                    "invalid_observation_shape": 0,
+                },
+                "call_materialization": {
+                    "callsite_pairs": 0,
+                    "finalized_call_edges": 0,
+                },
             }
         ],
         "totals": {
-            "files": 1,
-            "nodes": 1,
-            "edges": 0,
-            "callsite_pairs": {"count": 0},
-            "finalized_call_edges": {"count": 0},
+            "structure": {
+                "files": 1,
+                "nodes": 1,
+                "edges": 0,
+            },
+            "callsites": {
+                "observed_syntactic_callsites": 0,
+                "filtered_pre_persist": 0,
+                "persisted_callsites": 0,
+                "persisted_accepted": 0,
+                "persisted_dropped": 0,
+            },
+            "pre_persist_filter": {
+                "no_in_repo_candidate": 0,
+                "accepted_outside_in_repo": 0,
+                "invalid_observation_shape": 0,
+            },
+            "call_materialization": {
+                "callsite_pairs": 0,
+                "finalized_call_edges": 0,
+            },
         },
+        "scopes": {},
     }
 
 
 def test_cli_build_emits_summary_block(cli_app, cli_runner, monkeypatch):
     monkeypatch.setattr(repo_ops, "build", lambda force_rebuild=False: _fake_result())
-    monkeypatch.setattr(repo_ops, "snapshot_report", lambda snapshot_id: _fake_summary())
+    monkeypatch.setattr(repo_ops, "snapshot_report", lambda snapshot_id: _fake_report())
 
     result = cli_runner.invoke(cli_app, ["build"])
 

@@ -41,29 +41,34 @@ def render_build(payload: dict) -> list[str]:
     if str(payload.get("status") or "") == "reused":
         return []
     lines: list[str] = []
-    summary = payload.get("summary")
+    report = payload.get("report")
     command_wall_seconds = _format_duration_seconds(payload.get("command_wall_seconds"))
-    if summary:
+    if report:
+        report_payload = dict(report)
+        report_payload["artifact_db_available"] = bool(
+            payload.get("artifact_db_available", False)
+        )
         lines.append("Summary:")
+        timing = report_payload.get("timing") or {}
         displayed_total = command_wall_seconds or _format_duration_seconds(
-            summary.get("build_total_seconds")
+            timing.get("build_total_seconds")
         )
         if displayed_total is not None:
             lines.append(f"  Wall time: {displayed_total}")
-        build_total_seconds = _format_duration_seconds(summary.get("build_total_seconds"))
+        build_total_seconds = _format_duration_seconds(timing.get("build_total_seconds"))
         if (
             command_wall_seconds is not None
             and build_total_seconds is not None
         ):
             lines.append(f"  Core build time: {build_total_seconds}")
-        lines.extend(
-            _render_summary_lines(
-                summary,
-                indent="  ",
-                include_reasons=False,
-                include_call_stats=False,
-                include_scope_split=False,
-            )
+            lines.extend(
+                _render_summary_lines(
+                report_payload,
+                    indent="  ",
+                    include_reasons=False,
+                    include_call_stats=False,
+                    include_scope_split=False,
+                )
         )
     else:
         lines.append("Summary: unavailable")
@@ -84,14 +89,21 @@ def render_status(payload: dict) -> list[str]:
             f"  Latest: {payload['latest_snapshot']} @ {_format_status_timestamp(payload.get('latest_created'))}"
         )
     lines.append(f"  Database present: {'yes' if payload['db_exists'] else 'no'}")
-    summary = payload.get("summary")
+    report = payload.get("report")
     if payload.get("latest_snapshot"):
         lines.append("Last build:")
-        if summary:
-            build_wall_seconds = _format_duration_seconds(
-                summary.get("build_wall_seconds")
+        if report:
+            report_payload = dict(report)
+            report_payload["artifact_db_available"] = bool(
+                payload.get("artifact_db_available", False)
             )
-            build_total_seconds = _format_duration_seconds(summary.get("build_total_seconds"))
+            timing = report_payload.get("timing") or {}
+            build_wall_seconds = _format_duration_seconds(
+                timing.get("build_wall_seconds")
+            )
+            build_total_seconds = _format_duration_seconds(
+                timing.get("build_total_seconds")
+            )
             if build_wall_seconds is not None:
                 lines.append(f"  Wall time: {build_wall_seconds}")
             elif build_total_seconds is not None:
@@ -104,7 +116,7 @@ def render_status(payload: dict) -> list[str]:
             lines.append("  Summary:")
             lines.extend(
                 _render_summary_lines(
-                    summary,
+                    report_payload,
                     indent="    ",
                     include_reasons=bool(payload.get("detailed")),
                     include_call_stats=bool(payload.get("detailed")),
@@ -137,158 +149,131 @@ def _render_summary_lines(
     include_scope_split: bool = False,
 ) -> list[str]:
     lines: list[str] = []
+    timing = summary.get("timing") or {}
+    scopes = summary.get("scopes") or {}
     for item in summary.get("languages", []) or []:
         language = str(item.get("language") or "unknown")
-        files = int(item.get("files") or 0)
-        nodes = int(item.get("nodes") or 0)
-        edges = int(item.get("edges") or 0)
-        lines.append(f"{indent}{language}: {files} files, {nodes} nodes, {edges} edges")
+        structure = item.get("structure") or {}
+        lines.append(f"{indent}{language}: {_format_structure_summary(structure)}")
         if include_call_stats:
-            lines.append(
-                f"{indent}  callsite_pairs: "
-                f"{_format_count_summary(item.get('callsite_pairs') or {}, label='pairs')}"
-            )
-            lines.append(
-                f"{indent}  finalized_call_edges: "
-                f"{_format_count_summary(item.get('finalized_call_edges') or {}, label='edges')}"
-            )
-            funnel = item.get("call_site_funnel") or {}
-            funnel_text = _format_call_site_funnel_summary(funnel)
-            if funnel_text:
-                lines.append(f"{indent}  call_funnel: {funnel_text}")
-            if include_reasons:
-                pair_expansion = item.get("persisted_callsite_pair_expansion") or {}
-                pair_expansion_text = _format_pair_expansion_summary(pair_expansion)
-                if pair_expansion_text:
-                    lines.append(f"{indent}  pair_expansion: {pair_expansion_text}")
-            if include_scope_split:
-                lines.extend(
-                    _render_scope_count_lines(
-                        item.get("callsite_pairs_by_scope"),
-                        item.get("finalized_call_edges_by_scope"),
-                        indent=f"{indent}    ",
-                    )
-                )
-                lines.extend(
-                    _render_scope_pair_expansion_lines(
-                        item.get("persisted_callsite_pair_expansion_by_scope"),
-                        indent=f"{indent}    ",
-                    )
-                )
+            callsites = item.get("callsites") or {}
+            callsites_text = _format_callsites_summary(callsites)
+            if callsites_text:
+                lines.append(f"{indent}  callsites: {callsites_text}")
+            materialization = item.get("call_materialization") or {}
+            materialization_text = _format_call_materialization_summary(materialization)
+            if materialization_text:
+                lines.append(f"{indent}  call_materialization: {materialization_text}")
         if include_reasons:
-            filtered = item.get("filtered_pre_persist_buckets") or {}
-            if filtered:
-                filtered_text = ", ".join(
-                    f"{name}={count}" for name, count in filtered.items()
-                )
-                lines.append(f"{indent}  filtered_pre_persist: {filtered_text}")
-        density = item.get("structural_density") or {}
-        if density.get("inflation_warning"):
-            lines.append(
-                f"{indent}  warning: low-node file ratio is high "
-                f"({float(density.get('low_node_file_ratio') or 0.0):.1%})"
-            )
+            filtered = item.get("pre_persist_filter") or {}
+            filtered_text = _format_pre_persist_filter_summary(filtered)
+            if filtered_text:
+                lines.append(f"{indent}  pre_persist_filter: {filtered_text}")
     totals = summary.get("totals") or {}
-    total_files = int(totals.get("files") or 0)
-    total_nodes = int(totals.get("nodes") or 0)
-    total_edges = int(totals.get("edges") or 0)
-    lines.append(f"{indent}total: {total_files} files, {total_nodes} nodes, {total_edges} edges")
+    totals_structure = totals.get("structure") or {}
+    lines.append(f"{indent}total: {_format_structure_summary(totals_structure)}")
     if include_call_stats:
-        lines.append(
-            f"{indent}  callsite_pairs: "
-            f"{_format_count_summary(totals.get('callsite_pairs') or {}, label='pairs')}"
+        totals_callsites = totals.get("callsites") or {}
+        totals_callsites_text = _format_callsites_summary(totals_callsites)
+        if totals_callsites_text:
+            lines.append(f"{indent}  callsites: {totals_callsites_text}")
+        totals_materialization = totals.get("call_materialization") or {}
+        totals_materialization_text = _format_call_materialization_summary(
+            totals_materialization
         )
-        lines.append(
-            f"{indent}  finalized_call_edges: "
-            f"{_format_count_summary(totals.get('finalized_call_edges') or {}, label='edges')}"
-        )
-        funnel = totals.get("call_site_funnel") or {}
-        funnel_text = _format_call_site_funnel_summary(funnel)
-        if funnel_text:
-            lines.append(f"{indent}  call_funnel: {funnel_text}")
-        if include_reasons:
-            pair_expansion = totals.get("persisted_callsite_pair_expansion") or {}
-            pair_expansion_text = _format_pair_expansion_summary(pair_expansion)
-            if pair_expansion_text:
-                lines.append(f"{indent}  pair_expansion: {pair_expansion_text}")
-        if include_scope_split:
-            lines.extend(
-                _render_scope_count_lines(
-                    totals.get("callsite_pairs_by_scope"),
-                    totals.get("finalized_call_edges_by_scope"),
-                    indent=f"{indent}    ",
-                )
-            )
-            lines.extend(
-                _render_scope_pair_expansion_lines(
-                    totals.get("persisted_callsite_pair_expansion_by_scope"),
-                    indent=f"{indent}    ",
-                )
+        if totals_materialization_text:
+            lines.append(
+                f"{indent}  call_materialization: {totals_materialization_text}"
             )
     if include_reasons:
-        filtered = totals.get("filtered_pre_persist_buckets") or {}
-        if filtered:
-            filtered_text = ", ".join(
-                f"{name}={count}" for name, count in filtered.items()
-            )
-            lines.append(f"{indent}  filtered_pre_persist: {filtered_text}")
-    totals_density = totals.get("structural_density") or {}
-    if totals_density.get("inflation_warning"):
-        lines.append(
-            f"{indent}  warning: low-node file ratio is high "
-            f"({float(totals_density.get('low_node_file_ratio') or 0.0):.1%})"
-        )
+        totals_filtered = totals.get("pre_persist_filter") or {}
+        totals_filtered_text = _format_pre_persist_filter_summary(totals_filtered)
+        if totals_filtered_text:
+            lines.append(f"{indent}  pre_persist_filter: {totals_filtered_text}")
+    if include_scope_split:
+        lines.extend(_render_scope_lines(scopes, indent=f"{indent}  "))
     if not summary.get("artifact_db_available", False):
         lines.append(f"{indent}call diagnostics: unavailable (artifact DB missing)")
+    phase_timings = timing.get("build_phase_timings") or {}
+    if include_reasons and phase_timings:
+        lines.append(f"{indent}  phases:")
+        for phase, seconds in phase_timings.items():
+            duration = _format_duration_seconds(seconds)
+            if duration is None:
+                continue
+            lines.append(f"{indent}    {phase}: {duration}")
     return lines
 
 
-def _format_count_summary(payload: dict, *, label: str) -> str:
-    count = payload.get("count")
-    if count is None:
-        return f"{label}: n/a"
-    return f"{label}: {int(count)}"
+def _format_structure_summary(structure: dict) -> str:
+    files = int(structure.get("files") or 0)
+    nodes = int(structure.get("nodes") or 0)
+    edges = structure.get("edges")
+    edges_text = "n/a" if edges is None else str(int(edges or 0))
+    return f"{files} files, {nodes} nodes, {edges_text} edges"
 
 
-def _format_call_site_funnel_summary(call_site_funnel: dict) -> str:
-    observed = call_site_funnel.get("observed_syntactic_callsites")
-    filtered = call_site_funnel.get("filtered_pre_persist")
-    persisted = call_site_funnel.get("persisted_callsites")
-    accepted = call_site_funnel.get("persisted_accepted")
-    dropped = call_site_funnel.get("persisted_dropped")
-    if any(value is None for value in (observed, filtered, persisted, accepted, dropped)):
+def _format_callsites_summary(callsites: dict) -> str:
+    observed = callsites.get("observed_syntactic_callsites")
+    filtered = callsites.get("filtered_pre_persist")
+    persisted = callsites.get("persisted_callsites")
+    accepted = callsites.get("persisted_accepted")
+    dropped = callsites.get("persisted_dropped")
+    if all(value is None for value in (observed, filtered, persisted, accepted, dropped)):
         return ""
-    conservation = call_site_funnel.get("conservation_ok")
-    suffix = ""
-    if conservation is False:
-        suffix = " [conservation mismatch]"
     return (
-        f"observed={observed}, filtered_pre_persist={filtered}, "
-        f"persisted={persisted}, accepted={accepted}, dropped={dropped}{suffix}"
+        f"observed={int(observed or 0)}, filtered_pre_persist={int(filtered or 0)}, "
+        f"persisted={int(persisted or 0)}, accepted={int(accepted or 0)}, "
+        f"dropped={int(dropped or 0)}"
     )
 
 
-def _format_pair_expansion_summary(expansion: dict) -> str:
-    persisted = expansion.get("persisted_callsites")
-    zero = expansion.get("persisted_callsites_with_zero_pairs")
-    one = expansion.get("persisted_callsites_with_one_pair")
-    multiple = expansion.get("persisted_callsites_with_multiple_pairs")
-    factor = expansion.get("pair_expansion_factor")
-    share = expansion.get("multi_pair_share")
-    max_pairs = expansion.get("max_pairs_for_single_persisted_callsite")
-    if all(
-        value is None
-        for value in (persisted, zero, one, multiple, factor, share, max_pairs)
-    ):
+def _format_call_materialization_summary(materialization: dict) -> str:
+    pairs = materialization.get("callsite_pairs")
+    edges = materialization.get("finalized_call_edges")
+    if pairs is None and edges is None:
         return ""
-    factor_text = f"{float(factor):.4f}x" if factor is not None else "n/a"
-    share_text = f"{float(share):.1%}" if share is not None else "n/a"
-    return (
-        f"persisted={int(persisted or 0)}, zero={int(zero or 0)}, "
-        f"one={int(one or 0)}, multiple={int(multiple or 0)}, "
-        f"factor={factor_text}, multi_pair_share={share_text}, "
-        f"max={int(max_pairs or 0)}"
-    )
+    return f"callsite_pairs={int(pairs or 0)}, finalized_call_edges={int(edges or 0)}"
+
+
+def _format_pre_persist_filter_summary(filtered: dict) -> str:
+    if not filtered:
+        return ""
+    return ", ".join(f"{name}={int(count or 0)}" for name, count in filtered.items())
+
+
+def _render_scope_lines(
+    scopes: dict[str, dict[str, object]] | None,
+    *,
+    indent: str,
+) -> list[str]:
+    if not scopes:
+        return []
+    lines: list[str] = []
+    for scope_key in ("non_tests", "tests"):
+        scope = scopes.get(scope_key) or {}
+        structure = scope.get("structure")
+        callsites = scope.get("callsites") or {}
+        materialization = scope.get("call_materialization") or {}
+        filtered = scope.get("pre_persist_filter") or {}
+        structure_text = (
+            _format_structure_summary(structure)
+            if isinstance(structure, dict)
+            else ""
+        )
+        callsites_text = _format_callsites_summary(callsites)
+        materialization_text = _format_call_materialization_summary(materialization)
+        filtered_text = _format_pre_persist_filter_summary(filtered)
+        lines.append(f"{indent}{scope_key}:")
+        if structure_text:
+            lines.append(f"{indent}  structure: {structure_text}")
+        if callsites_text:
+            lines.append(f"{indent}  callsites: {callsites_text}")
+        if materialization_text:
+            lines.append(f"{indent}  call_materialization: {materialization_text}")
+        if filtered_text:
+            lines.append(f"{indent}  pre_persist_filter: {filtered_text}")
+    return lines
 
 
 def _render_name_collision_diagnostics(payload: dict, *, indent: str) -> list[str]:
@@ -333,39 +318,6 @@ def _render_import_diagnostics(payload: dict, *, indent: str) -> list[str]:
             f"internal={int(item.get('imports_internal') or 0)}, "
             f"filtered_not_internal={int(item.get('imports_filtered_not_internal') or 0)}"
         )
-    return lines
-
-
-def _render_scope_count_lines(
-    pair_payload: dict[str, dict[str, object]] | None,
-    edge_payload: dict[str, dict[str, object]] | None,
-    *,
-    indent: str,
-) -> list[str]:
-    if not pair_payload and not edge_payload:
-        return []
-    lines: list[str] = []
-    for scope_key in ("non_tests", "tests"):
-        pair_scope = pair_payload.get(scope_key) if pair_payload else None
-        edge_scope = edge_payload.get(scope_key) if edge_payload else None
-        pair_count = int((pair_scope or {}).get("count") or 0)
-        edge_count = int((edge_scope or {}).get("count") or 0)
-        lines.append(f"{indent}{scope_key}: pairs={pair_count}, edges={edge_count}")
-    return lines
-
-
-def _render_scope_pair_expansion_lines(
-    scope_payload: dict[str, dict[str, object]] | None,
-    *,
-    indent: str,
-) -> list[str]:
-    if not scope_payload:
-        return []
-    lines: list[str] = []
-    for scope_key in ("non_tests", "tests"):
-        summary = _format_pair_expansion_summary(scope_payload.get(scope_key) or {})
-        if summary:
-            lines.append(f"{indent}{scope_key}: {summary}")
     return lines
 
 

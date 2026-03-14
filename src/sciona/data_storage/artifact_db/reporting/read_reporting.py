@@ -52,7 +52,28 @@ def node_call_caller_counts(
     ]
 
 
+def graph_edge_source_counts(
+    conn: sqlite3.Connection,
+) -> list[dict[str, object]]:
+    rows = conn.execute(
+        """
+        SELECT src_node_id,
+               COUNT(*) AS edge_count
+        FROM graph_edges
+        GROUP BY src_node_id
+        """
+    ).fetchall()
+    return [
+        {
+            "src_node_id": row["src_node_id"],
+            "edge_count": int(row["edge_count"] or 0),
+        }
+        for row in rows
+    ]
+
+
 __all__ = [
     "callsite_pair_caller_counts",
+    "graph_edge_source_counts",
     "node_call_caller_counts",
 ]

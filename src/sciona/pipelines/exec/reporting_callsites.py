@@ -6,8 +6,7 @@
 from __future__ import annotations
 
 PRE_PERSIST_BUCKET_KEYS = (
-    "no_in_repo_candidate_terminal",
-    "no_in_repo_candidate_qualified",
+    "no_in_repo_candidate",
     "accepted_outside_in_repo",
     "invalid_observation_shape",
 )

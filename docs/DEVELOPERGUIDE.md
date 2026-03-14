@@ -268,25 +268,46 @@ Timing semantics:
   final call derivation; it is not the raw observed superset
 - pre-persistence out-of-scope observations are excluded before
   `callsite_pairs` persistence and currently bucketed as:
-  `no_in_repo_candidate_terminal`, `no_in_repo_candidate_qualified`,
-  `accepted_outside_in_repo`, `invalid_observation_shape`
+  `no_in_repo_candidate`, `accepted_outside_in_repo`,
+  `invalid_observation_shape`
 - bucket meanings:
-  - `no_in_repo_candidate_terminal`: no in-repo candidate materialized for a
-    terminal identifier
-  - `no_in_repo_candidate_qualified`: no in-repo candidate materialized for a
-    qualified identifier
+  - `no_in_repo_candidate`: no in-repo candidate materialized for the
+    normalized observed identifier
   - `accepted_outside_in_repo`: an accepted row pointed outside the in-repo
     callable set
   - `invalid_observation_shape`: malformed or internally inconsistent call
     observation row shape
-- status reporting is pair-centric and exposes:
-  - `call_site_funnel`
-  - `filtered_pre_persist_buckets`
-  - `persisted_callsite_pair_expansion`
-  - `callsite_pairs`
-  - `finalized_call_edges`
-- these reporting surfaces are emitted at totals, per-language, and scope split
-  (`non_tests`, `tests`) when the underlying diagnostics exist
+- `status --json` exposes direct snapshot data only
+- the public status payload is grouped as:
+  - `labels`
+  - `timing`
+  - `totals`
+  - `languages`
+  - `scopes`
+- `totals`, each language row, and each scope row use the same public sections:
+  - `structure`
+  - `callsites`
+  - `pre_persist_filter`
+  - `call_materialization`
+- these public sections contain direct counts only:
+  - `structure`: `files`, `nodes`, `edges`
+  - `callsites`: `observed_syntactic_callsites`,
+    `filtered_pre_persist`, `persisted_callsites`,
+    `persisted_accepted`, `persisted_dropped`
+  - `pre_persist_filter`: `no_in_repo_candidate`,
+    `accepted_outside_in_repo`, `invalid_observation_shape`
+  - `call_materialization`: `callsite_pairs`, `finalized_call_edges`
+- `structure.files` and `structure.nodes` are structural counts from CoreDB
+- `structure.edges` is the total reducer-facing graph edge count from
+  ArtifactDB `graph_edges`, including structural edges and `CALLS`
+- per-language and per-scope edge attribution is source-owned:
+  each graph edge is counted under the language and scope of its source node
+- `timing` remains top-level and contains:
+  - `build_total_seconds`
+  - `build_wall_seconds`
+  - `build_phase_timings`
+- derived ratios, warning flags, conservation checks, and expansion summaries
+  are computed in evaluation notebooks, not emitted by `status --json`
 - synthetic navigation nodes must use collision-safe identities that do not
   shadow or reuse canonical structural identities
 - Fingerprint reuse can skip re-indexing even when a prior committed snapshot

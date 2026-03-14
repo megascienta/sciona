@@ -69,20 +69,39 @@ def _fake_degraded_result() -> BuildResult:
     )
 
 
-def _fake_summary() -> dict[str, object]:
+def _fake_report() -> dict[str, object]:
     return {
-        "snapshot_id": "snap",
-        "created_at": "2026-03-10T00:00:00Z",
-        "build_total_seconds": 1.234,
         "artifact_db_available": True,
+        "timing": {
+            "build_total_seconds": 1.234,
+            "build_wall_seconds": 1.5,
+            "build_phase_timings": {},
+        },
         "languages": [],
         "totals": {
-            "files": 0,
-            "nodes": 0,
-            "edges": 0,
-            "callsite_pairs": {"count": 0},
-            "finalized_call_edges": {"count": 0},
+            "structure": {
+                "files": 0,
+                "nodes": 0,
+                "edges": 0,
+            },
+            "callsites": {
+                "observed_syntactic_callsites": 0,
+                "filtered_pre_persist": 0,
+                "persisted_callsites": 0,
+                "persisted_accepted": 0,
+                "persisted_dropped": 0,
+            },
+            "pre_persist_filter": {
+                "no_in_repo_candidate": 0,
+                "accepted_outside_in_repo": 0,
+                "invalid_observation_shape": 0,
+            },
+            "call_materialization": {
+                "callsite_pairs": 0,
+                "finalized_call_edges": 0,
+            },
         },
+        "scopes": {},
     }
 
 
@@ -96,7 +115,7 @@ def test_cli_build_forwards_force_rebuild_flag(
         return _fake_committed_result()
 
     monkeypatch.setattr(repo_ops, "build", _build)
-    monkeypatch.setattr(repo_ops, "snapshot_report", lambda snapshot_id: _fake_summary())
+    monkeypatch.setattr(repo_ops, "snapshot_report", lambda snapshot_id: _fake_report())
     monkeypatch.setattr(repo_ops, "record_build_wall_time", lambda snapshot_id, wall_seconds: None)
     perf_values = iter([10.0, 11.25])
     monkeypatch.setattr(build_command, "perf_counter", lambda: next(perf_values))
@@ -117,7 +136,7 @@ def test_cli_build_defaults_force_rebuild_false(
         return _fake_result()
 
     monkeypatch.setattr(repo_ops, "build", _build)
-    monkeypatch.setattr(repo_ops, "snapshot_report", lambda snapshot_id: _fake_summary())
+    monkeypatch.setattr(repo_ops, "snapshot_report", lambda snapshot_id: _fake_report())
     monkeypatch.setattr(repo_ops, "record_build_wall_time", lambda snapshot_id, wall_seconds: None)
     perf_values = iter([20.0, 20.5])
     monkeypatch.setattr(build_command, "perf_counter", lambda: next(perf_values))
@@ -153,7 +172,7 @@ def test_cli_build_warns_on_degraded_committed_result(
     cli_app, cli_runner, repo_with_snapshot, monkeypatch
 ):
     monkeypatch.setattr(repo_ops, "build", lambda force_rebuild=False: _fake_degraded_result())
-    monkeypatch.setattr(repo_ops, "snapshot_report", lambda snapshot_id: _fake_summary())
+    monkeypatch.setattr(repo_ops, "snapshot_report", lambda snapshot_id: _fake_report())
     monkeypatch.setattr(repo_ops, "record_build_wall_time", lambda snapshot_id, wall_seconds: None)
     perf_values = iter([30.0, 30.5])
     monkeypatch.setattr(build_command, "perf_counter", lambda: next(perf_values))

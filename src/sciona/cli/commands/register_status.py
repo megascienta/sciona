@@ -49,13 +49,15 @@ def _status_command(
     export_mode = bool(json_output or output is not None)
     detailed = bool(full or verbose) if not export_mode else True
     include_failure_reasons = bool(detailed or export_mode)
-    summary = None
+    report = None
+    artifact_db_available = False
     if status_result.latest_snapshot:
-        summary = cli_call(
+        report = cli_call(
             repo_ops.snapshot_report,
             snapshot_id=status_result.latest_snapshot,
             include_failure_reasons=include_failure_reasons,
         )
+        artifact_db_available = bool((report or {}).get("artifact_db_available"))
     payload = {
         "repo_root": str(status_result.repo_root),
         "tool_version": status_result.tool_version,
@@ -64,7 +66,8 @@ def _status_command(
         "latest_snapshot": status_result.latest_snapshot,
         "latest_created": status_result.latest_created,
         "db_exists": status_result.db_exists,
-        "summary": summary,
+        "artifact_db_available": artifact_db_available,
+        "report": report,
         "detailed": detailed,
         "status_report_version": 1,
     }

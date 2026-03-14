@@ -23,12 +23,12 @@ def evaluate_non_test_callsite_guardrails(
     *,
     min_success_rate_by_language: dict[str, float],
 ) -> list[GuardrailResult]:
-    summary = report_payload.get("summary")
-    if not isinstance(summary, dict):
-        raise ValueError("status payload missing summary")
-    languages = summary.get("languages")
+    report = report_payload.get("report")
+    if not isinstance(report, dict):
+        raise ValueError("status payload missing report")
+    languages = report.get("languages")
     if not isinstance(languages, list):
-        raise ValueError("status payload missing summary.languages")
+        raise ValueError("status payload missing report.languages")
 
     results: list[GuardrailResult] = []
     for item in languages:

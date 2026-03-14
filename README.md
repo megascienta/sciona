@@ -41,7 +41,7 @@ This protocol is designed to keep structural reasoning deterministic without pre
 
 ```bash
 # Install
-pip install git+https://github.com/megascienta/sciona@vX.Y.Z
+pip install git+https://github.com/megascienta/sciona@v1.0.0
 
 # Initialize in a repository
 cd /path/to/repo
@@ -127,7 +127,16 @@ Requirements:
 Default install (from GitHub release tag):
 
 ```bash
-pip install git+https://github.com/megascienta/sciona@vX.Y.Z
+pip install git+https://github.com/megascienta/sciona@v1.0.0
+```
+or for a given relase tag:
+
+```bash
+pip install git+https://github.com/megascienta/sciona@v<release-tag>
+```
+
+```bash
+pip install git+https://github.com/megascienta/sciona@v<release-tag>
 ```
 
 Install development version with dependencies and run tests:

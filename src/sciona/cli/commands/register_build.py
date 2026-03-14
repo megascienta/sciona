@@ -24,7 +24,7 @@ def _build_command(
     """Create a new snapshot and ingest enabled languages (clean worktree required)."""
     started_at = perf_counter()
     result = cli_call(lambda: repo_ops.build(force_rebuild=force_rebuild))
-    summary = cli_call(repo_ops.snapshot_report, snapshot_id=result.snapshot_id)
+    report = cli_call(repo_ops.snapshot_report, snapshot_id=result.snapshot_id)
     command_wall_seconds = perf_counter() - started_at
     cli_call(
         repo_ops.record_build_wall_time,
@@ -32,7 +32,8 @@ def _build_command(
         wall_seconds=command_wall_seconds,
     )
     payload = dict(result.__dict__)
-    payload["summary"] = summary
+    payload["artifact_db_available"] = bool((report or {}).get("artifact_db_available"))
+    payload["report"] = report
     payload["command_wall_seconds"] = max(command_wall_seconds, 0.0)
     cli_render.emit(cli_render.render_build(payload))
     _emit_build_warnings(result)

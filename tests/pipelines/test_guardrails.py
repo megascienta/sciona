@@ -5,7 +5,7 @@ from sciona.pipelines.exec.guardrails import evaluate_non_test_callsite_guardrai
 
 def test_guardrails_pass_and_fail_by_language() -> None:
     payload = {
-        "summary": {
+        "report": {
             "languages": [
                 {
                     "language": "python",
@@ -39,7 +39,7 @@ def test_guardrails_pass_and_fail_by_language() -> None:
 
 def test_guardrails_skip_when_non_test_scope_unavailable() -> None:
     payload = {
-        "summary": {
+        "report": {
             "languages": [
                 {
                     "language": "typescript",

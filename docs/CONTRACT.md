@@ -209,6 +209,56 @@ Some reducer projections are intentionally overlay-aware but not
 payload-patchable. For those projections, `_diff` metadata MAY be attached while
 the payload remains committed-snapshot only.
 
+Public status reporting contract:
+
+- `status --json` and `snapshot_report(...)` MUST expose direct snapshot data
+  only
+- the public payload MUST provide:
+  - `artifact_db_available`
+  - `labels`
+  - `timing`
+  - `totals`
+  - `languages`
+  - `scopes`
+- snapshot identity, creation timestamp, and artifact DB availability belong to
+  the surrounding status envelope, not the nested report payload
+- `labels` MUST centralize presentation labels for sections, fields, scopes,
+  and build phases
+- `timing` MUST contain:
+  - `build_total_seconds`
+  - `build_wall_seconds`
+  - `build_phase_timings`
+- `totals`, each language entry, and each scope entry MUST expose the same
+  direct-count section model:
+  - `structure`
+  - `callsites`
+  - `pre_persist_filter`
+  - `call_materialization`
+- `structure` MUST contain only:
+  - `files`
+  - `nodes`
+  - `edges`
+- `structure.files` and `structure.nodes` MUST be structural counts
+- `structure.edges` MUST be the total reducer-facing graph edge count from
+  ArtifactDB `graph_edges`, including structural edges and `CALLS`
+- per-language and per-scope edge attribution MUST be source-owned:
+  each graph edge is counted under the language and scope of its source node
+- `callsites` MUST contain only:
+  - `observed_syntactic_callsites`
+  - `filtered_pre_persist`
+  - `persisted_callsites`
+  - `persisted_accepted`
+  - `persisted_dropped`
+- `pre_persist_filter` MUST contain only:
+  - `no_in_repo_candidate`
+  - `accepted_outside_in_repo`
+  - `invalid_observation_shape`
+- `call_materialization` MUST contain only:
+  - `callsite_pairs`
+  - `finalized_call_edges`
+- public status payloads MUST NOT require derived ratios, conservation flags,
+  expansion factors, or warning fields; those are downstream analysis concerns
+
 Overlay contract note:
 
 - `overlay_available=true` MAY correspond to either a patchable projection or a
@@ -226,13 +276,11 @@ Overlay contract note:
   observed syntactic callsite stream plus committed structural context.
 - MUST exclude pre-persistence out-of-scope observations before persistence.
 - pre-persistence out-of-scope buckets are:
-  `no_in_repo_candidate_terminal`, `no_in_repo_candidate_qualified`,
-  `accepted_outside_in_repo`, `invalid_observation_shape`.
+  `no_in_repo_candidate`, `accepted_outside_in_repo`,
+  `invalid_observation_shape`.
 - bucket meanings:
-  - `no_in_repo_candidate_terminal`: no in-repo candidate materialized for a
-    terminal identifier
-  - `no_in_repo_candidate_qualified`: no in-repo candidate materialized for a
-    qualified identifier
+  - `no_in_repo_candidate`: no in-repo candidate materialized for the
+    normalized observed identifier
   - `accepted_outside_in_repo`: an accepted row pointed outside the in-repo
     callable set
   - `invalid_observation_shape`: malformed or internally inconsistent call

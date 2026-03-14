@@ -7,116 +7,119 @@ import pytest
 
 from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.data_storage.artifact_db.writes import write_index as artifact_write
-from sciona.pipelines.ops import repo as repo_pipeline
+from sciona.data_storage.artifact_db.maintenance import rebuild_graph_index
 from sciona.pipelines.exec import reporting as exec_reporting
+from sciona.pipelines.ops import repo as repo_pipeline
 from sciona.runtime.common import constants as runtime_constants
+from tests.helpers import core_conn as open_core_conn
 
 
-def test_snapshot_report_returns_pair_centric_counts(repo_with_snapshot):
+def test_snapshot_report_returns_grouped_direct_metrics(repo_with_snapshot):
     repo_root, snapshot_id = repo_with_snapshot
 
     payload = repo_pipeline.snapshot_report(snapshot_id, repo_root=repo_root)
     assert payload is not None
-    assert payload["snapshot_id"] == snapshot_id
-    assert (
-        payload["callsite_pairs_semantics"]
-        == "deduplicated_persisted_in_scope_candidate_pairs"
-    )
-    assert (
-        payload["finalized_call_edges_semantics"]
-        == "deduplicated_graph_edges_derived_from_callsite_pairs"
-    )
-    assert payload["totals"]["files"] == 3
-    assert payload["totals"]["nodes"] == 5
-    assert payload["totals"]["edges"] == 5
-    assert payload["totals"]["callsite_pairs"] == {"count": 0}
-    assert payload["totals"]["finalized_call_edges"] == {"count": 0}
-    assert payload["totals"]["callsite_pairs_by_scope"]["non_tests"] == {"count": 0}
-    assert payload["totals"]["callsite_pairs_by_scope"]["tests"] == {"count": 0}
-    assert payload["totals"]["finalized_call_edges_by_scope"]["non_tests"] == {"count": 0}
-    assert payload["totals"]["finalized_call_edges_by_scope"]["tests"] == {"count": 0}
-    assert payload["totals"]["call_site_funnel"] == {
+    assert payload["labels"]["sections"]["structure"] == "Structure"
+    assert payload["labels"]["fields"]["callsite_pairs"] == "Callsite Pairs"
+    assert payload["labels"]["scopes"] == {
+        "non_tests": "Non-Tests",
+        "tests": "Tests",
+    }
+    assert payload["timing"] == {
+        "build_total_seconds": None,
+        "build_wall_seconds": None,
+        "build_phase_timings": {},
+    }
+    assert payload["totals"]["structure"] == {
+        "files": 3,
+        "nodes": 5,
+        "edges": 5,
+    }
+    assert payload["totals"]["callsites"] == {
         "observed_syntactic_callsites": 0,
         "filtered_pre_persist": 0,
         "persisted_callsites": 0,
         "persisted_accepted": 0,
         "persisted_dropped": 0,
-        "record_drops": {},
-        "conservation_ok": True,
     }
-    assert payload["totals"]["persisted_callsite_pair_expansion"] == {
-        "persisted_callsites": 0,
-        "persisted_callsites_with_zero_pairs": 0,
-        "persisted_callsites_with_one_pair": 0,
-        "persisted_callsites_with_multiple_pairs": 0,
-        "pair_expansion_factor": None,
-        "multi_pair_share": None,
-        "max_pairs_for_single_persisted_callsite": 0,
-    }
-    assert payload["totals"]["filtered_pre_persist_buckets"] == {
-        "no_in_repo_candidate_terminal": 0,
-        "no_in_repo_candidate_qualified": 0,
+    assert payload["totals"]["pre_persist_filter"] == {
+        "no_in_repo_candidate": 0,
         "accepted_outside_in_repo": 0,
         "invalid_observation_shape": 0,
     }
-    assert payload["totals"]["filtered_pre_persist_buckets_by_scope"] == {
+    assert payload["totals"]["call_materialization"] == {
+        "callsite_pairs": 0,
+        "finalized_call_edges": 0,
+    }
+    assert payload["scopes"] == {
         "non_tests": {
-            "no_in_repo_candidate_terminal": 0,
-            "no_in_repo_candidate_qualified": 0,
-            "accepted_outside_in_repo": 0,
-            "invalid_observation_shape": 0,
+            "structure": {
+                "files": 3,
+                "nodes": 5,
+                "edges": 5,
+            },
+            "callsites": {
+                "observed_syntactic_callsites": 0,
+                "filtered_pre_persist": 0,
+                "persisted_callsites": 0,
+                "persisted_accepted": 0,
+                "persisted_dropped": 0,
+            },
+            "pre_persist_filter": {
+                "no_in_repo_candidate": 0,
+                "accepted_outside_in_repo": 0,
+                "invalid_observation_shape": 0,
+            },
+            "call_materialization": {
+                "callsite_pairs": 0,
+                "finalized_call_edges": 0,
+            },
         },
         "tests": {
-            "no_in_repo_candidate_terminal": 0,
-            "no_in_repo_candidate_qualified": 0,
-            "accepted_outside_in_repo": 0,
-            "invalid_observation_shape": 0,
+            "structure": {
+                "files": 0,
+                "nodes": 0,
+                "edges": 0,
+            },
+            "callsites": {
+                "observed_syntactic_callsites": 0,
+                "filtered_pre_persist": 0,
+                "persisted_callsites": 0,
+                "persisted_accepted": 0,
+                "persisted_dropped": 0,
+            },
+            "pre_persist_filter": {
+                "no_in_repo_candidate": 0,
+                "accepted_outside_in_repo": 0,
+                "invalid_observation_shape": 0,
+            },
+            "call_materialization": {
+                "callsite_pairs": 0,
+                "finalized_call_edges": 0,
+            },
         },
     }
-    assert payload["totals"]["structural_density"]["files"] == 3
-    assert payload["totals"]["structural_density"]["eligible_callsites"] == 0
-    assert payload["totals"]["structural_density"]["inflation_warning"] is False
     python = {entry["language"]: entry for entry in payload["languages"]}["python"]
-    assert python["callsite_pairs"] == {"count": 0}
-    assert python["finalized_call_edges"] == {"count": 0}
-    assert python["call_site_funnel"]["conservation_ok"] is True
-    assert python["persisted_callsite_pair_expansion"] == {
+    assert python["structure"] == {"files": 3, "nodes": 5, "edges": 5}
+    assert python["callsites"] == {
+        "observed_syntactic_callsites": 0,
+        "filtered_pre_persist": 0,
         "persisted_callsites": 0,
-        "persisted_callsites_with_zero_pairs": 0,
-        "persisted_callsites_with_one_pair": 0,
-        "persisted_callsites_with_multiple_pairs": 0,
-        "pair_expansion_factor": None,
-        "multi_pair_share": None,
-        "max_pairs_for_single_persisted_callsite": 0,
+        "persisted_accepted": 0,
+        "persisted_dropped": 0,
     }
-    assert python["filtered_pre_persist_buckets"] == {
-        "no_in_repo_candidate_terminal": 0,
-        "no_in_repo_candidate_qualified": 0,
+    assert python["pre_persist_filter"] == {
+        "no_in_repo_candidate": 0,
         "accepted_outside_in_repo": 0,
         "invalid_observation_shape": 0,
     }
-    assert python["filtered_pre_persist_buckets_by_scope"] == {
-        "non_tests": {
-            "no_in_repo_candidate_terminal": 0,
-            "no_in_repo_candidate_qualified": 0,
-            "accepted_outside_in_repo": 0,
-            "invalid_observation_shape": 0,
-        },
-        "tests": {
-            "no_in_repo_candidate_terminal": 0,
-            "no_in_repo_candidate_qualified": 0,
-            "accepted_outside_in_repo": 0,
-            "invalid_observation_shape": 0,
-        },
+    assert python["call_materialization"] == {
+        "callsite_pairs": 0,
+        "finalized_call_edges": 0,
     }
-    assert python["callsite_pairs_by_scope"]["non_tests"] == {"count": 0}
-    assert python["callsite_pairs_by_scope"]["tests"] == {"count": 0}
-    assert python["finalized_call_edges_by_scope"]["non_tests"] == {"count": 0}
-    assert python["finalized_call_edges_by_scope"]["tests"] == {"count": 0}
-    assert python["structural_density"]["eligible_callsites"] == 0
 
 
-def test_snapshot_report_includes_build_total_seconds(repo_with_snapshot):
+def test_snapshot_report_includes_timing_under_timing_group(repo_with_snapshot):
     repo_root, snapshot_id = repo_with_snapshot
     artifact_db = repo_root / ".sciona" / runtime_constants.ARTIFACT_DB_FILENAME
 
@@ -127,21 +130,6 @@ def test_snapshot_report_includes_build_total_seconds(repo_with_snapshot):
             key=f"build_total_seconds:{snapshot_id}",
             value="3.250000",
         )
-        conn.commit()
-    finally:
-        conn.close()
-
-    payload = repo_pipeline.snapshot_report(snapshot_id, repo_root=repo_root)
-    assert payload is not None
-    assert payload["build_total_seconds"] == pytest.approx(3.25)
-
-
-def test_snapshot_report_includes_wall_seconds_and_phase_timings(repo_with_snapshot):
-    repo_root, snapshot_id = repo_with_snapshot
-    artifact_db = repo_root / ".sciona" / runtime_constants.ARTIFACT_DB_FILENAME
-
-    conn = artifact_connect(artifact_db, repo_root=repo_root)
-    try:
         artifact_write.set_rebuild_metadata(
             conn,
             key=f"build_wall_seconds:{snapshot_id}",
@@ -158,8 +146,9 @@ def test_snapshot_report_includes_wall_seconds_and_phase_timings(repo_with_snaps
 
     payload = repo_pipeline.snapshot_report(snapshot_id, repo_root=repo_root)
     assert payload is not None
-    assert payload["build_wall_seconds"] == pytest.approx(4.5)
-    assert payload["build_phase_timings"] == {
+    assert payload["timing"]["build_total_seconds"] == pytest.approx(3.25)
+    assert payload["timing"]["build_wall_seconds"] == pytest.approx(4.5)
+    assert payload["timing"]["build_phase_timings"] == {
         "discover_files": pytest.approx(0.12),
         "build_structural_index": pytest.approx(2.75),
         "prepare_callsite_pairs": pytest.approx(0.50),
@@ -167,7 +156,9 @@ def test_snapshot_report_includes_wall_seconds_and_phase_timings(repo_with_snaps
     }
 
 
-def test_snapshot_report_includes_call_site_funnel_from_diagnostics(repo_with_snapshot):
+def test_snapshot_report_includes_direct_callsite_counts_from_diagnostics(
+    repo_with_snapshot,
+):
     repo_root, snapshot_id = repo_with_snapshot
     artifact_db = repo_root / ".sciona" / runtime_constants.ARTIFACT_DB_FILENAME
 
@@ -179,23 +170,12 @@ def test_snapshot_report_includes_call_site_funnel_from_diagnostics(repo_with_sn
             value=(
                 '{"totals": {"observed_callsites": 5, "filtered_before_persist": 2, '
                 '"persisted_callsites": 3, "finalized_accepted_callsites": 2, '
-                '"finalized_dropped_callsites": 1, "record_drops": {"no_resolved_callees": 1}, '
-                '"filtered_pre_persist_buckets": {"no_in_repo_candidate_terminal": 2}, '
-                '"persisted_callsite_pair_expansion": {"persisted_callsites": 3, '
-                '"persisted_callsites_with_zero_pairs": 1, '
-                '"persisted_callsites_with_one_pair": 1, '
-                '"persisted_callsites_with_multiple_pairs": 1, '
-                '"max_pairs_for_single_persisted_callsite": 2}}, '
+                '"finalized_dropped_callsites": 1, '
+                '"filtered_pre_persist_buckets": {"no_in_repo_candidate": 2}}, '
                 '"by_caller": {"meth_alpha": {"observed_callsites": 5, '
                 '"filtered_before_persist": 2, "persisted_callsites": 3, '
                 '"finalized_accepted_callsites": 2, "finalized_dropped_callsites": 1, '
-                '"record_drops": {"no_resolved_callees": 1}, '
-                '"filtered_pre_persist_buckets": {"no_in_repo_candidate_terminal": 2}, '
-                '"persisted_callsite_pair_expansion": {"persisted_callsites": 3, '
-                '"persisted_callsites_with_zero_pairs": 1, '
-                '"persisted_callsites_with_one_pair": 1, '
-                '"persisted_callsites_with_multiple_pairs": 1, '
-                '"max_pairs_for_single_persisted_callsite": 2}}}}'
+                '"filtered_pre_persist_buckets": {"no_in_repo_candidate": 2}}}}'
             ),
         )
         artifact_write.upsert_callsite_pairs(
@@ -214,95 +194,46 @@ def test_snapshot_report_includes_call_site_funnel_from_diagnostics(repo_with_sn
 
     payload = repo_pipeline.snapshot_report(snapshot_id, repo_root=repo_root)
     assert payload is not None
-    assert payload["totals"]["call_site_funnel"] == {
+    assert payload["totals"]["callsites"] == {
         "observed_syntactic_callsites": 5,
         "filtered_pre_persist": 2,
         "persisted_callsites": 3,
         "persisted_accepted": 2,
         "persisted_dropped": 1,
-        "record_drops": {"no_resolved_callees": 1},
-        "conservation_ok": True,
     }
-    assert payload["totals"]["filtered_pre_persist_buckets"] == {
-        "no_in_repo_candidate_terminal": 2,
-        "no_in_repo_candidate_qualified": 0,
+    assert payload["totals"]["pre_persist_filter"] == {
+        "no_in_repo_candidate": 2,
         "accepted_outside_in_repo": 0,
         "invalid_observation_shape": 0,
+    }
+    assert payload["totals"]["call_materialization"] == {
+        "callsite_pairs": 3,
+        "finalized_call_edges": 0,
+    }
+    assert payload["totals"]["structure"]["edges"] == 5
+    assert payload["scopes"]["non_tests"]["callsites"] == {
+        "observed_syntactic_callsites": 5,
+        "filtered_pre_persist": 2,
+        "persisted_callsites": 3,
+        "persisted_accepted": 2,
+        "persisted_dropped": 1,
+    }
+    assert payload["scopes"]["non_tests"]["pre_persist_filter"] == {
+        "no_in_repo_candidate": 2,
+        "accepted_outside_in_repo": 0,
+        "invalid_observation_shape": 0,
+    }
+    assert payload["scopes"]["non_tests"]["structure"] == {
+        "files": 3,
+        "nodes": 5,
+        "edges": 5,
     }
     python = {entry["language"]: entry for entry in payload["languages"]}["python"]
-    assert python["call_site_funnel"]["persisted_callsites"] == 3
-    assert python["call_site_funnel"]["record_drops"] == {"no_resolved_callees": 1}
-    assert python["filtered_pre_persist_buckets"] == {
-        "no_in_repo_candidate_terminal": 2,
-        "no_in_repo_candidate_qualified": 0,
+    assert python["callsites"]["persisted_callsites"] == 3
+    assert python["pre_persist_filter"] == {
+        "no_in_repo_candidate": 2,
         "accepted_outside_in_repo": 0,
         "invalid_observation_shape": 0,
-    }
-    assert payload["totals"]["filtered_pre_persist_buckets_by_scope"] == {
-        "non_tests": {
-            "no_in_repo_candidate_terminal": 2,
-            "no_in_repo_candidate_qualified": 0,
-            "accepted_outside_in_repo": 0,
-            "invalid_observation_shape": 0,
-        },
-        "tests": {
-            "no_in_repo_candidate_terminal": 0,
-            "no_in_repo_candidate_qualified": 0,
-            "accepted_outside_in_repo": 0,
-            "invalid_observation_shape": 0,
-        },
-    }
-    assert python["filtered_pre_persist_buckets_by_scope"] == {
-        "non_tests": {
-            "no_in_repo_candidate_terminal": 2,
-            "no_in_repo_candidate_qualified": 0,
-            "accepted_outside_in_repo": 0,
-            "invalid_observation_shape": 0,
-        },
-        "tests": {
-            "no_in_repo_candidate_terminal": 0,
-            "no_in_repo_candidate_qualified": 0,
-            "accepted_outside_in_repo": 0,
-            "invalid_observation_shape": 0,
-        },
-    }
-    assert payload["totals"]["persisted_callsite_pair_expansion"] == {
-        "persisted_callsites": 3,
-        "persisted_callsites_with_zero_pairs": 1,
-        "persisted_callsites_with_one_pair": 1,
-        "persisted_callsites_with_multiple_pairs": 1,
-        "pair_expansion_factor": pytest.approx(1.0),
-        "multi_pair_share": pytest.approx(1 / 3),
-        "max_pairs_for_single_persisted_callsite": 2,
-    }
-    assert python["persisted_callsite_pair_expansion"] == {
-        "persisted_callsites": 3,
-        "persisted_callsites_with_zero_pairs": 1,
-        "persisted_callsites_with_one_pair": 1,
-        "persisted_callsites_with_multiple_pairs": 1,
-        "pair_expansion_factor": pytest.approx(1.0),
-        "multi_pair_share": pytest.approx(1 / 3),
-        "max_pairs_for_single_persisted_callsite": 2,
-    }
-    assert payload["totals"]["persisted_callsite_pair_expansion_by_scope"] == {
-        "non_tests": {
-            "persisted_callsites": 3,
-            "persisted_callsites_with_zero_pairs": 1,
-            "persisted_callsites_with_one_pair": 1,
-            "persisted_callsites_with_multiple_pairs": 1,
-            "pair_expansion_factor": pytest.approx(1.0),
-            "multi_pair_share": pytest.approx(1 / 3),
-            "max_pairs_for_single_persisted_callsite": 2,
-        },
-        "tests": {
-            "persisted_callsites": 0,
-            "persisted_callsites_with_zero_pairs": 0,
-            "persisted_callsites_with_one_pair": 0,
-            "persisted_callsites_with_multiple_pairs": 0,
-            "pair_expansion_factor": None,
-            "multi_pair_share": None,
-            "max_pairs_for_single_persisted_callsite": 0,
-        },
     }
 
 
@@ -311,6 +242,7 @@ def test_snapshot_report_counts_pairs_and_finalized_call_edges(repo_with_snapsho
     artifact_db = repo_root / ".sciona" / runtime_constants.ARTIFACT_DB_FILENAME
 
     conn = artifact_connect(artifact_db, repo_root=repo_root)
+    core_db = open_core_conn(repo_root)
     try:
         artifact_write.upsert_callsite_pairs(
             conn,
@@ -318,28 +250,138 @@ def test_snapshot_report_counts_pairs_and_finalized_call_edges(repo_with_snapsho
             caller_id="meth_alpha",
             rows=[
                 ("helper", "site-1", "func_alpha", "in_repo_candidate"),
-                ("other", "site-2", "func_beta", "in_repo_candidate"),
+                ("other", "site-2", "meth_alpha", "in_repo_candidate"),
             ],
         )
         artifact_write.upsert_node_calls(
             conn,
             caller_id="meth_alpha",
-            callee_ids=("func_alpha", "func_beta"),
+            callee_ids=("func_alpha", "meth_alpha"),
             call_hash="hash-meth-alpha",
         )
+        rebuild_graph_index(conn, core_conn=core_db, snapshot_id=snapshot_id)
         conn.commit()
     finally:
         conn.close()
+        core_db.close()
 
     payload = repo_pipeline.snapshot_report(snapshot_id, repo_root=repo_root)
     assert payload is not None
     python = {entry["language"]: entry for entry in payload["languages"]}["python"]
-    assert python["callsite_pairs"] == {"count": 2}
-    assert python["finalized_call_edges"] == {"count": 2}
-    assert python["callsite_pairs_by_scope"]["non_tests"] == {"count": 2}
-    assert python["finalized_call_edges_by_scope"]["non_tests"] == {"count": 2}
-    assert payload["totals"]["callsite_pairs"] == {"count": 2}
-    assert payload["totals"]["finalized_call_edges"] == {"count": 2}
+    assert python["structure"] == {"files": 3, "nodes": 5, "edges": 7}
+    assert python["call_materialization"] == {
+        "callsite_pairs": 2,
+        "finalized_call_edges": 2,
+    }
+    assert payload["totals"]["structure"] == {"files": 3, "nodes": 5, "edges": 7}
+    assert payload["totals"]["call_materialization"] == {
+        "callsite_pairs": 2,
+        "finalized_call_edges": 2,
+    }
+    assert payload["scopes"]["non_tests"]["structure"] == {
+        "files": 3,
+        "nodes": 5,
+        "edges": 7,
+    }
+    assert payload["scopes"]["non_tests"]["call_materialization"] == {
+        "callsite_pairs": 2,
+        "finalized_call_edges": 2,
+    }
+
+
+def test_snapshot_report_attributes_graph_edges_by_source_scope(repo_with_snapshot):
+    repo_root, snapshot_id = repo_with_snapshot
+    artifact_db = repo_root / ".sciona" / runtime_constants.ARTIFACT_DB_FILENAME
+
+    core_db = open_core_conn(repo_root)
+    artifact_conn = artifact_connect(artifact_db, repo_root=repo_root)
+    try:
+        core_db.execute(
+            """
+            INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
+            VALUES (?, ?, ?, ?)
+            """,
+            ("mod_test", "module", "python", snapshot_id),
+        )
+        core_db.execute(
+            """
+            INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
+            VALUES (?, ?, ?, ?)
+            """,
+            ("func_test", "callable", "python", snapshot_id),
+        )
+        core_db.execute(
+            """
+            INSERT INTO node_instances(
+                instance_id, structural_id, snapshot_id, qualified_name, file_path, start_line, end_line, content_hash
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                f"{snapshot_id}:mod_test",
+                "mod_test",
+                snapshot_id,
+                "repo.tests.test_api",
+                "tests/test_api.py",
+                1,
+                10,
+                "hash-mod-test",
+            ),
+        )
+        core_db.execute(
+            """
+            INSERT INTO node_instances(
+                instance_id, structural_id, snapshot_id, qualified_name, file_path, start_line, end_line, content_hash
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                f"{snapshot_id}:func_test",
+                "func_test",
+                snapshot_id,
+                "repo.tests.test_api.test_helper",
+                "tests/test_api.py",
+                1,
+                10,
+                "hash-func-test",
+            ),
+        )
+        core_db.execute(
+            """
+            INSERT INTO edges(snapshot_id, src_structural_id, dst_structural_id, edge_type)
+            VALUES (?, ?, ?, ?)
+            """,
+            (snapshot_id, "mod_test", "func_test", "LEXICALLY_CONTAINS"),
+        )
+        core_db.commit()
+
+        artifact_write.upsert_node_calls(
+            artifact_conn,
+            caller_id="func_test",
+            callee_ids=("func_alpha",),
+            call_hash="hash-func-test",
+        )
+        rebuild_graph_index(artifact_conn, core_conn=core_db, snapshot_id=snapshot_id)
+        artifact_conn.commit()
+    finally:
+        artifact_conn.close()
+        core_db.close()
+
+    payload = repo_pipeline.snapshot_report(snapshot_id, repo_root=repo_root)
+    assert payload is not None
+    assert payload["totals"]["structure"] == {"files": 4, "nodes": 7, "edges": 7}
+    assert payload["scopes"]["non_tests"]["structure"] == {
+        "files": 3,
+        "nodes": 5,
+        "edges": 5,
+    }
+    assert payload["scopes"]["tests"]["structure"] == {
+        "files": 1,
+        "nodes": 2,
+        "edges": 2,
+    }
+    assert payload["scopes"]["tests"]["call_materialization"] == {
+        "callsite_pairs": 0,
+        "finalized_call_edges": 1,
+    }
 
 
 def test_scope_bucket_detects_test_and_non_test_paths() -> None:

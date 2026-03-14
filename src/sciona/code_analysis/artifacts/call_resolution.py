@@ -40,8 +40,7 @@ ALLOWED_CALLSITE_DROP_REASONS = frozenset(
 )
 ALLOWED_PRE_PERSIST_FILTER_BUCKETS = frozenset(
     {
-        "no_in_repo_candidate_terminal",
-        "no_in_repo_candidate_qualified",
+        "no_in_repo_candidate",
         "accepted_outside_in_repo",
         "invalid_observation_shape",
     }
@@ -128,12 +127,7 @@ def filter_in_repo_callsite_rows(
             _candidate_module_hints,
         ) = row
         if candidate_count <= 0:
-            bucket = (
-                "no_in_repo_candidate_qualified"
-                if "." in _identifier
-                else "no_in_repo_candidate_terminal"
-            )
-            _inc_pre_persist_bucket(filtered_out, bucket)
+            _inc_pre_persist_bucket(filtered_out, "no_in_repo_candidate")
             continue
         if status == "accepted":
             if not accepted_callee_id or drop_reason is not None:
@@ -471,11 +465,7 @@ def resolve_callees(
         if decision.candidate_count <= 0:
             _inc_pre_persist_bucket(
                 pre_persist_buckets,
-                (
-                    "no_in_repo_candidate_qualified"
-                    if "." in identifier
-                    else "no_in_repo_candidate_terminal"
-                ),
+                "no_in_repo_candidate",
             )
         if decision.accepted_candidate:
             resolved_ids.add(decision.accepted_candidate)
