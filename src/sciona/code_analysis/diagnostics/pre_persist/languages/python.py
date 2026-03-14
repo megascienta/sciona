@@ -62,12 +62,26 @@ _PYTHON_DYNAMIC_MEMBER_TERMINALS = frozenset(
         "values",
     }
 )
+_PYTHON_COLLECTION_MEMBER_TERMINALS = frozenset(
+    {
+        "append",
+        "feed",
+        "items",
+        "keys",
+        "pop",
+        "receive_text",
+        "send_json",
+        "send_text",
+        "values",
+    }
+)
 
 
 def classify(
     observation: DiagnosticMissObservation,
 ) -> DiagnosticClassification | None:
     identifier = observation.identifier.strip()
+    parts = [part for part in identifier.split(".") if part]
     terminal = identifier.rsplit(".", 1)[-1]
     root = observation.identifier_root or identifier.split(".", 1)[0]
     if root in _PYTHON_BUILTINS or root in _PYTHON_STDLIB_ROOTS:
@@ -82,6 +96,16 @@ def classify(
         )
     if terminal in _PYTHON_DYNAMIC_MEMBER_TERMINALS:
         if observation.repo_prefix_matches and observation.callee_kind == "qualified":
+            owner = parts[-2] if len(parts) >= 2 else ""
+            if (
+                terminal in _PYTHON_COLLECTION_MEMBER_TERMINALS
+                and owner
+                and not _looks_type_like_owner(owner)
+            ):
+                return DiagnosticClassification(
+                    bucket="likely_dynamic_dispatch_or_indirect",
+                    reasons=("repo_owned_dynamic_member_terminal",),
+                )
             return DiagnosticClassification(
                 bucket="likely_unindexed_symbol",
                 reasons=("repo_owned_member_terminal",),
@@ -91,3 +115,9 @@ def classify(
             reasons=("dynamic_member_terminal",),
         )
     return None
+
+
+def _looks_type_like_owner(owner: str) -> bool:
+    if not owner:
+        return False
+    return owner[:1].isupper() or owner.isupper()
