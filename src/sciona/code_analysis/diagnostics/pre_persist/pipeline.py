@@ -13,6 +13,7 @@ from ...artifacts.call_resolution import (
     build_symbol_index,
     build_typescript_barrel_export_map,
     resolve_callees,
+    simple_identifier,
 )
 from ...tools.call_extraction import CallExtractionRecord, PrePersistObservation
 from ....data_storage.core_db import read_ops as core_read
@@ -53,6 +54,7 @@ def classify_pre_persist_misses(
     module_bindings_by_name = build_module_binding_index(
         callable_qname_by_id=callable_qname_by_id,
         module_lookup=module_lookup,
+        simple_identifier=simple_identifier,
     )
     ts_barrel_export_map = build_typescript_barrel_export_map(
         import_targets=import_targets,
