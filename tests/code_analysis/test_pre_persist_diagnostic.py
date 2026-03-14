@@ -45,6 +45,63 @@ def test_classifier_marks_dynamic_receiver_pattern() -> None:
     assert classified.bucket == "likely_dynamic_dispatch_or_indirect"
 
 
+def test_classifier_marks_repo_owned_qualified_name_as_unindexed() -> None:
+    observation = DiagnosticMissObservation(
+        language="python",
+        file_path="pkg/main.py",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.main.run",
+        caller_module="repo.pkg.main",
+        identifier="repo.pkg.models.Secret",
+        ordinal=1,
+        callee_kind="qualified",
+        repo_prefix_matches=("repo", "repo.pkg", "repo.pkg.models"),
+        identifier_root="repo",
+    )
+
+    classified = classify_no_in_repo_candidate(observation)
+
+    assert classified.bucket == "likely_unindexed_symbol"
+
+
+def test_classifier_marks_dynamic_member_terminal() -> None:
+    observation = DiagnosticMissObservation(
+        language="typescript",
+        file_path="pkg/main.ts",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.main.run",
+        caller_module="repo.pkg.main",
+        identifier="repo.pkg.array.push",
+        ordinal=1,
+        callee_kind="qualified",
+        repo_prefix_matches=("repo", "repo.pkg"),
+        identifier_root="repo",
+    )
+
+    classified = classify_no_in_repo_candidate(observation)
+
+    assert classified.bucket == "likely_dynamic_dispatch_or_indirect"
+
+
+def test_classifier_marks_repeated_segments_as_parser_gap() -> None:
+    observation = DiagnosticMissObservation(
+        language="java",
+        file_path="pkg/Main.java",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.Main.run",
+        caller_module="repo.pkg.Main",
+        identifier="repo.pkg.Main.Main.Main",
+        ordinal=1,
+        callee_kind="qualified",
+        repo_prefix_matches=("repo", "repo.pkg"),
+        identifier_root="repo",
+    )
+
+    classified = classify_no_in_repo_candidate(observation)
+
+    assert classified.bucket == "likely_parser_extraction_gap"
+
+
 def test_classifier_uses_javascript_global_refinement() -> None:
     observation = DiagnosticMissObservation(
         language="javascript",
@@ -77,6 +134,25 @@ def test_classifier_uses_java_stdlib_refinement() -> None:
     classified = classify_no_in_repo_candidate(observation)
 
     assert classified.bucket == "likely_standard_library_or_builtin"
+
+
+def test_classifier_keeps_non_repo_qualified_name_as_external() -> None:
+    observation = DiagnosticMissObservation(
+        language="python",
+        file_path="pkg/main.py",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.main.run",
+        caller_module="repo.pkg.main",
+        identifier="requests.sessions.Session",
+        ordinal=1,
+        callee_kind="qualified",
+        repo_prefix_matches=(),
+        identifier_root="requests",
+    )
+
+    classified = classify_no_in_repo_candidate(observation)
+
+    assert classified.bucket == "likely_external_dependency"
 
 
 def test_classify_pre_persist_misses_uses_progress_factory(monkeypatch) -> None:
@@ -159,7 +235,7 @@ def test_classify_pre_persist_misses_uses_progress_factory(monkeypatch) -> None:
         progress_factory=_factory,
     )
 
-    assert sum(int(value) for value in payload["totals"].values()) == 1
+    assert payload["totals"]["likely_unindexed_symbol"] == 1
     assert len(payload["observations"]) == 1
     assert events == [
         ("factory", ("Diagnostic classification", 1)),

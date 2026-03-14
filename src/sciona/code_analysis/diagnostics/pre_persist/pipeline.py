@@ -54,6 +54,7 @@ def classify_pre_persist_misses(
     ) = build_module_context(core_conn, snapshot_id)
     caller_metadata = core_read.caller_node_metadata_map(core_conn, snapshot_id)
     caller_language_map = core_read.caller_language_map(core_conn, snapshot_id)
+    repo_module_prefixes = _repo_module_prefixes(module_file_by_name)
     module_bindings_by_name = build_module_binding_index(
         callable_qname_by_id=callable_qname_by_id,
         module_lookup=module_lookup,
@@ -113,6 +114,8 @@ def classify_pre_persist_misses(
                 ordinal=item.ordinal,
                 callee_kind=item.callee_kind,
                 candidate_module_hints=item.candidate_module_hints,
+                repo_prefix_matches=_repo_prefix_matches(item.identifier, repo_module_prefixes),
+                identifier_root=_identifier_root(item.identifier),
             )
             classified = classify_no_in_repo_candidate(observation)
             _inc_bucket(aggregation.totals, classified.bucket)
@@ -152,3 +155,26 @@ def classify_pre_persist_misses(
 
 def _inc_bucket(target: dict[str, int], bucket: str) -> None:
     target[bucket] = int(target.get(bucket, 0)) + 1
+
+
+def _identifier_root(identifier: str) -> str:
+    return identifier.split(".", 1)[0].strip()
+
+
+def _repo_module_prefixes(module_file_by_name: dict[str, str]) -> set[str]:
+    prefixes: set[str] = set()
+    for module_name in module_file_by_name:
+        parts = [part for part in str(module_name).split(".") if part]
+        for idx in range(1, len(parts) + 1):
+            prefixes.add(".".join(parts[:idx]))
+    return prefixes
+
+
+def _repo_prefix_matches(identifier: str, repo_module_prefixes: set[str]) -> tuple[str, ...]:
+    parts = [part for part in str(identifier).split(".") if part]
+    matches: list[str] = []
+    for idx in range(1, len(parts)):
+        prefix = ".".join(parts[:idx])
+        if prefix in repo_module_prefixes:
+            matches.append(prefix)
+    return tuple(matches)

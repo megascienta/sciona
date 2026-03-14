@@ -36,6 +36,22 @@ _COMMON_BUILTINS = frozenset(
         "System",
     }
 )
+_DYNAMIC_MEMBER_TERMINALS = frozenset(
+    {
+        "append",
+        "call",
+        "encode",
+        "feed",
+        "items",
+        "keys",
+        "model_validate",
+        "parse_obj",
+        "pop",
+        "push",
+        "to_python",
+        "values",
+    }
+)
 
 
 def classify_common(
@@ -52,6 +68,7 @@ def classify_common(
             bucket="likely_standard_library_or_builtin",
             reasons=("common_builtin_name",),
         )
+    terminal = identifier.rsplit(".", 1)[-1]
     if (
         identifier.startswith(("self.", "this.", "cls.", "super."))
         or ".prototype." in identifier
@@ -60,6 +77,26 @@ def classify_common(
         return DiagnosticClassification(
             bucket="likely_dynamic_dispatch_or_indirect",
             reasons=("dynamic_receiver_pattern",),
+        )
+    if _has_repeated_qualified_segment(identifier):
+        return DiagnosticClassification(
+            bucket="likely_parser_extraction_gap",
+            reasons=("repeated_qualified_segment",),
+        )
+    if terminal in _DYNAMIC_MEMBER_TERMINALS:
+        return DiagnosticClassification(
+            bucket="likely_dynamic_dispatch_or_indirect",
+            reasons=("dynamic_member_terminal",),
+        )
+    if observation.repo_prefix_matches:
+        if observation.callee_kind == "qualified":
+            return DiagnosticClassification(
+                bucket="likely_unindexed_symbol",
+                reasons=("repo_owned_qualified_prefix",),
+            )
+        return DiagnosticClassification(
+            bucket="likely_dynamic_dispatch_or_indirect",
+            reasons=("repo_owned_terminal_call_shape",),
         )
     if "." in identifier:
         first = identifier.split(".", 1)[0]
@@ -77,7 +114,22 @@ def classify_common(
             bucket="likely_external_dependency",
             reasons=("qualified_identifier_without_repo_candidate",),
         )
+    if observation.identifier_root and observation.identifier_root in _COMMON_BUILTINS:
+        return DiagnosticClassification(
+            bucket="likely_standard_library_or_builtin",
+            reasons=("common_builtin_root",),
+        )
     return DiagnosticClassification(
         bucket="likely_unindexed_symbol",
         reasons=("terminal_identifier_without_repo_candidate",),
     )
+
+
+def _has_repeated_qualified_segment(identifier: str) -> bool:
+    parts = [part for part in identifier.split(".") if part]
+    if len(parts) < 3:
+        return False
+    for previous, current in zip(parts, parts[1:]):
+        if previous == current:
+            return True
+    return False

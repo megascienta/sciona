@@ -31,6 +31,8 @@ class DiagnosticMissObservation:
     ordinal: int
     callee_kind: str
     candidate_module_hints: tuple[str, ...] = ()
+    repo_prefix_matches: tuple[str, ...] = ()
+    identifier_root: str = ""
 
 
 @dataclass(frozen=True)
