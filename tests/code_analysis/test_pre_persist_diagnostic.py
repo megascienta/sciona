@@ -41,3 +41,37 @@ def test_classifier_marks_dynamic_receiver_pattern() -> None:
     classified = classify_no_in_repo_candidate(observation)
 
     assert classified.bucket == "likely_dynamic_dispatch_or_indirect"
+
+
+def test_classifier_uses_javascript_global_refinement() -> None:
+    observation = DiagnosticMissObservation(
+        language="javascript",
+        file_path="pkg/main.js",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.main.run",
+        caller_module="repo.pkg.main",
+        identifier="console.log",
+        ordinal=1,
+        callee_kind="qualified",
+    )
+
+    classified = classify_no_in_repo_candidate(observation)
+
+    assert classified.bucket == "likely_standard_library_or_builtin"
+
+
+def test_classifier_uses_java_stdlib_refinement() -> None:
+    observation = DiagnosticMissObservation(
+        language="java",
+        file_path="pkg/Main.java",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.Main.run",
+        caller_module="repo.pkg.Main",
+        identifier="System.out.println",
+        ordinal=1,
+        callee_kind="qualified",
+    )
+
+    classified = classify_no_in_repo_candidate(observation)
+
+    assert classified.bucket == "likely_standard_library_or_builtin"
