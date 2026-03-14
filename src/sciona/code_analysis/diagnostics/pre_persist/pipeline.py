@@ -230,6 +230,9 @@ def _signals_for_observation(
     reasons: tuple[str, ...],
 ) -> list[str]:
     signals: set[str] = set()
+    identifier_parts = [part for part in observation.identifier.split(".") if part]
+    if identifier_parts:
+        signals.add(f"identifier_depth:{len(identifier_parts)}")
     if observation.repo_prefix_matches:
         signals.add("repo_owned_prefix")
         signals.add(f"repo_prefix_depth:{observation.repo_prefix_match_depth}")
@@ -243,6 +246,7 @@ def _signals_for_observation(
         signals.add("terminal_identifier")
     if observation.candidate_module_hints:
         signals.add("candidate_module_hint")
+        signals.add(f"candidate_hint_count:{len(observation.candidate_module_hints)}")
     if observation.reachable_repo_prefix_matches:
         signals.add("reachable_repo_prefix")
     if observation.longest_reachable_repo_prefix_match:
@@ -258,6 +262,13 @@ def _signals_for_observation(
         signals.add(f"repo_hint_overlap_count:{len(observation.repo_hint_overlap)}")
     elif observation.candidate_module_hints:
         signals.add("external_module_hint")
+    if len(identifier_parts) >= 2:
+        owner = identifier_parts[-2]
+        signals.add(
+            "owner_segment:type_like"
+            if owner[:1].isupper() or owner.isupper()
+            else "owner_segment:value_like"
+        )
     if any(reason.endswith("_member_terminal") for reason in reasons):
         signals.add("member_terminal")
     if any("receiver" in reason for reason in reasons):

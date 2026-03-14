@@ -290,6 +290,25 @@ def test_classifier_marks_namespace_chain_duplication_as_parser_gap() -> None:
     assert classified.bucket == "likely_parser_extraction_gap"
 
 
+def test_classifier_marks_repeated_tail_pair_as_parser_gap() -> None:
+    observation = DiagnosticMissObservation(
+        language="python",
+        file_path="pkg/main.py",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.main.run",
+        caller_module="repo.pkg.main",
+        identifier="repo.pkg.logger.warning.logger.warning",
+        ordinal=1,
+        callee_kind="qualified",
+        repo_prefix_matches=("repo", "repo.pkg"),
+        identifier_root="repo",
+    )
+
+    classified = classify_no_in_repo_candidate(observation)
+
+    assert classified.bucket == "likely_parser_extraction_gap"
+
+
 def test_classifier_uses_javascript_global_refinement() -> None:
     observation = DiagnosticMissObservation(
         language="javascript",
@@ -512,6 +531,10 @@ def test_diagnostic_observation_carries_repo_prefix_strength(monkeypatch) -> Non
     assert "reachable_repo_prefix_depth:3" in observation["signals"]
     assert "repo_hint_overlap" in observation["signals"]
     assert "repo_hint_overlap_count:1" in observation["signals"]
+    assert "candidate_module_hint" in observation["signals"]
+    assert "candidate_hint_count:2" in observation["signals"]
+    assert "identifier_depth:4" in observation["signals"]
+    assert "owner_segment:value_like" in observation["signals"]
 
 
 def test_classify_pre_persist_misses_uses_progress_factory(monkeypatch) -> None:
@@ -611,7 +634,11 @@ def test_build_verbose_payload_includes_reason_and_prefix_traces() -> None:
                     "bucket": "likely_unindexed_symbol",
                     "reasons": ["repo_owned_qualified_prefix"],
                     "signals": [
+                        "candidate_hint_count:2",
+                        "candidate_module_hint",
                         "deep_repo_prefix",
+                        "identifier_depth:4",
+                        "owner_segment:value_like",
                         "qualified_identifier",
                         "repo_hint_overlap",
                         "repo_hint_overlap_count:1",
@@ -651,7 +678,11 @@ def test_build_verbose_payload_includes_reason_and_prefix_traces() -> None:
     bucket_payload = payload["buckets"]["likely_unindexed_symbol"]
     assert bucket_payload["reasons"] == {"repo_owned_qualified_prefix": 1}
     assert bucket_payload["signals"] == {
+        "candidate_hint_count:2": 1,
+        "candidate_module_hint": 1,
         "deep_repo_prefix": 1,
+        "identifier_depth:4": 1,
+        "owner_segment:value_like": 1,
         "qualified_identifier": 1,
         "repo_hint_overlap": 1,
         "repo_hint_overlap_count:1": 1,
@@ -671,7 +702,11 @@ def test_build_verbose_payload_includes_reason_and_prefix_traces() -> None:
         "repo_owned_qualified_prefix": 1
     }
     assert payload["problematic_files"][0]["signals"] == {
+        "candidate_hint_count:2": 1,
+        "candidate_module_hint": 1,
         "deep_repo_prefix": 1,
+        "identifier_depth:4": 1,
+        "owner_segment:value_like": 1,
         "qualified_identifier": 1,
         "repo_hint_overlap": 1,
         "repo_hint_overlap_count:1": 1,

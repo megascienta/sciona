@@ -86,8 +86,8 @@ def _has_repeated_qualified_segment(identifier: str) -> bool:
     for previous, current in zip(parts, parts[1:]):
         if previous == current:
             return True
-    if len(parts) >= 3 and parts[-1] == parts[-2]:
-        return True
     if len(parts) >= 3 and parts[-1] == parts[-3]:
+        return True
+    if len(parts) >= 4 and parts[-2:] == parts[-4:-2]:
         return True
     return False
