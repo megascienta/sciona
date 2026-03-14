@@ -174,3 +174,23 @@ def test_build_repo_force_rebuild_keeps_committed_replace_semantics(tmp_path: Pa
 
     assert forced.status == "committed"
     assert cache_before != cache_after
+
+
+def test_build_repo_diagnostic_workspace_is_removed(tmp_path: Path) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    init_git_repo(repo_root, commit=False)
+    (repo_root / "src").mkdir()
+    (repo_root / "src" / "mod.py").write_text("print('stable')\n", encoding="utf-8")
+    commit_all(repo_root)
+    _write_config(repo_root)
+
+    repo_state = RepoState.from_repo_root(repo_root)
+    policy = policy_build.resolve_build_policy(
+        repo_state, refresh_artifacts=False, refresh_calls=False
+    )
+
+    result = build_repo(repo_state, policy, diagnostic=True)
+
+    assert result.status == "committed"
+    assert not (repo_root / ".sciona" / ".diagnostic_pre_persist").exists()

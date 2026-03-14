@@ -98,6 +98,8 @@ def build(
     repo_root: Optional[Path] = None,
     *,
     force_rebuild: bool = False,
+    diagnostic: bool = False,
+    diagnostic_verbose: bool = False,
 ) -> BuildResult:
     logger.info("Building SCIONA snapshot.")
     repo_state = policy_repo.resolve_repo_state(repo_root)
@@ -107,7 +109,12 @@ def build(
         force_rebuild=force_rebuild,
     )
     policy_repo.ensure_clean_worktree_for_enabled_languages(repo_state)
-    return _run_build(repo_state, policy)
+    return _run_build(
+        repo_state,
+        policy,
+        diagnostic=diagnostic,
+        diagnostic_verbose=diagnostic_verbose,
+    )
 
 
 def status(repo_root: Optional[Path] = None) -> StatusResult:
@@ -180,7 +187,18 @@ def dirty_worktree_warning(repo_root: Optional[Path] = None) -> str | None:
     return policy_repo.dirty_worktree_warning(repo_state)
 
 
-def _run_build(repo_state: RepoState, policy: BuildPolicy) -> BuildResult:
+def _run_build(
+    repo_state: RepoState,
+    policy: BuildPolicy,
+    *,
+    diagnostic: bool = False,
+    diagnostic_verbose: bool = False,
+) -> BuildResult:
     policy_repo.ensure_initialized(repo_state)
     policy_repo.ensure_repo_has_commits(repo_state)
-    return exec_build(repo_state, policy)
+    return exec_build(
+        repo_state,
+        policy,
+        diagnostic=diagnostic,
+        diagnostic_verbose=diagnostic_verbose,
+    )

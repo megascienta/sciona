@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import importlib
+import json
 
 from sciona.cli import repo_ops
 from sciona.cli.commands import register_build as build_command
@@ -110,7 +111,14 @@ def test_cli_build_forwards_force_rebuild_flag(
 ):
     calls: list[bool] = []
 
-    def _build(*, force_rebuild: bool = False):
+    def _build(
+        *,
+        force_rebuild: bool = False,
+        diagnostic: bool = False,
+        diagnostic_verbose: bool = False,
+    ):
+        assert diagnostic is False
+        assert diagnostic_verbose is False
         calls.append(force_rebuild)
         return _fake_committed_result()
 
@@ -131,7 +139,14 @@ def test_cli_build_defaults_force_rebuild_false(
 ):
     calls: list[bool] = []
 
-    def _build(*, force_rebuild: bool = False):
+    def _build(
+        *,
+        force_rebuild: bool = False,
+        diagnostic: bool = False,
+        diagnostic_verbose: bool = False,
+    ):
+        assert diagnostic is False
+        assert diagnostic_verbose is False
         calls.append(force_rebuild)
         return _fake_result()
 
@@ -171,7 +186,11 @@ def test_cli_build_reports_reused_status_on_second_run(
 def test_cli_build_warns_on_degraded_committed_result(
     cli_app, cli_runner, repo_with_snapshot, monkeypatch
 ):
-    monkeypatch.setattr(repo_ops, "build", lambda force_rebuild=False: _fake_degraded_result())
+    monkeypatch.setattr(
+        repo_ops,
+        "build",
+        lambda **kwargs: _fake_degraded_result(),
+    )
     monkeypatch.setattr(repo_ops, "snapshot_report", lambda snapshot_id: _fake_report())
     monkeypatch.setattr(repo_ops, "record_build_wall_time", lambda snapshot_id, wall_seconds: None)
     perf_values = iter([30.0, 30.5])
@@ -184,3 +203,27 @@ def test_cli_build_warns_on_degraded_committed_result(
         "Warning: build completed with degraded analysis; partial results were committed."
         in result.stdout
     )
+
+
+def test_cli_build_diagnostic_writes_repo_root_outputs(
+    cli_app, cli_runner, repo_with_snapshot, monkeypatch
+):
+    repo_root, _snapshot_id = repo_with_snapshot
+    monkeypatch.setattr(repo_ops, "get_repo_root", lambda: repo_root)
+    monkeypatch.setattr(repo_ops, "build", lambda **kwargs: _fake_committed_result())
+    monkeypatch.setattr(repo_ops, "snapshot_report", lambda snapshot_id: _fake_report())
+    monkeypatch.setattr(repo_ops, "record_build_wall_time", lambda snapshot_id, wall_seconds: None)
+    perf_values = iter([40.0, 40.25])
+    monkeypatch.setattr(build_command, "perf_counter", lambda: next(perf_values))
+
+    result = cli_runner.invoke(cli_app, ["build", "--diagnostic", "--verbose"])
+
+    assert result.exit_code == 0
+    build_status_path = repo_root / f"{repo_root.name}_build_status.json"
+    verbose_path = repo_root / f"{repo_root.name}_pre_persist_verbose.json"
+    assert build_status_path.exists()
+    assert verbose_path.exists()
+    build_status = json.loads(build_status_path.read_text(encoding="utf-8"))
+    assert build_status["diagnostic_mode"] is True
+    assert build_status["diagnostic_kind"] == "pre_persist_filter_best_effort"
+    assert build_status["report"]["totals"]["pre_persist_filter"]["no_in_repo_candidate"] == 0

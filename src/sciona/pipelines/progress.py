@@ -130,6 +130,7 @@ class BuildProgress:
         "Writing callsite pairs": "write_callsite_pairs",
         "Rebuilding call graph index": "rebuild_graph_index",
         "Rebuilding graph rollups": "rebuild_graph_rollups",
+        "Diagnostic classification": "diagnostic_classification",
     }
 
     def _next_label(self, label: str) -> str:

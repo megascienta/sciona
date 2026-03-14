@@ -96,8 +96,9 @@ def _fake_report():
 
 
 def test_cli_build_emits_summary_block(cli_app, cli_runner, monkeypatch):
-    monkeypatch.setattr(repo_ops, "build", lambda force_rebuild=False: _fake_result())
+    monkeypatch.setattr(repo_ops, "build", lambda **kwargs: _fake_result())
     monkeypatch.setattr(repo_ops, "snapshot_report", lambda snapshot_id: _fake_report())
+    monkeypatch.setattr(repo_ops, "record_build_wall_time", lambda snapshot_id, wall_seconds: None)
 
     result = cli_runner.invoke(cli_app, ["build"])
 

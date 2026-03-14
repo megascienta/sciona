@@ -14,6 +14,7 @@ from time import perf_counter
 from typing import Optional, Sequence
 
 from ...runtime.logging import get_logger
+from ...code_analysis.diagnostics.pre_persist import report as diagnostic_report
 from ...code_analysis.analysis.structural_hash import compute_structural_hash
 from ...code_analysis.tools.call_extraction import CallExtractionRecord
 from ...code_analysis.core import snapshot as snapshot_ingest
@@ -75,9 +76,12 @@ def build_repo(
     *,
     workspace_root: Optional[Path] = None,
     source: str = "scan",
+    diagnostic: bool = False,
+    diagnostic_verbose: bool = False,
 ) -> BuildResult:
     started_at = perf_counter()
-    build_progress = make_build_progress(total_steps=10)
+    del diagnostic_verbose
+    build_progress = make_build_progress(total_steps=11 if diagnostic else 10)
     phase_reporter = build_progress.emit_phase
     progress_factory = build_progress.make_progress_factory()
     workspace = workspace_root or repo_state.repo_root
@@ -158,6 +162,10 @@ def build_repo(
                     progress_factory=progress_factory,
                     phase_reporter=phase_reporter,
                 )
+            if diagnostic:
+                phase_reporter("Diagnostic classification")
+                with diagnostic_report.diagnostic_workspace(repo_state.sciona_dir):
+                    pass
             result = BuildResult(
                 files_processed,
                 node_count,
