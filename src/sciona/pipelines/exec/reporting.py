@@ -37,26 +37,27 @@ class LanguageMetrics:
 
     def to_payload(self) -> dict[str, object]:
         return {
-            "language": self.language,
-            "structure": {
-                "files": self.files,
-                "nodes": self.nodes,
-                "edges": self.edges,
-            },
-            "callsites": {
-                "observed_syntactic_callsites": self.observed_syntactic_callsites,
-                "filtered_pre_persist": self.filtered_pre_persist,
-                "persisted_callsites": self.persisted_callsites,
-                "persisted_accepted": self.persisted_accepted,
-                "persisted_dropped": self.persisted_dropped,
-            },
-            "pre_persist_filter": _filtered_pre_persist_buckets_payload(
-                self.filtered_pre_persist_buckets
-            ),
-            "call_materialization": {
-                "callsite_pairs": self.persisted_in_scope_pairs,
-                "finalized_call_edges": self.finalized_call_edges,
-            },
+            self.language: {
+                "structure": {
+                    "files": self.files,
+                    "nodes": self.nodes,
+                    "edges": self.edges,
+                },
+                "callsites": {
+                    "observed_syntactic_callsites": self.observed_syntactic_callsites,
+                    "filtered_pre_persist": self.filtered_pre_persist,
+                    "persisted_callsites": self.persisted_callsites,
+                    "persisted_accepted": self.persisted_accepted,
+                    "persisted_dropped": self.persisted_dropped,
+                },
+                "pre_persist_filter": _filtered_pre_persist_buckets_payload(
+                    self.filtered_pre_persist_buckets
+                ),
+                "call_materialization": {
+                    "callsite_pairs": self.persisted_in_scope_pairs,
+                    "finalized_call_edges": self.finalized_call_edges,
+                },
+            }
         }
 
 
@@ -82,8 +83,9 @@ FIELD_LABELS = {
     "invalid_observation_shape": "Invalid Observation Shape",
     "callsite_pairs": "Callsite Pairs",
     "finalized_call_edges": "Finalized Call Edges",
-    "build_total_seconds": "Build Total Seconds",
-    "build_wall_seconds": "Build Wall Seconds",
+    "build_total_seconds": "Build Total Time",
+    "build_wall_seconds": "Build Wall Time",
+    "build_phase_timings": "Build Phase Timing",
 }
 
 SCOPE_LABELS = {
@@ -578,7 +580,9 @@ def snapshot_report(
             "build_wall_seconds": build_wall_seconds,
             "build_phase_timings": build_phase_timings or {},
         },
-        "languages": [item.to_payload() for item in rows],
+        "languages": dict(
+            next(iter(item.to_payload().items()))
+            for item in rows),
         "totals": {
             "structure": {
                 "files": sum(item.files for item in rows),

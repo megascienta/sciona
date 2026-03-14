@@ -72,13 +72,11 @@ def test_call_pipeline_end_to_end_filters_persists_and_reports(tmp_path: Path) -
         include_failure_reasons=True,
     )
     assert payload is not None
-    assert (
-        payload["callsite_pairs_semantics"]
-        == "deduplicated_persisted_in_scope_candidate_pairs"
-    )
-    python = next(item for item in payload["languages"] if item["language"] == "python")
-    assert python["callsite_pairs"] == {"count": 1}
-    assert python["finalized_call_edges"] == {"count": 1}
+    python = payload["languages"]["python"]
+    assert python["call_materialization"] == {
+        "callsite_pairs": 1,
+        "finalized_call_edges": 1,
+    }
 
 
 def test_call_pipeline_reports_pair_centric_counts_for_persisted_dropped_rows(
@@ -149,6 +147,8 @@ def test_call_pipeline_reports_pair_centric_counts_for_persisted_dropped_rows(
         include_failure_reasons=True,
     )
     assert payload is not None
-    python = next(item for item in payload["languages"] if item["language"] == "python")
-    assert python["callsite_pairs"] == {"count": 0}
-    assert python["finalized_call_edges"] == {"count": 0}
+    python = payload["languages"]["python"]
+    assert python["call_materialization"] == {
+        "callsite_pairs": 0,
+        "finalized_call_edges": 0,
+    }

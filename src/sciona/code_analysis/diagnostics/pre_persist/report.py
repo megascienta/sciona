@@ -39,9 +39,17 @@ def enrich_report(
             "likely_unindexed_symbol": "Likely Unindexed Symbol",
             "likely_parser_extraction_gap": "Likely Parser Extraction Gap",
             "unclassified_no_in_repo_candidate": "Unclassified No In-Repo Candidate",
+            "build_phase_timings": "Build Phase Timing",
         }
     )
     labels["fields"] = fields
+    phases = dict(labels.get("phases") or {})
+    phases.update(
+        {
+            "diagnostic_classification": "Diagnostic Classification",
+        }
+    )
+    labels["phases"] = phases
     enriched["labels"] = labels
     _replace_pre_persist_filters(
         enriched,
@@ -135,23 +143,24 @@ def _replace_pre_persist_filters(
             totals if isinstance(totals, dict) else {},
         )
         report["totals"] = updated_totals
-    if isinstance(report.get("languages"), list):
+
+    if isinstance(report.get("languages"), dict):
         language_buckets = by_language if isinstance(by_language, dict) else {}
-        updated_languages = []
-        for item in report.get("languages") or []:
-            if not isinstance(item, dict):
-                updated_languages.append(item)
+        updated_languages = {}
+        for language_key, language_value in (report.get("languages") or {}).items():
+            if not isinstance(language_value, dict):
+                updated_languages[language_key] = language_value
                 continue
-            updated = dict(item)
-            language = str(updated.get("language") or "")
+            updated = dict(language_value)
             updated["pre_persist_filter"] = _merge_non_candidate_buckets(
                 dict(updated.get("pre_persist_filter") or {}),
-                language_buckets.get(language)
-                if isinstance(language_buckets.get(language), dict)
+                language_buckets.get(language_key)
+                if isinstance(language_buckets.get(language_key), dict)
                 else {},
             )
-            updated_languages.append(updated)
+            updated_languages[language_key] = updated
         report["languages"] = updated_languages
+
     if isinstance(report.get("scopes"), dict):
         scope_buckets = by_scope if isinstance(by_scope, dict) else {}
         updated_scopes = {}

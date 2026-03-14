@@ -284,6 +284,7 @@ Diagnostic build mode:
 - `callsite_pairs` is the primary artifact-layer persisted working set of
   deduplicated in-scope candidate caller-to-callee pairs used for reporting and
   final call derivation; it is not the raw observed superset
+  
 - pre-persistence out-of-scope observations are excluded before
   `callsite_pairs` persistence and currently bucketed as:
   `no_in_repo_candidate`, `accepted_outside_in_repo`,

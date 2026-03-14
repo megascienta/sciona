@@ -151,8 +151,8 @@ def _render_summary_lines(
     lines: list[str] = []
     timing = summary.get("timing") or {}
     scopes = summary.get("scopes") or {}
-    for item in summary.get("languages", []) or []:
-        language = str(item.get("language") or "unknown")
+    for language, item in (summary.get("languages") or {}).items():
+        language = str(language or "unknown")
         structure = item.get("structure") or {}
         lines.append(f"{indent}{language}: {_format_structure_summary(structure)}")
         if include_call_stats:
@@ -191,17 +191,17 @@ def _render_summary_lines(
         if totals_filtered_text:
             lines.append(f"{indent}  pre_persist_filter: {totals_filtered_text}")
     if include_scope_split:
-        lines.extend(_render_scope_lines(scopes, indent=f"{indent}  "))
+        lines.extend(_render_scope_lines(scopes, indent=f"{indent}"))
     if not summary.get("artifact_db_available", False):
         lines.append(f"{indent}call diagnostics: unavailable (artifact DB missing)")
     phase_timings = timing.get("build_phase_timings") or {}
     if include_reasons and phase_timings:
-        lines.append(f"{indent}  phases:")
+        lines.append(f"{indent}build phases:")
         for phase, seconds in phase_timings.items():
             duration = _format_duration_seconds(seconds)
             if duration is None:
                 continue
-            lines.append(f"{indent}    {phase}: {duration}")
+            lines.append(f"{indent}  {phase}: {duration}")
     return lines
 
 
@@ -273,51 +273,6 @@ def _render_scope_lines(
             lines.append(f"{indent}  call_materialization: {materialization_text}")
         if filtered_text:
             lines.append(f"{indent}  pre_persist_filter: {filtered_text}")
-    return lines
-
-
-def _render_name_collision_diagnostics(payload: dict, *, indent: str) -> list[str]:
-    detected = int(payload.get("name_collisions_detected") or 0)
-    disambiguated = int(payload.get("name_collisions_disambiguated") or 0)
-    residual = int(payload.get("residual_containment_failures") or 0)
-    by_language = payload.get("name_collisions_by_language") or {}
-    if detected == 0 and disambiguated == 0 and residual == 0:
-        return []
-    lines = [
-        f"{indent}name_collisions_detected: {detected}",
-        f"{indent}name_collisions_disambiguated: {disambiguated}",
-        f"{indent}residual_containment_failures: {residual}",
-    ]
-    for language in sorted(by_language):
-        item = by_language.get(language) or {}
-        lang_detected = int(item.get("name_collisions_detected") or 0)
-        lang_disambiguated = int(item.get("name_collisions_disambiguated") or 0)
-        lines.append(
-            f"{indent}{language}: detected={lang_detected}, disambiguated={lang_disambiguated}"
-        )
-    return lines
-
-
-def _render_import_diagnostics(payload: dict, *, indent: str) -> list[str]:
-    seen = int(payload.get("imports_seen") or 0)
-    internal = int(payload.get("imports_internal") or 0)
-    filtered = int(payload.get("imports_filtered_not_internal") or 0)
-    by_language = payload.get("imports_by_language") or {}
-    if seen == 0 and internal == 0 and filtered == 0:
-        return []
-    lines = [
-        f"{indent}imports_seen: {seen}",
-        f"{indent}imports_internal: {internal}",
-        f"{indent}imports_filtered_not_internal: {filtered}",
-    ]
-    for language in sorted(by_language):
-        item = by_language.get(language) or {}
-        lines.append(
-            f"{indent}{language}: "
-            f"seen={int(item.get('imports_seen') or 0)}, "
-            f"internal={int(item.get('imports_internal') or 0)}, "
-            f"filtered_not_internal={int(item.get('imports_filtered_not_internal') or 0)}"
-        )
     return lines
 
 

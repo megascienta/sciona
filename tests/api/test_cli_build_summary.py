@@ -42,9 +42,8 @@ def _fake_report():
             "build_wall_seconds": 1.0,
             "build_phase_timings": {},
         },
-        "languages": [
-            {
-                "language": "python",
+        "languages": {
+            "python": {
                 "structure": {
                     "files": 1,
                     "nodes": 1,
@@ -67,7 +66,7 @@ def _fake_report():
                     "finalized_call_edges": 0,
                 },
             }
-        ],
+        },
         "totals": {
             "structure": {
                 "files": 1,

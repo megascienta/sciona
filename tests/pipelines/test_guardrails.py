@@ -6,26 +6,24 @@ from sciona.pipelines.exec.guardrails import evaluate_non_test_callsite_guardrai
 def test_guardrails_pass_and_fail_by_language() -> None:
     payload = {
         "report": {
-            "languages": [
-                {
-                    "language": "python",
-                    "call_site_funnel_by_scope": {
+            "languages": {
+                "python": {
+                    "scopes": {
                         "non_tests": {
                             "persisted_callsites": 100,
                             "persisted_accepted": 92,
                         }
                     },
                 },
-                {
-                    "language": "java",
-                    "call_site_funnel_by_scope": {
+                "java": {
+                    "scopes": {
                         "non_tests": {
                             "persisted_callsites": 100,
                             "persisted_accepted": 80,
                         }
                     },
                 },
-            ]
+            }
         }
     }
     results = evaluate_non_test_callsite_guardrails(
@@ -40,17 +38,16 @@ def test_guardrails_pass_and_fail_by_language() -> None:
 def test_guardrails_skip_when_non_test_scope_unavailable() -> None:
     payload = {
         "report": {
-            "languages": [
-                {
-                    "language": "typescript",
-                    "call_site_funnel_by_scope": {
+            "languages": {
+                "typescript": {
+                    "scopes": {
                         "non_tests": {
                             "persisted_callsites": 0,
                             "persisted_accepted": 0,
                         }
                     },
                 }
-            ]
+            }
         }
     }
     results = evaluate_non_test_callsite_guardrails(

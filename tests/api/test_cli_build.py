@@ -78,7 +78,7 @@ def _fake_report() -> dict[str, object]:
             "build_wall_seconds": 1.5,
             "build_phase_timings": {},
         },
-        "languages": [],
+        "languages": {},
         "totals": {
             "structure": {
                 "files": 0,

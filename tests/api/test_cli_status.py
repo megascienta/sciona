@@ -71,9 +71,8 @@ def _fake_report():
                 "rebuild_graph_rollups": 0.1,
             },
         },
-        "languages": [
-            {
-                "language": "python",
+        "languages": {
+            "python": {
                 "structure": {
                     "files": 10,
                     "nodes": 20,
@@ -96,7 +95,7 @@ def _fake_report():
                     "finalized_call_edges": 9,
                 },
             }
-        ],
+        },
         "totals": {
             "structure": {
                 "files": 10,
@@ -258,7 +257,7 @@ def test_cli_status_json_emits_payload(cli_app, cli_runner, monkeypatch):
     assert payload["report"]["timing"]["build_wall_seconds"] == 1.5
     assert payload["report"]["timing"]["build_phase_timings"]["build_structural_index"] == 0.8
     assert payload["report"]["totals"]["call_materialization"]["callsite_pairs"] == 11
-    assert payload["report"]["languages"][0]["structure"]["files"] == 10
+    assert payload["report"]["languages"]["python"]["structure"]["files"] == 10
     assert payload["report"]["scopes"]["tests"]["call_materialization"]["finalized_call_edges"] == 1
 
 

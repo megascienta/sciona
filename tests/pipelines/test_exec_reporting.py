@@ -99,7 +99,7 @@ def test_snapshot_report_returns_grouped_direct_metrics(repo_with_snapshot):
             },
         },
     }
-    python = {entry["language"]: entry for entry in payload["languages"]}["python"]
+    python = payload["languages"]["python"]
     assert python["structure"] == {"files": 3, "nodes": 5, "edges": 5}
     assert python["callsites"] == {
         "observed_syntactic_callsites": 0,
@@ -228,7 +228,7 @@ def test_snapshot_report_includes_direct_callsite_counts_from_diagnostics(
         "nodes": 5,
         "edges": 5,
     }
-    python = {entry["language"]: entry for entry in payload["languages"]}["python"]
+    python = payload["languages"]["python"]
     assert python["callsites"]["persisted_callsites"] == 3
     assert python["pre_persist_filter"] == {
         "no_in_repo_candidate": 2,
@@ -267,7 +267,7 @@ def test_snapshot_report_counts_pairs_and_finalized_call_edges(repo_with_snapsho
 
     payload = repo_pipeline.snapshot_report(snapshot_id, repo_root=repo_root)
     assert payload is not None
-    python = {entry["language"]: entry for entry in payload["languages"]}["python"]
+    python = payload["languages"]["python"]
     assert python["structure"] == {"files": 3, "nodes": 5, "edges": 7}
     assert python["call_materialization"] == {
         "callsite_pairs": 2,

@@ -27,20 +27,20 @@ def evaluate_non_test_callsite_guardrails(
     if not isinstance(report, dict):
         raise ValueError("status payload missing report")
     languages = report.get("languages")
-    if not isinstance(languages, list):
+    if not isinstance(languages, dict):
         raise ValueError("status payload missing report.languages")
 
     results: list[GuardrailResult] = []
-    for item in languages:
+    for language, item in languages.items():
         if not isinstance(item, dict):
             continue
-        language = str(item.get("language") or "").strip()
+        language = str(language or "").strip()
         if not language:
             continue
         if language not in min_success_rate_by_language:
             continue
         threshold = float(min_success_rate_by_language[language])
-        scope = item.get("call_site_funnel_by_scope")
+        scope = item.get("scopes")
         if not isinstance(scope, dict):
             results.append(
                 GuardrailResult(
@@ -49,7 +49,7 @@ def evaluate_non_test_callsite_guardrails(
                     success_rate=None,
                     threshold=threshold,
                     passed=True,
-                    skipped_reason="call_site_funnel_by_scope_unavailable",
+                    skipped_reason="scopes_unavailable",
                 )
             )
             continue
