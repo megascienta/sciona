@@ -105,6 +105,19 @@ def classify_pre_persist_misses(
         scope_key = scope_bucket(file_path)
         for item in observations:
             prefix_matches = _repo_prefix_matches(item.identifier, repo_module_prefixes)
+            reachable_modules = _reachable_repo_modules(
+                caller_module=caller_module,
+                import_targets=import_targets,
+                expanded_import_targets=expanded_import_targets,
+                module_ancestors=module_ancestors,
+                ts_barrel_export_map=ts_barrel_export_map,
+            )
+            reachable_prefixes = _module_prefixes(reachable_modules)
+            reachable_prefix_matches = _repo_prefix_matches(
+                item.identifier,
+                reachable_prefixes,
+            )
+            terminal = item.identifier.rsplit(".", 1)[-1].strip()
             observation = DiagnosticMissObservation(
                 language=language,
                 file_path=file_path,
@@ -118,6 +131,14 @@ def classify_pre_persist_misses(
                 repo_prefix_matches=prefix_matches,
                 longest_repo_prefix_match=prefix_matches[-1] if prefix_matches else "",
                 repo_prefix_match_depth=len(prefix_matches),
+                reachable_repo_prefix_matches=reachable_prefix_matches,
+                longest_reachable_repo_prefix_match=(
+                    reachable_prefix_matches[-1] if reachable_prefix_matches else ""
+                ),
+                reachable_repo_binding=any(
+                    terminal in module_bindings_by_name.get(module_name, set())
+                    for module_name in reachable_modules
+                ),
                 identifier_root=_identifier_root(item.identifier),
             )
             classified = classify_no_in_repo_candidate(observation)
@@ -146,6 +167,13 @@ def classify_pre_persist_misses(
                     "repo_prefix_matches": list(observation.repo_prefix_matches),
                     "longest_repo_prefix_match": observation.longest_repo_prefix_match,
                     "repo_prefix_match_depth": observation.repo_prefix_match_depth,
+                    "reachable_repo_prefix_matches": list(
+                        observation.reachable_repo_prefix_matches
+                    ),
+                    "longest_reachable_repo_prefix_match": (
+                        observation.longest_reachable_repo_prefix_match
+                    ),
+                    "reachable_repo_binding": observation.reachable_repo_binding,
                     "scope": scope_key,
                 }
             )
@@ -170,8 +198,12 @@ def _identifier_root(identifier: str) -> str:
 
 
 def _repo_module_prefixes(module_file_by_name: dict[str, str]) -> set[str]:
+    return _module_prefixes(module_file_by_name)
+
+
+def _module_prefixes(module_names: Sequence[str] | set[str] | dict[str, str]) -> set[str]:
     prefixes: set[str] = set()
-    for module_name in module_file_by_name:
+    for module_name in module_names:
         parts = [part for part in str(module_name).split(".") if part]
         for idx in range(1, len(parts) + 1):
             prefixes.add(".".join(parts[:idx]))
@@ -206,6 +238,16 @@ def _signals_for_observation(
         signals.add("terminal_identifier")
     if observation.candidate_module_hints:
         signals.add("candidate_module_hint")
+    if observation.reachable_repo_prefix_matches:
+        signals.add("reachable_repo_prefix")
+    if observation.longest_reachable_repo_prefix_match:
+        signals.add(
+            f"reachable_repo_prefix_depth:{len(observation.longest_reachable_repo_prefix_match.split('.'))}"
+        )
+    if observation.reachable_repo_binding:
+        signals.add("reachable_repo_binding")
+    if observation.repo_prefix_matches and not observation.reachable_repo_prefix_matches:
+        signals.add("unreachable_repo_prefix")
     if any(reason.endswith("_member_terminal") for reason in reasons):
         signals.add("member_terminal")
     if any("receiver" in reason for reason in reasons):
@@ -217,3 +259,24 @@ def _signals_for_observation(
     if any("builtin" in reason or "stdlib" in reason or "global" in reason for reason in reasons):
         signals.add("runtime_namespace_root")
     return sorted(signals)
+
+
+def _reachable_repo_modules(
+    *,
+    caller_module: str | None,
+    import_targets: dict[str, set[str]],
+    expanded_import_targets: dict[str, set[str]],
+    module_ancestors: dict[str, set[str]],
+    ts_barrel_export_map: dict[str, set[str]],
+) -> set[str]:
+    if not caller_module:
+        return set()
+    reachable: set[str] = {caller_module}
+    reachable.update(module_ancestors.get(caller_module, set()))
+    direct_targets = set(import_targets.get(caller_module, set()))
+    expanded_targets = set(expanded_import_targets.get(caller_module, set()))
+    reachable.update(direct_targets)
+    reachable.update(expanded_targets)
+    for module_name in {caller_module, *direct_targets, *expanded_targets}:
+        reachable.update(ts_barrel_export_map.get(module_name, set()))
+    return reachable

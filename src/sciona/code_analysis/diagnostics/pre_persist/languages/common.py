@@ -23,6 +23,22 @@ def classify_common(
         )
     if observation.repo_prefix_matches:
         if observation.callee_kind == "qualified":
+            repo_prefix_depth = observation.repo_prefix_match_depth or len(
+                observation.repo_prefix_matches
+            )
+            if (
+                observation.reachable_repo_prefix_matches
+                or observation.reachable_repo_binding
+            ):
+                return DiagnosticClassification(
+                    bucket="likely_unindexed_symbol",
+                    reasons=("reachable_repo_owned_prefix",),
+                )
+            if repo_prefix_depth == 1:
+                return DiagnosticClassification(
+                    bucket="likely_external_dependency",
+                    reasons=("shallow_non_reachable_repo_prefix",),
+                )
             return DiagnosticClassification(
                 bucket="likely_unindexed_symbol",
                 reasons=("repo_owned_qualified_prefix",),

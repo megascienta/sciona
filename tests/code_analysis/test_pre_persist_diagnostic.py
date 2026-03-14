@@ -68,6 +68,50 @@ def test_classifier_marks_repo_owned_qualified_name_as_unindexed() -> None:
     assert classified.bucket == "likely_unindexed_symbol"
 
 
+def test_classifier_marks_reachable_repo_prefix_as_unindexed() -> None:
+    observation = DiagnosticMissObservation(
+        language="unknown",
+        file_path="pkg/main.txt",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.main.run",
+        caller_module="repo.pkg.main",
+        identifier="repo.pkg.models.Secret",
+        ordinal=1,
+        callee_kind="qualified",
+        repo_prefix_matches=("repo", "repo.pkg", "repo.pkg.models"),
+        reachable_repo_prefix_matches=("repo.pkg.models",),
+        longest_reachable_repo_prefix_match="repo.pkg.models",
+        identifier_root="repo",
+    )
+
+    classified = classify_no_in_repo_candidate(observation)
+
+    assert classified.bucket == "likely_unindexed_symbol"
+    assert classified.reasons == ("reachable_repo_owned_prefix",)
+
+
+def test_classifier_marks_shallow_non_reachable_repo_prefix_as_external() -> None:
+    observation = DiagnosticMissObservation(
+        language="unknown",
+        file_path="pkg/main.txt",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.main.run",
+        caller_module="repo.pkg.main",
+        identifier="repo.Secret",
+        ordinal=1,
+        callee_kind="qualified",
+        repo_prefix_matches=("repo",),
+        longest_repo_prefix_match="repo",
+        repo_prefix_match_depth=1,
+        identifier_root="repo",
+    )
+
+    classified = classify_no_in_repo_candidate(observation)
+
+    assert classified.bucket == "likely_external_dependency"
+    assert classified.reasons == ("shallow_non_reachable_repo_prefix",)
+
+
 def test_classifier_marks_dynamic_member_terminal() -> None:
     observation = DiagnosticMissObservation(
         language="typescript",
@@ -305,9 +349,9 @@ def test_diagnostic_observation_carries_repo_prefix_strength(monkeypatch) -> Non
         "build_module_context",
         lambda core_conn, snapshot_id: (
             {"caller": "repo.pkg.mod"},
-            {},
-            {},
-            {},
+            {"repo.pkg.mod": {"repo.pkg.models"}},
+            {"repo.pkg.mod": {"repo.pkg.models"}},
+            {"repo.pkg.mod": {"repo", "repo.pkg"}},
             {
                 "repo.pkg": "pkg/__init__.py",
                 "repo.pkg.mod": "pkg/mod.py",
@@ -330,7 +374,7 @@ def test_diagnostic_observation_carries_repo_prefix_strength(monkeypatch) -> Non
     monkeypatch.setattr(
         diagnostic_pipeline,
         "build_module_binding_index",
-        lambda **kwargs: {},
+        lambda **kwargs: {"repo.pkg.models": {"Secret"}},
     )
     monkeypatch.setattr(
         diagnostic_pipeline,
@@ -370,6 +414,16 @@ def test_diagnostic_observation_carries_repo_prefix_strength(monkeypatch) -> Non
     assert observation["repo_prefix_match_depth"] == 3
     assert "deep_repo_prefix" in observation["signals"]
     assert "repo_prefix_depth:3" in observation["signals"]
+    assert observation["reachable_repo_prefix_matches"] == [
+        "repo",
+        "repo.pkg",
+        "repo.pkg.models",
+    ]
+    assert observation["longest_reachable_repo_prefix_match"] == "repo.pkg.models"
+    assert observation["reachable_repo_binding"] is True
+    assert "reachable_repo_prefix" in observation["signals"]
+    assert "reachable_repo_binding" in observation["signals"]
+    assert "reachable_repo_prefix_depth:3" in observation["signals"]
 
 
 def test_classify_pre_persist_misses_uses_progress_factory(monkeypatch) -> None:
@@ -471,6 +525,9 @@ def test_build_verbose_payload_includes_reason_and_prefix_traces() -> None:
                     "signals": [
                         "deep_repo_prefix",
                         "qualified_identifier",
+                        "reachable_repo_binding",
+                        "reachable_repo_prefix",
+                        "reachable_repo_prefix_depth:3",
                         "repo_owned_prefix",
                         "repo_prefix_depth:3",
                     ],
@@ -487,6 +544,13 @@ def test_build_verbose_payload_includes_reason_and_prefix_traces() -> None:
                     "repo_prefix_matches": ["repo", "repo.pkg", "repo.pkg.models"],
                     "longest_repo_prefix_match": "repo.pkg.models",
                     "repo_prefix_match_depth": 3,
+                    "reachable_repo_prefix_matches": [
+                        "repo",
+                        "repo.pkg",
+                        "repo.pkg.models",
+                    ],
+                    "longest_reachable_repo_prefix_match": "repo.pkg.models",
+                    "reachable_repo_binding": True,
                     "scope": "non_tests",
                 }
             ]
@@ -498,6 +562,9 @@ def test_build_verbose_payload_includes_reason_and_prefix_traces() -> None:
     assert bucket_payload["signals"] == {
         "deep_repo_prefix": 1,
         "qualified_identifier": 1,
+        "reachable_repo_binding": 1,
+        "reachable_repo_prefix": 1,
+        "reachable_repo_prefix_depth:3": 1,
         "repo_owned_prefix": 1,
         "repo_prefix_depth:3": 1,
     }
@@ -513,6 +580,9 @@ def test_build_verbose_payload_includes_reason_and_prefix_traces() -> None:
     assert payload["problematic_files"][0]["signals"] == {
         "deep_repo_prefix": 1,
         "qualified_identifier": 1,
+        "reachable_repo_binding": 1,
+        "reachable_repo_prefix": 1,
+        "reachable_repo_prefix_depth:3": 1,
         "repo_owned_prefix": 1,
         "repo_prefix_depth:3": 1,
     }
