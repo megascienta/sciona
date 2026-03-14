@@ -6,11 +6,13 @@
 from .report import (
     build_status_output_path,
     diagnostic_workspace,
+    enrich_report,
     pre_persist_verbose_output_path,
 )
 
 __all__ = [
     "build_status_output_path",
     "diagnostic_workspace",
+    "enrich_report",
     "pre_persist_verbose_output_path",
 ]

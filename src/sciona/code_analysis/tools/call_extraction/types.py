@@ -20,6 +20,18 @@ class CallExtractionRecord:
 
 
 @dataclass(frozen=True)
+class PrePersistObservation:
+    """Diagnostic-only observation for one pre-persist miss."""
+
+    identifier: str
+    ordinal: int
+    callee_kind: str
+    caller_language: str | None = None
+    caller_module: str | None = None
+    candidate_module_hints: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
 class TerminalCallIR:
     terminal: str
 
@@ -59,6 +71,7 @@ __all__ = [
     "CallExtractionRecord",
     "CallTarget",
     "CallTargetIR",
+    "PrePersistObservation",
     "QualifiedCallIR",
     "ReceiverCallIR",
     "TerminalCallIR",

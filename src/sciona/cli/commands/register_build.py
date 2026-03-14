@@ -56,6 +56,7 @@ def _build_command(
     payload["command_wall_seconds"] = max(command_wall_seconds, 0.0)
     if diagnostic and report is not None:
         _write_diagnostic_outputs(
+            result=result,
             report=report,
             diagnostic_verbose=diagnostic_verbose,
         )
@@ -99,15 +100,20 @@ def _emit_build_warnings(result) -> None:
 
 def _write_diagnostic_outputs(
     *,
+    result,
     report: dict[str, object],
     diagnostic_verbose: bool,
 ) -> None:
     repo_root = Path(repo_ops.get_repo_root())
     build_status_path = diagnostic_report.build_status_output_path(repo_root)
+    enriched_report = diagnostic_report.enrich_report(
+        report,
+        getattr(result, "diagnostic_report", None),
+    )
     build_status_payload = {
         "diagnostic_mode": True,
         "diagnostic_kind": "pre_persist_filter_best_effort",
-        "report": report,
+        "report": enriched_report,
     }
     build_status_path.write_text(
         json.dumps(build_status_payload, indent=2, sort_keys=True) + "\n",
@@ -116,13 +122,9 @@ def _write_diagnostic_outputs(
     if not diagnostic_verbose:
         return
     verbose_path = diagnostic_report.pre_persist_verbose_output_path(repo_root)
-    verbose_payload = {
-        "diagnostic_mode": True,
-        "diagnostic_kind": "pre_persist_filter_best_effort",
-        "buckets": {},
-        "callsites": [],
-        "files": [],
-    }
+    verbose_payload = dict(getattr(result, "diagnostic_verbose", None) or {})
+    verbose_payload["diagnostic_mode"] = True
+    verbose_payload["diagnostic_kind"] = "pre_persist_filter_best_effort"
     verbose_path.write_text(
         json.dumps(verbose_payload, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",

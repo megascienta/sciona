@@ -16,6 +16,7 @@ from ..analysis_contracts import (
 )
 from ..core.structural_assembler_index import expand_import_targets
 from ..config import CALLABLE_NODE_TYPES
+from ..tools.call_extraction.types import PrePersistObservation
 from ...data_storage.core_db import read_ops as core_read
 from .call_resolution_python import (
     build_module_binding_index,
@@ -369,6 +370,7 @@ def resolve_callees(
     module_bindings_by_name: dict[str, set[str]] | None = None,
     module_file_by_name: dict[str, str] | None = None,
     ts_barrel_export_map: dict[str, set[str]] | None = None,
+    pre_persist_observations: list[PrePersistObservation] | None = None,
 ) -> tuple[
     set[str],
     set[str],
@@ -467,6 +469,18 @@ def resolve_callees(
                 pre_persist_buckets,
                 "no_in_repo_candidate",
             )
+            if pre_persist_observations is not None:
+                hints = tuple(str(item) for item in (decision.candidate_module_hints or ()))
+                pre_persist_observations.append(
+                    PrePersistObservation(
+                        identifier=identifier,
+                        ordinal=ordinal,
+                        callee_kind=callee_kind,
+                        caller_language=caller_language,
+                        caller_module=caller_module,
+                        candidate_module_hints=hints,
+                    )
+                )
         if decision.accepted_candidate:
             resolved_ids.add(decision.accepted_candidate)
             resolved_names.add(identifier)

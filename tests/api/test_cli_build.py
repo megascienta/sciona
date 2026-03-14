@@ -210,7 +210,19 @@ def test_cli_build_diagnostic_writes_repo_root_outputs(
 ):
     repo_root, _snapshot_id = repo_with_snapshot
     monkeypatch.setattr(repo_ops, "get_repo_root", lambda: repo_root)
-    monkeypatch.setattr(repo_ops, "build", lambda **kwargs: _fake_committed_result())
+    result = _fake_committed_result()
+    result = BuildResult(
+        **{
+            **result.__dict__,
+            "diagnostic_report": {
+                "totals": {},
+                "by_language": {},
+                "by_scope": {"non_tests": {}, "tests": {}},
+                "observations": [],
+            },
+        }
+    )
+    monkeypatch.setattr(repo_ops, "build", lambda **kwargs: result)
     monkeypatch.setattr(repo_ops, "snapshot_report", lambda snapshot_id: _fake_report())
     monkeypatch.setattr(repo_ops, "record_build_wall_time", lambda snapshot_id, wall_seconds: None)
     perf_values = iter([40.0, 40.25])
@@ -226,4 +238,58 @@ def test_cli_build_diagnostic_writes_repo_root_outputs(
     build_status = json.loads(build_status_path.read_text(encoding="utf-8"))
     assert build_status["diagnostic_mode"] is True
     assert build_status["diagnostic_kind"] == "pre_persist_filter_best_effort"
-    assert build_status["report"]["totals"]["pre_persist_filter"]["no_in_repo_candidate"] == 0
+    assert "no_in_repo_candidate" not in build_status["report"]["totals"]["pre_persist_filter"]
+
+
+def test_cli_build_diagnostic_enriches_pre_persist_filter(
+    cli_app, cli_runner, repo_with_snapshot, monkeypatch
+):
+    repo_root, _snapshot_id = repo_with_snapshot
+    monkeypatch.setattr(repo_ops, "get_repo_root", lambda: repo_root)
+    result = _fake_committed_result()
+    result = BuildResult(
+        **{
+            **result.__dict__,
+            "diagnostic_report": {
+                "totals": {
+                    "likely_external_dependency": 2,
+                    "likely_standard_library_or_builtin": 1,
+                },
+                "by_language": {
+                    "python": {
+                        "likely_external_dependency": 2,
+                        "likely_standard_library_or_builtin": 1,
+                    }
+                },
+                "by_scope": {
+                    "non_tests": {
+                        "likely_external_dependency": 2,
+                        "likely_standard_library_or_builtin": 1,
+                    },
+                    "tests": {},
+                },
+                "observations": [],
+            },
+        }
+    )
+    monkeypatch.setattr(repo_ops, "build", lambda **kwargs: result)
+    monkeypatch.setattr(repo_ops, "snapshot_report", lambda snapshot_id: _fake_report())
+    monkeypatch.setattr(repo_ops, "record_build_wall_time", lambda snapshot_id, wall_seconds: None)
+    perf_values = iter([50.0, 50.25])
+    monkeypatch.setattr(build_command, "perf_counter", lambda: next(perf_values))
+
+    result_cli = cli_runner.invoke(cli_app, ["build", "--diagnostic"])
+
+    assert result_cli.exit_code == 0
+    build_status_path = repo_root / f"{repo_root.name}_build_status.json"
+    build_status = json.loads(build_status_path.read_text(encoding="utf-8"))
+    assert build_status["report"]["totals"]["pre_persist_filter"] == {
+        "likely_external_dependency": 2,
+        "likely_standard_library_or_builtin": 1,
+        "likely_dynamic_dispatch_or_indirect": 0,
+        "likely_unindexed_symbol": 0,
+        "likely_parser_extraction_gap": 0,
+        "unclassified_no_in_repo_candidate": 0,
+        "accepted_outside_in_repo": 0,
+        "invalid_observation_shape": 0,
+    }

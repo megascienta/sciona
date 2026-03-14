@@ -15,6 +15,9 @@ from typing import Optional, Sequence
 
 from ...runtime.logging import get_logger
 from ...code_analysis.diagnostics.pre_persist import report as diagnostic_report
+from ...code_analysis.diagnostics.pre_persist.pipeline import (
+    classify_pre_persist_misses,
+)
 from ...code_analysis.analysis.structural_hash import compute_structural_hash
 from ...code_analysis.tools.call_extraction import CallExtractionRecord
 from ...code_analysis.core import snapshot as snapshot_ingest
@@ -68,6 +71,8 @@ class BuildResult:
     imports_by_language: dict[str, dict[str, int]] = field(default_factory=dict)
     analysis_warnings: Sequence[str] = field(default_factory=list)
     artifact_warnings: Sequence[str] = field(default_factory=list)
+    diagnostic_report: dict[str, object] | None = None
+    diagnostic_verbose: dict[str, object] | None = None
 
 
 def build_repo(
@@ -80,7 +85,6 @@ def build_repo(
     diagnostic_verbose: bool = False,
 ) -> BuildResult:
     started_at = perf_counter()
-    del diagnostic_verbose
     build_progress = make_build_progress(total_steps=11 if diagnostic else 10)
     phase_reporter = build_progress.emit_phase
     progress_factory = build_progress.make_progress_factory()
@@ -152,6 +156,7 @@ def build_repo(
             conn.commit()
             call_artifacts: Sequence[CallExtractionRecord] = []
             artifact_warnings: Sequence[str] = []
+            diagnostic_payload: dict[str, object] | None = None
             if policy.artifacts.refresh_artifacts:
                 call_artifacts, artifact_warnings = build_artifacts_for_snapshot(
                     repo_root=repo_state.repo_root,
@@ -165,7 +170,11 @@ def build_repo(
             if diagnostic:
                 phase_reporter("Diagnostic classification")
                 with diagnostic_report.diagnostic_workspace(repo_state.sciona_dir):
-                    pass
+                    diagnostic_payload = classify_pre_persist_misses(
+                        core_conn=conn,
+                        snapshot_id=committed_snapshot_id,
+                        call_records=call_artifacts,
+                    )
             result = BuildResult(
                 files_processed,
                 node_count,
@@ -194,6 +203,12 @@ def build_repo(
                 imports_by_language=dict(engine.imports_by_language),
                 analysis_warnings=list(engine.warnings),
                 artifact_warnings=list(artifact_warnings),
+                diagnostic_report=diagnostic_payload,
+                diagnostic_verbose=(
+                    {"observations": list(diagnostic_payload.get("observations") or [])}
+                    if diagnostic_verbose and diagnostic_payload is not None
+                    else None
+                ),
             )
             write_fingerprint_cache(
                 repo_state=repo_state,
