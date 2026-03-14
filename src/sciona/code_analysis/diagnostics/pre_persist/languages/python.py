@@ -84,7 +84,10 @@ def classify(
     parts = [part for part in identifier.split(".") if part]
     terminal = identifier.rsplit(".", 1)[-1]
     root = observation.identifier_root or identifier.split(".", 1)[0]
-    if root in _PYTHON_BUILTINS or root in _PYTHON_STDLIB_ROOTS:
+    if (
+        not _has_repo_ownership_signal(observation)
+        and (root in _PYTHON_BUILTINS or root in _PYTHON_STDLIB_ROOTS)
+    ):
         return DiagnosticClassification(
             bucket="likely_standard_library_or_builtin",
             reasons=("python_builtin_or_stdlib_root",),
@@ -121,3 +124,12 @@ def _looks_type_like_owner(owner: str) -> bool:
     if not owner:
         return False
     return owner[:1].isupper() or owner.isupper()
+
+
+def _has_repo_ownership_signal(observation: DiagnosticMissObservation) -> bool:
+    return bool(
+        observation.repo_prefix_matches
+        or observation.reachable_repo_prefix_matches
+        or observation.reachable_repo_binding
+        or observation.repo_hint_overlap
+    )

@@ -360,6 +360,50 @@ def test_classifier_uses_python_stdlib_root_refinement() -> None:
     assert classified.bucket == "likely_standard_library_or_builtin"
 
 
+def test_classifier_does_not_treat_repo_owned_python_stdlib_root_as_builtin() -> None:
+    observation = DiagnosticMissObservation(
+        language="python",
+        file_path="pkg/main.py",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.main.run",
+        caller_module="repo.pkg.main",
+        identifier="json.dumps",
+        ordinal=1,
+        callee_kind="qualified",
+        repo_prefix_matches=("json",),
+        longest_repo_prefix_match="json",
+        repo_prefix_match_depth=1,
+        identifier_root="json",
+    )
+
+    classified = classify_no_in_repo_candidate(observation)
+
+    assert classified.bucket == "likely_external_dependency"
+    assert classified.reasons == ("shallow_non_reachable_repo_prefix",)
+
+
+def test_classifier_does_not_treat_repo_owned_javascript_global_as_builtin() -> None:
+    observation = DiagnosticMissObservation(
+        language="javascript",
+        file_path="pkg/main.js",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.main.run",
+        caller_module="repo.pkg.main",
+        identifier="Promise.resolve",
+        ordinal=1,
+        callee_kind="qualified",
+        repo_prefix_matches=("Promise",),
+        longest_repo_prefix_match="Promise",
+        repo_prefix_match_depth=1,
+        identifier_root="Promise",
+    )
+
+    classified = classify_no_in_repo_candidate(observation)
+
+    assert classified.bucket == "likely_external_dependency"
+    assert classified.reasons == ("shallow_non_reachable_repo_prefix",)
+
+
 def test_classifier_keeps_non_repo_qualified_name_as_external() -> None:
     observation = DiagnosticMissObservation(
         language="python",

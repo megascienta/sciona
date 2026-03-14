@@ -24,9 +24,18 @@ def classify(
 ) -> DiagnosticClassification | None:
     identifier = observation.identifier.strip()
     root = observation.identifier_root or identifier.split(".", 1)[0]
-    if root in _JAVA_STDLIB_ROOTS:
+    if not _has_repo_ownership_signal(observation) and root in _JAVA_STDLIB_ROOTS:
         return DiagnosticClassification(
             bucket="likely_standard_library_or_builtin",
             reasons=("java_stdlib_root",),
         )
     return None
+
+
+def _has_repo_ownership_signal(observation: DiagnosticMissObservation) -> bool:
+    return bool(
+        observation.repo_prefix_matches
+        or observation.reachable_repo_prefix_matches
+        or observation.reachable_repo_binding
+        or observation.repo_hint_overlap
+    )
