@@ -112,6 +112,47 @@ def test_classifier_marks_shallow_non_reachable_repo_prefix_as_external() -> Non
     assert classified.reasons == ("shallow_non_reachable_repo_prefix",)
 
 
+def test_classifier_uses_repo_hint_overlap_for_unindexed() -> None:
+    observation = DiagnosticMissObservation(
+        language="unknown",
+        file_path="pkg/main.txt",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.main.run",
+        caller_module="repo.pkg.main",
+        identifier="third.party.Secret",
+        ordinal=1,
+        callee_kind="qualified",
+        candidate_module_hints=("repo.pkg.models", "third.party"),
+        repo_hint_overlap=("repo.pkg.models",),
+        identifier_root="third",
+    )
+
+    classified = classify_no_in_repo_candidate(observation)
+
+    assert classified.bucket == "likely_unindexed_symbol"
+    assert classified.reasons == ("repo_hint_overlap",)
+
+
+def test_classifier_marks_external_module_hints_as_external() -> None:
+    observation = DiagnosticMissObservation(
+        language="unknown",
+        file_path="pkg/main.txt",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.main.run",
+        caller_module="repo.pkg.main",
+        identifier="third.party.Secret",
+        ordinal=1,
+        callee_kind="qualified",
+        candidate_module_hints=("third.party",),
+        identifier_root="third",
+    )
+
+    classified = classify_no_in_repo_candidate(observation)
+
+    assert classified.bucket == "likely_external_dependency"
+    assert classified.reasons == ("qualified_identifier_with_external_module_hints",)
+
+
 def test_classifier_marks_dynamic_member_terminal() -> None:
     observation = DiagnosticMissObservation(
         language="typescript",
@@ -388,7 +429,7 @@ def test_diagnostic_observation_carries_repo_prefix_strength(monkeypatch) -> Non
                 identifier="repo.pkg.models.Secret",
                 ordinal=1,
                 callee_kind="qualified",
-                candidate_module_hints=(),
+                candidate_module_hints=("repo.pkg.models", "third.party"),
             )
         )
         return []
@@ -421,9 +462,12 @@ def test_diagnostic_observation_carries_repo_prefix_strength(monkeypatch) -> Non
     ]
     assert observation["longest_reachable_repo_prefix_match"] == "repo.pkg.models"
     assert observation["reachable_repo_binding"] is True
+    assert observation["repo_hint_overlap"] == ["repo.pkg.models"]
     assert "reachable_repo_prefix" in observation["signals"]
     assert "reachable_repo_binding" in observation["signals"]
     assert "reachable_repo_prefix_depth:3" in observation["signals"]
+    assert "repo_hint_overlap" in observation["signals"]
+    assert "repo_hint_overlap_count:1" in observation["signals"]
 
 
 def test_classify_pre_persist_misses_uses_progress_factory(monkeypatch) -> None:
@@ -525,6 +569,8 @@ def test_build_verbose_payload_includes_reason_and_prefix_traces() -> None:
                     "signals": [
                         "deep_repo_prefix",
                         "qualified_identifier",
+                        "repo_hint_overlap",
+                        "repo_hint_overlap_count:1",
                         "reachable_repo_binding",
                         "reachable_repo_prefix",
                         "reachable_repo_prefix_depth:3",
@@ -540,7 +586,7 @@ def test_build_verbose_payload_includes_reason_and_prefix_traces() -> None:
                     "identifier_root": "repo",
                     "ordinal": 1,
                     "callee_kind": "qualified",
-                    "candidate_module_hints": [],
+                    "candidate_module_hints": ["repo.pkg.models", "third.party"],
                     "repo_prefix_matches": ["repo", "repo.pkg", "repo.pkg.models"],
                     "longest_repo_prefix_match": "repo.pkg.models",
                     "repo_prefix_match_depth": 3,
@@ -551,6 +597,7 @@ def test_build_verbose_payload_includes_reason_and_prefix_traces() -> None:
                     ],
                     "longest_reachable_repo_prefix_match": "repo.pkg.models",
                     "reachable_repo_binding": True,
+                    "repo_hint_overlap": ["repo.pkg.models"],
                     "scope": "non_tests",
                 }
             ]
@@ -562,6 +609,8 @@ def test_build_verbose_payload_includes_reason_and_prefix_traces() -> None:
     assert bucket_payload["signals"] == {
         "deep_repo_prefix": 1,
         "qualified_identifier": 1,
+        "repo_hint_overlap": 1,
+        "repo_hint_overlap_count:1": 1,
         "reachable_repo_binding": 1,
         "reachable_repo_prefix": 1,
         "reachable_repo_prefix_depth:3": 1,
@@ -580,6 +629,8 @@ def test_build_verbose_payload_includes_reason_and_prefix_traces() -> None:
     assert payload["problematic_files"][0]["signals"] == {
         "deep_repo_prefix": 1,
         "qualified_identifier": 1,
+        "repo_hint_overlap": 1,
+        "repo_hint_overlap_count:1": 1,
         "reachable_repo_binding": 1,
         "reachable_repo_prefix": 1,
         "reachable_repo_prefix_depth:3": 1,

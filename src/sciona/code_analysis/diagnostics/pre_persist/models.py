@@ -37,6 +37,7 @@ class DiagnosticMissObservation:
     reachable_repo_prefix_matches: tuple[str, ...] = ()
     longest_reachable_repo_prefix_match: str = ""
     reachable_repo_binding: bool = False
+    repo_hint_overlap: tuple[str, ...] = ()
     identifier_root: str = ""
 
 

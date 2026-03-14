@@ -139,6 +139,10 @@ def classify_pre_persist_misses(
                     terminal in module_bindings_by_name.get(module_name, set())
                     for module_name in reachable_modules
                 ),
+                repo_hint_overlap=_repo_hint_overlap(
+                    item.candidate_module_hints,
+                    repo_module_prefixes,
+                ),
                 identifier_root=_identifier_root(item.identifier),
             )
             classified = classify_no_in_repo_candidate(observation)
@@ -174,6 +178,7 @@ def classify_pre_persist_misses(
                         observation.longest_reachable_repo_prefix_match
                     ),
                     "reachable_repo_binding": observation.reachable_repo_binding,
+                    "repo_hint_overlap": list(observation.repo_hint_overlap),
                     "scope": scope_key,
                 }
             )
@@ -248,6 +253,11 @@ def _signals_for_observation(
         signals.add("reachable_repo_binding")
     if observation.repo_prefix_matches and not observation.reachable_repo_prefix_matches:
         signals.add("unreachable_repo_prefix")
+    if observation.repo_hint_overlap:
+        signals.add("repo_hint_overlap")
+        signals.add(f"repo_hint_overlap_count:{len(observation.repo_hint_overlap)}")
+    elif observation.candidate_module_hints:
+        signals.add("external_module_hint")
     if any(reason.endswith("_member_terminal") for reason in reasons):
         signals.add("member_terminal")
     if any("receiver" in reason for reason in reasons):
@@ -280,3 +290,20 @@ def _reachable_repo_modules(
     for module_name in {caller_module, *direct_targets, *expanded_targets}:
         reachable.update(ts_barrel_export_map.get(module_name, set()))
     return reachable
+
+
+def _repo_hint_overlap(
+    candidate_module_hints: Sequence[str],
+    repo_module_prefixes: set[str],
+) -> tuple[str, ...]:
+    matches: set[str] = set()
+    for hint in candidate_module_hints:
+        hint_str = str(hint).strip()
+        if not hint_str:
+            continue
+        for idx in range(1, len(hint_str.split(".")) + 1):
+            prefix = ".".join(hint_str.split(".")[:idx])
+            if prefix in repo_module_prefixes:
+                matches.add(hint_str)
+                break
+    return tuple(sorted(matches))

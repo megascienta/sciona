@@ -34,6 +34,11 @@ def classify_common(
                     bucket="likely_unindexed_symbol",
                     reasons=("reachable_repo_owned_prefix",),
                 )
+            if observation.repo_hint_overlap:
+                return DiagnosticClassification(
+                    bucket="likely_unindexed_symbol",
+                    reasons=("repo_hint_overlap",),
+                )
             if repo_prefix_depth == 1:
                 return DiagnosticClassification(
                     bucket="likely_external_dependency",
@@ -54,10 +59,15 @@ def classify_common(
                 bucket="likely_dynamic_dispatch_or_indirect",
                 reasons=("dynamic_receiver_root",),
             )
+        if observation.repo_hint_overlap:
+            return DiagnosticClassification(
+                bucket="likely_unindexed_symbol",
+                reasons=("repo_hint_overlap",),
+            )
         if observation.candidate_module_hints:
             return DiagnosticClassification(
                 bucket="likely_external_dependency",
-                reasons=("qualified_identifier_with_module_hints",),
+                reasons=("qualified_identifier_with_external_module_hints",),
             )
         return DiagnosticClassification(
             bucket="likely_external_dependency",
