@@ -18,6 +18,7 @@ from ...artifacts.call_resolution import (
 )
 from ...tools.call_extraction import CallExtractionRecord, PrePersistObservation
 from ....data_storage.core_db import read_ops as core_read
+from ....pipelines.progress import ProgressFactory
 from ....pipelines.exec.reporting_callsites import scope_bucket
 from .classifier import classify_no_in_repo_candidate
 from .models import DiagnosticAggregation, DiagnosticMissObservation
@@ -29,6 +30,7 @@ def classify_pre_persist_misses(
     core_conn,
     snapshot_id: str,
     call_records: Sequence[CallExtractionRecord],
+    progress_factory: ProgressFactory | None = None,
 ) -> dict[str, object]:
     if not call_records:
         return {
@@ -69,6 +71,11 @@ def classify_pre_persist_misses(
             "non_tests": empty_diagnostic_buckets(),
             "tests": empty_diagnostic_buckets(),
         },
+    )
+    progress_handle = (
+        progress_factory("Diagnostic classification", len(call_records))
+        if progress_factory is not None
+        else None
     )
     for record in call_records:
         caller_id = record.caller_structural_id
@@ -131,6 +138,10 @@ def classify_pre_persist_misses(
                     "scope": scope_key,
                 }
             )
+        if progress_handle is not None:
+            progress_handle.advance(1)
+    if progress_handle is not None:
+        progress_handle.close()
     return {
         "totals": aggregation.totals,
         "by_language": aggregation.by_language,

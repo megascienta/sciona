@@ -168,13 +168,22 @@ def build_repo(
                     phase_reporter=phase_reporter,
                 )
             if diagnostic:
-                phase_reporter("Diagnostic classification")
-                with diagnostic_report.diagnostic_workspace(repo_state.sciona_dir):
-                    diagnostic_payload = classify_pre_persist_misses(
-                        core_conn=conn,
-                        snapshot_id=committed_snapshot_id,
-                        call_records=call_artifacts,
-                    )
+                if call_artifacts:
+                    with diagnostic_report.diagnostic_workspace(repo_state.sciona_dir):
+                        diagnostic_payload = classify_pre_persist_misses(
+                            core_conn=conn,
+                            snapshot_id=committed_snapshot_id,
+                            call_records=call_artifacts,
+                            progress_factory=progress_factory,
+                        )
+                else:
+                    phase_reporter("Diagnostic classification")
+                    with diagnostic_report.diagnostic_workspace(repo_state.sciona_dir):
+                        diagnostic_payload = classify_pre_persist_misses(
+                            core_conn=conn,
+                            snapshot_id=committed_snapshot_id,
+                            call_records=call_artifacts,
+                        )
             result = BuildResult(
                 files_processed,
                 node_count,
