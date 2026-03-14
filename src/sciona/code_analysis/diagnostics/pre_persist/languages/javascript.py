@@ -46,6 +46,19 @@ _JS_COLLECTION_MEMBER_TERMINALS = frozenset(
         "some",
     }
 )
+_JS_ALWAYS_DYNAMIC_FLUENT_TERMINALS = frozenset(
+    {
+        "filter",
+        "find",
+        "flatMap",
+        "forEach",
+        "includes",
+        "map",
+        "reduce",
+        "slice",
+        "some",
+    }
+)
 
 
 def classify(
@@ -72,6 +85,11 @@ def classify(
     if terminal in _JS_DYNAMIC_MEMBER_TERMINALS:
         if observation.repo_prefix_matches and observation.callee_kind == "qualified":
             owner = parts[-2] if len(parts) >= 2 else ""
+            if terminal in _JS_ALWAYS_DYNAMIC_FLUENT_TERMINALS:
+                return DiagnosticClassification(
+                    bucket="likely_dynamic_dispatch_or_indirect",
+                    reasons=("repo_owned_dynamic_member_terminal",),
+                )
             if (
                 terminal in _JS_COLLECTION_MEMBER_TERMINALS
                 and owner
