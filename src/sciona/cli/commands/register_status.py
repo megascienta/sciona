@@ -22,20 +22,10 @@ from ..support import render as cli_render
 
 
 def _status_command(
-    full: bool = typer.Option(
-        False,
-        "--full",
-        help="Show per-language diagnostic details in text output.",
-    ),
     verbose: bool = typer.Option(
         False,
         "--verbose",
-        help="Alias for --full (text output only).",
-    ),
-    json_output: bool = typer.Option(
-        False,
-        "--json",
-        help="Emit machine-readable JSON output.",
+        help="Show per-language diagnostic details in text output.",
     ),
     output: Optional[Path] = typer.Option(
         None,
@@ -46,8 +36,8 @@ def _status_command(
 ) -> None:
     """Show SCIONA status for the current repository (warns if dirty)."""
     status_result = cli_call(repo_ops.status)
-    export_mode = bool(json_output or output is not None)
-    detailed = bool(full or verbose) if not export_mode else True
+    export_mode = bool(output is not None)
+    detailed = bool(verbose) if not export_mode else True
     include_failure_reasons = bool(detailed or export_mode)
     report = None
     artifact_db_available = False
@@ -82,12 +72,9 @@ def _status_command(
         if output is not None:
             output.parent.mkdir(parents=True, exist_ok=True)
             output.write_text(text + "\n", encoding="utf-8")
-        if json_output:
-            typer.echo(text)
-        return
-    emit_dirty_worktree_warning(status_result.repo_root)
-    cli_render.emit(cli_render.render_status(payload))
-
+    if not export_mode:
+        emit_dirty_worktree_warning(status_result.repo_root)
+        cli_render.emit(cli_render.render_status(payload))
 
 def _clean_command(
     hooks: bool = typer.Option(

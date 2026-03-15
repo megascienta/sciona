@@ -2,9 +2,9 @@
     <img src="assets/logo.jpg" alt="SCIONA logo" width="275">
 </p>
 
-### Deterministic structural context for code assistants
+## Deterministic structural context for code assistants
 
-In large, long-lived codebases, LLM assistance often follows the same pattern: it starts useful, then gradually becomes inconsistent. Earlier assumptions drift, structural constraints disappear, and the model continues producing plausible answers that no longer reflect the actual code.
+In large, long-lived repositories, LLM assistance often follows the same pattern: it starts useful, then gradually becomes inconsistent. Earlier assumptions drift, structural constraints disappear, and the model continues producing plausible answers that no longer reflect the actual code.
 
 **This is usually not an LLM failure. It is a context stability problem.**
 
@@ -12,41 +12,35 @@ Most tooling addresses this through embeddings, semantic retrieval, or dynamical
 
 **SCIONA takes a different approach.**
 
-SCIONA builds a **deterministic structural index (SCI)** for a repository. The index is derived from the last committed snapshot using [tree-sitter](https://tree-sitter.github.io/tree-sitter/) to extract structural relationships between code entities. The analysis is static and source-only, currently supporting **Python**, **Java**, **TypeScript**, and **JavaScript**.
+SCIONA builds a **deterministic structural index (SCI)** for a Git repository. The index is derived from the last committed snapshot using [tree-sitter](https://tree-sitter.github.io/tree-sitter/) to extract structural relationships between code entities. The analysis is static and source-only, currently supporting **Python**, **Java**, **TypeScript**, and **JavaScript**.
 
 Instead of repeatedly reconstructing repository structure from source files, tools can query the SCI through reducers. A **reducer** is a deterministic structural query that returns a reproducible payload for a given scope. In effect, SCIONA converts repository structure into **stable structural facts** that tools can query directly.
 
 **SCIONA intentionally provides structure — not interpretation.**
 
-Its goal is to give LLM-assisted workflows a stable structural anchor while leaving semantic reasoning, runtime analysis, and validation to other tools.
+Its goal is to provide a stable structural anchor while leaving semantic reasoning, runtime analysis, and validation to other tools.
 
 Although motivated by LLM workflows, SCIONA itself is LLM-agnostic infrastructure. Any system that needs deterministic structural information about a repository can use it.
 
 ![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Status](https://img.shields.io/badge/status-active%20development-orange)
 
 ## How SCIONA can be used
 
 SCIONA is intended for workflows where tools must reason about **repository structure** reliably. Typical use cases include grounding LLM code assistants, performing deterministic repository audits, building code intelligence tooling, or stabilizing long-running agent workflows.
 
-SCIONA can be used directly through its CLI, but it is most powerful when integrated into LLM-assisted development.
+SCIONA can be used directly through its CLI, but it becomes most powerful when integrated into LLM-assisted development workflows.
 
-During initialization, SCIONA generates an `AGENTS.md` file in the repository root. This file defines how copilots and automated agents should reason about the repository when SCIONA is available.
+During initialization, SCIONA generates an `AGENTS.md` file in the repository root. This file tells copilots when to use SCIONA reducers and when to fall back to normal source inspection. Structural questions get grounded in the index. Non-structural questions; semantic, runtime, and documentation questions go to conventional tools as usual.
 
-The file acts as an **operational protocol**:
-- Structural questions must be grounded using SCIONA reducers.
-- Mixed questions must first establish structural facts through SCIONA before switching to source inspection or other tools.
-- Non-structural questions may use normal repository inspection directly.
-
-In other words, **SCIONA becomes the structural authority for the repository**, while semantic reasoning, runtime analysis, and validation continue to use normal development tools.
+In other words, **SCIONA becomes the structural authority for the repository**, while the rest of the workflow stays flexible.
 
 This allows agents to anchor their reasoning in deterministic structural evidence while keeping the rest of the workflow flexible.
 
 ## Quick start
 
 Requirements:
-- Python 3.11-3.12
+- Python 3.11 or 3.12
 - Git
 
 Install SCIONA from the GitHub release:
@@ -65,14 +59,12 @@ Build the structural index:
 ```bash
 sciona build
 ```
-This parses the committed repository snapshot and constructs the Structural Code Index (SCI).
+This parses the last committed repository snapshot and constructs the Structural Code Index (SCI).
 
 Explore available structural queries:
 ```bash
 sciona reducer list
 ```
-
-Reducers expose deterministic structural queries over the index and are the primary interface used by both CLI workflows and LLM-assisted tooling.
 
 ## Structural model
 
@@ -98,7 +90,7 @@ CLI / LLM workflows / Agents
 
 ### Snapshot model
 
-SCIONA indexes the **last committed snapshot**. Reducers are evaluated against that committed snapshot, not against uncommitted working tree state. If you change tracked source files, commit and run `sciona build` to refresh the snapshot before relying on reducer output. If your worktree is dirty, reducer output includes a _diff advisory payload describing affected scope. Treat this as a warning, not structural evidence. For authoritative results, commit and `sciona build` first.
+SCIONA indexes the **last committed snapshot**. Reducers are evaluated against that committed snapshot, not against uncommitted working tree state. If you change tracked source files, commit and run `sciona build` to refresh the snapshot before relying on reducer output. If your worktree is dirty, reducer output includes a `_diff` advisory payload describing affected scope. Treat this as an advisory, not structural evidence. For authoritative results, commit and `sciona build` first.
 
 ### Supported languages
 Python, Java, TypeScript, JavaScript. Indexed languages can be enabled or disabled in `.sciona/config.yaml`.
@@ -117,7 +109,7 @@ sciona reducer list
 sciona reducer info --id REDUCER_ID
 ```
 
-### Find identifiers
+### Search for identifiers
 
 ```bash
 sciona search QUERY [--kind KIND] [--limit LIMIT] [--json]
@@ -132,6 +124,8 @@ sciona resolve IDENTIFIER [--kind KIND] [--limit LIMIT] [--json]
 ```bash
 sciona reducer --id module_overview --module-id sciona.src.sciona.cli
 ```
+
+Reducers return deterministic JSON payloads describing structural scope.
 
 ```json
 {
@@ -173,36 +167,54 @@ sciona reducer --id module_overview --module-id sciona.src.sciona.cli
                 "structural_id": "aaa479c9bfbca4474abb90a5c467dcc1c9f3c9c9",
                 "qualified_name": "sciona.src.sciona.cli.commands.register_agents.register_agents"
             },
-        // Output truncated for brevity
+        "...": "output truncated"
 ```
 
-## Structural Resolution and Build Performance
+## Validation
 
-SCIONA has been validated against 10 open-source repositories spanning a wide range of sizes, languages, and structures: [Airbyte](https://github.com/airbytehq/airbyte), [Axios](https://github.com/axios/axios), [Commons Lang](https://github.com/apache/commons-lang), [FastAPI](https://github.com/fastapi/fastapi), [Guava](https://github.com/google/guava), [NestJS](https://github.com/nestjs/nest), [Pydantic](https://github.com/pydantic/pydantic), [SymPy](https://github.com/sympy/sympy), [VSCode](https://github.com/microsoft/vscode), and [Webpack](https://github.com/webpack/webpack).
+The following sections summarize validation results across open-source repositories and real development workflows.
 
-**Takeaway:** Build cost scales with structural size, and call resolution remains high-accountability even on large or test-heavy repositories.
+### Structural Resolution and Build Performance
 
-xxx
+SCIONA has been validated against a diverse set of open-source repositories spanning multiple languages, sizes, and architectural styles, including [Airbyte](https://github.com/airbytehq/airbyte), [Commons Lang](https://github.com/apache/commons-lang), [ESLint](https://github.com/eslint/eslint), [Guava](https://github.com/google/guava), [npm/cli](https://github.com/npm/cli), [Pydantic](https://github.com/pydantic/pydantic), [Rollup](https://github.com/rollup), [SymPy](https://github.com/sympy/sympy), [VSCode](https://github.com/microsoft/vscode), and [Webpack](https://github.com/webpack/webpack).
 
-Validation reports and methodology are in [`validations/build_status_reports/`](validations/build_status_reports/).
+**Takeaway:** Build cost scales with structural size, while call resolution remains robust across repositories and languages with very different structural characteristics.
 
-## Copilot evaluation
+Observed patterns:
 
-A 40-task development session was conducted using Codex (GPT-5.4) as the copilot on SCIONA’s own repository. Tasks included architecture reviews, semantic investigations, implementation work, and repository maintenance. The session followed a realistic development workflow: audits, follow-up analysis, planning, implementation, and post-change verification rather than isolated prompts.
+- **Predictable structural scaling.** Build time grows with structural size measured as nodes plus edges. Across the evaluated repositories, build times range from a few seconds for small projects to several minutes for very large codebases. Normalizing by structural size shows that build cost remains stable across repositories once differences in structure are accounted for.
+
+- **Stable pipeline composition.** For most repositories, the majority of build time is spent in structural extraction and call observation stages. For larger repositories, graph preparation and indexing stages contribute a larger share of the total cost, but overall build composition remains consistent across projects.
+
+- **High callsite accountability.** In repositories where most calls remain within repository scope, accepted callees typically cover more than 90% of observed syntactic callsites. Lower acceptance rates arise primarily when many calls target external or otherwise out-of-scope code, which is filtered before persistence rather than silently misresolved.
+
+- **Clear language-level differences.** Static languages show the highest acceptance rates: Java resolves about 95% of 43,954 observed callsites, and TypeScript about 91% of 157,699. JavaScript resolves about 75% of 17,774 callsites, while Python resolves about 70% of 91,261. The lower acceptance rates for dynamic languages are driven primarily by higher pre-persist filtering due to dynamic dispatch patterns and calls to external or stdlib code.
+
+- **Stable downstream behavior.** Once a callsite passes the pre-persist filter, post-persist drop rates remain low and consistent across languages, indicating stable pipeline behavior after candidate resolution.
+
+- **Code vs. test behavior.** Filtering rates are consistently higher in test code than in production code. Test suites frequently rely on dynamic fixtures, mocking frameworks, and calls into external libraries, which naturally fall outside the repository's structural scope.
+
+Validation reports, plots, and methodology are available in [`validations/build_status_reports/`](validations/build_status_reports/).
+
+### Copilot evaluation
+
+A 40-task development session was conducted using Codex (GPT-5.4) as the copilot on SCIONA’s own repository. Tasks included architecture reviews, semantic investigations, implementation, and repository maintenance. The session followed a realistic development workflow: audits, follow-up analysis, planning, implementation, and post-change verification rather than isolated prompts.
 
 **Takeaway:** SCIONA proved most useful for structural triage and scope control, and much less for semantic or runtime questions that required direct source inspection. Across the 40 tasks, SCIONA primarily increased **confidence and scope clarity**, while pure time savings were smaller. This matches the intended role of the tool: deterministic structural grounding rather than semantic interpretation.
 
 Observed patterns:
 
-- **Structural orientation:** Reducers were most valuable during architecture audits and early investigation, surfacing ownership, coupling hubs, and integrity anomalies before source inspection.
+- **Structural orientation:** Reducers were most valuable during architecture audits and early investigation, surfacing ownership, coupling hubs, and integrity anomalies before source inspection. The most-used reducers were ownership_summary, fan_summary, and structural_integrity_summary, consistent with a workflow centered on architecture triage and scope control.
 - **Scope reduction:** Structural evidence narrowed edit scope and helped identify high-impact modules and helper chokepoints.
 - **Post-change verification:** Re-running reducers after implementation provided quick confirmation that structural issues were resolved.
 - **Limits:** Algorithm logic, parser behavior, runtime semantics, documentation correctness, and test validation still required direct source inspection and conventional tooling, outside SCIONA’s structural scope.
 
+Across the 40 tasks, SCIONA primarily increased confidence and scope clarity (average confidence score 9.0/10) while pure time savings were more modest (5.2/10). This matches the intended role of the tool: deterministic structural grounding rather than semantic interpretation.
+
 Detailed task notes, prompts, and session reports are available in  
 [`validations/copilot_evaluation/`](validations/copilot_evaluation/).
 
-## Documentation
+## Project documentation
 
 - Contract: [`docs/CONTRACT.md`](docs/CONTRACT.md)
 - Developer guide: [`docs/DEVELOPERGUIDE.md`](docs/DEVELOPERGUIDE.md)
