@@ -65,6 +65,10 @@ def build_symbol_index(
         if terminal:
             index_sets[terminal].add(structural_id)
         index_sets[qualified_name].add(structural_id)
+        if terminal in ('__init__', '__new__', 'new'):
+            class_name = simple_identifier(qualified_name.rsplit('.', 1)[0])
+            if class_name:
+                index_sets[class_name].add(structural_id)
     return (
         {key: sorted(values) for key, values in index_sets.items()},
         in_repo_callable_ids,

@@ -171,20 +171,20 @@
     },
     "timing": {
       "build_phase_timings": {
-        "build_structural_index": 7.715862274999381,
-        "compute_build_fingerprint": 0.2238863130005484,
-        "derive_call_artifacts": 7.735021357999358,
-        "diagnostic_classification": 0.015195511998172151,
-        "discover_files": 0.640699802999734,
-        "prepare_callsite_pairs": 0.027434982999693602,
-        "prepare_snapshots": 0.26487233500301954,
-        "rebuild_graph_index": 0.03466416700030095,
-        "rebuild_graph_rollups": 0.05734807399858255,
-        "register_modules": 0.41900340499705635,
-        "write_callsite_pairs": 0.017108222000388196
+        "build_structural_index": 9.254312336001021,
+        "compute_build_fingerprint": 0.4101552840002114,
+        "derive_call_artifacts": 9.029471144000127,
+        "diagnostic_classification": 0.015450519997102674,
+        "discover_files": 1.0081494679980096,
+        "prepare_callsite_pairs": 0.027140709004015662,
+        "prepare_snapshots": 0.4839695260016015,
+        "rebuild_graph_index": 0.038167427002917975,
+        "rebuild_graph_rollups": 0.06080977399687981,
+        "register_modules": 0.5223014530056389,
+        "write_callsite_pairs": 0.017478019995905925
       },
-      "build_total_seconds": 18.751919,
-      "build_wall_seconds": 19.112986
+      "build_total_seconds": 22.810411,
+      "build_wall_seconds": 36.935628
     },
     "totals": {
       "call_materialization": {
