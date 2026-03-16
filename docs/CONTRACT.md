@@ -395,6 +395,8 @@ JavaScript criteria:
 - Bound callable expressions with stable lexical bindings from
   `variable_declarator`, `assignment_expression`, and `field_definition` map to
   `callable` with role `bound`.
+- Object literal methods bound to stable identifiers MUST map
+to `callable` nodes with role `bound`.
 - Constructors map to `callable` with role `constructor`.
 - Inline anonymous callbacks are non-structural.
 - Imports are extracted from:

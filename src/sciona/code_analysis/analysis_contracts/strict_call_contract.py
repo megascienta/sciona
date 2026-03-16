@@ -290,7 +290,7 @@ def _is_constructor_proxy_match(*, identifier: str, candidate_qname: str) -> boo
     if not candidate_qname.startswith(f"{identifier}."):
         return False
     suffix = candidate_qname[len(identifier) + 1 :]
-    return suffix in {"__new__", "__init__", "new"}
+    return suffix in {"__new__", "__init__", "new", "constructor"}
 
 
 def _has_structural_tail_match(*, identifier: str, candidate_qname: str) -> bool:
