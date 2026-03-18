@@ -1,18 +1,12 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""JavaScript structural-node extraction wrappers."""
+"""JavaScript structural-node extraction interfaces."""
 
 from __future__ import annotations
 
-from ..typescript.typescript_nodes import TypeScriptNodeState, walk_typescript_nodes
+from .javascript_node_state import JavaScriptNodeState
+from .javascript_node_walk import walk_javascript_nodes
 
 
-def walk_javascript_nodes(*args, **kwargs):
-    """Reuse the TypeScript walker with JavaScript query surfaces."""
-    kwargs.setdefault("syntax_language", "javascript")
-    return walk_typescript_nodes(*args, **kwargs)
-
-
-__all__ = ["TypeScriptNodeState", "walk_javascript_nodes"]
-
+__all__ = ["JavaScriptNodeState", "walk_javascript_nodes"]

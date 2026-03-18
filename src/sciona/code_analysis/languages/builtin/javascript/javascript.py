@@ -39,7 +39,7 @@ from ...common.support.analyzer_support import (
 )
 from .javascript_calls import callee_text, resolve_javascript_calls
 from .javascript_imports import collect_javascript_import_model
-from .javascript_nodes import TypeScriptNodeState, walk_javascript_nodes
+from .javascript_nodes import JavaScriptNodeState, walk_javascript_nodes
 from .javascript_resolution import (
     collect_callable_typed_binding_instance_map,
     resolve_pending_instances,
@@ -74,7 +74,7 @@ class JavaScriptAnalyzer(ASTAnalyzer):
         )
         buffer.add_node(module_node)
         root = tree.root_node
-        state = TypeScriptNodeState()
+        state = JavaScriptNodeState()
         for child in find_direct_children_of_types_query(
             root,
             language_name=self.language,
