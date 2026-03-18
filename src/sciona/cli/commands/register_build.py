@@ -4,17 +4,13 @@
 """CLI commands for repository builds."""
 
 from __future__ import annotations
-
-import json
-from pathlib import Path
 from time import perf_counter
 
 import typer
 
 from .. import repo_ops
-from ..support.utils import cli_call
 from ..support import render as cli_render
-from ...code_analysis.diagnostics.pre_persist import report as diagnostic_report
+from ..support.utils import cli_call
 
 
 def _build_command(
@@ -104,33 +100,12 @@ def _write_diagnostic_outputs(
     report: dict[str, object],
     diagnostic_verbose: bool,
 ) -> None:
-    repo_root = Path(repo_ops.get_repo_root())
-    build_status_path = diagnostic_report.build_status_output_path(repo_root)
-    enriched_report = diagnostic_report.enrich_report(
-        report,
-        getattr(result, "diagnostic_report", None),
-    )
-    build_status_payload = {
-        "diagnostic_mode": True,
-        "diagnostic_kind": "pre_persist_filter_best_effort",
-        "report": enriched_report,
-    }
-    build_status_path.write_text(
-        json.dumps(build_status_payload, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
-    if not diagnostic_verbose:
-        return
-    verbose_path = diagnostic_report.pre_persist_verbose_output_path(repo_root)
-    verbose_payload = dict(
-        getattr(result, "diagnostic_verbose", None)
-        or diagnostic_report.build_verbose_payload(getattr(result, "diagnostic_report", None))
-    )
-    verbose_payload["diagnostic_mode"] = True
-    verbose_payload["diagnostic_kind"] = "pre_persist_filter_best_effort"
-    verbose_path.write_text(
-        json.dumps(verbose_payload, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
+    cli_call(
+        repo_ops.write_build_diagnostic_outputs,
+        result=result,
+        report=report,
+        diagnostic_verbose=diagnostic_verbose,
+        repo_root=repo_ops.get_repo_root(),
     )
 
 __all__ = ["register_build"]

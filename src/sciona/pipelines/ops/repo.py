@@ -10,9 +10,11 @@ live under `pipelines.exec`.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Mapping, Optional
 
+from ...code_analysis.diagnostics.pre_persist import report as diagnostic_report
 from ..domain.repository import RepoState
 from ..domain.policies import BuildPolicy
 from ...runtime.logging import get_logger
@@ -150,6 +152,43 @@ def record_build_wall_time(
         repo_state=repo_state,
         snapshot_id=snapshot_id,
         wall_seconds=wall_seconds,
+    )
+
+
+def write_build_diagnostic_outputs(
+    result: BuildResult,
+    report: dict[str, object],
+    *,
+    diagnostic_verbose: bool,
+    repo_root: Optional[Path] = None,
+) -> None:
+    resolved_repo_root = Path(repo_root) if repo_root is not None else Path.cwd()
+    build_status_path = diagnostic_report.build_status_output_path(resolved_repo_root)
+    enriched_report = diagnostic_report.enrich_report(
+        report,
+        getattr(result, "diagnostic_report", None),
+    )
+    build_status_payload = {
+        "diagnostic_mode": True,
+        "diagnostic_kind": "pre_persist_filter_best_effort",
+        "report": enriched_report,
+    }
+    build_status_path.write_text(
+        json.dumps(build_status_payload, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    if not diagnostic_verbose:
+        return
+    verbose_path = diagnostic_report.pre_persist_verbose_output_path(resolved_repo_root)
+    verbose_payload = dict(
+        getattr(result, "diagnostic_verbose", None)
+        or diagnostic_report.build_verbose_payload(getattr(result, "diagnostic_report", None))
+    )
+    verbose_payload["diagnostic_mode"] = True
+    verbose_payload["diagnostic_kind"] = "pre_persist_filter_best_effort"
+    verbose_path.write_text(
+        json.dumps(verbose_payload, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
     )
 
 

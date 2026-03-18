@@ -194,7 +194,7 @@ def test_cli_status_default_uses_short_summary(cli_app, cli_runner, monkeypatch)
     assert "pre_persist_filter:" not in result.stdout
 
 
-def test_cli_status_full_emits_grouped_direct_metrics(cli_app, cli_runner, monkeypatch):
+def test_cli_status_verbose_emits_grouped_direct_metrics(cli_app, cli_runner, monkeypatch):
     calls: list[bool] = []
 
     def _summary(snapshot_id: str, include_failure_reasons: bool = False):
@@ -205,7 +205,7 @@ def test_cli_status_full_emits_grouped_direct_metrics(cli_app, cli_runner, monke
     monkeypatch.setattr(repo_ops, "status", _fake_status)
     monkeypatch.setattr(repo_ops, "snapshot_report", _summary)
 
-    result = cli_runner.invoke(cli_app, ["status", "--full"])
+    result = cli_runner.invoke(cli_app, ["status", "--verbose"])
 
     assert result.exit_code == 0
     assert calls == [True]
@@ -230,35 +230,6 @@ def test_cli_status_full_emits_grouped_direct_metrics(cli_app, cli_runner, monke
     assert "callsite_pairs=8, finalized_call_edges=8" in result.stdout
     assert "pair_expansion:" not in result.stdout
     assert "conservation mismatch" not in result.stdout
-
-
-def test_cli_status_json_emits_payload(cli_app, cli_runner, monkeypatch):
-    calls: list[bool] = []
-
-    def _summary(snapshot_id: str, include_failure_reasons: bool = False):
-        assert snapshot_id == "snap-1"
-        calls.append(include_failure_reasons)
-        return _fake_report()
-
-    monkeypatch.setattr(repo_ops, "status", _fake_status)
-    monkeypatch.setattr(repo_ops, "snapshot_report", _summary)
-
-    result = cli_runner.invoke(cli_app, ["status", "--json"])
-
-    assert result.exit_code == 0
-    assert calls == [True]
-    payload = json.loads(result.stdout)
-    assert payload["repo_root"] == os.path.relpath("/tmp/repo", start=os.getcwd())
-    assert not payload["repo_root"].startswith("/")
-    assert payload["latest_snapshot"] == "snap-1"
-    assert payload["status_report_version"] == 1
-    assert payload["artifact_db_available"] is True
-    assert payload["report"]["timing"]["build_total_seconds"] == 1.234
-    assert payload["report"]["timing"]["build_wall_seconds"] == 1.5
-    assert payload["report"]["timing"]["build_phase_timings"]["build_structural_index"] == 0.8
-    assert payload["report"]["totals"]["call_materialization"]["callsite_pairs"] == 11
-    assert payload["report"]["languages"]["python"]["structure"]["files"] == 10
-    assert payload["report"]["scopes"]["tests"]["call_materialization"]["finalized_call_edges"] == 1
 
 
 def test_cli_status_output_writes_json_file(cli_app, cli_runner, monkeypatch, tmp_path):
@@ -288,22 +259,3 @@ def test_cli_status_output_writes_json_file(cli_app, cli_runner, monkeypatch, tm
     assert payload["report"]["timing"]["build_phase_timings"]["write_callsite_pairs"] == 0.05
     assert payload["report"]["timing"]["build_phase_timings"]["rebuild_graph_rollups"] == 0.1
     assert payload["report"]["totals"]["call_materialization"]["callsite_pairs"] == 11
-
-
-def test_cli_status_json_ignores_full_flag_for_payload_shape(
-    cli_app, cli_runner, monkeypatch
-):
-    def _summary(snapshot_id: str, include_failure_reasons: bool = False):
-        assert snapshot_id == "snap-1"
-        assert include_failure_reasons is True
-        return _fake_report()
-
-    monkeypatch.setattr(repo_ops, "status", _fake_status)
-    monkeypatch.setattr(repo_ops, "snapshot_report", _summary)
-
-    plain = cli_runner.invoke(cli_app, ["status", "--json"])
-    flagged = cli_runner.invoke(cli_app, ["status", "--json", "--full"])
-
-    assert plain.exit_code == 0
-    assert flagged.exit_code == 0
-    assert json.loads(plain.stdout) == json.loads(flagged.stdout)

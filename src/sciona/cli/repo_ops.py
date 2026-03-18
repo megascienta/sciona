@@ -13,6 +13,7 @@ build = _repo_ops.build
 status = _repo_ops.status
 snapshot_report = _repo_ops.snapshot_report
 record_build_wall_time = _repo_ops.record_build_wall_time
+write_build_diagnostic_outputs = _repo_ops.write_build_diagnostic_outputs
 init_dialog_defaults = _repo_ops.init_dialog_defaults
 init_supported_languages = _repo_ops.init_supported_languages
 init_apply_languages = _repo_ops.init_apply_languages
@@ -29,6 +30,7 @@ __all__ = [
     "status",
     "snapshot_report",
     "record_build_wall_time",
+    "write_build_diagnostic_outputs",
     "init_dialog_defaults",
     "init_supported_languages",
     "init_apply_languages",
