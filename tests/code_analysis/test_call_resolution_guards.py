@@ -217,6 +217,24 @@ def test_javascript_resolves_using_ir_qualified_call_when_text_is_unqualified() 
     assert resolved == ["repo.pkg.services.Service.run"]
 
 
+def test_javascript_resolves_imported_uppercase_receiver_call() -> None:
+    targets = [CallTarget(terminal="run", callee_text="Service.run")]
+    resolved = resolve_javascript_calls(
+        targets=targets,
+        module_name="repo.pkg.mod",
+        module_functions=set(),
+        class_methods={},
+        class_name=None,
+        import_aliases={"Service": "repo.pkg.services.Service"},
+        member_aliases={},
+        class_name_map={},
+        class_name_candidates={},
+        instance_map={},
+        class_instance_map={},
+    )
+    assert resolved == ["repo.pkg.services.Service.run"]
+
+
 def test_java_resolves_using_ir_qualified_call_when_text_is_unqualified() -> None:
     targets = [
         CallTarget(
