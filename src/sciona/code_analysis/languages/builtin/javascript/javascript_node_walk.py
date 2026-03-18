@@ -12,8 +12,6 @@ from .javascript_node_text import (
     function_body_node,
     name_chain,
     node_text,
-    parse_type_annotation,
-    typed_constructor_parameters,
 )
 from ...common.query.query_surface import (
     JAVASCRIPT_STRUCTURAL_CARRIER_NODE_TYPES,
@@ -307,11 +305,6 @@ def walk_javascript_nodes(
             )
         )
         body_node = node.child_by_field_name("body")
-        if node.type == "method_definition" and func_name == "constructor" and state.class_stack:
-            for field_name, type_name in typed_constructor_parameters(node, snapshot.content):
-                state.pending_class_instances.append(
-                    (state.class_stack[-1], field_name, type_name)
-                )
         state.pending_calls.append(
             (
                 qualified,
@@ -541,10 +534,6 @@ def walk_javascript_nodes(
         field = node_text(name_node, snapshot.content)
         if not field:
             return
-        type_node = node.child_by_field_name("type")
-        type_name = parse_type_annotation(type_node, snapshot.content)
-        if type_name and field and (value_node is None or value_node.type != "new_expression"):
-            state.pending_class_instances.append((state.class_stack[-1], field, type_name))
         if value_node is None:
             return
         if value_node.type == "new_expression":

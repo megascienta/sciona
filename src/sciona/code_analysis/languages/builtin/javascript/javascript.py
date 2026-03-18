@@ -40,10 +40,7 @@ from ...common.support.analyzer_support import (
 from .javascript_calls import callee_text, resolve_javascript_calls
 from .javascript_imports import collect_javascript_import_model
 from .javascript_nodes import JavaScriptNodeState, walk_javascript_nodes
-from .javascript_resolution import (
-    collect_callable_typed_binding_instance_map,
-    resolve_pending_instances,
-)
+from .javascript_resolution import resolve_pending_instances
 
 
 class JavaScriptAnalyzer(ASTAnalyzer):
@@ -148,17 +145,6 @@ class JavaScriptAnalyzer(ASTAnalyzer):
         )
         for qualified, (node_type, body_node, class_name) in pending_by_qualified.items():
             call_targets = call_targets_by_callable.get(qualified, ())
-            callable_instance_map = collect_callable_typed_binding_instance_map(
-                body_node,
-                content=snapshot.content,
-                class_name_candidates=state.class_name_candidates,
-                import_aliases=import_aliases,
-                member_aliases=member_aliases,
-            )
-            effective_instance_map = {
-                **state.instance_map,
-                **callable_instance_map,
-            }
             resolved = resolve_javascript_calls(
                 call_targets,
                 module_name,
@@ -169,7 +155,7 @@ class JavaScriptAnalyzer(ASTAnalyzer):
                 member_aliases,
                 state.class_name_map,
                 state.class_name_candidates,
-                effective_instance_map,
+                state.instance_map,
                 state.class_instance_map,
             )
             if resolved:
