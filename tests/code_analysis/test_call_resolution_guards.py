@@ -235,6 +235,29 @@ def test_javascript_resolves_imported_uppercase_receiver_call() -> None:
     assert resolved == ["repo.pkg.services.Service.run"]
 
 
+def test_javascript_prefers_imported_uppercase_receiver_over_ambiguous_local_candidates() -> None:
+    targets = [CallTarget(terminal="run", callee_text="Service.run")]
+    outcome_diagnostics: dict[str, int] = {}
+    resolved = resolve_javascript_calls(
+        targets=targets,
+        module_name="repo.pkg.mod",
+        module_functions=set(),
+        class_methods={},
+        class_name=None,
+        import_aliases={"Service": "repo.pkg.services.Service"},
+        member_aliases={},
+        class_name_map={"Service": "repo.pkg.local.Service"},
+        class_name_candidates={
+            "Service": {"repo.pkg.local.Service", "repo.pkg.alt.Service"}
+        },
+        instance_map={},
+        class_instance_map={},
+        outcome_diagnostics=outcome_diagnostics,
+    )
+    assert resolved == ["repo.pkg.services.Service.run"]
+    assert outcome_diagnostics.get("ambiguous_candidate") is None
+
+
 def test_java_resolves_using_ir_qualified_call_when_text_is_unqualified() -> None:
     targets = [
         CallTarget(

@@ -112,6 +112,8 @@ class _JavaScriptCallAdapter(CallResolutionAdapter):
         if head is not None and rest is not None and dotted_text is not None:
             if head in self.instance_map:
                 return [_outcome(f"{self.instance_map[head]}.{terminal}", "exact_qname")]
+            if head in self.import_aliases:
+                return [_outcome(f"{self.import_aliases[head]}.{rest}", "import_narrowed")]
             if head in self.class_name_map and head[:1].isupper():
                 candidates = self.class_name_candidates.get(head) or set()
                 if len(candidates) == 1:
@@ -128,8 +130,6 @@ class _JavaScriptCallAdapter(CallResolutionAdapter):
                     )
                     if target_class:
                         return [_outcome(f"{target_class}.{terminal}", "module_scoped")]
-            if head in self.import_aliases:
-                return [_outcome(f"{self.import_aliases[head]}.{rest}", "import_narrowed")]
         if is_unqualified_request(request) and terminal in self.member_aliases:
             return [_outcome(self.member_aliases[terminal], "import_narrowed")]
         if (
