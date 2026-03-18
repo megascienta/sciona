@@ -134,8 +134,9 @@ Implementation notes:
   constructors
 - Python direct class inheritance emits `EXTENDS`; Python does not emit a
   distinct `IMPLEMENTS` edge
-- JavaScript reuses the TypeScript walker, import extraction, and call
-  resolution wrappers with JavaScript query surfaces
+- JavaScript and TypeScript use independent walker, import extraction, and
+  call resolution implementations; only language-agnostic infrastructure and
+  declarative query/capability registries are shared
 - Parser bootstrap is isolated in
   `src/sciona/code_analysis/core/extract/parsing/parser_bootstrap.py`
 - Query helpers stay separate in
