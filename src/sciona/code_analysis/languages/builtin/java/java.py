@@ -198,6 +198,7 @@ class JavaAnalyzer(ASTAnalyzer):
                 instance_types,
                 module_prefix,
                 qualify_receiver_type,
+                import_model.local_binding_facts,
             )
             if resolved:
                 resolved_calls.append((self.language, qualified, node_type, list(resolved)))

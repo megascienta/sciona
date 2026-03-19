@@ -8,6 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import ClassVar, List
 
+from ...common.ir import LocalBindingFact, binding_candidate_qnames_for_identifier
 from ....tools.call_extraction import (
     CallTarget,
     QualifiedCallIR,
@@ -51,6 +52,7 @@ def resolve_typescript_calls(
     class_name_candidates: dict[str, set[str]],
     instance_map: dict[str, str],
     class_instance_map: dict[str, dict[str, str]],
+    local_binding_facts: tuple[LocalBindingFact, ...] | list[LocalBindingFact] = (),
     *,
     outcome_diagnostics: dict[str, int] | None = None,
     ambiguous_candidates: set[str] | None = None,
@@ -68,6 +70,7 @@ def resolve_typescript_calls(
         class_name_candidates=class_name_candidates,
         instance_map=instance_map,
         class_instance_map=class_instance_map,
+        local_binding_facts=tuple(local_binding_facts),
     )
     validate_stage_order(adapter.stage_order)
     outcomes = resolve_with_adapter(requests, adapter)
@@ -94,6 +97,7 @@ class _TypeScriptCallAdapter(CallResolutionAdapter):
     class_name_candidates: dict[str, set[str]]
     instance_map: dict[str, str]
     class_instance_map: dict[str, dict[str, str]]
+    local_binding_facts: tuple[LocalBindingFact, ...]
 
     def resolve(self, request: CallResolutionRequest) -> List[CallResolutionOutcome]:
         terminal = request.terminal
@@ -111,6 +115,12 @@ class _TypeScriptCallAdapter(CallResolutionAdapter):
         if head is not None and rest is not None and dotted_text is not None:
             if head in self.instance_map:
                 return [_outcome(f"{self.instance_map[head]}.{terminal}", "exact_qname")]
+            binding_outcomes = _binding_fact_outcomes(
+                dotted_text,
+                self.local_binding_facts,
+            )
+            if binding_outcomes:
+                return binding_outcomes
             if head in self.class_name_map and head[:1].isupper():
                 candidates = self.class_name_candidates.get(head) or set()
                 if len(candidates) == 1:
@@ -127,10 +137,13 @@ class _TypeScriptCallAdapter(CallResolutionAdapter):
                     )
                     if target_class:
                         return [_outcome(f"{target_class}.{terminal}", "module_scoped")]
-            if head in self.import_aliases:
-                return [_outcome(f"{self.import_aliases[head]}.{rest}", "import_narrowed")]
-        if is_unqualified_request(request) and terminal in self.member_aliases:
-            return [_outcome(self.member_aliases[terminal], "import_narrowed")]
+        if is_unqualified_request(request):
+            binding_outcomes = _binding_fact_outcomes(
+                terminal,
+                self.local_binding_facts,
+            )
+            if binding_outcomes:
+                return binding_outcomes
         if (
             self.class_name
             and is_receiver_call_request(request)
@@ -234,3 +247,14 @@ def _resolve_receiver_chain_target(
 
 def _outcome(candidate_qname: str, provenance: str) -> CallResolutionOutcome:
     return CallResolutionOutcome(candidate_qname=candidate_qname, provenance=provenance)
+
+
+def _binding_fact_outcomes(
+    identifier: str,
+    local_binding_facts: tuple[LocalBindingFact, ...],
+) -> list[CallResolutionOutcome]:
+    candidates = binding_candidate_qnames_for_identifier(identifier, local_binding_facts)
+    if len(candidates) != 1:
+        return []
+    provenance = "exact_qname" if "." in identifier else "import_narrowed"
+    return [_outcome(candidates[0], provenance)]

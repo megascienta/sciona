@@ -12,6 +12,7 @@ from sciona.code_analysis.languages.builtin.python.python_calls import (
 from sciona.code_analysis.languages.builtin.typescript.typescript_calls import (
     resolve_typescript_calls,
 )
+from sciona.code_analysis.languages.common.ir import LocalBindingFact
 from sciona.code_analysis.tools.call_extraction import (
     CallTarget,
     QualifiedCallIR,
@@ -123,6 +124,15 @@ def test_python_resolves_using_ir_qualified_call_when_text_is_unqualified() -> N
         raw_module_map={},
         instance_map={},
         class_name_candidates={},
+        local_binding_facts=(
+            LocalBindingFact(
+                symbol="svc_alias",
+                target="repo.pkg.services.Service",
+                binding_kind="module_alias",
+                evidence_kind="syntax_local_alias",
+                language="python",
+            ),
+        ),
     )
     assert resolved == ["repo.pkg.services.Service.run"]
 
@@ -171,6 +181,15 @@ def test_typescript_resolves_using_ir_qualified_call_when_text_is_unqualified() 
         class_name_candidates={},
         instance_map={},
         class_instance_map={},
+        local_binding_facts=(
+            LocalBindingFact(
+                symbol="svc_alias",
+                target="repo.pkg.services.Service",
+                binding_kind="module_alias",
+                evidence_kind="syntax_local_alias",
+                language="typescript",
+            ),
+        ),
     )
     assert resolved == ["repo.pkg.services.Service.run"]
 
@@ -189,6 +208,15 @@ def test_typescript_resolves_imported_uppercase_receiver_call() -> None:
         class_name_candidates={},
         instance_map={},
         class_instance_map={},
+        local_binding_facts=(
+            LocalBindingFact(
+                symbol="Service",
+                target="repo.pkg.services.Service",
+                binding_kind="module_alias",
+                evidence_kind="syntax_local_import",
+                language="typescript",
+            ),
+        ),
     )
     assert resolved == ["repo.pkg.services.Service.run"]
 
@@ -213,6 +241,15 @@ def test_javascript_resolves_using_ir_qualified_call_when_text_is_unqualified() 
         class_name_candidates={},
         instance_map={},
         class_instance_map={},
+        local_binding_facts=(
+            LocalBindingFact(
+                symbol="svc_alias",
+                target="repo.pkg.services.Service",
+                binding_kind="module_alias",
+                evidence_kind="syntax_local_alias",
+                language="javascript",
+            ),
+        ),
     )
     assert resolved == ["repo.pkg.services.Service.run"]
 
@@ -231,6 +268,15 @@ def test_javascript_resolves_imported_uppercase_receiver_call() -> None:
         class_name_candidates={},
         instance_map={},
         class_instance_map={},
+        local_binding_facts=(
+            LocalBindingFact(
+                symbol="Service",
+                target="repo.pkg.services.Service",
+                binding_kind="module_alias",
+                evidence_kind="syntax_local_import",
+                language="javascript",
+            ),
+        ),
     )
     assert resolved == ["repo.pkg.services.Service.run"]
 
@@ -252,6 +298,15 @@ def test_javascript_prefers_imported_uppercase_receiver_over_ambiguous_local_can
         },
         instance_map={},
         class_instance_map={},
+        local_binding_facts=(
+            LocalBindingFact(
+                symbol="Service",
+                target="repo.pkg.services.Service",
+                binding_kind="module_alias",
+                evidence_kind="syntax_local_import",
+                language="javascript",
+            ),
+        ),
         outcome_diagnostics=outcome_diagnostics,
     )
     assert resolved == ["repo.pkg.services.Service.run"]
@@ -283,6 +338,15 @@ def test_java_resolves_using_ir_qualified_call_when_text_is_unqualified() -> Non
         instance_types={},
         module_prefix=None,
         qualify_java_type=lambda *_args: None,
+        local_binding_facts=(
+            LocalBindingFact(
+                symbol="Service",
+                target="repo.pkg.Service",
+                binding_kind="constructor_or_classifier_import",
+                evidence_kind="syntax_local_import",
+                language="java",
+            ),
+        ),
     )
     assert resolved == ["repo.pkg.Service.run"]
 
@@ -306,6 +370,15 @@ def test_java_resolves_unqualified_calls_from_static_member_aliases() -> None:
         instance_types={},
         module_prefix=None,
         qualify_java_type=lambda *_args: None,
+        local_binding_facts=(
+            LocalBindingFact(
+                symbol="run",
+                target="repo.pkg.Service.run",
+                binding_kind="static_import_member",
+                evidence_kind="syntax_local_import",
+                language="java",
+            ),
+        ),
     )
     assert resolved == ["repo.pkg.Service.run"]
 
@@ -323,6 +396,15 @@ def test_python_member_alias_does_not_apply_to_receiver_calls() -> None:
         raw_module_map={},
         instance_map={},
         class_name_candidates={},
+        local_binding_facts=(
+            LocalBindingFact(
+                symbol="run",
+                target="repo.pkg.Service.run",
+                binding_kind="direct_import_symbol",
+                evidence_kind="syntax_local_import",
+                language="python",
+            ),
+        ),
     )
     assert resolved == []
 
@@ -359,6 +441,15 @@ def test_typescript_member_alias_does_not_apply_to_receiver_calls() -> None:
         class_name_candidates={},
         instance_map={},
         class_instance_map={},
+        local_binding_facts=(
+            LocalBindingFact(
+                symbol="run",
+                target="repo.pkg.Service.run",
+                binding_kind="destructured_static_member",
+                evidence_kind="syntax_local_destructuring",
+                language="typescript",
+            ),
+        ),
     )
     assert resolved == []
 
@@ -377,6 +468,15 @@ def test_javascript_member_alias_does_not_apply_to_receiver_calls() -> None:
         class_name_candidates={},
         instance_map={},
         class_instance_map={},
+        local_binding_facts=(
+            LocalBindingFact(
+                symbol="run",
+                target="repo.pkg.Service.run",
+                binding_kind="destructured_static_member",
+                evidence_kind="syntax_local_destructuring",
+                language="javascript",
+            ),
+        ),
     )
     assert resolved == []
 

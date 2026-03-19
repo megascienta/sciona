@@ -181,6 +181,7 @@ class PythonAnalyzer(ASTAnalyzer):
                 local_instance_map,
                 state.class_name_candidates,
                 local_binding_names,
+                import_model.local_binding_facts,
             )
             if resolved:
                 buffer.add_call(

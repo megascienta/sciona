@@ -8,6 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import ClassVar, List
 
+from ...common.ir import LocalBindingFact, binding_candidate_qnames_for_identifier
 from ....tools.call_extraction import (
     CallTarget,
     QualifiedCallIR,
@@ -62,6 +63,7 @@ def resolve_java_calls(
     instance_types: dict[str, str],
     module_prefix: str | None,
     qualify_java_type,
+    local_binding_facts: tuple[LocalBindingFact, ...] | list[LocalBindingFact] = (),
     *,
     outcome_diagnostics: dict[str, int] | None = None,
 ) -> List[str]:
@@ -84,6 +86,7 @@ def resolve_java_calls(
         instance_types=instance_types,
         module_prefix=module_prefix,
         qualify_java_type=qualify_java_type,
+        local_binding_facts=tuple(local_binding_facts),
     )
     validate_stage_order(adapter.stage_order)
     outcomes = resolve_with_adapter(requests, adapter)
@@ -112,6 +115,7 @@ class _JavaCallAdapter(CallResolutionAdapter):
     instance_types: dict[str, str]
     module_prefix: str | None
     qualify_java_type: object
+    local_binding_facts: tuple[LocalBindingFact, ...]
 
     def resolve(self, request: CallResolutionRequest) -> List[CallResolutionOutcome]:
         terminal = request.terminal
@@ -142,6 +146,12 @@ class _JavaCallAdapter(CallResolutionAdapter):
                     return [_outcome(resolved_target, "module_scoped")]
         receiver, receiver_simple = _dotted_receiver(request, raw)
         if receiver is not None and receiver_simple is not None:
+            binding_outcomes = _binding_fact_outcomes(
+                raw,
+                self.local_binding_facts,
+            )
+            if binding_outcomes:
+                return binding_outcomes
             qualified_receiver = self.qualify_java_type(
                 receiver,
                 self.module_name,
@@ -230,6 +240,12 @@ class _JavaCallAdapter(CallResolutionAdapter):
                     if resolved_target:
                         return [_outcome(resolved_target, "exact_qname")]
         if is_unqualified_request(request):
+            binding_outcomes = _binding_fact_outcomes(
+                terminal,
+                self.local_binding_facts,
+            )
+            if binding_outcomes:
+                return binding_outcomes
             import_target = self.import_aliases.get(terminal)
             local_class = _unique_class_candidate(
                 terminal,
@@ -516,6 +532,17 @@ def _receiver_symbol(
         receiver = raw.rsplit(".", 1)[0].strip()
         return receiver.rsplit(".", 1)[-1]
     return None
+
+
+def _binding_fact_outcomes(
+    identifier: str,
+    local_binding_facts: tuple[LocalBindingFact, ...],
+) -> list[CallResolutionOutcome]:
+    candidates = binding_candidate_qnames_for_identifier(identifier, local_binding_facts)
+    if len(candidates) != 1:
+        return []
+    provenance = "exact_qname" if "." in identifier else "import_narrowed"
+    return [_outcome(candidates[0], provenance)]
 
 
 def _dotted_receiver(
