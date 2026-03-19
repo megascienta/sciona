@@ -39,6 +39,10 @@ class DiagnosticMissObservation:
     reachable_repo_binding: bool = False
     repo_hint_overlap: tuple[str, ...] = ()
     identifier_root: str = ""
+    local_binding_symbol: str = ""
+    local_binding_target: str = ""
+    local_binding_kind: str = ""
+    local_binding_evidence_kind: str = ""
     gate_reason: str = ""
     raw_drop_reason: str = ""
 

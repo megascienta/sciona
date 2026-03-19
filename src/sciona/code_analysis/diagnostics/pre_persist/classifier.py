@@ -107,6 +107,11 @@ def classify_positive_candidate_rejection(
             bucket="likely_parser_extraction_gap",
             reasons=("positive_candidate_invalid_shape",),
         )
+    if observation.local_binding_target and raw_drop_reason == "no_candidates":
+        return DiagnosticClassification(
+            bucket="likely_unindexed_symbol",
+            reasons=("positive_candidate_local_binding_target",),
+        )
     if raw_drop_reason == "ambiguous_multiple_in_scope_candidates":
         return DiagnosticClassification(
             bucket="likely_unindexed_symbol",

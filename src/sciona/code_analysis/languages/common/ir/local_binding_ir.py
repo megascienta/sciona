@@ -47,6 +47,15 @@ class LocalBindingFact:
             raise ValueError("local binding fact requires non-empty language")
 
 
+@dataclass(frozen=True)
+class LocalBindingMatch:
+    symbol: str
+    target: str
+    binding_kind: str
+    evidence_kind: str
+    language: str
+
+
 def validated_local_binding_fact(
     symbol: str,
     target: str,
@@ -89,12 +98,48 @@ def alias_maps_from_binding_facts(
     return import_aliases, member_aliases
 
 
+def binding_match_for_identifier(
+    identifier: str,
+    facts: list[LocalBindingFact] | tuple[LocalBindingFact, ...],
+) -> LocalBindingMatch | None:
+    text = str(identifier or "").strip()
+    if not text or not facts:
+        return None
+    head = text.split(".", 1)[0].strip()
+    terminal = text.rsplit(".", 1)[-1].strip()
+    symbol = head if "." in text else terminal
+    for fact in facts:
+        if fact.symbol != symbol:
+            continue
+        return LocalBindingMatch(
+            symbol=fact.symbol,
+            target=fact.target,
+            binding_kind=fact.binding_kind,
+            evidence_kind=fact.evidence_kind,
+            language=fact.language,
+        )
+    if "." in text and terminal != head:
+        for fact in facts:
+            if fact.symbol != terminal:
+                continue
+            return LocalBindingMatch(
+                symbol=fact.symbol,
+                target=fact.target,
+                binding_kind=fact.binding_kind,
+                evidence_kind=fact.evidence_kind,
+                language=fact.language,
+            )
+    return None
+
+
 __all__ = [
     "ALLOWED_BINDING_EVIDENCE",
     "ALLOWED_BINDING_KINDS",
     "ALLOWED_BINDING_PRECEDENCE",
     "FORBIDDEN_DYNAMIC_SHAPES",
     "LocalBindingFact",
+    "LocalBindingMatch",
     "alias_maps_from_binding_facts",
+    "binding_match_for_identifier",
     "validated_local_binding_fact",
 ]

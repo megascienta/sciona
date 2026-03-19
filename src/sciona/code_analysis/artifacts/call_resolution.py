@@ -17,6 +17,7 @@ from ..analysis_contracts import (
 )
 from ..core.structural_assembler_index import expand_import_targets
 from ..config import CALLABLE_NODE_TYPES
+from ..languages.common.ir import LocalBindingFact, binding_match_for_identifier
 from ..tools.call_extraction.types import PrePersistObservation
 from ...data_storage.core_db import read_ops as core_read
 from .call_resolution_python import (
@@ -338,6 +339,7 @@ def resolve_callees(
     module_file_by_name: dict[str, str] | None = None,
     ts_barrel_export_map: dict[str, set[str]] | None = None,
     pre_persist_observations: list[PrePersistObservation] | None = None,
+    local_binding_facts: Sequence[LocalBindingFact] = (),
 ) -> tuple[
     set[str],
     set[str],
@@ -397,6 +399,7 @@ def resolve_callees(
     )
     for resolution in strict_batch.resolutions:
         identifier = resolution.identifier
+        binding_match = binding_match_for_identifier(identifier, tuple(local_binding_facts))
         decision = resolution.decision
         rescue_candidate, rescue_provenance = _resolve_post_strict_rescue_candidate(
             identifier=identifier,
@@ -462,6 +465,14 @@ def resolve_callees(
                         caller_language=caller_language,
                         caller_module=caller_module,
                         candidate_module_hints=hints,
+                        local_binding_symbol=binding_match.symbol if binding_match else "",
+                        local_binding_target=binding_match.target if binding_match else "",
+                        local_binding_kind=(
+                            binding_match.binding_kind if binding_match else ""
+                        ),
+                        local_binding_evidence_kind=(
+                            binding_match.evidence_kind if binding_match else ""
+                        ),
                     )
                 )
         if decision.accepted_candidate:

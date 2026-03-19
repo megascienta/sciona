@@ -68,6 +68,11 @@ def classify_common(
             bucket="likely_dynamic_dispatch_or_indirect",
             reasons=("repo_owned_terminal_call_shape",),
         )
+    if observation.local_binding_target:
+        return DiagnosticClassification(
+            bucket="likely_unindexed_symbol",
+            reasons=("local_binding_target",),
+        )
     if "." in identifier:
         first = identifier.split(".", 1)[0]
         if first in {"self", "this", "cls", "super"}:

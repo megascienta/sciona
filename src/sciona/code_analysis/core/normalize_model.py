@@ -12,9 +12,12 @@ from __future__ import annotations
 
 from dataclasses import InitVar, dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 from .path_validation import validate_record_path_containment
+
+if TYPE_CHECKING:
+    from ..languages.common.ir import LocalBindingFact
 
 
 @dataclass
@@ -106,6 +109,7 @@ class CallRecord:
     qualified_name: str
     node_type: str
     callee_identifiers: List[str]
+    local_binding_facts: List["LocalBindingFact"] = field(default_factory=list)
 
 
 @dataclass

@@ -131,6 +131,13 @@ class ArtifactEngine:
                 for language, record in all_call_records
             ]
         )
+        binding_facts_by_caller: dict[tuple[str, str], list[object]] = {}
+        for _language, record in all_call_records:
+            key = (record.qualified_name, record.node_type)
+            existing = binding_facts_by_caller.setdefault(key, [])
+            for fact in getattr(record, "local_binding_facts", ()):
+                if fact not in existing:
+                    existing.append(fact)
         merged_by_caller: OrderedDict[str, dict[str, object]] = OrderedDict()
         for _language, qualified_name, node_type, callee_identifiers in normalized_calls:
             self.diagnostics["artifact_call_records_seen"] = (
@@ -153,6 +160,9 @@ class ArtifactEngine:
                     "qualified_name": qualified_name,
                     "node_type": node_type,
                     "callee_identifiers": list(callee_identifiers),
+                    "local_binding_facts": list(
+                        binding_facts_by_caller.get((qualified_name, node_type), ())
+                    ),
                 }
                 continue
             if (
@@ -175,6 +185,7 @@ class ArtifactEngine:
                     callee_identifiers=tuple(
                         dict.fromkeys(merged["callee_identifiers"])
                     ),
+                    local_binding_facts=tuple(merged["local_binding_facts"]),
                 )
             )
         return call_artifacts

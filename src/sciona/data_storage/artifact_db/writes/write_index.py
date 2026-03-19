@@ -44,6 +44,10 @@ def _ensure_temp_rejected_callsites_table(conn: sqlite3.Connection) -> None:
             call_ordinal INTEGER NOT NULL,
             in_scope_candidate_count INTEGER,
             candidate_module_hints TEXT,
+            local_binding_symbol TEXT,
+            local_binding_target TEXT,
+            local_binding_kind TEXT,
+            local_binding_evidence_kind TEXT,
             gate_reason TEXT NOT NULL,
             raw_drop_reason TEXT
         )
@@ -89,10 +93,14 @@ def store_temp_rejected_callsites(
             call_ordinal,
             in_scope_candidate_count,
             candidate_module_hints,
+            local_binding_symbol,
+            local_binding_target,
+            local_binding_kind,
+            local_binding_evidence_kind,
             gate_reason,
             raw_drop_reason
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         [
             (
@@ -113,6 +121,10 @@ def store_temp_rejected_callsites(
                 row[0][9],
                 row[0][10],
                 row[0][11],
+                row[3].symbol if len(row) >= 4 and row[3] is not None else None,
+                row[3].target if len(row) >= 4 and row[3] is not None else None,
+                row[3].binding_kind if len(row) >= 4 and row[3] is not None else None,
+                row[3].evidence_kind if len(row) >= 4 and row[3] is not None else None,
                 row[1],
                 row[2],
             )

@@ -166,6 +166,7 @@ class JavaScriptAnalyzer(ASTAnalyzer):
                         qualified_name=qualified,
                         node_type=node_type,
                         callee_identifiers=list(resolved),
+                        local_binding_facts=list(import_model.local_binding_facts),
                     )
                 )
         for module in sorted(set(imports)):

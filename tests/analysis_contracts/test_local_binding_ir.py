@@ -12,6 +12,7 @@ from sciona.code_analysis.languages.common.ir import (
     FORBIDDEN_DYNAMIC_SHAPES,
     LocalBindingFact,
     alias_maps_from_binding_facts,
+    binding_match_for_identifier,
     validated_local_binding_fact,
 )
 
@@ -65,6 +66,50 @@ def test_alias_maps_from_binding_facts_splits_import_and_member_bindings() -> No
     )
     assert import_aliases == {"ns": "repo.src.dep"}
     assert member_aliases == {"Widget": "repo.pkg.models.Widget"}
+
+
+def test_binding_match_for_identifier_prefers_qualified_head_symbol() -> None:
+    match = binding_match_for_identifier(
+        "translator.translateKeys",
+        [
+            LocalBindingFact(
+                symbol="translator",
+                target="repo.public.src.translator",
+                binding_kind="module_alias",
+                evidence_kind="syntax_local_import",
+                language="javascript",
+            ),
+            LocalBindingFact(
+                symbol="translateKeys",
+                target="repo.public.src.translator.translateKeys",
+                binding_kind="direct_import_symbol",
+                evidence_kind="syntax_local_import",
+                language="javascript",
+            ),
+        ],
+    )
+
+    assert match is not None
+    assert match.symbol == "translator"
+    assert match.binding_kind == "module_alias"
+
+
+def test_binding_match_for_identifier_falls_back_to_terminal_symbol() -> None:
+    match = binding_match_for_identifier(
+        "Matrix",
+        [
+            LocalBindingFact(
+                symbol="Matrix",
+                target="sympy.matrices.dense.Matrix",
+                binding_kind="direct_import_symbol",
+                evidence_kind="syntax_local_import",
+                language="python",
+            )
+        ],
+    )
+
+    assert match is not None
+    assert match.target == "sympy.matrices.dense.Matrix"
 
 
 @pytest.mark.parametrize(

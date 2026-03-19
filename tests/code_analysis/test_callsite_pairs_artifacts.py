@@ -11,6 +11,7 @@ from sciona.code_analysis.artifacts.call_resolution import (
     callsite_pair_rows,
     resolve_callees,
 )
+from sciona.code_analysis.languages.common.ir import LocalBindingFact
 from sciona.code_analysis.tools.call_extraction import CallExtractionRecord
 from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.data_storage.artifact_db.writes import write_index as artifact_write
@@ -571,6 +572,89 @@ def test_write_call_artifacts_stores_all_rejected_rows_in_temp_table(
                 ),
                 ("external.helper", "accepted_outside_in_repo", None),
             ]
+        finally:
+            artifact_conn.close()
+    finally:
+        core_conn.close()
+
+
+def test_write_call_artifacts_stores_local_binding_fields_in_temp_table(
+    tmp_path: Path, monkeypatch
+) -> None:
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    prefix = runtime_paths.repo_name_prefix(repo_root)
+    core_conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
+    core_conn.row_factory = sqlite3.Row
+
+    def _fake_resolve_callees(*args, **kwargs):
+        del args, kwargs
+        return (
+            set(),
+            {"translator.translateKeys"},
+            {
+                "identifiers_total": 1,
+                "accepted_by_provenance": {},
+                "dropped_by_reason": {"no_candidates": 1},
+                "candidate_count_histogram": {1: 1},
+            },
+            [
+                (
+                    "translator.translateKeys",
+                    "dropped",
+                    None,
+                    None,
+                    "no_candidates",
+                    1,
+                    "qualified",
+                    None,
+                    None,
+                    1,
+                    0,
+                    None,
+                ),
+            ],
+        )
+
+    monkeypatch.setattr(rollups, "_resolve_callees", _fake_resolve_callees)
+    try:
+        artifact_conn = artifact_connect(get_artifact_db_path(repo_root), repo_root=repo_root)
+        try:
+            write_call_artifacts(
+                artifact_conn=artifact_conn,
+                core_conn=core_conn,
+                snapshot_id=snapshot_id,
+                call_records=[
+                    CallExtractionRecord(
+                        caller_structural_id="meth_alpha",
+                        caller_qualified_name=f"{prefix}.pkg.alpha.Service.run",
+                        caller_node_type="callable",
+                        callee_identifiers=("translator.translateKeys",),
+                        local_binding_facts=(
+                            LocalBindingFact(
+                                symbol="translator",
+                                target=f"{prefix}.public.src.translator",
+                                binding_kind="module_alias",
+                                evidence_kind="syntax_local_import",
+                                language="javascript",
+                            ),
+                        ),
+                    )
+                ],
+                eligible_callers={"meth_alpha"},
+            )
+            row = artifact_conn.execute(
+                """
+                SELECT local_binding_symbol, local_binding_target, local_binding_kind
+                FROM rejected_callsites_temp
+                WHERE identifier = 'translator.translateKeys'
+                """
+            ).fetchone()
+            assert row is not None
+            assert tuple(row) == (
+                "translator",
+                f"{prefix}.public.src.translator",
+                "module_alias",
+            )
         finally:
             artifact_conn.close()
     finally:

@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from typing import Iterable, Sequence
 
 from ..analysis.module_id import module_id_for
+from ..languages.common.ir import binding_match_for_identifier
 from ..tools.call_extraction import CallExtractionRecord
 from ...data_storage.artifact_db.rollups import rollup_persistence as artifact_persistence
 from ...runtime.common import identity as ids
@@ -206,6 +207,7 @@ def write_call_artifacts(
             module_bindings_by_name=module_bindings_by_name,
             module_file_by_name=module_file_by_name,
             ts_barrel_export_map=ts_barrel_export_map,
+            local_binding_facts=record.local_binding_facts,
         )
         (
             callee_ids,
@@ -225,7 +227,15 @@ def write_call_artifacts(
             caller_file_path=str(
                 (caller_metadata_map.get(caller_id) or {}).get("file_path") or ""
             ),
-            rows=rejected_callsite_rows,
+            rows=[
+                (
+                    row[0],
+                    row[1],
+                    row[2],
+                    binding_match_for_identifier(row[0][0], tuple(record.local_binding_facts)),
+                )
+                for row in rejected_callsite_rows
+            ],
         )
         pair_rows = _callsite_pair_rows(
             filtered_callsite_rows,

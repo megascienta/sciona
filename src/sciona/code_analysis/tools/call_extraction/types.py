@@ -6,7 +6,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Sequence
+from typing import TYPE_CHECKING, Sequence
+
+if TYPE_CHECKING:
+    from ...languages.common.ir import LocalBindingFact
 
 
 @dataclass(frozen=True)
@@ -17,6 +20,7 @@ class CallExtractionRecord:
     caller_qualified_name: str
     caller_node_type: str
     callee_identifiers: Sequence[str]
+    local_binding_facts: Sequence["LocalBindingFact"] = ()
 
 
 @dataclass(frozen=True)
@@ -29,6 +33,10 @@ class PrePersistObservation:
     caller_language: str | None = None
     caller_module: str | None = None
     candidate_module_hints: tuple[str, ...] = ()
+    local_binding_symbol: str = ""
+    local_binding_target: str = ""
+    local_binding_kind: str = ""
+    local_binding_evidence_kind: str = ""
 
 
 @dataclass(frozen=True)

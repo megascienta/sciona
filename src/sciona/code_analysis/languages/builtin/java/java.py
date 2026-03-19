@@ -209,6 +209,7 @@ class JavaAnalyzer(ASTAnalyzer):
                         qualified_name=qualified,
                         node_type=node_type,
                         callee_identifiers=callee_identifiers,
+                        local_binding_facts=list(import_model.local_binding_facts),
                     )
                 )
 

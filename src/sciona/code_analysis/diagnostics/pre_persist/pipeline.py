@@ -103,6 +103,7 @@ def classify_pre_persist_misses(
             module_file_by_name=module_file_by_name,
             ts_barrel_export_map=ts_barrel_export_map,
             pre_persist_observations=observations,
+            local_binding_facts=record.local_binding_facts,
         )
         caller_info = caller_metadata.get(caller_id) or {}
         language = str(
@@ -151,6 +152,10 @@ def classify_pre_persist_misses(
                     repo_module_prefixes,
                 ),
                 identifier_root=_identifier_root(item.identifier),
+                local_binding_symbol=item.local_binding_symbol,
+                local_binding_target=item.local_binding_target,
+                local_binding_kind=item.local_binding_kind,
+                local_binding_evidence_kind=item.local_binding_evidence_kind,
             )
             classified = classify_no_in_repo_candidate(observation)
             _inc_bucket(aggregation.totals, classified.bucket)
@@ -186,6 +191,12 @@ def classify_pre_persist_misses(
                     ),
                     "reachable_repo_binding": observation.reachable_repo_binding,
                     "repo_hint_overlap": list(observation.repo_hint_overlap),
+                    "local_binding_symbol": observation.local_binding_symbol,
+                    "local_binding_target": observation.local_binding_target,
+                    "local_binding_kind": observation.local_binding_kind,
+                    "local_binding_evidence_kind": (
+                        observation.local_binding_evidence_kind
+                    ),
                     "scope": scope_key,
                 }
             )
@@ -227,6 +238,10 @@ def classify_rejected_calls(
             call_ordinal,
             callee_kind,
             candidate_module_hints,
+            local_binding_symbol,
+            local_binding_target,
+            local_binding_kind,
+            local_binding_evidence_kind,
             gate_reason,
             raw_drop_reason
         FROM rejected_callsites_temp
@@ -312,6 +327,10 @@ def classify_rejected_calls(
                 repo_module_prefixes,
             ),
             identifier_root=_identifier_root(identifier),
+            local_binding_symbol=str(row["local_binding_symbol"] or ""),
+            local_binding_target=str(row["local_binding_target"] or ""),
+            local_binding_kind=str(row["local_binding_kind"] or ""),
+            local_binding_evidence_kind=str(row["local_binding_evidence_kind"] or ""),
             gate_reason=str(row["gate_reason"] or ""),
             raw_drop_reason=str(row["raw_drop_reason"] or ""),
         )
@@ -356,6 +375,12 @@ def classify_rejected_calls(
                 ),
                 "reachable_repo_binding": observation.reachable_repo_binding,
                 "repo_hint_overlap": list(observation.repo_hint_overlap),
+                "local_binding_symbol": observation.local_binding_symbol,
+                "local_binding_target": observation.local_binding_target,
+                "local_binding_kind": observation.local_binding_kind,
+                "local_binding_evidence_kind": (
+                    observation.local_binding_evidence_kind
+                ),
                 "scope": scope_key,
                 "gate_reason": observation.gate_reason,
                 "raw_drop_reason": observation.raw_drop_reason,
@@ -506,6 +531,12 @@ def _signals_for_observation(
         )
     if observation.reachable_repo_binding:
         signals.add("reachable_repo_binding")
+    if observation.local_binding_target:
+        signals.add("local_binding_target")
+        if observation.local_binding_kind:
+            signals.add(f"local_binding_kind:{observation.local_binding_kind}")
+    if observation.local_binding_symbol:
+        signals.add("local_binding_symbol")
     if observation.repo_prefix_matches and not observation.reachable_repo_prefix_matches:
         signals.add("unreachable_repo_prefix")
     if observation.repo_hint_overlap:
