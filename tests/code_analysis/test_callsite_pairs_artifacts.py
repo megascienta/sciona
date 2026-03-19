@@ -513,6 +513,86 @@ def test_write_call_artifacts_records_pair_expansion_diagnostics(
         core_conn.close()
 
 
+def test_write_call_artifacts_records_persisted_drop_observations(
+    tmp_path: Path, monkeypatch
+) -> None:
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    prefix = runtime_paths.repo_name_prefix(repo_root)
+    core_conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
+    core_conn.row_factory = sqlite3.Row
+    diagnostics: dict[str, object] = {}
+
+    def _fake_resolve_callees(*args, **kwargs):
+        del args, kwargs
+        return (
+            set(),
+            {"helper"},
+            {
+                "identifiers_total": 1,
+                "accepted_by_provenance": {},
+                "dropped_by_reason": {"ambiguous_multiple_in_scope_candidates": 1},
+                "candidate_count_histogram": {2: 1},
+            },
+            [
+                (
+                    "socket.in(room).emit",
+                    "dropped",
+                    None,
+                    None,
+                    "ambiguous_multiple_in_scope_candidates",
+                    2,
+                    "qualified",
+                    None,
+                    None,
+                    1,
+                    2,
+                    f"{prefix}.pkg.alpha,{prefix}.pkg.beta",
+                ),
+            ],
+        )
+
+    monkeypatch.setattr(rollups, "_resolve_callees", _fake_resolve_callees)
+    try:
+        artifact_conn = artifact_connect(get_artifact_db_path(repo_root), repo_root=repo_root)
+        try:
+            write_call_artifacts(
+                artifact_conn=artifact_conn,
+                core_conn=core_conn,
+                snapshot_id=snapshot_id,
+                call_records=[
+                    CallExtractionRecord(
+                        caller_structural_id="meth_alpha",
+                        caller_qualified_name=f"{prefix}.pkg.alpha.Service.run",
+                        caller_node_type="callable",
+                        callee_identifiers=("socket.in(room).emit",),
+                    )
+                ],
+                eligible_callers={"meth_alpha"},
+                diagnostics=diagnostics,
+            )
+            observations = diagnostics.get("persisted_drop_observations") or []
+            assert observations == [
+                {
+                    "caller_structural_id": "meth_alpha",
+                    "caller_qualified_name": f"{prefix}.pkg.alpha.Service.run",
+                    "caller_module": f"{prefix}.pkg.alpha",
+                    "file_path": "pkg/alpha/service.py",
+                    "language": "python",
+                    "identifier": "socket.in(room).emit",
+                    "ordinal": 1,
+                    "drop_reason": "ambiguous_multiple_in_scope_candidates",
+                    "candidate_count": 2,
+                    "callee_kind": "qualified",
+                    "in_scope_candidate_count": 2,
+                    "candidate_module_hints": f"{prefix}.pkg.alpha,{prefix}.pkg.beta",
+                }
+            ]
+        finally:
+            artifact_conn.close()
+    finally:
+        core_conn.close()
+
+
 def test_write_call_artifacts_records_multi_pair_expansion_diagnostics(
     tmp_path: Path, monkeypatch
 ) -> None:

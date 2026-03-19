@@ -22,6 +22,10 @@ def pre_persist_verbose_output_path(repo_root: Path) -> Path:
     return repo_root / f"{repo_root.name}_pre_persist_verbose.json"
 
 
+def persisted_drop_verbose_output_path(repo_root: Path) -> Path:
+    return repo_root / f"{repo_root.name}_persisted_drop_verbose.json"
+
+
 def enrich_report(
     report: dict[str, object],
     diagnostic_payload: dict[str, object] | None,
@@ -124,6 +128,76 @@ def build_verbose_payload(
     }
 
 
+def build_persisted_drop_verbose_payload(
+    diagnostics_payload: dict[str, object] | None,
+) -> dict[str, object]:
+    observations = list((diagnostics_payload or {}).get("persisted_drop_observations") or [])
+    by_bucket: dict[str, dict[str, object]] = {}
+    by_file: dict[str, dict[str, object]] = {}
+    for item in observations:
+        if not isinstance(item, dict):
+            continue
+        bucket = _persisted_drop_bucket(item)
+        bucket_entry = by_bucket.setdefault(
+            bucket,
+            {"count": 0, "callsites": [], "reasons": {}, "signals": {}},
+        )
+        bucket_entry["count"] = int(bucket_entry.get("count", 0)) + 1
+        cast_callsites = bucket_entry.setdefault("callsites", [])
+        if isinstance(cast_callsites, list):
+            enriched_item = dict(item)
+            enriched_item["bucket"] = bucket
+            cast_callsites.append(enriched_item)
+        bucket_reasons = bucket_entry.setdefault("reasons", {})
+        if isinstance(bucket_reasons, dict):
+            reason = str(item.get("drop_reason") or "unclassified")
+            bucket_reasons[reason] = int(bucket_reasons.get(reason, 0)) + 1
+        bucket_signals = bucket_entry.setdefault("signals", {})
+        if isinstance(bucket_signals, dict):
+            for signal in _persisted_drop_signals(item):
+                bucket_signals[signal] = int(bucket_signals.get(signal, 0)) + 1
+        file_path = str(item.get("file_path") or "")
+        if not file_path:
+            continue
+        file_entry = by_file.setdefault(
+            file_path,
+            {"file_path": file_path, "count": 0, "buckets": {}, "reasons": {}, "signals": {}},
+        )
+        file_entry["count"] = int(file_entry.get("count", 0)) + 1
+        buckets = file_entry.setdefault("buckets", {})
+        if isinstance(buckets, dict):
+            buckets[bucket] = int(buckets.get(bucket, 0)) + 1
+        file_reasons = file_entry.setdefault("reasons", {})
+        if isinstance(file_reasons, dict):
+            reason = str(item.get("drop_reason") or "unclassified")
+            file_reasons[reason] = int(file_reasons.get(reason, 0)) + 1
+        file_signals = file_entry.setdefault("signals", {})
+        if isinstance(file_signals, dict):
+            for signal in _persisted_drop_signals(item):
+                file_signals[signal] = int(file_signals.get(signal, 0)) + 1
+    problematic_files = sorted(
+        by_file.values(),
+        key=lambda row: (-int(row.get("count", 0)), str(row.get("file_path") or "")),
+    )
+    problematic_callsites = []
+    for bucket in sorted(by_bucket):
+        payload = by_bucket[bucket]
+        problematic_callsites.extend(list((payload or {}).get("callsites") or []))
+    return {
+        "buckets": {
+            bucket: {
+                "count": int((payload or {}).get("count", 0)),
+                "reasons": dict((payload or {}).get("reasons") or {}),
+                "signals": dict((payload or {}).get("signals") or {}),
+                "callsites": list((payload or {}).get("callsites") or []),
+            }
+            for bucket, payload in sorted(by_bucket.items())
+        },
+        "problematic_callsites": problematic_callsites,
+        "problematic_files": problematic_files,
+    }
+
+
 def empty_diagnostic_buckets() -> dict[str, int]:
     return {key: 0 for key in DIAGNOSTIC_BUCKET_KEYS}
 
@@ -205,3 +279,36 @@ def diagnostic_workspace(sciona_dir: Path):
         yield workspace
     finally:
         shutil.rmtree(workspace, ignore_errors=True)
+
+
+def _persisted_drop_bucket(item: dict[str, object]) -> str:
+    identifier = str(item.get("identifier") or "")
+    drop_reason = str(item.get("drop_reason") or "")
+    candidate_count = int(item.get("candidate_count") or 0)
+    if any(token in identifier for token in (".then", ".catch")):
+        return "likely_fluent_or_promise_chain"
+    if ".in(" in identifier or identifier.endswith(".emit") or ".emit" in identifier:
+        return "likely_dynamic_member_terminal"
+    if ".server." in identifier or ".notifications." in identifier or ".tools." in identifier:
+        return "likely_namespace_or_module_object_miss"
+    if drop_reason == "no_candidates" or candidate_count <= 0:
+        return "no_in_repo_callable_target"
+    return "unclassified_persisted_drop"
+
+
+def _persisted_drop_signals(item: dict[str, object]) -> tuple[str, ...]:
+    identifier = str(item.get("identifier") or "")
+    signals: list[str] = []
+    if "." in identifier:
+        signals.append(f"identifier_depth:{len([part for part in identifier.split('.') if part])}")
+    if any(token in identifier for token in (".then", ".catch")):
+        signals.append("promise_chain_terminal")
+    if ".emit" in identifier:
+        signals.append("event_emitter_terminal")
+    if ".in(" in identifier:
+        signals.append("dynamic_member_call_chain")
+    if ".tools." in identifier:
+        signals.append("namespace_subobject")
+    if ".server." in identifier:
+        signals.append("server_namespace")
+    return tuple(signals)

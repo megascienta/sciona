@@ -15,6 +15,9 @@ from pathlib import Path
 from typing import Mapping, Optional
 
 from ...code_analysis.diagnostics.pre_persist import report as diagnostic_report
+from ...data_storage.artifact_db.reporting import read_status as artifact_read
+from ...data_storage.connections import artifact_readonly
+from ...runtime.paths import get_artifact_db_path
 from ..domain.repository import RepoState
 from ..domain.policies import BuildPolicy
 from ...runtime.logging import get_logger
@@ -155,6 +158,20 @@ def record_build_wall_time(
     )
 
 
+def persisted_drop_diagnostics(
+    snapshot_id: str,
+    repo_root: Optional[Path] = None,
+) -> dict[str, object] | None:
+    repo_state = policy_repo.resolve_repo_state(repo_root, allow_missing_config=True)
+    policy_repo.ensure_initialized(repo_state)
+    artifact_path = get_artifact_db_path(repo_state.repo_root)
+    with artifact_readonly(artifact_path, repo_root=repo_state.repo_root) as conn:
+        return artifact_read.call_resolution_diagnostics_for_snapshot(
+            conn,
+            snapshot_id=snapshot_id,
+        )
+
+
 def write_build_diagnostic_outputs(
     result: BuildResult,
     report: dict[str, object],
@@ -188,6 +205,18 @@ def write_build_diagnostic_outputs(
     verbose_payload["diagnostic_kind"] = "pre_persist_filter_best_effort"
     verbose_path.write_text(
         json.dumps(verbose_payload, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    persisted_drop_payload = diagnostic_report.build_persisted_drop_verbose_payload(
+        persisted_drop_diagnostics(result.snapshot_id, repo_root=resolved_repo_root)
+    )
+    persisted_drop_payload["diagnostic_mode"] = True
+    persisted_drop_payload["diagnostic_kind"] = "persisted_drop_best_effort"
+    persisted_drop_path = diagnostic_report.persisted_drop_verbose_output_path(
+        resolved_repo_root
+    )
+    persisted_drop_path.write_text(
+        json.dumps(persisted_drop_payload, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
 

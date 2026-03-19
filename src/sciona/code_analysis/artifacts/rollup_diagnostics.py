@@ -16,6 +16,7 @@ def ensure_rollup_diagnostics(diagnostics: dict[str, object] | None) -> dict[str
         return {}
     diagnostics.setdefault("version", 1)
     diagnostics.setdefault("by_caller", {})
+    diagnostics.setdefault("persisted_drop_observations", [])
     totals = diagnostics.setdefault(
         "totals",
         {
@@ -81,6 +82,50 @@ def ensure_caller_diagnostics(
         },
     )
     return entry
+
+
+def record_persisted_drop_observation(
+    diagnostics: dict[str, object] | None,
+    *,
+    caller_structural_id: str,
+    caller_qualified_name: str,
+    caller_module: str | None,
+    caller_language: str | None,
+    caller_file_path: str | None,
+    identifier: str,
+    ordinal: int,
+    drop_reason: str | None,
+    candidate_count: int,
+    callee_kind: str,
+    in_scope_candidate_count: int | None,
+    candidate_module_hints: str | None,
+) -> None:
+    if diagnostics is None:
+        return
+    observations = diagnostics.setdefault("persisted_drop_observations", [])
+    if not isinstance(observations, list):
+        observations = []
+        diagnostics["persisted_drop_observations"] = observations
+    observations.append(
+        {
+            "caller_structural_id": caller_structural_id,
+            "caller_qualified_name": caller_qualified_name,
+            "caller_module": caller_module,
+            "file_path": caller_file_path or "",
+            "language": caller_language,
+            "identifier": identifier,
+            "ordinal": int(ordinal),
+            "drop_reason": drop_reason,
+            "candidate_count": int(candidate_count),
+            "callee_kind": callee_kind,
+            "in_scope_candidate_count": (
+                int(in_scope_candidate_count)
+                if in_scope_candidate_count is not None
+                else None
+            ),
+            "candidate_module_hints": candidate_module_hints,
+        }
+    )
 
 
 def merge_resolution_stats(

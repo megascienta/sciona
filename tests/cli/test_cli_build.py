@@ -8,6 +8,7 @@ import json
 
 from sciona.cli import repo_ops
 from sciona.cli.commands import register_build as build_command
+from sciona.pipelines.ops import repo as repo_pipeline
 from sciona.runtime import config as runtime_config
 from sciona.runtime import paths as runtime_paths
 from sciona.pipelines.exec.build import BuildResult
@@ -224,6 +225,11 @@ def test_cli_build_diagnostic_writes_repo_root_outputs(
     )
     monkeypatch.setattr(repo_ops, "build", lambda **kwargs: result)
     monkeypatch.setattr(repo_ops, "snapshot_report", lambda snapshot_id: _fake_report())
+    monkeypatch.setattr(
+        repo_pipeline,
+        "persisted_drop_diagnostics",
+        lambda snapshot_id, repo_root=None: {},
+    )
     monkeypatch.setattr(repo_ops, "record_build_wall_time", lambda snapshot_id, wall_seconds: None)
     perf_values = iter([40.0, 40.25])
     monkeypatch.setattr(build_command, "perf_counter", lambda: next(perf_values))
@@ -233,8 +239,10 @@ def test_cli_build_diagnostic_writes_repo_root_outputs(
     assert result.exit_code == 0
     build_status_path = repo_root / f"{repo_root.name}_build_status.json"
     verbose_path = repo_root / f"{repo_root.name}_pre_persist_verbose.json"
+    persisted_drop_path = repo_root / f"{repo_root.name}_persisted_drop_verbose.json"
     assert build_status_path.exists()
     assert verbose_path.exists()
+    assert persisted_drop_path.exists()
     build_status = json.loads(build_status_path.read_text(encoding="utf-8"))
     assert build_status["diagnostic_mode"] is True
     assert build_status["diagnostic_kind"] == "pre_persist_filter_best_effort"
@@ -243,6 +251,10 @@ def test_cli_build_diagnostic_writes_repo_root_outputs(
     assert verbose_payload["diagnostic_mode"] is True
     assert verbose_payload["diagnostic_kind"] == "pre_persist_filter_best_effort"
     assert "buckets" in verbose_payload
+    persisted_drop_payload = json.loads(persisted_drop_path.read_text(encoding="utf-8"))
+    assert persisted_drop_payload["diagnostic_mode"] is True
+    assert persisted_drop_payload["diagnostic_kind"] == "persisted_drop_best_effort"
+    assert "buckets" in persisted_drop_payload
 
 
 def test_cli_build_diagnostic_enriches_pre_persist_filter(
@@ -278,6 +290,11 @@ def test_cli_build_diagnostic_enriches_pre_persist_filter(
     )
     monkeypatch.setattr(repo_ops, "build", lambda **kwargs: result)
     monkeypatch.setattr(repo_ops, "snapshot_report", lambda snapshot_id: _fake_report())
+    monkeypatch.setattr(
+        repo_pipeline,
+        "persisted_drop_diagnostics",
+        lambda snapshot_id, repo_root=None: {},
+    )
     monkeypatch.setattr(repo_ops, "record_build_wall_time", lambda snapshot_id, wall_seconds: None)
     perf_values = iter([50.0, 50.25])
     monkeypatch.setattr(build_command, "perf_counter", lambda: next(perf_values))
@@ -335,6 +352,28 @@ def test_cli_build_verbose_sidecar_groups_callsites_by_bucket(
     )
     monkeypatch.setattr(repo_ops, "build", lambda **kwargs: result)
     monkeypatch.setattr(repo_ops, "snapshot_report", lambda snapshot_id: _fake_report())
+    monkeypatch.setattr(
+        repo_pipeline,
+        "persisted_drop_diagnostics",
+        lambda snapshot_id, repo_root=None: {
+            "persisted_drop_observations": [
+                {
+                    "caller_structural_id": "caller",
+                    "caller_qualified_name": "pkg.alpha.run",
+                    "caller_module": "pkg.alpha",
+                    "file_path": "pkg/a.py",
+                    "language": "python",
+                    "identifier": "socket.in(room).emit",
+                    "ordinal": 1,
+                    "drop_reason": "ambiguous_multiple_in_scope_candidates",
+                    "candidate_count": 2,
+                    "callee_kind": "qualified",
+                    "in_scope_candidate_count": 2,
+                    "candidate_module_hints": "pkg.alpha,pkg.beta",
+                }
+            ]
+        },
+    )
     monkeypatch.setattr(repo_ops, "record_build_wall_time", lambda snapshot_id, wall_seconds: None)
     perf_values = iter([60.0, 60.25])
     monkeypatch.setattr(build_command, "perf_counter", lambda: next(perf_values))
@@ -343,6 +382,10 @@ def test_cli_build_verbose_sidecar_groups_callsites_by_bucket(
 
     assert result_cli.exit_code == 0
     verbose_path = repo_root / f"{repo_root.name}_pre_persist_verbose.json"
+    persisted_drop_path = repo_root / f"{repo_root.name}_persisted_drop_verbose.json"
     verbose_payload = json.loads(verbose_path.read_text(encoding="utf-8"))
+    persisted_drop_payload = json.loads(persisted_drop_path.read_text(encoding="utf-8"))
     assert verbose_payload["buckets"]["likely_unindexed_symbol"]["count"] == 2
     assert verbose_payload["problematic_files"][0]["file_path"] == "pkg/a.py"
+    assert persisted_drop_payload["buckets"]["likely_dynamic_member_terminal"]["count"] == 1
+    assert persisted_drop_payload["problematic_files"][0]["file_path"] == "pkg/a.py"
