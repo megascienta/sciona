@@ -159,6 +159,59 @@ def test_record_build_metrics_persists_snapshot_summary(repo_with_snapshot):
     }
 
 
+def test_snapshot_report_prefers_stored_snapshot_summary(repo_with_snapshot):
+    repo_root, snapshot_id = repo_with_snapshot
+    artifact_db = repo_root / ".sciona" / runtime_constants.ARTIFACT_DB_FILENAME
+
+    conn = artifact_connect(artifact_db, repo_root=repo_root)
+    try:
+        artifact_write.set_snapshot_summary(
+            conn,
+            snapshot_id=snapshot_id,
+            value=(
+                '{"timing": {"build_total_seconds": 9.0, "build_wall_seconds": 10.0,'
+                ' "build_phase_timings": {"build_structural_index": 8.0}},'
+                ' "totals": {"structure": {"files": 99, "nodes": 88, "edges": 77},'
+                ' "callsites": {"observed_syntactic_callsites": 11, "accepted_callsites": 5,'
+                ' "not_accepted_callsites": 6},'
+                ' "call_materialization": {"finalized_call_edges": 4}},'
+                ' "languages": {"python": {"structure": {"files": 99, "nodes": 88, "edges": 77},'
+                ' "callsites": {"observed_syntactic_callsites": 11, "accepted_callsites": 5,'
+                ' "not_accepted_callsites": 6},'
+                ' "call_materialization": {"finalized_call_edges": 4}}},'
+                ' "scopes": {"non_tests": {"structure": {"files": 99, "nodes": 88, "edges": 77},'
+                ' "callsites": {"observed_syntactic_callsites": 11, "accepted_callsites": 5,'
+                ' "not_accepted_callsites": 6},'
+                ' "call_materialization": {"finalized_call_edges": 4}},'
+                ' "tests": {"structure": {"files": 0, "nodes": 0, "edges": 0},'
+                ' "callsites": {"observed_syntactic_callsites": 0, "accepted_callsites": 0,'
+                ' "not_accepted_callsites": 0},'
+                ' "call_materialization": {"finalized_call_edges": 0}}}}'
+            ),
+        )
+        artifact_write.set_rebuild_metadata(
+            conn,
+            key=f"call_resolution_diagnostics:{snapshot_id}",
+            value=(
+                '{"totals": {"observed_callsites": 5, "finalized_accepted_callsites": 2,'
+                ' "finalized_dropped_callsites": 3}}'
+            ),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    payload = repo_pipeline.snapshot_report(snapshot_id, repo_root=repo_root)
+    assert payload is not None
+    assert payload["timing"]["build_total_seconds"] == 9.0
+    assert payload["totals"]["structure"] == {"files": 99, "nodes": 88, "edges": 77}
+    assert payload["totals"]["callsites"] == {
+        "observed_syntactic_callsites": 11,
+        "accepted_callsites": 5,
+        "not_accepted_callsites": 6,
+    }
+
+
 def test_snapshot_report_includes_direct_callsite_counts_from_diagnostics(
     repo_with_snapshot,
 ):

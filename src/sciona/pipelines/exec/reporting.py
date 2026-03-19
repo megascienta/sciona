@@ -113,10 +113,23 @@ def snapshot_report(
     snapshot_id: str,
     include_failure_reasons: bool = False,
 ) -> dict[str, object] | None:
+    del include_failure_reasons
+    try:
+        with artifact_readonly(
+            repo_state.artifact_db_path, repo_root=repo_state.repo_root
+        ) as conn:
+            summary = artifact_status.snapshot_summary_for_snapshot(
+                conn,
+                snapshot_id=snapshot_id,
+            )
+            if isinstance(summary, dict):
+                return _report_from_stored_summary(summary)
+    except sqlite3.Error:
+        pass
     return _build_live_snapshot_report(
         repo_state,
         snapshot_id=snapshot_id,
-        include_failure_reasons=include_failure_reasons,
+        include_failure_reasons=False,
     )
 
 
@@ -640,6 +653,19 @@ def _canonical_snapshot_summary_payload(
         "totals": dict(payload.get("totals") or {}),
         "languages": dict(payload.get("languages") or {}),
         "scopes": dict(payload.get("scopes") or {}),
+    }
+
+
+def _report_from_stored_summary(
+    summary: dict[str, object],
+) -> dict[str, object]:
+    return {
+        "artifact_db_available": True,
+        "labels": _labels_payload(),
+        "timing": dict(summary.get("timing") or {}),
+        "totals": dict(summary.get("totals") or {}),
+        "languages": dict(summary.get("languages") or {}),
+        "scopes": dict(summary.get("scopes") or {}),
     }
 def _filtered_pre_persist_buckets_payload(
     buckets: dict[str, int] | None,
