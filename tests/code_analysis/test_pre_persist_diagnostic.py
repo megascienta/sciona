@@ -1095,6 +1095,126 @@ def test_build_rejected_calls_verbose_payload_marks_fixture_scope_outside_contra
     assert payload["problematic_callsites"][0]["public_bucket"] == "outside_static_contract"
 
 
+def test_merge_diagnostic_payloads_combines_both_rejection_populations() -> None:
+    payload = diagnostic_pipeline.merge_diagnostic_payloads(
+        {
+            "totals": {
+                "likely_unindexed_symbol": 1,
+                "likely_external_dependency": 2,
+            },
+            "by_language": {
+                "python": {
+                    "likely_unindexed_symbol": 1,
+                    "likely_external_dependency": 2,
+                }
+            },
+            "by_scope": {
+                "non_tests": {
+                    "likely_unindexed_symbol": 1,
+                    "likely_external_dependency": 2,
+                },
+                "tests": {},
+            },
+            "observations": [
+                {
+                    "bucket": "likely_unindexed_symbol",
+                    "identifier": "repo.pkg.models.Secret",
+                    "file_path": "pkg/mod.py",
+                }
+            ],
+        },
+        {
+            "totals": {
+                "likely_dynamic_dispatch_or_indirect": 3,
+            },
+            "by_language": {
+                "javascript": {
+                    "likely_dynamic_dispatch_or_indirect": 3,
+                }
+            },
+            "by_scope": {
+                "non_tests": {
+                    "likely_dynamic_dispatch_or_indirect": 1,
+                },
+                "tests": {
+                    "likely_dynamic_dispatch_or_indirect": 2,
+                },
+            },
+            "observations": [
+                {
+                    "bucket": "likely_dynamic_dispatch_or_indirect",
+                    "identifier": "socket.in(room).emit",
+                    "file_path": "pkg/mod.js",
+                    "gate_reason": "insufficient_static_evidence",
+                }
+            ],
+        },
+    )
+
+    assert payload["totals"] == {
+        "likely_external_dependency": 2,
+        "likely_standard_library_or_builtin": 0,
+        "likely_dynamic_dispatch_or_indirect": 3,
+        "likely_unindexed_symbol": 1,
+        "likely_parser_extraction_gap": 0,
+        "unclassified_no_in_repo_candidate": 0,
+        "accepted_outside_in_repo": 0,
+        "invalid_observation_shape": 0,
+    }
+    assert payload["by_language"]["python"]["likely_unindexed_symbol"] == 1
+    assert (
+        payload["by_language"]["javascript"]["likely_dynamic_dispatch_or_indirect"]
+        == 3
+    )
+    assert (
+        payload["by_scope"]["non_tests"]["likely_dynamic_dispatch_or_indirect"] == 1
+    )
+    assert payload["by_scope"]["tests"]["likely_dynamic_dispatch_or_indirect"] == 2
+    assert len(payload["observations"]) == 2
+
+
+def test_build_rejected_calls_verbose_payload_counts_merged_pre_and_post_persist() -> None:
+    payload = build_rejected_calls_verbose_payload(
+        diagnostic_pipeline.merge_diagnostic_payloads(
+            {
+                "totals": {"likely_unindexed_symbol": 1},
+                "by_language": {},
+                "by_scope": {"non_tests": {}, "tests": {}},
+                "observations": [
+                    {
+                        "bucket": "likely_unindexed_symbol",
+                        "reasons": ["repo_owned_qualified_prefix"],
+                        "signals": ["qualified_identifier"],
+                        "language": "python",
+                        "file_path": "pkg/mod.py",
+                        "identifier": "repo.pkg.models.Secret",
+                    }
+                ],
+            },
+            {
+                "totals": {"likely_dynamic_dispatch_or_indirect": 1},
+                "by_language": {},
+                "by_scope": {"non_tests": {}, "tests": {}},
+                "observations": [
+                    {
+                        "bucket": "likely_dynamic_dispatch_or_indirect",
+                        "reasons": ["promise_terminal"],
+                        "signals": ["qualified_identifier"],
+                        "language": "javascript",
+                        "file_path": "pkg/mod.js",
+                        "identifier": "socket.in(room).emit",
+                        "gate_reason": "insufficient_static_evidence",
+                        "raw_drop_reason": "ambiguous_multiple_in_scope_candidates",
+                    }
+                ],
+            },
+        ),
+        None,
+    )
+
+    assert payload["phase_counts"] == {"pre_persist": 1, "post_persist": 1}
+
+
 def test_merge_non_candidate_buckets_projects_public_buckets() -> None:
     merged = _merge_non_candidate_buckets(
         {

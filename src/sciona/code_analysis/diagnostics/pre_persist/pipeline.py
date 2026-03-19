@@ -203,8 +203,15 @@ def classify_rejected_calls(
     core_conn,
     artifact_conn,
     snapshot_id: str,
+    call_records: Sequence[CallExtractionRecord] = (),
     progress_factory: ProgressFactory | None = None,
 ) -> dict[str, object]:
+    pre_persist_payload = classify_pre_persist_misses(
+        core_conn=core_conn,
+        snapshot_id=snapshot_id,
+        call_records=call_records,
+        progress_factory=progress_factory,
+    )
     rows = artifact_conn.execute(
         """
         SELECT
@@ -224,15 +231,7 @@ def classify_rejected_calls(
         """
     ).fetchall()
     if not rows:
-        return {
-            "totals": empty_diagnostic_buckets(),
-            "by_language": {},
-            "by_scope": {
-                "non_tests": empty_diagnostic_buckets(),
-                "tests": empty_diagnostic_buckets(),
-            },
-            "observations": [],
-        }
+        return pre_persist_payload
     symbol_index, _in_repo_callable_ids, callable_qname_by_id = build_symbol_index(
         core_conn, snapshot_id
     )
@@ -363,16 +362,69 @@ def classify_rejected_calls(
             progress_handle.advance(1)
     if progress_handle is not None:
         progress_handle.close()
-    return {
+    post_persist_payload = {
         "totals": aggregation.totals,
         "by_language": aggregation.by_language,
         "by_scope": aggregation.by_scope,
         "observations": aggregation.observations,
     }
+    return merge_diagnostic_payloads(pre_persist_payload, post_persist_payload)
+
+
+def merge_diagnostic_payloads(
+    *payloads: dict[str, object] | None,
+) -> dict[str, object]:
+    merged = {
+        "totals": empty_diagnostic_buckets(),
+        "by_language": {},
+        "by_scope": {
+            "non_tests": empty_diagnostic_buckets(),
+            "tests": empty_diagnostic_buckets(),
+        },
+        "observations": [],
+    }
+    for payload in payloads:
+        if not isinstance(payload, dict):
+            continue
+        _merge_bucket_counts(
+            merged["totals"],
+            payload.get("totals"),
+        )
+        by_language = payload.get("by_language")
+        if isinstance(by_language, dict):
+            for language, buckets in by_language.items():
+                if not isinstance(language, str):
+                    continue
+                target = merged["by_language"].setdefault(
+                    language,
+                    empty_diagnostic_buckets(),
+                )
+                _merge_bucket_counts(target, buckets)
+        by_scope = payload.get("by_scope")
+        if isinstance(by_scope, dict):
+            for scope_key, buckets in by_scope.items():
+                if scope_key not in {"non_tests", "tests"}:
+                    continue
+                _merge_bucket_counts(merged["by_scope"][scope_key], buckets)
+        observations = payload.get("observations")
+        if isinstance(observations, list):
+            merged["observations"].extend(
+                item for item in observations if isinstance(item, dict)
+            )
+    return merged
 
 
 def _inc_bucket(target: dict[str, int], bucket: str) -> None:
     target[bucket] = int(target.get(bucket, 0)) + 1
+
+
+def _merge_bucket_counts(target: dict[str, int], source: object) -> None:
+    if not isinstance(source, dict):
+        return
+    for bucket, count in source.items():
+        if not isinstance(bucket, str):
+            continue
+        target[bucket] = int(target.get(bucket, 0)) + int(count or 0)
 
 
 def _identifier_root(identifier: str) -> str:
