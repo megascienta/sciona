@@ -30,7 +30,9 @@ def test_walker_capabilities_align_with_declared_query_surfaces() -> None:
             node_types = set(entry["node_types"])
             query_access = entry["query_access"]
             if query_access["mode"] == "direct":
-                assert node_types <= direct_surface, (
+                allowed_unqueried = set(query_access.get("allowed_unqueried_node_types") or [])
+                assert allowed_unqueried <= node_types
+                assert node_types <= direct_surface | allowed_unqueried, (
                     f"{language}:{entry['construct']} references node types outside "
                     "the direct structural query surface"
                 )

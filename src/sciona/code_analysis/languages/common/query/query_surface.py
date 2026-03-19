@@ -37,7 +37,6 @@ PYTHON_STRUCTURAL_NODE_TYPES = frozenset(
         "decorated_definition",
         "class_definition",
         "function_definition",
-        "async_function_definition",
         "assignment",
         "augmented_assignment",
     }

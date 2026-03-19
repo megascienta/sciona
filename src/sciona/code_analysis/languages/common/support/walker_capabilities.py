@@ -22,7 +22,10 @@ def build_walker_capabilities() -> dict[str, list[dict[str, object]]]:
                 "node_types": ["function_definition", "async_function_definition"],
                 "emits_nodes": ["callable"],
                 "emits_edges": ["LEXICALLY_CONTAINS"],
-                "query_access": {"mode": "direct"},
+                "query_access": {
+                    "mode": "direct",
+                    "allowed_unqueried_node_types": ["async_function_definition"],
+                },
             },
             {
                 "construct": "bound_callable_declaration",

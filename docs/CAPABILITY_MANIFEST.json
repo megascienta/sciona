@@ -260,7 +260,6 @@
       ],
       "structural_nodes": [
         "assignment",
-        "async_function_definition",
         "augmented_assignment",
         "class_definition",
         "decorated_definition",
@@ -514,6 +513,9 @@
           "async_function_definition"
         ],
         "query_access": {
+          "allowed_unqueried_node_types": [
+            "async_function_definition"
+          ],
           "mode": "direct"
         }
       },
