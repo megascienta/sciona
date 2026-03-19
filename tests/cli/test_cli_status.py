@@ -49,8 +49,8 @@ def _fake_report():
             },
             "phases": {
                 "build_structural_index": "Build Structural Index",
-                "prepare_callsite_pairs": "Prepare Callsite Pairs",
-                "write_callsite_pairs": "Write Callsite Pairs",
+                "prepare_durable_calls": "Prepare Durable Calls",
+                "write_durable_calls": "Write Durable Calls",
                 "rebuild_graph_rollups": "Rebuild Graph Rollups",
             },
         },
@@ -59,8 +59,8 @@ def _fake_report():
             "build_wall_seconds": 1.5,
             "build_phase_timings": {
                 "build_structural_index": 0.8,
-                "prepare_callsite_pairs": 0.3,
-                "write_callsite_pairs": 0.05,
+                "prepare_durable_calls": 0.3,
+                "write_durable_calls": 0.05,
                 "rebuild_graph_rollups": 0.1,
             },
         },
@@ -213,7 +213,7 @@ def test_cli_status_output_writes_json_file(cli_app, cli_runner, monkeypatch, tm
     assert payload["artifact_db_available"] is True
     assert payload["report"]["timing"]["build_total_seconds"] == 1.234
     assert payload["report"]["timing"]["build_wall_seconds"] == 1.5
-    assert payload["report"]["timing"]["build_phase_timings"]["prepare_callsite_pairs"] == 0.3
-    assert payload["report"]["timing"]["build_phase_timings"]["write_callsite_pairs"] == 0.05
+    assert payload["report"]["timing"]["build_phase_timings"]["prepare_durable_calls"] == 0.3
+    assert payload["report"]["timing"]["build_phase_timings"]["write_durable_calls"] == 0.05
     assert payload["report"]["timing"]["build_phase_timings"]["rebuild_graph_rollups"] == 0.1
     assert payload["report"]["totals"]["call_materialization"]["finalized_call_edges"] == 9

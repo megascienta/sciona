@@ -105,7 +105,7 @@ def test_snapshot_report_includes_timing_under_timing_group(repo_with_snapshot):
         artifact_write.set_rebuild_metadata(
             conn,
             key=f"build_phase_timings:{snapshot_id}",
-            value='{"discover_files": 0.12, "build_structural_index": 2.75, "prepare_callsite_pairs": 0.50, "write_callsite_pairs": 0.10}',
+            value='{"discover_files": 0.12, "build_structural_index": 2.75, "prepare_durable_calls": 0.50, "write_durable_calls": 0.10}',
         )
         conn.commit()
     finally:
@@ -118,8 +118,8 @@ def test_snapshot_report_includes_timing_under_timing_group(repo_with_snapshot):
     assert payload["timing"]["build_phase_timings"] == {
         "discover_files": pytest.approx(0.12),
         "build_structural_index": pytest.approx(2.75),
-        "prepare_callsite_pairs": pytest.approx(0.50),
-        "write_callsite_pairs": pytest.approx(0.10),
+        "prepare_durable_calls": pytest.approx(0.50),
+        "write_durable_calls": pytest.approx(0.10),
     }
 
 
@@ -144,16 +144,6 @@ def test_snapshot_report_includes_direct_callsite_counts_from_diagnostics(
                 '"finalized_accepted_callsites": 2, "finalized_dropped_callsites": 1, '
                 '"filtered_pre_persist_buckets": {"no_in_repo_candidate": 2}}}}'
             ),
-        )
-        artifact_write.upsert_callsite_pairs(
-            conn,
-            snapshot_id=snapshot_id,
-            caller_id="meth_alpha",
-            rows=[
-                ("helper", "site-1", "func_alpha", "in_repo_candidate"),
-                ("helper", "site-1", "func_beta", "in_repo_candidate"),
-                ("other", "site-2", "func_gamma", "in_repo_candidate"),
-            ],
         )
         conn.commit()
     finally:
@@ -184,22 +174,13 @@ def test_snapshot_report_includes_direct_callsite_counts_from_diagnostics(
     assert python["callsites"]["accepted_callsites"] == 2
 
 
-def test_snapshot_report_counts_pairs_and_finalized_call_edges(repo_with_snapshot):
+def test_snapshot_report_counts_finalized_call_edges(repo_with_snapshot):
     repo_root, snapshot_id = repo_with_snapshot
     artifact_db = repo_root / ".sciona" / runtime_constants.ARTIFACT_DB_FILENAME
 
     conn = artifact_connect(artifact_db, repo_root=repo_root)
     core_db = open_core_conn(repo_root)
     try:
-        artifact_write.upsert_callsite_pairs(
-            conn,
-            snapshot_id=snapshot_id,
-            caller_id="meth_alpha",
-            rows=[
-                ("helper", "site-1", "func_alpha", "in_repo_candidate"),
-                ("other", "site-2", "meth_alpha", "in_repo_candidate"),
-            ],
-        )
         artifact_write.upsert_node_calls(
             conn,
             caller_id="meth_alpha",

@@ -63,52 +63,6 @@ def load_artifact_edges(
             conn.close()
 
 
-def load_callsite_pairs(
-    repo_root: Path,
-    *,
-    snapshot_id: str,
-    caller_id: str | None = None,
-    identifier: str | None = None,
-) -> List[dict]:
-    conn = current_artifact_connection()
-    owns_connection = False
-    if conn is None:
-        conn = fallback_artifact_connection(repo_root)
-        owns_connection = conn is not None
-    if conn is None:
-        return []
-    try:
-        clauses: list[str] = ["snapshot_id = ?"]
-        params: list[str] = [snapshot_id]
-        if caller_id:
-            clauses.append("caller_id = ?")
-            params.append(caller_id)
-        if identifier:
-            clauses.append("identifier = ?")
-            params.append(identifier)
-        where = " AND ".join(clauses)
-        rows = conn.execute(
-            f"""
-            SELECT
-                snapshot_id,
-                caller_id,
-                identifier,
-                site_hash,
-                callee_id,
-                pair_kind,
-                pair_hash
-            FROM callsite_pairs
-            WHERE {where}
-            ORDER BY caller_id, identifier, callee_id, pair_hash
-            """,
-            tuple(params),
-        ).fetchall()
-        return [dict(row) for row in rows]
-    finally:
-        if owns_connection:
-            conn.close()
-
-
 def artifact_db_available(repo_root: Path) -> bool:
     conn = current_artifact_connection()
     owns_connection = False

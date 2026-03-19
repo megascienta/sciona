@@ -3,6 +3,6 @@
 
 """ArtifactDB write surfaces."""
 
-from . import write_callsite_pairs, write_graph, write_index
+from . import write_graph, write_index
 
-__all__ = ["write_callsite_pairs", "write_graph", "write_index"]
+__all__ = ["write_graph", "write_index"]

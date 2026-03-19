@@ -89,8 +89,8 @@ PHASE_LABELS = {
     "register_modules": "Register Modules",
     "build_structural_index": "Build Structural Index",
     "derive_call_artifacts": "Extract Call Observations",
-    "prepare_callsite_pairs": "Prepare Callsite Pairs",
-    "write_callsite_pairs": "Write Callsite Pairs",
+    "prepare_durable_calls": "Prepare Durable Calls",
+    "write_durable_calls": "Write Durable Calls",
     "rebuild_graph_index": "Rebuild Call Graph Index",
     "rebuild_graph_rollups": "Rebuild Graph Rollups",
 }

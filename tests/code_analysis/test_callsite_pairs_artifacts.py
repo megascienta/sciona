@@ -954,10 +954,6 @@ def test_write_call_artifacts_clears_existing_rows_when_no_call_records_remain(
                 "SELECT COUNT(*) FROM node_calls WHERE caller_id = ?",
                 ("meth_alpha",),
             ).fetchone()[0] == 0
-            assert artifact_conn.execute(
-                "SELECT COUNT(*) FROM callsite_pairs WHERE snapshot_id = ? AND caller_id = ?",
-                (snapshot_id, "meth_alpha"),
-            ).fetchone()[0] == 0
         finally:
             artifact_conn.close()
     finally:
@@ -970,12 +966,6 @@ def test_reset_artifact_derived_state_clears_call_artifacts_and_rollups(
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     artifact_conn = artifact_connect(get_artifact_db_path(repo_root), repo_root=repo_root)
     try:
-        artifact_write.upsert_callsite_pairs(
-            artifact_conn,
-            snapshot_id=snapshot_id,
-            caller_id="meth_alpha",
-            rows=(("helper", "site-hash", "func_alpha", "in_repo_candidate"),),
-        )
         artifact_conn.execute(
             """
             INSERT INTO node_calls(caller_id, callee_id, valid, call_hash)
@@ -994,7 +984,6 @@ def test_reset_artifact_derived_state_clears_call_artifacts_and_rollups(
 
         artifact_write.reset_artifact_derived_state(artifact_conn)
 
-        assert artifact_conn.execute("SELECT COUNT(*) FROM callsite_pairs").fetchone()[0] == 0
         assert artifact_conn.execute("SELECT COUNT(*) FROM node_calls").fetchone()[0] == 0
         assert artifact_conn.execute("SELECT COUNT(*) FROM graph_edges").fetchone()[0] == 0
         assert artifact_conn.execute("SELECT COUNT(*) FROM module_call_edges").fetchone()[0] == 0
@@ -1036,14 +1025,6 @@ def test_write_call_artifacts_rejects_duplicate_callers_before_writes(
                 assert "Duplicate call artifact records" in str(exc)
             else:
                 raise AssertionError("Expected duplicate caller records to raise")
-            callsite_rows = artifact_conn.execute(
-                """
-                SELECT COUNT(*) AS count
-                FROM callsite_pairs
-                WHERE snapshot_id = ? AND caller_id = ?
-                """,
-                (snapshot_id, "meth_alpha"),
-            ).fetchone()
             node_call_rows = artifact_conn.execute(
                 """
                 SELECT COUNT(*) AS count
@@ -1057,7 +1038,6 @@ def test_write_call_artifacts_rejects_duplicate_callers_before_writes(
     finally:
         core_conn.close()
 
-    assert callsite_rows["count"] == 0
     assert node_call_rows["count"] == 0
 
 
@@ -1088,21 +1068,12 @@ def test_callsite_pairs_do_not_persist_zero_candidate_or_out_of_scope_observatio
             row = artifact_conn.execute(
                 """
                 SELECT COUNT(*) AS row_count
-                FROM callsite_pairs
-                WHERE snapshot_id = ? AND caller_id = ?
+                FROM node_calls
+                WHERE caller_id = ?
                 """,
-                (snapshot_id, "meth_alpha"),
+                ("meth_alpha",),
             ).fetchone()
             assert row["row_count"] == 0
-            pair_row = artifact_conn.execute(
-                """
-                SELECT COUNT(*) AS row_count
-                FROM callsite_pairs
-                WHERE snapshot_id = ? AND caller_id = ?
-                """,
-                (snapshot_id, "meth_alpha"),
-            ).fetchone()
-            assert pair_row["row_count"] == 0
         finally:
             artifact_conn.close()
     finally:

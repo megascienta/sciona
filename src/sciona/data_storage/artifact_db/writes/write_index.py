@@ -11,13 +11,9 @@ from typing import Iterable, Sequence
 from ....runtime.common.time import utc_now
 from ...common.encoding import bool_to_int
 from ...common.sql_utils import temp_id_table
-from .write_callsite_pairs import build_pair_hash
-
-
 def reset_artifact_derived_state(conn: sqlite3.Connection) -> None:
     """Clear all rebuild-derived artifact tables before repopulating them."""
     conn.execute("DELETE FROM node_calls")
-    conn.execute("DELETE FROM callsite_pairs")
     conn.execute("DELETE FROM graph_edges")
     conn.execute("DELETE FROM graph_nodes")
     conn.execute("DELETE FROM module_call_edges")
@@ -62,7 +58,6 @@ def cleanup_removed_nodes(
     ids = list(current_node_ids)
     if not ids:
         conn.execute("DELETE FROM node_calls")
-        conn.execute("DELETE FROM callsite_pairs")
         return
     with temp_id_table(conn, ids, column="node_id", prefix="current_nodes") as table:
         conn.execute(
@@ -71,20 +66,13 @@ def cleanup_removed_nodes(
         conn.execute(
             f"DELETE FROM node_calls WHERE callee_id NOT IN (SELECT node_id FROM {table})",
         )
-        conn.execute(
-            f"DELETE FROM callsite_pairs WHERE caller_id NOT IN (SELECT node_id FROM {table})",
-        )
-        conn.execute(
-            f"DELETE FROM callsite_pairs WHERE callee_id NOT IN (SELECT node_id FROM {table})",
-        )
-
-
 def clear_call_artifacts_for_callers(
     conn: sqlite3.Connection,
     *,
     snapshot_id: str,
     caller_ids: Iterable[str],
 ) -> None:
+    del snapshot_id
     caller_list = list(caller_ids)
     if not caller_list:
         return
@@ -92,64 +80,6 @@ def clear_call_artifacts_for_callers(
     conn.execute(
         f"DELETE FROM node_calls WHERE caller_id IN ({placeholders})",
         caller_list,
-    )
-    conn.execute(
-        f"DELETE FROM callsite_pairs WHERE snapshot_id = ? AND caller_id IN ({placeholders})",
-        (snapshot_id, *caller_list),
-    )
-
-
-def upsert_callsite_pairs(
-    conn: sqlite3.Connection,
-    *,
-    snapshot_id: str,
-    caller_id: str,
-    rows: Sequence[tuple[str, str, str, str]],
-) -> None:
-    conn.execute(
-        "DELETE FROM callsite_pairs WHERE snapshot_id = ? AND caller_id = ?",
-        (snapshot_id, caller_id),
-    )
-    if not rows:
-        return
-    entries = []
-    seen_pair_hashes: set[str] = set()
-    for identifier, site_hash, callee_id, pair_kind in rows:
-        pair_hash = build_pair_hash(
-            snapshot_id=snapshot_id,
-            caller_id=caller_id,
-            identifier=identifier,
-            callee_id=callee_id,
-            pair_kind=pair_kind,
-        )
-        if pair_hash in seen_pair_hashes:
-            continue
-        seen_pair_hashes.add(pair_hash)
-        entries.append(
-            (
-                snapshot_id,
-                caller_id,
-                identifier,
-                site_hash,
-                callee_id,
-                pair_kind,
-                pair_hash,
-            )
-        )
-    conn.executemany(
-        """
-        INSERT INTO callsite_pairs(
-            snapshot_id,
-            caller_id,
-            identifier,
-            site_hash,
-            callee_id,
-            pair_kind,
-            pair_hash
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-        """,
-        entries,
     )
 
 

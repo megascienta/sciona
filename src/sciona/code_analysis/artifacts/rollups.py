@@ -11,7 +11,7 @@ from typing import Iterable, Sequence
 from ..analysis.module_id import module_id_for
 from ..tools.call_extraction import CallExtractionRecord
 from ...data_storage.artifact_db.rollups import rollup_persistence as artifact_persistence
-from ...data_storage.artifact_db.writes.write_callsite_pairs import build_site_hash
+from ...runtime.common import identity as ids
 from ...data_storage.core_db import read_ops as core_read
 from .call_resolution import (
     best_candidate_by_module_distance as _best_candidate_by_module_distance,
@@ -181,7 +181,7 @@ def write_call_artifacts(
     processed_callers: set[str] = set()
     diagnostics_totals = _ensure_rollup_diagnostics(diagnostics)
     prepare_progress = (
-        progress_factory("Preparing callsite pairs", len(call_records))
+        progress_factory("Preparing durable calls", len(call_records))
         if progress_factory and call_records
         else None
     )
@@ -385,7 +385,7 @@ def write_call_artifacts(
         prepare_progress.close()
 
     write_progress = (
-        progress_factory("Writing callsite pairs", len(prepared_artifacts))
+        progress_factory("Writing durable calls", len(prepared_artifacts))
         if progress_factory and prepared_artifacts
         else None
     )
@@ -578,9 +578,8 @@ def _callsite_site_hash(
 ) -> str:
     identifier = row[0]
     call_ordinal = row[9]
-    return build_site_hash(
-        snapshot_id=snapshot_id,
-        caller_id=caller_id,
-        identifier=identifier,
-        call_ordinal=call_ordinal,
+    return ids.structural_id(
+        "call_site",
+        "artifact",
+        f"{snapshot_id}:{caller_id}:{identifier}:{call_ordinal}",
     )

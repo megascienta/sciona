@@ -8,30 +8,6 @@ from __future__ import annotations
 import sqlite3
 
 
-def callsite_pair_caller_counts(
-    conn: sqlite3.Connection,
-    *,
-    snapshot_id: str,
-) -> list[dict[str, object]]:
-    rows = conn.execute(
-        """
-        SELECT caller_id,
-               COUNT(*) AS pair_count
-        FROM callsite_pairs
-        WHERE snapshot_id = ?
-        GROUP BY caller_id
-        """,
-        (snapshot_id,),
-    ).fetchall()
-    return [
-        {
-            "caller_id": row["caller_id"],
-            "pair_count": int(row["pair_count"] or 0),
-        }
-        for row in rows
-    ]
-
-
 def node_call_caller_counts(
     conn: sqlite3.Connection,
 ) -> list[dict[str, object]]:
@@ -73,7 +49,6 @@ def graph_edge_source_counts(
 
 
 __all__ = [
-    "callsite_pair_caller_counts",
     "graph_edge_source_counts",
     "node_call_caller_counts",
 ]
