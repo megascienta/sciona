@@ -1,0 +1,360 @@
+{
+  "java": [
+    {
+      "construct": "class_like_declaration",
+      "emits_edges": [
+        "LEXICALLY_CONTAINS"
+      ],
+      "emits_nodes": [
+        "classifier"
+      ],
+      "node_types": [
+        "class_declaration",
+        "interface_declaration",
+        "enum_declaration",
+        "record_declaration"
+      ],
+      "query_access": {
+        "mode": "direct"
+      }
+    },
+    {
+      "construct": "method_like_declaration",
+      "emits_edges": [
+        "LEXICALLY_CONTAINS"
+      ],
+      "emits_nodes": [
+        "callable"
+      ],
+      "node_types": [
+        "method_declaration",
+        "constructor_declaration",
+        "compact_constructor_declaration"
+      ],
+      "query_access": {
+        "mode": "direct"
+      }
+    },
+    {
+      "construct": "field_type_tracking",
+      "emits_edges": [],
+      "emits_nodes": [],
+      "node_types": [
+        "field_declaration"
+      ],
+      "query_access": {
+        "mode": "direct"
+      }
+    },
+    {
+      "constraints": [
+        "syntax-local base/interface references only"
+      ],
+      "construct": "local_inheritance_edges",
+      "emits_edges": [
+        "EXTENDS",
+        "IMPLEMENTS"
+      ],
+      "emits_nodes": [],
+      "node_types": [
+        "class_declaration",
+        "interface_declaration",
+        "enum_declaration",
+        "record_declaration"
+      ],
+      "query_access": {
+        "mode": "direct"
+      }
+    }
+  ],
+  "javascript": [
+    {
+      "construct": "class_declaration",
+      "emits_edges": [
+        "LEXICALLY_CONTAINS"
+      ],
+      "emits_nodes": [
+        "classifier"
+      ],
+      "node_types": [
+        "class_declaration",
+        "class_expression"
+      ],
+      "query_access": {
+        "anchors": [
+          "assignment_expression",
+          "class_declaration",
+          "export_statement",
+          "field_definition",
+          "variable_declarator"
+        ],
+        "mode": "nested"
+      }
+    },
+    {
+      "construct": "callable_declaration",
+      "emits_edges": [
+        "LEXICALLY_CONTAINS"
+      ],
+      "emits_nodes": [
+        "callable"
+      ],
+      "node_types": [
+        "function_declaration",
+        "method_definition"
+      ],
+      "query_access": {
+        "mode": "direct"
+      }
+    },
+    {
+      "constraints": [
+        "function/arrow callable promoted only for stable lexical bindings; inline anonymous callbacks are non-structural"
+      ],
+      "construct": "bound_callable_declaration",
+      "emits_edges": [
+        "LEXICALLY_CONTAINS"
+      ],
+      "emits_nodes": [
+        "callable"
+      ],
+      "node_types": [
+        "variable_declarator",
+        "assignment_expression",
+        "field_definition"
+      ],
+      "query_access": {
+        "mode": "direct"
+      }
+    },
+    {
+      "constraints": [
+        "syntax-local base references only"
+      ],
+      "construct": "local_inheritance_edges",
+      "emits_edges": [
+        "EXTENDS"
+      ],
+      "emits_nodes": [],
+      "node_types": [
+        "class_declaration",
+        "class_expression"
+      ],
+      "query_access": {
+        "anchors": [
+          "assignment_expression",
+          "class_declaration",
+          "export_statement",
+          "field_definition",
+          "variable_declarator"
+        ],
+        "mode": "nested"
+      }
+    }
+  ],
+  "python": [
+    {
+      "construct": "class_declaration",
+      "emits_edges": [
+        "LEXICALLY_CONTAINS"
+      ],
+      "emits_nodes": [
+        "classifier"
+      ],
+      "node_types": [
+        "class_definition"
+      ],
+      "query_access": {
+        "mode": "direct"
+      }
+    },
+    {
+      "construct": "function_declaration",
+      "emits_edges": [
+        "LEXICALLY_CONTAINS"
+      ],
+      "emits_nodes": [
+        "callable"
+      ],
+      "node_types": [
+        "function_definition",
+        "async_function_definition"
+      ],
+      "query_access": {
+        "allowed_unqueried_node_types": [
+          "async_function_definition"
+        ],
+        "mode": "direct"
+      }
+    },
+    {
+      "constraints": [
+        "rhs must be lambda with stable lexical binding"
+      ],
+      "construct": "bound_callable_declaration",
+      "emits_edges": [
+        "LEXICALLY_CONTAINS"
+      ],
+      "emits_nodes": [
+        "callable"
+      ],
+      "node_types": [
+        "assignment",
+        "augmented_assignment"
+      ],
+      "query_access": {
+        "mode": "direct"
+      }
+    },
+    {
+      "construct": "decorated_definition_unwrap",
+      "emits_edges": [],
+      "emits_nodes": [],
+      "node_types": [
+        "decorated_definition"
+      ],
+      "query_access": {
+        "mode": "direct"
+      }
+    },
+    {
+      "constraints": [
+        "syntax-local base references only"
+      ],
+      "construct": "local_inheritance_edges",
+      "emits_edges": [
+        "EXTENDS"
+      ],
+      "emits_nodes": [],
+      "node_types": [
+        "class_definition"
+      ],
+      "query_access": {
+        "mode": "direct"
+      }
+    }
+  ],
+  "typescript": [
+    {
+      "construct": "class_like_declaration",
+      "emits_edges": [
+        "LEXICALLY_CONTAINS"
+      ],
+      "emits_nodes": [
+        "classifier"
+      ],
+      "node_types": [
+        "class_declaration",
+        "abstract_class_declaration",
+        "interface_declaration"
+      ],
+      "query_access": {
+        "mode": "direct"
+      }
+    },
+    {
+      "construct": "callable_declaration",
+      "emits_edges": [
+        "LEXICALLY_CONTAINS"
+      ],
+      "emits_nodes": [
+        "callable"
+      ],
+      "node_types": [
+        "function_declaration",
+        "method_definition",
+        "method_signature",
+        "abstract_method_signature"
+      ],
+      "query_access": {
+        "mode": "direct"
+      }
+    },
+    {
+      "constraints": [
+        "function/method emission for stable lexical bindings, including nested bound expressions, object-literal bound methods, class member fields, and anonymous export default callables; inline anonymous callbacks are non-structural"
+      ],
+      "construct": "class_and_function_expressions",
+      "emits_edges": [
+        "LEXICALLY_CONTAINS"
+      ],
+      "emits_nodes": [
+        "classifier",
+        "callable"
+      ],
+      "node_types": [
+        "export_statement",
+        "class",
+        "class_expression",
+        "object",
+        "pair",
+        "method_definition",
+        "arrow_function",
+        "function_expression"
+      ],
+      "query_access": {
+        "anchors": [
+          "assignment_expression",
+          "class_body",
+          "expression_statement",
+          "export_statement",
+          "lexical_declaration",
+          "public_field_definition",
+          "statement_block",
+          "variable_declarator"
+        ],
+        "mode": "nested"
+      }
+    },
+    {
+      "construct": "instance_and_alias_tracking",
+      "emits_edges": [],
+      "emits_nodes": [],
+      "node_types": [
+        "new_expression",
+        "assignment_expression",
+        "variable_declarator"
+      ],
+      "query_access": {
+        "anchors": [
+          "assignment_expression",
+          "class_body",
+          "expression_statement",
+          "lexical_declaration",
+          "public_field_definition",
+          "statement_block",
+          "variable_declarator"
+        ],
+        "mode": "nested"
+      }
+    },
+    {
+      "constraints": [
+        "syntax-local base/interface references only"
+      ],
+      "construct": "local_inheritance_edges",
+      "emits_edges": [
+        "EXTENDS",
+        "IMPLEMENTS"
+      ],
+      "emits_nodes": [],
+      "node_types": [
+        "class_declaration",
+        "class_expression",
+        "interface_declaration"
+      ],
+      "query_access": {
+        "anchors": [
+          "abstract_class_declaration",
+          "assignment_expression",
+          "class_declaration",
+          "export_statement",
+          "interface_declaration",
+          "public_field_definition",
+          "variable_declarator"
+        ],
+        "mode": "nested"
+      }
+    }
+  ]
+}

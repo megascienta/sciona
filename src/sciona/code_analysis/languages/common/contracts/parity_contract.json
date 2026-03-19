@@ -1,0 +1,118 @@
+{
+  "dimensions": {
+    "call_extraction_and_attribution": {
+      "java": "yes",
+      "javascript": "yes",
+      "python": "yes",
+      "typescript": "yes"
+    },
+    "callable_role_coverage": {
+      "java": "yes",
+      "javascript": "yes",
+      "python": "yes",
+      "typescript": "yes"
+    },
+    "core_extends_edges": {
+      "java": "yes",
+      "javascript": "yes",
+      "python": "yes",
+      "typescript": "yes"
+    },
+    "core_implements_edges": {
+      "java": "yes",
+      "javascript": "n/a",
+      "python": "n/a",
+      "typescript": "yes"
+    },
+    "imports_declared_and_aliasing": {
+      "java": "yes",
+      "javascript": "yes",
+      "python": "yes",
+      "typescript": "yes"
+    },
+    "lexical_contains_edges": {
+      "java": "yes",
+      "javascript": "yes",
+      "python": "yes",
+      "typescript": "yes"
+    },
+    "normalized_import_model_convergence": {
+      "java": "yes",
+      "javascript": "yes",
+      "python": "yes",
+      "typescript": "yes"
+    },
+    "parse_diagnostics_and_degraded_analysis": {
+      "java": "yes",
+      "javascript": "yes",
+      "python": "yes",
+      "typescript": "yes"
+    },
+    "profile_classifier_extras_tree_sitter": {
+      "java": "yes",
+      "javascript": "yes",
+      "python": "yes",
+      "typescript": "yes"
+    },
+    "profile_function_extras_tree_sitter": {
+      "java": "yes",
+      "javascript": "yes",
+      "python": "yes",
+      "typescript": "yes"
+    },
+    "structural_nodes_edges_contract": {
+      "java": "yes",
+      "javascript": "yes",
+      "python": "yes",
+      "typescript": "yes"
+    },
+    "walker_construct_capability_declarations": {
+      "java": "yes",
+      "javascript": "yes",
+      "python": "yes",
+      "typescript": "yes"
+    }
+  },
+  "documented_asymmetries": {
+    "java": {
+      "async_callable_kind": {
+        "present": false,
+        "reason": "java extraction does not model async/await callable kind metadata"
+      },
+      "callable_types": [
+        "callable"
+      ],
+      "reason": "java emits callable nodes only; no module-level function declarations"
+    },
+    "javascript": {
+      "implements_edges": {
+        "present": false,
+        "reason": "javascript has no dedicated interface-implementation syntax token"
+      }
+    },
+    "python": {
+      "implements_edges": {
+        "present": false,
+        "reason": "python has no dedicated interface-implementation syntax token"
+      }
+    }
+  },
+  "languages": [
+    "java",
+    "javascript",
+    "python",
+    "typescript"
+  ],
+  "objective": "structural_contract_capability_parity",
+  "required_resolution_stages": [
+    "receiver_typed_or_instance_mapped",
+    "import_or_member_alias_narrowing",
+    "classifier_scoped_fallback",
+    "module_scoped_fallback"
+  ],
+  "resolution_stage_enforcement": {
+    "owner": "language_adapters_via_shared_kernel",
+    "strict_call_gate_role": "final_materialization_only"
+  },
+  "version": 7
+}
