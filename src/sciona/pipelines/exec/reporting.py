@@ -50,7 +50,7 @@ class LanguageMetrics:
                     "persisted_accepted": self.persisted_accepted,
                     "persisted_dropped": self.persisted_dropped,
                 },
-                "pre_persist_filter": _filtered_pre_persist_buckets_payload(
+                "not_accepted_calls": _filtered_pre_persist_buckets_payload(
                     self.filtered_pre_persist_buckets
                 ),
                 "call_materialization": {
@@ -64,7 +64,7 @@ class LanguageMetrics:
 SECTION_LABELS = {
     "structure": "Structure",
     "callsites": "Callsites",
-    "pre_persist_filter": "Pre-Persist Filter",
+    "not_accepted_calls": "Not Accepted Calls",
     "call_materialization": "Call Materialization",
     "timing": "Timing",
 }
@@ -609,7 +609,7 @@ def snapshot_report(
                 if artifact_available
                 else None,
             },
-            "pre_persist_filter": _filtered_pre_persist_buckets_payload(
+            "not_accepted_calls": _filtered_pre_persist_buckets_payload(
                 diagnostics_total_pre_persist_buckets if artifact_available else None
             ),
             "call_materialization": {
@@ -625,7 +625,7 @@ def snapshot_report(
                     "edges": scope_graph_edge_counts["non_tests"],
                 },
                 "callsites": _scope_callsites("non_tests"),
-                "pre_persist_filter": _scope_pre_persist("non_tests"),
+                "not_accepted_calls": _scope_pre_persist("non_tests"),
                 "call_materialization": {
                     "callsite_pairs": scope_pair_counts["non_tests"],
                     "finalized_call_edges": scope_edge_counts["non_tests"],
@@ -638,7 +638,7 @@ def snapshot_report(
                     "edges": scope_graph_edge_counts["tests"],
                 },
                 "callsites": _scope_callsites("tests"),
-                "pre_persist_filter": _scope_pre_persist("tests"),
+                "not_accepted_calls": _scope_pre_persist("tests"),
                 "call_materialization": {
                     "callsite_pairs": scope_pair_counts["tests"],
                     "finalized_call_edges": scope_edge_counts["tests"],

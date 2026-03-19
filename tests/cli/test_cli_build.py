@@ -93,7 +93,7 @@ def _fake_report() -> dict[str, object]:
                 "persisted_accepted": 0,
                 "persisted_dropped": 0,
             },
-            "pre_persist_filter": {
+            "not_accepted_calls": {
                 "out_of_scope_call": 0,
                 "weak_static_evidence": 0,
                 "structural_gap": 0,
@@ -244,15 +244,15 @@ def test_cli_build_diagnostic_writes_repo_root_outputs(
     assert verbose_path.exists()
     build_status = json.loads(build_status_path.read_text(encoding="utf-8"))
     assert build_status["diagnostic_mode"] is True
-    assert build_status["diagnostic_kind"] == "pre_persist_filter_best_effort"
-    assert "no_in_repo_candidate" not in build_status["report"]["totals"]["pre_persist_filter"]
+    assert build_status["diagnostic_kind"] == "rejected_calls_best_effort"
+    assert "no_in_repo_candidate" not in build_status["report"]["totals"]["not_accepted_calls"]
     verbose_payload = json.loads(verbose_path.read_text(encoding="utf-8"))
     assert verbose_payload["diagnostic_mode"] is True
     assert verbose_payload["diagnostic_kind"] == "rejected_calls_best_effort"
     assert "buckets" in verbose_payload
 
 
-def test_cli_build_diagnostic_enriches_pre_persist_filter(
+def test_cli_build_diagnostic_enriches_not_accepted_calls(
     cli_app, cli_runner, repo_with_snapshot, monkeypatch
 ):
     repo_root, _snapshot_id = repo_with_snapshot
@@ -299,7 +299,7 @@ def test_cli_build_diagnostic_enriches_pre_persist_filter(
     assert result_cli.exit_code == 0
     build_status_path = repo_root / f"{repo_root.name}_build_status.json"
     build_status = json.loads(build_status_path.read_text(encoding="utf-8"))
-    assert build_status["report"]["totals"]["pre_persist_filter"] == {
+    assert build_status["report"]["totals"]["not_accepted_calls"] == {
         "out_of_scope_call": 3,
         "weak_static_evidence": 0,
         "structural_gap": 0,

@@ -42,7 +42,7 @@ def test_snapshot_report_returns_grouped_direct_metrics(repo_with_snapshot):
         "persisted_accepted": 0,
         "persisted_dropped": 0,
     }
-    assert payload["totals"]["pre_persist_filter"] == {
+    assert payload["totals"]["not_accepted_calls"] == {
         "out_of_scope_call": 0,
         "weak_static_evidence": 0,
         "structural_gap": 0,
@@ -66,7 +66,7 @@ def test_snapshot_report_returns_grouped_direct_metrics(repo_with_snapshot):
                 "persisted_accepted": 0,
                 "persisted_dropped": 0,
             },
-            "pre_persist_filter": {
+            "not_accepted_calls": {
                 "out_of_scope_call": 0,
                 "weak_static_evidence": 0,
                 "structural_gap": 0,
@@ -90,7 +90,7 @@ def test_snapshot_report_returns_grouped_direct_metrics(repo_with_snapshot):
                 "persisted_accepted": 0,
                 "persisted_dropped": 0,
             },
-            "pre_persist_filter": {
+            "not_accepted_calls": {
                 "out_of_scope_call": 0,
                 "weak_static_evidence": 0,
                 "structural_gap": 0,
@@ -111,7 +111,7 @@ def test_snapshot_report_returns_grouped_direct_metrics(repo_with_snapshot):
         "persisted_accepted": 0,
         "persisted_dropped": 0,
     }
-    assert python["pre_persist_filter"] == {
+    assert python["not_accepted_calls"] == {
         "out_of_scope_call": 0,
         "weak_static_evidence": 0,
         "structural_gap": 0,
@@ -205,7 +205,7 @@ def test_snapshot_report_includes_direct_callsite_counts_from_diagnostics(
         "persisted_accepted": 2,
         "persisted_dropped": 1,
     }
-    assert payload["totals"]["pre_persist_filter"] == {
+    assert payload["totals"]["not_accepted_calls"] == {
         "out_of_scope_call": 0,
         "weak_static_evidence": 0,
         "structural_gap": 0,
@@ -223,7 +223,7 @@ def test_snapshot_report_includes_direct_callsite_counts_from_diagnostics(
         "persisted_accepted": 2,
         "persisted_dropped": 1,
     }
-    assert payload["scopes"]["non_tests"]["pre_persist_filter"] == {
+    assert payload["scopes"]["non_tests"]["not_accepted_calls"] == {
         "out_of_scope_call": 0,
         "weak_static_evidence": 0,
         "structural_gap": 0,
@@ -236,7 +236,7 @@ def test_snapshot_report_includes_direct_callsite_counts_from_diagnostics(
     }
     python = payload["languages"]["python"]
     assert python["callsites"]["persisted_callsites"] == 3
-    assert python["pre_persist_filter"] == {
+    assert python["not_accepted_calls"] == {
         "out_of_scope_call": 0,
         "weak_static_evidence": 0,
         "structural_gap": 0,

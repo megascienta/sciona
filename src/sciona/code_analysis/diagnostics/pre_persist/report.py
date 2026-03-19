@@ -308,10 +308,15 @@ def _replace_pre_persist_filters(
     totals_payload = report.get("totals")
     if isinstance(totals_payload, dict):
         updated_totals = dict(totals_payload)
-        updated_totals["pre_persist_filter"] = _merge_non_candidate_buckets(
-            dict(updated_totals.get("pre_persist_filter") or {}),
+        updated_totals["not_accepted_calls"] = _merge_non_candidate_buckets(
+            dict(
+                updated_totals.get("not_accepted_calls")
+                or updated_totals.get("pre_persist_filter")
+                or {}
+            ),
             totals if isinstance(totals, dict) else {},
         )
+        updated_totals.pop("pre_persist_filter", None)
         report["totals"] = updated_totals
 
     if isinstance(report.get("languages"), dict):
@@ -322,12 +327,17 @@ def _replace_pre_persist_filters(
                 updated_languages[language_key] = language_value
                 continue
             updated = dict(language_value)
-            updated["pre_persist_filter"] = _merge_non_candidate_buckets(
-                dict(updated.get("pre_persist_filter") or {}),
+            updated["not_accepted_calls"] = _merge_non_candidate_buckets(
+                dict(
+                    updated.get("not_accepted_calls")
+                    or updated.get("pre_persist_filter")
+                    or {}
+                ),
                 language_buckets.get(language_key)
                 if isinstance(language_buckets.get(language_key), dict)
                 else {},
             )
+            updated.pop("pre_persist_filter", None)
             updated_languages[language_key] = updated
         report["languages"] = updated_languages
 
@@ -339,12 +349,17 @@ def _replace_pre_persist_filters(
                 updated_scopes[scope_key] = scope_value
                 continue
             updated = dict(scope_value)
-            updated["pre_persist_filter"] = _merge_non_candidate_buckets(
-                dict(updated.get("pre_persist_filter") or {}),
+            updated["not_accepted_calls"] = _merge_non_candidate_buckets(
+                dict(
+                    updated.get("not_accepted_calls")
+                    or updated.get("pre_persist_filter")
+                    or {}
+                ),
                 scope_buckets.get(scope_key)
                 if isinstance(scope_buckets.get(scope_key), dict)
                 else {},
             )
+            updated.pop("pre_persist_filter", None)
             updated_scopes[scope_key] = updated
         report["scopes"] = updated_scopes
 

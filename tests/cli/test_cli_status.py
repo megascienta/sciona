@@ -29,7 +29,7 @@ def _fake_report():
             "sections": {
                 "structure": "Structure",
                 "callsites": "Callsites",
-                "pre_persist_filter": "Pre-Persist Filter",
+                "not_accepted_calls": "Not Accepted Calls",
                 "call_materialization": "Call Materialization",
                 "timing": "Timing",
             },
@@ -86,7 +86,7 @@ def _fake_report():
                     "persisted_accepted": 9,
                     "persisted_dropped": 1,
                 },
-                "pre_persist_filter": {
+                "not_accepted_calls": {
                     "out_of_scope_call": 0,
                     "weak_static_evidence": 0,
                     "structural_gap": 0,
@@ -111,7 +111,7 @@ def _fake_report():
                 "persisted_accepted": 9,
                 "persisted_dropped": 1,
             },
-            "pre_persist_filter": {
+            "not_accepted_calls": {
                 "out_of_scope_call": 0,
                 "weak_static_evidence": 0,
                 "structural_gap": 0,
@@ -136,7 +136,7 @@ def _fake_report():
                     "persisted_accepted": 7,
                     "persisted_dropped": 1,
                 },
-                "pre_persist_filter": {
+                "not_accepted_calls": {
                     "out_of_scope_call": 0,
                     "weak_static_evidence": 0,
                     "structural_gap": 0,
@@ -160,7 +160,7 @@ def _fake_report():
                     "persisted_accepted": 2,
                     "persisted_dropped": 0,
                 },
-                "pre_persist_filter": {
+                "not_accepted_calls": {
                     "out_of_scope_call": 0,
                     "weak_static_evidence": 0,
                     "structural_gap": 0,
@@ -196,7 +196,7 @@ def test_cli_status_default_uses_short_summary(cli_app, cli_runner, monkeypatch)
     assert "Summary:" in result.stdout
     assert "python: 10 files, 20 nodes, 19 edges" in result.stdout
     assert "call_materialization:" not in result.stdout
-    assert "pre_persist_filter:" not in result.stdout
+    assert "not_accepted_calls:" not in result.stdout
 
 
 def test_cli_status_verbose_emits_grouped_direct_metrics(cli_app, cli_runner, monkeypatch):
@@ -223,7 +223,7 @@ def test_cli_status_verbose_emits_grouped_direct_metrics(cli_app, cli_runner, mo
         in result.stdout
     )
     assert (
-        "pre_persist_filter: out_of_scope_call=0, weak_static_evidence=0, "
+        "not_accepted_calls: out_of_scope_call=0, weak_static_evidence=0, "
         "structural_gap=0, unclassified=2"
     ) in result.stdout
     assert "non_tests:" in result.stdout

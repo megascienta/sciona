@@ -56,10 +56,11 @@ def _fake_report():
                     "persisted_accepted": 0,
                     "persisted_dropped": 0,
                 },
-                "pre_persist_filter": {
-                    "no_in_repo_candidate": 0,
-                    "accepted_outside_in_repo": 0,
-                    "invalid_observation_shape": 0,
+                "not_accepted_calls": {
+                    "out_of_scope_call": 0,
+                    "weak_static_evidence": 0,
+                    "structural_gap": 0,
+                    "unclassified": 0,
                 },
                 "call_materialization": {
                     "callsite_pairs": 0,
@@ -80,10 +81,11 @@ def _fake_report():
                 "persisted_accepted": 0,
                 "persisted_dropped": 0,
             },
-            "pre_persist_filter": {
-                "no_in_repo_candidate": 0,
-                "accepted_outside_in_repo": 0,
-                "invalid_observation_shape": 0,
+            "not_accepted_calls": {
+                "out_of_scope_call": 0,
+                "weak_static_evidence": 0,
+                "structural_gap": 0,
+                "unclassified": 0,
             },
             "call_materialization": {
                 "callsite_pairs": 0,

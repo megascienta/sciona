@@ -310,14 +310,14 @@ Diagnostic build mode:
 - `totals`, each language row, and each scope row use the same public sections:
   - `structure`
   - `callsites`
-  - `pre_persist_filter`
+  - `not_accepted_calls`
   - `call_materialization`
 - these public sections contain direct counts only:
   - `structure`: `files`, `nodes`, `edges`
   - `callsites`: `observed_syntactic_callsites`,
     `filtered_pre_persist`, `persisted_callsites`,
     `persisted_accepted`, `persisted_dropped`
-  - `pre_persist_filter`: `out_of_scope_call`,
+  - `not_accepted_calls`: `out_of_scope_call`,
     `weak_static_evidence`, `structural_gap`, `unclassified`
   - `call_materialization`: `callsite_pairs`, `finalized_call_edges`
 - `structure.files` and `structure.nodes` are structural counts from CoreDB

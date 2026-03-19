@@ -235,7 +235,7 @@ Public status reporting contract:
   direct-count section model:
   - `structure`
   - `callsites`
-  - `pre_persist_filter`
+  - `not_accepted_calls`
   - `call_materialization`
 - `structure` MUST contain only:
   - `files`
@@ -252,12 +252,12 @@ Public status reporting contract:
   - `persisted_callsites`
   - `persisted_accepted`
   - `persisted_dropped`
-- `pre_persist_filter` MUST contain only:
+- `not_accepted_calls` MUST contain only:
   - `out_of_scope_call`
   - `weak_static_evidence`
   - `structural_gap`
   - `unclassified`
-- `pre_persist_filter` bucket meanings:
+- `not_accepted_calls` bucket meanings:
   - `out_of_scope_call`: the call falls outside the static in-repo contract
     target, including external, builtin, or structurally indirect/runtime-only
     shapes

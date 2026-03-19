@@ -187,7 +187,7 @@ def write_build_diagnostic_outputs(
     )
     build_status_payload = {
         "diagnostic_mode": True,
-        "diagnostic_kind": "pre_persist_filter_best_effort",
+        "diagnostic_kind": "rejected_calls_best_effort",
         "report": enriched_report,
     }
     build_status_path.write_text(

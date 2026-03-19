@@ -165,10 +165,10 @@ def _render_summary_lines(
             if materialization_text:
                 lines.append(f"{indent}  call_materialization: {materialization_text}")
         if include_reasons:
-            filtered = item.get("pre_persist_filter") or {}
+            filtered = item.get("not_accepted_calls") or {}
             filtered_text = _format_pre_persist_filter_summary(filtered)
             if filtered_text:
-                lines.append(f"{indent}  pre_persist_filter: {filtered_text}")
+                lines.append(f"{indent}  not_accepted_calls: {filtered_text}")
     totals = summary.get("totals") or {}
     totals_structure = totals.get("structure") or {}
     lines.append(f"{indent}total: {_format_structure_summary(totals_structure)}")
@@ -186,10 +186,10 @@ def _render_summary_lines(
                 f"{indent}  call_materialization: {totals_materialization_text}"
             )
     if include_reasons:
-        totals_filtered = totals.get("pre_persist_filter") or {}
+        totals_filtered = totals.get("not_accepted_calls") or {}
         totals_filtered_text = _format_pre_persist_filter_summary(totals_filtered)
         if totals_filtered_text:
-            lines.append(f"{indent}  pre_persist_filter: {totals_filtered_text}")
+            lines.append(f"{indent}  not_accepted_calls: {totals_filtered_text}")
     if include_scope_split:
         lines.extend(_render_scope_lines(scopes, indent=f"{indent}"))
     if not summary.get("artifact_db_available", False):
@@ -255,7 +255,7 @@ def _render_scope_lines(
         structure = scope.get("structure")
         callsites = scope.get("callsites") or {}
         materialization = scope.get("call_materialization") or {}
-        filtered = scope.get("pre_persist_filter") or {}
+        filtered = scope.get("not_accepted_calls") or {}
         structure_text = (
             _format_structure_summary(structure)
             if isinstance(structure, dict)
@@ -272,7 +272,7 @@ def _render_scope_lines(
         if materialization_text:
             lines.append(f"{indent}  call_materialization: {materialization_text}")
         if filtered_text:
-            lines.append(f"{indent}  pre_persist_filter: {filtered_text}")
+            lines.append(f"{indent}  not_accepted_calls: {filtered_text}")
     return lines
 
 
