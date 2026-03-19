@@ -434,6 +434,50 @@ def test_resolve_callees_rescues_python_unique_without_provenance_via_package_sc
     assert callsite_rows[0][2] == "id_pi"
 
 
+def test_resolve_callees_rescues_typescript_unique_without_provenance_via_barrel_scope() -> None:
+    resolved_ids, _resolved_names, stats, callsite_rows = _resolve_callees(
+        ("create",),
+        {"create": ["id_create"]},
+        caller_module="app.feature.user",
+        caller_language="typescript",
+        module_lookup={"id_create": "app.core.factory"},
+        callable_qname_by_id={"id_create": "app.core.factory.create"},
+        import_targets={"app.feature.user": {"app.api"}},
+        expanded_import_targets={"app.feature.user": {"app.api"}},
+        module_ancestors={},
+        module_bindings_by_name={
+            "app.api": {"create"},
+            "app.core.factory": {"create"},
+        },
+        module_file_by_name={"app.api": "src/api/index.ts"},
+        ts_barrel_export_map={"app.feature.user": {"app.core.factory"}},
+    )
+    assert resolved_ids == {"id_create"}
+    accepted = stats.get("accepted_by_provenance") or {}
+    assert accepted.get("export_chain_narrowed") == 1
+    assert callsite_rows[0][1] == "accepted"
+    assert callsite_rows[0][2] == "id_create"
+
+
+def test_resolve_callees_rescues_javascript_unique_without_provenance_via_namespace_tail() -> None:
+    resolved_ids, _resolved_names, stats, callsite_rows = _resolve_callees(
+        ("colors.bold",),
+        {"bold": ["id_bold"]},
+        caller_module="app.ui",
+        caller_language="javascript",
+        module_lookup={"id_bold": "app.lib.colors"},
+        callable_qname_by_id={"id_bold": "app.lib.colors.bold"},
+        import_targets={"app.ui": {"app.colors"}},
+        expanded_import_targets={"app.ui": {"app.colors"}},
+        module_ancestors={},
+    )
+    assert resolved_ids == {"id_bold"}
+    accepted = stats.get("accepted_by_provenance") or {}
+    assert accepted.get("export_chain_narrowed") == 1
+    assert callsite_rows[0][1] == "accepted"
+    assert callsite_rows[0][2] == "id_bold"
+
+
 def test_resolve_callees_accepts_single_index_proxy_qname_match() -> None:
     resolved_ids, _resolved_names, stats, callsite_rows = _resolve_callees(
         ("pkg.plugins.index.hooks.fire",),

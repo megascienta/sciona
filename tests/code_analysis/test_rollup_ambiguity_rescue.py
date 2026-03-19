@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 from sciona.code_analysis.artifacts import rollups
+from sciona.code_analysis.artifacts.call_resolution_javascript import (
+    resolve_javascript_structural_ambiguous,
+)
 
 
 def test_python_export_chain_ambiguity_rescue_picks_terminal_match() -> None:
@@ -84,6 +87,51 @@ def test_typescript_barrel_ambiguity_rescue_prefers_closest_module() -> None:
         },
     )
     assert candidate == "id_near"
+
+
+def test_typescript_barrel_rescues_unique_without_provenance_single_candidate() -> None:
+    candidate = rollups._resolve_typescript_barrel_ambiguous(
+        identifier="create",
+        direct_candidates=[],
+        fallback_candidates=["id_create"],
+        caller_module="app.feature.user",
+        callable_qname_by_id={
+            "id_create": "app.core.factory.create",
+        },
+        module_lookup={
+            "id_create": "app.core.factory",
+        },
+        import_targets={
+            "app.feature.user": {"app.api"},
+        },
+        expanded_import_targets={"app.feature.user": {"app.api"}},
+        ts_barrel_export_map={
+            "app.feature.user": {"app.core.factory"},
+        },
+    )
+    assert candidate == "id_create"
+
+
+def test_javascript_structural_rescue_handles_unique_namespace_tail_match() -> None:
+    candidate = resolve_javascript_structural_ambiguous(
+        identifier="colors.bold",
+        direct_candidates=[],
+        fallback_candidates=["id_bold"],
+        caller_module="app.ui",
+        callable_qname_by_id={
+            "id_bold": "app.lib.colors.bold",
+        },
+        module_lookup={
+            "id_bold": "app.lib.colors",
+        },
+        import_targets={"app.ui": {"app.colors"}},
+        expanded_import_targets={"app.ui": {"app.colors"}},
+        simple_identifier=rollups._simple_identifier,
+        module_in_scope=rollups._module_in_scope,
+        best_candidate_by_module_distance=rollups._best_candidate_by_module_distance,
+        allow_distance_fallback=False,
+    )
+    assert candidate == "id_bold"
 
 
 def test_python_export_scope_traverses_init_chain() -> None:

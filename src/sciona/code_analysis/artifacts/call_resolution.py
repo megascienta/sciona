@@ -413,7 +413,13 @@ def resolve_callees(
             ts_barrel_export_map=ts_barrel_export_map,
         )
         if rescue_candidate:
-            if caller_language == "python" and rescue_provenance == "export_chain_narrowed":
+            if rescue_provenance == "export_chain_narrowed" and (
+                caller_language in {"python", "typescript"}
+                or (
+                    caller_language == "javascript"
+                    and decision.dropped_reason == "unique_without_provenance"
+                )
+            ):
                 decision = StrictCallDecision(
                     accepted_candidate=rescue_candidate,
                     accepted_provenance="import_narrowed",
@@ -609,12 +615,13 @@ def _resolve_post_strict_rescue_candidate(
         if rescue_candidate:
             return rescue_candidate, "export_chain_narrowed"
         return None, None
-    if decision.dropped_reason not in {
-        "ambiguous_no_in_scope_candidate",
-        "ambiguous_multiple_in_scope_candidates",
-    }:
-        return None, None
     if caller_language == "typescript":
+        if decision.dropped_reason not in {
+            "ambiguous_no_in_scope_candidate",
+            "ambiguous_multiple_in_scope_candidates",
+            "unique_without_provenance",
+        }:
+            return None, None
         rescue_candidate = resolve_typescript_barrel_ambiguous(
             identifier=identifier,
             direct_candidates=direct_candidates,
@@ -631,7 +638,14 @@ def _resolve_post_strict_rescue_candidate(
         )
         if rescue_candidate:
             return rescue_candidate, "export_chain_narrowed"
+        return None, None
     if caller_language == "javascript":
+        if decision.dropped_reason not in {
+            "ambiguous_no_in_scope_candidate",
+            "ambiguous_multiple_in_scope_candidates",
+            "unique_without_provenance",
+        }:
+            return None, None
         rescue_candidate = resolve_javascript_structural_ambiguous(
             identifier=identifier,
             direct_candidates=direct_candidates,
@@ -644,9 +658,13 @@ def _resolve_post_strict_rescue_candidate(
             simple_identifier=simple_identifier,
             module_in_scope=module_in_scope,
             best_candidate_by_module_distance=best_candidate_by_module_distance,
+            allow_distance_fallback=(
+                decision.dropped_reason != "unique_without_provenance"
+            ),
         )
         if rescue_candidate:
             return rescue_candidate, "export_chain_narrowed"
+        return None, None
     return None, None
 
 

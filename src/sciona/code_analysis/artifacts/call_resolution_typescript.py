@@ -24,7 +24,7 @@ def resolve_typescript_barrel_ambiguous(
     best_candidate_by_module_distance,
 ) -> str | None:
     candidates = list(dict.fromkeys(list(direct_candidates) or list(fallback_candidates)))
-    if len(candidates) < 2 or not caller_module:
+    if not candidates or not caller_module:
         return None
     allowed_modules = set(expanded_import_targets.get(caller_module, set()))
     allowed_modules.update(import_targets.get(caller_module, set()))

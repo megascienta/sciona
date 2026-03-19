@@ -15,6 +15,7 @@ def resolve_javascript_structural_ambiguous(
     simple_identifier,
     module_in_scope,
     best_candidate_by_module_distance,
+    allow_distance_fallback=True,
 ):
     candidates = list(direct_candidates or fallback_candidates)
 
@@ -41,23 +42,29 @@ def resolve_javascript_structural_ambiguous(
     
     identifier_terminal = simple_identifier(identifier)
 
-    terminal_matches = [
-        c
-        for c in candidates
-        if simple_identifier(callable_qname_by_id.get(c, "")) == identifier_terminal
-    ]
+    if allow_distance_fallback and identifier_terminal:
+        terminal_matches = [
+            c
+            for c in candidates
+            if simple_identifier(callable_qname_by_id.get(c, "")) == identifier_terminal
+        ]
 
-    if len(terminal_matches) == 1:
-        return terminal_matches[0]
+        if len(terminal_matches) == 1:
+            return terminal_matches[0]
 
-    tail_matches = [
-        c
-        for c in candidates
-        if callable_qname_by_id.get(c, "").endswith(identifier)
-    ]
+    tail_matches = []
+    if "." in identifier:
+        tail_matches = [
+            c
+            for c in candidates
+            if callable_qname_by_id.get(c, "").endswith(identifier)
+        ]
 
     if len(tail_matches) == 1:
         return tail_matches[0]
+
+    if not allow_distance_fallback:
+        return None
 
     best = best_candidate_by_module_distance(
         candidates,
