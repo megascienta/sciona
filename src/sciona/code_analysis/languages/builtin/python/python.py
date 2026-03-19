@@ -175,8 +175,6 @@ class PythonAnalyzer(ASTAnalyzer):
                 state.module_functions,
                 state.class_methods,
                 class_name,
-                import_aliases,
-                member_aliases,
                 raw_module_map,
                 local_instance_map,
                 state.class_name_candidates,

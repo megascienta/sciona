@@ -57,7 +57,6 @@ def resolve_java_calls(
     class_name_map: dict[str, str],
     class_name_candidates: dict[str, set[str]],
     import_aliases: dict[str, str],
-    member_aliases: dict[str, str],
     static_wildcard_targets: set[str],
     class_name: str | None,
     instance_types: dict[str, str],
@@ -81,7 +80,6 @@ def resolve_java_calls(
         class_name_map=class_name_map,
         class_name_candidates=class_name_candidates,
         import_aliases=import_aliases,
-        member_aliases=member_aliases,
         static_wildcard_targets=static_wildcard_targets,
         instance_types=instance_types,
         module_prefix=module_prefix,
@@ -110,7 +108,6 @@ class _JavaCallAdapter(CallResolutionAdapter):
     class_name_map: dict[str, str]
     class_name_candidates: dict[str, set[str]]
     import_aliases: dict[str, str]
-    member_aliases: dict[str, str]
     static_wildcard_targets: set[str]
     instance_types: dict[str, str]
     module_prefix: str | None
@@ -255,8 +252,6 @@ class _JavaCallAdapter(CallResolutionAdapter):
                 return [_outcome(f"{import_target}.{terminal}", "import_narrowed")]
             if local_class:
                 return [_outcome(f"{local_class}.{terminal}", "exact_qname")]
-            if terminal in self.member_aliases:
-                return [_outcome(self.member_aliases[terminal], "import_narrowed")]
             if self.static_wildcard_targets:
                 matched_targets = [
                     class_qname

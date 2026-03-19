@@ -40,8 +40,6 @@ def resolve_python_calls(
     module_functions: set[str],
     class_methods: dict[str, set[str]],
     class_name: str | None,
-    import_aliases: dict[str, str],
-    member_aliases: dict[str, str],
     raw_module_map: dict[str, str],
     instance_map: dict[str, str],
     class_name_candidates: dict[str, set[str]],
@@ -58,8 +56,6 @@ def resolve_python_calls(
         module_functions=module_functions,
         class_name=class_name,
         class_method_names=class_method_names,
-        import_aliases=import_aliases,
-        member_aliases=member_aliases,
         raw_module_map=raw_module_map,
         instance_map=instance_map,
         class_name_candidates=class_name_candidates,
@@ -86,8 +82,6 @@ class _PythonCallAdapter(CallResolutionAdapter):
     module_functions: set[str]
     class_name: str | None
     class_method_names: set[str]
-    import_aliases: dict[str, str]
-    member_aliases: dict[str, str]
     raw_module_map: dict[str, str]
     instance_map: dict[str, str]
     class_name_candidates: dict[str, set[str]]

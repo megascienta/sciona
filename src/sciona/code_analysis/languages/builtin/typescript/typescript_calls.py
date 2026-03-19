@@ -46,8 +46,6 @@ def resolve_typescript_calls(
     module_functions: set[str],
     class_methods: dict[str, set[str]],
     class_name: str | None,
-    import_aliases: dict[str, str],
-    member_aliases: dict[str, str],
     class_name_map: dict[str, str],
     class_name_candidates: dict[str, set[str]],
     instance_map: dict[str, str],
@@ -64,8 +62,6 @@ def resolve_typescript_calls(
         module_functions=module_functions,
         class_name=class_name,
         class_method_names=class_method_names,
-        import_aliases=import_aliases,
-        member_aliases=member_aliases,
         class_name_map=class_name_map,
         class_name_candidates=class_name_candidates,
         instance_map=instance_map,
@@ -91,8 +87,6 @@ class _TypeScriptCallAdapter(CallResolutionAdapter):
     module_functions: set[str]
     class_name: str | None
     class_method_names: set[str]
-    import_aliases: dict[str, str]
-    member_aliases: dict[str, str]
     class_name_map: dict[str, str]
     class_name_candidates: dict[str, set[str]]
     instance_map: dict[str, str]

@@ -192,7 +192,6 @@ class JavaAnalyzer(ASTAnalyzer):
                 state.class_name_map,
                 state.class_name_candidates,
                 import_aliases,
-                member_aliases,
                 static_wildcard_targets,
                 class_name,
                 instance_types,

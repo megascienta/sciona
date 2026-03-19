@@ -168,8 +168,6 @@ class TypeScriptAnalyzer(ASTAnalyzer):
                 state.module_functions,
                 state.class_methods,
                 class_name,
-                import_aliases,
-                member_aliases,
                 state.class_name_map,
                 state.class_name_candidates,
                 effective_instance_map,
