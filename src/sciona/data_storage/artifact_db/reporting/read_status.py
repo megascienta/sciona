@@ -104,3 +104,18 @@ def call_resolution_diagnostics_for_snapshot(
     except json.JSONDecodeError:
         return None
     return payload if isinstance(payload, dict) else None
+
+
+def snapshot_summary_for_snapshot(
+    conn: sqlite3.Connection,
+    *,
+    snapshot_id: str,
+) -> dict[str, object] | None:
+    raw = rebuild_status_value(conn, key=f"snapshot_summary:{snapshot_id}")
+    if raw is None:
+        return None
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError:
+        return None
+    return payload if isinstance(payload, dict) else None

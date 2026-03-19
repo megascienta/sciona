@@ -110,3 +110,12 @@ def _set_rebuild_status(conn: sqlite3.Connection, *, key: str, value: str) -> No
 
 def set_rebuild_metadata(conn: sqlite3.Connection, *, key: str, value: str) -> None:
     _set_rebuild_status(conn, key=key, value=value)
+
+
+def set_snapshot_summary(
+    conn: sqlite3.Connection,
+    *,
+    snapshot_id: str,
+    value: str,
+) -> None:
+    _set_rebuild_status(conn, key=f"snapshot_summary:{snapshot_id}", value=value)

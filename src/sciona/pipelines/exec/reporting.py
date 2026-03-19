@@ -7,13 +7,15 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass, field
+import json
 import sqlite3
 
 from ..domain.repository import RepoState
-from ...data_storage.connections import artifact_readonly, core_readonly
+from ...data_storage.connections import artifact, artifact_readonly, core_readonly
 from ...data_storage.core_db import read_ops as core_read
 from ...data_storage.artifact_db.reporting import read_reporting as artifact_reporting
 from ...data_storage.artifact_db.reporting import read_status as artifact_status
+from ...data_storage.artifact_db.writes import write_index as artifact_write
 from .reporting_callsites import (
     filtered_pre_persist_buckets_payload as _filtered_pre_persist_buckets_payload_impl,
     scope_bucket as _scope_bucket_impl,
@@ -106,6 +108,41 @@ def _labels_payload() -> dict[str, object]:
 
 
 def snapshot_report(
+    repo_state: RepoState,
+    *,
+    snapshot_id: str,
+    include_failure_reasons: bool = False,
+) -> dict[str, object] | None:
+    return _build_live_snapshot_report(
+        repo_state,
+        snapshot_id=snapshot_id,
+        include_failure_reasons=include_failure_reasons,
+    )
+
+
+def persist_snapshot_summary(
+    repo_state: RepoState,
+    *,
+    snapshot_id: str,
+) -> None:
+    payload = _build_live_snapshot_report(
+        repo_state,
+        snapshot_id=snapshot_id,
+        include_failure_reasons=False,
+    )
+    if payload is None:
+        return
+    summary = _canonical_snapshot_summary_payload(payload)
+    with artifact(repo_state.artifact_db_path, repo_root=repo_state.repo_root) as conn:
+        artifact_write.set_snapshot_summary(
+            conn,
+            snapshot_id=snapshot_id,
+            value=json.dumps(summary, sort_keys=True),
+        )
+        conn.commit()
+
+
+def _build_live_snapshot_report(
     repo_state: RepoState,
     *,
     snapshot_id: str,
@@ -593,6 +630,17 @@ def snapshot_report(
         },
     }
     return payload
+
+
+def _canonical_snapshot_summary_payload(
+    payload: dict[str, object],
+) -> dict[str, object]:
+    return {
+        "timing": dict(payload.get("timing") or {}),
+        "totals": dict(payload.get("totals") or {}),
+        "languages": dict(payload.get("languages") or {}),
+        "scopes": dict(payload.get("scopes") or {}),
+    }
 def _filtered_pre_persist_buckets_payload(
     buckets: dict[str, int] | None,
 ) -> dict[str, int]:

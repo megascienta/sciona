@@ -32,6 +32,7 @@ from ...data_storage.core_db import read_ops as core_read
 from ...data_storage.core_db import write_ops as core_write
 from ..ops.build_artifacts import build_artifacts_for_snapshot
 from ..progress import make_build_progress
+from . import reporting as exec_reporting
 from .build_fingerprint import (
     compute_build_fingerprint,
     load_cached_build_result_payload,
@@ -288,6 +289,10 @@ def _record_build_metrics(
                 value=json.dumps(phase_timings, sort_keys=True),
             )
         conn.commit()
+    exec_reporting.persist_snapshot_summary(
+        repo_state,
+        snapshot_id=snapshot_id,
+    )
 
 
 def record_build_wall_seconds(
@@ -303,6 +308,10 @@ def record_build_wall_seconds(
             value=f"{max(wall_seconds, 0.0):.6f}",
         )
         conn.commit()
+    exec_reporting.persist_snapshot_summary(
+        repo_state,
+        snapshot_id=snapshot_id,
+    )
 
 
 def _hydrate_result_payload(payload: dict[str, object]) -> BuildResult | None:

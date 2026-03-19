@@ -6,8 +6,11 @@ from __future__ import annotations
 import pytest
 
 from sciona.data_storage.artifact_db import connect as artifact_connect
+from sciona.data_storage.artifact_db.reporting import read_status as artifact_read
 from sciona.data_storage.artifact_db.writes import write_index as artifact_write
 from sciona.data_storage.artifact_db.maintenance import rebuild_graph_index
+from sciona.pipelines.domain.repository import RepoState
+from sciona.pipelines.exec import build as exec_build
 from sciona.pipelines.exec import reporting as exec_reporting
 from sciona.pipelines.ops import repo as repo_pipeline
 from sciona.runtime.common import constants as runtime_constants
@@ -120,6 +123,39 @@ def test_snapshot_report_includes_timing_under_timing_group(repo_with_snapshot):
         "build_structural_index": pytest.approx(2.75),
         "prepare_durable_calls": pytest.approx(0.50),
         "write_durable_calls": pytest.approx(0.10),
+    }
+
+
+def test_record_build_metrics_persists_snapshot_summary(repo_with_snapshot):
+    repo_root, snapshot_id = repo_with_snapshot
+    repo_state = RepoState.from_repo_root(
+        repo_root,
+        load_config=False,
+    )
+
+    exec_build._record_build_metrics(
+        repo_state=repo_state,
+        snapshot_id=snapshot_id,
+        total_build_seconds=3.25,
+        phase_timings={"build_structural_index": 2.75},
+    )
+
+    artifact_db = repo_root / ".sciona" / runtime_constants.ARTIFACT_DB_FILENAME
+    conn = artifact_connect(artifact_db, repo_root=repo_root)
+    try:
+        summary = artifact_read.snapshot_summary_for_snapshot(conn, snapshot_id=snapshot_id)
+    finally:
+        conn.close()
+
+    assert summary is not None
+    assert summary["timing"]["build_total_seconds"] == pytest.approx(3.25)
+    assert summary["timing"]["build_phase_timings"] == {
+        "build_structural_index": pytest.approx(2.75),
+    }
+    assert summary["totals"]["callsites"] == {
+        "observed_syntactic_callsites": 0,
+        "accepted_callsites": 0,
+        "not_accepted_callsites": 0,
     }
 
 

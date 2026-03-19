@@ -87,3 +87,26 @@ def test_build_wall_seconds_and_phase_timings_for_snapshot(tmp_path):
         }
     finally:
         conn.close()
+
+
+def test_snapshot_summary_for_snapshot(tmp_path):
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    (repo_root / ".sciona").mkdir()
+    conn = artifact_connect(get_artifact_db_path(repo_root), repo_root=repo_root)
+    try:
+        artifact_write.set_snapshot_summary(
+            conn,
+            snapshot_id="snap_5",
+            value='{"timing": {"build_total_seconds": 1.5}, "totals": {"callsites": {"accepted_callsites": 2}}}',
+        )
+        conn.commit()
+        assert artifact_read.snapshot_summary_for_snapshot(
+            conn,
+            snapshot_id="snap_5",
+        ) == {
+            "timing": {"build_total_seconds": 1.5},
+            "totals": {"callsites": {"accepted_callsites": 2}},
+        }
+    finally:
+        conn.close()
