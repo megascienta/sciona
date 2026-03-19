@@ -239,23 +239,17 @@ def test_cli_build_diagnostic_writes_repo_root_outputs(
 
     assert result.exit_code == 0
     build_status_path = repo_root / f"{repo_root.name}_build_status.json"
-    verbose_path = repo_root / f"{repo_root.name}_pre_persist_verbose.json"
-    persisted_drop_path = repo_root / f"{repo_root.name}_persisted_drop_verbose.json"
+    verbose_path = repo_root / f"{repo_root.name}_not_accepted_verbose.json"
     assert build_status_path.exists()
     assert verbose_path.exists()
-    assert persisted_drop_path.exists()
     build_status = json.loads(build_status_path.read_text(encoding="utf-8"))
     assert build_status["diagnostic_mode"] is True
     assert build_status["diagnostic_kind"] == "pre_persist_filter_best_effort"
     assert "no_in_repo_candidate" not in build_status["report"]["totals"]["pre_persist_filter"]
     verbose_payload = json.loads(verbose_path.read_text(encoding="utf-8"))
     assert verbose_payload["diagnostic_mode"] is True
-    assert verbose_payload["diagnostic_kind"] == "pre_persist_filter_best_effort"
+    assert verbose_payload["diagnostic_kind"] == "rejected_calls_best_effort"
     assert "buckets" in verbose_payload
-    persisted_drop_payload = json.loads(persisted_drop_path.read_text(encoding="utf-8"))
-    assert persisted_drop_payload["diagnostic_mode"] is True
-    assert persisted_drop_payload["diagnostic_kind"] == "persisted_drop_best_effort"
-    assert "buckets" in persisted_drop_payload
 
 
 def test_cli_build_diagnostic_enriches_pre_persist_filter(
@@ -322,27 +316,25 @@ def test_cli_build_verbose_sidecar_groups_callsites_by_bucket(
     result = BuildResult(
         **{
             **result.__dict__,
-            "diagnostic_report": {"totals": {}, "by_language": {}, "by_scope": {}, "observations": []},
-            "diagnostic_verbose": {
-                "buckets": {
-                    "likely_unindexed_symbol": {
-                        "count": 2,
-                        "callsites": [
-                            {"identifier": "helper", "file_path": "pkg/a.py"},
-                            {"identifier": "worker", "file_path": "pkg/b.py"},
-                        ],
-                    }
-                },
-                "problematic_callsites": [
-                    {"identifier": "helper", "file_path": "pkg/a.py"},
-                    {"identifier": "worker", "file_path": "pkg/b.py"},
-                ],
-                "problematic_files": [
+            "diagnostic_report": {
+                "totals": {},
+                "by_language": {},
+                "by_scope": {},
+                "observations": [
                     {
+                        "bucket": "likely_unindexed_symbol",
+                        "identifier": "helper",
                         "file_path": "pkg/a.py",
-                        "count": 1,
-                        "buckets": {"likely_unindexed_symbol": 1},
-                    }
+                        "reasons": [],
+                        "signals": [],
+                    },
+                    {
+                        "bucket": "likely_unindexed_symbol",
+                        "identifier": "worker",
+                        "file_path": "pkg/b.py",
+                        "reasons": [],
+                        "signals": [],
+                    },
                 ],
             },
         }
@@ -378,11 +370,19 @@ def test_cli_build_verbose_sidecar_groups_callsites_by_bucket(
     result_cli = cli_runner.invoke(cli_app, ["build", "--diagnostic", "--verbose"])
 
     assert result_cli.exit_code == 0
-    verbose_path = repo_root / f"{repo_root.name}_pre_persist_verbose.json"
-    persisted_drop_path = repo_root / f"{repo_root.name}_persisted_drop_verbose.json"
+    verbose_path = repo_root / f"{repo_root.name}_not_accepted_verbose.json"
     verbose_payload = json.loads(verbose_path.read_text(encoding="utf-8"))
-    persisted_drop_payload = json.loads(persisted_drop_path.read_text(encoding="utf-8"))
-    assert verbose_payload["buckets"]["likely_unindexed_symbol"]["count"] == 2
+    assert verbose_payload["buckets"]["weak_static_evidence"]["count"] == 2
+    assert verbose_payload["buckets"]["weak_static_evidence"]["phases"] == {
+        "pre_persist": 2
+    }
+    assert verbose_payload["buckets"]["out_of_scope_call"]["count"] == 1
+    assert verbose_payload["buckets"]["out_of_scope_call"]["phases"] == {
+        "post_persist": 1
+    }
+    assert verbose_payload["phase_counts"] == {"post_persist": 1, "pre_persist": 2}
     assert verbose_payload["problematic_files"][0]["file_path"] == "pkg/a.py"
-    assert persisted_drop_payload["buckets"]["likely_dynamic_member_terminal"]["count"] == 1
-    assert persisted_drop_payload["problematic_files"][0]["file_path"] == "pkg/a.py"
+    assert verbose_payload["problematic_files"][0]["phases"] == {
+        "post_persist": 1,
+        "pre_persist": 1,
+    }

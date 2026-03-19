@@ -255,7 +255,9 @@ Diagnostic build mode:
   rejected callsites into best-effort explanatory buckets for generated
   repo-root report artifacts
 - `sciona build --diagnostic --verbose` also writes a repo-root verbose sidecar
-  with bucketed callsite and file examples for investigation
+  with bucketed rejected-call callsite and file examples for investigation;
+  pre-persist and post-persist phase attribution is preserved only as sidecar
+  metadata
 - Diagnostic outputs are generated artifacts only; they are not persisted in
   CoreDB or ArtifactDB and they do not redefine canonical reducer-facing
   semantics

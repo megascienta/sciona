@@ -6,6 +6,7 @@ from sciona.code_analysis.diagnostics.pre_persist.classifier import (
 )
 from sciona.code_analysis.diagnostics.pre_persist import pipeline as diagnostic_pipeline
 from sciona.code_analysis.diagnostics.pre_persist.report import (
+    build_rejected_calls_verbose_payload,
     _merge_non_candidate_buckets,
     build_verbose_payload,
 )
@@ -815,6 +816,52 @@ def test_build_verbose_payload_includes_reason_and_prefix_traces() -> None:
         "reachable_repo_prefix_depth:3": 1,
         "repo_owned_prefix": 1,
         "repo_prefix_depth:3": 1,
+    }
+
+
+def test_build_rejected_calls_verbose_payload_combines_both_phases() -> None:
+    payload = build_rejected_calls_verbose_payload(
+        {
+            "observations": [
+                {
+                    "bucket": "likely_unindexed_symbol",
+                    "reasons": ["repo_owned_qualified_prefix"],
+                    "signals": ["qualified_identifier"],
+                    "language": "python",
+                    "file_path": "pkg/mod.py",
+                    "identifier": "repo.pkg.models.Secret",
+                }
+            ]
+        },
+        {
+            "persisted_drop_observations": [
+                {
+                    "file_path": "pkg/mod.py",
+                    "identifier": "socket.in(room).emit",
+                    "drop_reason": "ambiguous_multiple_in_scope_candidates",
+                    "candidate_count": 2,
+                }
+            ]
+        },
+    )
+
+    assert payload["phase_counts"] == {"pre_persist": 1, "post_persist": 1}
+    assert payload["buckets"]["weak_static_evidence"]["count"] == 1
+    assert payload["buckets"]["weak_static_evidence"]["phases"] == {
+        "pre_persist": 1
+    }
+    assert payload["buckets"]["out_of_scope_call"]["count"] == 1
+    assert payload["buckets"]["out_of_scope_call"]["phases"] == {
+        "post_persist": 1
+    }
+    assert payload["problematic_callsites"][0]["phase"] == "pre_persist"
+    assert payload["problematic_callsites"][0]["public_bucket"] == "weak_static_evidence"
+    assert payload["problematic_callsites"][1]["phase"] == "post_persist"
+    assert payload["problematic_callsites"][1]["public_bucket"] == "out_of_scope_call"
+    assert payload["problematic_files"][0]["file_path"] == "pkg/mod.py"
+    assert payload["problematic_files"][0]["phases"] == {
+        "post_persist": 1,
+        "pre_persist": 1,
     }
 
 

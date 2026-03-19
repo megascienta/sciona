@@ -43,6 +43,10 @@ def persisted_drop_verbose_output_path(repo_root: Path) -> Path:
     return repo_root / f"{repo_root.name}_persisted_drop_verbose.json"
 
 
+def rejected_calls_verbose_output_path(repo_root: Path) -> Path:
+    return repo_root / f"{repo_root.name}_not_accepted_verbose.json"
+
+
 def enrich_report(
     report: dict[str, object],
     diagnostic_payload: dict[str, object] | None,
@@ -213,6 +217,83 @@ def build_persisted_drop_verbose_payload(
     }
 
 
+def build_rejected_calls_verbose_payload(
+    diagnostic_payload: dict[str, object] | None,
+    persisted_drop_payload: dict[str, object] | None,
+) -> dict[str, object]:
+    by_bucket: dict[str, dict[str, object]] = {}
+    by_file: dict[str, dict[str, object]] = {}
+    phase_counts = {"pre_persist": 0, "post_persist": 0}
+    problematic_callsites: list[dict[str, object]] = []
+
+    for item in list((diagnostic_payload or {}).get("observations") or []):
+        if not isinstance(item, dict):
+            continue
+        public_bucket = _PUBLIC_DIAGNOSTIC_BUCKET_MAP.get(
+            str(item.get("bucket") or "unclassified_no_in_repo_candidate"),
+            "unclassified",
+        )
+        enriched = dict(item)
+        enriched["phase"] = "pre_persist"
+        enriched["public_bucket"] = public_bucket
+        enriched["source_bucket"] = str(
+            item.get("bucket") or "unclassified_no_in_repo_candidate"
+        )
+        _accumulate_rejected_callsite(
+            by_bucket,
+            by_file,
+            phase_counts,
+            problematic_callsites,
+            enriched,
+            public_bucket=public_bucket,
+            reasons=item.get("reasons") or [],
+            signals=item.get("signals") or [],
+        )
+
+    for item in list((persisted_drop_payload or {}).get("persisted_drop_observations") or []):
+        if not isinstance(item, dict):
+            continue
+        source_bucket = _persisted_drop_bucket(item)
+        public_bucket = _public_bucket_for_persisted_drop(item, source_bucket=source_bucket)
+        signals = _persisted_drop_signals(item)
+        reason = str(item.get("drop_reason") or "unclassified")
+        enriched = dict(item)
+        enriched["phase"] = "post_persist"
+        enriched["public_bucket"] = public_bucket
+        enriched["source_bucket"] = source_bucket
+        enriched["signals"] = list(signals)
+        _accumulate_rejected_callsite(
+            by_bucket,
+            by_file,
+            phase_counts,
+            problematic_callsites,
+            enriched,
+            public_bucket=public_bucket,
+            reasons=(reason,),
+            signals=signals,
+        )
+
+    problematic_files = sorted(
+        by_file.values(),
+        key=lambda row: (-int(row.get("count", 0)), str(row.get("file_path") or "")),
+    )
+    return {
+        "buckets": {
+            bucket: {
+                "count": int((payload or {}).get("count", 0)),
+                "reasons": dict((payload or {}).get("reasons") or {}),
+                "signals": dict((payload or {}).get("signals") or {}),
+                "callsites": list((payload or {}).get("callsites") or []),
+                "phases": dict((payload or {}).get("phases") or {}),
+            }
+            for bucket, payload in sorted(by_bucket.items())
+        },
+        "phase_counts": dict(phase_counts),
+        "problematic_callsites": problematic_callsites,
+        "problematic_files": problematic_files,
+    }
+
+
 def empty_diagnostic_buckets() -> dict[str, int]:
     return {key: 0 for key in DIAGNOSTIC_BUCKET_KEYS}
 
@@ -306,6 +387,29 @@ def _persisted_drop_bucket(item: dict[str, object]) -> str:
     return "unclassified_persisted_drop"
 
 
+def _public_bucket_for_persisted_drop(
+    item: dict[str, object],
+    *,
+    source_bucket: str,
+) -> str:
+    if source_bucket in {
+        "likely_fluent_or_promise_chain",
+        "likely_dynamic_member_terminal",
+    }:
+        return "out_of_scope_call"
+    if source_bucket in {
+        "likely_namespace_or_module_object_miss",
+        "no_in_repo_callable_target",
+    }:
+        return "weak_static_evidence"
+    drop_reason = str(item.get("drop_reason") or "")
+    if drop_reason in {"invalid_observation_shape"}:
+        return "structural_gap"
+    if drop_reason:
+        return "weak_static_evidence"
+    return "unclassified"
+
+
 def _persisted_drop_signals(item: dict[str, object]) -> tuple[str, ...]:
     identifier = str(item.get("identifier") or "")
     signals: list[str] = []
@@ -322,3 +426,69 @@ def _persisted_drop_signals(item: dict[str, object]) -> tuple[str, ...]:
     if ".server." in identifier:
         signals.append("server_namespace")
     return tuple(signals)
+
+
+def _accumulate_rejected_callsite(
+    by_bucket: dict[str, dict[str, object]],
+    by_file: dict[str, dict[str, object]],
+    phase_counts: dict[str, int],
+    problematic_callsites: list[dict[str, object]],
+    item: dict[str, object],
+    *,
+    public_bucket: str,
+    reasons: object,
+    signals: object,
+) -> None:
+    phase = str(item.get("phase") or "unclassified")
+    phase_counts[phase] = int(phase_counts.get(phase, 0)) + 1
+    problematic_callsites.append(item)
+
+    bucket_entry = by_bucket.setdefault(
+        public_bucket,
+        {"count": 0, "callsites": [], "reasons": {}, "signals": {}, "phases": {}},
+    )
+    bucket_entry["count"] = int(bucket_entry.get("count", 0)) + 1
+    cast_callsites = bucket_entry.setdefault("callsites", [])
+    if isinstance(cast_callsites, list):
+        cast_callsites.append(item)
+    bucket_phases = bucket_entry.setdefault("phases", {})
+    if isinstance(bucket_phases, dict):
+        bucket_phases[phase] = int(bucket_phases.get(phase, 0)) + 1
+    bucket_reasons = bucket_entry.setdefault("reasons", {})
+    if isinstance(bucket_reasons, dict):
+        for reason in reasons if isinstance(reasons, (list, tuple)) else ():
+            bucket_reasons[str(reason)] = int(bucket_reasons.get(str(reason), 0)) + 1
+    bucket_signals = bucket_entry.setdefault("signals", {})
+    if isinstance(bucket_signals, dict):
+        for signal in signals if isinstance(signals, (list, tuple)) else ():
+            bucket_signals[str(signal)] = int(bucket_signals.get(str(signal), 0)) + 1
+
+    file_path = str(item.get("file_path") or "")
+    if not file_path:
+        return
+    file_entry = by_file.setdefault(
+        file_path,
+        {
+            "file_path": file_path,
+            "count": 0,
+            "buckets": {},
+            "reasons": {},
+            "signals": {},
+            "phases": {},
+        },
+    )
+    file_entry["count"] = int(file_entry.get("count", 0)) + 1
+    file_buckets = file_entry.setdefault("buckets", {})
+    if isinstance(file_buckets, dict):
+        file_buckets[public_bucket] = int(file_buckets.get(public_bucket, 0)) + 1
+    file_phases = file_entry.setdefault("phases", {})
+    if isinstance(file_phases, dict):
+        file_phases[phase] = int(file_phases.get(phase, 0)) + 1
+    file_reasons = file_entry.setdefault("reasons", {})
+    if isinstance(file_reasons, dict):
+        for reason in reasons if isinstance(reasons, (list, tuple)) else ():
+            file_reasons[str(reason)] = int(file_reasons.get(str(reason), 0)) + 1
+    file_signals = file_entry.setdefault("signals", {})
+    if isinstance(file_signals, dict):
+        for signal in signals if isinstance(signals, (list, tuple)) else ():
+            file_signals[str(signal)] = int(file_signals.get(str(signal), 0)) + 1

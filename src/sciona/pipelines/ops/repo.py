@@ -196,27 +196,15 @@ def write_build_diagnostic_outputs(
     )
     if not diagnostic_verbose:
         return
-    verbose_path = diagnostic_report.pre_persist_verbose_output_path(resolved_repo_root)
-    verbose_payload = dict(
-        getattr(result, "diagnostic_verbose", None)
-        or diagnostic_report.build_verbose_payload(getattr(result, "diagnostic_report", None))
+    verbose_payload = diagnostic_report.build_rejected_calls_verbose_payload(
+        getattr(result, "diagnostic_report", None),
+        persisted_drop_diagnostics(result.snapshot_id, repo_root=resolved_repo_root),
     )
     verbose_payload["diagnostic_mode"] = True
-    verbose_payload["diagnostic_kind"] = "pre_persist_filter_best_effort"
+    verbose_payload["diagnostic_kind"] = "rejected_calls_best_effort"
+    verbose_path = diagnostic_report.rejected_calls_verbose_output_path(resolved_repo_root)
     verbose_path.write_text(
         json.dumps(verbose_payload, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
-    persisted_drop_payload = diagnostic_report.build_persisted_drop_verbose_payload(
-        persisted_drop_diagnostics(result.snapshot_id, repo_root=resolved_repo_root)
-    )
-    persisted_drop_payload["diagnostic_mode"] = True
-    persisted_drop_payload["diagnostic_kind"] = "persisted_drop_best_effort"
-    persisted_drop_path = diagnostic_report.persisted_drop_verbose_output_path(
-        resolved_repo_root
-    )
-    persisted_drop_path.write_text(
-        json.dumps(persisted_drop_payload, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
 
