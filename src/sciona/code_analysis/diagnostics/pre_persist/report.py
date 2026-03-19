@@ -237,8 +237,9 @@ def build_rejected_calls_verbose_payload(
             str(item.get("bucket") or "unclassified_no_in_repo_candidate"),
             "unclassified",
         )
+        phase = _phase_for_diagnostic_observation(item)
         enriched = dict(item)
-        enriched["phase"] = "pre_persist"
+        enriched["phase"] = phase
         enriched["public_bucket"] = public_bucket
         enriched["source_bucket"] = str(
             item.get("bucket") or "unclassified_no_in_repo_candidate"
@@ -324,6 +325,15 @@ def _replace_pre_persist_filters(
         updated_totals.pop("not_accepted_calls", None)
         updated_totals.pop("pre_persist_filter", None)
         report["totals"] = updated_totals
+
+
+def _phase_for_diagnostic_observation(item: dict[str, object]) -> str:
+    gate_reason = str(item.get("gate_reason") or "")
+    if gate_reason == "no_in_repo_candidate":
+        return "pre_persist"
+    if gate_reason:
+        return "post_persist"
+    return "pre_persist"
 
     if isinstance(report.get("languages"), dict):
         language_buckets = by_language if isinstance(by_language, dict) else {}

@@ -1020,6 +1020,43 @@ def test_build_rejected_calls_verbose_payload_combines_both_phases() -> None:
     }
 
 
+def test_build_rejected_calls_verbose_payload_infers_phase_from_gate_reason() -> None:
+    payload = build_rejected_calls_verbose_payload(
+        {
+            "observations": [
+                {
+                    "bucket": "likely_unindexed_symbol",
+                    "reasons": ["repo_owned_qualified_prefix"],
+                    "signals": ["qualified_identifier"],
+                    "language": "python",
+                    "file_path": "pkg/mod.py",
+                    "identifier": "repo.pkg.models.Secret",
+                    "gate_reason": "no_in_repo_candidate",
+                },
+                {
+                    "bucket": "likely_dynamic_dispatch_or_indirect",
+                    "reasons": ["promise_terminal"],
+                    "signals": ["qualified_identifier"],
+                    "language": "javascript",
+                    "file_path": "pkg/mod.py",
+                    "identifier": "socket.in(room).emit",
+                    "gate_reason": "insufficient_static_evidence",
+                    "raw_drop_reason": "ambiguous_multiple_in_scope_candidates",
+                },
+            ]
+        },
+        None,
+    )
+
+    assert payload["phase_counts"] == {"pre_persist": 1, "post_persist": 1}
+    assert payload["problematic_callsites"][0]["phase"] == "pre_persist"
+    assert payload["problematic_callsites"][1]["phase"] == "post_persist"
+    assert payload["problematic_files"][0]["phases"] == {
+        "post_persist": 1,
+        "pre_persist": 1,
+    }
+
+
 def test_build_rejected_calls_verbose_payload_marks_index_proxy_surface_outside_contract() -> None:
     payload = build_rejected_calls_verbose_payload(
         {"observations": []},

@@ -212,7 +212,10 @@ def build_repo(
                 artifact_warnings=list(artifact_warnings),
                 diagnostic_report=diagnostic_payload,
                 diagnostic_verbose=(
-                    diagnostic_report.build_verbose_payload(diagnostic_payload)
+                    diagnostic_report.build_rejected_calls_verbose_payload(
+                        diagnostic_payload,
+                        None,
+                    )
                     if diagnostic_verbose and diagnostic_payload is not None
                     else None
                 ),
