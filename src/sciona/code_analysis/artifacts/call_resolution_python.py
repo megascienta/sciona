@@ -27,7 +27,7 @@ def resolve_python_export_chain_ambiguous(
     bounded_module_reachability,
 ) -> str | None:
     candidates = list(dict.fromkeys(list(direct_candidates) or list(fallback_candidates)))
-    if len(candidates) < 2 or not caller_module:
+    if not candidates or not caller_module:
         return None
     terminal = simple_identifier(identifier)
     if not terminal:

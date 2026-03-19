@@ -10,6 +10,7 @@ from typing import Iterable, Mapping, Sequence, cast
 
 from ..analysis.module_id import module_id_for
 from ..analysis_contracts import (
+    StrictCallDecision,
     build_strict_resolution_stats,
     record_strict_resolution_decision,
     resolve_strict_call_batch,
@@ -412,17 +413,27 @@ def resolve_callees(
             ts_barrel_export_map=ts_barrel_export_map,
         )
         if rescue_candidate:
-            decision = _revalidate_rescue_candidate(
-                identifier=identifier,
-                rescue_candidate=rescue_candidate,
-                caller_module=caller_module,
-                caller_language=caller_language,
-                callable_qname_by_id=callable_qname_by_id,
-                module_lookup=module_lookup,
-                import_targets=import_targets,
-                expanded_import_targets=expanded_import_targets,
-                caller_ancestor_modules=module_ancestors.get(caller_module or "", set()),
-            )
+            if caller_language == "python" and rescue_provenance == "export_chain_narrowed":
+                decision = StrictCallDecision(
+                    accepted_candidate=rescue_candidate,
+                    accepted_provenance="import_narrowed",
+                    dropped_reason=None,
+                    candidate_count=decision.candidate_count,
+                    in_scope_candidate_count=1,
+                    candidate_module_hints=tuple(decision.candidate_module_hints),
+                )
+            else:
+                decision = _revalidate_rescue_candidate(
+                    identifier=identifier,
+                    rescue_candidate=rescue_candidate,
+                    caller_module=caller_module,
+                    caller_language=caller_language,
+                    callable_qname_by_id=callable_qname_by_id,
+                    module_lookup=module_lookup,
+                    import_targets=import_targets,
+                    expanded_import_targets=expanded_import_targets,
+                    caller_ancestor_modules=module_ancestors.get(caller_module or "", set()),
+                )
         ordinal = resolution.ordinal
         callee_kind = "qualified" if "." in identifier else "terminal"
         record_strict_resolution_decision(
@@ -568,16 +579,17 @@ def _resolve_post_strict_rescue_candidate(
 ) -> tuple[str | None, str | None]:
     if decision.accepted_candidate is not None:
         return None, None
-    if decision.dropped_reason not in {
-        "ambiguous_no_in_scope_candidate",
-        "ambiguous_multiple_in_scope_candidates",
-    }:
-        return None, None
     direct_candidates = symbol_index.get(identifier) or []
     fallback_candidates = []
     if not direct_candidates and "." in identifier:
         fallback_candidates = symbol_index.get(identifier.rsplit(".", 1)[-1]) or []
     if caller_language == "python":
+        if decision.dropped_reason not in {
+            "ambiguous_no_in_scope_candidate",
+            "ambiguous_multiple_in_scope_candidates",
+            "unique_without_provenance",
+        }:
+            return None, None
         rescue_candidate = resolve_python_export_chain_ambiguous(
             identifier=identifier,
             direct_candidates=direct_candidates,
@@ -596,6 +608,11 @@ def _resolve_post_strict_rescue_candidate(
         )
         if rescue_candidate:
             return rescue_candidate, "export_chain_narrowed"
+        return None, None
+    if decision.dropped_reason not in {
+        "ambiguous_no_in_scope_candidate",
+        "ambiguous_multiple_in_scope_candidates",
+    }:
         return None, None
     if caller_language == "typescript":
         rescue_candidate = resolve_typescript_barrel_ambiguous(

@@ -35,6 +35,31 @@ def test_python_export_chain_ambiguity_rescue_picks_terminal_match() -> None:
     assert candidate == "id_sin_b"
 
 
+def test_python_export_chain_rescues_unique_without_provenance_via_package_scope() -> None:
+    candidate = rollups._resolve_python_export_chain_ambiguous(
+        identifier="pi",
+        direct_candidates=[],
+        fallback_candidates=["id_pi"],
+        caller_module="sympy.client",
+        callable_qname_by_id={
+            "id_pi": "sympy.core.numbers.pi",
+        },
+        module_lookup={
+            "id_pi": "sympy.core.numbers",
+        },
+        import_targets={
+            "sympy.client": {"sympy.physics.mechanics"},
+            "sympy.physics.mechanics": {"sympy.core.numbers"},
+        },
+        expanded_import_targets={"sympy.client": {"sympy.physics.mechanics"}},
+        module_bindings_by_name={
+            "sympy.core.numbers": {"pi"},
+        },
+        module_file_by_name={"sympy.physics.mechanics": "sympy/physics/mechanics/__init__.py"},
+    )
+    assert candidate == "id_pi"
+
+
 def test_typescript_barrel_ambiguity_rescue_prefers_closest_module() -> None:
     candidate = rollups._resolve_typescript_barrel_ambiguous(
         identifier="create",

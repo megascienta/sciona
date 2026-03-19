@@ -410,6 +410,30 @@ def test_resolve_callees_accepts_parent_package_with_precomputed_ancestors() -> 
     assert callsite_rows[0][1] == "accepted"
 
 
+def test_resolve_callees_rescues_python_unique_without_provenance_via_package_scope() -> None:
+    resolved_ids, _resolved_names, stats, callsite_rows = _resolve_callees(
+        ("pi",),
+        {"pi": ["id_pi"]},
+        caller_module="sympy.client",
+        caller_language="python",
+        module_lookup={"id_pi": "sympy.core.numbers"},
+        callable_qname_by_id={"id_pi": "sympy.core.numbers.pi"},
+        import_targets={
+            "sympy.client": {"sympy.physics.mechanics"},
+            "sympy.physics.mechanics": {"sympy.core.numbers"},
+        },
+        expanded_import_targets={"sympy.client": {"sympy.physics.mechanics"}},
+        module_ancestors={},
+        module_bindings_by_name={"sympy.core.numbers": {"pi"}},
+        module_file_by_name={"sympy.physics.mechanics": "sympy/physics/mechanics/__init__.py"},
+    )
+    assert resolved_ids == {"id_pi"}
+    accepted = stats.get("accepted_by_provenance") or {}
+    assert accepted.get("export_chain_narrowed") == 1
+    assert callsite_rows[0][1] == "accepted"
+    assert callsite_rows[0][2] == "id_pi"
+
+
 def test_resolve_callees_accepts_single_index_proxy_qname_match() -> None:
     resolved_ids, _resolved_names, stats, callsite_rows = _resolve_callees(
         ("pkg.plugins.index.hooks.fire",),
