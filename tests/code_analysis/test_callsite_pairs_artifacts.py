@@ -19,7 +19,7 @@ from sciona.runtime.paths import get_artifact_db_path
 from tests.helpers import seed_repo_with_snapshot
 
 
-def test_callsite_pairs_persist_in_repo_candidates_only(tmp_path: Path) -> None:
+def test_write_call_artifacts_persists_in_repo_node_calls_only(tmp_path: Path) -> None:
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     prefix = runtime_paths.repo_name_prefix(repo_root)
     core_conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
@@ -43,29 +43,14 @@ def test_callsite_pairs_persist_in_repo_candidates_only(tmp_path: Path) -> None:
             )
             rows = artifact_conn.execute(
                 """
-                SELECT identifier, callee_id, pair_kind
-                FROM callsite_pairs
-                WHERE snapshot_id = ? AND caller_id = ?
+                SELECT callee_id
+                FROM node_calls
+                WHERE caller_id = ?
                 ORDER BY callee_id
                 """,
-                (snapshot_id, "meth_alpha"),
+                ("meth_alpha",),
             ).fetchall()
-            assert rows
-            assert [tuple(row) for row in rows] == [
-                ("helper", "func_alpha", "in_repo_candidate")
-            ]
-            pair_rows = artifact_conn.execute(
-                """
-                SELECT identifier, callee_id, pair_kind
-                FROM callsite_pairs
-                WHERE snapshot_id = ? AND caller_id = ?
-                ORDER BY callee_id
-                """,
-                (snapshot_id, "meth_alpha"),
-            ).fetchall()
-            assert [tuple(row) for row in pair_rows] == [
-                ("helper", "func_alpha", "in_repo_candidate")
-            ]
+            assert [tuple(row) for row in rows] == [("func_alpha",)]
         finally:
             artifact_conn.close()
     finally:
@@ -134,7 +119,7 @@ def test_callsite_pair_rows_expand_ambiguous_in_scope_candidates() -> None:
     ]
 
 
-def test_callsite_pairs_dedupe_repeated_same_target_calls(tmp_path: Path) -> None:
+def test_write_call_artifacts_dedupes_repeated_same_target_calls(tmp_path: Path) -> None:
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     prefix = runtime_paths.repo_name_prefix(repo_root)
     core_conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
@@ -156,18 +141,16 @@ def test_callsite_pairs_dedupe_repeated_same_target_calls(tmp_path: Path) -> Non
                 ],
                 eligible_callers={"meth_alpha"},
             )
-            pair_rows = artifact_conn.execute(
+            node_call_rows = artifact_conn.execute(
                 """
-                SELECT identifier, callee_id, pair_kind
-                FROM callsite_pairs
-                WHERE snapshot_id = ? AND caller_id = ?
+                SELECT callee_id
+                FROM node_calls
+                WHERE caller_id = ?
                 ORDER BY callee_id
                 """,
-                (snapshot_id, "meth_alpha"),
+                ("meth_alpha",),
             ).fetchall()
-            assert [tuple(row) for row in pair_rows] == [
-                ("helper", "func_alpha", "in_repo_candidate")
-            ]
+            assert [tuple(row) for row in node_call_rows] == [("func_alpha",)]
         finally:
             artifact_conn.close()
     finally:
@@ -255,18 +238,6 @@ def test_callsite_pairs_filter_out_of_repo_accepted_rows_at_persistence_boundary
                 ("meth_alpha",),
             ).fetchall()
             assert [row["callee_id"] for row in node_call_rows] == ["func_alpha"]
-            callsite_rows = artifact_conn.execute(
-                """
-                SELECT identifier, callee_id, pair_kind
-                FROM callsite_pairs
-                WHERE snapshot_id = ? AND caller_id = ?
-                ORDER BY callee_id
-                """,
-                (snapshot_id, "meth_alpha"),
-            ).fetchall()
-            assert [tuple(row) for row in callsite_rows] == [
-                ("helper", "func_alpha", "in_repo_candidate")
-            ]
             totals = diagnostics.get("totals") or {}
             assert totals.get("filtered_pre_persist_buckets") == {
                 "accepted_outside_in_repo": 1
@@ -336,13 +307,13 @@ def test_callsite_pairs_record_invalid_observation_shape_bucket_for_invalid_rows
             )
             rows = artifact_conn.execute(
                 """
-                SELECT identifier
-                FROM callsite_pairs
-                WHERE snapshot_id = ? AND caller_id = ?
+                SELECT COUNT(*) AS row_count
+                FROM node_calls
+                WHERE caller_id = ?
                 """,
-                (snapshot_id, "meth_alpha"),
-            ).fetchall()
-            assert rows == []
+                ("meth_alpha",),
+            ).fetchone()
+            assert rows["row_count"] == 0
             totals = diagnostics.get("totals") or {}
             assert totals.get("filtered_pre_persist_buckets") == {
                 "invalid_observation_shape": 1
@@ -353,7 +324,7 @@ def test_callsite_pairs_record_invalid_observation_shape_bucket_for_invalid_rows
         core_conn.close()
 
 
-def test_callsite_pairs_accept_export_chain_narrowed_provenance(
+def test_write_call_artifacts_accepts_export_chain_narrowed_provenance(
     tmp_path: Path, monkeypatch
 ) -> None:
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
@@ -410,16 +381,14 @@ def test_callsite_pairs_accept_export_chain_narrowed_provenance(
             )
             rows = artifact_conn.execute(
                 """
-                SELECT identifier, callee_id, pair_kind
-                FROM callsite_pairs
-                WHERE snapshot_id = ? AND caller_id = ?
+                SELECT callee_id
+                FROM node_calls
+                WHERE caller_id = ?
                 ORDER BY callee_id
                 """,
-                (snapshot_id, "meth_alpha"),
+                ("meth_alpha",),
             ).fetchall()
-            assert [tuple(row) for row in rows] == [
-                ("helper", "func_alpha", "in_repo_candidate")
-            ]
+            assert [tuple(row) for row in rows] == [("func_alpha",)]
         finally:
             artifact_conn.close()
     finally:
@@ -768,28 +737,14 @@ def test_node_calls_match_accepted_persisted_callsite_outcomes(
                 """,
                 ("meth_alpha",),
             ).fetchall()
-            pair_rows = artifact_conn.execute(
-                """
-                SELECT identifier, callee_id, pair_kind
-                FROM callsite_pairs
-                WHERE snapshot_id = ? AND caller_id = ?
-                ORDER BY identifier, callee_id
-                """,
-                (snapshot_id, "meth_alpha"),
-            ).fetchall()
         finally:
             artifact_conn.close()
     finally:
         core_conn.close()
 
     assert [row["callee_id"] for row in node_call_rows] == ["func_alpha"]
-    assert [tuple(row) for row in pair_rows] == [
-        ("helper", "func_alpha", "in_repo_candidate"),
-        ("helper_alias", "func_alpha", "in_repo_candidate"),
-    ]
 
-
-def test_node_calls_derive_from_callsite_pairs_when_strict_accepts_none(
+def test_node_calls_remain_empty_when_strict_accepts_none(
     tmp_path: Path, monkeypatch
 ) -> None:
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
@@ -867,7 +822,6 @@ def test_node_calls_derive_from_callsite_pairs_when_strict_accepts_none(
     core_conn.commit()
 
     monkeypatch.setattr(rollups, "_resolve_callees", _fake_resolve_callees)
-    monkeypatch.setattr(rollups, "_callsite_pair_rows", _fake_callsite_pair_rows)
     try:
         artifact_conn = artifact_connect(get_artifact_db_path(repo_root), repo_root=repo_root)
         try:
@@ -899,10 +853,7 @@ def test_node_calls_derive_from_callsite_pairs_when_strict_accepts_none(
     finally:
         core_conn.close()
 
-    assert [row["callee_id"] for row in node_call_rows] == [
-        "func_alpha",
-        "func_beta_helper",
-    ]
+    assert [row["callee_id"] for row in node_call_rows] == []
 
 
 def test_write_call_artifacts_clears_existing_node_calls_when_resolution_becomes_empty(

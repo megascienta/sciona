@@ -282,18 +282,6 @@ def test_write_call_artifacts_accepts_export_chain_narrowed_resolution(tmp_path:
                 ("func_beta_task",),
             ).fetchall()
             assert [row["callee_id"] for row in rows] == ["func_alpha_alt"]
-            callsite_rows = artifact_conn.execute(
-                """
-                SELECT callee_id, pair_kind
-                FROM callsite_pairs
-                WHERE snapshot_id = ? AND caller_id = ?
-                ORDER BY callee_id
-                """,
-                (snapshot_id, "func_beta_task"),
-            ).fetchall()
-            assert [(row["callee_id"], row["pair_kind"]) for row in callsite_rows] == [
-                ("func_alpha_alt", "in_repo_candidate")
-            ]
         finally:
             artifact_conn.close()
     finally:
@@ -387,16 +375,19 @@ def test_write_call_artifacts_rejects_unique_without_provenance_and_reports_diag
             record_drops = caller_diag.get("record_drops") or {}
             assert record_drops.get("no_resolved_callees") == 1
             assert caller_diag.get("observed_callsites") == 1
-            assert caller_diag.get("persisted_callsites") == 1
-            assert caller_diag.get("filtered_before_persist") == 0
+            assert caller_diag.get("persisted_callsites") == 0
+            assert caller_diag.get("filtered_before_persist") == 1
             assert caller_diag.get("finalized_accepted_callsites") == 0
-            assert caller_diag.get("finalized_dropped_callsites") == 1
+            assert caller_diag.get("finalized_dropped_callsites") == 0
+            assert caller_diag.get("filtered_pre_persist_buckets") == {
+                "insufficient_static_evidence": 1
+            }
             totals = diagnostics.get("totals") or {}
             assert totals.get("observed_callsites") == 1
-            assert totals.get("persisted_callsites") == 1
-            assert totals.get("filtered_before_persist") == 0
+            assert totals.get("persisted_callsites") == 0
+            assert totals.get("filtered_before_persist") == 1
             assert totals.get("finalized_accepted_callsites") == 0
-            assert totals.get("finalized_dropped_callsites") == 1
+            assert totals.get("finalized_dropped_callsites") == 0
         finally:
             artifact_conn.close()
     finally:

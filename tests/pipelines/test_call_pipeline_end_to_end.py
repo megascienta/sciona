@@ -38,15 +38,6 @@ def test_call_pipeline_end_to_end_filters_persists_and_reports(tmp_path: Path) -
                 eligible_callers={"meth_alpha"},
             )
             artifact_conn.commit()
-            callsite_rows = artifact_conn.execute(
-                """
-                SELECT identifier, callee_id, pair_kind
-                FROM callsite_pairs
-                WHERE snapshot_id = ? AND caller_id = ?
-                ORDER BY identifier, callee_id
-                """,
-                (snapshot_id, "meth_alpha"),
-            ).fetchall()
             node_call_rows = artifact_conn.execute(
                 """
                 SELECT callee_id
@@ -61,9 +52,6 @@ def test_call_pipeline_end_to_end_filters_persists_and_reports(tmp_path: Path) -
     finally:
         core_conn.close()
 
-    assert [(row["identifier"], row["callee_id"], row["pair_kind"]) for row in callsite_rows] == [
-        ("helper", "func_alpha", "in_repo_candidate")
-    ]
     assert [row["callee_id"] for row in node_call_rows] == ["func_alpha"]
 
     payload = repo_pipeline.snapshot_report(

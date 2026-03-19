@@ -47,7 +47,6 @@ from .rollup_diagnostics import (
 @dataclass(frozen=True)
 class _PreparedCallArtifact:
     caller_id: str
-    pair_write_rows: tuple[tuple[str, str, str, str], ...]
     pair_callee_ids: tuple[str, ...]
     call_hash: str
     write_node_calls: bool
@@ -333,7 +332,6 @@ def write_call_artifacts(
             prepared_artifacts.append(
                 _PreparedCallArtifact(
                     caller_id=caller_id,
-                    pair_write_rows=tuple(pair_write_rows),
                     pair_callee_ids=(),
                     call_hash=node_hashes.get(caller_id, ""),
                     write_node_calls=False,
@@ -362,7 +360,6 @@ def write_call_artifacts(
             prepared_artifacts.append(
                 _PreparedCallArtifact(
                     caller_id=caller_id,
-                    pair_write_rows=tuple(pair_write_rows),
                     pair_callee_ids=tuple(pair_callee_ids),
                     call_hash="",
                     write_node_calls=False,
@@ -376,7 +373,6 @@ def write_call_artifacts(
         prepared_artifacts.append(
             _PreparedCallArtifact(
                 caller_id=caller_id,
-                pair_write_rows=tuple(pair_write_rows),
                 pair_callee_ids=tuple(pair_callee_ids),
                 call_hash=call_hash,
                 write_node_calls=True,
@@ -394,12 +390,6 @@ def write_call_artifacts(
         else None
     )
     for prepared in prepared_artifacts:
-        artifact_persistence.upsert_callsite_pairs(
-            artifact_conn,
-            snapshot_id=snapshot_id,
-            caller_id=prepared.caller_id,
-            rows=list(prepared.pair_write_rows),
-        )
         if prepared.write_empty_node_calls:
             artifact_persistence.upsert_node_calls(
                 artifact_conn,
