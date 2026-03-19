@@ -91,12 +91,6 @@ def _fake_report() -> dict[str, object]:
                 "accepted_callsites": 0,
                 "not_accepted_callsites": 0,
             },
-            "not_accepted_callsites": {
-                "outside_static_contract": 0,
-                "insufficient_static_evidence": 0,
-                "structural_mismatch": 0,
-                "unclassified": 0,
-            },
             "call_materialization": {
                 "callsite_pairs": 0,
                 "finalized_call_edges": 0,

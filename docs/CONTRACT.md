@@ -232,10 +232,9 @@ Public status reporting contract:
   - `build_wall_seconds`
   - `build_phase_timings`
 - `totals`, each language entry, and each scope entry MUST expose the same
-  direct-count section model:
+  direct-count section model in ordinary status/build reporting:
   - `structure`
   - `callsites`
-  - `not_accepted_callsites`
   - `call_materialization`
 - `structure` MUST contain only:
   - `files`
@@ -250,7 +249,8 @@ Public status reporting contract:
   - `observed_syntactic_callsites`
   - `accepted_callsites`
   - `not_accepted_callsites`
-- `not_accepted_callsites` MUST contain only:
+- diagnostic build-status reports MAY additionally include
+  `not_accepted_callsites`, which MUST contain only:
   - `outside_static_contract`
   - `insufficient_static_evidence`
   - `structural_mismatch`

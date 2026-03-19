@@ -310,15 +310,16 @@ Diagnostic build mode:
 - `totals`, each language row, and each scope row use the same public sections:
   - `structure`
   - `callsites`
-  - `not_accepted_callsites`
   - `call_materialization`
 - these public sections contain direct counts only:
   - `structure`: `files`, `nodes`, `edges`
   - `callsites`: `observed_syntactic_callsites`,
     `accepted_callsites`, `not_accepted_callsites`
-  - `not_accepted_callsites`: `outside_static_contract`,
-    `insufficient_static_evidence`, `structural_mismatch`, `unclassified`
   - `call_materialization`: `callsite_pairs`, `finalized_call_edges`
+- diagnostic build outputs additionally expose the classified
+  `not_accepted_callsites` bucket section:
+  `outside_static_contract`, `insufficient_static_evidence`,
+  `structural_mismatch`, `unclassified`
 - `structure.files` and `structure.nodes` are structural counts from CoreDB
 - `structure.edges` is the total reducer-facing graph edge count from
   ArtifactDB `graph_edges`, including structural edges and `CALLS`

@@ -55,6 +55,9 @@ def enrich_report(
         return dict(report)
     enriched = dict(report)
     labels = dict(enriched.get("labels") or {})
+    sections = dict(labels.get("sections") or {})
+    sections["not_accepted_callsites"] = "Not Accepted Callsites"
+    labels["sections"] = sections
     fields = dict(labels.get("fields") or {})
     fields.update(
         {
