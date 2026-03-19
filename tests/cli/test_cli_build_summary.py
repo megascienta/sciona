@@ -55,7 +55,6 @@ def _fake_report():
                     "not_accepted_callsites": 0,
                 },
                 "call_materialization": {
-                    "callsite_pairs": 0,
                     "finalized_call_edges": 0,
                 },
             }
@@ -72,7 +71,6 @@ def _fake_report():
                 "not_accepted_callsites": 0,
             },
             "call_materialization": {
-                "callsite_pairs": 0,
                 "finalized_call_edges": 0,
             },
         },

@@ -26,7 +26,6 @@ class LanguageMetrics:
     files: int = 0
     nodes: int = 0
     edges: int | None = None
-    persisted_in_scope_pairs: int | None = None
     finalized_call_edges: int | None = None
     observed_syntactic_callsites: int | None = None
     filtered_pre_persist: int | None = None
@@ -52,7 +51,6 @@ class LanguageMetrics:
                     ),
                 },
                 "call_materialization": {
-                    "callsite_pairs": self.persisted_in_scope_pairs,
                     "finalized_call_edges": self.finalized_call_edges,
                 },
             }
@@ -73,7 +71,6 @@ FIELD_LABELS = {
     "observed_syntactic_callsites": "Observed Syntactic Callsites",
     "accepted_callsites": "Accepted Callsites",
     "not_accepted_callsites": "Not Accepted Callsites",
-    "callsite_pairs": "Callsite Pairs",
     "finalized_call_edges": "Finalized Call Edges",
     "build_total_seconds": "Build Total Time",
     "build_wall_seconds": "Build Wall Time",
@@ -154,10 +151,6 @@ def snapshot_report(
             )
 
     artifact_available = False
-    pair_totals: dict[str, int] = defaultdict(int)
-    pair_scope_totals: dict[str, dict[str, int]] = defaultdict(
-        lambda: {"non_tests": 0, "tests": 0}
-    )
     graph_edge_totals: dict[str, int] = defaultdict(int)
     graph_edge_scope_totals: dict[str, dict[str, int]] = defaultdict(
         lambda: {"non_tests": 0, "tests": 0}
@@ -186,18 +179,6 @@ def snapshot_report(
                     conn, snapshot_id=snapshot_id
                 )
             )
-            for item in artifact_reporting.callsite_pair_caller_counts(
-                conn, snapshot_id=snapshot_id
-            ):
-                caller_id = str(item["caller_id"])
-                language = caller_language.get(caller_id)
-                if not language:
-                    continue
-                caller_info = caller_metadata.get(caller_id) or {}
-                scope_key = _scope_bucket(str(caller_info.get("file_path") or ""))
-                count = int(item["pair_count"] or 0)
-                pair_totals[language] += count
-                pair_scope_totals[language][scope_key] += count
             for item in artifact_reporting.graph_edge_source_counts(conn):
                 source_id = str(item["src_node_id"])
                 source_info = caller_metadata.get(source_id) or {}
@@ -446,9 +427,6 @@ def snapshot_report(
                 files=current.files,
                 nodes=current.nodes,
                 edges=graph_edge_totals.get(language, 0) if artifact_available else None,
-                persisted_in_scope_pairs=pair_totals.get(language, 0)
-                if artifact_available
-                else None,
                 finalized_call_edges=call_edge_totals.get(language, 0)
                 if artifact_available
                 else None,
@@ -475,11 +453,6 @@ def snapshot_report(
             )
         )
 
-    total_pair_count = (
-        sum(item.persisted_in_scope_pairs or 0 for item in rows)
-        if artifact_available
-        else None
-    )
     total_graph_edge_count = (
         sum((item.edges or 0) for item in rows) if artifact_available else None
     )
@@ -524,18 +497,6 @@ def snapshot_report(
             else None
         )
 
-    scope_pair_counts = {
-        "non_tests": (
-            sum(int(scope_counts.get("non_tests", 0)) for scope_counts in pair_scope_totals.values())
-            if artifact_available
-            else None
-        ),
-        "tests": (
-            sum(int(scope_counts.get("tests", 0)) for scope_counts in pair_scope_totals.values())
-            if artifact_available
-            else None
-        ),
-    }
     scope_edge_counts = {
         "non_tests": (
             sum(int(scope_counts.get("non_tests", 0)) for scope_counts in call_edge_scope_totals.values())
@@ -603,7 +564,6 @@ def snapshot_report(
                 ),
             },
             "call_materialization": {
-                "callsite_pairs": total_pair_count,
                 "finalized_call_edges": total_edge_count,
             },
         },
@@ -616,7 +576,6 @@ def snapshot_report(
                 },
                 "callsites": _scope_callsites("non_tests"),
                 "call_materialization": {
-                    "callsite_pairs": scope_pair_counts["non_tests"],
                     "finalized_call_edges": scope_edge_counts["non_tests"],
                 },
             },
@@ -628,7 +587,6 @@ def snapshot_report(
                 },
                 "callsites": _scope_callsites("tests"),
                 "call_materialization": {
-                    "callsite_pairs": scope_pair_counts["tests"],
                     "finalized_call_edges": scope_edge_counts["tests"],
                 },
             },

@@ -266,7 +266,6 @@ Public status reporting contract:
   - `unclassified`: residual rejected callsites not explained by the other
     public buckets
 - `call_materialization` MUST contain only:
-  - `callsite_pairs`
   - `finalized_call_edges`
 - public status payloads MUST NOT require derived ratios, conservation flags,
   expansion factors, or warning fields; those are downstream analysis concerns

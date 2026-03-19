@@ -74,7 +74,6 @@ def test_call_pipeline_end_to_end_filters_persists_and_reports(tmp_path: Path) -
     assert payload is not None
     python = payload["languages"]["python"]
     assert python["call_materialization"] == {
-        "callsite_pairs": 1,
         "finalized_call_edges": 1,
     }
 
@@ -149,6 +148,5 @@ def test_call_pipeline_reports_pair_centric_counts_for_persisted_dropped_rows(
     assert payload is not None
     python = payload["languages"]["python"]
     assert python["call_materialization"] == {
-        "callsite_pairs": 0,
         "finalized_call_edges": 0,
     }

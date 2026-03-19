@@ -226,11 +226,10 @@ def _format_callsites_summary(callsites: dict) -> str:
 
 
 def _format_call_materialization_summary(materialization: dict) -> str:
-    pairs = materialization.get("callsite_pairs")
     edges = materialization.get("finalized_call_edges")
-    if pairs is None and edges is None:
+    if edges is None:
         return ""
-    return f"callsite_pairs={int(pairs or 0)}, finalized_call_edges={int(edges or 0)}"
+    return f"finalized_call_edges={int(edges or 0)}"
 
 
 def _format_pre_persist_filter_summary(filtered: dict) -> str:

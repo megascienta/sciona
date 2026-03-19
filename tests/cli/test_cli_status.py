@@ -39,7 +39,6 @@ def _fake_report():
                 "observed_syntactic_callsites": "Observed Syntactic Callsites",
                 "accepted_callsites": "Accepted Callsites",
                 "not_accepted_callsites": "Not Accepted Callsites",
-                "callsite_pairs": "Callsite Pairs",
                 "finalized_call_edges": "Finalized Call Edges",
                 "build_total_seconds": "Build Total Seconds",
                 "build_wall_seconds": "Build Wall Seconds",
@@ -78,7 +77,6 @@ def _fake_report():
                     "not_accepted_callsites": 3,
                 },
                 "call_materialization": {
-                    "callsite_pairs": 11,
                     "finalized_call_edges": 9,
                 },
             }
@@ -95,7 +93,6 @@ def _fake_report():
                 "not_accepted_callsites": 3,
             },
             "call_materialization": {
-                "callsite_pairs": 11,
                 "finalized_call_edges": 9,
             },
         },
@@ -112,7 +109,6 @@ def _fake_report():
                     "not_accepted_callsites": 3,
                 },
                 "call_materialization": {
-                    "callsite_pairs": 8,
                     "finalized_call_edges": 8,
                 },
             },
@@ -128,7 +124,6 @@ def _fake_report():
                     "not_accepted_callsites": 0,
                 },
                 "call_materialization": {
-                    "callsite_pairs": 3,
                     "finalized_call_edges": 1,
                 },
             },
@@ -180,7 +175,7 @@ def test_cli_status_verbose_emits_grouped_direct_metrics(cli_app, cli_runner, mo
         in result.stdout
     )
     assert (
-        "call_materialization: callsite_pairs=11, finalized_call_edges=9"
+        "call_materialization: finalized_call_edges=9"
         in result.stdout
     )
     assert "not_accepted_callsites:" not in result.stdout
@@ -190,7 +185,7 @@ def test_cli_status_verbose_emits_grouped_direct_metrics(cli_app, cli_runner, mo
         "callsites: observed=10, accepted=7, not_accepted=3"
         in result.stdout
     )
-    assert "callsite_pairs=8, finalized_call_edges=8" in result.stdout
+    assert "finalized_call_edges=8" in result.stdout
     assert "pair_expansion:" not in result.stdout
     assert "conservation mismatch" not in result.stdout
 
@@ -221,4 +216,4 @@ def test_cli_status_output_writes_json_file(cli_app, cli_runner, monkeypatch, tm
     assert payload["report"]["timing"]["build_phase_timings"]["prepare_callsite_pairs"] == 0.3
     assert payload["report"]["timing"]["build_phase_timings"]["write_callsite_pairs"] == 0.05
     assert payload["report"]["timing"]["build_phase_timings"]["rebuild_graph_rollups"] == 0.1
-    assert payload["report"]["totals"]["call_materialization"]["callsite_pairs"] == 11
+    assert payload["report"]["totals"]["call_materialization"]["finalized_call_edges"] == 9

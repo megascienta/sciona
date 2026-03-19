@@ -315,7 +315,7 @@ Diagnostic build mode:
   - `structure`: `files`, `nodes`, `edges`
   - `callsites`: `observed_syntactic_callsites`,
     `accepted_callsites`, `not_accepted_callsites`
-  - `call_materialization`: `callsite_pairs`, `finalized_call_edges`
+  - `call_materialization`: `finalized_call_edges`
 - diagnostic build outputs additionally expose the classified
   `not_accepted_callsites` bucket section:
   `outside_static_contract`, `insufficient_static_evidence`,

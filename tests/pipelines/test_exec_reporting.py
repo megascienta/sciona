@@ -20,7 +20,6 @@ def test_snapshot_report_returns_grouped_direct_metrics(repo_with_snapshot):
     payload = repo_pipeline.snapshot_report(snapshot_id, repo_root=repo_root)
     assert payload is not None
     assert payload["labels"]["sections"]["structure"] == "Structure"
-    assert payload["labels"]["fields"]["callsite_pairs"] == "Callsite Pairs"
     assert payload["labels"]["scopes"] == {
         "non_tests": "Non-Tests",
         "tests": "Tests",
@@ -41,7 +40,6 @@ def test_snapshot_report_returns_grouped_direct_metrics(repo_with_snapshot):
         "not_accepted_callsites": 0,
     }
     assert payload["totals"]["call_materialization"] == {
-        "callsite_pairs": 0,
         "finalized_call_edges": 0,
     }
     assert payload["scopes"] == {
@@ -57,7 +55,6 @@ def test_snapshot_report_returns_grouped_direct_metrics(repo_with_snapshot):
                 "not_accepted_callsites": 0,
             },
             "call_materialization": {
-                "callsite_pairs": 0,
                 "finalized_call_edges": 0,
             },
         },
@@ -73,7 +70,6 @@ def test_snapshot_report_returns_grouped_direct_metrics(repo_with_snapshot):
                 "not_accepted_callsites": 0,
             },
             "call_materialization": {
-                "callsite_pairs": 0,
                 "finalized_call_edges": 0,
             },
         },
@@ -86,7 +82,6 @@ def test_snapshot_report_returns_grouped_direct_metrics(repo_with_snapshot):
         "not_accepted_callsites": 0,
     }
     assert python["call_materialization"] == {
-        "callsite_pairs": 0,
         "finalized_call_edges": 0,
     }
 
@@ -172,7 +167,6 @@ def test_snapshot_report_includes_direct_callsite_counts_from_diagnostics(
         "not_accepted_callsites": 3,
     }
     assert payload["totals"]["call_materialization"] == {
-        "callsite_pairs": 3,
         "finalized_call_edges": 0,
     }
     assert payload["totals"]["structure"]["edges"] == 5
@@ -223,12 +217,10 @@ def test_snapshot_report_counts_pairs_and_finalized_call_edges(repo_with_snapsho
     python = payload["languages"]["python"]
     assert python["structure"] == {"files": 3, "nodes": 5, "edges": 7}
     assert python["call_materialization"] == {
-        "callsite_pairs": 2,
         "finalized_call_edges": 2,
     }
     assert payload["totals"]["structure"] == {"files": 3, "nodes": 5, "edges": 7}
     assert payload["totals"]["call_materialization"] == {
-        "callsite_pairs": 2,
         "finalized_call_edges": 2,
     }
     assert payload["scopes"]["non_tests"]["structure"] == {
@@ -237,7 +229,6 @@ def test_snapshot_report_counts_pairs_and_finalized_call_edges(repo_with_snapsho
         "edges": 7,
     }
     assert payload["scopes"]["non_tests"]["call_materialization"] == {
-        "callsite_pairs": 2,
         "finalized_call_edges": 2,
     }
 
@@ -332,7 +323,6 @@ def test_snapshot_report_attributes_graph_edges_by_source_scope(repo_with_snapsh
         "edges": 2,
     }
     assert payload["scopes"]["tests"]["call_materialization"] == {
-        "callsite_pairs": 0,
         "finalized_call_edges": 1,
     }
 
