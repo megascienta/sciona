@@ -119,6 +119,19 @@ def select_strict_call_candidate(
             module_lookup=module_lookup,
             scope_modules=provenance_scope,
         )
+        if "." in identifier and _has_single_carrier_segment_qname_match(
+            identifier=identifier,
+            candidate_qname=candidate_qname,
+            candidate_module=candidate_module,
+        ):
+            return StrictCallDecision(
+                accepted_candidate=candidate,
+                accepted_provenance="exact_qname",
+                dropped_reason=None,
+                candidate_count=candidate_count,
+                in_scope_candidate_count=1,
+                candidate_module_hints=candidate_module_hints,
+            )
         if direct_candidates and "." in identifier:
             return StrictCallDecision(
                 accepted_candidate=candidate,
@@ -317,6 +330,30 @@ def _has_proxy_qname_match(*, identifier: str, candidate_qname: str) -> bool:
     if not identifier or not candidate_qname:
         return False
     return _collapse_proxy_qname(identifier) == _collapse_proxy_qname(candidate_qname)
+
+
+def _has_single_carrier_segment_qname_match(
+    *,
+    identifier: str,
+    candidate_qname: str,
+    candidate_module: str | None,
+) -> bool:
+    if not identifier or not candidate_qname or not candidate_module:
+        return False
+    identifier_parts = _collapse_proxy_qname(identifier)
+    candidate_parts = _collapse_proxy_qname(candidate_qname)
+    module_parts = _collapse_proxy_qname(candidate_module)
+    if (
+        len(identifier_parts) < 2
+        or len(candidate_parts) != len(identifier_parts) + 1
+        or len(module_parts) != len(identifier_parts) - 1
+    ):
+        return False
+    if identifier_parts[:-1] != module_parts:
+        return False
+    if candidate_parts[: len(module_parts)] != module_parts:
+        return False
+    return candidate_parts[-1] == identifier_parts[-1]
 
 
 def _collapse_proxy_qname(value: str) -> tuple[str, ...]:
