@@ -17,12 +17,12 @@ _PUBLIC_PRE_PERSIST_BUCKET_MAP = {
     "insufficient_static_evidence": "insufficient_static_evidence",
     "accepted_outside_in_repo": "outside_static_contract",
     "invalid_observation_shape": "structural_mismatch",
-    "likely_external_dependency": "outside_static_contract",
-    "likely_standard_library_or_builtin": "outside_static_contract",
-    "likely_dynamic_dispatch_or_indirect": "outside_static_contract",
-    "likely_unindexed_symbol": "insufficient_static_evidence",
-    "likely_parser_extraction_gap": "structural_mismatch",
-    "unclassified_no_in_repo_candidate": "unclassified",
+    "external_dependency_shape": "outside_static_contract",
+    "builtin_or_standard_shape": "outside_static_contract",
+    "dynamic_or_indirect_shape": "outside_static_contract",
+    "unindexed_symbol_shape": "insufficient_static_evidence",
+    "parser_extraction_mismatch": "structural_mismatch",
+    "no_clear_in_repo_target": "unclassified",
 }
 
 

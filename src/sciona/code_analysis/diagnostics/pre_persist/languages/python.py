@@ -89,12 +89,12 @@ def classify(
         and (root in _PYTHON_BUILTINS or root in _PYTHON_STDLIB_ROOTS)
     ):
         return DiagnosticClassification(
-            bucket="likely_standard_library_or_builtin",
+            bucket="builtin_or_standard_shape",
             reasons=("python_builtin_or_stdlib_root",),
         )
     if identifier.startswith(("self.", "cls.")):
         return DiagnosticClassification(
-            bucket="likely_dynamic_dispatch_or_indirect",
+            bucket="dynamic_or_indirect_shape",
             reasons=("python_receiver_pattern",),
         )
     if terminal in _PYTHON_DYNAMIC_MEMBER_TERMINALS:
@@ -106,15 +106,15 @@ def classify(
                 and not _looks_type_like_owner(owner)
             ):
                 return DiagnosticClassification(
-                    bucket="likely_dynamic_dispatch_or_indirect",
+                    bucket="dynamic_or_indirect_shape",
                     reasons=("repo_owned_dynamic_member_terminal",),
                 )
             return DiagnosticClassification(
-                bucket="likely_unindexed_symbol",
+                bucket="unindexed_symbol_shape",
                 reasons=("repo_owned_member_terminal",),
             )
         return DiagnosticClassification(
-            bucket="likely_dynamic_dispatch_or_indirect",
+            bucket="dynamic_or_indirect_shape",
             reasons=("dynamic_member_terminal",),
         )
     return None

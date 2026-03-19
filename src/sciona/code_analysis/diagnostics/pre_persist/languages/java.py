@@ -26,7 +26,7 @@ def classify(
     root = observation.identifier_root or identifier.split(".", 1)[0]
     if not _has_repo_ownership_signal(observation) and root in _JAVA_STDLIB_ROOTS:
         return DiagnosticClassification(
-            bucket="likely_standard_library_or_builtin",
+            bucket="builtin_or_standard_shape",
             reasons=("java_stdlib_root",),
         )
     return None

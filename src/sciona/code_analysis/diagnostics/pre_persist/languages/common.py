@@ -14,27 +14,27 @@ def classify_common(
     terminal = identifier.rsplit(".", 1)[-1]
     if not identifier or not observation.file_path:
         return DiagnosticClassification(
-            bucket="likely_parser_extraction_gap",
+            bucket="parser_extraction_mismatch",
             reasons=("missing_identifier_or_file_path",),
         )
     if _is_fixture_or_generated_path(observation.file_path):
         return DiagnosticClassification(
-            bucket="likely_dynamic_dispatch_or_indirect",
+            bucket="dynamic_or_indirect_shape",
             reasons=("fixture_or_generated_path",),
         )
     if _has_repeated_qualified_segment(identifier):
         return DiagnosticClassification(
-            bucket="likely_parser_extraction_gap",
+            bucket="parser_extraction_mismatch",
             reasons=("repeated_qualified_segment",),
         )
     if _has_inline_dynamic_call_chain(identifier):
         return DiagnosticClassification(
-            bucket="likely_dynamic_dispatch_or_indirect",
+            bucket="dynamic_or_indirect_shape",
             reasons=("inline_dynamic_call_chain",),
         )
     if terminal in {"then", "catch", "finally"}:
         return DiagnosticClassification(
-            bucket="likely_dynamic_dispatch_or_indirect",
+            bucket="dynamic_or_indirect_shape",
             reasons=("fluent_terminal",),
         )
     if observation.repo_prefix_matches:
@@ -47,55 +47,55 @@ def classify_common(
                 or observation.reachable_repo_binding
             ):
                 return DiagnosticClassification(
-                    bucket="likely_unindexed_symbol",
+                    bucket="unindexed_symbol_shape",
                     reasons=("reachable_repo_owned_prefix",),
                 )
             if observation.repo_hint_overlap:
                 return DiagnosticClassification(
-                    bucket="likely_unindexed_symbol",
+                    bucket="unindexed_symbol_shape",
                     reasons=("repo_hint_overlap",),
                 )
             if repo_prefix_depth == 1:
                 return DiagnosticClassification(
-                    bucket="likely_external_dependency",
+                    bucket="external_dependency_shape",
                     reasons=("shallow_non_reachable_repo_prefix",),
                 )
             return DiagnosticClassification(
-                bucket="likely_unindexed_symbol",
+                bucket="unindexed_symbol_shape",
                 reasons=("repo_owned_qualified_prefix",),
             )
         return DiagnosticClassification(
-            bucket="likely_dynamic_dispatch_or_indirect",
+            bucket="dynamic_or_indirect_shape",
             reasons=("repo_owned_terminal_call_shape",),
         )
     if observation.local_binding_target:
         return DiagnosticClassification(
-            bucket="likely_unindexed_symbol",
+            bucket="unindexed_symbol_shape",
             reasons=("local_binding_target",),
         )
     if "." in identifier:
         first = identifier.split(".", 1)[0]
         if first in {"self", "this", "cls", "super"}:
             return DiagnosticClassification(
-                bucket="likely_dynamic_dispatch_or_indirect",
+                bucket="dynamic_or_indirect_shape",
                 reasons=("dynamic_receiver_root",),
             )
         if observation.repo_hint_overlap:
             return DiagnosticClassification(
-                bucket="likely_unindexed_symbol",
+                bucket="unindexed_symbol_shape",
                 reasons=("repo_hint_overlap",),
             )
         if observation.candidate_module_hints:
             return DiagnosticClassification(
-                bucket="likely_external_dependency",
+                bucket="external_dependency_shape",
                 reasons=("qualified_identifier_with_external_module_hints",),
             )
         return DiagnosticClassification(
-            bucket="likely_external_dependency",
+            bucket="external_dependency_shape",
             reasons=("qualified_identifier_without_repo_candidate",),
         )
     return DiagnosticClassification(
-        bucket="likely_unindexed_symbol",
+        bucket="unindexed_symbol_shape",
         reasons=("terminal_identifier_without_repo_candidate",),
     )
 

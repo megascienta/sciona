@@ -23,12 +23,12 @@ _PUBLIC_DIAGNOSTIC_BUCKET_MAP = {
     "insufficient_static_evidence": "insufficient_static_evidence",
     "accepted_outside_in_repo": "outside_static_contract",
     "invalid_observation_shape": "structural_mismatch",
-    "likely_external_dependency": "outside_static_contract",
-    "likely_standard_library_or_builtin": "outside_static_contract",
-    "likely_dynamic_dispatch_or_indirect": "outside_static_contract",
-    "likely_unindexed_symbol": "insufficient_static_evidence",
-    "likely_parser_extraction_gap": "structural_mismatch",
-    "unclassified_no_in_repo_candidate": "unclassified",
+    "external_dependency_shape": "outside_static_contract",
+    "builtin_or_standard_shape": "outside_static_contract",
+    "dynamic_or_indirect_shape": "outside_static_contract",
+    "unindexed_symbol_shape": "insufficient_static_evidence",
+    "parser_extraction_mismatch": "structural_mismatch",
+    "no_clear_in_repo_target": "unclassified",
 }
 
 
@@ -89,7 +89,7 @@ def build_verbose_payload(
     for item in observations:
         if not isinstance(item, dict):
             continue
-        bucket = str(item.get("bucket") or "unclassified_no_in_repo_candidate")
+        bucket = str(item.get("bucket") or "no_clear_in_repo_target")
         bucket_entry = by_bucket.setdefault(
             bucket,
             {"count": 0, "callsites": [], "reasons": {}, "signals": {}},
@@ -227,7 +227,7 @@ def build_rejected_calls_verbose_payload(
         if not isinstance(item, dict):
             continue
         public_bucket = _PUBLIC_DIAGNOSTIC_BUCKET_MAP.get(
-            str(item.get("bucket") or "unclassified_no_in_repo_candidate"),
+            str(item.get("bucket") or "no_clear_in_repo_target"),
             "unclassified",
         )
         phase = _phase_for_diagnostic_observation(item)
@@ -235,7 +235,7 @@ def build_rejected_calls_verbose_payload(
         enriched["phase"] = phase
         enriched["public_bucket"] = public_bucket
         enriched["source_bucket"] = str(
-            item.get("bucket") or "unclassified_no_in_repo_candidate"
+            item.get("bucket") or "no_clear_in_repo_target"
         )
         _accumulate_rejected_callsite(
             by_bucket,
@@ -407,13 +407,13 @@ def _persisted_drop_bucket(item: dict[str, object]) -> str:
     candidate_count = int(item.get("candidate_count") or 0)
     terminal = identifier.rsplit(".", 1)[-1]
     if _is_fixture_or_generated_path(file_path):
-        return "likely_fixture_or_generated_scope"
+        return "fixture_or_generated_shape"
     if any(token in identifier for token in (".then", ".catch")):
-        return "likely_fluent_or_promise_chain"
+        return "fluent_or_promise_chain_shape"
     if any(token in identifier for token in (".finally", ".in(")):
-        return "likely_dynamic_member_terminal"
+        return "dynamic_member_terminal_shape"
     if identifier.endswith(".emit") or ".emit" in identifier:
-        return "likely_dynamic_member_terminal"
+        return "dynamic_member_terminal_shape"
     if terminal in {
         "filter",
         "find",
@@ -429,15 +429,15 @@ def _persisted_drop_bucket(item: dict[str, object]) -> str:
         "values",
         "entries",
     }:
-        return "likely_dynamic_member_terminal"
+        return "dynamic_member_terminal_shape"
     if ".server." in identifier or ".notifications." in identifier or ".tools." in identifier:
-        return "likely_namespace_or_module_object_miss"
+        return "namespace_or_module_object_miss_shape"
     if (
         drop_reason == "unique_without_provenance"
         and candidate_count == 1
         and ".index." in identifier
     ):
-        return "likely_runtime_composed_surface"
+        return "runtime_composed_surface_shape"
     if drop_reason == "no_candidates" or candidate_count <= 0:
         return "no_in_repo_callable_target"
     return "unclassified_persisted_drop"
@@ -449,14 +449,14 @@ def _public_bucket_for_persisted_drop(
     source_bucket: str,
 ) -> str:
     if source_bucket in {
-        "likely_fixture_or_generated_scope",
-        "likely_fluent_or_promise_chain",
-        "likely_dynamic_member_terminal",
-        "likely_runtime_composed_surface",
+        "fixture_or_generated_shape",
+        "fluent_or_promise_chain_shape",
+        "dynamic_member_terminal_shape",
+        "runtime_composed_surface_shape",
     }:
         return "outside_static_contract"
     if source_bucket in {
-        "likely_namespace_or_module_object_miss",
+        "namespace_or_module_object_miss_shape",
         "no_in_repo_callable_target",
     }:
         return "insufficient_static_evidence"

@@ -278,19 +278,19 @@ def test_cli_build_diagnostic_enriches_not_accepted_callsites(
             **result.__dict__,
             "diagnostic_report": {
                 "totals": {
-                    "likely_external_dependency": 2,
-                    "likely_standard_library_or_builtin": 1,
+                    "external_dependency_shape": 2,
+                    "builtin_or_standard_shape": 1,
                 },
                 "by_language": {
                     "python": {
-                        "likely_external_dependency": 2,
-                        "likely_standard_library_or_builtin": 1,
+                        "external_dependency_shape": 2,
+                        "builtin_or_standard_shape": 1,
                     }
                 },
                 "by_scope": {
                     "non_tests": {
-                        "likely_external_dependency": 2,
-                        "likely_standard_library_or_builtin": 1,
+                        "external_dependency_shape": 2,
+                        "builtin_or_standard_shape": 1,
                     },
                     "tests": {},
                 },
@@ -332,14 +332,14 @@ def test_cli_build_verbose_sidecar_groups_callsites_by_bucket(
                 "by_scope": {},
                 "observations": [
                     {
-                        "bucket": "likely_unindexed_symbol",
+                        "bucket": "unindexed_symbol_shape",
                         "identifier": "helper",
                         "file_path": "pkg/a.py",
                         "reasons": [],
                         "signals": [],
                     },
                     {
-                        "bucket": "likely_unindexed_symbol",
+                        "bucket": "unindexed_symbol_shape",
                         "identifier": "worker",
                         "file_path": "pkg/b.py",
                         "reasons": [],

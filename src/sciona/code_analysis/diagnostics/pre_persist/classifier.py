@@ -80,17 +80,17 @@ def classify_positive_candidate_rejection(
 ) -> DiagnosticClassification:
     if _is_fixture_or_generated_path(observation.file_path):
         return DiagnosticClassification(
-            bucket="likely_dynamic_dispatch_or_indirect",
+            bucket="dynamic_or_indirect_shape",
             reasons=("fixture_or_generated_path",),
         )
     if _is_inline_dynamic_chain(observation.identifier):
         return DiagnosticClassification(
-            bucket="likely_dynamic_dispatch_or_indirect",
+            bucket="dynamic_or_indirect_shape",
             reasons=("inline_dynamic_call_chain",),
         )
     if _is_dynamic_terminal(observation.identifier):
         return DiagnosticClassification(
-            bucket="likely_dynamic_dispatch_or_indirect",
+            bucket="dynamic_or_indirect_shape",
             reasons=("positive_candidate_dynamic_member_terminal",),
         )
     raw_drop_reason = observation.raw_drop_reason.strip()
@@ -99,45 +99,45 @@ def classify_positive_candidate_rejection(
         and ".index." in observation.identifier
     ):
         return DiagnosticClassification(
-            bucket="likely_dynamic_dispatch_or_indirect",
+            bucket="dynamic_or_indirect_shape",
             reasons=("runtime_composed_index_surface",),
         )
     if raw_drop_reason == "invalid_observation_shape":
         return DiagnosticClassification(
-            bucket="likely_parser_extraction_gap",
+            bucket="parser_extraction_mismatch",
             reasons=("positive_candidate_invalid_shape",),
         )
     if observation.local_binding_target and raw_drop_reason == "no_candidates":
         return DiagnosticClassification(
-            bucket="likely_unindexed_symbol",
+            bucket="unindexed_symbol_shape",
             reasons=("positive_candidate_local_binding_target",),
         )
     if raw_drop_reason == "ambiguous_multiple_in_scope_candidates":
         return DiagnosticClassification(
-            bucket="likely_unindexed_symbol",
+            bucket="unindexed_symbol_shape",
             reasons=("positive_candidate_ambiguous",),
         )
     if raw_drop_reason == "ambiguous_no_in_scope_candidate":
         return DiagnosticClassification(
-            bucket="likely_unindexed_symbol",
+            bucket="unindexed_symbol_shape",
             reasons=("positive_candidate_out_of_scope_after_narrowing",),
         )
     if raw_drop_reason == "ambiguous_no_caller_module":
         return DiagnosticClassification(
-            bucket="likely_unindexed_symbol",
+            bucket="unindexed_symbol_shape",
             reasons=("positive_candidate_without_caller_module",),
         )
     if raw_drop_reason == "unique_without_provenance":
         return DiagnosticClassification(
-            bucket="likely_unindexed_symbol",
+            bucket="unindexed_symbol_shape",
             reasons=("positive_candidate_without_provenance",),
         )
     if raw_drop_reason == "no_candidates":
         return DiagnosticClassification(
-            bucket="unclassified_no_in_repo_candidate",
+            bucket="no_clear_in_repo_target",
             reasons=("positive_candidate_no_candidates",),
         )
     return DiagnosticClassification(
-        bucket="likely_unindexed_symbol",
+        bucket="unindexed_symbol_shape",
         reasons=("positive_candidate_rejected",),
     )

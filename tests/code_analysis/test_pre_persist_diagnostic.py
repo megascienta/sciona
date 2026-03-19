@@ -38,7 +38,7 @@ def test_classifier_marks_common_builtin_name() -> None:
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_standard_library_or_builtin"
+    assert classified.bucket == "builtin_or_standard_shape"
 
 
 def test_classifier_marks_dynamic_receiver_pattern() -> None:
@@ -55,7 +55,7 @@ def test_classifier_marks_dynamic_receiver_pattern() -> None:
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_dynamic_dispatch_or_indirect"
+    assert classified.bucket == "dynamic_or_indirect_shape"
 
 
 def test_classifier_marks_fixture_or_generated_paths_as_dynamic() -> None:
@@ -72,7 +72,7 @@ def test_classifier_marks_fixture_or_generated_paths_as_dynamic() -> None:
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_dynamic_dispatch_or_indirect"
+    assert classified.bucket == "dynamic_or_indirect_shape"
     assert classified.reasons == ("fixture_or_generated_path",)
 
 
@@ -92,7 +92,7 @@ def test_classifier_marks_repo_owned_qualified_name_as_unindexed() -> None:
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_unindexed_symbol"
+    assert classified.bucket == "unindexed_symbol_shape"
 
 
 def test_classifier_marks_reachable_repo_prefix_as_unindexed() -> None:
@@ -113,7 +113,7 @@ def test_classifier_marks_reachable_repo_prefix_as_unindexed() -> None:
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_unindexed_symbol"
+    assert classified.bucket == "unindexed_symbol_shape"
     assert classified.reasons == ("reachable_repo_owned_prefix",)
 
 
@@ -135,7 +135,7 @@ def test_classifier_marks_shallow_non_reachable_repo_prefix_as_external() -> Non
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_external_dependency"
+    assert classified.bucket == "external_dependency_shape"
     assert classified.reasons == ("shallow_non_reachable_repo_prefix",)
 
 
@@ -156,7 +156,7 @@ def test_classifier_uses_repo_hint_overlap_for_unindexed() -> None:
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_unindexed_symbol"
+    assert classified.bucket == "unindexed_symbol_shape"
     assert classified.reasons == ("repo_hint_overlap",)
 
 
@@ -176,7 +176,7 @@ def test_classifier_marks_external_module_hints_as_external() -> None:
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_external_dependency"
+    assert classified.bucket == "external_dependency_shape"
     assert classified.reasons == ("qualified_identifier_with_external_module_hints",)
 
 
@@ -200,7 +200,7 @@ def test_classifier_uses_local_binding_target_for_qualified_identifier() -> None
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_unindexed_symbol"
+    assert classified.bucket == "unindexed_symbol_shape"
     assert classified.reasons == ("local_binding_target",)
 
 
@@ -220,7 +220,7 @@ def test_classifier_marks_dynamic_member_terminal() -> None:
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_dynamic_dispatch_or_indirect"
+    assert classified.bucket == "dynamic_or_indirect_shape"
     assert classified.reasons == ("repo_owned_dynamic_member_terminal",)
 
 
@@ -240,7 +240,7 @@ def test_classifier_keeps_unknown_receiver_member_terminal_as_dynamic() -> None:
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_dynamic_dispatch_or_indirect"
+    assert classified.bucket == "dynamic_or_indirect_shape"
     assert classified.reasons == ("dynamic_member_terminal",)
 
 
@@ -260,7 +260,7 @@ def test_classifier_marks_typescript_finally_as_dynamic() -> None:
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_dynamic_dispatch_or_indirect"
+    assert classified.bucket == "dynamic_or_indirect_shape"
     assert classified.reasons == ("repo_owned_dynamic_member_terminal",)
 
 
@@ -280,7 +280,7 @@ def test_classifier_marks_javascript_has_as_dynamic() -> None:
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_dynamic_dispatch_or_indirect"
+    assert classified.bucket == "dynamic_or_indirect_shape"
     assert classified.reasons == ("repo_owned_dynamic_member_terminal",)
 
 
@@ -298,7 +298,7 @@ def test_classifier_marks_common_finally_terminal_as_dynamic() -> None:
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_dynamic_dispatch_or_indirect"
+    assert classified.bucket == "dynamic_or_indirect_shape"
     assert classified.reasons == ("fluent_terminal",)
 
 
@@ -318,7 +318,7 @@ def test_classifier_marks_extended_repo_owned_member_terminal_as_unindexed() -> 
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_unindexed_symbol"
+    assert classified.bucket == "unindexed_symbol_shape"
     assert classified.reasons == ("repo_owned_member_terminal",)
 
 
@@ -338,7 +338,7 @@ def test_classifier_marks_repo_owned_typescript_fluent_method_as_dynamic() -> No
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_dynamic_dispatch_or_indirect"
+    assert classified.bucket == "dynamic_or_indirect_shape"
     assert classified.reasons == ("repo_owned_dynamic_member_terminal",)
 
 
@@ -358,7 +358,7 @@ def test_classifier_keeps_repo_owned_typescript_exception_factory_as_unindexed()
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_unindexed_symbol"
+    assert classified.bucket == "unindexed_symbol_shape"
     assert classified.reasons == ("repo_owned_member_terminal",)
 
 
@@ -378,7 +378,7 @@ def test_classifier_marks_report_style_vscode_reduce_as_dynamic() -> None:
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_dynamic_dispatch_or_indirect"
+    assert classified.bucket == "dynamic_or_indirect_shape"
     assert classified.reasons == ("repo_owned_dynamic_member_terminal",)
 
 
@@ -398,7 +398,7 @@ def test_classifier_marks_report_style_fastapi_model_validate_as_unindexed() -> 
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_unindexed_symbol"
+    assert classified.bucket == "unindexed_symbol_shape"
     assert classified.reasons == ("repo_owned_member_terminal",)
 
 
@@ -418,7 +418,7 @@ def test_classifier_marks_report_style_airbyte_parse_obj_as_unindexed() -> None:
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_unindexed_symbol"
+    assert classified.bucket == "unindexed_symbol_shape"
     assert classified.reasons == ("repo_owned_member_terminal",)
 
 
@@ -438,7 +438,7 @@ def test_classifier_keeps_repo_owned_python_class_member_terminal_as_unindexed()
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_unindexed_symbol"
+    assert classified.bucket == "unindexed_symbol_shape"
     assert classified.reasons == ("repo_owned_member_terminal",)
 
 
@@ -458,7 +458,7 @@ def test_classifier_marks_repeated_segments_as_parser_gap() -> None:
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_parser_extraction_gap"
+    assert classified.bucket == "parser_extraction_mismatch"
 
 
 def test_classifier_marks_constructor_duplication_as_parser_gap() -> None:
@@ -477,7 +477,7 @@ def test_classifier_marks_constructor_duplication_as_parser_gap() -> None:
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_parser_extraction_gap"
+    assert classified.bucket == "parser_extraction_mismatch"
 
 
 def test_classifier_marks_namespace_chain_duplication_as_parser_gap() -> None:
@@ -496,7 +496,7 @@ def test_classifier_marks_namespace_chain_duplication_as_parser_gap() -> None:
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_parser_extraction_gap"
+    assert classified.bucket == "parser_extraction_mismatch"
 
 
 def test_classifier_marks_repeated_tail_pair_as_parser_gap() -> None:
@@ -515,7 +515,7 @@ def test_classifier_marks_repeated_tail_pair_as_parser_gap() -> None:
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_parser_extraction_gap"
+    assert classified.bucket == "parser_extraction_mismatch"
 
 
 def test_classifier_uses_javascript_global_refinement() -> None:
@@ -532,7 +532,7 @@ def test_classifier_uses_javascript_global_refinement() -> None:
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_standard_library_or_builtin"
+    assert classified.bucket == "builtin_or_standard_shape"
 
 
 def test_classifier_uses_javascript_global_root_refinement() -> None:
@@ -550,7 +550,7 @@ def test_classifier_uses_javascript_global_root_refinement() -> None:
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_standard_library_or_builtin"
+    assert classified.bucket == "builtin_or_standard_shape"
 
 
 def test_positive_candidate_classifier_uses_raw_drop_reason() -> None:
@@ -569,7 +569,7 @@ def test_positive_candidate_classifier_uses_raw_drop_reason() -> None:
 
     classified = classify_positive_candidate_rejection(observation)
 
-    assert classified.bucket == "likely_unindexed_symbol"
+    assert classified.bucket == "unindexed_symbol_shape"
     assert classified.reasons == ("positive_candidate_without_provenance",)
 
 
@@ -589,7 +589,7 @@ def test_positive_candidate_classifier_marks_invalid_shape_as_parser_gap() -> No
 
     classified = classify_positive_candidate_rejection(observation)
 
-    assert classified.bucket == "likely_parser_extraction_gap"
+    assert classified.bucket == "parser_extraction_mismatch"
     assert classified.reasons == ("positive_candidate_invalid_shape",)
 
 
@@ -609,7 +609,7 @@ def test_positive_candidate_classifier_marks_index_proxy_surface_as_dynamic() ->
 
     classified = classify_positive_candidate_rejection(observation)
 
-    assert classified.bucket == "likely_dynamic_dispatch_or_indirect"
+    assert classified.bucket == "dynamic_or_indirect_shape"
     assert classified.reasons == ("runtime_composed_index_surface",)
 
 
@@ -629,7 +629,7 @@ def test_positive_candidate_classifier_marks_fixture_scope_as_dynamic() -> None:
 
     classified = classify_positive_candidate_rejection(observation)
 
-    assert classified.bucket == "likely_dynamic_dispatch_or_indirect"
+    assert classified.bucket == "dynamic_or_indirect_shape"
     assert classified.reasons == ("fixture_or_generated_path",)
 
 
@@ -653,7 +653,7 @@ def test_positive_candidate_classifier_uses_local_binding_target_for_no_candidat
 
     classified = classify_positive_candidate_rejection(observation)
 
-    assert classified.bucket == "likely_unindexed_symbol"
+    assert classified.bucket == "unindexed_symbol_shape"
     assert classified.reasons == ("positive_candidate_local_binding_target",)
 
 
@@ -673,7 +673,7 @@ def test_positive_candidate_classifier_marks_inline_dynamic_chain_as_dynamic() -
 
     classified = classify_positive_candidate_rejection(observation)
 
-    assert classified.bucket == "likely_dynamic_dispatch_or_indirect"
+    assert classified.bucket == "dynamic_or_indirect_shape"
     assert classified.reasons == ("inline_dynamic_call_chain",)
 
 
@@ -691,7 +691,7 @@ def test_classifier_uses_java_stdlib_refinement() -> None:
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_standard_library_or_builtin"
+    assert classified.bucket == "builtin_or_standard_shape"
 
 
 def test_classifier_uses_python_stdlib_root_refinement() -> None:
@@ -709,7 +709,7 @@ def test_classifier_uses_python_stdlib_root_refinement() -> None:
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_standard_library_or_builtin"
+    assert classified.bucket == "builtin_or_standard_shape"
 
 
 def test_classifier_does_not_treat_repo_owned_python_stdlib_root_as_builtin() -> None:
@@ -730,7 +730,7 @@ def test_classifier_does_not_treat_repo_owned_python_stdlib_root_as_builtin() ->
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_external_dependency"
+    assert classified.bucket == "external_dependency_shape"
     assert classified.reasons == ("shallow_non_reachable_repo_prefix",)
 
 
@@ -752,7 +752,7 @@ def test_classifier_does_not_treat_repo_owned_javascript_global_as_builtin() -> 
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_external_dependency"
+    assert classified.bucket == "external_dependency_shape"
     assert classified.reasons == ("shallow_non_reachable_repo_prefix",)
 
 
@@ -772,7 +772,7 @@ def test_classifier_keeps_non_repo_qualified_name_as_external() -> None:
 
     classified = classify_no_in_repo_candidate(observation)
 
-    assert classified.bucket == "likely_external_dependency"
+    assert classified.bucket == "external_dependency_shape"
 
 
 def test_diagnostic_observation_carries_repo_prefix_strength(monkeypatch) -> None:
@@ -950,7 +950,7 @@ def test_classify_pre_persist_misses_uses_progress_factory(monkeypatch) -> None:
         progress_factory=_factory,
     )
 
-    assert payload["totals"]["likely_unindexed_symbol"] == 1
+    assert payload["totals"]["unindexed_symbol_shape"] == 1
     assert len(payload["observations"]) == 1
     assert events == [
         ("factory", ("Diagnostic classification (Phase I)", 1)),
@@ -1023,7 +1023,7 @@ def test_classify_rejected_calls_uses_temp_rejected_rows(tmp_path) -> None:
         artifact_conn.close()
         core_conn.close()
 
-    assert payload["totals"]["likely_unindexed_symbol"] == 1
+    assert payload["totals"]["unindexed_symbol_shape"] == 1
     assert payload["totals"]["accepted_outside_in_repo"] == 1
     observations = payload["observations"]
     assert observations[0]["gate_reason"] == "no_in_repo_candidate"
@@ -1036,7 +1036,7 @@ def test_build_verbose_payload_includes_reason_and_prefix_traces() -> None:
         {
             "observations": [
                 {
-                    "bucket": "likely_unindexed_symbol",
+                    "bucket": "unindexed_symbol_shape",
                     "reasons": ["repo_owned_qualified_prefix"],
                     "signals": [
                         "candidate_hint_count:2",
@@ -1080,7 +1080,7 @@ def test_build_verbose_payload_includes_reason_and_prefix_traces() -> None:
         }
     )
 
-    bucket_payload = payload["buckets"]["likely_unindexed_symbol"]
+    bucket_payload = payload["buckets"]["unindexed_symbol_shape"]
     assert bucket_payload["reasons"] == {"repo_owned_qualified_prefix": 1}
     assert bucket_payload["signals"] == {
         "candidate_hint_count:2": 1,
@@ -1128,7 +1128,7 @@ def test_build_rejected_calls_verbose_payload_combines_both_phases() -> None:
         {
             "observations": [
                 {
-                    "bucket": "likely_unindexed_symbol",
+                    "bucket": "unindexed_symbol_shape",
                     "reasons": ["repo_owned_qualified_prefix"],
                     "signals": ["qualified_identifier"],
                     "language": "python",
@@ -1174,7 +1174,7 @@ def test_build_rejected_calls_verbose_payload_infers_phase_from_gate_reason() ->
         {
             "observations": [
                 {
-                    "bucket": "likely_unindexed_symbol",
+                    "bucket": "unindexed_symbol_shape",
                     "reasons": ["repo_owned_qualified_prefix"],
                     "signals": ["qualified_identifier"],
                     "language": "python",
@@ -1183,7 +1183,7 @@ def test_build_rejected_calls_verbose_payload_infers_phase_from_gate_reason() ->
                     "gate_reason": "no_in_repo_candidate",
                 },
                 {
-                    "bucket": "likely_dynamic_dispatch_or_indirect",
+                    "bucket": "dynamic_or_indirect_shape",
                     "reasons": ["promise_terminal"],
                     "signals": ["qualified_identifier"],
                     "language": "javascript",
@@ -1248,25 +1248,25 @@ def test_merge_diagnostic_payloads_combines_both_rejection_populations() -> None
     payload = diagnostic_pipeline.merge_diagnostic_payloads(
         {
             "totals": {
-                "likely_unindexed_symbol": 1,
-                "likely_external_dependency": 2,
+                "unindexed_symbol_shape": 1,
+                "external_dependency_shape": 2,
             },
             "by_language": {
                 "python": {
-                    "likely_unindexed_symbol": 1,
-                    "likely_external_dependency": 2,
+                    "unindexed_symbol_shape": 1,
+                    "external_dependency_shape": 2,
                 }
             },
             "by_scope": {
                 "non_tests": {
-                    "likely_unindexed_symbol": 1,
-                    "likely_external_dependency": 2,
+                    "unindexed_symbol_shape": 1,
+                    "external_dependency_shape": 2,
                 },
                 "tests": {},
             },
             "observations": [
                 {
-                    "bucket": "likely_unindexed_symbol",
+                    "bucket": "unindexed_symbol_shape",
                     "identifier": "repo.pkg.models.Secret",
                     "file_path": "pkg/mod.py",
                 }
@@ -1274,24 +1274,24 @@ def test_merge_diagnostic_payloads_combines_both_rejection_populations() -> None
         },
         {
             "totals": {
-                "likely_dynamic_dispatch_or_indirect": 3,
+                "dynamic_or_indirect_shape": 3,
             },
             "by_language": {
                 "javascript": {
-                    "likely_dynamic_dispatch_or_indirect": 3,
+                    "dynamic_or_indirect_shape": 3,
                 }
             },
             "by_scope": {
                 "non_tests": {
-                    "likely_dynamic_dispatch_or_indirect": 1,
+                    "dynamic_or_indirect_shape": 1,
                 },
                 "tests": {
-                    "likely_dynamic_dispatch_or_indirect": 2,
+                    "dynamic_or_indirect_shape": 2,
                 },
             },
             "observations": [
                 {
-                    "bucket": "likely_dynamic_dispatch_or_indirect",
+                    "bucket": "dynamic_or_indirect_shape",
                     "identifier": "socket.in(room).emit",
                     "file_path": "pkg/mod.js",
                     "gate_reason": "insufficient_static_evidence",
@@ -1301,24 +1301,24 @@ def test_merge_diagnostic_payloads_combines_both_rejection_populations() -> None
     )
 
     assert payload["totals"] == {
-        "likely_external_dependency": 2,
-        "likely_standard_library_or_builtin": 0,
-        "likely_dynamic_dispatch_or_indirect": 3,
-        "likely_unindexed_symbol": 1,
-        "likely_parser_extraction_gap": 0,
-        "unclassified_no_in_repo_candidate": 0,
+        "external_dependency_shape": 2,
+        "builtin_or_standard_shape": 0,
+        "dynamic_or_indirect_shape": 3,
+        "unindexed_symbol_shape": 1,
+        "parser_extraction_mismatch": 0,
+        "no_clear_in_repo_target": 0,
         "accepted_outside_in_repo": 0,
         "invalid_observation_shape": 0,
     }
-    assert payload["by_language"]["python"]["likely_unindexed_symbol"] == 1
+    assert payload["by_language"]["python"]["unindexed_symbol_shape"] == 1
     assert (
-        payload["by_language"]["javascript"]["likely_dynamic_dispatch_or_indirect"]
+        payload["by_language"]["javascript"]["dynamic_or_indirect_shape"]
         == 3
     )
     assert (
-        payload["by_scope"]["non_tests"]["likely_dynamic_dispatch_or_indirect"] == 1
+        payload["by_scope"]["non_tests"]["dynamic_or_indirect_shape"] == 1
     )
-    assert payload["by_scope"]["tests"]["likely_dynamic_dispatch_or_indirect"] == 2
+    assert payload["by_scope"]["tests"]["dynamic_or_indirect_shape"] == 2
     assert len(payload["observations"]) == 2
 
 
@@ -1326,12 +1326,12 @@ def test_build_rejected_calls_verbose_payload_counts_merged_pre_and_post_persist
     payload = build_rejected_calls_verbose_payload(
         diagnostic_pipeline.merge_diagnostic_payloads(
             {
-                "totals": {"likely_unindexed_symbol": 1},
+                "totals": {"unindexed_symbol_shape": 1},
                 "by_language": {},
                 "by_scope": {"non_tests": {}, "tests": {}},
                 "observations": [
                     {
-                        "bucket": "likely_unindexed_symbol",
+                        "bucket": "unindexed_symbol_shape",
                         "reasons": ["repo_owned_qualified_prefix"],
                         "signals": ["qualified_identifier"],
                         "language": "python",
@@ -1341,12 +1341,12 @@ def test_build_rejected_calls_verbose_payload_counts_merged_pre_and_post_persist
                 ],
             },
             {
-                "totals": {"likely_dynamic_dispatch_or_indirect": 1},
+                "totals": {"dynamic_or_indirect_shape": 1},
                 "by_language": {},
                 "by_scope": {"non_tests": {}, "tests": {}},
                 "observations": [
                     {
-                        "bucket": "likely_dynamic_dispatch_or_indirect",
+                        "bucket": "dynamic_or_indirect_shape",
                         "reasons": ["promise_terminal"],
                         "signals": ["qualified_identifier"],
                         "language": "javascript",
@@ -1373,7 +1373,7 @@ def test_merge_non_candidate_buckets_projects_public_buckets() -> None:
         {
             "accepted_outside_in_repo": 99,
             "invalid_observation_shape": 88,
-            "likely_unindexed_symbol": 7,
+            "unindexed_symbol_shape": 7,
         },
     )
 

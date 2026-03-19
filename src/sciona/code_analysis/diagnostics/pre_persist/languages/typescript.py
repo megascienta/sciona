@@ -87,7 +87,7 @@ def classify(
     root = observation.identifier_root or identifier.split(".", 1)[0]
     if not _has_repo_ownership_signal(observation) and root in _TS_GLOBALS:
         return DiagnosticClassification(
-            bucket="likely_standard_library_or_builtin",
+            bucket="builtin_or_standard_shape",
             reasons=("typescript_global_root",),
         )
     if (
@@ -96,7 +96,7 @@ def classify(
         or identifier.startswith("prototype.")
     ):
         return DiagnosticClassification(
-            bucket="likely_dynamic_dispatch_or_indirect",
+            bucket="dynamic_or_indirect_shape",
             reasons=("typescript_receiver_pattern",),
         )
     if terminal in _TS_DYNAMIC_MEMBER_TERMINALS:
@@ -104,7 +104,7 @@ def classify(
             owner = parts[-2] if len(parts) >= 2 else ""
             if terminal in _TS_ALWAYS_DYNAMIC_FLUENT_TERMINALS:
                 return DiagnosticClassification(
-                    bucket="likely_dynamic_dispatch_or_indirect",
+                    bucket="dynamic_or_indirect_shape",
                     reasons=("repo_owned_dynamic_member_terminal",),
                 )
             if (
@@ -113,20 +113,20 @@ def classify(
                 and not _looks_type_like_owner(owner)
             ):
                 return DiagnosticClassification(
-                    bucket="likely_dynamic_dispatch_or_indirect",
+                    bucket="dynamic_or_indirect_shape",
                     reasons=("repo_owned_dynamic_member_terminal",),
                 )
             return DiagnosticClassification(
-                bucket="likely_unindexed_symbol",
+                bucket="unindexed_symbol_shape",
                 reasons=("repo_owned_member_terminal",),
             )
         return DiagnosticClassification(
-            bucket="likely_dynamic_dispatch_or_indirect",
+            bucket="dynamic_or_indirect_shape",
             reasons=("dynamic_member_terminal",),
         )
     if identifier.startswith("@"):
         return DiagnosticClassification(
-            bucket="likely_external_dependency",
+            bucket="external_dependency_shape",
             reasons=("typescript_package_scope_pattern",),
         )
     return None

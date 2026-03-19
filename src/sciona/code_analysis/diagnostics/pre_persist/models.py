@@ -9,12 +9,12 @@ from dataclasses import dataclass, field
 
 
 DIAGNOSTIC_BUCKET_KEYS = (
-    "likely_external_dependency",
-    "likely_standard_library_or_builtin",
-    "likely_dynamic_dispatch_or_indirect",
-    "likely_unindexed_symbol",
-    "likely_parser_extraction_gap",
-    "unclassified_no_in_repo_candidate",
+    "external_dependency_shape",
+    "builtin_or_standard_shape",
+    "dynamic_or_indirect_shape",
+    "unindexed_symbol_shape",
+    "parser_extraction_mismatch",
+    "no_clear_in_repo_target",
     "accepted_outside_in_repo",
     "invalid_observation_shape",
 )
