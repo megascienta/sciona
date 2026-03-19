@@ -6,21 +6,21 @@
 from __future__ import annotations
 
 PUBLIC_PRE_PERSIST_BUCKET_KEYS = (
-    "out_of_scope_call",
-    "weak_static_evidence",
-    "structural_gap",
+    "outside_static_contract",
+    "insufficient_static_evidence",
+    "structural_mismatch",
     "unclassified",
 )
 
 _PUBLIC_PRE_PERSIST_BUCKET_MAP = {
     "no_in_repo_candidate": "unclassified",
-    "accepted_outside_in_repo": "out_of_scope_call",
-    "invalid_observation_shape": "structural_gap",
-    "likely_external_dependency": "out_of_scope_call",
-    "likely_standard_library_or_builtin": "out_of_scope_call",
-    "likely_dynamic_dispatch_or_indirect": "out_of_scope_call",
-    "likely_unindexed_symbol": "weak_static_evidence",
-    "likely_parser_extraction_gap": "structural_gap",
+    "accepted_outside_in_repo": "outside_static_contract",
+    "invalid_observation_shape": "structural_mismatch",
+    "likely_external_dependency": "outside_static_contract",
+    "likely_standard_library_or_builtin": "outside_static_contract",
+    "likely_dynamic_dispatch_or_indirect": "outside_static_contract",
+    "likely_unindexed_symbol": "insufficient_static_evidence",
+    "likely_parser_extraction_gap": "structural_mismatch",
     "unclassified_no_in_repo_candidate": "unclassified",
 }
 

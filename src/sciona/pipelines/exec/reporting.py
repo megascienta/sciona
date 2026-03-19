@@ -51,7 +51,7 @@ class LanguageMetrics:
                         accepted=self.persisted_accepted,
                     ),
                 },
-                "not_accepted_calls": _filtered_pre_persist_buckets_payload(
+                "not_accepted_callsites": _filtered_pre_persist_buckets_payload(
                     self.filtered_pre_persist_buckets
                 ),
                 "call_materialization": {
@@ -65,7 +65,7 @@ class LanguageMetrics:
 SECTION_LABELS = {
     "structure": "Structure",
     "callsites": "Callsites",
-    "not_accepted_calls": "Not Accepted Calls",
+    "not_accepted_callsites": "Not Accepted Callsites",
     "call_materialization": "Call Materialization",
     "timing": "Timing",
 }
@@ -77,9 +77,9 @@ FIELD_LABELS = {
     "observed_syntactic_callsites": "Observed Syntactic Callsites",
     "accepted_callsites": "Accepted Callsites",
     "not_accepted_callsites": "Not Accepted Callsites",
-    "out_of_scope_call": "Out-Of-Scope Call",
-    "weak_static_evidence": "Weak Static Evidence",
-    "structural_gap": "Structural Gap",
+    "outside_static_contract": "Outside Static Contract",
+    "insufficient_static_evidence": "Insufficient Static Evidence",
+    "structural_mismatch": "Structural Mismatch",
     "unclassified": "Unclassified",
     "callsite_pairs": "Callsite Pairs",
     "finalized_call_edges": "Finalized Call Edges",
@@ -610,7 +610,7 @@ def snapshot_report(
                     else None,
                 ),
             },
-            "not_accepted_calls": _filtered_pre_persist_buckets_payload(
+            "not_accepted_callsites": _filtered_pre_persist_buckets_payload(
                 diagnostics_total_pre_persist_buckets if artifact_available else None
             ),
             "call_materialization": {
@@ -626,7 +626,7 @@ def snapshot_report(
                     "edges": scope_graph_edge_counts["non_tests"],
                 },
                 "callsites": _scope_callsites("non_tests"),
-                "not_accepted_calls": _scope_pre_persist("non_tests"),
+                "not_accepted_callsites": _scope_pre_persist("non_tests"),
                 "call_materialization": {
                     "callsite_pairs": scope_pair_counts["non_tests"],
                     "finalized_call_edges": scope_edge_counts["non_tests"],
@@ -639,7 +639,7 @@ def snapshot_report(
                     "edges": scope_graph_edge_counts["tests"],
                 },
                 "callsites": _scope_callsites("tests"),
-                "not_accepted_calls": _scope_pre_persist("tests"),
+                "not_accepted_callsites": _scope_pre_persist("tests"),
                 "call_materialization": {
                     "callsite_pairs": scope_pair_counts["tests"],
                     "finalized_call_edges": scope_edge_counts["tests"],

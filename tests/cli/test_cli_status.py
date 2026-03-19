@@ -29,7 +29,7 @@ def _fake_report():
             "sections": {
                 "structure": "Structure",
                 "callsites": "Callsites",
-                "not_accepted_calls": "Not Accepted Calls",
+                "not_accepted_callsites": "Not Accepted Callsites",
                 "call_materialization": "Call Materialization",
                 "timing": "Timing",
             },
@@ -40,9 +40,9 @@ def _fake_report():
                 "observed_syntactic_callsites": "Observed Syntactic Callsites",
                 "accepted_callsites": "Accepted Callsites",
                 "not_accepted_callsites": "Not Accepted Callsites",
-                "out_of_scope_call": "Out-Of-Scope Call",
-                "weak_static_evidence": "Weak Static Evidence",
-                "structural_gap": "Structural Gap",
+                "outside_static_contract": "Outside Static Contract",
+                "insufficient_static_evidence": "Insufficient Static Evidence",
+                "structural_mismatch": "Structural Mismatch",
                 "unclassified": "Unclassified",
                 "callsite_pairs": "Callsite Pairs",
                 "finalized_call_edges": "Finalized Call Edges",
@@ -82,10 +82,10 @@ def _fake_report():
                     "accepted_callsites": 9,
                     "not_accepted_callsites": 3,
                 },
-                "not_accepted_calls": {
-                    "out_of_scope_call": 0,
-                    "weak_static_evidence": 0,
-                    "structural_gap": 0,
+                "not_accepted_callsites": {
+                    "outside_static_contract": 0,
+                    "insufficient_static_evidence": 0,
+                    "structural_mismatch": 0,
                     "unclassified": 2,
                 },
                 "call_materialization": {
@@ -105,10 +105,10 @@ def _fake_report():
                 "accepted_callsites": 9,
                 "not_accepted_callsites": 3,
             },
-            "not_accepted_calls": {
-                "out_of_scope_call": 0,
-                "weak_static_evidence": 0,
-                "structural_gap": 0,
+            "not_accepted_callsites": {
+                "outside_static_contract": 0,
+                "insufficient_static_evidence": 0,
+                "structural_mismatch": 0,
                 "unclassified": 2,
             },
             "call_materialization": {
@@ -128,10 +128,10 @@ def _fake_report():
                     "accepted_callsites": 7,
                     "not_accepted_callsites": 3,
                 },
-                "not_accepted_calls": {
-                    "out_of_scope_call": 0,
-                    "weak_static_evidence": 0,
-                    "structural_gap": 0,
+                "not_accepted_callsites": {
+                    "outside_static_contract": 0,
+                    "insufficient_static_evidence": 0,
+                    "structural_mismatch": 0,
                     "unclassified": 2,
                 },
                 "call_materialization": {
@@ -150,10 +150,10 @@ def _fake_report():
                     "accepted_callsites": 2,
                     "not_accepted_callsites": 0,
                 },
-                "not_accepted_calls": {
-                    "out_of_scope_call": 0,
-                    "weak_static_evidence": 0,
-                    "structural_gap": 0,
+                "not_accepted_callsites": {
+                    "outside_static_contract": 0,
+                    "insufficient_static_evidence": 0,
+                    "structural_mismatch": 0,
                     "unclassified": 0,
                 },
                 "call_materialization": {
@@ -186,7 +186,7 @@ def test_cli_status_default_uses_short_summary(cli_app, cli_runner, monkeypatch)
     assert "Summary:" in result.stdout
     assert "python: 10 files, 20 nodes, 19 edges" in result.stdout
     assert "call_materialization:" not in result.stdout
-    assert "not_accepted_calls:" not in result.stdout
+    assert "not_accepted_callsites:" not in result.stdout
 
 
 def test_cli_status_verbose_emits_grouped_direct_metrics(cli_app, cli_runner, monkeypatch):
@@ -213,8 +213,8 @@ def test_cli_status_verbose_emits_grouped_direct_metrics(cli_app, cli_runner, mo
         in result.stdout
     )
     assert (
-        "not_accepted_calls: out_of_scope_call=0, weak_static_evidence=0, "
-        "structural_gap=0, unclassified=2"
+        "not_accepted_callsites: outside_static_contract=0, "
+        "insufficient_static_evidence=0, structural_mismatch=0, unclassified=2"
     ) in result.stdout
     assert "non_tests:" in result.stdout
     assert "structure: 8 files, 16 nodes, 17 edges" in result.stdout

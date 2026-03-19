@@ -91,10 +91,10 @@ def _fake_report() -> dict[str, object]:
                 "accepted_callsites": 0,
                 "not_accepted_callsites": 0,
             },
-            "not_accepted_calls": {
-                "out_of_scope_call": 0,
-                "weak_static_evidence": 0,
-                "structural_gap": 0,
+            "not_accepted_callsites": {
+                "outside_static_contract": 0,
+                "insufficient_static_evidence": 0,
+                "structural_mismatch": 0,
                 "unclassified": 0,
             },
             "call_materialization": {
@@ -270,14 +270,14 @@ def test_cli_build_diagnostic_writes_repo_root_outputs(
     build_status = json.loads(build_status_path.read_text(encoding="utf-8"))
     assert build_status["diagnostic_mode"] is True
     assert build_status["diagnostic_kind"] == "rejected_calls_best_effort"
-    assert "no_in_repo_candidate" not in build_status["report"]["totals"]["not_accepted_calls"]
+    assert "no_in_repo_candidate" not in build_status["report"]["totals"]["not_accepted_callsites"]
     verbose_payload = json.loads(verbose_path.read_text(encoding="utf-8"))
     assert verbose_payload["diagnostic_mode"] is True
     assert verbose_payload["diagnostic_kind"] == "rejected_calls_best_effort"
     assert "buckets" in verbose_payload
 
 
-def test_cli_build_diagnostic_enriches_not_accepted_calls(
+def test_cli_build_diagnostic_enriches_not_accepted_callsites(
     cli_app, cli_runner, repo_with_snapshot, monkeypatch
 ):
     repo_root, _snapshot_id = repo_with_snapshot
@@ -324,10 +324,10 @@ def test_cli_build_diagnostic_enriches_not_accepted_calls(
     assert result_cli.exit_code == 0
     build_status_path = repo_root / f"{repo_root.name}_build_status.json"
     build_status = json.loads(build_status_path.read_text(encoding="utf-8"))
-    assert build_status["report"]["totals"]["not_accepted_calls"] == {
-        "out_of_scope_call": 3,
-        "weak_static_evidence": 0,
-        "structural_gap": 0,
+    assert build_status["report"]["totals"]["not_accepted_callsites"] == {
+        "outside_static_contract": 3,
+        "insufficient_static_evidence": 0,
+        "structural_mismatch": 0,
         "unclassified": 0,
     }
 
@@ -397,12 +397,12 @@ def test_cli_build_verbose_sidecar_groups_callsites_by_bucket(
     assert result_cli.exit_code == 0
     verbose_path = repo_root / f"{repo_root.name}_not_accepted_verbose.json"
     verbose_payload = json.loads(verbose_path.read_text(encoding="utf-8"))
-    assert verbose_payload["buckets"]["weak_static_evidence"]["count"] == 2
-    assert verbose_payload["buckets"]["weak_static_evidence"]["phases"] == {
+    assert verbose_payload["buckets"]["insufficient_static_evidence"]["count"] == 2
+    assert verbose_payload["buckets"]["insufficient_static_evidence"]["phases"] == {
         "pre_persist": 2
     }
-    assert verbose_payload["buckets"]["out_of_scope_call"]["count"] == 1
-    assert verbose_payload["buckets"]["out_of_scope_call"]["phases"] == {
+    assert verbose_payload["buckets"]["outside_static_contract"]["count"] == 1
+    assert verbose_payload["buckets"]["outside_static_contract"]["phases"] == {
         "post_persist": 1
     }
     assert verbose_payload["phase_counts"] == {"post_persist": 1, "pre_persist": 2}

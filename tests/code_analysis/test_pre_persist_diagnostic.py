@@ -846,18 +846,18 @@ def test_build_rejected_calls_verbose_payload_combines_both_phases() -> None:
     )
 
     assert payload["phase_counts"] == {"pre_persist": 1, "post_persist": 1}
-    assert payload["buckets"]["weak_static_evidence"]["count"] == 1
-    assert payload["buckets"]["weak_static_evidence"]["phases"] == {
+    assert payload["buckets"]["insufficient_static_evidence"]["count"] == 1
+    assert payload["buckets"]["insufficient_static_evidence"]["phases"] == {
         "pre_persist": 1
     }
-    assert payload["buckets"]["out_of_scope_call"]["count"] == 1
-    assert payload["buckets"]["out_of_scope_call"]["phases"] == {
+    assert payload["buckets"]["outside_static_contract"]["count"] == 1
+    assert payload["buckets"]["outside_static_contract"]["phases"] == {
         "post_persist": 1
     }
     assert payload["problematic_callsites"][0]["phase"] == "pre_persist"
-    assert payload["problematic_callsites"][0]["public_bucket"] == "weak_static_evidence"
+    assert payload["problematic_callsites"][0]["public_bucket"] == "insufficient_static_evidence"
     assert payload["problematic_callsites"][1]["phase"] == "post_persist"
-    assert payload["problematic_callsites"][1]["public_bucket"] == "out_of_scope_call"
+    assert payload["problematic_callsites"][1]["public_bucket"] == "outside_static_contract"
     assert payload["problematic_files"][0]["file_path"] == "pkg/mod.py"
     assert payload["problematic_files"][0]["phases"] == {
         "post_persist": 1,
@@ -879,8 +879,8 @@ def test_merge_non_candidate_buckets_projects_public_buckets() -> None:
     )
 
     assert merged == {
-        "out_of_scope_call": 101,
-        "weak_static_evidence": 7,
-        "structural_gap": 91,
+        "outside_static_contract": 101,
+        "insufficient_static_evidence": 7,
+        "structural_mismatch": 91,
         "unclassified": 0,
     }

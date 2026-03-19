@@ -40,10 +40,10 @@ def test_snapshot_report_returns_grouped_direct_metrics(repo_with_snapshot):
         "accepted_callsites": 0,
         "not_accepted_callsites": 0,
     }
-    assert payload["totals"]["not_accepted_calls"] == {
-        "out_of_scope_call": 0,
-        "weak_static_evidence": 0,
-        "structural_gap": 0,
+    assert payload["totals"]["not_accepted_callsites"] == {
+        "outside_static_contract": 0,
+        "insufficient_static_evidence": 0,
+        "structural_mismatch": 0,
         "unclassified": 0,
     }
     assert payload["totals"]["call_materialization"] == {
@@ -62,10 +62,10 @@ def test_snapshot_report_returns_grouped_direct_metrics(repo_with_snapshot):
                 "accepted_callsites": 0,
                 "not_accepted_callsites": 0,
             },
-            "not_accepted_calls": {
-                "out_of_scope_call": 0,
-                "weak_static_evidence": 0,
-                "structural_gap": 0,
+            "not_accepted_callsites": {
+                "outside_static_contract": 0,
+                "insufficient_static_evidence": 0,
+                "structural_mismatch": 0,
                 "unclassified": 0,
             },
             "call_materialization": {
@@ -84,10 +84,10 @@ def test_snapshot_report_returns_grouped_direct_metrics(repo_with_snapshot):
                 "accepted_callsites": 0,
                 "not_accepted_callsites": 0,
             },
-            "not_accepted_calls": {
-                "out_of_scope_call": 0,
-                "weak_static_evidence": 0,
-                "structural_gap": 0,
+            "not_accepted_callsites": {
+                "outside_static_contract": 0,
+                "insufficient_static_evidence": 0,
+                "structural_mismatch": 0,
                 "unclassified": 0,
             },
             "call_materialization": {
@@ -103,10 +103,10 @@ def test_snapshot_report_returns_grouped_direct_metrics(repo_with_snapshot):
         "accepted_callsites": 0,
         "not_accepted_callsites": 0,
     }
-    assert python["not_accepted_calls"] == {
-        "out_of_scope_call": 0,
-        "weak_static_evidence": 0,
-        "structural_gap": 0,
+    assert python["not_accepted_callsites"] == {
+        "outside_static_contract": 0,
+        "insufficient_static_evidence": 0,
+        "structural_mismatch": 0,
         "unclassified": 0,
     }
     assert python["call_materialization"] == {
@@ -195,10 +195,10 @@ def test_snapshot_report_includes_direct_callsite_counts_from_diagnostics(
         "accepted_callsites": 2,
         "not_accepted_callsites": 3,
     }
-    assert payload["totals"]["not_accepted_calls"] == {
-        "out_of_scope_call": 0,
-        "weak_static_evidence": 0,
-        "structural_gap": 0,
+    assert payload["totals"]["not_accepted_callsites"] == {
+        "outside_static_contract": 0,
+        "insufficient_static_evidence": 0,
+        "structural_mismatch": 0,
         "unclassified": 2,
     }
     assert payload["totals"]["call_materialization"] == {
@@ -211,10 +211,10 @@ def test_snapshot_report_includes_direct_callsite_counts_from_diagnostics(
         "accepted_callsites": 2,
         "not_accepted_callsites": 3,
     }
-    assert payload["scopes"]["non_tests"]["not_accepted_calls"] == {
-        "out_of_scope_call": 0,
-        "weak_static_evidence": 0,
-        "structural_gap": 0,
+    assert payload["scopes"]["non_tests"]["not_accepted_callsites"] == {
+        "outside_static_contract": 0,
+        "insufficient_static_evidence": 0,
+        "structural_mismatch": 0,
         "unclassified": 2,
     }
     assert payload["scopes"]["non_tests"]["structure"] == {
@@ -224,10 +224,10 @@ def test_snapshot_report_includes_direct_callsite_counts_from_diagnostics(
     }
     python = payload["languages"]["python"]
     assert python["callsites"]["accepted_callsites"] == 2
-    assert python["not_accepted_calls"] == {
-        "out_of_scope_call": 0,
-        "weak_static_evidence": 0,
-        "structural_gap": 0,
+    assert python["not_accepted_callsites"] == {
+        "outside_static_contract": 0,
+        "insufficient_static_evidence": 0,
+        "structural_mismatch": 0,
         "unclassified": 2,
     }
 

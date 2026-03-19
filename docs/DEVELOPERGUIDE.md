@@ -289,14 +289,14 @@ Diagnostic build mode:
   final call derivation; it is not the raw observed superset
   
 - rejected callsites are publicly grouped as:
-  `out_of_scope_call`, `weak_static_evidence`, `structural_gap`,
+  `outside_static_contract`, `insufficient_static_evidence`, `structural_mismatch`,
   `unclassified`
 - bucket meanings:
-  - `out_of_scope_call`: external, builtin, or structurally indirect/runtime
+  - `outside_static_contract`: external, builtin, or structurally indirect/runtime
     call shapes outside the static in-repo contract target
-  - `weak_static_evidence`: in-repo-looking call shapes whose structural
+  - `insufficient_static_evidence`: in-repo-looking call shapes whose structural
     evidence is still too weak for accepted static-in-repo status
-  - `structural_gap`: malformed observations or clear parser/extraction/
+  - `structural_mismatch`: malformed observations or clear parser/extraction/
     normalization deficiencies
   - `unclassified`: residual rejected callsites not explained by the other
     public buckets
@@ -310,14 +310,14 @@ Diagnostic build mode:
 - `totals`, each language row, and each scope row use the same public sections:
   - `structure`
   - `callsites`
-  - `not_accepted_calls`
+  - `not_accepted_callsites`
   - `call_materialization`
 - these public sections contain direct counts only:
   - `structure`: `files`, `nodes`, `edges`
   - `callsites`: `observed_syntactic_callsites`,
     `accepted_callsites`, `not_accepted_callsites`
-  - `not_accepted_calls`: `out_of_scope_call`,
-    `weak_static_evidence`, `structural_gap`, `unclassified`
+  - `not_accepted_callsites`: `outside_static_contract`,
+    `insufficient_static_evidence`, `structural_mismatch`, `unclassified`
   - `call_materialization`: `callsite_pairs`, `finalized_call_edges`
 - `structure.files` and `structure.nodes` are structural counts from CoreDB
 - `structure.edges` is the total reducer-facing graph edge count from

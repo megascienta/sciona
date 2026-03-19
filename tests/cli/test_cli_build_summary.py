@@ -54,10 +54,10 @@ def _fake_report():
                     "accepted_callsites": 0,
                     "not_accepted_callsites": 0,
                 },
-                "not_accepted_calls": {
-                    "out_of_scope_call": 0,
-                    "weak_static_evidence": 0,
-                    "structural_gap": 0,
+                "not_accepted_callsites": {
+                    "outside_static_contract": 0,
+                    "insufficient_static_evidence": 0,
+                    "structural_mismatch": 0,
                     "unclassified": 0,
                 },
                 "call_materialization": {
@@ -77,10 +77,10 @@ def _fake_report():
                 "accepted_callsites": 0,
                 "not_accepted_callsites": 0,
             },
-            "not_accepted_calls": {
-                "out_of_scope_call": 0,
-                "weak_static_evidence": 0,
-                "structural_gap": 0,
+            "not_accepted_callsites": {
+                "outside_static_contract": 0,
+                "insufficient_static_evidence": 0,
+                "structural_mismatch": 0,
                 "unclassified": 0,
             },
             "call_materialization": {

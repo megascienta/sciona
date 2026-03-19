@@ -235,7 +235,7 @@ Public status reporting contract:
   direct-count section model:
   - `structure`
   - `callsites`
-  - `not_accepted_calls`
+  - `not_accepted_callsites`
   - `call_materialization`
 - `structure` MUST contain only:
   - `files`
@@ -250,18 +250,18 @@ Public status reporting contract:
   - `observed_syntactic_callsites`
   - `accepted_callsites`
   - `not_accepted_callsites`
-- `not_accepted_calls` MUST contain only:
-  - `out_of_scope_call`
-  - `weak_static_evidence`
-  - `structural_gap`
+- `not_accepted_callsites` MUST contain only:
+  - `outside_static_contract`
+  - `insufficient_static_evidence`
+  - `structural_mismatch`
   - `unclassified`
-- `not_accepted_calls` bucket meanings:
-  - `out_of_scope_call`: the call falls outside the static in-repo contract
+- `not_accepted_callsites` bucket meanings:
+  - `outside_static_contract`: the call falls outside the static in-repo contract
     target, including external, builtin, or structurally indirect/runtime-only
     shapes
-  - `weak_static_evidence`: the call looks in-repo shaped, but the structural
+  - `insufficient_static_evidence`: the call looks in-repo shaped, but the structural
     evidence is not strong enough to accept it as a static in-repo callsite
-  - `structural_gap`: the call was rejected because the observed structure is
+  - `structural_mismatch`: the call was rejected because the observed structure is
     malformed or points to a clear parser/extraction/normalization deficiency
   - `unclassified`: residual rejected callsites not explained by the other
     public buckets
@@ -288,7 +288,7 @@ Overlay contract note:
   observed syntactic callsite stream plus committed structural context.
 - MUST exclude pre-persistence out-of-scope observations before persistence.
 - public rejected-call buckets are:
-  `out_of_scope_call`, `weak_static_evidence`, `structural_gap`,
+  `outside_static_contract`, `insufficient_static_evidence`, `structural_mismatch`,
   `unclassified`.
 - MAY collapse repeated same-caller same-callee invocation occurrences to one
   persisted pair row.

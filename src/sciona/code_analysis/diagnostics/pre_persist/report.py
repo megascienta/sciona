@@ -12,21 +12,21 @@ import shutil
 from .models import DIAGNOSTIC_BUCKET_KEYS
 
 PUBLIC_DIAGNOSTIC_BUCKET_KEYS = (
-    "out_of_scope_call",
-    "weak_static_evidence",
-    "structural_gap",
+    "outside_static_contract",
+    "insufficient_static_evidence",
+    "structural_mismatch",
     "unclassified",
 )
 
 _PUBLIC_DIAGNOSTIC_BUCKET_MAP = {
     "no_in_repo_candidate": "unclassified",
-    "accepted_outside_in_repo": "out_of_scope_call",
-    "invalid_observation_shape": "structural_gap",
-    "likely_external_dependency": "out_of_scope_call",
-    "likely_standard_library_or_builtin": "out_of_scope_call",
-    "likely_dynamic_dispatch_or_indirect": "out_of_scope_call",
-    "likely_unindexed_symbol": "weak_static_evidence",
-    "likely_parser_extraction_gap": "structural_gap",
+    "accepted_outside_in_repo": "outside_static_contract",
+    "invalid_observation_shape": "structural_mismatch",
+    "likely_external_dependency": "outside_static_contract",
+    "likely_standard_library_or_builtin": "outside_static_contract",
+    "likely_dynamic_dispatch_or_indirect": "outside_static_contract",
+    "likely_unindexed_symbol": "insufficient_static_evidence",
+    "likely_parser_extraction_gap": "structural_mismatch",
     "unclassified_no_in_repo_candidate": "unclassified",
 }
 
@@ -58,9 +58,9 @@ def enrich_report(
     fields = dict(labels.get("fields") or {})
     fields.update(
         {
-            "out_of_scope_call": "Out-Of-Scope Call",
-            "weak_static_evidence": "Weak Static Evidence",
-            "structural_gap": "Structural Gap",
+            "outside_static_contract": "Outside Static Contract",
+            "insufficient_static_evidence": "Insufficient Static Evidence",
+            "structural_mismatch": "Structural Mismatch",
             "unclassified": "Unclassified",
             "build_phase_timings": "Build Phase Timing",
         }
@@ -308,14 +308,16 @@ def _replace_pre_persist_filters(
     totals_payload = report.get("totals")
     if isinstance(totals_payload, dict):
         updated_totals = dict(totals_payload)
-        updated_totals["not_accepted_calls"] = _merge_non_candidate_buckets(
+        updated_totals["not_accepted_callsites"] = _merge_non_candidate_buckets(
             dict(
-                updated_totals.get("not_accepted_calls")
+                updated_totals.get("not_accepted_callsites")
+                or updated_totals.get("not_accepted_calls")
                 or updated_totals.get("pre_persist_filter")
                 or {}
             ),
             totals if isinstance(totals, dict) else {},
         )
+        updated_totals.pop("not_accepted_calls", None)
         updated_totals.pop("pre_persist_filter", None)
         report["totals"] = updated_totals
 
@@ -327,9 +329,10 @@ def _replace_pre_persist_filters(
                 updated_languages[language_key] = language_value
                 continue
             updated = dict(language_value)
-            updated["not_accepted_calls"] = _merge_non_candidate_buckets(
+            updated["not_accepted_callsites"] = _merge_non_candidate_buckets(
                 dict(
-                    updated.get("not_accepted_calls")
+                    updated.get("not_accepted_callsites")
+                    or updated.get("not_accepted_calls")
                     or updated.get("pre_persist_filter")
                     or {}
                 ),
@@ -337,6 +340,7 @@ def _replace_pre_persist_filters(
                 if isinstance(language_buckets.get(language_key), dict)
                 else {},
             )
+            updated.pop("not_accepted_calls", None)
             updated.pop("pre_persist_filter", None)
             updated_languages[language_key] = updated
         report["languages"] = updated_languages
@@ -349,9 +353,10 @@ def _replace_pre_persist_filters(
                 updated_scopes[scope_key] = scope_value
                 continue
             updated = dict(scope_value)
-            updated["not_accepted_calls"] = _merge_non_candidate_buckets(
+            updated["not_accepted_callsites"] = _merge_non_candidate_buckets(
                 dict(
-                    updated.get("not_accepted_calls")
+                    updated.get("not_accepted_callsites")
+                    or updated.get("not_accepted_calls")
                     or updated.get("pre_persist_filter")
                     or {}
                 ),
@@ -359,6 +364,7 @@ def _replace_pre_persist_filters(
                 if isinstance(scope_buckets.get(scope_key), dict)
                 else {},
             )
+            updated.pop("not_accepted_calls", None)
             updated.pop("pre_persist_filter", None)
             updated_scopes[scope_key] = updated
         report["scopes"] = updated_scopes
@@ -411,17 +417,17 @@ def _public_bucket_for_persisted_drop(
         "likely_fluent_or_promise_chain",
         "likely_dynamic_member_terminal",
     }:
-        return "out_of_scope_call"
+        return "outside_static_contract"
     if source_bucket in {
         "likely_namespace_or_module_object_miss",
         "no_in_repo_callable_target",
     }:
-        return "weak_static_evidence"
+        return "insufficient_static_evidence"
     drop_reason = str(item.get("drop_reason") or "")
     if drop_reason in {"invalid_observation_shape"}:
-        return "structural_gap"
+        return "structural_mismatch"
     if drop_reason:
-        return "weak_static_evidence"
+        return "insufficient_static_evidence"
     return "unclassified"
 
 
