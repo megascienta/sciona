@@ -569,6 +569,66 @@ def test_positive_candidate_classifier_marks_invalid_shape_as_parser_gap() -> No
     assert classified.reasons == ("positive_candidate_invalid_shape",)
 
 
+def test_positive_candidate_classifier_marks_index_proxy_surface_as_dynamic() -> None:
+    observation = DiagnosticMissObservation(
+        language="javascript",
+        file_path="src/api/users.js",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.main.run",
+        caller_module="repo.pkg.main",
+        identifier="repo.database.index.sortedSetAdd",
+        ordinal=1,
+        callee_kind="qualified",
+        gate_reason="insufficient_static_evidence",
+        raw_drop_reason="unique_without_provenance",
+    )
+
+    classified = classify_positive_candidate_rejection(observation)
+
+    assert classified.bucket == "likely_dynamic_dispatch_or_indirect"
+    assert classified.reasons == ("runtime_composed_index_surface",)
+
+
+def test_positive_candidate_classifier_marks_fixture_scope_as_dynamic() -> None:
+    observation = DiagnosticMissObservation(
+        language="javascript",
+        file_path="test/form/samples/foo/_expected/module.js",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.main.run",
+        caller_module="repo.pkg.main",
+        identifier="parser.enterRule",
+        ordinal=1,
+        callee_kind="qualified",
+        gate_reason="insufficient_static_evidence",
+        raw_drop_reason="unique_without_provenance",
+    )
+
+    classified = classify_positive_candidate_rejection(observation)
+
+    assert classified.bucket == "likely_dynamic_dispatch_or_indirect"
+    assert classified.reasons == ("fixture_or_generated_path",)
+
+
+def test_positive_candidate_classifier_marks_inline_dynamic_chain_as_dynamic() -> None:
+    observation = DiagnosticMissObservation(
+        language="javascript",
+        file_path="src/socket.js",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.main.run",
+        caller_module="repo.pkg.main",
+        identifier="socket.in(room).emit",
+        ordinal=1,
+        callee_kind="qualified",
+        gate_reason="insufficient_static_evidence",
+        raw_drop_reason="ambiguous_multiple_in_scope_candidates",
+    )
+
+    classified = classify_positive_candidate_rejection(observation)
+
+    assert classified.bucket == "likely_dynamic_dispatch_or_indirect"
+    assert classified.reasons == ("inline_dynamic_call_chain",)
+
+
 def test_classifier_uses_java_stdlib_refinement() -> None:
     observation = DiagnosticMissObservation(
         language="java",

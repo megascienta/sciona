@@ -10,6 +10,52 @@ from .languages.common import classify_common
 from .models import DiagnosticClassification, DiagnosticMissObservation
 
 
+def _is_fixture_or_generated_path(file_path: str) -> bool:
+    parts = [
+        segment.lower()
+        for segment in file_path.replace("\\", "/").split("/")
+        if segment
+    ]
+    markers = {
+        "__fixtures__",
+        "fixture",
+        "fixtures",
+        "_expected",
+        "expected",
+        "generated",
+        "__generated__",
+        "snapshots",
+        "__snapshots__",
+    }
+    return any(part in markers for part in parts)
+
+
+def _is_dynamic_terminal(identifier: str) -> bool:
+    terminal = identifier.rsplit(".", 1)[-1].strip().lower()
+    return terminal in {
+        "then",
+        "catch",
+        "finally",
+        "map",
+        "filter",
+        "reduce",
+        "slice",
+        "some",
+        "has",
+        "keys",
+        "values",
+        "entries",
+        "includes",
+        "push",
+        "pop",
+        "clear",
+    }
+
+
+def _is_inline_dynamic_chain(identifier: str) -> bool:
+    return ".in(" in identifier or ("(" in identifier and ")." in identifier)
+
+
 def classify_no_in_repo_candidate(
     observation: DiagnosticMissObservation,
 ) -> DiagnosticClassification:
@@ -32,7 +78,30 @@ def classify_no_in_repo_candidate(
 def classify_positive_candidate_rejection(
     observation: DiagnosticMissObservation,
 ) -> DiagnosticClassification:
+    if _is_fixture_or_generated_path(observation.file_path):
+        return DiagnosticClassification(
+            bucket="likely_dynamic_dispatch_or_indirect",
+            reasons=("fixture_or_generated_path",),
+        )
+    if _is_inline_dynamic_chain(observation.identifier):
+        return DiagnosticClassification(
+            bucket="likely_dynamic_dispatch_or_indirect",
+            reasons=("inline_dynamic_call_chain",),
+        )
+    if _is_dynamic_terminal(observation.identifier):
+        return DiagnosticClassification(
+            bucket="likely_dynamic_dispatch_or_indirect",
+            reasons=("positive_candidate_dynamic_member_terminal",),
+        )
     raw_drop_reason = observation.raw_drop_reason.strip()
+    if (
+        raw_drop_reason == "unique_without_provenance"
+        and ".index." in observation.identifier
+    ):
+        return DiagnosticClassification(
+            bucket="likely_dynamic_dispatch_or_indirect",
+            reasons=("runtime_composed_index_surface",),
+        )
     if raw_drop_reason == "invalid_observation_shape":
         return DiagnosticClassification(
             bucket="likely_parser_extraction_gap",
