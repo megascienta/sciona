@@ -1,0 +1,41 @@
+{
+  "binding_precedence": [
+    "shared_tree_sitter_binding_facts",
+    "per_language_deepening",
+    "minimal_custom_extension"
+  ],
+  "allowed_binding_kinds": [
+    "direct_import_symbol",
+    "module_alias",
+    "namespace_alias",
+    "destructured_static_member",
+    "static_member_receiver",
+    "static_export_surface",
+    "static_import_member",
+    "constructor_or_classifier_import"
+  ],
+  "allowed_binding_evidence": [
+    "syntax_local_import",
+    "syntax_local_alias",
+    "syntax_local_namespace",
+    "syntax_local_destructuring",
+    "syntax_local_receiver_chain",
+    "syntax_local_static_export"
+  ],
+  "forbidden_dynamic_shapes": [
+    "dynamic_import",
+    "dynamic_require",
+    "computed_member_access",
+    "runtime_composed_export_surface",
+    "conditional_export_surface",
+    "spread_composed_export_surface",
+    "object_assign_export_surface",
+    "runtime_type_or_dispatch_inference"
+  ],
+  "acceptance_requirements": [
+    "syntax_local_binding_only",
+    "in_repo_target_only",
+    "unique_target_only",
+    "no_runtime_inference"
+  ]
+}

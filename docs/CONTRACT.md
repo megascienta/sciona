@@ -197,6 +197,30 @@ Optional metadata:
   - ambiguous call candidate diagnostics,
   - parse validation diagnostics describing `ERROR` / `MISSING` nodes
 
+## Local Binding Resolution
+
+Local binding resolution is syntax-local only.
+
+- Contract-compliant local binding reasoning MUST be defined by the declarative
+  contract in
+  `src/sciona/code_analysis/languages/common/contracts/local_binding_resolution.json`.
+- Local binding resolution MUST use this precedence:
+  1. shared tree-sitter binding facts
+  2. per-language deepening
+  3. minimal custom extension
+- Contract-compliant local binding resolution MUST accept only:
+  - syntax-local bindings
+  - unique in-repo targets
+  - targets supported by the current structural index
+- Contract-compliant local binding resolution MUST NOT use:
+  - dynamic imports or dynamic requires
+  - computed member access
+  - runtime-composed or conditional export surfaces
+  - spread/object-assigned export composition
+  - runtime type, value, or dispatch inference
+- Per-language custom logic MAY be added only when the shared tree-sitter
+  binding layer and per-language syntax mapping are insufficient.
+
 ## Artifact Semantics
 
 ArtifactDB is the reducer-facing query store for the current committed snapshot

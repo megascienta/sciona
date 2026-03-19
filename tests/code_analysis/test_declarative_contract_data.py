@@ -49,3 +49,24 @@ def test_in_repo_static_gate_json_matches_loader() -> None:
     assert set(payload["allowed_pre_persist_filter_buckets"]) == set(
         in_repo_static_gate.ALLOWED_PRE_PERSIST_FILTER_BUCKETS
     )
+
+
+def test_local_binding_resolution_contract_json_shape() -> None:
+    payload = json.loads(
+        Path(
+            "src/sciona/code_analysis/languages/common/contracts/local_binding_resolution.json"
+        ).read_text(encoding="utf-8")
+    )
+    assert payload["binding_precedence"] == [
+        "shared_tree_sitter_binding_facts",
+        "per_language_deepening",
+        "minimal_custom_extension",
+    ]
+    assert "direct_import_symbol" in payload["allowed_binding_kinds"]
+    assert "namespace_alias" in payload["allowed_binding_kinds"]
+    assert "syntax_local_import" in payload["allowed_binding_evidence"]
+    assert "syntax_local_receiver_chain" in payload["allowed_binding_evidence"]
+    assert "dynamic_import" in payload["forbidden_dynamic_shapes"]
+    assert "computed_member_access" in payload["forbidden_dynamic_shapes"]
+    assert "unique_target_only" in payload["acceptance_requirements"]
+    assert "no_runtime_inference" in payload["acceptance_requirements"]
