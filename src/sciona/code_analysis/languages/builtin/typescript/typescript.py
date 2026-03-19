@@ -25,6 +25,7 @@ from ....core.extract.parsing.query_helpers import (
     count_lines,
     find_direct_children_of_types_query,
 )
+from ...common.ir import alias_maps_from_binding_facts
 from .typescript_calls import callee_text, resolve_typescript_calls
 from .typescript_imports import collect_typescript_import_model
 from .typescript_nodes import TypeScriptNodeState, walk_typescript_nodes
@@ -114,8 +115,9 @@ class TypeScriptAnalyzer(ASTAnalyzer):
             import_model.imports_filtered_not_internal
         )
         imports = import_model.modules
-        import_aliases = import_model.import_aliases
-        member_aliases = import_model.member_aliases
+        import_aliases, member_aliases = alias_maps_from_binding_facts(
+            import_model.local_binding_facts
+        )
         resolve_pending_instances(
             state.pending_instance_assignments,
             state.pending_class_instances,

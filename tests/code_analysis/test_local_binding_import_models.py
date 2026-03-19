@@ -21,6 +21,7 @@ from sciona.code_analysis.languages.builtin.python.python_imports import (
 from sciona.code_analysis.languages.builtin.typescript.typescript_imports import (
     collect_typescript_import_model,
 )
+from sciona.code_analysis.languages.common.ir import alias_maps_from_binding_facts
 
 
 def _snapshot(repo: Path, relative_path: str, language: str, content: str) -> FileSnapshot:
@@ -77,6 +78,10 @@ def test_python_import_model_emits_shared_binding_facts(tmp_path) -> None:
     assert ("utils", "utils", "module_alias") in facts
     assert ("W", "pkg.models.Widget", "direct_import_symbol") in facts
     assert ("Gadget", "pkg.models.Gadget", "direct_import_symbol") in facts
+    assert alias_maps_from_binding_facts(model.local_binding_facts) == (
+        model.import_aliases,
+        model.member_aliases,
+    )
 
 
 def test_javascript_import_model_emits_shared_binding_facts(tmp_path) -> None:
@@ -102,6 +107,10 @@ def test_javascript_import_model_emits_shared_binding_facts(tmp_path) -> None:
     assert ("foo", "repo.src.dep", "module_alias") in facts
     assert ("baz", "repo.src.dep.bar", "destructured_static_member") in facts
     assert ("ns", "repo.src.dep2", "namespace_alias") in facts
+    assert alias_maps_from_binding_facts(model.local_binding_facts) == (
+        model.import_aliases,
+        model.member_aliases,
+    )
 
 
 def test_typescript_import_model_emits_shared_binding_facts(tmp_path) -> None:
@@ -127,6 +136,10 @@ def test_typescript_import_model_emits_shared_binding_facts(tmp_path) -> None:
     assert ("Foo", "repo.src.dep", "module_alias") in facts
     assert ("baz", "repo.src.dep.bar", "destructured_static_member") in facts
     assert ("ns", "repo.src.dep2", "namespace_alias") in facts
+    assert alias_maps_from_binding_facts(model.local_binding_facts) == (
+        model.import_aliases,
+        model.member_aliases,
+    )
 
 
 def test_java_import_model_emits_shared_binding_facts(tmp_path) -> None:
@@ -158,3 +171,7 @@ def test_java_import_model_emits_shared_binding_facts(tmp_path) -> None:
         "repo.src.main.java.com.acme.foo.Utils.make",
         "static_import_member",
     ) in facts
+    assert alias_maps_from_binding_facts(model.local_binding_facts) == (
+        model.import_aliases,
+        model.member_aliases,
+    )

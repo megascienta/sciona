@@ -25,6 +25,7 @@ from ....core.extract.parsing.query_helpers import (
     count_lines,
     find_direct_children_of_types_query,
 )
+from ...common.ir import alias_maps_from_binding_facts
 from .java_calls import callee_text, resolve_java_calls
 from .java_imports import (
     collect_java_import_model,
@@ -124,8 +125,9 @@ class JavaAnalyzer(ASTAnalyzer):
             import_model.imports_filtered_not_internal
         )
         imports = import_model.modules
-        import_aliases = import_model.import_aliases
-        member_aliases = import_model.member_aliases
+        import_aliases, member_aliases = alias_maps_from_binding_facts(
+            import_model.local_binding_facts
+        )
         static_wildcard_targets = import_model.static_wildcard_targets
         class_ancestors = _build_class_ancestors(
             state.class_declared_bases,

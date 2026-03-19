@@ -28,6 +28,7 @@ from ....core.extract.parsing.query_helpers import (
 from .python_calls import resolve_python_calls
 from .python_imports import collect_python_import_model
 from .python_nodes import PythonNodeState, walk_python_nodes
+from ...common.ir import alias_maps_from_binding_facts
 from ...common.query.query_surface import (
     PYTHON_CALL_NODE_TYPES,
     PYTHON_SKIP_CALL_NODE_TYPES,
@@ -112,8 +113,9 @@ class PythonAnalyzer(ASTAnalyzer):
             import_model.imports_filtered_not_internal
         )
         imports = import_model.modules
-        import_aliases = import_model.import_aliases
-        member_aliases = import_model.member_aliases
+        import_aliases, member_aliases = alias_maps_from_binding_facts(
+            import_model.local_binding_facts
+        )
         raw_module_map = import_model.raw_module_map
         module_instance_map = collect_module_instance_map(
             root,

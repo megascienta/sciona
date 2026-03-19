@@ -11,6 +11,7 @@ from sciona.code_analysis.languages.common.ir import (
     ALLOWED_BINDING_PRECEDENCE,
     FORBIDDEN_DYNAMIC_SHAPES,
     LocalBindingFact,
+    alias_maps_from_binding_facts,
     validated_local_binding_fact,
 )
 
@@ -41,6 +42,29 @@ def test_validated_local_binding_fact_accepts_contract_compliant_fact() -> None:
         evidence_kind="syntax_local_import",
         language="python",
     )
+
+
+def test_alias_maps_from_binding_facts_splits_import_and_member_bindings() -> None:
+    import_aliases, member_aliases = alias_maps_from_binding_facts(
+        [
+            LocalBindingFact(
+                symbol="ns",
+                target="repo.src.dep",
+                binding_kind="namespace_alias",
+                evidence_kind="syntax_local_namespace",
+                language="javascript",
+            ),
+            LocalBindingFact(
+                symbol="Widget",
+                target="repo.pkg.models.Widget",
+                binding_kind="direct_import_symbol",
+                evidence_kind="syntax_local_import",
+                language="python",
+            ),
+        ]
+    )
+    assert import_aliases == {"ns": "repo.src.dep"}
+    assert member_aliases == {"Widget": "repo.pkg.models.Widget"}
 
 
 @pytest.mark.parametrize(

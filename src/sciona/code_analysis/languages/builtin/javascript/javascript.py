@@ -25,6 +25,7 @@ from ....core.extract.parsing.query_helpers import (
     count_lines,
     find_direct_children_of_types_query,
 )
+from ...common.ir import alias_maps_from_binding_facts
 from ...common.query.query_surface import (
     JAVASCRIPT_CALL_NODE_TYPES,
     JAVASCRIPT_SKIP_CALL_NODE_TYPES,
@@ -110,8 +111,9 @@ class JavaScriptAnalyzer(ASTAnalyzer):
             import_model.imports_filtered_not_internal
         )
         imports = import_model.modules
-        import_aliases = import_model.import_aliases
-        member_aliases = import_model.member_aliases
+        import_aliases, member_aliases = alias_maps_from_binding_facts(
+            import_model.local_binding_facts
+        )
         resolve_pending_instances(
             state.pending_instance_assignments,
             state.pending_class_instances,

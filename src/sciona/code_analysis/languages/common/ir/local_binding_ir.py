@@ -66,11 +66,35 @@ def validated_local_binding_fact(
     return fact
 
 
+def alias_maps_from_binding_facts(
+    facts: list[LocalBindingFact],
+) -> tuple[dict[str, str], dict[str, str]]:
+    import_aliases: dict[str, str] = {}
+    member_aliases: dict[str, str] = {}
+    for fact in facts:
+        if fact.binding_kind in {
+            "module_alias",
+            "namespace_alias",
+            "constructor_or_classifier_import",
+        }:
+            import_aliases.setdefault(fact.symbol, fact.target)
+        elif fact.binding_kind in {
+            "direct_import_symbol",
+            "destructured_static_member",
+            "static_member_receiver",
+            "static_export_surface",
+            "static_import_member",
+        }:
+            member_aliases.setdefault(fact.symbol, fact.target)
+    return import_aliases, member_aliases
+
+
 __all__ = [
     "ALLOWED_BINDING_EVIDENCE",
     "ALLOWED_BINDING_KINDS",
     "ALLOWED_BINDING_PRECEDENCE",
     "FORBIDDEN_DYNAMIC_SHAPES",
     "LocalBindingFact",
+    "alias_maps_from_binding_facts",
     "validated_local_binding_fact",
 ]
