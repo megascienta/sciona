@@ -102,6 +102,18 @@ def select_strict_call_candidate(
                 in_scope_candidate_count=1,
                 candidate_module_hints=candidate_module_hints,
             )
+        if "." in identifier and _has_index_proxy_qname_match(
+            identifier=identifier,
+            candidate_qname=candidate_qname,
+        ):
+            return StrictCallDecision(
+                accepted_candidate=candidate,
+                accepted_provenance="exact_qname",
+                dropped_reason=None,
+                candidate_count=candidate_count,
+                in_scope_candidate_count=1,
+                candidate_module_hints=candidate_module_hints,
+            )
         candidate_module = _candidate_module(
             candidate=candidate,
             module_lookup=module_lookup,
@@ -299,6 +311,27 @@ def _has_structural_tail_match(*, identifier: str, candidate_qname: str) -> bool
     if len(identifier_parts) < 3 or len(candidate_parts) < 3:
         return False
     return candidate_parts[-3:] == identifier_parts[-3:]
+
+
+def _has_index_proxy_qname_match(*, identifier: str, candidate_qname: str) -> bool:
+    if not identifier or not candidate_qname:
+        return False
+    return _collapse_index_proxy_qname(identifier) == _collapse_index_proxy_qname(
+        candidate_qname
+    )
+
+
+def _collapse_index_proxy_qname(value: str) -> tuple[str, ...]:
+    parts = [part for part in value.split(".") if part]
+    if not parts:
+        return ()
+    collapsed: list[str] = []
+    last_index = len(parts) - 1
+    for idx, part in enumerate(parts):
+        if idx != last_index and part == "index":
+            continue
+        collapsed.append(part)
+    return tuple(collapsed)
 
 
 __all__ = ["StrictCallDecision", "select_strict_call_candidate"]

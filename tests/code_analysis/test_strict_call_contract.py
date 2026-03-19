@@ -258,6 +258,23 @@ def test_strict_call_contract_accepts_imported_package_descendant_candidate() ->
     assert decision.dropped_reason is None
 
 
+def test_strict_call_contract_accepts_single_index_proxy_qname_match() -> None:
+    decision = select_strict_call_candidate(
+        identifier="pkg.plugins.index.hooks.fire",
+        direct_candidates=[],
+        fallback_candidates=["plugins-hooks-fire"],
+        caller_module="pkg.consumer",
+        module_lookup={"plugins-hooks-fire": "pkg.plugins.hooks"},
+        candidate_qualified_names={
+            "plugins-hooks-fire": "pkg.plugins.hooks.fire",
+        },
+        import_targets={},
+    )
+    assert decision.accepted_candidate == "plugins-hooks-fire"
+    assert decision.accepted_provenance == "exact_qname"
+    assert decision.dropped_reason is None
+
+
 def test_strict_call_contract_uses_expanded_scope_for_single_candidate_only() -> None:
     single = select_strict_call_candidate(
         identifier="build",

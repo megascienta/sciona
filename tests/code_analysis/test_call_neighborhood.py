@@ -419,6 +419,25 @@ def test_resolve_callees_accepts_parent_package_with_precomputed_ancestors() -> 
     assert callsite_rows[0][1] == "accepted"
 
 
+def test_resolve_callees_accepts_single_index_proxy_qname_match() -> None:
+    resolved_ids, _resolved_names, stats, callsite_rows = _resolve_callees(
+        ("pkg.plugins.index.hooks.fire",),
+        {"fire": ["plugins-hooks-fire"]},
+        caller_module="pkg.consumer",
+        caller_language="javascript",
+        module_lookup={"plugins-hooks-fire": "pkg.plugins.hooks"},
+        callable_qname_by_id={"plugins-hooks-fire": "pkg.plugins.hooks.fire"},
+        import_targets={},
+        expanded_import_targets={},
+        module_ancestors={},
+    )
+    assert resolved_ids == {"plugins-hooks-fire"}
+    accepted = stats.get("accepted_by_provenance") or {}
+    assert accepted.get("exact_qname") == 1
+    assert callsite_rows[0][1] == "accepted"
+    assert callsite_rows[0][2] == "plugins-hooks-fire"
+
+
 def test_write_call_artifacts_records_zero_candidate_pre_persist_bucket(tmp_path: Path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     prefix = runtime_paths.repo_name_prefix(repo_root)
