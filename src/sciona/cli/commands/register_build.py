@@ -39,13 +39,13 @@ def _build_command(
             diagnostic_verbose=diagnostic_verbose,
         )
     )
-    report = cli_call(repo_ops.snapshot_report, snapshot_id=result.snapshot_id)
     command_wall_seconds = perf_counter() - started_at
     cli_call(
         repo_ops.record_build_wall_time,
         snapshot_id=result.snapshot_id,
         wall_seconds=command_wall_seconds,
     )
+    report = cli_call(repo_ops.snapshot_report, snapshot_id=result.snapshot_id)
     payload = dict(result.__dict__)
     payload["artifact_db_available"] = bool((report or {}).get("artifact_db_available"))
     payload["report"] = report

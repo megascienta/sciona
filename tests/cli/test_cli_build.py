@@ -160,6 +160,33 @@ def test_cli_build_defaults_force_rebuild_false(
     assert calls == [False]
 
 
+def test_cli_build_records_wall_time_before_snapshot_report(
+    cli_app, cli_runner, repo_with_snapshot, monkeypatch
+):
+    recorded: list[float] = []
+
+    monkeypatch.setattr(repo_ops, "build", lambda **kwargs: _fake_committed_result())
+
+    def _record_build_wall_time(snapshot_id: str, wall_seconds: float) -> None:
+        assert snapshot_id == "snap"
+        recorded.append(wall_seconds)
+
+    def _snapshot_report(snapshot_id: str) -> dict[str, object]:
+        assert snapshot_id == "snap"
+        assert recorded == [1.25]
+        return _fake_report()
+
+    monkeypatch.setattr(repo_ops, "record_build_wall_time", _record_build_wall_time)
+    monkeypatch.setattr(repo_ops, "snapshot_report", _snapshot_report)
+    perf_values = iter([10.0, 11.25])
+    monkeypatch.setattr(build_command, "perf_counter", lambda: next(perf_values))
+
+    result = cli_runner.invoke(cli_app, ["build"])
+
+    assert result.exit_code == 0
+    assert recorded == [1.25]
+
+
 def test_cli_build_reports_reused_status_on_second_run(
     cli_runner, repo_with_snapshot, monkeypatch
 ):
