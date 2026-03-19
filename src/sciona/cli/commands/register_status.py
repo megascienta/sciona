@@ -58,6 +58,9 @@ def _status_command(
         "db_exists": status_result.db_exists,
         "artifact_db_available": artifact_db_available,
         "report": report,
+        "build_health": status_result.build_health,
+        "parse_failures": status_result.parse_failures,
+        "residual_containment_failures": status_result.residual_containment_failures,
         "detailed": detailed,
         "status_report_version": 1,
     }

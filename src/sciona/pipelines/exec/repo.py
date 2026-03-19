@@ -20,7 +20,8 @@ from ...runtime.logging import get_logger
 from ..domain.repository import RepoState
 
 _LOGGER = get_logger("pipelines.exec.repo")
-from ...data_storage.connections import core
+from ...data_storage.connections import artifact_readonly, core
+from ...data_storage.artifact_db.reporting import read_status as artifact_status
 from ...data_storage.core_db import read_ops as core_read
 from ..ops import setup as versioning
 from ..errors import ConfigError
@@ -36,6 +37,9 @@ class StatusResult:
     latest_snapshot: Optional[str]
     latest_created: Optional[str]
     db_exists: bool
+    build_health: Optional[str] = None
+    parse_failures: Optional[int] = None
+    residual_containment_failures: Optional[int] = None
 
 
 def init_repo(repo_state: RepoState) -> Path:
@@ -61,6 +65,9 @@ def status_repo(repo_state: RepoState) -> StatusResult:
     snapshot_count = 0
     latest_snapshot: Optional[str] = None
     latest_created: Optional[str] = None
+    build_health: Optional[str] = None
+    parse_failures: Optional[int] = None
+    residual_containment_failures: Optional[int] = None
     if db_exists:
         with core(db_path, repo_root=repo_state.repo_root) as conn:
             snapshot_count = core_read.count_committed_snapshots(conn)
@@ -68,6 +75,21 @@ def status_repo(repo_state: RepoState) -> StatusResult:
             if latest_meta:
                 latest_snapshot = latest_meta["snapshot_id"]
                 latest_created = latest_meta["created_at"]
+        if latest_snapshot and repo_state.artifact_db_path.exists():
+            with artifact_readonly(
+                repo_state.artifact_db_path, repo_root=repo_state.repo_root
+            ) as conn:
+                build_health = artifact_status.build_health_for_snapshot(
+                    conn, snapshot_id=latest_snapshot
+                )
+                parse_failures = artifact_status.build_parse_failures_for_snapshot(
+                    conn, snapshot_id=latest_snapshot
+                )
+                residual_containment_failures = (
+                    artifact_status.residual_containment_failures_for_snapshot(
+                        conn, snapshot_id=latest_snapshot
+                    )
+                )
     return StatusResult(
         repo_root=repo_state.repo_root,
         sciona_dir=repo_state.sciona_dir,
@@ -77,6 +99,9 @@ def status_repo(repo_state: RepoState) -> StatusResult:
         latest_snapshot=latest_snapshot,
         latest_created=latest_created,
         db_exists=db_exists,
+        build_health=build_health,
+        parse_failures=parse_failures,
+        residual_containment_failures=residual_containment_failures,
     )
 
 

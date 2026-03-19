@@ -257,6 +257,9 @@ def test_cli_build_diagnostic_writes_repo_root_outputs(
     build_status = json.loads(build_status_path.read_text(encoding="utf-8"))
     assert build_status["diagnostic_mode"] is True
     assert build_status["diagnostic_kind"] == "rejected_calls_best_effort"
+    assert build_status["build_health"] == "ok"
+    assert build_status["parse_failures"] == 0
+    assert build_status["residual_containment_failures"] == 0
     assert "no_in_repo_candidate" not in build_status["report"]["totals"]["not_accepted_callsites"]
     verbose_payload = json.loads(verbose_path.read_text(encoding="utf-8"))
     assert verbose_payload["diagnostic_mode"] is True

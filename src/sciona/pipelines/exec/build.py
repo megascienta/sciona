@@ -233,6 +233,13 @@ def build_repo(
                 total_build_seconds=perf_counter() - started_at,
                 phase_timings=build_progress.phase_timings(),
             )
+            _record_build_health_metadata(
+                repo_state=repo_state,
+                snapshot_id=result.snapshot_id,
+                health=result.health,
+                parse_failures=result.parse_failures,
+                residual_containment_failures=result.residual_containment_failures,
+            )
             return result
         except Exception:
             if conn.in_transaction:
@@ -312,6 +319,33 @@ def record_build_wall_seconds(
         repo_state,
         snapshot_id=snapshot_id,
     )
+
+
+def _record_build_health_metadata(
+    *,
+    repo_state: RepoState,
+    snapshot_id: str,
+    health: str,
+    parse_failures: int,
+    residual_containment_failures: int,
+) -> None:
+    with artifact(repo_state.artifact_db_path, repo_root=repo_state.repo_root) as conn:
+        artifact_write.set_rebuild_metadata(
+            conn,
+            key=f"build_health:{snapshot_id}",
+            value=str(health),
+        )
+        artifact_write.set_rebuild_metadata(
+            conn,
+            key=f"parse_failures:{snapshot_id}",
+            value=str(max(int(parse_failures), 0)),
+        )
+        artifact_write.set_rebuild_metadata(
+            conn,
+            key=f"residual_containment_failures:{snapshot_id}",
+            value=str(max(int(residual_containment_failures), 0)),
+        )
+        conn.commit()
 
 
 def _hydrate_result_payload(payload: dict[str, object]) -> BuildResult | None:

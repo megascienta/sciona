@@ -171,6 +171,9 @@ def write_build_diagnostic_outputs(
     build_status_payload = {
         "diagnostic_mode": True,
         "diagnostic_kind": "rejected_calls_best_effort",
+        "build_health": result.health,
+        "parse_failures": result.parse_failures,
+        "residual_containment_failures": result.residual_containment_failures,
         "report": enriched_report,
     }
     build_status_path.write_text(

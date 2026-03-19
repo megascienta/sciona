@@ -93,6 +93,22 @@ def render_status(payload: dict) -> list[str]:
     if payload.get("latest_snapshot"):
         lines.append("Last build:")
         if report:
+            build_health = str(payload.get("build_health") or "").strip()
+            if build_health == "degraded":
+                detail_parts: list[str] = []
+                parse_failures = payload.get("parse_failures")
+                if parse_failures is not None:
+                    detail_parts.append(f"parse_failures={int(parse_failures or 0)}")
+                residual_containment_failures = payload.get(
+                    "residual_containment_failures"
+                )
+                if residual_containment_failures is not None:
+                    detail_parts.append(
+                        "residual_containment_failures="
+                        f"{int(residual_containment_failures or 0)}"
+                    )
+                detail_text = f" ({', '.join(detail_parts)})" if detail_parts else ""
+                lines.append(f"  Health: degraded{detail_text}")
             report_payload = dict(report)
             report_payload["artifact_db_available"] = bool(
                 payload.get("artifact_db_available", False)

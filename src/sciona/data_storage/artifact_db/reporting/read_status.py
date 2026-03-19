@@ -91,6 +91,44 @@ def build_phase_timings_for_snapshot(
     return result
 
 
+def build_health_for_snapshot(
+    conn: sqlite3.Connection, *, snapshot_id: str
+) -> str | None:
+    raw = rebuild_status_value(conn, key=f"build_health:{snapshot_id}")
+    if raw is None:
+        return None
+    value = raw.strip()
+    return value or None
+
+
+def build_parse_failures_for_snapshot(
+    conn: sqlite3.Connection, *, snapshot_id: str
+) -> int | None:
+    raw = rebuild_status_value(conn, key=f"parse_failures:{snapshot_id}")
+    if raw is None:
+        return None
+    try:
+        value = int(raw)
+    except ValueError:
+        return None
+    return value if value >= 0 else None
+
+
+def residual_containment_failures_for_snapshot(
+    conn: sqlite3.Connection, *, snapshot_id: str
+) -> int | None:
+    raw = rebuild_status_value(
+        conn, key=f"residual_containment_failures:{snapshot_id}"
+    )
+    if raw is None:
+        return None
+    try:
+        value = int(raw)
+    except ValueError:
+        return None
+    return value if value >= 0 else None
+
+
 def call_resolution_diagnostics_for_snapshot(
     conn: sqlite3.Connection,
     *,

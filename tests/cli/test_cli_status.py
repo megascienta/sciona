@@ -19,6 +19,9 @@ def _fake_status():
         latest_snapshot="snap-1",
         latest_created="2026-03-04T00:00:00Z",
         db_exists=True,
+        build_health="degraded",
+        parse_failures=2,
+        residual_containment_failures=1,
     )
 
 
@@ -147,6 +150,7 @@ def test_cli_status_default_uses_short_summary(cli_app, cli_runner, monkeypatch)
     assert result.exit_code == 0
     assert calls == [False]
     assert "Last build:" in result.stdout
+    assert "Health: degraded (parse_failures=2, residual_containment_failures=1)" in result.stdout
     assert "Wall time: 1.50s" in result.stdout
     assert "Core build time: 1.23s" in result.stdout
     assert "Summary:" in result.stdout
@@ -211,6 +215,9 @@ def test_cli_status_output_writes_json_file(cli_app, cli_runner, monkeypatch, tm
     assert not payload["repo_root"].startswith("/")
     assert payload["detailed"] is True
     assert payload["artifact_db_available"] is True
+    assert payload["build_health"] == "degraded"
+    assert payload["parse_failures"] == 2
+    assert payload["residual_containment_failures"] == 1
     assert payload["report"]["timing"]["build_total_seconds"] == 1.234
     assert payload["report"]["timing"]["build_wall_seconds"] == 1.5
     assert payload["report"]["timing"]["build_phase_timings"]["prepare_durable_calls"] == 0.3
