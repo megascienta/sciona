@@ -12,13 +12,17 @@ _JS_GLOBALS = frozenset(
 _JS_DYNAMIC_MEMBER_TERMINALS = frozenset(
     {
         "call",
+        "entries",
         "filter",
+        "finally",
         "find",
         "flat",
         "flatMap",
         "forEach",
+        "has",
         "includes",
         "join",
+        "keys",
         "map",
         "match",
         "pop",
@@ -26,17 +30,21 @@ _JS_DYNAMIC_MEMBER_TERMINALS = frozenset(
         "reduce",
         "slice",
         "some",
+        "values",
     }
 )
 _JS_COLLECTION_MEMBER_TERMINALS = frozenset(
     {
+        "entries",
         "filter",
         "find",
         "flat",
         "flatMap",
         "forEach",
+        "has",
         "includes",
         "join",
+        "keys",
         "map",
         "match",
         "pop",
@@ -44,11 +52,13 @@ _JS_COLLECTION_MEMBER_TERMINALS = frozenset(
         "reduce",
         "slice",
         "some",
+        "values",
     }
 )
 _JS_ALWAYS_DYNAMIC_FLUENT_TERMINALS = frozenset(
     {
         "filter",
+        "finally",
         "find",
         "flatMap",
         "forEach",

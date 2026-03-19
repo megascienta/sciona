@@ -14,14 +14,18 @@ _TS_DYNAMIC_MEMBER_TERMINALS = frozenset(
         "accept",
         "call",
         "disconnect",
+        "entries",
         "exceptionFactory",
         "filter",
+        "finally",
         "find",
         "flat",
         "flatMap",
         "forEach",
+        "has",
         "includes",
         "join",
+        "keys",
         "map",
         "match",
         "onProcessingEndHook",
@@ -30,19 +34,23 @@ _TS_DYNAMIC_MEMBER_TERMINALS = frozenset(
         "reduce",
         "slice",
         "some",
+        "values",
     }
 )
 _TS_COLLECTION_MEMBER_TERMINALS = frozenset(
     {
         "accept",
         "disconnect",
+        "entries",
         "filter",
         "find",
         "flat",
         "flatMap",
         "forEach",
+        "has",
         "includes",
         "join",
+        "keys",
         "map",
         "match",
         "onProcessingEndHook",
@@ -51,11 +59,13 @@ _TS_COLLECTION_MEMBER_TERMINALS = frozenset(
         "reduce",
         "slice",
         "some",
+        "values",
     }
 )
 _TS_ALWAYS_DYNAMIC_FLUENT_TERMINALS = frozenset(
     {
         "filter",
+        "finally",
         "find",
         "flatMap",
         "forEach",

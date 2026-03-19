@@ -11,6 +11,7 @@ def classify_common(
     observation: DiagnosticMissObservation,
 ) -> DiagnosticClassification:
     identifier = observation.identifier.strip()
+    terminal = identifier.rsplit(".", 1)[-1]
     if not identifier or not observation.file_path:
         return DiagnosticClassification(
             bucket="likely_parser_extraction_gap",
@@ -30,6 +31,11 @@ def classify_common(
         return DiagnosticClassification(
             bucket="likely_dynamic_dispatch_or_indirect",
             reasons=("inline_dynamic_call_chain",),
+        )
+    if terminal in {"then", "catch", "finally"}:
+        return DiagnosticClassification(
+            bucket="likely_dynamic_dispatch_or_indirect",
+            reasons=("fluent_terminal",),
         )
     if observation.repo_prefix_matches:
         if observation.callee_kind == "qualified":

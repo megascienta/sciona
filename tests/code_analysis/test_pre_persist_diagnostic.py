@@ -212,6 +212,64 @@ def test_classifier_keeps_unknown_receiver_member_terminal_as_dynamic() -> None:
     assert classified.reasons == ("dynamic_member_terminal",)
 
 
+def test_classifier_marks_typescript_finally_as_dynamic() -> None:
+    observation = DiagnosticMissObservation(
+        language="typescript",
+        file_path="pkg/main.ts",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.main.run",
+        caller_module="repo.pkg.main",
+        identifier="repo.pkg.promise.finally",
+        ordinal=1,
+        callee_kind="qualified",
+        repo_prefix_matches=("repo", "repo.pkg"),
+        identifier_root="repo",
+    )
+
+    classified = classify_no_in_repo_candidate(observation)
+
+    assert classified.bucket == "likely_dynamic_dispatch_or_indirect"
+    assert classified.reasons == ("repo_owned_dynamic_member_terminal",)
+
+
+def test_classifier_marks_javascript_has_as_dynamic() -> None:
+    observation = DiagnosticMissObservation(
+        language="javascript",
+        file_path="pkg/main.js",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.main.run",
+        caller_module="repo.pkg.main",
+        identifier="repo.pkg.cache.has",
+        ordinal=1,
+        callee_kind="qualified",
+        repo_prefix_matches=("repo", "repo.pkg"),
+        identifier_root="repo",
+    )
+
+    classified = classify_no_in_repo_candidate(observation)
+
+    assert classified.bucket == "likely_dynamic_dispatch_or_indirect"
+    assert classified.reasons == ("repo_owned_dynamic_member_terminal",)
+
+
+def test_classifier_marks_common_finally_terminal_as_dynamic() -> None:
+    observation = DiagnosticMissObservation(
+        language="unknown",
+        file_path="pkg/main.txt",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.main.run",
+        caller_module="repo.pkg.main",
+        identifier="promise.finally",
+        ordinal=1,
+        callee_kind="qualified",
+    )
+
+    classified = classify_no_in_repo_candidate(observation)
+
+    assert classified.bucket == "likely_dynamic_dispatch_or_indirect"
+    assert classified.reasons == ("fluent_terminal",)
+
+
 def test_classifier_marks_extended_repo_owned_member_terminal_as_unindexed() -> None:
     observation = DiagnosticMissObservation(
         language="typescript",
