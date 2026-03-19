@@ -83,3 +83,76 @@ def test_builtin_analyzers_share_parse_diagnostics_schema(
     assert (
         diagnostics["parse_error_nodes"] + diagnostics["parse_significant_missing_nodes"]
     ) >= 1
+
+
+@pytest.mark.parametrize(
+    ("analyzer_cls", "language", "relative_path"),
+    [
+        (PythonAnalyzer, "python", "pkg/empty.py"),
+        (TypeScriptAnalyzer, "typescript", "src/empty.ts"),
+        (JavaScriptAnalyzer, "javascript", "src/empty.js"),
+        (JavaAnalyzer, "java", "src/Empty.java"),
+    ],
+)
+def test_builtin_analyzers_accept_empty_files(
+    tmp_path: Path,
+    analyzer_cls,
+    language: str,
+    relative_path: str,
+) -> None:
+    snapshot = _snapshot(tmp_path, relative_path, "", language)
+    analyzer = analyzer_cls()
+    module_name = analyzer.module_name(tmp_path, snapshot)
+    analyzer.module_index = {module_name}
+
+    result = analyzer.analyze(snapshot, module_name)
+
+    assert result.diagnostics["parse_validation_ok"] is True
+    assert any(node.qualified_name == module_name for node in result.nodes)
+
+
+@pytest.mark.parametrize(
+    ("analyzer_cls", "language", "relative_path", "source"),
+    [
+        (
+            PythonAnalyzer,
+            "python",
+            "pkg/unicode.py",
+            "# Grüße\n\ndef café():\n    return 'naïve'\n",
+        ),
+        (
+            TypeScriptAnalyzer,
+            "typescript",
+            "src/unicode.ts",
+            "// Grüße\nexport function café() { return 'naïve'; }\n",
+        ),
+        (
+            JavaScriptAnalyzer,
+            "javascript",
+            "src/unicode.js",
+            "// Grüße\nexport function café() { return 'naïve'; }\n",
+        ),
+        (
+            JavaAnalyzer,
+            "java",
+            "src/Café.java",
+            "// Grüße\nclass Café { String label() { return \"naïve\"; } }\n",
+        ),
+    ],
+)
+def test_builtin_analyzers_handle_unicode_source(
+    tmp_path: Path,
+    analyzer_cls,
+    language: str,
+    relative_path: str,
+    source: str,
+) -> None:
+    snapshot = _snapshot(tmp_path, relative_path, source, language)
+    analyzer = analyzer_cls()
+    module_name = analyzer.module_name(tmp_path, snapshot)
+    analyzer.module_index = {module_name}
+
+    result = analyzer.analyze(snapshot, module_name)
+
+    assert result.diagnostics["parse_validation_ok"] is True
+    assert any(node.qualified_name == module_name for node in result.nodes)

@@ -147,6 +147,49 @@ def ok(
     assert any(node.qualified_name == f"{module_name}.ok" for node in result.nodes)
 
 
+def test_python_analyzer_handles_deeply_nested_function_chain(tmp_path) -> None:
+    depth = 12
+    lines = ["def outer0():"]
+    for level in range(1, depth + 1):
+        indent = "    " * level
+        lines.append(f"{indent}def inner{level}():")
+    lines.append(f"{'    ' * (depth + 1)}return 1")
+    for level in range(depth, 0, -1):
+        indent = "    " * level
+        lines.append(f"{indent}inner{level}()")
+    module = "\n".join(lines) + "\n"
+
+    repo = tmp_path
+    pkg = repo / "pkg"
+    pkg.mkdir()
+    file_path = pkg / "nested.py"
+    file_path.write_text(module, encoding="utf-8")
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("pkg/nested.py"),
+            language="python",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = PythonAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+
+    result = analyzer.analyze(snapshot, module_name)
+
+    deepest = f"{module_name}.outer0"
+    for level in range(1, depth + 1):
+        deepest = f"{deepest}.inner{level}"
+    callables = {node.qualified_name for node in result.nodes if node.node_type == "callable"}
+    assert result.diagnostics["parse_validation_ok"] is True
+    assert deepest in callables
+
+
 def test_python_analyzer_resolves_instance_assignments_per_callable_scope(tmp_path):
     module = """
 class Service:
