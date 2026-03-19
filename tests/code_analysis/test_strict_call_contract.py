@@ -275,6 +275,25 @@ def test_strict_call_contract_accepts_single_index_proxy_qname_match() -> None:
     assert decision.dropped_reason is None
 
 
+def test_strict_call_contract_accepts_single_module_exports_proxy_qname_match() -> None:
+    decision = select_strict_call_candidate(
+        identifier="pkg.user.index.notifications.pushCount",
+        direct_candidates=[],
+        fallback_candidates=["user-notifications-pushcount"],
+        caller_module="pkg.api.chats",
+        module_lookup={"user-notifications-pushcount": "pkg.user.notifications"},
+        candidate_qualified_names={
+            "user-notifications-pushcount": (
+                "pkg.user.notifications.module.exports.pushCount"
+            ),
+        },
+        import_targets={},
+    )
+    assert decision.accepted_candidate == "user-notifications-pushcount"
+    assert decision.accepted_provenance == "exact_qname"
+    assert decision.dropped_reason is None
+
+
 def test_strict_call_contract_uses_expanded_scope_for_single_candidate_only() -> None:
     single = select_strict_call_candidate(
         identifier="build",

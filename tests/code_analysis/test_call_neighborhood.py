@@ -438,6 +438,29 @@ def test_resolve_callees_accepts_single_index_proxy_qname_match() -> None:
     assert callsite_rows[0][2] == "plugins-hooks-fire"
 
 
+def test_resolve_callees_accepts_single_module_exports_proxy_qname_match() -> None:
+    resolved_ids, _resolved_names, stats, callsite_rows = _resolve_callees(
+        ("pkg.user.index.notifications.pushCount",),
+        {"pushCount": ["user-notifications-pushcount"]},
+        caller_module="pkg.api.chats",
+        caller_language="javascript",
+        module_lookup={"user-notifications-pushcount": "pkg.user.notifications"},
+        callable_qname_by_id={
+            "user-notifications-pushcount": (
+                "pkg.user.notifications.module.exports.pushCount"
+            )
+        },
+        import_targets={},
+        expanded_import_targets={},
+        module_ancestors={},
+    )
+    assert resolved_ids == {"user-notifications-pushcount"}
+    accepted = stats.get("accepted_by_provenance") or {}
+    assert accepted.get("exact_qname") == 1
+    assert callsite_rows[0][1] == "accepted"
+    assert callsite_rows[0][2] == "user-notifications-pushcount"
+
+
 def test_write_call_artifacts_records_zero_candidate_pre_persist_bucket(tmp_path: Path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     prefix = runtime_paths.repo_name_prefix(repo_root)

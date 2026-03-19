@@ -102,7 +102,7 @@ def select_strict_call_candidate(
                 in_scope_candidate_count=1,
                 candidate_module_hints=candidate_module_hints,
             )
-        if "." in identifier and _has_index_proxy_qname_match(
+        if "." in identifier and _has_proxy_qname_match(
             identifier=identifier,
             candidate_qname=candidate_qname,
         ):
@@ -313,24 +313,33 @@ def _has_structural_tail_match(*, identifier: str, candidate_qname: str) -> bool
     return candidate_parts[-3:] == identifier_parts[-3:]
 
 
-def _has_index_proxy_qname_match(*, identifier: str, candidate_qname: str) -> bool:
+def _has_proxy_qname_match(*, identifier: str, candidate_qname: str) -> bool:
     if not identifier or not candidate_qname:
         return False
-    return _collapse_index_proxy_qname(identifier) == _collapse_index_proxy_qname(
-        candidate_qname
-    )
+    return _collapse_proxy_qname(identifier) == _collapse_proxy_qname(candidate_qname)
 
 
-def _collapse_index_proxy_qname(value: str) -> tuple[str, ...]:
+def _collapse_proxy_qname(value: str) -> tuple[str, ...]:
     parts = [part for part in value.split(".") if part]
     if not parts:
         return ()
     collapsed: list[str] = []
     last_index = len(parts) - 1
-    for idx, part in enumerate(parts):
+    idx = 0
+    while idx < len(parts):
+        part = parts[idx]
         if idx != last_index and part == "index":
+            idx += 1
+            continue
+        if (
+            idx + 1 < last_index
+            and part == "module"
+            and parts[idx + 1] == "exports"
+        ):
+            idx += 2
             continue
         collapsed.append(part)
+        idx += 1
     return tuple(collapsed)
 
 
