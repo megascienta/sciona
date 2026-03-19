@@ -7,6 +7,9 @@ import pytest
 
 from sciona.code_analysis.core.normalize_model import FileRecord, FileSnapshot
 from sciona.code_analysis.languages.builtin.javascript import JavaScriptAnalyzer
+from sciona.code_analysis.languages.builtin.javascript.javascript_node_walk import (
+    _javascript_heritage_metadata,
+)
 
 
 def _snapshot(repo: Path, relative_path: str, content: str) -> FileSnapshot:
@@ -56,6 +59,30 @@ def test_javascript_analyzer_extracts_declared_nested_and_bound_callables(tmp_pa
 
     by_caller = {record.qualified_name: set(record.callee_identifiers) for record in result.call_records}
     assert f"{module_name}.helper" in by_caller[f"{module_name}.outer.inner"]
+
+
+def test_javascript_heritage_metadata_preserves_expression_commas() -> None:
+    class _Node:
+        def __init__(self, node_type: str, text: str = "", children=None):
+            self.type = node_type
+            self._text = text.encode("utf-8")
+            self.named_children = list(children or [])
+
+        def child_by_field_name(self, name: str):
+            return None
+
+        @property
+        def text(self):
+            return self._text
+
+    node = _Node(
+        "class_declaration",
+        children=[_Node("extends_clause", "extends mix(BaseA, BaseB)")],
+    )
+
+    metadata = _javascript_heritage_metadata(node, b"")
+
+    assert metadata["bases"] == ["mix(BaseA, BaseB)"]
 
 
 def test_javascript_analyzer_reports_malformed_parse_tree(tmp_path) -> None:

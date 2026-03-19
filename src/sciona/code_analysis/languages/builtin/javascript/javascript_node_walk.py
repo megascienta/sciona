@@ -33,17 +33,69 @@ def _javascript_heritage_metadata(node, content: bytes) -> dict[str, list[str]]:
         return {"bases": []}
     bases: list[str] = []
     for heritage_node in heritage_nodes:
-        value = node_text(heritage_node, content)
-        if not value:
-            continue
-        value = value.strip()
-        if value.startswith("extends "):
-            value = value[len("extends ") :].strip()
-        for part in value.split(","):
-            cleaned = part.strip()
-            if cleaned:
-                bases.append(cleaned)
+        bases.extend(_heritage_entries(heritage_node, content, prefix="extends "))
     return {"bases": bases}
+
+
+def _heritage_entries(node, content: bytes, *, prefix: str) -> list[str]:
+    named_children = list(getattr(node, "named_children", []) or [])
+    entries: list[str] = []
+    if named_children:
+        for child in named_children:
+            child_type = getattr(child, "type", "")
+            if child_type in {"class_heritage", "extends_clause"}:
+                entries.extend(_heritage_entries(child, content, prefix=prefix))
+                continue
+            value = (node_text(child, content) or "").strip()
+            if value:
+                entries.append(value)
+        if entries:
+            return entries
+    value = (node_text(node, content) or "").strip()
+    if value.startswith(prefix):
+        value = value[len(prefix) :].strip()
+    return _split_top_level_csv(value)
+
+
+def _split_top_level_csv(value: str) -> list[str]:
+    if not value:
+        return []
+    parts: list[str] = []
+    current: list[str] = []
+    depth_angle = 0
+    depth_round = 0
+    depth_square = 0
+    depth_curly = 0
+    for char in value:
+        if char == "," and not any(
+            (depth_angle, depth_round, depth_square, depth_curly)
+        ):
+            cleaned = "".join(current).strip()
+            if cleaned:
+                parts.append(cleaned)
+            current = []
+            continue
+        current.append(char)
+        if char == "<":
+            depth_angle += 1
+        elif char == ">":
+            depth_angle = max(0, depth_angle - 1)
+        elif char == "(":
+            depth_round += 1
+        elif char == ")":
+            depth_round = max(0, depth_round - 1)
+        elif char == "[":
+            depth_square += 1
+        elif char == "]":
+            depth_square = max(0, depth_square - 1)
+        elif char == "{":
+            depth_curly += 1
+        elif char == "}":
+            depth_curly = max(0, depth_curly - 1)
+    cleaned = "".join(current).strip()
+    if cleaned:
+        parts.append(cleaned)
+    return parts
 
 
 def _is_async_callable(node, content: bytes) -> bool:

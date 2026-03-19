@@ -180,6 +180,35 @@ def test_typescript_heritage_metadata_collects_extends_and_implements_from_sibli
     assert metadata["bases"] == ["Base", "Foo", "Bar"]
 
 
+def test_typescript_heritage_metadata_preserves_generic_commas() -> None:
+    class _Node:
+        def __init__(self, node_type: str, text: str = "", children=None):
+            self.type = node_type
+            self._text = text.encode("utf-8")
+            self.named_children = list(children or [])
+
+        def child_by_field_name(self, name: str):
+            return None
+
+        @property
+        def text(self):
+            return self._text
+
+    node = _Node(
+        "class_declaration",
+        children=[
+            _Node("extends_clause", "extends Base<A, B>"),
+            _Node("implements_clause", "implements Pair<X, Y>, Service"),
+        ],
+    )
+
+    metadata = _typescript_heritage_metadata(node, b"")
+
+    assert metadata["extends_bases"] == ["Base<A, B>"]
+    assert metadata["implements_bases"] == ["Pair<X, Y>", "Service"]
+    assert metadata["bases"] == ["Base<A, B>", "Pair<X, Y>", "Service"]
+
+
 def test_typescript_nested_arrow_and_function_expression_are_structural_when_bound(tmp_path):
     module = """
     export function outer() {

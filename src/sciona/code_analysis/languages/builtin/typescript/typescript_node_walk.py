@@ -28,20 +28,69 @@ def _span_encloses(parent: tuple[int, int], child: tuple[int, int]) -> bool:
 
 
 def _split_heritage_names(node, content: bytes) -> list[str]:
+    prefix = ""
+    if getattr(node, "type", "") == "extends_clause":
+        prefix = "extends "
+    elif getattr(node, "type", "") == "implements_clause":
+        prefix = "implements "
+    named_children = list(getattr(node, "named_children", []) or [])
     names: list[str] = []
-    value = node_text(node, content)
+    if named_children:
+        for child in named_children:
+            child_type = getattr(child, "type", "")
+            if child_type in {"class_heritage", "extends_clause", "implements_clause"}:
+                names.extend(_split_heritage_names(child, content))
+                continue
+            value = (node_text(child, content) or "").strip()
+            if value:
+                names.append(value)
+        if names:
+            return names
+    value = (node_text(node, content) or "").strip()
+    if prefix and value.startswith(prefix):
+        value = value[len(prefix) :].strip()
+    return _split_top_level_csv(value)
+
+
+def _split_top_level_csv(value: str) -> list[str]:
     if not value:
-        return names
-    value = value.strip()
-    if value.startswith("extends "):
-        value = value[len("extends ") :].strip()
-    elif value.startswith("implements "):
-        value = value[len("implements ") :].strip()
-    for part in value.split(","):
-        cleaned = part.strip()
-        if cleaned:
-            names.append(cleaned)
-    return names
+        return []
+    parts: list[str] = []
+    current: list[str] = []
+    depth_angle = 0
+    depth_round = 0
+    depth_square = 0
+    depth_curly = 0
+    for char in value:
+        if char == "," and not any(
+            (depth_angle, depth_round, depth_square, depth_curly)
+        ):
+            cleaned = "".join(current).strip()
+            if cleaned:
+                parts.append(cleaned)
+            current = []
+            continue
+        current.append(char)
+        if char == "<":
+            depth_angle += 1
+        elif char == ">":
+            depth_angle = max(0, depth_angle - 1)
+        elif char == "(":
+            depth_round += 1
+        elif char == ")":
+            depth_round = max(0, depth_round - 1)
+        elif char == "[":
+            depth_square += 1
+        elif char == "]":
+            depth_square = max(0, depth_square - 1)
+        elif char == "{":
+            depth_curly += 1
+        elif char == "}":
+            depth_curly = max(0, depth_curly - 1)
+    cleaned = "".join(current).strip()
+    if cleaned:
+        parts.append(cleaned)
+    return parts
 
 
 def _typescript_heritage_metadata(node, content: bytes) -> dict[str, list[str]]:
