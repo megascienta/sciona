@@ -223,7 +223,7 @@ classifier_call_graph_summary, dependency_edges, fan_summary, module_call_graph_
 callable_overview, classifier_inheritance, classifier_overview, symbol_references
 
 **Diagnostic reducers:**
-call_resolution_drop_summary, call_resolution_quality, structural_integrity_summary
+structural_integrity_summary
 
 **Overlay reducers:**
 overlay_impact_summary, overlay_projection_status_summary
@@ -287,7 +287,6 @@ orientation or navigation reducer → coupling or symbol reducer
 
 Reducers that act as anomaly detectors rather than final evidence:
 
-- `call_resolution_quality`
 - `structural_integrity_summary`
 
 If an anomaly detector reports a problem, agents SHOULD investigate with at least one reducer from another category before concluding.
@@ -314,10 +313,13 @@ Source reducers available for implementation-level inspection:
 - `callable_source`
 - `concatenated_source`
 
-Use source reducers selectively:
+Source reducers are often useful after structural grounding when committed implementation context is needed. Use source reducers selectively:
 
 - prefer targeted source reducers when the identifier is already known and only local implementation context is needed
+- consider source reducers before broad manual file inspection when the target is within committed tracked scope
 - use broad source reducers sparingly for deliberate large-context reasoning because they may increase payload and token cost significantly
+- direct file inspection remains acceptable when it is faster, more precise for the question, or the needed context is outside reducer scope
+- if a source reducer is insufficient, fall back to normal repository inspection
 
 When non-SCIONA reasoning is used, agents SHOULD label the method explicitly, for example:
 
@@ -354,7 +356,7 @@ Overlay information:
 
 Patchable projections may emit overlay-adjusted payloads directly rather than merely committed-row-preserving views. Agents SHOULD prefer reducer-exposed committed, adjusted, and delta semantics over reconstructing overlay effects manually when those fields are present.
 
-If tracked sources are dirty and overlay is unavailable, agents SHOULD warn that results may be stale and recommend commit plus `sciona build [--force]`.
+If tracked sources are dirty and overlay is unavailable, agents SHOULD warn that results may be stale and recommend commit plus `sciona build [--force] [--diagnostic] [--verbose]`.
 
 Overlay-only findings MUST be treated as `overlay_advisory`, not as committed structural facts.
 
@@ -444,10 +446,10 @@ CLI usage note:
 - `--json` is valid ONLY on `sciona search` and `sciona resolve`.
 
 Diagnostics:
-- No committed snapshots → `sciona build [--force]`
+- No committed snapshots → `sciona build [--force] [--diagnostic] [--verbose]`
 - Unknown reducer → `sciona reducer list [--id REDUCER_ID]`
 - `overlay_available=true` does not guarantee the reducer payload was patched; check for `projection_not_patched` in the response.
 - Dirty worktree + `projection_not_supported` → payload is metadata-only for that projection
-- Dirty worktree + overlay unavailable → commit changes and rerun `sciona build [--force]` for authoritative current-state results
+- Dirty worktree + overlay unavailable → commit changes and rerun `sciona build [--force] [--diagnostic] [--verbose]` for authoritative current-state results
 - SCIONA unavailable → report attempted invocation methods before fallback
 <!-- sciona:end -->

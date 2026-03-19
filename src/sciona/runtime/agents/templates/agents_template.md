@@ -193,10 +193,13 @@ Source reducers available for implementation-level inspection:
 
 {SOURCE_REDUCER_LIST}
 
-Use source reducers selectively:
+Source reducers are often useful after structural grounding when committed implementation context is needed. Use source reducers selectively:
 
 - prefer targeted source reducers when the identifier is already known and only local implementation context is needed
+- consider source reducers before broad manual file inspection when the target is within committed tracked scope
 - use broad source reducers sparingly for deliberate large-context reasoning because they may increase payload and token cost significantly
+- direct file inspection remains acceptable when it is faster, more precise for the question, or the needed context is outside reducer scope
+- if a source reducer is insufficient, fall back to normal repository inspection
 
 When non-SCIONA reasoning is used, agents SHOULD label the method explicitly, for example:
 
