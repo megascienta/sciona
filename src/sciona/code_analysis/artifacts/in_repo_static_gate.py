@@ -45,7 +45,8 @@ ALLOWED_PRE_PERSIST_FILTER_BUCKETS = frozenset(
 @dataclass(frozen=True)
 class InRepoStaticGateDecision:
     persist: bool
-    rejection_bucket: str | None = None
+    gate_reason: str | None = None
+    raw_drop_reason: str | None = None
 
 
 def evaluate_callsite_row_for_persistence(
@@ -68,22 +69,52 @@ def evaluate_callsite_row_for_persistence(
         _candidate_module_hints,
     ) = row
     if candidate_count <= 0:
-        return InRepoStaticGateDecision(False, "no_in_repo_candidate")
+        return InRepoStaticGateDecision(
+            False,
+            gate_reason="no_in_repo_candidate",
+            raw_drop_reason=drop_reason,
+        )
     if status == "accepted":
         if not accepted_callee_id or drop_reason is not None:
-            return InRepoStaticGateDecision(False, "invalid_observation_shape")
+            return InRepoStaticGateDecision(
+                False,
+                gate_reason="invalid_observation_shape",
+                raw_drop_reason=drop_reason,
+            )
         if provenance not in ALLOWED_CALLSITE_PROVENANCE:
-            return InRepoStaticGateDecision(False, "invalid_observation_shape")
+            return InRepoStaticGateDecision(
+                False,
+                gate_reason="invalid_observation_shape",
+            )
         if accepted_callee_id not in in_repo_callable_ids:
-            return InRepoStaticGateDecision(False, "accepted_outside_in_repo")
+            return InRepoStaticGateDecision(
+                False,
+                gate_reason="accepted_outside_in_repo",
+            )
         return InRepoStaticGateDecision(True)
     if status == "dropped":
         if accepted_callee_id is not None or provenance is not None or drop_reason is None:
-            return InRepoStaticGateDecision(False, "invalid_observation_shape")
+            return InRepoStaticGateDecision(
+                False,
+                gate_reason="invalid_observation_shape",
+                raw_drop_reason=drop_reason,
+            )
         if drop_reason not in ALLOWED_CALLSITE_DROP_REASONS:
-            return InRepoStaticGateDecision(False, "invalid_observation_shape")
-        return InRepoStaticGateDecision(False, "insufficient_static_evidence")
-    return InRepoStaticGateDecision(False, "invalid_observation_shape")
+            return InRepoStaticGateDecision(
+                False,
+                gate_reason="invalid_observation_shape",
+                raw_drop_reason=drop_reason,
+            )
+        return InRepoStaticGateDecision(
+            False,
+            gate_reason="insufficient_static_evidence",
+            raw_drop_reason=drop_reason,
+        )
+    return InRepoStaticGateDecision(
+        False,
+        gate_reason="invalid_observation_shape",
+        raw_drop_reason=drop_reason,
+    )
 
 
 def normalized_pre_persist_bucket(bucket: str) -> str:

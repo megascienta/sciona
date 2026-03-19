@@ -45,7 +45,8 @@ def test_gate_rejects_zero_candidate_rows() -> None:
     )
 
     assert decision.persist is False
-    assert decision.rejection_bucket == "no_in_repo_candidate"
+    assert decision.gate_reason == "no_in_repo_candidate"
+    assert decision.raw_drop_reason == "no_candidates"
 
 
 def test_gate_accepts_in_repo_accepted_rows() -> None:
@@ -61,7 +62,8 @@ def test_gate_accepts_in_repo_accepted_rows() -> None:
     )
 
     assert decision.persist is True
-    assert decision.rejection_bucket is None
+    assert decision.gate_reason is None
+    assert decision.raw_drop_reason is None
 
 
 def test_gate_rejects_out_of_repo_accepted_rows() -> None:
@@ -77,7 +79,8 @@ def test_gate_rejects_out_of_repo_accepted_rows() -> None:
     )
 
     assert decision.persist is False
-    assert decision.rejection_bucket == "accepted_outside_in_repo"
+    assert decision.gate_reason == "accepted_outside_in_repo"
+    assert decision.raw_drop_reason is None
 
 
 def test_gate_rejects_dropped_rows_with_allowed_drop_reason_as_insufficient_static_evidence() -> None:
@@ -93,7 +96,8 @@ def test_gate_rejects_dropped_rows_with_allowed_drop_reason_as_insufficient_stat
     )
 
     assert decision.persist is False
-    assert decision.rejection_bucket == "insufficient_static_evidence"
+    assert decision.gate_reason == "insufficient_static_evidence"
+    assert decision.raw_drop_reason == "unique_without_provenance"
 
 
 def test_gate_rejects_invalid_observation_shape() -> None:
@@ -109,7 +113,8 @@ def test_gate_rejects_invalid_observation_shape() -> None:
     )
 
     assert decision.persist is False
-    assert decision.rejection_bucket == "invalid_observation_shape"
+    assert decision.gate_reason == "invalid_observation_shape"
+    assert decision.raw_drop_reason is None
 
 
 def test_unknown_pre_persist_bucket_normalizes_to_invalid_shape() -> None:

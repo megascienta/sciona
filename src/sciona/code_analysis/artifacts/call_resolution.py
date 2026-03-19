@@ -113,7 +113,7 @@ def filter_in_repo_callsite_rows(
         if decision.persist:
             filtered.append(row)
             continue
-        _inc_pre_persist_bucket(filtered_out, str(decision.rejection_bucket))
+        _inc_pre_persist_bucket(filtered_out, str(decision.gate_reason))
     return filtered, filtered_out
 
 
