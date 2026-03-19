@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from . import call_resolution_drop_summary
-from . import call_resolution_quality
 from . import callable_overview
 from . import callable_source
 from . import classifier_call_graph_summary
@@ -29,8 +27,6 @@ from . import symbol_lookup
 from . import symbol_references
 
 __all__ = [
-    "call_resolution_drop_summary",
-    "call_resolution_quality",
     "callable_overview",
     "callable_source",
     "classifier_call_graph_summary",

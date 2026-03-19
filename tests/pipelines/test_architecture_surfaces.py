@@ -19,8 +19,6 @@ def test_analysis_module_id_public_surface_is_explicit():
 
 def test_reducers_public_surface_exports_modules():
     expected = {
-        "call_resolution_drop_summary",
-        "call_resolution_quality",
         "structural_index",
         "module_overview",
         "classifier_overview",
