@@ -26,6 +26,34 @@ from ...data_storage.artifact_db.maintenance import rebuild_graph_index
 from ...runtime.paths import get_artifact_db_path
 
 
+def _stored_call_resolution_diagnostics(
+    diagnostics: dict[str, object],
+) -> dict[str, object]:
+    payload = dict(diagnostics)
+    payload.pop("persisted_drop_observations", None)
+
+    totals = payload.get("totals")
+    if isinstance(totals, dict):
+        totals_payload = dict(totals)
+        totals_payload.pop("filtered_pre_persist_buckets", None)
+        totals_payload.pop("persisted_callsite_pair_expansion", None)
+        payload["totals"] = totals_payload
+
+    by_caller = payload.get("by_caller")
+    if isinstance(by_caller, dict):
+        by_caller_payload: dict[str, dict[str, object]] = {}
+        for caller_id, entry in by_caller.items():
+            if not isinstance(caller_id, str) or not isinstance(entry, dict):
+                continue
+            entry_payload = dict(entry)
+            entry_payload.pop("filtered_pre_persist_buckets", None)
+            entry_payload.pop("persisted_callsite_pair_expansion", None)
+            by_caller_payload[caller_id] = entry_payload
+        payload["by_caller"] = by_caller_payload
+
+    return payload
+
+
 def build_artifacts_for_snapshot(
     *,
     repo_root: Path,
@@ -100,7 +128,10 @@ def refresh_artifact_state(
                 artifact_write.set_rebuild_metadata(
                     artifact_conn,
                     key=f"call_resolution_diagnostics:{snapshot_id}",
-                    value=json.dumps(call_resolution_diagnostics, sort_keys=True),
+                    value=json.dumps(
+                        _stored_call_resolution_diagnostics(call_resolution_diagnostics),
+                        sort_keys=True,
+                    ),
                 )
                 _timed_phase(
                     "rebuild_graph_index",
@@ -135,3 +166,6 @@ def refresh_artifact_state(
             artifact_write.mark_rebuild_failed(artifact_conn, snapshot_id=snapshot_id)
             artifact_conn.commit()
             raise
+
+
+__all__ = ["build_artifacts_for_snapshot", "refresh_artifact_state"]
