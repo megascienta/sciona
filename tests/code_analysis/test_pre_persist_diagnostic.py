@@ -7,6 +7,7 @@ from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.data_storage.artifact_db.writes import write_index as artifact_write
 from sciona.code_analysis.diagnostics.pre_persist.classifier import (
     classify_no_in_repo_candidate,
+    classify_positive_candidate_rejection,
 )
 from sciona.code_analysis.diagnostics.pre_persist import pipeline as diagnostic_pipeline
 from sciona.code_analysis.diagnostics.pre_persist.report import (
@@ -526,6 +527,46 @@ def test_classifier_uses_javascript_global_root_refinement() -> None:
     classified = classify_no_in_repo_candidate(observation)
 
     assert classified.bucket == "likely_standard_library_or_builtin"
+
+
+def test_positive_candidate_classifier_uses_raw_drop_reason() -> None:
+    observation = DiagnosticMissObservation(
+        language="javascript",
+        file_path="pkg/main.js",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.main.run",
+        caller_module="repo.pkg.main",
+        identifier="repo.pkg.api.run",
+        ordinal=1,
+        callee_kind="qualified",
+        gate_reason="insufficient_static_evidence",
+        raw_drop_reason="unique_without_provenance",
+    )
+
+    classified = classify_positive_candidate_rejection(observation)
+
+    assert classified.bucket == "likely_unindexed_symbol"
+    assert classified.reasons == ("positive_candidate_without_provenance",)
+
+
+def test_positive_candidate_classifier_marks_invalid_shape_as_parser_gap() -> None:
+    observation = DiagnosticMissObservation(
+        language="python",
+        file_path="pkg/main.py",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.main.run",
+        caller_module="repo.pkg.main",
+        identifier="repo.pkg.api.run",
+        ordinal=1,
+        callee_kind="qualified",
+        gate_reason="insufficient_static_evidence",
+        raw_drop_reason="invalid_observation_shape",
+    )
+
+    classified = classify_positive_candidate_rejection(observation)
+
+    assert classified.bucket == "likely_parser_extraction_gap"
+    assert classified.reasons == ("positive_candidate_invalid_shape",)
 
 
 def test_classifier_uses_java_stdlib_refinement() -> None:

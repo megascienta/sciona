@@ -20,7 +20,10 @@ from ...tools.call_extraction import CallExtractionRecord, PrePersistObservation
 from ....data_storage.core_db import read_ops as core_read
 from ....pipelines.progress import ProgressFactory
 from ....pipelines.exec.reporting_callsites import scope_bucket
-from .classifier import classify_no_in_repo_candidate
+from .classifier import (
+    classify_no_in_repo_candidate,
+    classify_positive_candidate_rejection,
+)
 from .models import (
     DiagnosticAggregation,
     DiagnosticClassification,
@@ -445,7 +448,9 @@ def _classify_rejected_observation(
             bucket=observation.gate_reason,
             reasons=(f"gate:{observation.gate_reason}",),
         )
-    return classify_no_in_repo_candidate(observation)
+    if observation.gate_reason == "no_in_repo_candidate":
+        return classify_no_in_repo_candidate(observation)
+    return classify_positive_candidate_rejection(observation)
 
 
 def _repo_module_prefixes(module_file_by_name: dict[str, str]) -> set[str]:
