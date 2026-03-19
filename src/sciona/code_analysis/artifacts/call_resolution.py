@@ -30,25 +30,9 @@ from .call_resolution_typescript import (
 from .call_resolution_javascript import (
     resolve_javascript_structural_ambiguous
 )
-
-ALLOWED_CALLSITE_PROVENANCE = frozenset(
-    {"exact_qname", "module_scoped", "import_narrowed", "export_chain_narrowed"}
-)
-ALLOWED_CALLSITE_DROP_REASONS = frozenset(
-    {
-        "no_candidates",
-        "unique_without_provenance",
-        "ambiguous_no_caller_module",
-        "ambiguous_no_in_scope_candidate",
-        "ambiguous_multiple_in_scope_candidates",
-    }
-)
-ALLOWED_PRE_PERSIST_FILTER_BUCKETS = frozenset(
-    {
-        "no_in_repo_candidate",
-        "accepted_outside_in_repo",
-        "invalid_observation_shape",
-    }
+from .in_repo_static_gate import (
+    evaluate_callsite_row_for_persistence,
+    normalized_pre_persist_bucket,
 )
 
 
@@ -122,52 +106,20 @@ def filter_in_repo_callsite_rows(
     filtered = []
     filtered_out: dict[str, int] = {}
     for row in rows:
-        (
-            _identifier,
-            status,
-            accepted_callee_id,
-            provenance,
-            drop_reason,
-            candidate_count,
-            _callee_kind,
-            _call_start_byte,
-            _call_end_byte,
-            _call_ordinal,
-            _in_scope_candidate_count,
-            _candidate_module_hints,
-        ) = row
-        if candidate_count <= 0:
-            _inc_pre_persist_bucket(filtered_out, "no_in_repo_candidate")
-            continue
-        if status == "accepted":
-            if not accepted_callee_id or drop_reason is not None:
-                _inc_pre_persist_bucket(filtered_out, "invalid_observation_shape")
-                continue
-            if provenance not in ALLOWED_CALLSITE_PROVENANCE:
-                _inc_pre_persist_bucket(filtered_out, "invalid_observation_shape")
-                continue
-            if accepted_callee_id not in in_repo_callable_ids:
-                _inc_pre_persist_bucket(filtered_out, "accepted_outside_in_repo")
-                continue
+        decision = evaluate_callsite_row_for_persistence(
+            row,
+            in_repo_callable_ids=in_repo_callable_ids,
+        )
+        if decision.persist:
             filtered.append(row)
             continue
-        if status == "dropped":
-            if accepted_callee_id is not None or provenance is not None or drop_reason is None:
-                _inc_pre_persist_bucket(filtered_out, "invalid_observation_shape")
-                continue
-            if drop_reason not in ALLOWED_CALLSITE_DROP_REASONS:
-                _inc_pre_persist_bucket(filtered_out, "invalid_observation_shape")
-                continue
-            filtered.append(row)
-            continue
-        _inc_pre_persist_bucket(filtered_out, "invalid_observation_shape")
+        _inc_pre_persist_bucket(filtered_out, str(decision.rejection_bucket))
     return filtered, filtered_out
 
 
 def _inc_pre_persist_bucket(target: dict[str, int], bucket: str) -> None:
-    if bucket not in ALLOWED_PRE_PERSIST_FILTER_BUCKETS:
-        bucket = "invalid_observation_shape"
-    target[bucket] = int(target.get(bucket, 0)) + 1
+    normalized = normalized_pre_persist_bucket(bucket)
+    target[normalized] = int(target.get(normalized, 0)) + 1
 
 
 def persisted_callsite_outcomes(
