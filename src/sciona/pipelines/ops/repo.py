@@ -15,9 +15,6 @@ from pathlib import Path
 from typing import Mapping, Optional
 
 from ...code_analysis.diagnostics.pre_persist import report as diagnostic_report
-from ...data_storage.artifact_db.reporting import read_status as artifact_read
-from ...data_storage.connections import artifact_readonly
-from ...runtime.paths import get_artifact_db_path
 from ..domain.repository import RepoState
 from ..domain.policies import BuildPolicy
 from ...runtime.logging import get_logger
@@ -158,20 +155,6 @@ def record_build_wall_time(
     )
 
 
-def persisted_drop_diagnostics(
-    snapshot_id: str,
-    repo_root: Optional[Path] = None,
-) -> dict[str, object] | None:
-    repo_state = policy_repo.resolve_repo_state(repo_root, allow_missing_config=True)
-    policy_repo.ensure_initialized(repo_state)
-    artifact_path = get_artifact_db_path(repo_state.repo_root)
-    with artifact_readonly(artifact_path, repo_root=repo_state.repo_root) as conn:
-        return artifact_read.call_resolution_diagnostics_for_snapshot(
-            conn,
-            snapshot_id=snapshot_id,
-        )
-
-
 def write_build_diagnostic_outputs(
     result: BuildResult,
     report: dict[str, object],
@@ -198,7 +181,7 @@ def write_build_diagnostic_outputs(
         return
     verbose_payload = diagnostic_report.build_rejected_calls_verbose_payload(
         getattr(result, "diagnostic_report", None),
-        persisted_drop_diagnostics(result.snapshot_id, repo_root=resolved_repo_root),
+        None,
     )
     verbose_payload["diagnostic_mode"] = True
     verbose_payload["diagnostic_kind"] = "rejected_calls_best_effort"

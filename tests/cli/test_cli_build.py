@@ -8,7 +8,6 @@ import json
 
 from sciona.cli import repo_ops
 from sciona.cli.commands import register_build as build_command
-from sciona.pipelines.ops import repo as repo_pipeline
 from sciona.runtime import config as runtime_config
 from sciona.runtime import paths as runtime_paths
 from sciona.pipelines.exec.build import BuildResult
@@ -244,11 +243,6 @@ def test_cli_build_diagnostic_writes_repo_root_outputs(
     )
     monkeypatch.setattr(repo_ops, "build", lambda **kwargs: result)
     monkeypatch.setattr(repo_ops, "snapshot_report", lambda snapshot_id: _fake_report())
-    monkeypatch.setattr(
-        repo_pipeline,
-        "persisted_drop_diagnostics",
-        lambda snapshot_id, repo_root=None: {},
-    )
     monkeypatch.setattr(repo_ops, "record_build_wall_time", lambda snapshot_id, wall_seconds: None)
     perf_values = iter([40.0, 40.25])
     monkeypatch.setattr(build_command, "perf_counter", lambda: next(perf_values))
@@ -303,11 +297,6 @@ def test_cli_build_diagnostic_enriches_not_accepted_callsites(
     )
     monkeypatch.setattr(repo_ops, "build", lambda **kwargs: result)
     monkeypatch.setattr(repo_ops, "snapshot_report", lambda snapshot_id: _fake_report())
-    monkeypatch.setattr(
-        repo_pipeline,
-        "persisted_drop_diagnostics",
-        lambda snapshot_id, repo_root=None: {},
-    )
     monkeypatch.setattr(repo_ops, "record_build_wall_time", lambda snapshot_id, wall_seconds: None)
     perf_values = iter([50.0, 50.25])
     monkeypatch.setattr(build_command, "perf_counter", lambda: next(perf_values))
@@ -359,28 +348,6 @@ def test_cli_build_verbose_sidecar_groups_callsites_by_bucket(
     )
     monkeypatch.setattr(repo_ops, "build", lambda **kwargs: result)
     monkeypatch.setattr(repo_ops, "snapshot_report", lambda snapshot_id: _fake_report())
-    monkeypatch.setattr(
-        repo_pipeline,
-        "persisted_drop_diagnostics",
-        lambda snapshot_id, repo_root=None: {
-            "persisted_drop_observations": [
-                {
-                    "caller_structural_id": "caller",
-                    "caller_qualified_name": "pkg.alpha.run",
-                    "caller_module": "pkg.alpha",
-                    "file_path": "pkg/a.py",
-                    "language": "python",
-                    "identifier": "socket.in(room).emit",
-                    "ordinal": 1,
-                    "drop_reason": "ambiguous_multiple_in_scope_candidates",
-                    "candidate_count": 2,
-                    "callee_kind": "qualified",
-                    "in_scope_candidate_count": 2,
-                    "candidate_module_hints": "pkg.alpha,pkg.beta",
-                }
-            ]
-        },
-    )
     monkeypatch.setattr(repo_ops, "record_build_wall_time", lambda snapshot_id, wall_seconds: None)
     perf_values = iter([60.0, 60.25])
     monkeypatch.setattr(build_command, "perf_counter", lambda: next(perf_values))
@@ -394,13 +361,9 @@ def test_cli_build_verbose_sidecar_groups_callsites_by_bucket(
     assert verbose_payload["buckets"]["insufficient_static_evidence"]["phases"] == {
         "pre_persist": 2
     }
-    assert verbose_payload["buckets"]["outside_static_contract"]["count"] == 1
-    assert verbose_payload["buckets"]["outside_static_contract"]["phases"] == {
-        "post_persist": 1
-    }
-    assert verbose_payload["phase_counts"] == {"post_persist": 1, "pre_persist": 2}
+    assert "outside_static_contract" not in verbose_payload["buckets"]
+    assert verbose_payload["phase_counts"] == {"post_persist": 0, "pre_persist": 2}
     assert verbose_payload["problematic_files"][0]["file_path"] == "pkg/a.py"
     assert verbose_payload["problematic_files"][0]["phases"] == {
-        "post_persist": 1,
         "pre_persist": 1,
     }
