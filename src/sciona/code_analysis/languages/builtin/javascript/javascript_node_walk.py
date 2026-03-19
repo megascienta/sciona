@@ -221,8 +221,6 @@ def walk_javascript_nodes(
             return module_name, "module", local_name
         if len(owner_chain) == 1:
             owner = owner_chain[0]
-            if owner in state.class_name_map:
-                return state.class_name_map[owner], "classifier", local_name
             return module_name, "module", ".".join(chain)
         return module_name, "module", ".".join(chain)
 
