@@ -57,6 +57,7 @@ def collect_javascript_import_model(
         model.imports_internal += 1
         model.modules.append(normalized)
         populate_js_aliases_from_node(
+            model,
             node,
             snapshot.content,
             normalized,
@@ -89,6 +90,13 @@ def collect_javascript_import_model(
         model.imports_internal += 1
         model.modules.append(normalized)
         model.import_aliases[alias] = normalized
+        model.add_local_binding_fact(
+            alias,
+            normalized,
+            binding_kind="module_alias",
+            evidence_kind="syntax_local_alias",
+            language="javascript",
+        )
     for node in find_nodes_of_types_query(
         root,
         language_name="javascript",
@@ -171,6 +179,7 @@ def decode_string_literal(node, content: bytes) -> Optional[str]:
 
 
 def populate_js_aliases_from_node(
+    model: NormalizedImportModel,
     node,
     content: bytes,
     normalized: str,
@@ -181,19 +190,29 @@ def populate_js_aliases_from_node(
         for child in getattr(node, "children", []):
             if child.type == "import_clause":
                 _populate_import_clause_aliases(
-                    child, content, normalized, import_aliases, member_aliases
+                    model, child, content, normalized, import_aliases, member_aliases
                 )
             if child.type == "import_require_clause":
                 alias = _first_identifier(child, content)
                 if alias:
                     import_aliases[alias] = normalized
+                    model.add_local_binding_fact(
+                        alias,
+                        normalized,
+                        binding_kind="module_alias",
+                        evidence_kind="syntax_local_alias",
+                        language="javascript",
+                    )
     if node.type == "export_statement":
         for child in getattr(node, "children", []):
             if child.type == "export_clause":
-                _populate_export_clause_aliases(child, content, normalized, member_aliases)
+                _populate_export_clause_aliases(
+                    model, child, content, normalized, member_aliases
+                )
 
 
 def _populate_import_clause_aliases(
+    model: NormalizedImportModel,
     import_clause,
     content: bytes,
     normalized: str,
@@ -205,20 +224,44 @@ def _populate_import_clause_aliases(
             alias = content[child.start_byte : child.end_byte].decode("utf-8").strip()
             if alias:
                 import_aliases[alias] = normalized
+                model.add_local_binding_fact(
+                    alias,
+                    normalized,
+                    binding_kind="module_alias",
+                    evidence_kind="syntax_local_import",
+                    language="javascript",
+                )
         elif child.type == "namespace_import":
             alias = _last_identifier(child, content)
             if alias:
                 import_aliases[alias] = normalized
+                model.add_local_binding_fact(
+                    alias,
+                    normalized,
+                    binding_kind="namespace_alias",
+                    evidence_kind="syntax_local_namespace",
+                    language="javascript",
+                )
         elif child.type == "named_imports":
             for spec in getattr(child, "children", []):
                 if spec.type != "import_specifier":
                     continue
                 name, alias = _specifier_name_alias(spec, content)
                 if name:
-                    member_aliases[alias or name] = f"{normalized}.{name}"
+                    symbol = alias or name
+                    target = f"{normalized}.{name}"
+                    member_aliases[symbol] = target
+                    model.add_local_binding_fact(
+                        symbol,
+                        target,
+                        binding_kind="destructured_static_member",
+                        evidence_kind="syntax_local_destructuring",
+                        language="javascript",
+                    )
 
 
 def _populate_export_clause_aliases(
+    model: NormalizedImportModel,
     export_clause,
     content: bytes,
     normalized: str,
@@ -229,7 +272,16 @@ def _populate_export_clause_aliases(
             continue
         name, alias = _specifier_name_alias(child, content)
         if name:
-            member_aliases[alias or name] = f"{normalized}.{name}"
+            symbol = alias or name
+            target = f"{normalized}.{name}"
+            member_aliases[symbol] = target
+            model.add_local_binding_fact(
+                symbol,
+                target,
+                binding_kind="static_export_surface",
+                evidence_kind="syntax_local_static_export",
+                language="javascript",
+            )
 
 
 def _specifier_name_alias(node, content: bytes) -> tuple[str | None, str | None]:

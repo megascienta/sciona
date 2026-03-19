@@ -79,8 +79,22 @@ def collect_python_import_model(
                 model.raw_module_map[module] = normalized
                 if alias:
                     model.import_aliases[alias] = normalized
+                    model.add_local_binding_fact(
+                        alias,
+                        normalized,
+                        binding_kind="module_alias",
+                        evidence_kind="syntax_local_alias",
+                        language="python",
+                    )
                 elif "." not in module:
                     model.import_aliases[module] = normalized
+                    model.add_local_binding_fact(
+                        module,
+                        normalized,
+                        binding_kind="module_alias",
+                        evidence_kind="syntax_local_import",
+                        language="python",
+                    )
         elif child.type == "import_from_statement":
             module, names = extract_from_import_from_node(child, snapshot.content)
             if not module:
@@ -118,7 +132,16 @@ def collect_python_import_model(
             for name, alias in names:
                 if name == "*":
                     continue
-                model.member_aliases[alias or name] = f"{normalized}.{name}"
+                symbol = alias or name
+                target = f"{normalized}.{name}"
+                model.member_aliases[symbol] = target
+                model.add_local_binding_fact(
+                    symbol,
+                    target,
+                    binding_kind="direct_import_symbol",
+                    evidence_kind="syntax_local_import",
+                    language="python",
+                )
     return model
 
 

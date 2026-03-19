@@ -165,9 +165,23 @@ def collect_java_import_model(
         for alias, target in bindings.import_aliases:
             if alias and target:
                 model.import_aliases.setdefault(alias, target)
+                model.add_local_binding_fact(
+                    alias,
+                    target,
+                    binding_kind="constructor_or_classifier_import",
+                    evidence_kind="syntax_local_import",
+                    language="java",
+                )
         for alias, target in bindings.member_aliases:
             if alias and target:
                 model.member_aliases.setdefault(alias, target)
+                model.add_local_binding_fact(
+                    alias,
+                    target,
+                    binding_kind="static_import_member",
+                    evidence_kind="syntax_local_import",
+                    language="java",
+                )
         for target in bindings.static_wildcard_targets:
             if target:
                 model.static_wildcard_targets.add(target)
