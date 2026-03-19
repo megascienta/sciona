@@ -56,14 +56,14 @@
     "languages": {
       "javascript": {
         "call_materialization": {
-          "callsite_pairs": 5984,
-          "finalized_call_edges": 5984
+          "callsite_pairs": 5991,
+          "finalized_call_edges": 5991
         },
         "callsites": {
           "filtered_pre_persist": 3506,
-          "observed_syntactic_callsites": 9493,
-          "persisted_accepted": 5984,
-          "persisted_callsites": 5987,
+          "observed_syntactic_callsites": 9500,
+          "persisted_accepted": 5991,
+          "persisted_callsites": 5994,
           "persisted_dropped": 3
         },
         "pre_persist_filter": {
@@ -77,15 +77,15 @@
           "unclassified_no_in_repo_candidate": 0
         },
         "structure": {
-          "edges": 13960,
+          "edges": 14085,
           "files": 12118,
-          "nodes": 17143
+          "nodes": 17261
         }
       },
       "typescript": {
         "call_materialization": {
-          "callsite_pairs": 2378,
-          "finalized_call_edges": 2336
+          "callsite_pairs": 2386,
+          "finalized_call_edges": 2344
         },
         "callsites": {
           "filtered_pre_persist": 179,
@@ -105,7 +105,7 @@
           "unclassified_no_in_repo_candidate": 0
         },
         "structure": {
-          "edges": 6421,
+          "edges": 6429,
           "files": 356,
           "nodes": 2414
         }
@@ -114,8 +114,8 @@
     "scopes": {
       "non_tests": {
         "call_materialization": {
-          "callsite_pairs": 2416,
-          "finalized_call_edges": 2374
+          "callsite_pairs": 2424,
+          "finalized_call_edges": 2382
         },
         "callsites": {
           "filtered_pre_persist": 186,
@@ -135,21 +135,21 @@
           "unclassified_no_in_repo_candidate": 0
         },
         "structure": {
-          "edges": 6567,
+          "edges": 6576,
           "files": 390,
-          "nodes": 2509
+          "nodes": 2510
         }
       },
       "tests": {
         "call_materialization": {
-          "callsite_pairs": 5946,
-          "finalized_call_edges": 5946
+          "callsite_pairs": 5953,
+          "finalized_call_edges": 5953
         },
         "callsites": {
           "filtered_pre_persist": 3499,
-          "observed_syntactic_callsites": 9448,
-          "persisted_accepted": 5946,
-          "persisted_callsites": 5949,
+          "observed_syntactic_callsites": 9455,
+          "persisted_accepted": 5953,
+          "persisted_callsites": 5956,
           "persisted_dropped": 3
         },
         "pre_persist_filter": {
@@ -163,39 +163,39 @@
           "unclassified_no_in_repo_candidate": 0
         },
         "structure": {
-          "edges": 13814,
+          "edges": 13938,
           "files": 12084,
-          "nodes": 17048
+          "nodes": 17165
         }
       }
     },
     "timing": {
       "build_phase_timings": {
-        "build_structural_index": 26.605816415001755,
-        "compute_build_fingerprint": 0.49123263399815187,
-        "derive_call_artifacts": 31.88961903100426,
-        "diagnostic_classification": 3.1184122179984115,
-        "discover_files": 3.2377759179944405,
-        "prepare_callsite_pairs": 2.673380812004325,
-        "prepare_snapshots": 2.2025946070061764,
-        "rebuild_graph_index": 0.3916192670003511,
-        "rebuild_graph_rollups": 0.38233673400827684,
-        "register_modules": 4.5343357940000715,
-        "write_callsite_pairs": 1.746000086001004
+        "build_structural_index": 15.714421323995339,
+        "compute_build_fingerprint": 0.40011554399097804,
+        "derive_call_artifacts": 16.115096959998482,
+        "diagnostic_classification": 1.033510868990561,
+        "discover_files": 2.509371652005939,
+        "prepare_callsite_pairs": 0.9564542540028924,
+        "prepare_snapshots": 2.17847390701354,
+        "rebuild_graph_index": 0.4354041070037056,
+        "rebuild_graph_rollups": 0.4155172229948221,
+        "register_modules": 4.171448352004518,
+        "write_callsite_pairs": 0.3243312670092564
       },
-      "build_total_seconds": 93.835069,
-      "build_wall_seconds": 69.449769
+      "build_total_seconds": 59.991999,
+      "build_wall_seconds": null
     },
     "totals": {
       "call_materialization": {
-        "callsite_pairs": 8362,
-        "finalized_call_edges": 8320
+        "callsite_pairs": 8377,
+        "finalized_call_edges": 8335
       },
       "callsites": {
         "filtered_pre_persist": 3685,
-        "observed_syntactic_callsites": 11852,
-        "persisted_accepted": 8123,
-        "persisted_callsites": 8167,
+        "observed_syntactic_callsites": 11859,
+        "persisted_accepted": 8130,
+        "persisted_callsites": 8174,
         "persisted_dropped": 44
       },
       "pre_persist_filter": {
@@ -209,9 +209,9 @@
         "unclassified_no_in_repo_candidate": 0
       },
       "structure": {
-        "edges": 20381,
+        "edges": 20514,
         "files": 12474,
-        "nodes": 19557
+        "nodes": 19675
       }
     }
   }

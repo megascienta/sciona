@@ -3966,52 +3966,6 @@
           "bucket": "likely_unindexed_symbol",
           "callee_kind": "qualified",
           "caller_module": "npm_cli.node_modules.cacache.lib.get",
-          "caller_qualified_name": "npm_cli.node_modules.cacache.lib.get.getData",
-          "caller_structural_id": "c3df07b823ea44814d7b633577b157beca3c50df",
-          "candidate_module_hints": [],
-          "file_path": "node_modules/cacache/lib/get.js",
-          "identifier": "npm_cli.node_modules.cacache.lib.entry-index.NotFoundError",
-          "identifier_root": "npm_cli",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "npm_cli.node_modules.cacache.lib.entry-index",
-          "longest_repo_prefix_match": "npm_cli.node_modules.cacache.lib.entry-index",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "npm_cli",
-            "npm_cli.node_modules",
-            "npm_cli.node_modules.cacache",
-            "npm_cli.node_modules.cacache.lib",
-            "npm_cli.node_modules.cacache.lib.entry-index"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 5,
-          "repo_prefix_matches": [
-            "npm_cli",
-            "npm_cli.node_modules",
-            "npm_cli.node_modules.cacache",
-            "npm_cli.node_modules.cacache.lib",
-            "npm_cli.node_modules.cacache.lib.entry-index"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:6",
-            "owner_segment:value_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:5",
-            "repo_owned_prefix",
-            "repo_prefix_depth:5"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
-          "caller_module": "npm_cli.node_modules.cacache.lib.get",
           "caller_qualified_name": "npm_cli.node_modules.cacache.lib.get.getDataByDigest",
           "caller_structural_id": "12d37d534f33dd069135b45209afeaaac5fda6de",
           "candidate_module_hints": [],
@@ -4104,52 +4058,6 @@
           "bucket": "likely_unindexed_symbol",
           "callee_kind": "qualified",
           "caller_module": "npm_cli.node_modules.cacache.lib.get",
-          "caller_qualified_name": "npm_cli.node_modules.cacache.lib.get.getStream",
-          "caller_structural_id": "dba2da1d24454882c0ffe98c11ca03b37b9eab1b",
-          "candidate_module_hints": [],
-          "file_path": "node_modules/cacache/lib/get.js",
-          "identifier": "npm_cli.node_modules.cacache.lib.entry-index.NotFoundError",
-          "identifier_root": "npm_cli",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "npm_cli.node_modules.cacache.lib.entry-index",
-          "longest_repo_prefix_match": "npm_cli.node_modules.cacache.lib.entry-index",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "npm_cli",
-            "npm_cli.node_modules",
-            "npm_cli.node_modules.cacache",
-            "npm_cli.node_modules.cacache.lib",
-            "npm_cli.node_modules.cacache.lib.entry-index"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 5,
-          "repo_prefix_matches": [
-            "npm_cli",
-            "npm_cli.node_modules",
-            "npm_cli.node_modules.cacache",
-            "npm_cli.node_modules.cacache.lib",
-            "npm_cli.node_modules.cacache.lib.entry-index"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:6",
-            "owner_segment:value_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:5",
-            "repo_owned_prefix",
-            "repo_prefix_depth:5"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
-          "caller_module": "npm_cli.node_modules.cacache.lib.get",
           "caller_qualified_name": "npm_cli.node_modules.cacache.lib.get.getStreamDigest",
           "caller_structural_id": "8c49394cce6a330a7523c18098414ae33271c88b",
           "candidate_module_hints": [],
@@ -4230,52 +4138,6 @@
           "signals": [
             "deep_repo_prefix",
             "identifier_depth:7",
-            "owner_segment:value_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:5",
-            "repo_owned_prefix",
-            "repo_prefix_depth:5"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
-          "caller_module": "npm_cli.node_modules.cacache.lib.get",
-          "caller_qualified_name": "npm_cli.node_modules.cacache.lib.get.copy",
-          "caller_structural_id": "44e94b05d8ff0c6c1202557107b556516763d9b4",
-          "candidate_module_hints": [],
-          "file_path": "node_modules/cacache/lib/get.js",
-          "identifier": "npm_cli.node_modules.cacache.lib.entry-index.NotFoundError",
-          "identifier_root": "npm_cli",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "npm_cli.node_modules.cacache.lib.entry-index",
-          "longest_repo_prefix_match": "npm_cli.node_modules.cacache.lib.entry-index",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "npm_cli",
-            "npm_cli.node_modules",
-            "npm_cli.node_modules.cacache",
-            "npm_cli.node_modules.cacache.lib",
-            "npm_cli.node_modules.cacache.lib.entry-index"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 5,
-          "repo_prefix_matches": [
-            "npm_cli",
-            "npm_cli.node_modules",
-            "npm_cli.node_modules.cacache",
-            "npm_cli.node_modules.cacache.lib",
-            "npm_cli.node_modules.cacache.lib.entry-index"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:6",
             "owner_segment:value_like",
             "qualified_identifier",
             "reachable_repo_prefix",
@@ -4511,6 +4373,198 @@
             "deep_repo_prefix",
             "identifier_depth:8",
             "owner_segment:type_like",
+            "qualified_identifier",
+            "reachable_repo_prefix",
+            "reachable_repo_prefix_depth:6",
+            "repo_owned_prefix",
+            "repo_prefix_depth:6"
+          ]
+        },
+        {
+          "bucket": "likely_unindexed_symbol",
+          "callee_kind": "qualified",
+          "caller_module": "npm_cli.node_modules.minipass-flush.node_modules.minipass.index",
+          "caller_qualified_name": "npm_cli.node_modules.minipass-flush.node_modules.minipass.index.module.exports.end",
+          "caller_structural_id": "01a1e68f12e4148983c2c4bc216db8bede72fb23",
+          "candidate_module_hints": [],
+          "file_path": "node_modules/minipass-flush/node_modules/minipass/index.js",
+          "identifier": "npm_cli.node_modules.minipass-flush.node_modules.minipass.index.module.exports.once",
+          "identifier_root": "npm_cli",
+          "language": "javascript",
+          "longest_reachable_repo_prefix_match": "npm_cli.node_modules.minipass-flush.node_modules.minipass.index",
+          "longest_repo_prefix_match": "npm_cli.node_modules.minipass-flush.node_modules.minipass.index",
+          "ordinal": 1,
+          "reachable_repo_binding": false,
+          "reachable_repo_prefix_matches": [
+            "npm_cli",
+            "npm_cli.node_modules",
+            "npm_cli.node_modules.minipass-flush",
+            "npm_cli.node_modules.minipass-flush.node_modules",
+            "npm_cli.node_modules.minipass-flush.node_modules.minipass",
+            "npm_cli.node_modules.minipass-flush.node_modules.minipass.index"
+          ],
+          "reasons": [
+            "reachable_repo_owned_prefix"
+          ],
+          "repo_hint_overlap": [],
+          "repo_prefix_match_depth": 6,
+          "repo_prefix_matches": [
+            "npm_cli",
+            "npm_cli.node_modules",
+            "npm_cli.node_modules.minipass-flush",
+            "npm_cli.node_modules.minipass-flush.node_modules",
+            "npm_cli.node_modules.minipass-flush.node_modules.minipass",
+            "npm_cli.node_modules.minipass-flush.node_modules.minipass.index"
+          ],
+          "scope": "non_tests",
+          "signals": [
+            "deep_repo_prefix",
+            "identifier_depth:9",
+            "owner_segment:value_like",
+            "qualified_identifier",
+            "reachable_repo_prefix",
+            "reachable_repo_prefix_depth:6",
+            "repo_owned_prefix",
+            "repo_prefix_depth:6"
+          ]
+        },
+        {
+          "bucket": "likely_unindexed_symbol",
+          "callee_kind": "qualified",
+          "caller_module": "npm_cli.node_modules.minipass-flush.node_modules.minipass.index",
+          "caller_qualified_name": "npm_cli.node_modules.minipass-flush.node_modules.minipass.index.module.exports.[ASYNCITERATOR].next",
+          "caller_structural_id": "aa3d8b9b76303b995cb257cd3fb66a4ba03f4712",
+          "candidate_module_hints": [],
+          "file_path": "node_modules/minipass-flush/node_modules/minipass/index.js",
+          "identifier": "npm_cli.node_modules.minipass-flush.node_modules.minipass.index.module.exports.once",
+          "identifier_root": "npm_cli",
+          "language": "javascript",
+          "longest_reachable_repo_prefix_match": "npm_cli.node_modules.minipass-flush.node_modules.minipass.index",
+          "longest_repo_prefix_match": "npm_cli.node_modules.minipass-flush.node_modules.minipass.index",
+          "ordinal": 1,
+          "reachable_repo_binding": false,
+          "reachable_repo_prefix_matches": [
+            "npm_cli",
+            "npm_cli.node_modules",
+            "npm_cli.node_modules.minipass-flush",
+            "npm_cli.node_modules.minipass-flush.node_modules",
+            "npm_cli.node_modules.minipass-flush.node_modules.minipass",
+            "npm_cli.node_modules.minipass-flush.node_modules.minipass.index"
+          ],
+          "reasons": [
+            "reachable_repo_owned_prefix"
+          ],
+          "repo_hint_overlap": [],
+          "repo_prefix_match_depth": 6,
+          "repo_prefix_matches": [
+            "npm_cli",
+            "npm_cli.node_modules",
+            "npm_cli.node_modules.minipass-flush",
+            "npm_cli.node_modules.minipass-flush.node_modules",
+            "npm_cli.node_modules.minipass-flush.node_modules.minipass",
+            "npm_cli.node_modules.minipass-flush.node_modules.minipass.index"
+          ],
+          "scope": "non_tests",
+          "signals": [
+            "deep_repo_prefix",
+            "identifier_depth:9",
+            "owner_segment:value_like",
+            "qualified_identifier",
+            "reachable_repo_prefix",
+            "reachable_repo_prefix_depth:6",
+            "repo_owned_prefix",
+            "repo_prefix_depth:6"
+          ]
+        },
+        {
+          "bucket": "likely_unindexed_symbol",
+          "callee_kind": "qualified",
+          "caller_module": "npm_cli.node_modules.minipass-pipeline.node_modules.minipass.index",
+          "caller_qualified_name": "npm_cli.node_modules.minipass-pipeline.node_modules.minipass.index.module.exports.end",
+          "caller_structural_id": "168147ba78072a3ea0f116ea6215164bd413d80a",
+          "candidate_module_hints": [],
+          "file_path": "node_modules/minipass-pipeline/node_modules/minipass/index.js",
+          "identifier": "npm_cli.node_modules.minipass-pipeline.node_modules.minipass.index.module.exports.once",
+          "identifier_root": "npm_cli",
+          "language": "javascript",
+          "longest_reachable_repo_prefix_match": "npm_cli.node_modules.minipass-pipeline.node_modules.minipass.index",
+          "longest_repo_prefix_match": "npm_cli.node_modules.minipass-pipeline.node_modules.minipass.index",
+          "ordinal": 1,
+          "reachable_repo_binding": false,
+          "reachable_repo_prefix_matches": [
+            "npm_cli",
+            "npm_cli.node_modules",
+            "npm_cli.node_modules.minipass-pipeline",
+            "npm_cli.node_modules.minipass-pipeline.node_modules",
+            "npm_cli.node_modules.minipass-pipeline.node_modules.minipass",
+            "npm_cli.node_modules.minipass-pipeline.node_modules.minipass.index"
+          ],
+          "reasons": [
+            "reachable_repo_owned_prefix"
+          ],
+          "repo_hint_overlap": [],
+          "repo_prefix_match_depth": 6,
+          "repo_prefix_matches": [
+            "npm_cli",
+            "npm_cli.node_modules",
+            "npm_cli.node_modules.minipass-pipeline",
+            "npm_cli.node_modules.minipass-pipeline.node_modules",
+            "npm_cli.node_modules.minipass-pipeline.node_modules.minipass",
+            "npm_cli.node_modules.minipass-pipeline.node_modules.minipass.index"
+          ],
+          "scope": "non_tests",
+          "signals": [
+            "deep_repo_prefix",
+            "identifier_depth:9",
+            "owner_segment:value_like",
+            "qualified_identifier",
+            "reachable_repo_prefix",
+            "reachable_repo_prefix_depth:6",
+            "repo_owned_prefix",
+            "repo_prefix_depth:6"
+          ]
+        },
+        {
+          "bucket": "likely_unindexed_symbol",
+          "callee_kind": "qualified",
+          "caller_module": "npm_cli.node_modules.minipass-pipeline.node_modules.minipass.index",
+          "caller_qualified_name": "npm_cli.node_modules.minipass-pipeline.node_modules.minipass.index.module.exports.[ASYNCITERATOR].next",
+          "caller_structural_id": "b7124bd7cbd0fba4285315cc7b664e4ae80a86de",
+          "candidate_module_hints": [],
+          "file_path": "node_modules/minipass-pipeline/node_modules/minipass/index.js",
+          "identifier": "npm_cli.node_modules.minipass-pipeline.node_modules.minipass.index.module.exports.once",
+          "identifier_root": "npm_cli",
+          "language": "javascript",
+          "longest_reachable_repo_prefix_match": "npm_cli.node_modules.minipass-pipeline.node_modules.minipass.index",
+          "longest_repo_prefix_match": "npm_cli.node_modules.minipass-pipeline.node_modules.minipass.index",
+          "ordinal": 1,
+          "reachable_repo_binding": false,
+          "reachable_repo_prefix_matches": [
+            "npm_cli",
+            "npm_cli.node_modules",
+            "npm_cli.node_modules.minipass-pipeline",
+            "npm_cli.node_modules.minipass-pipeline.node_modules",
+            "npm_cli.node_modules.minipass-pipeline.node_modules.minipass",
+            "npm_cli.node_modules.minipass-pipeline.node_modules.minipass.index"
+          ],
+          "reasons": [
+            "reachable_repo_owned_prefix"
+          ],
+          "repo_hint_overlap": [],
+          "repo_prefix_match_depth": 6,
+          "repo_prefix_matches": [
+            "npm_cli",
+            "npm_cli.node_modules",
+            "npm_cli.node_modules.minipass-pipeline",
+            "npm_cli.node_modules.minipass-pipeline.node_modules",
+            "npm_cli.node_modules.minipass-pipeline.node_modules.minipass",
+            "npm_cli.node_modules.minipass-pipeline.node_modules.minipass.index"
+          ],
+          "scope": "non_tests",
+          "signals": [
+            "deep_repo_prefix",
+            "identifier_depth:9",
+            "owner_segment:value_like",
             "qualified_identifier",
             "reachable_repo_prefix",
             "reachable_repo_prefix_depth:6",
@@ -6882,6 +6936,54 @@
             "reachable_repo_prefix_depth:5",
             "repo_owned_prefix",
             "repo_prefix_depth:5"
+          ]
+        },
+        {
+          "bucket": "likely_unindexed_symbol",
+          "callee_kind": "qualified",
+          "caller_module": "npm_cli.node_modules.npm-audit-report.lib.reporters.detail",
+          "caller_qualified_name": "npm_cli.node_modules.npm-audit-report.lib.reporters.detail.module.exports",
+          "caller_structural_id": "85d3f837e779c41e6ec1c3a88df42d03519529a6",
+          "candidate_module_hints": [],
+          "file_path": "node_modules/npm-audit-report/lib/reporters/detail.js",
+          "identifier": "npm_cli.node_modules.npm-audit-report.lib.reporters.install.summary",
+          "identifier_root": "npm_cli",
+          "language": "javascript",
+          "longest_reachable_repo_prefix_match": "npm_cli.node_modules.npm-audit-report.lib.reporters.install",
+          "longest_repo_prefix_match": "npm_cli.node_modules.npm-audit-report.lib.reporters.install",
+          "ordinal": 1,
+          "reachable_repo_binding": false,
+          "reachable_repo_prefix_matches": [
+            "npm_cli",
+            "npm_cli.node_modules",
+            "npm_cli.node_modules.npm-audit-report",
+            "npm_cli.node_modules.npm-audit-report.lib",
+            "npm_cli.node_modules.npm-audit-report.lib.reporters",
+            "npm_cli.node_modules.npm-audit-report.lib.reporters.install"
+          ],
+          "reasons": [
+            "reachable_repo_owned_prefix"
+          ],
+          "repo_hint_overlap": [],
+          "repo_prefix_match_depth": 6,
+          "repo_prefix_matches": [
+            "npm_cli",
+            "npm_cli.node_modules",
+            "npm_cli.node_modules.npm-audit-report",
+            "npm_cli.node_modules.npm-audit-report.lib",
+            "npm_cli.node_modules.npm-audit-report.lib.reporters",
+            "npm_cli.node_modules.npm-audit-report.lib.reporters.install"
+          ],
+          "scope": "non_tests",
+          "signals": [
+            "deep_repo_prefix",
+            "identifier_depth:7",
+            "owner_segment:value_like",
+            "qualified_identifier",
+            "reachable_repo_prefix",
+            "reachable_repo_prefix_depth:6",
+            "repo_owned_prefix",
+            "repo_prefix_depth:6"
           ]
         },
         {
@@ -9369,56 +9471,6 @@
           "bucket": "likely_unindexed_symbol",
           "callee_kind": "qualified",
           "caller_module": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.parse",
-          "caller_qualified_name": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.parse.expandRange",
-          "caller_structural_id": "20329afb7845b23a61dd32c7df7ceb9507061164",
-          "candidate_module_hints": [],
-          "file_path": "node_modules/tinyglobby/node_modules/picomatch/lib/parse.js",
-          "identifier": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils.escapeRegex",
-          "identifier_root": "npm_cli",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils",
-          "longest_repo_prefix_match": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "npm_cli",
-            "npm_cli.node_modules",
-            "npm_cli.node_modules.tinyglobby",
-            "npm_cli.node_modules.tinyglobby.node_modules",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 7,
-          "repo_prefix_matches": [
-            "npm_cli",
-            "npm_cli.node_modules",
-            "npm_cli.node_modules.tinyglobby",
-            "npm_cli.node_modules.tinyglobby.node_modules",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:8",
-            "owner_segment:value_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:7",
-            "repo_owned_prefix",
-            "repo_prefix_depth:7"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
-          "caller_module": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.parse",
           "caller_qualified_name": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.parse.parse",
           "caller_structural_id": "c22c34a53188dcaf4004c39d784ec13b9106fad0",
           "candidate_module_hints": [],
@@ -9519,15 +9571,15 @@
           "bucket": "likely_unindexed_symbol",
           "callee_kind": "qualified",
           "caller_module": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.parse",
-          "caller_qualified_name": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.parse.parse",
-          "caller_structural_id": "c22c34a53188dcaf4004c39d784ec13b9106fad0",
+          "caller_qualified_name": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.parse.parse.fastpaths",
+          "caller_structural_id": "8e41b431110b775ecd516f24a8d542fa962a2c2c",
           "candidate_module_hints": [],
           "file_path": "node_modules/tinyglobby/node_modules/picomatch/lib/parse.js",
-          "identifier": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils.wrapOutput",
+          "identifier": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.constants.globChars",
           "identifier_root": "npm_cli",
           "language": "javascript",
-          "longest_reachable_repo_prefix_match": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils",
-          "longest_repo_prefix_match": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils",
+          "longest_reachable_repo_prefix_match": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.constants",
+          "longest_repo_prefix_match": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.constants",
           "ordinal": 1,
           "reachable_repo_binding": false,
           "reachable_repo_prefix_matches": [
@@ -9537,7 +9589,7 @@
             "npm_cli.node_modules.tinyglobby.node_modules",
             "npm_cli.node_modules.tinyglobby.node_modules.picomatch",
             "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils"
+            "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.constants"
           ],
           "reasons": [
             "reachable_repo_owned_prefix"
@@ -9551,207 +9603,7 @@
             "npm_cli.node_modules.tinyglobby.node_modules",
             "npm_cli.node_modules.tinyglobby.node_modules.picomatch",
             "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:8",
-            "owner_segment:value_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:7",
-            "repo_owned_prefix",
-            "repo_prefix_depth:7"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
-          "caller_module": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.parse",
-          "caller_qualified_name": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.parse.parse",
-          "caller_structural_id": "c22c34a53188dcaf4004c39d784ec13b9106fad0",
-          "candidate_module_hints": [],
-          "file_path": "node_modules/tinyglobby/node_modules/picomatch/lib/parse.js",
-          "identifier": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils.escapeRegex",
-          "identifier_root": "npm_cli",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils",
-          "longest_repo_prefix_match": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "npm_cli",
-            "npm_cli.node_modules",
-            "npm_cli.node_modules.tinyglobby",
-            "npm_cli.node_modules.tinyglobby.node_modules",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 7,
-          "repo_prefix_matches": [
-            "npm_cli",
-            "npm_cli.node_modules",
-            "npm_cli.node_modules.tinyglobby",
-            "npm_cli.node_modules.tinyglobby.node_modules",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:8",
-            "owner_segment:value_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:7",
-            "repo_owned_prefix",
-            "repo_prefix_depth:7"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
-          "caller_module": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.parse",
-          "caller_qualified_name": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.parse.parse",
-          "caller_structural_id": "c22c34a53188dcaf4004c39d784ec13b9106fad0",
-          "candidate_module_hints": [],
-          "file_path": "node_modules/tinyglobby/node_modules/picomatch/lib/parse.js",
-          "identifier": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils.hasRegexChars",
-          "identifier_root": "npm_cli",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils",
-          "longest_repo_prefix_match": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "npm_cli",
-            "npm_cli.node_modules",
-            "npm_cli.node_modules.tinyglobby",
-            "npm_cli.node_modules.tinyglobby.node_modules",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 7,
-          "repo_prefix_matches": [
-            "npm_cli",
-            "npm_cli.node_modules",
-            "npm_cli.node_modules.tinyglobby",
-            "npm_cli.node_modules.tinyglobby.node_modules",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:8",
-            "owner_segment:value_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:7",
-            "repo_owned_prefix",
-            "repo_prefix_depth:7"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
-          "caller_module": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.parse",
-          "caller_qualified_name": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.parse.parse",
-          "caller_structural_id": "c22c34a53188dcaf4004c39d784ec13b9106fad0",
-          "candidate_module_hints": [],
-          "file_path": "node_modules/tinyglobby/node_modules/picomatch/lib/parse.js",
-          "identifier": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils.escapeLast",
-          "identifier_root": "npm_cli",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils",
-          "longest_repo_prefix_match": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "npm_cli",
-            "npm_cli.node_modules",
-            "npm_cli.node_modules.tinyglobby",
-            "npm_cli.node_modules.tinyglobby.node_modules",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 7,
-          "repo_prefix_matches": [
-            "npm_cli",
-            "npm_cli.node_modules",
-            "npm_cli.node_modules.tinyglobby",
-            "npm_cli.node_modules.tinyglobby.node_modules",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:8",
-            "owner_segment:value_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:7",
-            "repo_owned_prefix",
-            "repo_prefix_depth:7"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
-          "caller_module": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.scan",
-          "caller_qualified_name": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.scan.scan",
-          "caller_structural_id": "bbf3c1077a77be031acd9651df74e3c2947ddac1",
-          "candidate_module_hints": [],
-          "file_path": "node_modules/tinyglobby/node_modules/picomatch/lib/scan.js",
-          "identifier": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils.removeBackslashes",
-          "identifier_root": "npm_cli",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils",
-          "longest_repo_prefix_match": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "npm_cli",
-            "npm_cli.node_modules",
-            "npm_cli.node_modules.tinyglobby",
-            "npm_cli.node_modules.tinyglobby.node_modules",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 7,
-          "repo_prefix_matches": [
-            "npm_cli",
-            "npm_cli.node_modules",
-            "npm_cli.node_modules.tinyglobby",
-            "npm_cli.node_modules.tinyglobby.node_modules",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib",
-            "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils"
+            "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.constants"
           ],
           "scope": "non_tests",
           "signals": [
@@ -11060,34 +10912,34 @@
           ]
         }
       ],
-      "count": 230,
+      "count": 227,
       "reasons": {
-        "reachable_repo_owned_prefix": 227,
+        "reachable_repo_owned_prefix": 224,
         "repo_owned_member_terminal": 3
       },
       "signals": {
-        "deep_repo_prefix": 230,
+        "deep_repo_prefix": 227,
         "identifier_depth:10": 1,
         "identifier_depth:5": 8,
-        "identifier_depth:6": 54,
-        "identifier_depth:7": 98,
-        "identifier_depth:8": 61,
-        "identifier_depth:9": 8,
+        "identifier_depth:6": 51,
+        "identifier_depth:7": 99,
+        "identifier_depth:8": 56,
+        "identifier_depth:9": 12,
         "member_terminal": 3,
         "owner_segment:type_like": 58,
-        "owner_segment:value_like": 172,
-        "qualified_identifier": 230,
-        "reachable_repo_prefix": 230,
+        "owner_segment:value_like": 169,
+        "qualified_identifier": 227,
+        "reachable_repo_prefix": 227,
         "reachable_repo_prefix_depth:4": 8,
-        "reachable_repo_prefix_depth:5": 72,
-        "reachable_repo_prefix_depth:6": 115,
-        "reachable_repo_prefix_depth:7": 34,
+        "reachable_repo_prefix_depth:5": 69,
+        "reachable_repo_prefix_depth:6": 120,
+        "reachable_repo_prefix_depth:7": 29,
         "reachable_repo_prefix_depth:8": 1,
-        "repo_owned_prefix": 230,
+        "repo_owned_prefix": 227,
         "repo_prefix_depth:4": 8,
-        "repo_prefix_depth:5": 72,
-        "repo_prefix_depth:6": 115,
-        "repo_prefix_depth:7": 34,
+        "repo_prefix_depth:5": 69,
+        "repo_prefix_depth:6": 120,
+        "repo_prefix_depth:7": 29,
         "repo_prefix_depth:8": 1
       }
     }
@@ -14990,52 +14842,6 @@
       "bucket": "likely_unindexed_symbol",
       "callee_kind": "qualified",
       "caller_module": "npm_cli.node_modules.cacache.lib.get",
-      "caller_qualified_name": "npm_cli.node_modules.cacache.lib.get.getData",
-      "caller_structural_id": "c3df07b823ea44814d7b633577b157beca3c50df",
-      "candidate_module_hints": [],
-      "file_path": "node_modules/cacache/lib/get.js",
-      "identifier": "npm_cli.node_modules.cacache.lib.entry-index.NotFoundError",
-      "identifier_root": "npm_cli",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "npm_cli.node_modules.cacache.lib.entry-index",
-      "longest_repo_prefix_match": "npm_cli.node_modules.cacache.lib.entry-index",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "npm_cli",
-        "npm_cli.node_modules",
-        "npm_cli.node_modules.cacache",
-        "npm_cli.node_modules.cacache.lib",
-        "npm_cli.node_modules.cacache.lib.entry-index"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 5,
-      "repo_prefix_matches": [
-        "npm_cli",
-        "npm_cli.node_modules",
-        "npm_cli.node_modules.cacache",
-        "npm_cli.node_modules.cacache.lib",
-        "npm_cli.node_modules.cacache.lib.entry-index"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:6",
-        "owner_segment:value_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:5",
-        "repo_owned_prefix",
-        "repo_prefix_depth:5"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
-      "caller_module": "npm_cli.node_modules.cacache.lib.get",
       "caller_qualified_name": "npm_cli.node_modules.cacache.lib.get.getDataByDigest",
       "caller_structural_id": "12d37d534f33dd069135b45209afeaaac5fda6de",
       "candidate_module_hints": [],
@@ -15128,52 +14934,6 @@
       "bucket": "likely_unindexed_symbol",
       "callee_kind": "qualified",
       "caller_module": "npm_cli.node_modules.cacache.lib.get",
-      "caller_qualified_name": "npm_cli.node_modules.cacache.lib.get.getStream",
-      "caller_structural_id": "dba2da1d24454882c0ffe98c11ca03b37b9eab1b",
-      "candidate_module_hints": [],
-      "file_path": "node_modules/cacache/lib/get.js",
-      "identifier": "npm_cli.node_modules.cacache.lib.entry-index.NotFoundError",
-      "identifier_root": "npm_cli",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "npm_cli.node_modules.cacache.lib.entry-index",
-      "longest_repo_prefix_match": "npm_cli.node_modules.cacache.lib.entry-index",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "npm_cli",
-        "npm_cli.node_modules",
-        "npm_cli.node_modules.cacache",
-        "npm_cli.node_modules.cacache.lib",
-        "npm_cli.node_modules.cacache.lib.entry-index"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 5,
-      "repo_prefix_matches": [
-        "npm_cli",
-        "npm_cli.node_modules",
-        "npm_cli.node_modules.cacache",
-        "npm_cli.node_modules.cacache.lib",
-        "npm_cli.node_modules.cacache.lib.entry-index"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:6",
-        "owner_segment:value_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:5",
-        "repo_owned_prefix",
-        "repo_prefix_depth:5"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
-      "caller_module": "npm_cli.node_modules.cacache.lib.get",
       "caller_qualified_name": "npm_cli.node_modules.cacache.lib.get.getStreamDigest",
       "caller_structural_id": "8c49394cce6a330a7523c18098414ae33271c88b",
       "candidate_module_hints": [],
@@ -15254,52 +15014,6 @@
       "signals": [
         "deep_repo_prefix",
         "identifier_depth:7",
-        "owner_segment:value_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:5",
-        "repo_owned_prefix",
-        "repo_prefix_depth:5"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
-      "caller_module": "npm_cli.node_modules.cacache.lib.get",
-      "caller_qualified_name": "npm_cli.node_modules.cacache.lib.get.copy",
-      "caller_structural_id": "44e94b05d8ff0c6c1202557107b556516763d9b4",
-      "candidate_module_hints": [],
-      "file_path": "node_modules/cacache/lib/get.js",
-      "identifier": "npm_cli.node_modules.cacache.lib.entry-index.NotFoundError",
-      "identifier_root": "npm_cli",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "npm_cli.node_modules.cacache.lib.entry-index",
-      "longest_repo_prefix_match": "npm_cli.node_modules.cacache.lib.entry-index",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "npm_cli",
-        "npm_cli.node_modules",
-        "npm_cli.node_modules.cacache",
-        "npm_cli.node_modules.cacache.lib",
-        "npm_cli.node_modules.cacache.lib.entry-index"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 5,
-      "repo_prefix_matches": [
-        "npm_cli",
-        "npm_cli.node_modules",
-        "npm_cli.node_modules.cacache",
-        "npm_cli.node_modules.cacache.lib",
-        "npm_cli.node_modules.cacache.lib.entry-index"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:6",
         "owner_segment:value_like",
         "qualified_identifier",
         "reachable_repo_prefix",
@@ -15535,6 +15249,198 @@
         "deep_repo_prefix",
         "identifier_depth:8",
         "owner_segment:type_like",
+        "qualified_identifier",
+        "reachable_repo_prefix",
+        "reachable_repo_prefix_depth:6",
+        "repo_owned_prefix",
+        "repo_prefix_depth:6"
+      ]
+    },
+    {
+      "bucket": "likely_unindexed_symbol",
+      "callee_kind": "qualified",
+      "caller_module": "npm_cli.node_modules.minipass-flush.node_modules.minipass.index",
+      "caller_qualified_name": "npm_cli.node_modules.minipass-flush.node_modules.minipass.index.module.exports.end",
+      "caller_structural_id": "01a1e68f12e4148983c2c4bc216db8bede72fb23",
+      "candidate_module_hints": [],
+      "file_path": "node_modules/minipass-flush/node_modules/minipass/index.js",
+      "identifier": "npm_cli.node_modules.minipass-flush.node_modules.minipass.index.module.exports.once",
+      "identifier_root": "npm_cli",
+      "language": "javascript",
+      "longest_reachable_repo_prefix_match": "npm_cli.node_modules.minipass-flush.node_modules.minipass.index",
+      "longest_repo_prefix_match": "npm_cli.node_modules.minipass-flush.node_modules.minipass.index",
+      "ordinal": 1,
+      "reachable_repo_binding": false,
+      "reachable_repo_prefix_matches": [
+        "npm_cli",
+        "npm_cli.node_modules",
+        "npm_cli.node_modules.minipass-flush",
+        "npm_cli.node_modules.minipass-flush.node_modules",
+        "npm_cli.node_modules.minipass-flush.node_modules.minipass",
+        "npm_cli.node_modules.minipass-flush.node_modules.minipass.index"
+      ],
+      "reasons": [
+        "reachable_repo_owned_prefix"
+      ],
+      "repo_hint_overlap": [],
+      "repo_prefix_match_depth": 6,
+      "repo_prefix_matches": [
+        "npm_cli",
+        "npm_cli.node_modules",
+        "npm_cli.node_modules.minipass-flush",
+        "npm_cli.node_modules.minipass-flush.node_modules",
+        "npm_cli.node_modules.minipass-flush.node_modules.minipass",
+        "npm_cli.node_modules.minipass-flush.node_modules.minipass.index"
+      ],
+      "scope": "non_tests",
+      "signals": [
+        "deep_repo_prefix",
+        "identifier_depth:9",
+        "owner_segment:value_like",
+        "qualified_identifier",
+        "reachable_repo_prefix",
+        "reachable_repo_prefix_depth:6",
+        "repo_owned_prefix",
+        "repo_prefix_depth:6"
+      ]
+    },
+    {
+      "bucket": "likely_unindexed_symbol",
+      "callee_kind": "qualified",
+      "caller_module": "npm_cli.node_modules.minipass-flush.node_modules.minipass.index",
+      "caller_qualified_name": "npm_cli.node_modules.minipass-flush.node_modules.minipass.index.module.exports.[ASYNCITERATOR].next",
+      "caller_structural_id": "aa3d8b9b76303b995cb257cd3fb66a4ba03f4712",
+      "candidate_module_hints": [],
+      "file_path": "node_modules/minipass-flush/node_modules/minipass/index.js",
+      "identifier": "npm_cli.node_modules.minipass-flush.node_modules.minipass.index.module.exports.once",
+      "identifier_root": "npm_cli",
+      "language": "javascript",
+      "longest_reachable_repo_prefix_match": "npm_cli.node_modules.minipass-flush.node_modules.minipass.index",
+      "longest_repo_prefix_match": "npm_cli.node_modules.minipass-flush.node_modules.minipass.index",
+      "ordinal": 1,
+      "reachable_repo_binding": false,
+      "reachable_repo_prefix_matches": [
+        "npm_cli",
+        "npm_cli.node_modules",
+        "npm_cli.node_modules.minipass-flush",
+        "npm_cli.node_modules.minipass-flush.node_modules",
+        "npm_cli.node_modules.minipass-flush.node_modules.minipass",
+        "npm_cli.node_modules.minipass-flush.node_modules.minipass.index"
+      ],
+      "reasons": [
+        "reachable_repo_owned_prefix"
+      ],
+      "repo_hint_overlap": [],
+      "repo_prefix_match_depth": 6,
+      "repo_prefix_matches": [
+        "npm_cli",
+        "npm_cli.node_modules",
+        "npm_cli.node_modules.minipass-flush",
+        "npm_cli.node_modules.minipass-flush.node_modules",
+        "npm_cli.node_modules.minipass-flush.node_modules.minipass",
+        "npm_cli.node_modules.minipass-flush.node_modules.minipass.index"
+      ],
+      "scope": "non_tests",
+      "signals": [
+        "deep_repo_prefix",
+        "identifier_depth:9",
+        "owner_segment:value_like",
+        "qualified_identifier",
+        "reachable_repo_prefix",
+        "reachable_repo_prefix_depth:6",
+        "repo_owned_prefix",
+        "repo_prefix_depth:6"
+      ]
+    },
+    {
+      "bucket": "likely_unindexed_symbol",
+      "callee_kind": "qualified",
+      "caller_module": "npm_cli.node_modules.minipass-pipeline.node_modules.minipass.index",
+      "caller_qualified_name": "npm_cli.node_modules.minipass-pipeline.node_modules.minipass.index.module.exports.end",
+      "caller_structural_id": "168147ba78072a3ea0f116ea6215164bd413d80a",
+      "candidate_module_hints": [],
+      "file_path": "node_modules/minipass-pipeline/node_modules/minipass/index.js",
+      "identifier": "npm_cli.node_modules.minipass-pipeline.node_modules.minipass.index.module.exports.once",
+      "identifier_root": "npm_cli",
+      "language": "javascript",
+      "longest_reachable_repo_prefix_match": "npm_cli.node_modules.minipass-pipeline.node_modules.minipass.index",
+      "longest_repo_prefix_match": "npm_cli.node_modules.minipass-pipeline.node_modules.minipass.index",
+      "ordinal": 1,
+      "reachable_repo_binding": false,
+      "reachable_repo_prefix_matches": [
+        "npm_cli",
+        "npm_cli.node_modules",
+        "npm_cli.node_modules.minipass-pipeline",
+        "npm_cli.node_modules.minipass-pipeline.node_modules",
+        "npm_cli.node_modules.minipass-pipeline.node_modules.minipass",
+        "npm_cli.node_modules.minipass-pipeline.node_modules.minipass.index"
+      ],
+      "reasons": [
+        "reachable_repo_owned_prefix"
+      ],
+      "repo_hint_overlap": [],
+      "repo_prefix_match_depth": 6,
+      "repo_prefix_matches": [
+        "npm_cli",
+        "npm_cli.node_modules",
+        "npm_cli.node_modules.minipass-pipeline",
+        "npm_cli.node_modules.minipass-pipeline.node_modules",
+        "npm_cli.node_modules.minipass-pipeline.node_modules.minipass",
+        "npm_cli.node_modules.minipass-pipeline.node_modules.minipass.index"
+      ],
+      "scope": "non_tests",
+      "signals": [
+        "deep_repo_prefix",
+        "identifier_depth:9",
+        "owner_segment:value_like",
+        "qualified_identifier",
+        "reachable_repo_prefix",
+        "reachable_repo_prefix_depth:6",
+        "repo_owned_prefix",
+        "repo_prefix_depth:6"
+      ]
+    },
+    {
+      "bucket": "likely_unindexed_symbol",
+      "callee_kind": "qualified",
+      "caller_module": "npm_cli.node_modules.minipass-pipeline.node_modules.minipass.index",
+      "caller_qualified_name": "npm_cli.node_modules.minipass-pipeline.node_modules.minipass.index.module.exports.[ASYNCITERATOR].next",
+      "caller_structural_id": "b7124bd7cbd0fba4285315cc7b664e4ae80a86de",
+      "candidate_module_hints": [],
+      "file_path": "node_modules/minipass-pipeline/node_modules/minipass/index.js",
+      "identifier": "npm_cli.node_modules.minipass-pipeline.node_modules.minipass.index.module.exports.once",
+      "identifier_root": "npm_cli",
+      "language": "javascript",
+      "longest_reachable_repo_prefix_match": "npm_cli.node_modules.minipass-pipeline.node_modules.minipass.index",
+      "longest_repo_prefix_match": "npm_cli.node_modules.minipass-pipeline.node_modules.minipass.index",
+      "ordinal": 1,
+      "reachable_repo_binding": false,
+      "reachable_repo_prefix_matches": [
+        "npm_cli",
+        "npm_cli.node_modules",
+        "npm_cli.node_modules.minipass-pipeline",
+        "npm_cli.node_modules.minipass-pipeline.node_modules",
+        "npm_cli.node_modules.minipass-pipeline.node_modules.minipass",
+        "npm_cli.node_modules.minipass-pipeline.node_modules.minipass.index"
+      ],
+      "reasons": [
+        "reachable_repo_owned_prefix"
+      ],
+      "repo_hint_overlap": [],
+      "repo_prefix_match_depth": 6,
+      "repo_prefix_matches": [
+        "npm_cli",
+        "npm_cli.node_modules",
+        "npm_cli.node_modules.minipass-pipeline",
+        "npm_cli.node_modules.minipass-pipeline.node_modules",
+        "npm_cli.node_modules.minipass-pipeline.node_modules.minipass",
+        "npm_cli.node_modules.minipass-pipeline.node_modules.minipass.index"
+      ],
+      "scope": "non_tests",
+      "signals": [
+        "deep_repo_prefix",
+        "identifier_depth:9",
+        "owner_segment:value_like",
         "qualified_identifier",
         "reachable_repo_prefix",
         "reachable_repo_prefix_depth:6",
@@ -17906,6 +17812,54 @@
         "reachable_repo_prefix_depth:5",
         "repo_owned_prefix",
         "repo_prefix_depth:5"
+      ]
+    },
+    {
+      "bucket": "likely_unindexed_symbol",
+      "callee_kind": "qualified",
+      "caller_module": "npm_cli.node_modules.npm-audit-report.lib.reporters.detail",
+      "caller_qualified_name": "npm_cli.node_modules.npm-audit-report.lib.reporters.detail.module.exports",
+      "caller_structural_id": "85d3f837e779c41e6ec1c3a88df42d03519529a6",
+      "candidate_module_hints": [],
+      "file_path": "node_modules/npm-audit-report/lib/reporters/detail.js",
+      "identifier": "npm_cli.node_modules.npm-audit-report.lib.reporters.install.summary",
+      "identifier_root": "npm_cli",
+      "language": "javascript",
+      "longest_reachable_repo_prefix_match": "npm_cli.node_modules.npm-audit-report.lib.reporters.install",
+      "longest_repo_prefix_match": "npm_cli.node_modules.npm-audit-report.lib.reporters.install",
+      "ordinal": 1,
+      "reachable_repo_binding": false,
+      "reachable_repo_prefix_matches": [
+        "npm_cli",
+        "npm_cli.node_modules",
+        "npm_cli.node_modules.npm-audit-report",
+        "npm_cli.node_modules.npm-audit-report.lib",
+        "npm_cli.node_modules.npm-audit-report.lib.reporters",
+        "npm_cli.node_modules.npm-audit-report.lib.reporters.install"
+      ],
+      "reasons": [
+        "reachable_repo_owned_prefix"
+      ],
+      "repo_hint_overlap": [],
+      "repo_prefix_match_depth": 6,
+      "repo_prefix_matches": [
+        "npm_cli",
+        "npm_cli.node_modules",
+        "npm_cli.node_modules.npm-audit-report",
+        "npm_cli.node_modules.npm-audit-report.lib",
+        "npm_cli.node_modules.npm-audit-report.lib.reporters",
+        "npm_cli.node_modules.npm-audit-report.lib.reporters.install"
+      ],
+      "scope": "non_tests",
+      "signals": [
+        "deep_repo_prefix",
+        "identifier_depth:7",
+        "owner_segment:value_like",
+        "qualified_identifier",
+        "reachable_repo_prefix",
+        "reachable_repo_prefix_depth:6",
+        "repo_owned_prefix",
+        "repo_prefix_depth:6"
       ]
     },
     {
@@ -20393,56 +20347,6 @@
       "bucket": "likely_unindexed_symbol",
       "callee_kind": "qualified",
       "caller_module": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.parse",
-      "caller_qualified_name": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.parse.expandRange",
-      "caller_structural_id": "20329afb7845b23a61dd32c7df7ceb9507061164",
-      "candidate_module_hints": [],
-      "file_path": "node_modules/tinyglobby/node_modules/picomatch/lib/parse.js",
-      "identifier": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils.escapeRegex",
-      "identifier_root": "npm_cli",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils",
-      "longest_repo_prefix_match": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "npm_cli",
-        "npm_cli.node_modules",
-        "npm_cli.node_modules.tinyglobby",
-        "npm_cli.node_modules.tinyglobby.node_modules",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 7,
-      "repo_prefix_matches": [
-        "npm_cli",
-        "npm_cli.node_modules",
-        "npm_cli.node_modules.tinyglobby",
-        "npm_cli.node_modules.tinyglobby.node_modules",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:8",
-        "owner_segment:value_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:7",
-        "repo_owned_prefix",
-        "repo_prefix_depth:7"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
-      "caller_module": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.parse",
       "caller_qualified_name": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.parse.parse",
       "caller_structural_id": "c22c34a53188dcaf4004c39d784ec13b9106fad0",
       "candidate_module_hints": [],
@@ -20543,15 +20447,15 @@
       "bucket": "likely_unindexed_symbol",
       "callee_kind": "qualified",
       "caller_module": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.parse",
-      "caller_qualified_name": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.parse.parse",
-      "caller_structural_id": "c22c34a53188dcaf4004c39d784ec13b9106fad0",
+      "caller_qualified_name": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.parse.parse.fastpaths",
+      "caller_structural_id": "8e41b431110b775ecd516f24a8d542fa962a2c2c",
       "candidate_module_hints": [],
       "file_path": "node_modules/tinyglobby/node_modules/picomatch/lib/parse.js",
-      "identifier": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils.wrapOutput",
+      "identifier": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.constants.globChars",
       "identifier_root": "npm_cli",
       "language": "javascript",
-      "longest_reachable_repo_prefix_match": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils",
-      "longest_repo_prefix_match": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils",
+      "longest_reachable_repo_prefix_match": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.constants",
+      "longest_repo_prefix_match": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.constants",
       "ordinal": 1,
       "reachable_repo_binding": false,
       "reachable_repo_prefix_matches": [
@@ -20561,7 +20465,7 @@
         "npm_cli.node_modules.tinyglobby.node_modules",
         "npm_cli.node_modules.tinyglobby.node_modules.picomatch",
         "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils"
+        "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.constants"
       ],
       "reasons": [
         "reachable_repo_owned_prefix"
@@ -20575,207 +20479,7 @@
         "npm_cli.node_modules.tinyglobby.node_modules",
         "npm_cli.node_modules.tinyglobby.node_modules.picomatch",
         "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:8",
-        "owner_segment:value_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:7",
-        "repo_owned_prefix",
-        "repo_prefix_depth:7"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
-      "caller_module": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.parse",
-      "caller_qualified_name": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.parse.parse",
-      "caller_structural_id": "c22c34a53188dcaf4004c39d784ec13b9106fad0",
-      "candidate_module_hints": [],
-      "file_path": "node_modules/tinyglobby/node_modules/picomatch/lib/parse.js",
-      "identifier": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils.escapeRegex",
-      "identifier_root": "npm_cli",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils",
-      "longest_repo_prefix_match": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "npm_cli",
-        "npm_cli.node_modules",
-        "npm_cli.node_modules.tinyglobby",
-        "npm_cli.node_modules.tinyglobby.node_modules",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 7,
-      "repo_prefix_matches": [
-        "npm_cli",
-        "npm_cli.node_modules",
-        "npm_cli.node_modules.tinyglobby",
-        "npm_cli.node_modules.tinyglobby.node_modules",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:8",
-        "owner_segment:value_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:7",
-        "repo_owned_prefix",
-        "repo_prefix_depth:7"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
-      "caller_module": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.parse",
-      "caller_qualified_name": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.parse.parse",
-      "caller_structural_id": "c22c34a53188dcaf4004c39d784ec13b9106fad0",
-      "candidate_module_hints": [],
-      "file_path": "node_modules/tinyglobby/node_modules/picomatch/lib/parse.js",
-      "identifier": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils.hasRegexChars",
-      "identifier_root": "npm_cli",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils",
-      "longest_repo_prefix_match": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "npm_cli",
-        "npm_cli.node_modules",
-        "npm_cli.node_modules.tinyglobby",
-        "npm_cli.node_modules.tinyglobby.node_modules",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 7,
-      "repo_prefix_matches": [
-        "npm_cli",
-        "npm_cli.node_modules",
-        "npm_cli.node_modules.tinyglobby",
-        "npm_cli.node_modules.tinyglobby.node_modules",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:8",
-        "owner_segment:value_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:7",
-        "repo_owned_prefix",
-        "repo_prefix_depth:7"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
-      "caller_module": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.parse",
-      "caller_qualified_name": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.parse.parse",
-      "caller_structural_id": "c22c34a53188dcaf4004c39d784ec13b9106fad0",
-      "candidate_module_hints": [],
-      "file_path": "node_modules/tinyglobby/node_modules/picomatch/lib/parse.js",
-      "identifier": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils.escapeLast",
-      "identifier_root": "npm_cli",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils",
-      "longest_repo_prefix_match": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "npm_cli",
-        "npm_cli.node_modules",
-        "npm_cli.node_modules.tinyglobby",
-        "npm_cli.node_modules.tinyglobby.node_modules",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 7,
-      "repo_prefix_matches": [
-        "npm_cli",
-        "npm_cli.node_modules",
-        "npm_cli.node_modules.tinyglobby",
-        "npm_cli.node_modules.tinyglobby.node_modules",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:8",
-        "owner_segment:value_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:7",
-        "repo_owned_prefix",
-        "repo_prefix_depth:7"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
-      "caller_module": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.scan",
-      "caller_qualified_name": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.scan.scan",
-      "caller_structural_id": "bbf3c1077a77be031acd9651df74e3c2947ddac1",
-      "candidate_module_hints": [],
-      "file_path": "node_modules/tinyglobby/node_modules/picomatch/lib/scan.js",
-      "identifier": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils.removeBackslashes",
-      "identifier_root": "npm_cli",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils",
-      "longest_repo_prefix_match": "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "npm_cli",
-        "npm_cli.node_modules",
-        "npm_cli.node_modules.tinyglobby",
-        "npm_cli.node_modules.tinyglobby.node_modules",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 7,
-      "repo_prefix_matches": [
-        "npm_cli",
-        "npm_cli.node_modules",
-        "npm_cli.node_modules.tinyglobby",
-        "npm_cli.node_modules.tinyglobby.node_modules",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib",
-        "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.utils"
+        "npm_cli.node_modules.tinyglobby.node_modules.picomatch.lib.constants"
       ],
       "scope": "non_tests",
       "signals": [
@@ -22220,47 +21924,6 @@
     },
     {
       "buckets": {
-        "likely_unindexed_symbol": 7
-      },
-      "count": 7,
-      "file_path": "node_modules/cacache/lib/get.js",
-      "reasons": {
-        "reachable_repo_owned_prefix": 7
-      },
-      "signals": {
-        "deep_repo_prefix": 7,
-        "identifier_depth:6": 3,
-        "identifier_depth:7": 4,
-        "owner_segment:value_like": 7,
-        "qualified_identifier": 7,
-        "reachable_repo_prefix": 7,
-        "reachable_repo_prefix_depth:5": 7,
-        "repo_owned_prefix": 7,
-        "repo_prefix_depth:5": 7
-      }
-    },
-    {
-      "buckets": {
-        "likely_unindexed_symbol": 7
-      },
-      "count": 7,
-      "file_path": "node_modules/tinyglobby/node_modules/picomatch/lib/parse.js",
-      "reasons": {
-        "reachable_repo_owned_prefix": 7
-      },
-      "signals": {
-        "deep_repo_prefix": 7,
-        "identifier_depth:8": 7,
-        "owner_segment:value_like": 7,
-        "qualified_identifier": 7,
-        "reachable_repo_prefix": 7,
-        "reachable_repo_prefix_depth:7": 7,
-        "repo_owned_prefix": 7,
-        "repo_prefix_depth:7": 7
-      }
-    },
-    {
-      "buckets": {
         "likely_unindexed_symbol": 6
       },
       "count": 6,
@@ -22544,6 +22207,26 @@
         "likely_unindexed_symbol": 4
       },
       "count": 4,
+      "file_path": "node_modules/cacache/lib/get.js",
+      "reasons": {
+        "reachable_repo_owned_prefix": 4
+      },
+      "signals": {
+        "deep_repo_prefix": 4,
+        "identifier_depth:7": 4,
+        "owner_segment:value_like": 4,
+        "qualified_identifier": 4,
+        "reachable_repo_prefix": 4,
+        "reachable_repo_prefix_depth:5": 4,
+        "repo_owned_prefix": 4,
+        "repo_prefix_depth:5": 4
+      }
+    },
+    {
+      "buckets": {
+        "likely_unindexed_symbol": 4
+      },
+      "count": 4,
       "file_path": "node_modules/node-gyp/lib/build.js",
       "reasons": {
         "reachable_repo_owned_prefix": 4
@@ -22787,6 +22470,26 @@
         "likely_unindexed_symbol": 3
       },
       "count": 3,
+      "file_path": "node_modules/tinyglobby/node_modules/picomatch/lib/parse.js",
+      "reasons": {
+        "reachable_repo_owned_prefix": 3
+      },
+      "signals": {
+        "deep_repo_prefix": 3,
+        "identifier_depth:8": 3,
+        "owner_segment:value_like": 3,
+        "qualified_identifier": 3,
+        "reachable_repo_prefix": 3,
+        "reachable_repo_prefix_depth:7": 3,
+        "repo_owned_prefix": 3,
+        "repo_prefix_depth:7": 3
+      }
+    },
+    {
+      "buckets": {
+        "likely_unindexed_symbol": 3
+      },
+      "count": 3,
       "file_path": "workspaces/arborist/lib/arborist/index.js",
       "reasons": {
         "reachable_repo_owned_prefix": 3
@@ -22920,6 +22623,46 @@
         "member_terminal": 1,
         "owner_segment:type_like": 1,
         "owner_segment:value_like": 1,
+        "qualified_identifier": 2,
+        "reachable_repo_prefix": 2,
+        "reachable_repo_prefix_depth:6": 2,
+        "repo_owned_prefix": 2,
+        "repo_prefix_depth:6": 2
+      }
+    },
+    {
+      "buckets": {
+        "likely_unindexed_symbol": 2
+      },
+      "count": 2,
+      "file_path": "node_modules/minipass-flush/node_modules/minipass/index.js",
+      "reasons": {
+        "reachable_repo_owned_prefix": 2
+      },
+      "signals": {
+        "deep_repo_prefix": 2,
+        "identifier_depth:9": 2,
+        "owner_segment:value_like": 2,
+        "qualified_identifier": 2,
+        "reachable_repo_prefix": 2,
+        "reachable_repo_prefix_depth:6": 2,
+        "repo_owned_prefix": 2,
+        "repo_prefix_depth:6": 2
+      }
+    },
+    {
+      "buckets": {
+        "likely_unindexed_symbol": 2
+      },
+      "count": 2,
+      "file_path": "node_modules/minipass-pipeline/node_modules/minipass/index.js",
+      "reasons": {
+        "reachable_repo_owned_prefix": 2
+      },
+      "signals": {
+        "deep_repo_prefix": 2,
+        "identifier_depth:9": 2,
+        "owner_segment:value_like": 2,
         "qualified_identifier": 2,
         "reachable_repo_prefix": 2,
         "reachable_repo_prefix_depth:6": 2,
@@ -23572,6 +23315,26 @@
         "likely_unindexed_symbol": 1
       },
       "count": 1,
+      "file_path": "node_modules/npm-audit-report/lib/reporters/detail.js",
+      "reasons": {
+        "reachable_repo_owned_prefix": 1
+      },
+      "signals": {
+        "deep_repo_prefix": 1,
+        "identifier_depth:7": 1,
+        "owner_segment:value_like": 1,
+        "qualified_identifier": 1,
+        "reachable_repo_prefix": 1,
+        "reachable_repo_prefix_depth:6": 1,
+        "repo_owned_prefix": 1,
+        "repo_prefix_depth:6": 1
+      }
+    },
+    {
+      "buckets": {
+        "likely_unindexed_symbol": 1
+      },
+      "count": 1,
       "file_path": "node_modules/path-scurry/dist/commonjs/index.js",
       "reasons": {
         "reachable_repo_owned_prefix": 1
@@ -23725,26 +23488,6 @@
         "reachable_repo_prefix_depth:6": 1,
         "repo_owned_prefix": 1,
         "repo_prefix_depth:6": 1
-      }
-    },
-    {
-      "buckets": {
-        "likely_unindexed_symbol": 1
-      },
-      "count": 1,
-      "file_path": "node_modules/tinyglobby/node_modules/picomatch/lib/scan.js",
-      "reasons": {
-        "reachable_repo_owned_prefix": 1
-      },
-      "signals": {
-        "deep_repo_prefix": 1,
-        "identifier_depth:8": 1,
-        "owner_segment:value_like": 1,
-        "qualified_identifier": 1,
-        "reachable_repo_prefix": 1,
-        "reachable_repo_prefix_depth:7": 1,
-        "repo_owned_prefix": 1,
-        "repo_prefix_depth:7": 1
       }
     },
     {

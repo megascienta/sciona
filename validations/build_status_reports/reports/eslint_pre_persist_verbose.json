@@ -64,172 +64,6 @@
         "repo_prefix_depth:4": 1
       }
     },
-    "likely_parser_extraction_gap": {
-      "callsites": [
-        {
-          "bucket": "likely_parser_extraction_gap",
-          "callee_kind": "qualified",
-          "caller_module": "eslint.lib.languages.js.source-code.source-code",
-          "caller_qualified_name": "eslint.lib.languages.js.source-code.source-code.SourceCode.isSpaceBetween",
-          "caller_structural_id": "087931088f952646682bbac2629abcfa9fcc10e1",
-          "candidate_module_hints": [],
-          "file_path": "lib/languages/js/source-code/source-code.js",
-          "identifier": "eslint.lib.languages.js.source-code.source-code.SourceCode.getLastToken",
-          "identifier_root": "eslint",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "eslint.lib.languages.js.source-code.source-code",
-          "longest_repo_prefix_match": "eslint.lib.languages.js.source-code.source-code",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "eslint",
-            "eslint.lib",
-            "eslint.lib.languages",
-            "eslint.lib.languages.js",
-            "eslint.lib.languages.js.source-code",
-            "eslint.lib.languages.js.source-code.source-code"
-          ],
-          "reasons": [
-            "repeated_qualified_segment"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 6,
-          "repo_prefix_matches": [
-            "eslint",
-            "eslint.lib",
-            "eslint.lib.languages",
-            "eslint.lib.languages.js",
-            "eslint.lib.languages.js.source-code",
-            "eslint.lib.languages.js.source-code.source-code"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:8",
-            "owner_segment:type_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:6",
-            "repeated_segment",
-            "repo_owned_prefix",
-            "repo_prefix_depth:6"
-          ]
-        },
-        {
-          "bucket": "likely_parser_extraction_gap",
-          "callee_kind": "qualified",
-          "caller_module": "eslint.lib.languages.js.source-code.source-code",
-          "caller_qualified_name": "eslint.lib.languages.js.source-code.source-code.SourceCode.isSpaceBetween",
-          "caller_structural_id": "087931088f952646682bbac2629abcfa9fcc10e1",
-          "candidate_module_hints": [],
-          "file_path": "lib/languages/js/source-code/source-code.js",
-          "identifier": "eslint.lib.languages.js.source-code.source-code.SourceCode.getFirstToken",
-          "identifier_root": "eslint",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "eslint.lib.languages.js.source-code.source-code",
-          "longest_repo_prefix_match": "eslint.lib.languages.js.source-code.source-code",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "eslint",
-            "eslint.lib",
-            "eslint.lib.languages",
-            "eslint.lib.languages.js",
-            "eslint.lib.languages.js.source-code",
-            "eslint.lib.languages.js.source-code.source-code"
-          ],
-          "reasons": [
-            "repeated_qualified_segment"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 6,
-          "repo_prefix_matches": [
-            "eslint",
-            "eslint.lib",
-            "eslint.lib.languages",
-            "eslint.lib.languages.js",
-            "eslint.lib.languages.js.source-code",
-            "eslint.lib.languages.js.source-code.source-code"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:8",
-            "owner_segment:type_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:6",
-            "repeated_segment",
-            "repo_owned_prefix",
-            "repo_prefix_depth:6"
-          ]
-        },
-        {
-          "bucket": "likely_parser_extraction_gap",
-          "callee_kind": "qualified",
-          "caller_module": "eslint.lib.languages.js.source-code.source-code",
-          "caller_qualified_name": "eslint.lib.languages.js.source-code.source-code.SourceCode.isSpaceBetween",
-          "caller_structural_id": "087931088f952646682bbac2629abcfa9fcc10e1",
-          "candidate_module_hints": [],
-          "file_path": "lib/languages/js/source-code/source-code.js",
-          "identifier": "eslint.lib.languages.js.source-code.source-code.SourceCode.getTokenAfter",
-          "identifier_root": "eslint",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "eslint.lib.languages.js.source-code.source-code",
-          "longest_repo_prefix_match": "eslint.lib.languages.js.source-code.source-code",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "eslint",
-            "eslint.lib",
-            "eslint.lib.languages",
-            "eslint.lib.languages.js",
-            "eslint.lib.languages.js.source-code",
-            "eslint.lib.languages.js.source-code.source-code"
-          ],
-          "reasons": [
-            "repeated_qualified_segment"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 6,
-          "repo_prefix_matches": [
-            "eslint",
-            "eslint.lib",
-            "eslint.lib.languages",
-            "eslint.lib.languages.js",
-            "eslint.lib.languages.js.source-code",
-            "eslint.lib.languages.js.source-code.source-code"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:8",
-            "owner_segment:type_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:6",
-            "repeated_segment",
-            "repo_owned_prefix",
-            "repo_prefix_depth:6"
-          ]
-        }
-      ],
-      "count": 3,
-      "reasons": {
-        "repeated_qualified_segment": 3
-      },
-      "signals": {
-        "deep_repo_prefix": 3,
-        "identifier_depth:8": 3,
-        "owner_segment:type_like": 3,
-        "qualified_identifier": 3,
-        "reachable_repo_prefix": 3,
-        "reachable_repo_prefix_depth:6": 3,
-        "repeated_segment": 3,
-        "repo_owned_prefix": 3,
-        "repo_prefix_depth:6": 3
-      }
-    },
     "likely_unindexed_symbol": {
       "callsites": [
         {
@@ -1640,50 +1474,6 @@
         {
           "bucket": "likely_unindexed_symbol",
           "callee_kind": "qualified",
-          "caller_module": "eslint.tools.eslint-fuzzer",
-          "caller_qualified_name": "eslint.tools.eslint-fuzzer.fuzz.isolateBadAutofixPass",
-          "caller_structural_id": "aac3ec554d6946aeb23225f1e7947dbbd734d02f",
-          "candidate_module_hints": [],
-          "file_path": "tools/eslint-fuzzer.js",
-          "identifier": "eslint.lib.linter.source-code-fixer.applyFixes",
-          "identifier_root": "eslint",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "eslint.lib.linter.source-code-fixer",
-          "longest_repo_prefix_match": "eslint.lib.linter.source-code-fixer",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "eslint",
-            "eslint.lib",
-            "eslint.lib.linter",
-            "eslint.lib.linter.source-code-fixer"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 4,
-          "repo_prefix_matches": [
-            "eslint",
-            "eslint.lib",
-            "eslint.lib.linter",
-            "eslint.lib.linter.source-code-fixer"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:5",
-            "owner_segment:value_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:4",
-            "repo_owned_prefix",
-            "repo_prefix_depth:4"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
           "caller_module": "eslint.tools.update-rule-type-headers",
           "caller_qualified_name": "eslint.tools.update-rule-type-headers.getConsideredRuleIds",
           "caller_structural_id": "19e97d8fd4801ff5895cd56ec1c162ef94748ea7",
@@ -1726,25 +1516,25 @@
           ]
         }
       ],
-      "count": 33,
+      "count": 32,
       "reasons": {
-        "reachable_repo_owned_prefix": 30,
+        "reachable_repo_owned_prefix": 29,
         "repo_owned_member_terminal": 3
       },
       "signals": {
-        "deep_repo_prefix": 33,
-        "identifier_depth:5": 5,
+        "deep_repo_prefix": 32,
+        "identifier_depth:5": 4,
         "identifier_depth:6": 20,
         "identifier_depth:7": 8,
         "member_terminal": 3,
         "owner_segment:type_like": 17,
-        "owner_segment:value_like": 16,
-        "qualified_identifier": 33,
-        "reachable_repo_prefix": 33,
-        "reachable_repo_prefix_depth:4": 14,
+        "owner_segment:value_like": 15,
+        "qualified_identifier": 32,
+        "reachable_repo_prefix": 32,
+        "reachable_repo_prefix_depth:4": 13,
         "reachable_repo_prefix_depth:5": 19,
-        "repo_owned_prefix": 33,
-        "repo_prefix_depth:4": 14,
+        "repo_owned_prefix": 32,
+        "repo_prefix_depth:4": 13,
         "repo_prefix_depth:5": 19
       }
     }
@@ -1926,153 +1716,6 @@
         "reachable_repo_prefix_depth:4",
         "repo_owned_prefix",
         "repo_prefix_depth:4"
-      ]
-    },
-    {
-      "bucket": "likely_parser_extraction_gap",
-      "callee_kind": "qualified",
-      "caller_module": "eslint.lib.languages.js.source-code.source-code",
-      "caller_qualified_name": "eslint.lib.languages.js.source-code.source-code.SourceCode.isSpaceBetween",
-      "caller_structural_id": "087931088f952646682bbac2629abcfa9fcc10e1",
-      "candidate_module_hints": [],
-      "file_path": "lib/languages/js/source-code/source-code.js",
-      "identifier": "eslint.lib.languages.js.source-code.source-code.SourceCode.getLastToken",
-      "identifier_root": "eslint",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "eslint.lib.languages.js.source-code.source-code",
-      "longest_repo_prefix_match": "eslint.lib.languages.js.source-code.source-code",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "eslint",
-        "eslint.lib",
-        "eslint.lib.languages",
-        "eslint.lib.languages.js",
-        "eslint.lib.languages.js.source-code",
-        "eslint.lib.languages.js.source-code.source-code"
-      ],
-      "reasons": [
-        "repeated_qualified_segment"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 6,
-      "repo_prefix_matches": [
-        "eslint",
-        "eslint.lib",
-        "eslint.lib.languages",
-        "eslint.lib.languages.js",
-        "eslint.lib.languages.js.source-code",
-        "eslint.lib.languages.js.source-code.source-code"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:8",
-        "owner_segment:type_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:6",
-        "repeated_segment",
-        "repo_owned_prefix",
-        "repo_prefix_depth:6"
-      ]
-    },
-    {
-      "bucket": "likely_parser_extraction_gap",
-      "callee_kind": "qualified",
-      "caller_module": "eslint.lib.languages.js.source-code.source-code",
-      "caller_qualified_name": "eslint.lib.languages.js.source-code.source-code.SourceCode.isSpaceBetween",
-      "caller_structural_id": "087931088f952646682bbac2629abcfa9fcc10e1",
-      "candidate_module_hints": [],
-      "file_path": "lib/languages/js/source-code/source-code.js",
-      "identifier": "eslint.lib.languages.js.source-code.source-code.SourceCode.getFirstToken",
-      "identifier_root": "eslint",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "eslint.lib.languages.js.source-code.source-code",
-      "longest_repo_prefix_match": "eslint.lib.languages.js.source-code.source-code",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "eslint",
-        "eslint.lib",
-        "eslint.lib.languages",
-        "eslint.lib.languages.js",
-        "eslint.lib.languages.js.source-code",
-        "eslint.lib.languages.js.source-code.source-code"
-      ],
-      "reasons": [
-        "repeated_qualified_segment"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 6,
-      "repo_prefix_matches": [
-        "eslint",
-        "eslint.lib",
-        "eslint.lib.languages",
-        "eslint.lib.languages.js",
-        "eslint.lib.languages.js.source-code",
-        "eslint.lib.languages.js.source-code.source-code"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:8",
-        "owner_segment:type_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:6",
-        "repeated_segment",
-        "repo_owned_prefix",
-        "repo_prefix_depth:6"
-      ]
-    },
-    {
-      "bucket": "likely_parser_extraction_gap",
-      "callee_kind": "qualified",
-      "caller_module": "eslint.lib.languages.js.source-code.source-code",
-      "caller_qualified_name": "eslint.lib.languages.js.source-code.source-code.SourceCode.isSpaceBetween",
-      "caller_structural_id": "087931088f952646682bbac2629abcfa9fcc10e1",
-      "candidate_module_hints": [],
-      "file_path": "lib/languages/js/source-code/source-code.js",
-      "identifier": "eslint.lib.languages.js.source-code.source-code.SourceCode.getTokenAfter",
-      "identifier_root": "eslint",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "eslint.lib.languages.js.source-code.source-code",
-      "longest_repo_prefix_match": "eslint.lib.languages.js.source-code.source-code",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "eslint",
-        "eslint.lib",
-        "eslint.lib.languages",
-        "eslint.lib.languages.js",
-        "eslint.lib.languages.js.source-code",
-        "eslint.lib.languages.js.source-code.source-code"
-      ],
-      "reasons": [
-        "repeated_qualified_segment"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 6,
-      "repo_prefix_matches": [
-        "eslint",
-        "eslint.lib",
-        "eslint.lib.languages",
-        "eslint.lib.languages.js",
-        "eslint.lib.languages.js.source-code",
-        "eslint.lib.languages.js.source-code.source-code"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:8",
-        "owner_segment:type_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:6",
-        "repeated_segment",
-        "repo_owned_prefix",
-        "repo_prefix_depth:6"
       ]
     },
     {
@@ -3352,50 +2995,6 @@
     {
       "bucket": "likely_unindexed_symbol",
       "callee_kind": "qualified",
-      "caller_module": "eslint.tools.eslint-fuzzer",
-      "caller_qualified_name": "eslint.tools.eslint-fuzzer.fuzz.isolateBadAutofixPass",
-      "caller_structural_id": "aac3ec554d6946aeb23225f1e7947dbbd734d02f",
-      "candidate_module_hints": [],
-      "file_path": "tools/eslint-fuzzer.js",
-      "identifier": "eslint.lib.linter.source-code-fixer.applyFixes",
-      "identifier_root": "eslint",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "eslint.lib.linter.source-code-fixer",
-      "longest_repo_prefix_match": "eslint.lib.linter.source-code-fixer",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "eslint",
-        "eslint.lib",
-        "eslint.lib.linter",
-        "eslint.lib.linter.source-code-fixer"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 4,
-      "repo_prefix_matches": [
-        "eslint",
-        "eslint.lib",
-        "eslint.lib.linter",
-        "eslint.lib.linter.source-code-fixer"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:5",
-        "owner_segment:value_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:4",
-        "repo_owned_prefix",
-        "repo_prefix_depth:4"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
       "caller_module": "eslint.tools.update-rule-type-headers",
       "caller_qualified_name": "eslint.tools.update-rule-type-headers.getConsideredRuleIds",
       "caller_structural_id": "19e97d8fd4801ff5895cd56ec1c162ef94748ea7",
@@ -3457,27 +3056,6 @@
         "reachable_repo_prefix_depth:4": 5,
         "repo_owned_prefix": 5,
         "repo_prefix_depth:4": 5
-      }
-    },
-    {
-      "buckets": {
-        "likely_parser_extraction_gap": 3
-      },
-      "count": 3,
-      "file_path": "lib/languages/js/source-code/source-code.js",
-      "reasons": {
-        "repeated_qualified_segment": 3
-      },
-      "signals": {
-        "deep_repo_prefix": 3,
-        "identifier_depth:8": 3,
-        "owner_segment:type_like": 3,
-        "qualified_identifier": 3,
-        "reachable_repo_prefix": 3,
-        "reachable_repo_prefix_depth:6": 3,
-        "repeated_segment": 3,
-        "repo_owned_prefix": 3,
-        "repo_prefix_depth:6": 3
       }
     },
     {
@@ -3829,26 +3407,6 @@
       },
       "count": 1,
       "file_path": "tools/check-rule-examples.js",
-      "reasons": {
-        "reachable_repo_owned_prefix": 1
-      },
-      "signals": {
-        "deep_repo_prefix": 1,
-        "identifier_depth:5": 1,
-        "owner_segment:value_like": 1,
-        "qualified_identifier": 1,
-        "reachable_repo_prefix": 1,
-        "reachable_repo_prefix_depth:4": 1,
-        "repo_owned_prefix": 1,
-        "repo_prefix_depth:4": 1
-      }
-    },
-    {
-      "buckets": {
-        "likely_unindexed_symbol": 1
-      },
-      "count": 1,
-      "file_path": "tools/eslint-fuzzer.js",
       "reasons": {
         "reachable_repo_owned_prefix": 1
       },

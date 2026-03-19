@@ -1854,48 +1854,6 @@
         {
           "bucket": "likely_unindexed_symbol",
           "callee_kind": "qualified",
-          "caller_module": "webpack.lib.EvalDevToolModulePlugin",
-          "caller_qualified_name": "webpack.lib.EvalDevToolModulePlugin.EvalDevToolModulePlugin.apply",
-          "caller_structural_id": "6a25abb63da5e08cd3047473414088cfc894e322",
-          "candidate_module_hints": [],
-          "file_path": "lib/EvalDevToolModulePlugin.js",
-          "identifier": "webpack.lib.ModuleFilenameHelpers.createFilename",
-          "identifier_root": "webpack",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "webpack.lib.ModuleFilenameHelpers",
-          "longest_repo_prefix_match": "webpack.lib.ModuleFilenameHelpers",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.ModuleFilenameHelpers"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 3,
-          "repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.ModuleFilenameHelpers"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:4",
-            "owner_segment:type_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:3",
-            "repo_owned_prefix",
-            "repo_prefix_depth:3"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
           "caller_module": "webpack.lib.EvalSourceMapDevToolPlugin",
           "caller_qualified_name": "webpack.lib.EvalSourceMapDevToolPlugin.EvalSourceMapDevToolPlugin.apply",
           "caller_structural_id": "0926038b5974e75be7188041b635031c9525ce2d",
@@ -1928,90 +1886,6 @@
             "deep_repo_prefix",
             "identifier_depth:5",
             "owner_segment:value_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:3",
-            "repo_owned_prefix",
-            "repo_prefix_depth:3"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
-          "caller_module": "webpack.lib.EvalSourceMapDevToolPlugin",
-          "caller_qualified_name": "webpack.lib.EvalSourceMapDevToolPlugin.EvalSourceMapDevToolPlugin.apply",
-          "caller_structural_id": "0926038b5974e75be7188041b635031c9525ce2d",
-          "candidate_module_hints": [],
-          "file_path": "lib/EvalSourceMapDevToolPlugin.js",
-          "identifier": "webpack.lib.ModuleFilenameHelpers.createFilename",
-          "identifier_root": "webpack",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "webpack.lib.ModuleFilenameHelpers",
-          "longest_repo_prefix_match": "webpack.lib.ModuleFilenameHelpers",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.ModuleFilenameHelpers"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 3,
-          "repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.ModuleFilenameHelpers"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:4",
-            "owner_segment:type_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:3",
-            "repo_owned_prefix",
-            "repo_prefix_depth:3"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
-          "caller_module": "webpack.lib.EvalSourceMapDevToolPlugin",
-          "caller_qualified_name": "webpack.lib.EvalSourceMapDevToolPlugin.EvalSourceMapDevToolPlugin.apply",
-          "caller_structural_id": "0926038b5974e75be7188041b635031c9525ce2d",
-          "candidate_module_hints": [],
-          "file_path": "lib/EvalSourceMapDevToolPlugin.js",
-          "identifier": "webpack.lib.ModuleFilenameHelpers.replaceDuplicates",
-          "identifier_root": "webpack",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "webpack.lib.ModuleFilenameHelpers",
-          "longest_repo_prefix_match": "webpack.lib.ModuleFilenameHelpers",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.ModuleFilenameHelpers"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 3,
-          "repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.ModuleFilenameHelpers"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:4",
-            "owner_segment:type_like",
             "qualified_identifier",
             "reachable_repo_prefix",
             "reachable_repo_prefix_depth:3",
@@ -2326,94 +2200,6 @@
         {
           "bucket": "likely_unindexed_symbol",
           "callee_kind": "qualified",
-          "caller_module": "webpack.lib.JavascriptMetaInfoPlugin",
-          "caller_qualified_name": "webpack.lib.JavascriptMetaInfoPlugin.JavascriptMetaInfoPlugin.apply",
-          "caller_structural_id": "c18bbd48d996a4a96421e16c408f7e3849b3393f",
-          "candidate_module_hints": [],
-          "file_path": "lib/JavascriptMetaInfoPlugin.js",
-          "identifier": "webpack.lib.optimize.InnerGraph.getTopLevelSymbol",
-          "identifier_root": "webpack",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-          "longest_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.optimize",
-            "webpack.lib.optimize.InnerGraph"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 4,
-          "repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.optimize",
-            "webpack.lib.optimize.InnerGraph"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:5",
-            "owner_segment:type_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:4",
-            "repo_owned_prefix",
-            "repo_prefix_depth:4"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
-          "caller_module": "webpack.lib.JavascriptMetaInfoPlugin",
-          "caller_qualified_name": "webpack.lib.JavascriptMetaInfoPlugin.JavascriptMetaInfoPlugin.apply",
-          "caller_structural_id": "c18bbd48d996a4a96421e16c408f7e3849b3393f",
-          "candidate_module_hints": [],
-          "file_path": "lib/JavascriptMetaInfoPlugin.js",
-          "identifier": "webpack.lib.optimize.InnerGraph.addUsage",
-          "identifier_root": "webpack",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-          "longest_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.optimize",
-            "webpack.lib.optimize.InnerGraph"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 4,
-          "repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.optimize",
-            "webpack.lib.optimize.InnerGraph"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:5",
-            "owner_segment:type_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:4",
-            "repo_owned_prefix",
-            "repo_prefix_depth:4"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
           "caller_module": "webpack.lib.LoaderOptionsPlugin",
           "caller_qualified_name": "webpack.lib.LoaderOptionsPlugin.LoaderOptionsPlugin.apply",
           "caller_structural_id": "7c0cfc9cfb42706c599eae860d2ed3396ce966f7",
@@ -2446,48 +2232,6 @@
             "deep_repo_prefix",
             "identifier_depth:6",
             "owner_segment:value_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:3",
-            "repo_owned_prefix",
-            "repo_prefix_depth:3"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
-          "caller_module": "webpack.lib.LoaderOptionsPlugin",
-          "caller_qualified_name": "webpack.lib.LoaderOptionsPlugin.LoaderOptionsPlugin.apply",
-          "caller_structural_id": "7c0cfc9cfb42706c599eae860d2ed3396ce966f7",
-          "candidate_module_hints": [],
-          "file_path": "lib/LoaderOptionsPlugin.js",
-          "identifier": "webpack.lib.ModuleFilenameHelpers.matchObject",
-          "identifier_root": "webpack",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "webpack.lib.ModuleFilenameHelpers",
-          "longest_repo_prefix_match": "webpack.lib.ModuleFilenameHelpers",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.ModuleFilenameHelpers"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 3,
-          "repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.ModuleFilenameHelpers"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:4",
-            "owner_segment:type_like",
             "qualified_identifier",
             "reachable_repo_prefix",
             "reachable_repo_prefix_depth:3",
@@ -2846,6 +2590,50 @@
         {
           "bucket": "likely_unindexed_symbol",
           "callee_kind": "qualified",
+          "caller_module": "webpack.lib.RequireJsStuffPlugin",
+          "caller_qualified_name": "webpack.lib.RequireJsStuffPlugin.module.exports.apply",
+          "caller_structural_id": "4c26febb367a31233367eac8a310b540702427dc",
+          "candidate_module_hints": [],
+          "file_path": "lib/RequireJsStuffPlugin.js",
+          "identifier": "webpack.lib.dependencies.ConstDependency.Template",
+          "identifier_root": "webpack",
+          "language": "javascript",
+          "longest_reachable_repo_prefix_match": "webpack.lib.dependencies.ConstDependency",
+          "longest_repo_prefix_match": "webpack.lib.dependencies.ConstDependency",
+          "ordinal": 1,
+          "reachable_repo_binding": false,
+          "reachable_repo_prefix_matches": [
+            "webpack",
+            "webpack.lib",
+            "webpack.lib.dependencies",
+            "webpack.lib.dependencies.ConstDependency"
+          ],
+          "reasons": [
+            "reachable_repo_owned_prefix"
+          ],
+          "repo_hint_overlap": [],
+          "repo_prefix_match_depth": 4,
+          "repo_prefix_matches": [
+            "webpack",
+            "webpack.lib",
+            "webpack.lib.dependencies",
+            "webpack.lib.dependencies.ConstDependency"
+          ],
+          "scope": "non_tests",
+          "signals": [
+            "deep_repo_prefix",
+            "identifier_depth:5",
+            "owner_segment:type_like",
+            "qualified_identifier",
+            "reachable_repo_prefix",
+            "reachable_repo_prefix_depth:4",
+            "repo_owned_prefix",
+            "repo_prefix_depth:4"
+          ]
+        },
+        {
+          "bucket": "likely_unindexed_symbol",
+          "callee_kind": "qualified",
           "caller_module": "webpack.lib.RuntimePlugin",
           "caller_qualified_name": "webpack.lib.RuntimePlugin.RuntimePlugin.apply",
           "caller_structural_id": "5e51153d55914c692dd2889573d0e4a180983a86",
@@ -3098,48 +2886,6 @@
             "deep_repo_prefix",
             "identifier_depth:5",
             "owner_segment:value_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:3",
-            "repo_owned_prefix",
-            "repo_prefix_depth:3"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
-          "caller_module": "webpack.lib.SourceMapDevToolPlugin",
-          "caller_qualified_name": "webpack.lib.SourceMapDevToolPlugin.SourceMapDevToolPlugin.apply",
-          "caller_structural_id": "392562ea1bc48b6636e1e9f64a0face8698a99a8",
-          "candidate_module_hints": [],
-          "file_path": "lib/SourceMapDevToolPlugin.js",
-          "identifier": "webpack.lib.ModuleFilenameHelpers.createFilename",
-          "identifier_root": "webpack",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "webpack.lib.ModuleFilenameHelpers",
-          "longest_repo_prefix_match": "webpack.lib.ModuleFilenameHelpers",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.ModuleFilenameHelpers"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 3,
-          "repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.ModuleFilenameHelpers"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:4",
-            "owner_segment:type_like",
             "qualified_identifier",
             "reachable_repo_prefix",
             "reachable_repo_prefix_depth:3",
@@ -3968,314 +3714,6 @@
             "webpack.lib",
             "webpack.lib.dependencies",
             "webpack.lib.dependencies.LocalModuleDependency"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:5",
-            "owner_segment:type_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:4",
-            "repo_owned_prefix",
-            "repo_prefix_depth:4"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
-          "caller_module": "webpack.lib.dependencies.CommonJsExportsParserPlugin",
-          "caller_qualified_name": "webpack.lib.dependencies.CommonJsExportsParserPlugin.CommonJsExportsParserPlugin.apply.enableStructuredExports",
-          "caller_structural_id": "81b0e9bf2679e23a4b28bd10fc6934ec27b588fc",
-          "candidate_module_hints": [],
-          "file_path": "lib/dependencies/CommonJsExportsParserPlugin.js",
-          "identifier": "webpack.lib.dependencies.DynamicExports.enable",
-          "identifier_root": "webpack",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "webpack.lib.dependencies.DynamicExports",
-          "longest_repo_prefix_match": "webpack.lib.dependencies.DynamicExports",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.dependencies",
-            "webpack.lib.dependencies.DynamicExports"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 4,
-          "repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.dependencies",
-            "webpack.lib.dependencies.DynamicExports"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:5",
-            "owner_segment:type_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:4",
-            "repo_owned_prefix",
-            "repo_prefix_depth:4"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
-          "caller_module": "webpack.lib.dependencies.CommonJsExportsParserPlugin",
-          "caller_qualified_name": "webpack.lib.dependencies.CommonJsExportsParserPlugin.CommonJsExportsParserPlugin.apply.checkNamespace",
-          "caller_structural_id": "f0d0ec439f0135d5e86b1b057779dba6650f385d",
-          "candidate_module_hints": [],
-          "file_path": "lib/dependencies/CommonJsExportsParserPlugin.js",
-          "identifier": "webpack.lib.dependencies.DynamicExports.isEnabled",
-          "identifier_root": "webpack",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "webpack.lib.dependencies.DynamicExports",
-          "longest_repo_prefix_match": "webpack.lib.dependencies.DynamicExports",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.dependencies",
-            "webpack.lib.dependencies.DynamicExports"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 4,
-          "repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.dependencies",
-            "webpack.lib.dependencies.DynamicExports"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:5",
-            "owner_segment:type_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:4",
-            "repo_owned_prefix",
-            "repo_prefix_depth:4"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
-          "caller_module": "webpack.lib.dependencies.CommonJsExportsParserPlugin",
-          "caller_qualified_name": "webpack.lib.dependencies.CommonJsExportsParserPlugin.CommonJsExportsParserPlugin.apply.checkNamespace",
-          "caller_structural_id": "f0d0ec439f0135d5e86b1b057779dba6650f385d",
-          "candidate_module_hints": [],
-          "file_path": "lib/dependencies/CommonJsExportsParserPlugin.js",
-          "identifier": "webpack.lib.dependencies.DynamicExports.setFlagged",
-          "identifier_root": "webpack",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "webpack.lib.dependencies.DynamicExports",
-          "longest_repo_prefix_match": "webpack.lib.dependencies.DynamicExports",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.dependencies",
-            "webpack.lib.dependencies.DynamicExports"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 4,
-          "repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.dependencies",
-            "webpack.lib.dependencies.DynamicExports"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:5",
-            "owner_segment:type_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:4",
-            "repo_owned_prefix",
-            "repo_prefix_depth:4"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
-          "caller_module": "webpack.lib.dependencies.CommonJsExportsParserPlugin",
-          "caller_qualified_name": "webpack.lib.dependencies.CommonJsExportsParserPlugin.CommonJsExportsParserPlugin.apply.checkNamespace",
-          "caller_structural_id": "f0d0ec439f0135d5e86b1b057779dba6650f385d",
-          "candidate_module_hints": [],
-          "file_path": "lib/dependencies/CommonJsExportsParserPlugin.js",
-          "identifier": "webpack.lib.dependencies.DynamicExports.setDynamic",
-          "identifier_root": "webpack",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "webpack.lib.dependencies.DynamicExports",
-          "longest_repo_prefix_match": "webpack.lib.dependencies.DynamicExports",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.dependencies",
-            "webpack.lib.dependencies.DynamicExports"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 4,
-          "repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.dependencies",
-            "webpack.lib.dependencies.DynamicExports"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:5",
-            "owner_segment:type_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:4",
-            "repo_owned_prefix",
-            "repo_prefix_depth:4"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
-          "caller_module": "webpack.lib.dependencies.CommonJsExportsParserPlugin",
-          "caller_qualified_name": "webpack.lib.dependencies.CommonJsExportsParserPlugin.CommonJsExportsParserPlugin.apply.handleAssignExport",
-          "caller_structural_id": "5535a34fd34420084c9f6c48f134862a454d9f3f",
-          "candidate_module_hints": [],
-          "file_path": "lib/dependencies/CommonJsExportsParserPlugin.js",
-          "identifier": "webpack.lib.dependencies.HarmonyExports.isEnabled",
-          "identifier_root": "webpack",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "webpack.lib.dependencies.HarmonyExports",
-          "longest_repo_prefix_match": "webpack.lib.dependencies.HarmonyExports",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.dependencies",
-            "webpack.lib.dependencies.HarmonyExports"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 4,
-          "repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.dependencies",
-            "webpack.lib.dependencies.HarmonyExports"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:5",
-            "owner_segment:type_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:4",
-            "repo_owned_prefix",
-            "repo_prefix_depth:4"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
-          "caller_module": "webpack.lib.dependencies.CommonJsExportsParserPlugin",
-          "caller_qualified_name": "webpack.lib.dependencies.CommonJsExportsParserPlugin.CommonJsExportsParserPlugin.apply.handleAssignExport",
-          "caller_structural_id": "5535a34fd34420084c9f6c48f134862a454d9f3f",
-          "candidate_module_hints": [],
-          "file_path": "lib/dependencies/CommonJsExportsParserPlugin.js",
-          "identifier": "webpack.lib.dependencies.DynamicExports.setDynamic",
-          "identifier_root": "webpack",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "webpack.lib.dependencies.DynamicExports",
-          "longest_repo_prefix_match": "webpack.lib.dependencies.DynamicExports",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.dependencies",
-            "webpack.lib.dependencies.DynamicExports"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 4,
-          "repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.dependencies",
-            "webpack.lib.dependencies.DynamicExports"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:5",
-            "owner_segment:type_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:4",
-            "repo_owned_prefix",
-            "repo_prefix_depth:4"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
-          "caller_module": "webpack.lib.dependencies.CommonJsExportsParserPlugin",
-          "caller_qualified_name": "webpack.lib.dependencies.CommonJsExportsParserPlugin.CommonJsExportsParserPlugin.apply.handleAccessExport",
-          "caller_structural_id": "7bb349e5f4b12170c2cd62b739b3493c9aaa0905",
-          "candidate_module_hints": [],
-          "file_path": "lib/dependencies/CommonJsExportsParserPlugin.js",
-          "identifier": "webpack.lib.dependencies.HarmonyExports.isEnabled",
-          "identifier_root": "webpack",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "webpack.lib.dependencies.HarmonyExports",
-          "longest_repo_prefix_match": "webpack.lib.dependencies.HarmonyExports",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.dependencies",
-            "webpack.lib.dependencies.HarmonyExports"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 4,
-          "repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.dependencies",
-            "webpack.lib.dependencies.HarmonyExports"
           ],
           "scope": "non_tests",
           "signals": [
@@ -5216,50 +4654,6 @@
         {
           "bucket": "likely_unindexed_symbol",
           "callee_kind": "qualified",
-          "caller_module": "webpack.lib.dependencies.HarmonyTopLevelThisParserPlugin",
-          "caller_qualified_name": "webpack.lib.dependencies.HarmonyTopLevelThisParserPlugin.HarmonyTopLevelThisParserPlugin.apply",
-          "caller_structural_id": "42a04458185c9c65dd65f7786925ea396b8a439f",
-          "candidate_module_hints": [],
-          "file_path": "lib/dependencies/HarmonyTopLevelThisParserPlugin.js",
-          "identifier": "webpack.lib.dependencies.HarmonyExports.isEnabled",
-          "identifier_root": "webpack",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "webpack.lib.dependencies.HarmonyExports",
-          "longest_repo_prefix_match": "webpack.lib.dependencies.HarmonyExports",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.dependencies",
-            "webpack.lib.dependencies.HarmonyExports"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 4,
-          "repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.dependencies",
-            "webpack.lib.dependencies.HarmonyExports"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:5",
-            "owner_segment:type_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:4",
-            "repo_owned_prefix",
-            "repo_prefix_depth:4"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
           "caller_module": "webpack.lib.dependencies.ImportMetaContextPlugin",
           "caller_qualified_name": "webpack.lib.dependencies.ImportMetaContextPlugin.ImportMetaContextPlugin.apply",
           "caller_structural_id": "ee840d5488cd23d29ca0aac61d67a96447bab10c",
@@ -5917,50 +5311,6 @@
           "bucket": "likely_unindexed_symbol",
           "callee_kind": "qualified",
           "caller_module": "webpack.lib.javascript.JavascriptParser",
-          "caller_qualified_name": "webpack.lib.javascript.JavascriptParser.JavascriptParser._initializeEvaluating",
-          "caller_structural_id": "27bb25e0169f95a900a70243b389df709edfe5b3",
-          "candidate_module_hints": [],
-          "file_path": "lib/javascript/JavascriptParser.js",
-          "identifier": "webpack.lib.javascript.BasicEvaluatedExpression.isValidRegExpFlags",
-          "identifier_root": "webpack",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "webpack.lib.javascript.BasicEvaluatedExpression",
-          "longest_repo_prefix_match": "webpack.lib.javascript.BasicEvaluatedExpression",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.javascript",
-            "webpack.lib.javascript.BasicEvaluatedExpression"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 4,
-          "repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.javascript",
-            "webpack.lib.javascript.BasicEvaluatedExpression"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:5",
-            "owner_segment:type_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:4",
-            "repo_owned_prefix",
-            "repo_prefix_depth:4"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
-          "caller_module": "webpack.lib.javascript.JavascriptParser",
           "caller_qualified_name": "webpack.lib.javascript.JavascriptParser.JavascriptParser.getComments",
           "caller_structural_id": "89757d56388d57d2095740d803e17ca33cb959eb",
           "candidate_module_hints": [],
@@ -6092,400 +5442,6 @@
         {
           "bucket": "likely_unindexed_symbol",
           "callee_kind": "qualified",
-          "caller_module": "webpack.lib.optimize.InnerGraphPlugin",
-          "caller_qualified_name": "webpack.lib.optimize.InnerGraphPlugin.InnerGraphPlugin.apply",
-          "caller_structural_id": "07c27e14ce2e0c90b5347333692322586931c5e4",
-          "candidate_module_hints": [],
-          "file_path": "lib/optimize/InnerGraphPlugin.js",
-          "identifier": "webpack.lib.optimize.InnerGraph.onUsage",
-          "identifier_root": "webpack",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-          "longest_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.optimize",
-            "webpack.lib.optimize.InnerGraph"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 4,
-          "repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.optimize",
-            "webpack.lib.optimize.InnerGraph"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:5",
-            "owner_segment:type_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:4",
-            "repo_owned_prefix",
-            "repo_prefix_depth:4"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
-          "caller_module": "webpack.lib.optimize.InnerGraphPlugin",
-          "caller_qualified_name": "webpack.lib.optimize.InnerGraphPlugin.InnerGraphPlugin.apply",
-          "caller_structural_id": "07c27e14ce2e0c90b5347333692322586931c5e4",
-          "candidate_module_hints": [],
-          "file_path": "lib/optimize/InnerGraphPlugin.js",
-          "identifier": "webpack.lib.optimize.InnerGraph.enable",
-          "identifier_root": "webpack",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-          "longest_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.optimize",
-            "webpack.lib.optimize.InnerGraph"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 4,
-          "repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.optimize",
-            "webpack.lib.optimize.InnerGraph"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:5",
-            "owner_segment:type_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:4",
-            "repo_owned_prefix",
-            "repo_prefix_depth:4"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
-          "caller_module": "webpack.lib.optimize.InnerGraphPlugin",
-          "caller_qualified_name": "webpack.lib.optimize.InnerGraphPlugin.InnerGraphPlugin.apply",
-          "caller_structural_id": "07c27e14ce2e0c90b5347333692322586931c5e4",
-          "candidate_module_hints": [],
-          "file_path": "lib/optimize/InnerGraphPlugin.js",
-          "identifier": "webpack.lib.optimize.InnerGraph.isEnabled",
-          "identifier_root": "webpack",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-          "longest_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.optimize",
-            "webpack.lib.optimize.InnerGraph"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 4,
-          "repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.optimize",
-            "webpack.lib.optimize.InnerGraph"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:5",
-            "owner_segment:type_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:4",
-            "repo_owned_prefix",
-            "repo_prefix_depth:4"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
-          "caller_module": "webpack.lib.optimize.InnerGraphPlugin",
-          "caller_qualified_name": "webpack.lib.optimize.InnerGraphPlugin.InnerGraphPlugin.apply",
-          "caller_structural_id": "07c27e14ce2e0c90b5347333692322586931c5e4",
-          "candidate_module_hints": [],
-          "file_path": "lib/optimize/InnerGraphPlugin.js",
-          "identifier": "webpack.lib.optimize.InnerGraph.inferDependencyUsage",
-          "identifier_root": "webpack",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-          "longest_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.optimize",
-            "webpack.lib.optimize.InnerGraph"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 4,
-          "repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.optimize",
-            "webpack.lib.optimize.InnerGraph"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:5",
-            "owner_segment:type_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:4",
-            "repo_owned_prefix",
-            "repo_prefix_depth:4"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
-          "caller_module": "webpack.lib.optimize.InnerGraphPlugin",
-          "caller_qualified_name": "webpack.lib.optimize.InnerGraphPlugin.InnerGraphPlugin.apply",
-          "caller_structural_id": "07c27e14ce2e0c90b5347333692322586931c5e4",
-          "candidate_module_hints": [],
-          "file_path": "lib/optimize/InnerGraphPlugin.js",
-          "identifier": "webpack.lib.optimize.InnerGraph.tagTopLevelSymbol",
-          "identifier_root": "webpack",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-          "longest_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.optimize",
-            "webpack.lib.optimize.InnerGraph"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 4,
-          "repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.optimize",
-            "webpack.lib.optimize.InnerGraph"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:5",
-            "owner_segment:type_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:4",
-            "repo_owned_prefix",
-            "repo_prefix_depth:4"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
-          "caller_module": "webpack.lib.optimize.InnerGraphPlugin",
-          "caller_qualified_name": "webpack.lib.optimize.InnerGraphPlugin.InnerGraphPlugin.apply",
-          "caller_structural_id": "07c27e14ce2e0c90b5347333692322586931c5e4",
-          "candidate_module_hints": [],
-          "file_path": "lib/optimize/InnerGraphPlugin.js",
-          "identifier": "webpack.lib.optimize.InnerGraph.setTopLevelSymbol",
-          "identifier_root": "webpack",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-          "longest_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.optimize",
-            "webpack.lib.optimize.InnerGraph"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 4,
-          "repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.optimize",
-            "webpack.lib.optimize.InnerGraph"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:5",
-            "owner_segment:type_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:4",
-            "repo_owned_prefix",
-            "repo_prefix_depth:4"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
-          "caller_module": "webpack.lib.optimize.InnerGraphPlugin",
-          "caller_qualified_name": "webpack.lib.optimize.InnerGraphPlugin.InnerGraphPlugin.apply",
-          "caller_structural_id": "07c27e14ce2e0c90b5347333692322586931c5e4",
-          "candidate_module_hints": [],
-          "file_path": "lib/optimize/InnerGraphPlugin.js",
-          "identifier": "webpack.lib.optimize.InnerGraph.getTopLevelSymbol",
-          "identifier_root": "webpack",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-          "longest_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.optimize",
-            "webpack.lib.optimize.InnerGraph"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 4,
-          "repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.optimize",
-            "webpack.lib.optimize.InnerGraph"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:5",
-            "owner_segment:type_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:4",
-            "repo_owned_prefix",
-            "repo_prefix_depth:4"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
-          "caller_module": "webpack.lib.optimize.InnerGraphPlugin",
-          "caller_qualified_name": "webpack.lib.optimize.InnerGraphPlugin.InnerGraphPlugin.apply",
-          "caller_structural_id": "07c27e14ce2e0c90b5347333692322586931c5e4",
-          "candidate_module_hints": [],
-          "file_path": "lib/optimize/InnerGraphPlugin.js",
-          "identifier": "webpack.lib.optimize.InnerGraph.addUsage",
-          "identifier_root": "webpack",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-          "longest_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.optimize",
-            "webpack.lib.optimize.InnerGraph"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 4,
-          "repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.optimize",
-            "webpack.lib.optimize.InnerGraph"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:5",
-            "owner_segment:type_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:4",
-            "repo_owned_prefix",
-            "repo_prefix_depth:4"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
-          "caller_module": "webpack.lib.optimize.MinMaxSizeWarning",
-          "caller_qualified_name": "webpack.lib.optimize.MinMaxSizeWarning.MinMaxSizeWarning.constructor",
-          "caller_structural_id": "ad5c8f772f2acac0d8ce486e43bf769329dab03d",
-          "candidate_module_hints": [],
-          "file_path": "lib/optimize/MinMaxSizeWarning.js",
-          "identifier": "webpack.lib.SizeFormatHelpers.formatSize",
-          "identifier_root": "webpack",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "webpack.lib.SizeFormatHelpers",
-          "longest_repo_prefix_match": "webpack.lib.SizeFormatHelpers",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.SizeFormatHelpers"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 3,
-          "repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.SizeFormatHelpers"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:4",
-            "owner_segment:type_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:3",
-            "repo_owned_prefix",
-            "repo_prefix_depth:3"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
           "caller_module": "webpack.lib.schemes.DataUriPlugin",
           "caller_qualified_name": "webpack.lib.schemes.DataUriPlugin.DataUriPlugin.apply",
           "caller_structural_id": "766d430f95b9e01291d98febe78f12ff76b35e8f",
@@ -6565,50 +5521,6 @@
             "reachable_repo_prefix_depth:3",
             "repo_owned_prefix",
             "repo_prefix_depth:3"
-          ]
-        },
-        {
-          "bucket": "likely_unindexed_symbol",
-          "callee_kind": "qualified",
-          "caller_module": "webpack.lib.url.URLParserPlugin",
-          "caller_qualified_name": "webpack.lib.url.URLParserPlugin.URLParserPlugin.apply",
-          "caller_structural_id": "b3199fae4de7314b7e620acd49f5a09d594df8b9",
-          "candidate_module_hints": [],
-          "file_path": "lib/url/URLParserPlugin.js",
-          "identifier": "webpack.lib.optimize.InnerGraph.onUsage",
-          "identifier_root": "webpack",
-          "language": "javascript",
-          "longest_reachable_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-          "longest_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-          "ordinal": 1,
-          "reachable_repo_binding": false,
-          "reachable_repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.optimize",
-            "webpack.lib.optimize.InnerGraph"
-          ],
-          "reasons": [
-            "reachable_repo_owned_prefix"
-          ],
-          "repo_hint_overlap": [],
-          "repo_prefix_match_depth": 4,
-          "repo_prefix_matches": [
-            "webpack",
-            "webpack.lib",
-            "webpack.lib.optimize",
-            "webpack.lib.optimize.InnerGraph"
-          ],
-          "scope": "non_tests",
-          "signals": [
-            "deep_repo_prefix",
-            "identifier_depth:5",
-            "owner_segment:type_like",
-            "qualified_identifier",
-            "reachable_repo_prefix",
-            "reachable_repo_prefix_depth:4",
-            "repo_owned_prefix",
-            "repo_prefix_depth:4"
           ]
         },
         {
@@ -6846,6 +5758,50 @@
         {
           "bucket": "likely_unindexed_symbol",
           "callee_kind": "qualified",
+          "caller_module": "webpack.test.helpers.EventSourceForNode",
+          "caller_qualified_name": "webpack.test.helpers.EventSourceForNode.module.exports.constructor",
+          "caller_structural_id": "dde403e2e5af08719700a26b5d2f791f22fae274",
+          "candidate_module_hints": [],
+          "file_path": "test/helpers/EventSourceForNode.js",
+          "identifier": "webpack.test.helpers.EventSourceForNode.module.exports.onerror",
+          "identifier_root": "webpack",
+          "language": "javascript",
+          "longest_reachable_repo_prefix_match": "webpack.test.helpers.EventSourceForNode",
+          "longest_repo_prefix_match": "webpack.test.helpers.EventSourceForNode",
+          "ordinal": 1,
+          "reachable_repo_binding": false,
+          "reachable_repo_prefix_matches": [
+            "webpack",
+            "webpack.test",
+            "webpack.test.helpers",
+            "webpack.test.helpers.EventSourceForNode"
+          ],
+          "reasons": [
+            "reachable_repo_owned_prefix"
+          ],
+          "repo_hint_overlap": [],
+          "repo_prefix_match_depth": 4,
+          "repo_prefix_matches": [
+            "webpack",
+            "webpack.test",
+            "webpack.test.helpers",
+            "webpack.test.helpers.EventSourceForNode"
+          ],
+          "scope": "tests",
+          "signals": [
+            "deep_repo_prefix",
+            "identifier_depth:7",
+            "owner_segment:value_like",
+            "qualified_identifier",
+            "reachable_repo_prefix",
+            "reachable_repo_prefix_depth:4",
+            "repo_owned_prefix",
+            "repo_prefix_depth:4"
+          ]
+        },
+        {
+          "bucket": "likely_unindexed_symbol",
+          "callee_kind": "qualified",
           "caller_module": "webpack.test.statsCases.dynamic-import.src.index",
           "caller_qualified_name": "webpack.test.statsCases.dynamic-import.src.index.AsyncComponent.constructor",
           "caller_structural_id": "7240f72fb7c0defb164d13818d21c78603eba083",
@@ -6892,28 +5848,27 @@
           ]
         }
       ],
-      "count": 124,
+      "count": 100,
       "reasons": {
-        "reachable_repo_owned_prefix": 124
+        "reachable_repo_owned_prefix": 100
       },
       "signals": {
-        "deep_repo_prefix": 124,
-        "identifier_depth:4": 6,
-        "identifier_depth:5": 95,
+        "deep_repo_prefix": 100,
+        "identifier_depth:5": 76,
         "identifier_depth:6": 12,
-        "identifier_depth:7": 9,
+        "identifier_depth:7": 10,
         "identifier_depth:8": 2,
-        "owner_segment:type_like": 96,
-        "owner_segment:value_like": 28,
-        "qualified_identifier": 124,
-        "reachable_repo_prefix": 124,
-        "reachable_repo_prefix_depth:3": 19,
-        "reachable_repo_prefix_depth:4": 99,
+        "owner_segment:type_like": 71,
+        "owner_segment:value_like": 29,
+        "qualified_identifier": 100,
+        "reachable_repo_prefix": 100,
+        "reachable_repo_prefix_depth:3": 13,
+        "reachable_repo_prefix_depth:4": 81,
         "reachable_repo_prefix_depth:5": 2,
         "reachable_repo_prefix_depth:6": 4,
-        "repo_owned_prefix": 124,
-        "repo_prefix_depth:3": 19,
-        "repo_prefix_depth:4": 99,
+        "repo_owned_prefix": 100,
+        "repo_prefix_depth:3": 13,
+        "repo_prefix_depth:4": 81,
         "repo_prefix_depth:6": 6
       }
     }
@@ -7410,48 +6365,6 @@
     {
       "bucket": "likely_unindexed_symbol",
       "callee_kind": "qualified",
-      "caller_module": "webpack.lib.EvalDevToolModulePlugin",
-      "caller_qualified_name": "webpack.lib.EvalDevToolModulePlugin.EvalDevToolModulePlugin.apply",
-      "caller_structural_id": "6a25abb63da5e08cd3047473414088cfc894e322",
-      "candidate_module_hints": [],
-      "file_path": "lib/EvalDevToolModulePlugin.js",
-      "identifier": "webpack.lib.ModuleFilenameHelpers.createFilename",
-      "identifier_root": "webpack",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "webpack.lib.ModuleFilenameHelpers",
-      "longest_repo_prefix_match": "webpack.lib.ModuleFilenameHelpers",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.ModuleFilenameHelpers"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 3,
-      "repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.ModuleFilenameHelpers"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:4",
-        "owner_segment:type_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:3",
-        "repo_owned_prefix",
-        "repo_prefix_depth:3"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
       "caller_module": "webpack.lib.EvalSourceMapDevToolPlugin",
       "caller_qualified_name": "webpack.lib.EvalSourceMapDevToolPlugin.EvalSourceMapDevToolPlugin.apply",
       "caller_structural_id": "0926038b5974e75be7188041b635031c9525ce2d",
@@ -7484,90 +6397,6 @@
         "deep_repo_prefix",
         "identifier_depth:5",
         "owner_segment:value_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:3",
-        "repo_owned_prefix",
-        "repo_prefix_depth:3"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
-      "caller_module": "webpack.lib.EvalSourceMapDevToolPlugin",
-      "caller_qualified_name": "webpack.lib.EvalSourceMapDevToolPlugin.EvalSourceMapDevToolPlugin.apply",
-      "caller_structural_id": "0926038b5974e75be7188041b635031c9525ce2d",
-      "candidate_module_hints": [],
-      "file_path": "lib/EvalSourceMapDevToolPlugin.js",
-      "identifier": "webpack.lib.ModuleFilenameHelpers.createFilename",
-      "identifier_root": "webpack",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "webpack.lib.ModuleFilenameHelpers",
-      "longest_repo_prefix_match": "webpack.lib.ModuleFilenameHelpers",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.ModuleFilenameHelpers"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 3,
-      "repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.ModuleFilenameHelpers"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:4",
-        "owner_segment:type_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:3",
-        "repo_owned_prefix",
-        "repo_prefix_depth:3"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
-      "caller_module": "webpack.lib.EvalSourceMapDevToolPlugin",
-      "caller_qualified_name": "webpack.lib.EvalSourceMapDevToolPlugin.EvalSourceMapDevToolPlugin.apply",
-      "caller_structural_id": "0926038b5974e75be7188041b635031c9525ce2d",
-      "candidate_module_hints": [],
-      "file_path": "lib/EvalSourceMapDevToolPlugin.js",
-      "identifier": "webpack.lib.ModuleFilenameHelpers.replaceDuplicates",
-      "identifier_root": "webpack",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "webpack.lib.ModuleFilenameHelpers",
-      "longest_repo_prefix_match": "webpack.lib.ModuleFilenameHelpers",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.ModuleFilenameHelpers"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 3,
-      "repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.ModuleFilenameHelpers"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:4",
-        "owner_segment:type_like",
         "qualified_identifier",
         "reachable_repo_prefix",
         "reachable_repo_prefix_depth:3",
@@ -7882,94 +6711,6 @@
     {
       "bucket": "likely_unindexed_symbol",
       "callee_kind": "qualified",
-      "caller_module": "webpack.lib.JavascriptMetaInfoPlugin",
-      "caller_qualified_name": "webpack.lib.JavascriptMetaInfoPlugin.JavascriptMetaInfoPlugin.apply",
-      "caller_structural_id": "c18bbd48d996a4a96421e16c408f7e3849b3393f",
-      "candidate_module_hints": [],
-      "file_path": "lib/JavascriptMetaInfoPlugin.js",
-      "identifier": "webpack.lib.optimize.InnerGraph.getTopLevelSymbol",
-      "identifier_root": "webpack",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-      "longest_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.optimize",
-        "webpack.lib.optimize.InnerGraph"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 4,
-      "repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.optimize",
-        "webpack.lib.optimize.InnerGraph"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:5",
-        "owner_segment:type_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:4",
-        "repo_owned_prefix",
-        "repo_prefix_depth:4"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
-      "caller_module": "webpack.lib.JavascriptMetaInfoPlugin",
-      "caller_qualified_name": "webpack.lib.JavascriptMetaInfoPlugin.JavascriptMetaInfoPlugin.apply",
-      "caller_structural_id": "c18bbd48d996a4a96421e16c408f7e3849b3393f",
-      "candidate_module_hints": [],
-      "file_path": "lib/JavascriptMetaInfoPlugin.js",
-      "identifier": "webpack.lib.optimize.InnerGraph.addUsage",
-      "identifier_root": "webpack",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-      "longest_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.optimize",
-        "webpack.lib.optimize.InnerGraph"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 4,
-      "repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.optimize",
-        "webpack.lib.optimize.InnerGraph"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:5",
-        "owner_segment:type_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:4",
-        "repo_owned_prefix",
-        "repo_prefix_depth:4"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
       "caller_module": "webpack.lib.LoaderOptionsPlugin",
       "caller_qualified_name": "webpack.lib.LoaderOptionsPlugin.LoaderOptionsPlugin.apply",
       "caller_structural_id": "7c0cfc9cfb42706c599eae860d2ed3396ce966f7",
@@ -8002,48 +6743,6 @@
         "deep_repo_prefix",
         "identifier_depth:6",
         "owner_segment:value_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:3",
-        "repo_owned_prefix",
-        "repo_prefix_depth:3"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
-      "caller_module": "webpack.lib.LoaderOptionsPlugin",
-      "caller_qualified_name": "webpack.lib.LoaderOptionsPlugin.LoaderOptionsPlugin.apply",
-      "caller_structural_id": "7c0cfc9cfb42706c599eae860d2ed3396ce966f7",
-      "candidate_module_hints": [],
-      "file_path": "lib/LoaderOptionsPlugin.js",
-      "identifier": "webpack.lib.ModuleFilenameHelpers.matchObject",
-      "identifier_root": "webpack",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "webpack.lib.ModuleFilenameHelpers",
-      "longest_repo_prefix_match": "webpack.lib.ModuleFilenameHelpers",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.ModuleFilenameHelpers"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 3,
-      "repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.ModuleFilenameHelpers"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:4",
-        "owner_segment:type_like",
         "qualified_identifier",
         "reachable_repo_prefix",
         "reachable_repo_prefix_depth:3",
@@ -8402,6 +7101,50 @@
     {
       "bucket": "likely_unindexed_symbol",
       "callee_kind": "qualified",
+      "caller_module": "webpack.lib.RequireJsStuffPlugin",
+      "caller_qualified_name": "webpack.lib.RequireJsStuffPlugin.module.exports.apply",
+      "caller_structural_id": "4c26febb367a31233367eac8a310b540702427dc",
+      "candidate_module_hints": [],
+      "file_path": "lib/RequireJsStuffPlugin.js",
+      "identifier": "webpack.lib.dependencies.ConstDependency.Template",
+      "identifier_root": "webpack",
+      "language": "javascript",
+      "longest_reachable_repo_prefix_match": "webpack.lib.dependencies.ConstDependency",
+      "longest_repo_prefix_match": "webpack.lib.dependencies.ConstDependency",
+      "ordinal": 1,
+      "reachable_repo_binding": false,
+      "reachable_repo_prefix_matches": [
+        "webpack",
+        "webpack.lib",
+        "webpack.lib.dependencies",
+        "webpack.lib.dependencies.ConstDependency"
+      ],
+      "reasons": [
+        "reachable_repo_owned_prefix"
+      ],
+      "repo_hint_overlap": [],
+      "repo_prefix_match_depth": 4,
+      "repo_prefix_matches": [
+        "webpack",
+        "webpack.lib",
+        "webpack.lib.dependencies",
+        "webpack.lib.dependencies.ConstDependency"
+      ],
+      "scope": "non_tests",
+      "signals": [
+        "deep_repo_prefix",
+        "identifier_depth:5",
+        "owner_segment:type_like",
+        "qualified_identifier",
+        "reachable_repo_prefix",
+        "reachable_repo_prefix_depth:4",
+        "repo_owned_prefix",
+        "repo_prefix_depth:4"
+      ]
+    },
+    {
+      "bucket": "likely_unindexed_symbol",
+      "callee_kind": "qualified",
       "caller_module": "webpack.lib.RuntimePlugin",
       "caller_qualified_name": "webpack.lib.RuntimePlugin.RuntimePlugin.apply",
       "caller_structural_id": "5e51153d55914c692dd2889573d0e4a180983a86",
@@ -8654,48 +7397,6 @@
         "deep_repo_prefix",
         "identifier_depth:5",
         "owner_segment:value_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:3",
-        "repo_owned_prefix",
-        "repo_prefix_depth:3"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
-      "caller_module": "webpack.lib.SourceMapDevToolPlugin",
-      "caller_qualified_name": "webpack.lib.SourceMapDevToolPlugin.SourceMapDevToolPlugin.apply",
-      "caller_structural_id": "392562ea1bc48b6636e1e9f64a0face8698a99a8",
-      "candidate_module_hints": [],
-      "file_path": "lib/SourceMapDevToolPlugin.js",
-      "identifier": "webpack.lib.ModuleFilenameHelpers.createFilename",
-      "identifier_root": "webpack",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "webpack.lib.ModuleFilenameHelpers",
-      "longest_repo_prefix_match": "webpack.lib.ModuleFilenameHelpers",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.ModuleFilenameHelpers"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 3,
-      "repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.ModuleFilenameHelpers"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:4",
-        "owner_segment:type_like",
         "qualified_identifier",
         "reachable_repo_prefix",
         "reachable_repo_prefix_depth:3",
@@ -9974,314 +8675,6 @@
     {
       "bucket": "likely_unindexed_symbol",
       "callee_kind": "qualified",
-      "caller_module": "webpack.lib.dependencies.CommonJsExportsParserPlugin",
-      "caller_qualified_name": "webpack.lib.dependencies.CommonJsExportsParserPlugin.CommonJsExportsParserPlugin.apply.enableStructuredExports",
-      "caller_structural_id": "81b0e9bf2679e23a4b28bd10fc6934ec27b588fc",
-      "candidate_module_hints": [],
-      "file_path": "lib/dependencies/CommonJsExportsParserPlugin.js",
-      "identifier": "webpack.lib.dependencies.DynamicExports.enable",
-      "identifier_root": "webpack",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "webpack.lib.dependencies.DynamicExports",
-      "longest_repo_prefix_match": "webpack.lib.dependencies.DynamicExports",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.dependencies",
-        "webpack.lib.dependencies.DynamicExports"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 4,
-      "repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.dependencies",
-        "webpack.lib.dependencies.DynamicExports"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:5",
-        "owner_segment:type_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:4",
-        "repo_owned_prefix",
-        "repo_prefix_depth:4"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
-      "caller_module": "webpack.lib.dependencies.CommonJsExportsParserPlugin",
-      "caller_qualified_name": "webpack.lib.dependencies.CommonJsExportsParserPlugin.CommonJsExportsParserPlugin.apply.checkNamespace",
-      "caller_structural_id": "f0d0ec439f0135d5e86b1b057779dba6650f385d",
-      "candidate_module_hints": [],
-      "file_path": "lib/dependencies/CommonJsExportsParserPlugin.js",
-      "identifier": "webpack.lib.dependencies.DynamicExports.isEnabled",
-      "identifier_root": "webpack",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "webpack.lib.dependencies.DynamicExports",
-      "longest_repo_prefix_match": "webpack.lib.dependencies.DynamicExports",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.dependencies",
-        "webpack.lib.dependencies.DynamicExports"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 4,
-      "repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.dependencies",
-        "webpack.lib.dependencies.DynamicExports"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:5",
-        "owner_segment:type_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:4",
-        "repo_owned_prefix",
-        "repo_prefix_depth:4"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
-      "caller_module": "webpack.lib.dependencies.CommonJsExportsParserPlugin",
-      "caller_qualified_name": "webpack.lib.dependencies.CommonJsExportsParserPlugin.CommonJsExportsParserPlugin.apply.checkNamespace",
-      "caller_structural_id": "f0d0ec439f0135d5e86b1b057779dba6650f385d",
-      "candidate_module_hints": [],
-      "file_path": "lib/dependencies/CommonJsExportsParserPlugin.js",
-      "identifier": "webpack.lib.dependencies.DynamicExports.setFlagged",
-      "identifier_root": "webpack",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "webpack.lib.dependencies.DynamicExports",
-      "longest_repo_prefix_match": "webpack.lib.dependencies.DynamicExports",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.dependencies",
-        "webpack.lib.dependencies.DynamicExports"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 4,
-      "repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.dependencies",
-        "webpack.lib.dependencies.DynamicExports"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:5",
-        "owner_segment:type_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:4",
-        "repo_owned_prefix",
-        "repo_prefix_depth:4"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
-      "caller_module": "webpack.lib.dependencies.CommonJsExportsParserPlugin",
-      "caller_qualified_name": "webpack.lib.dependencies.CommonJsExportsParserPlugin.CommonJsExportsParserPlugin.apply.checkNamespace",
-      "caller_structural_id": "f0d0ec439f0135d5e86b1b057779dba6650f385d",
-      "candidate_module_hints": [],
-      "file_path": "lib/dependencies/CommonJsExportsParserPlugin.js",
-      "identifier": "webpack.lib.dependencies.DynamicExports.setDynamic",
-      "identifier_root": "webpack",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "webpack.lib.dependencies.DynamicExports",
-      "longest_repo_prefix_match": "webpack.lib.dependencies.DynamicExports",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.dependencies",
-        "webpack.lib.dependencies.DynamicExports"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 4,
-      "repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.dependencies",
-        "webpack.lib.dependencies.DynamicExports"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:5",
-        "owner_segment:type_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:4",
-        "repo_owned_prefix",
-        "repo_prefix_depth:4"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
-      "caller_module": "webpack.lib.dependencies.CommonJsExportsParserPlugin",
-      "caller_qualified_name": "webpack.lib.dependencies.CommonJsExportsParserPlugin.CommonJsExportsParserPlugin.apply.handleAssignExport",
-      "caller_structural_id": "5535a34fd34420084c9f6c48f134862a454d9f3f",
-      "candidate_module_hints": [],
-      "file_path": "lib/dependencies/CommonJsExportsParserPlugin.js",
-      "identifier": "webpack.lib.dependencies.HarmonyExports.isEnabled",
-      "identifier_root": "webpack",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "webpack.lib.dependencies.HarmonyExports",
-      "longest_repo_prefix_match": "webpack.lib.dependencies.HarmonyExports",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.dependencies",
-        "webpack.lib.dependencies.HarmonyExports"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 4,
-      "repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.dependencies",
-        "webpack.lib.dependencies.HarmonyExports"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:5",
-        "owner_segment:type_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:4",
-        "repo_owned_prefix",
-        "repo_prefix_depth:4"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
-      "caller_module": "webpack.lib.dependencies.CommonJsExportsParserPlugin",
-      "caller_qualified_name": "webpack.lib.dependencies.CommonJsExportsParserPlugin.CommonJsExportsParserPlugin.apply.handleAssignExport",
-      "caller_structural_id": "5535a34fd34420084c9f6c48f134862a454d9f3f",
-      "candidate_module_hints": [],
-      "file_path": "lib/dependencies/CommonJsExportsParserPlugin.js",
-      "identifier": "webpack.lib.dependencies.DynamicExports.setDynamic",
-      "identifier_root": "webpack",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "webpack.lib.dependencies.DynamicExports",
-      "longest_repo_prefix_match": "webpack.lib.dependencies.DynamicExports",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.dependencies",
-        "webpack.lib.dependencies.DynamicExports"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 4,
-      "repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.dependencies",
-        "webpack.lib.dependencies.DynamicExports"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:5",
-        "owner_segment:type_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:4",
-        "repo_owned_prefix",
-        "repo_prefix_depth:4"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
-      "caller_module": "webpack.lib.dependencies.CommonJsExportsParserPlugin",
-      "caller_qualified_name": "webpack.lib.dependencies.CommonJsExportsParserPlugin.CommonJsExportsParserPlugin.apply.handleAccessExport",
-      "caller_structural_id": "7bb349e5f4b12170c2cd62b739b3493c9aaa0905",
-      "candidate_module_hints": [],
-      "file_path": "lib/dependencies/CommonJsExportsParserPlugin.js",
-      "identifier": "webpack.lib.dependencies.HarmonyExports.isEnabled",
-      "identifier_root": "webpack",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "webpack.lib.dependencies.HarmonyExports",
-      "longest_repo_prefix_match": "webpack.lib.dependencies.HarmonyExports",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.dependencies",
-        "webpack.lib.dependencies.HarmonyExports"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 4,
-      "repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.dependencies",
-        "webpack.lib.dependencies.HarmonyExports"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:5",
-        "owner_segment:type_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:4",
-        "repo_owned_prefix",
-        "repo_prefix_depth:4"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
       "caller_module": "webpack.lib.dependencies.CommonJsPlugin",
       "caller_qualified_name": "webpack.lib.dependencies.CommonJsPlugin.CommonJsPlugin.apply",
       "caller_structural_id": "de1211d7b5c8bf958fbc15fdb2886e97cffbc056",
@@ -11206,50 +9599,6 @@
     {
       "bucket": "likely_unindexed_symbol",
       "callee_kind": "qualified",
-      "caller_module": "webpack.lib.dependencies.HarmonyTopLevelThisParserPlugin",
-      "caller_qualified_name": "webpack.lib.dependencies.HarmonyTopLevelThisParserPlugin.HarmonyTopLevelThisParserPlugin.apply",
-      "caller_structural_id": "42a04458185c9c65dd65f7786925ea396b8a439f",
-      "candidate_module_hints": [],
-      "file_path": "lib/dependencies/HarmonyTopLevelThisParserPlugin.js",
-      "identifier": "webpack.lib.dependencies.HarmonyExports.isEnabled",
-      "identifier_root": "webpack",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "webpack.lib.dependencies.HarmonyExports",
-      "longest_repo_prefix_match": "webpack.lib.dependencies.HarmonyExports",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.dependencies",
-        "webpack.lib.dependencies.HarmonyExports"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 4,
-      "repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.dependencies",
-        "webpack.lib.dependencies.HarmonyExports"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:5",
-        "owner_segment:type_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:4",
-        "repo_owned_prefix",
-        "repo_prefix_depth:4"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
       "caller_module": "webpack.lib.dependencies.ImportMetaContextPlugin",
       "caller_qualified_name": "webpack.lib.dependencies.ImportMetaContextPlugin.ImportMetaContextPlugin.apply",
       "caller_structural_id": "ee840d5488cd23d29ca0aac61d67a96447bab10c",
@@ -11952,50 +10301,6 @@
       "bucket": "likely_unindexed_symbol",
       "callee_kind": "qualified",
       "caller_module": "webpack.lib.javascript.JavascriptParser",
-      "caller_qualified_name": "webpack.lib.javascript.JavascriptParser.JavascriptParser._initializeEvaluating",
-      "caller_structural_id": "27bb25e0169f95a900a70243b389df709edfe5b3",
-      "candidate_module_hints": [],
-      "file_path": "lib/javascript/JavascriptParser.js",
-      "identifier": "webpack.lib.javascript.BasicEvaluatedExpression.isValidRegExpFlags",
-      "identifier_root": "webpack",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "webpack.lib.javascript.BasicEvaluatedExpression",
-      "longest_repo_prefix_match": "webpack.lib.javascript.BasicEvaluatedExpression",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.javascript",
-        "webpack.lib.javascript.BasicEvaluatedExpression"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 4,
-      "repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.javascript",
-        "webpack.lib.javascript.BasicEvaluatedExpression"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:5",
-        "owner_segment:type_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:4",
-        "repo_owned_prefix",
-        "repo_prefix_depth:4"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
-      "caller_module": "webpack.lib.javascript.JavascriptParser",
       "caller_qualified_name": "webpack.lib.javascript.JavascriptParser.JavascriptParser.getComments",
       "caller_structural_id": "89757d56388d57d2095740d803e17ca33cb959eb",
       "candidate_module_hints": [],
@@ -12122,400 +10427,6 @@
         "reachable_repo_prefix_depth:4",
         "repo_owned_prefix",
         "repo_prefix_depth:4"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
-      "caller_module": "webpack.lib.optimize.InnerGraphPlugin",
-      "caller_qualified_name": "webpack.lib.optimize.InnerGraphPlugin.InnerGraphPlugin.apply",
-      "caller_structural_id": "07c27e14ce2e0c90b5347333692322586931c5e4",
-      "candidate_module_hints": [],
-      "file_path": "lib/optimize/InnerGraphPlugin.js",
-      "identifier": "webpack.lib.optimize.InnerGraph.onUsage",
-      "identifier_root": "webpack",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-      "longest_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.optimize",
-        "webpack.lib.optimize.InnerGraph"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 4,
-      "repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.optimize",
-        "webpack.lib.optimize.InnerGraph"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:5",
-        "owner_segment:type_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:4",
-        "repo_owned_prefix",
-        "repo_prefix_depth:4"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
-      "caller_module": "webpack.lib.optimize.InnerGraphPlugin",
-      "caller_qualified_name": "webpack.lib.optimize.InnerGraphPlugin.InnerGraphPlugin.apply",
-      "caller_structural_id": "07c27e14ce2e0c90b5347333692322586931c5e4",
-      "candidate_module_hints": [],
-      "file_path": "lib/optimize/InnerGraphPlugin.js",
-      "identifier": "webpack.lib.optimize.InnerGraph.enable",
-      "identifier_root": "webpack",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-      "longest_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.optimize",
-        "webpack.lib.optimize.InnerGraph"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 4,
-      "repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.optimize",
-        "webpack.lib.optimize.InnerGraph"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:5",
-        "owner_segment:type_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:4",
-        "repo_owned_prefix",
-        "repo_prefix_depth:4"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
-      "caller_module": "webpack.lib.optimize.InnerGraphPlugin",
-      "caller_qualified_name": "webpack.lib.optimize.InnerGraphPlugin.InnerGraphPlugin.apply",
-      "caller_structural_id": "07c27e14ce2e0c90b5347333692322586931c5e4",
-      "candidate_module_hints": [],
-      "file_path": "lib/optimize/InnerGraphPlugin.js",
-      "identifier": "webpack.lib.optimize.InnerGraph.isEnabled",
-      "identifier_root": "webpack",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-      "longest_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.optimize",
-        "webpack.lib.optimize.InnerGraph"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 4,
-      "repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.optimize",
-        "webpack.lib.optimize.InnerGraph"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:5",
-        "owner_segment:type_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:4",
-        "repo_owned_prefix",
-        "repo_prefix_depth:4"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
-      "caller_module": "webpack.lib.optimize.InnerGraphPlugin",
-      "caller_qualified_name": "webpack.lib.optimize.InnerGraphPlugin.InnerGraphPlugin.apply",
-      "caller_structural_id": "07c27e14ce2e0c90b5347333692322586931c5e4",
-      "candidate_module_hints": [],
-      "file_path": "lib/optimize/InnerGraphPlugin.js",
-      "identifier": "webpack.lib.optimize.InnerGraph.inferDependencyUsage",
-      "identifier_root": "webpack",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-      "longest_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.optimize",
-        "webpack.lib.optimize.InnerGraph"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 4,
-      "repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.optimize",
-        "webpack.lib.optimize.InnerGraph"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:5",
-        "owner_segment:type_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:4",
-        "repo_owned_prefix",
-        "repo_prefix_depth:4"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
-      "caller_module": "webpack.lib.optimize.InnerGraphPlugin",
-      "caller_qualified_name": "webpack.lib.optimize.InnerGraphPlugin.InnerGraphPlugin.apply",
-      "caller_structural_id": "07c27e14ce2e0c90b5347333692322586931c5e4",
-      "candidate_module_hints": [],
-      "file_path": "lib/optimize/InnerGraphPlugin.js",
-      "identifier": "webpack.lib.optimize.InnerGraph.tagTopLevelSymbol",
-      "identifier_root": "webpack",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-      "longest_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.optimize",
-        "webpack.lib.optimize.InnerGraph"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 4,
-      "repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.optimize",
-        "webpack.lib.optimize.InnerGraph"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:5",
-        "owner_segment:type_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:4",
-        "repo_owned_prefix",
-        "repo_prefix_depth:4"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
-      "caller_module": "webpack.lib.optimize.InnerGraphPlugin",
-      "caller_qualified_name": "webpack.lib.optimize.InnerGraphPlugin.InnerGraphPlugin.apply",
-      "caller_structural_id": "07c27e14ce2e0c90b5347333692322586931c5e4",
-      "candidate_module_hints": [],
-      "file_path": "lib/optimize/InnerGraphPlugin.js",
-      "identifier": "webpack.lib.optimize.InnerGraph.setTopLevelSymbol",
-      "identifier_root": "webpack",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-      "longest_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.optimize",
-        "webpack.lib.optimize.InnerGraph"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 4,
-      "repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.optimize",
-        "webpack.lib.optimize.InnerGraph"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:5",
-        "owner_segment:type_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:4",
-        "repo_owned_prefix",
-        "repo_prefix_depth:4"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
-      "caller_module": "webpack.lib.optimize.InnerGraphPlugin",
-      "caller_qualified_name": "webpack.lib.optimize.InnerGraphPlugin.InnerGraphPlugin.apply",
-      "caller_structural_id": "07c27e14ce2e0c90b5347333692322586931c5e4",
-      "candidate_module_hints": [],
-      "file_path": "lib/optimize/InnerGraphPlugin.js",
-      "identifier": "webpack.lib.optimize.InnerGraph.getTopLevelSymbol",
-      "identifier_root": "webpack",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-      "longest_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.optimize",
-        "webpack.lib.optimize.InnerGraph"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 4,
-      "repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.optimize",
-        "webpack.lib.optimize.InnerGraph"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:5",
-        "owner_segment:type_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:4",
-        "repo_owned_prefix",
-        "repo_prefix_depth:4"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
-      "caller_module": "webpack.lib.optimize.InnerGraphPlugin",
-      "caller_qualified_name": "webpack.lib.optimize.InnerGraphPlugin.InnerGraphPlugin.apply",
-      "caller_structural_id": "07c27e14ce2e0c90b5347333692322586931c5e4",
-      "candidate_module_hints": [],
-      "file_path": "lib/optimize/InnerGraphPlugin.js",
-      "identifier": "webpack.lib.optimize.InnerGraph.addUsage",
-      "identifier_root": "webpack",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-      "longest_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.optimize",
-        "webpack.lib.optimize.InnerGraph"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 4,
-      "repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.optimize",
-        "webpack.lib.optimize.InnerGraph"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:5",
-        "owner_segment:type_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:4",
-        "repo_owned_prefix",
-        "repo_prefix_depth:4"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
-      "caller_module": "webpack.lib.optimize.MinMaxSizeWarning",
-      "caller_qualified_name": "webpack.lib.optimize.MinMaxSizeWarning.MinMaxSizeWarning.constructor",
-      "caller_structural_id": "ad5c8f772f2acac0d8ce486e43bf769329dab03d",
-      "candidate_module_hints": [],
-      "file_path": "lib/optimize/MinMaxSizeWarning.js",
-      "identifier": "webpack.lib.SizeFormatHelpers.formatSize",
-      "identifier_root": "webpack",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "webpack.lib.SizeFormatHelpers",
-      "longest_repo_prefix_match": "webpack.lib.SizeFormatHelpers",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.SizeFormatHelpers"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 3,
-      "repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.SizeFormatHelpers"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:4",
-        "owner_segment:type_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:3",
-        "repo_owned_prefix",
-        "repo_prefix_depth:3"
       ]
     },
     {
@@ -12733,50 +10644,6 @@
         "reachable_repo_prefix",
         "reachable_repo_prefix_depth:4",
         "repeated_segment",
-        "repo_owned_prefix",
-        "repo_prefix_depth:4"
-      ]
-    },
-    {
-      "bucket": "likely_unindexed_symbol",
-      "callee_kind": "qualified",
-      "caller_module": "webpack.lib.url.URLParserPlugin",
-      "caller_qualified_name": "webpack.lib.url.URLParserPlugin.URLParserPlugin.apply",
-      "caller_structural_id": "b3199fae4de7314b7e620acd49f5a09d594df8b9",
-      "candidate_module_hints": [],
-      "file_path": "lib/url/URLParserPlugin.js",
-      "identifier": "webpack.lib.optimize.InnerGraph.onUsage",
-      "identifier_root": "webpack",
-      "language": "javascript",
-      "longest_reachable_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-      "longest_repo_prefix_match": "webpack.lib.optimize.InnerGraph",
-      "ordinal": 1,
-      "reachable_repo_binding": false,
-      "reachable_repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.optimize",
-        "webpack.lib.optimize.InnerGraph"
-      ],
-      "reasons": [
-        "reachable_repo_owned_prefix"
-      ],
-      "repo_hint_overlap": [],
-      "repo_prefix_match_depth": 4,
-      "repo_prefix_matches": [
-        "webpack",
-        "webpack.lib",
-        "webpack.lib.optimize",
-        "webpack.lib.optimize.InnerGraph"
-      ],
-      "scope": "non_tests",
-      "signals": [
-        "deep_repo_prefix",
-        "identifier_depth:5",
-        "owner_segment:type_like",
-        "qualified_identifier",
-        "reachable_repo_prefix",
-        "reachable_repo_prefix_depth:4",
         "repo_owned_prefix",
         "repo_prefix_depth:4"
       ]
@@ -13740,6 +11607,50 @@
     {
       "bucket": "likely_unindexed_symbol",
       "callee_kind": "qualified",
+      "caller_module": "webpack.test.helpers.EventSourceForNode",
+      "caller_qualified_name": "webpack.test.helpers.EventSourceForNode.module.exports.constructor",
+      "caller_structural_id": "dde403e2e5af08719700a26b5d2f791f22fae274",
+      "candidate_module_hints": [],
+      "file_path": "test/helpers/EventSourceForNode.js",
+      "identifier": "webpack.test.helpers.EventSourceForNode.module.exports.onerror",
+      "identifier_root": "webpack",
+      "language": "javascript",
+      "longest_reachable_repo_prefix_match": "webpack.test.helpers.EventSourceForNode",
+      "longest_repo_prefix_match": "webpack.test.helpers.EventSourceForNode",
+      "ordinal": 1,
+      "reachable_repo_binding": false,
+      "reachable_repo_prefix_matches": [
+        "webpack",
+        "webpack.test",
+        "webpack.test.helpers",
+        "webpack.test.helpers.EventSourceForNode"
+      ],
+      "reasons": [
+        "reachable_repo_owned_prefix"
+      ],
+      "repo_hint_overlap": [],
+      "repo_prefix_match_depth": 4,
+      "repo_prefix_matches": [
+        "webpack",
+        "webpack.test",
+        "webpack.test.helpers",
+        "webpack.test.helpers.EventSourceForNode"
+      ],
+      "scope": "tests",
+      "signals": [
+        "deep_repo_prefix",
+        "identifier_depth:7",
+        "owner_segment:value_like",
+        "qualified_identifier",
+        "reachable_repo_prefix",
+        "reachable_repo_prefix_depth:4",
+        "repo_owned_prefix",
+        "repo_prefix_depth:4"
+      ]
+    },
+    {
+      "bucket": "likely_unindexed_symbol",
+      "callee_kind": "qualified",
       "caller_module": "webpack.test.statsCases.dynamic-import.src.index",
       "caller_qualified_name": "webpack.test.statsCases.dynamic-import.src.index.AsyncComponent.constructor",
       "caller_structural_id": "7240f72fb7c0defb164d13818d21c78603eba083",
@@ -13825,26 +11736,6 @@
         "reachable_repo_prefix_depth:4": 10,
         "repo_owned_prefix": 10,
         "repo_prefix_depth:4": 10
-      }
-    },
-    {
-      "buckets": {
-        "likely_unindexed_symbol": 9
-      },
-      "count": 9,
-      "file_path": "lib/optimize/InnerGraphPlugin.js",
-      "reasons": {
-        "reachable_repo_owned_prefix": 9
-      },
-      "signals": {
-        "deep_repo_prefix": 9,
-        "identifier_depth:5": 9,
-        "owner_segment:type_like": 9,
-        "qualified_identifier": 9,
-        "reachable_repo_prefix": 9,
-        "reachable_repo_prefix_depth:4": 9,
-        "repo_owned_prefix": 9,
-        "repo_prefix_depth:4": 9
       }
     },
     {
@@ -13936,26 +11827,6 @@
     },
     {
       "buckets": {
-        "likely_unindexed_symbol": 7
-      },
-      "count": 7,
-      "file_path": "lib/dependencies/CommonJsExportsParserPlugin.js",
-      "reasons": {
-        "reachable_repo_owned_prefix": 7
-      },
-      "signals": {
-        "deep_repo_prefix": 7,
-        "identifier_depth:5": 7,
-        "owner_segment:type_like": 7,
-        "qualified_identifier": 7,
-        "reachable_repo_prefix": 7,
-        "reachable_repo_prefix_depth:4": 7,
-        "repo_owned_prefix": 7,
-        "repo_prefix_depth:4": 7
-      }
-    },
-    {
-      "buckets": {
         "likely_unindexed_symbol": 5
       },
       "count": 5,
@@ -13996,28 +11867,6 @@
         "reachable_repo_prefix_depth:4": 4,
         "repo_owned_prefix": 4,
         "repo_prefix_depth:4": 4
-      }
-    },
-    {
-      "buckets": {
-        "likely_unindexed_symbol": 3
-      },
-      "count": 3,
-      "file_path": "lib/EvalSourceMapDevToolPlugin.js",
-      "reasons": {
-        "reachable_repo_owned_prefix": 3
-      },
-      "signals": {
-        "deep_repo_prefix": 3,
-        "identifier_depth:4": 2,
-        "identifier_depth:5": 1,
-        "owner_segment:type_like": 2,
-        "owner_segment:value_like": 1,
-        "qualified_identifier": 3,
-        "reachable_repo_prefix": 3,
-        "reachable_repo_prefix_depth:3": 3,
-        "repo_owned_prefix": 3,
-        "repo_prefix_depth:3": 3
       }
     },
     {
@@ -14127,48 +11976,6 @@
         "likely_unindexed_symbol": 2
       },
       "count": 2,
-      "file_path": "lib/JavascriptMetaInfoPlugin.js",
-      "reasons": {
-        "reachable_repo_owned_prefix": 2
-      },
-      "signals": {
-        "deep_repo_prefix": 2,
-        "identifier_depth:5": 2,
-        "owner_segment:type_like": 2,
-        "qualified_identifier": 2,
-        "reachable_repo_prefix": 2,
-        "reachable_repo_prefix_depth:4": 2,
-        "repo_owned_prefix": 2,
-        "repo_prefix_depth:4": 2
-      }
-    },
-    {
-      "buckets": {
-        "likely_unindexed_symbol": 2
-      },
-      "count": 2,
-      "file_path": "lib/LoaderOptionsPlugin.js",
-      "reasons": {
-        "reachable_repo_owned_prefix": 2
-      },
-      "signals": {
-        "deep_repo_prefix": 2,
-        "identifier_depth:4": 1,
-        "identifier_depth:6": 1,
-        "owner_segment:type_like": 1,
-        "owner_segment:value_like": 1,
-        "qualified_identifier": 2,
-        "reachable_repo_prefix": 2,
-        "reachable_repo_prefix_depth:3": 2,
-        "repo_owned_prefix": 2,
-        "repo_prefix_depth:3": 2
-      }
-    },
-    {
-      "buckets": {
-        "likely_unindexed_symbol": 2
-      },
-      "count": 2,
       "file_path": "lib/NodeStuffPlugin.js",
       "reasons": {
         "reachable_repo_owned_prefix": 2
@@ -14252,28 +12059,6 @@
         "likely_unindexed_symbol": 2
       },
       "count": 2,
-      "file_path": "lib/SourceMapDevToolPlugin.js",
-      "reasons": {
-        "reachable_repo_owned_prefix": 2
-      },
-      "signals": {
-        "deep_repo_prefix": 2,
-        "identifier_depth:4": 1,
-        "identifier_depth:5": 1,
-        "owner_segment:type_like": 1,
-        "owner_segment:value_like": 1,
-        "qualified_identifier": 2,
-        "reachable_repo_prefix": 2,
-        "reachable_repo_prefix_depth:3": 2,
-        "repo_owned_prefix": 2,
-        "repo_prefix_depth:3": 2
-      }
-    },
-    {
-      "buckets": {
-        "likely_unindexed_symbol": 2
-      },
-      "count": 2,
       "file_path": "lib/css/CssParser.js",
       "reasons": {
         "reachable_repo_owned_prefix": 2
@@ -14342,27 +12127,6 @@
         "deep_repo_prefix": 2,
         "identifier_depth:5": 2,
         "owner_segment:type_like": 2,
-        "qualified_identifier": 2,
-        "reachable_repo_prefix": 2,
-        "reachable_repo_prefix_depth:4": 2,
-        "repo_owned_prefix": 2,
-        "repo_prefix_depth:4": 2
-      }
-    },
-    {
-      "buckets": {
-        "likely_unindexed_symbol": 2
-      },
-      "count": 2,
-      "file_path": "lib/javascript/JavascriptParser.js",
-      "reasons": {
-        "reachable_repo_owned_prefix": 2
-      },
-      "signals": {
-        "deep_repo_prefix": 2,
-        "identifier_depth:5": 2,
-        "owner_segment:type_like": 1,
-        "owner_segment:value_like": 1,
         "qualified_identifier": 2,
         "reachable_repo_prefix": 2,
         "reachable_repo_prefix_depth:4": 2,
@@ -14519,14 +12283,14 @@
         "likely_unindexed_symbol": 1
       },
       "count": 1,
-      "file_path": "lib/EvalDevToolModulePlugin.js",
+      "file_path": "lib/EvalSourceMapDevToolPlugin.js",
       "reasons": {
         "reachable_repo_owned_prefix": 1
       },
       "signals": {
         "deep_repo_prefix": 1,
-        "identifier_depth:4": 1,
-        "owner_segment:type_like": 1,
+        "identifier_depth:5": 1,
+        "owner_segment:value_like": 1,
         "qualified_identifier": 1,
         "reachable_repo_prefix": 1,
         "reachable_repo_prefix_depth:3": 1,
@@ -14567,6 +12331,26 @@
         "deep_repo_prefix": 1,
         "identifier_depth:5": 1,
         "owner_segment:type_like": 1,
+        "qualified_identifier": 1,
+        "reachable_repo_prefix": 1,
+        "reachable_repo_prefix_depth:3": 1,
+        "repo_owned_prefix": 1,
+        "repo_prefix_depth:3": 1
+      }
+    },
+    {
+      "buckets": {
+        "likely_unindexed_symbol": 1
+      },
+      "count": 1,
+      "file_path": "lib/LoaderOptionsPlugin.js",
+      "reasons": {
+        "reachable_repo_owned_prefix": 1
+      },
+      "signals": {
+        "deep_repo_prefix": 1,
+        "identifier_depth:6": 1,
+        "owner_segment:value_like": 1,
         "qualified_identifier": 1,
         "reachable_repo_prefix": 1,
         "reachable_repo_prefix_depth:3": 1,
@@ -14659,6 +12443,26 @@
         "likely_unindexed_symbol": 1
       },
       "count": 1,
+      "file_path": "lib/RequireJsStuffPlugin.js",
+      "reasons": {
+        "reachable_repo_owned_prefix": 1
+      },
+      "signals": {
+        "deep_repo_prefix": 1,
+        "identifier_depth:5": 1,
+        "owner_segment:type_like": 1,
+        "qualified_identifier": 1,
+        "reachable_repo_prefix": 1,
+        "reachable_repo_prefix_depth:4": 1,
+        "repo_owned_prefix": 1,
+        "repo_prefix_depth:4": 1
+      }
+    },
+    {
+      "buckets": {
+        "likely_unindexed_symbol": 1
+      },
+      "count": 1,
       "file_path": "lib/SourceMapDevToolModuleOptionsPlugin.js",
       "reasons": {
         "reachable_repo_owned_prefix": 1
@@ -14672,6 +12476,26 @@
         "reachable_repo_prefix_depth:4": 1,
         "repo_owned_prefix": 1,
         "repo_prefix_depth:4": 1
+      }
+    },
+    {
+      "buckets": {
+        "likely_unindexed_symbol": 1
+      },
+      "count": 1,
+      "file_path": "lib/SourceMapDevToolPlugin.js",
+      "reasons": {
+        "reachable_repo_owned_prefix": 1
+      },
+      "signals": {
+        "deep_repo_prefix": 1,
+        "identifier_depth:5": 1,
+        "owner_segment:value_like": 1,
+        "qualified_identifier": 1,
+        "reachable_repo_prefix": 1,
+        "reachable_repo_prefix_depth:3": 1,
+        "repo_owned_prefix": 1,
+        "repo_prefix_depth:3": 1
       }
     },
     {
@@ -14769,26 +12593,6 @@
       "signals": {
         "deep_repo_prefix": 1,
         "identifier_depth:6": 1,
-        "owner_segment:type_like": 1,
-        "qualified_identifier": 1,
-        "reachable_repo_prefix": 1,
-        "reachable_repo_prefix_depth:4": 1,
-        "repo_owned_prefix": 1,
-        "repo_prefix_depth:4": 1
-      }
-    },
-    {
-      "buckets": {
-        "likely_unindexed_symbol": 1
-      },
-      "count": 1,
-      "file_path": "lib/dependencies/HarmonyTopLevelThisParserPlugin.js",
-      "reasons": {
-        "reachable_repo_owned_prefix": 1
-      },
-      "signals": {
-        "deep_repo_prefix": 1,
-        "identifier_depth:5": 1,
         "owner_segment:type_like": 1,
         "qualified_identifier": 1,
         "reachable_repo_prefix": 1,
@@ -14923,6 +12727,26 @@
         "likely_unindexed_symbol": 1
       },
       "count": 1,
+      "file_path": "lib/javascript/JavascriptParser.js",
+      "reasons": {
+        "reachable_repo_owned_prefix": 1
+      },
+      "signals": {
+        "deep_repo_prefix": 1,
+        "identifier_depth:5": 1,
+        "owner_segment:value_like": 1,
+        "qualified_identifier": 1,
+        "reachable_repo_prefix": 1,
+        "reachable_repo_prefix_depth:4": 1,
+        "repo_owned_prefix": 1,
+        "repo_prefix_depth:4": 1
+      }
+    },
+    {
+      "buckets": {
+        "likely_unindexed_symbol": 1
+      },
+      "count": 1,
       "file_path": "lib/optimize/AggressiveSplittingPlugin.js",
       "reasons": {
         "reachable_repo_owned_prefix": 1
@@ -14943,19 +12767,19 @@
         "likely_unindexed_symbol": 1
       },
       "count": 1,
-      "file_path": "lib/optimize/MinMaxSizeWarning.js",
+      "file_path": "lib/optimize/InnerGraphPlugin.js",
       "reasons": {
         "reachable_repo_owned_prefix": 1
       },
       "signals": {
         "deep_repo_prefix": 1,
-        "identifier_depth:4": 1,
+        "identifier_depth:5": 1,
         "owner_segment:type_like": 1,
         "qualified_identifier": 1,
         "reachable_repo_prefix": 1,
-        "reachable_repo_prefix_depth:3": 1,
+        "reachable_repo_prefix_depth:4": 1,
         "repo_owned_prefix": 1,
-        "repo_prefix_depth:3": 1
+        "repo_prefix_depth:4": 1
       }
     },
     {
@@ -14975,26 +12799,6 @@
         "reachable_repo_prefix": 1,
         "reachable_repo_prefix_depth:4": 1,
         "repeated_segment": 1,
-        "repo_owned_prefix": 1,
-        "repo_prefix_depth:4": 1
-      }
-    },
-    {
-      "buckets": {
-        "likely_unindexed_symbol": 1
-      },
-      "count": 1,
-      "file_path": "lib/url/URLParserPlugin.js",
-      "reasons": {
-        "reachable_repo_owned_prefix": 1
-      },
-      "signals": {
-        "deep_repo_prefix": 1,
-        "identifier_depth:5": 1,
-        "owner_segment:type_like": 1,
-        "qualified_identifier": 1,
-        "reachable_repo_prefix": 1,
-        "reachable_repo_prefix_depth:4": 1,
         "repo_owned_prefix": 1,
         "repo_prefix_depth:4": 1
       }
@@ -15139,6 +12943,26 @@
         "repeated_segment": 1,
         "repo_owned_prefix": 1,
         "repo_prefix_depth:6": 1
+      }
+    },
+    {
+      "buckets": {
+        "likely_unindexed_symbol": 1
+      },
+      "count": 1,
+      "file_path": "test/helpers/EventSourceForNode.js",
+      "reasons": {
+        "reachable_repo_owned_prefix": 1
+      },
+      "signals": {
+        "deep_repo_prefix": 1,
+        "identifier_depth:7": 1,
+        "owner_segment:value_like": 1,
+        "qualified_identifier": 1,
+        "reachable_repo_prefix": 1,
+        "reachable_repo_prefix_depth:4": 1,
+        "repo_owned_prefix": 1,
+        "repo_prefix_depth:4": 1
       }
     },
     {

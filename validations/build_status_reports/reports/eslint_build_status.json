@@ -56,14 +56,14 @@
     "languages": {
       "javascript": {
         "call_materialization": {
-          "callsite_pairs": 649,
-          "finalized_call_edges": 648
+          "callsite_pairs": 709,
+          "finalized_call_edges": 708
         },
         "callsites": {
-          "filtered_pre_persist": 37,
-          "observed_syntactic_callsites": 689,
-          "persisted_accepted": 649,
-          "persisted_callsites": 652,
+          "filtered_pre_persist": 33,
+          "observed_syntactic_callsites": 745,
+          "persisted_accepted": 709,
+          "persisted_callsites": 712,
           "persisted_dropped": 3
         },
         "pre_persist_filter": {
@@ -71,15 +71,15 @@
           "invalid_observation_shape": 0,
           "likely_dynamic_dispatch_or_indirect": 1,
           "likely_external_dependency": 0,
-          "likely_parser_extraction_gap": 3,
+          "likely_parser_extraction_gap": 0,
           "likely_standard_library_or_builtin": 0,
-          "likely_unindexed_symbol": 33,
+          "likely_unindexed_symbol": 32,
           "unclassified_no_in_repo_candidate": 0
         },
         "structure": {
-          "edges": 2772,
+          "edges": 3042,
           "files": 1474,
-          "nodes": 2807
+          "nodes": 3017
         }
       },
       "typescript": {
@@ -114,14 +114,14 @@
     "scopes": {
       "non_tests": {
         "call_materialization": {
-          "callsite_pairs": 634,
-          "finalized_call_edges": 633
+          "callsite_pairs": 693,
+          "finalized_call_edges": 692
         },
         "callsites": {
-          "filtered_pre_persist": 33,
-          "observed_syntactic_callsites": 670,
-          "persisted_accepted": 634,
-          "persisted_callsites": 637,
+          "filtered_pre_persist": 29,
+          "observed_syntactic_callsites": 725,
+          "persisted_accepted": 693,
+          "persisted_callsites": 696,
           "persisted_dropped": 3
         },
         "pre_persist_filter": {
@@ -129,27 +129,27 @@
           "invalid_observation_shape": 0,
           "likely_dynamic_dispatch_or_indirect": 1,
           "likely_external_dependency": 0,
-          "likely_parser_extraction_gap": 3,
+          "likely_parser_extraction_gap": 0,
           "likely_standard_library_or_builtin": 0,
-          "likely_unindexed_symbol": 29,
+          "likely_unindexed_symbol": 28,
           "unclassified_no_in_repo_candidate": 0
         },
         "structure": {
-          "edges": 2239,
+          "edges": 2402,
           "files": 477,
-          "nodes": 1714
+          "nodes": 1818
         }
       },
       "tests": {
         "call_materialization": {
-          "callsite_pairs": 15,
-          "finalized_call_edges": 15
+          "callsite_pairs": 16,
+          "finalized_call_edges": 16
         },
         "callsites": {
           "filtered_pre_persist": 4,
-          "observed_syntactic_callsites": 19,
-          "persisted_accepted": 15,
-          "persisted_callsites": 15,
+          "observed_syntactic_callsites": 20,
+          "persisted_accepted": 16,
+          "persisted_callsites": 16,
           "persisted_dropped": 0
         },
         "pre_persist_filter": {
@@ -163,39 +163,39 @@
           "unclassified_no_in_repo_candidate": 0
         },
         "structure": {
-          "edges": 617,
+          "edges": 724,
           "files": 1022,
-          "nodes": 1191
+          "nodes": 1297
         }
       }
     },
     "timing": {
       "build_phase_timings": {
-        "build_structural_index": 7.813004499010276,
-        "compute_build_fingerprint": 0.23307759799354244,
-        "derive_call_artifacts": 7.7435791789903305,
-        "diagnostic_classification": 0.015651527006411925,
-        "discover_files": 0.6413794929976575,
-        "prepare_callsite_pairs": 0.026491376993362792,
-        "prepare_snapshots": 0.2649801520019537,
-        "rebuild_graph_index": 0.03723728199838661,
-        "rebuild_graph_rollups": 0.05841026999405585,
-        "register_modules": 0.48811966099310666,
-        "write_callsite_pairs": 0.015337928998633288
+        "build_structural_index": 8.099552663989016,
+        "compute_build_fingerprint": 0.2654751270019915,
+        "derive_call_artifacts": 8.73709322499053,
+        "diagnostic_classification": 0.016590804007137194,
+        "discover_files": 0.49310498099657707,
+        "prepare_callsite_pairs": 0.029529278006521054,
+        "prepare_snapshots": 0.30067798600066453,
+        "rebuild_graph_index": 0.040605066998978145,
+        "rebuild_graph_rollups": 0.0667929540068144,
+        "register_modules": 0.47447687599924393,
+        "write_callsite_pairs": 0.022349538005073555
       },
-      "build_total_seconds": 19.057489,
-      "build_wall_seconds": 20.801111
+      "build_total_seconds": 20.359454,
+      "build_wall_seconds": 22.831434
     },
     "totals": {
       "call_materialization": {
-        "callsite_pairs": 649,
-        "finalized_call_edges": 648
+        "callsite_pairs": 709,
+        "finalized_call_edges": 708
       },
       "callsites": {
-        "filtered_pre_persist": 37,
-        "observed_syntactic_callsites": 689,
-        "persisted_accepted": 649,
-        "persisted_callsites": 652,
+        "filtered_pre_persist": 33,
+        "observed_syntactic_callsites": 745,
+        "persisted_accepted": 709,
+        "persisted_callsites": 712,
         "persisted_dropped": 3
       },
       "pre_persist_filter": {
@@ -203,15 +203,15 @@
         "invalid_observation_shape": 0,
         "likely_dynamic_dispatch_or_indirect": 1,
         "likely_external_dependency": 0,
-        "likely_parser_extraction_gap": 3,
+        "likely_parser_extraction_gap": 0,
         "likely_standard_library_or_builtin": 0,
-        "likely_unindexed_symbol": 33,
+        "likely_unindexed_symbol": 32,
         "unclassified_no_in_repo_candidate": 0
       },
       "structure": {
-        "edges": 2856,
+        "edges": 3126,
         "files": 1499,
-        "nodes": 2905
+        "nodes": 3115
       }
     }
   }
