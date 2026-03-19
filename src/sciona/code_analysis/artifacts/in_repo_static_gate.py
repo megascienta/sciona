@@ -39,6 +39,7 @@ ALLOWED_CALLSITE_DROP_REASONS = frozenset(
 ALLOWED_PRE_PERSIST_FILTER_BUCKETS = frozenset(
     {
         "no_in_repo_candidate",
+        "insufficient_static_evidence",
         "accepted_outside_in_repo",
         "invalid_observation_shape",
     }
@@ -85,7 +86,7 @@ def evaluate_callsite_row_for_persistence(
             return InRepoStaticGateDecision(False, "invalid_observation_shape")
         if drop_reason not in ALLOWED_CALLSITE_DROP_REASONS:
             return InRepoStaticGateDecision(False, "invalid_observation_shape")
-        return InRepoStaticGateDecision(True)
+        return InRepoStaticGateDecision(False, "insufficient_static_evidence")
     return InRepoStaticGateDecision(False, "invalid_observation_shape")
 
 

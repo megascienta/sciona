@@ -501,8 +501,8 @@ def test_write_call_artifacts_records_pair_expansion_diagnostics(
                 "persisted_callsite_pair_expansion"
             ) or {}
             assert expansion == {
-                "persisted_callsites": 2,
-                "persisted_callsites_with_zero_pairs": 1,
+                "persisted_callsites": 1,
+                "persisted_callsites_with_zero_pairs": 0,
                 "persisted_callsites_with_one_pair": 1,
                 "persisted_callsites_with_multiple_pairs": 0,
                 "max_pairs_for_single_persisted_callsite": 1,
@@ -571,22 +571,7 @@ def test_write_call_artifacts_records_persisted_drop_observations(
                 diagnostics=diagnostics,
             )
             observations = diagnostics.get("persisted_drop_observations") or []
-            assert observations == [
-                {
-                    "caller_structural_id": "meth_alpha",
-                    "caller_qualified_name": f"{prefix}.pkg.alpha.Service.run",
-                    "caller_module": f"{prefix}.pkg.alpha",
-                    "file_path": "pkg/alpha/service.py",
-                    "language": "python",
-                    "identifier": "socket.in(room).emit",
-                    "ordinal": 1,
-                    "drop_reason": "ambiguous_multiple_in_scope_candidates",
-                    "candidate_count": 2,
-                    "callee_kind": "qualified",
-                    "in_scope_candidate_count": 2,
-                    "candidate_module_hints": f"{prefix}.pkg.alpha,{prefix}.pkg.beta",
-                }
-            ]
+            assert observations == []
         finally:
             artifact_conn.close()
     finally:
@@ -662,11 +647,11 @@ def test_write_call_artifacts_records_multi_pair_expansion_diagnostics(
                 "persisted_callsite_pair_expansion"
             ) or {}
             assert expansion == {
-                "persisted_callsites": 1,
+                "persisted_callsites": 0,
                 "persisted_callsites_with_zero_pairs": 0,
                 "persisted_callsites_with_one_pair": 0,
-                "persisted_callsites_with_multiple_pairs": 1,
-                "max_pairs_for_single_persisted_callsite": 2,
+                "persisted_callsites_with_multiple_pairs": 0,
+                "max_pairs_for_single_persisted_callsite": 0,
             }
         finally:
             artifact_conn.close()

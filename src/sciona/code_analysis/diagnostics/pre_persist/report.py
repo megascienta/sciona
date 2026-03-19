@@ -20,6 +20,7 @@ PUBLIC_DIAGNOSTIC_BUCKET_KEYS = (
 
 _PUBLIC_DIAGNOSTIC_BUCKET_MAP = {
     "no_in_repo_candidate": "unclassified",
+    "insufficient_static_evidence": "insufficient_static_evidence",
     "accepted_outside_in_repo": "outside_static_contract",
     "invalid_observation_shape": "structural_mismatch",
     "likely_external_dependency": "outside_static_contract",

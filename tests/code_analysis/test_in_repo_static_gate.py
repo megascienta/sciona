@@ -80,7 +80,7 @@ def test_gate_rejects_out_of_repo_accepted_rows() -> None:
     assert decision.rejection_bucket == "accepted_outside_in_repo"
 
 
-def test_gate_accepts_dropped_rows_with_allowed_drop_reason() -> None:
+def test_gate_rejects_dropped_rows_with_allowed_drop_reason_as_insufficient_static_evidence() -> None:
     decision = evaluate_callsite_row_for_persistence(
         _row(
             status="dropped",
@@ -92,8 +92,8 @@ def test_gate_accepts_dropped_rows_with_allowed_drop_reason() -> None:
         in_repo_callable_ids={"func_alpha"},
     )
 
-    assert decision.persist is True
-    assert decision.rejection_bucket is None
+    assert decision.persist is False
+    assert decision.rejection_bucket == "insufficient_static_evidence"
 
 
 def test_gate_rejects_invalid_observation_shape() -> None:
