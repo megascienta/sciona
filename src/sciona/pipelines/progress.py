@@ -130,8 +130,8 @@ class BuildProgress:
         "Writing durable calls": "write_durable_calls",
         "Rebuilding call graph index": "rebuild_graph_index",
         "Rebuilding graph rollups": "rebuild_graph_rollups",
-        "Diagnostic classification (pre-persist)": "diagnostic_classification_pre_persist",
-        "Diagnostic classification (rejected)": "diagnostic_classification_rejected",
+        "Diagnostic classification (Phase I)": "diagnostic_classification_phase_I",
+        "Diagnostic classification (Phase II)": "diagnostic_classification_phase_II",
         "Diagnostic classification": "diagnostic_classification",
     }
 

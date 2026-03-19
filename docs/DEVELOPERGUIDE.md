@@ -251,7 +251,8 @@ Timing semantics:
   - `write_durable_calls`
   - `rebuild_graph_index`
   - `rebuild_graph_rollups`
-  - `diagnostic_classification` only for diagnostic builds
+  - `diagnostic_classification_phase_I` only for diagnostic builds
+  - `diagnostic_classification_phase_II` only for diagnostic builds
 
 Diagnostic build mode:
 

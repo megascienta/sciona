@@ -70,13 +70,6 @@ def enrich_report(
         }
     )
     labels["fields"] = fields
-    phases = dict(labels.get("phases") or {})
-    phases.update(
-        {
-            "diagnostic_classification": "Diagnostic Classification",
-        }
-    )
-    labels["phases"] = phases
     enriched["labels"] = labels
     _replace_pre_persist_filters(
         enriched,
