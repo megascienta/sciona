@@ -141,6 +141,91 @@ def walk_javascript_nodes(
             (qualified, "callable", function_body_node(value_node), class_name)
         )
 
+    def _emit_bound_classifier(
+        *,
+        name: str,
+        value_node,
+        parent: str,
+        parent_node_type: str,
+    ) -> None:
+        emitted_name = _disambiguate_child_name(
+            state=state,
+            parent=parent,
+            child_kind="classifier",
+            local_name=name,
+        )
+        qualified = f"{parent}.{emitted_name}"
+        result.nodes.append(
+            SemanticNodeRecord(
+                language=language,
+                node_type="classifier",
+                qualified_name=qualified,
+                display_name=name,
+                file_path=snapshot.record.relative_path,
+                start_line=value_node.start_point[0] + 1,
+                end_line=value_node.end_point[0] + 1,
+                start_byte=value_node.start_byte,
+                end_byte=value_node.end_byte,
+                metadata={
+                    "kind": "class",
+                    **_javascript_heritage_metadata(value_node, snapshot.content),
+                },
+            )
+        )
+        state.class_name_map.setdefault(name, qualified)
+        state.class_name_candidates.setdefault(name, set()).add(qualified)
+        result.edges.append(
+            EdgeRecord(
+                src_language=language,
+                src_node_type=parent_node_type,
+                src_qualified_name=parent,
+                dst_language=language,
+                dst_node_type="classifier",
+                dst_qualified_name=qualified,
+                edge_type="LEXICALLY_CONTAINS",
+            )
+        )
+        state.class_stack.append(qualified)
+        state.class_span_stack.append((value_node.start_byte, value_node.end_byte))
+        state.class_methods.setdefault(qualified, set())
+        body = value_node.child_by_field_name("body")
+        if body:
+            for child in find_direct_children_of_types_query(
+                body,
+                language_name="javascript",
+                node_types=_structural_walk_node_types(),
+            ):
+                walk_javascript_nodes(
+                    child,
+                    language=language,
+                    snapshot=snapshot,
+                    module_name=module_name,
+                    result=result,
+                    state=state,
+                    function_depth=function_depth,
+                )
+        state.class_stack.pop()
+        state.class_span_stack.pop()
+
+    def _static_assignment_target(node) -> tuple[str, str, str] | None:
+        if node is None or node.type != "member_expression":
+            return None
+        chain = name_chain(node, snapshot.content)
+        if len(chain) < 2:
+            return None
+        owner_chain = chain[:-1]
+        local_name = chain[-1]
+        if not local_name:
+            return None
+        if owner_chain == ("exports",) or owner_chain == ("module", "exports"):
+            return module_name, "module", local_name
+        if len(owner_chain) == 1:
+            owner = owner_chain[0]
+            if owner in state.class_name_map:
+                return state.class_name_map[owner], "classifier", local_name
+            return module_name, "module", ".".join(chain)
+        return module_name, "module", ".".join(chain)
+
     if node.type == "class_declaration":
         name_node = node.child_by_field_name("name")
         if not name_node:
@@ -563,6 +648,30 @@ def walk_javascript_nodes(
             class_name=parent,
         )
         return
+
+    if node.type == "assignment_expression" and not state.callable_stack:
+        left = node.child_by_field_name("left")
+        right = node.child_by_field_name("right")
+        target = _static_assignment_target(left)
+        if target is not None and right is not None:
+            parent, parent_node_type, emitted_name = target
+            if right.type in {"arrow_function", "function", "function_expression"}:
+                _emit_bound_callable(
+                    name=emitted_name,
+                    value_node=right,
+                    parent=parent,
+                    parent_node_type=parent_node_type,
+                    class_name=parent if parent_node_type == "classifier" else None,
+                )
+                return
+            if right.type in {"class", "class_expression"}:
+                _emit_bound_classifier(
+                    name=emitted_name,
+                    value_node=right,
+                    parent=parent,
+                    parent_node_type=parent_node_type,
+                )
+                return
 
     if node.type == "assignment_expression" and state.class_stack and function_depth > 0:
         left = node.child_by_field_name("left")

@@ -220,3 +220,56 @@ def test_javascript_analyzer_disambiguates_duplicate_bound_callable_names(tmp_pa
     callables = {node.qualified_name for node in result.nodes if node.node_type == "callable"}
     assert f"{module_name}.outer.f" in callables
     assert f"{module_name}.outer.f-2" in callables
+
+
+def test_javascript_analyzer_promotes_static_assignment_surfaces(tmp_path) -> None:
+    repo = tmp_path
+    snapshot = _snapshot(
+        repo,
+        "src/mod.js",
+        """
+        class Holder {}
+        exports.run = function run() { return 1; };
+        module.exports.load = () => 2;
+        Tools.build = function build() { return 3; };
+        Holder.Factory = class Factory {
+          make() { return 4; }
+        };
+        """,
+    )
+    analyzer = JavaScriptAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+
+    nodes = {
+        node.qualified_name: node.node_type
+        for node in result.nodes
+        if node.node_type in {"callable", "classifier"}
+    }
+    assert nodes[f"{module_name}.run"] == "callable"
+    assert nodes[f"{module_name}.load"] == "callable"
+    assert nodes[f"{module_name}.Tools.build"] == "callable"
+    assert nodes[f"{module_name}.Holder.Factory"] == "classifier"
+    assert nodes[f"{module_name}.Holder.Factory.make"] == "callable"
+
+
+def test_javascript_analyzer_does_not_promote_computed_assignment_surfaces(tmp_path) -> None:
+    repo = tmp_path
+    snapshot = _snapshot(
+        repo,
+        "src/mod.js",
+        """
+        const name = "run";
+        exports[name] = function run() { return 1; };
+        module.exports["load"] = () => 2;
+        """,
+    )
+    analyzer = JavaScriptAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+
+    names = {node.qualified_name for node in result.nodes}
+    assert f"{module_name}.run" not in names
+    assert f"{module_name}.load" not in names
