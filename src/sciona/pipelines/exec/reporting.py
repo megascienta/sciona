@@ -45,10 +45,11 @@ class LanguageMetrics:
                 },
                 "callsites": {
                     "observed_syntactic_callsites": self.observed_syntactic_callsites,
-                    "filtered_pre_persist": self.filtered_pre_persist,
-                    "persisted_callsites": self.persisted_callsites,
-                    "persisted_accepted": self.persisted_accepted,
-                    "persisted_dropped": self.persisted_dropped,
+                    "accepted_callsites": self.persisted_accepted,
+                    "not_accepted_callsites": _not_accepted_callsites(
+                        observed=self.observed_syntactic_callsites,
+                        accepted=self.persisted_accepted,
+                    ),
                 },
                 "not_accepted_calls": _filtered_pre_persist_buckets_payload(
                     self.filtered_pre_persist_buckets
@@ -74,10 +75,8 @@ FIELD_LABELS = {
     "nodes": "Nodes",
     "edges": "Edges",
     "observed_syntactic_callsites": "Observed Syntactic Callsites",
-    "filtered_pre_persist": "Filtered Pre-Persist",
-    "persisted_callsites": "Persisted Callsites",
-    "persisted_accepted": "Persisted Accepted",
-    "persisted_dropped": "Persisted Dropped",
+    "accepted_callsites": "Accepted Callsites",
+    "not_accepted_callsites": "Not Accepted Callsites",
     "out_of_scope_call": "Out-Of-Scope Call",
     "weak_static_evidence": "Weak Static Evidence",
     "structural_gap": "Structural Gap",
@@ -502,22 +501,25 @@ def snapshot_report(
         if not artifact_available:
             return {
                 "observed_syntactic_callsites": None,
-                "filtered_pre_persist": None,
-                "persisted_callsites": None,
-                "persisted_accepted": None,
-                "persisted_dropped": None,
+                "accepted_callsites": None,
+                "not_accepted_callsites": None,
             }
-        return _sum_scope(
+        raw = _sum_scope(
             diagnostics_by_scope,
             scope_key=scope_key,
             field_names=(
                 "observed_syntactic_callsites",
-                "filtered_pre_persist",
-                "persisted_callsites",
                 "persisted_accepted",
-                "persisted_dropped",
             ),
         )
+        return {
+            "observed_syntactic_callsites": raw.get("observed_syntactic_callsites"),
+            "accepted_callsites": raw.get("persisted_accepted"),
+            "not_accepted_callsites": _not_accepted_callsites(
+                observed=raw.get("observed_syntactic_callsites"),
+                accepted=raw.get("persisted_accepted"),
+            ),
+        }
 
     def _scope_pre_persist(scope_key: str) -> dict[str, int]:
         return _filtered_pre_persist_buckets_payload(
@@ -596,18 +598,17 @@ def snapshot_report(
                 )
                 if artifact_available
                 else None,
-                "filtered_pre_persist": diagnostics_totals.get("filtered_pre_persist")
+                "accepted_callsites": diagnostics_totals.get("persisted_accepted")
                 if artifact_available
                 else None,
-                "persisted_callsites": diagnostics_totals.get("persisted_callsites")
-                if artifact_available
-                else None,
-                "persisted_accepted": diagnostics_totals.get("persisted_accepted")
-                if artifact_available
-                else None,
-                "persisted_dropped": diagnostics_totals.get("persisted_dropped")
-                if artifact_available
-                else None,
+                "not_accepted_callsites": _not_accepted_callsites(
+                    observed=diagnostics_totals.get("observed_syntactic_callsites")
+                    if artifact_available
+                    else None,
+                    accepted=diagnostics_totals.get("persisted_accepted")
+                    if artifact_available
+                    else None,
+                ),
             },
             "not_accepted_calls": _filtered_pre_persist_buckets_payload(
                 diagnostics_total_pre_persist_buckets if artifact_available else None
@@ -651,6 +652,16 @@ def _filtered_pre_persist_buckets_payload(
     buckets: dict[str, int] | None,
 ) -> dict[str, int]:
     return _filtered_pre_persist_buckets_payload_impl(buckets)
+
+
+def _not_accepted_callsites(
+    *,
+    observed: int | None,
+    accepted: int | None,
+) -> int | None:
+    if observed is None or accepted is None:
+        return None
+    return max(int(observed or 0) - int(accepted or 0), 0)
 
 
 def _scope_bucket(file_path: str) -> str:

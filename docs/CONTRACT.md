@@ -248,10 +248,8 @@ Public status reporting contract:
   each graph edge is counted under the language and scope of its source node
 - `callsites` MUST contain only:
   - `observed_syntactic_callsites`
-  - `filtered_pre_persist`
-  - `persisted_callsites`
-  - `persisted_accepted`
-  - `persisted_dropped`
+  - `accepted_callsites`
+  - `not_accepted_callsites`
 - `not_accepted_calls` MUST contain only:
   - `out_of_scope_call`
   - `weak_static_evidence`

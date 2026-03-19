@@ -102,8 +102,8 @@ committed source snapshot
   -> CoreDB model
   -> callsite observation
   -> observed_syntactic_callsites
-  -> pre-persist filtering
-  -> persisted_callsites
+  -> rejected or accepted callsite decision
+  -> accepted_callsites / not_accepted_callsites
   -> candidate materialization
   -> callsite_pairs
   -> graph collapse
@@ -315,8 +315,7 @@ Diagnostic build mode:
 - these public sections contain direct counts only:
   - `structure`: `files`, `nodes`, `edges`
   - `callsites`: `observed_syntactic_callsites`,
-    `filtered_pre_persist`, `persisted_callsites`,
-    `persisted_accepted`, `persisted_dropped`
+    `accepted_callsites`, `not_accepted_callsites`
   - `not_accepted_calls`: `out_of_scope_call`,
     `weak_static_evidence`, `structural_gap`, `unclassified`
   - `call_materialization`: `callsite_pairs`, `finalized_call_edges`

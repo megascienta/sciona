@@ -37,10 +37,8 @@ def test_snapshot_report_returns_grouped_direct_metrics(repo_with_snapshot):
     }
     assert payload["totals"]["callsites"] == {
         "observed_syntactic_callsites": 0,
-        "filtered_pre_persist": 0,
-        "persisted_callsites": 0,
-        "persisted_accepted": 0,
-        "persisted_dropped": 0,
+        "accepted_callsites": 0,
+        "not_accepted_callsites": 0,
     }
     assert payload["totals"]["not_accepted_calls"] == {
         "out_of_scope_call": 0,
@@ -61,10 +59,8 @@ def test_snapshot_report_returns_grouped_direct_metrics(repo_with_snapshot):
             },
             "callsites": {
                 "observed_syntactic_callsites": 0,
-                "filtered_pre_persist": 0,
-                "persisted_callsites": 0,
-                "persisted_accepted": 0,
-                "persisted_dropped": 0,
+                "accepted_callsites": 0,
+                "not_accepted_callsites": 0,
             },
             "not_accepted_calls": {
                 "out_of_scope_call": 0,
@@ -85,10 +81,8 @@ def test_snapshot_report_returns_grouped_direct_metrics(repo_with_snapshot):
             },
             "callsites": {
                 "observed_syntactic_callsites": 0,
-                "filtered_pre_persist": 0,
-                "persisted_callsites": 0,
-                "persisted_accepted": 0,
-                "persisted_dropped": 0,
+                "accepted_callsites": 0,
+                "not_accepted_callsites": 0,
             },
             "not_accepted_calls": {
                 "out_of_scope_call": 0,
@@ -106,10 +100,8 @@ def test_snapshot_report_returns_grouped_direct_metrics(repo_with_snapshot):
     assert python["structure"] == {"files": 3, "nodes": 5, "edges": 5}
     assert python["callsites"] == {
         "observed_syntactic_callsites": 0,
-        "filtered_pre_persist": 0,
-        "persisted_callsites": 0,
-        "persisted_accepted": 0,
-        "persisted_dropped": 0,
+        "accepted_callsites": 0,
+        "not_accepted_callsites": 0,
     }
     assert python["not_accepted_calls"] == {
         "out_of_scope_call": 0,
@@ -200,10 +192,8 @@ def test_snapshot_report_includes_direct_callsite_counts_from_diagnostics(
     assert payload is not None
     assert payload["totals"]["callsites"] == {
         "observed_syntactic_callsites": 5,
-        "filtered_pre_persist": 2,
-        "persisted_callsites": 3,
-        "persisted_accepted": 2,
-        "persisted_dropped": 1,
+        "accepted_callsites": 2,
+        "not_accepted_callsites": 3,
     }
     assert payload["totals"]["not_accepted_calls"] == {
         "out_of_scope_call": 0,
@@ -218,10 +208,8 @@ def test_snapshot_report_includes_direct_callsite_counts_from_diagnostics(
     assert payload["totals"]["structure"]["edges"] == 5
     assert payload["scopes"]["non_tests"]["callsites"] == {
         "observed_syntactic_callsites": 5,
-        "filtered_pre_persist": 2,
-        "persisted_callsites": 3,
-        "persisted_accepted": 2,
-        "persisted_dropped": 1,
+        "accepted_callsites": 2,
+        "not_accepted_callsites": 3,
     }
     assert payload["scopes"]["non_tests"]["not_accepted_calls"] == {
         "out_of_scope_call": 0,
@@ -235,7 +223,7 @@ def test_snapshot_report_includes_direct_callsite_counts_from_diagnostics(
         "edges": 5,
     }
     python = payload["languages"]["python"]
-    assert python["callsites"]["persisted_callsites"] == 3
+    assert python["callsites"]["accepted_callsites"] == 2
     assert python["not_accepted_calls"] == {
         "out_of_scope_call": 0,
         "weak_static_evidence": 0,

@@ -215,16 +215,13 @@ def _format_structure_summary(structure: dict) -> str:
 
 def _format_callsites_summary(callsites: dict) -> str:
     observed = callsites.get("observed_syntactic_callsites")
-    filtered = callsites.get("filtered_pre_persist")
-    persisted = callsites.get("persisted_callsites")
-    accepted = callsites.get("persisted_accepted")
-    dropped = callsites.get("persisted_dropped")
-    if all(value is None for value in (observed, filtered, persisted, accepted, dropped)):
+    accepted = callsites.get("accepted_callsites")
+    not_accepted = callsites.get("not_accepted_callsites")
+    if all(value is None for value in (observed, accepted, not_accepted)):
         return ""
     return (
-        f"observed={int(observed or 0)}, filtered_pre_persist={int(filtered or 0)}, "
-        f"persisted={int(persisted or 0)}, accepted={int(accepted or 0)}, "
-        f"dropped={int(dropped or 0)}"
+        f"observed={int(observed or 0)}, accepted={int(accepted or 0)}, "
+        f"not_accepted={int(not_accepted or 0)}"
     )
 
 

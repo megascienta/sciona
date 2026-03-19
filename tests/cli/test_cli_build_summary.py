@@ -51,10 +51,8 @@ def _fake_report():
                 },
                 "callsites": {
                     "observed_syntactic_callsites": 0,
-                    "filtered_pre_persist": 0,
-                    "persisted_callsites": 0,
-                    "persisted_accepted": 0,
-                    "persisted_dropped": 0,
+                    "accepted_callsites": 0,
+                    "not_accepted_callsites": 0,
                 },
                 "not_accepted_calls": {
                     "out_of_scope_call": 0,
@@ -76,10 +74,8 @@ def _fake_report():
             },
             "callsites": {
                 "observed_syntactic_callsites": 0,
-                "filtered_pre_persist": 0,
-                "persisted_callsites": 0,
-                "persisted_accepted": 0,
-                "persisted_dropped": 0,
+                "accepted_callsites": 0,
+                "not_accepted_callsites": 0,
             },
             "not_accepted_calls": {
                 "out_of_scope_call": 0,

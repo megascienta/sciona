@@ -38,10 +38,8 @@ def _fake_report():
                 "nodes": "Nodes",
                 "edges": "Edges",
                 "observed_syntactic_callsites": "Observed Syntactic Callsites",
-                "filtered_pre_persist": "Filtered Pre-Persist",
-                "persisted_callsites": "Persisted Callsites",
-                "persisted_accepted": "Persisted Accepted",
-                "persisted_dropped": "Persisted Dropped",
+                "accepted_callsites": "Accepted Callsites",
+                "not_accepted_callsites": "Not Accepted Callsites",
                 "out_of_scope_call": "Out-Of-Scope Call",
                 "weak_static_evidence": "Weak Static Evidence",
                 "structural_gap": "Structural Gap",
@@ -81,10 +79,8 @@ def _fake_report():
                 },
                 "callsites": {
                     "observed_syntactic_callsites": 12,
-                    "filtered_pre_persist": 2,
-                    "persisted_callsites": 10,
-                    "persisted_accepted": 9,
-                    "persisted_dropped": 1,
+                    "accepted_callsites": 9,
+                    "not_accepted_callsites": 3,
                 },
                 "not_accepted_calls": {
                     "out_of_scope_call": 0,
@@ -106,10 +102,8 @@ def _fake_report():
             },
             "callsites": {
                 "observed_syntactic_callsites": 12,
-                "filtered_pre_persist": 2,
-                "persisted_callsites": 10,
-                "persisted_accepted": 9,
-                "persisted_dropped": 1,
+                "accepted_callsites": 9,
+                "not_accepted_callsites": 3,
             },
             "not_accepted_calls": {
                 "out_of_scope_call": 0,
@@ -131,10 +125,8 @@ def _fake_report():
                 },
                 "callsites": {
                     "observed_syntactic_callsites": 10,
-                    "filtered_pre_persist": 2,
-                    "persisted_callsites": 8,
-                    "persisted_accepted": 7,
-                    "persisted_dropped": 1,
+                    "accepted_callsites": 7,
+                    "not_accepted_callsites": 3,
                 },
                 "not_accepted_calls": {
                     "out_of_scope_call": 0,
@@ -155,10 +147,8 @@ def _fake_report():
                 },
                 "callsites": {
                     "observed_syntactic_callsites": 2,
-                    "filtered_pre_persist": 0,
-                    "persisted_callsites": 2,
-                    "persisted_accepted": 2,
-                    "persisted_dropped": 0,
+                    "accepted_callsites": 2,
+                    "not_accepted_callsites": 0,
                 },
                 "not_accepted_calls": {
                     "out_of_scope_call": 0,
@@ -215,7 +205,7 @@ def test_cli_status_verbose_emits_grouped_direct_metrics(cli_app, cli_runner, mo
     assert result.exit_code == 0
     assert calls == [True]
     assert (
-        "callsites: observed=12, filtered_pre_persist=2, persisted=10, accepted=9, dropped=1"
+        "callsites: observed=12, accepted=9, not_accepted=3"
         in result.stdout
     )
     assert (
@@ -229,7 +219,7 @@ def test_cli_status_verbose_emits_grouped_direct_metrics(cli_app, cli_runner, mo
     assert "non_tests:" in result.stdout
     assert "structure: 8 files, 16 nodes, 17 edges" in result.stdout
     assert (
-        "callsites: observed=10, filtered_pre_persist=2, persisted=8, accepted=7, dropped=1"
+        "callsites: observed=10, accepted=7, not_accepted=3"
         in result.stdout
     )
     assert "callsite_pairs=8, finalized_call_edges=8" in result.stdout
