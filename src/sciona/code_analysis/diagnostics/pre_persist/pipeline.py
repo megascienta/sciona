@@ -81,7 +81,7 @@ def classify_pre_persist_misses(
         },
     )
     progress_handle = (
-        progress_factory("Diagnostic classification", len(call_records))
+        progress_factory("Diagnostic classification (pre-persist)", len(call_records))
         if progress_factory is not None
         else None
     )
@@ -265,7 +265,7 @@ def classify_rejected_calls(
         },
     )
     progress_handle = (
-        progress_factory("Diagnostic classification", len(rows))
+        progress_factory("Diagnostic classification (rejected)", len(rows))
         if progress_factory is not None
         else None
     )

@@ -130,12 +130,27 @@ class BuildProgress:
         "Writing durable calls": "write_durable_calls",
         "Rebuilding call graph index": "rebuild_graph_index",
         "Rebuilding graph rollups": "rebuild_graph_rollups",
+        "Diagnostic classification (pre-persist)": "diagnostic_classification_pre_persist",
+        "Diagnostic classification (rejected)": "diagnostic_classification_rejected",
         "Diagnostic classification": "diagnostic_classification",
     }
 
     def _next_label(self, label: str) -> str:
         self._step += 1
-        return f"[{self._step}/{self.total_steps}] {label}"
+        return self._format_label(self._step, self.total_steps, label)
+
+    @staticmethod
+    def _format_label(step: int, total_steps: int, label: str) -> str:
+        return f"[{step}/{total_steps}] {label}"
+
+    def _label_width(self) -> int:
+        return max(
+            len(self._format_label(self.total_steps, self.total_steps, label))
+            for label in self._PHASE_KEYS
+        )
+
+    def _padded_label(self, label: str) -> str:
+        return label.ljust(self._label_width())
 
     def emit_phase(self, label: str) -> None:
         self._complete_active_phase()
@@ -190,8 +205,9 @@ class BuildProgress:
             if total <= 0:
                 self._record_phase(key=phase_key, elapsed=0.0)
                 return None
+            rendered_label = self._padded_label(self._next_label(label))
             return _ProgressBarHandle(
-                label=self._next_label(label),
+                label=rendered_label,
                 total=total,
                 on_close=lambda line: self._record_phase(
                     key=phase_key,
