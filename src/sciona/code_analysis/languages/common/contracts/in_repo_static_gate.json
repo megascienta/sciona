@@ -1,0 +1,21 @@
+{
+  "allowed_callsite_provenance": [
+    "exact_qname",
+    "module_scoped",
+    "import_narrowed",
+    "export_chain_narrowed"
+  ],
+  "allowed_callsite_drop_reasons": [
+    "no_candidates",
+    "unique_without_provenance",
+    "ambiguous_no_caller_module",
+    "ambiguous_no_in_scope_candidate",
+    "ambiguous_multiple_in_scope_candidates"
+  ],
+  "allowed_pre_persist_filter_buckets": [
+    "no_in_repo_candidate",
+    "insufficient_static_evidence",
+    "accepted_outside_in_repo",
+    "invalid_observation_shape"
+  ]
+}

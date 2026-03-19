@@ -8,6 +8,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TypeAlias
 
+from ..languages.common.contracts.loader import load_contract_json
+
 
 CallsiteRow: TypeAlias = tuple[
     str,
@@ -24,25 +26,19 @@ CallsiteRow: TypeAlias = tuple[
     str | None,
 ]
 
+_GATE_CONTRACT = load_contract_json("in_repo_static_gate.json")
+
 ALLOWED_CALLSITE_PROVENANCE = frozenset(
-    {"exact_qname", "module_scoped", "import_narrowed", "export_chain_narrowed"}
+    str(value)
+    for value in (_GATE_CONTRACT.get("allowed_callsite_provenance") or [])
 )
 ALLOWED_CALLSITE_DROP_REASONS = frozenset(
-    {
-        "no_candidates",
-        "unique_without_provenance",
-        "ambiguous_no_caller_module",
-        "ambiguous_no_in_scope_candidate",
-        "ambiguous_multiple_in_scope_candidates",
-    }
+    str(value)
+    for value in (_GATE_CONTRACT.get("allowed_callsite_drop_reasons") or [])
 )
 ALLOWED_PRE_PERSIST_FILTER_BUCKETS = frozenset(
-    {
-        "no_in_repo_candidate",
-        "insufficient_static_evidence",
-        "accepted_outside_in_repo",
-        "invalid_observation_shape",
-    }
+    str(value)
+    for value in (_GATE_CONTRACT.get("allowed_pre_persist_filter_buckets") or [])
 )
 
 
