@@ -149,8 +149,8 @@ Implementation notes:
   `src/sciona/code_analysis/analysis_contracts/strict_call_resolution.py` and
   `src/sciona/code_analysis/artifacts/call_resolution.py`; Core structural
   assembly does not finalize calls
-- Reducer-facing `CALLS`, callsite pairs, graph edges, fan stats, and rollups are
-  finalized in ArtifactDB, not served directly from CoreDB `edges`
+- Reducer-facing `CALLS`, graph edges, fan stats, and rollups are finalized in
+  ArtifactDB, not served directly from CoreDB `edges`
 
 Supported structural carriers:
 
@@ -291,19 +291,6 @@ Diagnostic build mode:
 - only in-repo-static accepted call materialization persists durably; rejected
   callsite observations remain transient build-time data unless emitted through
   diagnostic repo-root outputs
-  
-- rejected callsites are publicly grouped as:
-  `outside_static_contract`, `insufficient_static_evidence`, `structural_mismatch`,
-  `unclassified`
-- bucket meanings:
-  - `outside_static_contract`: external, builtin, or structurally indirect/runtime
-    call shapes outside the static in-repo contract target
-  - `insufficient_static_evidence`: in-repo-looking call shapes whose structural
-    evidence is still too weak for accepted static-in-repo status
-  - `structural_mismatch`: malformed observations or clear parser/extraction/
-    normalization deficiencies
-  - `unclassified`: residual rejected callsites not explained by the other
-    public buckets
 - `status --json` exposes direct snapshot data only
 - the public status payload is grouped as:
   - `labels`
@@ -320,10 +307,9 @@ Diagnostic build mode:
   - `callsites`: `observed_syntactic_callsites`,
     `accepted_callsites`, `not_accepted_callsites`
   - `call_materialization`: `finalized_call_edges`
-- diagnostic build outputs additionally expose the classified
-  `not_accepted_callsites` bucket section:
-  `outside_static_contract`, `insufficient_static_evidence`,
-  `structural_mismatch`, `unclassified`
+- diagnostic build outputs additionally expose a classified
+  `not_accepted_callsites` bucket section; refer to `docs/CONTRACT.md` for the
+  normative bucket surface
 - `structure.files` and `structure.nodes` are structural counts from CoreDB
 - `structure.edges` is the total reducer-facing graph edge count from
   ArtifactDB `graph_edges`, including structural edges and `CALLS`
@@ -436,10 +422,9 @@ languages until the user enables them in `.sciona/config.yaml`.
 - Under overlay, `fan_summary` table mode reports adjusted rankings and may
   include overlay-added nodes while preserving committed baseline counts,
   adjusted counts, deltas, and row-origin semantics
-- Metrics reducers now include compact decision-surface summaries for common
-  workflows:
-  `call_resolution_drop_summary` for dropped-call triage and
-  `overlay_projection_status_summary` for overlay trust/patchability status
+- Overlay-oriented reducers include compact decision-surface summaries for
+  common trust/patchability questions, for example
+  `overlay_projection_status_summary`
 
 ## Addon API
 

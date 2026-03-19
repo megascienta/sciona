@@ -194,7 +194,7 @@ Optional metadata:
   - callable role and modifiers,
   - local base/interface names,
   - module-level binding names,
-  - ambiguous call candidate diagnostics.
+  - ambiguous call candidate diagnostics,
   - parse validation diagnostics describing `ERROR` / `MISSING` nodes
 
 ## Artifact Semantics
@@ -259,16 +259,6 @@ Public status reporting contract:
   - `insufficient_static_evidence`
   - `structural_mismatch`
   - `unclassified`
-- `not_accepted_callsites` bucket meanings:
-  - `outside_static_contract`: the call falls outside the static in-repo contract
-    target, including external, builtin, or structurally indirect/runtime-only
-    shapes
-  - `insufficient_static_evidence`: the call looks in-repo shaped, but the structural
-    evidence is not strong enough to accept it as a static in-repo callsite
-  - `structural_mismatch`: the call was rejected because the observed structure is
-    malformed or points to a clear parser/extraction/normalization deficiency
-  - `unclassified`: residual rejected callsites not explained by the other
-    public buckets
 - `call_materialization` MUST contain only:
   - `finalized_call_edges`
 - public status payloads MUST NOT require derived ratios, conservation flags,
@@ -283,26 +273,11 @@ Overlay contract note:
 - Overlay metadata MUST NOT be interpreted as committed CoreDB or ArtifactDB
   structural truth for the dirty worktree.
 
-`CALLSITE_PAIRS`:
-
-- is the primary persisted artifact working set for reducer-facing call
-  materialization.
-- stores deduplicated in-scope candidate caller-to-callee pairs derived from the
-  observed syntactic callsite stream plus committed structural context.
-- MUST exclude pre-persistence out-of-scope observations before persistence.
-- public rejected-call buckets are:
-  `outside_static_contract`, `insufficient_static_evidence`, `structural_mismatch`,
-  `unclassified`.
-- MAY collapse repeated same-caller same-callee invocation occurrences to one
-  persisted pair row.
-- MUST remain deterministic with respect to the committed CoreDB snapshot and
-  repository worktree state at artifact build time.
-
 ArtifactDB `CALLS`:
 
 - is the reducer-facing finalized call graph.
-- is derived after CoreDB snapshot creation from persisted ArtifactDB
-  `CALLSITE_PAIRS` plus committed structural context.
+- is derived after CoreDB snapshot creation from artifact-finalized accepted
+  call materialization plus committed structural context.
 - MUST remain deterministic with respect to the committed CoreDB snapshot and
   repository worktree state at artifact build time.
 - MUST include only in-repo callable targets.
@@ -374,7 +349,6 @@ Global criteria:
   `export_chain_narrowed`.
 - Reducers read reducer-facing projections from ArtifactDB when present and MAY
   combine them with CoreDB structural lookups in the same request.
-- `CALLSITE_PAIRS` is the reducer-facing persisted call materialization surface.
 
 Python criteria:
 
