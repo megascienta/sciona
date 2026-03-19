@@ -8,7 +8,8 @@ Layer layout:
 - `tests/code_analysis/`: discovery, parsing, extraction, normalization, analysis tools
 - `tests/pipelines/`: policy validation, snapshot lifecycle, build orchestration, diff overlays
 - `tests/reducers/`: reducer outputs, registry metadata, deterministic rendering
-- `tests/api/`: public API surface, CLI behavior, addon boundaries
+- `tests/api/`: public API surface and addon boundaries
+- `tests/cli/`: CLI command behavior and CLI support helpers
 
 Scope expectations:
 - Tests should target one layer’s responsibilities and avoid reaching upward in the stack.
