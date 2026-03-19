@@ -38,7 +38,6 @@ from .rollup_diagnostics import (
     ensure_rollup_diagnostics as _ensure_rollup_diagnostics,
     merge_resolution_stats as _merge_resolution_stats,
     record_callsite_flow as _record_callsite_flow,
-    record_persisted_drop_observation as _record_persisted_drop_observation,
     record_pre_persist_filter_buckets as _record_pre_persist_filter_buckets,
     record_resolution_drop as _record_resolution_drop,
 )
@@ -208,9 +207,25 @@ def write_call_artifacts(
             module_file_by_name=module_file_by_name,
             ts_barrel_export_map=ts_barrel_export_map,
         )
-        callee_ids, filtered_callsite_rows, filtered_out_buckets = _persisted_callsite_outcomes(
+        (
+            callee_ids,
+            filtered_callsite_rows,
+            filtered_out_buckets,
+            rejected_callsite_rows,
+        ) = _persisted_callsite_outcomes(
             callsite_rows,
             in_repo_callable_ids=in_repo_callable_ids,
+        )
+        artifact_persistence.store_temp_rejected_callsites(
+            artifact_conn,
+            caller_structural_id=caller_id,
+            caller_qualified_name=record.caller_qualified_name,
+            caller_module=caller_module,
+            caller_language=caller_language_map.get(caller_id),
+            caller_file_path=str(
+                (caller_metadata_map.get(caller_id) or {}).get("file_path") or ""
+            ),
+            rows=rejected_callsite_rows,
         )
         pair_rows = _callsite_pair_rows(
             filtered_callsite_rows,
@@ -281,30 +296,6 @@ def write_call_artifacts(
             row for row in filtered_callsite_rows if row[1] == "accepted" and row[2]
         ]
         dropped_rows = [row for row in filtered_callsite_rows if row[1] == "dropped"]
-        caller_file_path = str(
-            (caller_metadata_map.get(caller_id) or {}).get("file_path") or ""
-        )
-        caller_language = caller_language_map.get(caller_id)
-        for dropped_row in dropped_rows:
-            _record_persisted_drop_observation(
-                diagnostics,
-                caller_structural_id=caller_id,
-                caller_qualified_name=record.caller_qualified_name,
-                caller_module=caller_module,
-                caller_language=caller_language,
-                caller_file_path=caller_file_path,
-                identifier=str(dropped_row[0]),
-                ordinal=int(dropped_row[9]),
-                drop_reason=str(dropped_row[4]) if dropped_row[4] is not None else None,
-                candidate_count=int(dropped_row[5]),
-                callee_kind=str(dropped_row[6]),
-                in_scope_candidate_count=(
-                    int(dropped_row[10]) if dropped_row[10] is not None else None
-                ),
-                candidate_module_hints=(
-                    str(dropped_row[11]) if dropped_row[11] is not None else None
-                ),
-            )
         rescue_accepted = [
             row for row in accepted_rows if row[3] == "export_chain_narrowed"
         ]

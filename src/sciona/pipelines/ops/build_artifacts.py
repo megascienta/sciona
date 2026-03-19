@@ -106,6 +106,7 @@ def refresh_artifact_state(
     with artifact(artifact_path, repo_root=repo_root) as artifact_conn:
         artifact_write.mark_rebuild_started(artifact_conn, snapshot_id=snapshot_id)
         artifact_write.reset_artifact_derived_state(artifact_conn)
+        artifact_write.reset_temp_rejected_callsites(artifact_conn)
         overlay_store.clear_all(artifact_conn)
         overlay_call_store.clear_all(artifact_conn)
         overlay_summary_store.clear_all(artifact_conn)

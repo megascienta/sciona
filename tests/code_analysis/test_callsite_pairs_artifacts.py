@@ -482,7 +482,7 @@ def test_write_call_artifacts_records_pair_expansion_diagnostics(
         core_conn.close()
 
 
-def test_write_call_artifacts_records_persisted_drop_observations(
+def test_write_call_artifacts_stores_all_rejected_rows_in_temp_table(
     tmp_path: Path, monkeypatch
 ) -> None:
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
@@ -517,6 +517,20 @@ def test_write_call_artifacts_records_persisted_drop_observations(
                     2,
                     f"{prefix}.pkg.alpha,{prefix}.pkg.beta",
                 ),
+                (
+                    "external.helper",
+                    "accepted",
+                    "external_callable",
+                    "exact_qname",
+                    None,
+                    1,
+                    "qualified",
+                    None,
+                    None,
+                    2,
+                    1,
+                    "external",
+                ),
             ],
         )
 
@@ -539,8 +553,24 @@ def test_write_call_artifacts_records_persisted_drop_observations(
                 eligible_callers={"meth_alpha"},
                 diagnostics=diagnostics,
             )
-            observations = diagnostics.get("persisted_drop_observations") or []
-            assert observations == []
+            rows = artifact_conn.execute(
+                """
+                SELECT identifier, gate_reason, raw_drop_reason
+                FROM rejected_callsites_temp
+                ORDER BY call_ordinal
+                """
+            ).fetchall()
+            assert [
+                (row["identifier"], row["gate_reason"], row["raw_drop_reason"])
+                for row in rows
+            ] == [
+                (
+                    "socket.in(room).emit",
+                    "insufficient_static_evidence",
+                    "ambiguous_multiple_in_scope_candidates",
+                ),
+                ("external.helper", "accepted_outside_in_repo", None),
+            ]
         finally:
             artifact_conn.close()
     finally:

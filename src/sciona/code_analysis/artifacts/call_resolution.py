@@ -102,9 +102,11 @@ def filter_in_repo_callsite_rows(
         ]
     ],
     dict[str, int],
+    list[tuple[CallsiteRow, str, str | None]],
 ]:
     filtered = []
     filtered_out: dict[str, int] = {}
+    rejected_rows: list[tuple[CallsiteRow, str, str | None]] = []
     for row in rows:
         decision = evaluate_callsite_row_for_persistence(
             row,
@@ -113,8 +115,10 @@ def filter_in_repo_callsite_rows(
         if decision.persist:
             filtered.append(row)
             continue
-        _inc_pre_persist_bucket(filtered_out, str(decision.gate_reason))
-    return filtered, filtered_out
+        gate_reason = str(decision.gate_reason)
+        _inc_pre_persist_bucket(filtered_out, gate_reason)
+        rejected_rows.append((row, gate_reason, decision.raw_drop_reason))
+    return filtered, filtered_out, rejected_rows
 
 
 def _inc_pre_persist_bucket(target: dict[str, int], bucket: str) -> None:
@@ -160,10 +164,11 @@ def persisted_callsite_outcomes(
         ]
     ],
     dict[str, int],
+    list[tuple[CallsiteRow, str, str | None]],
 ]:
     """Return the persisted callsite rows and the accepted in-repo callees they imply."""
 
-    filtered, filtered_out = filter_in_repo_callsite_rows(
+    filtered, filtered_out, rejected_rows = filter_in_repo_callsite_rows(
         rows,
         in_repo_callable_ids=in_repo_callable_ids,
     )
@@ -172,7 +177,7 @@ def persisted_callsite_outcomes(
         for _identifier, status, accepted_callee_id, _provenance, _drop_reason, *_rest in filtered
         if status == "accepted" and accepted_callee_id
     }
-    return persisted_callee_ids, filtered, filtered_out
+    return persisted_callee_ids, filtered, filtered_out, rejected_rows
 
 
 def callsite_pair_rows(

@@ -98,6 +98,27 @@ def upsert_node_calls(
     )
 
 
+def store_temp_rejected_callsites(
+    conn,
+    *,
+    caller_structural_id: str,
+    caller_qualified_name: str,
+    caller_module: str | None,
+    caller_language: str | None,
+    caller_file_path: str,
+    rows: Sequence[tuple],
+) -> None:
+    write_index.store_temp_rejected_callsites(
+        conn,
+        caller_structural_id=caller_structural_id,
+        caller_qualified_name=caller_qualified_name,
+        caller_module=caller_module,
+        caller_language=caller_language,
+        caller_file_path=caller_file_path,
+        rows=rows,
+    )
+
+
 def clear_call_artifacts_for_callers(
     conn,
     *,
@@ -123,6 +144,7 @@ __all__ = [
     "rebuild_node_fan_stats",
     "clear_call_artifacts_for_callers",
     "upsert_node_calls",
+    "store_temp_rejected_callsites",
     "write_class_call_edges",
     "write_module_call_edges",
     "write_node_fan_stats",

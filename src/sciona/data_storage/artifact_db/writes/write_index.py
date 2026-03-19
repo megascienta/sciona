@@ -11,6 +11,8 @@ from typing import Iterable, Sequence
 from ....runtime.common.time import utc_now
 from ...common.encoding import bool_to_int
 from ...common.sql_utils import temp_id_table
+
+
 def reset_artifact_derived_state(conn: sqlite3.Connection) -> None:
     """Clear all rebuild-derived artifact tables before repopulating them."""
     conn.execute("DELETE FROM node_calls")
@@ -19,6 +21,104 @@ def reset_artifact_derived_state(conn: sqlite3.Connection) -> None:
     conn.execute("DELETE FROM module_call_edges")
     conn.execute("DELETE FROM class_call_edges")
     conn.execute("DELETE FROM node_fan_stats")
+
+
+def _ensure_temp_rejected_callsites_table(conn: sqlite3.Connection) -> None:
+    conn.execute(
+        """
+        CREATE TEMP TABLE IF NOT EXISTS rejected_callsites_temp (
+            caller_structural_id TEXT NOT NULL,
+            caller_qualified_name TEXT NOT NULL,
+            caller_module TEXT,
+            caller_language TEXT,
+            caller_file_path TEXT NOT NULL,
+            identifier TEXT NOT NULL,
+            status TEXT NOT NULL,
+            accepted_callee_id TEXT,
+            provenance TEXT,
+            drop_reason TEXT,
+            candidate_count INTEGER NOT NULL,
+            callee_kind TEXT NOT NULL,
+            call_start_byte INTEGER,
+            call_end_byte INTEGER,
+            call_ordinal INTEGER NOT NULL,
+            in_scope_candidate_count INTEGER,
+            candidate_module_hints TEXT,
+            gate_reason TEXT NOT NULL,
+            raw_drop_reason TEXT
+        )
+        """
+    )
+
+
+def reset_temp_rejected_callsites(conn: sqlite3.Connection) -> None:
+    _ensure_temp_rejected_callsites_table(conn)
+    conn.execute("DELETE FROM rejected_callsites_temp")
+
+
+def store_temp_rejected_callsites(
+    conn: sqlite3.Connection,
+    *,
+    caller_structural_id: str,
+    caller_qualified_name: str,
+    caller_module: str | None,
+    caller_language: str | None,
+    caller_file_path: str,
+    rows: Sequence[tuple],
+) -> None:
+    if not rows:
+        return
+    _ensure_temp_rejected_callsites_table(conn)
+    conn.executemany(
+        """
+        INSERT INTO rejected_callsites_temp(
+            caller_structural_id,
+            caller_qualified_name,
+            caller_module,
+            caller_language,
+            caller_file_path,
+            identifier,
+            status,
+            accepted_callee_id,
+            provenance,
+            drop_reason,
+            candidate_count,
+            callee_kind,
+            call_start_byte,
+            call_end_byte,
+            call_ordinal,
+            in_scope_candidate_count,
+            candidate_module_hints,
+            gate_reason,
+            raw_drop_reason
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        [
+            (
+                caller_structural_id,
+                caller_qualified_name,
+                caller_module,
+                caller_language,
+                caller_file_path,
+                row[0][0],
+                row[0][1],
+                row[0][2],
+                row[0][3],
+                row[0][4],
+                row[0][5],
+                row[0][6],
+                row[0][7],
+                row[0][8],
+                row[0][9],
+                row[0][10],
+                row[0][11],
+                row[1],
+                row[2],
+            )
+            for row in rows
+        ],
+    )
 
 
 def upsert_node_calls(
