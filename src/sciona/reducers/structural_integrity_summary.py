@@ -18,8 +18,8 @@ REDUCER_META = ReducerMeta(
     reducer_id="structural_integrity_summary",
     category="diagnostic",
     placeholder="STRUCTURAL_INTEGRITY_SUMMARY",
-    summary="Structural integrity diagnostics over committed SCI facts. "
-    "Use to detect duplicates, lexical orphans, and inheritance-cycle anomalies before downstream reasoning. ",
+    summary="Reports structural anomalies in the committed snapshot, such as "
+    "duplicates, lexical orphans, and inheritance cycles. Use when validating structural consistency. ",
     anomaly_detector=True,
 )
 

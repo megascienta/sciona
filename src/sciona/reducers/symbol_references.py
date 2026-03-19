@@ -11,9 +11,8 @@ REDUCER_META = ReducerMeta(
     reducer_id="symbol_references",
     category="symbol",
     placeholder="SYMBOL_REFERENCES",
-    summary="Finds structural symbol matches and summarizes where they appear across "
-    "modules and files in the committed snapshot. Supports narrowing by symbol kind "
-    "or module. ",
+    summary="Shows where matching structural symbols appear across modules and files. "
+    "Use when tracking symbol presence and spread rather than resolving one best match. ",
 )
 
 

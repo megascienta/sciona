@@ -12,8 +12,8 @@ REDUCER_META = ReducerMeta(
     reducer_id="structural_index",
     category="orientation",
     placeholder="STRUCTURAL_INDEX",
-    summary="Canonical structural index of the codebase. "
-    "Use for global structural reasoning or validation. ",
+    summary="Provides the repo-wide structural inventory across modules, classifiers, "
+    "and callables. Use for top-level codebase orientation or structural validation. ",
 )
 
 

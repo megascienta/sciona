@@ -12,8 +12,8 @@ REDUCER_META = ReducerMeta(
     reducer_id="module_overview",
     category="orientation",
     placeholder="MODULE_OVERVIEW",
-    summary="Structural summary of a module, including contained classifiers and callables. "
-    "Use for architectural inspection. ",
+    summary="Summarizes one module's contained classifiers, callables, and local "
+    "structure. Use for first-pass inspection of a module boundary. ",
 )
 
 

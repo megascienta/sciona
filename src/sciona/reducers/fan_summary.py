@@ -22,8 +22,8 @@ REDUCER_META = ReducerMeta(
     reducer_id="fan_summary",
     category="coupling",
     placeholder="FAN_SUMMARY",
-    summary="Summarize fan-in and fan-out over reducer-facing graph edges, with "
-    "optional narrowing by edge kind, node kind, and minimum fan threshold. ",
+    summary="Summarizes fan-in and fan-out over calls or structural edges. Use to "
+    "find the most referenced or most referencing nodes, modules, or classifiers. ",
 )
 
 

@@ -21,8 +21,8 @@ REDUCER_META = ReducerMeta(
     reducer_id="module_call_graph_summary",
     category="coupling",
     placeholder="MODULE_CALL_GRAPH",
-    summary="Summarizes module-to-module CALLS relationships for the committed "
-    "snapshot, with optional narrowing by caller or callee module. ",
+    summary="Summarizes module-to-module call relationships. Use when reasoning "
+    "about runtime-like coupling between modules rather than import dependencies. ",
 )
 
 

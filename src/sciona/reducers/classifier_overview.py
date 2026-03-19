@@ -29,8 +29,8 @@ REDUCER_META = ReducerMeta(
     reducer_id="classifier_overview",
     category="symbol",
     placeholder="CLASSIFIER_OVERVIEW",
-    summary="Structural summary of a classifier, including methods and metadata. " \
-    "Use for quick classifier inspection.",
+    summary="Summarizes one classifier's methods, metadata, and local structure. "
+    "Use for quick class inspection.",
 )
 
 

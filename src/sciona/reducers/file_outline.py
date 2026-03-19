@@ -18,8 +18,8 @@ REDUCER_META = ReducerMeta(
     reducer_id="file_outline",
     category="navigation",
     placeholder="FILE_OUTLINE",
-    summary="Structural outline of a file, including modules, classifiers, and callables. " \
-    "Use for navigation and symbol discovery. ",
+    summary="Shows the structural outline of one file, including modules, classifiers, "
+    "and callables. Use for file-level navigation and symbol discovery. ",
 )
 
 

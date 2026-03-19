@@ -18,8 +18,8 @@ REDUCER_META = ReducerMeta(
     reducer_id="symbol_lookup",
     category="navigation",
     placeholder="SYMBOL_LOOKUP",
-    summary="Ranked structural symbol matches for a query. " \
-    "Use when resolving unknown identifiers. ",
+    summary="Finds likely structural symbol matches for a query. Use when the "
+    "identifier is unknown and you need the best matching module, classifier, or callable. ",
 )
 
 def render(

@@ -23,8 +23,8 @@ REDUCER_META = ReducerMeta(
     reducer_id="classifier_call_graph_summary",
     category="coupling",
     placeholder="CLASSIFIER_CALL_GRAPH",
-    summary="Summarizes classifier-to-classifier CALLS relationships for the committed "
-    "snapshot, with optional narrowing by caller or callee classifier. ",
+    summary="Summarizes classifier-to-classifier call relationships. Use when "
+    "reasoning about class-level coupling rather than module-level coupling. ",
 )
 
 def render(

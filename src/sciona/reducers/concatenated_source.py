@@ -18,8 +18,8 @@ REDUCER_META = ReducerMeta(
     reducer_id="concatenated_source",
     category="source",
     placeholder="CONCATENATED_SOURCE",
-    summary="Concatenated source code for a selected scope (codebase/module/classifier). " \
-    "Use for large-context reasoning or cross-entity inspection. ",
+    summary="Returns concatenated source for a selected scope such as a module, "
+    "classifier, or codebase slice. Use for larger-context implementation reading. ",
 )
 
 MAX_SOURCE_BYTES = 200_000

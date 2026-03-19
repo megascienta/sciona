@@ -16,8 +16,8 @@ REDUCER_META = ReducerMeta(
     reducer_id="overlay_impact_summary",
     category="overlay",
     placeholder="OVERLAY_IMPACT_SUMMARY",
-    summary="Advisory summary of dirty-worktree diff overlay impact for the committed snapshot. "
-    "Use when triaging uncommitted changes; output is non-authoritative. ",
+    summary="Summarizes how dirty-worktree changes may affect committed structural "
+    "results. Use when triaging uncommitted changes against the current snapshot. ",
 )
 
 

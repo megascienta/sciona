@@ -17,9 +17,8 @@ REDUCER_META = ReducerMeta(
     reducer_id="dependency_edges",
     category="coupling",
     placeholder="DEPENDENCY_EDGES",
-    summary="Explicit module import dependencies. "
-    "Use for analysing module coupling or dependency graphs. "
-    "direction='in' or 'out' scopes module_id filters. ",
+    summary="Shows explicit module import dependencies. Use to inspect which modules "
+    "depend on which other modules. ",
 )
 
 

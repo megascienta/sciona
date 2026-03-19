@@ -28,8 +28,8 @@ REDUCER_META = ReducerMeta(
     reducer_id="callable_overview",
     category="symbol",
     placeholder="CALLABLE_OVERVIEW",
-    summary="Structural summary of a callable, including signature, location, and metadata. " \
-    "Use for quick callable inspection without retrieving full source. ",
+    summary="Summarizes one callable's identity, location, and metadata. Use for "
+    "quick callable inspection without loading source. ",
 )
 
 

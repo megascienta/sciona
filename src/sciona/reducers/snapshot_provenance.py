@@ -17,8 +17,8 @@ REDUCER_META = ReducerMeta(
     reducer_id="snapshot_provenance",
     category="orientation",
     placeholder="SNAPSHOT_PROVENANCE",
-    summary="Snapshot provenance and reproducibility metadata for the committed SCI state. "
-    "Use to verify snapshot freshness/identity before structural reasoning. ",
+    summary="Shows committed snapshot identity and freshness metadata. Use to verify "
+    "what snapshot SCIONA results are based on before structural reasoning. ",
 )
 
 

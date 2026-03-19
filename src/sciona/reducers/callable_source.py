@@ -20,8 +20,8 @@ REDUCER_META = ReducerMeta(
     reducer_id="callable_source",
     category="source",
     placeholder="CALLABLE_SOURCE",
-    summary="Full source code of a callable. Use only when "
-    "implementation details are required.",
+    summary="Returns the full source of one callable. Use when implementation "
+    "details are needed.",
 )
 
 

@@ -18,8 +18,8 @@ REDUCER_META = ReducerMeta(
     reducer_id="overlay_projection_status_summary",
     category="overlay",
     placeholder="OVERLAY_PROJECTION_STATUS_SUMMARY",
-    summary="Summarize dirty-worktree overlay support by reducer projection, "
-    "including patchable versus metadata-only behavior. ",
+    summary="Shows which reducers support overlay patching and which only provide "
+    "overlay metadata. Use when deciding how trustworthy reducer output is on a dirty worktree. ",
 )
 
 
