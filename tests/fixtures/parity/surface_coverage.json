@@ -1,0 +1,64 @@
+{
+  "java": {
+    "class_like_declaration": {
+      "canonical_suite": "tests/code_analysis/test_canonical_surface_fixtures.py"
+    },
+    "field_type_tracking": {
+      "canonical_suite": "tests/code_analysis/test_canonical_surface_fixtures.py"
+    },
+    "local_inheritance_edges": {
+      "canonical_suite": "tests/code_analysis/test_canonical_surface_fixtures.py"
+    },
+    "method_like_declaration": {
+      "canonical_suite": "tests/code_analysis/test_canonical_surface_fixtures.py"
+    }
+  },
+  "javascript": {
+    "bound_callable_declaration": {
+      "canonical_suite": "tests/code_analysis/test_canonical_surface_fixtures.py"
+    },
+    "callable_declaration": {
+      "canonical_suite": "tests/code_analysis/test_canonical_surface_fixtures.py"
+    },
+    "class_declaration": {
+      "canonical_suite": "tests/code_analysis/test_canonical_surface_fixtures.py"
+    },
+    "local_inheritance_edges": {
+      "canonical_suite": "tests/code_analysis/test_canonical_surface_fixtures.py"
+    }
+  },
+  "python": {
+    "bound_callable_declaration": {
+      "canonical_suite": "tests/code_analysis/test_canonical_surface_fixtures.py"
+    },
+    "class_declaration": {
+      "canonical_suite": "tests/code_analysis/test_canonical_surface_fixtures.py"
+    },
+    "decorated_definition_unwrap": {
+      "canonical_suite": "tests/code_analysis/test_canonical_surface_fixtures.py"
+    },
+    "function_declaration": {
+      "canonical_suite": "tests/code_analysis/test_canonical_surface_fixtures.py"
+    },
+    "local_inheritance_edges": {
+      "canonical_suite": "tests/code_analysis/test_canonical_surface_fixtures.py"
+    }
+  },
+  "typescript": {
+    "callable_declaration": {
+      "canonical_suite": "tests/code_analysis/test_canonical_surface_fixtures.py"
+    },
+    "class_and_function_expressions": {
+      "canonical_suite": "tests/code_analysis/test_canonical_surface_fixtures.py"
+    },
+    "class_like_declaration": {
+      "canonical_suite": "tests/code_analysis/test_canonical_surface_fixtures.py"
+    },
+    "instance_and_alias_tracking": {
+      "canonical_suite": "tests/code_analysis/test_canonical_surface_fixtures.py"
+    },
+    "local_inheritance_edges": {
+      "canonical_suite": "tests/code_analysis/test_canonical_surface_fixtures.py"
+    }
+  }
+}
