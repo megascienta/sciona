@@ -17,7 +17,11 @@ from ..analysis_contracts import (
 )
 from ..core.structural_assembler_index import expand_import_targets
 from ..config import CALLABLE_NODE_TYPES
-from ..languages.common.ir import LocalBindingFact, binding_match_for_identifier
+from ..languages.common.ir import (
+    LocalBindingFact,
+    binding_candidate_qnames_for_identifier,
+    binding_match_for_identifier,
+)
 from ..tools.call_extraction.types import PrePersistObservation
 from ...data_storage.core_db import read_ops as core_read
 from .call_resolution_python import (
@@ -366,6 +370,12 @@ def resolve_callees(
     module_bindings_by_name = module_bindings_by_name or {}
     module_file_by_name = module_file_by_name or {}
     ts_barrel_export_map = ts_barrel_export_map or {}
+    symbol_index = _apply_binding_fact_candidates(
+        identifiers=identifiers,
+        symbol_index=symbol_index,
+        callable_qname_by_id=callable_qname_by_id,
+        local_binding_facts=local_binding_facts,
+    )
     resolved_ids: set[str] = set()
     resolved_names: set[str] = set()
     callsite_rows: list[
@@ -521,6 +531,38 @@ def resolve_callees(
     if pre_persist_buckets:
         stats["pre_persist_buckets"] = dict(pre_persist_buckets)
     return resolved_ids, resolved_names, stats, callsite_rows
+
+
+def _apply_binding_fact_candidates(
+    *,
+    identifiers: Sequence[str],
+    symbol_index: Mapping[str, Sequence[str]],
+    callable_qname_by_id: Mapping[str, str],
+    local_binding_facts: Sequence[LocalBindingFact],
+) -> dict[str, Sequence[str]]:
+    if not identifiers or not local_binding_facts or not callable_qname_by_id:
+        return dict(symbol_index)
+    callable_ids_by_qname: dict[str, list[str]] = defaultdict(list)
+    for callable_id, qname in callable_qname_by_id.items():
+        if qname:
+            callable_ids_by_qname[qname].append(callable_id)
+    resolved_index: dict[str, Sequence[str]] = dict(symbol_index)
+    for identifier in identifiers:
+        binding_qnames = binding_candidate_qnames_for_identifier(
+            identifier,
+            tuple(local_binding_facts),
+        )
+        if not binding_qnames:
+            continue
+        binding_ids: list[str] = []
+        for qname in binding_qnames:
+            matches = callable_ids_by_qname.get(qname) or []
+            if len(matches) == 1:
+                binding_ids.append(matches[0])
+        if not binding_ids:
+            continue
+        resolved_index[identifier] = tuple(dict.fromkeys(binding_ids))
+    return resolved_index
 
 
 def _pair_candidates_for_identifier(

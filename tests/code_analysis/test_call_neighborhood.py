@@ -6,6 +6,7 @@ from pathlib import Path
 
 from sciona.code_analysis.artifacts import write_call_artifacts
 from sciona.code_analysis.artifacts.rollups import _resolve_callees
+from sciona.code_analysis.languages.common.ir import LocalBindingFact
 from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.code_analysis.tools.call_extraction import CallExtractionRecord
 from sciona.runtime import paths as runtime_paths
@@ -408,6 +409,64 @@ def test_resolve_callees_accepts_parent_package_with_precomputed_ancestors() -> 
     accepted = stats.get("accepted_by_provenance") or {}
     assert accepted.get("import_narrowed") == 1
     assert callsite_rows[0][1] == "accepted"
+
+
+def test_resolve_callees_uses_binding_fact_direct_import_symbol_candidates() -> None:
+    resolved_ids, _resolved_names, stats, callsite_rows = _resolve_callees(
+        ("Matrix",),
+        {},
+        caller_module="sympy.client",
+        caller_language="python",
+        module_lookup={"id_matrix": "sympy.matrices.dense"},
+        callable_qname_by_id={"id_matrix": "sympy.matrices.dense.Matrix"},
+        import_targets={"sympy.client": {"sympy.matrices.dense"}},
+        expanded_import_targets={"sympy.client": {"sympy.matrices.dense"}},
+        module_ancestors={},
+        local_binding_facts=(
+            LocalBindingFact(
+                symbol="Matrix",
+                target="sympy.matrices.dense.Matrix",
+                binding_kind="direct_import_symbol",
+                evidence_kind="syntax_local_import",
+                language="python",
+            ),
+        ),
+    )
+    assert resolved_ids == {"id_matrix"}
+    accepted = stats.get("accepted_by_provenance") or {}
+    assert accepted.get("import_narrowed") == 1
+    assert callsite_rows[0][1] == "accepted"
+    assert callsite_rows[0][2] == "id_matrix"
+
+
+def test_resolve_callees_uses_binding_fact_module_alias_candidates() -> None:
+    resolved_ids, _resolved_names, stats, callsite_rows = _resolve_callees(
+        ("translator.translateKeys",),
+        {},
+        caller_module="nodebb.admin.dashboard",
+        caller_language="javascript",
+        module_lookup={"id_translate": "nodebb.public.src.translator"},
+        callable_qname_by_id={
+            "id_translate": "nodebb.public.src.translator.translateKeys"
+        },
+        import_targets={"nodebb.admin.dashboard": {"nodebb.public.src.translator"}},
+        expanded_import_targets={"nodebb.admin.dashboard": {"nodebb.public.src.translator"}},
+        module_ancestors={},
+        local_binding_facts=(
+            LocalBindingFact(
+                symbol="translator",
+                target="nodebb.public.src.translator",
+                binding_kind="module_alias",
+                evidence_kind="syntax_local_import",
+                language="javascript",
+            ),
+        ),
+    )
+    assert resolved_ids == {"id_translate"}
+    accepted = stats.get("accepted_by_provenance") or {}
+    assert accepted.get("exact_qname") == 1
+    assert callsite_rows[0][1] == "accepted"
+    assert callsite_rows[0][2] == "id_translate"
 
 
 def test_resolve_callees_rescues_python_unique_without_provenance_via_package_scope() -> None:

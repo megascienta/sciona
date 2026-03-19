@@ -132,11 +132,52 @@ def binding_match_for_identifier(
     return None
 
 
+def binding_candidate_qnames_for_identifier(
+    identifier: str,
+    facts: list[LocalBindingFact] | tuple[LocalBindingFact, ...],
+) -> tuple[str, ...]:
+    text = str(identifier or "").strip()
+    if not text or not facts:
+        return ()
+    if "." in text:
+        head, rest = text.split(".", 1)
+    else:
+        head, rest = text, ""
+    terminal = text.rsplit(".", 1)[-1].strip()
+    candidates: list[str] = []
+    for fact in facts:
+        target = str(fact.target or "").strip()
+        if not target:
+            continue
+        if fact.binding_kind in {
+            "module_alias",
+            "namespace_alias",
+            "static_member_receiver",
+        }:
+            if rest and fact.symbol == head:
+                candidates.append(f"{target}.{rest}")
+            continue
+        if fact.binding_kind == "constructor_or_classifier_import":
+            if fact.symbol == head:
+                candidates.append(f"{target}.{rest}" if rest else target)
+            continue
+        if fact.binding_kind in {
+            "direct_import_symbol",
+            "destructured_static_member",
+            "static_export_surface",
+            "static_import_member",
+        }:
+            if not rest and fact.symbol == terminal:
+                candidates.append(target)
+    return tuple(dict.fromkeys(candidates))
+
+
 __all__ = [
     "ALLOWED_BINDING_EVIDENCE",
     "ALLOWED_BINDING_KINDS",
     "ALLOWED_BINDING_PRECEDENCE",
     "FORBIDDEN_DYNAMIC_SHAPES",
+    "binding_candidate_qnames_for_identifier",
     "LocalBindingFact",
     "LocalBindingMatch",
     "alias_maps_from_binding_facts",
