@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from .languages import java, javascript, python, typescript
-from .languages.common import classify_common
+from .languages.common import classify_binding_backed_miss, classify_common
 from .models import DiagnosticClassification, DiagnosticMissObservation
 
 
@@ -107,11 +107,12 @@ def classify_positive_candidate_rejection(
             bucket="parser_extraction_mismatch",
             reasons=("positive_candidate_invalid_shape",),
         )
-    if observation.local_binding_target and raw_drop_reason == "no_candidates":
-        return DiagnosticClassification(
-            bucket="unindexed_symbol_shape",
-            reasons=("positive_candidate_local_binding_target",),
-        )
+    binding_backed = classify_binding_backed_miss(
+        observation,
+        positive_candidate=True,
+    )
+    if binding_backed is not None:
+        return binding_backed
     if raw_drop_reason == "ambiguous_multiple_in_scope_candidates":
         return DiagnosticClassification(
             bucket="unindexed_symbol_shape",

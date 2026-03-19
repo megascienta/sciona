@@ -201,7 +201,7 @@ def test_classifier_uses_local_binding_target_for_qualified_identifier() -> None
     classified = classify_no_in_repo_candidate(observation)
 
     assert classified.bucket == "unindexed_symbol_shape"
-    assert classified.reasons == ("local_binding_target",)
+    assert classified.reasons == ("binding_backed_module_alias",)
 
 
 def test_classifier_marks_dynamic_member_terminal() -> None:
@@ -654,7 +654,31 @@ def test_positive_candidate_classifier_uses_local_binding_target_for_no_candidat
     classified = classify_positive_candidate_rejection(observation)
 
     assert classified.bucket == "unindexed_symbol_shape"
-    assert classified.reasons == ("positive_candidate_local_binding_target",)
+    assert classified.reasons == ("binding_backed_module_alias_no_candidates",)
+
+
+def test_positive_candidate_classifier_prefers_binding_backed_without_provenance() -> None:
+    observation = DiagnosticMissObservation(
+        language="javascript",
+        file_path="src/controllers/admin/dashboard.js",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.src.controllers.admin.dashboard.run",
+        caller_module="repo.src.controllers.admin.dashboard",
+        identifier="translator.translateKeys",
+        ordinal=1,
+        callee_kind="qualified",
+        local_binding_symbol="translator",
+        local_binding_target="repo.public.src.translator",
+        local_binding_kind="module_alias",
+        local_binding_evidence_kind="syntax_local_import",
+        gate_reason="insufficient_static_evidence",
+        raw_drop_reason="unique_without_provenance",
+    )
+
+    classified = classify_positive_candidate_rejection(observation)
+
+    assert classified.bucket == "unindexed_symbol_shape"
+    assert classified.reasons == ("binding_backed_module_alias_without_provenance",)
 
 
 def test_positive_candidate_classifier_marks_inline_dynamic_chain_as_dynamic() -> None:

@@ -7,6 +7,34 @@ from __future__ import annotations
 from ..models import DiagnosticClassification, DiagnosticMissObservation
 
 
+def classify_binding_backed_miss(
+    observation: DiagnosticMissObservation,
+    *,
+    positive_candidate: bool,
+) -> DiagnosticClassification | None:
+    if not observation.local_binding_target:
+        return None
+    reason = (
+        f"binding_backed_{observation.local_binding_kind}"
+        if observation.local_binding_kind
+        else "binding_backed_local_binding"
+    )
+    if positive_candidate:
+        raw_drop_reason = observation.raw_drop_reason.strip()
+        if raw_drop_reason == "ambiguous_multiple_in_scope_candidates":
+            reason = f"{reason}_ambiguous"
+        elif raw_drop_reason == "ambiguous_no_in_scope_candidate":
+            reason = f"{reason}_out_of_scope_after_narrowing"
+        elif raw_drop_reason == "unique_without_provenance":
+            reason = f"{reason}_without_provenance"
+        elif raw_drop_reason == "no_candidates":
+            reason = f"{reason}_no_candidates"
+    return DiagnosticClassification(
+        bucket="unindexed_symbol_shape",
+        reasons=(reason,),
+    )
+
+
 def classify_common(
     observation: DiagnosticMissObservation,
 ) -> DiagnosticClassification:
@@ -37,6 +65,12 @@ def classify_common(
             bucket="dynamic_or_indirect_shape",
             reasons=("fluent_terminal",),
         )
+    binding_backed = classify_binding_backed_miss(
+        observation,
+        positive_candidate=False,
+    )
+    if binding_backed is not None:
+        return binding_backed
     if observation.repo_prefix_matches:
         if observation.callee_kind == "qualified":
             repo_prefix_depth = observation.repo_prefix_match_depth or len(
