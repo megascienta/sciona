@@ -395,14 +395,42 @@ def diagnostic_workspace(sciona_dir: Path):
 
 def _persisted_drop_bucket(item: dict[str, object]) -> str:
     identifier = str(item.get("identifier") or "")
+    file_path = str(item.get("file_path") or "")
     drop_reason = str(item.get("drop_reason") or "")
     candidate_count = int(item.get("candidate_count") or 0)
+    terminal = identifier.rsplit(".", 1)[-1]
+    if _is_fixture_or_generated_path(file_path):
+        return "likely_fixture_or_generated_scope"
     if any(token in identifier for token in (".then", ".catch")):
         return "likely_fluent_or_promise_chain"
-    if ".in(" in identifier or identifier.endswith(".emit") or ".emit" in identifier:
+    if any(token in identifier for token in (".finally", ".in(")):
+        return "likely_dynamic_member_terminal"
+    if identifier.endswith(".emit") or ".emit" in identifier:
+        return "likely_dynamic_member_terminal"
+    if terminal in {
+        "filter",
+        "find",
+        "flatMap",
+        "forEach",
+        "includes",
+        "map",
+        "reduce",
+        "slice",
+        "some",
+        "has",
+        "keys",
+        "values",
+        "entries",
+    }:
         return "likely_dynamic_member_terminal"
     if ".server." in identifier or ".notifications." in identifier or ".tools." in identifier:
         return "likely_namespace_or_module_object_miss"
+    if (
+        drop_reason == "unique_without_provenance"
+        and candidate_count == 1
+        and ".index." in identifier
+    ):
+        return "likely_runtime_composed_surface"
     if drop_reason == "no_candidates" or candidate_count <= 0:
         return "no_in_repo_callable_target"
     return "unclassified_persisted_drop"
@@ -414,8 +442,10 @@ def _public_bucket_for_persisted_drop(
     source_bucket: str,
 ) -> str:
     if source_bucket in {
+        "likely_fixture_or_generated_scope",
         "likely_fluent_or_promise_chain",
         "likely_dynamic_member_terminal",
+        "likely_runtime_composed_surface",
     }:
         return "outside_static_contract"
     if source_bucket in {
@@ -433,6 +463,7 @@ def _public_bucket_for_persisted_drop(
 
 def _persisted_drop_signals(item: dict[str, object]) -> tuple[str, ...]:
     identifier = str(item.get("identifier") or "")
+    file_path = str(item.get("file_path") or "")
     signals: list[str] = []
     if "." in identifier:
         signals.append(f"identifier_depth:{len([part for part in identifier.split('.') if part])}")
@@ -446,7 +477,29 @@ def _persisted_drop_signals(item: dict[str, object]) -> tuple[str, ...]:
         signals.append("namespace_subobject")
     if ".server." in identifier:
         signals.append("server_namespace")
+    if ".index." in identifier:
+        signals.append("index_proxy_surface")
+    if _is_fixture_or_generated_path(file_path):
+        signals.append("fixture_or_generated_path")
     return tuple(signals)
+
+
+def _is_fixture_or_generated_path(file_path: str) -> bool:
+    parts = [segment.lower() for segment in file_path.replace("\\", "/").split("/") if segment]
+    if not parts:
+        return False
+    markers = {
+        "__fixtures__",
+        "fixture",
+        "fixtures",
+        "_expected",
+        "expected",
+        "generated",
+        "__generated__",
+        "snapshots",
+        "__snapshots__",
+    }
+    return any(part in markers for part in parts)
 
 
 def _accumulate_rejected_callsite(

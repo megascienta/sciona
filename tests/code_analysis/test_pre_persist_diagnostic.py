@@ -50,6 +50,24 @@ def test_classifier_marks_dynamic_receiver_pattern() -> None:
     assert classified.bucket == "likely_dynamic_dispatch_or_indirect"
 
 
+def test_classifier_marks_fixture_or_generated_paths_as_dynamic() -> None:
+    observation = DiagnosticMissObservation(
+        language="unknown",
+        file_path="test/form/samples/foo/_expected/module.js",
+        caller_structural_id="caller",
+        caller_qualified_name="repo.pkg.main.run",
+        caller_module="repo.pkg.main",
+        identifier="repo.pkg.fixture.helper",
+        ordinal=1,
+        callee_kind="qualified",
+    )
+
+    classified = classify_no_in_repo_candidate(observation)
+
+    assert classified.bucket == "likely_dynamic_dispatch_or_indirect"
+    assert classified.reasons == ("fixture_or_generated_path",)
+
+
 def test_classifier_marks_repo_owned_qualified_name_as_unindexed() -> None:
     observation = DiagnosticMissObservation(
         language="python",
@@ -863,6 +881,44 @@ def test_build_rejected_calls_verbose_payload_combines_both_phases() -> None:
         "post_persist": 1,
         "pre_persist": 1,
     }
+
+
+def test_build_rejected_calls_verbose_payload_marks_index_proxy_surface_outside_contract() -> None:
+    payload = build_rejected_calls_verbose_payload(
+        {"observations": []},
+        {
+            "persisted_drop_observations": [
+                {
+                    "file_path": "src/api/users.js",
+                    "identifier": "repo.database.index.sortedSetAdd",
+                    "drop_reason": "unique_without_provenance",
+                    "candidate_count": 1,
+                }
+            ]
+        },
+    )
+
+    assert payload["buckets"]["outside_static_contract"]["count"] == 1
+    assert payload["problematic_callsites"][0]["public_bucket"] == "outside_static_contract"
+
+
+def test_build_rejected_calls_verbose_payload_marks_fixture_scope_outside_contract() -> None:
+    payload = build_rejected_calls_verbose_payload(
+        {"observations": []},
+        {
+            "persisted_drop_observations": [
+                {
+                    "file_path": "test/form/samples/foo/_expected/module.js",
+                    "identifier": "parser.enterRule",
+                    "drop_reason": "unique_without_provenance",
+                    "candidate_count": 1,
+                }
+            ]
+        },
+    )
+
+    assert payload["buckets"]["outside_static_contract"]["count"] == 1
+    assert payload["problematic_callsites"][0]["public_bucket"] == "outside_static_contract"
 
 
 def test_merge_non_candidate_buckets_projects_public_buckets() -> None:

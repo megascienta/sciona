@@ -16,10 +16,20 @@ def classify_common(
             bucket="likely_parser_extraction_gap",
             reasons=("missing_identifier_or_file_path",),
         )
+    if _is_fixture_or_generated_path(observation.file_path):
+        return DiagnosticClassification(
+            bucket="likely_dynamic_dispatch_or_indirect",
+            reasons=("fixture_or_generated_path",),
+        )
     if _has_repeated_qualified_segment(identifier):
         return DiagnosticClassification(
             bucket="likely_parser_extraction_gap",
             reasons=("repeated_qualified_segment",),
+        )
+    if _has_inline_dynamic_call_chain(identifier):
+        return DiagnosticClassification(
+            bucket="likely_dynamic_dispatch_or_indirect",
+            reasons=("inline_dynamic_call_chain",),
         )
     if observation.repo_prefix_matches:
         if observation.callee_kind == "qualified":
@@ -91,3 +101,25 @@ def _has_repeated_qualified_segment(identifier: str) -> bool:
     if len(parts) >= 4 and parts[-2:] == parts[-4:-2]:
         return True
     return False
+
+
+def _has_inline_dynamic_call_chain(identifier: str) -> bool:
+    return "." in identifier and any(token in identifier for token in ("(", "[", "]"))
+
+
+def _is_fixture_or_generated_path(file_path: str) -> bool:
+    parts = [segment.lower() for segment in file_path.replace("\\", "/").split("/") if segment]
+    if not parts:
+        return False
+    markers = {
+        "__fixtures__",
+        "fixture",
+        "fixtures",
+        "_expected",
+        "expected",
+        "generated",
+        "__generated__",
+        "snapshots",
+        "__snapshots__",
+    }
+    return any(part in markers for part in parts)
