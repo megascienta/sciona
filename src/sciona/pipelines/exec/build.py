@@ -15,9 +15,6 @@ from typing import Optional, Sequence
 
 from ...runtime.logging import get_logger
 from ...code_analysis.diagnostics.pre_persist import report as diagnostic_report
-from ...code_analysis.diagnostics.pre_persist.pipeline import (
-    classify_pre_persist_misses,
-)
 from ...code_analysis.analysis.structural_hash import compute_structural_hash
 from ...code_analysis.tools.call_extraction import CallExtractionRecord
 from ...code_analysis.core import snapshot as snapshot_ingest
@@ -159,32 +156,32 @@ def build_repo(
             artifact_warnings: Sequence[str] = []
             diagnostic_payload: dict[str, object] | None = None
             if policy.artifacts.refresh_artifacts:
-                call_artifacts, artifact_warnings = build_artifacts_for_snapshot(
+                (
+                    call_artifacts,
+                    artifact_warnings,
+                    diagnostic_payload,
+                ) = build_artifacts_for_snapshot(
                     repo_root=repo_state.repo_root,
                     workspace_root=workspace,
                     conn=conn,
                     snapshot_id=committed_snapshot_id,
                     languages=languages,
+                    diagnostic=diagnostic,
                     progress_factory=progress_factory,
                     phase_reporter=phase_reporter,
                 )
-            if diagnostic:
-                if call_artifacts:
-                    with diagnostic_report.diagnostic_workspace(repo_state.sciona_dir):
-                        diagnostic_payload = classify_pre_persist_misses(
-                            core_conn=conn,
-                            snapshot_id=committed_snapshot_id,
-                            call_records=call_artifacts,
-                            progress_factory=progress_factory,
-                        )
-                else:
-                    phase_reporter("Diagnostic classification")
-                    with diagnostic_report.diagnostic_workspace(repo_state.sciona_dir):
-                        diagnostic_payload = classify_pre_persist_misses(
-                            core_conn=conn,
-                            snapshot_id=committed_snapshot_id,
-                            call_records=call_artifacts,
-                        )
+            if diagnostic and diagnostic_payload is None:
+                phase_reporter("Diagnostic classification")
+                with diagnostic_report.diagnostic_workspace(repo_state.sciona_dir):
+                    diagnostic_payload = {
+                        "totals": diagnostic_report.empty_diagnostic_buckets(),
+                        "by_language": {},
+                        "by_scope": {
+                            "non_tests": diagnostic_report.empty_diagnostic_buckets(),
+                            "tests": diagnostic_report.empty_diagnostic_buckets(),
+                        },
+                        "observations": [],
+                    }
             result = BuildResult(
                 files_processed,
                 node_count,

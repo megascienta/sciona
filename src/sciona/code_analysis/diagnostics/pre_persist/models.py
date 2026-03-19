@@ -39,6 +39,8 @@ class DiagnosticMissObservation:
     reachable_repo_binding: bool = False
     repo_hint_overlap: tuple[str, ...] = ()
     identifier_root: str = ""
+    gate_reason: str = ""
+    raw_drop_reason: str = ""
 
 
 @dataclass(frozen=True)

@@ -12,6 +12,7 @@ from typing import Sequence, Set
 from ...code_analysis import artifacts as artifact_derivation
 from ...code_analysis.tools.call_extraction import CallExtractionRecord
 from ...code_analysis.artifacts.engine import ArtifactEngine
+from ...code_analysis.diagnostics.pre_persist.pipeline import classify_rejected_calls
 from ...data_storage.connections import artifact
 from ...data_storage.common.transactions import transaction
 from ...data_storage.artifact_db.overlay import diff_overlay as overlay_store
@@ -61,9 +62,10 @@ def build_artifacts_for_snapshot(
     conn,
     snapshot_id: str,
     languages,
+    diagnostic: bool = False,
     progress_factory=None,
     phase_reporter=None,
-) -> tuple[Sequence[CallExtractionRecord], list[str]]:
+) -> tuple[Sequence[CallExtractionRecord], list[str], dict[str, object] | None]:
     core_read.validate_snapshot_for_read(conn, snapshot_id, require_committed=True)
     artifacts_engine = ArtifactEngine(
         workspace_root,
@@ -74,15 +76,16 @@ def build_artifacts_for_snapshot(
     )
     call_artifacts = artifacts_engine.run(snapshot_id)
     warnings = list(artifacts_engine.warnings)
-    refresh_artifact_state(
+    diagnostic_payload = refresh_artifact_state(
         repo_root=repo_root,
         conn=conn,
         snapshot_id=snapshot_id,
         call_artifacts=call_artifacts,
+        diagnostic=diagnostic,
         progress_factory=progress_factory,
         phase_reporter=phase_reporter,
     )
-    return call_artifacts, warnings
+    return call_artifacts, warnings, diagnostic_payload
 
 
 def refresh_artifact_state(
@@ -91,9 +94,10 @@ def refresh_artifact_state(
     conn,
     snapshot_id: str,
     call_artifacts: Sequence[CallExtractionRecord],
+    diagnostic: bool = False,
     progress_factory=None,
     phase_reporter=None,
-) -> None:
+) -> dict[str, object] | None:
     def _timed_phase(label: str, func):
         return func()
 
@@ -114,6 +118,7 @@ def refresh_artifact_state(
         try:
             with transaction(artifact_conn):
                 call_resolution_diagnostics: dict[str, object] = {}
+                diagnostic_payload: dict[str, object] | None = None
                 _timed_phase(
                     "write_call_artifacts",
                     lambda: artifact_derivation.write_call_artifacts(
@@ -126,6 +131,16 @@ def refresh_artifact_state(
                         progress_factory=progress_factory,
                     ),
                 )
+                if diagnostic:
+                    diagnostic_payload = _timed_phase(
+                        "diagnostic_classification",
+                        lambda: classify_rejected_calls(
+                            core_conn=conn,
+                            artifact_conn=artifact_conn,
+                            snapshot_id=snapshot_id,
+                            progress_factory=progress_factory,
+                        ),
+                    )
                 artifact_write.set_rebuild_metadata(
                     artifact_conn,
                     key=f"call_resolution_diagnostics:{snapshot_id}",
@@ -163,10 +178,12 @@ def refresh_artifact_state(
                     f"Artifact rebuild status is inconsistent for snapshot {snapshot_id}."
                 )
             artifact_conn.commit()
+            return diagnostic_payload
         except Exception:
             artifact_write.mark_rebuild_failed(artifact_conn, snapshot_id=snapshot_id)
             artifact_conn.commit()
             raise
+    return None
 
 
 __all__ = ["build_artifacts_for_snapshot", "refresh_artifact_state"]

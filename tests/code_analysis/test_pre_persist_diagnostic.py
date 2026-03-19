@@ -1,6 +1,10 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
+import sqlite3
+
+from sciona.data_storage.artifact_db import connect as artifact_connect
+from sciona.data_storage.artifact_db.writes import write_index as artifact_write
 from sciona.code_analysis.diagnostics.pre_persist.classifier import (
     classify_no_in_repo_candidate,
 )
@@ -14,6 +18,9 @@ from sciona.code_analysis.diagnostics.pre_persist.models import (
     DiagnosticMissObservation,
 )
 from sciona.code_analysis.tools.call_extraction import CallExtractionRecord, PrePersistObservation
+from sciona.runtime import paths as runtime_paths
+from sciona.runtime.paths import get_artifact_db_path
+from tests.helpers import seed_repo_with_snapshot
 
 
 def test_classifier_marks_common_builtin_name() -> None:
@@ -801,6 +808,78 @@ def test_classify_pre_persist_misses_uses_progress_factory(monkeypatch) -> None:
         ("advance", 1),
         ("close", None),
     ]
+
+
+def test_classify_rejected_calls_uses_temp_rejected_rows(tmp_path) -> None:
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    prefix = runtime_paths.repo_name_prefix(repo_root)
+    core_conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
+    core_conn.row_factory = sqlite3.Row
+    artifact_conn = artifact_connect(get_artifact_db_path(repo_root), repo_root=repo_root)
+    try:
+        artifact_write.reset_temp_rejected_callsites(artifact_conn)
+        artifact_write.store_temp_rejected_callsites(
+            artifact_conn,
+            caller_structural_id="meth_alpha",
+            caller_qualified_name=f"{prefix}.pkg.alpha.Service.run",
+            caller_module=f"{prefix}.pkg.alpha",
+            caller_language="python",
+            caller_file_path="pkg/alpha/service.py",
+            rows=[
+                (
+                    (
+                        f"{prefix}.pkg.models.Secret",
+                        "dropped",
+                        None,
+                        None,
+                        "no_candidates",
+                        0,
+                        "qualified",
+                        None,
+                        None,
+                        1,
+                        0,
+                        f"{prefix}.pkg.models",
+                    ),
+                    "no_in_repo_candidate",
+                    "no_candidates",
+                ),
+                (
+                    (
+                        "external.helper",
+                        "accepted",
+                        "external_callable",
+                        "exact_qname",
+                        None,
+                        1,
+                        "qualified",
+                        None,
+                        None,
+                        2,
+                        1,
+                        "external",
+                    ),
+                    "accepted_outside_in_repo",
+                    None,
+                ),
+            ],
+        )
+
+        payload = diagnostic_pipeline.classify_rejected_calls(
+            core_conn=core_conn,
+            artifact_conn=artifact_conn,
+            snapshot_id=snapshot_id,
+        )
+    finally:
+        artifact_conn.close()
+        core_conn.close()
+
+    assert payload["totals"]["likely_unindexed_symbol"] == 1
+    assert payload["totals"]["accepted_outside_in_repo"] == 1
+    observations = payload["observations"]
+    assert observations[0]["gate_reason"] == "no_in_repo_candidate"
+    assert observations[0]["raw_drop_reason"] == "no_candidates"
+    assert observations[1]["gate_reason"] == "accepted_outside_in_repo"
 
 
 def test_build_verbose_payload_includes_reason_and_prefix_traces() -> None:

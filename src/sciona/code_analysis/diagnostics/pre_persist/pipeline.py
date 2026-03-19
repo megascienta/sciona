@@ -21,7 +21,11 @@ from ....data_storage.core_db import read_ops as core_read
 from ....pipelines.progress import ProgressFactory
 from ....pipelines.exec.reporting_callsites import scope_bucket
 from .classifier import classify_no_in_repo_candidate
-from .models import DiagnosticAggregation, DiagnosticMissObservation
+from .models import (
+    DiagnosticAggregation,
+    DiagnosticClassification,
+    DiagnosticMissObservation,
+)
 from .report import empty_diagnostic_buckets
 
 
@@ -194,12 +198,202 @@ def classify_pre_persist_misses(
     }
 
 
+def classify_rejected_calls(
+    *,
+    core_conn,
+    artifact_conn,
+    snapshot_id: str,
+    progress_factory: ProgressFactory | None = None,
+) -> dict[str, object]:
+    rows = artifact_conn.execute(
+        """
+        SELECT
+            caller_structural_id,
+            caller_qualified_name,
+            caller_module,
+            caller_language,
+            caller_file_path,
+            identifier,
+            call_ordinal,
+            callee_kind,
+            candidate_module_hints,
+            gate_reason,
+            raw_drop_reason
+        FROM rejected_callsites_temp
+        ORDER BY rowid
+        """
+    ).fetchall()
+    if not rows:
+        return {
+            "totals": empty_diagnostic_buckets(),
+            "by_language": {},
+            "by_scope": {
+                "non_tests": empty_diagnostic_buckets(),
+                "tests": empty_diagnostic_buckets(),
+            },
+            "observations": [],
+        }
+    symbol_index, _in_repo_callable_ids, callable_qname_by_id = build_symbol_index(
+        core_conn, snapshot_id
+    )
+    (
+        module_lookup,
+        import_targets,
+        expanded_import_targets,
+        module_ancestors,
+        module_file_by_name,
+    ) = build_module_context(core_conn, snapshot_id)
+    repo_module_prefixes = _repo_module_prefixes(module_file_by_name)
+    module_bindings_by_name = build_module_binding_index(
+        callable_qname_by_id=callable_qname_by_id,
+        module_lookup=module_lookup,
+        simple_identifier=simple_identifier,
+    )
+    ts_barrel_export_map = build_typescript_barrel_export_map(
+        import_targets=import_targets,
+        module_bindings_by_name=module_bindings_by_name,
+        module_file_by_name=module_file_by_name,
+        bounded_module_reachability=bounded_module_reachability,
+    )
+    aggregation = DiagnosticAggregation(
+        totals=empty_diagnostic_buckets(),
+        by_scope={
+            "non_tests": empty_diagnostic_buckets(),
+            "tests": empty_diagnostic_buckets(),
+        },
+    )
+    progress_handle = (
+        progress_factory("Diagnostic classification", len(rows))
+        if progress_factory is not None
+        else None
+    )
+    for row in rows:
+        caller_module = str(row["caller_module"]) if row["caller_module"] is not None else None
+        identifier = str(row["identifier"] or "")
+        candidate_module_hints = _split_candidate_module_hints(
+            row["candidate_module_hints"]
+        )
+        prefix_matches = _repo_prefix_matches(identifier, repo_module_prefixes)
+        reachable_modules = _reachable_repo_modules(
+            caller_module=caller_module,
+            import_targets=import_targets,
+            expanded_import_targets=expanded_import_targets,
+            module_ancestors=module_ancestors,
+            ts_barrel_export_map=ts_barrel_export_map,
+        )
+        reachable_prefixes = _module_prefixes(reachable_modules)
+        reachable_prefix_matches = _repo_prefix_matches(identifier, reachable_prefixes)
+        terminal = identifier.rsplit(".", 1)[-1].strip()
+        observation = DiagnosticMissObservation(
+            language=str(row["caller_language"] or "unknown"),
+            file_path=str(row["caller_file_path"] or ""),
+            caller_structural_id=str(row["caller_structural_id"] or ""),
+            caller_qualified_name=str(row["caller_qualified_name"] or ""),
+            caller_module=caller_module,
+            identifier=identifier,
+            ordinal=int(row["call_ordinal"] or 0),
+            callee_kind=str(row["callee_kind"] or "unknown"),
+            candidate_module_hints=candidate_module_hints,
+            repo_prefix_matches=prefix_matches,
+            longest_repo_prefix_match=prefix_matches[-1] if prefix_matches else "",
+            repo_prefix_match_depth=len(prefix_matches),
+            reachable_repo_prefix_matches=reachable_prefix_matches,
+            longest_reachable_repo_prefix_match=(
+                reachable_prefix_matches[-1] if reachable_prefix_matches else ""
+            ),
+            reachable_repo_binding=any(
+                terminal in module_bindings_by_name.get(module_name, set())
+                for module_name in reachable_modules
+            ),
+            repo_hint_overlap=_repo_hint_overlap(
+                candidate_module_hints,
+                repo_module_prefixes,
+            ),
+            identifier_root=_identifier_root(identifier),
+            gate_reason=str(row["gate_reason"] or ""),
+            raw_drop_reason=str(row["raw_drop_reason"] or ""),
+        )
+        classified = _classify_rejected_observation(observation)
+        language = observation.language
+        scope_key = scope_bucket(observation.file_path)
+        _inc_bucket(aggregation.totals, classified.bucket)
+        language_buckets = aggregation.by_language.setdefault(
+            language,
+            empty_diagnostic_buckets(),
+        )
+        _inc_bucket(language_buckets, classified.bucket)
+        _inc_bucket(aggregation.by_scope[scope_key], classified.bucket)
+        signals = _signals_for_observation(observation, classified.reasons)
+        if observation.gate_reason:
+            signals.append(f"gate_reason:{observation.gate_reason}")
+        if observation.raw_drop_reason:
+            signals.append(f"raw_drop_reason:{observation.raw_drop_reason}")
+        aggregation.observations.append(
+            {
+                "bucket": classified.bucket,
+                "reasons": list(classified.reasons),
+                "signals": signals,
+                "language": observation.language,
+                "file_path": observation.file_path,
+                "caller_structural_id": observation.caller_structural_id,
+                "caller_qualified_name": observation.caller_qualified_name,
+                "caller_module": observation.caller_module,
+                "identifier": observation.identifier,
+                "identifier_root": observation.identifier_root,
+                "ordinal": observation.ordinal,
+                "callee_kind": observation.callee_kind,
+                "candidate_module_hints": list(observation.candidate_module_hints),
+                "repo_prefix_matches": list(observation.repo_prefix_matches),
+                "longest_repo_prefix_match": observation.longest_repo_prefix_match,
+                "repo_prefix_match_depth": observation.repo_prefix_match_depth,
+                "reachable_repo_prefix_matches": list(
+                    observation.reachable_repo_prefix_matches
+                ),
+                "longest_reachable_repo_prefix_match": (
+                    observation.longest_reachable_repo_prefix_match
+                ),
+                "reachable_repo_binding": observation.reachable_repo_binding,
+                "repo_hint_overlap": list(observation.repo_hint_overlap),
+                "scope": scope_key,
+                "gate_reason": observation.gate_reason,
+                "raw_drop_reason": observation.raw_drop_reason,
+            }
+        )
+        if progress_handle is not None:
+            progress_handle.advance(1)
+    if progress_handle is not None:
+        progress_handle.close()
+    return {
+        "totals": aggregation.totals,
+        "by_language": aggregation.by_language,
+        "by_scope": aggregation.by_scope,
+        "observations": aggregation.observations,
+    }
+
+
 def _inc_bucket(target: dict[str, int], bucket: str) -> None:
     target[bucket] = int(target.get(bucket, 0)) + 1
 
 
 def _identifier_root(identifier: str) -> str:
     return identifier.split(".", 1)[0].strip()
+
+
+def _split_candidate_module_hints(value: object) -> tuple[str, ...]:
+    if value is None:
+        return ()
+    return tuple(part.strip() for part in str(value).split(",") if part.strip())
+
+
+def _classify_rejected_observation(
+    observation: DiagnosticMissObservation,
+) -> DiagnosticClassification:
+    if observation.gate_reason in {"accepted_outside_in_repo", "invalid_observation_shape"}:
+        return DiagnosticClassification(
+            bucket=observation.gate_reason,
+            reasons=(f"gate:{observation.gate_reason}",),
+        )
+    return classify_no_in_repo_candidate(observation)
 
 
 def _repo_module_prefixes(module_file_by_name: dict[str, str]) -> set[str]:
