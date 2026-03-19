@@ -42,9 +42,10 @@ def _fake_report():
                 "persisted_callsites": "Persisted Callsites",
                 "persisted_accepted": "Persisted Accepted",
                 "persisted_dropped": "Persisted Dropped",
-                "no_in_repo_candidate": "No In-Repo Candidate",
-                "accepted_outside_in_repo": "Accepted Outside In-Repo",
-                "invalid_observation_shape": "Invalid Observation Shape",
+                "out_of_scope_call": "Out-Of-Scope Call",
+                "weak_static_evidence": "Weak Static Evidence",
+                "structural_gap": "Structural Gap",
+                "unclassified": "Unclassified",
                 "callsite_pairs": "Callsite Pairs",
                 "finalized_call_edges": "Finalized Call Edges",
                 "build_total_seconds": "Build Total Seconds",
@@ -86,9 +87,10 @@ def _fake_report():
                     "persisted_dropped": 1,
                 },
                 "pre_persist_filter": {
-                    "no_in_repo_candidate": 2,
-                    "accepted_outside_in_repo": 0,
-                    "invalid_observation_shape": 0,
+                    "out_of_scope_call": 0,
+                    "weak_static_evidence": 0,
+                    "structural_gap": 0,
+                    "unclassified": 2,
                 },
                 "call_materialization": {
                     "callsite_pairs": 11,
@@ -110,9 +112,10 @@ def _fake_report():
                 "persisted_dropped": 1,
             },
             "pre_persist_filter": {
-                "no_in_repo_candidate": 2,
-                "accepted_outside_in_repo": 0,
-                "invalid_observation_shape": 0,
+                "out_of_scope_call": 0,
+                "weak_static_evidence": 0,
+                "structural_gap": 0,
+                "unclassified": 2,
             },
             "call_materialization": {
                 "callsite_pairs": 11,
@@ -134,9 +137,10 @@ def _fake_report():
                     "persisted_dropped": 1,
                 },
                 "pre_persist_filter": {
-                    "no_in_repo_candidate": 2,
-                    "accepted_outside_in_repo": 0,
-                    "invalid_observation_shape": 0,
+                    "out_of_scope_call": 0,
+                    "weak_static_evidence": 0,
+                    "structural_gap": 0,
+                    "unclassified": 2,
                 },
                 "call_materialization": {
                     "callsite_pairs": 8,
@@ -157,9 +161,10 @@ def _fake_report():
                     "persisted_dropped": 0,
                 },
                 "pre_persist_filter": {
-                    "no_in_repo_candidate": 0,
-                    "accepted_outside_in_repo": 0,
-                    "invalid_observation_shape": 0,
+                    "out_of_scope_call": 0,
+                    "weak_static_evidence": 0,
+                    "structural_gap": 0,
+                    "unclassified": 0,
                 },
                 "call_materialization": {
                     "callsite_pairs": 3,
@@ -218,8 +223,8 @@ def test_cli_status_verbose_emits_grouped_direct_metrics(cli_app, cli_runner, mo
         in result.stdout
     )
     assert (
-        "pre_persist_filter: no_in_repo_candidate=2, accepted_outside_in_repo=0, "
-        "invalid_observation_shape=0"
+        "pre_persist_filter: out_of_scope_call=0, weak_static_evidence=0, "
+        "structural_gap=0, unclassified=2"
     ) in result.stdout
     assert "non_tests:" in result.stdout
     assert "structure: 8 files, 16 nodes, 17 edges" in result.stdout

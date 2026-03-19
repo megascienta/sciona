@@ -252,8 +252,8 @@ Timing semantics:
 Diagnostic build mode:
 
 - `sciona build --diagnostic` adds an optional post-build phase that classifies
-  canonical `no_in_repo_candidate` misses into best-effort explanatory buckets
-  for generated repo-root report artifacts
+  rejected callsites into best-effort explanatory buckets for generated
+  repo-root report artifacts
 - `sciona build --diagnostic --verbose` also writes a repo-root verbose sidecar
   with bucketed callsite and file examples for investigation
 - Diagnostic outputs are generated artifacts only; they are not persisted in
@@ -286,20 +286,18 @@ Diagnostic build mode:
   deduplicated in-scope candidate caller-to-callee pairs used for reporting and
   final call derivation; it is not the raw observed superset
   
-- pre-persistence out-of-scope observations are excluded before
-  `callsite_pairs` persistence and currently bucketed as:
-  `no_in_repo_candidate`, `accepted_outside_in_repo`,
-  `invalid_observation_shape`
+- rejected callsites are publicly grouped as:
+  `out_of_scope_call`, `weak_static_evidence`, `structural_gap`,
+  `unclassified`
 - bucket meanings:
-  - `no_in_repo_candidate`: no in-repo candidate materialized for the
-    normalized observed identifier
-  - `accepted_outside_in_repo`: an accepted row pointed outside the in-repo
-    callable set
-  - `invalid_observation_shape`: malformed or internally inconsistent call
-    observation row shape
-- Diagnostic build mode may replace canonical `no_in_repo_candidate` only in
-  generated repo-root diagnostic build-status artifacts; canonical public
-  status reporting remains unchanged
+  - `out_of_scope_call`: external, builtin, or structurally indirect/runtime
+    call shapes outside the static in-repo contract target
+  - `weak_static_evidence`: in-repo-looking call shapes whose structural
+    evidence is still too weak for accepted static-in-repo status
+  - `structural_gap`: malformed observations or clear parser/extraction/
+    normalization deficiencies
+  - `unclassified`: residual rejected callsites not explained by the other
+    public buckets
 - `status --json` exposes direct snapshot data only
 - the public status payload is grouped as:
   - `labels`
@@ -317,8 +315,8 @@ Diagnostic build mode:
   - `callsites`: `observed_syntactic_callsites`,
     `filtered_pre_persist`, `persisted_callsites`,
     `persisted_accepted`, `persisted_dropped`
-  - `pre_persist_filter`: `no_in_repo_candidate`,
-    `accepted_outside_in_repo`, `invalid_observation_shape`
+  - `pre_persist_filter`: `out_of_scope_call`,
+    `weak_static_evidence`, `structural_gap`, `unclassified`
   - `call_materialization`: `callsite_pairs`, `finalized_call_edges`
 - `structure.files` and `structure.nodes` are structural counts from CoreDB
 - `structure.edges` is the total reducer-facing graph edge count from

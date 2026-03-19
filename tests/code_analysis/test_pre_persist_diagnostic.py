@@ -818,7 +818,7 @@ def test_build_verbose_payload_includes_reason_and_prefix_traces() -> None:
     }
 
 
-def test_merge_non_candidate_buckets_preserves_canonical_keys() -> None:
+def test_merge_non_candidate_buckets_projects_public_buckets() -> None:
     merged = _merge_non_candidate_buckets(
         {
             "accepted_outside_in_repo": 2,
@@ -831,6 +831,9 @@ def test_merge_non_candidate_buckets_preserves_canonical_keys() -> None:
         },
     )
 
-    assert merged["accepted_outside_in_repo"] == 2
-    assert merged["invalid_observation_shape"] == 3
-    assert merged["likely_unindexed_symbol"] == 7
+    assert merged == {
+        "out_of_scope_call": 101,
+        "weak_static_evidence": 7,
+        "structural_gap": 91,
+        "unclassified": 0,
+    }

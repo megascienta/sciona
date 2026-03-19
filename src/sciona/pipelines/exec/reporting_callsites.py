@@ -5,11 +5,24 @@
 
 from __future__ import annotations
 
-PRE_PERSIST_BUCKET_KEYS = (
-    "no_in_repo_candidate",
-    "accepted_outside_in_repo",
-    "invalid_observation_shape",
+PUBLIC_PRE_PERSIST_BUCKET_KEYS = (
+    "out_of_scope_call",
+    "weak_static_evidence",
+    "structural_gap",
+    "unclassified",
 )
+
+_PUBLIC_PRE_PERSIST_BUCKET_MAP = {
+    "no_in_repo_candidate": "unclassified",
+    "accepted_outside_in_repo": "out_of_scope_call",
+    "invalid_observation_shape": "structural_gap",
+    "likely_external_dependency": "out_of_scope_call",
+    "likely_standard_library_or_builtin": "out_of_scope_call",
+    "likely_dynamic_dispatch_or_indirect": "out_of_scope_call",
+    "likely_unindexed_symbol": "weak_static_evidence",
+    "likely_parser_extraction_gap": "structural_gap",
+    "unclassified_no_in_repo_candidate": "unclassified",
+}
 
 
 def count_payload(count: int | None) -> dict[str, object]:
@@ -106,10 +119,11 @@ def filtered_pre_persist_buckets_payload(
     buckets: dict[str, int] | None,
 ) -> dict[str, int]:
     source = buckets or {}
-    return {
-        key: int(source.get(key, 0))
-        for key in PRE_PERSIST_BUCKET_KEYS
-    }
+    payload = {key: 0 for key in PUBLIC_PRE_PERSIST_BUCKET_KEYS}
+    for key, value in source.items():
+        public_key = _PUBLIC_PRE_PERSIST_BUCKET_MAP.get(str(key), "unclassified")
+        payload[public_key] = int(payload.get(public_key, 0)) + int(value or 0)
+    return payload
 
 
 def scope_filtered_pre_persist_buckets_payload(

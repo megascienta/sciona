@@ -253,11 +253,20 @@ Public status reporting contract:
   - `persisted_accepted`
   - `persisted_dropped`
 - `pre_persist_filter` MUST contain only:
-  - `no_in_repo_candidate`
-  - `accepted_outside_in_repo`
-  - `invalid_observation_shape`
-- Diagnostic build artifacts MAY replace canonical `no_in_repo_candidate` with
-  best-effort explanatory buckets, but only inside those generated artifacts
+  - `out_of_scope_call`
+  - `weak_static_evidence`
+  - `structural_gap`
+  - `unclassified`
+- `pre_persist_filter` bucket meanings:
+  - `out_of_scope_call`: the call falls outside the static in-repo contract
+    target, including external, builtin, or structurally indirect/runtime-only
+    shapes
+  - `weak_static_evidence`: the call looks in-repo shaped, but the structural
+    evidence is not strong enough to accept it as a static in-repo callsite
+  - `structural_gap`: the call was rejected because the observed structure is
+    malformed or points to a clear parser/extraction/normalization deficiency
+  - `unclassified`: residual rejected callsites not explained by the other
+    public buckets
 - `call_materialization` MUST contain only:
   - `callsite_pairs`
   - `finalized_call_edges`
@@ -280,16 +289,9 @@ Overlay contract note:
 - stores deduplicated in-scope candidate caller-to-callee pairs derived from the
   observed syntactic callsite stream plus committed structural context.
 - MUST exclude pre-persistence out-of-scope observations before persistence.
-- pre-persistence out-of-scope buckets are:
-  `no_in_repo_candidate`, `accepted_outside_in_repo`,
-  `invalid_observation_shape`.
-- bucket meanings:
-  - `no_in_repo_candidate`: no in-repo candidate materialized for the
-    normalized observed identifier
-  - `accepted_outside_in_repo`: an accepted row pointed outside the in-repo
-    callable set
-  - `invalid_observation_shape`: malformed or internally inconsistent call
-    observation row shape
+- public rejected-call buckets are:
+  `out_of_scope_call`, `weak_static_evidence`, `structural_gap`,
+  `unclassified`.
 - MAY collapse repeated same-caller same-callee invocation occurrences to one
   persisted pair row.
 - MUST remain deterministic with respect to the committed CoreDB snapshot and

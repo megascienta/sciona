@@ -94,9 +94,10 @@ def _fake_report() -> dict[str, object]:
                 "persisted_dropped": 0,
             },
             "pre_persist_filter": {
-                "no_in_repo_candidate": 0,
-                "accepted_outside_in_repo": 0,
-                "invalid_observation_shape": 0,
+                "out_of_scope_call": 0,
+                "weak_static_evidence": 0,
+                "structural_gap": 0,
+                "unclassified": 0,
             },
             "call_materialization": {
                 "callsite_pairs": 0,
@@ -305,14 +306,10 @@ def test_cli_build_diagnostic_enriches_pre_persist_filter(
     build_status_path = repo_root / f"{repo_root.name}_build_status.json"
     build_status = json.loads(build_status_path.read_text(encoding="utf-8"))
     assert build_status["report"]["totals"]["pre_persist_filter"] == {
-        "likely_external_dependency": 2,
-        "likely_standard_library_or_builtin": 1,
-        "likely_dynamic_dispatch_or_indirect": 0,
-        "likely_unindexed_symbol": 0,
-        "likely_parser_extraction_gap": 0,
-        "unclassified_no_in_repo_candidate": 0,
-        "accepted_outside_in_repo": 0,
-        "invalid_observation_shape": 0,
+        "out_of_scope_call": 3,
+        "weak_static_evidence": 0,
+        "structural_gap": 0,
+        "unclassified": 0,
     }
 
 

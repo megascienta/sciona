@@ -11,7 +11,24 @@ import shutil
 
 from .models import DIAGNOSTIC_BUCKET_KEYS
 
-_CANONICAL_ONLY_KEYS = frozenset({"accepted_outside_in_repo", "invalid_observation_shape"})
+PUBLIC_DIAGNOSTIC_BUCKET_KEYS = (
+    "out_of_scope_call",
+    "weak_static_evidence",
+    "structural_gap",
+    "unclassified",
+)
+
+_PUBLIC_DIAGNOSTIC_BUCKET_MAP = {
+    "no_in_repo_candidate": "unclassified",
+    "accepted_outside_in_repo": "out_of_scope_call",
+    "invalid_observation_shape": "structural_gap",
+    "likely_external_dependency": "out_of_scope_call",
+    "likely_standard_library_or_builtin": "out_of_scope_call",
+    "likely_dynamic_dispatch_or_indirect": "out_of_scope_call",
+    "likely_unindexed_symbol": "weak_static_evidence",
+    "likely_parser_extraction_gap": "structural_gap",
+    "unclassified_no_in_repo_candidate": "unclassified",
+}
 
 
 def build_status_output_path(repo_root: Path) -> Path:
@@ -37,12 +54,10 @@ def enrich_report(
     fields = dict(labels.get("fields") or {})
     fields.update(
         {
-            "likely_external_dependency": "Likely External Dependency",
-            "likely_standard_library_or_builtin": "Likely Standard Library Or Builtin",
-            "likely_dynamic_dispatch_or_indirect": "Likely Dynamic Dispatch Or Indirect",
-            "likely_unindexed_symbol": "Likely Unindexed Symbol",
-            "likely_parser_extraction_gap": "Likely Parser Extraction Gap",
-            "unclassified_no_in_repo_candidate": "Unclassified No In-Repo Candidate",
+            "out_of_scope_call": "Out-Of-Scope Call",
+            "weak_static_evidence": "Weak Static Evidence",
+            "structural_gap": "Structural Gap",
+            "unclassified": "Unclassified",
             "build_phase_timings": "Build Phase Timing",
         }
     )
@@ -257,16 +272,11 @@ def _merge_non_candidate_buckets(
     canonical_buckets: dict[str, int],
     diagnostic_buckets: dict[str, int],
 ) -> dict[str, int]:
-    payload = empty_diagnostic_buckets()
-    payload["accepted_outside_in_repo"] = int(
-        canonical_buckets.get("accepted_outside_in_repo", 0)
-    )
-    payload["invalid_observation_shape"] = int(
-        canonical_buckets.get("invalid_observation_shape", 0)
-    )
-    for key, value in diagnostic_buckets.items():
-        if key in payload and key not in _CANONICAL_ONLY_KEYS:
-            payload[key] = int(value or 0)
+    payload = {key: 0 for key in PUBLIC_DIAGNOSTIC_BUCKET_KEYS}
+    for source in (canonical_buckets, diagnostic_buckets):
+        for key, value in source.items():
+            public_key = _PUBLIC_DIAGNOSTIC_BUCKET_MAP.get(str(key), "unclassified")
+            payload[public_key] = int(payload.get(public_key, 0)) + int(value or 0)
     return payload
 
 

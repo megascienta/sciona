@@ -43,9 +43,10 @@ def test_snapshot_report_returns_grouped_direct_metrics(repo_with_snapshot):
         "persisted_dropped": 0,
     }
     assert payload["totals"]["pre_persist_filter"] == {
-        "no_in_repo_candidate": 0,
-        "accepted_outside_in_repo": 0,
-        "invalid_observation_shape": 0,
+        "out_of_scope_call": 0,
+        "weak_static_evidence": 0,
+        "structural_gap": 0,
+        "unclassified": 0,
     }
     assert payload["totals"]["call_materialization"] == {
         "callsite_pairs": 0,
@@ -66,9 +67,10 @@ def test_snapshot_report_returns_grouped_direct_metrics(repo_with_snapshot):
                 "persisted_dropped": 0,
             },
             "pre_persist_filter": {
-                "no_in_repo_candidate": 0,
-                "accepted_outside_in_repo": 0,
-                "invalid_observation_shape": 0,
+                "out_of_scope_call": 0,
+                "weak_static_evidence": 0,
+                "structural_gap": 0,
+                "unclassified": 0,
             },
             "call_materialization": {
                 "callsite_pairs": 0,
@@ -89,9 +91,10 @@ def test_snapshot_report_returns_grouped_direct_metrics(repo_with_snapshot):
                 "persisted_dropped": 0,
             },
             "pre_persist_filter": {
-                "no_in_repo_candidate": 0,
-                "accepted_outside_in_repo": 0,
-                "invalid_observation_shape": 0,
+                "out_of_scope_call": 0,
+                "weak_static_evidence": 0,
+                "structural_gap": 0,
+                "unclassified": 0,
             },
             "call_materialization": {
                 "callsite_pairs": 0,
@@ -109,9 +112,10 @@ def test_snapshot_report_returns_grouped_direct_metrics(repo_with_snapshot):
         "persisted_dropped": 0,
     }
     assert python["pre_persist_filter"] == {
-        "no_in_repo_candidate": 0,
-        "accepted_outside_in_repo": 0,
-        "invalid_observation_shape": 0,
+        "out_of_scope_call": 0,
+        "weak_static_evidence": 0,
+        "structural_gap": 0,
+        "unclassified": 0,
     }
     assert python["call_materialization"] == {
         "callsite_pairs": 0,
@@ -202,9 +206,10 @@ def test_snapshot_report_includes_direct_callsite_counts_from_diagnostics(
         "persisted_dropped": 1,
     }
     assert payload["totals"]["pre_persist_filter"] == {
-        "no_in_repo_candidate": 2,
-        "accepted_outside_in_repo": 0,
-        "invalid_observation_shape": 0,
+        "out_of_scope_call": 0,
+        "weak_static_evidence": 0,
+        "structural_gap": 0,
+        "unclassified": 2,
     }
     assert payload["totals"]["call_materialization"] == {
         "callsite_pairs": 3,
@@ -219,9 +224,10 @@ def test_snapshot_report_includes_direct_callsite_counts_from_diagnostics(
         "persisted_dropped": 1,
     }
     assert payload["scopes"]["non_tests"]["pre_persist_filter"] == {
-        "no_in_repo_candidate": 2,
-        "accepted_outside_in_repo": 0,
-        "invalid_observation_shape": 0,
+        "out_of_scope_call": 0,
+        "weak_static_evidence": 0,
+        "structural_gap": 0,
+        "unclassified": 2,
     }
     assert payload["scopes"]["non_tests"]["structure"] == {
         "files": 3,
@@ -231,9 +237,10 @@ def test_snapshot_report_includes_direct_callsite_counts_from_diagnostics(
     python = payload["languages"]["python"]
     assert python["callsites"]["persisted_callsites"] == 3
     assert python["pre_persist_filter"] == {
-        "no_in_repo_candidate": 2,
-        "accepted_outside_in_repo": 0,
-        "invalid_observation_shape": 0,
+        "out_of_scope_call": 0,
+        "weak_static_evidence": 0,
+        "structural_gap": 0,
+        "unclassified": 2,
     }
 
 
