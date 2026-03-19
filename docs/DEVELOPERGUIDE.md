@@ -233,7 +233,7 @@ Timing semantics:
   artifact refresh, graph-index rebuild, and rollup rebuild.
 - The inner persisted metric does not include later CLI-only work such as
   final summary querying or terminal rendering.
-- `status --json` and `snapshot_report(...)` expose:
+- `status --output` and `snapshot_report(...)` expose:
   - `build_total_seconds`: persisted inner build metric
   - `build_wall_seconds`: persisted full command wall time when it has already
     been recorded; callers must treat it as optional
@@ -265,7 +265,7 @@ Diagnostic build mode:
 - Diagnostic outputs are generated artifacts only; they are not persisted in
   CoreDB or ArtifactDB and they do not redefine canonical reducer-facing
   semantics
-- Canonical DB-backed `sciona status --json` remains unchanged; diagnostic mode
+- Canonical DB-backed `sciona status --output` remains unchanged; diagnostic mode
   writes additional repo-root JSON files after the build completes
 - Temporary diagnostic workspace files may be created under `.sciona` during
   the diagnostic phase and are removed before the build exits
@@ -291,36 +291,16 @@ Diagnostic build mode:
 - only in-repo-static accepted call materialization persists durably; rejected
   callsite observations remain transient build-time data unless emitted through
   diagnostic repo-root outputs
-- `status --json` exposes direct snapshot data only
-- the public status payload is grouped as:
-  - `labels`
-  - `timing`
-  - `totals`
-  - `languages`
-  - `scopes`
-- `totals`, each language row, and each scope row use the same public sections:
-  - `structure`
-  - `callsites`
-  - `call_materialization`
-- these public sections contain direct counts only:
-  - `structure`: `files`, `nodes`, `edges`
-  - `callsites`: `observed_syntactic_callsites`,
-    `accepted_callsites`, `not_accepted_callsites`
-  - `call_materialization`: `finalized_call_edges`
-- diagnostic build outputs additionally expose a classified
-  `not_accepted_callsites` bucket section; refer to `docs/CONTRACT.md` for the
-  normative bucket surface
-- `structure.files` and `structure.nodes` are structural counts from CoreDB
-- `structure.edges` is the total reducer-facing graph edge count from
-  ArtifactDB `graph_edges`, including structural edges and `CALLS`
-- per-language and per-scope edge attribution is source-owned:
-  each graph edge is counted under the language and scope of its source node
-- `timing` remains top-level and contains:
-  - `build_total_seconds`
-  - `build_wall_seconds`
-  - `build_phase_timings`
-- derived ratios, warning flags, conservation checks, and expansion summaries
-  are computed in evaluation notebooks, not emitted by `status --json`
+- Public status payload semantics are normative in `docs/CONTRACT.md`.
+- Operationally, `sciona status --output` writes the machine-readable status
+  envelope, while `snapshot_report(...)` assembles the nested report payload
+  consumed by CLI rendering and status export.
+- Reporting implementation lives under `src/sciona/pipelines/exec/reporting.py`
+  and `src/sciona/data_storage/artifact_db/reporting/`; keep payload-shape
+  changes aligned with `docs/CONTRACT.md` rather than redefining them here.
+- Derived ratios, warning flags, conservation checks, and expansion summaries
+  are downstream analysis concerns and are not part of the public status
+  contract.
 - synthetic navigation nodes must use collision-safe identities that do not
   shadow or reuse canonical structural identities
 - Fingerprint reuse can skip re-indexing even when a prior committed snapshot

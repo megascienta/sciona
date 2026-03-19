@@ -46,8 +46,7 @@ The root public namespace remains `sciona.api`, which exposes only `addons`.
 
 ## Compatibility Contract
 
-- Addon compatibility is versioned through
-  `PLUGIN_API_MAJOR`, `PLUGIN_API_MINOR`, and `PLUGIN_API_VERSION`
+- Addon compatibility is versioned through `PLUGIN_API_MAJOR`, `PLUGIN_API_MINOR`, and `PLUGIN_API_VERSION`
 - Major-version compatibility is the boundary that addon code should treat as
   required
 - New addon-facing helpers must be exposed through `sciona.api.addons` before

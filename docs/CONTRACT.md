@@ -215,11 +215,11 @@ the payload remains committed-snapshot only.
 
 Public status reporting contract:
 
-- `status --json` and `snapshot_report(...)` MUST expose direct snapshot data
+- `status --output` and `snapshot_report(...)` MUST expose direct snapshot data
   only
 - Optional repo-root files written by `sciona build --diagnostic` are
   non-canonical generated artifacts; they MUST NOT redefine the DB-backed
-  `status --json` contract
+  `status --output` contract
 - the public payload MUST provide:
   - `artifact_db_available`
   - `labels`
