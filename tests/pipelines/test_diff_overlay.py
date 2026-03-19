@@ -8,7 +8,6 @@ from pathlib import Path
 
 from sciona.pipelines.ops.reducers import emit
 from sciona.reducers import overlay_projection_status_summary
-from sciona.pipelines.diff_overlay.patching.analytics import patch_callsite_pairs_index
 from sciona.pipelines.diff_overlay.patching.analytics import (
     patch_call_resolution_drop_summary,
     patch_call_resolution_quality,
@@ -68,30 +67,6 @@ def test_dirty_overlay_calls_and_summary(repo_with_snapshot):
     assert diff, "Expected diff overlay in reducer payload"
     assert diff.get("affected") is True
     assert "calls" in diff.get("affected_by", [])
-
-
-def test_dirty_overlay_callsite_pairs_index_applies_reducer_overlay(repo_with_snapshot):
-    repo_root, _snapshot_id = repo_with_snapshot
-    service_path = repo_root / "pkg/alpha/service.py"
-    service_path.write_text(
-        "def helper():\n    return helper()\n",
-        encoding="utf-8",
-    )
-
-    text, _, _ = emit(
-        "callsite_pairs_index",
-        repo_root=repo_root,
-        callable_id=qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
-    )
-    payload = parse_json_payload(text)
-    diff = payload.get("_diff")
-    assert diff, "Expected diff overlay in reducer payload"
-    assert diff.get("affected") is True
-    assert "projection_not_patched" not in (diff.get("warnings") or [])
-    assert any(
-        edge.get("transition") == "dropped_to_accepted"
-        for edge in payload.get("edges", [])
-    )
 
 
 def test_dirty_overlay_summary_mode(repo_with_snapshot):
@@ -242,106 +217,6 @@ def test_patch_dependency_edges_marks_overlay_added_and_removed():
     }
     assert origins[("mod_alpha", "mod_beta")] == "overlay_removed"
     assert origins[("mod_alpha", "mod_gamma")] == "overlay_added"
-
-
-def test_patch_callsite_pairs_index_marks_edge_transitions(repo_with_snapshot):
-    repo_root, snapshot_id = repo_with_snapshot
-    payload = {
-        "callable_id": "func_alpha",
-        "direction": "both",
-        "edge_count": 1,
-        "edges": [
-            {
-                "caller_id": "func_alpha",
-                "callee_id": "func_beta",
-                "caller_qualified_name": "pkg.alpha.helper",
-                "callee_qualified_name": "pkg.beta.worker",
-                "caller_file_path": "pkg/alpha/service.py",
-                "callee_file_path": "pkg/beta/worker.py",
-                "caller_language": "python",
-                "callee_language": "python",
-                "caller_node_type": "callable",
-                "callee_node_type": "callable",
-                "caller_module_qualified_name": "pkg.alpha",
-                "callee_module_qualified_name": "pkg.beta",
-                "edge_kind": "CALLS",
-                "edge_source": "artifact_db",
-                "call_hash": None,
-                "line_span": None,
-                "row_origin": "committed",
-                "transition": "unchanged",
-            }
-        ],
-        "callsite_pairs": [],
-        "edge_transition_summary": {
-            "unchanged": 1,
-            "accepted_to_dropped": 0,
-            "dropped_to_accepted": 0,
-            "provenance_changed": 0,
-        },
-    }
-    overlay = OverlayPayload(
-        worktree_hash="hash",
-        snapshot_commit="commit",
-        base_commit="base",
-        base_commit_strategy="snapshot",
-        head_commit="head",
-        merge_base=None,
-        nodes={"add": [], "remove": [], "update": []},
-        edges={"add": [], "remove": [], "update": []},
-        calls={
-            "add": [
-                {
-                    "src_structural_id": "func_alpha",
-                    "dst_structural_id": "func_gamma",
-                    "src_node_type": "callable",
-                    "dst_node_type": "callable",
-                    "src_qualified_name": "pkg.alpha.helper",
-                    "dst_qualified_name": "pkg.gamma.worker",
-                    "src_file_path": "pkg/alpha/service.py",
-                    "dst_file_path": "pkg/gamma/worker.py",
-                }
-            ],
-            "remove": [
-                {
-                    "src_structural_id": "func_alpha",
-                    "dst_structural_id": "func_beta",
-                    "src_node_type": "callable",
-                    "dst_node_type": "callable",
-                    "src_qualified_name": "pkg.alpha.helper",
-                    "dst_qualified_name": "pkg.beta.worker",
-                    "src_file_path": "pkg/alpha/service.py",
-                    "dst_file_path": "pkg/beta/worker.py",
-                }
-            ],
-            "update": [],
-        },
-        summary=None,
-        warnings=[],
-    )
-    conn = core_conn(repo_root)
-    try:
-        patched = patch_callsite_pairs_index(
-            payload,
-            overlay,
-            snapshot_id=snapshot_id,
-            conn=conn,
-        )
-    finally:
-        conn.close()
-    assert patched["edge_count"] == 1
-    assert patched["edge_transition_summary"] == {
-        "unchanged": 0,
-        "accepted_to_dropped": 1,
-        "dropped_to_accepted": 1,
-        "provenance_changed": 0,
-    }
-    transitions = {
-        (edge["caller_id"], edge["callee_id"]): edge["transition"]
-        for edge in patched["edges"]
-    }
-    assert transitions[("func_alpha", "func_beta")] == "accepted_to_dropped"
-    assert transitions[("func_alpha", "func_gamma")] == "dropped_to_accepted"
 
 
 def test_patch_module_call_graph_summary_marks_edge_deltas(repo_with_snapshot):

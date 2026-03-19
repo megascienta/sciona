@@ -217,13 +217,13 @@ hotspot_summary, module_overview, snapshot_provenance, structural_index
 file_outline, symbol_lookup
 
 **Coupling reducers:**
-classifier_call_graph_summary, dependency_edges, fan_summary, import_migration_impact, module_call_graph_summary, ownership_summary
+classifier_call_graph_summary, dependency_edges, fan_summary, module_call_graph_summary, ownership_summary
 
 **Symbol reducers:**
-callable_overview, callsite_pairs_index, classifier_inheritance, classifier_overview, symbol_references
+callable_overview, classifier_inheritance, classifier_overview, symbol_references
 
 **Diagnostic reducers:**
-call_resolution_drop_summary, call_resolution_quality, resolution_trace, structural_integrity_summary
+call_resolution_drop_summary, call_resolution_quality, structural_integrity_summary
 
 **Overlay reducers:**
 overlay_impact_summary, overlay_projection_status_summary

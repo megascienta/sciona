@@ -8,12 +8,10 @@ from sciona.pipelines.diff_overlay.types import OverlayPayload
 from sciona.reducers import (
     call_resolution_drop_summary,
     call_resolution_quality,
-    callsite_pairs_index,
     classifier_call_graph_summary,
     fan_summary,
     hotspot_summary,
     module_call_graph_summary,
-    resolution_trace,
     structural_integrity_summary,
 )
 from sciona.reducers.helpers.shared.context import use_overlay_payload
@@ -85,58 +83,6 @@ def _set_call_resolution_diagnostics(
             sort_keys=True,
         ),
     )
-
-
-def test_callsite_pairs_index_reducer_returns_payload(tmp_path):
-    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
-    callable_id = qualify_repo_name(repo_root, "pkg.alpha.service.helper")
-    conn = core_conn(repo_root)
-    try:
-        payload_text = callsite_pairs_index.render(
-            snapshot_id,
-            conn,
-            repo_root,
-            callable_id=callable_id,
-        )
-    finally:
-        conn.close()
-    payload = parse_json_payload(payload_text)
-    assert payload["callable_id"]
-    assert "edges" in payload
-    assert "artifact_available" in payload
-    assert "edge_source" in payload
-    assert "resolution_diagnostics" in payload
-    assert "edge_transition_summary" in payload
-    if payload["edges"]:
-        edge = payload["edges"][0]
-        assert "caller_node_type" in edge
-        assert "callee_node_type" in edge
-        assert edge["row_origin"] == "committed"
-        assert edge["transition"] == "unchanged"
-
-
-def test_callsite_pairs_index_compact_mode_returns_summary_payload(tmp_path):
-    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
-    callable_id = qualify_repo_name(repo_root, "pkg.alpha.service.helper")
-    conn = core_conn(repo_root)
-    try:
-        payload_text = callsite_pairs_index.render(
-            snapshot_id,
-            conn,
-            repo_root,
-            callable_id=callable_id,
-            compact=True,
-        )
-    finally:
-        conn.close()
-    payload = parse_json_payload(payload_text)
-    assert payload["payload_kind"] == "compact_summary"
-    assert "edges" not in payload
-    assert "callsite_pairs" not in payload
-    assert "resolution_diagnostics" not in payload
-    assert "pair_kind_counts" in payload
-    assert "identifier_preview" in payload
-    assert "edge_preview" in payload
 
 
 def test_call_resolution_quality_returns_payload(tmp_path):
@@ -506,26 +452,6 @@ def test_call_resolution_drop_summary_applies_overlay_during_render(tmp_path):
     assert payload["totals"]["dropped"] == 2
 
 
-def test_resolution_trace_returns_payload(tmp_path):
-    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
-    conn = core_conn(repo_root)
-    callable_id = qualify_repo_name(repo_root, "pkg.alpha.service.helper")
-    try:
-        payload_text = resolution_trace.render(
-            snapshot_id,
-            conn,
-            repo_root,
-            callable_id=callable_id,
-        )
-    finally:
-        conn.close()
-    payload = parse_json_payload(payload_text)
-    assert payload["payload_kind"] == "summary"
-    assert payload["callable_id"]
-    assert "resolution_pipeline_stages" in payload
-    assert "pair_samples" in payload
-
-
 def test_call_resolution_drop_summary_rejects_invalid_limit(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     conn = core_conn(repo_root)
@@ -539,193 +465,6 @@ def test_call_resolution_drop_summary_rejects_invalid_limit(tmp_path):
             )
     finally:
         conn.close()
-
-
-def test_resolution_trace_uses_callsite_and_diagnostics(tmp_path):
-    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
-    artifact_db = repo_root / ".sciona" / setup_config.ARTIFACT_DB_FILENAME
-    conn = artifact_connect(artifact_db, repo_root=repo_root)
-    try:
-        artifact_write.upsert_callsite_pairs(
-            conn,
-            snapshot_id=snapshot_id,
-            caller_id="func_alpha",
-            rows=[
-                (
-                    "pkg.beta.worker",
-                    "site-beta",
-                    "func_beta",
-                    "in_repo_candidate",
-                ),
-                (
-                    "pkg.beta.worker",
-                    "site-beta-2",
-                    "func_gamma",
-                    "in_repo_candidate",
-                ),
-            ],
-        )
-        _set_call_resolution_diagnostics(
-            conn,
-            snapshot_id=snapshot_id,
-            by_caller={
-                "func_alpha": {
-                    "identifiers_total": 2,
-                    "accepted_identifiers": 1,
-                    "dropped_identifiers": 1,
-                    "accepted_by_provenance": {"exact_qname": 1},
-                    "dropped_by_reason": {"no_candidates": 1},
-                    "candidate_count_histogram": {"1": 1, "2": 1},
-                    "record_drops": {},
-                    "filtered_pre_persist_buckets": {},
-                    "observed_callsites": 2,
-                    "persisted_callsites": 2,
-                    "filtered_before_persist": 0,
-                    "finalized_accepted_callsites": 1,
-                    "finalized_dropped_callsites": 1,
-                    "rescue_accepted_callsites": 0,
-                }
-            },
-        )
-        conn.commit()
-    finally:
-        conn.close()
-
-    core = core_conn(repo_root)
-    try:
-        payload_text = resolution_trace.render(
-            snapshot_id,
-            core,
-            repo_root,
-            callable_id=qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
-        )
-    finally:
-        core.close()
-    payload = parse_json_payload(payload_text)
-    assert payload["totals"] == {
-        "observed_syntactic_callsites": 2,
-        "persisted_callsite_pairs": 2,
-        "filtered_before_persist": 0,
-        "finalized_accepted_callsites": 1,
-        "finalized_dropped_callsites": 1,
-    }
-    assert payload["accepted_by_provenance"][0] == {"name": "exact_qname", "count": 1}
-    assert payload["dropped_by_reason"][0] == {"name": "no_candidates", "count": 1}
-    assert payload["diagnostics"]["observed_callsites"] == 2
-    assert payload["diagnostics"]["persisted_callsites"] == 2
-    assert payload["diagnostics"]["filtered_before_persist"] == 0
-    assert payload["diagnostics"]["filtered_pre_persist_buckets"] == []
-    assert payload["diagnostics"]["finalized_accepted_callsites"] == 1
-    assert payload["diagnostics"]["finalized_dropped_callsites"] == 1
-    assert payload["diagnostics"]["rescue_accepted_callsites"] == 0
-    assert payload["pair_samples"][0]["identifier"] == "pkg.beta.worker"
-    assert payload["pair_samples"][0]["callee_id"] == "func_beta"
-
-
-def test_resolution_trace_preserves_unique_without_provenance_drop(tmp_path):
-    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
-    artifact_db = repo_root / ".sciona" / setup_config.ARTIFACT_DB_FILENAME
-    conn = artifact_connect(artifact_db, repo_root=repo_root)
-    try:
-        _set_call_resolution_diagnostics(
-            conn,
-            snapshot_id=snapshot_id,
-            by_caller={
-                "func_alpha": {
-                    "identifiers_total": 1,
-                    "accepted_identifiers": 0,
-                    "dropped_identifiers": 1,
-                    "accepted_by_provenance": {},
-                    "dropped_by_reason": {"unique_without_provenance": 1},
-                    "candidate_count_histogram": {"1": 1},
-                    "record_drops": {},
-                    "filtered_pre_persist_buckets": {},
-                    "observed_callsites": 1,
-                    "persisted_callsites": 1,
-                    "filtered_before_persist": 0,
-                    "finalized_accepted_callsites": 0,
-                    "finalized_dropped_callsites": 1,
-                    "rescue_accepted_callsites": 0,
-                }
-            },
-        )
-        conn.commit()
-    finally:
-        conn.close()
-
-    core = core_conn(repo_root)
-    try:
-        payload_text = resolution_trace.render(
-            snapshot_id,
-            core,
-            repo_root,
-            callable_id=qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
-        )
-    finally:
-        core.close()
-    payload = parse_json_payload(payload_text)
-    assert payload["totals"]["finalized_dropped_callsites"] == 1
-    assert payload["dropped_by_reason"][0]["name"] == "unique_without_provenance"
-
-
-def test_resolution_trace_preserves_ambiguous_in_scope_drop(tmp_path):
-    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
-    artifact_db = repo_root / ".sciona" / setup_config.ARTIFACT_DB_FILENAME
-    conn = artifact_connect(artifact_db, repo_root=repo_root)
-    try:
-        artifact_write.upsert_callsite_pairs(
-            conn,
-            snapshot_id=snapshot_id,
-            caller_id="func_alpha",
-            rows=[
-                (
-                    "pkg.alpha.service.Path.resolve",
-                    "site-resolve",
-                    "func_beta",
-                    "in_repo_candidate",
-                ),
-            ],
-        )
-        _set_call_resolution_diagnostics(
-            conn,
-            snapshot_id=snapshot_id,
-            by_caller={
-                "func_alpha": {
-                    "identifiers_total": 1,
-                    "accepted_identifiers": 0,
-                    "dropped_identifiers": 1,
-                    "accepted_by_provenance": {},
-                    "dropped_by_reason": {"ambiguous_no_in_scope_candidate": 1},
-                    "candidate_count_histogram": {"6": 1},
-                    "record_drops": {},
-                    "filtered_pre_persist_buckets": {},
-                    "observed_callsites": 1,
-                    "persisted_callsites": 1,
-                    "filtered_before_persist": 0,
-                    "finalized_accepted_callsites": 0,
-                    "finalized_dropped_callsites": 1,
-                    "rescue_accepted_callsites": 0,
-                }
-            },
-        )
-        conn.commit()
-    finally:
-        conn.close()
-
-    core = core_conn(repo_root)
-    try:
-        payload_text = resolution_trace.render(
-            snapshot_id,
-            core,
-            repo_root,
-            callable_id=qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
-        )
-    finally:
-        core.close()
-    payload = parse_json_payload(payload_text)
-    assert payload["totals"]["finalized_dropped_callsites"] == 1
-    assert payload["pair_samples"][0]["identifier"].endswith("Path.resolve")
-    assert payload["dropped_by_reason"][0]["name"] == "ambiguous_no_in_scope_candidate"
 
 
 def test_structural_integrity_summary_returns_payload(tmp_path):
@@ -952,26 +691,6 @@ def test_structural_integrity_summary_excludes_callable_contained_callables(tmp_
     payload = parse_json_payload(payload_text)
     orphan_ids = {entry["structural_id"] for entry in payload["lexical_orphans"]}
     assert "func_child" not in orphan_ids
-
-
-def test_callsite_pairs_index_neighbors_detail_level(tmp_path):
-    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
-    callable_id = qualify_repo_name(repo_root, "pkg.alpha.service.helper")
-    conn = core_conn(repo_root)
-    try:
-        payload_text = callsite_pairs_index.render(
-            snapshot_id,
-            conn,
-            repo_root,
-            callable_id=callable_id,
-            detail_level="neighbors",
-        )
-    finally:
-        conn.close()
-    payload = parse_json_payload(payload_text)
-    assert payload["callable_id"]
-    assert "callers" in payload
-    assert "callees" in payload
 
 
 def test_fan_summary_returns_payload(tmp_path):
@@ -1600,36 +1319,3 @@ def test_classifier_call_graph_summary_compact_mode_returns_previews(tmp_path):
     assert payload["outgoing_preview"]["total"] == payload["outgoing_total"]
     assert payload["incoming_preview"]["total"] == payload["incoming_total"]
 
-
-def test_callsite_pairs_index_rejects_invalid_detail_level(tmp_path):
-    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
-    callable_id = qualify_repo_name(repo_root, "pkg.alpha.service.helper")
-    conn = core_conn(repo_root)
-    try:
-        with pytest.raises(ValueError, match="detail_level must be"):
-            callsite_pairs_index.render(
-                snapshot_id,
-                conn,
-                repo_root,
-                callable_id=callable_id,
-                detail_level="verbose",
-            )
-    finally:
-        conn.close()
-
-
-def test_callsite_pairs_index_rejects_invalid_direction(tmp_path):
-    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
-    callable_id = qualify_repo_name(repo_root, "pkg.alpha.service.helper")
-    conn = core_conn(repo_root)
-    try:
-        with pytest.raises(ValueError, match="direction must be one of"):
-            callsite_pairs_index.render(
-                snapshot_id,
-                conn,
-                repo_root,
-                callable_id=callable_id,
-                direction="up",
-            )
-    finally:
-        conn.close()
