@@ -104,9 +104,7 @@ committed source snapshot
   -> observed_syntactic_callsites
   -> rejected or accepted callsite decision
   -> accepted_callsites / not_accepted_callsites
-  -> candidate materialization
-  -> callsite_pairs
-  -> graph collapse
+  -> durable call materialization
   -> node_calls
   -> ArtifactDB model
   -> reducer-facing projections
@@ -197,7 +195,7 @@ Supported structural carriers:
 - per-file warning-and-continue artifact derivation when an eligible file
   cannot be re-analyzed;
 - full reset of derived ArtifactDB state before repopulation;
-- `callsite_pairs` and `node_calls` materialization;
+- in-repo-static call admissibility and `node_calls` materialization;
 - rebuild of reducer-facing graph edges and rollups;
 - rebuild-status metadata and diagnostics persistence;
 - overlay table clearing before fresh artifact population.
@@ -210,8 +208,8 @@ Current user-visible build phases are:
 - `Registering modules`
 - `Building structural index`
 - `Extracting call observations`
-- `Preparing callsite pairs`
-- `Writing callsite pairs`
+- `Preparing durable calls`
+- `Writing durable calls`
 - `Rebuilding call graph index`
 - `Rebuilding graph rollups`
 - `Diagnostic classification` when `sciona build --diagnostic` is enabled
@@ -243,8 +241,8 @@ Timing semantics:
   - `register_modules`
   - `build_structural_index`
   - `derive_call_artifacts`
-  - `prepare_callsite_pairs`
-  - `write_callsite_pairs`
+  - `prepare_durable_calls`
+  - `write_durable_calls`
   - `rebuild_graph_index`
   - `rebuild_graph_rollups`
   - `diagnostic_classification` only for diagnostic builds
@@ -284,9 +282,9 @@ Diagnostic build mode:
   structural facts
 - Artifact processing owns pre-persistence callsite filtering and remains the
   authoritative source for reducer-facing `CALLS`
-- `callsite_pairs` is the primary artifact-layer persisted working set of
-  deduplicated in-scope candidate caller-to-callee pairs used for reporting and
-  final call derivation; it is not the raw observed superset
+- only in-repo-static accepted call materialization persists durably; rejected
+  callsite observations remain transient build-time data unless emitted through
+  diagnostic repo-root outputs
   
 - rejected callsites are publicly grouped as:
   `outside_static_contract`, `insufficient_static_evidence`, `structural_mismatch`,
@@ -360,10 +358,8 @@ CoreDB:
 
 ArtifactDB:
 
-- `callsite_pairs`: deduplicated persisted in-scope candidate caller-to-callee
-  pairs
 - `node_calls`: finalized callable-to-callable artifact call edges derived from
-  `callsite_pairs`
+  accepted in-repo-static callsite materialization
 - `graph_nodes` / `graph_edges`: reducer-facing graph projection rebuilt from
   CoreDB plus artifact call finalization
 - `module_call_edges`, `class_call_edges`, `node_fan_stats`: derived rollups for

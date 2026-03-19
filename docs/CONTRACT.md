@@ -14,8 +14,8 @@ It is authoritative for analysis and validation.
 - `structural_nodes` identities are global and carry deterministic
   `created_snapshot_id` provenance.
 - CoreDB does not store call edges.
-- `CALLSITE_PAIRS` and reducer-facing `CALLS` are artifact-layer constructs
-  derived after structural snapshot creation.
+- Reducer-facing `CALLS` are artifact-layer constructs derived after structural
+  snapshot creation.
 - Reducer-facing query semantics are defined against ArtifactDB latest-state
   derived surfaces for the committed snapshot.
 - Reducers MAY use CoreDB in the same request for committed structural identity
