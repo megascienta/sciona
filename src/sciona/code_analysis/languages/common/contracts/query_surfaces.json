@@ -1,0 +1,135 @@
+{
+  "java": {
+    "calls": [
+      "explicit_constructor_invocation",
+      "method_invocation",
+      "object_creation_expression"
+    ],
+    "imports": [
+      "import_declaration"
+    ],
+    "packages": [
+      "package_declaration"
+    ],
+    "skip_calls": [
+      "class_declaration",
+      "enum_declaration",
+      "interface_declaration",
+      "record_declaration"
+    ],
+    "structural_carriers": [],
+    "structural_nodes": [
+      "class_declaration",
+      "compact_constructor_declaration",
+      "constructor_declaration",
+      "enum_declaration",
+      "field_declaration",
+      "interface_declaration",
+      "method_declaration",
+      "record_declaration"
+    ]
+  },
+  "javascript": {
+    "calls": [
+      "call_expression",
+      "new_expression"
+    ],
+    "dynamic_imports": [
+      "call_expression"
+    ],
+    "imports": [
+      "export_statement",
+      "import_statement"
+    ],
+    "require_declarations": [
+      "lexical_declaration"
+    ],
+    "skip_calls": [
+      "class",
+      "class_declaration",
+      "class_expression"
+    ],
+    "structural_carriers": [
+      "class_body",
+      "export_statement",
+      "expression_statement",
+      "lexical_declaration",
+      "statement_block"
+    ],
+    "structural_nodes": [
+      "assignment_expression",
+      "class_declaration",
+      "field_definition",
+      "function_declaration",
+      "method_definition",
+      "variable_declarator"
+    ]
+  },
+  "python": {
+    "calls": [
+      "call"
+    ],
+    "imports": [
+      "import_from_statement",
+      "import_statement"
+    ],
+    "skip_calls": [
+      "class_definition"
+    ],
+    "structural_carriers": [
+      "expression_statement"
+    ],
+    "structural_nodes": [
+      "assignment",
+      "augmented_assignment",
+      "class_definition",
+      "decorated_definition",
+      "function_definition"
+    ]
+  },
+  "typescript": {
+    "calls": [
+      "call_expression",
+      "new_expression"
+    ],
+    "dynamic_imports": [
+      "call_expression"
+    ],
+    "imports": [
+      "export_statement",
+      "import_statement"
+    ],
+    "require_declarations": [
+      "lexical_declaration"
+    ],
+    "skip_calls": [
+      "abstract_class_declaration",
+      "class",
+      "class_declaration",
+      "class_expression"
+    ],
+    "string_nodes": [
+      "string",
+      "template_string"
+    ],
+    "structural_carriers": [
+      "class_body",
+      "export_statement",
+      "expression_statement",
+      "lexical_declaration",
+      "statement_block"
+    ],
+    "structural_nodes": [
+      "abstract_class_declaration",
+      "abstract_method_signature",
+      "assignment_expression",
+      "class_declaration",
+      "function_declaration",
+      "interface_declaration",
+      "method_definition",
+      "method_signature",
+      "public_field_definition",
+      "variable_declarator"
+    ]
+  }
+}
