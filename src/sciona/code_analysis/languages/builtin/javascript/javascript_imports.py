@@ -70,8 +70,8 @@ def collect_javascript_import_model(
         node_types=JAVASCRIPT_REQUIRE_DECLARATION_NODE_TYPES,
     ):
         model.imports_seen += 1
-        alias, module_spec = extract_require_assignment_from_node(node, snapshot.content)
-        if not alias or not module_spec:
+        bindings, module_spec = extract_require_bindings_from_node(node, snapshot.content)
+        if not bindings or not module_spec:
             continue
         normalized = normalize_import(module_spec, snapshot)
         if not normalized or not is_internal_module(normalized, module_index):
@@ -89,14 +89,22 @@ def collect_javascript_import_model(
                 continue
         model.imports_internal += 1
         model.modules.append(normalized)
-        model.import_aliases[alias] = normalized
-        model.add_local_binding_fact(
-            alias,
-            normalized,
-            binding_kind="module_alias",
-            evidence_kind="syntax_local_alias",
-            language="javascript",
-        )
+        for binding_kind, symbol, target in bindings:
+            model.add_local_binding_fact(
+                symbol,
+                normalized if target == "__module__" else f"{normalized}.{target}",
+                binding_kind=binding_kind,
+                evidence_kind=(
+                    "syntax_local_alias"
+                    if binding_kind == "module_alias"
+                    else "syntax_local_destructuring"
+                ),
+                language="javascript",
+            )
+            if binding_kind == "module_alias":
+                model.import_aliases[symbol] = normalized
+            else:
+                model.member_aliases[symbol] = f"{normalized}.{target}"
     for node in find_nodes_of_types_query(
         root,
         language_name="javascript",
@@ -316,10 +324,10 @@ def _last_identifier(node, content: bytes) -> str | None:
     return identifiers[-1] or None
 
 
-def extract_require_assignment_from_node(
+def extract_require_bindings_from_node(
     node,
     content: bytes,
-) -> tuple[str | None, str | None]:
+) -> tuple[list[tuple[str, str, str]], str | None]:
     for child in getattr(node, "children", []):
         if child.type != "variable_declarator":
             continue
@@ -346,10 +354,37 @@ def extract_require_assignment_from_node(
         )
         if string_node is None:
             continue
-        alias = content[name_node.start_byte : name_node.end_byte].decode("utf-8").strip()
         module = decode_string_literal(string_node, content)
-        return (alias or None, module)
-    return None, None
+        bindings = _require_binding_targets(name_node, content)
+        return bindings, module
+    return [], None
+
+
+def _require_binding_targets(node, content: bytes) -> list[tuple[str, str, str]]:
+    if node is None:
+        return []
+    if node.type == "identifier":
+        alias = content[node.start_byte : node.end_byte].decode("utf-8").strip()
+        return [("module_alias", alias, "__module__")] if alias else []
+    if node.type != "object_pattern":
+        return []
+    bindings: list[tuple[str, str, str]] = []
+    for child in getattr(node, "named_children", []):
+        if child.type == "shorthand_property_identifier_pattern":
+            name = content[child.start_byte : child.end_byte].decode("utf-8").strip()
+            if name:
+                bindings.append(("destructured_static_member", name, name))
+        elif child.type == "pair_pattern":
+            key = child.child_by_field_name("key")
+            value = child.child_by_field_name("value")
+            if key is None or value is None:
+                continue
+            key_name = content[key.start_byte : key.end_byte].decode("utf-8").strip()
+            if value.type == "identifier":
+                alias = content[value.start_byte : value.end_byte].decode("utf-8").strip()
+                if key_name and alias:
+                    bindings.append(("destructured_static_member", alias, key_name))
+    return bindings
 
 
 def normalize_import(specifier: Optional[str], snapshot: FileSnapshot) -> Optional[str]:

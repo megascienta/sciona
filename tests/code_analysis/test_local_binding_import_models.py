@@ -113,6 +113,28 @@ def test_javascript_import_model_emits_shared_binding_facts(tmp_path) -> None:
     )
 
 
+def test_javascript_require_destructuring_emits_shared_binding_facts(tmp_path) -> None:
+    repo = tmp_path / "repo"
+    (repo / "src").mkdir(parents=True, exist_ok=True)
+    (repo / "src" / "dep.js").write_text("exports.bar = 1;\nexports.baz = 2;\n", encoding="utf-8")
+    snapshot = _snapshot(
+        repo,
+        "src/mod.js",
+        "javascript",
+        "const { bar: qux, baz } = require('./dep');\n",
+    )
+    root = _parse_root("javascript", snapshot.content)
+    model = collect_javascript_import_model(
+        root,
+        snapshot,
+        "repo.src.mod",
+        module_index={"repo.src.dep"},
+    )
+    facts = {(fact.symbol, fact.target, fact.binding_kind) for fact in model.local_binding_facts}
+    assert ("qux", "repo.src.dep.bar", "destructured_static_member") in facts
+    assert ("baz", "repo.src.dep.baz", "destructured_static_member") in facts
+
+
 def test_typescript_import_model_emits_shared_binding_facts(tmp_path) -> None:
     repo = tmp_path / "repo"
     (repo / "src").mkdir(parents=True, exist_ok=True)
@@ -140,6 +162,28 @@ def test_typescript_import_model_emits_shared_binding_facts(tmp_path) -> None:
         model.import_aliases,
         model.member_aliases,
     )
+
+
+def test_typescript_require_destructuring_emits_shared_binding_facts(tmp_path) -> None:
+    repo = tmp_path / "repo"
+    (repo / "src").mkdir(parents=True, exist_ok=True)
+    (repo / "src" / "dep.ts").write_text("export const bar = 1;\nexport const baz = 2;\n", encoding="utf-8")
+    snapshot = _snapshot(
+        repo,
+        "src/mod.ts",
+        "typescript",
+        "const { bar: qux, baz } = require('./dep');\n",
+    )
+    root = _parse_root("typescript", snapshot.content)
+    model = collect_typescript_import_model(
+        root,
+        snapshot,
+        "repo.src.mod",
+        module_index={"repo.src.dep"},
+    )
+    facts = {(fact.symbol, fact.target, fact.binding_kind) for fact in model.local_binding_facts}
+    assert ("qux", "repo.src.dep.bar", "destructured_static_member") in facts
+    assert ("baz", "repo.src.dep.baz", "destructured_static_member") in facts
 
 
 def test_java_import_model_emits_shared_binding_facts(tmp_path) -> None:
