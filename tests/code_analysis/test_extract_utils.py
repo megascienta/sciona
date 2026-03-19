@@ -6,6 +6,11 @@ from tree_sitter import Parser
 from sciona.code_analysis.core.extract.parsing.parser_bootstrap import (
     bootstrap_tree_sitter_parser,
 )
+from sciona.code_analysis.core.extract.parsing.parse_validation import (
+    ParseValidationError,
+    collect_parse_validation_diagnostics,
+    validate_tree_or_raise,
+)
 from sciona.code_analysis.core.extract.parsing.query_helpers import (
     count_lines,
     find_direct_children_of_types_query,
@@ -129,3 +134,43 @@ def test_compile_query_source_fails_closed_when_query_api_unavailable(monkeypatc
     extract_utils._compile_query_source.cache_clear()
     with pytest.raises(RuntimeError, match="Tree-sitter query API unavailable"):
         extract_utils._compile_query_source("python", "(function_definition) @node")
+
+
+def test_parse_validation_treats_missing_identifier_as_non_significant() -> None:
+    class _Node:
+        def __init__(self, node_type: str, *, is_missing: bool = False, children=None):
+            self.type = node_type
+            self.is_missing = is_missing
+            self.children = list(children or [])
+            self.start_point = (0, 0)
+            self.end_point = (0, 0)
+
+    class _Tree:
+        def __init__(self, root):
+            self.root_node = root
+
+    tree = _Tree(_Node("module", children=[_Node("identifier", is_missing=True)]))
+    diagnostics = collect_parse_validation_diagnostics(tree, language_name="python")
+
+    assert diagnostics["parse_validation_ok"] is True
+    assert diagnostics["parse_missing_nodes"] == 1
+    assert diagnostics["parse_significant_missing_nodes"] == 0
+
+
+def test_validate_tree_or_raise_raises_on_significant_missing_node() -> None:
+    class _Node:
+        def __init__(self, node_type: str, *, is_missing: bool = False, children=None):
+            self.type = node_type
+            self.is_missing = is_missing
+            self.children = list(children or [])
+            self.start_point = (0, 0)
+            self.end_point = (0, 0)
+
+    class _Tree:
+        def __init__(self, root):
+            self.root_node = root
+
+    tree = _Tree(_Node("module", children=[_Node("parameters", is_missing=True)]))
+
+    with pytest.raises(ParseValidationError):
+        validate_tree_or_raise(tree, language_name="python")

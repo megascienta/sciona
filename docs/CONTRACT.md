@@ -27,6 +27,9 @@ It is authoritative for analysis and validation.
 - Tree-sitter parser setup MUST be deterministic.
 - Parser bootstrap helpers MUST NOT perform parsing fallback, extraction logic,
   language routing, or semantic behavior changes.
+- Parse validation diagnostics MAY downgrade malformed-tree handling to
+  best-effort extraction; malformed parses do not automatically require a
+  fail-stop build outcome.
 - Structural extraction MUST fail closed for unsupported query node types.
 - No heuristic traversal fallback is allowed for structural extraction.
 
@@ -192,6 +195,7 @@ Optional metadata:
   - local base/interface names,
   - module-level binding names,
   - ambiguous call candidate diagnostics.
+  - parse validation diagnostics describing `ERROR` / `MISSING` nodes
 
 ## Artifact Semantics
 

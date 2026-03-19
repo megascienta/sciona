@@ -139,6 +139,10 @@ Implementation notes:
   `src/sciona/code_analysis/core/extract/parsing/parser_bootstrap.py`
 - Query helpers stay separate in
   `src/sciona/code_analysis/core/extract/parsing/query_helpers.py`
+- Builtin analyzers record parse validation diagnostics from tree-sitter and
+  continue with best-effort static extraction on malformed trees; malformed
+  parse state is surfaced through diagnostics and degraded build/reporting
+  metadata rather than treated as an automatic fail-stop condition
 - Strict call candidate selection is defined in
   `src/sciona/code_analysis/analysis_contracts/strict_call_contract.py` and
   batched/used by artifact-layer call resolution in
@@ -186,6 +190,8 @@ Supported structural carriers:
 - file-size, node-count, and call-identifier limits;
 - analyzer dispatch, degraded module retention for per-file analysis failures,
   and `parse_failures` accounting;
+- best-effort malformed-tree handling with parse-validation diagnostics retained
+  on analysis results;
 - accumulation of import and call-gate diagnostics.
 
 `build_artifacts_for_snapshot()` in
