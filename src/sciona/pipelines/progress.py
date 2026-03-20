@@ -24,6 +24,8 @@ class ProgressHandle(Protocol):
 ProgressFactory = Callable[[str, int], Optional[ProgressHandle]]
 PhaseReporter = Callable[[str], None]
 
+_DIAGNOSTIC_ONLY_PHASE_LABELS = frozenset({"Diagnostic classification"})
+
 
 class _ProgressBarHandle:
     def __init__(
@@ -221,3 +223,17 @@ def make_build_progress(*, total_steps: int) -> BuildProgress:
     """Create a numbered build progress reporter."""
 
     return BuildProgress(total_steps=total_steps)
+
+
+def build_progress_total_steps(*, diagnostic: bool) -> int:
+    """Return the canonical build step count for the selected mode."""
+
+    if diagnostic:
+        return len(BuildProgress._PHASE_KEYS)
+    return len(
+        [
+            label
+            for label in BuildProgress._PHASE_KEYS
+            if label not in _DIAGNOSTIC_ONLY_PHASE_LABELS
+        ]
+    )

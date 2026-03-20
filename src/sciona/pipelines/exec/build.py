@@ -28,7 +28,7 @@ from ...data_storage.artifact_db.writes import write_index as artifact_write
 from ...data_storage.core_db import read_ops as core_read
 from ...data_storage.core_db import write_ops as core_write
 from ..ops.build_artifacts import build_artifacts_for_snapshot
-from ..progress import make_build_progress
+from ..progress import build_progress_total_steps, make_build_progress
 from . import reporting as exec_reporting
 from .build_fingerprint import (
     compute_build_fingerprint,
@@ -83,7 +83,9 @@ def build_repo(
     diagnostic_verbose: bool = False,
 ) -> BuildResult:
     started_at = perf_counter()
-    build_progress = make_build_progress(total_steps=12 if diagnostic else 10)
+    build_progress = make_build_progress(
+        total_steps=build_progress_total_steps(diagnostic=diagnostic)
+    )
     phase_reporter = build_progress.emit_phase
     progress_factory = build_progress.make_progress_factory()
     workspace = workspace_root or repo_state.repo_root
