@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from ..code_analysis.tools.workspace import walker as file_walker
+from ..code_analysis.repository import walker as file_walker
 from ..data_storage.core_db import read_ops as core_read
 from .helpers.shared.connection import require_connection
 from .helpers.shared.payload import render_json_payload

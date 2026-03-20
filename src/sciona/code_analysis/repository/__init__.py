@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Workspace-scoped tooling helpers for discovery, snapshots, and walking."""
+"""Repository-input helpers for discovery, snapshots, excludes, and walking."""
 
 from __future__ import annotations
 

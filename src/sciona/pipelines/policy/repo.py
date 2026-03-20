@@ -8,7 +8,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Mapping, Optional, Set
 
-from ...code_analysis.tools.workspace import excludes as path_excludes
+from ...code_analysis.repository import excludes as path_excludes
 from ...runtime import git as git_ops
 from ...runtime import paths as runtime_paths
 from ...runtime import config as runtime_config

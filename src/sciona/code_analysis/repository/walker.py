@@ -8,10 +8,10 @@ from __future__ import annotations
 from pathlib import Path
 from typing import List, Mapping, Optional, Set
 
-from ....runtime import config as core_config
+from ...runtime import config as core_config
 from . import excludes
-from ...core.normalize_model import FileRecord
-from ...core.extract import registry
+from ..core.normalize_model import FileRecord
+from ..core.extract import registry
 
 
 def _is_repo_contained(repo_root: Path, path: Path) -> bool:

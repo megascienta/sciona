@@ -19,9 +19,9 @@ from ....code_analysis.core.normalize_model import (
     FileSnapshot,
     SemanticNodeRecord,
 )
-from ....code_analysis.tools.workspace import snapshots as snapshot_tools
+from ....code_analysis.repository import snapshots as snapshot_tools
 from ....code_analysis.tools.call_extraction import normalize_call_identifiers
-from ....code_analysis.tools.workspace import excludes as path_excludes
+from ....code_analysis.repository import excludes as path_excludes
 from ....data_storage.core_db import read_ops as core_read
 from ....runtime import config as runtime_config
 from ....runtime.config import io as runtime_config_io

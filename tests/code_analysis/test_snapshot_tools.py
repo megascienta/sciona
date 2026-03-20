@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from sciona.code_analysis.core.normalize_model import FileRecord, FileSnapshot
-from sciona.code_analysis.tools.workspace.snapshots import (
+from sciona.code_analysis.repository.snapshots import (
     count_lines_fast,
     prepare_file_snapshots,
 )

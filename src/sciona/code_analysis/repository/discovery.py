@@ -10,8 +10,8 @@ from typing import Iterable, Sequence, Set
 
 import pathspec
 
-from ...core.extract import registry
-from ...core.normalize_model import FileRecord
+from ..core.extract import registry
+from ..core.normalize_model import FileRecord
 from . import excludes
 
 
