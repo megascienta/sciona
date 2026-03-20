@@ -1193,27 +1193,11 @@ def test_build_rejected_calls_verbose_payload_combines_both_phases() -> None:
         },
     )
 
-    assert payload["rejection_stage_counts"] == {
-        "contract_gate": 1,
-        "no_in_repo_candidate": 1,
-    }
     assert payload["buckets"]["insufficient_static_evidence"]["count"] == 1
-    assert payload["buckets"]["insufficient_static_evidence"]["rejection_stages"] == {
-        "no_in_repo_candidate": 1
-    }
     assert payload["buckets"]["outside_static_contract"]["count"] == 1
-    assert payload["buckets"]["outside_static_contract"]["rejection_stages"] == {
-        "contract_gate": 1
-    }
-    assert payload["problematic_callsites"][0]["rejection_stage"] == "no_in_repo_candidate"
     assert payload["problematic_callsites"][0]["public_bucket"] == "insufficient_static_evidence"
-    assert payload["problematic_callsites"][1]["rejection_stage"] == "contract_gate"
     assert payload["problematic_callsites"][1]["public_bucket"] == "outside_static_contract"
     assert payload["problematic_files"][0]["file_path"] == "pkg/mod.py"
-    assert payload["problematic_files"][0]["rejection_stages"] == {
-        "contract_gate": 1,
-        "no_in_repo_candidate": 1,
-    }
 
 
 def test_build_rejected_calls_verbose_payload_infers_phase_from_gate_reason() -> None:
@@ -1244,16 +1228,6 @@ def test_build_rejected_calls_verbose_payload_infers_phase_from_gate_reason() ->
         None,
     )
 
-    assert payload["rejection_stage_counts"] == {
-        "contract_gate": 1,
-        "no_in_repo_candidate": 1,
-    }
-    assert payload["problematic_callsites"][0]["rejection_stage"] == "no_in_repo_candidate"
-    assert payload["problematic_callsites"][1]["rejection_stage"] == "contract_gate"
-    assert payload["problematic_files"][0]["rejection_stages"] == {
-        "contract_gate": 1,
-        "no_in_repo_candidate": 1,
-    }
 
 
 def test_build_rejected_calls_verbose_payload_marks_index_proxy_surface_outside_contract() -> None:
@@ -1411,10 +1385,6 @@ def test_build_rejected_calls_verbose_payload_counts_merged_pre_and_post_persist
         None,
     )
 
-    assert payload["rejection_stage_counts"] == {
-        "contract_gate": 1,
-        "no_in_repo_candidate": 1,
-    }
 
 
 def test_merge_non_candidate_buckets_projects_public_buckets() -> None:

@@ -220,7 +220,6 @@ def build_rejected_calls_verbose_payload(
 ) -> dict[str, object]:
     by_bucket: dict[str, dict[str, object]] = {}
     by_file: dict[str, dict[str, object]] = {}
-    rejection_stage_counts = {"no_in_repo_candidate": 0, "contract_gate": 0}
     problematic_callsites: list[dict[str, object]] = []
 
     for item in list((diagnostic_payload or {}).get("observations") or []):
@@ -230,9 +229,7 @@ def build_rejected_calls_verbose_payload(
             str(item.get("bucket") or "no_clear_in_repo_target"),
             "unclassified",
         )
-        rejection_stage = _rejection_stage_for_diagnostic_observation(item)
         enriched = dict(item)
-        enriched["rejection_stage"] = rejection_stage
         enriched["public_bucket"] = public_bucket
         enriched["source_bucket"] = str(
             item.get("bucket") or "no_clear_in_repo_target"
@@ -240,7 +237,6 @@ def build_rejected_calls_verbose_payload(
         _accumulate_rejected_callsite(
             by_bucket,
             by_file,
-            rejection_stage_counts,
             problematic_callsites,
             enriched,
             public_bucket=public_bucket,
@@ -256,14 +252,12 @@ def build_rejected_calls_verbose_payload(
         signals = _persisted_drop_signals(item)
         reason = str(item.get("drop_reason") or "unclassified")
         enriched = dict(item)
-        enriched["rejection_stage"] = "contract_gate"
         enriched["public_bucket"] = public_bucket
         enriched["source_bucket"] = source_bucket
         enriched["signals"] = list(signals)
         _accumulate_rejected_callsite(
             by_bucket,
             by_file,
-            rejection_stage_counts,
             problematic_callsites,
             enriched,
             public_bucket=public_bucket,
@@ -282,11 +276,9 @@ def build_rejected_calls_verbose_payload(
                 "reasons": dict((payload or {}).get("reasons") or {}),
                 "signals": dict((payload or {}).get("signals") or {}),
                 "callsites": list((payload or {}).get("callsites") or []),
-                "rejection_stages": dict((payload or {}).get("rejection_stages") or {}),
             }
             for bucket, payload in sorted(by_bucket.items())
         },
-        "rejection_stage_counts": dict(rejection_stage_counts),
         "problematic_callsites": problematic_callsites,
         "problematic_files": problematic_files,
     }
@@ -364,15 +356,6 @@ def _replace_pre_persist_filters(
             updated.pop("pre_persist_filter", None)
             updated_scopes[scope_key] = updated
         report["scopes"] = updated_scopes
-
-
-def _rejection_stage_for_diagnostic_observation(item: dict[str, object]) -> str:
-    gate_reason = str(item.get("gate_reason") or "")
-    if gate_reason == "no_in_repo_candidate":
-        return "no_in_repo_candidate"
-    if gate_reason:
-        return "contract_gate"
-    return "no_in_repo_candidate"
 
 
 def _merge_non_candidate_buckets(
@@ -510,7 +493,6 @@ def _is_fixture_or_generated_path(file_path: str) -> bool:
 def _accumulate_rejected_callsite(
     by_bucket: dict[str, dict[str, object]],
     by_file: dict[str, dict[str, object]],
-    rejection_stage_counts: dict[str, int],
     problematic_callsites: list[dict[str, object]],
     item: dict[str, object],
     *,
@@ -518,10 +500,6 @@ def _accumulate_rejected_callsite(
     reasons: object,
     signals: object,
 ) -> None:
-    rejection_stage = str(item.get("rejection_stage") or "unclassified")
-    rejection_stage_counts[rejection_stage] = int(
-        rejection_stage_counts.get(rejection_stage, 0)
-    ) + 1
     problematic_callsites.append(item)
 
     bucket_entry = by_bucket.setdefault(
@@ -531,18 +509,12 @@ def _accumulate_rejected_callsite(
             "callsites": [],
             "reasons": {},
             "signals": {},
-            "rejection_stages": {},
         },
     )
     bucket_entry["count"] = int(bucket_entry.get("count", 0)) + 1
     cast_callsites = bucket_entry.setdefault("callsites", [])
     if isinstance(cast_callsites, list):
         cast_callsites.append(item)
-    bucket_stages = bucket_entry.setdefault("rejection_stages", {})
-    if isinstance(bucket_stages, dict):
-        bucket_stages[rejection_stage] = int(
-            bucket_stages.get(rejection_stage, 0)
-        ) + 1
     bucket_reasons = bucket_entry.setdefault("reasons", {})
     if isinstance(bucket_reasons, dict):
         for reason in reasons if isinstance(reasons, (list, tuple)) else ():
@@ -563,18 +535,12 @@ def _accumulate_rejected_callsite(
             "buckets": {},
             "reasons": {},
             "signals": {},
-            "rejection_stages": {},
         },
     )
     file_entry["count"] = int(file_entry.get("count", 0)) + 1
     file_buckets = file_entry.setdefault("buckets", {})
     if isinstance(file_buckets, dict):
         file_buckets[public_bucket] = int(file_buckets.get(public_bucket, 0)) + 1
-    file_stages = file_entry.setdefault("rejection_stages", {})
-    if isinstance(file_stages, dict):
-        file_stages[rejection_stage] = int(
-            file_stages.get(rejection_stage, 0)
-        ) + 1
     file_reasons = file_entry.setdefault("reasons", {})
     if isinstance(file_reasons, dict):
         for reason in reasons if isinstance(reasons, (list, tuple)) else ():

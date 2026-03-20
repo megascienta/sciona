@@ -361,15 +361,5 @@ def test_cli_build_verbose_sidecar_groups_callsites_by_bucket(
     verbose_path = repo_root / f"{repo_root.name}_not_accepted_verbose.json"
     verbose_payload = json.loads(verbose_path.read_text(encoding="utf-8"))
     assert verbose_payload["buckets"]["insufficient_static_evidence"]["count"] == 2
-    assert verbose_payload["buckets"]["insufficient_static_evidence"]["rejection_stages"] == {
-        "no_in_repo_candidate": 2
-    }
     assert "outside_static_contract" not in verbose_payload["buckets"]
-    assert verbose_payload["rejection_stage_counts"] == {
-        "contract_gate": 0,
-        "no_in_repo_candidate": 2,
-    }
     assert verbose_payload["problematic_files"][0]["file_path"] == "pkg/a.py"
-    assert verbose_payload["problematic_files"][0]["rejection_stages"] == {
-        "no_in_repo_candidate": 1,
-    }
