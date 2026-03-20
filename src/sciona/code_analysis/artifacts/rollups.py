@@ -21,6 +21,7 @@ from ...data_storage.core_db import read_ops as core_read
 from .call_resolution import (
     best_candidate_by_module_distance as _best_candidate_by_module_distance,
     best_candidate_by_module_path as _best_candidate_by_module_path,
+    build_javascript_index_export_map as _build_javascript_index_export_map,
     build_module_binding_index as _build_module_binding_index,
     build_module_context as _build_module_context,
     build_symbol_index as _build_symbol_index,
@@ -187,6 +188,11 @@ def write_call_artifacts(
         callable_qname_by_id=callable_qname_by_id,
         module_lookup=module_lookup,
     )
+    js_barrel_export_map = _build_javascript_barrel_export_map(
+        import_targets=import_targets,
+        module_bindings_by_name=module_bindings_by_name,
+        module_file_by_name=module_file_by_name,
+    )
     ts_barrel_export_map = _build_typescript_barrel_export_map(
         import_targets=import_targets,
         module_bindings_by_name=module_bindings_by_name,
@@ -261,6 +267,7 @@ def write_call_artifacts(
             module_bindings_by_name=module_bindings_by_name,
             module_file_by_name=module_file_by_name,
             ts_barrel_export_map=ts_barrel_export_map,
+            js_barrel_export_map=js_barrel_export_map,
             rejected_observations=rejected_observations,
             local_binding_facts=record.local_binding_facts,
         )
@@ -497,6 +504,7 @@ def write_call_artifacts(
 __all__ = [
     "rebuild_graph_rollups",
     "write_call_artifacts",
+    "_build_javascript_barrel_export_map",
     "_build_module_binding_index",
     "_build_module_context",
     "_build_symbol_index",
@@ -628,6 +636,19 @@ def _build_typescript_barrel_export_map(
         module_bindings_by_name=module_bindings_by_name,
         module_file_by_name=module_file_by_name,
         bounded_module_reachability=_bounded_module_reachability,
+    )
+
+
+def _build_javascript_barrel_export_map(
+    *,
+    import_targets: dict[str, set[str]],
+    module_bindings_by_name: dict[str, set[str]],
+    module_file_by_name: dict[str, str],
+) -> dict[str, set[str]]:
+    return _build_javascript_index_export_map(
+        import_targets=import_targets,
+        module_bindings_by_name=module_bindings_by_name,
+        module_file_by_name=module_file_by_name,
     )
 
 

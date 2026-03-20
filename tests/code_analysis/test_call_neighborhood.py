@@ -493,6 +493,31 @@ def test_resolve_callees_rescues_python_unique_without_provenance_via_package_sc
     assert callsite_rows[0][2] == "id_pi"
 
 
+def test_resolve_callees_rescues_python_no_candidates_via_package_surface_scope() -> None:
+    resolved_ids, _resolved_names, stats, callsite_rows = _resolve_callees(
+        ("sympy.pi",),
+        {},
+        caller_module="sympy.client",
+        caller_language="python",
+        module_lookup={"id_pi": "sympy.core.numbers"},
+        callable_qname_by_id={"id_pi": "sympy.core.numbers.pi"},
+        import_targets={
+            "sympy.client": {"sympy"},
+            "sympy": {"sympy.core"},
+            "sympy.core": {"sympy.core.numbers"},
+        },
+        expanded_import_targets={"sympy.client": {"sympy"}},
+        module_ancestors={},
+        module_bindings_by_name={"sympy.core.numbers": {"pi"}},
+        module_file_by_name={"sympy": "sympy/__init__.py"},
+    )
+    assert resolved_ids == {"id_pi"}
+    accepted = stats.get("accepted_by_provenance") or {}
+    assert accepted.get("export_chain_narrowed") == 1
+    assert callsite_rows[0][1] == "accepted"
+    assert callsite_rows[0][2] == "id_pi"
+
+
 def test_resolve_callees_rescues_typescript_unique_without_provenance_via_barrel_scope() -> None:
     resolved_ids, _resolved_names, stats, callsite_rows = _resolve_callees(
         ("create",),
@@ -529,12 +554,35 @@ def test_resolve_callees_rescues_javascript_unique_without_provenance_via_namesp
         import_targets={"app.ui": {"app.colors"}},
         expanded_import_targets={"app.ui": {"app.colors"}},
         module_ancestors={},
+        js_barrel_export_map={},
     )
     assert resolved_ids == {"id_bold"}
     accepted = stats.get("accepted_by_provenance") or {}
     assert accepted.get("export_chain_narrowed") == 1
     assert callsite_rows[0][1] == "accepted"
     assert callsite_rows[0][2] == "id_bold"
+
+
+def test_resolve_callees_rescues_javascript_no_candidates_via_index_barrel_scope() -> None:
+    resolved_ids, _resolved_names, stats, callsite_rows = _resolve_callees(
+        ("nodebb.src.user.index.getUsersFields",),
+        {},
+        caller_module="nodebb.src.topics.fork",
+        caller_language="javascript",
+        module_lookup={"id_getUsersFields": "nodebb.src.user.data"},
+        callable_qname_by_id={
+            "id_getUsersFields": "nodebb.src.user.data.getUsersFields"
+        },
+        import_targets={"nodebb.src.topics.fork": {"nodebb.src.user.index"}},
+        expanded_import_targets={"nodebb.src.topics.fork": {"nodebb.src.user.index"}},
+        module_ancestors={},
+        js_barrel_export_map={"nodebb.src.topics.fork": {"nodebb.src.user.data"}},
+    )
+    assert resolved_ids == {"id_getUsersFields"}
+    accepted = stats.get("accepted_by_provenance") or {}
+    assert accepted.get("export_chain_narrowed") == 1
+    assert callsite_rows[0][1] == "accepted"
+    assert callsite_rows[0][2] == "id_getUsersFields"
 
 
 def test_resolve_callees_accepts_single_index_proxy_qname_match() -> None:
