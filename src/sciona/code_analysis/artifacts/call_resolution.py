@@ -38,7 +38,7 @@ from .call_resolution_javascript import (
 )
 from .in_repo_static_gate import (
     evaluate_callsite_row_for_persistence,
-    normalized_pre_persist_bucket,
+    normalized_non_accepted_gate_reason,
 )
 
 
@@ -128,7 +128,7 @@ def filter_in_repo_callsite_rows(
 
 
 def _inc_pre_persist_bucket(target: dict[str, int], bucket: str) -> None:
-    normalized = normalized_pre_persist_bucket(bucket)
+    normalized = normalized_non_accepted_gate_reason(bucket)
     target[normalized] = int(target.get(normalized, 0)) + 1
 
 

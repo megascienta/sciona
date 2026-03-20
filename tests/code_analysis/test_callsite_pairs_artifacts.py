@@ -244,7 +244,7 @@ def test_callsite_pairs_filter_out_of_repo_accepted_rows_at_persistence_boundary
             assert [row["callee_id"] for row in node_call_rows] == ["func_alpha"]
             totals = diagnostics.get("totals") or {}
             assert totals.get("filtered_pre_persist_buckets") == {
-                "accepted_outside_in_repo": 1
+                "outside_in_repo_scope": 1
             }
         finally:
             artifact_conn.close()
@@ -573,7 +573,7 @@ def test_write_call_artifacts_stores_all_rejected_rows_in_temp_table(
                     "insufficient_static_evidence",
                     "ambiguous_multiple_in_scope_candidates",
                 ),
-                ("external.helper", "accepted_outside_in_repo", None),
+                ("external.helper", "outside_in_repo_scope", None),
             ]
         finally:
             artifact_conn.close()

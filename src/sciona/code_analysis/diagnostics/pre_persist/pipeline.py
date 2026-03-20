@@ -468,7 +468,7 @@ def _split_candidate_module_hints(value: object) -> tuple[str, ...]:
 def _classify_rejected_observation(
     observation: DiagnosticMissObservation,
 ) -> DiagnosticClassification:
-    if observation.gate_reason in {"accepted_outside_in_repo", "invalid_observation_shape"}:
+    if observation.gate_reason in {"outside_in_repo_scope", "invalid_observation_shape"}:
         return DiagnosticClassification(
             bucket=observation.gate_reason,
             reasons=(f"gate:{observation.gate_reason}",),

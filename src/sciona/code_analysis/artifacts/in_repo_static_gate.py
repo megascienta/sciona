@@ -36,9 +36,9 @@ ALLOWED_CALLSITE_DROP_REASONS = frozenset(
     str(value)
     for value in (_GATE_CONTRACT.get("allowed_callsite_drop_reasons") or [])
 )
-ALLOWED_PRE_PERSIST_FILTER_BUCKETS = frozenset(
+ALLOWED_NON_ACCEPTED_GATE_REASONS = frozenset(
     str(value)
-    for value in (_GATE_CONTRACT.get("allowed_pre_persist_filter_buckets") or [])
+    for value in (_GATE_CONTRACT.get("allowed_non_accepted_gate_reasons") or [])
 )
 
 
@@ -89,7 +89,7 @@ def evaluate_callsite_row_for_persistence(
         if accepted_callee_id not in in_repo_callable_ids:
             return InRepoStaticGateDecision(
                 False,
-                gate_reason="accepted_outside_in_repo",
+                gate_reason="outside_in_repo_scope",
             )
         return InRepoStaticGateDecision(True)
     if status == "dropped":
@@ -117,8 +117,8 @@ def evaluate_callsite_row_for_persistence(
     )
 
 
-def normalized_pre_persist_bucket(bucket: str) -> str:
-    if bucket not in ALLOWED_PRE_PERSIST_FILTER_BUCKETS:
+def normalized_non_accepted_gate_reason(bucket: str) -> str:
+    if bucket not in ALLOWED_NON_ACCEPTED_GATE_REASONS:
         return "invalid_observation_shape"
     return bucket
 
@@ -126,9 +126,9 @@ def normalized_pre_persist_bucket(bucket: str) -> str:
 __all__ = [
     "ALLOWED_CALLSITE_DROP_REASONS",
     "ALLOWED_CALLSITE_PROVENANCE",
-    "ALLOWED_PRE_PERSIST_FILTER_BUCKETS",
+    "ALLOWED_NON_ACCEPTED_GATE_REASONS",
     "CallsiteRow",
     "InRepoStaticGateDecision",
     "evaluate_callsite_row_for_persistence",
-    "normalized_pre_persist_bucket",
+    "normalized_non_accepted_gate_reason",
 ]

@@ -252,13 +252,12 @@ Timing semantics:
   - `prepare_snapshots`
   - `register_modules`
   - `build_structural_index`
-  - `derive_call_artifacts`
-  - `prepare_durable_calls`
-  - `write_durable_calls`
+  - `extract_call_observations`
+  - `filter_callsites_by_contract`
+  - `write_accepted_calls`
   - `rebuild_graph_index`
   - `rebuild_graph_rollups`
-  - `diagnostic_classification_phase_I` only for diagnostic builds
-  - `diagnostic_classification_phase_II` only for diagnostic builds
+  - `diagnostic_classification` only for diagnostic builds
 
 Diagnostic build mode:
 
@@ -266,9 +265,7 @@ Diagnostic build mode:
   rejected callsites into best-effort explanatory buckets for generated
   repo-root report artifacts
 - `sciona build --diagnostic --verbose` also writes a repo-root verbose sidecar
-  with bucketed rejected-call callsite and file examples for investigation;
-  pre-persist and post-persist phase attribution is preserved only as sidecar
-  metadata
+  with bucketed non-accepted callsite and file examples for investigation
 - Diagnostic outputs are generated artifacts only; they are not persisted in
   CoreDB or ArtifactDB and they do not redefine canonical reducer-facing
   semantics
@@ -293,8 +290,9 @@ Diagnostic build mode:
 - Core/analyzer execution MAY observe the full syntactic callsite stream during
   extraction, but CoreDB MUST NOT resolve, accept, reject, or persist calls as
   structural facts
-- Artifact processing owns pre-persistence callsite filtering and remains the
-  authoritative source for reducer-facing `CALLS`
+- Artifact processing owns contract filtering of observed callsites into
+  accepted and non-accepted sets and remains the authoritative source for
+  reducer-facing `CALLS`
 - only in-repo-static accepted call materialization persists durably; rejected
   callsite observations remain transient build-time data unless emitted through
   diagnostic repo-root outputs

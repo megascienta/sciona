@@ -12,10 +12,10 @@
     "ambiguous_no_in_scope_candidate",
     "ambiguous_multiple_in_scope_candidates"
   ],
-  "allowed_pre_persist_filter_buckets": [
+  "allowed_non_accepted_gate_reasons": [
     "no_in_repo_candidate",
     "insufficient_static_evidence",
-    "accepted_outside_in_repo",
+    "outside_in_repo_scope",
     "invalid_observation_shape"
   ]
 }

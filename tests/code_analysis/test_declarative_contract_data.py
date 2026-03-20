@@ -46,8 +46,8 @@ def test_in_repo_static_gate_json_matches_loader() -> None:
     assert set(payload["allowed_callsite_drop_reasons"]) == set(
         in_repo_static_gate.ALLOWED_CALLSITE_DROP_REASONS
     )
-    assert set(payload["allowed_pre_persist_filter_buckets"]) == set(
-        in_repo_static_gate.ALLOWED_PRE_PERSIST_FILTER_BUCKETS
+    assert set(payload["allowed_non_accepted_gate_reasons"]) == set(
+        in_repo_static_gate.ALLOWED_NON_ACCEPTED_GATE_REASONS
     )
 
 

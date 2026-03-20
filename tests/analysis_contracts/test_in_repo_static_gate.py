@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from sciona.code_analysis.artifacts.in_repo_static_gate import (
     evaluate_callsite_row_for_persistence,
-    normalized_pre_persist_bucket,
+    normalized_non_accepted_gate_reason,
 )
 
 
@@ -79,7 +79,7 @@ def test_gate_rejects_out_of_repo_accepted_rows() -> None:
     )
 
     assert decision.persist is False
-    assert decision.gate_reason == "accepted_outside_in_repo"
+    assert decision.gate_reason == "outside_in_repo_scope"
     assert decision.raw_drop_reason is None
 
 
@@ -117,5 +117,8 @@ def test_gate_rejects_invalid_observation_shape() -> None:
     assert decision.raw_drop_reason is None
 
 
-def test_unknown_pre_persist_bucket_normalizes_to_invalid_shape() -> None:
-    assert normalized_pre_persist_bucket("some_future_bucket") == "invalid_observation_shape"
+def test_unknown_gate_reason_normalizes_to_invalid_shape() -> None:
+    assert (
+        normalized_non_accepted_gate_reason("some_future_bucket")
+        == "invalid_observation_shape"
+    )

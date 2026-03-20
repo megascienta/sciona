@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from ..contracts.loader import load_contract_json
 
-PARITY_CONTRACT_VERSION = 7
+PARITY_CONTRACT_VERSION = 8
 
 
 def build_parity_contract() -> dict[str, object]:

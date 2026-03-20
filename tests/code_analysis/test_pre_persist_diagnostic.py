@@ -1032,7 +1032,7 @@ def test_classify_rejected_calls_uses_temp_rejected_rows(tmp_path) -> None:
                         1,
                         "external",
                     ),
-                    "accepted_outside_in_repo",
+                    "outside_in_repo_scope",
                     None,
                 ),
             ],
@@ -1062,7 +1062,7 @@ def test_classify_rejected_calls_uses_temp_rejected_rows(tmp_path) -> None:
         core_conn.close()
 
     assert payload["totals"]["unindexed_symbol_shape"] == 1
-    assert payload["totals"]["accepted_outside_in_repo"] == 1
+    assert payload["totals"]["outside_in_repo_scope"] == 1
     assert events == [
         ("factory", ("Diagnostic classification", 2)),
         ("advance", 1),
@@ -1072,7 +1072,7 @@ def test_classify_rejected_calls_uses_temp_rejected_rows(tmp_path) -> None:
     observations = payload["observations"]
     assert observations[0]["gate_reason"] == "no_in_repo_candidate"
     assert observations[0]["raw_drop_reason"] == "no_candidates"
-    assert observations[1]["gate_reason"] == "accepted_outside_in_repo"
+    assert observations[1]["gate_reason"] == "outside_in_repo_scope"
 
 
 def test_build_verbose_payload_includes_reason_and_prefix_traces() -> None:
@@ -1331,7 +1331,7 @@ def test_merge_diagnostic_payloads_combines_both_rejection_populations() -> None
         "unindexed_symbol_shape": 1,
         "parser_extraction_mismatch": 0,
         "no_clear_in_repo_target": 0,
-        "accepted_outside_in_repo": 0,
+        "outside_in_repo_scope": 0,
         "invalid_observation_shape": 0,
     }
     assert payload["by_language"]["python"]["unindexed_symbol_shape"] == 1
@@ -1390,11 +1390,11 @@ def test_build_rejected_calls_verbose_payload_counts_merged_pre_and_post_persist
 def test_merge_non_candidate_buckets_projects_public_buckets() -> None:
     merged = _merge_non_candidate_buckets(
         {
-            "accepted_outside_in_repo": 2,
+            "outside_in_repo_scope": 2,
             "invalid_observation_shape": 3,
         },
         {
-            "accepted_outside_in_repo": 99,
+            "outside_in_repo_scope": 99,
             "invalid_observation_shape": 88,
             "unindexed_symbol_shape": 7,
         },

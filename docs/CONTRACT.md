@@ -170,7 +170,8 @@ Artifact-finalized call projection:
 
 - Artifact processing MAY start from the full observed syntactic callsite set
   emitted by analyzers/build execution.
-- Artifact processing owns all pre-persistence callsite filtering.
+- Artifact processing owns contract filtering of observed callsites into
+  accepted and non-accepted sets.
 - Artifact processing owns persisted call materialization and reducer-facing
   call derivation.
 - Artifact finalization MAY accept artifact-only rescue provenance, including
@@ -278,7 +279,7 @@ Public status reporting contract:
   - `accepted_callsites`
   - `not_accepted_callsites`
 - diagnostic build-status reports MAY additionally include
-  `not_accepted_callsites`, which MUST contain only:
+  `not_accepted_callsites`, which MUST contain only these canonical buckets:
   - `outside_static_contract`
   - `insufficient_static_evidence`
   - `structural_mismatch`

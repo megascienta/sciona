@@ -15,7 +15,7 @@ DIAGNOSTIC_BUCKET_KEYS = (
     "unindexed_symbol_shape",
     "parser_extraction_mismatch",
     "no_clear_in_repo_target",
-    "accepted_outside_in_repo",
+    "outside_in_repo_scope",
     "invalid_observation_shape",
 )
 

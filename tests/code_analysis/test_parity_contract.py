@@ -1,9 +1,6 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-from sciona.code_analysis.core.extract.call_resolution_kernel import (
-    REQUIRED_RESOLUTION_STAGES,
-)
 from sciona.code_analysis.languages.common.support.parity_contract import (
     build_parity_contract,
 )
@@ -23,18 +20,10 @@ def test_parity_contract_declared_dimensions_match_expected_matrix() -> None:
     assert dimensions == expected
 
 
-def test_parity_contract_stage_order_matches_kernel_contract() -> None:
+def test_parity_contract_does_not_declare_kernel_stage_order() -> None:
     contract = build_parity_contract()
-    assert tuple(contract["required_resolution_stages"]) == REQUIRED_RESOLUTION_STAGES
-
-
-def test_parity_contract_declares_stage_enforcement_ownership() -> None:
-    contract = build_parity_contract()
-    enforcement = contract["resolution_stage_enforcement"]
-    assert enforcement == {
-        "owner": "language_adapters_via_shared_kernel",
-        "strict_call_gate_role": "final_materialization_only",
-    }
+    assert "required_resolution_stages" not in contract
+    assert "resolution_stage_enforcement" not in contract
 
 
 def test_parity_contract_languages_match_capabilities_and_config() -> None:
