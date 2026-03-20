@@ -5,14 +5,14 @@
 
 from __future__ import annotations
 
-PUBLIC_PRE_PERSIST_BUCKET_KEYS = (
+PUBLIC_NOT_ACCEPTED_BUCKET_KEYS = (
     "outside_static_contract",
     "insufficient_static_evidence",
     "structural_mismatch",
     "unclassified",
 )
 
-_PUBLIC_PRE_PERSIST_BUCKET_MAP = {
+_PUBLIC_NOT_ACCEPTED_BUCKET_MAP = {
     "no_in_repo_candidate": "unclassified",
     "insufficient_static_evidence": "insufficient_static_evidence",
     "accepted_outside_in_repo": "outside_static_contract",
@@ -33,7 +33,7 @@ def count_payload(count: int | None) -> dict[str, object]:
 def call_site_funnel_payload(
     *,
     observed_syntactic_callsites: int | None,
-    filtered_pre_persist: int | None,
+    non_accepted_callsites: int | None,
     persisted_callsites: int | None,
     persisted_accepted: int | None,
     persisted_dropped: int | None,
@@ -41,7 +41,7 @@ def call_site_funnel_payload(
 ) -> dict[str, object]:
     payload: dict[str, object] = {
         "observed_syntactic_callsites": observed_syntactic_callsites,
-        "filtered_pre_persist": filtered_pre_persist,
+        "not_accepted_callsites": non_accepted_callsites,
         "persisted_callsites": persisted_callsites,
         "persisted_accepted": persisted_accepted,
         "persisted_dropped": persisted_dropped,
@@ -50,13 +50,13 @@ def call_site_funnel_payload(
     }
     values = (
         observed_syntactic_callsites,
-        filtered_pre_persist,
+        non_accepted_callsites,
         persisted_callsites,
     )
     if all(value is not None for value in values):
         payload["conservation_ok"] = (
             int(observed_syntactic_callsites or 0)
-            == int(filtered_pre_persist or 0) + int(persisted_callsites or 0)
+            == int(non_accepted_callsites or 0) + int(persisted_callsites or 0)
         )
     return payload
 
@@ -95,7 +95,7 @@ def scope_call_site_funnel_payload(
             scope_key,
             {
                 "observed_syntactic_callsites": 0,
-                "filtered_pre_persist": 0,
+                "not_accepted_callsites": 0,
                 "persisted_callsites": 0,
                 "persisted_accepted": 0,
                 "persisted_dropped": 0,
@@ -105,7 +105,7 @@ def scope_call_site_funnel_payload(
             observed_syntactic_callsites=int(
                 counts.get("observed_syntactic_callsites", 0)
             ),
-            filtered_pre_persist=int(counts.get("filtered_pre_persist", 0)),
+            non_accepted_callsites=int(counts.get("not_accepted_callsites", 0)),
             persisted_callsites=int(counts.get("persisted_callsites", 0)),
             persisted_accepted=int(counts.get("persisted_accepted", 0)),
             persisted_dropped=int(counts.get("persisted_dropped", 0)),
@@ -116,18 +116,18 @@ def scope_call_site_funnel_payload(
     return payload
 
 
-def filtered_pre_persist_buckets_payload(
+def not_accepted_buckets_payload(
     buckets: dict[str, int] | None,
 ) -> dict[str, int]:
     source = buckets or {}
-    payload = {key: 0 for key in PUBLIC_PRE_PERSIST_BUCKET_KEYS}
+    payload = {key: 0 for key in PUBLIC_NOT_ACCEPTED_BUCKET_KEYS}
     for key, value in source.items():
-        public_key = _PUBLIC_PRE_PERSIST_BUCKET_MAP.get(str(key), "unclassified")
+        public_key = _PUBLIC_NOT_ACCEPTED_BUCKET_MAP.get(str(key), "unclassified")
         payload[public_key] = int(payload.get(public_key, 0)) + int(value or 0)
     return payload
 
 
-def scope_filtered_pre_persist_buckets_payload(
+def scope_not_accepted_buckets_payload(
     scope_buckets: dict[str, dict[str, int]] | None,
 ) -> dict[str, dict[str, int]] | None:
     if scope_buckets is None:
@@ -137,7 +137,7 @@ def scope_filtered_pre_persist_buckets_payload(
         buckets = scope_buckets.get(scope_key)
         if not isinstance(buckets, dict):
             buckets = {}
-        payload[scope_key] = filtered_pre_persist_buckets_payload(buckets)
+        payload[scope_key] = not_accepted_buckets_payload(buckets)
     return payload
 
 

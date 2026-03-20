@@ -182,7 +182,7 @@ def _render_summary_lines(
                 lines.append(f"{indent}  call_materialization: {materialization_text}")
         if include_reasons:
             filtered = item.get("not_accepted_callsites") or {}
-            filtered_text = _format_pre_persist_filter_summary(filtered)
+            filtered_text = _format_not_accepted_summary(filtered)
             if filtered_text:
                 lines.append(f"{indent}  not_accepted_callsites: {filtered_text}")
     totals = summary.get("totals") or {}
@@ -203,7 +203,7 @@ def _render_summary_lines(
             )
     if include_reasons:
         totals_filtered = totals.get("not_accepted_callsites") or {}
-        totals_filtered_text = _format_pre_persist_filter_summary(totals_filtered)
+        totals_filtered_text = _format_not_accepted_summary(totals_filtered)
         if totals_filtered_text:
             lines.append(f"{indent}  not_accepted_callsites: {totals_filtered_text}")
     if include_scope_split:
@@ -248,7 +248,7 @@ def _format_call_materialization_summary(materialization: dict) -> str:
     return f"finalized_call_edges={int(edges or 0)}"
 
 
-def _format_pre_persist_filter_summary(filtered: dict) -> str:
+def _format_not_accepted_summary(filtered: dict) -> str:
     if not filtered:
         return ""
     return ", ".join(f"{name}={int(count or 0)}" for name, count in filtered.items())
@@ -275,7 +275,7 @@ def _render_scope_lines(
         )
         callsites_text = _format_callsites_summary(callsites)
         materialization_text = _format_call_materialization_summary(materialization)
-        filtered_text = _format_pre_persist_filter_summary(filtered)
+        filtered_text = _format_not_accepted_summary(filtered)
         lines.append(f"{indent}{scope_key}:")
         if structure_text:
             lines.append(f"{indent}  structure: {structure_text}")

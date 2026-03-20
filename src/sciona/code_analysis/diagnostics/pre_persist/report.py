@@ -71,7 +71,7 @@ def enrich_report(
     )
     labels["fields"] = fields
     enriched["labels"] = labels
-    _replace_pre_persist_filters(
+    _replace_not_accepted_callsites(
         enriched,
         totals=diagnostic_payload.get("totals"),
         by_language=diagnostic_payload.get("by_language"),
@@ -288,7 +288,7 @@ def empty_diagnostic_buckets() -> dict[str, int]:
     return {key: 0 for key in DIAGNOSTIC_BUCKET_KEYS}
 
 
-def _replace_pre_persist_filters(
+def _replace_not_accepted_callsites(
     report: dict[str, object],
     *,
     totals: object,

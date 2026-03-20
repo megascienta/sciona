@@ -17,7 +17,7 @@ from ...data_storage.artifact_db.reporting import read_reporting as artifact_rep
 from ...data_storage.artifact_db.reporting import read_status as artifact_status
 from ...data_storage.artifact_db.writes import write_index as artifact_write
 from .reporting_callsites import (
-    filtered_pre_persist_buckets_payload as _filtered_pre_persist_buckets_payload_impl,
+    not_accepted_buckets_payload as _not_accepted_buckets_payload_impl,
     scope_bucket as _scope_bucket_impl,
 )
 
@@ -30,11 +30,10 @@ class LanguageMetrics:
     edges: int | None = None
     finalized_call_edges: int | None = None
     observed_syntactic_callsites: int | None = None
-    filtered_pre_persist: int | None = None
     persisted_callsites: int | None = None
     persisted_accepted: int | None = None
     persisted_dropped: int | None = None
-    filtered_pre_persist_buckets: dict[str, int] = field(default_factory=dict)
+    not_accepted_buckets: dict[str, int] = field(default_factory=dict)
 
     def to_payload(self) -> dict[str, object]:
         return {
@@ -257,48 +256,48 @@ def _build_live_snapshot_report(
     diagnostics_by_language: dict[str, dict[str, int]] = defaultdict(
         lambda: {
             "observed_syntactic_callsites": 0,
-            "filtered_pre_persist": 0,
+            "not_accepted_callsites": 0,
             "persisted_callsites": 0,
             "persisted_accepted": 0,
             "persisted_dropped": 0,
         }
     )
     diagnostics_record_drops_by_language: dict[str, dict[str, int]] = defaultdict(dict)
-    diagnostics_pre_persist_buckets_by_language: dict[str, dict[str, int]] = defaultdict(dict)
+    diagnostics_not_accepted_buckets_by_language: dict[str, dict[str, int]] = defaultdict(dict)
     diagnostics_pair_expansion_by_language: dict[str, dict[str, int]] = defaultdict(dict)
     diagnostics_by_scope: dict[str, dict[str, dict[str, int | dict[str, int]]]] = defaultdict(
         lambda: {
             "non_tests": {
                 "observed_syntactic_callsites": 0,
-                "filtered_pre_persist": 0,
+                "not_accepted_callsites": 0,
                 "persisted_callsites": 0,
                 "persisted_accepted": 0,
                 "persisted_dropped": 0,
                 "record_drops": {},
-                "filtered_pre_persist_buckets": {},
+                "not_accepted_buckets": {},
                 "persisted_callsite_pair_expansion": {},
             },
             "tests": {
                 "observed_syntactic_callsites": 0,
-                "filtered_pre_persist": 0,
+                "not_accepted_callsites": 0,
                 "persisted_callsites": 0,
                 "persisted_accepted": 0,
                 "persisted_dropped": 0,
                 "record_drops": {},
-                "filtered_pre_persist_buckets": {},
+                "not_accepted_buckets": {},
                 "persisted_callsite_pair_expansion": {},
             },
         }
     )
     diagnostics_totals = {
         "observed_syntactic_callsites": 0,
-        "filtered_pre_persist": 0,
+        "not_accepted_callsites": 0,
         "persisted_callsites": 0,
         "persisted_accepted": 0,
         "persisted_dropped": 0,
     }
     diagnostics_total_record_drops: dict[str, int] = {}
-    diagnostics_total_pre_persist_buckets: dict[str, int] = {}
+    diagnostics_total_not_accepted_buckets: dict[str, int] = {}
     diagnostics_total_pair_expansion: dict[str, int] = {}
     if artifact_available and isinstance(call_resolution_diagnostics, dict):
         raw_totals = call_resolution_diagnostics.get("totals")
@@ -307,7 +306,7 @@ def _build_live_snapshot_report(
                 "observed_syntactic_callsites": int(
                     raw_totals.get("observed_callsites") or 0
                 ),
-                "filtered_pre_persist": int(
+                "not_accepted_callsites": int(
                     raw_totals.get("filtered_before_persist") or 0
                 ),
                 "persisted_callsites": int(raw_totals.get("persisted_callsites") or 0),
@@ -325,11 +324,11 @@ def _build_live_snapshot_report(
                     for bucket, count in raw_record_drops.items()
                     if int(count or 0) > 0
                 }
-            raw_pre_persist_buckets = raw_totals.get("filtered_pre_persist_buckets")
-            if isinstance(raw_pre_persist_buckets, dict):
-                diagnostics_total_pre_persist_buckets = {
+            raw_not_accepted_buckets = raw_totals.get("filtered_pre_persist_buckets")
+            if isinstance(raw_not_accepted_buckets, dict):
+                diagnostics_total_not_accepted_buckets = {
                     str(bucket): int(count or 0)
-                    for bucket, count in raw_pre_persist_buckets.items()
+                    for bucket, count in raw_not_accepted_buckets.items()
                     if int(count or 0) > 0
                 }
             raw_pair_expansion = raw_totals.get("persisted_callsite_pair_expansion")
@@ -357,7 +356,7 @@ def _build_live_snapshot_report(
                 dropped = int(raw.get("finalized_dropped_callsites") or 0)
                 lang_diag = diagnostics_by_language[language]
                 lang_diag["observed_syntactic_callsites"] += observed
-                lang_diag["filtered_pre_persist"] += filtered
+                lang_diag["not_accepted_callsites"] += filtered
                 lang_diag["persisted_callsites"] += persisted
                 lang_diag["persisted_accepted"] += accepted
                 lang_diag["persisted_dropped"] += dropped
@@ -365,8 +364,8 @@ def _build_live_snapshot_report(
                 scope_diag["observed_syntactic_callsites"] = int(
                     scope_diag.get("observed_syntactic_callsites") or 0
                 ) + observed
-                scope_diag["filtered_pre_persist"] = int(
-                    scope_diag.get("filtered_pre_persist") or 0
+                scope_diag["not_accepted_callsites"] = int(
+                    scope_diag.get("not_accepted_callsites") or 0
                 ) + filtered
                 scope_diag["persisted_callsites"] = int(
                     scope_diag.get("persisted_callsites") or 0
@@ -395,25 +394,25 @@ def _build_live_snapshot_report(
                         scope_record_drops[bucket_name] = (
                             int(scope_record_drops.get(bucket_name, 0)) + amount
                         )
-                raw_pre_persist_buckets = raw.get("filtered_pre_persist_buckets")
-                if isinstance(raw_pre_persist_buckets, dict):
-                    scope_pre_persist = scope_diag.get("filtered_pre_persist_buckets")
-                    if not isinstance(scope_pre_persist, dict):
-                        scope_pre_persist = {}
-                        scope_diag["filtered_pre_persist_buckets"] = scope_pre_persist
-                    language_pre_persist = diagnostics_pre_persist_buckets_by_language[
+                raw_not_accepted_buckets = raw.get("filtered_pre_persist_buckets")
+                if isinstance(raw_not_accepted_buckets, dict):
+                    scope_not_accepted = scope_diag.get("not_accepted_buckets")
+                    if not isinstance(scope_not_accepted, dict):
+                        scope_not_accepted = {}
+                        scope_diag["not_accepted_buckets"] = scope_not_accepted
+                    language_not_accepted = diagnostics_not_accepted_buckets_by_language[
                         language
                     ]
-                    for bucket, count in raw_pre_persist_buckets.items():
+                    for bucket, count in raw_not_accepted_buckets.items():
                         amount = int(count or 0)
                         if amount <= 0:
                             continue
                         bucket_name = str(bucket)
-                        language_pre_persist[bucket_name] = (
-                            language_pre_persist.get(bucket_name, 0) + amount
+                        language_not_accepted[bucket_name] = (
+                            language_not_accepted.get(bucket_name, 0) + amount
                         )
-                        scope_pre_persist[bucket_name] = (
-                            int(scope_pre_persist.get(bucket_name, 0)) + amount
+                        scope_not_accepted[bucket_name] = (
+                            int(scope_not_accepted.get(bucket_name, 0)) + amount
                         )
                 raw_pair_expansion = raw.get("persisted_callsite_pair_expansion")
                 if isinstance(raw_pair_expansion, dict):
@@ -466,7 +465,7 @@ def _build_live_snapshot_report(
             language,
             {
                 "observed_syntactic_callsites": 0,
-                "filtered_pre_persist": 0,
+                "not_accepted_callsites": 0,
                 "persisted_callsites": 0,
                 "persisted_accepted": 0,
                 "persisted_dropped": 0,
@@ -486,9 +485,6 @@ def _build_live_snapshot_report(
                 )
                 if artifact_available
                 else None,
-                filtered_pre_persist=diag_totals.get("filtered_pre_persist")
-                if artifact_available
-                else None,
                 persisted_callsites=diag_totals.get("persisted_callsites")
                 if artifact_available
                 else None,
@@ -498,7 +494,7 @@ def _build_live_snapshot_report(
                 persisted_dropped=diag_totals.get("persisted_dropped")
                 if artifact_available
                 else None,
-                filtered_pre_persist_buckets=diagnostics_pre_persist_buckets_by_language.get(
+                not_accepted_buckets=diagnostics_not_accepted_buckets_by_language.get(
                     language, {}
                 ),
             )
@@ -536,17 +532,6 @@ def _build_live_snapshot_report(
                 accepted=raw.get("persisted_accepted"),
             ),
         }
-
-    def _scope_pre_persist(scope_key: str) -> dict[str, int]:
-        return _filtered_pre_persist_buckets_payload(
-            _sum_scope_nested_buckets(
-                diagnostics_by_scope,
-                scope_key=scope_key,
-                nested_key="filtered_pre_persist_buckets",
-            )
-            if artifact_available
-            else None
-        )
 
     scope_edge_counts = {
         "non_tests": (
@@ -668,10 +653,10 @@ def _report_from_stored_summary(
         "languages": dict(summary.get("languages") or {}),
         "scopes": dict(summary.get("scopes") or {}),
     }
-def _filtered_pre_persist_buckets_payload(
+def _not_accepted_buckets_payload(
     buckets: dict[str, int] | None,
 ) -> dict[str, int]:
-    return _filtered_pre_persist_buckets_payload_impl(buckets)
+    return _not_accepted_buckets_payload_impl(buckets)
 
 
 def _not_accepted_callsites(
