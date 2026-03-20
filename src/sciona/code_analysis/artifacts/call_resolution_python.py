@@ -110,8 +110,10 @@ def python_export_scope_modules(
     module_file_by_name: dict[str, str],
     bounded_module_reachability,
 ) -> set[str]:
-    seed_modules = set(expanded_import_targets.get(caller_module, set()))
-    seed_modules.update(import_targets.get(caller_module, set()))
+    seed_modules: set[str] = set()
+    for module in {caller_module, *_module_ancestors(caller_module)}:
+        seed_modules.update(expanded_import_targets.get(module, set()))
+        seed_modules.update(import_targets.get(module, set()))
     init_roots = {
         module
         for module in seed_modules
@@ -186,3 +188,13 @@ def _candidate_matches_terminal(
         return False
     owner = candidate_qname.rsplit(".", 1)[0] if "." in candidate_qname else ""
     return bool(owner and simple_identifier(owner) == terminal)
+
+
+def _module_ancestors(module_name: str) -> set[str]:
+    parts = [part for part in module_name.split(".") if part]
+    if len(parts) < 2:
+        return set()
+    ancestors: set[str] = set()
+    for end in range(len(parts) - 1, 0, -1):
+        ancestors.add(".".join(parts[:end]))
+    return ancestors

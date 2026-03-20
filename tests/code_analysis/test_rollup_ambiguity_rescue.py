@@ -275,6 +275,24 @@ def test_python_export_scope_traverses_init_chain() -> None:
     assert "pkg.sub.impl" in scope
 
 
+def test_python_export_scope_includes_ancestor_import_surfaces() -> None:
+    scope = rollups._python_export_scope_modules(
+        caller_module="pkg.api.client.handlers",
+        import_targets={
+            "pkg.api.client.handlers": {"pkg.api.client.runtime"},
+            "pkg.api": {"pkg.internal.exports"},
+            "pkg.internal.exports": {"pkg.internal.impl"},
+        },
+        expanded_import_targets={
+            "pkg.api.client.handlers": {"pkg.api.client.runtime"},
+            "pkg.api": {"pkg.internal.exports"},
+        },
+        module_file_by_name={"pkg.api": "pkg/api/__init__.py"},
+    )
+    assert "pkg.internal.exports" in scope
+    assert "pkg.internal.impl" in scope
+
+
 def test_typescript_barrel_export_map_builds_from_index_modules() -> None:
     barrel_map = rollups._build_typescript_barrel_export_map(
         import_targets={
