@@ -229,7 +229,7 @@ def write_call_artifacts(
     observed_rows = artifact_persistence.list_temp_observed_callsites(artifact_conn)
     observed_groups = _observed_callsite_groups(observed_rows, caller_set=caller_set)
     prepare_progress = (
-        progress_factory("Preparing durable calls", len(observed_groups))
+        progress_factory("Filtering callsites by contract", len(observed_groups))
         if progress_factory and observed_groups
         else None
     )

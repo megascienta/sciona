@@ -220,8 +220,8 @@ Current user-visible build phases are:
 - `Registering modules`
 - `Building structural index`
 - `Extracting call observations`
-- `Preparing durable calls`
-- `Writing durable calls`
+- `Filtering callsites by contract`
+- `Writing accepted calls`
 - `Rebuilding call graph index`
 - `Rebuilding graph rollups`
 - `Diagnostic classification` when `sciona build --diagnostic` is enabled

@@ -1346,7 +1346,7 @@ def test_merge_diagnostic_payloads_combines_both_rejection_populations() -> None
     assert len(payload["observations"]) == 2
 
 
-def test_build_rejected_calls_verbose_payload_counts_merged_pre_and_post_persist() -> None:
+def test_build_rejected_calls_verbose_payload_counts_merged_rejected_observations() -> None:
     payload = build_rejected_calls_verbose_payload(
         diagnostic_pipeline.merge_diagnostic_payloads(
             {
