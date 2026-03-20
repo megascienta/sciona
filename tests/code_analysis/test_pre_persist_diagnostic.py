@@ -18,7 +18,7 @@ from sciona.code_analysis.diagnostics.rejected_calls.report import (
 from sciona.code_analysis.diagnostics.rejected_calls.models import (
     DiagnosticMissObservation,
 )
-from sciona.code_analysis.tools.call_extraction import CallExtractionRecord, RejectedObservation
+from sciona.code_analysis.core.extract.calls import CallExtractionRecord, RejectedObservation
 from sciona.runtime import paths as runtime_paths
 from sciona.runtime.paths import get_artifact_db_path
 from tests.helpers import seed_repo_with_snapshot

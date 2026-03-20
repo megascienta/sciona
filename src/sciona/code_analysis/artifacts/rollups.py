@@ -14,7 +14,7 @@ from ..languages.common.ir import (
     binding_match_for_identifier,
     validated_local_binding_fact,
 )
-from ..tools.call_extraction import CallExtractionRecord
+from ..core.extract.calls import CallExtractionRecord
 from ...data_storage.artifact_db.rollups import rollup_persistence as artifact_persistence
 from ...runtime.common import identity as ids
 from ...data_storage.core_db import read_ops as core_read

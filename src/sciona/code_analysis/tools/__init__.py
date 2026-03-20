@@ -6,11 +6,9 @@
 from __future__ import annotations
 
 from . import (
-    call_extraction,
     profiling,
 )
 
 __all__ = [
-    "call_extraction",
     "profiling",
 ]

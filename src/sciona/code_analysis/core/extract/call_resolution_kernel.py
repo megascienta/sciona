@@ -8,7 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Protocol, Sequence
 
-from ...tools.call_extraction import CallTargetIR
+from .calls import CallTargetIR
 from ....runtime.call_resolution_contract import (
     REQUIRED_RESOLUTION_STAGES,
     STAGE_ALIAS_NARROWING,

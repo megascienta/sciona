@@ -7,13 +7,13 @@ import pytest
 from tree_sitter import Parser
 from tree_sitter_languages import get_language
 
-from sciona.code_analysis.tools import call_extraction
-from sciona.code_analysis.tools.call_extraction import (
+from sciona.code_analysis.core.extract import calls as call_extraction
+from sciona.code_analysis.core.extract.calls import (
     QualifiedCallIR,
     ReceiverCallIR,
     collect_call_targets,
 )
-from sciona.code_analysis.tools.call_extraction.targets import _normalize_callee_text
+from sciona.code_analysis.core.extract.calls.targets import _normalize_callee_text
 
 
 def _parser(language_name: str) -> Parser:

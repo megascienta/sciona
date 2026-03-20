@@ -12,7 +12,7 @@ from sciona.code_analysis.artifacts.call_resolution import (
     resolve_callees,
 )
 from sciona.code_analysis.languages.common.ir import LocalBindingFact
-from sciona.code_analysis.tools.call_extraction import (
+from sciona.code_analysis.core.extract.calls import (
     CallExtractionRecord,
     RejectedObservation,
 )

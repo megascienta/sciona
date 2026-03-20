@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Sequence, Set
 
 from ...code_analysis import artifacts as artifact_derivation
-from ...code_analysis.tools.call_extraction import CallExtractionRecord
+from ...code_analysis.core.extract.calls import CallExtractionRecord
 from ...code_analysis.artifacts.engine import ArtifactEngine
 from ...code_analysis.diagnostics.rejected_calls.pipeline import classify_rejected_calls
 from ...data_storage.connections import artifact

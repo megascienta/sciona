@@ -3,7 +3,7 @@
 
 """Derived artifact analysis modules."""
 
-from ..tools.call_extraction import CallExtractionRecord, collect_call_identifiers
+from ..core.extract.calls import CallExtractionRecord, collect_call_identifiers
 from .engine import ArtifactEngine
 from .rollups import rebuild_graph_rollups, write_call_artifacts
 

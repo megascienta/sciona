@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from typing import ClassVar, List
 
 from ...common.ir import LocalBindingFact, binding_candidate_qnames_for_identifier
-from ....tools.call_extraction import (
+from ....core.extract.calls import (
     CallTarget,
     QualifiedCallIR,
     ReceiverCallIR,

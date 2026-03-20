@@ -15,7 +15,7 @@ from ...runtime.logging import get_logger
 from ..core import routing
 from ...data_storage.core_db import read_ops as core_read
 from ..repository import snapshots, walker
-from ..tools.call_extraction import CallExtractionRecord, normalize_call_identifiers
+from ..core.extract.calls import CallExtractionRecord, normalize_call_identifiers
 
 logger = get_logger(__name__)
 

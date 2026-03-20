@@ -28,7 +28,7 @@ from .types import (
     ReceiverCallIR,
     TerminalCallIR,
 )
-from ...config import TERMINAL_IDENTIFIER_TYPES_BY_LANGUAGE
+from ....config import TERMINAL_IDENTIFIER_TYPES_BY_LANGUAGE
 
 
 def _package_get_language(language_name: str):

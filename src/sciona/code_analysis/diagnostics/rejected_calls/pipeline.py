@@ -16,7 +16,7 @@ from ...artifacts.call_resolution import (
     resolve_callees,
     simple_identifier,
 )
-from ...tools.call_extraction import CallExtractionRecord, RejectedObservation
+from ...core.extract.calls import CallExtractionRecord, RejectedObservation
 from ....data_storage.core_db import read_ops as core_read
 from ....pipelines.progress import ProgressFactory
 from ....pipelines.exec.reporting_callsites import scope_bucket

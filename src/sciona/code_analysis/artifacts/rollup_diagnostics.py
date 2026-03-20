@@ -8,7 +8,7 @@ from __future__ import annotations
 from typing import cast
 
 from ..contracts.enforcement import merge_strict_resolution_stats
-from ..tools.call_extraction import CallExtractionRecord
+from ..core.extract.calls import CallExtractionRecord
 
 
 def ensure_rollup_diagnostics(diagnostics: dict[str, object] | None) -> dict[str, object]:

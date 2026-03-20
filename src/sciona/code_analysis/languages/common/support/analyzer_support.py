@@ -8,7 +8,7 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import Callable
 
-from ....tools.call_extraction import collect_call_targets
+from ....core.extract.calls import collect_call_targets
 from ....core.normalize_model import EdgeRecord, FileSnapshot
 from ..scope.scope_resolver import ScopeResolver
 

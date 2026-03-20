@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-from sciona.code_analysis.tools.call_extraction import normalize_call_identifiers
+from sciona.code_analysis.core.extract.calls import normalize_call_identifiers
 
 
 def test_normalize_call_identifiers_is_scoped_by_language_and_module() -> None:

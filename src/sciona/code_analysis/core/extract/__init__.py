@@ -3,6 +3,6 @@
 
 """Ingest extraction layer (file discovery and syntax walking)."""
 
-from . import analyzer, registry
+from . import analyzer, calls, registry
 
-__all__ = ["analyzer", "registry"]
+__all__ = ["analyzer", "calls", "registry"]

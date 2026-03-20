@@ -22,7 +22,7 @@ from ..languages.common.ir import (
     binding_candidate_qnames_for_identifier,
     binding_match_for_identifier,
 )
-from ..tools.call_extraction.types import RejectedObservation
+from ..core.extract.calls.types import RejectedObservation
 from ...data_storage.core_db import read_ops as core_read
 from .call_resolution_python import (
     build_module_binding_index,

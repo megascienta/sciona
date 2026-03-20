@@ -13,7 +13,7 @@ from sciona.code_analysis.languages.builtin.typescript.typescript_calls import (
     resolve_typescript_calls,
 )
 from sciona.code_analysis.languages.common.ir import LocalBindingFact
-from sciona.code_analysis.tools.call_extraction import (
+from sciona.code_analysis.core.extract.calls import (
     CallTarget,
     QualifiedCallIR,
     ReceiverCallIR,

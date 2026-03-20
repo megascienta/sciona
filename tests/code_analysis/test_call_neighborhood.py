@@ -8,7 +8,7 @@ from sciona.code_analysis.artifacts import write_call_artifacts
 from sciona.code_analysis.artifacts.rollups import _resolve_callees
 from sciona.code_analysis.languages.common.ir import LocalBindingFact
 from sciona.data_storage.artifact_db import connect as artifact_connect
-from sciona.code_analysis.tools.call_extraction import CallExtractionRecord
+from sciona.code_analysis.core.extract.calls import CallExtractionRecord
 from sciona.runtime import paths as runtime_paths
 from sciona.runtime.paths import get_artifact_db_path
 
