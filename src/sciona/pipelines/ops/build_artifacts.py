@@ -55,6 +55,16 @@ def _stored_call_resolution_diagnostics(
     return payload
 
 
+def _cleanup_temp_callsite_tables(
+    artifact_conn,
+    *,
+    retain_rejected_callsites: bool,
+) -> None:
+    artifact_write.reset_temp_observed_callsites(artifact_conn)
+    if not retain_rejected_callsites:
+        artifact_write.reset_temp_rejected_callsites(artifact_conn)
+
+
 def build_artifacts_for_snapshot(
     *,
     repo_root: Path,
@@ -132,6 +142,10 @@ def refresh_artifact_state(
                         progress_factory=progress_factory,
                     ),
                 )
+                _cleanup_temp_callsite_tables(
+                    artifact_conn,
+                    retain_rejected_callsites=diagnostic,
+                )
                 if diagnostic:
                     diagnostic_payload = _timed_phase(
                         "diagnostic_classification",
@@ -142,6 +156,10 @@ def refresh_artifact_state(
                             call_records=call_artifacts,
                             progress_factory=progress_factory,
                         ),
+                    )
+                    _cleanup_temp_callsite_tables(
+                        artifact_conn,
+                        retain_rejected_callsites=False,
                     )
                 artifact_write.set_rebuild_metadata(
                     artifact_conn,
