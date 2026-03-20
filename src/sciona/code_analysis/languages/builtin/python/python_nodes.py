@@ -14,7 +14,7 @@ from ...common.query.query_surface import (
     PYTHON_STRUCTURAL_CARRIER_NODE_TYPES,
     PYTHON_STRUCTURAL_NODE_TYPES,
 )
-from ...common.support.shared import node_text as shared_node_text
+from ...common.helpers.shared import node_text as shared_node_text
 
 
 @dataclass

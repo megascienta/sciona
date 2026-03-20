@@ -32,7 +32,7 @@ from ...common.query.query_surface import (
     JAVASCRIPT_STRUCTURAL_CARRIER_NODE_TYPES,
     JAVASCRIPT_STRUCTURAL_NODE_TYPES,
 )
-from ...common.support.analyzer_support import (
+from ...common.helpers.analyzer_support import (
     assert_scope_resolver_parity,
     collect_targets_by_callable,
     emit_local_inheritance_edges,

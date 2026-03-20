@@ -13,7 +13,7 @@ from ....core.normalize_model import FileSnapshot
 from ....core.extract.parsing.query_helpers import find_nodes_of_types_query
 from ...common.ir.import_model import NormalizedImportModel
 from ...common.query.query_surface import JAVA_IMPORT_NODE_TYPES, JAVA_PACKAGE_NODE_TYPES
-from ...common.support.shared import is_internal_module, repo_root_from_snapshot
+from ...common.helpers.shared import is_internal_module, repo_root_from_snapshot
 
 
 @dataclass(frozen=True)

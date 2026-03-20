@@ -12,7 +12,7 @@ from sciona.code_analysis.languages.builtin.java import JavaAnalyzer
 from sciona.code_analysis.languages.builtin.javascript import JavaScriptAnalyzer
 from sciona.code_analysis.languages.builtin.python import PythonAnalyzer
 from sciona.code_analysis.languages.builtin.typescript import TypeScriptAnalyzer
-from sciona.code_analysis.languages.common.support.walker_capabilities import (
+from sciona.code_analysis.languages.common.capabilities.walker_capabilities import (
     build_walker_capabilities,
 )
 

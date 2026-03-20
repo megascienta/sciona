@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from sciona.code_analysis.languages.common.support.capability_manifest import (
+from sciona.code_analysis.languages.common.capabilities.capability_manifest import (
     build_capability_manifest,
 )
 

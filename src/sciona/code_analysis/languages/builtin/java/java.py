@@ -45,7 +45,7 @@ from ...common.query.query_surface import (
     JAVA_SKIP_CALL_NODE_TYPES,
     JAVA_STRUCTURAL_NODE_TYPES,
 )
-from ...common.support.analyzer_support import (
+from ...common.helpers.analyzer_support import (
     assert_scope_resolver_parity,
     collect_targets_by_callable,
     emit_local_inheritance_edges,

@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from sciona.code_analysis.languages.common.support.walker_capabilities import (
+from sciona.code_analysis.languages.common.capabilities.walker_capabilities import (
     build_walker_capabilities,
 )
 

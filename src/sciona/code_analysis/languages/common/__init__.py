@@ -1,17 +1,19 @@
 """Shared language-analysis helpers grouped by capability."""
 
 from . import (
+    capabilities,
+    helpers,
     ir,
     naming,
     query,
     scope,
-    support,
 )
 
 __all__ = [
+    "capabilities",
+    "helpers",
     "ir",
     "naming",
     "query",
     "scope",
-    "support",
 ]

@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from ...common.support.shared import node_text
+from ...common.helpers.shared import node_text
 from ...common.ir.symbol_ir import resolve_alias
 
 _MAX_ALIAS_HOPS = 8

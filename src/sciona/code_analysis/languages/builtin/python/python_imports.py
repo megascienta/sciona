@@ -13,7 +13,7 @@ from ....core.normalize_model import FileSnapshot
 from ....core.extract.parsing.query_helpers import find_direct_children_query
 from ...common.ir.import_model import NormalizedImportModel
 from ...common.query.query_surface import PYTHON_IMPORT_NODE_TYPES
-from ...common.support.shared import is_internal_module, node_text, repo_root_from_snapshot
+from ...common.helpers.shared import is_internal_module, node_text, repo_root_from_snapshot
 
 
 def collect_python_imports(

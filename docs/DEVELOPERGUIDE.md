@@ -8,7 +8,7 @@ Authoritative references:
 - Normative contract: `docs/CONTRACT.md`
 - Generated capabilities: `docs/CAPABILITY_MANIFEST.json`
 - Executable parity contract:
-  `src/sciona/code_analysis/languages/common/support/parity_contract.py`
+  `src/sciona/code_analysis/languages/common/capabilities/parity_contract.py`
 
 If this guide conflicts with `CONTRACT.md`, the contract wins.
 

@@ -7,10 +7,10 @@ import json
 from pathlib import Path
 
 from sciona.code_analysis.artifacts import in_repo_static_gate
-from sciona.code_analysis.languages.common.support.parity_contract import (
+from sciona.code_analysis.languages.common.capabilities.parity_contract import (
     build_parity_contract,
 )
-from sciona.code_analysis.languages.common.support.walker_capabilities import (
+from sciona.code_analysis.languages.common.capabilities.walker_capabilities import (
     build_walker_capabilities,
 )
 

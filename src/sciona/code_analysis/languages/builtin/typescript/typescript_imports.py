@@ -18,7 +18,7 @@ from ...common.query.query_surface import (
     TYPESCRIPT_REQUIRE_DECLARATION_NODE_TYPES,
     TYPESCRIPT_STRING_NODE_TYPES,
 )
-from ...common.support.shared import is_internal_module, repo_root_from_snapshot
+from ...common.helpers.shared import is_internal_module, repo_root_from_snapshot
 
 
 def collect_typescript_imports(

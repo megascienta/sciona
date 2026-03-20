@@ -39,7 +39,7 @@ from .typescript_resolution import (
     collect_callable_typed_binding_instance_map,
     resolve_pending_instances,
 )
-from ...common.support.analyzer_support import (
+from ...common.helpers.analyzer_support import (
     assert_scope_resolver_parity,
     collect_targets_by_callable,
     emit_local_inheritance_edges,
