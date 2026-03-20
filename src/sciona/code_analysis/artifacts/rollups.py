@@ -194,6 +194,31 @@ def write_call_artifacts(
             continue
         caller_diag = _ensure_caller_diagnostics(diagnostics, record)
         caller_module = module_lookup.get(caller_id)
+        artifact_persistence.store_temp_observed_callsites(
+            artifact_conn,
+            caller_structural_id=caller_id,
+            caller_qualified_name=record.caller_qualified_name,
+            caller_module=caller_module,
+            caller_language=caller_language_map.get(caller_id),
+            caller_file_path=str(
+                (caller_metadata_map.get(caller_id) or {}).get("file_path") or ""
+            ),
+            rows=[
+                (
+                    identifier,
+                    ordinal,
+                    "qualified" if "." in str(identifier) else "terminal",
+                    binding_match.symbol if binding_match is not None else None,
+                    binding_match.target if binding_match is not None else None,
+                    binding_match.binding_kind if binding_match is not None else None,
+                    binding_match.evidence_kind if binding_match is not None else None,
+                )
+                for ordinal, identifier in enumerate(record.callee_identifiers, start=1)
+                for binding_match in [
+                    binding_match_for_identifier(identifier, tuple(record.local_binding_facts))
+                ]
+            ],
+        )
         callee_ids, _, resolution_stats, callsite_rows = _resolve_callees(
             record.callee_identifiers,
             symbol_index,

@@ -661,6 +661,67 @@ def test_write_call_artifacts_stores_local_binding_fields_in_temp_table(
         core_conn.close()
 
 
+def test_write_call_artifacts_stores_observed_callsites_temp_rows(
+    tmp_path: Path, monkeypatch
+) -> None:
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    prefix = runtime_paths.repo_name_prefix(repo_root)
+    core_conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
+    core_conn.row_factory = sqlite3.Row
+
+    def _fake_resolve_callees(*args, **kwargs):
+        del args, kwargs
+        return set(), set(), {"identifiers_total": 2}, []
+
+    monkeypatch.setattr(rollups, "_resolve_callees", _fake_resolve_callees)
+    try:
+        artifact_conn = artifact_connect(get_artifact_db_path(repo_root), repo_root=repo_root)
+        try:
+            write_call_artifacts(
+                artifact_conn=artifact_conn,
+                core_conn=core_conn,
+                snapshot_id=snapshot_id,
+                call_records=[
+                    CallExtractionRecord(
+                        caller_structural_id="meth_alpha",
+                        caller_qualified_name=f"{prefix}.pkg.alpha.Service.run",
+                        caller_node_type="callable",
+                        callee_identifiers=("translator.translateKeys", "helper"),
+                        local_binding_facts=(
+                            LocalBindingFact(
+                                symbol="translator",
+                                target=f"{prefix}.public.src.translator",
+                                binding_kind="module_alias",
+                                evidence_kind="syntax_local_import",
+                                language="javascript",
+                            ),
+                        ),
+                    )
+                ],
+                eligible_callers={"meth_alpha"},
+            )
+            rows = artifact_conn.execute(
+                """
+                SELECT
+                    identifier,
+                    call_ordinal,
+                    callee_kind,
+                    local_binding_symbol,
+                    local_binding_kind
+                FROM observed_callsites_temp
+                ORDER BY call_ordinal
+                """
+            ).fetchall()
+            assert [tuple(row) for row in rows] == [
+                ("translator.translateKeys", 1, "qualified", "translator", "module_alias"),
+                ("helper", 2, "terminal", None, None),
+            ]
+        finally:
+            artifact_conn.close()
+    finally:
+        core_conn.close()
+
+
 def test_write_call_artifacts_records_multi_pair_expansion_diagnostics(
     tmp_path: Path, monkeypatch
 ) -> None:

@@ -23,6 +23,83 @@ def reset_artifact_derived_state(conn: sqlite3.Connection) -> None:
     conn.execute("DELETE FROM node_fan_stats")
 
 
+def _ensure_temp_observed_callsites_table(conn: sqlite3.Connection) -> None:
+    conn.execute(
+        """
+        CREATE TEMP TABLE IF NOT EXISTS observed_callsites_temp (
+            caller_structural_id TEXT NOT NULL,
+            caller_qualified_name TEXT NOT NULL,
+            caller_module TEXT,
+            caller_language TEXT,
+            caller_file_path TEXT NOT NULL,
+            identifier TEXT NOT NULL,
+            call_ordinal INTEGER NOT NULL,
+            callee_kind TEXT NOT NULL,
+            local_binding_symbol TEXT,
+            local_binding_target TEXT,
+            local_binding_kind TEXT,
+            local_binding_evidence_kind TEXT
+        )
+        """
+    )
+
+
+def reset_temp_observed_callsites(conn: sqlite3.Connection) -> None:
+    _ensure_temp_observed_callsites_table(conn)
+    conn.execute("DELETE FROM observed_callsites_temp")
+
+
+def store_temp_observed_callsites(
+    conn: sqlite3.Connection,
+    *,
+    caller_structural_id: str,
+    caller_qualified_name: str,
+    caller_module: str | None,
+    caller_language: str | None,
+    caller_file_path: str,
+    rows: Sequence[tuple],
+) -> None:
+    if not rows:
+        return
+    _ensure_temp_observed_callsites_table(conn)
+    conn.executemany(
+        """
+        INSERT INTO observed_callsites_temp(
+            caller_structural_id,
+            caller_qualified_name,
+            caller_module,
+            caller_language,
+            caller_file_path,
+            identifier,
+            call_ordinal,
+            callee_kind,
+            local_binding_symbol,
+            local_binding_target,
+            local_binding_kind,
+            local_binding_evidence_kind
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        [
+            (
+                caller_structural_id,
+                caller_qualified_name,
+                caller_module,
+                caller_language,
+                caller_file_path,
+                row[0],
+                row[1],
+                row[2],
+                row[3],
+                row[4],
+                row[5],
+                row[6],
+            )
+            for row in rows
+        ],
+    )
+
+
 def _ensure_temp_rejected_callsites_table(conn: sqlite3.Connection) -> None:
     conn.execute(
         """
