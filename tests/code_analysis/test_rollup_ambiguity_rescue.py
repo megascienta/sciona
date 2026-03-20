@@ -63,6 +63,66 @@ def test_python_export_chain_rescues_unique_without_provenance_via_package_scope
     assert candidate == "id_pi"
 
 
+def test_python_export_chain_rescues_no_candidates_via_package_surface_scope() -> None:
+    candidate = rollups._resolve_python_export_chain_ambiguous(
+        identifier="sympy.pi",
+        direct_candidates=[],
+        fallback_candidates=[],
+        caller_module="sympy.client",
+        callable_qname_by_id={
+            "id_pi": "sympy.core.numbers.pi",
+        },
+        module_lookup={
+            "id_pi": "sympy.core.numbers",
+        },
+        import_targets={
+            "sympy.client": {"sympy"},
+            "sympy": {"sympy.core"},
+            "sympy.core": {"sympy.core.numbers"},
+        },
+        expanded_import_targets={"sympy.client": {"sympy"}},
+        module_bindings_by_name={
+            "sympy.core.numbers": {"pi"},
+        },
+        module_file_by_name={"sympy": "sympy/__init__.py"},
+    )
+    assert candidate == "id_pi"
+
+
+def test_python_export_chain_rescues_constructor_owner_terminal_match() -> None:
+    candidate = rollups._resolve_python_export_chain_ambiguous(
+        identifier="sympy.Add",
+        direct_candidates=["id_add_new"],
+        fallback_candidates=[],
+        caller_module="sympy.parsing.latex.transformer",
+        callable_qname_by_id={
+            "id_add_new": "sympy.core.add.Add.__new__",
+        },
+        module_lookup={
+            "id_add_new": "sympy.core.add",
+        },
+        import_targets={
+            "sympy.parsing.latex.transformer": {"sympy"},
+            "sympy": {"sympy.core"},
+            "sympy.core": {"sympy.core.add"},
+        },
+        expanded_import_targets={"sympy.parsing.latex.transformer": {"sympy"}},
+        module_bindings_by_name={
+            "sympy.core.add": {"Add", "__new__"},
+        },
+        module_file_by_name={"sympy": "sympy/__init__.py"},
+    )
+    assert candidate == "id_add_new"
+
+
+def test_module_binding_index_adds_constructor_owner_binding() -> None:
+    bindings = rollups._build_module_binding_index(
+        callable_qname_by_id={"id_add_new": "sympy.core.add.Add.__new__"},
+        module_lookup={"id_add_new": "sympy.core.add"},
+    )
+    assert bindings["sympy.core.add"] >= {"Add", "__new__"}
+
+
 def test_typescript_barrel_ambiguity_rescue_prefers_closest_module() -> None:
     candidate = rollups._resolve_typescript_barrel_ambiguous(
         identifier="create",
@@ -126,12 +186,38 @@ def test_javascript_structural_rescue_handles_unique_namespace_tail_match() -> N
         },
         import_targets={"app.ui": {"app.colors"}},
         expanded_import_targets={"app.ui": {"app.colors"}},
+        js_barrel_export_map={},
         simple_identifier=rollups._simple_identifier,
         module_in_scope=rollups._module_in_scope,
         best_candidate_by_module_distance=rollups._best_candidate_by_module_distance,
         allow_distance_fallback=False,
     )
     assert candidate == "id_bold"
+
+
+def test_javascript_structural_rescue_infers_index_barrel_candidates_from_identifier() -> None:
+    candidate = resolve_javascript_structural_ambiguous(
+        identifier="nodebb.src.user.index.getUsersFields",
+        direct_candidates=[],
+        fallback_candidates=[],
+        caller_module="nodebb.src.topics.fork",
+        callable_qname_by_id={
+            "id_getUsersFields": "nodebb.src.user.data.getUsersFields",
+            "id_getSettings": "nodebb.src.user.data.getSettings",
+        },
+        module_lookup={
+            "id_getUsersFields": "nodebb.src.user.data",
+            "id_getSettings": "nodebb.src.user.data",
+        },
+        import_targets={"nodebb.src.topics.fork": {"nodebb.src.user.index"}},
+        expanded_import_targets={"nodebb.src.topics.fork": {"nodebb.src.user.index"}},
+        js_barrel_export_map={"nodebb.src.topics.fork": {"nodebb.src.user.data"}},
+        simple_identifier=rollups._simple_identifier,
+        module_in_scope=rollups._module_in_scope,
+        best_candidate_by_module_distance=rollups._best_candidate_by_module_distance,
+        allow_distance_fallback=False,
+    )
+    assert candidate == "id_getUsersFields"
 
 
 def test_python_export_scope_traverses_init_chain() -> None:
@@ -165,3 +251,22 @@ def test_typescript_barrel_export_map_builds_from_index_modules() -> None:
         },
     )
     assert barrel_map["app.feature.user.index"] == {"app.feature.user.impl"}
+
+
+def test_javascript_barrel_export_map_builds_from_index_modules() -> None:
+    barrel_map = rollups._build_javascript_barrel_export_map(
+        import_targets={
+            "nodebb.src.topics.fork": {"nodebb.src.user.index"},
+            "nodebb.src.user.index": {"nodebb.src.user.data"},
+            "nodebb.src.user.data": set(),
+        },
+        module_bindings_by_name={
+            "nodebb.src.user.index": {"getUsersFields"},
+            "nodebb.src.user.data": {"getUsersFields", "getSettings"},
+        },
+        module_file_by_name={
+            "nodebb.src.user.index": "src/user/index.js",
+            "nodebb.src.user.data": "src/user/data.js",
+        },
+    )
+    assert barrel_map["nodebb.src.topics.fork"] == {"nodebb.src.user.data"}
