@@ -1,0 +1,178 @@
+{
+  "build_health": "ok",
+  "diagnostic_kind": "rejected_calls_best_effort",
+  "diagnostic_mode": true,
+  "parse_failures": 0,
+  "report": {
+    "artifact_db_available": true,
+    "labels": {
+      "fields": {
+        "accepted_callsites": "Accepted Callsites",
+        "build_phase_timings": "Build Phase Timing",
+        "build_total_seconds": "Build Total Time",
+        "build_wall_seconds": "Build Wall Time",
+        "edges": "Edges",
+        "files": "Files",
+        "finalized_call_edges": "Finalized Call Edges",
+        "insufficient_static_evidence": "Insufficient Static Evidence",
+        "nodes": "Nodes",
+        "not_accepted_callsites": "Not Accepted Callsites",
+        "observed_syntactic_callsites": "Observed Syntactic Callsites",
+        "outside_static_contract": "Outside Static Contract",
+        "structural_mismatch": "Structural Mismatch",
+        "unclassified": "Unclassified"
+      },
+      "phases": {
+        "build_structural_index": "Build Structural Index",
+        "compute_build_fingerprint": "Compute Build Fingerprint",
+        "diagnostic_classification": "Diagnostic Classification",
+        "discover_files": "Discover Files",
+        "extract_call_observations": "Extract Call Observations",
+        "filter_callsites_by_contract": "Filter Callsites By Contract",
+        "prepare_snapshots": "Prepare Snapshots",
+        "rebuild_graph_index": "Rebuild Call Graph Index",
+        "rebuild_graph_rollups": "Rebuild Graph Rollups",
+        "register_modules": "Register Modules",
+        "write_accepted_calls": "Write Accepted Calls"
+      },
+      "scopes": {
+        "non_tests": "Non-Tests",
+        "tests": "Tests"
+      },
+      "sections": {
+        "call_materialization": "Call Materialization",
+        "callsites": "Callsites",
+        "not_accepted_callsites": "Not Accepted Callsites",
+        "structure": "Structure",
+        "timing": "Timing"
+      }
+    },
+    "languages": {
+      "javascript": {
+        "call_materialization": {
+          "finalized_call_edges": 6002
+        },
+        "callsites": {
+          "accepted_callsites": 6002,
+          "not_accepted_callsites": 3509,
+          "observed_syntactic_callsites": 9511
+        },
+        "not_accepted_callsites": {
+          "insufficient_static_evidence": 3505,
+          "outside_static_contract": 4,
+          "structural_mismatch": 0,
+          "unclassified": 0
+        },
+        "structure": {
+          "edges": 14096,
+          "files": 12118,
+          "nodes": 17261
+        }
+      },
+      "typescript": {
+        "call_materialization": {
+          "finalized_call_edges": 2097
+        },
+        "callsites": {
+          "accepted_callsites": 2139,
+          "not_accepted_callsites": 220,
+          "observed_syntactic_callsites": 2359
+        },
+        "not_accepted_callsites": {
+          "insufficient_static_evidence": 173,
+          "outside_static_contract": 41,
+          "structural_mismatch": 6,
+          "unclassified": 0
+        },
+        "structure": {
+          "edges": 6182,
+          "files": 356,
+          "nodes": 2414
+        }
+      }
+    },
+    "scopes": {
+      "non_tests": {
+        "call_materialization": {
+          "finalized_call_edges": 2135
+        },
+        "callsites": {
+          "accepted_callsites": 2177,
+          "not_accepted_callsites": 227,
+          "observed_syntactic_callsites": 2404
+        },
+        "not_accepted_callsites": {
+          "insufficient_static_evidence": 179,
+          "outside_static_contract": 42,
+          "structural_mismatch": 6,
+          "unclassified": 0
+        },
+        "structure": {
+          "edges": 6329,
+          "files": 390,
+          "nodes": 2510
+        }
+      },
+      "tests": {
+        "call_materialization": {
+          "finalized_call_edges": 5964
+        },
+        "callsites": {
+          "accepted_callsites": 5964,
+          "not_accepted_callsites": 3502,
+          "observed_syntactic_callsites": 9466
+        },
+        "not_accepted_callsites": {
+          "insufficient_static_evidence": 3499,
+          "outside_static_contract": 3,
+          "structural_mismatch": 0,
+          "unclassified": 0
+        },
+        "structure": {
+          "edges": 13949,
+          "files": 12084,
+          "nodes": 17165
+        }
+      }
+    },
+    "timing": {
+      "build_phase_timings": {
+        "build_structural_index": 16.167181355995126,
+        "compute_build_fingerprint": 0.37946494700736366,
+        "diagnostic_classification": 0.340502765000565,
+        "discover_files": 3.3086012130079325,
+        "extract_call_observations": 15.914267413027119,
+        "filter_callsites_by_contract": 1.3693418259790633,
+        "prepare_snapshots": 2.0829803730011918,
+        "rebuild_graph_index": 0.3542279049870558,
+        "rebuild_graph_rollups": 0.3972003569942899,
+        "register_modules": 4.261399476003135,
+        "write_accepted_calls": 0.08389016200089827
+      },
+      "build_total_seconds": 61.850068,
+      "build_wall_seconds": 63.235294
+    },
+    "totals": {
+      "call_materialization": {
+        "finalized_call_edges": 8099
+      },
+      "callsites": {
+        "accepted_callsites": 8141,
+        "not_accepted_callsites": 3729,
+        "observed_syntactic_callsites": 11870
+      },
+      "not_accepted_callsites": {
+        "insufficient_static_evidence": 3678,
+        "outside_static_contract": 45,
+        "structural_mismatch": 6,
+        "unclassified": 0
+      },
+      "structure": {
+        "edges": 20278,
+        "files": 12474,
+        "nodes": 19675
+      }
+    }
+  },
+  "residual_containment_failures": 0
+}
