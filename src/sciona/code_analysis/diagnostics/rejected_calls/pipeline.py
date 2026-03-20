@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Diagnostic-only pre-persist classification pipeline."""
+"""Diagnostic-only rejected-call classification pipeline."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ from ...artifacts.call_resolution import (
     resolve_callees,
     simple_identifier,
 )
-from ...tools.call_extraction import CallExtractionRecord, PrePersistObservation
+from ...tools.call_extraction import CallExtractionRecord, RejectedObservation
 from ....data_storage.core_db import read_ops as core_read
 from ....pipelines.progress import ProgressFactory
 from ....pipelines.exec.reporting_callsites import scope_bucket
@@ -32,7 +32,7 @@ from .models import (
 from .report import empty_diagnostic_buckets
 
 
-def classify_pre_persist_misses(
+def classify_rejected_observations(
     *,
     core_conn,
     snapshot_id: str,
@@ -88,7 +88,7 @@ def classify_pre_persist_misses(
     for record in call_records:
         caller_id = record.caller_structural_id
         caller_module = module_lookup.get(caller_id)
-        observations: list[PrePersistObservation] = []
+        observations: list[RejectedObservation] = []
         resolve_callees(
             record.callee_identifiers,
             symbol_index,
@@ -102,7 +102,7 @@ def classify_pre_persist_misses(
             module_bindings_by_name=module_bindings_by_name,
             module_file_by_name=module_file_by_name,
             ts_barrel_export_map=ts_barrel_export_map,
-            pre_persist_observations=observations,
+            rejected_observations=observations,
             local_binding_facts=record.local_binding_facts,
         )
         caller_info = caller_metadata.get(caller_id) or {}

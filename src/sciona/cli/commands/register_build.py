@@ -27,7 +27,7 @@ def _build_command(
     diagnostic_verbose: bool = typer.Option(
         False,
         "--verbose",
-        help="With --diagnostic, also write a verbose pre-persist diagnostic sidecar.",
+        help="With --diagnostic, also write a verbose non-accepted-callsite sidecar.",
     ),
 ) -> None:
     """Create a new snapshot and ingest enabled languages (clean worktree required)."""

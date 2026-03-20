@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 
-"""Java-specific pre-persist diagnostic refinements."""
+"""Java-specific rejected-call diagnostic refinements."""
 
 from __future__ import annotations
 

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Filesystem helpers for optional pre-persist diagnostic runs."""
+"""Filesystem helpers for optional rejected-call diagnostic runs."""
 
 from __future__ import annotations
 
@@ -34,14 +34,6 @@ _PUBLIC_DIAGNOSTIC_BUCKET_MAP = {
 
 def build_status_output_path(repo_root: Path) -> Path:
     return repo_root / f"{repo_root.name}_build_status.json"
-
-
-def pre_persist_verbose_output_path(repo_root: Path) -> Path:
-    return repo_root / f"{repo_root.name}_pre_persist_verbose.json"
-
-
-def persisted_drop_verbose_output_path(repo_root: Path) -> Path:
-    return repo_root / f"{repo_root.name}_persisted_drop_verbose.json"
 
 
 def rejected_calls_verbose_output_path(repo_root: Path) -> Path:
@@ -302,13 +294,11 @@ def _replace_not_accepted_callsites(
             dict(
                 updated_totals.get("not_accepted_callsites")
                 or updated_totals.get("not_accepted_calls")
-                or updated_totals.get("pre_persist_filter")
                 or {}
             ),
             totals if isinstance(totals, dict) else {},
         )
         updated_totals.pop("not_accepted_calls", None)
-        updated_totals.pop("pre_persist_filter", None)
         report["totals"] = updated_totals
     if isinstance(report.get("languages"), dict):
         language_buckets = by_language if isinstance(by_language, dict) else {}
@@ -322,7 +312,6 @@ def _replace_not_accepted_callsites(
                 dict(
                     updated.get("not_accepted_callsites")
                     or updated.get("not_accepted_calls")
-                    or updated.get("pre_persist_filter")
                     or {}
                 ),
                 language_buckets.get(language_key)
@@ -330,7 +319,6 @@ def _replace_not_accepted_callsites(
                 else {},
             )
             updated.pop("not_accepted_calls", None)
-            updated.pop("pre_persist_filter", None)
             updated_languages[language_key] = updated
         report["languages"] = updated_languages
     if isinstance(report.get("scopes"), dict):
@@ -345,7 +333,6 @@ def _replace_not_accepted_callsites(
                 dict(
                     updated.get("not_accepted_callsites")
                     or updated.get("not_accepted_calls")
-                    or updated.get("pre_persist_filter")
                     or {}
                 ),
                 scope_buckets.get(scope_key)
@@ -353,7 +340,6 @@ def _replace_not_accepted_callsites(
                 else {},
             )
             updated.pop("not_accepted_calls", None)
-            updated.pop("pre_persist_filter", None)
             updated_scopes[scope_key] = updated
         report["scopes"] = updated_scopes
 
@@ -372,7 +358,7 @@ def _merge_non_candidate_buckets(
 
 @contextmanager
 def diagnostic_workspace(sciona_dir: Path):
-    workspace = sciona_dir / ".diagnostic_pre_persist"
+    workspace = sciona_dir / ".diagnostic_rejected_calls"
     shutil.rmtree(workspace, ignore_errors=True)
     workspace.mkdir(parents=True, exist_ok=True)
     try:

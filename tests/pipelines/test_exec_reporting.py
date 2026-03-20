@@ -227,11 +227,11 @@ def test_snapshot_report_includes_direct_callsite_counts_from_diagnostics(
                 '{"totals": {"observed_callsites": 5, "filtered_before_persist": 2, '
                 '"persisted_callsites": 3, "finalized_accepted_callsites": 2, '
                 '"finalized_dropped_callsites": 1, '
-                '"filtered_pre_persist_buckets": {"no_in_repo_candidate": 2}}, '
+                '"non_accepted_gate_reasons": {"no_in_repo_candidate": 2}}, '
                 '"by_caller": {"meth_alpha": {"observed_callsites": 5, '
                 '"filtered_before_persist": 2, "persisted_callsites": 3, '
                 '"finalized_accepted_callsites": 2, "finalized_dropped_callsites": 1, '
-                '"filtered_pre_persist_buckets": {"no_in_repo_candidate": 2}}}}'
+                '"non_accepted_gate_reasons": {"no_in_repo_candidate": 2}}}}'
             ),
         )
         conn.commit()

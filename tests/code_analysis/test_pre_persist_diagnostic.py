@@ -5,20 +5,20 @@ import sqlite3
 
 from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.data_storage.artifact_db.writes import write_index as artifact_write
-from sciona.code_analysis.diagnostics.pre_persist.classifier import (
+from sciona.code_analysis.diagnostics.rejected_calls.classifier import (
     classify_no_in_repo_candidate,
     classify_positive_candidate_rejection,
 )
-from sciona.code_analysis.diagnostics.pre_persist import pipeline as diagnostic_pipeline
-from sciona.code_analysis.diagnostics.pre_persist.report import (
+from sciona.code_analysis.diagnostics.rejected_calls import pipeline as diagnostic_pipeline
+from sciona.code_analysis.diagnostics.rejected_calls.report import (
     build_rejected_calls_verbose_payload,
     _merge_non_candidate_buckets,
     build_verbose_payload,
 )
-from sciona.code_analysis.diagnostics.pre_persist.models import (
+from sciona.code_analysis.diagnostics.rejected_calls.models import (
     DiagnosticMissObservation,
 )
-from sciona.code_analysis.tools.call_extraction import CallExtractionRecord, PrePersistObservation
+from sciona.code_analysis.tools.call_extraction import CallExtractionRecord, RejectedObservation
 from sciona.runtime import paths as runtime_paths
 from sciona.runtime.paths import get_artifact_db_path
 from tests.helpers import seed_repo_with_snapshot
@@ -843,9 +843,9 @@ def test_diagnostic_observation_carries_repo_prefix_strength(monkeypatch) -> Non
         lambda **kwargs: {},
     )
 
-    def _resolve(*args, pre_persist_observations, **kwargs):
-        pre_persist_observations.append(
-            PrePersistObservation(
+    def _resolve(*args, rejected_observations, **kwargs):
+        rejected_observations.append(
+            RejectedObservation(
                 identifier="repo.pkg.models.Secret",
                 ordinal=1,
                 callee_kind="qualified",
@@ -856,7 +856,7 @@ def test_diagnostic_observation_carries_repo_prefix_strength(monkeypatch) -> Non
 
     monkeypatch.setattr(diagnostic_pipeline, "resolve_callees", _resolve)
 
-    payload = diagnostic_pipeline.classify_pre_persist_misses(
+    payload = diagnostic_pipeline.classify_rejected_observations(
         core_conn=None,
         snapshot_id="snap",
         call_records=[
@@ -894,7 +894,7 @@ def test_diagnostic_observation_carries_repo_prefix_strength(monkeypatch) -> Non
     assert "owner_segment:value_like" in observation["signals"]
 
 
-def test_classify_pre_persist_misses_uses_progress_factory(monkeypatch) -> None:
+def test_classify_rejected_observations_uses_progress_factory(monkeypatch) -> None:
     monkeypatch.setattr(
         diagnostic_pipeline,
         "build_symbol_index",
@@ -934,9 +934,9 @@ def test_classify_pre_persist_misses_uses_progress_factory(monkeypatch) -> None:
         lambda **kwargs: {},
     )
 
-    def _resolve(*args, pre_persist_observations, **kwargs):
-        pre_persist_observations.append(
-            PrePersistObservation(
+    def _resolve(*args, rejected_observations, **kwargs):
+        rejected_observations.append(
+            RejectedObservation(
                 identifier="repo.pkg.symbol.Missing",
                 ordinal=1,
                 callee_kind="qualified",
@@ -960,7 +960,7 @@ def test_classify_pre_persist_misses_uses_progress_factory(monkeypatch) -> None:
         events.append(("factory", (label, total)))
         return _Handle()
 
-    payload = diagnostic_pipeline.classify_pre_persist_misses(
+    payload = diagnostic_pipeline.classify_rejected_observations(
         core_conn=None,
         snapshot_id="snap",
         call_records=[

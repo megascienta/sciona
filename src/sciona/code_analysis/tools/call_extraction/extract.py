@@ -23,7 +23,7 @@ from .types import (
     CallExtractionRecord,
     CallTarget,
     CallTargetIR,
-    PrePersistObservation,
+    RejectedObservation,
     QualifiedCallIR,
     ReceiverCallIR,
     TerminalCallIR,

@@ -14,7 +14,7 @@ from sciona.code_analysis.artifacts.call_resolution import (
 from sciona.code_analysis.languages.common.ir import LocalBindingFact
 from sciona.code_analysis.tools.call_extraction import (
     CallExtractionRecord,
-    PrePersistObservation,
+    RejectedObservation,
 )
 from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.data_storage.artifact_db.writes import write_index as artifact_write
@@ -243,7 +243,7 @@ def test_callsite_pairs_filter_out_of_repo_accepted_rows_at_persistence_boundary
             ).fetchall()
             assert [row["callee_id"] for row in node_call_rows] == ["func_alpha"]
             totals = diagnostics.get("totals") or {}
-            assert totals.get("filtered_pre_persist_buckets") == {
+            assert totals.get("non_accepted_gate_reasons") == {
                 "outside_in_repo_scope": 1
             }
         finally:
@@ -319,7 +319,7 @@ def test_callsite_pairs_record_invalid_observation_shape_bucket_for_invalid_rows
             ).fetchone()
             assert rows["row_count"] == 0
             totals = diagnostics.get("totals") or {}
-            assert totals.get("filtered_pre_persist_buckets") == {
+            assert totals.get("non_accepted_gate_reasons") == {
                 "invalid_observation_shape": 1
             }
         finally:
@@ -672,10 +672,10 @@ def test_write_call_artifacts_stores_no_candidate_misses_in_rejected_temp_table(
     core_conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
     core_conn.row_factory = sqlite3.Row
 
-    def _fake_resolve_callees(*args, pre_persist_observations, **kwargs):
+    def _fake_resolve_callees(*args, rejected_observations, **kwargs):
         del args, kwargs
-        pre_persist_observations.append(
-            PrePersistObservation(
+        rejected_observations.append(
+            RejectedObservation(
                 identifier=f"{prefix}.pkg.models.Secret",
                 ordinal=1,
                 callee_kind="qualified",

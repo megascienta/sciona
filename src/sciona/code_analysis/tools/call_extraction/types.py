@@ -24,8 +24,8 @@ class CallExtractionRecord:
 
 
 @dataclass(frozen=True)
-class PrePersistObservation:
-    """Diagnostic-only observation for one pre-persist miss."""
+class RejectedObservation:
+    """Diagnostic-only observation for one non-accepted callsite."""
 
     identifier: str
     ordinal: int
@@ -79,7 +79,7 @@ __all__ = [
     "CallExtractionRecord",
     "CallTarget",
     "CallTargetIR",
-    "PrePersistObservation",
+    "RejectedObservation",
     "QualifiedCallIR",
     "ReceiverCallIR",
     "TerminalCallIR",

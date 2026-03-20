@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Diagnostic-only models for pre-persist miss classification."""
+"""Diagnostic-only models for rejected-call classification."""
 
 from __future__ import annotations
 

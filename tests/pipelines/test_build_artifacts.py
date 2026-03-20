@@ -18,7 +18,7 @@ def test_stored_call_resolution_diagnostics_drops_bucket_and_observation_detail(
             "persisted_drop_observations": [{"identifier": "helper"}],
             "totals": {
                 "observed_callsites": 3,
-                "filtered_pre_persist_buckets": {"insufficient_static_evidence": 2},
+                "non_accepted_gate_reasons": {"insufficient_static_evidence": 2},
                 "persisted_callsite_pair_expansion": {
                     "persisted_callsites": 1,
                 },
@@ -26,7 +26,7 @@ def test_stored_call_resolution_diagnostics_drops_bucket_and_observation_detail(
             "by_caller": {
                 "meth_alpha": {
                     "observed_callsites": 3,
-                    "filtered_pre_persist_buckets": {
+                    "non_accepted_gate_reasons": {
                         "insufficient_static_evidence": 2
                     },
                     "persisted_callsite_pair_expansion": {

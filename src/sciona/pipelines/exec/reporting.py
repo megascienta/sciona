@@ -324,7 +324,7 @@ def _build_live_snapshot_report(
                     for bucket, count in raw_record_drops.items()
                     if int(count or 0) > 0
                 }
-            raw_not_accepted_buckets = raw_totals.get("filtered_pre_persist_buckets")
+            raw_not_accepted_buckets = raw_totals.get("non_accepted_gate_reasons")
             if isinstance(raw_not_accepted_buckets, dict):
                 diagnostics_total_not_accepted_buckets = {
                     str(bucket): int(count or 0)
@@ -394,7 +394,7 @@ def _build_live_snapshot_report(
                         scope_record_drops[bucket_name] = (
                             int(scope_record_drops.get(bucket_name, 0)) + amount
                         )
-                raw_not_accepted_buckets = raw.get("filtered_pre_persist_buckets")
+                raw_not_accepted_buckets = raw.get("non_accepted_gate_reasons")
                 if isinstance(raw_not_accepted_buckets, dict):
                     scope_not_accepted = scope_diag.get("not_accepted_buckets")
                     if not isinstance(scope_not_accepted, dict):

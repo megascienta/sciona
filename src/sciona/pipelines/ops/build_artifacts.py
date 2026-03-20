@@ -12,7 +12,7 @@ from typing import Sequence, Set
 from ...code_analysis import artifacts as artifact_derivation
 from ...code_analysis.tools.call_extraction import CallExtractionRecord
 from ...code_analysis.artifacts.engine import ArtifactEngine
-from ...code_analysis.diagnostics.pre_persist.pipeline import classify_rejected_calls
+from ...code_analysis.diagnostics.rejected_calls.pipeline import classify_rejected_calls
 from ...data_storage.connections import artifact
 from ...data_storage.common.transactions import transaction
 from ...data_storage.artifact_db.overlay import diff_overlay as overlay_store
@@ -36,7 +36,7 @@ def _stored_call_resolution_diagnostics(
     totals = payload.get("totals")
     if isinstance(totals, dict):
         totals_payload = dict(totals)
-        totals_payload.pop("filtered_pre_persist_buckets", None)
+        totals_payload.pop("non_accepted_gate_reasons", None)
         totals_payload.pop("persisted_callsite_pair_expansion", None)
         payload["totals"] = totals_payload
 
@@ -47,7 +47,7 @@ def _stored_call_resolution_diagnostics(
             if not isinstance(caller_id, str) or not isinstance(entry, dict):
                 continue
             entry_payload = dict(entry)
-            entry_payload.pop("filtered_pre_persist_buckets", None)
+            entry_payload.pop("non_accepted_gate_reasons", None)
             entry_payload.pop("persisted_callsite_pair_expansion", None)
             by_caller_payload[caller_id] = entry_payload
         payload["by_caller"] = by_caller_payload

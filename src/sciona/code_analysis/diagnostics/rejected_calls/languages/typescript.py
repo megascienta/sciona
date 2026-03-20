@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 
-"""TypeScript-specific pre-persist diagnostic refinements."""
+"""TypeScript-specific rejected-call diagnostic refinements."""
 
 from __future__ import annotations
 

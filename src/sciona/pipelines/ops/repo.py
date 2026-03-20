@@ -14,7 +14,7 @@ import json
 from pathlib import Path
 from typing import Mapping, Optional
 
-from ...code_analysis.diagnostics.pre_persist import report as diagnostic_report
+from ...code_analysis.diagnostics.rejected_calls import report as diagnostic_report
 from ..domain.repository import RepoState
 from ..domain.policies import BuildPolicy
 from ...runtime.logging import get_logger

@@ -380,7 +380,7 @@ def test_write_call_artifacts_rejects_unique_without_provenance_and_reports_diag
             assert caller_diag.get("filtered_before_persist") == 1
             assert caller_diag.get("finalized_accepted_callsites") == 0
             assert caller_diag.get("finalized_dropped_callsites") == 0
-            assert caller_diag.get("filtered_pre_persist_buckets") == {
+            assert caller_diag.get("non_accepted_gate_reasons") == {
                 "insufficient_static_evidence": 1
             }
             totals = diagnostics.get("totals") or {}
@@ -602,7 +602,7 @@ def test_resolve_callees_accepts_single_carrier_segment_qname_match() -> None:
     assert callsite_rows[0][2] == "user-notifications-pushcount"
 
 
-def test_write_call_artifacts_records_zero_candidate_pre_persist_bucket(tmp_path: Path):
+def test_write_call_artifacts_records_zero_candidate_non_accepted_gate_reason(tmp_path: Path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     prefix = runtime_paths.repo_name_prefix(repo_root)
     core_conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
@@ -633,11 +633,11 @@ def test_write_call_artifacts_records_zero_candidate_pre_persist_bucket(tmp_path
             assert caller_diag.get("observed_callsites") == 1
             assert caller_diag.get("persisted_callsites") == 0
             assert caller_diag.get("filtered_before_persist") == 1
-            assert caller_diag.get("filtered_pre_persist_buckets") == {
+            assert caller_diag.get("non_accepted_gate_reasons") == {
                 "no_in_repo_candidate": 1
             }
             totals = diagnostics.get("totals") or {}
-            assert totals.get("filtered_pre_persist_buckets") == {
+            assert totals.get("non_accepted_gate_reasons") == {
                 "no_in_repo_candidate": 1
             }
         finally:

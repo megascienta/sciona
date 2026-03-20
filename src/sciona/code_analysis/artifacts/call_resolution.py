@@ -22,7 +22,7 @@ from ..languages.common.ir import (
     binding_candidate_qnames_for_identifier,
     binding_match_for_identifier,
 )
-from ..tools.call_extraction.types import PrePersistObservation
+from ..tools.call_extraction.types import RejectedObservation
 from ...data_storage.core_db import read_ops as core_read
 from .call_resolution_python import (
     build_module_binding_index,
@@ -122,12 +122,12 @@ def filter_in_repo_callsite_rows(
             filtered.append(row)
             continue
         gate_reason = str(decision.gate_reason)
-        _inc_pre_persist_bucket(filtered_out, gate_reason)
+        _inc_non_accepted_gate_reason(filtered_out, gate_reason)
         rejected_rows.append((row, gate_reason, decision.raw_drop_reason))
     return filtered, filtered_out, rejected_rows
 
 
-def _inc_pre_persist_bucket(target: dict[str, int], bucket: str) -> None:
+def _inc_non_accepted_gate_reason(target: dict[str, int], bucket: str) -> None:
     normalized = normalized_non_accepted_gate_reason(bucket)
     target[normalized] = int(target.get(normalized, 0)) + 1
 
@@ -342,7 +342,7 @@ def resolve_callees(
     module_bindings_by_name: dict[str, set[str]] | None = None,
     module_file_by_name: dict[str, str] | None = None,
     ts_barrel_export_map: dict[str, set[str]] | None = None,
-    pre_persist_observations: list[PrePersistObservation] | None = None,
+    rejected_observations: list[RejectedObservation] | None = None,
     local_binding_facts: Sequence[LocalBindingFact] = (),
 ) -> tuple[
     set[str],
@@ -395,7 +395,7 @@ def resolve_callees(
         ]
     ] = []
     stats = build_strict_resolution_stats()
-    pre_persist_buckets: dict[str, int] = {}
+    non_accepted_gate_reasons: dict[str, int] = {}
     strict_batch = resolve_strict_call_batch(
         identifiers,
         symbol_index=symbol_index,
@@ -461,14 +461,14 @@ def resolve_callees(
             accepted_provenance=rescue_provenance,
         )
         if decision.candidate_count <= 0:
-            _inc_pre_persist_bucket(
-                pre_persist_buckets,
+            _inc_non_accepted_gate_reason(
+                non_accepted_gate_reasons,
                 "no_in_repo_candidate",
             )
-            if pre_persist_observations is not None:
+            if rejected_observations is not None:
                 hints = tuple(str(item) for item in (decision.candidate_module_hints or ()))
-                pre_persist_observations.append(
-                    PrePersistObservation(
+                rejected_observations.append(
+                    RejectedObservation(
                         identifier=identifier,
                         ordinal=ordinal,
                         callee_kind=callee_kind,
@@ -528,8 +528,8 @@ def resolve_callees(
                     else None,
                 )
                 )
-    if pre_persist_buckets:
-        stats["pre_persist_buckets"] = dict(pre_persist_buckets)
+    if non_accepted_gate_reasons:
+        stats["non_accepted_gate_reasons"] = dict(non_accepted_gate_reasons)
     return resolved_ids, resolved_names, stats, callsite_rows
 
 

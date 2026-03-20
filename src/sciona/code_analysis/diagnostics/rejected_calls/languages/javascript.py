@@ -1,78 +1,72 @@
 # SPDX-License-Identifier: MIT
 
-"""Python-specific pre-persist diagnostic refinements."""
+"""JavaScript-specific rejected-call diagnostic refinements."""
 
 from __future__ import annotations
 
 from ..models import DiagnosticClassification, DiagnosticMissObservation
 
-_PYTHON_BUILTINS = frozenset(
-    {
-        "print",
-        "len",
-        "range",
-        "open",
-        "min",
-        "max",
-        "sum",
-        "sorted",
-        "list",
-        "dict",
-        "set",
-        "tuple",
-        "str",
-        "int",
-        "float",
-        "bool",
-        "enumerate",
-        "zip",
-        "isinstance",
-        "issubclass",
-    }
+_JS_GLOBALS = frozenset(
+    {"Promise", "Array", "Object", "String", "Number", "Boolean", "Math", "JSON", "console"}
 )
-_PYTHON_STDLIB_ROOTS = frozenset(
+_JS_DYNAMIC_MEMBER_TERMINALS = frozenset(
     {
-        "collections",
-        "datetime",
-        "json",
-        "os",
-        "pathlib",
-        "sys",
-        "typing",
-    }
-)
-_PYTHON_DYNAMIC_MEMBER_TERMINALS = frozenset(
-    {
-        "append",
         "call",
-        "encode",
-        "feed",
-        "get_secret_value",
-        "items",
+        "entries",
+        "filter",
+        "finally",
+        "find",
+        "flat",
+        "flatMap",
+        "forEach",
+        "has",
+        "includes",
+        "join",
         "keys",
-        "model_dump",
-        "model_dump_json",
-        "model_validate",
-        "parse_obj",
+        "map",
+        "match",
         "pop",
-        "receive_text",
-        "send_json",
-        "send_text",
-        "to_python",
+        "push",
+        "reduce",
+        "slice",
+        "some",
         "values",
     }
 )
-_PYTHON_COLLECTION_MEMBER_TERMINALS = frozenset(
+_JS_COLLECTION_MEMBER_TERMINALS = frozenset(
     {
-        "append",
-        "feed",
-        "items",
+        "entries",
+        "filter",
+        "find",
+        "flat",
+        "flatMap",
+        "forEach",
+        "has",
+        "includes",
+        "join",
         "keys",
+        "map",
+        "match",
         "pop",
-        "receive_text",
-        "send_json",
-        "send_text",
+        "push",
+        "reduce",
+        "slice",
+        "some",
         "values",
+    }
+)
+_JS_ALWAYS_DYNAMIC_FLUENT_TERMINALS = frozenset(
+    {
+        "filter",
+        "finally",
+        "find",
+        "flatMap",
+        "forEach",
+        "includes",
+        "map",
+        "reduce",
+        "slice",
+        "some",
     }
 )
 
@@ -84,24 +78,30 @@ def classify(
     parts = [part for part in identifier.split(".") if part]
     terminal = identifier.rsplit(".", 1)[-1]
     root = observation.identifier_root or identifier.split(".", 1)[0]
-    if (
-        not _has_repo_ownership_signal(observation)
-        and (root in _PYTHON_BUILTINS or root in _PYTHON_STDLIB_ROOTS)
-    ):
+    if not _has_repo_ownership_signal(observation) and root in _JS_GLOBALS:
         return DiagnosticClassification(
             bucket="builtin_or_standard_shape",
-            reasons=("python_builtin_or_stdlib_root",),
+            reasons=("javascript_global_root",),
         )
-    if identifier.startswith(("self.", "cls.")):
+    if (
+        identifier.startswith(("this.", "super."))
+        or ".prototype." in identifier
+        or identifier.startswith("prototype.")
+    ):
         return DiagnosticClassification(
             bucket="dynamic_or_indirect_shape",
-            reasons=("python_receiver_pattern",),
+            reasons=("javascript_receiver_pattern",),
         )
-    if terminal in _PYTHON_DYNAMIC_MEMBER_TERMINALS:
+    if terminal in _JS_DYNAMIC_MEMBER_TERMINALS:
         if observation.repo_prefix_matches and observation.callee_kind == "qualified":
             owner = parts[-2] if len(parts) >= 2 else ""
+            if terminal in _JS_ALWAYS_DYNAMIC_FLUENT_TERMINALS:
+                return DiagnosticClassification(
+                    bucket="dynamic_or_indirect_shape",
+                    reasons=("repo_owned_dynamic_member_terminal",),
+                )
             if (
-                terminal in _PYTHON_COLLECTION_MEMBER_TERMINALS
+                terminal in _JS_COLLECTION_MEMBER_TERMINALS
                 and owner
                 and not _looks_type_like_owner(owner)
             ):

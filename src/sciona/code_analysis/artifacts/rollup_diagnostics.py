@@ -27,7 +27,7 @@ def ensure_rollup_diagnostics(diagnostics: dict[str, object] | None) -> dict[str
             "dropped_by_reason": {},
             "candidate_count_histogram": {},
             "record_drops": {},
-            "filtered_pre_persist_buckets": {},
+            "non_accepted_gate_reasons": {},
             "observed_callsites": 0,
             "persisted_callsites": 0,
             "filtered_before_persist": 0,
@@ -65,7 +65,7 @@ def ensure_caller_diagnostics(
             "dropped_by_reason": {},
             "candidate_count_histogram": {},
             "record_drops": {},
-            "filtered_pre_persist_buckets": {},
+            "non_accepted_gate_reasons": {},
             "observed_callsites": 0,
             "persisted_callsites": 0,
             "filtered_before_persist": 0,
@@ -149,7 +149,7 @@ def record_resolution_drop(
         _inc_map(totals_diag, "record_drops", reason)
 
 
-def record_pre_persist_filter_buckets(
+def record_non_accepted_gate_reasons(
     caller_diag: dict[str, object],
     totals_diag: dict[str, object],
     *,
@@ -159,8 +159,8 @@ def record_pre_persist_filter_buckets(
         amount = int(count or 0)
         if amount <= 0:
             continue
-        _inc_map(caller_diag, "filtered_pre_persist_buckets", bucket, amount=amount)
-        _inc_map(totals_diag, "filtered_pre_persist_buckets", bucket, amount=amount)
+        _inc_map(caller_diag, "non_accepted_gate_reasons", bucket, amount=amount)
+        _inc_map(totals_diag, "non_accepted_gate_reasons", bucket, amount=amount)
 
 
 def record_callsite_flow(

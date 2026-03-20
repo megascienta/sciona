@@ -43,7 +43,7 @@ from .rollup_diagnostics import (
     ensure_rollup_diagnostics as _ensure_rollup_diagnostics,
     merge_resolution_stats as _merge_resolution_stats,
     record_callsite_flow as _record_callsite_flow,
-    record_pre_persist_filter_buckets as _record_pre_persist_filter_buckets,
+    record_non_accepted_gate_reasons as _record_non_accepted_gate_reasons,
     record_resolution_drop as _record_resolution_drop,
 )
 
@@ -236,7 +236,7 @@ def write_call_artifacts(
     prepared_artifacts: list[_PreparedCallArtifact] = []
     for record in observed_groups:
         caller_id = record.caller_structural_id
-        pre_persist_observations = []
+        rejected_observations = []
         caller_diag = _ensure_caller_diagnostics(
             diagnostics,
             CallExtractionRecord(
@@ -261,7 +261,7 @@ def write_call_artifacts(
             module_bindings_by_name=module_bindings_by_name,
             module_file_by_name=module_file_by_name,
             ts_barrel_export_map=ts_barrel_export_map,
-            pre_persist_observations=pre_persist_observations,
+            rejected_observations=rejected_observations,
             local_binding_facts=record.local_binding_facts,
         )
         artifact_persistence.store_temp_rejected_observations(
@@ -286,7 +286,7 @@ def write_call_artifacts(
                     item.local_binding_evidence_kind,
                     None,
                 )
-                for item in pre_persist_observations
+                for item in rejected_observations
             ],
         )
         (
@@ -331,9 +331,11 @@ def write_call_artifacts(
             module_ancestors=module_ancestors,
         )
         pair_callee_ids = sorted({callee_id for _identifier, _ordinal, callee_id, _kind in pair_rows})
-        strict_pre_persist_buckets = resolution_stats.get("pre_persist_buckets") or {}
-        if isinstance(strict_pre_persist_buckets, dict):
-            for bucket, count in strict_pre_persist_buckets.items():
+        strict_non_accepted_gate_reasons = (
+            resolution_stats.get("non_accepted_gate_reasons") or {}
+        )
+        if isinstance(strict_non_accepted_gate_reasons, dict):
+            for bucket, count in strict_non_accepted_gate_reasons.items():
                 amount = int(count or 0)
                 if amount <= 0:
                     continue
@@ -390,7 +392,7 @@ def write_call_artifacts(
         rescue_accepted = [
             row for row in accepted_rows if row[3] == "export_chain_narrowed"
         ]
-        _record_pre_persist_filter_buckets(
+        _record_non_accepted_gate_reasons(
             caller_diag,
             diagnostics_totals,
             buckets=filtered_out_buckets,

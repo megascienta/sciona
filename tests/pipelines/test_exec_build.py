@@ -193,4 +193,4 @@ def test_build_repo_diagnostic_workspace_is_removed(tmp_path: Path) -> None:
     result = build_repo(repo_state, policy, diagnostic=True)
 
     assert result.status == "committed"
-    assert not (repo_root / ".sciona" / ".diagnostic_pre_persist").exists()
+    assert not (repo_root / ".sciona" / ".diagnostic_rejected_calls").exists()
