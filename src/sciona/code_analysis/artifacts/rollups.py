@@ -469,7 +469,7 @@ def write_call_artifacts(
         prepare_progress.close()
 
     write_progress = (
-        progress_factory("Writing durable calls", len(prepared_artifacts))
+        progress_factory("Writing accepted calls", len(prepared_artifacts))
         if progress_factory and prepared_artifacts
         else None
     )
