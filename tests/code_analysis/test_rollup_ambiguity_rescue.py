@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 from sciona.code_analysis.artifacts import rollups
+from sciona.code_analysis.artifacts.call_resolution import (
+    _python_repeated_segment_variants,
+)
 from sciona.code_analysis.artifacts.call_resolution_javascript import (
     resolve_javascript_structural_ambiguous,
 )
@@ -121,6 +124,43 @@ def test_module_binding_index_adds_constructor_owner_binding() -> None:
         module_lookup={"id_add_new": "sympy.core.add"},
     )
     assert bindings["sympy.core.add"] >= {"Add", "__new__"}
+
+
+def test_python_repeated_segment_variants_collapses_adjacent_duplicate_module() -> None:
+    variants = _python_repeated_segment_variants("sympy.sets.sets.Set")
+    assert "sympy.sets.Set" in variants
+
+
+def test_resolve_callees_rescues_python_repeated_segment_identifier() -> None:
+    resolved_ids, _resolved_names, _stats, callsite_rows = rollups._resolve_callees(
+        ("sympy.sets.sets.Set",),
+        {
+            "sympy.sets.Set": ["id_set_new"],
+            "Set": ["id_set_new"],
+        },
+        caller_module="sympy.tests.foo",
+        caller_language="python",
+        module_lookup={
+            "id_set_new": "sympy.sets",
+        },
+        callable_qname_by_id={
+            "id_set_new": "sympy.sets.Set.__new__",
+        },
+        import_targets={
+            "sympy.tests.foo": {"sympy"},
+            "sympy": {"sympy.sets"},
+        },
+        expanded_import_targets={"sympy.tests.foo": {"sympy"}},
+        module_ancestors={"sympy.tests.foo": {"sympy.tests", "sympy"}},
+        module_bindings_by_name={"sympy.sets": {"Set", "__new__"}},
+        module_file_by_name={"sympy": "sympy/__init__.py"},
+        ts_barrel_export_map={},
+        js_barrel_export_map={},
+        rejected_observations=[],
+        local_binding_facts=(),
+    )
+    assert resolved_ids == {"id_set_new"}
+    assert any(row[1] == "accepted" and row[2] == "id_set_new" for row in callsite_rows)
 
 
 def test_typescript_barrel_ambiguity_rescue_prefers_closest_module() -> None:

@@ -34,7 +34,8 @@ from .call_resolution_typescript import (
 )
 
 from .call_resolution_javascript import (
-    resolve_javascript_structural_ambiguous
+    build_javascript_barrel_export_map,
+    resolve_javascript_structural_ambiguous,
 )
 from .in_repo_static_gate import (
     evaluate_callsite_row_for_persistence,
@@ -342,6 +343,7 @@ def resolve_callees(
     module_bindings_by_name: dict[str, set[str]] | None = None,
     module_file_by_name: dict[str, str] | None = None,
     ts_barrel_export_map: dict[str, set[str]] | None = None,
+    js_barrel_export_map: dict[str, set[str]] | None = None,
     rejected_observations: list[RejectedObservation] | None = None,
     local_binding_facts: Sequence[LocalBindingFact] = (),
 ) -> tuple[
@@ -370,6 +372,7 @@ def resolve_callees(
     module_bindings_by_name = module_bindings_by_name or {}
     module_file_by_name = module_file_by_name or {}
     ts_barrel_export_map = ts_barrel_export_map or {}
+    js_barrel_export_map = js_barrel_export_map or {}
     symbol_index = _apply_binding_fact_candidates(
         identifiers=identifiers,
         symbol_index=symbol_index,
@@ -424,20 +427,21 @@ def resolve_callees(
             module_bindings_by_name=module_bindings_by_name,
             module_file_by_name=module_file_by_name,
             ts_barrel_export_map=ts_barrel_export_map,
+            js_barrel_export_map=js_barrel_export_map,
         )
         if rescue_candidate:
             if rescue_provenance == "export_chain_narrowed" and (
                 caller_language in {"python", "typescript"}
                 or (
                     caller_language == "javascript"
-                    and decision.dropped_reason == "unique_without_provenance"
+                    and decision.dropped_reason in {"unique_without_provenance", "no_candidates"}
                 )
             ):
                 decision = StrictCallDecision(
                     accepted_candidate=rescue_candidate,
                     accepted_provenance="import_narrowed",
                     dropped_reason=None,
-                    candidate_count=decision.candidate_count,
+                    candidate_count=max(1, int(decision.candidate_count)),
                     in_scope_candidate_count=1,
                     candidate_module_hints=tuple(decision.candidate_module_hints),
                 )
@@ -635,22 +639,35 @@ def _resolve_post_strict_rescue_candidate(
     module_bindings_by_name: dict[str, set[str]],
     module_file_by_name: dict[str, str],
     ts_barrel_export_map: dict[str, set[str]],
+    js_barrel_export_map: dict[str, set[str]],
 ) -> tuple[str | None, str | None]:
     if decision.accepted_candidate is not None:
         return None, None
-    direct_candidates = symbol_index.get(identifier) or []
+    identifier_candidates = [identifier]
+    if caller_language == "python":
+        identifier_candidates.extend(_python_repeated_segment_variants(identifier))
+    direct_candidates = []
+    selected_identifier = identifier
+    for candidate_identifier in identifier_candidates:
+        direct_candidates = symbol_index.get(candidate_identifier) or []
+        if direct_candidates:
+            selected_identifier = candidate_identifier
+            break
     fallback_candidates = []
-    if not direct_candidates and "." in identifier:
-        fallback_candidates = symbol_index.get(identifier.rsplit(".", 1)[-1]) or []
+    if not direct_candidates and "." in selected_identifier:
+        fallback_candidates = symbol_index.get(
+            selected_identifier.rsplit(".", 1)[-1]
+        ) or []
     if caller_language == "python":
         if decision.dropped_reason not in {
             "ambiguous_no_in_scope_candidate",
             "ambiguous_multiple_in_scope_candidates",
             "unique_without_provenance",
+            "no_candidates",
         }:
             return None, None
         rescue_candidate = resolve_python_export_chain_ambiguous(
-            identifier=identifier,
+            identifier=selected_identifier,
             direct_candidates=direct_candidates,
             fallback_candidates=fallback_candidates,
             caller_module=caller_module,
@@ -673,6 +690,7 @@ def _resolve_post_strict_rescue_candidate(
             "ambiguous_no_in_scope_candidate",
             "ambiguous_multiple_in_scope_candidates",
             "unique_without_provenance",
+            "no_candidates",
         }:
             return None, None
         rescue_candidate = resolve_typescript_barrel_ambiguous(
@@ -697,6 +715,7 @@ def _resolve_post_strict_rescue_candidate(
             "ambiguous_no_in_scope_candidate",
             "ambiguous_multiple_in_scope_candidates",
             "unique_without_provenance",
+            "no_candidates",
         }:
             return None, None
         rescue_candidate = resolve_javascript_structural_ambiguous(
@@ -708,6 +727,7 @@ def _resolve_post_strict_rescue_candidate(
             module_lookup=module_lookup,
             import_targets=import_targets,
             expanded_import_targets=expanded_import_targets,
+            js_barrel_export_map=js_barrel_export_map,
             simple_identifier=simple_identifier,
             module_in_scope=module_in_scope,
             best_candidate_by_module_distance=best_candidate_by_module_distance,
@@ -719,6 +739,37 @@ def _resolve_post_strict_rescue_candidate(
             return rescue_candidate, "export_chain_narrowed"
         return None, None
     return None, None
+
+
+def _python_repeated_segment_variants(identifier: str) -> tuple[str, ...]:
+    if "." not in identifier:
+        return ()
+    module_part, terminal = identifier.rsplit(".", 1)
+    parts = [part for part in module_part.split(".") if part]
+    if len(parts) < 2:
+        return ()
+    variants: list[str] = []
+    for index in range(len(parts) - 1):
+        if parts[index] != parts[index + 1]:
+            continue
+        collapsed = parts[:index] + parts[index + 1 :]
+        if collapsed:
+            variants.append(".".join(collapsed + [terminal]))
+    return tuple(dict.fromkeys(variants))
+
+
+def build_javascript_index_export_map(
+    *,
+    import_targets: dict[str, set[str]],
+    module_bindings_by_name: dict[str, set[str]],
+    module_file_by_name: dict[str, str],
+) -> dict[str, set[str]]:
+    return build_javascript_barrel_export_map(
+        import_targets=import_targets,
+        module_bindings_by_name=module_bindings_by_name,
+        module_file_by_name=module_file_by_name,
+        bounded_module_reachability=bounded_module_reachability,
+    )
 
 
 def _revalidate_rescue_candidate(
