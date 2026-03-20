@@ -108,7 +108,7 @@ def test_snapshot_report_includes_timing_under_timing_group(repo_with_snapshot):
         artifact_write.set_rebuild_metadata(
             conn,
             key=f"build_phase_timings:{snapshot_id}",
-            value='{"discover_files": 0.12, "build_structural_index": 2.75, "prepare_durable_calls": 0.50, "write_durable_calls": 0.10}',
+            value='{"discover_files": 0.12, "build_structural_index": 2.75, "filter_callsites_by_contract": 0.50, "write_accepted_calls": 0.10}',
         )
         conn.commit()
     finally:
@@ -121,8 +121,8 @@ def test_snapshot_report_includes_timing_under_timing_group(repo_with_snapshot):
     assert payload["timing"]["build_phase_timings"] == {
         "discover_files": pytest.approx(0.12),
         "build_structural_index": pytest.approx(2.75),
-        "prepare_durable_calls": pytest.approx(0.50),
-        "write_durable_calls": pytest.approx(0.10),
+        "filter_callsites_by_contract": pytest.approx(0.50),
+        "write_accepted_calls": pytest.approx(0.10),
     }
 
 
