@@ -211,13 +211,15 @@ def _render_summary_lines(
     if not summary.get("artifact_db_available", False):
         lines.append(f"{indent}call diagnostics: unavailable (artifact DB missing)")
     phase_timings = timing.get("build_phase_timings") or {}
+    phase_labels = ((summary.get("labels") or {}).get("phases") or {})
     if include_reasons and phase_timings:
         lines.append(f"{indent}build phases:")
         for phase, seconds in phase_timings.items():
             duration = _format_duration_seconds(seconds)
             if duration is None:
                 continue
-            lines.append(f"{indent}  {phase}: {duration}")
+            label = str(phase_labels.get(phase) or phase)
+            lines.append(f"{indent}  {label}: {duration}")
     return lines
 
 
