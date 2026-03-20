@@ -6,10 +6,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable, Sequence
+from typing import Iterable, Sequence, cast
 
 from ..analysis.module_id import module_id_for
-from ..languages.common.ir import binding_match_for_identifier
+from ..languages.common.ir import (
+    LocalBindingFact,
+    binding_match_for_identifier,
+    validated_local_binding_fact,
+)
 from ..tools.call_extraction import CallExtractionRecord
 from ...data_storage.artifact_db.rollups import rollup_persistence as artifact_persistence
 from ...runtime.common import identity as ids
@@ -51,6 +55,17 @@ class _PreparedCallArtifact:
     call_hash: str
     write_node_calls: bool
     write_empty_node_calls: bool
+
+
+@dataclass(frozen=True)
+class _ObservedCallsiteGroup:
+    caller_structural_id: str
+    caller_qualified_name: str
+    caller_module: str | None
+    caller_language: str | None
+    caller_file_path: str
+    callee_identifiers: tuple[str, ...]
+    local_binding_facts: tuple[LocalBindingFact, ...]
 
 
 def rebuild_graph_rollups(
@@ -180,19 +195,10 @@ def write_call_artifacts(
     node_hashes = _load_node_hashes(core_conn, snapshot_id, caller_set)
     processed_callers: set[str] = set()
     diagnostics_totals = _ensure_rollup_diagnostics(diagnostics)
-    prepare_progress = (
-        progress_factory("Preparing durable calls", len(call_records))
-        if progress_factory and call_records
-        else None
-    )
-    prepared_artifacts: list[_PreparedCallArtifact] = []
     for record in call_records:
         caller_id = record.caller_structural_id
         if caller_id not in caller_set:
-            if prepare_progress:
-                prepare_progress.advance(1)
             continue
-        caller_diag = _ensure_caller_diagnostics(diagnostics, record)
         caller_module = module_lookup.get(caller_id)
         artifact_persistence.store_temp_observed_callsites(
             artifact_conn,
@@ -212,6 +218,7 @@ def write_call_artifacts(
                     binding_match.target if binding_match is not None else None,
                     binding_match.binding_kind if binding_match is not None else None,
                     binding_match.evidence_kind if binding_match is not None else None,
+                    binding_match.language if binding_match is not None else None,
                 )
                 for ordinal, identifier in enumerate(record.callee_identifiers, start=1)
                 for binding_match in [
@@ -219,11 +226,32 @@ def write_call_artifacts(
                 ]
             ],
         )
+    observed_rows = artifact_persistence.list_temp_observed_callsites(artifact_conn)
+    observed_groups = _observed_callsite_groups(observed_rows, caller_set=caller_set)
+    prepare_progress = (
+        progress_factory("Preparing durable calls", len(observed_groups))
+        if progress_factory and observed_groups
+        else None
+    )
+    prepared_artifacts: list[_PreparedCallArtifact] = []
+    for record in observed_groups:
+        caller_id = record.caller_structural_id
+        caller_diag = _ensure_caller_diagnostics(
+            diagnostics,
+            CallExtractionRecord(
+                caller_structural_id=caller_id,
+                caller_qualified_name=record.caller_qualified_name,
+                caller_node_type="callable",
+                callee_identifiers=record.callee_identifiers,
+                local_binding_facts=record.local_binding_facts,
+            ),
+        )
+        caller_module = record.caller_module or module_lookup.get(caller_id)
         callee_ids, _, resolution_stats, callsite_rows = _resolve_callees(
             record.callee_identifiers,
             symbol_index,
             caller_module=caller_module,
-            caller_language=caller_language_map.get(caller_id),
+            caller_language=record.caller_language or caller_language_map.get(caller_id),
             module_lookup=module_lookup,
             callable_qname_by_id=callable_qname_by_id,
             import_targets=import_targets,
@@ -250,7 +278,8 @@ def write_call_artifacts(
             caller_module=caller_module,
             caller_language=caller_language_map.get(caller_id),
             caller_file_path=str(
-                (caller_metadata_map.get(caller_id) or {}).get("file_path") or ""
+                record.caller_file_path
+                or str((caller_metadata_map.get(caller_id) or {}).get("file_path") or "")
             ),
             rows=[
                 (
@@ -267,7 +296,7 @@ def write_call_artifacts(
             in_repo_callable_ids=in_repo_callable_ids,
             symbol_index=symbol_index,
             caller_module=caller_module,
-            caller_language=caller_language_map.get(caller_id),
+            caller_language=record.caller_language or caller_language_map.get(caller_id),
             module_lookup=module_lookup,
             callable_qname_by_id=callable_qname_by_id,
             import_targets=import_targets,
@@ -488,6 +517,73 @@ def _duplicate_caller_ids(
             continue
         seen.add(caller_id)
     return duplicates
+
+
+def _observed_callsite_groups(
+    rows: Sequence[object],
+    *,
+    caller_set: set[str],
+) -> list[_ObservedCallsiteGroup]:
+    grouped: dict[str, dict[str, object]] = {}
+    for row in rows:
+        caller_id = str(row["caller_structural_id"] or "")
+        if not caller_id or caller_id not in caller_set:
+            continue
+        entry = grouped.setdefault(
+            caller_id,
+            {
+                "caller_qualified_name": str(row["caller_qualified_name"] or ""),
+                "caller_module": (
+                    str(row["caller_module"]) if row["caller_module"] is not None else None
+                ),
+                "caller_language": (
+                    str(row["caller_language"])
+                    if row["caller_language"] is not None
+                    else None
+                ),
+                "caller_file_path": str(row["caller_file_path"] or ""),
+                "callee_identifiers": [],
+                "binding_facts": {},
+            },
+        )
+        cast(list[str], entry["callee_identifiers"]).append(str(row["identifier"] or ""))
+        symbol = str(row["local_binding_symbol"] or "")
+        target = str(row["local_binding_target"] or "")
+        binding_kind = str(row["local_binding_kind"] or "")
+        evidence_kind = str(row["local_binding_evidence_kind"] or "")
+        language = str(row["local_binding_language"] or row["caller_language"] or "")
+        if not symbol or not target or not binding_kind or not evidence_kind or not language:
+            continue
+        key = (symbol, target, binding_kind, evidence_kind, language)
+        binding_facts = cast(dict[tuple[str, str, str, str, str], LocalBindingFact], entry["binding_facts"])
+        binding_facts.setdefault(
+            key,
+            validated_local_binding_fact(
+                symbol,
+                target,
+                binding_kind=binding_kind,
+                evidence_kind=evidence_kind,
+                language=language,
+            ),
+        )
+    groups: list[_ObservedCallsiteGroup] = []
+    for caller_id, entry in grouped.items():
+        binding_facts = cast(
+            dict[tuple[str, str, str, str, str], LocalBindingFact],
+            entry["binding_facts"],
+        )
+        groups.append(
+            _ObservedCallsiteGroup(
+                caller_structural_id=caller_id,
+                caller_qualified_name=cast(str, entry["caller_qualified_name"]),
+                caller_module=cast(str | None, entry["caller_module"]),
+                caller_language=cast(str | None, entry["caller_language"]),
+                caller_file_path=cast(str, entry["caller_file_path"]),
+                callee_identifiers=tuple(cast(list[str], entry["callee_identifiers"])),
+                local_binding_facts=tuple(binding_facts.values()),
+            )
+        )
+    return groups
 
 
 def _build_typescript_barrel_export_map(

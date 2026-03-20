@@ -140,6 +140,10 @@ def store_temp_observed_callsites(
     )
 
 
+def list_temp_observed_callsites(conn):
+    return write_index.list_temp_observed_callsites(conn)
+
+
 def clear_call_artifacts_for_callers(
     conn,
     *,
@@ -160,6 +164,7 @@ __all__ = [
     "reset_rollup_temp_tables",
     "load_module_lookup",
     "load_method_to_class",
+    "list_temp_observed_callsites",
     "rebuild_module_call_edges",
     "rebuild_class_call_edges",
     "rebuild_node_fan_stats",

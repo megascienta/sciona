@@ -38,7 +38,8 @@ def _ensure_temp_observed_callsites_table(conn: sqlite3.Connection) -> None:
             local_binding_symbol TEXT,
             local_binding_target TEXT,
             local_binding_kind TEXT,
-            local_binding_evidence_kind TEXT
+            local_binding_evidence_kind TEXT,
+            local_binding_language TEXT
         )
         """
     )
@@ -76,9 +77,10 @@ def store_temp_observed_callsites(
             local_binding_symbol,
             local_binding_target,
             local_binding_kind,
-            local_binding_evidence_kind
+            local_binding_evidence_kind,
+            local_binding_language
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         [
             (
@@ -94,10 +96,37 @@ def store_temp_observed_callsites(
                 row[4],
                 row[5],
                 row[6],
+                row[7],
             )
             for row in rows
         ],
     )
+
+
+def list_temp_observed_callsites(
+    conn: sqlite3.Connection,
+) -> list[sqlite3.Row]:
+    _ensure_temp_observed_callsites_table(conn)
+    return conn.execute(
+        """
+        SELECT
+            caller_structural_id,
+            caller_qualified_name,
+            caller_module,
+            caller_language,
+            caller_file_path,
+            identifier,
+            call_ordinal,
+            callee_kind,
+            local_binding_symbol,
+            local_binding_target,
+            local_binding_kind,
+            local_binding_evidence_kind,
+            local_binding_language
+        FROM observed_callsites_temp
+        ORDER BY caller_structural_id, call_ordinal, rowid
+        """
+    ).fetchall()
 
 
 def _ensure_temp_rejected_callsites_table(conn: sqlite3.Connection) -> None:
