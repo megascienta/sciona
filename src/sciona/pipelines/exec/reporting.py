@@ -95,8 +95,7 @@ PHASE_LABELS = {
     "write_accepted_calls": "Write Accepted Calls",
     "rebuild_graph_index": "Rebuild Call Graph Index",
     "rebuild_graph_rollups": "Rebuild Graph Rollups",
-    "diagnostic_classification_phase_I": "Diagnostic Classification (Phase I)",
-    "diagnostic_classification_phase_II": "Diagnostic Classification (Phase II)",
+    "diagnostic_classification": "Diagnostic Classification",
 }
 
 

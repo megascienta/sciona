@@ -130,8 +130,6 @@ class BuildProgress:
         "Writing accepted calls": "write_accepted_calls",
         "Rebuilding call graph index": "rebuild_graph_index",
         "Rebuilding graph rollups": "rebuild_graph_rollups",
-        "Diagnostic classification (Phase I)": "diagnostic_classification_phase_I",
-        "Diagnostic classification (Phase II)": "diagnostic_classification_phase_II",
         "Diagnostic classification": "diagnostic_classification",
     }
 
