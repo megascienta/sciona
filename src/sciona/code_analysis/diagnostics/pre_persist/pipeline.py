@@ -81,7 +81,7 @@ def classify_pre_persist_misses(
         },
     )
     progress_handle = (
-        progress_factory("Diagnostic classification (Phase I)", len(call_records))
+        progress_factory("Diagnostic classification", len(call_records))
         if progress_factory is not None
         else None
     )

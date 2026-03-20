@@ -977,7 +977,7 @@ def test_classify_pre_persist_misses_uses_progress_factory(monkeypatch) -> None:
     assert payload["totals"]["unindexed_symbol_shape"] == 1
     assert len(payload["observations"]) == 1
     assert events == [
-        ("factory", ("Diagnostic classification (Phase I)", 1)),
+        ("factory", ("Diagnostic classification", 1)),
         ("advance", 1),
         ("close", None),
     ]
