@@ -153,7 +153,6 @@ def refresh_artifact_state(
                             core_conn=conn,
                             artifact_conn=artifact_conn,
                             snapshot_id=snapshot_id,
-                            call_records=call_artifacts,
                             progress_factory=progress_factory,
                         ),
                     )

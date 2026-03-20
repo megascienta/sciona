@@ -236,6 +236,7 @@ def write_call_artifacts(
     prepared_artifacts: list[_PreparedCallArtifact] = []
     for record in observed_groups:
         caller_id = record.caller_structural_id
+        pre_persist_observations = []
         caller_diag = _ensure_caller_diagnostics(
             diagnostics,
             CallExtractionRecord(
@@ -260,7 +261,33 @@ def write_call_artifacts(
             module_bindings_by_name=module_bindings_by_name,
             module_file_by_name=module_file_by_name,
             ts_barrel_export_map=ts_barrel_export_map,
+            pre_persist_observations=pre_persist_observations,
             local_binding_facts=record.local_binding_facts,
+        )
+        artifact_persistence.store_temp_rejected_observations(
+            artifact_conn,
+            caller_structural_id=caller_id,
+            caller_qualified_name=record.caller_qualified_name,
+            caller_module=caller_module,
+            caller_language=record.caller_language or caller_language_map.get(caller_id),
+            caller_file_path=(
+                record.caller_file_path
+                or str((caller_metadata_map.get(caller_id) or {}).get("file_path") or "")
+            ),
+            rows=[
+                (
+                    item.identifier,
+                    item.ordinal,
+                    item.callee_kind,
+                    item.candidate_module_hints,
+                    item.local_binding_symbol,
+                    item.local_binding_target,
+                    item.local_binding_kind,
+                    item.local_binding_evidence_kind,
+                    None,
+                )
+                for item in pre_persist_observations
+            ],
         )
         (
             callee_ids,

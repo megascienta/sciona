@@ -1038,10 +1038,24 @@ def test_classify_rejected_calls_uses_temp_rejected_rows(tmp_path) -> None:
             ],
         )
 
+        events: list[tuple[str, object]] = []
+
+        class _Handle:
+            def advance(self, steps: int = 1) -> None:
+                events.append(("advance", steps))
+
+            def close(self) -> None:
+                events.append(("close", None))
+
+        def _factory(label: str, total: int):
+            events.append(("factory", (label, total)))
+            return _Handle()
+
         payload = diagnostic_pipeline.classify_rejected_calls(
             core_conn=core_conn,
             artifact_conn=artifact_conn,
             snapshot_id=snapshot_id,
+            progress_factory=_factory,
         )
     finally:
         artifact_conn.close()
@@ -1049,6 +1063,12 @@ def test_classify_rejected_calls_uses_temp_rejected_rows(tmp_path) -> None:
 
     assert payload["totals"]["unindexed_symbol_shape"] == 1
     assert payload["totals"]["accepted_outside_in_repo"] == 1
+    assert events == [
+        ("factory", ("Diagnostic classification", 2)),
+        ("advance", 1),
+        ("advance", 1),
+        ("close", None),
+    ]
     observations = payload["observations"]
     assert observations[0]["gate_reason"] == "no_in_repo_candidate"
     assert observations[0]["raw_drop_reason"] == "no_candidates"

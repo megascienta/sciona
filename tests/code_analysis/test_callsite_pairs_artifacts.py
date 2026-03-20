@@ -12,7 +12,10 @@ from sciona.code_analysis.artifacts.call_resolution import (
     resolve_callees,
 )
 from sciona.code_analysis.languages.common.ir import LocalBindingFact
-from sciona.code_analysis.tools.call_extraction import CallExtractionRecord
+from sciona.code_analysis.tools.call_extraction import (
+    CallExtractionRecord,
+    PrePersistObservation,
+)
 from sciona.data_storage.artifact_db import connect as artifact_connect
 from sciona.data_storage.artifact_db.writes import write_index as artifact_write
 from sciona.runtime import paths as runtime_paths
@@ -654,6 +657,74 @@ def test_write_call_artifacts_stores_local_binding_fields_in_temp_table(
                 "translator",
                 f"{prefix}.public.src.translator",
                 "module_alias",
+            )
+        finally:
+            artifact_conn.close()
+    finally:
+        core_conn.close()
+
+
+def test_write_call_artifacts_stores_no_candidate_misses_in_rejected_temp_table(
+    tmp_path: Path, monkeypatch
+) -> None:
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    prefix = runtime_paths.repo_name_prefix(repo_root)
+    core_conn = sqlite3.connect(repo_root / ".sciona" / "sciona.db")
+    core_conn.row_factory = sqlite3.Row
+
+    def _fake_resolve_callees(*args, pre_persist_observations, **kwargs):
+        del args, kwargs
+        pre_persist_observations.append(
+            PrePersistObservation(
+                identifier=f"{prefix}.pkg.models.Secret",
+                ordinal=1,
+                callee_kind="qualified",
+                candidate_module_hints=(f"{prefix}.pkg.models",),
+            )
+        )
+        return (
+            set(),
+            set(),
+            {
+                "identifiers_total": 1,
+                "accepted_by_provenance": {},
+                "dropped_by_reason": {"no_candidates": 1},
+                "candidate_count_histogram": {0: 1},
+            },
+            [],
+        )
+
+    monkeypatch.setattr(rollups, "_resolve_callees", _fake_resolve_callees)
+    try:
+        artifact_conn = artifact_connect(get_artifact_db_path(repo_root), repo_root=repo_root)
+        try:
+            write_call_artifacts(
+                artifact_conn=artifact_conn,
+                core_conn=core_conn,
+                snapshot_id=snapshot_id,
+                call_records=[
+                    CallExtractionRecord(
+                        caller_structural_id="meth_alpha",
+                        caller_qualified_name=f"{prefix}.pkg.alpha.Service.run",
+                        caller_node_type="callable",
+                        callee_identifiers=(f"{prefix}.pkg.models.Secret",),
+                    )
+                ],
+                eligible_callers={"meth_alpha"},
+            )
+            row = artifact_conn.execute(
+                """
+                SELECT identifier, gate_reason, candidate_count, candidate_module_hints
+                FROM rejected_callsites_temp
+                WHERE caller_structural_id = 'meth_alpha'
+                """
+            ).fetchone()
+            assert row is not None
+            assert tuple(row) == (
+                f"{prefix}.pkg.models.Secret",
+                "no_in_repo_candidate",
+                0,
+                f"{prefix}.pkg.models",
             )
         finally:
             artifact_conn.close()

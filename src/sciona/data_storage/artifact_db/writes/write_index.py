@@ -239,6 +239,79 @@ def store_temp_rejected_callsites(
     )
 
 
+def store_temp_rejected_observations(
+    conn: sqlite3.Connection,
+    *,
+    caller_structural_id: str,
+    caller_qualified_name: str,
+    caller_module: str | None,
+    caller_language: str | None,
+    caller_file_path: str,
+    rows: Sequence[tuple],
+) -> None:
+    if not rows:
+        return
+    _ensure_temp_rejected_callsites_table(conn)
+    conn.executemany(
+        """
+        INSERT INTO rejected_callsites_temp(
+            caller_structural_id,
+            caller_qualified_name,
+            caller_module,
+            caller_language,
+            caller_file_path,
+            identifier,
+            status,
+            accepted_callee_id,
+            provenance,
+            drop_reason,
+            candidate_count,
+            callee_kind,
+            call_start_byte,
+            call_end_byte,
+            call_ordinal,
+            in_scope_candidate_count,
+            candidate_module_hints,
+            local_binding_symbol,
+            local_binding_target,
+            local_binding_kind,
+            local_binding_evidence_kind,
+            gate_reason,
+            raw_drop_reason
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        [
+            (
+                caller_structural_id,
+                caller_qualified_name,
+                caller_module,
+                caller_language,
+                caller_file_path,
+                row[0],
+                "dropped",
+                None,
+                None,
+                None,
+                0,
+                row[2],
+                None,
+                None,
+                row[1],
+                0,
+                ",".join(row[3]) if row[3] else None,
+                row[4],
+                row[5],
+                row[6],
+                row[7],
+                "no_in_repo_candidate",
+                row[8],
+            )
+            for row in rows
+        ],
+    )
+
+
 def upsert_node_calls(
     conn: sqlite3.Connection,
     *,

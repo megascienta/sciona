@@ -217,15 +217,8 @@ def classify_rejected_calls(
     core_conn,
     artifact_conn,
     snapshot_id: str,
-    call_records: Sequence[CallExtractionRecord] = (),
     progress_factory: ProgressFactory | None = None,
 ) -> dict[str, object]:
-    pre_persist_payload = classify_pre_persist_misses(
-        core_conn=core_conn,
-        snapshot_id=snapshot_id,
-        call_records=call_records,
-        progress_factory=progress_factory,
-    )
     rows = artifact_conn.execute(
         """
         SELECT
@@ -249,7 +242,15 @@ def classify_rejected_calls(
         """
     ).fetchall()
     if not rows:
-        return pre_persist_payload
+        return {
+            "totals": empty_diagnostic_buckets(),
+            "by_language": {},
+            "by_scope": {
+                "non_tests": empty_diagnostic_buckets(),
+                "tests": empty_diagnostic_buckets(),
+            },
+            "observations": [],
+        }
     symbol_index, _in_repo_callable_ids, callable_qname_by_id = build_symbol_index(
         core_conn, snapshot_id
     )
@@ -280,7 +281,7 @@ def classify_rejected_calls(
         },
     )
     progress_handle = (
-        progress_factory("Diagnostic classification (Phase II)", len(rows))
+        progress_factory("Diagnostic classification", len(rows))
         if progress_factory is not None
         else None
     )
@@ -390,13 +391,12 @@ def classify_rejected_calls(
             progress_handle.advance(1)
     if progress_handle is not None:
         progress_handle.close()
-    post_persist_payload = {
+    return {
         "totals": aggregation.totals,
         "by_language": aggregation.by_language,
         "by_scope": aggregation.by_scope,
         "observations": aggregation.observations,
     }
-    return merge_diagnostic_payloads(pre_persist_payload, post_persist_payload)
 
 
 def merge_diagnostic_payloads(
