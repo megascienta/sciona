@@ -6,7 +6,7 @@ Layer layout:
 - `tests/runtime/`: paths, config, logging, git plumbing, runtime helpers
 - `tests/data_storage/`: CoreDB/ArtifactDB schemas, read/write helpers, storage invariants
 - `tests/code_analysis/`: discovery, parsing, extraction, normalization, analysis tools
-- `tests/analysis_contracts/`: admissibility gates and strict call-resolution contracts
+- `tests/contracts/`: admissibility gates and strict call-resolution contracts
 - `tests/pipelines/`: policy validation, snapshot lifecycle, build orchestration, diff overlays
 - `tests/reducers/`: reducer outputs, registry metadata, deterministic rendering
 - `tests/api/`: public API surface and addon boundaries

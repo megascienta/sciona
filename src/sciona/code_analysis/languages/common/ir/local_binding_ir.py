@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from ..contracts.loader import load_contract_json
+from ....contracts.declarative.loader import load_contract_json
 
 
 _LOCAL_BINDING_CONTRACT = load_contract_json("local_binding_resolution.json")

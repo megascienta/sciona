@@ -9,7 +9,7 @@ from collections import defaultdict
 from typing import Iterable, Mapping, Sequence, cast
 
 from ..analysis.module_id import module_id_for
-from ..analysis_contracts import (
+from ..contracts.enforcement import (
     StrictCallDecision,
     build_strict_resolution_stats,
     record_strict_resolution_decision,

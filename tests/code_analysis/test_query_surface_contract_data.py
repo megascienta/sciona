@@ -11,7 +11,7 @@ from sciona.code_analysis.languages.common.query import query_surface
 
 def test_query_surface_contract_json_has_expected_languages_and_keys() -> None:
     payload = json.loads(
-        Path("src/sciona/code_analysis/languages/common/contracts/query_surfaces.json").read_text(
+        Path("src/sciona/code_analysis/contracts/declarative/query_surfaces.json").read_text(
             encoding="utf-8"
         )
     )
@@ -27,7 +27,7 @@ def test_query_surface_contract_json_has_expected_languages_and_keys() -> None:
 
 def test_query_surface_module_exports_contract_data() -> None:
     payload = json.loads(
-        Path("src/sciona/code_analysis/languages/common/contracts/query_surfaces.json").read_text(
+        Path("src/sciona/code_analysis/contracts/declarative/query_surfaces.json").read_text(
             encoding="utf-8"
         )
     )

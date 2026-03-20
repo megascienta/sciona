@@ -18,7 +18,7 @@ from sciona.code_analysis.languages.common.support.walker_capabilities import (
 def test_walker_capabilities_contract_json_matches_loader() -> None:
     payload = json.loads(
         Path(
-            "src/sciona/code_analysis/languages/common/contracts/walker_capabilities.json"
+            "src/sciona/code_analysis/contracts/declarative/walker_capabilities.json"
         ).read_text(encoding="utf-8")
     )
     assert payload == build_walker_capabilities()
@@ -27,7 +27,7 @@ def test_walker_capabilities_contract_json_matches_loader() -> None:
 def test_parity_contract_json_matches_loader() -> None:
     payload = json.loads(
         Path(
-            "src/sciona/code_analysis/languages/common/contracts/parity_contract.json"
+            "src/sciona/code_analysis/contracts/declarative/parity_contract.json"
         ).read_text(encoding="utf-8")
     )
     payload["version"] = build_parity_contract()["version"]
@@ -37,7 +37,7 @@ def test_parity_contract_json_matches_loader() -> None:
 def test_in_repo_static_gate_json_matches_loader() -> None:
     payload = json.loads(
         Path(
-            "src/sciona/code_analysis/languages/common/contracts/in_repo_static_gate.json"
+            "src/sciona/code_analysis/contracts/declarative/in_repo_static_gate.json"
         ).read_text(encoding="utf-8")
     )
     assert set(payload["allowed_callsite_provenance"]) == set(
@@ -54,7 +54,7 @@ def test_in_repo_static_gate_json_matches_loader() -> None:
 def test_local_binding_resolution_contract_json_shape() -> None:
     payload = json.loads(
         Path(
-            "src/sciona/code_analysis/languages/common/contracts/local_binding_resolution.json"
+            "src/sciona/code_analysis/contracts/declarative/local_binding_resolution.json"
         ).read_text(encoding="utf-8")
     )
     assert payload["binding_precedence"] == [

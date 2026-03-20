@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from ..contracts.loader import load_contract_json
+from ....contracts.declarative.loader import load_contract_json
 
 _QUERY_SURFACES = load_contract_json("query_surfaces.json")
 

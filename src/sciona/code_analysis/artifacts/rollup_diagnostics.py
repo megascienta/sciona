@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import cast
 
-from ..analysis_contracts import merge_strict_resolution_stats
+from ..contracts.enforcement import merge_strict_resolution_stats
 from ..tools.call_extraction import CallExtractionRecord
 
 

@@ -11,7 +11,7 @@ import pytest
 _TESTS_ROOT = Path(__file__).resolve().parent
 _MIN_FILES_BY_AREA = {
     "api": 3,
-    "analysis_contracts": 3,
+    "contracts": 3,
     "cli": 8,
     "code_analysis": 22,
     "data_storage": 8,

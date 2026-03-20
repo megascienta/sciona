@@ -144,15 +144,15 @@ Implementation notes:
   parse state is surfaced through diagnostics and degraded build/reporting
   metadata rather than treated as an automatic fail-stop condition
 - Contract-compliant local binding reasoning is defined declaratively in
-  `src/sciona/code_analysis/languages/common/contracts/local_binding_resolution.json`
+  `src/sciona/code_analysis/contracts/declarative/local_binding_resolution.json`
   and is language-agnostic first:
   shared tree-sitter binding facts, then per-language deepening, then minimal
   custom extension only where syntax-local shared binding facts are
   insufficient
 - Strict call candidate selection is defined in
-  `src/sciona/code_analysis/analysis_contracts/strict_call_contract.py` and
+  `src/sciona/code_analysis/contracts/enforcement/strict_call_contract.py` and
   batched/used by artifact-layer call resolution in
-  `src/sciona/code_analysis/analysis_contracts/strict_call_resolution.py` and
+  `src/sciona/code_analysis/contracts/enforcement/strict_call_resolution.py` and
   `src/sciona/code_analysis/artifacts/call_resolution.py`; Core structural
   assembly does not finalize calls
 - Reducer-facing `CALLS`, graph edges, fan stats, and rollups are finalized in

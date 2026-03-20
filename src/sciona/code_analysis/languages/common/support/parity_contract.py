@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from ..contracts.loader import load_contract_json
+from ....contracts.declarative.loader import load_contract_json
 
 PARITY_CONTRACT_VERSION = 8
 

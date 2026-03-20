@@ -8,7 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TypeAlias
 
-from ..languages.common.contracts.loader import load_contract_json
+from ..contracts.declarative.loader import load_contract_json
 
 
 CallsiteRow: TypeAlias = tuple[

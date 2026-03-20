@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from ..contracts.loader import load_contract_json
+from ....contracts.declarative.loader import load_contract_json
 
 def build_walker_capabilities() -> dict[str, list[dict[str, object]]]:
     """Return per-language construct coverage mapped to structural emissions."""

@@ -204,7 +204,7 @@ Local binding resolution is syntax-local only.
 
 - Contract-compliant local binding reasoning MUST be defined by the declarative
   contract in
-  `src/sciona/code_analysis/languages/common/contracts/local_binding_resolution.json`.
+  `src/sciona/code_analysis/contracts/declarative/local_binding_resolution.json`.
 - Local binding resolution MUST use this precedence:
   1. shared tree-sitter binding facts
   2. per-language deepening
