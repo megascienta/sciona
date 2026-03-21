@@ -53,7 +53,7 @@ Initialize SCIONA in a repository:
 cd /path/to/repo
 sciona init
 ```
-Initialization creates a `.sciona` configuration and generates an `AGENTS.md` file that instructs LLM copilots to use SCIONA reducers for structural reasoning.
+Initialization creates a `.sciona/` folder, configuration and generates an `AGENTS.md` file that instructs LLM copilots to use SCIONA reducers for structural reasoning.
 
 Build the structural index:
 ```bash
@@ -184,13 +184,11 @@ Observed patterns:
 
 - **Predictable structural scaling.** Build time grows with structural size measured as nodes plus edges. Across the evaluated repositories, build times range from a few seconds for small projects to several minutes for very large codebases. Normalizing by structural size shows that build cost remains stable across repositories with a mean of 1.5 seconds per 1K nodes+edges.
 
-- **Stable pipeline composition.** For most repositories, the majority of build time is spent in structural extraction and call observation stages. For larger repositories, graph preparation and indexing stages contribute a larger share of the total cost, but overall build composition remains consistent across projects.
+- **Stable pipeline composition.** For most repositories, the majority of build time is spent in structural extraction and call observation stages and remains consistent across projects.
 
 - **High callsite accountability.** In repositories where most calls remain within repository scope, accepted callees typically cover more than 90% of observed syntactic callsites. Lower acceptance rates arise primarily when many calls target external or otherwise out-of-scope code, which is filtered before persistence rather than silently misresolved.
 
 - **Clear language-level differences.** Static languages show the highest acceptance rates: Java resolves about 95.0% of 44,010 observed callsites, and TypeScript about 95.5% of 157,699. JavaScript resolves about 74.5% of 25,016 callsites, while Python resolves about 85.6% of 82,203. The lower acceptance rates for dynamic languages are driven primarily by higher filtering due to dynamic dispatch patterns and calls to external or stdlib code.
-
-- **Stable downstream behavior.** Once a callsite passes the pre-persist filter, post-persist drop rates remain low and consistent across languages, indicating stable pipeline behavior after candidate resolution.
 
 - **Code vs. test behavior.** Filtering rates are consistently higher in test code than in production code. Test suites frequently rely on dynamic fixtures, mocking frameworks, and calls into external libraries, which naturally fall outside the repository's structural scope.
 
@@ -211,8 +209,7 @@ Observed patterns:
 
 Across the 40 tasks, SCIONA primarily increased confidence and scope clarity (average confidence score 9.0/10) while pure time savings were more modest (5.2/10). This matches the intended role of the tool: deterministic structural grounding rather than semantic interpretation.
 
-Detailed task notes, prompts, and session reports are available in  
-[`validations/copilot_evaluation/`](validations/copilot_evaluation/).
+Detailed task notes, prompts, and session reports are available in [`validations/copilot_evaluation/`](validations/copilot_evaluation/).
 
 ## Project documentation
 
