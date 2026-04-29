@@ -609,6 +609,76 @@ def test_python_analyzer_resolves_call_via_local_alias_of_imported_module(tmp_pa
     assert f"{api_module}.get_repo_root" in call_records[f"{module_name}.top"]
 
 
+def test_python_analyzer_emits_absolute_import_edges_for_setuptools_src_layout(tmp_path):
+    repo = tmp_path
+    (repo / "pyproject.toml").write_text(
+        """
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+""",
+        encoding="utf-8",
+    )
+    pkg = repo / "src" / "pkg"
+    api = pkg / "api"
+    core = pkg / "core"
+    api.mkdir(parents=True)
+    core.mkdir(parents=True)
+    (pkg / "__init__.py").write_text("", encoding="utf-8")
+    (api / "__init__.py").write_text("", encoding="utf-8")
+    (core / "__init__.py").write_text("", encoding="utf-8")
+    (core / "errors.py").write_text("class CoreError(Exception):\n    pass\n", encoding="utf-8")
+    file_path = api / "app.py"
+    file_path.write_text(
+        "from pkg.core.errors import CoreError\n\n"
+        "def top():\n"
+        "    return CoreError\n",
+        encoding="utf-8",
+    )
+    analyzer = PythonAnalyzer()
+    snapshot = FileSnapshot(
+        record=FileRecord(
+            path=file_path,
+            relative_path=Path("src/pkg/api/app.py"),
+            language="python",
+        ),
+        file_id="file",
+        blob_sha="hash",
+        size=file_path.stat().st_size,
+        line_count=4,
+        content=file_path.read_bytes(),
+    )
+    module_name = analyzer.module_name(repo, snapshot)
+    errors_snapshot = FileSnapshot(
+        record=FileRecord(
+            path=core / "errors.py",
+            relative_path=Path("src/pkg/core/errors.py"),
+            language="python",
+        ),
+        file_id="errors",
+        blob_sha="hash",
+        size=(core / "errors.py").stat().st_size,
+        line_count=2,
+        content=(core / "errors.py").read_bytes(),
+    )
+    errors_module = analyzer.module_name(repo, errors_snapshot)
+    analyzer.module_index = {
+        module_name,
+        module_name.rsplit(".", 1)[0],
+        errors_module,
+        errors_module.rsplit(".", 1)[0],
+    }
+    result = analyzer.analyze(snapshot, module_name)
+    imports = {
+        edge.dst_qualified_name
+        for edge in result.edges
+        if edge.edge_type == "IMPORTS_DECLARED"
+    }
+    assert errors_module in imports
+
+
 def test_python_analyzer_does_not_treat_function_return_as_class_instance(tmp_path):
     module = """
 class Service:

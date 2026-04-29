@@ -46,7 +46,7 @@ def collect_python_import_model(
 ) -> NormalizedImportModel:
     repo_root = repo_root_from_snapshot(snapshot)
     repo_prefix = runtime_paths.repo_name_prefix(repo_root)
-    local_packages = set(runtime_packaging.local_package_names(repo_root))
+    local_package_roots = runtime_packaging.local_package_module_roots(repo_root)
     model = NormalizedImportModel()
     is_package = snapshot.record.path.name == "__init__.py"
 
@@ -66,7 +66,7 @@ def collect_python_import_model(
                     module_name,
                     is_package,
                     repo_prefix=repo_prefix,
-                    local_packages=local_packages,
+                    local_package_roots=local_package_roots,
                 )
                 if not normalized:
                     continue
@@ -104,7 +104,7 @@ def collect_python_import_model(
                 module_name,
                 is_package,
                 repo_prefix=repo_prefix,
-                local_packages=local_packages,
+                local_package_roots=local_package_roots,
             )
             if not normalized:
                 continue
@@ -228,7 +228,7 @@ def normalize_import(
     is_package: bool,
     *,
     repo_prefix: str,
-    local_packages: set[str],
+    local_package_roots: dict[str, str],
 ) -> Optional[str]:
     target = target.strip()
     if not target:
@@ -240,9 +240,13 @@ def normalize_import(
         return _resolve_relative_import_syntax(target, package)
     if repo_prefix and (target == repo_prefix or target.startswith(f"{repo_prefix}.")):
         return target
-    for package in local_packages:
-        if target == package or target.startswith(f"{package}."):
-            return f"{repo_prefix}.{target}" if repo_prefix else target
+    for package, module_root in local_package_roots.items():
+        if target == package:
+            return f"{repo_prefix}.{module_root}" if repo_prefix else module_root
+        if target.startswith(f"{package}."):
+            suffix = target[len(package) + 1 :]
+            rooted_target = f"{module_root}.{suffix}"
+            return f"{repo_prefix}.{rooted_target}" if repo_prefix else rooted_target
     return target
 
 
