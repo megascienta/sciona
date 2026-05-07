@@ -50,6 +50,29 @@ def test_investigation_role_categories_follow_category_order() -> None:
     assert headers == [f"{category.capitalize()} reducers" for category in CATEGORY_ORDER]
 
 
+def test_agents_upsert_raises_on_symlink(tmp_path: Path) -> None:
+    target = tmp_path / agents.AGENTS_FILENAME
+    other = tmp_path / "other.md"
+    other.write_text("original\n", encoding="utf-8")
+    target.symlink_to(other)
+    import pytest
+    with pytest.raises(ValueError, match="symbolic link"):
+        agents.upsert_agents_file(tmp_path, mode="append", reducers=get_reducers())
+    assert other.read_text(encoding="utf-8") == "original\n"
+
+
+def test_agents_remove_raises_on_symlink(tmp_path: Path) -> None:
+    target = tmp_path / agents.AGENTS_FILENAME
+    other = tmp_path / "other.md"
+    other.write_text(
+        f"{agents.BEGIN_MARKER}\ncontent\n{agents.END_MARKER}\n", encoding="utf-8"
+    )
+    target.symlink_to(other)
+    import pytest
+    with pytest.raises(ValueError, match="symbolic link"):
+        agents.remove_agents_block(tmp_path)
+
+
 def test_render_tracked_file_scope_uses_shared_language_scope(tmp_path: Path) -> None:
     sciona_dir = tmp_path / ".sciona"
     sciona_dir.mkdir()

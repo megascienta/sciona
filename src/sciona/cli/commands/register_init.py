@@ -26,12 +26,22 @@ def _init_command(
     agents: bool = typer.Option(
         False,
         "--agents",
-        help="Generate a managed SCIONA block in AGENTS.md (no-interactive only).",
+        help="Generate a managed SCIONA block in AGENTS.md (for Codex and compatible agent frameworks; no-interactive only).",
     ),
     agents_mode: str = typer.Option(
         "append",
         "--agents-mode",
         help="Update mode for AGENTS.md (append or overwrite; no-interactive only).",
+    ),
+    claude: bool = typer.Option(
+        False,
+        "--claude",
+        help="Set up Claude Code integration: CLAUDE.md and .claude/settings.json (no-interactive only).",
+    ),
+    claude_mode: str = typer.Option(
+        "append",
+        "--claude-mode",
+        help="Update mode for CLAUDE.md (append or overwrite; no-interactive only).",
     ),
     post_commit_hook: bool = typer.Option(
         False,
@@ -56,6 +66,11 @@ def _init_command(
         no_interactive=no_interactive,
         agents=agents,
         agents_mode=agents_mode,
+    )
+    _maybe_init_claude(
+        no_interactive=no_interactive,
+        claude=claude,
+        claude_mode=claude_mode,
     )
     _maybe_init_hook(
         sciona_dir,
@@ -169,6 +184,65 @@ def _maybe_init_agents(
             commands=agents_command_map(),
         )
         typer.echo(f"Updated {path}")
+
+
+def _maybe_init_claude(
+    *,
+    no_interactive: bool,
+    claude: bool,
+    claude_mode: str,
+) -> None:
+    if not no_interactive and sys.stdin.isatty():
+        if claude:
+            typer.secho(
+                "Ignoring --claude flags in interactive mode.", fg=typer.colors.YELLOW
+            )
+        if not typer.confirm(
+            "Configure Claude Code for SCIONA (CLAUDE.md + .claude/settings.json)?", default=False
+        ):
+            return
+        repo_root = cli_call(repo_ops.get_repo_root)
+        claude_path = repo_root / "CLAUDE.md"
+        mode = "append"
+        if claude_path.exists():
+            action = (
+                typer.prompt(
+                    "CLAUDE.md exists. Choose action [append/overwrite/skip]",
+                    default="append",
+                )
+                .strip()
+                .lower()
+            )
+            if action == "skip":
+                return
+            if action == "overwrite":
+                mode = "overwrite"
+            elif action != "append":
+                typer.secho(
+                    "Unknown choice; skipping CLAUDE.md update.", fg=typer.colors.YELLOW
+                )
+                return
+        path = cli_call(
+            repo_ops.init_claude, repo_root, mode=mode, commands=agents_command_map()
+        )
+        typer.echo(f"Updated {path}")
+        settings_path = cli_call(repo_ops.init_claude_settings, repo_root)
+        typer.echo(f"Updated {settings_path}")
+        return
+    if claude:
+        mode = claude_mode.strip().lower()
+        if mode not in {"append", "overwrite"}:
+            raise typer.BadParameter("Mode must be 'append' or 'overwrite'.")
+        repo_root = repo_ops.get_repo_root()
+        path = cli_call(
+            repo_ops.init_claude,
+            repo_root,
+            mode=mode,
+            commands=agents_command_map(),
+        )
+        typer.echo(f"Updated {path}")
+        settings_path = cli_call(repo_ops.init_claude_settings, repo_root)
+        typer.echo(f"Updated {settings_path}")
 
 
 def _maybe_init_hook(

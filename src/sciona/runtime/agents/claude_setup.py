@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Managed AGENTS.md generation helpers."""
+"""Managed CLAUDE.md generation helpers."""
 
 from __future__ import annotations
 
@@ -19,14 +19,14 @@ from ._block_utils import (
     END_MARKER,
     check_not_symlink as _check_not_symlink,
     replace_or_append_block as _replace_or_append_block,
-    replace_block as _replace_block,
     remove_block as _remove_block,
 )
 
-AGENTS_FILENAME = "AGENTS.md"
-TEMPLATE_PATH = Path(__file__).parent / "templates" / "agents_template.md"
+CLAUDE_FILENAME = "CLAUDE.md"
+TEMPLATE_PATH = Path(__file__).parent / "templates" / "claude_template.md"
 
-def build_agents_block(
+
+def build_claude_block(
     repo_root: Path,
     reducers,
     *,
@@ -41,7 +41,7 @@ def build_agents_block(
         ANOMALY_DETECTOR_LIST=_render_anomaly_detector_list(reducers),
         CMD_VERSION=commands.get("version", "sciona --version"),
         CMD_INIT=commands.get("init", "sciona init"),
-        CMD_AGENTS=commands.get("agents", "sciona agents"),
+        CMD_CLAUDE=commands.get("claude", "sciona claude"),
         CMD_REDUCER_LIST=commands.get("reducer_list", "sciona reducer list"),
         CMD_REDUCER_INFO=commands.get(
             "reducer_info", "sciona reducer info --id <reducer_id>"
@@ -62,16 +62,16 @@ def build_agents_block(
     return "\n".join([BEGIN_MARKER, content.strip(), END_MARKER]).rstrip() + "\n"
 
 
-def upsert_agents_file(
+def upsert_claude_file(
     repo_root: Path,
     *,
     mode: str = "append",
     reducers,
     commands: Mapping[str, str] | None = None,
 ) -> Path:
-    target = Path(repo_root) / AGENTS_FILENAME
+    target = Path(repo_root) / CLAUDE_FILENAME
     _check_not_symlink(target)
-    block = build_agents_block(repo_root, reducers, commands=commands)
+    block = build_claude_block(repo_root, reducers, commands=commands)
     if mode not in {"append", "overwrite"}:
         raise ValueError("mode must be 'append' or 'overwrite'.")
     if mode == "overwrite" or not target.exists():
@@ -83,8 +83,8 @@ def upsert_agents_file(
     return target
 
 
-def remove_agents_block(repo_root: Path) -> bool:
-    target = Path(repo_root) / AGENTS_FILENAME
+def remove_claude_block(repo_root: Path) -> bool:
+    target = Path(repo_root) / CLAUDE_FILENAME
     if not target.exists():
         return False
     _check_not_symlink(target)
@@ -155,6 +155,7 @@ def _render_common_tasks(reducers) -> str:
         )
     return "\n".join(render_reducer_list(entries, reducers, include_prefix=True))
 
+
 def _render_investigation_role_categories(reducers) -> str:
     lines: list[str] = []
     for role_name in CATEGORY_ORDER:
@@ -212,11 +213,10 @@ def _merge_commands(commands: Mapping[str, str] | None) -> dict[str, str]:
     return merged
 
 
-
 _DEFAULT_COMMANDS = {
     "version": "sciona --version",
     "init": "sciona init",
-    "agents": "sciona agents",
+    "claude": "sciona claude",
     "reducer_list": "sciona reducer list",
     "reducer_info": "sciona reducer info --id <reducer_id>",
     "reducer": "sciona reducer --id <reducer_id>",
@@ -227,10 +227,10 @@ _DEFAULT_COMMANDS = {
 
 
 __all__ = [
-    "AGENTS_FILENAME",
+    "CLAUDE_FILENAME",
     "BEGIN_MARKER",
     "END_MARKER",
-    "build_agents_block",
-    "remove_agents_block",
-    "upsert_agents_file",
+    "build_claude_block",
+    "remove_claude_block",
+    "upsert_claude_file",
 ]

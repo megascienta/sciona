@@ -18,8 +18,12 @@ init_dialog_defaults = _repo_ops.init_dialog_defaults
 init_supported_languages = _repo_ops.init_supported_languages
 init_apply_languages = _repo_ops.init_apply_languages
 init_agents = _repo_ops.init_agents
+init_claude = _repo_ops.init_claude
+init_claude_settings = _repo_ops.init_claude_settings
 clean = _repo_ops.clean
 clean_agents = _repo_ops.clean_agents
+clean_claude = _repo_ops.clean_claude
+clean_claude_settings = _repo_ops.clean_claude_settings
 dirty_worktree_warning = _repo_ops.dirty_worktree_warning
 install_commit_hook = _repo_ops.install_commit_hook
 remove_commit_hook = _repo_ops.remove_commit_hook
@@ -35,8 +39,12 @@ __all__ = [
     "init_supported_languages",
     "init_apply_languages",
     "init_agents",
+    "init_claude",
+    "init_claude_settings",
     "clean",
     "clean_agents",
+    "clean_claude",
+    "clean_claude_settings",
     "dirty_worktree_warning",
     "install_commit_hook",
     "remove_commit_hook",

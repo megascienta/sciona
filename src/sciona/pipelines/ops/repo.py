@@ -25,6 +25,8 @@ from ..hooks import (
     remove_post_commit_hook,
 )
 from ...runtime.agents import setup as agents_runtime
+from ...runtime.agents import claude_setup as claude_runtime
+from ...runtime.agents import settings_setup as settings_runtime
 from ...reducers.registry import get_reducers
 from ..exec.build import (
     BuildResult,
@@ -73,6 +75,41 @@ def init_agents(
     return agents_runtime.upsert_agents_file(
         repo_state.repo_root, mode=mode, reducers=reducers, commands=commands
     )
+
+
+def init_claude(
+    repo_root: Optional[Path],
+    *,
+    mode: str = "append",
+    commands: Mapping[str, str] | None = None,
+) -> Path:
+    """Generate/update the managed CLAUDE.md block.
+
+    commands: optional CLI command map for template placeholders.
+    """
+    repo_state = policy_repo.resolve_repo_state(repo_root, allow_missing_config=True)
+    policy_repo.ensure_repo_has_commits(repo_state)
+    reducers = get_reducers()
+    return claude_runtime.upsert_claude_file(
+        repo_state.repo_root, mode=mode, reducers=reducers, commands=commands
+    )
+
+
+def clean_claude(repo_root: Optional[Path] = None) -> bool:
+    repo_state = policy_repo.resolve_repo_state(repo_root, allow_missing_config=True)
+    return claude_runtime.remove_claude_block(repo_state.repo_root)
+
+
+def init_claude_settings(repo_root: Optional[Path] = None) -> Path:
+    """Inject SCIONA permission rules into .claude/settings.json."""
+    repo_state = policy_repo.resolve_repo_state(repo_root, allow_missing_config=True)
+    policy_repo.ensure_repo_has_commits(repo_state)
+    return settings_runtime.upsert_claude_settings(repo_state.repo_root)
+
+
+def clean_claude_settings(repo_root: Optional[Path] = None) -> bool:
+    repo_state = policy_repo.resolve_repo_state(repo_root, allow_missing_config=True)
+    return settings_runtime.remove_claude_settings(repo_state.repo_root)
 
 
 def init_dialog_defaults(repo_root: Optional[Path] = None) -> InitDialogDefaults:

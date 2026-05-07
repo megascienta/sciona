@@ -8,34 +8,24 @@ In large, long-lived repositories, LLM assistance often follows the same pattern
 
 **This is usually not an LLM failure. It is a context stability problem.**
 
-Most tooling addresses this through embeddings, semantic retrieval, or dynamically assembled prompts. These approaches are powerful but difficult to reproduce and hard to constrain over long sessions or large refactors.
+Most tooling addresses this through embeddings, semantic retrieval, or dynamically assembled prompts. These approaches are powerful, but they can be difficult to reproduce and hard to constrain over long sessions or large refactors.
 
 **SCIONA takes a different approach.**
 
 SCIONA builds a **deterministic structural index (SCI)** for a Git repository. The index is derived from the last committed snapshot using [tree-sitter](https://tree-sitter.github.io/tree-sitter/) to extract structural relationships between code entities. The analysis is static and source-only, currently supporting **Python**, **Java**, **TypeScript**, and **JavaScript**.
 
-Instead of repeatedly reconstructing repository structure from source files, tools can query the SCI through reducers. A **reducer** is a deterministic structural query that returns a reproducible payload for a given scope. In effect, SCIONA converts repository structure into **stable structural facts** that tools can query directly.
+Instead of repeatedly reconstructing repository structure from source files or prompt context, tools can query the SCI through reducers. A **reducer** is a deterministic structural query that returns a reproducible payload for a given scope. In effect, SCIONA converts repository structure into **stable structural evidence** that tools can query directly.
 
 **SCIONA intentionally provides structure — not interpretation.**
 
-Its goal is to provide a stable structural anchor while leaving semantic reasoning, runtime analysis, and validation to other tools.
+It is designed to answer structural questions: where symbols live, how code is organized, what imports what, which call relationships are observed, and which parts of the repository are structurally in scope.
+
+It does not try to prove runtime behavior, infer semantic intent, validate business logic, or replace tests. Those remain the responsibility of normal source inspection, execution, and validation.
 
 Although motivated by LLM workflows, SCIONA itself is LLM-agnostic infrastructure. Any system that needs deterministic structural information about a repository can use it.
 
 ![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-
-## How SCIONA can be used
-
-SCIONA is intended for workflows where tools must reason about **repository structure** reliably. Typical use cases include grounding LLM code assistants, performing deterministic repository audits, building code intelligence tooling, or stabilizing long-running agent workflows.
-
-SCIONA can be used directly through its CLI, but it becomes most powerful when integrated into LLM-assisted development workflows.
-
-During initialization, SCIONA generates an `AGENTS.md` file in the repository root. This file tells copilots when to use SCIONA reducers and when to fall back to normal source inspection. Structural questions get grounded in the index. Non-structural questions; semantic, runtime, and documentation questions go to conventional tools as usual.
-
-In other words, **SCIONA becomes the structural authority for the repository**, while the rest of the workflow stays flexible.
-
-This allows agents to anchor their reasoning in deterministic structural evidence while keeping the rest of the workflow flexible.
 
 ## Quick start
 
@@ -45,7 +35,7 @@ Requirements:
 
 Install SCIONA from the GitHub release:
 ```bash
-pip install git+https://github.com/megascienta/sciona@v1.0.1
+pip install git+https://github.com/megascienta/sciona@v1.1.0
 ```
 
 Initialize SCIONA in a repository:
@@ -53,7 +43,17 @@ Initialize SCIONA in a repository:
 cd /path/to/repo
 sciona init
 ```
-Initialization creates a `.sciona/` folder, configuration and generates an `AGENTS.md` file that instructs LLM copilots to use SCIONA reducers for structural reasoning.
+
+Initialization creates a .sciona/ folder and configuration.
+
+During interactive setup, SCIONA can also configure coding-agent protocol files:
+
+```bash
+Generate a managed SCIONA block in AGENTS.md? [y/N]:
+Configure Claude Code for SCIONA (CLAUDE.md + .claude/settings.json)? [y/N]:
+```
+
+Both configurations can also be performed independently with `sciona agents` and `sciona claude`.
 
 Build the structural index:
 ```bash
@@ -65,6 +65,30 @@ Explore available structural queries:
 ```bash
 sciona reducer list
 ```
+
+## How SCIONA can be used
+
+SCIONA is not a semantic code search engine, chat layer, or autonomous coding agent. It is a deterministic structural evidence layer that other tools and agents can use before making claims about repository structure. SCIONA is intended for workflows where tools must reason about **repository structure** reliably.
+
+Typical use cases include:
+
+- grounding LLM code assistants
+- performing deterministic repository audits
+- stabilizing long-running agent workflows
+- supporting architecture and blast-radius analysis
+- building code intelligence tooling on top of reproducible structural data
+
+SCIONA can be used directly through its CLI, but it becomes most powerful when integrated into LLM-assisted development workflows.
+
+During initialization, SCIONA can generate agent setup files in the repository root:
+
+- `AGENTS.md` for Codex and compatible agent frameworks
+- `CLAUDE.md` for Claude Code
+- `.claude/settings.json` permission rules for Claude Code command execution
+
+These files instruct coding agents to use SCIONA reducers for structural questions: symbol lookup, ownership, dependency edges, call relationships, source slices, reducer summaries, and blast-radius analysis.
+
+Semantic, runtime, documentation, and validation questions remain outside SCIONA’s scope and should be handled with normal source inspection, execution, tests, and conventional tooling.
 
 ## Structural model
 
@@ -206,8 +230,6 @@ Observed patterns:
 - **Scope reduction:** Structural evidence narrowed edit scope and helped identify high-impact modules and helper chokepoints.
 - **Post-change verification:** Re-running reducers after implementation provided quick confirmation that structural issues were resolved.
 - **Limits:** Algorithm logic, parser behavior, runtime semantics, documentation correctness, and test validation still required direct source inspection and conventional tooling, outside SCIONA’s structural scope.
-
-Across the 40 tasks, SCIONA primarily increased confidence and scope clarity (average confidence score 9.0/10) while pure time savings were more modest (5.2/10). This matches the intended role of the tool: deterministic structural grounding rather than semantic interpretation.
 
 Detailed task notes, prompts, and session reports are available in [`validations/copilot_evaluation/`](validations/copilot_evaluation/).
 

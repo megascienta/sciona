@@ -90,6 +90,11 @@ def _clean_command(
         "--agents/--no-agents",
         help="Remove SCIONA-managed content from AGENTS.md.",
     ),
+    claude: bool = typer.Option(
+        True,
+        "--claude/--no-claude",
+        help="Remove SCIONA-managed content from CLAUDE.md and .claude/settings.json.",
+    ),
 ) -> None:
     """Remove SCIONA state and managed integrations for the current repository."""
     repo_root = cli_call(repo_ops.get_repo_root)
@@ -129,6 +134,21 @@ def _clean_command(
                 "No managed SCIONA block found in AGENTS.md.",
                 fg=typer.colors.YELLOW,
             )
+
+    if claude:
+        removed_claude = cli_call(repo_ops.clean_claude, repo_root)
+        if removed_claude:
+            typer.echo("Removed SCIONA-managed CLAUDE.md content")
+            cleaned_any = True
+        else:
+            typer.secho(
+                "No managed SCIONA block found in CLAUDE.md.",
+                fg=typer.colors.YELLOW,
+            )
+        removed_settings = cli_call(repo_ops.clean_claude_settings, repo_root)
+        if removed_settings:
+            typer.echo("Removed SCIONA permission rules from .claude/settings.json")
+            cleaned_any = True
 
     if not cleaned_any:
         typer.secho(

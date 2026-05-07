@@ -33,8 +33,9 @@ Do not use this document to redefine structural semantics.
 ## Repository Boundaries
 
 - `src/sciona/cli/`: Typer CLI entrypoint and UX shell over `pipelines.ops.*`
-  for `build`, `init`, `agents`, `hooks`, `status`, `clean`, `search`,
-  `resolve`, and `reducer` command wiring
+  for `build`, `init`, `agents`, `claude`, `hooks`, `status`, `clean`,
+  `search`, `resolve`, and `reducer` command wiring; `sciona claude` covers
+  both `CLAUDE.md` and `.claude/settings.json` in one step
 - `src/sciona/api/`: stable public addon-facing namespace; public root exports
   only `sciona.api.addons` and must not carry CLI-only bridge surfaces
 - `src/sciona/runtime/`: paths, config loading, logging, git helpers, time,

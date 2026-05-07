@@ -18,7 +18,7 @@ def _agents_command(
         help="Update mode for AGENTS.md (append or overwrite).",
     ),
 ) -> None:
-    """Regenerate the managed SCIONA block in AGENTS.md."""
+    """Regenerate the managed SCIONA block in AGENTS.md (for Codex and compatible agent frameworks)."""
     if mode not in {"append", "overwrite"}:
         raise typer.BadParameter("Mode must be 'append' or 'overwrite'.")
     path = cli_call(

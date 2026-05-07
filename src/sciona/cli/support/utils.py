@@ -143,7 +143,13 @@ def agents_command_map() -> Mapping[str, str]:
     build_cmd = _pick_command("build", core_cmds) or "build"
     search_cmd = _pick_command("search", core_cmds) or "search"
     resolve_cmd = _pick_command("resolve", core_cmds) or "resolve"
+    init_cmd = _pick_command("init", core_cmds) or "init"
+    agents_cmd = _pick_command("agents", core_cmds) or "agents"
+    claude_cmd = _pick_command("claude", core_cmds) or "claude"
     return {
+        "init": f"sciona {init_cmd}",
+        "agents": f"sciona {agents_cmd}",
+        "claude": f"sciona {claude_cmd}",
         "reducer_list": f"sciona {list_cmd}",
         "reducer_info": f"sciona {info_cmd}",
         "build": f"sciona {build_cmd}",
