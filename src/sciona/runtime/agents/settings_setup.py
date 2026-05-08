@@ -10,7 +10,6 @@ from pathlib import Path
 
 CLAUDE_DIR = ".claude"
 SETTINGS_FILENAME = "settings.json"
-SCIONA_MARKER = "sciona:"
 
 SCIONA_PERMISSIONS: list[str] = [
     "Bash(sciona --version)",
@@ -35,7 +34,7 @@ def upsert_claude_settings(repo_root: Path) -> Path:
     settings = _load_settings(target)
     allow: list = settings.setdefault("permissions", {}).setdefault("allow", [])
     _remove_sciona_entries(allow)
-    allow.extend(_tagged_permissions())
+    allow.extend(SCIONA_PERMISSIONS)
     target.parent.mkdir(parents=False, exist_ok=True)
     target.write_text(json.dumps(settings, indent=2) + "\n", encoding="utf-8")
     return target
@@ -93,13 +92,9 @@ def _load_settings(path: Path) -> dict:
         )
     return raw
 
-
-def _tagged_permissions() -> list[str]:
-    return [f"{SCIONA_MARKER} {p}" for p in SCIONA_PERMISSIONS]
-
-
 def _remove_sciona_entries(allow: list) -> None:
-    to_remove = [e for e in allow if isinstance(e, str) and e.startswith(SCIONA_MARKER)]
+    managed_permissions = set(SCIONA_PERMISSIONS)
+    to_remove = [e for e in allow if isinstance(e, str) and e in managed_permissions]
     for entry in to_remove:
         allow.remove(entry)
 

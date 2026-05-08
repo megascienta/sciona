@@ -19,7 +19,7 @@ def test_upsert_creates_settings_file(tmp_path: Path) -> None:
     assert path.exists()
     data = json.loads(path.read_text(encoding="utf-8"))
     allow = data["permissions"]["allow"]
-    assert any(e.startswith(settings.SCIONA_MARKER) for e in allow)
+    assert any(e == "Bash(sciona --version)" for e in allow)
 
 
 def test_upsert_injects_all_expected_permissions(tmp_path: Path) -> None:
@@ -27,9 +27,8 @@ def test_upsert_injects_all_expected_permissions(tmp_path: Path) -> None:
     settings.upsert_claude_settings(tmp_path)
     data = json.loads(_settings_path(tmp_path).read_text(encoding="utf-8"))
     allow = data["permissions"]["allow"]
-    sciona_entries = [e[len(settings.SCIONA_MARKER):].strip() for e in allow if e.startswith(settings.SCIONA_MARKER)]
     for expected in settings.SCIONA_PERMISSIONS:
-        assert expected in sciona_entries, f"Missing permission: {expected}"
+        assert expected in allow, f"Missing permission: {expected}"
 
 
 def test_upsert_creates_dot_claude_dir_if_absent(tmp_path: Path) -> None:
@@ -83,7 +82,7 @@ def test_remove_strips_sciona_entries_preserves_others(tmp_path: Path) -> None:
     result = json.loads(target.read_text(encoding="utf-8"))
     allow = result["permissions"]["allow"]
     assert "Bash(git status)" in allow
-    assert not any(e.startswith(settings.SCIONA_MARKER) for e in allow)
+    assert not any(e in settings.SCIONA_PERMISSIONS for e in allow)
 
 
 def test_remove_deletes_file_when_only_sciona_content(tmp_path: Path) -> None:
@@ -147,7 +146,7 @@ def test_upsert_raises_on_symlink(tmp_path: Path) -> None:
 def test_remove_raises_on_symlink(tmp_path: Path) -> None:
     (tmp_path / settings.CLAUDE_DIR).mkdir()
     target = _settings_path(tmp_path)
-    payload = {"permissions": {"allow": [f"{settings.SCIONA_MARKER} Bash(sciona build)"]}}
+    payload = {"permissions": {"allow": ["Bash(sciona build)"]}}
     other = tmp_path / "other.json"
     other.write_text(json.dumps(payload), encoding="utf-8")
     target.symlink_to(other)
