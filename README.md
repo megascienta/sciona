@@ -33,9 +33,14 @@ Requirements:
 - Python 3.11, 3.12, or 3.13
 - Git
 
-Install SCIONA from the development branch:
+Install SCIONA from the main branch:
 ```bash
-pip install git+https://github.com/megascienta/sciona@develop
+pip install git+https://github.com/megascienta/sciona@main
+```
+
+If you want to use changes that have not yet been merged to `main` (for example, the Python 3.13 support work-in-progress), point the install at the feature branch instead:
+```bash
+pip install git+https://github.com/megascienta/sciona@feature/python-3.13-support
 ```
 
 Initialize SCIONA in a repository:
