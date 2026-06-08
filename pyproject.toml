@@ -9,14 +9,14 @@ description = "SCIONA deterministic structural index builder"
 authors = [{ name = "Dmitry Chigrin & MegaScienta" }]
 readme = "README.md"
 license = { file = "LICENSE" }
-requires-python = ">=3.11,<3.13"
+requires-python = ">=3.11,<3.14"
 dependencies = [
     "typer>=0.9,<1.0",
     "click<9",
     "pyyaml>=6.0",
     "pathspec>=0.12",
-    "tree_sitter>=0.20,<0.21",
-    "tree_sitter_languages>=1.10",
+    "tree-sitter>=0.23,<1.0",
+    "tree-sitter-language-pack>=0.10",
     "networkx>=3.2,<4.0",
 ]
 

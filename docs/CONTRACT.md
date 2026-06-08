@@ -359,7 +359,7 @@ Global criteria:
   (for example role/modifier/base/module-binding diagnostics).
 - Extraction is tree-sitter query/field driven.
 - Parser setup is deterministic and uses `tree_sitter.Parser` +
-  `tree_sitter_languages.get_language`.
+  `tree_sitter_language_pack.get_language`.
 - A narrow parser bootstrap helper may be used only for:
   parser construction, language binding, and parser/grammar diagnostics.
 - General parser wrappers/factories are not used.

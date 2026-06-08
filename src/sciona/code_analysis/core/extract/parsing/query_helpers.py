@@ -7,7 +7,8 @@ from __future__ import annotations
 
 from functools import lru_cache
 
-from tree_sitter_languages import get_language
+from tree_sitter import QueryCursor
+from tree_sitter_language_pack import get_language
 
 
 def count_lines(content: bytes) -> int:
@@ -30,17 +31,10 @@ def find_nodes_of_types_query(
     query = _compile_type_query(
         language_name, tuple(sorted(node_types)), expected_capture_name
     )
-    captures = query.captures(node)
+    captures = QueryCursor(query).captures(node)
     results: list[object] = []
     seen: set[tuple[int, int, str]] = set()
-    for captured_node, raw_capture_name in captures:
-        resolved_name = (
-            raw_capture_name.decode("utf-8")
-            if isinstance(raw_capture_name, bytes)
-            else raw_capture_name
-        )
-        if resolved_name != expected_capture_name:
-            continue
+    for captured_node in captures.get(expected_capture_name, ()):
         key = (captured_node.start_byte, captured_node.end_byte, captured_node.type)
         if key in seen:
             continue

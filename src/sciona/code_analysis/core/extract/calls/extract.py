@@ -8,7 +8,8 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import Callable, Sequence, Set
 
-from tree_sitter_languages import get_language
+from tree_sitter import QueryCursor
+from tree_sitter_language_pack import get_language
 
 from .queries import normalize_call_identifiers
 from .targets import (
@@ -89,14 +90,10 @@ def _terminal_identifier_query(node, content: bytes, *, query_language: str) -> 
     if node is None or not query_language:
         return None
     query = _compile_terminal_identifier_query_for_language(query_language)
-    captures = query.captures(node)
+    captures = QueryCursor(query).captures(node)
     candidates: list[object] = []
     seen: set[tuple[int, int, str]] = set()
-    for captured_node, capture_name in captures:
-        if isinstance(capture_name, bytes):
-            capture_name = capture_name.decode("utf-8")
-        if capture_name != "terminal":
-            continue
+    for captured_node in captures.get("terminal", ()):
         key = (captured_node.start_byte, captured_node.end_byte, captured_node.type)
         if key in seen:
             continue
@@ -140,15 +137,10 @@ def _query_call_nodes(node, query_language: str, call_node_types: Set[str]) -> l
     if not call_node_types:
         return []
     query = _compile_call_query_for_types(query_language, tuple(sorted(call_node_types)))
-    captures = query.captures(node)
+    captures = QueryCursor(query).captures(node)
     nodes: list[object] = []
     seen: set[tuple[int, int, str]] = set()
-    for capture in captures:
-        captured_node, capture_name = capture
-        if isinstance(capture_name, bytes):
-            capture_name = capture_name.decode("utf-8")
-        if capture_name != "call":
-            continue
+    for captured_node in captures.get("call", ()):
         key = (captured_node.start_byte, captured_node.end_byte, captured_node.type)
         if key in seen:
             continue

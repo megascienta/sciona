@@ -26,8 +26,8 @@ Do not use this document to redefine structural semantics.
 
 ## Runtime
 
-- Python: `>=3.11,<3.13`
-- Required runtime dependencies include `tree_sitter`, `tree_sitter_languages`,
+- Python: `>=3.11,<3.14`
+- Required runtime dependencies include `tree_sitter`, `tree_sitter_language_pack`,
   `typer`, `click`, `pyyaml`, `pathspec`, and `networkx`
 
 ## Repository Boundaries

@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from tree_sitter import Parser
-from tree_sitter_languages import get_language
+from tree_sitter_language_pack import get_language
 
 
 def bootstrap_tree_sitter_parser(language_name: str) -> tuple[Parser, object, dict[str, object]]:
