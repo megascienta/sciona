@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sciona --version)",
+      "Bash(sciona build)",
+      "Bash(sciona build *)",
+      "Bash(sciona status)",
+      "Bash(sciona status *)",
+      "Bash(sciona reducer *)",
+      "Bash(sciona search *)",
+      "Bash(sciona resolve *)"
+    ]
+  }
+}

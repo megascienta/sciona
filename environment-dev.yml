@@ -1,0 +1,18 @@
+name: sciona-dev
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - "typer>=0.9,<1.0"
+  - "click<9"
+  - "pyyaml>=6.0"
+  - "pathspec>=0.12"
+  - "tree_sitter>=0.20,<0.21"
+  - "networkx>=3.2,<4.0"
+  - "pytest>=7"
+  - "setuptools>=68"
+  - "setuptools-scm>=8"
+  - wheel
+  - pip
+  - pip:
+      - "tree_sitter_languages==1.10.2"

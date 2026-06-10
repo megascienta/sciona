@@ -27,8 +27,27 @@ Do not use this document to redefine structural semantics.
 ## Runtime
 
 - Python: `>=3.11,<3.13`
+- Default development environment: `sciona-dev` on Python `3.12`
 - Required runtime dependencies include `tree_sitter`, `tree_sitter_languages`,
   `typer`, `click`, `pyyaml`, `pathspec`, and `networkx`
+
+## Development Environment
+
+Use the repository development environment from `environment-dev.yml`:
+
+```bash
+conda env create -f environment-dev.yml
+conda activate sciona-dev
+python -m pip install -e ".[dev]"
+```
+
+If the environment already exists, update it with:
+
+```bash
+conda env update -f environment-dev.yml --prune
+conda activate sciona-dev
+python -m pip install -e ".[dev]"
+```
 
 ## Repository Boundaries
 
@@ -424,6 +443,7 @@ Keep this guide focused on core implementation and runtime architecture.
 Baseline:
 
 ```bash
+conda activate sciona-dev
 pytest -q
 ```
 
