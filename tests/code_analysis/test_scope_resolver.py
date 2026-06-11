@@ -2,7 +2,7 @@
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
 from tree_sitter import Parser
-from tree_sitter_languages import get_language
+from tree_sitter_language_pack import get_language
 
 from sciona.code_analysis.languages.common.scope.scope_resolver import ScopeResolver
 from sciona.code_analysis.core.extract.parsing.query_helpers import find_nodes_of_types_query

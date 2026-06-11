@@ -26,9 +26,9 @@ Do not use this document to redefine structural semantics.
 
 ## Runtime
 
-- Python: `>=3.11,<3.13`
+- Python: `>=3.11,<3.14`
 - Default development environment: `sciona-dev` on Python `3.12`
-- Required runtime dependencies include `tree_sitter`, `tree_sitter_languages`,
+- Required runtime dependencies include `tree_sitter`, `tree_sitter_language_pack`,
   `typer`, `click`, `pyyaml`, `pathspec`, and `networkx`
 
 ## Development Environment

@@ -7,7 +7,8 @@ from __future__ import annotations
 
 from functools import lru_cache
 
-from tree_sitter_languages import get_language
+from tree_sitter import Query, QueryCursor
+from tree_sitter_language_pack import get_language
 
 
 def count_lines(content: bytes) -> int:
@@ -30,17 +31,10 @@ def find_nodes_of_types_query(
     query = _compile_type_query(
         language_name, tuple(sorted(node_types)), expected_capture_name
     )
-    captures = query.captures(node)
+    captures = QueryCursor(query).captures(node)
     results: list[object] = []
     seen: set[tuple[int, int, str]] = set()
-    for captured_node, raw_capture_name in captures:
-        resolved_name = (
-            raw_capture_name.decode("utf-8")
-            if isinstance(raw_capture_name, bytes)
-            else raw_capture_name
-        )
-        if resolved_name != expected_capture_name:
-            continue
+    for captured_node in captures.get(expected_capture_name, ()):
         key = (captured_node.start_byte, captured_node.end_byte, captured_node.type)
         if key in seen:
             continue
@@ -71,15 +65,14 @@ def _compile_query_source_cached(language_name: str, signature: str, source: str
     del signature
     language = get_language(language_name)
     if hasattr(language, "query"):
-        return language.query(source)
+        return Query(language, source)
     raise RuntimeError(f"Tree-sitter query API unavailable for language: {language_name}")
 
 
 def _language_signature(language_name: str) -> str:
     language = get_language(language_name)
-    version = getattr(language, "version", None)
     abi_version = getattr(language, "abi_version", None)
-    return f"{type(language).__name__}:{version}:{abi_version}"
+    return f"{type(language).__name__}:{abi_version}"
 
 
 def find_direct_children_query(node, *, language_name: str) -> list[object]:

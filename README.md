@@ -24,13 +24,13 @@ It does not try to prove runtime behavior, infer semantic intent, validate busin
 
 Although motivated by LLM workflows, SCIONA itself is LLM-agnostic infrastructure. Any system that needs deterministic structural information about a repository can use it.
 
-![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue)
+![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ## Quick start
 
 Requirements:
-- Python 3.11 or 3.12
+- Python 3.11, 3.12, or 3.13
 - Git
 
 Install SCIONA from the GitHub release:

@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 from tree_sitter import Parser
-from tree_sitter_languages import get_language
+from tree_sitter_language_pack import get_language
 
 from sciona.code_analysis.core.extract import calls as call_extraction
 from sciona.code_analysis.core.extract.calls import (
