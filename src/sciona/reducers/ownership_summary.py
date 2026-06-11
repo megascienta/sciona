@@ -9,6 +9,7 @@ from typing import Any
 
 from . import dependency_edges, module_overview
 from .helpers.shared.payload import render_json_payload
+from .helpers.shared.snapshot_guard import require_latest_committed_snapshot
 from .metadata import ReducerMeta
 
 REDUCER_META = ReducerMeta(
@@ -49,6 +50,14 @@ def run(snapshot_id: str, **params) -> dict[str, Any]:
     callable_id = params.get("callable_id")
     classifier_id = params.get("classifier_id")
     top_k = _normalize_top_k(params.get("top_k"))
+
+    require_latest_committed_snapshot(
+        conn, snapshot_id, reducer_name="ownership_summary reducer"
+    )
+    if not module_id and not callable_id and not classifier_id:
+        raise ValueError(
+            "ownership_summary requires one of --module-id / --callable-id / --classifier-id."
+        )
 
     overview = module_overview.run(
         snapshot_id,

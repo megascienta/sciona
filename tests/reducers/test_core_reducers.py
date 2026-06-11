@@ -975,6 +975,20 @@ def test_ownership_summary_top_k_and_validation(tmp_path):
         conn.close()
 
 
+def test_ownership_summary_no_identifier_error(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = _core_conn(repo_root)
+    try:
+        with pytest.raises(ValueError, match="ownership_summary requires one of"):
+            ownership_summary.run(
+                snapshot_id,
+                conn=conn,
+                repo_root=repo_root,
+            )
+    finally:
+        conn.close()
+
+
 def test_class_overview_requires_class_id(tmp_path):
     repo = _build_profile_repo(tmp_path)
     conn = sqlite3.connect(repo["db_path"])
