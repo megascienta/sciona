@@ -384,6 +384,7 @@ def _group_counterparts(
     return {
         "count": len(entries),
         "truncated": len(entries) > top_k,
+        "counts_relative_to": "counterpart_module",
         "entries": entries[:top_k],
     }
 

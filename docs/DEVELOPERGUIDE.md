@@ -430,6 +430,11 @@ languages until the user enables them in `.sciona/config.yaml`.
 - Overlay-oriented reducers include compact decision-surface summaries for
   common trust/patchability questions, for example
   `overlay_projection_status_summary`
+- In `dependency_edges` compact mode, `counterpart_modules` counts are relative
+  to each entry's own module: `outgoing_edge_count` counts edges *from* that
+  entry's module and `incoming_edge_count` counts edges *to* it, regardless of
+  the `direction` filter; the group carries
+  `counts_relative_to: counterpart_module` to make this explicit
 
 ## Addon API
 

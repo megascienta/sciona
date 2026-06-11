@@ -728,6 +728,7 @@ def test_dependency_edges_in_mode_counterpart_semantics(tmp_path):
     finally:
         conn.close()
     payload = parse_json_payload(payload_text)
+    assert payload["counterpart_modules"]["counts_relative_to"] == "counterpart_module"
     beta_entry = next(
         entry
         for entry in payload["counterpart_modules"]["entries"]
@@ -754,6 +755,7 @@ def test_dependency_edges_both_mode_counterpart_semantics(tmp_path):
         conn.close()
     payload = parse_json_payload(payload_text)
     assert payload["direction"] == "both"
+    assert payload["counterpart_modules"]["counts_relative_to"] == "counterpart_module"
     entries = {
         entry["module_qualified_name"]: entry
         for entry in payload["counterpart_modules"]["entries"]
