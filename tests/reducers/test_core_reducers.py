@@ -466,6 +466,7 @@ def test_callable_source_includes_decorator_prefix(tmp_path):
 
     source = parse_json_payload(source_text)
     assert source["line_span"] == [2, 4]
+    assert source["decorated_start_line"] == 2
     assert source["source"].splitlines()[0] == "    @property"
 
 

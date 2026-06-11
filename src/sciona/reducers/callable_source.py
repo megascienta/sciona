@@ -44,11 +44,11 @@ def render(
     file_path = payload.get("file_path")
     line_span = payload.get("line_span")
     if not file_path or not line_span:
-        return _format_payload(None, None, [])
+        return _format_payload(None, None, [], None)
     decorated_start_line = payload.get("decorated_start_line")
     rendered_span = _widen_line_span(line_span, decorated_start_line)
     snippet_lines = _extract_snippet(repo_root, file_path, rendered_span)
-    return _format_payload(file_path, rendered_span, snippet_lines)
+    return _format_payload(file_path, rendered_span, snippet_lines, decorated_start_line)
 
 
 def _widen_line_span(
@@ -84,12 +84,14 @@ def _format_payload(
     file_path: str | None,
     line_span: Iterable[int] | None,
     snippet_lines: List[str],
+    decorated_start_line: int | None,
 ) -> str:
     source_text = "\n".join(snippet_lines) if snippet_lines else None
     payload = {
         "payload_kind": "source",
         "file_path": file_path,
         "line_span": list(line_span) if line_span else None,
+        "decorated_start_line": decorated_start_line,
         "source": source_text,
     }
     return render_json_payload(payload)

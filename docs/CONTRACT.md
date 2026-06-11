@@ -92,6 +92,10 @@ Decorator/annotation prefix:
 - `decorated_start_line`, when present, MUST be `<= start_line`.
 - `start_line`, `end_line`, and `line_span` retain their existing meaning (the
   declaration's own span) and MUST NOT be redefined by this field.
+- Exception: the `callable_source` payload reports `line_span` as the span of
+  the returned source text — widened to `decorated_start_line` when present —
+  and carries `decorated_start_line` alongside it so consumers can detect the
+  widening.
 
 ## Structural Edges
 
