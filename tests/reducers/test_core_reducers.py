@@ -706,9 +706,69 @@ def test_dependency_edges_compact_mode_groups_counterparts(tmp_path):
     assert payload["top_k"] == 1
     assert payload["counterpart_modules"]["count"] >= 1
     assert len(payload["counterpart_modules"]["entries"]) == 1
-    assert payload["counterpart_modules"]["entries"][0]["module_qualified_name"].startswith(
-        _q(repo_root, "pkg.beta")
+    beta_entry = payload["counterpart_modules"]["entries"][0]
+    assert beta_entry["module_qualified_name"].startswith(_q(repo_root, "pkg.beta"))
+    assert beta_entry["incoming_edge_count"] == 1
+    assert beta_entry["outgoing_edge_count"] == 0
+
+
+def test_dependency_edges_in_mode_counterpart_semantics(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = _core_conn(repo_root)
+    try:
+        payload_text = dependency_edges.render(
+            snapshot_id,
+            conn,
+            repo_root,
+            module_id=_q(repo_root, "pkg.alpha"),
+            direction="in",
+            compact=True,
+            top_k=10,
+        )
+    finally:
+        conn.close()
+    payload = parse_json_payload(payload_text)
+    beta_entry = next(
+        entry
+        for entry in payload["counterpart_modules"]["entries"]
+        if entry["module_qualified_name"] == _q(repo_root, "pkg.beta")
     )
+    assert beta_entry["outgoing_edge_count"] == 1
+    assert beta_entry["incoming_edge_count"] == 0
+
+
+def test_dependency_edges_both_mode_counterpart_semantics(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = _core_conn(repo_root)
+    try:
+        payload_text = dependency_edges.render(
+            snapshot_id,
+            conn,
+            repo_root,
+            module_id=_q(repo_root, "pkg.alpha"),
+            direction="both",
+            compact=True,
+            top_k=10,
+        )
+    finally:
+        conn.close()
+    payload = parse_json_payload(payload_text)
+    assert payload["direction"] == "both"
+    entries = {
+        entry["module_qualified_name"]: entry
+        for entry in payload["counterpart_modules"]["entries"]
+    }
+    alpha_entry = entries[_q(repo_root, "pkg.alpha")]
+    assert alpha_entry["outgoing_edge_count"] == 1
+    assert alpha_entry["incoming_edge_count"] == 1
+    beta_entry = entries[_q(repo_root, "pkg.beta")]
+    assert beta_entry["outgoing_edge_count"] == 1
+    assert beta_entry["incoming_edge_count"] == 1
+    for entry in entries.values():
+        assert (
+            entry["edge_count"]
+            == entry["incoming_edge_count"] + entry["outgoing_edge_count"]
+        )
 
 
 def test_dependency_edges_query_filters_sources(tmp_path):

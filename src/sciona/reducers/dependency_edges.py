@@ -321,14 +321,14 @@ def _group_counterparts(
             structural_id = edge["from_module_structural_id"]
             qualified_name = edge["from_module_qualified_name"]
             file_path = edge["from_file_path"]
-            incoming = 1
-            outgoing = 0
+            incoming = 0
+            outgoing = 1
         elif direction == "out":
             structural_id = edge["to_module_structural_id"]
             qualified_name = edge["to_module_qualified_name"]
             file_path = edge["to_file_path"]
-            incoming = 0
-            outgoing = 1
+            incoming = 1
+            outgoing = 0
         else:
             src_key = edge["from_module_structural_id"]
             dst_key = edge["to_module_structural_id"]
@@ -337,15 +337,15 @@ def _group_counterparts(
                     src_key,
                     edge["from_module_qualified_name"],
                     edge["from_file_path"],
-                    1,
                     0,
+                    1,
                 ),
                 (
                     dst_key,
                     edge["to_module_qualified_name"],
                     edge["to_file_path"],
-                    0,
                     1,
+                    0,
                 ),
             ):
                 entry = grouped.setdefault(
