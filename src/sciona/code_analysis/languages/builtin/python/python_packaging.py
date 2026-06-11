@@ -129,6 +129,15 @@ def _flat_layout_package_roots(repo_root: Path) -> dict[str, str]:
         if not (child / "__init__.py").is_file():
             continue
         roots[child.name] = child.name
+    if not roots:
+        for child in sorted(repo_root.iterdir()):
+            if not child.is_dir():
+                continue
+            if child.name.startswith(".") or not child.name.isidentifier():
+                continue
+            if not any(child.rglob("*.py")):
+                continue
+            roots[child.name] = child.name
     return roots
 
 

@@ -91,6 +91,29 @@ sciona = "src"
     assert local_package_module_roots(tmp_path) == {"sciona": "src"}
 
 
+def test_local_package_module_roots_namespace_package_without_init(tmp_path) -> None:
+    pkg = tmp_path / "pkg"
+    sub = pkg / "sub"
+    sub.mkdir(parents=True)
+    (sub / "utils.py").write_text("", encoding="utf-8")
+    hidden = tmp_path / ".cache"
+    hidden.mkdir()
+    (hidden / "ignored.py").write_text("", encoding="utf-8")
+
+    assert local_package_module_roots(tmp_path) == {"pkg": "pkg"}
+
+
+def test_local_package_module_roots_init_packages_shadow_namespace_dirs(tmp_path) -> None:
+    init_pkg = tmp_path / "alpha"
+    init_pkg.mkdir()
+    (init_pkg / "__init__.py").write_text("", encoding="utf-8")
+    namespace_pkg = tmp_path / "beta"
+    namespace_pkg.mkdir()
+    (namespace_pkg / "module.py").write_text("", encoding="utf-8")
+
+    assert local_package_module_roots(tmp_path) == {"alpha": "alpha"}
+
+
 def test_local_package_module_roots_empty_when_no_packages(tmp_path) -> None:
     (tmp_path / "module.py").write_text("", encoding="utf-8")
 
