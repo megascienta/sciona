@@ -8,7 +8,7 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import Callable, Sequence, Set
 
-from tree_sitter import QueryCursor
+from tree_sitter import Query, QueryCursor
 from tree_sitter_language_pack import get_language
 
 from .queries import normalize_call_identifiers
@@ -163,15 +163,14 @@ def _compile_call_query_cached(language_name: str, signature: str, source: str):
     del signature
     language = _package_get_language(language_name)
     if hasattr(language, "query"):
-        return language.query(source)
+        return Query(language, source)
     raise RuntimeError(f"Tree-sitter query API unavailable for language: {language_name}")
 
 
 def _language_signature(language_name: str) -> str:
     language = _package_get_language(language_name)
-    version = getattr(language, "version", None)
     abi_version = getattr(language, "abi_version", None)
-    return f"{type(language).__name__}:{version}:{abi_version}"
+    return f"{type(language).__name__}:{abi_version}"
 
 
 @lru_cache(maxsize=32)

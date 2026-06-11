@@ -22,7 +22,7 @@ def build_exclude_spec(
 ) -> pathspec.PathSpec | None:
     if not exclude_globs:
         return None
-    return pathspec.PathSpec.from_lines("gitwildmatch", exclude_globs)
+    return pathspec.GitIgnoreSpec.from_lines(exclude_globs)
 
 
 def is_excluded_path(

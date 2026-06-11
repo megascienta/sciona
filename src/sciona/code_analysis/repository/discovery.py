@@ -49,7 +49,7 @@ def compute_discovery_details(
     excluded_set: set[str] = set()
     if exclude_globs:
         specs = [
-            (pattern, pathspec.PathSpec.from_lines("gitwildmatch", [pattern]))
+            (pattern, pathspec.GitIgnoreSpec.from_lines([pattern]))
             for pattern in exclude_globs
         ]
         for pattern, _spec in specs:

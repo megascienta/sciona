@@ -48,7 +48,6 @@ def test_bootstrap_diagnostics_are_stable_across_calls() -> None:
         "parser_class",
         "language_class",
         "language_module",
-        "language_version",
         "language_abi_version",
     }
     assert {key: d1.get(key) for key in stable_keys} == {
