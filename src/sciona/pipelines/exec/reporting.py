@@ -202,6 +202,7 @@ def _build_live_snapshot_report(
 
     artifact_available = False
     graph_edge_totals: dict[str, int] = defaultdict(int)
+    graph_edge_kind_totals: dict[str, int] = defaultdict(int)
     graph_edge_scope_totals: dict[str, dict[str, int]] = defaultdict(
         lambda: {"non_tests": 0, "tests": 0}
     )
@@ -239,6 +240,7 @@ def _build_live_snapshot_report(
                 scope_key = _scope_bucket(file_path)
                 count = int(item["edge_count"] or 0)
                 graph_edge_totals[language] += count
+                graph_edge_kind_totals[str(item["edge_kind"])] += count
                 graph_edge_scope_totals[language][scope_key] += count
             for item in artifact_reporting.node_call_caller_counts(conn):
                 caller_id = str(item["caller_id"])
@@ -580,6 +582,11 @@ def _build_live_snapshot_report(
                 "files": sum(item.files for item in rows),
                 "nodes": sum(item.nodes for item in rows),
                 "edges": total_graph_edge_count,
+                "edges_by_kind": (
+                    dict(sorted(graph_edge_kind_totals.items()))
+                    if artifact_available
+                    else None
+                ),
             },
             "callsites": {
                 "observed_syntactic_callsites": diagnostics_totals.get(

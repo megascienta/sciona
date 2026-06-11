@@ -89,6 +89,11 @@ def _fake_report():
                 "files": 10,
                 "nodes": 20,
                 "edges": 19,
+                "edges_by_kind": {
+                    "CALLS": 3,
+                    "IMPORTS_DECLARED": 4,
+                    "LEXICALLY_CONTAINS": 12,
+                },
             },
             "callsites": {
                 "observed_syntactic_callsites": 12,
@@ -155,6 +160,10 @@ def test_cli_status_default_uses_short_summary(cli_app, cli_runner, monkeypatch)
     assert "Core build time: 1.23s" in result.stdout
     assert "Summary:" in result.stdout
     assert "python: 10 files, 20 nodes, 19 edges" in result.stdout
+    assert (
+        "total: 10 files, 20 nodes, 19 edges "
+        "(CALLS 3, IMPORTS_DECLARED 4, LEXICALLY_CONTAINS 12)" in result.stdout
+    )
     assert "call_materialization:" not in result.stdout
     assert "not_accepted_callsites:" not in result.stdout
 

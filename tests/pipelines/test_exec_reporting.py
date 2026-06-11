@@ -36,6 +36,10 @@ def test_snapshot_report_returns_grouped_direct_metrics(repo_with_snapshot):
         "files": 3,
         "nodes": 5,
         "edges": 5,
+        "edges_by_kind": {
+            "IMPORTS_DECLARED": 2,
+            "LEXICALLY_CONTAINS": 3,
+        },
     }
     assert payload["totals"]["callsites"] == {
         "observed_syntactic_callsites": 0,
@@ -289,7 +293,16 @@ def test_snapshot_report_counts_finalized_call_edges(repo_with_snapshot):
     assert python["call_materialization"] == {
         "finalized_call_edges": 2,
     }
-    assert payload["totals"]["structure"] == {"files": 3, "nodes": 5, "edges": 7}
+    assert payload["totals"]["structure"] == {
+        "files": 3,
+        "nodes": 5,
+        "edges": 7,
+        "edges_by_kind": {
+            "CALLS": 2,
+            "IMPORTS_DECLARED": 2,
+            "LEXICALLY_CONTAINS": 3,
+        },
+    }
     assert payload["totals"]["call_materialization"] == {
         "finalized_call_edges": 2,
     }
@@ -381,7 +394,16 @@ def test_snapshot_report_attributes_graph_edges_by_source_scope(repo_with_snapsh
 
     payload = repo_pipeline.snapshot_report(snapshot_id, repo_root=repo_root)
     assert payload is not None
-    assert payload["totals"]["structure"] == {"files": 4, "nodes": 7, "edges": 7}
+    assert payload["totals"]["structure"] == {
+        "files": 4,
+        "nodes": 7,
+        "edges": 7,
+        "edges_by_kind": {
+            "CALLS": 1,
+            "IMPORTS_DECLARED": 2,
+            "LEXICALLY_CONTAINS": 4,
+        },
+    }
     assert payload["scopes"]["non_tests"]["structure"] == {
         "files": 3,
         "nodes": 5,

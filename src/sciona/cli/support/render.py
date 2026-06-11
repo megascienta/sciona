@@ -228,7 +228,15 @@ def _format_structure_summary(structure: dict) -> str:
     nodes = int(structure.get("nodes") or 0)
     edges = structure.get("edges")
     edges_text = "n/a" if edges is None else str(int(edges or 0))
-    return f"{files} files, {nodes} nodes, {edges_text} edges"
+    edges_by_kind = structure.get("edges_by_kind")
+    if edges_by_kind:
+        breakdown = ", ".join(
+            f"{kind} {int(count or 0)}" for kind, count in edges_by_kind.items()
+        )
+        edges_text = f"{edges_text} edges ({breakdown})"
+    else:
+        edges_text = f"{edges_text} edges"
+    return f"{files} files, {nodes} nodes, {edges_text}"
 
 
 def _format_callsites_summary(callsites: dict) -> str:

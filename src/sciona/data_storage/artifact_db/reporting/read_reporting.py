@@ -34,14 +34,16 @@ def graph_edge_source_counts(
     rows = conn.execute(
         """
         SELECT src_node_id,
+               edge_kind,
                COUNT(*) AS edge_count
         FROM graph_edges
-        GROUP BY src_node_id
+        GROUP BY src_node_id, edge_kind
         """
     ).fetchall()
     return [
         {
             "src_node_id": row["src_node_id"],
+            "edge_kind": row["edge_kind"],
             "edge_count": int(row["edge_count"] or 0),
         }
         for row in rows
