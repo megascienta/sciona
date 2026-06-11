@@ -35,7 +35,7 @@ Requirements:
 
 Install SCIONA from the GitHub release:
 ```bash
-pip install git+https://github.com/megascienta/sciona@v1.2.0
+pip install git+https://github.com/megascienta/sciona@v1.2.1
 ```
 
 Initialize SCIONA in a repository:
