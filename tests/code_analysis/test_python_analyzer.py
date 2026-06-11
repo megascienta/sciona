@@ -854,6 +854,80 @@ async def handler():
     assert not [edge for edge in result.edges if edge.edge_type == "DECORATED_BY"]
 
 
+def test_python_analyzer_sets_decorated_start_line_for_decorated_members(tmp_path):
+    module = """
+def cache(fn):
+    return fn
+
+def log(fn):
+    return fn
+
+@cache("value")
+class Widget:
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, new_value):
+        self._value = new_value
+
+    @cache
+    @log
+    def plain(self):
+        return 1
+
+    def undecorated(self):
+        return 2
+"""
+    repo = tmp_path
+    pkg = repo / "pkg"
+    pkg.mkdir()
+    file_path = pkg / "mod.py"
+    file_path.write_text(module, encoding="utf-8")
+    record = FileRecord(
+        path=file_path,
+        relative_path=Path("pkg/mod.py"),
+        language="python",
+    )
+    snapshot = FileSnapshot(
+        record=record,
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = PythonAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+    nodes_by_qname = {node.qualified_name: node for node in result.nodes}
+    value_accessors = sorted(
+        (
+            node
+            for node in result.nodes
+            if node.qualified_name.startswith(f"{module_name}.Widget.value")
+        ),
+        key=lambda node: node.start_line,
+    )
+
+    widget = nodes_by_qname[f"{module_name}.Widget"]
+    assert widget.decorated_start_line == 8
+    assert widget.start_line == 9
+
+    assert len(value_accessors) == 2
+    getter, setter = value_accessors
+    assert getter.decorated_start_line == getter.start_line - 1
+    assert setter.decorated_start_line == setter.start_line - 1
+
+    plain = nodes_by_qname[f"{module_name}.Widget.plain"]
+    assert plain.decorated_start_line == plain.start_line - 2
+
+    undecorated = nodes_by_qname[f"{module_name}.Widget.undecorated"]
+    assert undecorated.decorated_start_line is None
+
+
 def test_python_analyzer_emits_async_method_inside_class_body(tmp_path):
     module = """
 class Service:

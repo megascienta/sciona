@@ -106,6 +106,7 @@ def walk_python_nodes(
     module_name: str,
     result,
     state: PythonNodeState,
+    decorated_start_line: int | None = None,
 ) -> None:
     if node.type == "expression_statement":
         for child in _python_structural_children(node):
@@ -129,6 +130,7 @@ def walk_python_nodes(
                 module_name=module_name,
                 result=result,
                 state=state,
+                decorated_start_line=node.start_point[0] + 1,
             )
         return
 
@@ -170,6 +172,7 @@ def walk_python_nodes(
                     "kind": "class",
                     "bases": list(_python_bases(node, snapshot.content)),
                 },
+                decorated_start_line=decorated_start_line,
             )
         )
         state.class_name_map.setdefault(class_name, qualified)
@@ -263,6 +266,7 @@ def walk_python_nodes(
                 start_byte=node.start_byte,
                 end_byte=node.end_byte,
                 metadata=metadata,
+                decorated_start_line=decorated_start_line,
             )
         )
         result.edges.append(

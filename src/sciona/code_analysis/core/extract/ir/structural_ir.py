@@ -24,6 +24,7 @@ class IRNode:
     end_byte: int | None = None
     file_id: str | None = None
     metadata: dict[str, object] | None = None
+    decorated_start_line: int | None = None
 
     @classmethod
     def from_record(cls, node: SemanticNodeRecord) -> "IRNode":
@@ -39,6 +40,7 @@ class IRNode:
             end_byte=node.end_byte,
             file_id=node.file_id,
             metadata=node.metadata,
+            decorated_start_line=node.decorated_start_line,
         )
 
 

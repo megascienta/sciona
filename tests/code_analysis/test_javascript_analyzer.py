@@ -61,6 +61,44 @@ def test_javascript_analyzer_extracts_declared_nested_and_bound_callables(tmp_pa
     assert f"{module_name}.helper" in by_caller[f"{module_name}.outer.inner"]
 
 
+def test_javascript_analyzer_sets_decorated_start_line_for_decorated_members(tmp_path) -> None:
+    repo = tmp_path
+    snapshot = _snapshot(
+        repo,
+        "src/widget.js",
+        """@Component
+export class Widget {
+  @Input()
+  value() {
+    return 1;
+  }
+
+  plain() {
+    return 2;
+  }
+}
+""",
+    )
+    analyzer = JavaScriptAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+    nodes_by_qname = {node.qualified_name: node for node in result.nodes}
+
+    widget = nodes_by_qname[f"{module_name}.Widget"]
+    assert widget.decorated_start_line == 1
+    assert widget.start_line == 2
+
+    # The grammar includes a method's own decorator(s) in its span, so
+    # start_line already covers the `@Input()` line and no widening is needed.
+    value = nodes_by_qname[f"{module_name}.Widget.value"]
+    assert value.decorated_start_line is None
+    assert value.start_line == 3
+
+    plain = nodes_by_qname[f"{module_name}.Widget.plain"]
+    assert plain.decorated_start_line is None
+
+
 def test_javascript_heritage_metadata_preserves_expression_commas() -> None:
     class _Node:
         def __init__(self, node_type: str, text: str = "", children=None):

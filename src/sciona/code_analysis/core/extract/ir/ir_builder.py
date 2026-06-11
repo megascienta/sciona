@@ -30,6 +30,7 @@ def build_analysis_result(
                 end_byte=node.end_byte,
                 file_id=node.file_id,
                 metadata=node.metadata,
+                decorated_start_line=node.decorated_start_line,
             )
             for node in nodes
         ],

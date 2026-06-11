@@ -69,6 +69,54 @@ def test_typescript_analyzer_extracts_structure(tmp_path):
 
 
 
+def test_typescript_analyzer_sets_decorated_start_line_for_decorated_members(tmp_path):
+    module = """@Component
+export class Widget {
+  @Input()
+  value() {
+    return 1;
+  }
+
+  plain() {
+    return 2;
+  }
+}
+"""
+    repo = tmp_path
+    src = repo / "src"
+    src.mkdir()
+    file_path = src / "widget.ts"
+    file_path.write_text(module, encoding="utf-8")
+    record = FileRecord(
+        path=file_path,
+        relative_path=Path("src/widget.ts"),
+        language="typescript",
+    )
+    snapshot = FileSnapshot(
+        record=record,
+        file_id="file",
+        blob_sha="hash",
+        size=len(module.encode("utf-8")),
+        line_count=module.count("\n"),
+        content=module.encode("utf-8"),
+    )
+    analyzer = TypeScriptAnalyzer()
+    module_name = analyzer.module_name(repo, snapshot)
+    analyzer.module_index = {module_name}
+    result = analyzer.analyze(snapshot, module_name)
+    nodes_by_qname = {node.qualified_name: node for node in result.nodes}
+
+    widget = nodes_by_qname[f"{module_name}.Widget"]
+    assert widget.decorated_start_line == 1
+    assert widget.start_line == 2
+
+    value = nodes_by_qname[f"{module_name}.Widget.value"]
+    assert value.decorated_start_line == value.start_line - 1
+
+    plain = nodes_by_qname[f"{module_name}.Widget.plain"]
+    assert plain.decorated_start_line is None
+
+
 def test_typescript_nested_function_declaration_is_structural(tmp_path):
     module = """
     export function outer() {

@@ -53,6 +53,7 @@ SCHEMA_STATEMENTS: list[str] = [
         end_line INTEGER NOT NULL,
         start_byte INTEGER,
         end_byte INTEGER,
+        decorated_start_line INTEGER,
         content_hash TEXT NOT NULL,
         UNIQUE (structural_id, snapshot_id),
         FOREIGN KEY (structural_id) REFERENCES structural_nodes(structural_id) ON DELETE CASCADE
@@ -219,6 +220,8 @@ def _ensure_node_instance_span_columns(conn: sqlite3.Connection) -> None:
         conn.execute("ALTER TABLE node_instances ADD COLUMN start_byte INTEGER")
     if "end_byte" not in col_names:
         conn.execute("ALTER TABLE node_instances ADD COLUMN end_byte INTEGER")
+    if "decorated_start_line" not in col_names:
+        conn.execute("ALTER TABLE node_instances ADD COLUMN decorated_start_line INTEGER")
 
 
 def _migrate_edges(conn: sqlite3.Connection) -> None:

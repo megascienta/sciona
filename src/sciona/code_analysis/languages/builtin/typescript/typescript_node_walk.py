@@ -15,6 +15,7 @@ from .typescript_node_text import (
     parse_type_annotation,
     typed_constructor_parameters,
 )
+from ...common.helpers.shared import leading_decorator_start_line
 from ...common.query.query_surface import (
     JAVASCRIPT_STRUCTURAL_CARRIER_NODE_TYPES,
     JAVASCRIPT_STRUCTURAL_NODE_TYPES,
@@ -278,6 +279,7 @@ def walk_typescript_nodes(
                     "kind": class_kind_map.get(node.type, "class"),
                     **_typescript_heritage_metadata(node, snapshot.content),
                 },
+                decorated_start_line=leading_decorator_start_line(node),
             )
         )
         state.class_name_map.setdefault(class_name, qualified)
@@ -384,6 +386,11 @@ def walk_typescript_nodes(
             "signature_only": node.type in {"method_signature", "abstract_method_signature"},
             "abstract": node.type == "abstract_method_signature",
         }
+        decorated_start_line = (
+            leading_decorator_start_line(node)
+            if node.type == "method_definition"
+            else None
+        )
         result.nodes.append(
             SemanticNodeRecord(
                 language=language,
@@ -396,6 +403,7 @@ def walk_typescript_nodes(
                 start_byte=node.start_byte,
                 end_byte=node.end_byte,
                 metadata=metadata,
+                decorated_start_line=decorated_start_line,
             )
         )
         result.edges.append(

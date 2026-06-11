@@ -72,6 +72,7 @@ class SemanticNodeRecord:
     end_byte: Optional[int] = None
     file_id: Optional[str] = None
     metadata: Optional[Dict[str, object]] = None
+    decorated_start_line: Optional[int] = None
 
     def __post_init__(self) -> None:
         if not self.language:
@@ -87,6 +88,11 @@ class SemanticNodeRecord:
         if self.end_line < self.start_line:
             raise ValueError(
                 f"end_line ({self.end_line}) must be >= start_line ({self.start_line})"
+            )
+        if self.decorated_start_line is not None and self.decorated_start_line > self.start_line:
+            raise ValueError(
+                "decorated_start_line "
+                f"({self.decorated_start_line}) must be <= start_line ({self.start_line})"
             )
         if self.start_byte is not None and self.start_byte < 0:
             raise ValueError(f"start_byte must be >= 0, got {self.start_byte}")

@@ -82,6 +82,17 @@ Synthetic nodes:
 - Synthetic nodes MUST NOT shadow, reuse, or alias the canonical identity of a
   real structural `module`, `classifier`, or `callable`.
 
+Decorator/annotation prefix:
+
+- A `classifier` or `callable` instance MAY carry an optional
+  `decorated_start_line`: the 1-based line of the first contiguous
+  decorator/annotation line immediately preceding the node's declaration in
+  source (for example Python `@property`, TypeScript/JavaScript class or
+  method `@Decorator`), or `null` when no such prefix is present.
+- `decorated_start_line`, when present, MUST be `<= start_line`.
+- `start_line`, `end_line`, and `line_span` retain their existing meaning (the
+  declaration's own span) and MUST NOT be redefined by this field.
+
 ## Structural Edges
 
 SCIONA structural extraction in CoreDB MUST emit these edge types:

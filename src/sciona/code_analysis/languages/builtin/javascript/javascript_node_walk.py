@@ -13,6 +13,7 @@ from .javascript_node_text import (
     name_chain,
     node_text,
 )
+from ...common.helpers.shared import leading_decorator_start_line
 from ...common.query.query_surface import (
     JAVASCRIPT_STRUCTURAL_CARRIER_NODE_TYPES,
     JAVASCRIPT_STRUCTURAL_NODE_TYPES,
@@ -314,6 +315,7 @@ def walk_javascript_nodes(
                     "kind": "class",
                     **_javascript_heritage_metadata(node, snapshot.content),
                 },
+                decorated_start_line=leading_decorator_start_line(node),
             )
         )
         state.class_name_map.setdefault(class_name, qualified)
@@ -414,6 +416,11 @@ def walk_javascript_nodes(
             "signature_only": False,
             "abstract": False,
         }
+        decorated_start_line = (
+            leading_decorator_start_line(node)
+            if node.type == "method_definition"
+            else None
+        )
         result.nodes.append(
             SemanticNodeRecord(
                 language=language,
@@ -426,6 +433,7 @@ def walk_javascript_nodes(
                 start_byte=node.start_byte,
                 end_byte=node.end_byte,
                 metadata=metadata,
+                decorated_start_line=decorated_start_line,
             )
         )
         result.edges.append(

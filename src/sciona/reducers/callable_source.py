@@ -45,8 +45,19 @@ def render(
     line_span = payload.get("line_span")
     if not file_path or not line_span:
         return _format_payload(None, None, [])
-    snippet_lines = _extract_snippet(repo_root, file_path, line_span)
-    return _format_payload(file_path, line_span, snippet_lines)
+    decorated_start_line = payload.get("decorated_start_line")
+    rendered_span = _widen_line_span(line_span, decorated_start_line)
+    snippet_lines = _extract_snippet(repo_root, file_path, rendered_span)
+    return _format_payload(file_path, rendered_span, snippet_lines)
+
+
+def _widen_line_span(
+    line_span: Iterable[int], decorated_start_line: int | None
+) -> List[int]:
+    start_line, end_line = list(line_span)
+    if decorated_start_line is not None and decorated_start_line < start_line:
+        start_line = decorated_start_line
+    return [start_line, end_line]
 
 
 def _extract_snippet(

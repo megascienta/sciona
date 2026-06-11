@@ -32,4 +32,31 @@ def node_text(node, content: bytes) -> str | None:
     return content[node.start_byte : node.end_byte].decode("utf-8")
 
 
-__all__ = ["is_internal_module", "node_text", "repo_root_from_snapshot"]
+def leading_decorator_start_line(node, decorator_node_type: str = "decorator") -> int | None:
+    """Return the 1-based line of the earliest contiguous preceding-sibling
+    decorator/annotation node, or None if the node is not directly preceded
+    by one."""
+    parent = getattr(node, "parent", None)
+    if parent is None:
+        return None
+    siblings = list(getattr(parent, "children", []) or [])
+    try:
+        index = siblings.index(node)
+    except ValueError:
+        return None
+    earliest_line: int | None = None
+    for sibling in reversed(siblings[:index]):
+        if not getattr(sibling, "is_named", True):
+            continue
+        if getattr(sibling, "type", None) != decorator_node_type:
+            break
+        earliest_line = sibling.start_point[0] + 1
+    return earliest_line
+
+
+__all__ = [
+    "is_internal_module",
+    "leading_decorator_start_line",
+    "node_text",
+    "repo_root_from_snapshot",
+]

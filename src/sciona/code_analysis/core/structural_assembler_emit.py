@@ -48,6 +48,7 @@ def emit_node_instances(
             end_line=node.end_line,
             start_byte=node.start_byte,
             end_byte=node.end_byte,
+            decorated_start_line=node.decorated_start_line,
             content_hash=content_hash,
         )
 

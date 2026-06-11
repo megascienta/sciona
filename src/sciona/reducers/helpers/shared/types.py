@@ -63,6 +63,7 @@ class CallableOverviewPayload(TypedDict, total=False):
     language: str
     file_path: str
     line_span: Sequence[int]
+    decorated_start_line: int | None
     start_byte: int
     end_byte: int
     content_hash: str

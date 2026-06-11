@@ -406,6 +406,69 @@ def test_callable_source_skips_directory_path(tmp_path):
     assert payload["source"] is None
 
 
+def test_callable_source_includes_decorator_prefix(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    (repo_root / "pkg/alpha/service.py").write_text(
+        "class Widget:\n"
+        "    @property\n"
+        "    def value(self):\n"
+        "        return self._value\n",
+        encoding="utf-8",
+    )
+    conn = _core_conn(repo_root)
+    try:
+        conn.execute(
+            """
+            INSERT INTO structural_nodes(structural_id, node_type, language, created_snapshot_id)
+            VALUES (?, ?, ?, ?)
+            """,
+            ("func_value", "callable", "python", snapshot_id),
+        )
+        conn.execute(
+            """
+            INSERT INTO node_instances(
+                instance_id, structural_id, snapshot_id, qualified_name, file_path,
+                start_line, end_line, decorated_start_line, content_hash
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                f"{snapshot_id}:func_value",
+                "func_value",
+                snapshot_id,
+                _q(repo_root, "pkg.alpha.service.Widget.value"),
+                "pkg/alpha/service.py",
+                3,
+                4,
+                2,
+                "hash-func_value",
+            ),
+        )
+        conn.commit()
+
+        overview_text = callable_overview.render(
+            snapshot_id,
+            conn,
+            repo_root,
+            callable_id="func_value",
+        )
+        source_text = callable_source.render(
+            snapshot_id,
+            conn,
+            repo_root,
+            callable_id="func_value",
+        )
+    finally:
+        conn.close()
+
+    overview = parse_json_payload(overview_text)
+    assert overview["decorated_start_line"] == 2
+    assert overview["line_span"] == [3, 4]
+
+    source = parse_json_payload(source_text)
+    assert source["line_span"] == [2, 4]
+    assert source["source"].splitlines()[0] == "    @property"
+
+
 def test_symbol_lookup_reducer_returns_matches(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     conn = _core_conn(repo_root)
