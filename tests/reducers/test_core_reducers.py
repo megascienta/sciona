@@ -989,6 +989,40 @@ def test_ownership_summary_no_identifier_error(tmp_path):
         conn.close()
 
 
+def test_ownership_summary_resolves_callable_id_to_owning_module(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = _core_conn(repo_root)
+    try:
+        payload = ownership_summary.run(
+            snapshot_id,
+            conn=conn,
+            repo_root=repo_root,
+            callable_id="func_alpha",
+        )
+    finally:
+        conn.close()
+
+    assert payload["projection"] == "ownership_summary"
+    assert payload["module_qualified_name"] == _q(repo_root, "pkg.alpha")
+
+
+def test_ownership_summary_resolves_classifier_id_to_owning_module(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = _core_conn(repo_root)
+    try:
+        payload = ownership_summary.run(
+            snapshot_id,
+            conn=conn,
+            repo_root=repo_root,
+            classifier_id="cls_alpha",
+        )
+    finally:
+        conn.close()
+
+    assert payload["projection"] == "ownership_summary"
+    assert payload["module_qualified_name"] == _q(repo_root, "pkg.alpha")
+
+
 def test_class_overview_requires_class_id(tmp_path):
     repo = _build_profile_repo(tmp_path)
     conn = sqlite3.connect(repo["db_path"])

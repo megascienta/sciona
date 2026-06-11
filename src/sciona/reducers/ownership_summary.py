@@ -8,6 +8,7 @@ from __future__ import annotations
 from typing import Any
 
 from . import dependency_edges, module_overview
+from .helpers.shared import queries
 from .helpers.shared.payload import render_json_payload
 from .helpers.shared.snapshot_guard import require_latest_committed_snapshot
 from .metadata import ReducerMeta
@@ -59,13 +60,27 @@ def run(snapshot_id: str, **params) -> dict[str, Any]:
             "ownership_summary requires one of --module-id / --callable-id / --classifier-id."
         )
 
+    resolved_module_id = module_id
+    if not resolved_module_id and classifier_id:
+        classifier_structural_id = queries.resolve_classifier_id(
+            conn, snapshot_id, classifier_id
+        )
+        resolved_module_id = queries.module_id_for_structural(
+            conn, snapshot_id, classifier_structural_id
+        )
+    if not resolved_module_id and callable_id:
+        callable_structural_id = queries.resolve_callable_id(
+            conn, snapshot_id, callable_id
+        )
+        resolved_module_id = queries.module_id_for_structural(
+            conn, snapshot_id, callable_structural_id
+        )
+
     overview = module_overview.run(
         snapshot_id,
         conn=conn,
         repo_root=repo_root,
-        module_id=module_id,
-        callable_id=callable_id,
-        classifier_id=classifier_id,
+        module_id=resolved_module_id,
         include_file_map=True,
     )
     outgoing = _load_edges(
