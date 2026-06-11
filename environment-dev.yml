@@ -7,7 +7,7 @@ dependencies:
   - "click<9"
   - "pyyaml>=6.0"
   - "pathspec>=0.12"
-  - "tree_sitter>=0.20,<0.21"
+  - "tree-sitter>=0.23,<1.0"
   - "networkx>=3.2,<4.0"
   - "pytest>=7"
   - "setuptools>=68"
@@ -15,4 +15,4 @@ dependencies:
   - wheel
   - pip
   - pip:
-      - "tree_sitter_languages==1.10.2"
+      - "tree-sitter-language-pack>=0.10,<1.0"

@@ -20,3 +20,5 @@ ENV/
 .sciona/
 pip-wheel-metadata/
 validations/copilot_evaluation/reports/internal
+TODO.md
+DISCUSSIONS.md
