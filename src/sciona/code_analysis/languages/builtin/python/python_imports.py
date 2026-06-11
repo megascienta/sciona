@@ -7,13 +7,13 @@ from __future__ import annotations
 
 from typing import List, Optional
 
-from .....runtime import packaging as runtime_packaging
 from .....runtime import paths as runtime_paths
 from ....core.normalize_model import FileSnapshot
 from ....core.extract.parsing.query_helpers import find_direct_children_query
 from ...common.ir.import_model import NormalizedImportModel
 from ...common.query.query_surface import PYTHON_IMPORT_NODE_TYPES
 from ...common.helpers.shared import is_internal_module, node_text, repo_root_from_snapshot
+from .python_packaging import local_package_module_roots
 
 
 def collect_python_imports(
@@ -46,7 +46,7 @@ def collect_python_import_model(
 ) -> NormalizedImportModel:
     repo_root = repo_root_from_snapshot(snapshot)
     repo_prefix = runtime_paths.repo_name_prefix(repo_root)
-    local_package_roots = runtime_packaging.local_package_module_roots(repo_root)
+    local_package_roots = local_package_module_roots(repo_root)
     model = NormalizedImportModel()
     is_package = snapshot.record.path.name == "__init__.py"
 

@@ -69,15 +69,15 @@ def test_python_import_model_emits_shared_binding_facts(tmp_path) -> None:
             root,
             snapshot,
             "repo.pkg.mod",
-            module_index={"utils", "pkg.models"},
+            module_index={"utils", "repo.pkg.models"},
         )
     finally:
         python_imports.find_direct_children_query = original
 
     facts = {(fact.symbol, fact.target, fact.binding_kind) for fact in model.local_binding_facts}
     assert ("utils", "utils", "module_alias") in facts
-    assert ("W", "pkg.models.Widget", "direct_import_symbol") in facts
-    assert ("Gadget", "pkg.models.Gadget", "direct_import_symbol") in facts
+    assert ("W", "repo.pkg.models.Widget", "direct_import_symbol") in facts
+    assert ("Gadget", "repo.pkg.models.Gadget", "direct_import_symbol") in facts
     assert alias_maps_from_binding_facts(model.local_binding_facts) == (
         model.import_aliases,
         model.member_aliases,

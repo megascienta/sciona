@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Dmitry Chigrin & MegaScienta
 
-"""Packaging metadata helpers (best-effort)."""
+"""Python packaging metadata helpers (best-effort)."""
 
 from __future__ import annotations
 
@@ -113,6 +113,22 @@ def local_package_module_roots(repo_root: Path) -> dict[str, str]:
             )
             if module_suffix:
                 roots.setdefault(child.name, module_suffix)
+    if not roots:
+        roots.update(_flat_layout_package_roots(repo_root))
+    return roots
+
+
+def _flat_layout_package_roots(repo_root: Path) -> dict[str, str]:
+    """Fallback package roots from top-level directories containing __init__.py."""
+    roots: dict[str, str] = {}
+    if not repo_root.is_dir():
+        return roots
+    for child in sorted(repo_root.iterdir()):
+        if not child.is_dir():
+            continue
+        if not (child / "__init__.py").is_file():
+            continue
+        roots[child.name] = child.name
     return roots
 
 

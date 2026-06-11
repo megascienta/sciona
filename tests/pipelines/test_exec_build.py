@@ -11,6 +11,7 @@ from sciona.runtime.config import io as config_io
 from sciona.runtime.common import constants as setup_config
 import sqlite3
 
+from sciona.data_storage.core_db.read_ops import edges as read_edges
 from sciona.data_storage.core_db.read_ops import snapshots as read_snapshots
 from tests.helpers import commit_all, init_git_repo
 
@@ -194,3 +195,79 @@ def test_build_repo_diagnostic_workspace_is_removed(tmp_path: Path) -> None:
 
     assert result.status == "committed"
     assert not (repo_root / ".sciona" / ".diagnostic_rejected_calls").exists()
+
+
+def test_build_repo_resolves_imports_in_flat_layout_without_pyproject(
+    tmp_path: Path,
+) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    init_git_repo(repo_root, commit=False)
+    pkg = repo_root / "pkg"
+    pkg.mkdir()
+    (pkg / "__init__.py").write_text("", encoding="utf-8")
+    (pkg / "utils.py").write_text("def h():\n    return 1\n", encoding="utf-8")
+    (pkg / "core.py").write_text(
+        "from pkg.utils import h\n\n\ndef run():\n    return h()\n",
+        encoding="utf-8",
+    )
+    commit_all(repo_root)
+    _write_config(repo_root)
+
+    repo_state = RepoState.from_repo_root(repo_root)
+    policy = policy_build.resolve_build_policy(
+        repo_state, refresh_artifacts=False, refresh_calls=False
+    )
+    result = build_repo(repo_state, policy)
+
+    conn = sqlite3.connect(repo_state.db_path)
+    conn.row_factory = sqlite3.Row
+    try:
+        import_edges = read_edges.list_edges_by_type(
+            conn, result.snapshot_id, "IMPORTS_DECLARED"
+        )
+    finally:
+        conn.close()
+
+    assert len(import_edges) >= 1
+    assert not any(
+        "0 IMPORTS_DECLARED edges" in message for message in result.analysis_warnings
+    )
+
+
+def test_build_repo_warns_on_unresolved_imports_with_zero_edges(
+    tmp_path: Path,
+) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    init_git_repo(repo_root, commit=False)
+    pkg = repo_root / "notpkg"
+    pkg.mkdir()
+    (pkg / "utils.py").write_text("def h():\n    return 1\n", encoding="utf-8")
+    (repo_root / "core.py").write_text(
+        "from notpkg.utils import h\n\n\ndef run():\n    return h()\n",
+        encoding="utf-8",
+    )
+    commit_all(repo_root)
+    _write_config(repo_root)
+
+    repo_state = RepoState.from_repo_root(repo_root)
+    policy = policy_build.resolve_build_policy(
+        repo_state, refresh_artifacts=False, refresh_calls=False
+    )
+    result = build_repo(repo_state, policy)
+
+    conn = sqlite3.connect(repo_state.db_path)
+    conn.row_factory = sqlite3.Row
+    try:
+        import_edges = read_edges.list_edges_by_type(
+            conn, result.snapshot_id, "IMPORTS_DECLARED"
+        )
+    finally:
+        conn.close()
+
+    assert import_edges == []
+    assert result.imports_seen > 0
+    assert any(
+        "0 IMPORTS_DECLARED edges" in message for message in result.analysis_warnings
+    )

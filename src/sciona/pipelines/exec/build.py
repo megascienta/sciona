@@ -153,6 +153,11 @@ def build_repo(
             core_write.delete_committed_snapshots_except(conn, snapshot.snapshot_id)
             core_write.prune_orphan_structural_nodes(conn)
             core_write.prune_orphan_synthetic_nodes(conn)
+            _warn_if_imports_unresolved(
+                engine,
+                conn,
+                snapshot_id=committed_snapshot_id,
+            )
             conn.commit()
             call_artifacts: Sequence[CallExtractionRecord] = []
             artifact_warnings: Sequence[str] = []
@@ -251,6 +256,22 @@ def build_repo(
             if conn.in_transaction:
                 conn.rollback()
             raise
+
+
+def _warn_if_imports_unresolved(engine, conn, *, snapshot_id: str) -> None:
+    """Warn when source files contain imports but 0 IMPORTS_DECLARED edges resolved."""
+    if engine.imports_seen <= 0:
+        return
+    import_edges = core_read.list_edges_by_type(conn, snapshot_id, "IMPORTS_DECLARED")
+    if import_edges:
+        return
+    engine.warnings.append(
+        "Build recorded 0 IMPORTS_DECLARED edges despite "
+        f"{engine.imports_seen} import statement(s) in source — if the repo "
+        "has internal local-package imports, this may indicate unresolved "
+        "package roots (see local package root discovery); if all imports "
+        "are external/stdlib, this is expected."
+    )
 
 
 def _maybe_reuse_build_result(
