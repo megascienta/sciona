@@ -92,3 +92,12 @@ def test_render_tracked_file_scope_uses_shared_language_scope(tmp_path: Path) ->
     )
     assert "- Enabled languages: javascript, python" in rendered
     assert f"- Tracked file types: {expected_extensions}" in rendered
+
+
+def test_agents_block_contains_generated_reducer_usage_notes(tmp_path: Path) -> None:
+    block = agents.build_agents_block(tmp_path, get_reducers())
+
+    assert "Reducer argument vocabulary:" in block
+    assert "`dependency_edges`" in block
+    assert "`--direction DIRECTION`: str; optional; one of: in, out, both; default: both" in block
+    assert "`--compact`: bool; optional; default: false" in block

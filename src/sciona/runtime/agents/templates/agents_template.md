@@ -340,6 +340,8 @@ CLI usage note:
 - Reducer output is structured by default; do NOT append `--json` to `sciona reducer` commands.
 - `--json` is valid ONLY on `sciona search` and `sciona resolve`.
 
+{REDUCER_USAGE_NOTES}
+
 Diagnostics:
 - No committed snapshots → `{CMD_BUILD}`
 - Unknown reducer → `{CMD_REDUCER_LIST}`

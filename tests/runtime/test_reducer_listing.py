@@ -6,6 +6,7 @@ from sciona.runtime.reducers.listing import (
     normalize_category,
     render_reducer_catalog,
     render_reducer_list,
+    render_reducer_usage_notes,
 )
 from sciona.cli.support.render import render_reducer_show
 
@@ -54,6 +55,19 @@ class _OptionalArgsReducer:
         return ""
 
 
+class _EnumArgsReducer:
+    def render(
+        self,
+        snapshot_id,
+        conn,
+        repo_root,
+        *,
+        direction="both",
+        compact: bool | None = None,
+    ) -> str:
+        return ""
+
+
 def test_format_reducer_call_honors_required_metadata() -> None:
     args = [
         {"name": "callable_id", "required": True},
@@ -81,6 +95,46 @@ def test_render_reducer_list_orders_roles() -> None:
     assert any(line.startswith("  Command: reducer --id a") for line in lines)
     assert "  Compact: yes (`--compact` [`--top-k` TOP_K] [`--limit` LIMIT])" in lines
     assert "  Summary: A" in lines
+
+
+def test_render_reducer_usage_notes_renders_enum_defaults_and_bool_flags() -> None:
+    entries = [
+        {
+            "reducer_id": "edges",
+            "category": "coupling",
+            "summary": "Edges.",
+            "args": [
+                {
+                    "name": "direction",
+                    "type": "str",
+                    "description": "Edge direction.",
+                    "required": False,
+                    "enum": ["in", "out", "both"],
+                    "default": "both",
+                },
+                {
+                    "name": "compact",
+                    "type": "bool",
+                    "description": "Compact payload.",
+                    "required": False,
+                    "enum": [],
+                    "default": "false",
+                },
+            ],
+            "requires": "",
+        },
+    ]
+    reducers = {"edges": _ReducerEntry(_EnumArgsReducer(), "coupling")}
+
+    lines = render_reducer_usage_notes(entries, reducers, include_prefix=False)
+
+    assert "Reducer argument vocabulary:" in lines
+    assert "  - `edges`: `reducer --id edges [--direction DIRECTION] [--compact]`" in lines
+    assert (
+        "    - `--direction DIRECTION`: str; optional; one of: in, out, both; "
+        "default: both - Edge direction."
+    ) in lines
+    assert "    - `--compact`: bool; optional; default: false - Compact payload." in lines
 
 
 def test_render_reducer_catalog_lists_entries() -> None:

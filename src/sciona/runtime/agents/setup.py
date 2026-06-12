@@ -13,7 +13,10 @@ from ..config import defaults as config_defaults
 from ..config.language_scope import tracked_extensions_for_enabled_names
 from ..errors import ConfigError
 from sciona.runtime.reducers.metadata import CATEGORY_ORDER
-from sciona.runtime.reducers.listing import render_reducer_list
+from sciona.runtime.reducers.listing import (
+    render_reducer_list,
+    render_reducer_usage_notes,
+)
 from ._block_utils import (
     BEGIN_MARKER,
     END_MARKER,
@@ -39,6 +42,7 @@ def build_agents_block(
         INVESTIGATION_ROLE_CATEGORIES=_render_investigation_role_categories(reducers),
         SOURCE_REDUCER_LIST=_render_source_reducer_list(reducers),
         ANOMALY_DETECTOR_LIST=_render_anomaly_detector_list(reducers),
+        REDUCER_USAGE_NOTES=_render_reducer_usage_notes(reducers),
         CMD_VERSION=commands.get("version", "sciona --version"),
         CMD_INIT=commands.get("init", "sciona init"),
         CMD_AGENTS=commands.get("agents", "sciona agents"),
@@ -144,6 +148,16 @@ def _render_tracked_file_scope(repo_root: Path) -> str:
 
 
 def _render_common_tasks(reducers) -> str:
+    entries = _reducer_metadata_entries(reducers)
+    return "\n".join(render_reducer_list(entries, reducers, include_prefix=True))
+
+
+def _render_reducer_usage_notes(reducers) -> str:
+    entries = _reducer_metadata_entries(reducers)
+    return "\n".join(render_reducer_usage_notes(entries, reducers, include_prefix=True))
+
+
+def _reducer_metadata_entries(reducers) -> list[dict[str, object]]:
     entries = []
     for reducer_id, entry in reducers.items():
         entries.append(
@@ -152,12 +166,20 @@ def _render_common_tasks(reducers) -> str:
                 "category": entry.category,
                 "summary": entry.summary,
                 "args": [
-                    {"name": arg.name, "required": arg.required}
+                    {
+                        "name": arg.name,
+                        "type": arg.type,
+                        "description": arg.description,
+                        "required": arg.required,
+                        "enum": list(arg.enum),
+                        "default": arg.default,
+                    }
                     for arg in entry.args
                 ],
+                "requires": entry.requires,
             }
         )
-    return "\n".join(render_reducer_list(entries, reducers, include_prefix=True))
+    return entries
 
 def _render_investigation_role_categories(reducers) -> str:
     lines: list[str] = []

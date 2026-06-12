@@ -155,3 +155,12 @@ def test_claude_block_command_placeholders_filled(tmp_path: Path) -> None:
     assert "{CMD_INIT}" not in block
     assert "{CMD_CLAUDE}" not in block
     assert "{CMD_BUILD}" not in block
+
+
+def test_claude_block_contains_generated_reducer_usage_notes(tmp_path: Path) -> None:
+    block = claude.build_claude_block(tmp_path, get_reducers())
+
+    assert "Reducer argument vocabulary:" in block
+    assert "`dependency_edges`" in block
+    assert "`--direction DIRECTION`: str; optional; one of: in, out, both; default: both" in block
+    assert "`--compact`: bool; optional; default: false" in block
