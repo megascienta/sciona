@@ -12,10 +12,13 @@ import json
 import typer
 
 from .. import reducer_ops
+from ...api import errors as api_errors
+from ...runtime import paths as runtime_paths
 from ...runtime.reducers.listing import render_reducer_list
 from ..support.utils import (
     cli_call,
     emit_dirty_worktree_warning,
+    emit_user_warning,
     get_dirty_worktree_warning,
     normalize_flag_args,
     parse_extra_args,
@@ -54,6 +57,11 @@ def _reducer_callback(
         None,
         "--scope",
         help="Scope selector for reducers that accept it (e.g., codebase, module).",
+    ),
+    json_flag: bool = typer.Option(
+        False,
+        "--json",
+        help="No-op: reducer output is JSON by default.",
     ),
     **dynamic_kwargs,
 ) -> None:
@@ -121,14 +129,37 @@ def _reducer_callback(
 _REDUCER_CALLBACK_BASE_SIGNATURE = inspect.signature(_reducer_callback)
 
 
-def _emit_reducer_info(reducer_id: Optional[str]) -> None:
+def _emit_reducer_metadata_scope_warning() -> None:
+    try:
+        repo_root = runtime_paths.get_repo_root()
+    except api_errors.ScionaError:
+        emit_user_warning(
+            "Not inside a git repository; showing reducer metadata only. "
+            "Identifier resolution and dirty-worktree checks are unavailable."
+        )
+        return
+    if not runtime_paths.get_sciona_dir(repo_root).exists():
+        emit_user_warning(
+            "SCIONA has not been initialized here; showing reducer metadata only. "
+            "Run `sciona init` for identifier resolution and dirty-worktree checks."
+        )
+
+
+def _emit_reducer_info(reducer_id: Optional[str], *, json_output: bool) -> None:
+    _emit_reducer_metadata_scope_warning()
     if reducer_id:
         emit_dirty_worktree_warning()
         entry = cli_call(reducer_ops.get_entry, reducer_id)
+        if json_output:
+            typer.echo(json.dumps(entry))
+            return
         cli_render.emit(cli_render.render_reducer_show(entry))
         return
     emit_dirty_worktree_warning()
     entries = cli_call(reducer_ops.list_entries)
+    if json_output:
+        typer.echo(json.dumps(entries))
+        return
     cli_render.emit(cli_render.render_reducer_list(entries))
 
 
@@ -138,9 +169,14 @@ def _info_reducers_command(
         "--id",
         help="Filter to a single reducer id (e.g., structural_index).",
     ),
+    json_output: bool = typer.Option(
+        False,
+        "--json",
+        help="Emit reducer metadata as JSON instead of plain text.",
+    ),
 ) -> None:
     """Show reducer metadata (warns if dirty)."""
-    _emit_reducer_info(reducer_id)
+    _emit_reducer_info(reducer_id, json_output=json_output)
 
 
 def _list_reducers_command(
@@ -149,14 +185,23 @@ def _list_reducers_command(
         "--id",
         help="Filter to a single reducer id (e.g., structural_index).",
     ),
+    json_output: bool = typer.Option(
+        False,
+        "--json",
+        help="Emit reducer metadata as JSON instead of plain text.",
+    ),
 ) -> None:
     """List reducers with CLI call signatures and compact-mode hints (warns if dirty)."""
+    _emit_reducer_metadata_scope_warning()
     emit_dirty_worktree_warning()
     entries = cli_call(reducer_ops.list_entries)
     if reducer_id:
         entries = [entry for entry in entries if entry["reducer_id"] == reducer_id]
         if not entries:
             raise typer.BadParameter(f"Unknown reducer '{reducer_id}'.")
+    if json_output:
+        typer.echo(json.dumps(entries))
+        return
     reducers = reducer_ops.get_reducers()
     cli_render.emit(render_reducer_list(entries, reducers, include_prefix=True))
 

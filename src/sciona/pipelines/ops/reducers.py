@@ -27,17 +27,12 @@ from ...reducers.helpers.shared.context import (
 )
 
 
-def _ensure_clean_repo(repo_root: Optional[Path] = None) -> None:
-    repo_state = policy_repo.resolve_repo_state(repo_root, allow_missing_config=True)
-    policy_repo.ensure_initialized(repo_state)
-
-
 def list_entries(
     repo_root: Optional[Path] = None,
     *,
     include_hidden: bool = False,
 ) -> List[dict[str, object]]:
-    _ensure_clean_repo(repo_root)
+    """List reducer metadata. Pure reflection: no repo or init required."""
     reducers = get_reducers()
     entries = []
     for reducer_id, entry in reducers.items():

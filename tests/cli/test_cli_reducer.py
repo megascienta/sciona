@@ -4,7 +4,8 @@
 import json
 
 from sciona.runtime import paths as runtime_paths
-from tests.helpers import parse_json_payload
+from sciona.runtime.errors import EnvError
+from tests.helpers import init_git_repo, parse_json_payload
 
 
 def test_cli_reducer_renders_payload(cli_app, cli_runner):
@@ -67,3 +68,83 @@ def test_cli_reducer_list_outputs_calls(cli_app, cli_runner):
     assert "--method-id" not in result.stdout
     assert "reducer --id callable_source --callable-id CALLABLE_ID" in result.stdout
     assert "--id symbol_lookup --query QUERY" in result.stdout
+
+
+def test_cli_reducer_list_works_outside_git_repo(cli_app, cli_runner, monkeypatch):
+    def _raise_env_error():
+        raise EnvError("SCIONA must be run inside a git repository.")
+
+    monkeypatch.setattr(runtime_paths, "get_repo_root", _raise_env_error)
+
+    result = cli_runner.invoke(cli_app, ["reducer", "list"])
+
+    assert result.exit_code == 0
+    assert "Not inside a git repository" in result.stdout
+    assert "reducer --id structural_index" in result.stdout
+
+
+def test_cli_reducer_info_works_outside_git_repo(cli_app, cli_runner, monkeypatch):
+    def _raise_env_error():
+        raise EnvError("SCIONA must be run inside a git repository.")
+
+    monkeypatch.setattr(runtime_paths, "get_repo_root", _raise_env_error)
+
+    result = cli_runner.invoke(cli_app, ["reducer", "info", "--id", "structural_index"])
+
+    assert result.exit_code == 0
+    assert "Not inside a git repository" in result.stdout
+    assert "Reducer: structural_index" in result.stdout
+
+
+def test_cli_reducer_list_works_without_init(cli_app, cli_runner, monkeypatch, tmp_path):
+    repo_root = tmp_path / "uninitialized_repo"
+    repo_root.mkdir()
+    init_git_repo(repo_root)
+    monkeypatch.setattr(runtime_paths, "get_repo_root", lambda: repo_root)
+
+    result = cli_runner.invoke(cli_app, ["reducer", "list"])
+
+    assert result.exit_code == 0
+    assert "has not been initialized" in result.stdout
+    assert "reducer --id structural_index" in result.stdout
+
+
+def test_cli_reducer_json_flag_is_noop(cli_app, cli_runner):
+    result = cli_runner.invoke(
+        cli_app, ["reducer", "--id", "structural_index", "--json"]
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(result.stdout)
+    assert payload["reducer_id"] == "structural_index"
+
+
+def test_cli_reducer_info_json_outputs_machine_readable(cli_app, cli_runner):
+    result = cli_runner.invoke(
+        cli_app, ["reducer", "info", "--id", "structural_index", "--json"]
+    )
+
+    assert result.exit_code == 0
+    entry = json.loads(result.stdout)
+    assert entry["reducer_id"] == "structural_index"
+    assert entry["category"] == "orientation"
+
+
+def test_cli_reducer_info_json_without_id_lists_all(cli_app, cli_runner):
+    result = cli_runner.invoke(cli_app, ["reducer", "info", "--json"])
+
+    assert result.exit_code == 0
+    entries = json.loads(result.stdout)
+    reducer_ids = {entry["reducer_id"] for entry in entries}
+    assert "structural_index" in reducer_ids
+
+
+def test_cli_reducer_list_json_outputs_machine_readable(cli_app, cli_runner):
+    result = cli_runner.invoke(
+        cli_app, ["reducer", "list", "--id", "structural_index", "--json"]
+    )
+
+    assert result.exit_code == 0
+    entries = json.loads(result.stdout)
+    assert len(entries) == 1
+    assert entries[0]["reducer_id"] == "structural_index"
