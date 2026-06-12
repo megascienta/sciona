@@ -238,8 +238,12 @@ def normalize_import(
         if not package:
             return None
         return _resolve_relative_import_syntax(target, package)
-    if repo_prefix and (target == repo_prefix or target.startswith(f"{repo_prefix}.")):
-        return target
+    # Declared local package roots are checked before any repo-prefix match:
+    # a repo directory name can sanitize to the same identifier as a local
+    # package (e.g. repo `foo-bar` containing package `foo_bar`), and a
+    # prefix-based passthrough would skip the required root rewrite. This
+    # expects raw source import text; already-normalized names would be
+    # rewritten again when a package name collides with the repo prefix.
     for package, module_root in local_package_roots.items():
         if target == package:
             return f"{repo_prefix}.{module_root}" if repo_prefix else module_root

@@ -45,3 +45,28 @@ def test_normalize_import_resolves_absolute_local_package_to_canonical_module() 
         local_package_roots={"pkg": "src.pkg"},
     )
     assert normalized == "repo.src.pkg.core.errors"
+
+
+def test_normalize_import_rewrites_package_colliding_with_repo_prefix() -> None:
+    # Repo `gpumd-workflows` sanitizes to prefix `gpumd_workflows`, which is
+    # also the src-layout package name; the package root rewrite must still
+    # apply instead of passing the target through unchanged.
+    normalized = normalize_import(
+        "gpumd_workflows.io.gpumd",
+        module_name="gpumd_workflows.src.gpumd_workflows.app.prepare_job",
+        is_package=False,
+        repo_prefix="gpumd_workflows",
+        local_package_roots={"gpumd_workflows": "src.gpumd_workflows"},
+    )
+    assert normalized == "gpumd_workflows.src.gpumd_workflows.io.gpumd"
+
+
+def test_normalize_import_rewrites_bare_package_colliding_with_repo_prefix() -> None:
+    normalized = normalize_import(
+        "gpumd_workflows",
+        module_name="gpumd_workflows.src.gpumd_workflows.cli",
+        is_package=False,
+        repo_prefix="gpumd_workflows",
+        local_package_roots={"gpumd_workflows": "src.gpumd_workflows"},
+    )
+    assert normalized == "gpumd_workflows.src.gpumd_workflows"
