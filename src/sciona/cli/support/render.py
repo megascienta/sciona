@@ -23,6 +23,13 @@ def render_init(payload: dict) -> list[str]:
     lines = [f"Initialized SCIONA in {payload['sciona_dir']}"]
     if payload.get("iterative"):
         return lines
+    enabled_languages = payload.get("enabled_languages")
+    if enabled_languages:
+        lines.append(f"Enabled languages: {', '.join(enabled_languages)}")
+        lines.append("Next: run sciona build")
+        return lines
+    if enabled_languages is not None:
+        lines.append("No languages detected; all languages left disabled.")
     lines.extend(
         [
             "Next steps:",
@@ -34,6 +41,10 @@ def render_init(payload: dict) -> list[str]:
             "  3. Run: sciona build",
         ]
     )
+    if enabled_languages is None:
+        lines.append(
+            "Note: stdin is not a tty; use --no-interactive for scripted setup."
+        )
     return lines
 
 

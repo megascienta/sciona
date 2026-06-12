@@ -23,6 +23,11 @@ def _init_command(
         "--no-interactive",
         help="Skip the interactive setup dialog.",
     ),
+    languages: Optional[str] = typer.Option(
+        None,
+        "--languages",
+        help="Comma-separated languages to enable (default: all detected; no-interactive only).",
+    ),
     agents: bool = typer.Option(
         False,
         "--agents",
@@ -50,6 +55,14 @@ def _init_command(
     ),
 ) -> None:
     """Initialize SCIONA state for the current repository."""
+    _ensure_flags_require_no_interactive(
+        no_interactive,
+        languages=languages,
+        agents=agents,
+        claude=claude,
+        post_commit_hook=post_commit_hook,
+    )
+    selected_languages = _parse_languages_flag(languages)
     try:
         sciona_dir = cli_call(repo_ops.init)
     except api_errors.ConfigError as exc:
@@ -60,6 +73,10 @@ def _init_command(
         "iterative": bool(not no_interactive and sys.stdin.isatty()),
         "config_path": sciona_dir / "config.yaml",
     }
+    if no_interactive:
+        payload["enabled_languages"] = _apply_noninteractive_languages(
+            selected_languages
+        )
     cli_render.emit(cli_render.render_init(payload))
     _maybe_init_dialog(sciona_dir, no_interactive=no_interactive)
     _maybe_init_agents(
@@ -81,6 +98,55 @@ def _init_command(
 
 def register_init(app: typer.Typer) -> None:
     app.command(name="init")(_init_command)
+
+
+def _ensure_flags_require_no_interactive(
+    no_interactive: bool,
+    *,
+    languages: Optional[str],
+    agents: bool,
+    claude: bool,
+    post_commit_hook: bool,
+) -> None:
+    if no_interactive:
+        return
+    provided = [
+        name
+        for name, given in (
+            ("--languages", languages is not None),
+            ("--agents", agents),
+            ("--claude", claude),
+            ("--post-commit-hook", post_commit_hook),
+        )
+        if given
+    ]
+    if provided:
+        raise typer.BadParameter(
+            f"{', '.join(provided)} require(s) --no-interactive."
+        )
+
+
+def _parse_languages_flag(languages: Optional[str]) -> list[str] | None:
+    if languages is None:
+        return None
+    supported = cli_call(repo_ops.init_supported_languages)
+    items = [entry.strip() for entry in languages.split(",") if entry.strip()]
+    invalid = [entry for entry in items if entry not in set(supported)]
+    if invalid:
+        raise typer.BadParameter(
+            f"Unknown language(s): {', '.join(invalid)}. "
+            f"Supported: {', '.join(sorted(supported))}."
+        )
+    return items
+
+
+def _apply_noninteractive_languages(selected: list[str] | None) -> list[str]:
+    if selected is None:
+        defaults = cli_call(repo_ops.init_dialog_defaults)
+        selected = list(defaults.detected_languages)
+    if selected:
+        cli_call(repo_ops.init_apply_languages, selected)
+    return selected
 
 
 def _maybe_init_dialog(sciona_dir, *, no_interactive: bool) -> None:
@@ -139,10 +205,6 @@ def _maybe_init_agents(
     agents_mode: str,
 ) -> None:
     if not no_interactive and sys.stdin.isatty():
-        if agents:
-            typer.secho(
-                "Ignoring --agents flags in interactive mode.", fg=typer.colors.YELLOW
-            )
         if not typer.confirm(
             "Generate a managed SCIONA block in AGENTS.md?", default=False
         ):
@@ -193,10 +255,6 @@ def _maybe_init_claude(
     claude_mode: str,
 ) -> None:
     if not no_interactive and sys.stdin.isatty():
-        if claude:
-            typer.secho(
-                "Ignoring --claude flags in interactive mode.", fg=typer.colors.YELLOW
-            )
         if not typer.confirm(
             "Configure Claude Code for SCIONA (CLAUDE.md + .claude/settings.json)?", default=False
         ):
