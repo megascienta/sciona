@@ -351,5 +351,34 @@ def render_reducer_show(entry: dict) -> list[str]:
         "",
         "Summary:",
         f"  {summary}",
+        "",
+        "Arguments:",
     ]
+    args = entry.get("args") or []
+    if not args:
+        lines.append("  none")
+    for arg in args:
+        lines.append(f"  {_format_reducer_arg(arg)}")
+        description = str(arg.get("description") or "").strip()
+        if description:
+            lines.append(f"      {description}")
+    requires = str(entry.get("requires") or "").strip()
+    if requires:
+        lines.append("")
+        lines.append(f"Requires: {requires}")
     return lines
+
+
+def _format_reducer_arg(arg: dict) -> str:
+    name = str(arg["name"])
+    flag = f"--{name.replace('_', '-')}"
+    arg_type = str(arg.get("type") or "str")
+    parts = [f"{arg_type}, {'required' if arg.get('required') else 'optional'}"]
+    enum = arg.get("enum") or []
+    if enum:
+        parts.append("one of: " + ", ".join(str(value) for value in enum))
+    default = arg.get("default")
+    if default is not None:
+        parts.append(f"default: {default}")
+    metavar = "" if arg_type == "bool" else f" {name.upper()}"
+    return f"{flag}{metavar} ({'; '.join(parts)})"

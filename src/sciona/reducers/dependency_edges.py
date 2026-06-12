@@ -11,7 +11,7 @@ from ..runtime.edge_types import MODULE_DEPENDENCY_EDGE_TYPES
 from .helpers.shared.connection import require_connection
 from .helpers.shared.payload import render_json_payload
 from .helpers.shared.snapshot_guard import require_latest_committed_snapshot
-from .metadata import ReducerMeta
+from .metadata import ReducerArg, ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="dependency_edges",
@@ -19,6 +19,58 @@ REDUCER_META = ReducerMeta(
     placeholder="DEPENDENCY_EDGES",
     summary="Shows explicit module import dependencies. Use to inspect which modules "
     "depend on which other modules. ",
+    args=(
+        ReducerArg(
+            name="module_id",
+            type="str",
+            description="Module filter; combine with --direction for edges touching it.",
+        ),
+        ReducerArg(
+            name="from_module_id",
+            type="str",
+            description="Restrict to edges originating from this module.",
+        ),
+        ReducerArg(
+            name="to_module_id",
+            type="str",
+            description="Restrict to edges targeting this module.",
+        ),
+        ReducerArg(
+            name="query",
+            type="str",
+            description="Substring match on module qualified names.",
+        ),
+        ReducerArg(
+            name="edge_type",
+            type="str",
+            description="Edge type filter.",
+            enum=("IMPORTS_DECLARED",),
+        ),
+        ReducerArg(
+            name="direction",
+            type="str",
+            description="Edge direction relative to --module-id.",
+            enum=("in", "out", "both"),
+            default="both",
+        ),
+        ReducerArg(
+            name="limit",
+            type="int",
+            description="Max edges returned (capped at 10000).",
+        ),
+        ReducerArg(
+            name="compact",
+            type="bool",
+            description="Render the compact counterpart summary.",
+            default="false",
+        ),
+        ReducerArg(
+            name="top_k",
+            type="int",
+            description="Max preview rows in compact mode (capped at 50).",
+            default="5",
+        ),
+    ),
 )
 
 

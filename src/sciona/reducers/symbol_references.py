@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from .metadata import ReducerMeta
+from .metadata import ReducerArg, ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="symbol_references",
@@ -13,6 +13,32 @@ REDUCER_META = ReducerMeta(
     placeholder="SYMBOL_REFERENCES",
     summary="Shows where matching structural symbols appear across modules and files. "
     "Use when tracking symbol presence and spread rather than resolving one best match. ",
+    args=(
+        ReducerArg(
+            name="query",
+            type="str",
+            description="Name or name fragment to match.",
+            required=True,
+        ),
+        ReducerArg(
+            name="kind",
+            type="str",
+            description="Narrow matches by symbol kind; aliases any, all, class, function, method are accepted.",
+            enum=("module", "classifier", "callable"),
+            default="all",
+        ),
+        ReducerArg(
+            name="module_id",
+            type="str",
+            description="Restrict matches to one module.",
+        ),
+        ReducerArg(
+            name="limit",
+            type="int",
+            description="Max references returned.",
+            default="20",
+        ),
+    ),
 )
 
 

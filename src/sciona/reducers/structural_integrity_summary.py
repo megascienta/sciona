@@ -10,7 +10,7 @@ from ..data_storage.core_db import read_ops as core_read
 from .helpers.shared.connection import require_connection
 from .helpers.shared.payload import render_json_payload
 from .helpers.shared.snapshot_guard import require_latest_committed_snapshot
-from .metadata import ReducerMeta
+from .metadata import ReducerArg, ReducerMeta
 from ..runtime import config as runtime_config
 from ..runtime import git as git_ops
 
@@ -21,6 +21,14 @@ REDUCER_META = ReducerMeta(
     summary="Reports structural anomalies in the committed snapshot, such as "
     "duplicates, lexical orphans, and inheritance cycles. Use when validating structural consistency. ",
     anomaly_detector=True,
+    args=(
+        ReducerArg(
+            name="top_k",
+            type="int",
+            description="Max rows per anomaly list.",
+            default="25",
+        ),
+    ),
 )
 
 

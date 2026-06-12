@@ -12,7 +12,7 @@ from .helpers.shared import queries
 from .helpers.shared.connection import require_connection
 from .helpers.shared.payload import render_json_payload
 from .helpers.shared.snapshot_guard import require_latest_committed_snapshot
-from .metadata import ReducerMeta
+from .metadata import ReducerArg, ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="file_outline",
@@ -20,6 +20,30 @@ REDUCER_META = ReducerMeta(
     placeholder="FILE_OUTLINE",
     summary="Shows the structural outline of one file, including modules, classifiers, "
     "and callables. Use for file-level navigation and symbol discovery. ",
+    args=(
+        ReducerArg(
+            name="module_id",
+            type="str",
+            description="Restrict the outline to one module.",
+        ),
+        ReducerArg(
+            name="file_path",
+            type="str",
+            description="Restrict the outline to one tracked file; repo-relative or absolute path within the repo.",
+        ),
+        ReducerArg(
+            name="compact",
+            type="bool",
+            description="Render the compact outline preview.",
+            default="false",
+        ),
+        ReducerArg(
+            name="depth",
+            type="int",
+            description="Max nesting depth shown in the compact preview.",
+            default="1",
+        ),
+    ),
 )
 
 

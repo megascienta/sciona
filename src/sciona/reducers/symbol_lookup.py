@@ -10,7 +10,7 @@ from typing import Dict, List, Optional, Sequence
 from .helpers.shared.connection import require_connection
 from .helpers.shared.payload import render_json_payload
 from .helpers.shared.snapshot_guard import require_latest_committed_snapshot
-from .metadata import ReducerMeta
+from .metadata import ReducerArg, ReducerMeta
 
 _NODE_TYPES = {"module", "classifier", "callable"}
 
@@ -20,6 +20,27 @@ REDUCER_META = ReducerMeta(
     placeholder="SYMBOL_LOOKUP",
     summary="Finds likely structural symbol matches for a query. Use when the "
     "identifier is unknown and you need the best matching module, classifier, or callable. ",
+    args=(
+        ReducerArg(
+            name="query",
+            type="str",
+            description="Name or name fragment to match.",
+            required=True,
+        ),
+        ReducerArg(
+            name="kind",
+            type="str",
+            description="Narrow matches by symbol kind; aliases any, all, class, function, method are accepted.",
+            enum=("module", "classifier", "callable"),
+            default="all",
+        ),
+        ReducerArg(
+            name="limit",
+            type="int",
+            description="Max matches returned.",
+            default="10",
+        ),
+    ),
 )
 
 def render(

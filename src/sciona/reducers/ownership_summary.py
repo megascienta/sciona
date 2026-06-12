@@ -11,7 +11,7 @@ from . import dependency_edges, module_overview
 from .helpers.shared import queries
 from .helpers.shared.payload import render_json_payload
 from .helpers.shared.snapshot_guard import require_latest_committed_snapshot
-from .metadata import ReducerMeta
+from .metadata import ReducerArg, ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="ownership_summary",
@@ -19,6 +19,30 @@ REDUCER_META = ReducerMeta(
     placeholder="OWNERSHIP_SUMMARY",
     summary="Summarizes a module or package's immediate submodules, dependencies, "
     "and dependents. Use for boundary, ownership, and edit-scope triage. ",
+    args=(
+        ReducerArg(
+            name="module_id",
+            type="str",
+            description="Module or package to summarize; accepts qualified name or structural id.",
+        ),
+        ReducerArg(
+            name="callable_id",
+            type="str",
+            description="Resolve the owning module from a callable id.",
+        ),
+        ReducerArg(
+            name="classifier_id",
+            type="str",
+            description="Resolve the owning module from a classifier id.",
+        ),
+        ReducerArg(
+            name="top_k",
+            type="int",
+            description="Max rows per ranked list (capped at 50).",
+            default="5",
+        ),
+    ),
+    requires="one of --module-id / --callable-id / --classifier-id",
 )
 
 

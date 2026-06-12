@@ -15,7 +15,7 @@ from .helpers.shared.context import current_overlay_payload
 from .helpers.shared.connection import require_connection
 from .helpers.shared.payload import render_json_payload
 from .helpers.shared.snapshot_guard import require_latest_committed_snapshot
-from .metadata import ReducerMeta
+from .metadata import ReducerArg, ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="module_call_graph_summary",
@@ -23,6 +23,45 @@ REDUCER_META = ReducerMeta(
     placeholder="MODULE_CALL_GRAPH",
     summary="Summarizes module-to-module call relationships. Use when reasoning "
     "about runtime-like coupling between modules rather than import dependencies. ",
+    args=(
+        ReducerArg(
+            name="module_id",
+            type="str",
+            description="Module at the center of the summary; accepts qualified name or structural id.",
+        ),
+        ReducerArg(
+            name="callable_id",
+            type="str",
+            description="Resolve the summarized module from a callable id.",
+        ),
+        ReducerArg(
+            name="classifier_id",
+            type="str",
+            description="Resolve the summarized module from a classifier id.",
+        ),
+        ReducerArg(
+            name="from_module_id",
+            type="str",
+            description="Restrict to call edges originating from this module.",
+        ),
+        ReducerArg(
+            name="to_module_id",
+            type="str",
+            description="Restrict to call edges targeting this module.",
+        ),
+        ReducerArg(
+            name="compact",
+            type="bool",
+            description="Render the compact summary payload.",
+            default="false",
+        ),
+        ReducerArg(
+            name="top_k",
+            type="int",
+            description="Max rows per ranked edge list.",
+        ),
+    ),
+    requires="one of --module-id / --callable-id / --classifier-id",
 )
 
 

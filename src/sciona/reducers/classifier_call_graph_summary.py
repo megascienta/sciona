@@ -17,7 +17,7 @@ from .helpers.shared.context import current_overlay_payload
 from .helpers.shared.connection import require_connection
 from .helpers.shared.payload import render_json_payload
 from .helpers.shared.snapshot_guard import require_latest_committed_snapshot
-from .metadata import ReducerMeta
+from .metadata import ReducerArg, ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="classifier_call_graph_summary",
@@ -25,6 +25,35 @@ REDUCER_META = ReducerMeta(
     placeholder="CLASSIFIER_CALL_GRAPH",
     summary="Summarizes classifier-to-classifier call relationships. Use when "
     "reasoning about class-level coupling rather than module-level coupling. ",
+    args=(
+        ReducerArg(
+            name="classifier_id",
+            type="str",
+            description="Classifier at the center of the summary; accepts qualified name or structural id.",
+            required=True,
+        ),
+        ReducerArg(
+            name="caller_id",
+            type="str",
+            description="Restrict incoming edges to this calling classifier.",
+        ),
+        ReducerArg(
+            name="callee_id",
+            type="str",
+            description="Restrict outgoing edges to this called classifier.",
+        ),
+        ReducerArg(
+            name="compact",
+            type="bool",
+            description="Render the compact summary payload.",
+            default="false",
+        ),
+        ReducerArg(
+            name="top_k",
+            type="int",
+            description="Max rows per ranked edge list.",
+        ),
+    ),
 )
 
 def render(

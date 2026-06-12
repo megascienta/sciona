@@ -22,7 +22,7 @@ from .helpers.shared.connection import require_connection
 from .helpers.shared.payload import render_json_payload
 from .helpers.shared.snapshot_guard import require_latest_committed_snapshot
 from .helpers.shared.source_files import line_span_hash
-from .metadata import ReducerMeta
+from .metadata import ReducerArg, ReducerMeta
 from .helpers.shared.types import ClassifierOverviewPayload
 
 REDUCER_META = ReducerMeta(
@@ -31,6 +31,14 @@ REDUCER_META = ReducerMeta(
     placeholder="CLASSIFIER_OVERVIEW",
     summary="Summarizes one classifier's methods, metadata, and local structure. "
     "Use for quick class inspection.",
+    args=(
+        ReducerArg(
+            name="classifier_id",
+            type="str",
+            description="Classifier to summarize; accepts qualified name or structural id.",
+            required=True,
+        ),
+    ),
 )
 
 

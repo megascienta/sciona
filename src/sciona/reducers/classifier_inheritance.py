@@ -13,7 +13,7 @@ from .helpers.artifact.graph_edges import load_artifact_edges
 from .helpers.shared.connection import require_connection
 from .helpers.shared.payload import render_json_payload
 from .helpers.shared.snapshot_guard import require_latest_committed_snapshot
-from .metadata import ReducerMeta
+from .metadata import ReducerArg, ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="classifier_inheritance",
@@ -21,6 +21,14 @@ REDUCER_META = ReducerMeta(
     placeholder="CLASSIFIER_INHERITANCE",
     summary="Shows a classifier's base classes and derived classes. Use when "
     "reasoning about inheritance relationships for one class. ",
+    args=(
+        ReducerArg(
+            name="classifier_id",
+            type="str",
+            description="Classifier whose inheritance to show; accepts qualified name or structural id.",
+            required=True,
+        ),
+    ),
 )
 
 

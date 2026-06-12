@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from .helpers.impl.structural_index import run
-from .metadata import ReducerMeta
+from .metadata import ReducerArg, ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="structural_index",
@@ -14,6 +14,20 @@ REDUCER_META = ReducerMeta(
     placeholder="STRUCTURAL_INDEX",
     summary="Provides the repo-wide structural inventory across modules, classifiers, "
     "and callables. Use for top-level codebase orientation or structural validation. ",
+    args=(
+        ReducerArg(
+            name="compact",
+            type="bool",
+            description="Render the compact inventory payload.",
+            default="false",
+        ),
+        ReducerArg(
+            name="top_k",
+            type="int",
+            description="Max preview rows in compact mode (capped at 50).",
+            default="5",
+        ),
+    ),
 )
 
 

@@ -48,6 +48,18 @@ def list_entries(
                 "placeholder": entry.placeholder,
                 "summary": entry.summary,
                 "anomaly_detector": entry.anomaly_detector,
+                "args": [
+                    {
+                        "name": arg.name,
+                        "type": arg.type,
+                        "description": arg.description,
+                        "required": arg.required,
+                        "enum": list(arg.enum),
+                        "default": arg.default,
+                    }
+                    for arg in entry.args
+                ],
+                "requires": entry.requires,
             }
         )
     return sorted(entries, key=lambda item: item["reducer_id"])

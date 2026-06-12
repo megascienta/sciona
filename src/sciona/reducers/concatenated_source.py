@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Iterable, List
 
 from .helpers.shared import queries
-from .metadata import ReducerMeta
+from .metadata import ReducerArg, ReducerMeta
 from .helpers.shared.base import require_connection
 from .helpers.shared.payload import render_json_payload
 from .helpers.shared.snapshot_guard import require_latest_committed_snapshot
@@ -20,6 +20,26 @@ REDUCER_META = ReducerMeta(
     placeholder="CONCATENATED_SOURCE",
     summary="Returns concatenated source for a selected scope such as a module, "
     "classifier, or codebase slice. Use for larger-context implementation reading. ",
+    args=(
+        ReducerArg(
+            name="scope",
+            type="str",
+            description="Source scope to concatenate.",
+            required=True,
+            enum=("codebase", "module", "classifier"),
+        ),
+        ReducerArg(
+            name="module_id",
+            type="str",
+            description="Module to concatenate; required when scope is module.",
+        ),
+        ReducerArg(
+            name="classifier_id",
+            type="str",
+            description="Classifier to concatenate; required when scope is classifier.",
+        ),
+    ),
+    requires="--scope module requires --module-id; --scope classifier requires --classifier-id",
 )
 
 MAX_SOURCE_BYTES = 200_000

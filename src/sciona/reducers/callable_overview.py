@@ -22,7 +22,7 @@ from .helpers.shared.payload import render_json_payload
 from .helpers.shared.snapshot_guard import require_latest_committed_snapshot
 from .helpers.shared.source_files import line_span_hash
 from .helpers.shared.types import CallableOverviewPayload
-from .metadata import ReducerMeta
+from .metadata import ReducerArg, ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="callable_overview",
@@ -30,6 +30,14 @@ REDUCER_META = ReducerMeta(
     placeholder="CALLABLE_OVERVIEW",
     summary="Summarizes one callable's identity, location, and metadata. Use for "
     "quick callable inspection without loading source. ",
+    args=(
+        ReducerArg(
+            name="callable_id",
+            type="str",
+            description="Callable to summarize; accepts qualified name or structural id.",
+            required=True,
+        ),
+    ),
 )
 
 

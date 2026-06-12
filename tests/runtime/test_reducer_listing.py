@@ -92,3 +92,48 @@ def test_render_reducer_show_excludes_removed_metadata() -> None:
     assert not any(line.startswith("Risk tier:") for line in lines)
     assert not any(line.startswith("Stage:") for line in lines)
     assert "Placeholder: ALPHA" in lines
+    assert "Arguments:" in lines
+    assert "  none" in lines
+
+
+def test_render_reducer_show_renders_argument_documentation() -> None:
+    lines = render_reducer_show(
+        {
+            "reducer_id": "alpha",
+            "category": "source",
+            "placeholder": "ALPHA",
+            "summary": "Alpha.",
+            "args": [
+                {
+                    "name": "module_id",
+                    "type": "str",
+                    "description": "Module filter.",
+                    "required": True,
+                    "enum": [],
+                    "default": None,
+                },
+                {
+                    "name": "direction",
+                    "type": "str",
+                    "description": "Edge direction.",
+                    "required": False,
+                    "enum": ["in", "out", "both"],
+                    "default": "both",
+                },
+                {
+                    "name": "compact",
+                    "type": "bool",
+                    "description": "Compact payload.",
+                    "required": False,
+                    "enum": [],
+                    "default": "false",
+                },
+            ],
+            "requires": "one of --module-id / --callable-id",
+        }
+    )
+    assert "  --module-id MODULE_ID (str, required)" in lines
+    assert "      Module filter." in lines
+    assert "  --direction DIRECTION (str, optional; one of: in, out, both; default: both)" in lines
+    assert "  --compact (bool, optional; default: false)" in lines
+    assert "Requires: one of --module-id / --callable-id" in lines

@@ -14,7 +14,7 @@ from .helpers.shared.base import (
 from .helpers.shared.payload import render_json_payload
 from .helpers.shared.snapshot_guard import require_latest_committed_snapshot
 from .helpers.shared.source_files import resolve_repo_file
-from .metadata import ReducerMeta
+from .metadata import ReducerArg, ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="callable_source",
@@ -22,6 +22,14 @@ REDUCER_META = ReducerMeta(
     placeholder="CALLABLE_SOURCE",
     summary="Returns the full source of one callable. Use when implementation "
     "details are needed.",
+    args=(
+        ReducerArg(
+            name="callable_id",
+            type="str",
+            description="Callable whose source to return; accepts qualified name or structural id.",
+            required=True,
+        ),
+    ),
 )
 
 

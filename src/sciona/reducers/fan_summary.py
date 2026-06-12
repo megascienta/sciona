@@ -16,7 +16,7 @@ from .helpers.shared.context import current_overlay_payload
 from .helpers.shared.connection import require_connection
 from .helpers.shared.payload import render_json_payload
 from .helpers.shared.snapshot_guard import require_latest_committed_snapshot
-from .metadata import ReducerMeta
+from .metadata import ReducerArg, ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="fan_summary",
@@ -24,6 +24,52 @@ REDUCER_META = ReducerMeta(
     placeholder="FAN_SUMMARY",
     summary="Summarizes fan-in and fan-out over calls or structural edges. Use to "
     "find the most referenced or most referencing nodes, modules, or classifiers. ",
+    args=(
+        ReducerArg(
+            name="callable_id",
+            type="str",
+            description="Restrict the summary to one callable.",
+        ),
+        ReducerArg(
+            name="classifier_id",
+            type="str",
+            description="Restrict the summary to one classifier.",
+        ),
+        ReducerArg(
+            name="module_id",
+            type="str",
+            description="Restrict the summary to one module.",
+        ),
+        ReducerArg(
+            name="edge_kind",
+            type="str",
+            description="Edge kind to aggregate.",
+            enum=("CALLS", "IMPORTS_DECLARED"),
+        ),
+        ReducerArg(
+            name="min_fan",
+            type="int",
+            description="Only include nodes with fan-in or fan-out at or above this value.",
+        ),
+        ReducerArg(
+            name="node_kind",
+            type="str",
+            description="Node kind to rank.",
+            enum=("module", "classifier", "callable"),
+        ),
+        ReducerArg(
+            name="compact",
+            type="bool",
+            description="Render the compact summary payload.",
+            default="false",
+        ),
+        ReducerArg(
+            name="top_k",
+            type="int",
+            description="Max rows per ranked list.",
+            default="5",
+        ),
+    ),
 )
 
 

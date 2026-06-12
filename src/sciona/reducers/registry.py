@@ -8,13 +8,14 @@ from __future__ import annotations
 from contextlib import contextmanager
 from dataclasses import dataclass
 import importlib
+import inspect
 import pkgutil
 from pathlib import Path
 from types import MappingProxyType, ModuleType
 from typing import Iterable, Iterator, Mapping
 
 from ..runtime.reducers.metadata import VALID_CATEGORIES
-from .metadata import ReducerMeta
+from .metadata import ReducerArg, ReducerMeta
 
 _FROZEN = False
 
@@ -27,6 +28,8 @@ class ReducerEntry:
     summary: str
     anomaly_detector: bool
     module: ModuleType
+    args: tuple[ReducerArg, ...] = ()
+    requires: str | None = None
 
 
 def _iter_reducer_modules() -> Iterator[ModuleType]:
@@ -56,6 +59,28 @@ def _validate_meta(meta: ReducerMeta, module_name: str) -> None:
         )
 
 
+def _validate_meta_args(meta: ReducerMeta, module: ModuleType, module_name: str) -> None:
+    if not meta.args:
+        return
+    render = getattr(module, "render", None)
+    if render is None:
+        raise ValueError(
+            f"Reducer '{module_name}' documents args but has no render()."
+        )
+    reserved = {"snapshot_id", "conn", "repo_root"}
+    allowed = {
+        name
+        for name, param in inspect.signature(render).parameters.items()
+        if name not in reserved and param.kind is not inspect.Parameter.VAR_KEYWORD
+    }
+    unknown = sorted(arg.name for arg in meta.args if arg.name not in allowed)
+    if unknown:
+        names = ", ".join(unknown)
+        raise ValueError(
+            f"Reducer '{module_name}' documents unknown arg(s): {names}."
+        )
+
+
 def _build_registry() -> dict[str, ReducerEntry]:
     entries: dict[str, ReducerEntry] = {}
     for module in _iter_reducer_modules():
@@ -63,6 +88,7 @@ def _build_registry() -> dict[str, ReducerEntry]:
         if not isinstance(meta, ReducerMeta):
             raise ValueError(f"Reducer '{module.__name__}' is missing valid metadata.")
         _validate_meta(meta, module.__name__)
+        _validate_meta_args(meta, module, module.__name__)
         reducer_id = meta.reducer_id
         if reducer_id in entries:
             raise ValueError(f"Duplicate reducer id '{reducer_id}'.")
@@ -73,6 +99,8 @@ def _build_registry() -> dict[str, ReducerEntry]:
             summary=meta.summary,
             anomaly_detector=meta.anomaly_detector,
             module=module,
+            args=meta.args,
+            requires=meta.requires,
         )
     return entries
 

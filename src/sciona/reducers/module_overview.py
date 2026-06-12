@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from .helpers.impl.module_overview import run
-from .metadata import ReducerMeta
+from .metadata import ReducerArg, ReducerMeta
 
 REDUCER_META = ReducerMeta(
     reducer_id="module_overview",
@@ -14,6 +14,42 @@ REDUCER_META = ReducerMeta(
     placeholder="MODULE_OVERVIEW",
     summary="Summarizes one module's contained classifiers, callables, and local "
     "structure. Use for first-pass inspection of a module boundary. ",
+    args=(
+        ReducerArg(
+            name="module_id",
+            type="str",
+            description="Module to summarize; accepts qualified name or structural id.",
+        ),
+        ReducerArg(
+            name="callable_id",
+            type="str",
+            description="Resolve the owning module from a callable id.",
+        ),
+        ReducerArg(
+            name="classifier_id",
+            type="str",
+            description="Resolve the owning module from a classifier id.",
+        ),
+        ReducerArg(
+            name="include_file_map",
+            type="bool",
+            description="Include the module's file-to-node map.",
+            default="false",
+        ),
+        ReducerArg(
+            name="compact",
+            type="bool",
+            description="Render the compact overview payload.",
+            default="false",
+        ),
+        ReducerArg(
+            name="top_k",
+            type="int",
+            description="Max preview rows in compact mode (capped at 50).",
+            default="5",
+        ),
+    ),
+    requires="one of --module-id / --callable-id / --classifier-id",
 )
 
 
