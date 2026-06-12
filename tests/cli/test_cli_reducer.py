@@ -183,6 +183,32 @@ def test_cli_reducer_list_works_without_init(cli_app, cli_runner, monkeypatch, t
     assert "reducer --id structural_index" in result.stdout
 
 
+def test_cli_reducer_json_without_init_keeps_stdout_clean(
+    cli_app, cli_runner, monkeypatch, tmp_path
+):
+    repo_root = tmp_path / "uninitialized_repo"
+    repo_root.mkdir()
+    init_git_repo(repo_root)
+    monkeypatch.setattr(runtime_paths, "get_repo_root", lambda: repo_root)
+
+    list_result = cli_runner.invoke(cli_app, ["reducer", "list", "--json"])
+
+    assert list_result.exit_code == 0
+    entries = json.loads(list_result.stdout)
+    reducer_ids = {entry["reducer_id"] for entry in entries}
+    assert "structural_index" in reducer_ids
+    assert "has not been initialized" in list_result.stderr
+
+    info_result = cli_runner.invoke(
+        cli_app, ["reducer", "info", "--id", "structural_index", "--json"]
+    )
+
+    assert info_result.exit_code == 0
+    entry = json.loads(info_result.stdout)
+    assert entry["reducer_id"] == "structural_index"
+    assert "has not been initialized" in info_result.stderr
+
+
 def test_cli_reducer_json_flag_is_noop(cli_app, cli_runner):
     result = cli_runner.invoke(
         cli_app, ["reducer", "--id", "structural_index", "--json"]
