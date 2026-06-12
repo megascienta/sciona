@@ -76,7 +76,11 @@ def _resolve_command(
         lines = [f"Resolved {kind_label} '{identifier}' -> {result.resolved_id}"]
         if candidate:
             lines.append(
-                f"  {candidate.language}:{candidate.qualified_name} (file: {candidate.file_path})"
+                f"  qualified_name={candidate.qualified_name} "
+                f"language={candidate.language} "
+                f"node_type={candidate.node_type} "
+                f"file={candidate.file_path} "
+                f"id={candidate.structural_id}"
             )
         if result.status == "resolved" and result.resolved_from is not None:
             score = f", score {candidate.score}" if candidate else ""

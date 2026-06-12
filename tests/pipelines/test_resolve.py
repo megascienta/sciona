@@ -148,7 +148,7 @@ def test_require_identifier_auto_resolves(tmp_path):
     assert resolved_id == "func_alpha"
 
 
-def test_resolve_round_trips_all_printed_forms(tmp_path):
+def test_resolve_round_trips_canonical_forms(tmp_path):
     repo_root, _ = seed_repo_with_snapshot(tmp_path)
     prefix = runtime_paths.repo_name_prefix(repo_root)
     cases = [
@@ -157,7 +157,7 @@ def test_resolve_round_trips_all_printed_forms(tmp_path):
         ("module", f"{prefix}.pkg.alpha", "mod_alpha"),
     ]
     for kind, qualified_name, structural_id in cases:
-        for form in (f"python:{qualified_name}", qualified_name, structural_id):
+        for form in (qualified_name, structural_id):
             result = resolver.identifier_for_repo(
                 kind=kind,
                 identifier=form,
@@ -167,45 +167,25 @@ def test_resolve_round_trips_all_printed_forms(tmp_path):
             assert result.resolved_id == structural_id
 
 
-def test_resolve_wrong_language_prefix_rejects_exact_matches(tmp_path):
+def test_resolve_colon_prefixed_text_is_not_stripped(tmp_path):
     repo_root, _ = seed_repo_with_snapshot(tmp_path)
     prefix = runtime_paths.repo_name_prefix(repo_root)
-    for form in (f"{prefix}.pkg.alpha.service.helper", "func_alpha"):
+    for form in (
+        f"prefix:{prefix}.pkg.alpha.service.helper",
+        "prefix:helper",
+        "prefix:",
+    ):
         result = resolver.identifier_for_repo(
             kind="callable",
-            identifier=f"typescript:{form}",
+            identifier=form,
             repo_root=repo_root,
         )
-        assert result.status in ("ambiguous", "missing"), (form, result.status)
+
+        assert result.status == "missing", (form, result.status)
         assert result.resolved_id is None
 
 
-def test_resolve_unknown_language_prefix_is_not_stripped(tmp_path):
-    repo_root, _ = seed_repo_with_snapshot(tmp_path)
-    prefix = runtime_paths.repo_name_prefix(repo_root)
-    result = resolver.identifier_for_repo(
-        kind="callable",
-        identifier=f"rust:{prefix}.pkg.alpha.service.helper",
-        repo_root=repo_root,
-    )
-
-    assert result.status == "missing"
-    assert result.resolved_id is None
-
-
-def test_resolve_bare_language_prefix_is_missing(tmp_path):
-    repo_root, _ = seed_repo_with_snapshot(tmp_path)
-    result = resolver.identifier_for_repo(
-        kind="callable",
-        identifier="python:",
-        repo_root=repo_root,
-    )
-
-    assert result.status == "missing"
-    assert result.candidates == tuple()
-
-
-def test_resolve_language_prefix_disambiguates_cross_language(tmp_path):
+def test_resolve_cross_language_qualified_name_requires_structural_id(tmp_path):
     repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
     prefix = runtime_paths.repo_name_prefix(repo_root)
     qualified_name = f"{prefix}.pkg.alpha.service.helper"
@@ -244,14 +224,14 @@ def test_resolve_language_prefix_disambiguates_cross_language(tmp_path):
     )
     assert bare.status == "ambiguous"
 
-    for language, expected in (("python", "func_alpha"), ("typescript", "func_alpha_ts")):
+    for structural_id in ("func_alpha", "func_alpha_ts"):
         result = resolver.identifier_for_repo(
             kind="callable",
-            identifier=f"{language}:{qualified_name}",
+            identifier=structural_id,
             repo_root=repo_root,
         )
-        assert result.status == "exact", (language, result.status)
-        assert result.resolved_id == expected
+        assert result.status == "exact", (structural_id, result.status)
+        assert result.resolved_id == structural_id
 
     fuzzy_bare = resolver.identifier_for_repo(
         kind="callable",
@@ -260,11 +240,27 @@ def test_resolve_language_prefix_disambiguates_cross_language(tmp_path):
     )
     assert fuzzy_bare.status == "ambiguous"
 
-    fuzzy_prefixed = resolver.identifier_for_repo(
+    message = resolver.format_resolution_message("callable", qualified_name, bare)
+    assert "qualified_name=" in message
+    assert "language=python" in message
+    assert "language=typescript" in message
+    assert f"{'python'}:" not in message
+    assert f"{'typescript'}:" not in message
+
+
+def test_format_resolution_message_uses_structured_candidate_fields(tmp_path):
+    repo_root, _ = seed_repo_with_snapshot(tmp_path)
+    prefix = runtime_paths.repo_name_prefix(repo_root)
+    result = resolver.identifier_for_repo(
         kind="callable",
-        identifier="python:helper",
+        identifier="service",
         repo_root=repo_root,
     )
-    assert fuzzy_prefixed.status == "resolved"
-    assert fuzzy_prefixed.resolved_id == "func_alpha"
-    assert fuzzy_prefixed.resolved_from == "python:helper"
+
+    message = resolver.format_resolution_message("callable", "service", result)
+    assert "qualified_name=" in message
+    assert "language=python" in message
+    assert "node_type=callable" in message
+    assert "file=pkg/alpha/service.py" in message
+    assert "id=func_alpha" in message
+    assert f"{'python'}:" not in message

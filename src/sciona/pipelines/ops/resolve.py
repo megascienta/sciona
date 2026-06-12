@@ -12,12 +12,9 @@ from typing import Iterable, Optional, Sequence
 from ..errors import WorkflowError
 from ..policy import repo as repo_policy
 from ..policy import snapshot as snapshot_policy
-from ...code_analysis.config import LANGUAGE_CONFIG
 from ...data_storage.connections import core
 from ...data_storage.core_db import read_ops as core_read
 from ...runtime.paths import get_db_path
-
-_LANGUAGE_PREFIXES = frozenset(LANGUAGE_CONFIG)
 
 _ALL_NODE_TYPES = ("callable", "classifier", "module")
 
@@ -55,12 +52,11 @@ def _resolve_identifier(
     """Resolve an identifier to a structural_id with optional best-fit candidates."""
     node_types = _node_types_for_kind(kind)
     requested = identifier
-    language, identifier = _split_language_prefix(identifier)
     if not identifier:
         return ResolutionResult("missing", None, tuple())
 
     exact = _lookup_structural_id(conn, snapshot_id, identifier, node_types)
-    if exact is not None and (language is None or exact["language"] == language):
+    if exact is not None:
         candidate = ResolutionCandidate(
             structural_id=exact["structural_id"],
             node_type=exact["node_type"],
@@ -72,8 +68,6 @@ def _resolve_identifier(
         return ResolutionResult("exact", exact["structural_id"], (candidate,))
 
     matches = _lookup_by_qualified_name(conn, snapshot_id, identifier, node_types)
-    if language is not None:
-        matches = [match for match in matches if match["language"] == language]
     if len(matches) == 1:
         match = matches[0]
         candidate = ResolutionCandidate(
@@ -108,7 +102,6 @@ def _resolve_identifier(
         candidate
         for candidate in candidates
         if candidate.score >= _AUTO_RESOLVE_THRESHOLD
-        and (language is None or candidate.language == language)
     ]
     if len(cleared) == 1:
         return ResolutionResult(
@@ -186,14 +179,6 @@ def require_identifier_result(
     message = _format_resolution_message(kind, identifier, result)
     code = "ambiguous_node" if result.status == "ambiguous" else "missing_node"
     raise WorkflowError(message, code=code)
-
-
-def _split_language_prefix(identifier: str) -> tuple[Optional[str], str]:
-    """Split a printed '<language>:' prefix off an identifier, if present."""
-    prefix, sep, remainder = identifier.partition(":")
-    if sep and prefix.lower() in _LANGUAGE_PREFIXES:
-        return prefix.lower(), remainder
-    return None, identifier
 
 
 def _node_types_for_kind(kind: Optional[str]) -> Sequence[str]:
@@ -308,7 +293,7 @@ def _format_resolution_message(
     else:
         return f"No matches found for {label} '{identifier}'."
     lines.extend(_format_candidates(result.candidates))
-    lines.append("Please disambiguate or use --id.")
+    lines.append("Please disambiguate using the id field.")
     return "\n".join(lines)
 
 
@@ -317,9 +302,11 @@ def _format_candidates(candidates: Iterable[ResolutionCandidate]) -> list[str]:
     for candidate in candidates:
         lines.append(
             "  - "
-            f"{candidate.language}:{candidate.qualified_name} "
-            f"(file: {candidate.file_path}) "
-            f"[id: {candidate.structural_id}]"
+            f"qualified_name={candidate.qualified_name} "
+            f"language={candidate.language} "
+            f"node_type={candidate.node_type} "
+            f"file={candidate.file_path} "
+            f"id={candidate.structural_id}"
         )
     return lines
 
