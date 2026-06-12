@@ -60,7 +60,7 @@ def _resolve_identifier(
         return ResolutionResult("missing", None, tuple())
 
     exact = _lookup_structural_id(conn, snapshot_id, identifier, node_types)
-    if exact is not None:
+    if exact is not None and (language is None or exact["language"] == language):
         candidate = ResolutionCandidate(
             structural_id=exact["structural_id"],
             node_type=exact["node_type"],
@@ -72,12 +72,8 @@ def _resolve_identifier(
         return ResolutionResult("exact", exact["structural_id"], (candidate,))
 
     matches = _lookup_by_qualified_name(conn, snapshot_id, identifier, node_types)
-    if language is not None and len(matches) > 1:
-        language_matches = [
-            match for match in matches if match["language"] == language
-        ]
-        if language_matches:
-            matches = language_matches
+    if language is not None:
+        matches = [match for match in matches if match["language"] == language]
     if len(matches) == 1:
         match = matches[0]
         candidate = ResolutionCandidate(

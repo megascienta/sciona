@@ -329,13 +329,13 @@ def emit_error(lines: Iterable[str]) -> None:
         typer.secho(line, fg=typer.colors.RED)
 
 
-def emit_warning(lines: Iterable[str]) -> None:
+def emit_warning(lines: Iterable[str], *, err: bool = False) -> None:
     import typer
 
     for index, line in enumerate(lines):
         if index == 0 and line and not line.startswith("Warning:"):
             line = f"Warning: {line}"
-        typer.secho(line, fg=typer.colors.YELLOW)
+        typer.secho(line, fg=typer.colors.YELLOW, err=err)
 
 
 def render_reducer_list(entries: list[dict]) -> list[str]:

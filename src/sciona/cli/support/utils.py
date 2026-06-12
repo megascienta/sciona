@@ -8,7 +8,7 @@ from __future__ import annotations
 import json
 import re
 import traceback
-from typing import Mapping
+from typing import Iterable, Mapping
 
 import typer
 
@@ -17,9 +17,9 @@ from . import render as cli_render
 from .errors import handle_cli_error
 
 
-def emit_user_warning(message: str) -> None:
+def emit_user_warning(message: str, *, err: bool = False) -> None:
     if message:
-        cli_render.emit_warning([message])
+        cli_render.emit_warning([message], err=err)
 
 def cli_call(func, *args, **kwargs):
     """Invoke CLI helpers and translate errors into CLI exits."""
@@ -75,13 +75,14 @@ def parse_extra_args(args: list[str]) -> dict[str, str]:
     return parsed
 
 
-def normalize_flag_args(args: list[str]) -> list[str]:
+def normalize_flag_args(args: list[str], flag_names: Iterable[str] = ()) -> list[str]:
     """Allow bare boolean flags like --extras by coercing them to true."""
+    flags = {"--extras", *flag_names}
     normalized: list[str] = []
     index = 0
     while index < len(args):
         token = args[index]
-        if token == "--extras":
+        if token in flags:
             next_token = args[index + 1] if index + 1 < len(args) else None
             if next_token is None or next_token.startswith("--"):
                 normalized.extend([token, "true"])
@@ -111,10 +112,10 @@ def strip_json_fence(text: str) -> str:
     return trimmed
 
 
-def emit_dirty_worktree_warning(repo_root=None) -> None:
+def emit_dirty_worktree_warning(repo_root=None, *, err: bool = False) -> None:
     warning = get_dirty_worktree_warning(repo_root)
     if warning:
-        emit_user_warning(warning)
+        emit_user_warning(warning, err=err)
 
 
 def get_dirty_worktree_warning(repo_root=None) -> str | None:

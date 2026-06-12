@@ -58,12 +58,51 @@ def test_cli_reducer_callable_id_auto_resolves_with_note(cli_app, cli_runner):
     )
 
 
+def test_cli_reducer_bare_compact_flag_enables_compact_mode(cli_app, cli_runner):
+    result = cli_runner.invoke(
+        cli_app, ["reducer", "--id", "structural_index", "--compact"]
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(result.stdout)
+    assert payload["args"]["compact"] is True
+    reducer_payload = parse_json_payload(payload["payload"])
+    assert reducer_payload["payload_kind"] == "compact_summary"
+
+
+def test_cli_reducer_compact_accepts_explicit_values(cli_app, cli_runner):
+    result = cli_runner.invoke(
+        cli_app, ["reducer", "--id", "structural_index", "--compact", "true"]
+    )
+    assert result.exit_code == 0
+    payload = json.loads(result.stdout)
+    assert payload["args"]["compact"] is True
+
+    result = cli_runner.invoke(
+        cli_app, ["reducer", "--id", "structural_index", "--compact", "false"]
+    )
+    assert result.exit_code == 0
+    payload = json.loads(result.stdout)
+    assert payload["args"]["compact"] is False
+    reducer_payload = parse_json_payload(payload["payload"])
+    assert reducer_payload.get("payload_kind") != "compact_summary"
+
+
+def test_cli_reducer_rejects_non_boolean_compact_value(cli_app, cli_runner):
+    result = cli_runner.invoke(
+        cli_app, ["reducer", "--id", "structural_index", "--compact", "maybe"]
+    )
+
+    assert result.exit_code != 0
+
+
 def test_cli_reducer_list_outputs_calls(cli_app, cli_runner):
     result = cli_runner.invoke(cli_app, ["reducer", "list"])
 
     assert result.exit_code == 0
     assert "reducer --id structural_index" in result.stdout
-    assert "--compact" in result.stdout
+    assert "[--compact]" in result.stdout
+    assert "--compact COMPACT" not in result.stdout
     assert "--function-id" not in result.stdout
     assert "--method-id" not in result.stdout
     assert "reducer --id callable_source --callable-id CALLABLE_ID" in result.stdout
@@ -94,6 +133,41 @@ def test_cli_reducer_info_works_outside_git_repo(cli_app, cli_runner, monkeypatc
     assert result.exit_code == 0
     assert "Not inside a git repository" in result.stdout
     assert "Reducer: structural_index" in result.stdout
+
+
+def test_cli_reducer_list_json_outside_git_repo_keeps_stdout_clean(
+    cli_app, cli_runner, monkeypatch
+):
+    def _raise_env_error():
+        raise EnvError("SCIONA must be run inside a git repository.")
+
+    monkeypatch.setattr(runtime_paths, "get_repo_root", _raise_env_error)
+
+    result = cli_runner.invoke(cli_app, ["reducer", "list", "--json"])
+
+    assert result.exit_code == 0
+    entries = json.loads(result.stdout)
+    reducer_ids = {entry["reducer_id"] for entry in entries}
+    assert "structural_index" in reducer_ids
+    assert "Not inside a git repository" in result.stderr
+
+
+def test_cli_reducer_info_json_outside_git_repo_keeps_stdout_clean(
+    cli_app, cli_runner, monkeypatch
+):
+    def _raise_env_error():
+        raise EnvError("SCIONA must be run inside a git repository.")
+
+    monkeypatch.setattr(runtime_paths, "get_repo_root", _raise_env_error)
+
+    result = cli_runner.invoke(
+        cli_app, ["reducer", "info", "--id", "structural_index", "--json"]
+    )
+
+    assert result.exit_code == 0
+    entry = json.loads(result.stdout)
+    assert entry["reducer_id"] == "structural_index"
+    assert "Not inside a git repository" in result.stderr
 
 
 def test_cli_reducer_list_works_without_init(cli_app, cli_runner, monkeypatch, tmp_path):

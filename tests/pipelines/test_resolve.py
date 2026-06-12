@@ -167,6 +167,19 @@ def test_resolve_round_trips_all_printed_forms(tmp_path):
             assert result.resolved_id == structural_id
 
 
+def test_resolve_wrong_language_prefix_rejects_exact_matches(tmp_path):
+    repo_root, _ = seed_repo_with_snapshot(tmp_path)
+    prefix = runtime_paths.repo_name_prefix(repo_root)
+    for form in (f"{prefix}.pkg.alpha.service.helper", "func_alpha"):
+        result = resolver.identifier_for_repo(
+            kind="callable",
+            identifier=f"typescript:{form}",
+            repo_root=repo_root,
+        )
+        assert result.status in ("ambiguous", "missing"), (form, result.status)
+        assert result.resolved_id is None
+
+
 def test_resolve_unknown_language_prefix_is_not_stripped(tmp_path):
     repo_root, _ = seed_repo_with_snapshot(tmp_path)
     prefix = runtime_paths.repo_name_prefix(repo_root)

@@ -25,7 +25,7 @@ def format_reducer_call(reducer_id: str, reducer_module, args_meta=None) -> str:
     required_names = {
         str(arg.get("name")) for arg in (args_meta or []) if arg.get("required")
     }
-    sig = inspect.signature(signature)
+    sig = _render_signature(signature)
     options: list[str] = []
     for name, param in sig.parameters.items():
         if name in {"snapshot_id", "conn", "repo_root"}:
@@ -60,7 +60,7 @@ def compact_mode_hint(reducer_module) -> str | None:
     signature = getattr(reducer_module, "render", None)
     if signature is None:
         return None
-    sig = inspect.signature(signature)
+    sig = _render_signature(signature)
     if "compact" not in sig.parameters:
         return None
     parts = ["`--compact`"]
@@ -68,6 +68,13 @@ def compact_mode_hint(reducer_module) -> str | None:
         if name in sig.parameters:
             parts.append(f"[`--{name.replace('_', '-')}` {name.upper()}]")
     return " ".join(parts)
+
+
+def _render_signature(render) -> inspect.Signature:
+    try:
+        return inspect.signature(render, eval_str=True)
+    except Exception:
+        return inspect.signature(render)
 
 
 def _is_bool_parameter(param: inspect.Parameter) -> bool:
