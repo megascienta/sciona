@@ -13,7 +13,7 @@ from typing import List, Optional, Tuple
 from pathlib import Path
 
 from ...reducers.registry import freeze_registry, get_reducers, load_reducer
-from .resolve import require_identifier
+from .resolve import require_identifier_result
 from ..policy import repo as policy_repo
 from ..policy import snapshot as snapshot_policy
 from ...data_storage.connections import core
@@ -135,6 +135,7 @@ def emit(
                 try:
                     render_kwargs = dict(resolved_kwargs)
                     render_kwargs.pop("diff_mode", None)
+                    render_kwargs.pop("_resolution_notes", None)
                     with use_overlay_payload(overlay):
                         payload = reducer.render(
                             snapshot_id, conn, repo_state.repo_root, **render_kwargs
@@ -183,15 +184,25 @@ def _resolve_reducer_identifiers(
     kwargs: dict[str, object],
 ) -> dict[str, object]:
     resolved = dict(kwargs)
-    callable_id = resolved.get("callable_id")
+    notes: list[str] = []
 
-    if callable_id:
-        resolved["callable_id"] = require_identifier(
+    def _resolve(key: str, kind: str, value: str) -> str:
+        result = require_identifier_result(
             conn,
             snapshot_id,
-            kind="callable",
-            identifier=callable_id,
+            kind=kind,
+            identifier=value,
         )
+        if result.status == "resolved":
+            notes.append(
+                f"[resolution] {key} '{result.resolved_from}' "
+                f"auto-resolved to '{result.resolved_id}'."
+            )
+        return result.resolved_id
+
+    callable_id = resolved.get("callable_id")
+    if callable_id:
+        resolved["callable_id"] = _resolve("callable_id", "callable", callable_id)
 
     id_kinds = {
         "classifier_id": "classifier",
@@ -203,12 +214,9 @@ def _resolve_reducer_identifiers(
         value = resolved.get(key)
         if not value or not isinstance(value, str):
             continue
-        resolved[key] = require_identifier(
-            conn,
-            snapshot_id,
-            kind=kind,
-            identifier=value,
-        )
+        resolved[key] = _resolve(key, kind, value)
+    if notes:
+        resolved["_resolution_notes"] = notes
     return resolved
 
 

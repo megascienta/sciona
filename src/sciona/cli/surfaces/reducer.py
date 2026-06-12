@@ -102,7 +102,10 @@ def _reducer_callback(
         **arg_map,
     )
     warning = get_dirty_worktree_warning()
-    notes = _build_reducer_notes(reducer_id)
+    resolution_notes = []
+    if isinstance(resolved_args, dict):
+        resolution_notes = resolved_args.pop("_resolution_notes", None) or []
+    notes = _build_reducer_notes(reducer_id) + list(resolution_notes)
     payload = {
         "reducer_id": reducer_id,
         "snapshot_id": snapshot_id,

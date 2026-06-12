@@ -19,6 +19,12 @@ from ...runtime.paths import get_db_path
 
 _LANGUAGE_PREFIXES = frozenset(LANGUAGE_CONFIG)
 
+_ALL_NODE_TYPES = ("callable", "classifier", "module")
+
+# Admits prefix (0.9) and suffix (0.8) matches: the identifier must be a
+# complete head or tail of the qualified name to auto-resolve.
+_AUTO_RESOLVE_THRESHOLD = 0.8
+
 
 @dataclass(frozen=True)
 class ResolutionCandidate:
@@ -32,21 +38,23 @@ class ResolutionCandidate:
 
 @dataclass(frozen=True)
 class ResolutionResult:
-    status: str  # "exact" | "ambiguous" | "missing"
+    status: str  # "exact" | "resolved" | "ambiguous" | "missing"
     resolved_id: Optional[str]
     candidates: tuple[ResolutionCandidate, ...]
+    resolved_from: Optional[str] = None  # original input when auto-resolved
 
 
 def _resolve_identifier(
     conn,
     snapshot_id: str,
     *,
-    kind: str,
+    kind: Optional[str],
     identifier: str,
     limit: int = 5,
 ) -> ResolutionResult:
     """Resolve an identifier to a structural_id with optional best-fit candidates."""
     node_types = _node_types_for_kind(kind)
+    requested = identifier
     language, identifier = _split_language_prefix(identifier)
     if not identifier:
         return ResolutionResult("missing", None, tuple())
@@ -98,12 +106,27 @@ def _resolve_identifier(
     candidates = tuple(
         _search_candidates(conn, snapshot_id, identifier, node_types, limit=limit)
     )
-    return ResolutionResult("missing", None, candidates)
+    if not candidates:
+        return ResolutionResult("missing", None, tuple())
+    cleared = [
+        candidate
+        for candidate in candidates
+        if candidate.score >= _AUTO_RESOLVE_THRESHOLD
+        and (language is None or candidate.language == language)
+    ]
+    if len(cleared) == 1:
+        return ResolutionResult(
+            "resolved",
+            cleared[0].structural_id,
+            candidates,
+            resolved_from=requested,
+        )
+    return ResolutionResult("ambiguous", None, candidates)
 
 
 def identifier_for_repo(
     *,
-    kind: str,
+    kind: Optional[str],
     identifier: str,
     repo_root: Optional[Path] = None,
     limit: int = 5,
@@ -136,6 +159,25 @@ def require_identifier(
     identifier: str,
     limit: int = 5,
 ) -> str:
+    result = require_identifier_result(
+        conn,
+        snapshot_id,
+        kind=kind,
+        identifier=identifier,
+        limit=limit,
+    )
+    return result.resolved_id
+
+
+def require_identifier_result(
+    conn,
+    snapshot_id: str,
+    *,
+    kind: str,
+    identifier: str,
+    limit: int = 5,
+) -> ResolutionResult:
+    """Resolve an identifier or raise; returns the full resolution result."""
     result = _resolve_identifier(
         conn,
         snapshot_id,
@@ -143,8 +185,8 @@ def require_identifier(
         identifier=identifier,
         limit=limit,
     )
-    if result.status == "exact" and result.resolved_id:
-        return result.resolved_id
+    if result.status in ("exact", "resolved") and result.resolved_id:
+        return result
     message = _format_resolution_message(kind, identifier, result)
     code = "ambiguous_node" if result.status == "ambiguous" else "missing_node"
     raise WorkflowError(message, code=code)
@@ -158,13 +200,18 @@ def _split_language_prefix(identifier: str) -> tuple[Optional[str], str]:
     return None, identifier
 
 
-def _node_types_for_kind(kind: str) -> Sequence[str]:
-    if kind == "callable":
+def _node_types_for_kind(kind: Optional[str]) -> Sequence[str]:
+    if kind is None:
+        return _ALL_NODE_TYPES
+    normalized = str(kind).strip().lower()
+    if normalized in {"any", "all"}:
+        return _ALL_NODE_TYPES
+    if normalized in {"callable", "function", "method"}:
         return ("callable",)
-    if kind in {"function", "method"}:
-        return ("callable",)
-    if kind in {"module", "classifier", "callable"}:
-        return (kind,)
+    if normalized in {"classifier", "class", "type"}:
+        return ("classifier",)
+    if normalized == "module":
+        return ("module",)
     raise ValueError(f"Unknown identifier kind '{kind}'.")
 
 
@@ -251,12 +298,14 @@ def _score_identifier(identifier: str, qualified_name: str) -> float:
 
 
 def _format_resolution_message(
-    kind: str,
+    kind: Optional[str],
     identifier: str,
     result: ResolutionResult,
 ) -> str:
-    label = kind.replace("_", " ")
-    if result.status == "ambiguous":
+    label = kind.replace("_", " ") if kind else "identifier"
+    if result.status == "ambiguous" and all(
+        candidate.score == 1.0 for candidate in result.candidates
+    ):
         lines = [f"Multiple matches found for {label} '{identifier}':"]
     elif result.candidates:
         lines = [f"No exact match found for {label} '{identifier}'. Best matches:"]
@@ -285,12 +334,13 @@ __all__ = [
     "identifier_for_repo",
     "identifier",
     "require_identifier",
+    "require_identifier_result",
     "format_resolution_message",
 ]
 
 
 def format_resolution_message(
-    kind: str,
+    kind: Optional[str],
     identifier: str,
     result: ResolutionResult,
 ) -> str:
@@ -302,7 +352,7 @@ def identifier(
     conn,
     snapshot_id: str,
     *,
-    kind: str,
+    kind: Optional[str],
     identifier: str,
     limit: int = 5,
 ) -> ResolutionResult:

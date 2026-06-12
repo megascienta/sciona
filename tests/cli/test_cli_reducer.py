@@ -34,6 +34,29 @@ def test_cli_reducer_callable_id_resolves_method(cli_app, cli_runner):
     assert reducer_payload["callable_id"] == "meth_alpha"
 
 
+def test_cli_reducer_callable_id_auto_resolves_with_note(cli_app, cli_runner):
+    result = cli_runner.invoke(
+        cli_app,
+        [
+            "reducer",
+            "--id",
+            "callable_overview",
+            "--callable-id",
+            "helper",
+        ],
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(result.stdout)
+    reducer_payload = parse_json_payload(payload["payload"])
+    assert reducer_payload["callable_id"] == "func_alpha"
+    assert payload["args"]["callable_id"] == "func_alpha"
+    assert any(
+        note.startswith("[resolution] callable_id 'helper' auto-resolved")
+        for note in payload["notes"]
+    )
+
+
 def test_cli_reducer_list_outputs_calls(cli_app, cli_runner):
     result = cli_runner.invoke(cli_app, ["reducer", "list"])
 
