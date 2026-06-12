@@ -58,6 +58,52 @@ def test_cli_reducer_callable_id_auto_resolves_with_note(cli_app, cli_runner):
     )
 
 
+def test_cli_reducer_dependency_edges_accepts_package_prefix_scope(cli_app, cli_runner):
+    prefix = runtime_paths.repo_name_prefix(runtime_paths.get_repo_root())
+    result = cli_runner.invoke(
+        cli_app,
+        [
+            "reducer",
+            "--id",
+            "dependency_edges",
+            "--module-id",
+            f"{prefix}.pkg",
+            "--compact",
+        ],
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(result.stdout)
+    reducer_payload = parse_json_payload(payload["payload"])
+    assert payload["args"]["module_id"] == f"{prefix}.pkg"
+    assert reducer_payload["module_scope"]["scope_kind"] == "package_prefix"
+    assert reducer_payload["module_scope"]["scope_filter"] == f"{prefix}.pkg"
+    assert reducer_payload["edge_count"] > 0
+
+
+def test_cli_reducer_ownership_summary_accepts_package_prefix_scope(cli_app, cli_runner):
+    prefix = runtime_paths.repo_name_prefix(runtime_paths.get_repo_root())
+    result = cli_runner.invoke(
+        cli_app,
+        [
+            "reducer",
+            "--id",
+            "ownership_summary",
+            "--module-id",
+            f"{prefix}.pkg",
+        ],
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(result.stdout)
+    reducer_payload = parse_json_payload(payload["payload"])
+    assert payload["args"]["module_id"] == f"{prefix}.pkg"
+    assert reducer_payload["scope_kind"] == "package_prefix"
+    assert reducer_payload["scope_filter"] == f"{prefix}.pkg"
+    assert "module_structural_id" not in reducer_payload
+    assert reducer_payload["submodules"]["entries"]
+
+
 def test_cli_reducer_bare_compact_flag_enables_compact_mode(cli_app, cli_runner):
     result = cli_runner.invoke(
         cli_app, ["reducer", "--id", "structural_index", "--compact"]

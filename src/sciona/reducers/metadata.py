@@ -20,6 +20,7 @@ class ReducerArg:
     required: bool = False
     enum: tuple[str, ...] = ()
     default: str | None = None
+    arg_role: str | None = None
 
 
 @dataclass(frozen=True)

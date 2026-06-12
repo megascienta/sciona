@@ -51,6 +51,7 @@ def list_entries(
                         "required": arg.required,
                         "enum": list(arg.enum),
                         "default": arg.default,
+                        "arg_role": arg.arg_role,
                     }
                     for arg in entry.args
                 ],
@@ -201,9 +202,6 @@ def _resolve_reducer_identifiers(
 
     id_kinds = {
         "classifier_id": "classifier",
-        "module_id": "module",
-        "from_module_id": "module",
-        "to_module_id": "module",
     }
     for key, kind in id_kinds.items():
         value = resolved.get(key)

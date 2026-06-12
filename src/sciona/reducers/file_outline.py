@@ -10,6 +10,7 @@ from typing import Dict, List, Optional
 
 from .helpers.shared import queries
 from .helpers.shared.connection import require_connection
+from .helpers.shared.module_scope import ModuleScope, resolve_module_scope
 from .helpers.shared.payload import render_json_payload
 from .helpers.shared.snapshot_guard import require_latest_committed_snapshot
 from .metadata import ReducerArg, ReducerMeta
@@ -24,7 +25,8 @@ REDUCER_META = ReducerMeta(
         ReducerArg(
             name="module_id",
             type="str",
-            description="Restrict the outline to one module.",
+            description="Restrict the outline to one module or package scope.",
+            arg_role="module_scope",
         ),
         ReducerArg(
             name="file_path",
@@ -62,9 +64,11 @@ def render(
         conn, snapshot_id, reducer_name="file_outline reducer"
     )
     module_ids: Optional[List[str]] = None
+    module_scope: ModuleScope | None = None
     file_filter: Optional[set[str]] = None
     if module_id:
-        module_ids = _resolve_module_ids(conn, snapshot_id, module_id)
+        module_scope = _resolve_module_scope(conn, snapshot_id, module_id)
+        module_ids = _module_names_for_scope(conn, snapshot_id, module_scope)
     if file_path:
         normalized = _normalize_file_path(repo_root, file_path)
         file_filter = {normalized}
@@ -126,6 +130,7 @@ def render(
     body = {
         "payload_kind": "summary",
         "module_filter": module_id,
+        "module_scope": _scope_payload(module_scope),
         "file_path": file_path,
         "count": len(files),
         "files": files,
@@ -136,23 +141,14 @@ def render(
 
 
 def _resolve_module_ids(conn, snapshot_id: str, module_name: str) -> List[str]:
-    rows = conn.execute(
-        """
-        SELECT sn.structural_id
-        FROM structural_nodes sn
-        JOIN node_instances ni ON ni.structural_id = sn.structural_id
-        WHERE ni.snapshot_id = ?
-          AND sn.node_type = 'module'
-          AND (ni.qualified_name = ? OR ni.qualified_name LIKE ? OR sn.structural_id = ?)
-        ORDER BY ni.qualified_name
-        """,
-        (snapshot_id, module_name, f"{module_name}.%", module_name),
-    ).fetchall()
-    module_structural_ids = [row["structural_id"] for row in rows]
-    if not module_structural_ids:
-        raise ValueError(
-            f"file_outline module '{module_name}' not found in snapshot '{snapshot_id}'."
-        )
+    scope = _resolve_module_scope(conn, snapshot_id, module_name)
+    return _module_names_for_scope(conn, snapshot_id, scope)
+
+
+def _module_names_for_scope(
+    conn, snapshot_id: str, scope: ModuleScope
+) -> List[str]:
+    module_structural_ids = scope.module_ids
     module_lookup = queries.module_id_lookup(conn, snapshot_id)
     resolved: List[str] = []
     seen: set[str] = set()
@@ -166,6 +162,26 @@ def _resolve_module_ids(conn, snapshot_id: str, module_name: str) -> List[str]:
             f"file_outline module '{module_name}' not found in snapshot '{snapshot_id}'."
         )
     return resolved
+
+
+def _resolve_module_scope(conn, snapshot_id: str, module_name: str) -> ModuleScope:
+    return resolve_module_scope(
+        conn,
+        snapshot_id,
+        module_name,
+        reducer_name="file_outline",
+    )
+
+
+def _scope_payload(scope: ModuleScope | None) -> dict[str, object] | None:
+    if not scope:
+        return None
+    return {
+        "scope_filter": scope.scope_filter,
+        "scope_kind": scope.scope_kind,
+        "module_qualified_name": scope.module_qualified_name,
+        "resolved_module_ids": list(scope.module_ids),
+    }
 
 
 def _normalize_file_path(repo_root, path_value: str) -> str:
@@ -204,6 +220,7 @@ def _compact_payload(payload: Dict[str, object], *, depth: int | None) -> Dict[s
     return {
         "payload_kind": "compact_summary",
         "module_filter": payload.get("module_filter"),
+        "module_scope": payload.get("module_scope"),
         "file_path": payload.get("file_path"),
         "count": payload.get("count", len(compact_files)),
         "depth": normalized_depth,

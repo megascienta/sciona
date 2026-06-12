@@ -12,6 +12,9 @@ class ModuleOverviewPayload(TypedDict, total=False):
     projection: str
     projection_version: str
     payload_kind: str
+    scope_kind: str
+    scope_filter: str
+    resolved_module_ids: List[str]
     module_structural_id: str
     module_qualified_name: str
     language: str

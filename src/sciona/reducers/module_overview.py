@@ -18,7 +18,8 @@ REDUCER_META = ReducerMeta(
         ReducerArg(
             name="module_id",
             type="str",
-            description="Module to summarize; accepts qualified name or structural id.",
+            description="Module or package scope to summarize; accepts qualified name or structural id.",
+            arg_role="module_scope",
         ),
         ReducerArg(
             name="callable_id",

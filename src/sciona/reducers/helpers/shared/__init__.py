@@ -12,6 +12,7 @@ __all__ = [
     "counters",
     "id_resolution",
     "module_context",
+    "module_scope",
     "payload",
     "profile_utils",
     "queries",

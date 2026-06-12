@@ -11,8 +11,8 @@ from typing import Any, Dict, List
 from ....code_analysis.analysis.orderings import order_nodes, order_strings
 from ..shared import queries
 from ..artifact.graph_edges import artifact_db_available, load_artifact_edges
-from ..shared.profile_utils import fetch_node_instance
 from ..shared.connection import require_connection
+from ..shared.module_scope import resolve_module_scope
 from ..shared.payload import render_json_payload
 from ..shared.snapshot_guard import require_latest_committed_snapshot
 from ..shared.source_files import line_span_hash
@@ -103,15 +103,15 @@ def run(snapshot_id: str, **params) -> ModuleOverviewPayload | dict[str, Any]:
     if not artifact_available:
         raise ValueError("module_overview reducer requires the artifact database.")
 
-    row = _resolve_module(conn, snapshot_id, module_identifier)
-    if row["node_type"] != "module":
-        raise ValueError(
-            f"module_overview node '{module_identifier}' is not a module."
-        )
-    module_structural_id = row["structural_id"]
-    module_name = row["qualified_name"]
-
-    module_ids = _resolve_module_ids(conn, snapshot_id, module_name)
+    scope = resolve_module_scope(
+        conn,
+        snapshot_id,
+        str(module_identifier),
+        reducer_name="module_overview",
+    )
+    row = scope.root
+    module_name = scope.module_qualified_name
+    module_ids = scope.module_ids
     files = _list_module_files(conn, snapshot_id, module_ids)
     module_file_entries = (
         _module_file_entries(conn, snapshot_id, module_ids) if include_file_map else []
@@ -130,20 +130,14 @@ def run(snapshot_id: str, **params) -> ModuleOverviewPayload | dict[str, Any]:
     language_breakdown = _language_breakdown(conn, snapshot_id, module_ids, repo_path)
     methods = _list_methods(conn, snapshot_id, module_ids, repo_path)
 
-    line_span = [row["start_line"], row["end_line"]]
     payload: ModuleOverviewPayload = {
         "projection": "module_overview",
         "projection_version": "1.0",
         "payload_kind": "summary",
-        "module_structural_id": module_structural_id,
+        "scope_kind": scope.scope_kind,
+        "scope_filter": scope.scope_filter,
+        "resolved_module_ids": module_ids,
         "module_qualified_name": module_name,
-        "language": row["language"],
-        "file_path": row["file_path"],
-        "line_span": line_span,
-        "start_byte": row["start_byte"],
-        "end_byte": row["end_byte"],
-        "content_hash": row["content_hash"],
-        "line_span_hash": line_span_hash(repo_path, row["file_path"], line_span),
         "files": files,
         "file_count": len(files),
         "classifiers": classifiers,
@@ -160,6 +154,20 @@ def run(snapshot_id: str, **params) -> ModuleOverviewPayload | dict[str, Any]:
         "artifact_available": artifact_available,
         "edge_source": "artifact_db" if artifact_available else "none",
     }
+    if row:
+        line_span = [row["start_line"], row["end_line"]]
+        payload.update(
+            {
+                "module_structural_id": row["structural_id"],
+                "language": row["language"],
+                "file_path": row["file_path"],
+                "line_span": line_span,
+                "start_byte": row["start_byte"],
+                "end_byte": row["end_byte"],
+                "content_hash": row["content_hash"],
+                "line_span_hash": line_span_hash(repo_path, row["file_path"], line_span),
+            }
+        )
     if include_file_map:
         payload["module_files"] = module_file_entries
         payload["module_file_count"] = len(module_file_entries)
@@ -172,14 +180,14 @@ def _compact_payload(
     payload: ModuleOverviewPayload,
     top_k: int,
 ) -> dict[str, Any]:
-    return {
+    compact = {
         "projection": "module_overview",
         "projection_version": payload["projection_version"],
         "payload_kind": "compact_summary",
-        "module_structural_id": payload["module_structural_id"],
+        "scope_kind": payload.get("scope_kind"),
+        "scope_filter": payload.get("scope_filter"),
+        "resolved_module_ids": payload.get("resolved_module_ids"),
         "module_qualified_name": payload["module_qualified_name"],
-        "language": payload["language"],
-        "file_path": payload["file_path"],
         "file_count": payload["file_count"],
         "node_counts": payload["node_counts"],
         "language_breakdown": payload["language_breakdown"],
@@ -199,6 +207,13 @@ def _compact_payload(
             top_k,
         ),
     }
+    if "module_structural_id" in payload:
+        compact["module_structural_id"] = payload["module_structural_id"]
+    if "language" in payload:
+        compact["language"] = payload["language"]
+    if "file_path" in payload:
+        compact["file_path"] = payload["file_path"]
+    return compact
 
 
 def _preview_scalars(entries: list[str], top_k: int) -> dict[str, Any]:
@@ -231,57 +246,13 @@ def _normalize_top_k(top_k: int | str | None) -> int:
     return min(value, 50)
 
 
-def _resolve_module(conn, snapshot_id: str, identifier: str) -> dict:
-    try:
-        return fetch_node_instance(conn, snapshot_id, identifier)
-    except ValueError:
-        pass
-    row = conn.execute(
-        """
-        SELECT
-            sn.structural_id,
-            sn.node_type,
-            sn.language,
-            ni.qualified_name,
-            ni.file_path,
-            ni.start_line,
-            ni.end_line,
-            ni.start_byte,
-            ni.end_byte,
-            ni.content_hash
-        FROM structural_nodes sn
-        JOIN node_instances ni ON ni.structural_id = sn.structural_id
-        WHERE sn.node_type = 'module' AND ni.snapshot_id = ? AND ni.qualified_name = ?
-        LIMIT 1
-        """,
-        (snapshot_id, identifier),
-    ).fetchone()
-    if not row:
-        raise ValueError(
-            f"module_overview module '{identifier}' not found in snapshot '{snapshot_id}'."
-        )
-    return row
-
-
 def _resolve_module_ids(conn, snapshot_id: str, module_name: str) -> List[str]:
-    rows = conn.execute(
-        """
-        SELECT sn.structural_id
-        FROM structural_nodes sn
-        JOIN node_instances ni ON ni.structural_id = sn.structural_id
-        WHERE ni.snapshot_id = ?
-          AND sn.node_type = 'module'
-          AND (ni.qualified_name = ? OR ni.qualified_name LIKE ?)
-        ORDER BY ni.qualified_name
-        """,
-        (snapshot_id, module_name, f"{module_name}.%"),
-    ).fetchall()
-    module_ids = [row["structural_id"] for row in rows]
-    if not module_ids:
-        raise ValueError(
-            f"module_overview module '{module_name}' not found in snapshot '{snapshot_id}'."
-        )
-    return module_ids
+    return resolve_module_scope(
+        conn,
+        snapshot_id,
+        module_name,
+        reducer_name="module_overview",
+    ).module_ids
 
 
 def _list_module_files(conn, snapshot_id: str, module_ids: List[str]) -> List[str]:

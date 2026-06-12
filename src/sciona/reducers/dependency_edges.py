@@ -9,6 +9,7 @@ from typing import Dict, List, Optional
 
 from ..runtime.edge_types import MODULE_DEPENDENCY_EDGE_TYPES
 from .helpers.shared.connection import require_connection
+from .helpers.shared.module_scope import ModuleScope, resolve_module_scope
 from .helpers.shared.payload import render_json_payload
 from .helpers.shared.snapshot_guard import require_latest_committed_snapshot
 from .metadata import ReducerArg, ReducerMeta
@@ -23,17 +24,20 @@ REDUCER_META = ReducerMeta(
         ReducerArg(
             name="module_id",
             type="str",
-            description="Module filter; combine with --direction for edges touching it.",
+            description="Module or package scope filter; combine with --direction for edges touching it.",
+            arg_role="module_scope",
         ),
         ReducerArg(
             name="from_module_id",
             type="str",
-            description="Restrict to edges originating from this module.",
+            description="Restrict to edges originating from this module or package scope.",
+            arg_role="module_scope",
         ),
         ReducerArg(
             name="to_module_id",
             type="str",
-            description="Restrict to edges targeting this module.",
+            description="Restrict to edges targeting this module or package scope.",
+            arg_role="module_scope",
         ),
         ReducerArg(
             name="query",
@@ -98,19 +102,28 @@ def render(
     from_ids: Optional[List[str]] = None
     to_ids: Optional[List[str]] = None
     module_ids: Optional[List[str]] = None
+    module_scope: ModuleScope | None = None
+    from_scope: ModuleScope | None = None
+    to_scope: ModuleScope | None = None
     if module_id and not from_module_id and not to_module_id:
-        module_ids = _resolve_module_ids(conn, snapshot_id, module_id)
+        module_scope = _resolve_module_scope(conn, snapshot_id, module_id)
+        module_ids = module_scope.module_ids
         if dir_value == "out":
             from_ids = module_ids
+            from_scope = module_scope
         elif dir_value == "in":
             to_ids = module_ids
+            to_scope = module_scope
     else:
         if source_selector:
-            from_ids = _resolve_module_ids(conn, snapshot_id, source_selector)
+            from_scope = _resolve_module_scope(conn, snapshot_id, source_selector)
+            from_ids = from_scope.module_ids
         if module_id and not from_module_id:
-            from_ids = _resolve_module_ids(conn, snapshot_id, module_id)
+            from_scope = _resolve_module_scope(conn, snapshot_id, module_id)
+            from_ids = from_scope.module_ids
         if to_module_id:
-            to_ids = _resolve_module_ids(conn, snapshot_id, to_module_id)
+            to_scope = _resolve_module_scope(conn, snapshot_id, to_module_id)
+            to_ids = to_scope.module_ids
     if query:
         query_ids = _resolve_module_query(conn, snapshot_id, query)
         if from_ids is None and to_ids is None and module_ids is None:
@@ -168,6 +181,9 @@ def render(
         "module_filter": module_id,
         "from_module_filter": from_module_id,
         "to_module_filter": to_module_id,
+        "module_scope": _scope_payload(module_scope),
+        "from_module_scope": _scope_payload(from_scope),
+        "to_module_scope": _scope_payload(to_scope),
         "query": query,
         "edge_type": edge_type_value or "any",
         "direction": dir_value,
@@ -336,6 +352,9 @@ def _compact_payload(
         "module_filter": module_filter,
         "from_module_filter": body.get("from_module_filter"),
         "to_module_filter": body.get("to_module_filter"),
+        "module_scope": body.get("module_scope"),
+        "from_module_scope": body.get("from_module_scope"),
+        "to_module_scope": body.get("to_module_scope"),
         "query": body.get("query"),
         "edge_type": body.get("edge_type"),
         "direction": direction,
@@ -441,25 +460,28 @@ def _group_counterparts(
     }
 
 
+def _scope_payload(scope: ModuleScope | None) -> dict[str, object] | None:
+    if not scope:
+        return None
+    return {
+        "scope_filter": scope.scope_filter,
+        "scope_kind": scope.scope_kind,
+        "module_qualified_name": scope.module_qualified_name,
+        "resolved_module_ids": list(scope.module_ids),
+    }
+
+
+def _resolve_module_scope(conn, snapshot_id: str, module_name: str) -> ModuleScope:
+    return resolve_module_scope(
+        conn,
+        snapshot_id,
+        module_name,
+        reducer_name="dependency_edges",
+    )
+
+
 def _resolve_module_ids(conn, snapshot_id: str, module_name: str) -> List[str]:
-    rows = conn.execute(
-        """
-        SELECT sn.structural_id
-        FROM structural_nodes sn
-        JOIN node_instances ni ON ni.structural_id = sn.structural_id
-        WHERE ni.snapshot_id = ?
-          AND sn.node_type = 'module'
-          AND (ni.qualified_name = ? OR ni.qualified_name LIKE ? OR sn.structural_id = ?)
-        ORDER BY ni.qualified_name
-        """,
-        (snapshot_id, module_name, f"{module_name}.%", module_name),
-    ).fetchall()
-    module_ids = [row["structural_id"] for row in rows]
-    if not module_ids:
-        raise ValueError(
-            f"dependency_edges module '{module_name}' not found in snapshot '{snapshot_id}'."
-        )
-    return module_ids
+    return _resolve_module_scope(conn, snapshot_id, module_name).module_ids
 
 
 def _resolve_module_query(conn, snapshot_id: str, query: str) -> List[str]:

@@ -24,6 +24,7 @@ REDUCER_META = ReducerMeta(
             name="module_id",
             type="str",
             description="Module or package to summarize; accepts qualified name or structural id.",
+            arg_role="module_scope",
         ),
         ReducerArg(
             name="callable_id",
@@ -127,10 +128,10 @@ def run(snapshot_id: str, **params) -> dict[str, Any]:
         "projection": "ownership_summary",
         "projection_version": "1.0",
         "payload_kind": "summary",
-        "module_structural_id": overview["module_structural_id"],
+        "scope_kind": overview.get("scope_kind"),
+        "scope_filter": overview.get("scope_filter"),
+        "resolved_module_ids": overview.get("resolved_module_ids"),
         "module_qualified_name": root_name,
-        "language": overview["language"],
-        "file_path": overview["file_path"],
         "file_count": overview["file_count"],
         "module_file_count": overview.get("module_file_count", 0),
         "top_k": top_k,
@@ -150,6 +151,9 @@ def run(snapshot_id: str, **params) -> dict[str, Any]:
             top_k=top_k,
         ),
     }
+    for key in ("module_structural_id", "language", "file_path"):
+        if key in overview:
+            payload[key] = overview[key]
     return payload
 
 
@@ -199,9 +203,9 @@ def _top_submodules(overview: dict[str, Any], top_k: int) -> dict[str, Any]:
     if not children:
         children = [
             {
-                "module_structural_id": overview["module_structural_id"],
+                "module_structural_id": overview.get("module_structural_id"),
                 "module_qualified_name": root_name,
-                "file_path": overview["file_path"],
+                "file_path": overview.get("file_path"),
                 "line_span": overview.get("line_span"),
             }
         ]

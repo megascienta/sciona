@@ -1428,6 +1428,32 @@ def test_module_overview_reducer_expands_package_modules(tmp_path):
     ]
 
 
+def test_module_overview_reducer_accepts_prefix_only_package_scope(tmp_path):
+    repo = _build_profile_repo(tmp_path)
+    conn = sqlite3.connect(repo["db_path"])
+    conn.row_factory = sqlite3.Row
+    payload = module_overview.run(
+        repo["snapshot_id"],
+        conn=conn,
+        module_id=_q(repo["repo_root"], "pkg"),
+        repo_root=repo["repo_root"],
+    )
+    conn.close()
+
+    assert payload["scope_kind"] == "package_prefix"
+    assert payload["scope_filter"] == _q(repo["repo_root"], "pkg")
+    assert "module_structural_id" not in payload
+    assert payload["module_qualified_name"] == _q(repo["repo_root"], "pkg")
+    assert set(payload["files"]) == {
+        "pkg/alpha/__init__.py",
+        "pkg/alpha/service.py",
+        "pkg/beta/worker.py",
+        "pkg/ts/service.ts",
+    }
+    assert repo["ids"]["module_alpha"] in payload["resolved_module_ids"]
+    assert repo["ids"]["module_beta"] in payload["resolved_module_ids"]
+
+
 def test_module_overview_include_file_map(tmp_path):
     repo = _build_profile_repo(tmp_path)
     conn = sqlite3.connect(repo["db_path"])
