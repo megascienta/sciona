@@ -209,6 +209,7 @@ Source reducers are often useful after structural grounding when committed imple
 - use broad source reducers sparingly for deliberate large-context reasoning because they may increase payload and token cost significantly
 - direct file inspection remains acceptable when it is faster, more precise for the question, or the needed context is outside reducer scope
 - if a source reducer is insufficient, fall back to normal repository inspection
+- on a dirty worktree, source reducers return committed code only — use them for committed context; use source inspection for files you have edited this session
 
 When non-SCIONA reasoning is used, agents SHOULD label the method explicitly, for example:
 
@@ -223,6 +224,7 @@ SCIONA operates on the committed repository snapshot.
 
 Dirty worktree changes may appear through overlay metadata.
 Agents SHOULD inspect `_diff` metadata when present before interpreting reducer output as current, including `overlay_available`, `affected`, `affected_by`, and warnings.
+Source reducers remain committed-only on dirty worktrees until worktree-aware source reducers ship.
 
 Overlay warnings include:
 
@@ -295,7 +297,13 @@ These rules apply to SCIONA commands and any shell-based non-SCIONA tooling. If 
 
 ## 9. Reporting
 
-When structural reasoning is used, responses SHOULD include:
+Each substantive response MUST include this one-line status:
+
+```text
+Status: sciona used: yes/no | scope: in-scope/out-of-scope/mixed | reducers: reducer names or n/a
+```
+
+When structural reasoning is used, responses SHOULD also include:
 
 ```text
 Status: sciona used: yes/no | scope: in-scope/out-of-scope/mixed
