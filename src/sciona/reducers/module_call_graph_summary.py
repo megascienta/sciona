@@ -85,20 +85,22 @@ def render(
     resolved_module_name = module_id
     if not resolved_module_name and classifier_id:
         classifier_structural_id = queries.resolve_classifier_id(
-            conn, snapshot_id, classifier_id
+            conn, snapshot_id, classifier_id, reducer_name="module_call_graph_summary"
         )
         resolved_module_name = queries.module_id_for_structural(
             conn, snapshot_id, classifier_structural_id
         )
     if not resolved_module_name and callable_id:
         callable_structural_id = queries.resolve_callable_id(
-            conn, snapshot_id, callable_id
+            conn, snapshot_id, callable_id, reducer_name="module_call_graph_summary"
         )
         resolved_module_name = queries.module_id_for_structural(
             conn, snapshot_id, callable_structural_id
         )
     if not resolved_module_name:
-        raise ValueError("MODULE_CALL_GRAPH requires a resolvable module_id.")
+        raise ValueError(
+            "module_call_graph_summary requires one of --module-id / --callable-id / --classifier-id."
+        )
     module_name_lookup = _module_name_lookup(conn, snapshot_id)
     resolved_module_structural_id, resolved_module_name = _resolve_required_module(
         conn, snapshot_id, resolved_module_name
@@ -193,7 +195,10 @@ def _module_name_lookup(conn, snapshot_id: str) -> Dict[str, str]:
 def _resolve_required_module(conn, snapshot_id: str, module_id: str) -> tuple[str, str]:
     structural_id, qualified_name = _resolve_optional_module(conn, snapshot_id, module_id)
     if not structural_id or not qualified_name:
-        raise ValueError(f"Module '{module_id}' not found in snapshot '{snapshot_id}'.")
+        raise ValueError(
+            f"module_call_graph_summary module '{module_id}' not found "
+            f"in snapshot '{snapshot_id}'."
+        )
     return structural_id, qualified_name
 
 
@@ -208,7 +213,10 @@ def _resolve_optional_module(
         qualified_name = row.get("qualified_name")
         if module_id == structural_id or module_id == qualified_name:
             return str(structural_id), str(qualified_name)
-    raise ValueError(f"Module '{module_id}' not found in snapshot '{snapshot_id}'.")
+    raise ValueError(
+        f"module_call_graph_summary module '{module_id}' not found "
+        f"in snapshot '{snapshot_id}'."
+    )
 
 
 def _edges_to_entries(

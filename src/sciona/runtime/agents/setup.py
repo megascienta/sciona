@@ -151,6 +151,10 @@ def _render_common_tasks(reducers) -> str:
                 "reducer_id": reducer_id,
                 "category": entry.category,
                 "summary": entry.summary,
+                "args": [
+                    {"name": arg.name, "required": arg.required}
+                    for arg in entry.args
+                ],
             }
         )
     return "\n".join(render_reducer_list(entries, reducers, include_prefix=True))

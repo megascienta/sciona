@@ -65,3 +65,5 @@ def test_cli_reducer_list_outputs_calls(cli_app, cli_runner):
     assert "--compact" in result.stdout
     assert "--function-id" not in result.stdout
     assert "--method-id" not in result.stdout
+    assert "reducer --id callable_source --callable-id CALLABLE_ID" in result.stdout
+    assert "--id symbol_lookup --query QUERY" in result.stdout

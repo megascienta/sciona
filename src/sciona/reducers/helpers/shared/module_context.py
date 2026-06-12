@@ -73,7 +73,12 @@ def module_root_paths(conn, snapshot_id: str, repo_root: Path) -> List[Path]:
 
 
 def resolve_module_root(
-    conn, snapshot_id: str, module_id: str, repo_root: Path
+    conn,
+    snapshot_id: str,
+    module_id: str,
+    repo_root: Path,
+    *,
+    reducer_name: str | None = None,
 ) -> Path:
     row = conn.execute(
         """
@@ -88,7 +93,10 @@ def resolve_module_root(
         (snapshot_id, module_id, module_id),
     ).fetchone()
     if not row or not row["file_path"]:
-        raise ValueError(f"Module '{module_id}' not found in snapshot '{snapshot_id}'.")
+        label = reducer_name or "Reducer"
+        raise ValueError(
+            f"{label} module '{module_id}' not found in snapshot '{snapshot_id}'."
+        )
     return _normalize_repo_relative(repo_root, Path(row["file_path"]).parent)
 
 

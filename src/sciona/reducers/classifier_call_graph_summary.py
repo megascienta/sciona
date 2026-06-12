@@ -73,9 +73,12 @@ def render(
     )
     requested_classifier_id = classifier_id
     if not requested_classifier_id:
-        raise ValueError("CLASSIFIER_CALL_GRAPH requires classifier_id.")
+        raise ValueError("classifier_call_graph_summary requires --classifier-id.")
     resolved_classifier_id = queries.resolve_classifier_id(
-        conn, snapshot_id, requested_classifier_id
+        conn,
+        snapshot_id,
+        requested_classifier_id,
+        reducer_name="classifier_call_graph_summary",
     )
     artifact_available = artifact_db_available(repo_root) if repo_root else False
 
@@ -158,7 +161,9 @@ def _resolve_optional_classifier_id(
 ) -> str | None:
     if not classifier_id:
         return None
-    return queries.resolve_classifier_id(conn, snapshot_id, classifier_id)
+    return queries.resolve_classifier_id(
+        conn, snapshot_id, classifier_id, reducer_name="classifier_call_graph_summary"
+    )
 
 
 def _edges_to_entries(

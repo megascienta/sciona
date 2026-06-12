@@ -44,20 +44,22 @@ def render(
     resolved_module_id = module_id
     if not resolved_module_id and classifier_id:
         classifier_structural_id = queries.resolve_classifier_id(
-            conn, snapshot_id, classifier_id
+            conn, snapshot_id, classifier_id, reducer_name="module_overview"
         )
         resolved_module_id = queries.module_id_for_structural(
             conn, snapshot_id, classifier_structural_id
         )
     if not resolved_module_id and callable_id:
         callable_structural_id = queries.resolve_callable_id(
-            conn, snapshot_id, callable_id
+            conn, snapshot_id, callable_id, reducer_name="module_overview"
         )
         resolved_module_id = queries.module_id_for_structural(
             conn, snapshot_id, callable_structural_id
         )
     if not resolved_module_id:
-        raise ValueError("Prompt requires a resolvable module_id.")
+        raise ValueError(
+            "module_overview requires one of --module-id / --callable-id / --classifier-id."
+        )
     payload = run(
         snapshot_id,
         conn=conn,
@@ -103,7 +105,9 @@ def run(snapshot_id: str, **params) -> ModuleOverviewPayload | dict[str, Any]:
 
     row = _resolve_module(conn, snapshot_id, module_identifier)
     if row["node_type"] != "module":
-        raise ValueError(f"Node '{module_identifier}' is not a module.")
+        raise ValueError(
+            f"module_overview node '{module_identifier}' is not a module."
+        )
     module_structural_id = row["structural_id"]
     module_name = row["qualified_name"]
 
@@ -254,7 +258,7 @@ def _resolve_module(conn, snapshot_id: str, identifier: str) -> dict:
     ).fetchone()
     if not row:
         raise ValueError(
-            f"Module '{identifier}' not found in snapshot '{snapshot_id}'."
+            f"module_overview module '{identifier}' not found in snapshot '{snapshot_id}'."
         )
     return row
 
@@ -275,7 +279,7 @@ def _resolve_module_ids(conn, snapshot_id: str, module_name: str) -> List[str]:
     module_ids = [row["structural_id"] for row in rows]
     if not module_ids:
         raise ValueError(
-            f"Module '{module_name}' not found in snapshot '{snapshot_id}'."
+            f"module_overview module '{module_name}' not found in snapshot '{snapshot_id}'."
         )
     return module_ids
 

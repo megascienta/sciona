@@ -12,10 +12,12 @@ from sciona.data_storage.core_db.schema import ensure_schema
 from sciona.data_storage.common.transactions import transaction
 from sciona.reducers import (
     callable_overview,
+    classifier_call_graph_summary,
     classifier_inheritance,
     classifier_overview,
     dependency_edges,
     file_outline,
+    module_call_graph_summary,
     module_overview,
     ownership_summary,
     snapshot_provenance,
@@ -1047,13 +1049,87 @@ def test_classifier_inheritance_requires_classifier_id(tmp_path):
     conn = sqlite3.connect(repo["db_path"])
     conn.row_factory = sqlite3.Row
     try:
-        with pytest.raises(ValueError, match="Classifier identifier is required"):
+        with pytest.raises(
+            ValueError, match="classifier_inheritance requires --classifier-id"
+        ):
             classifier_inheritance.render(
                 repo["snapshot_id"],
                 conn=conn,
                 classifier_id=None,
                 repo_root=repo["repo_root"],
             )
+    finally:
+        conn.close()
+
+
+def test_classifier_inheritance_names_reducer_in_not_found(tmp_path):
+    repo = _build_profile_repo(tmp_path)
+    conn = sqlite3.connect(repo["db_path"])
+    conn.row_factory = sqlite3.Row
+    try:
+        with pytest.raises(
+            ValueError, match="classifier_inheritance node 'bogus' not found"
+        ):
+            classifier_inheritance.render(
+                repo["snapshot_id"],
+                conn=conn,
+                classifier_id="bogus",
+                repo_root=repo["repo_root"],
+            )
+    finally:
+        conn.close()
+
+
+def test_callable_source_requires_callable_id(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = _core_conn(repo_root)
+    try:
+        with pytest.raises(ValueError, match="callable_source requires --callable-id"):
+            callable_source.render(snapshot_id, conn, repo_root)
+    finally:
+        conn.close()
+
+
+def test_classifier_call_graph_summary_requires_classifier_id(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = _core_conn(repo_root)
+    try:
+        with pytest.raises(
+            ValueError, match="classifier_call_graph_summary requires --classifier-id"
+        ):
+            classifier_call_graph_summary.render(snapshot_id, conn, repo_root)
+    finally:
+        conn.close()
+
+
+def test_module_call_graph_summary_no_identifier_error(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = _core_conn(repo_root)
+    try:
+        with pytest.raises(
+            ValueError, match="module_call_graph_summary requires one of"
+        ):
+            module_call_graph_summary.render(snapshot_id, conn, repo_root)
+    finally:
+        conn.close()
+
+
+def test_module_overview_no_identifier_error(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = _core_conn(repo_root)
+    try:
+        with pytest.raises(ValueError, match="module_overview requires one of"):
+            module_overview.render(snapshot_id, conn, repo_root)
+    finally:
+        conn.close()
+
+
+def test_symbol_lookup_unknown_kind_lists_accepted_values(tmp_path):
+    repo_root, snapshot_id = seed_repo_with_snapshot(tmp_path)
+    conn = _core_conn(repo_root)
+    try:
+        with pytest.raises(ValueError, match="symbol_lookup kind must be one of"):
+            symbol_lookup.render(snapshot_id, conn, repo_root, query="helper", kind="bogus")
     finally:
         conn.close()
 

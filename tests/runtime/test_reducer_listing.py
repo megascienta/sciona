@@ -42,6 +42,29 @@ def test_format_reducer_call_includes_flags() -> None:
     assert "[--extras]" in call
 
 
+class _OptionalArgsReducer:
+    def render(
+        self,
+        snapshot_id,
+        conn,
+        repo_root,
+        callable_id=None,
+        top_k=None,
+    ) -> str:
+        return ""
+
+
+def test_format_reducer_call_honors_required_metadata() -> None:
+    args = [
+        {"name": "callable_id", "required": True},
+        {"name": "top_k", "required": False},
+    ]
+    call = format_reducer_call("dummy", _OptionalArgsReducer(), args)
+    assert "--callable-id CALLABLE_ID" in call
+    assert "[--callable-id" not in call
+    assert "[--top-k TOP_K]" in call
+
+
 def test_render_reducer_list_orders_roles() -> None:
     entries = [
         {"reducer_id": "b", "category": "source", "summary": "B"},

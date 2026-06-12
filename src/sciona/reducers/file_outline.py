@@ -151,7 +151,7 @@ def _resolve_module_ids(conn, snapshot_id: str, module_name: str) -> List[str]:
     module_structural_ids = [row["structural_id"] for row in rows]
     if not module_structural_ids:
         raise ValueError(
-            f"Module '{module_name}' not found in snapshot '{snapshot_id}'."
+            f"file_outline module '{module_name}' not found in snapshot '{snapshot_id}'."
         )
     module_lookup = queries.module_id_lookup(conn, snapshot_id)
     resolved: List[str] = []
@@ -163,7 +163,7 @@ def _resolve_module_ids(conn, snapshot_id: str, module_name: str) -> List[str]:
             seen.add(module_id)
     if not resolved:
         raise ValueError(
-            f"Module '{module_name}' not found in snapshot '{snapshot_id}'."
+            f"file_outline module '{module_name}' not found in snapshot '{snapshot_id}'."
         )
     return resolved
 

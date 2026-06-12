@@ -94,7 +94,10 @@ def _normalize_kind(kind: Optional[str]) -> Sequence[str]:
         return ("classifier",)
     if normalized in _NODE_TYPES:
         return (normalized,)
-    raise ValueError(f"Unknown kind '{kind}'.")
+    raise ValueError(
+        "symbol_references kind must be one of: module, classifier, callable, "
+        "class, function, method, any, all."
+    )
 
 
 def _resolve_optional_module(
@@ -115,7 +118,9 @@ def _resolve_optional_module(
         (snapshot_id, module_id, module_id),
     ).fetchone()
     if row is None:
-        raise ValueError(f"Module '{module_id}' not found in snapshot '{snapshot_id}'.")
+        raise ValueError(
+            f"symbol_references module '{module_id}' not found in snapshot '{snapshot_id}'."
+        )
     return str(row["structural_id"]), str(row["qualified_name"])
 
 

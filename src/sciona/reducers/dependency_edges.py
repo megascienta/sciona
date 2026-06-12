@@ -457,7 +457,7 @@ def _resolve_module_ids(conn, snapshot_id: str, module_name: str) -> List[str]:
     module_ids = [row["structural_id"] for row in rows]
     if not module_ids:
         raise ValueError(
-            f"Module '{module_name}' not found in snapshot '{snapshot_id}'."
+            f"dependency_edges module '{module_name}' not found in snapshot '{snapshot_id}'."
         )
     return module_ids
 
@@ -482,7 +482,8 @@ def _resolve_module_query(conn, snapshot_id: str, query: str) -> List[str]:
     module_ids = [row["structural_id"] for row in rows]
     if not module_ids:
         raise ValueError(
-            f"No modules match query '{normalized}' in snapshot '{snapshot_id}'."
+            f"dependency_edges found no modules matching query '{normalized}' "
+            f"in snapshot '{snapshot_id}'."
         )
     return module_ids
 

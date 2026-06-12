@@ -45,10 +45,10 @@ def render(
         conn, snapshot_id, reducer_name="callable_source reducer"
     )
     if not callable_id:
-        raise ValueError(
-            "CALLABLE_SOURCE requires callable_id."
-        )
-    payload = load_callable_overview(snapshot_id, conn, repo_root, callable_id)
+        raise ValueError("callable_source requires --callable-id.")
+    payload = load_callable_overview(
+        snapshot_id, conn, repo_root, callable_id, reducer_name="callable_source"
+    )
     file_path = payload.get("file_path")
     line_span = payload.get("line_span")
     if not file_path or not line_span:

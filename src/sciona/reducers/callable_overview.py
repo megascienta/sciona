@@ -50,7 +50,9 @@ def render(
 ) -> str:
     conn = require_connection(conn)
     requested_identifier = callable_id
-    resolved_id = queries.resolve_callable_id(conn, snapshot_id, callable_id)
+    resolved_id = queries.resolve_callable_id(
+        conn, snapshot_id, callable_id, reducer_name="callable_overview"
+    )
     payload = run(
         snapshot_id,
         conn=conn,
@@ -91,7 +93,7 @@ def run(snapshot_id: str, **params) -> CallableOverviewPayload:
     except ValueError:
         row = _fetch_by_qualified_name(conn, snapshot_id, resolved_id)
     if row["node_type"] != "callable":
-        raise ValueError(f"Node '{resolved_id}' is not a callable.")
+        raise ValueError(f"callable_overview node '{resolved_id}' is not a callable.")
 
     module_name = queries.module_id_for_structural(
         conn, snapshot_id, row["structural_id"]
@@ -274,7 +276,9 @@ def _fetch_by_qualified_name(conn, snapshot_id: str, qualified_name: str):
         (snapshot_id, qualified_name),
     ).fetchone()
     if not row:
-        raise ValueError(f"Callable '{qualified_name}' not found in snapshot.")
+        raise ValueError(
+            f"callable_overview callable '{qualified_name}' not found in snapshot."
+        )
     return row
 
 

@@ -18,10 +18,13 @@ def normalize_category(category: object) -> str:
     return "unknown"
 
 
-def format_reducer_call(reducer_id: str, reducer_module) -> str:
+def format_reducer_call(reducer_id: str, reducer_module, args_meta=None) -> str:
     signature = getattr(reducer_module, "render", None)
     if signature is None:
         return f"reducer --id {reducer_id}"
+    required_names = {
+        str(arg.get("name")) for arg in (args_meta or []) if arg.get("required")
+    }
     sig = inspect.signature(signature)
     options: list[str] = []
     for name, param in sig.parameters.items():
@@ -33,13 +36,16 @@ def format_reducer_call(reducer_id: str, reducer_module) -> str:
         }:
             continue
         flag = f"--{name.replace('_', '-')}"
+        metavar = name.upper()
+        if name in required_names:
+            options.append(f"{flag} {metavar}")
+            continue
         if name == "extras":
             options.append(f"[{flag}]")
             continue
         if _is_bool_parameter(param):
             options.append(f"[{flag}]")
             continue
-        metavar = name.upper()
         if param.default is inspect._empty:
             options.append(f"{flag} {metavar}")
         else:
@@ -111,7 +117,7 @@ def render_reducer_list(
                 continue
             summary = str(entry.get("summary") or "").strip()
             lines.append(f"  Summary: {summary}")
-            call = format_reducer_call(reducer_id, reducer_module)
+            call = format_reducer_call(reducer_id, reducer_module, entry.get("args"))
             lines.append(f"  Command: {prefix}{call}")
             compact_hint = compact_mode_hint(reducer_module)
             if compact_hint:

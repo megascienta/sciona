@@ -75,9 +75,13 @@ def run(snapshot_id: str, **params) -> ClassifierOverviewPayload:
     if not classifier_id:
         raise ValueError("classifier_overview requires 'classifier_id'.")
 
-    row = fetch_node_instance(conn, snapshot_id, classifier_id)
+    row = fetch_node_instance(
+        conn, snapshot_id, classifier_id, reducer_name="classifier_overview"
+    )
     if row["node_type"] != "classifier":
-        raise ValueError(f"Node '{classifier_id}' is not a classifier.")
+        raise ValueError(
+            f"classifier_overview node '{classifier_id}' is not a classifier."
+        )
 
     repo_root = params.get("repo_root")
     repo_path = Path(repo_root) if repo_root else None

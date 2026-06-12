@@ -15,7 +15,13 @@ from ....code_analysis.tools.profiling import (
 )
 
 
-def fetch_node_instance(conn, snapshot_id: str, structural_id: str) -> dict:
+def fetch_node_instance(
+    conn,
+    snapshot_id: str,
+    structural_id: str,
+    *,
+    reducer_name: str | None = None,
+) -> dict:
     """Return structural + instance metadata for the requested node."""
     row = conn.execute(
         """
@@ -39,8 +45,9 @@ def fetch_node_instance(conn, snapshot_id: str, structural_id: str) -> dict:
         (structural_id, snapshot_id),
     ).fetchone()
     if not row:
+        label = reducer_name or "Reducer"
         raise ValueError(
-            f"Node '{structural_id}' not found in snapshot '{snapshot_id}'."
+            f"{label} node '{structural_id}' not found in snapshot '{snapshot_id}'."
         )
     return row
 

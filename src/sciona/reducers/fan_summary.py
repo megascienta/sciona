@@ -97,9 +97,13 @@ def render(
     node_kind_value = _normalize_node_kind(node_kind)
     resolved_id = None
     if callable_id:
-        resolved_id = queries.resolve_callable_id(conn, snapshot_id, callable_id)
+        resolved_id = queries.resolve_callable_id(
+            conn, snapshot_id, callable_id, reducer_name="fan_summary"
+        )
     elif classifier_id:
-        resolved_id = queries.resolve_classifier_id(conn, snapshot_id, classifier_id)
+        resolved_id = queries.resolve_classifier_id(
+            conn, snapshot_id, classifier_id, reducer_name="fan_summary"
+        )
     elif module_id:
         resolved_id = _resolve_module_id(conn, snapshot_id, module_id)
     limit = _normalize_top_k(top_k, default=5)
@@ -291,7 +295,7 @@ def _resolve_module_id(conn, snapshot_id: str, identifier: str) -> Optional[str]
     ).fetchone()
     if not row:
         raise ValueError(
-            f"Module '{identifier}' not found in snapshot '{snapshot_id}'."
+            f"fan_summary module '{identifier}' not found in snapshot '{snapshot_id}'."
         )
     return row["structural_id"]
 

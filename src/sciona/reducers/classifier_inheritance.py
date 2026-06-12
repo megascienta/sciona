@@ -43,7 +43,9 @@ def render(
     require_latest_committed_snapshot(
         conn, snapshot_id, reducer_name="classifier_inheritance reducer"
     )
-    resolved_id = queries.resolve_classifier_id(conn, snapshot_id, classifier_id)
+    resolved_id = queries.resolve_classifier_id(
+        conn, snapshot_id, classifier_id, reducer_name="classifier_inheritance"
+    )
     outgoing = _load_classifier_edges(
         conn=conn,
         snapshot_id=snapshot_id,
@@ -97,7 +99,7 @@ def _load_classifier_edges(
     if not repo_root:
         return []
     if direction not in {"outgoing", "incoming"}:
-        raise ValueError("direction must be outgoing or incoming.")
+        raise ValueError("classifier_inheritance direction must be outgoing or incoming.")
     repo_path = Path(repo_root)
     if direction == "outgoing":
         edges = load_artifact_edges(

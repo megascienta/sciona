@@ -22,14 +22,30 @@ from .types import (
 
 
 # Reducers must emit a single top-level Markdown block (e.g., one fenced code block).
-def resolve_callable_id(conn, snapshot_id: str, callable_id: str | None) -> str:
+def resolve_callable_id(
+    conn,
+    snapshot_id: str,
+    callable_id: str | None,
+    *,
+    reducer_name: str | None = None,
+) -> str:
     conn = require_connection(conn)
-    return queries.resolve_callable_id(conn, snapshot_id, callable_id)
+    return queries.resolve_callable_id(
+        conn, snapshot_id, callable_id, reducer_name=reducer_name
+    )
 
 
-def resolve_classifier_id(conn, snapshot_id: str, classifier_id: str | None) -> str:
+def resolve_classifier_id(
+    conn,
+    snapshot_id: str,
+    classifier_id: str | None,
+    *,
+    reducer_name: str | None = None,
+) -> str:
     conn = require_connection(conn)
-    return queries.resolve_classifier_id(conn, snapshot_id, classifier_id)
+    return queries.resolve_classifier_id(
+        conn, snapshot_id, classifier_id, reducer_name=reducer_name
+    )
 
 
 def load_callable_overview(
@@ -37,9 +53,13 @@ def load_callable_overview(
     conn,
     repo_root,
     callable_id: str | None,
+    *,
+    reducer_name: str | None = None,
 ) -> CallableOverviewPayload:
     conn = require_connection(conn)
-    resolved_id = resolve_callable_id(conn, snapshot_id, callable_id)
+    resolved_id = resolve_callable_id(
+        conn, snapshot_id, callable_id, reducer_name=reducer_name
+    )
     return callable_overview.run(
         snapshot_id,
         conn=conn,

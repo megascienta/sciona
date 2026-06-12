@@ -96,7 +96,10 @@ def _normalize_kind(kind: Optional[str]) -> Sequence[str]:
         return ("classifier",)
     if normalized in _NODE_TYPES:
         return (normalized,)
-    raise ValueError(f"Unknown kind '{kind}'.")
+    raise ValueError(
+        "symbol_lookup kind must be one of: module, classifier, callable, "
+        "class, function, method, any, all."
+    )
 
 
 def _normalize_limit(limit: int | str | None) -> int:

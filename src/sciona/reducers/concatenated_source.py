@@ -62,7 +62,9 @@ def render(
     if resolved_scope == "codebase":
         file_paths = queries.collect_file_paths(conn, snapshot_id, repo_root)
     elif resolved_scope == "module":
-        root = queries.resolve_module_root(conn, snapshot_id, module_id, repo_root)
+        root = queries.resolve_module_root(
+            conn, snapshot_id, module_id, repo_root, reducer_name="concatenated_source"
+        )
         file_paths = queries.collect_file_paths(
             conn, snapshot_id, repo_root, roots=[root]
         )
@@ -114,7 +116,9 @@ def _normalize_scope(
 def _resolve_classifier_file(
     conn, snapshot_id: str, classifier_id: str, repo_root: Path
 ) -> Path:
-    structural_id = queries.resolve_classifier_id(conn, snapshot_id, classifier_id)
+    structural_id = queries.resolve_classifier_id(
+        conn, snapshot_id, classifier_id, reducer_name="concatenated_source"
+    )
     row = conn.execute(
         """
         SELECT ni.file_path
@@ -127,7 +131,8 @@ def _resolve_classifier_file(
     ).fetchone()
     if not row or not row["file_path"]:
         raise ValueError(
-            f"Classifier '{classifier_id}' missing file_path in snapshot '{snapshot_id}'."
+            f"concatenated_source classifier '{classifier_id}' missing file_path "
+            f"in snapshot '{snapshot_id}'."
         )
     return _normalize_repo_relative(repo_root, Path(row["file_path"]))
 
@@ -137,7 +142,9 @@ def _normalize_repo_relative(repo_root: Path, file_path: Path) -> Path:
         try:
             return file_path.relative_to(repo_root)
         except ValueError as exc:
-            raise ValueError(f"Path '{file_path}' is outside the repo root.") from exc
+            raise ValueError(
+                f"concatenated_source path '{file_path}' is outside the repo root."
+            ) from exc
     return Path(file_path.as_posix())
 
 

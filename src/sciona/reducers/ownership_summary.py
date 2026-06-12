@@ -87,14 +87,14 @@ def run(snapshot_id: str, **params) -> dict[str, Any]:
     resolved_module_id = module_id
     if not resolved_module_id and classifier_id:
         classifier_structural_id = queries.resolve_classifier_id(
-            conn, snapshot_id, classifier_id
+            conn, snapshot_id, classifier_id, reducer_name="ownership_summary"
         )
         resolved_module_id = queries.module_id_for_structural(
             conn, snapshot_id, classifier_structural_id
         )
     if not resolved_module_id and callable_id:
         callable_structural_id = queries.resolve_callable_id(
-            conn, snapshot_id, callable_id
+            conn, snapshot_id, callable_id, reducer_name="ownership_summary"
         )
         resolved_module_id = queries.module_id_for_structural(
             conn, snapshot_id, callable_structural_id

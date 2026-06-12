@@ -11,13 +11,20 @@ NODE_TYPE_CLASS = ("classifier",)
 NODE_TYPE_CALLABLE = ("callable",)
 
 
-def resolve_callable_id(conn, snapshot_id: str, callable_id: str | None) -> str:
+def resolve_callable_id(
+    conn,
+    snapshot_id: str,
+    callable_id: str | None,
+    *,
+    reducer_name: str | None = None,
+) -> str:
     if callable_id:
         return _resolve_node_id(
             conn,
             snapshot_id,
             callable_id,
             node_types=NODE_TYPE_CALLABLE,
+            reducer_name=reducer_name,
         )
     rows = conn.execute(
         """
@@ -31,18 +38,29 @@ def resolve_callable_id(conn, snapshot_id: str, callable_id: str | None) -> str:
         (snapshot_id,),
     ).fetchall()
     if len(rows) != 1:
-        raise ValueError("Reducer requires exactly one callable in the snapshot.")
+        label = reducer_name or "Reducer"
+        raise ValueError(
+            f"{label} requires --callable-id unless the snapshot has exactly one callable."
+        )
     return rows[0]["structural_id"]
 
 
-def resolve_classifier_id(conn, snapshot_id: str, classifier_id: str | None) -> str:
+def resolve_classifier_id(
+    conn,
+    snapshot_id: str,
+    classifier_id: str | None,
+    *,
+    reducer_name: str | None = None,
+) -> str:
     if not classifier_id:
-        raise ValueError("Classifier identifier is required.")
+        label = reducer_name or "Reducer"
+        raise ValueError(f"{label} requires --classifier-id.")
     return _resolve_node_id(
         conn,
         snapshot_id,
         classifier_id,
         node_types=NODE_TYPE_CLASS,
+        reducer_name=reducer_name,
     )
 
 
@@ -51,6 +69,7 @@ def _resolve_node_id(
     snapshot_id: str,
     identifier: str,
     node_types: Sequence[str],
+    reducer_name: str | None = None,
 ) -> str:
     clause = _in_clause("sn.node_type", node_types)
     params: list[str] = [snapshot_id]
@@ -69,7 +88,10 @@ def _resolve_node_id(
         tuple(params),
     ).fetchone()
     if not row:
-        raise ValueError(f"Node '{identifier}' not found in snapshot '{snapshot_id}'.")
+        label = reducer_name or "Reducer"
+        raise ValueError(
+            f"{label} node '{identifier}' not found in snapshot '{snapshot_id}'."
+        )
     return row["structural_id"]
 
 
