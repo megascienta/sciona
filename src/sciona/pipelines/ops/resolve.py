@@ -12,9 +12,12 @@ from typing import Iterable, Optional, Sequence
 from ..errors import WorkflowError
 from ..policy import repo as repo_policy
 from ..policy import snapshot as snapshot_policy
+from ...code_analysis.config import LANGUAGE_CONFIG
 from ...data_storage.connections import core
 from ...data_storage.core_db import read_ops as core_read
 from ...runtime.paths import get_db_path
+
+_LANGUAGE_PREFIXES = frozenset(LANGUAGE_CONFIG)
 
 
 @dataclass(frozen=True)
@@ -44,6 +47,7 @@ def _resolve_identifier(
 ) -> ResolutionResult:
     """Resolve an identifier to a structural_id with optional best-fit candidates."""
     node_types = _node_types_for_kind(kind)
+    language, identifier = _split_language_prefix(identifier)
     if not identifier:
         return ResolutionResult("missing", None, tuple())
 
@@ -60,6 +64,12 @@ def _resolve_identifier(
         return ResolutionResult("exact", exact["structural_id"], (candidate,))
 
     matches = _lookup_by_qualified_name(conn, snapshot_id, identifier, node_types)
+    if language is not None and len(matches) > 1:
+        language_matches = [
+            match for match in matches if match["language"] == language
+        ]
+        if language_matches:
+            matches = language_matches
     if len(matches) == 1:
         match = matches[0]
         candidate = ResolutionCandidate(
@@ -138,6 +148,14 @@ def require_identifier(
     message = _format_resolution_message(kind, identifier, result)
     code = "ambiguous_node" if result.status == "ambiguous" else "missing_node"
     raise WorkflowError(message, code=code)
+
+
+def _split_language_prefix(identifier: str) -> tuple[Optional[str], str]:
+    """Split a printed '<language>:' prefix off an identifier, if present."""
+    prefix, sep, remainder = identifier.partition(":")
+    if sep and prefix.lower() in _LANGUAGE_PREFIXES:
+        return prefix.lower(), remainder
+    return None, identifier
 
 
 def _node_types_for_kind(kind: str) -> Sequence[str]:
