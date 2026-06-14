@@ -222,22 +222,14 @@ When non-SCIONA reasoning is used, agents SHOULD label the method explicitly, fo
 
 SCIONA operates on the committed repository snapshot.
 
-Dirty worktree changes may appear through overlay metadata.
-Agents SHOULD inspect `_diff` metadata when present before interpreting reducer output as current, including `overlay_available`, `affected`, `affected_by`, and warnings.
+Dirty worktree changes may appear through `_diff_overlay` metadata.
+Agents SHOULD inspect `_diff_overlay` metadata when present before interpreting reducer output as current, including `overlay_available`, `payload_state`, `affected`, `affected_by`, and warnings.
 Source reducers remain committed-only on dirty worktrees until worktree-aware source reducers ship.
 
 Overlay warnings include:
 
 ```text
 base_commit_differs_from_head: overlay base diverges from current HEAD
-```
-
-```text
-projection_not_supported: reducer intentionally cannot apply overlay patches
-```
-
-```text
-projection_not_patched: reducer supports overlay but patching failed
 ```
 
 Overlay information:
@@ -345,7 +337,7 @@ CLI usage note:
 Diagnostics:
 - No committed snapshots → `{CMD_BUILD}`
 - Unknown reducer → `{CMD_REDUCER_LIST}`
-- `overlay_available=true` does not guarantee the reducer payload was patched; check for `projection_not_patched` in the response.
-- Dirty worktree + `projection_not_supported` → payload is metadata-only for that projection
+- `overlay_available=true` means overlay metadata exists; reducer payload fields remain committed-snapshot facts.
+- Dirty worktree + `_diff_overlay.payload_state=committed_snapshot` → use `_diff_overlay` for advisory impact, not adjusted payload facts
 - Dirty worktree + overlay unavailable → commit changes and rerun `{CMD_BUILD}` for authoritative current-state results
 - SCIONA unavailable → report attempted invocation methods before fallback

@@ -172,7 +172,6 @@ def render(
                 "to_file_path": dst.get("file_path"),
                 "edge_type": edge["edge_type"],
                 "edge_source": "sci",
-                "row_origin": "committed",
             }
         )
     committed_count = len(enriched)
@@ -192,8 +191,6 @@ def render(
         "edge_count": committed_count,
         "listed_edge_count": committed_count,
         "committed_count": committed_count,
-        "overlay_added_count": 0,
-        "overlay_removed_count": 0,
         "edges": enriched,
     }
     if compact_mode:
@@ -361,8 +358,6 @@ def _compact_payload(
         "edge_source": body.get("edge_source"),
         "edge_count": body.get("edge_count"),
         "committed_count": body.get("committed_count"),
-        "overlay_added_count": body.get("overlay_added_count"),
-        "overlay_removed_count": body.get("overlay_removed_count"),
         "top_k": top_k,
     }
     if module_filter and direction in {"in", "out", "both"}:

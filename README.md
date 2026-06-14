@@ -114,7 +114,7 @@ CLI / LLM workflows / Agents
 
 ### Snapshot model
 
-SCIONA indexes the **last committed snapshot**. Reducers are evaluated against that committed snapshot, not against uncommitted working tree state. If you change tracked source files, commit and run `sciona build` to refresh the snapshot before relying on reducer output. If your worktree is dirty, reducer output includes a `_diff` advisory payload describing affected scope. Treat this as an advisory, not structural evidence. For authoritative results, commit and `sciona build` first.
+SCIONA indexes the **last committed snapshot**. Reducers are evaluated against that committed snapshot, not against uncommitted working tree state. If you change tracked source files, commit and run `sciona build` to refresh the snapshot before relying on reducer output. If your worktree is dirty, reducer output includes a `_diff_overlay` advisory payload describing affected scope. Treat this as an advisory, not structural evidence. For authoritative results, commit and `sciona build` first.
 
 ### Supported languages
 Python, Java, TypeScript, JavaScript. Indexed languages can be enabled or disabled in `.sciona/config.yaml`.

@@ -18,8 +18,8 @@ REDUCER_META = ReducerMeta(
     reducer_id="overlay_projection_status_summary",
     category="overlay",
     placeholder="OVERLAY_PROJECTION_STATUS_SUMMARY",
-    summary="Shows which reducers support overlay patching and which only provide "
-    "overlay metadata. Use when deciding how trustworthy reducer output is on a dirty worktree. ",
+    summary="Shows reducer dirty-worktree overlay metadata status. Use when deciding "
+    "how to interpret reducer output on a dirty worktree. ",
 )
 
 
@@ -76,18 +76,19 @@ def _projection_rows(
 ) -> list[dict[str, object]]:
     rows: list[dict[str, object]] = []
     for projection, profile in sorted(OVERLAY_PROFILE.items()):
-        supports_patch = bool(profile.get("supports_patch"))
+        overlay_supported = bool(profile.get("overlay_supported", True))
         rows.append(
             {
                 "projection": projection,
-                "supports_patch": supports_patch,
-                "mode": "patchable" if supports_patch else "metadata_only",
+                "overlay_supported": overlay_supported,
+                "payload_state": "committed_snapshot",
+                "mode": "metadata_only" if overlay_supported else "unsupported",
                 "scope_type": str(profile.get("scope_type") or "unknown"),
                 "affected_by": list(profile.get("affected_by") or []),
                 "current_state": _current_state(
                     worktree_dirty=worktree_dirty,
                     overlay_available=overlay_available,
-                    supports_patch=supports_patch,
+                    overlay_supported=overlay_supported,
                 ),
             }
         )
@@ -98,14 +99,14 @@ def _current_state(
     *,
     worktree_dirty: bool,
     overlay_available: bool,
-    supports_patch: bool,
+    overlay_supported: bool,
 ) -> str:
     if not worktree_dirty:
         return "committed_only"
+    if not overlay_supported:
+        return "unsupported"
     if not overlay_available:
         return "overlay_unavailable"
-    if supports_patch:
-        return "patchable"
     return "metadata_only"
 
 

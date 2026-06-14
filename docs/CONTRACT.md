@@ -246,12 +246,9 @@ ArtifactDB tables and rollups are latest-state derived surfaces for the current
 committed snapshot rather than independently snapshot-keyed structural facts.
 
 Dirty-worktree overlay metadata is advisory. `overlay_available=true` means
-overlay state exists for the reducer request, but it does not guarantee that the
-payload itself was transformed to reflect the dirty worktree.
-
-Some reducer projections are intentionally overlay-aware but not
-payload-patchable. For those projections, `_diff` metadata MAY be attached while
-the payload remains committed-snapshot only.
+overlay state exists for the reducer request. Reducer payload fields MUST remain
+committed-snapshot facts; dirty-worktree overlay state MUST be reported under
+`_diff_overlay`.
 
 Public status reporting contract:
 
@@ -306,10 +303,13 @@ Public status reporting contract:
 
 Overlay contract note:
 
-- `overlay_available=true` MAY correspond to either a patchable projection or a
-  metadata-only projection.
-- Metadata-only projections MUST continue to describe committed-snapshot payload
-  facts even when `_diff` metadata is attached.
+- `_diff_overlay.overlay_available=true` indicates dirty-worktree overlay
+  metadata exists for the reducer request.
+- Reducer payloads MUST continue to describe committed-snapshot payload facts
+  when `_diff_overlay` metadata is attached.
+- Overlay-adjusted rows, worktree-aware source snippets, stale-ID handling, and
+  overlay-only IDs require explicit future contract design and MUST NOT silently
+  replace normal reducer payload fields.
 - Overlay metadata MUST NOT be interpreted as committed CoreDB or ArtifactDB
   structural truth for the dirty worktree.
 

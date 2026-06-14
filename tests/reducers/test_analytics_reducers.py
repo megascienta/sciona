@@ -257,7 +257,7 @@ def test_fan_summary_returns_payload(tmp_path):
     assert "calls" in payload
     assert "imports" in payload
     if payload["calls"]["by_fan_in"]:
-        assert payload["calls"]["by_fan_in"][0]["delta_count"] == 0
+        assert "delta_count" not in payload["calls"]["by_fan_in"][0]
 
 
 def test_fan_summary_compact_mode_returns_previews(tmp_path):
@@ -377,13 +377,9 @@ def test_fan_summary_applies_overlay_during_render(tmp_path):
     finally:
         conn.close()
     payload = parse_json_payload(payload_text)
-    assert payload["_overlay_applied_by_reducer"] is True
-    assert payload["calls"]["by_fan_in"][0]["count"] == 2
-    assert payload["calls"]["by_fan_in"][0]["delta_count"] == 1
-    assert payload["calls"]["by_fan_in"][0]["row_origin"] == "overlay_changed"
-    assert payload["calls"]["by_fan_out"][0]["count"] == 2
-    assert payload["calls"]["by_fan_out"][0]["delta_count"] == 1
-    assert payload["calls"]["by_fan_out"][0]["row_origin"] == "overlay_changed"
+    assert "_overlay_applied_by_reducer" not in payload
+    assert "delta_count" not in payload["calls"]["by_fan_in"][0]
+    assert "delta_count" not in payload["calls"]["by_fan_out"][0]
 
 
 def test_fan_summary_materializes_overlay_only_rows_during_render(tmp_path):
@@ -431,12 +427,15 @@ def test_fan_summary_materializes_overlay_only_rows_during_render(tmp_path):
     finally:
         conn.close()
     payload = parse_json_payload(payload_text)
-    assert payload["_overlay_applied_by_reducer"] is True
-    assert payload["calls"]["total"] >= 2
+    assert "_overlay_applied_by_reducer" not in payload
     fan_in_ids = {entry["node_id"] for entry in payload["calls"]["by_fan_in"]}
     fan_out_ids = {entry["node_id"] for entry in payload["calls"]["by_fan_out"]}
-    assert "meth_alpha" in fan_in_ids
-    assert "func_alpha" in fan_out_ids
+    assert all(
+        "row_origin" not in entry
+        for entry in payload["calls"]["by_fan_in"] + payload["calls"]["by_fan_out"]
+    )
+    assert "meth_alpha" not in fan_in_ids
+    assert "func_alpha" not in fan_out_ids
 
 
 def test_fan_summary_node_view_applies_overlay_during_render(tmp_path):
@@ -478,11 +477,10 @@ def test_fan_summary_node_view_applies_overlay_during_render(tmp_path):
     finally:
         conn.close()
     payload = parse_json_payload(payload_text)
-    assert payload["_overlay_applied_by_reducer"] is True
-    assert payload["edge_kinds"]["CALLS"]["fan_in"] == 1
-    assert payload["edge_kinds"]["CALLS"]["fan_out"] == 1
-    assert payload["edge_kinds"]["CALLS"]["delta_fan_in"] == 1
-    assert payload["edge_kinds"]["CALLS"]["delta_fan_out"] == 1
+    assert "_overlay_applied_by_reducer" not in payload
+    calls = payload["edge_kinds"].get("CALLS")
+    assert calls is None or "delta_fan_in" not in calls
+    assert calls is None or "delta_fan_out" not in calls
 
 
 def test_hotspot_summary_returns_payload(tmp_path):
@@ -568,10 +566,10 @@ def test_module_call_graph_summary_returns_payload(tmp_path):
     assert payload["module_qualified_name"] == module_id
     assert "outgoing" in payload
     assert "incoming" in payload
-    assert payload["changed_edge_count"] == 0
+    assert "changed_edge_count" not in payload
     if payload["outgoing"]:
-        assert payload["outgoing"][0]["row_origin"] == "committed"
-        assert payload["outgoing"][0]["delta_call_count"] == 0
+        assert "row_origin" not in payload["outgoing"][0]
+        assert "delta_call_count" not in payload["outgoing"][0]
 
 
 def test_module_call_graph_summary_applies_overlay_during_render(tmp_path):
@@ -619,11 +617,10 @@ def test_module_call_graph_summary_applies_overlay_during_render(tmp_path):
     finally:
         conn.close()
     payload = parse_json_payload(payload_text)
-    assert payload["_overlay_applied_by_reducer"] is True
-    assert payload["changed_edge_count"] >= 1
-    assert payload["added_edge_count"] >= 1
-    assert payload["outgoing"]
-    assert payload["outgoing"][0]["delta_call_count"] == 1
+    assert "_overlay_applied_by_reducer" not in payload
+    assert "changed_edge_count" not in payload
+    assert "added_edge_count" not in payload
+    assert all("delta_call_count" not in edge for edge in payload["outgoing"])
 
 
 def test_class_call_graph_summary_returns_payload(tmp_path):
@@ -641,10 +638,10 @@ def test_class_call_graph_summary_returns_payload(tmp_path):
     assert payload["classifier_id"] == classifier_id
     assert "outgoing" in payload
     assert "incoming" in payload
-    assert payload["changed_edge_count"] == 0
+    assert "changed_edge_count" not in payload
     if payload["outgoing"]:
-        assert payload["outgoing"][0]["row_origin"] == "committed"
-        assert payload["outgoing"][0]["delta_call_count"] == 0
+        assert "row_origin" not in payload["outgoing"][0]
+        assert "delta_call_count" not in payload["outgoing"][0]
 
 
 def test_classifier_call_graph_summary_applies_overlay_during_render(tmp_path):
@@ -692,11 +689,10 @@ def test_classifier_call_graph_summary_applies_overlay_during_render(tmp_path):
     finally:
         conn.close()
     payload = parse_json_payload(payload_text)
-    assert payload["_overlay_applied_by_reducer"] is True
-    assert payload["changed_edge_count"] >= 1
-    assert payload["added_edge_count"] >= 1
-    assert payload["outgoing"]
-    assert payload["outgoing"][0]["delta_call_count"] == 1
+    assert "_overlay_applied_by_reducer" not in payload
+    assert "changed_edge_count" not in payload
+    assert "added_edge_count" not in payload
+    assert all("delta_call_count" not in edge for edge in payload["outgoing"])
 
 
 def test_module_call_graph_summary_can_narrow_by_peer_modules(tmp_path):

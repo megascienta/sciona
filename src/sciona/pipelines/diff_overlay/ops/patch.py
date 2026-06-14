@@ -10,7 +10,6 @@ from typing import Optional
 
 from ..affection import extract_scope_hint, scoped_affection
 from .get import _OVERLAY_PROFILE, _overlay_reason
-from ..patching import apply_overlay_to_payload
 from ..schema import validate_diff_payload
 from ..types import OverlayPayload
 
@@ -27,29 +26,17 @@ def apply_overlay_to_payload_object(
 ) -> dict[str, object]:
     if not overlay:
         return payload
-    reducer_applied_overlay = bool(payload.pop("_overlay_applied_by_reducer", False))
-    if reducer_applied_overlay:
-        patched = payload
-        patched_projection = True
-    else:
-        patched, patched_projection = apply_overlay_to_payload(
-            payload, overlay, snapshot_id=snapshot_id, conn=conn, reducer_id=reducer_id
-        )
+    payload.pop("_overlay_applied_by_reducer", None)
     projection = _resolve_projection(payload, reducer_id)
     warnings = list(overlay.warnings)
     profile = _OVERLAY_PROFILE.get(projection, None)
     scope_hint = extract_scope_hint(payload, profile)
     affected, affected_by = scoped_affection(overlay, scope_hint, profile)
-    if profile and not profile.get("supports_patch"):
-        warnings.append("projection_not_supported")
-        affected = None
-    elif not patched_projection:
-        warnings.append("projection_not_patched")
-        affected = None
     diff_payload = {
-        "version": 3,
+        "version": 1,
         "overlay_available": True,
         "overlay_reason": "available",
+        "payload_state": "committed_snapshot",
         "worktree_hash": overlay.worktree_hash,
         "snapshot_commit": overlay.snapshot_commit,
         "base_commit": overlay.base_commit,
@@ -66,18 +53,8 @@ def apply_overlay_to_payload_object(
     schema_warnings = validate_diff_payload(diff_payload)
     if schema_warnings:
         diff_payload["warnings"].extend(schema_warnings)
-    patched["_diff"] = diff_payload
-    if profile and not profile.get("supports_patch"):
-        patched["snapshot_warning"] = {
-            "code": "DIRTY_OVERLAY_METADATA_ONLY",
-            "message": (
-                "Worktree is dirty and overlay metadata is available, but this "
-                "projection is not payload-patchable; reducer output remains "
-                "committed-snapshot only."
-            ),
-            "severity": "warning",
-        }
-    return patched
+    payload["_diff_overlay"] = diff_payload
+    return payload
 
 def attach_unavailable_overlay(
     payload: dict[str, object],
@@ -88,15 +65,16 @@ def attach_unavailable_overlay(
     warnings: list[str],
     diff_mode: str = "full",
 ) -> dict[str, object]:
-    if "_diff" in payload:
+    if "_diff_overlay" in payload:
         return payload
     projection = _resolve_projection(payload, reducer_id)
     profile = _OVERLAY_PROFILE.get(projection, None)
     scope_hint = extract_scope_hint(payload, profile)
     diff_payload = {
-        "version": 3,
+        "version": 1,
         "overlay_available": False,
         "overlay_reason": _overlay_reason(warnings),
+        "payload_state": "committed_snapshot",
         "worktree_hash": None,
         "snapshot_commit": None,
         "base_commit": None,
@@ -110,7 +88,7 @@ def attach_unavailable_overlay(
         "affected_by": list(profile.get("affected_by", [])) if profile else [],
         "warnings": list(warnings),
     }
-    payload["_diff"] = diff_payload
+    payload["_diff_overlay"] = diff_payload
     payload["snapshot_warning"] = {
         "code": "DIRTY_NO_OVERLAY",
         "message": (

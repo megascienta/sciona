@@ -73,7 +73,6 @@ def render(
         "matches": [
             {
                 **row,
-                "row_origin": "committed",
                 "match_status": "active",
             }
             for row in ranked

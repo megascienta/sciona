@@ -14,6 +14,8 @@ def validate_diff_payload(diff: dict[str, object]) -> list[str]:
         warnings.append("schema:overlay_available_not_bool")
     if not isinstance(diff.get("overlay_reason"), str):
         warnings.append("schema:overlay_reason_not_str")
+    if diff.get("payload_state") != "committed_snapshot":
+        warnings.append("schema:payload_state_not_committed_snapshot")
     worktree_hash = diff.get("worktree_hash")
     if worktree_hash is not None and not isinstance(worktree_hash, str):
         warnings.append("schema:worktree_hash_not_str")

@@ -23,7 +23,6 @@ from ..errors import WorkflowError
 from ...runtime.paths import get_artifact_db_path, get_db_path
 from ...reducers.helpers.shared.context import (
     use_artifact_connection,
-    use_overlay_payload,
 )
 
 
@@ -132,10 +131,9 @@ def emit(
                     render_kwargs = dict(resolved_kwargs)
                     render_kwargs.pop("diff_mode", None)
                     render_kwargs.pop("_resolution_notes", None)
-                    with use_overlay_payload(overlay):
-                        payload = reducer.render(
-                            snapshot_id, conn, repo_state.repo_root, **render_kwargs
-                        )
+                    payload = reducer.render(
+                        snapshot_id, conn, repo_state.repo_root, **render_kwargs
+                    )
                 except ValueError as exc:
                     raise WorkflowError(str(exc), code="reducer_error") from exc
                 if not isinstance(payload, dict):

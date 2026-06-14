@@ -7,13 +7,9 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional
 
-from ..pipelines.diff_overlay.patching.analytics import (
-    patch_classifier_call_graph_summary,
-)
 from .helpers.shared import queries
 from .helpers.artifact.graph_edges import artifact_db_available
 from .helpers.artifact.graph_rollups import load_class_call_edges
-from .helpers.shared.context import current_overlay_payload
 from .helpers.shared.connection import require_connection
 from .helpers.shared.payload import render_json_payload
 from .helpers.shared.snapshot_guard import require_latest_committed_snapshot
@@ -127,9 +123,6 @@ def render(
         "outgoing_coverage_ratio": _coverage_ratio(len(outgoing), len(outgoing_all)),
         "incoming_coverage_ratio": _coverage_ratio(len(incoming), len(incoming_all)),
         "total_edges": len(outgoing_all) + len(incoming_all),
-        "changed_edge_count": 0,
-        "added_edge_count": 0,
-        "removed_edge_count": 0,
         "edge_summary": {
             "CALLS": {
                 "outgoing": len(outgoing_all),
@@ -142,15 +135,6 @@ def render(
         "artifact_available": artifact_available,
         "edge_source": "artifact_db" if artifact_available else "none",
     }
-    overlay = current_overlay_payload()
-    if overlay is not None:
-        body = patch_classifier_call_graph_summary(
-            body,
-            overlay,
-            snapshot_id=snapshot_id,
-            conn=conn,
-        )
-        body["_overlay_applied_by_reducer"] = True
     if compact:
         body = _compact_payload(body, preview_limit=limit)
     return render_json_payload(body)
@@ -182,10 +166,6 @@ def _edges_to_entries(
                 "dst_classifier_qualified_name": name_lookup.get(dst_id),
                 "direction": direction,
                 "call_count": count,
-                "committed_call_count": count,
-                "overlay_call_count": count,
-                "delta_call_count": 0,
-                "row_origin": "committed",
                 "is_active": True,
             }
         )

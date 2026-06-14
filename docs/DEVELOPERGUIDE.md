@@ -330,13 +330,12 @@ Diagnostic build mode:
   shadow or reuse canonical structural identities
 - Fingerprint reuse can skip re-indexing even when a prior committed snapshot
   already exists
-- Dirty-worktree overlay data is advisory and layered on top of reducer output;
-  committed SCI remains authoritative
-- `overlay_available` means overlay state exists for the reducer request; it does
-  not always mean the reducer payload itself was patched to reflect dirty
-  worktree state
-- Some projections are intentionally metadata-only under overlay; they receive
-  `_diff` annotations and warnings but remain committed-snapshot payloads
+- Dirty-worktree overlay data is advisory metadata attached under
+  `_diff_overlay`; committed SCI remains authoritative
+- Reducer payload fields remain committed-snapshot facts when the worktree is
+  dirty
+- `overlay_available` means overlay state exists for the reducer request; it
+  does not mean the reducer payload was patched to reflect dirty worktree state
 
 ## DB Surfaces
 
@@ -367,18 +366,16 @@ ArtifactDB:
 
 Overlay support model:
 
-- patchable projections apply overlay rows directly to reducer payloads
-- patchable projections may emit overlay-adjusted row sets rather than only
-  mutating committed rows in place; ranking-style reducers may therefore
-  materialize overlay-only rows when those rows qualify after adjustment
-- metadata-only projections attach `_diff` and warning state but remain
-  committed-snapshot payloads
-- `overlay_available=true` only means overlay state exists for the reducer
-  request; it does not by itself guarantee payload patching
-- `projection_not_supported` means that behavior is intentional for the
-  projection
-- `projection_not_patched` should be treated as a patching gap for a projection
-  that is otherwise expected to support overlay patching
+- reducers attach dirty-worktree metadata under `_diff_overlay` when overlay
+  state is available
+- reducer top-level payload fields remain committed-snapshot facts
+- `_diff_overlay.payload_state` identifies the payload basis; the current
+  public value is `committed_snapshot`
+- `_diff_overlay.affected` and `_diff_overlay.affected_by` describe whether the
+  dirty worktree plausibly affects the reducer scope
+- overlay-adjusted reducer rows, worktree-aware source snippets, stale-ID
+  handling, and overlay-only IDs are future overlay capability design work and
+  MUST NOT be represented by silently mutating normal reducer payload fields
 
 Schema ownership:
 

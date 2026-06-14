@@ -38,14 +38,15 @@ def test_dirty_overlay_adds_node(repo_with_snapshot):
         module_id=qualify_repo_name(repo_root, "pkg.alpha"),
     )
     payload = parse_json_payload(text)
-    diff = payload.get("_diff")
+    diff = payload.get("_diff_overlay")
     assert diff, "Expected diff overlay in reducer payload"
-    assert diff["version"] == 3
+    assert "_diff" not in payload
+    assert diff["version"] == 1
+    assert diff["payload_state"] == "committed_snapshot"
     assert diff["overlay_available"] is True
     assert diff["worktree_hash"]
     assert diff.get("affected") is True
     assert "nodes" in diff.get("affected_by", [])
-    assert "projection_not_patched" not in (diff.get("warnings") or [])
 
 
 def test_dirty_overlay_calls_and_summary(repo_with_snapshot):
@@ -61,7 +62,7 @@ def test_dirty_overlay_calls_and_summary(repo_with_snapshot):
         repo_root=repo_root,
     )
     payload = parse_json_payload(text)
-    diff = payload.get("_diff")
+    diff = payload.get("_diff_overlay")
     assert diff, "Expected diff overlay in reducer payload"
     assert diff.get("affected") is True
     assert "calls" in diff.get("affected_by", [])
@@ -82,7 +83,7 @@ def test_dirty_overlay_summary_mode(repo_with_snapshot):
         diff_mode="summary",
     )
     payload = parse_json_payload(text)
-    diff = payload.get("_diff")
+    diff = payload.get("_diff_overlay")
     assert diff, "Expected diff overlay in reducer payload"
     assert diff["overlay_available"] is True
     assert diff["worktree_hash"]
@@ -126,8 +127,8 @@ def test_apply_overlay_skips_duplicate_patch_when_reducer_already_applied():
 
     assert "_overlay_applied_by_reducer" not in patched
     assert patched["calls"]["adjusted_total"] == 2
-    assert patched["_diff"]["overlay_available"] is True
-    assert "projection_not_patched" not in (patched["_diff"].get("warnings") or [])
+    assert patched["_diff_overlay"]["overlay_available"] is True
+    assert patched["_diff_overlay"]["payload_state"] == "committed_snapshot"
 
 
 def test_patch_dependency_edges_marks_overlay_added_and_removed():
@@ -741,9 +742,13 @@ def test_dirty_overlay_fan_summary_node_id_updates(repo_with_snapshot):
         callable_id=qualify_repo_name(repo_root, "pkg.alpha.service.helper"),
     )
     payload = parse_json_payload(text)
+    diff = payload.get("_diff_overlay")
+    assert diff
+    assert diff.get("affected") is True
     edge_kinds = payload.get("edge_kinds") or {}
     calls = edge_kinds.get("CALLS") or {}
-    assert calls.get("fan_in") == 1
+    assert calls.get("fan_in") in {None, 0}
+    assert calls.get("delta_fan_in") in {None, 0}
 
 
 def test_dirty_overlay_hotspot_summary_size_updates(repo_with_snapshot):
@@ -773,9 +778,12 @@ def test_dirty_overlay_hotspot_summary_size_updates(repo_with_snapshot):
         entry.get("module_qualified_name"): entry.get("count")
         for entry in payload.get("by_size", [])
     }
+    diff = payload.get("_diff_overlay")
+    assert diff
+    assert diff.get("affected") is True
     module_id = qualify_repo_name(repo_root, "pkg.alpha")
     baseline_count = baseline.get(module_id) or 0
-    assert updated.get(module_id) == baseline_count - 1
+    assert updated.get(module_id) == baseline_count
 
 
 def test_non_indexed_dirty_does_not_attach_overlay_warning(repo_with_snapshot):
@@ -788,11 +796,11 @@ def test_non_indexed_dirty_does_not_attach_overlay_warning(repo_with_snapshot):
         module_id=qualify_repo_name(repo_root, "pkg.alpha"),
     )
     payload = parse_json_payload(text)
-    assert payload.get("_diff") is None
+    assert payload.get("_diff_overlay") is None
     assert payload.get("snapshot_warning") is None
 
 
-def test_out_of_scope_indexed_dirty_marks_diff_not_affected(repo_with_snapshot):
+def test_out_of_scope_indexed_dirty_marks_diff_overlay_not_affected(repo_with_snapshot):
     repo_root, _snapshot_id = repo_with_snapshot
     (repo_root / "pkg/beta/__init__.py").write_text("x = 1\n", encoding="utf-8")
 
@@ -802,20 +810,20 @@ def test_out_of_scope_indexed_dirty_marks_diff_not_affected(repo_with_snapshot):
         module_id=qualify_repo_name(repo_root, "pkg.alpha"),
     )
     payload = parse_json_payload(text)
-    diff = payload.get("_diff")
+    diff = payload.get("_diff_overlay")
     assert diff, "Expected diff overlay in reducer payload"
     assert diff["overlay_available"] is True
     assert diff.get("affected") is False
 
 
-def test_overlay_profile_support_matrix_includes_supported_and_metadata_only_cases():
-    assert _OVERLAY_PROFILE["structural_index"]["supports_patch"] is True
-    assert _OVERLAY_PROFILE["module_overview"]["supports_patch"] is True
-    assert _OVERLAY_PROFILE["snapshot_provenance"]["supports_patch"] is False
-    assert _OVERLAY_PROFILE["callable_source"]["supports_patch"] is False
+def test_overlay_profile_support_matrix_reports_metadata_only_overlay():
+    assert _OVERLAY_PROFILE["structural_index"]["overlay_supported"] is True
+    assert _OVERLAY_PROFILE["module_overview"]["overlay_supported"] is True
+    assert _OVERLAY_PROFILE["snapshot_provenance"]["overlay_supported"] is True
+    assert _OVERLAY_PROFILE["callable_source"]["overlay_supported"] is True
 
 
-def test_dirty_overlay_snapshot_provenance_marks_projection_not_supported(
+def test_dirty_overlay_snapshot_provenance_attaches_metadata_only_overlay(
     repo_with_snapshot,
 ):
     repo_root, _snapshot_id = repo_with_snapshot
@@ -830,16 +838,15 @@ def test_dirty_overlay_snapshot_provenance_marks_projection_not_supported(
         repo_root=repo_root,
     )
     payload = parse_json_payload(text)
-    diff = payload.get("_diff")
+    diff = payload.get("_diff_overlay")
     assert diff, "Expected diff overlay in reducer payload"
     assert diff["overlay_available"] is True
     assert diff.get("affected") is None
+    assert diff["payload_state"] == "committed_snapshot"
     warnings = diff.get("warnings") or []
-    assert "projection_not_supported" in warnings
     assert "projection_not_patched" not in warnings
-    warning = payload.get("snapshot_warning") or {}
-    assert warning.get("code") == "DIRTY_OVERLAY_METADATA_ONLY"
-    assert "committed-snapshot only" in str(warning.get("message") or "")
+    assert "projection_not_supported" not in warnings
+    assert payload.get("snapshot_warning") is None
 
 
 def test_overlay_projection_status_summary_reports_clean_worktree(
@@ -865,7 +872,7 @@ def test_overlay_projection_status_summary_reports_clean_worktree(
     assert payload["overlay_available"] is False
     assert payload["overlay_reason"] == "clean_worktree"
     projections = {row["projection"]: row for row in payload["projections"]}
-    assert projections["structural_index"]["mode"] == "patchable"
+    assert projections["structural_index"]["mode"] == "metadata_only"
     assert projections["structural_index"]["current_state"] == "committed_only"
     assert projections["snapshot_provenance"]["mode"] == "metadata_only"
     assert projections["snapshot_provenance"]["current_state"] == "committed_only"
@@ -890,7 +897,7 @@ def test_overlay_projection_status_summary_reports_dirty_overlay_modes(
     assert payload["overlay_reason"] == "available"
     assert payload["worktree_hash"]
     projections = {row["projection"]: row for row in payload["projections"]}
-    assert projections["structural_index"]["current_state"] == "patchable"
+    assert projections["structural_index"]["current_state"] == "metadata_only"
     assert projections["snapshot_provenance"]["current_state"] == "metadata_only"
 
 

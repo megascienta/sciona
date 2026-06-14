@@ -8,11 +8,9 @@ from __future__ import annotations
 from typing import Dict, List, Optional
 
 from ..code_analysis.analysis.orderings import order_nodes
-from ..pipelines.diff_overlay.patching.analytics import patch_fan_summary
 from .helpers.shared import queries
 from .helpers.artifact.graph_edges import artifact_db_available
 from .helpers.artifact.graph_rollups import load_node_fan_stats
-from .helpers.shared.context import current_overlay_payload
 from .helpers.shared.connection import require_connection
 from .helpers.shared.payload import render_json_payload
 from .helpers.shared.snapshot_guard import require_latest_committed_snapshot
@@ -121,13 +119,7 @@ def render(
             "payload_kind": "summary",
             "node_id": resolved_id,
             "edge_kinds": {
-                edge_name: {
-                    **values,
-                    "committed_fan_in": values.get("fan_in", 0),
-                    "committed_fan_out": values.get("fan_out", 0),
-                    "delta_fan_in": 0,
-                    "delta_fan_out": 0,
-                }
+                edge_name: dict(values)
                 for edge_name, values in edge_map.items()
             },
             "edge_summary": edge_map,
@@ -140,15 +132,6 @@ def render(
             "artifact_available": artifact_available,
             "edge_source": "artifact_db" if artifact_available else "none",
         }
-        overlay = current_overlay_payload()
-        if overlay is not None:
-            body = patch_fan_summary(
-                body,
-                overlay,
-                snapshot_id=snapshot_id,
-                conn=conn,
-            )
-            body["_overlay_applied_by_reducer"] = True
         if compact:
             body = _compact_payload(body)
         return render_json_payload(body)
@@ -194,15 +177,6 @@ def render(
         "artifact_available": artifact_available,
         "edge_source": "artifact_db" if artifact_available else "none",
     }
-    overlay = current_overlay_payload()
-    if overlay is not None:
-        body = patch_fan_summary(
-            body,
-            overlay,
-            snapshot_id=snapshot_id,
-            conn=conn,
-        )
-        body["_overlay_applied_by_reducer"] = True
     if compact:
         body = _compact_payload(body)
     return render_json_payload(body)
@@ -222,9 +196,6 @@ def _fan_tables(
     total = len(stats)
     table = {
         "total": total,
-        "committed_total": total,
-        "adjusted_total": total,
-        "delta_total": 0,
         "top_k": top_k,
         "fan_in_coverage_ratio": _coverage_ratio(len(by_fan_in), total),
         "fan_out_coverage_ratio": _coverage_ratio(len(by_fan_out), total),
@@ -251,9 +222,6 @@ def _fan_entries(
                 "node_id": node_id,
                 "qualified_name": name_lookup.get(node_id),
                 "count": count,
-                "committed_count": count,
-                "adjusted_count": count,
-                "delta_count": 0,
             }
         )
     order_nodes(entries, key=lambda item: (-int(item["count"]), str(item["node_id"])))
